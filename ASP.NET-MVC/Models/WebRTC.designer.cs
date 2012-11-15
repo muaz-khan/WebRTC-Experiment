@@ -41,8 +41,8 @@ namespace WebRTCExperiment.Models
     partial void DeleteFeedback(Feedback instance);
     #endregion
 		
-		public WebRTCDataContext() : 
-				base(global::System.Configuration.ConfigurationManager.ConnectionStrings["WebRTCDataConnectionString"].ConnectionString, mappingSource)
+		public WebRTCDataContext() :
+            base(global::System.Configuration.ConfigurationManager.ConnectionStrings["WebRTCDataConnectionString"].ConnectionString, mappingSource)
         {
 			OnCreated();
 		}

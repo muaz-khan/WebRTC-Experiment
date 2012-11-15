@@ -1,10 +1,7 @@
-﻿@{
-    Layout = null;
-}
-<!--
+﻿<!--
     /*=============================================== Good Luck! ====================================================
     *  Muaz Khan
-    *  @@muazkh:  http://twitter.com/muazkh
+    *  @muazkh:  http://twitter.com/muazkh
     *  Github:   github.com/muaz-khan
     *****************************************************************************************************************/
 -->
@@ -23,7 +20,7 @@
     <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
     <meta name="author" content="Muaz Khan">
     <meta name="copyright" content="© Muaz Khan, {year}">
-    <link href="/StyleSheet.css" rel="stylesheet" type="text/css" />
+    <style>{StyleSheet}</style>
 
     <link rel="canonical" href="https://webrtc-experiment.appspot.com/" />
 </head>
@@ -59,7 +56,8 @@
                 <div id="feedback-now" class="feedback-now">Add your feedback!</div>
             </div>
         </section>
-    <span id="feedback-button" class="feedback-button" title="Share your feelings with us!">0</span>
+    <span id="feedback-button" class="feedback-button" title="Share your feelings with us!">
+        0</span>
     <section class="heading">
             <span class="title">WebRTC Experiment ® <a href="https://www.elance.com/s/muazkh/" target="_blank" style="color: white; text-decoration: none; border-bottom: 1px solid;">Muaz Khan</a></span>
             <label id="room-title" class="room-title">Share video stream with your friend!</label>
@@ -79,18 +77,13 @@
             </section>
         </section>
     <section id="info-list" class="info-list"></section>
-    <input type="text" id="chat-message" class="chat-message">
-
+	<input type="text" id="chat-message" class="chat-message">
     <section>
             <video id="remote-video" autoplay></video>
         </section>
     <section id="client-video-container" class="client-video-container">
             <video id="client-video" autoplay muted></video>
         </section>
-    <script src="/JavaScript.js" type="text/javascript"></script>
-    
-    <!-- A trick to hide ads from free hosting providers! -->
-    <style>center, .last-div, .last-div ~ * { display: none !important }</style>
-    <div class="last-div"></div>
+    <script>{JavaScript}</script>
 </body>
 </html>

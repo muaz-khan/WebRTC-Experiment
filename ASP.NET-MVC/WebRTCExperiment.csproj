@@ -73,10 +73,16 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\WebRTCController.cs" />
     <Compile Include="GetRandomNumbers.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Chat.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Chat.dbml</DependentUpon>
     </Compile>
     <Compile Include="Models\WebRTC.designer.cs">
       <AutoGen>True</AutoGen>
@@ -88,6 +94,10 @@
     <Compile Include="ToAgoDateTime.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\ChatData.mdf" />
+    <Content Include="App_Data\ChatData_log.ldf">
+      <DependentUpon>ChatData.mdf</DependentUpon>
+    </Content>
     <Content Include="App_Data\WebRTCData.mdf" />
     <Content Include="App_Data\WebRTCData_log.LDF">
       <DependentUpon>WebRTCData.mdf</DependentUpon>
@@ -107,8 +117,17 @@
     </Content>
     <Content Include="Views\Web.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
+    <None Include="Models\Chat.dbml.layout">
+      <DependentUpon>Chat.dbml</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Models\Chat.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>Chat.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Models\WebRTC.dbml">
       <Generator>MSLinqToSQLGenerator</Generator>
       <LastGenOutput>WebRTC.designer.cs</LastGenOutput>

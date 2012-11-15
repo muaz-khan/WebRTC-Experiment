@@ -1,0 +1,29 @@
+application: webrtc-experiment
+version: 5
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /robots\.txt
+  static_files: robots.txt
+  upload: robots\.txt
+
+- url: /images
+  static_dir: images
+
+- url: /googlea39ddc1167f80053\.html
+  static_files: googlea39ddc1167f80053.html
+  upload: googlea39ddc1167f80053\.html  
+
+- url: .*
+  script: main.app
+  secure: always
+
+libraries:
+- name: webapp2
+  version: "2.5.1"

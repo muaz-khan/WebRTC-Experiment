@@ -62,13 +62,14 @@ function xhr(url, data, callback, fullUrl) {
         }
     };
 
-    request.open('POST', (fullUrl ? '' : (navigator.onLine ? 'http://webrtc.somee.com/WebRTC/' : '/WebRTC/')) + url);
+    request.open('POST', (fullUrl ? '' : 'http://webrtc.somee.com/WebRTC/') + url);
 
     var formData = new window.FormData();
     if (data) {
         formData.appendData('sdp', data.sdp);
         formData.appendData('type', data.type);
         formData.appendData('you', data.you);
+		formData.appendData('me', data.me);
         formData.appendData('roomToken', data.roomToken);
 
         formData.appendData('skip', data.skip);
@@ -648,7 +649,7 @@ xhr('TotalFeedbacks', null, function(total) {
     findDOMElement('feedback-button').innerHTML = total;
 });
 
-var chatUrl = navigator.onLine ? 'http://webrtc.somee.com/Chat/' : '/Chat/';
+var chatUrl = 'http://webrtc.somee.com/Chat/';
 function startChatting()
 {
     isGetAvailableRoom = false;
@@ -696,7 +697,7 @@ function postChatMessage()
 	};
 	
 	xhr(chatUrl + 'Post', data, function(response) {
-		if(response == true)
+		if(response !== false)
 		{
 			info('You: ' + message);
 			
