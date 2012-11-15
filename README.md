@@ -1,12 +1,12 @@
-![WebRTC Experiment!](https://sites.google.com/muazkh/logo.png)
+![WebRTC Experiment!](https://sites.google.com/site/muazkh/logo.png)
 
 Real-time [WebRTC Experiment](https://webrtc-experiment.appspot.com) that exposes the power of yours and mine favorite client, the [WebRTC](http://www.webrtc.org/)! 
 
 ## Screenshot
 
-![WebRTC Screenshot 1](https://sites.google.com/muazkh/Introducntion.png)
+![WebRTC Screenshot 1](https://sites.google.com/site/muazkh/Introducntion.png)
 
-![WebRTC Screenshot 2](https://sites.google.com/muazkh/WebRTC-is-Lovely.png)
+![WebRTC Screenshot 2](https://sites.google.com/site/muazkh/WebRTC-is-Lovely.png)
 
 ## Preview / Demo
 
