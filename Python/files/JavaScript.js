@@ -1,4 +1,11 @@
-﻿/* To understand how many global variables were are using in the code; 
+﻿window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
+window.SessionDescription = window.RTCSessionDescription;
+window.IceCandidate = window.RTCIceCandidate;
+window.URL = window.webkitURL;
+navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+
+/* To understand how many global variables were are using in the code; 
 *  Otherwise it is not necessary to put all global variables on the top of the file.
 *  Because it is JavaScript!!!!!!
 ***************************************************/
@@ -69,7 +76,7 @@ function xhr(url, data, callback, fullUrl) {
         formData.appendData('sdp', data.sdp);
         formData.appendData('type', data.type);
         formData.appendData('you', data.you);
-		formData.appendData('me', data.me);
+        formData.appendData('me', data.me);
         formData.appendData('roomToken', data.roomToken);
 
         formData.appendData('skip', data.skip);
@@ -93,15 +100,18 @@ function xhr(url, data, callback, fullUrl) {
 function captureCamera() {
     mediaAlertBox.style.display = 'block';
 
-    navigator.webkitGetUserMedia({ audio: true, video: true },
-        function(stream) {
-            clientVideo.src = window.webkitURL.createObjectURL(stream);
+    navigator.getUserMedia({ audio: true, video: true },
+        function (stream) {
+            
+            if (!navigator.mozGetUserMedia) clientVideo.src = window.URL.createObjectURL(stream);
+            else clientVideo.mozSrcObject = stream;
+
             clientStream = stream;
 
             infoList.style.width = '623px';
             mediaAlertBox.style.display = 'none';
         },
-        function() {
+        function () {
             location.reload();
         });
 }
@@ -243,7 +253,9 @@ function gotRemoteStream(remoteEvent) {
     if (remoteEvent) {
         info('Remote stream event fired from: ' + yourFellowUser, colors.yellow);
 
-        remoteVideo.src = window.webkitURL.createObjectURL(remoteEvent.stream);
+        if (!navigator.mozGetUserMedia) remoteVideo.src = window.URL.createObjectURL(remoteEvent.stream);
+        else remoteVideo.mozSrcObject = remoteEvent.stream;
+
         remoteStream = remoteEvent.stream;
         traceRemoteStreamExecution();
 
@@ -326,7 +338,7 @@ function checkRemoteCandidates() {
                 info('Got candidate number ' + receivedCandidatesCount + ' from your friend: ' + yourFellowUser, colors.yellow);
 
                 try {
-                    candidate = new window.RTCIceCandidate(
+                    candidate = new window.IceCandidate(
                         {
                             sdpMLineIndex: response.label,
                             candidate: JSON.parse(response.candidate)
@@ -338,7 +350,7 @@ function checkRemoteCandidates() {
                     !isGotRemoteStream && setTimeout(checkRemoteCandidates, 100);
                 } catch(e) {
                     try {
-                        candidate = new window.RTCIceCandidate(
+                        candidate = new window.IceCandidate(
                             {
                                 sdpMLineIndex: response.label,
                                 candidate: response.candidate
@@ -367,7 +379,7 @@ function checkRemoteCandidates() {
 ***********************************/
 function initPeer() {
     try {
-        peerConnection = new window.webkitRTCPeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
+        peerConnection = new window.PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302"}] });
         peerConnection.onicecandidate = gotIceCandidate;
 
         peerConnection.onaddstream = gotRemoteStream;
@@ -433,10 +445,10 @@ webrtc_offer.wait_for_answer = function() {
 
             try {
                 sdp = JSON.parse(response);
-                peerConnection.setRemoteDescription(new window.RTCSessionDescription(sdp));
+                peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
             } catch(e) {
                 sdp = response;
-                peerConnection.setRemoteDescription(new window.RTCSessionDescription(sdp));
+                peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
 
                 info('Completed the 2nd try!', colors.red);
             }
@@ -484,11 +496,11 @@ webrtc_answer.create_answer = function(sdpResponse) {
     try {
         sdp = JSON.parse(sdpResponse);
 
-        peerConnection.setRemoteDescription(new window.RTCSessionDescription(sdp));
+        peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
     } catch(e) {
         sdp = sdpResponse;
 
-        peerConnection.setRemoteDescription(new window.RTCSessionDescription(sdp));
+        peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
     }
     info('Trying to understand your friend\'s offer!');
 
@@ -676,7 +688,7 @@ function getChatMessage()
 	xhr(chatUrl + 'Get', data, function(response) {
 		if(response !== false)
 		{
-			info(response.by + ' (' + response.at + ') → ' + response.message);
+		    info(response.by + ': ' + response.message, colors.yellow);
 		}
 	}, true);
 	
@@ -697,9 +709,9 @@ function postChatMessage()
 	};
 	
 	xhr(chatUrl + 'Post', data, function(response) {
-		if(response !== false)
+		if(response == true)
 		{
-			info('You: ' + message);
+		    info('You: ' + message, colors.green);
 			
 			chatBox.removeAttribute('disabled');
 			chatBox.value = '';
@@ -707,7 +719,6 @@ function postChatMessage()
 		}
 	}, true);
 }
-
 
 /*=============================================== Good Luck! ====================================================
 *  Muaz Khan
