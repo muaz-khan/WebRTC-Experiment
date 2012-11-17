@@ -1,8 +1,9 @@
 ﻿window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
-window.SessionDescription = window.RTCSessionDescription;
-window.IceCandidate = window.RTCIceCandidate;
-window.URL = window.webkitURL;
-navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+window.SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
+window.IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
+
+window.URL = window.webkitURL || window.URL;
+navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
 
 
 /* To understand how many global variables were are using in the code; 
@@ -107,6 +108,8 @@ function captureCamera() {
             else clientVideo.mozSrcObject = stream;
 
             clientStream = stream;
+			
+			clientVideo.play();
 
             infoList.style.width = '623px';
             mediaAlertBox.style.display = 'none';
@@ -255,6 +258,8 @@ function gotRemoteStream(remoteEvent) {
 
         if (!navigator.mozGetUserMedia) remoteVideo.src = window.URL.createObjectURL(remoteEvent.stream);
         else remoteVideo.mozSrcObject = remoteEvent.stream;
+		
+		remoteVideo.play();
 
         remoteStream = remoteEvent.stream;
         traceRemoteStreamExecution();
@@ -332,7 +337,7 @@ function checkRemoteCandidates() {
 
     xhr('GetCandidate', data,
         function(response) {
-            if (response === false && !isGotRemoteStream) setTimeout(checkRemoteCandidates, 500);
+            if (response === false && !isGotRemoteStream) setTimeout(checkRemoteCandidates, 1000);
             else {
                 receivedCandidatesCount++;
                 info('Got candidate number ' + receivedCandidatesCount + ' from your friend: ' + yourFellowUser, colors.yellow);
@@ -347,7 +352,7 @@ function checkRemoteCandidates() {
 
                     info('Processed Ice Message...', colors.green);
 
-                    !isGotRemoteStream && setTimeout(checkRemoteCandidates, 100);
+                    !isGotRemoteStream && setTimeout(checkRemoteCandidates, 10);
                 } catch(e) {
                     try {
                         candidate = new window.IceCandidate(
@@ -359,12 +364,12 @@ function checkRemoteCandidates() {
 
                         info('Processed Ice Message number ' + receivedCandidatesCount, colors.green);
 
-                        !isGotRemoteStream && setTimeout(checkRemoteCandidates, 100);
+                        !isGotRemoteStream && setTimeout(checkRemoteCandidates, 10);
                     } catch(e) {
                         info(e.stack, colors.red);
                         info('Unable to process ice message number ' + receivedCandidatesCount + '!', colors.yellow);
 
-                        !isGotRemoteStream && setTimeout(checkRemoteCandidates, 100);
+                        !isGotRemoteStream && setTimeout(checkRemoteCandidates, 1000);
                     }
                 }
             } //    </else>
@@ -381,11 +386,12 @@ function initPeer() {
     try {
         peerConnection = new window.PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302"}] });
         peerConnection.onicecandidate = gotIceCandidate;
+        
+        peerConnection.addStream(clientStream);
 
         peerConnection.onaddstream = gotRemoteStream;
-        peerConnection.addStream(clientStream);
     } catch(e) {
-        info('WebRTC is not supported in this web browser!', colors.yellow);
+        info('WebRTC is not supported in this web browser!', colors.red);
     }
 }
 
