@@ -181,13 +181,14 @@ RTC.createOffer = function() {
             userToken: global.userToken,
             roomToken: global.roomToken
         };
-
-		RTC.checkRemoteICE();
+		
         $.ajax('/WebRTC/PostSDP', {
             data: data,
             success: function(response) {
                 if (response) {
 					document.title = 'Posted offer successfully!';
+					
+					RTC.checkRemoteICE();
 					RTC.waitForAnswer();
 				}
             }
@@ -235,12 +236,8 @@ RTC.waitForOffer = function() {
         success: function(response) {
             if (response !== false) 
 			{
-				document.title = 'Got offer...';
-				
-				RTC.init();				
-				setTimeout(function() {
-					RTC.createAnswer(response.sdp);
-				}, 100);
+				document.title = 'Got offer...';								
+				RTC.createAnswer(response.sdp);
 			}
             else setTimeout(RTC.waitForOffer, 100);
         }
@@ -248,6 +245,8 @@ RTC.waitForOffer = function() {
 };
 
 RTC.createAnswer = function(sdpResponse) {
+	RTC.init();
+	
 	document.title = 'Creating answer...';
 	
     var sdp;
@@ -353,8 +352,8 @@ RTC.checkRemoteStream = function(remoteEvent) {
         clientVideo.pause();
         clientVideo.hide();
         
-        remoteVideo.play();
-        remoteVideo.show();
+        remoteVideo.show();		
+		remoteVideo.play();
 
         if (!navigator.mozGetUserMedia) remoteVideo.src = window.URL.createObjectURL(remoteEvent.stream);
         else remoteVideo.mozSrcObject = remoteEvent.stream;
@@ -437,11 +436,15 @@ var Room = {
             success: function (response) {
                 if (response != false) {
                     global.userToken = response.participantToken;
-                    $('footer').html('Connected with ' + response.friend + '!');
+                    
+					$('footer').html('Connected with ' + response.friend + '!');
 					document.title = 'Connected with ' + response.friend + '!';
                     
-					RTC.waitForOffer();
 					RTC.checkRemoteICE();
+					
+					setTimeout(function() {
+						RTC.waitForOffer();
+					}, 3000);
                 }
             }
         });
