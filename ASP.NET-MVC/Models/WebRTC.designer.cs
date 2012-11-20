@@ -20,9 +20,9 @@ namespace WebRTCExperiment.Models
 	using System.Linq.Expressions;
 	using System.ComponentModel;
 	using System;
-	
-	
-	[global::System.Data.Linq.Mapping.DatabaseAttribute(Name="WebRTCData")]
+
+
+    [global::System.Data.Linq.Mapping.DatabaseAttribute(Name = "CabData")]
 	public partial class WebRTCDataContext : System.Data.Linq.DataContext
 	{
 		
@@ -30,20 +30,23 @@ namespace WebRTCExperiment.Models
 		
     #region Extensibility Method Definitions
     partial void OnCreated();
-    partial void InsertSDPMessage(SDPMessage instance);
-    partial void UpdateSDPMessage(SDPMessage instance);
-    partial void DeleteSDPMessage(SDPMessage instance);
+    partial void InsertRoom(Room instance);
+    partial void UpdateRoom(Room instance);
+    partial void DeleteRoom(Room instance);
     partial void InsertCandidatesTable(CandidatesTable instance);
     partial void UpdateCandidatesTable(CandidatesTable instance);
     partial void DeleteCandidatesTable(CandidatesTable instance);
-    partial void InsertFeedback(Feedback instance);
-    partial void UpdateFeedback(Feedback instance);
-    partial void DeleteFeedback(Feedback instance);
+    partial void InsertSDPMessage(SDPMessage instance);
+    partial void UpdateSDPMessage(SDPMessage instance);
+    partial void DeleteSDPMessage(SDPMessage instance);
+    partial void InsertChat(Chat instance);
+    partial void UpdateChat(Chat instance);
+    partial void DeleteChat(Chat instance);
     #endregion
 		
-		public WebRTCDataContext() :
-            base(global::System.Configuration.ConfigurationManager.ConnectionStrings["WebRTCDataConnectionString"].ConnectionString, mappingSource)
-        {
+		public WebRTCDataContext() : 
+				base(global::System.Configuration.ConfigurationManager.ConnectionStrings["WebRTCDataConnectionString"].ConnectionString, mappingSource)
+		{
 			OnCreated();
 		}
 		
@@ -71,11 +74,11 @@ namespace WebRTCExperiment.Models
 			OnCreated();
 		}
 		
-		public System.Data.Linq.Table<SDPMessage> SDPMessages
+		public System.Data.Linq.Table<Room> Rooms
 		{
 			get
 			{
-				return this.GetTable<SDPMessage>();
+				return this.GetTable<Room>();
 			}
 		}
 		
@@ -87,40 +90,48 @@ namespace WebRTCExperiment.Models
 			}
 		}
 		
-		public System.Data.Linq.Table<Feedback> Feedbacks
+		public System.Data.Linq.Table<SDPMessage> SDPMessages
 		{
 			get
 			{
-				return this.GetTable<Feedback>();
+				return this.GetTable<SDPMessage>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Chat> Chats
+		{
+			get
+			{
+				return this.GetTable<Chat>();
 			}
 		}
 	}
 	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.SDPMessage")]
-	public partial class SDPMessage : INotifyPropertyChanging, INotifyPropertyChanged
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Room")]
+	public partial class Room : INotifyPropertyChanging, INotifyPropertyChanged
 	{
 		
 		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
 		
 		private int _ID;
 		
-		private string _Room;
+		private string _Token;
 		
-		private string _Users;
+		private string _Name;
 		
-		private System.DateTime _EventDate;
+		private string _SharedWith;
 		
-		private string _SDP;
+		private string _Status;
 		
-		private string _FromUser;
+		private System.DateTime _LastUpdated;
 		
-		private string _Type;
+		private string _OwnerName;
 		
-		private bool _IsRoomFull;
+		private string _OwnerToken;
 		
-		private bool _Done;
+		private string _ParticipantName;
 		
-		private string _RoomToken;
+		private string _ParticipantToken;
 		
     #region Extensibility Method Definitions
     partial void OnLoaded();
@@ -128,27 +139,27 @@ namespace WebRTCExperiment.Models
     partial void OnCreated();
     partial void OnIDChanging(int value);
     partial void OnIDChanged();
-    partial void OnRoomChanging(string value);
-    partial void OnRoomChanged();
-    partial void OnUsersChanging(string value);
-    partial void OnUsersChanged();
-    partial void OnEventDateChanging(System.DateTime value);
-    partial void OnEventDateChanged();
-    partial void OnSDPChanging(string value);
-    partial void OnSDPChanged();
-    partial void OnFromUserChanging(string value);
-    partial void OnFromUserChanged();
-    partial void OnTypeChanging(string value);
-    partial void OnTypeChanged();
-    partial void OnIsRoomFullChanging(bool value);
-    partial void OnIsRoomFullChanged();
-    partial void OnDoneChanging(bool value);
-    partial void OnDoneChanged();
-    partial void OnRoomTokenChanging(string value);
-    partial void OnRoomTokenChanged();
+    partial void OnTokenChanging(string value);
+    partial void OnTokenChanged();
+    partial void OnNameChanging(string value);
+    partial void OnNameChanged();
+    partial void OnSharedWithChanging(string value);
+    partial void OnSharedWithChanged();
+    partial void OnStatusChanging(string value);
+    partial void OnStatusChanged();
+    partial void OnLastUpdatedChanging(System.DateTime value);
+    partial void OnLastUpdatedChanged();
+    partial void OnOwnerNameChanging(string value);
+    partial void OnOwnerNameChanged();
+    partial void OnOwnerTokenChanging(string value);
+    partial void OnOwnerTokenChanged();
+    partial void OnParticipantNameChanging(string value);
+    partial void OnParticipantNameChanged();
+    partial void OnParticipantTokenChanging(string value);
+    partial void OnParticipantTokenChanged();
     #endregion
 		
-		public SDPMessage()
+		public Room()
 		{
 			OnCreated();
 		}
@@ -173,182 +184,182 @@ namespace WebRTCExperiment.Models
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Room", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string Room
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Token", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string Token
 		{
 			get
 			{
-				return this._Room;
+				return this._Token;
 			}
 			set
 			{
-				if ((this._Room != value))
+				if ((this._Token != value))
 				{
-					this.OnRoomChanging(value);
+					this.OnTokenChanging(value);
 					this.SendPropertyChanging();
-					this._Room = value;
-					this.SendPropertyChanged("Room");
-					this.OnRoomChanged();
+					this._Token = value;
+					this.SendPropertyChanged("Token");
+					this.OnTokenChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Users", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string Users
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Name", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string Name
 		{
 			get
 			{
-				return this._Users;
+				return this._Name;
 			}
 			set
 			{
-				if ((this._Users != value))
+				if ((this._Name != value))
 				{
-					this.OnUsersChanging(value);
+					this.OnNameChanging(value);
 					this.SendPropertyChanging();
-					this._Users = value;
-					this.SendPropertyChanged("Users");
-					this.OnUsersChanged();
+					this._Name = value;
+					this.SendPropertyChanged("Name");
+					this.OnNameChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_EventDate", DbType="DateTime NOT NULL")]
-		public System.DateTime EventDate
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SharedWith", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string SharedWith
 		{
 			get
 			{
-				return this._EventDate;
+				return this._SharedWith;
 			}
 			set
 			{
-				if ((this._EventDate != value))
+				if ((this._SharedWith != value))
 				{
-					this.OnEventDateChanging(value);
+					this.OnSharedWithChanging(value);
 					this.SendPropertyChanging();
-					this._EventDate = value;
-					this.SendPropertyChanged("EventDate");
-					this.OnEventDateChanged();
+					this._SharedWith = value;
+					this.SendPropertyChanged("SharedWith");
+					this.OnSharedWithChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SDP", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string SDP
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Status", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string Status
 		{
 			get
 			{
-				return this._SDP;
+				return this._Status;
 			}
 			set
 			{
-				if ((this._SDP != value))
+				if ((this._Status != value))
 				{
-					this.OnSDPChanging(value);
+					this.OnStatusChanging(value);
 					this.SendPropertyChanging();
-					this._SDP = value;
-					this.SendPropertyChanged("SDP");
-					this.OnSDPChanged();
+					this._Status = value;
+					this.SendPropertyChanged("Status");
+					this.OnStatusChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_FromUser", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string FromUser
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_LastUpdated", DbType="DateTime NOT NULL")]
+		public System.DateTime LastUpdated
 		{
 			get
 			{
-				return this._FromUser;
+				return this._LastUpdated;
 			}
 			set
 			{
-				if ((this._FromUser != value))
+				if ((this._LastUpdated != value))
 				{
-					this.OnFromUserChanging(value);
+					this.OnLastUpdatedChanging(value);
 					this.SendPropertyChanging();
-					this._FromUser = value;
-					this.SendPropertyChanged("FromUser");
-					this.OnFromUserChanged();
+					this._LastUpdated = value;
+					this.SendPropertyChanged("LastUpdated");
+					this.OnLastUpdatedChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Type", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string Type
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_OwnerName", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string OwnerName
 		{
 			get
 			{
-				return this._Type;
+				return this._OwnerName;
 			}
 			set
 			{
-				if ((this._Type != value))
+				if ((this._OwnerName != value))
 				{
-					this.OnTypeChanging(value);
+					this.OnOwnerNameChanging(value);
 					this.SendPropertyChanging();
-					this._Type = value;
-					this.SendPropertyChanged("Type");
-					this.OnTypeChanged();
+					this._OwnerName = value;
+					this.SendPropertyChanged("OwnerName");
+					this.OnOwnerNameChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_IsRoomFull", DbType="Bit NOT NULL")]
-		public bool IsRoomFull
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_OwnerToken", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string OwnerToken
 		{
 			get
 			{
-				return this._IsRoomFull;
+				return this._OwnerToken;
 			}
 			set
 			{
-				if ((this._IsRoomFull != value))
+				if ((this._OwnerToken != value))
 				{
-					this.OnIsRoomFullChanging(value);
+					this.OnOwnerTokenChanging(value);
 					this.SendPropertyChanging();
-					this._IsRoomFull = value;
-					this.SendPropertyChanged("IsRoomFull");
-					this.OnIsRoomFullChanged();
+					this._OwnerToken = value;
+					this.SendPropertyChanged("OwnerToken");
+					this.OnOwnerTokenChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Done", DbType="Bit NOT NULL")]
-		public bool Done
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ParticipantName", DbType="NVarChar(MAX)")]
+		public string ParticipantName
 		{
 			get
 			{
-				return this._Done;
+				return this._ParticipantName;
 			}
 			set
 			{
-				if ((this._Done != value))
+				if ((this._ParticipantName != value))
 				{
-					this.OnDoneChanging(value);
+					this.OnParticipantNameChanging(value);
 					this.SendPropertyChanging();
-					this._Done = value;
-					this.SendPropertyChanged("Done");
-					this.OnDoneChanged();
+					this._ParticipantName = value;
+					this.SendPropertyChanged("ParticipantName");
+					this.OnParticipantNameChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RoomToken", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string RoomToken
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ParticipantToken", DbType="NVarChar(MAX)")]
+		public string ParticipantToken
 		{
 			get
 			{
-				return this._RoomToken;
+				return this._ParticipantToken;
 			}
 			set
 			{
-				if ((this._RoomToken != value))
+				if ((this._ParticipantToken != value))
 				{
-					this.OnRoomTokenChanging(value);
+					this.OnParticipantTokenChanging(value);
 					this.SendPropertyChanging();
-					this._RoomToken = value;
-					this.SendPropertyChanged("RoomToken");
-					this.OnRoomTokenChanged();
+					this._ParticipantToken = value;
+					this.SendPropertyChanged("ParticipantToken");
+					this.OnParticipantTokenChanged();
 				}
 			}
 		}
@@ -386,13 +397,11 @@ namespace WebRTCExperiment.Models
 		
 		private string _Label;
 		
-		private string _Room;
+		private string _RoomToken;
 		
-		private string _FromUser;
+		private string _Sender;
 		
-		private bool _Done;
-		
-		private System.DateTime _EventDate;
+		private bool _IsProcessed;
 		
     #region Extensibility Method Definitions
     partial void OnLoaded();
@@ -404,14 +413,12 @@ namespace WebRTCExperiment.Models
     partial void OnCandidateChanged();
     partial void OnLabelChanging(string value);
     partial void OnLabelChanged();
-    partial void OnRoomChanging(string value);
-    partial void OnRoomChanged();
-    partial void OnFromUserChanging(string value);
-    partial void OnFromUserChanged();
-    partial void OnDoneChanging(bool value);
-    partial void OnDoneChanged();
-    partial void OnEventDateChanging(System.DateTime value);
-    partial void OnEventDateChanged();
+    partial void OnRoomTokenChanging(string value);
+    partial void OnRoomTokenChanged();
+    partial void OnSenderChanging(string value);
+    partial void OnSenderChanged();
+    partial void OnIsProcessedChanging(bool value);
+    partial void OnIsProcessedChanged();
     #endregion
 		
 		public CandidatesTable()
@@ -479,82 +486,62 @@ namespace WebRTCExperiment.Models
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Room", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string Room
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RoomToken", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string RoomToken
 		{
 			get
 			{
-				return this._Room;
+				return this._RoomToken;
 			}
 			set
 			{
-				if ((this._Room != value))
+				if ((this._RoomToken != value))
 				{
-					this.OnRoomChanging(value);
+					this.OnRoomTokenChanging(value);
 					this.SendPropertyChanging();
-					this._Room = value;
-					this.SendPropertyChanged("Room");
-					this.OnRoomChanged();
+					this._RoomToken = value;
+					this.SendPropertyChanged("RoomToken");
+					this.OnRoomTokenChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_FromUser", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string FromUser
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Sender", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string Sender
 		{
 			get
 			{
-				return this._FromUser;
+				return this._Sender;
 			}
 			set
 			{
-				if ((this._FromUser != value))
+				if ((this._Sender != value))
 				{
-					this.OnFromUserChanging(value);
+					this.OnSenderChanging(value);
 					this.SendPropertyChanging();
-					this._FromUser = value;
-					this.SendPropertyChanged("FromUser");
-					this.OnFromUserChanged();
+					this._Sender = value;
+					this.SendPropertyChanged("Sender");
+					this.OnSenderChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Done", DbType="Bit NOT NULL")]
-		public bool Done
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_IsProcessed", DbType="Bit NOT NULL")]
+		public bool IsProcessed
 		{
 			get
 			{
-				return this._Done;
+				return this._IsProcessed;
 			}
 			set
 			{
-				if ((this._Done != value))
+				if ((this._IsProcessed != value))
 				{
-					this.OnDoneChanging(value);
+					this.OnIsProcessedChanging(value);
 					this.SendPropertyChanging();
-					this._Done = value;
-					this.SendPropertyChanged("Done");
-					this.OnDoneChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_EventDate", DbType="DateTime NOT NULL")]
-		public System.DateTime EventDate
-		{
-			get
-			{
-				return this._EventDate;
-			}
-			set
-			{
-				if ((this._EventDate != value))
-				{
-					this.OnEventDateChanging(value);
-					this.SendPropertyChanging();
-					this._EventDate = value;
-					this.SendPropertyChanged("EventDate");
-					this.OnEventDateChanged();
+					this._IsProcessed = value;
+					this.SendPropertyChanged("IsProcessed");
+					this.OnIsProcessedChanged();
 				}
 			}
 		}
@@ -580,19 +567,21 @@ namespace WebRTCExperiment.Models
 		}
 	}
 	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Feedback")]
-	public partial class Feedback : INotifyPropertyChanging, INotifyPropertyChanged
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.SDPMessage")]
+	public partial class SDPMessage : INotifyPropertyChanging, INotifyPropertyChanged
 	{
 		
 		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
 		
 		private int _ID;
 		
-		private string _Name;
+		private string _SDP;
 		
-		private string _Message;
+		private bool _IsProcessed;
 		
-		private System.DateTime _Date;
+		private string _RoomToken;
+		
+		private string _Sender;
 		
     #region Extensibility Method Definitions
     partial void OnLoaded();
@@ -600,15 +589,17 @@ namespace WebRTCExperiment.Models
     partial void OnCreated();
     partial void OnIDChanging(int value);
     partial void OnIDChanged();
-    partial void OnNameChanging(string value);
-    partial void OnNameChanged();
-    partial void OnMessageChanging(string value);
-    partial void OnMessageChanged();
-    partial void OnDateChanging(System.DateTime value);
-    partial void OnDateChanged();
+    partial void OnSDPChanging(string value);
+    partial void OnSDPChanged();
+    partial void OnIsProcessedChanging(bool value);
+    partial void OnIsProcessedChanged();
+    partial void OnRoomTokenChanging(string value);
+    partial void OnRoomTokenChanged();
+    partial void OnSenderChanging(string value);
+    partial void OnSenderChanged();
     #endregion
 		
-		public Feedback()
+		public SDPMessage()
 		{
 			OnCreated();
 		}
@@ -633,22 +624,220 @@ namespace WebRTCExperiment.Models
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Name", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string Name
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SDP", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string SDP
 		{
 			get
 			{
-				return this._Name;
+				return this._SDP;
 			}
 			set
 			{
-				if ((this._Name != value))
+				if ((this._SDP != value))
 				{
-					this.OnNameChanging(value);
+					this.OnSDPChanging(value);
 					this.SendPropertyChanging();
-					this._Name = value;
-					this.SendPropertyChanged("Name");
-					this.OnNameChanged();
+					this._SDP = value;
+					this.SendPropertyChanged("SDP");
+					this.OnSDPChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_IsProcessed", DbType="Bit NOT NULL")]
+		public bool IsProcessed
+		{
+			get
+			{
+				return this._IsProcessed;
+			}
+			set
+			{
+				if ((this._IsProcessed != value))
+				{
+					this.OnIsProcessedChanging(value);
+					this.SendPropertyChanging();
+					this._IsProcessed = value;
+					this.SendPropertyChanged("IsProcessed");
+					this.OnIsProcessedChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RoomToken", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string RoomToken
+		{
+			get
+			{
+				return this._RoomToken;
+			}
+			set
+			{
+				if ((this._RoomToken != value))
+				{
+					this.OnRoomTokenChanging(value);
+					this.SendPropertyChanging();
+					this._RoomToken = value;
+					this.SendPropertyChanged("RoomToken");
+					this.OnRoomTokenChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Sender", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string Sender
+		{
+			get
+			{
+				return this._Sender;
+			}
+			set
+			{
+				if ((this._Sender != value))
+				{
+					this.OnSenderChanging(value);
+					this.SendPropertyChanging();
+					this._Sender = value;
+					this.SendPropertyChanged("Sender");
+					this.OnSenderChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Chat")]
+	public partial class Chat : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _ID;
+		
+		private string _RoomToken;
+		
+		private string _SentBy;
+		
+		private System.DateTime _SentAt;
+		
+		private string _Message;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    partial void OnRoomTokenChanging(string value);
+    partial void OnRoomTokenChanged();
+    partial void OnSentByChanging(string value);
+    partial void OnSentByChanged();
+    partial void OnSentAtChanging(System.DateTime value);
+    partial void OnSentAtChanged();
+    partial void OnMessageChanging(string value);
+    partial void OnMessageChanged();
+    #endregion
+		
+		public Chat()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RoomToken", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string RoomToken
+		{
+			get
+			{
+				return this._RoomToken;
+			}
+			set
+			{
+				if ((this._RoomToken != value))
+				{
+					this.OnRoomTokenChanging(value);
+					this.SendPropertyChanging();
+					this._RoomToken = value;
+					this.SendPropertyChanged("RoomToken");
+					this.OnRoomTokenChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SentBy", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string SentBy
+		{
+			get
+			{
+				return this._SentBy;
+			}
+			set
+			{
+				if ((this._SentBy != value))
+				{
+					this.OnSentByChanging(value);
+					this.SendPropertyChanging();
+					this._SentBy = value;
+					this.SendPropertyChanged("SentBy");
+					this.OnSentByChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SentAt", DbType="DateTime NOT NULL")]
+		public System.DateTime SentAt
+		{
+			get
+			{
+				return this._SentAt;
+			}
+			set
+			{
+				if ((this._SentAt != value))
+				{
+					this.OnSentAtChanging(value);
+					this.SendPropertyChanging();
+					this._SentAt = value;
+					this.SendPropertyChanged("SentAt");
+					this.OnSentAtChanged();
 				}
 			}
 		}
@@ -669,26 +858,6 @@ namespace WebRTCExperiment.Models
 					this._Message = value;
 					this.SendPropertyChanged("Message");
 					this.OnMessageChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Date", DbType="DateTime NOT NULL")]
-		public System.DateTime Date
-		{
-			get
-			{
-				return this._Date;
-			}
-			set
-			{
-				if ((this._Date != value))
-				{
-					this.OnDateChanging(value);
-					this.SendPropertyChanging();
-					this._Date = value;
-					this.SendPropertyChanged("Date");
-					this.OnDateChanged();
 				}
 			}
 		}

@@ -4,10 +4,8 @@ from datetime import date
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        webrtc = self.request.get('webrtc')
-
         Index = openFile('index.html')
-        JavaScript = openFile('JavaScript%s.js' % webrtc)
+        JavaScript = openFile('JavaScript.js')
         StyleSheet = openFile('StyleSheet.css')
         
         html = Index.replace('{year}', str(date.today().year))\
@@ -32,7 +30,13 @@ def openFile(file):
 #-----------------------------------------------
 class RulesHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.out.write(openFile('rules.html').replace('{year}', str(date.today().year)))
+        Index = openFile('rules.html')
+        StyleSheet = openFile('StyleSheet.css')
+        
+        html = Index.replace('{year}', str(date.today().year))\
+               .replace('{StyleSheet}', StyleSheet)
+        
+        self.response.out.write(html)
 
 #-----------------------------------------------        
 app = webapp2.WSGIApplication([

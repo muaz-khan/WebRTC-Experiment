@@ -1,503 +1,255 @@
-﻿window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
+﻿var $ = function(term, selectAll, elem) {
+    try {
+        if (!elem) {
+            if (term && !selectAll) return window.document.querySelector(term);
+            return window.document.querySelectorAll(term);
+        } else {
+            if (term && !selectAll) return elem.querySelector(term);
+            return elem.querySelectorAll(term);
+        }
+    } catch(error) {
+        return document.getElementById(term.replace('#', ''));
+    }
+};
+
+Object.prototype.bind = function(eventName, callback) {
+    if (this.length != undefined) {
+        var length = this.length;
+        for (var i = 0; i < length; i++) {
+            this[i].addEventListener(eventName, callback, false);
+        }
+    } else if (typeof this == 'object') this.addEventListener(eventName, callback, false);
+    return this;
+};
+
+Object.prototype.each = function(callback) {
+    var length = this.length;
+    for (var i = 0; i < length; i++) {
+        callback(this[i]);
+    }
+    return this;
+};
+
+Object.prototype.find = function(element) {
+    return this.querySelector(element);
+};
+
+FormData.prototype.appendData = function (name, value) {
+    if (value || value == 0) this.append(name, value);
+};
+
+$.ajax = function(url, options) {
+
+    var _url = options ? url : url.url;
+    options = options || url;
+
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200)
+            options.success(JSON.parse(xhr.responseText));
+    };
+	
+	_url = 'http://webrtc.somee.com' + _url;
+    xhr.open(options.type ? options.type : 'POST', _url);
+
+    var formData = new window.FormData(),
+        data = options.data;
+
+    if (data) {
+        formData.appendData('ownerName', data.ownerName);
+        formData.appendData('ownerToken', data.ownerToken);
+
+        formData.appendData('roomName', data.roomName);
+        formData.appendData('roomToken', data.roomToken);
+
+        formData.appendData('partnerEmail', data.partnerEmail);
+        formData.appendData('userToken', data.userToken);
+        formData.appendData('participant', data.participant);
+
+        formData.appendData('sdp', data.sdp);
+        formData.appendData('candidate', data.candidate);
+        formData.appendData('label', data.label);
+
+        formData.appendData('message', data.message);
+    }
+
+    xhr.send(formData);
+};
+
+Object.prototype.prepend = function(prependMe) {
+    return this.insertBefore(prependMe, this.firstChild);
+};
+
+Object.prototype.hide = function() /* set display:none; to one or more elements */
+{
+    if (this.length != undefined) /* if more than one elements */ {
+        this.each(function(elem) {
+            elem.style.display = 'none';
+        });
+    } else if (typeof this == 'object') /* if only one element */ {
+        this.style.display = 'none';
+    }
+    return this;
+};
+Object.prototype.show = function(value) /* set display:block; to one or more elements */
+{
+    if (this.length != undefined) /* if more than one elemens */ {
+        this.each(function(elem) {
+            if (value) elem.style.display = value;
+            else elem.style.display = 'block';
+        });
+    } else if (typeof this == 'object') /* if only one element */ {
+        if (value) this.style.display = value;
+        else this.style.display = 'block';
+    }
+    return this;
+};
+
+Object.prototype.css = function(prop, value) {
+    this.style[prop] = value;
+    return this;
+};
+Object.prototype.html = function (value) {
+    if (value) this.innerHTML = value;
+    else return this.innerHTML;
+    return this;
+};
+$.once = function(seconds, callback) {
+    var counter = 0;
+    var time = window.setInterval(function() {
+        counter++;
+        if (counter >= seconds) {
+            callback();
+            window.clearInterval(time);
+        }
+    }, 1000);
+};
+
+Object.prototype.slideDown = function(maxHeight) {
+    return this.css('max-height', (maxHeight || 1000000) + 'px');
+};
+
+Object.prototype.slideUp = function() {
+    return this.css('max-height', '0');
+};
+
+String.prototype.validate = function() {
+    return this.replace( /-/g , '__').replace( /\?/g , '-qmark').replace( / /g , '--').replace( /\n/g , '-n').replace( /</g , '-lt').replace( />/g , '-gt').replace( /&/g , '-amp').replace( /#/g , '-nsign').replace( /__t-n/g , '__t').replace( /\+/g , '_plus_').replace( /=/g , '-equal');
+};
+
+
+/* -------------------------------------------------------------------------------------------------------------------------- */
+
+window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
 window.SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
 window.IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
 
 window.URL = window.webkitURL || window.URL;
 navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
 
+/* -------------------------------------------------------------------------------------------------------------------------- */
+var global = { };
 
-/* To understand how many global variables were are using in the code; 
-*  Otherwise it is not necessary to put all global variables on the top of the file.
-*  Because it is JavaScript!!!!!!
-***************************************************/
-var JsonRequest = window.XMLHttpRequest,
-    clientVideo,
-    remoteVideo,
-    clientStream,
-    remoteStream,
-    roomsList, infoList,
-    isGetAvailableRoom = true,
-    mediaAlertBox,
-    peerConnection,
-    you = 'Anonymous',
-    yourFellowUser,
-    roomName = 'Anonymous',
-    roomToken,
-    isGotRemoteStream,
-    processedCandidatesCount = 0,
-    nameInput,
-    roomInput,
-    colors = {
-        green: '#41D141',
-        red: '#E7A4A4',
-        yellow: 'yellow'
-    };
+var RTC = { }, peerConnection;
 
-function findDOMElement(id) {
-    return document.getElementById(id);
-}
+RTC.init = function() {
+    try {
+        peerConnection = new window.PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
+        peerConnection.onicecandidate = RTC.checkLocalICE;
 
-nameInput = findDOMElement('yourname');
-roomInput = findDOMElement('roomname');
-clientVideo = findDOMElement('client-video');
-remoteVideo = findDOMElement('remote-video');
-roomsList = findDOMElement('rooms-list');
-infoList = findDOMElement('info-list');
-mediaAlertBox = findDOMElement('media-alert-box');
-
-/* This function is irrelevant for you, just skip it please!
-************************************************************/
-function validate(value) {
-    value = value.replace( /-/g , '__').replace( /\?/g , '-qmark').replace( / /g , '--').replace( /\n/g , '-n').replace( /</g , '-lt').replace( />/g , '-gt').replace( /&/g , '-amp').replace( /#/g , '-nsign').replace( /__t-n/g , '__t').replace( /\+/g , '_plus_').replace( /=/g , '-equal');
-    return value;
-}
-
-/* This function is used in XHR request
-***************************************/
-FormData.prototype.appendData = function(name, value) {
-    if (value || value == 0) this.append(name, value);
+        peerConnection.onaddstream = RTC.checkRemoteStream;
+        peerConnection.addStream(global.clientStream);
+    } catch(e) {
+		document.title = 'WebRTC is not supported in this web browser!';
+        alert('WebRTC is not supported in this web browser!');
+    }
 };
 
-/* XHR Request
-**************/
-function xhr(url, data, callback, fullUrl) {
-    if (!XMLHttpRequest || !JSON) return;
-
-    var request = new JsonRequest();
-    request.onreadystatechange = function() {
-        if (request.readyState == 4 && request.status == 200) {
-            callback(JSON.parse(request.responseText));
-        }
-    };
-
-    request.open('POST', (fullUrl ? '' : 'http://webrtc.somee.com/WebRTC/') + url);
-
-    var formData = new window.FormData();
-    if (data) {
-        formData.appendData('sdp', data.sdp);
-        formData.appendData('type', data.type);
-        formData.appendData('you', data.you);
-        formData.appendData('me', data.me);
-        formData.appendData('roomToken', data.roomToken);
-
-        formData.appendData('skip', data.skip);
-        formData.appendData('take', data.take);
-
-        formData.appendData('room', data.room);
-        formData.appendData('owner', data.owner);
-
-        formData.appendData('name', data.name);
-        formData.appendData('message', data.message);
-
-        formData.appendData('candidate', data.candidate);
-        formData.appendData('label', data.label);
-    }
-
-    request.send(formData);
-}
-
-/* Calling getUserMedia
-***********************/
-function captureCamera() {
-    mediaAlertBox.style.display = 'block';
-
-    navigator.getUserMedia({ audio: true, video: true },
-        function (stream) {
-            
-            if (!navigator.mozGetUserMedia) clientVideo.src = window.URL.createObjectURL(stream);
-            else clientVideo.mozSrcObject = stream;
-
-            clientStream = stream;
-			
-			clientVideo.play();
-
-            infoList.style.width = '623px';
-            mediaAlertBox.style.display = 'none';
-        },
-        function () {
-            location.reload();
-        });
-}
-
-captureCamera();
-
-/* UI function to show information about WebRTC connection's current state
-**************************************************************************/
-function info(message, backgroundColor) {
-    var date = new Date(),
-        hours = date.getHours(),
-        minutes = date.getMinutes(),
-        time = hours + ':' + minutes;
-
-    infoList.innerHTML = '<div style="background:' + (backgroundColor || '#8EE8FF') + '">' + time + ' → ' + message + '</div>' + infoList.innerHTML;
-    document.title = message;
-}
-
-/* UI function to create new room
-*********************************/
-function createButtonClick() {
-    if (!nameInput.value.length || !roomInput.value.length) {
-        nameInput.focus();
-        return;
-    }
-    you = nameInput.value;
-    roomName = roomInput.value;
-
-    findDOMElement('room-title').innerHTML = roomName;
-    createRoom();
-    hideRoomsList();
-}
-
-/* UI function to get list of all available rooms
-*************************************************/
-function getAvailableRooms() {
-    if (!isGetAvailableRoom) return;
-
-    var data = { you: you };
-
-    xhr('GetAvailableRooms', data,
-        function(rooms) {
-            if (!rooms.length) {
-                info('No available room found!');
-                roomsList.innerHTML = '<div>No available room found!</div>';
-            } else {
-                var length = rooms.length;
-                roomsList.innerHTML = '';
-
-                for (var i = 0; i < length; i++) {
-                    var room = rooms[i];
-                    roomsList.innerHTML += '<div id="' + room.token + '" room-name="' + room.name + '"><span class="join">Join</span>' + room.name + '</div>';
-                }
-
-                info(rooms.length + ' available room(s) found.', colors.yellow);
-            }
-            setTimeout(getAvailableRooms, 10000);
-        }
-    );
-}
-
-/* 1) if created new room
-*  2) if joined any room
-************************/
-function hideRoomsList() {
-    roomsList.style.display = 'none';
-    findDOMElement('manage-room').style.display = 'none';
-    isGetAvailableRoom = false;
-}
-
-function createRoom() {
-    info('Creating room: ' + roomName, colors.yellow);
-
-    var data = {
-        owner: you,
-        room: roomName
-    };
-
-    xhr('CreateRoom', data,
-        function(response) {
-            if (response) {
-                roomToken = response;
-                searchOtherUser();
-                info('Created room: ' + roomName + ' successfully!', colors.green);
-            }
-        }
-    );
-}
-
-/* Search other WebRTC end-point
-********************************/
-function searchOtherUser() {
-    info('Searching your fellow user...', colors.yellow);
-
-    var data = {
-        you: you,
-        roomToken: roomToken
-    };
-
-    xhr('GetFellowUser', data,
-        function(response) {
-            if (response) {
-                yourFellowUser = response;
-                info('Found your friend: ' + yourFellowUser, colors.green);
-
-                webrtc_offer.create_offer();
-            } else setTimeout(searchOtherUser, 3000);
-        }
-    );
-}
-
-/* Join an end-point
-********************/
-function joinRoom() {
-    info('Joining room: ' + roomName, colors.yellow);
-    var data = {
-        you: you,
-        roomToken: roomToken
-    };
-    xhr('JoinRoom', data,
-        function(response) {
-            if (response) {
-                yourFellowUser = response;
-                info('Joined room: ' + roomName, colors.green);
-
-                checkRemoteCandidates();
-
-                setTimeout(function() {
-                    webrtc_answer.wait_for_offer();
-                }, 3000);
-            }
-        }
-    );
-}
-
-/* If both end-points got remote streams && handshake is successful
-*******************************************************************/
-function gotRemoteStream(remoteEvent) {
-    if (remoteEvent) {
-        info('Remote stream event fired from: ' + yourFellowUser, colors.yellow);
-
-        if (!navigator.mozGetUserMedia) remoteVideo.src = window.URL.createObjectURL(remoteEvent.stream);
-        else remoteVideo.mozSrcObject = remoteEvent.stream;
-		
-		remoteVideo.play();
-
-        remoteStream = remoteEvent.stream;
-        traceRemoteStreamExecution();
-
-        info('Waiting for remote stream from: ' + yourFellowUser);
-    }
-}
-
-/* If both end-points are trying to make handshake
-*  The process is on the way!
-*****************************/
-var remoteStreamChecked = 0;
-function traceRemoteStreamExecution() {
-    remoteStreamChecked++;
-
-    info('Waiting for remote stream from: ' + yourFellowUser);
-    if (!(remoteVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || remoteVideo.paused || remoteVideo.currentTime <= 0)) {
-        isGotRemoteStream = true;
-        info('Successfully got remote stream from: ' + yourFellowUser, colors.yellow);
-
-        setTimeout(function() {
-            infoList.style.display = 'none';
-			
-			setTimeout(startChatting, 5000);
-        }, 2000);
-    } else {
-        if (remoteStreamChecked > 15) {
-            info('Unable to get remote stream from ' + yourFellowUser, colors.yellow);
-            info('Try again..');
-            remoteStreamChecked = 0;
-            setTimeout(traceRemoteStreamExecution, 3000);
-        } else setTimeout(traceRemoteStreamExecution, 3000);
-    }
-}
-
-/* If one end-point gets ICE candidates, he should post it for other end-point
-******************************************************************************/
-var postedCandidatesCount = 0;
-function gotIceCandidate(event) {
-    if (isGotRemoteStream) return;
-    var candidate = event.candidate;
-
-    if (candidate) {
-        var data = {
-            candidate: JSON.stringify(candidate.candidate),
-            label: candidate.sdpMLineIndex,
-            you: you,
-            roomToken: roomToken
-        };
-
-        xhr('PostCandidate',
-            data,
-            function() {
-                postedCandidatesCount++;
-                info('Posted candidate number ' + postedCandidatesCount + ' successfully!', colors.green);
-            });
-    } else info("End of ICE Candidates!");
-}
-
-/* Geting ICE candidates posted from other end-point
-****************************************************/
-var receivedCandidatesCount = 0;
-function checkRemoteCandidates() {
-    if (isGotRemoteStream) return;
-
-    if (!peerConnection) {
-        setTimeout(checkRemoteCandidates, 1000);
-        return;
-    }
-
-    var data = {
-        you: you,
-        roomToken: roomToken
-    };
-
-    xhr('GetCandidate', data,
-        function(response) {
-            if (response === false && !isGotRemoteStream) setTimeout(checkRemoteCandidates, 1000);
-            else {
-                receivedCandidatesCount++;
-                info('Got candidate number ' + receivedCandidatesCount + ' from your friend: ' + yourFellowUser, colors.yellow);
-
-                try {
-                    candidate = new window.IceCandidate(
-                        {
-                            sdpMLineIndex: response.label,
-                            candidate: JSON.parse(response.candidate)
-                        });
-                    peerConnection.addIceCandidate(candidate);
-
-                    info('Processed Ice Message...', colors.green);
-
-                    !isGotRemoteStream && setTimeout(checkRemoteCandidates, 10);
-                } catch(e) {
-                    try {
-                        candidate = new window.IceCandidate(
-                            {
-                                sdpMLineIndex: response.label,
-                                candidate: response.candidate
-                            });
-                        peerConnection.addIceCandidate(candidate);
-
-                        info('Processed Ice Message number ' + receivedCandidatesCount, colors.green);
-
-                        !isGotRemoteStream && setTimeout(checkRemoteCandidates, 10);
-                    } catch(e) {
-                        info(e.stack, colors.red);
-                        info('Unable to process ice message number ' + receivedCandidatesCount + '!', colors.yellow);
-
-                        !isGotRemoteStream && setTimeout(checkRemoteCandidates, 1000);
-                    }
-                }
-            } //    </else>
-        }   //      </anonymous function>
-    ); //          </xhr>
-}
-
-/*========================================================== WebRTC ============================================================*/
-/*================================================== WebRTC Offer/Answer Model ============================================================*/
-
-/* Initializing the Peer Connection
-***********************************/
-function initPeer() {
-    try {
-        peerConnection = new window.PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302"}] });
-        peerConnection.onicecandidate = gotIceCandidate;
-        
-        peerConnection.addStream(clientStream);
-
-        peerConnection.onaddstream = gotRemoteStream;
-    } catch(e) {
-        info('WebRTC is not supported in this web browser!', colors.red);
-    }
-}
-
-/*=============================================== WebRTC Offer Model ====================================================*/
-var webrtc_offer = { };
-
-/* Creating offer SDP from 1st end point
-****************************************/
-webrtc_offer.create_offer = function() {
-    initPeer();
-
-    info('Creating offer...');
+RTC.createOffer = function() {
+	document.title = 'Creating offer...';
+	
+    RTC.init();
 
     peerConnection.createOffer(function(sessionDescription) {
-        info('Creating your offer...', colors.yellow);
-
-        try {
-            peerConnection.setLocalDescription(sessionDescription);
-        } catch(e) {
-            info('Unable to create your offer!', colors.yellow);
-            info(e.stack, colors.red);
-        }
-
+        peerConnection.setLocalDescription(sessionDescription);
+		
+		document.title = 'Created offer successfully!';
         sdp = JSON.stringify(sessionDescription);
 
         var data = {
             sdp: sdp,
-            type: 'offer',
-            you: you,
-            roomToken: roomToken
+            userToken: global.userToken,
+            roomToken: global.roomToken
         };
 
-        checkRemoteCandidates();
-        xhr('PostSdp', data, function(response) {
-            if (response) {
-                info('Offer sent to your friend: ' + yourFellowUser, colors.green);
-                webrtc_offer.wait_for_answer();
+		RTC.checkRemoteICE();
+        $.ajax('/WebRTC/PostSDP', {
+            data: data,
+            success: function(response) {
+                if (response) {
+					document.title = 'Posted offer successfully!';
+					RTC.waitForAnswer();
+				}
             }
         });
+
     }, null, { audio: true, video: true });
 };
 
-/* Waiting for 2nd end-point's answer
-*************************************/
-webrtc_offer.wait_for_answer = function() {
-    info('Waiting for response from: ' + yourFellowUser + '!');
-
+RTC.waitForAnswer = function() {
+	document.title = 'Waiting for answer...';
+	
     var data = {
-        type: 'offer',
-        you: you,
-        roomToken: roomToken
+        userToken: global.userToken,
+        roomToken: global.roomToken
     };
-    xhr('GetSdp', data, function(response) {
 
-        if (response !== false) {
-            info('Got response from your friend: ' + yourFellowUser);
-
-            try {
-                sdp = JSON.parse(response);
-                peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
-            } catch(e) {
-                sdp = response;
-                peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
-
-                info('Completed the 2nd try!', colors.red);
-            }
-        } else
-            setTimeout(webrtc_offer.wait_for_answer, 1000);
+    $.ajax('/WebRTC/GetSDP', {
+        data: data,
+        success: function(response) {
+            if (response !== false) {
+				document.title  = 'Got answer...';
+				response = response.sdp;
+                try {
+                    sdp = JSON.parse(response);
+                    peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
+                } catch(e) {
+                    sdp = response;
+                    peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
+                }
+            } else
+                setTimeout(RTC.waitForAnswer, 100);
+        }
     });
 };
 
-/*============================================ WebRTC Answer Model =======================================================*/
-var webrtc_answer = { };
-
-/* Waiting for offer from 1st end-point
-***************************************/
-var offer_checking_times = 0;
-webrtc_answer.wait_for_offer = function() {
-    info('Waiting for offer from: ' + yourFellowUser);
-
-    if (offer_checking_times > 50) {
-        info('Too bad! --- Unable to get offer from ' + yourFellowUser, colors.yellow);
-        return;
-    }
-
+RTC.waitForOffer = function() {
+	document.title = 'Waiting for offer...';
     var data = {
-        type: 'answer',
-        you: you,
-        roomToken: roomToken
+        userToken: global.userToken,
+        roomToken: global.roomToken
     };
 
-    xhr('GetSdp', data, function(response) {
-        offer_checking_times++;
-
-        if (response !== false) {
-            info('Got offer from your friend: ' + yourFellowUser, colors.green);
-            webrtc_answer.create_answer(response);
-        } else setTimeout(webrtc_answer.wait_for_offer, 100);
+    $.ajax('/WebRTC/GetSDP', {
+        data: data,
+        success: function(response) {
+            if (response !== false) 
+			{
+				document.title = 'Got offer...';
+				
+				RTC.init();				
+				setTimeout(function() {
+					RTC.createAnswer(response.sdp);
+				}, 100);
+			}
+            else setTimeout(RTC.waitForOffer, 100);
+        }
     });
 };
 
-/* Got offer from 1st end point
-*  Creating answer for 1st end point
-************************************/
-webrtc_answer.create_answer = function(sdpResponse) {
-    initPeer();
+RTC.createAnswer = function(sdpResponse) {
+	document.title = 'Creating answer...';
+	
     var sdp;
     try {
         sdp = JSON.parse(sdpResponse);
@@ -508,226 +260,402 @@ webrtc_answer.create_answer = function(sdpResponse) {
 
         peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
     }
-    info('Trying to understand your friend\'s offer!');
 
     peerConnection.createAnswer(function(sessionDescription) {
-        info('Creating your answer...', colors.yellow);
-
-        try {
-            peerConnection.setLocalDescription(sessionDescription);
-        } catch(ee) {
-            info('Unable to create your answer!', colors.yellow);
-            info(e.stack, colors.red);
-        }
+        peerConnection.setLocalDescription(sessionDescription);
+		
+		document.title = 'Created answer successfully!';
 
         sdp = JSON.stringify(sessionDescription);
 
         var data = {
             sdp: sdp,
-            type: 'answer',
-            you: you,
-            roomToken: roomToken
+            userToken: global.userToken,
+            roomToken: global.roomToken
         };
 
-        xhr('PostSdp', data, function(response) {
-            response && info('Your answer created successfully!', colors.green);
+        $.ajax('/WebRTC/PostSDP', {
+            data: data,
+            success: function() {
+				document.title = 'Posted answer successfully!';
+			}
         });
+
     }, null, { audio: true, video: true });
 };
 
+RTC.checkRemoteICE = function() {
+    if (global.isGotRemoteStream) return;
 
-/*=============================================== UI specific functions ====================================================*/
-nameInput.onkeypress = function(e) {
-    if (!this.value.length) this.focus();
-    else if (e.keyCode === 13) roomInput.focus();
-};
-
-roomInput.onkeyup = function(e) {
-    if (!this.value.length) this.focus();
-    else if (e.keyCode === 13 || e.keyCode === 9) {
-        infoList.tabIndex = 0;
-        infoList.focus();
-        createButtonClick();
+    if (!peerConnection) {
+        setTimeout(RTC.checkRemoteICE, 1000);
+        return;
     }
-};
 
-findDOMElement('create-room').onclick = createButtonClick;
-
-roomsList.onclick = function(e) {
-    var target = e.target;
-    if (!target.id) target = e.target.parentNode;
-
-    if (target.id && target.id !== 'rooms-list') {
-        roomToken = target.id;
-        roomName = target.getAttribute('room-name');
-
-        findDOMElement('room-title').innerHTML = roomName;
-
-        you = prompt('Please enter your name', 'Anonymous');
-        //captureCamera(joinRoom);
-        joinRoom();
-        hideRoomsList();
-    }
-};
-
-getAvailableRooms();
-
-/* feedback panel specific functions
-************************************/
-function feedbackRelevant() {
-    var feedBackPreviewButton = findDOMElement('feedback-button'),
-        feedBackPreview = findDOMElement('feedback-preview'),
-        feedbacks = findDOMElement('feedbacks'),
-        addFeedback = findDOMElement('feedback-now'),
-        textarea = findDOMElement('feedback-message'),
-        feedBackName = findDOMElement('name'),
-        showMoreButton = findDOMElement('show-more');
-
-    findDOMElement('close').onclick = function() {
-        feedBackPreview.style.display = 'none';
-        skipped = 0;
-        took = 10;
-    };
-    
-    var skipped = 0, took = 10;
-    feedBackPreviewButton.onclick = function() {
-        feedBackPreview.style.display = 'block';
-
-        getFeedBacks(skipped, took, function(html) {
-            feedbacks.innerHTML = html;
-        });
+    var data = {
+        userToken: global.userToken,
+        roomToken: global.roomToken
     };
 
-    function getFeedBacks(skip, take, callback) {
-        var data = {
-            skip: skip,
-            take: take
-        };
-        xhr('GetFeedback', data, function(response) {
-            var length = response.feedbacks.length, html = '';
-            for (var i = 0; i < length; i++) {
-                var feedback = response.feedbacks[i];
-                html += '<section class="feedback"><time>' + feedback.time + '</time><div><span class="the-name">' + feedback.name + '</span> written:</div><div class="message">' + feedback.message + '</div></section>';
+    $.ajax('/WebRTC/GetICE', {
+        data: data,
+        success: function(response) {
+            if (response === false && !global.isGotRemoteStream) setTimeout(RTC.checkRemoteICE, 1000);
+            else {
+                try {
+                    candidate = new window.IceCandidate({ sdpMLineIndex: response.label, candidate: JSON.parse(response.candidate) });
+                    peerConnection.addIceCandidate(candidate);
+
+                    !global.isGotRemoteStream && setTimeout(RTC.checkRemoteICE, 10);
+                } catch(e) {
+                    try {
+                        candidate = new window.IceCandidate({ sdpMLineIndex: response.label, candidate: JSON.parse(response.candidate) });
+                        peerConnection.addIceCandidate(candidate);
+
+                        !global.isGotRemoteStream && setTimeout(RTC.checkRemoteICE, 10);
+                    } catch(e) {
+                        !global.isGotRemoteStream && setTimeout(RTC.checkRemoteICE, 1000);
+                    }
+                }
             }
-            if (response.hasMore === true) showMoreButton.style.display = 'block';
-            else showMoreButton.style.display = 'none';
+        }
+    });
+};
 
-            callback(html);
+RTC.checkLocalICE = function(event) {
+    if (global.isGotRemoteStream) return;
+
+    var candidate = event.candidate;
+
+    if (candidate) {
+        var data = {
+            candidate: JSON.stringify(candidate.candidate),
+            label: candidate.sdpMLineIndex,
+            userToken: global.userToken,
+            roomToken: global.roomToken
+        };
+
+        $.ajax('/WebRTC/PostICE', {
+            data: data,
+            success: function() {
+				document.title = 'Posted an ICE candidate!';
+			}
         });
     }
+};
 
-    addFeedback.onclick = function() {
-        var name = validate(feedBackName.value),
-            message = validate(textarea.value);
+var remoteVideo = $('#remote-video');
 
-        if (!message.length) {
-            alert('Please enter your feed back!');
-            textarea.focus();
-            return;
-        }
+RTC.checkRemoteStream = function(remoteEvent) {
+    if (remoteEvent) {
+		document.title = 'Got a clue for remote video stream!';
+		
+        clientVideo.pause();
+        clientVideo.hide();
+        
+        remoteVideo.play();
+        remoteVideo.show();
 
-        if (!name.length) {
-            alert('Please enter your name!');
-            feedBackName.focus();
-            return;
-        }
+        if (!navigator.mozGetUserMedia) remoteVideo.src = window.URL.createObjectURL(remoteEvent.stream);
+        else remoteVideo.mozSrcObject = remoteEvent.stream;
 
-        name = name.length >= 20 ? (name.substr(0, 20) + '...') : name;
-        message = message.length >= 2097000 ? (message.substr(0, 2097000) + '...') : message;
+        RTC.waitUntilRemoteStreamStartFlowing();
+    }
+};
 
-        textarea.value = feedBackName.value = '';
+RTC.waitUntilRemoteStreamStartFlowing = function() {
+	document.title = 'Waiting for remote stream flow!';
+    if (!(remoteVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || remoteVideo.paused || remoteVideo.currentTime <= 0)) {
+        global.isGotRemoteStream = true;
+		
+		document.title = 'Finally got the remote stream!';
+        
+        startChatting();        
+    } else setTimeout(RTC.waitUntilRemoteStreamStartFlowing, 3000);
+};
 
-        var data = {
-            name: name,
-            message: message
-        };
-        xhr('NewFeedback', data, function(feedback) {
-            feedbacks.innerHTML = '<section class="feedback"><time>' + feedback.time + '</time><div><span class="the-name">' + feedback.name + '</span> wrote:</div><div class="message">' + feedback.message + '</div></section>' + feedbacks.innerHTML;
-            var first = feedbacks.getElementsByClassName('feedback')[0];
-            first.tabIndex = 0;
-            first.focus();
-        });
-    };
+/* -------------------------------------------------------------------------------------------------------------------------- */
 
-    findDOMElement('try-add-your-feedback').onclick = function() {
-        textarea.focus();
-    };
-    showMoreButton.onclick = function() {
-        skipped += 10;
-        took += 10;
-        getFeedBacks(skipped, took, function(html) {
-            feedbacks.innerHTML += html;
-        });
-    };
+function hideListsAndBoxes() {
+    $('.create-room-panel').hide();
+    $('aside').hide();
+    $('.private-room').hide();
+
+    global.isGetAvailableRoom = false;
 }
 
-feedbackRelevant();
-xhr('TotalFeedbacks', null, function(total) {
-    findDOMElement('total-feedback').innerHTML = total;
-    findDOMElement('feedback-button').innerHTML = total;
+global.mediaAccessAlertMessage = 'This app wants to use your camera and microphone.\n\nGrant it the access!';
+
+var Room = {
+    createRoom: function (isChecked, partnerEmail) {
+        if (!global.clientStream) {
+            alert(global.mediaAccessAlertMessage);
+            return;
+        }
+        
+        hideListsAndBoxes();
+
+        var data = {
+            roomName: global.roomName.validate(),
+            ownerName: global.userName.validate()
+        };
+
+        if (isChecked) data.partnerEmail = partnerEmail.value.validate();
+
+        $.ajax('/WebRTC/CreateRoom', {
+            data: data,
+            success: function (response) {
+                if (response !== false) {
+                    global.roomToken = response.roomToken;
+                    global.userToken = response.ownerToken;
+					
+					document.title =  'Created room: ' + global.roomName;
+
+                    Room.waitForParticipant();
+                }
+            }
+        });
+    },
+    joinRoom: function (element) {
+        if (!global.clientStream) {
+            alert(global.mediaAccessAlertMessage);
+            return;
+        }
+        
+        hideListsAndBoxes();
+
+        var data = {
+            roomToken: element.id,
+            participant: prompt('Enter your name', 'Anonymous').validate()
+        };
+
+        var email = $('#email');
+        if (email.value.length) data.partnerEmail = email.value.validate();
+
+        $.ajax('/WebRTC/JoinRoom', {
+            data: data,
+            success: function (response) {
+                if (response != false) {
+                    global.userToken = response.participantToken;
+                    $('footer').html('Connected with ' + response.friend + '!');
+					document.title = 'Connected with ' + response.friend + '!';
+                    
+					RTC.waitForOffer();
+					RTC.checkRemoteICE();
+                }
+            }
+        });
+    },
+    waitForParticipant: function () {
+        $('footer').html('Waiting for someone to participate.');
+		document.title = 'Waiting for someone to participate.';
+
+        var data = {
+            roomToken: global.roomToken,
+            ownerToken: global.userToken
+        };
+
+        $.ajax('/WebRTC/GetParticipant', {
+            data: data,
+            success: function (response) {
+                if (response !== false) {
+                    global.participant = response.participant;
+
+                    $('footer').html('Connected with ' + response.participant + '!');
+					document.title = 'Connected with ' + response.participant + '!';
+                    
+                    RTC.createOffer();
+                } else {
+                    $('footer').html('<img src="/images/loader.gif">');
+                    setTimeout(Room.waitForParticipant, 3000);
+                }
+            }
+        });
+    }
+};
+
+/* -------------------------------------------------------------------------------------------------------------------------- */
+
+$('#background-image').bind('load', function() {
+    this.css('width', innerWidth + 'px').css('height', innerHeight + 'px');
 });
 
-var chatUrl = 'http://webrtc.somee.com/Chat/';
-function startChatting()
-{
-    isGetAvailableRoom = false;
+$('#is-private').bind('change', function() {
+    if (this.checked) $('#partner-email').css('padding', '10px 20px').css('border-bottom', '2px solid rgba(32, 26, 26, 0.28)').slideDown().find('#partner-email').focus();
+    else $('#partner-email').css('padding', 0).css('border-bottom', 0).slideUp();
+});
 
-	infoList.style.display =  'block';
-	
-	findDOMElement('chat-message').style.display = 'block';
-	findDOMElement('chat-message').focus();
-	findDOMElement('chat-message').onkeyup = function(e) {
-		if(e.keyCode == 13) postChatMessage();
-	};
-	
-	info('Started watching chat messages from ' + yourFellowUser + '!');
-	
-	getChatMessage();
-}
-function getChatMessage()
-{
-	var data = {
-		me: you,
-		roomToken: roomToken
-	};
-	
-	xhr(chatUrl + 'Get', data, function(response) {
-		if(response !== false)
-		{
-		    info(response.by + ': ' + response.message, colors.yellow);
-		}
-	}, true);
-	
-	setTimeout(getChatMessage, 10000);
-}
+$('#create-room').bind('click', function () {
+    var fullName = $('#full-name'),
+        roomName = $('#room-name'),
+        partnerEmail = $('input#partner-email');
 
-function postChatMessage()
-{
-	var chatBox = findDOMElement('chat-message');
-	var message = chatBox.value;
-	
-	chatBox.setAttribute('disabled', true);
-	
-	var data = {
-		me: you,
-		roomToken: roomToken,
-		message: validate(message)
-	};
-	
-	xhr(chatUrl + 'Post', data, function(response) {
-		if(response == true)
-		{
-		    info('You: ' + message, colors.green);
+    if (fullName.value.length <= 0) {
+        alert('Please enter your full name.');
+        fullName.focus();
+        return;
+    }
+
+    if (roomName.value.length <= 0) {
+        alert('Please enter room name.');
+        roomName.focus();
+        return;
+    }
+
+    var isChecked = $('#is-private').checked;
+
+    if (isChecked && partnerEmail.value.length <= 0) {
+        alert('Please enter your partner\'s email or token.');
+        partnerEmail.focus();
+        return;
+    }
+
+    global.userName = fullName.value;
+    global.roomName = roomName.value;
+
+    Room.createRoom(isChecked, partnerEmail);
+});
+
+$('#search-room').bind('click', function () {
+    var email = $('input#email');
+    if (!email.value.length) {
+        alert('Please enter the email or unique token/word that your partner given you.');
+        email.focus();
+        return;
+    }
+
+    global.searchPrivateRoom = email.value;
+
+    $('.private-room').hide();
+    $('footer').html('Searching private room for: ' + global.searchPrivateRoom);
+});
+
+/* -------------------------------------------------------------------------------------------------------------------------- */
+
+var clientVideo = $('#client-video');
+
+function captureCamera() {
+    navigator.getUserMedia({ audio: true, video: true },
+        function (stream) {
+
+            if (!navigator.mozGetUserMedia) clientVideo.src = window.URL.createObjectURL(stream);
+            else clientVideo.mozSrcObject = stream;
+
+            global.clientStream = stream;
+
+            clientVideo.play();
+        },
+        function () {
+            location.reload();
+        });
+}
+captureCamera();
+
+/* -------------------------------------------------------------------------------------------------------------------------- */
+global.isGetAvailableRoom = true;
+function getAvailableRooms() {
+    if (!global.isGetAvailableRoom) return;
+
+    var data = {};
+    if (global.searchPrivateRoom) data.partnerEmail = global.searchPrivateRoom;
+
+    $.ajax('/WebRTC/SearchPublicRooms', {
+        data: data,
+        success: function (response) {
+            if (!global.searchPrivateRoom) {
+                $('#active-rooms').html(response.publicActiveRooms);
+                $('#available-rooms').html(response.availableRooms);
+                $('#private-rooms').html(response.privateAvailableRooms);
+            }
 			
-			chatBox.removeAttribute('disabled');
-			chatBox.value = '';
-			chatBox.focus();
-		}
-	}, true);
+			document.title = response.availableRooms + ' available public rooms, ' + response.publicActiveRooms + ' active public rooms and ' + response.privateAvailableRooms + ' available private rooms';
+
+            var rooms = response.rooms;
+            if (!rooms.length) {
+                $('aside').html('<div><h2 style="font-size:1.2em;">No room found!</h2><small>No available room found.</small></div>');
+            } else {
+                var html = '';
+                rooms.each(function (room) {
+                    html += '<div><h2>' + room.roomName + '</h2><small>Created by ' + room.ownerName + '</small><span id="' + room.roomToken + '">Join</span></div>';
+                });
+
+                $('aside').html(html);
+                $('aside span', true).each(function (span) {
+                    span.bind('click', function() {
+						global.roomToken = this.id;
+						Room.joinRoom(this);
+					});
+                });
+            }
+            setTimeout(getAvailableRooms, 10000);
+        }
+    });
+}
+getAvailableRooms();
+
+/* -------------------------------------------------------------------------------------------------------------------------- */
+
+function startChatting() {
+    $('footer').hide();
+
+    $('aside').innerHTML = '';
+    $('aside').css('z-index', 100).css('top', 0).show();
+    
+    $('.chat-box').show().find('#chat-message').bind('keyup', function(e) {
+        if (e.keyCode == 13) postChatMessage();
+    });
+    
+    $('#send-chat').bind('click', function() {
+        postChatMessage();
+    });
+
+    getChatMessage();
 }
 
-/*=============================================== Good Luck! ====================================================
-*  Muaz Khan
-*  @muazkh:  http://twitter.com/muazkh
-*  Github:   github.com/muaz-khan
-*****************************************************************************************************************/
+function getChatMessage() {
+    var data = {
+        userToken: global.userToken,
+        roomToken: global.roomToken
+    };
+
+    $.ajax('/WebRTC/GetChatMessage', {
+        data: data,
+        success: function (response) {
+            if (response != false) {
+                var aside = $('aside');
+                aside.innerHTML = '<div><h2>' + response.by + '</h2><small>' + response.at + '</small><br />' + response.message + '</div>' + aside.innerHTML;
+				document.title = response.by + ': ' + location.message;
+            }
+        }
+    });
+
+    setTimeout(getChatMessage, 10000);
+}
+
+function postChatMessage() {
+    var chatBox = $('#chat-message'),
+        message = chatBox.value;
+
+    chatBox.setAttribute('disabled', true);
+
+    var data = {
+        userToken: global.userToken,
+        roomToken: global.roomToken,
+        message: message.validate()
+    };
+
+    $.ajax('/WebRTC/PostChatMessage', {
+        data: data,
+        success: function (response) {
+            if (response == true) {
+                var aside = $('aside');
+                aside.innerHTML = '<div><h2>You:</h2><br />' + message + '</div>' + aside.innerHTML;
+				document.title = 'You: '+ message;
+				
+                chatBox.removeAttribute('disabled');
+                chatBox.value = '';
+                chatBox.focus();
+            }
+        }
+    });
+}
