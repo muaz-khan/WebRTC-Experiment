@@ -33,7 +33,7 @@
 
     <header>
         <menu>
-            <a href="https://webrtc-experiment.appspot.com/rules/" target="_blank">Rules / Privacy</a> » <a href="https://github.com/muaz-khan/WebRTC-Experiment" target="_blank">Source code on Github!</a>
+            <a href="/rules/" target="_blank">Rules / Privacy</a> » <a href="https://github.com/muaz-khan/WebRTC-Experiment" target="_blank">Source code on Github!</a>
         </menu>
         <div class="slogan" title="Do you want a private discussion?
 
@@ -69,6 +69,36 @@ Feel free to invite your partner in this site because it provides private and se
 
         <div id="create-room" style="margin-left: 3.7em;font-size: 20px;">Create Room</div>
     </section>
+	
+	<section class="stats">
+		<h2>Statistics Report</h2>
+		
+		<div>
+			<span id="number-of-rooms">0</span>
+			<label>Number of rooms:</label>
+			<small>Number of rooms created.</small>
+		</div>
+		<div>
+			<span id="number-of-public-rooms">0</span>
+			<label>Number of public rooms:</label>
+			<small>Number of rooms publicly shared.</small>
+		</div>
+		<div>
+			<span id="number-of-private-rooms">0</span>
+			<label>Number of private rooms:</label>
+			<small>Number of rooms privately shared.</small>
+		</div>
+		<div>
+			<span id="number-of-empty-rooms">0</span>
+			<label>Empty rooms:</label>
+			<small>Number of rooms in which <strong>no one</strong> participated.</small>
+		</div>
+		<div style="border:0;">
+			<span id="number-of-full-rooms">0</span>
+			<label>Full rooms:</label>
+			<small>Number of rooms that worked fine. Both participants shared cameras finely!</small>
+		</div>
+	</section>
 
     <section class="private-room">
         <h2>Searching for a private room?</h2>
@@ -99,18 +129,10 @@ Feel free to invite your partner in this site because it provides private and se
     <video id="remote-video" style="display: none;width:100%;top:0; position: absolute;"></video>
 
     <footer>
-        <span id="active-rooms">0</span> public active rooms, <span id="available-rooms">0</span> available rooms, and <span id="private-rooms">0</span> private available rooms
+        <span id="available-rooms">0</span> available rooms, <span id="private-rooms">0</span> private available rooms and <span id="active-rooms">0</span> public active rooms
     </footer>
 
     <script src="/JavaScript.js"></script>
-    
-    <script>
-        (function () {
-            var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-            po.src = 'https://apis.google.com/js/plusone.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-        })();
-    </script>
-	
 </body>
 </html>
+

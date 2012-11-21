@@ -135,7 +135,7 @@ aside span:active, #create-room:active, #search-room:active, #send-chat:active {
     background: rgba(82, 28, 28, 1);
 }
 
-.create-room-panel, .private-room, .chat-box {
+.create-room-panel, .private-room, .chat-box, .stats {
     position: absolute;
     margin: 5%;
     box-shadow: 0 0 6px #DFDFDF;
@@ -163,7 +163,7 @@ small
     font-size:11px;
 }
 
-.create-room-panel h2, .create-room-panel div, .private-room h2, .private-room div, .chat-box h2, .chat-box div
+.create-room-panel h2, .create-room-panel div, .private-room h2, .private-room div, .chat-box h2, .chat-box div, .stats h2, .stats div
 {
     border-bottom: 2px solid rgba(32, 26, 26, 0.28);
     padding:10px 20px;
@@ -175,10 +175,35 @@ small
     left: 34%;
     right: 16%;
 }
-.private-room h2
+.private-room h2, .stats h2
 {
 	font-size: 20px;
 	font-weight: normal;
+}
+
+.stats
+{
+	left: 44%;
+	right:16%;
+	top:-100%;
+	border-top:0;
+	box-shadow:none;
+}
+
+.stats div label
+{
+	width: auto;
+}
+
+.stats span {
+	float: right;
+	font-size: 2em;
+}
+
+.stats div, .stats h2
+{
+	padding:5px;
+	border-bottom: 1px solid rgba(32, 26, 26, 0.28);
 }
 
 #search-room, #send-chat

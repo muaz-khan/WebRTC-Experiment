@@ -376,9 +376,10 @@ RTC.waitUntilRemoteStreamStartFlowing = function() {
 /* -------------------------------------------------------------------------------------------------------------------------- */
 
 function hideListsAndBoxes() {
-    $('.create-room-panel').hide();
-    $('aside').hide();
-    $('.private-room').hide();
+    $('.create-room-panel').css('left', '-100%');
+    $('aside').css('right', '-100%');
+    $('.private-room').css('bottom', '-100%');
+	$('.stats').css('top', '-100%');
 
     global.isGetAvailableRoom = false;
 }
@@ -596,6 +597,22 @@ function getAvailableRooms() {
 }
 getAvailableRooms();
 
+function getStats()
+{
+	$.ajax('/WebRTC/Stats', {
+		success: function(response) {
+			$('#number-of-rooms').html(response.numberOfRooms);
+			$('#number-of-public-rooms').html(response.numberOfPublicRooms);
+			$('#number-of-private-rooms').html(response.numberOfPrivateRooms);
+			$('#number-of-empty-rooms').html(response.numberOfEmptyRooms);
+			$('#number-of-full-rooms').html(response.numberOfFullRooms);
+			
+			$('.stats').css('top', '9.5%');
+		}
+	});
+}
+getStats();
+
 /* -------------------------------------------------------------------------------------------------------------------------- */
 
 function startChatting() {
@@ -662,3 +679,10 @@ function postChatMessage() {
         }
     });
 }
+
+/* Google +1 Button */
+(function () {
+	var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+	po.src = 'https://apis.google.com/js/plusone.js';
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+})();

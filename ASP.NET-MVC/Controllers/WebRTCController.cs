@@ -75,7 +75,7 @@ namespace WebRTCExperiment.Controllers
             if (_db.Rooms.Any(r => r.OwnerToken == participantToken)) goto back;
 
             room.ParticipantName = participant.GetValidatedString();
-            room.ParticipantToken = participant;
+            room.ParticipantToken = participantToken;
             room.LastUpdated = DateTime.Now;
             room.Status = Status.Active;
 
@@ -204,6 +204,9 @@ namespace WebRTCExperiment.Controllers
             var candidate = _db.CandidatesTables.FirstOrDefault(c => c.RoomToken == roomToken && c.Sender != userToken && !c.IsProcessed);
             if (candidate == null) return Json(false);
 
+            candidate.IsProcessed = true;
+            _db.SubmitChanges();
+
             return Json(new
             {
                 candidate = candidate.Candidate,
@@ -228,6 +231,17 @@ namespace WebRTCExperiment.Controllers
 
             if (room.ParticipantName.IsEmpty()) return Json(false);
             return Json(new { participant = room.ParticipantName });
+        }
+
+        [HttpPost]
+        public JsonResult Stats()
+        {
+            var numberOfRooms = _db.Rooms.Count();
+            var numberOfPublicRooms = _db.Rooms.Count(r => r.SharedWith == "Public");
+            var numberOfPrivateRooms = _db.Rooms.Count(r => r.SharedWith != "Public");
+            var numberOfEmptyRooms = _db.Rooms.Count(r => r.ParticipantName == null);
+            var numberOfFullRooms = _db.Rooms.Count(r => r.ParticipantName != null);
+            return Json(new { numberOfRooms, numberOfPublicRooms, numberOfPrivateRooms, numberOfEmptyRooms, numberOfFullRooms });
         }
 
         #endregion
