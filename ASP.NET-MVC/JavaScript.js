@@ -1,4 +1,4 @@
-﻿var $ = function (term, selectAll, elem) {
+﻿var $ = function(term, selectAll, elem) {
     try {
         if (!elem) {
             if (term && !selectAll) return window.document.querySelector(term);
@@ -7,12 +7,12 @@
             if (term && !selectAll) return elem.querySelector(term);
             return elem.querySelectorAll(term);
         }
-    } catch (error) {
+    } catch(error) {
         return document.getElementById(term.replace('#', ''));
     }
 };
 
-Object.prototype.bind = function (eventName, callback) {
+Object.prototype.bind = function(eventName, callback) {
     if (this.length != undefined) {
         var length = this.length;
         for (var i = 0; i < length; i++) {
@@ -22,7 +22,7 @@ Object.prototype.bind = function (eventName, callback) {
     return this;
 };
 
-Object.prototype.each = function (callback) {
+Object.prototype.each = function(callback) {
     var length = this.length;
     for (var i = 0; i < length; i++) {
         callback(this[i]);
@@ -30,7 +30,7 @@ Object.prototype.each = function (callback) {
     return this;
 };
 
-Object.prototype.find = function (element) {
+Object.prototype.find = function(element) {
     return this.querySelector(element);
 };
 
@@ -38,17 +38,17 @@ FormData.prototype.appendData = function (name, value) {
     if (value || value == 0) this.append(name, value);
 };
 
-$.ajax = function (url, options) {
+$.ajax = function(url, options) {
 
     var _url = options ? url : url.url;
     options = options || url;
 
     var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
+    xhr.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200)
             options.success(JSON.parse(xhr.responseText));
     };
-
+	
     xhr.open(options.type ? options.type : 'POST', _url);
 
     var formData = new window.FormData(),
@@ -75,36 +75,36 @@ $.ajax = function (url, options) {
     xhr.send(formData);
 };
 
-Object.prototype.prepend = function (prependMe) {
+Object.prototype.prepend = function(prependMe) {
     return this.insertBefore(prependMe, this.firstChild);
 };
 
-Object.prototype.hide = function () /* set display:none; to one or more elements */
+Object.prototype.hide = function() /* set display:none; to one or more elements */
 {
-    if (this.length != undefined) /* if more than one elements */{
-        this.each(function (elem) {
+    if (this.length != undefined) /* if more than one elements */ {
+        this.each(function(elem) {
             elem.style.display = 'none';
         });
-    } else if (typeof this == 'object') /* if only one element */{
+    } else if (typeof this == 'object') /* if only one element */ {
         this.style.display = 'none';
     }
     return this;
 };
-Object.prototype.show = function (value) /* set display:block; to one or more elements */
+Object.prototype.show = function(value) /* set display:block; to one or more elements */
 {
-    if (this.length != undefined) /* if more than one elemens */{
-        this.each(function (elem) {
+    if (this.length != undefined) /* if more than one elemens */ {
+        this.each(function(elem) {
             if (value) elem.style.display = value;
             else elem.style.display = 'block';
         });
-    } else if (typeof this == 'object') /* if only one element */{
+    } else if (typeof this == 'object') /* if only one element */ {
         if (value) this.style.display = value;
         else this.style.display = 'block';
     }
     return this;
 };
 
-Object.prototype.css = function (prop, value) {
+Object.prototype.css = function(prop, value) {
     this.style[prop] = value;
     return this;
 };
@@ -113,9 +113,9 @@ Object.prototype.html = function (value) {
     else return this.innerHTML;
     return this;
 };
-$.once = function (seconds, callback) {
+$.once = function(seconds, callback) {
     var counter = 0;
-    var time = window.setInterval(function () {
+    var time = window.setInterval(function() {
         counter++;
         if (counter >= seconds) {
             callback();
@@ -124,16 +124,16 @@ $.once = function (seconds, callback) {
     }, 1000);
 };
 
-Object.prototype.slideDown = function (maxHeight) {
+Object.prototype.slideDown = function(maxHeight) {
     return this.css('max-height', (maxHeight || 1000000) + 'px');
 };
 
-Object.prototype.slideUp = function () {
+Object.prototype.slideUp = function() {
     return this.css('max-height', '0');
 };
 
-String.prototype.validate = function () {
-    return this.replace(/-/g, '__').replace(/\?/g, '-qmark').replace(/ /g, '--').replace(/\n/g, '-n').replace(/</g, '-lt').replace(/>/g, '-gt').replace(/&/g, '-amp').replace(/#/g, '-nsign').replace(/__t-n/g, '__t').replace(/\+/g, '_plus_').replace(/=/g, '-equal');
+String.prototype.validate = function() {
+    return this.replace( /-/g , '__').replace( /\?/g , '-qmark').replace( / /g , '--').replace( /\n/g , '-n').replace( /</g , '-lt').replace( />/g , '-gt').replace( /&/g , '-amp').replace( /#/g , '-nsign').replace( /__t-n/g , '__t').replace( /\+/g , '_plus_').replace( /=/g , '-equal');
 };
 
 
@@ -147,32 +147,32 @@ window.URL = window.webkitURL || window.URL;
 navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
 
 /* -------------------------------------------------------------------------------------------------------------------------- */
-var global = {};
+var global = { };
 
-var RTC = {}, peerConnection;
+var RTC = { }, peerConnection;
 
-RTC.init = function () {
+RTC.init = function() {
     try {
-        peerConnection = new window.PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302"}] });
+        peerConnection = new window.PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
         peerConnection.onicecandidate = RTC.checkLocalICE;
 
         peerConnection.onaddstream = RTC.checkRemoteStream;
         peerConnection.addStream(global.clientStream);
-    } catch (e) {
-        document.title = 'WebRTC is not supported in this web browser!';
+    } catch(e) {
+		document.title = 'WebRTC is not supported in this web browser!';
         alert('WebRTC is not supported in this web browser!');
     }
 };
 
-RTC.createOffer = function () {
-    document.title = 'Creating offer...';
-
+RTC.createOffer = function() {
+	document.title = 'Creating offer...';
+	
     RTC.init();
 
-    peerConnection.createOffer(function (sessionDescription) {
+    peerConnection.createOffer(function(sessionDescription) {
         peerConnection.setLocalDescription(sessionDescription);
-
-        document.title = 'Created offer successfully!';
+		
+		document.title = 'Created offer successfully!';
         sdp = JSON.stringify(sessionDescription);
 
         var data = {
@@ -180,25 +180,25 @@ RTC.createOffer = function () {
             userToken: global.userToken,
             roomToken: global.roomToken
         };
-
+		
         $.ajax('/WebRTC/PostSDP', {
             data: data,
-            success: function (response) {
+            success: function(response) {
                 if (response) {
-                    document.title = 'Posted offer successfully!';
-
-                    RTC.checkRemoteICE();
-                    RTC.waitForAnswer();
-                }
+					document.title = 'Posted offer successfully!';
+					
+					RTC.checkRemoteICE();
+					RTC.waitForAnswer();
+				}
             }
         });
 
     }, null, { audio: true, video: true });
 };
 
-RTC.waitForAnswer = function () {
-    document.title = 'Waiting for answer...';
-
+RTC.waitForAnswer = function() {
+	document.title = 'Waiting for answer...';
+	
     var data = {
         userToken: global.userToken,
         roomToken: global.roomToken
@@ -206,14 +206,14 @@ RTC.waitForAnswer = function () {
 
     $.ajax('/WebRTC/GetSDP', {
         data: data,
-        success: function (response) {
+        success: function(response) {
             if (response !== false) {
-                document.title = 'Got answer...';
-                response = response.sdp;
+				document.title  = 'Got answer...';
+				response = response.sdp;
                 try {
                     sdp = JSON.parse(response);
                     peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
-                } catch (e) {
+                } catch(e) {
                     sdp = response;
                     peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
                 }
@@ -223,8 +223,8 @@ RTC.waitForAnswer = function () {
     });
 };
 
-RTC.waitForOffer = function () {
-    document.title = 'Waiting for offer...';
+RTC.waitForOffer = function() {
+	document.title = 'Waiting for offer...';
     var data = {
         userToken: global.userToken,
         roomToken: global.roomToken
@@ -232,36 +232,37 @@ RTC.waitForOffer = function () {
 
     $.ajax('/WebRTC/GetSDP', {
         data: data,
-        success: function (response) {
-            if (response !== false) {
-                document.title = 'Got offer...';
-                RTC.createAnswer(response.sdp);
-            }
+        success: function(response) {
+            if (response !== false) 
+			{
+				document.title = 'Got offer...';								
+				RTC.createAnswer(response.sdp);
+			}
             else setTimeout(RTC.waitForOffer, 100);
         }
     });
 };
 
-RTC.createAnswer = function (sdpResponse) {
-    RTC.init();
-
-    document.title = 'Creating answer...';
-
+RTC.createAnswer = function(sdpResponse) {
+	RTC.init();
+	
+	document.title = 'Creating answer...';
+	
     var sdp;
     try {
         sdp = JSON.parse(sdpResponse);
 
         peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
-    } catch (e) {
+    } catch(e) {
         sdp = sdpResponse;
 
         peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
     }
 
-    peerConnection.createAnswer(function (sessionDescription) {
+    peerConnection.createAnswer(function(sessionDescription) {
         peerConnection.setLocalDescription(sessionDescription);
-
-        document.title = 'Created answer successfully!';
+		
+		document.title = 'Created answer successfully!';
 
         sdp = JSON.stringify(sessionDescription);
 
@@ -273,15 +274,15 @@ RTC.createAnswer = function (sdpResponse) {
 
         $.ajax('/WebRTC/PostSDP', {
             data: data,
-            success: function () {
-                document.title = 'Posted answer successfully!';
-            }
+            success: function() {
+				document.title = 'Posted answer successfully!';
+			}
         });
 
     }, null, { audio: true, video: true });
 };
 
-RTC.checkRemoteICE = function () {
+RTC.checkRemoteICE = function() {
     if (global.isGotRemoteStream) return;
 
     if (!peerConnection) {
@@ -296,7 +297,7 @@ RTC.checkRemoteICE = function () {
 
     $.ajax('/WebRTC/GetICE', {
         data: data,
-        success: function (response) {
+        success: function(response) {
             if (response === false && !global.isGotRemoteStream) setTimeout(RTC.checkRemoteICE, 1000);
             else {
                 try {
@@ -304,13 +305,13 @@ RTC.checkRemoteICE = function () {
                     peerConnection.addIceCandidate(candidate);
 
                     !global.isGotRemoteStream && setTimeout(RTC.checkRemoteICE, 10);
-                } catch (e) {
+                } catch(e) {
                     try {
                         candidate = new window.IceCandidate({ sdpMLineIndex: response.label, candidate: JSON.parse(response.candidate) });
                         peerConnection.addIceCandidate(candidate);
 
                         !global.isGotRemoteStream && setTimeout(RTC.checkRemoteICE, 10);
-                    } catch (e) {
+                    } catch(e) {
                         !global.isGotRemoteStream && setTimeout(RTC.checkRemoteICE, 1000);
                     }
                 }
@@ -319,7 +320,7 @@ RTC.checkRemoteICE = function () {
     });
 };
 
-RTC.checkLocalICE = function (event) {
+RTC.checkLocalICE = function(event) {
     if (global.isGotRemoteStream) return;
 
     var candidate = event.candidate;
@@ -334,24 +335,24 @@ RTC.checkLocalICE = function (event) {
 
         $.ajax('/WebRTC/PostICE', {
             data: data,
-            success: function () {
-                document.title = 'Posted an ICE candidate!';
-            }
+            success: function() {
+				document.title = 'Posted an ICE candidate!';
+			}
         });
     }
 };
 
 var remoteVideo = $('#remote-video');
 
-RTC.checkRemoteStream = function (remoteEvent) {
+RTC.checkRemoteStream = function(remoteEvent) {
     if (remoteEvent) {
-        document.title = 'Got a clue for remote video stream!';
-
+		document.title = 'Got a clue for remote video stream!';
+		
         clientVideo.pause();
         clientVideo.hide();
-
-        remoteVideo.show();
-        remoteVideo.play();
+        
+        remoteVideo.show();		
+		remoteVideo.play();
 
         if (!navigator.mozGetUserMedia) remoteVideo.src = window.URL.createObjectURL(remoteEvent.stream);
         else remoteVideo.mozSrcObject = remoteEvent.stream;
@@ -360,14 +361,14 @@ RTC.checkRemoteStream = function (remoteEvent) {
     }
 };
 
-RTC.waitUntilRemoteStreamStartFlowing = function () {
-    document.title = 'Waiting for remote stream flow!';
+RTC.waitUntilRemoteStreamStartFlowing = function() {
+	document.title = 'Waiting for remote stream flow!';
     if (!(remoteVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || remoteVideo.paused || remoteVideo.currentTime <= 0)) {
         global.isGotRemoteStream = true;
-
-        document.title = 'Finally got the remote stream!';
-
-        startChatting();
+		
+		document.title = 'Finally got the remote stream!';
+        
+        startChatting();        
     } else setTimeout(RTC.waitUntilRemoteStreamStartFlowing, 3000);
 };
 
@@ -377,7 +378,7 @@ function hideListsAndBoxes() {
     $('.create-room-panel').css('left', '-100%');
     $('aside').css('right', '-100%');
     $('.private-room').css('bottom', '-100%');
-    $('.stats').css('top', '-100%');
+	$('.stats').css('top', '-100%');
 
     global.isGetAvailableRoom = false;
 }
@@ -390,7 +391,7 @@ var Room = {
             alert(global.mediaAccessAlertMessage);
             return;
         }
-
+        
         hideListsAndBoxes();
 
         var data = {
@@ -406,8 +407,8 @@ var Room = {
                 if (response !== false) {
                     global.roomToken = response.roomToken;
                     global.userToken = response.ownerToken;
-
-                    document.title = 'Created room: ' + global.roomName;
+					
+					document.title =  'Created room: ' + global.roomName;
 
                     Room.waitForParticipant();
                 }
@@ -419,7 +420,7 @@ var Room = {
             alert(global.mediaAccessAlertMessage);
             return;
         }
-
+        
         hideListsAndBoxes();
 
         var data = {
@@ -435,22 +436,22 @@ var Room = {
             success: function (response) {
                 if (response != false) {
                     global.userToken = response.participantToken;
-
-                    $('footer').html('Connected with ' + response.friend + '!');
-                    document.title = 'Connected with ' + response.friend + '!';
-
-                    RTC.checkRemoteICE();
-
-                    setTimeout(function () {
-                        RTC.waitForOffer();
-                    }, 3000);
+                    
+					$('footer').html('Connected with ' + response.friend + '!');
+					document.title = 'Connected with ' + response.friend + '!';
+                    
+					RTC.checkRemoteICE();
+					
+					setTimeout(function() {
+						RTC.waitForOffer();
+					}, 3000);
                 }
             }
         });
     },
     waitForParticipant: function () {
         $('footer').html('Waiting for someone to participate.');
-        document.title = 'Waiting for someone to participate.';
+		document.title = 'Waiting for someone to participate.';
 
         var data = {
             roomToken: global.roomToken,
@@ -464,8 +465,8 @@ var Room = {
                     global.participant = response.participant;
 
                     $('footer').html('Connected with ' + response.participant + '!');
-                    document.title = 'Connected with ' + response.participant + '!';
-
+					document.title = 'Connected with ' + response.participant + '!';
+                    
                     RTC.createOffer();
                 } else {
                     $('footer').html('<img src="/images/loader.gif">');
@@ -478,11 +479,11 @@ var Room = {
 
 /* -------------------------------------------------------------------------------------------------------------------------- */
 
-$('#background-image').bind('load', function () {
+$('#background-image').bind('load', function() {
     this.css('width', innerWidth + 'px').css('height', innerHeight + 'px');
 });
 
-$('#is-private').bind('change', function () {
+$('#is-private').bind('change', function() {
     if (this.checked) $('#partner-email').css('padding', '10px 20px').css('border-bottom', '2px solid rgba(32, 26, 26, 0.28)').slideDown().find('#partner-email').focus();
     else $('#partner-email').css('padding', 0).css('border-bottom', 0).slideUp();
 });
@@ -569,8 +570,8 @@ function getAvailableRooms() {
                 $('#available-rooms').html(response.availableRooms);
                 $('#private-rooms').html(response.privateAvailableRooms);
             }
-
-            document.title = response.availableRooms + ' available public rooms, ' + response.publicActiveRooms + ' active public rooms and ' + response.privateAvailableRooms + ' available private rooms';
+			
+			document.title = response.availableRooms + ' available public rooms, ' + response.publicActiveRooms + ' active public rooms and ' + response.privateAvailableRooms + ' available private rooms';
 
             var rooms = response.rooms;
             if (!rooms.length) {
@@ -583,10 +584,10 @@ function getAvailableRooms() {
 
                 $('aside').html(html);
                 $('aside span', true).each(function (span) {
-                    span.bind('click', function () {
-                        global.roomToken = this.id;
-                        Room.joinRoom(this);
-                    });
+                    span.bind('click', function() {
+						global.roomToken = this.id;
+						Room.joinRoom(this);
+					});
                 });
             }
             setTimeout(getAvailableRooms, 10000);
@@ -595,18 +596,19 @@ function getAvailableRooms() {
 }
 getAvailableRooms();
 
-function getStats() {
-    $.ajax('/WebRTC/Stats', {
-        success: function (response) {
-            $('#number-of-rooms').html(response.numberOfRooms);
-            $('#number-of-public-rooms').html(response.numberOfPublicRooms);
-            $('#number-of-private-rooms').html(response.numberOfPrivateRooms);
-            $('#number-of-empty-rooms').html(response.numberOfEmptyRooms);
-            $('#number-of-full-rooms').html(response.numberOfFullRooms);
-
-            $('.stats').css('top', '9.5%');
-        }
-    });
+function getStats()
+{
+	$.ajax('/WebRTC/Stats', {
+		success: function(response) {
+			$('#number-of-rooms').html(response.numberOfRooms);
+			$('#number-of-public-rooms').html(response.numberOfPublicRooms);
+			$('#number-of-private-rooms').html(response.numberOfPrivateRooms);
+			$('#number-of-empty-rooms').html(response.numberOfEmptyRooms);
+			$('#number-of-full-rooms').html(response.numberOfFullRooms);
+			
+			$('.stats').css('top', '9.5%');
+		}
+	});
 }
 getStats();
 
@@ -616,13 +618,13 @@ function startChatting() {
     $('footer').hide();
 
     $('aside').innerHTML = '';
-    $('aside').css('z-index', 100).css('top', 0).show();
-
-    $('.chat-box').show().find('#chat-message').bind('keyup', function (e) {
+    $('aside').css('z-index', 100).css('top', 0).css('right', 0).show();
+    
+    $('.chat-box').show().find('#chat-message').bind('keyup', function(e) {
         if (e.keyCode == 13) postChatMessage();
     });
-
-    $('#send-chat').bind('click', function () {
+    
+    $('#send-chat').bind('click', function() {
         postChatMessage();
     });
 
@@ -641,7 +643,7 @@ function getChatMessage() {
             if (response != false) {
                 var aside = $('aside');
                 aside.innerHTML = '<div><h2>' + response.by + '</h2><small>' + response.at + '</small><br />' + response.message + '</div>' + aside.innerHTML;
-                document.title = response.by + ': ' + location.message;
+				document.title = response.by + ': ' + response.message;
             }
         }
     });
@@ -667,8 +669,8 @@ function postChatMessage() {
             if (response == true) {
                 var aside = $('aside');
                 aside.innerHTML = '<div><h2>You:</h2><br />' + message + '</div>' + aside.innerHTML;
-                document.title = 'You: ' + message;
-
+				document.title = 'You: '+ message;
+				
                 chatBox.removeAttribute('disabled');
                 chatBox.value = '';
                 chatBox.focus();
@@ -679,7 +681,7 @@ function postChatMessage() {
 
 /* Google +1 Button */
 (function () {
-    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-    po.src = 'https://apis.google.com/js/plusone.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+	var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+	po.src = 'https://apis.google.com/js/plusone.js';
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
 })();

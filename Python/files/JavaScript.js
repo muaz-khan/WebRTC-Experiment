@@ -619,7 +619,7 @@ function startChatting() {
     $('footer').hide();
 
     $('aside').innerHTML = '';
-    $('aside').css('z-index', 100).css('top', 0).show();
+    $('aside').css('z-index', 100).css('top', 0).css('right', 0).show();
     
     $('.chat-box').show().find('#chat-message').bind('keyup', function(e) {
         if (e.keyCode == 13) postChatMessage();
@@ -644,7 +644,7 @@ function getChatMessage() {
             if (response != false) {
                 var aside = $('aside');
                 aside.innerHTML = '<div><h2>' + response.by + '</h2><small>' + response.at + '</small><br />' + response.message + '</div>' + aside.innerHTML;
-				document.title = response.by + ': ' + location.message;
+				document.title = response.by + ': ' + response.message;
             }
         }
     });
