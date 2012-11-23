@@ -5,7 +5,13 @@ from datetime import date
 class MainHandler(webapp2.RequestHandler):
     def get(self):
         Index = openFile('index.html')
-        JavaScript = openFile('JavaScript.js')
+
+        MiniJQuery = openFile('mini-jquery.js')
+        WebRTC = openFile('WebRTC.js')
+        UI = openFile('UI.js')
+
+        JavaScript = MiniJQuery + WebRTC + UI
+        
         StyleSheet = openFile('StyleSheet.css')
         
         html = Index.replace('{year}', str(date.today().year))\
