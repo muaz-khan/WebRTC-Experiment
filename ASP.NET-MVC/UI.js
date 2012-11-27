@@ -45,10 +45,14 @@ var Room = {
         
         hideListsAndBoxes();
 
+		global.userName = prompt('Enter your name', 'Anonymous').validate()
+		
         var data = {
             roomToken: element.id,
-            participant: prompt('Enter your name', 'Anonymous').validate()
+            participant: global.userName
         };
+		
+		
 
         var email = $('#email');
         if (email.value.length) data.partnerEmail = email.value.validate();
@@ -93,10 +97,6 @@ var Room = {
 };
 
 /* -------------------------------------------------------------------------------------------------------------------------- */
-
-$('#background-image').bind('load', function() {
-    this.css('width', innerWidth + 'px').css('height', innerHeight + 'px');
-});
 
 $('#remote-video').css('width', innerWidth + 'px').css('height', innerHeight + 'px');
 $('#client-video').css('width', innerWidth + 'px').css('height', innerHeight + 'px');
@@ -170,7 +170,6 @@ function captureCamera() {
             location.reload();
         });
 }
-captureCamera();
 
 /* -------------------------------------------------------------------------------------------------------------------------- */
 global.isGetAvailableRoom = true;
@@ -246,56 +245,58 @@ function startChatting() {
         postChatMessage();
     });
 
-    getChatMessage();
+    startChannel();
 }
 
-function getChatMessage() {
-    var data = {
-        userToken: global.userToken,
-        roomToken: global.roomToken
-    };
-
-    $.ajax('/WebRTC/GetChatMessage', {
-        data: data,
-        success: function (response) {
-            if (response != false) {
-                var aside = $('aside');
-                aside.innerHTML = '<div><h2>' + response.by + '</h2><small>' + response.at + '</small><br />' + response.message + '</div>' + aside.innerHTML;
-				document.title = response.by + ': ' + response.message;
-            }
+function startChannel()
+{
+	var aside = $('aside');
+	
+    PUBNUB.subscribe({
+        channel    : global.roomToken, 
+        restore    : false, 
+        callback   : function(response) {
+			if(response.message) {			 
+				 aside.innerHTML = '<div><h2>' + response.by + '</h2>' + response.message + '</div>' + aside.innerHTML;
+				 document.title = response.by + ': ' + response.message;
+			 }
+			 else
+			 {
+				aside.innerHTML = '<div>'+ response	+'</div>' + aside.innerHTML;
+				 document.title = response;
+			 }
+        },
+		
+		disconnect : function() {
+			PUBNUB.publish({
+                channel : global.roomToken,
+                message : global.userName + ' is disconnected.'
+            })
+        },
+ 
+        connect    : function() {
+			PUBNUB.publish({
+                channel : global.roomToken,
+                message : global.userName + ' is ready to chat with you!'
+            })
         }
-    });
-
-    setTimeout(getChatMessage, 10000);
+    })
 }
 
 function postChatMessage() {
     var chatBox = $('#chat-message'),
         message = chatBox.value;
-
-    chatBox.setAttribute('disabled', true);
-
-    var data = {
-        userToken: global.userToken,
-        roomToken: global.roomToken,
-        message: message.validate()
-    };
-
-    $.ajax('/WebRTC/PostChatMessage', {
-        data: data,
-        success: function (response) {
-            if (response == true) {
-                var aside = $('aside');
-                aside.innerHTML = '<div><h2>You:</h2><br />' + message + '</div>' + aside.innerHTML;
-				document.title = 'You: '+ message;
-				
-                chatBox.removeAttribute('disabled');
-                chatBox.value = '';
-                chatBox.focus();
-            }
-        }
+	
+	PUBNUB.publish({
+        channel : global.roomToken,
+        message : { by: global.userName, message: message }
     });
+
+	chatBox.value = '';
+    chatBox.focus();
 }
+
+setTimeout(captureCamera, 2000);
 
 /* Google +1 Button */
 (function () {

@@ -77,7 +77,7 @@ RTC.waitForAnswer = function() {
                     peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
                 }
             } else
-                setTimeout(RTC.waitForAnswer, 100);
+                setTimeout(RTC.waitForAnswer, 1000);
         }
     });
 };
@@ -97,7 +97,7 @@ RTC.waitForOffer = function() {
 				document.title = 'Got offer...';								
 				RTC.createAnswer(response.sdp);
 			}
-            else setTimeout(RTC.waitForOffer, 100);
+            else setTimeout(RTC.waitForOffer, 1000);
         }
     });
 };

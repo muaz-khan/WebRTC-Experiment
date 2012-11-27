@@ -1,0 +1,132 @@
+﻿<!--
+    /*=============================================== Good Luck! ====================================================
+    *  Muaz Khan
+    *  @muazkh:  http://twitter.com/muazkh
+    *  Github:   github.com/muaz-khan
+    *****************************************************************************************************************/
+-->
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta itemprop="image" content="https://muazkh.appspot.com/images/WebRTC.png">
+
+    <title>WebRTC Experiment (ASP.NET MVC) ® Muaz Khan</title>
+    <meta name="description" content="WebRTC Experiment — A Realtime ASP.NET MVC oriented WebRTC Experiment that uses XHR to allow sharing of audio/video streams among peers. It is WebRTC, a real WebRTC Experiment!">
+    
+    <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+    <meta name="author" content="Muaz Khan">
+    <meta name="copyright" content="© Muaz Khan, {year}">
+    <style>{StyleSheet}</style>
+
+    <link rel="canonical" href="https://webrtc-experiment.appspot.com/aspnet-mvc/" />
+</head>
+<body>
+    <img id="background-image" src="/images/background.png" style="position: absolute;z-index: -1;width:100%;height:100%;">
+
+    <header>
+        <menu>
+            <a href="/">HOME</a> » <a href="/rules/" target="_blank">Rules / Privacy</a> » <a href="https://github.com/muaz-khan/WebRTC-Experiment" target="_blank">Source code on Github!</a> » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Email</a>
+        </menu>
+        <div class="slogan">Share your feelings directly & privately with friends!</div>
+        <h1 title="ASP.NET MVC oriented Realtime WebRTC Experiment!">WebRTC Experiment <div class="author">by <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>!</div></h1>
+    </header>
+
+    <aside></aside>
+
+    <section class="create-room-panel">
+        <h2>Create a room</h2>
+        <div>
+            <label for="full-name">Your name:</label>
+            <input type="text" id="full-name">
+            <small>Enter your full name.</small>
+        </div>
+
+        <div>
+            <label for="room-name">Room name:</label>
+            <input type="text" id="room-name">
+            <small>Enter human-readable room name.</small>
+        </div>
+
+        <div id="partner-email" style="max-height:0; padding:0;border-bottom:0;">
+            <label for="partner-email">Partner email:</label>
+            <input type="text" id="partner-email">
+            <small>Enter your partner's email or unique token/word.</small>
+        </div>
+
+        <input type="checkbox" id="is-private" style="margin-left: 20px;" />
+        <label for="is-private" style="width: auto;">Is Private Room?</label>
+
+        <div id="create-room" style="margin-left: 3.7em;font-size: 20px;">Create Room</div>
+    </section>
+	
+	<section class="stats">
+		<h2>Statistics Report</h2>
+		
+		<div>
+			<span id="number-of-rooms">0</span>
+			<label>Number of rooms:</label>
+			<small>Number of rooms created.</small>
+		</div>
+		<div>
+			<span id="number-of-public-rooms">0</span>
+			<label>Number of public rooms:</label>
+			<small>Number of rooms publicly shared.</small>
+		</div>
+		<div>
+			<span id="number-of-private-rooms">0</span>
+			<label>Number of private rooms:</label>
+			<small>Number of rooms privately shared.</small>
+		</div>
+		<div>
+			<span id="number-of-empty-rooms">0</span>
+			<label>Empty rooms:</label>
+			<small>Number of rooms in which <strong>no one</strong> participated.</small>
+		</div>
+		<div style="border:0;">
+			<span id="number-of-full-rooms">0</span>
+			<label>Full rooms:</label>
+			<small>Number of rooms that worked fine. Both participants shared cameras finely!</small>
+		</div>
+	</section>
+
+    <section class="private-room">
+        <h2>Searching for a private room?</h2>
+        <div style="border:0">
+            <label for="email">Your email:</label>
+            <input type="text" id="email">
+
+            <div id="search-room">Search</div>
+
+            <small>Enter the email or token that your room partner given you.</small>
+        </div>
+    </section>
+    
+    <section class="chat-box">
+        <div style="border:0">
+            <label for="chat-messag">Chat message:</label>
+            <input type="text" id="chat-message">
+
+            <div id="send-chat">Send</div>
+        </div>
+    </section>
+    
+	
+    <section class="plusone-gplus"><div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div></section>
+    
+	
+    <video id="client-video" muted style="top:0;position:absolute;z-index: -1;"></video>
+    <video id="remote-video" style="display: none;top:0; position: absolute;"></video>
+
+    <footer>
+        <span id="available-rooms">0</span> available rooms, <span id="private-rooms">0</span> private available rooms and <span id="active-rooms">0</span> public active rooms
+    </footer>
+	
+	<div pub-key="demo" sub-key="demo" ssl="off" origin="pubsub.pubnub.com" id="pubnub"></div>
+    <script src="http://cdn.pubnub.com/pubnub-3.3.1.min.js"></script>
+	<script>{JavaScript}</script>
+</body>
+</html>

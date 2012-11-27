@@ -1,0 +1,232 @@
+﻿html, html *
+{
+    padding: 0;
+    margin: 0;
+    -webkit-user-select: none;
+    font-family:Georgia, Verdana, Arial, Sans-Serif;
+    
+    -webkit-transition:     all .8s ease;
+    -moz-transition:        all .8s ease;
+    -o-transition:          all .8s ease;
+    -ms-transition:         all .8s ease;
+    transition:             all .8s ease;
+    
+    overflow:hidden;
+}
+
+html
+{
+    color: #420808;
+    background: #420808;
+}
+
+header
+{
+    background: rgba(214, 206, 206, 0.65);
+    border-bottom: 5px solid rgba(32, 26, 26, 0.28);
+    padding: 5px 15px;
+}
+
+.author
+{
+    float:right;
+}
+
+h1, h2
+{
+    text-shadow: 0 0 5px #572E2E;
+    color: #420808;
+    font-size: 3em;
+}
+h2
+{
+    font-size:2em;
+}
+
+.slogan {
+    font-size: 20px;
+}
+
+a
+{
+    color: white;
+    text-decoration: none;
+}
+
+a:hover
+{
+    color: #DBCBCB;
+}
+
+footer
+{
+    position: absolute;
+    bottom: 0;
+    background: rgba(18, 112, 165, 0.54);
+    width: 100%;
+    text-align: center;
+    font-size: 28px;
+    color: #FFF0F0;
+}
+
+footer span
+{
+    background: rgba(1, 11, 15, 0.23);
+    padding: 0 .5em;
+}
+
+menu {
+    float: right;
+}
+menu a {
+    text-shadow: 0 0 5px #572E2E;
+    color: #420808;
+}
+
+menu a:hover {
+    text-shadow: 0 0 5px black;
+    color: black;
+}
+
+aside
+{
+    position:absolute;
+    margin-left:80%;
+    width: 20%;
+    max-height: 80.8%;
+    overflow: auto;
+}
+aside h2
+{
+    font-size: 1.5em;
+    font-weight: normal;
+}
+
+aside a
+{
+	color:red!important;
+}
+
+aside div
+{
+   background: rgba(238, 236, 227, 0.64);
+    border: 1px solid rgba(32, 26, 26, 0.28);
+    padding: 10px;
+}
+aside div:hover
+{
+    background: rgba(238, 236, 227, 0.8);
+}
+
+aside span, #create-room, #search-room, #send-chat {
+    margin: 5px;
+    background: rgba(82, 28, 28, 0.65);
+    padding: 6px 17px;
+    display: inline-block;
+    color: white;
+    cursor: pointer;
+}
+
+aside span:hover, #create-room:hover, #search-room:hover, #send-chat:hover {
+    background: rgba(82, 28, 28, 0.80);
+}
+
+aside span:active, #create-room:active, #search-room:active, #send-chat:active {
+    background: rgba(82, 28, 28, 1);
+}
+
+.create-room-panel, .private-room, .chat-box, .stats {
+    position: absolute;
+    margin: 5%;
+    box-shadow: 0 0 6px #DFDFDF;
+    background: rgba(214, 206, 206, 0.65);
+    border: 2px solid rgba(32, 26, 26, 0.28);
+}
+
+input
+{
+    -webkit-user-select: initial;
+    outline:none!important;
+    font-size: 25px;
+}
+
+label
+{
+    width:150px;
+    display:inline-block;
+    font-size:20px;
+}
+
+small
+{
+    display:block;
+    font-size:11px;
+}
+
+.create-room-panel h2, .create-room-panel div, .private-room h2, .private-room div, .chat-box h2, .chat-box div, .stats h2, .stats div
+{
+    border-bottom: 2px solid rgba(32, 26, 26, 0.28);
+    padding:10px 20px;
+}
+
+.private-room
+{
+    bottom: 4%;
+    left: 34%;
+    right: 16%;
+}
+.private-room h2, .stats h2
+{
+	font-size: 20px;
+	font-weight: normal;
+}
+
+.stats
+{
+	left: 44%;
+	right:16%;
+	top:-100%;
+	border-top:0;
+	box-shadow:none;
+}
+
+.stats div label
+{
+	width: auto;
+}
+
+.stats span {
+	float: right;
+	font-size: 2em;
+}
+
+.stats div, .stats h2
+{
+	padding:5px;
+	border-bottom: 1px solid rgba(32, 26, 26, 0.28);
+}
+
+#search-room, #send-chat
+{
+    float: right;
+    margin-top: 1px;
+}
+
+#send-chat
+{
+	margin: -33px 0;
+}
+
+.plusone-gplus {
+    position: absolute;
+    bottom: 5%;
+    margin-left: 1em;
+}
+
+.chat-box {
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    z-index: 10000;
+    display: none;
+}
