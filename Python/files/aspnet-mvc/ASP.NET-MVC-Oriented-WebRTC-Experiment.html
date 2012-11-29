@@ -20,7 +20,7 @@
     <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
     <meta name="author" content="Muaz Khan">
     <meta name="copyright" content="© Muaz Khan, {year}">
-    <style>{StyleSheet}</style>
+    <link href="StyleSheet.css" rel="stylesheet" type="text/css" />
 
     <link rel="canonical" href="https://webrtc-experiment.appspot.com/aspnet-mvc/" />
 </head>
@@ -29,7 +29,7 @@
 
     <header>
         <menu>
-            <a href="/">HOME</a> » <a href="/rules/" target="_blank">Rules / Privacy</a> » <a href="https://github.com/muaz-khan/WebRTC-Experiment" target="_blank">Source code on Github!</a> » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Email</a>
+            <a href="/">HOME</a> » <a href="/rules/">Rules / Privacy</a> » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ASP.NET-MVC" target="_blank">Source code on Github!</a> » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Email</a>
         </menu>
         <div class="slogan">Share your feelings directly & privately with friends!</div>
         <h1 title="ASP.NET MVC oriented Realtime WebRTC Experiment!">WebRTC Experiment <div class="author">by <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>!</div></h1>
@@ -125,8 +125,11 @@
         <span id="available-rooms">0</span> available rooms, <span id="private-rooms">0</span> private available rooms and <span id="active-rooms">0</span> public active rooms
     </footer>
 	
-	<div pub-key="demo" sub-key="demo" ssl="off" origin="pubsub.pubnub.com" id="pubnub"></div>
-    <script src="http://cdn.pubnub.com/pubnub-3.3.1.min.js"></script>
-	<script>{JavaScript}</script>
+	<div pub-key="demo" sub-key="demo" ssl="on" origin="pubsub.pubnub.com" id="pubnub"></div>
+    <script src="mini-jquery.js"></script>
+	<script src="WebRTC.js"></script>
+	<script src="UI.js"></script>
+	
+	<script src="http://cdn.pubnub.com/pubnub-3.3.1.min.js"></script>
 </body>
 </html>

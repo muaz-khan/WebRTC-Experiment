@@ -20,56 +20,247 @@
     <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
     <meta name="author" content="Muaz Khan">
     <meta name="copyright" content="© Muaz Khan, {year}">
-    <style>{StyleSheet}</style>
-	
-	<style>
-		#background-image
-		{
-			width:100%;
-			height:100%;
-		}
-        .create-room-panel a{
-            color:red;
-        }
-	</style>
+    <style>
+html, html *
+{
+    padding: 0;
+    margin: 0;
+    -webkit-user-select: none;
+    font-family:Georgia, Verdana, Arial, Sans-Serif;
+    
+    -webkit-transition:     all .8s ease;
+    -moz-transition:        all .8s ease;
+    -o-transition:          all .8s ease;
+    -ms-transition:         all .8s ease;
+    transition:             all .8s ease;
+    
+    overflow:hidden;
+}
+
+html
+{
+    color: #420808;
+    background: #420808;
+    background-image: url(/images/loader.gif);
+}
+
+header
+{
+    background: rgba(101, 135, 187, 0.76);
+    border-bottom: 2px solid rgba(34, 0, 0, 0.28);
+    padding: 5px 15px;
+}
+
+header:hover, footer:hover
+{
+    background: rgba(101, 135, 187, 0.90);
+}
+
+.author
+{
+    float:right;
+}
+
+h1, h2
+{
+    text-shadow: 0 0 2px #FF1010;
+    color: #420808;
+    font-size: 3em;
+}
+h2
+{
+    font-size:2em;
+}
+
+.slogan {
+    font-size: 20px;
+    color: rgba(255, 249, 249, 0.72);
+}
+
+a
+{
+    color: #3D0101;
+    text-decoration: none;
+    text-shadow: 0 0 2px #FF1010;
+}
+
+a:hover
+{
+    color: #EB0D0D;
+    text-shadow: 0 0 2px #050505;
+}
+a:focus, a:active
+{
+    color: #160F0F;
+    text-shadow: 0 0 2px #727272;
+}
+
+footer
+{
+    position: absolute;
+    bottom: 0;
+    background: rgba(101, 135, 187, 0.76);
+    width: 100%;
+    text-align: center;
+    font-size: 28px;
+    color: #0F0101;
+}
+
+footer span
+{
+    background: rgba(1, 11, 15, 0.23);
+    padding: 0 .5em;
+}
+
+menu {
+    float: right;
+    color:rgba(255, 249, 249, 0.72);
+}
+menu a {
+    text-shadow: none!important;
+    color:rgba(255, 249, 249, 0.72)!important;
+}
+menu a:hover {
+    color:rgba(255, 249, 249, 0.92)!important;
+}
+
+.experiment-block
+{
+    display: inline-block;
+    width: 45%;
+    border: 2px solid #311010;
+    background: rgba(255, 255, 255, 0.81);
+    margin: 1em;
+    border-radius: 5px;
+    box-shadow: 0 0 3px #FF0A0A;
+    cursor: default;
+    vertical-align: top;
+}
+.experiment-block:hover
+{
+    border: 2px solid #311010;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 15px;
+    box-shadow: 0 0 3px #FF6767;
+}
+.experiment-block h2
+{
+    border-bottom: 2px solid #311010;
+    padding: 5px 10px;
+    font-size: 2em;
+}
+.experiment-block blockquote
+{
+    padding: 10px;
+    line-height: 1.5;
+    font-size: 20px;
+    color: #050000;
+    text-shadow: 0 0 2px #E60000;
+}
+.experiment-links
+{
+    font-size: 25px;
+    border-top:2px solid #311010;
+    padding-left: 7px;
+}
+.experiment-links a
+{
+    padding: 5px 10px;
+    border-right: 2px solid #311010;
+    margin-left: -7px;
+    background-repeat: no-repeat;
+    background-position: 6px;
+    background-image: url(/images/right-arrow.png);
+    padding-left: 40px;
+}
+.experiment-links a:hover
+{
+    background-color: rgba(126, 1, 1, 0.38);
+    background-image: url(/images/right-arrow-hover.png);
+    background-position: 10px;
+    text-shadow:none;
+    color: #0000B6;
+    background-color: rgba(56, 56, 209, 0.22);
+}
+.experiment-links a:focus, .experiment-links a:hover
+{
+    background-color: rgba(214, 18, 18, 0.35);
+    background-position: 15px;
+    background-image: url(/images/right-arrow-hover.png);
+}
+
+.plusone-gplus {
+    position: absolute;
+    bottom: 5%;
+    margin-left: 1em;
+}
+    </style>
+
+    <link rel="canonical" href="https://webrtc-experiment.appspot.com/" />
+    <script src="https://pubnub.s3.amazonaws.com/pubnub-3.3.min.js"></script>
+    <link rel="prefetch" href="/" />
 </head>
 <body>
-    <img id="background-image" src="/images/background.png" style="position: absolute;z-index: -1;">
-
     <header>
         <menu>
-            <a href="/">HOME</a> » <a href="https://github.com/muaz-khan/WebRTC-Experiment" target="_blank">Source code on Github!</a> » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Email</a>
+            <a href="/">HOME</a> » <a href="/rules/">Rules / Privacy</a> » <a href="https://github.com/muaz-khan/WebRTC-Experiment" target="_blank">Source code on Github!</a> » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Email</a>
         </menu>
-        <div class="slogan">This page shows how much secure you're when using this app!</div>
+        <div class="slogan">Share your feelings directly & privately with friends!</div>
         <h1>Rules / Privacy <div class="author"><a href="/" rel="next">WebRTC Experiment</a>!</div></h1>
     </header>
 
-    <section class="create-room-panel" style="position: static;margin:1% 2%">
+    <section class="experiment-block">
         <h2>Privacy</h2>
-        <div>
-			1. In <a href="/aspnet-mvc/">ASP.NET MVC WebRTC experiment</a>, chat is secure and real-time!
-			<small style="margin-left: 17px;">
+
+        <blockquote>
+            1. In <a href="/aspnet-mvc/">ASP.NET MVC WebRTC experiment</a>, chat is secure and real-time!
+            <br />
+            <small>
                 PUBNUB has been used for chatting system. Each room is given a unique channel to keep privacy of sharing text messages and streams!
             </small>
-		</div>
-		<div>
-                2. In <a href="/javascript/">JavaScript only WebRTC experiment</a>, first handshake will be smooth, fast and real-time.
-        </div>
-		<div style="border:0;">
+
+            <br />
+            <br />
+            
+            2. In <a href="/javascript/">JavaScript only WebRTC experiment</a>, first handshake will be smooth, fast and real-time.
+
+            <br />
+            <br />
+
             3. In <a href="/aspnet-mvc/">ASP.NET MVC WebRTC experiment</a>, private rooms are only visible to your real friends!
-        </div>
+        </blockquote>
     </section>
-	
-	<section class="create-room-panel" style="position: static;margin:1% 2%">
+
+    <section class="experiment-block">
         <h2>Rules</h2>
-        <div>1. You are not allowed to use this app for illegal activities.</div>
-		<div>2. You MUST have installed this app's compatible web browsers like Google Chrome 23.x and upper, Mozilla Firefox etc.</div>
-		<div style="border:0;">3. You are not allowed to copy this app's code and declare as your own property. A back-link is required in this situation.</div>
+
+        <blockquote>
+            1. You are not allowed to use this app for illegal activities.
+
+            <br />
+            <br />
+
+            2. You MUST have installed this app's compatible web browsers like Google Chrome 23.x and upper, Mozilla Firefox etc.
+
+            <br />
+            <br />
+
+            3. You are not allowed to copy this app's code and declare as your own property. A back-link is required in this situation.
+        </blockquote>
     </section>
-	
+    
+    <section class="plusone-gplus"><div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div></section>
+
     <footer>
         © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}  » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Contact via Email</a>
     </footer>
-	
+    <script>
+        /* Google +1 Button */
+        (function () {
+            var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+            po.src = 'https://apis.google.com/js/plusone.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+        })();
+    </script>
 </body>
 </html>
