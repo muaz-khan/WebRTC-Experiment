@@ -1,4 +1,7 @@
+![WebRTC Experiment!](http://goo.gl/eHcyi)
 ![WebRTC Experiment!](https://sites.google.com/site/muazkh/logo.png)
+
+--
 
 Real-time [WebRTC Experiment](https://webrtc-experiment.appspot.com) that exposes the power of yours and mine favorite client, the [WebRTC](http://www.webrtc.org/)! 
 
@@ -12,258 +15,124 @@ Real-time [WebRTC Experiment](https://webrtc-experiment.appspot.com) that expose
 
 ![WebRTC Screenshot 2](https://muazkh.appspot.com/images/WebRTC.png)
 
-![WebRTC Screenshot 1](https://sites.google.com/site/muazkh/Introducntion.png)
-
 ##Credits
 
-* Everything: [Muaz Khan](http://github.com/muaz-khan)
-* WebRTC APIs: [WebRTC.org](http://www.webrtc.org/) - Thank you Google!
+* A to Zee - Everything: [Muaz Khan](http://github.com/muaz-khan)!
 
 ##Browsers
 
-It works in Chrome 23 and upper. You'll see the support of Mozilla Firefox soon!
+It works fine on Google Chrome Stable 23 (and upper stable releases!)
 
 ## JavaScript code!
 
 ```javascript
-window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
-window.SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
-window.IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
+var CreateRTCPeerConnection = function (options) {
 
-window.URL = window.webkitURL || window.URL;
-navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
+    window.RTCPeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
+    window.RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
+    window.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
 
-/* -------------------------------------------------------------------------------------------------------------------------- */
-var global = { };
+    window.URL = window.webkitURL || window.URL;
+    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
 
-var RTC = { }, peerConnection;
 
-RTC.init = function() {
-    try {
-        peerConnection = new window.PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
-        peerConnection.onicecandidate = RTC.checkLocalICE;
+    var config = { "iceServers": [{ "url": "stun:stun.l.google.com:19302"}] };
 
-        peerConnection.onaddstream = RTC.checkRemoteStream;
-        peerConnection.addStream(global.clientStream);
-    } catch(e) {
-		document.title = 'WebRTC is not supported in this web browser!';
-        alert('WebRTC is not supported in this web browser!');
+    this.peerConnection = new PeerConnection(options.config || config);
+
+    this.peerConnection.onicecandidate = onicecandidate;
+    this.peerConnection.onaddstream = onaddstream;
+    this.peerConnection.addStream(options.stream);
+
+    function onicecandidate(event) {
+
+        if (!event.candidate || !CreateRTCPeerConnection.peerConnection) return;
+
+        if (options.onicecandidate) options.onicecandidate(event.candidate);
     }
-};
 
-RTC.createOffer = function() {
-	document.title = 'Creating offer...';
-	
-    RTC.init();
+    function onaddstream(event, recheck) {
+        if (event && options.remoteVideo) options.remoteVideo.src = URL.createObjectURL(event.stream);
 
-    peerConnection.createOffer(function(sessionDescription) {
-        peerConnection.setLocalDescription(sessionDescription);
-		
-		document.title = 'Created offer successfully!';
-        sdp = JSON.stringify(sessionDescription);
-
-        var data = {
-            sdp: sdp,
-            userToken: global.userToken,
-            roomToken: global.roomToken
-        };
-		
-        $.ajax('/WebRTC/PostSDP', {
-            data: data,
-            success: function(response) {
-                if (response) {
-					document.title = 'Posted offer successfully!';
-					
-					RTC.checkRemoteICE();
-					RTC.waitForAnswer();
-				}
-            }
-        });
-
-    }, null, { audio: true, video: true });
-};
-
-RTC.waitForAnswer = function() {
-	document.title = 'Waiting for answer...';
-	
-    var data = {
-        userToken: global.userToken,
-        roomToken: global.roomToken
-    };
-
-    $.ajax('/WebRTC/GetSDP', {
-        data: data,
-        success: function(response) {
-            if (response !== false) {
-				document.title  = 'Got answer...';
-				response = response.sdp;
-                try {
-                    sdp = JSON.parse(response);
-                    peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
-                } catch(e) {
-                    sdp = response;
-                    peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
-                }
-            } else
-                setTimeout(RTC.waitForAnswer, 100);
+        if (!event && recheck && options.onaddstream) {
+            if (!(options.remoteVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || options.remoteVideo.paused || options.remoteVideo.currentTime <= 0)) {
+                options.onaddstream();
+            } else setTimeout(onaddstream, 500);
         }
-    });
-};
-
-RTC.waitForOffer = function() {
-	document.title = 'Waiting for offer...';
-    var data = {
-        userToken: global.userToken,
-        roomToken: global.roomToken
-    };
-
-    $.ajax('/WebRTC/GetSDP', {
-        data: data,
-        success: function(response) {
-            if (response !== false) 
-			{
-				document.title = 'Got offer...';								
-				RTC.createAnswer(response.sdp);
-			}
-            else setTimeout(RTC.waitForOffer, 100);
-        }
-    });
-};
-
-RTC.createAnswer = function(sdpResponse) {
-	RTC.init();
-	
-	document.title = 'Creating answer...';
-	
-    var sdp;
-    try {
-        sdp = JSON.parse(sdpResponse);
-
-        peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
-    } catch(e) {
-        sdp = sdpResponse;
-
-        peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
     }
 
-    peerConnection.createAnswer(function(sessionDescription) {
-        peerConnection.setLocalDescription(sessionDescription);
-		
-		document.title = 'Created answer successfully!';
+    function createOffer() {
+        if (!options.createOffer) return;
 
-        sdp = JSON.stringify(sessionDescription);
+        CreateRTCPeerConnection.peerConnection.createOffer(function (sessionDescription) {
 
-        var data = {
-            sdp: sdp,
-            userToken: global.userToken,
-            roomToken: global.roomToken
-        };
+            CreateRTCPeerConnection.peerConnection.setLocalDescription(sessionDescription);
+            options.createOffer(sessionDescription);
 
-        $.ajax('/WebRTC/PostSDP', {
-            data: data,
-            success: function() {
-				document.title = 'Posted answer successfully!';
-			}
-        });
-
-    }, null, { audio: true, video: true });
-};
-
-RTC.checkRemoteICE = function() {
-    if (global.isGotRemoteStream) return;
-
-    if (!peerConnection) {
-        setTimeout(RTC.checkRemoteICE, 1000);
-        return;
+        }, null, { audio: true, video: true });
     }
 
-    var data = {
-        userToken: global.userToken,
-        roomToken: global.roomToken
-    };
+    createOffer();
 
-    $.ajax('/WebRTC/GetICE', {
-        data: data,
-        success: function(response) {
-            if (response === false && !global.isGotRemoteStream) setTimeout(RTC.checkRemoteICE, 1000);
-            else {
-                try {
-                    candidate = new window.IceCandidate({ sdpMLineIndex: response.label, candidate: JSON.parse(response.candidate) });
-                    peerConnection.addIceCandidate(candidate);
+    function createAnswer() {
+        if (!options.createAnswer) return;
 
-                    !global.isGotRemoteStream && setTimeout(RTC.checkRemoteICE, 10);
-                } catch(e) {
-                    try {
-                        candidate = new window.IceCandidate({ sdpMLineIndex: response.label, candidate: JSON.parse(response.candidate) });
-                        peerConnection.addIceCandidate(candidate);
+        CreateRTCPeerConnection.peerConnection.setRemoteDescription(new SessionDescription(options.offer));
+        CreateRTCPeerConnection.peerConnection.createAnswer(function (sessionDescription) {
 
-                        !global.isGotRemoteStream && setTimeout(RTC.checkRemoteICE, 10);
-                    } catch(e) {
-                        !global.isGotRemoteStream && setTimeout(RTC.checkRemoteICE, 1000);
-                    }
-                }
-            }
-        }
-    });
-};
+            CreateRTCPeerConnection.peerConnection.setLocalDescription(sessionDescription);
+            options.createAnswer(sessionDescription);
 
-RTC.checkLocalICE = function(event) {
-    if (global.isGotRemoteStream) return;
-
-    var candidate = event.candidate;
-
-    if (candidate) {
-        var data = {
-            candidate: JSON.stringify(candidate.candidate),
-            label: candidate.sdpMLineIndex,
-            userToken: global.userToken,
-            roomToken: global.roomToken
-        };
-
-        $.ajax('/WebRTC/PostICE', {
-            data: data,
-            success: function() {
-				document.title = 'Posted an ICE candidate!';
-			}
-        });
+        }, null, { audio: true, video: true });
     }
+
+    createAnswer();
+
+    return this;
 };
 
-var remoteVideo = $('#remote-video');
+CreateRTCPeerConnection.prototype.peerConnection = null;
 
-RTC.checkRemoteStream = function(remoteEvent) {
-    if (remoteEvent) {
-		document.title = 'Got a clue for remote video stream!';
-		
-        remoteVideo.css('top', '-100%').show().play();
+CreateRTCPeerConnection.prototype.onanswer = function (sdp) {
+    this.peerConnection.setRemoteDescription(new SessionDescription(sdp));
+};
 
-        if (!navigator.mozGetUserMedia) remoteVideo.src = window.URL.createObjectURL(remoteEvent.stream);
-        else remoteVideo.mozSrcObject = remoteEvent.stream;
+CreateRTCPeerConnection.prototype.addICE = function (candidate) {
 
-        RTC.waitUntilRemoteStreamStartFlowing();
+    this.peerConnection.addIceCandidate(new IceCandidate({
+        sdpMLineIndex: candidate.sdpMLineIndex,
+        candidate: candidate.candidate
+    }));
+
+};
+
+var connection = CreateRTCPeerConnection({
+    createOffer: function (sdp) {
+        console.log('created offer');
+    },
+    onicecandidate: function (candidate) {
+        console.log('ICE candidate is ready for other peer!');
+    },
+    onaddstream: function () {
+        console.log('Got remote stream successfully!');
     }
-};
+});
 
-RTC.waitUntilRemoteStreamStartFlowing = function() {
-	document.title = 'Waiting for remote stream flow!';
-    if (!(remoteVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || remoteVideo.paused || remoteVideo.currentTime <= 0)) {
-        global.isGotRemoteStream = true;
-		
-		remoteVideo.css('top', 0);
-		clientVideo.css('width', (innerWidth / 4) + 'px').css('height', '').css('z-index', 2000000);
-		
-		document.title = 'Finally got the remote stream!';
-        
-        startChatting();        
-    } else setTimeout(RTC.waitUntilRemoteStreamStartFlowing, 200);
-};
+connection.addICE({
+    sdpMLineIndex: 1,
+    candidate: candidate
+});
+
+connection.onanswer(sdp);
 ```
 
 ##Spec references 
 
-* [http://dev.w3.org/2011/webrtc/editor/webrtc.html](http://dev.w3.org/2011/webrtc/editor/webrtc.html)
+* [WebRTC 1.0: Real-time Communication Between Browsers](http://dev.w3.org/2011/webrtc/editor/webrtc.html)
+* [TURN Server at Wikipedia!](http://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)
+* [STUN Server at Wikipedia!](http://en.wikipedia.org/wiki/STUN)
 
+Don't forget [PubNub for Signalling](http://www.pubnub.com/tutorial/javascript-push-api)!!
 
 ## License
-Copyright (c) 2012 Muaz Khan
-Licensed under the MIT license.
+Copyright (c) 2012 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.
