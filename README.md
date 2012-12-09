@@ -5,8 +5,8 @@ Real-time [WebRTC Experiment](https://webrtc-experiment.appspot.com) that expose
 ## Preview / Demo
 
 * [WebRTC Experiments: All](https://webrtc-experiment.appspot.com)
-* [JavaScript Only WebRTC Experiment](https://webrtc-experiment.appspot.com/javascript/)
-* [ASPNET MVC specific WebRTC Experiment](https://webrtc-experiment.appspot.com/aspnet-mvc/)
+* [JavaScript Only WebRTC Experiment](https://webrtc-experiment.appspot.com/javascript/) - [TURN](https://webrtc-experiment.appspot.com/javascript/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/javascript/)
+* [ASPNET MVC specific WebRTC Experiment](https://webrtc-experiment.appspot.com/aspnet-mvc/) - [TURN](https://webrtc-experiment.appspot.com/aspnet-mvc/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/aspnet-mvc/)
 
 ## Screenshot
 
