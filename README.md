@@ -3,7 +3,7 @@
 
 --
 
-Real-time [WebRTC Experiment](https://webrtc-experiment.appspot.com) that exposes the power of yours and mine favorite client, the [WebRTC](http://www.webrtc.org/)! 
+Real-time [WebRTC Experiment](https://webrtc-experiment.appspot.com) that exposes the power of yours and mine favorite technology: [WebRTC](http://www.webrtc.org/)! 
 
 ## Preview / Demo
 
@@ -35,7 +35,7 @@ var CreateRTCPeerConnection = function (options) {
     window.URL = window.webkitURL || window.URL;
     navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
 
-
+	// TURN:     { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] }
     var config = { "iceServers": [{ "url": "stun:stun.l.google.com:19302"}] };
 
     this.peerConnection = new PeerConnection(options.config || config);
@@ -106,6 +106,9 @@ CreateRTCPeerConnection.prototype.addICE = function (candidate) {
 
 };
 
+
+// Here is how to use above function!
+
 var connection = CreateRTCPeerConnection({
     createOffer: function (sdp) {
         console.log('created offer');
@@ -118,10 +121,14 @@ var connection = CreateRTCPeerConnection({
     }
 });
 
+// Pass ICE sent by other peer to process it!
+
 connection.addICE({
     sdpMLineIndex: 1,
     candidate: candidate
 });
+
+// Pass SDP sent by other peer to finalize the handshake!
 
 connection.onanswer(sdp);
 ```
