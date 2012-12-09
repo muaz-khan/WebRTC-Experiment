@@ -12,6 +12,7 @@ var RTC = { }, peerConnection;
 
 RTC.init = function() {
     try {
+		//TURN Server:     { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] }
         peerConnection = new window.PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
         peerConnection.onicecandidate = RTC.checkLocalICE;
 

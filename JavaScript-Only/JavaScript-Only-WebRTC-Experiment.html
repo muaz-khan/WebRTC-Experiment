@@ -204,7 +204,7 @@
 
         <header>
             <menu>
-                <a href="https://webrtc-experiment.appspot.com/">HOME</a> » <a href="https://webrtc-experiment.appspot.com/rules/">Rules / Privacy</a> » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/JavaScript-Only" target="_blank">Source code on Github!</a> » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Email</a>
+                <a href="/">HOME</a> » <a href="/rules/">Rules / Privacy</a> » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/JavaScript-Only" target="_blank">Source code on Github!</a> » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Email</a>
             </menu>
             <div class="slogan">Share your feelings directly & privately with friends!</div>
             <h1 title="Realtime JavaScript Only WebRTC Experiment!">WebRTC Experiment <div class="author">by <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>!</div></h1>
@@ -430,6 +430,7 @@
             RTC.init = function(response) {
                 if (!peerConnection) {
                     try {
+						//TURN Server:     { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] }
                         peerConnection = new PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
                     } catch(e) {
                         log('WebRTC is not supported in this web browser!');
@@ -786,6 +787,7 @@
 
                 log('RTC room is closed by other user.');
                 remoteVideo.css('top', '-100%').pause();
+                remoteVideo.setAttribute('src', '');
                 clientVideo.css('width', innerWidth + 'px').css('height', innerHeight + 'px').css('z-index', -1);
 
                 RTC.active = false;
@@ -796,7 +798,7 @@
                 global.isGotRemoteStream = false;
 
                 pubnub.channel = global.defaultChannel;
-                initPubNub();
+                //initPubNub();
             }
 
             function initPubNub(callback) {
@@ -830,7 +832,7 @@
                                 global.participant = response.participant;
                                 pubnub.channel = global.roomToken;
                                 initPubNub(RTC.init);
-                            }, 1000);
+                            }, 100);
                         }
                         else if (response.sdp) {
                             RTC.init(response);
@@ -847,15 +849,6 @@
                     },
                     connect: function () {
                         callback && callback();
-                    },
-                    disconnect: function () {
-                        initPubNub(function () {
-                            showListsAndBoxes();
-                            pubnub.send({
-                                end: true,
-                                userName: global.userName
-                            });
-                        });
                     }
                 });
             }
@@ -865,7 +858,16 @@
                 captureCamera();
             });
 
-            (function() {
+            window.onunload = window.onbeforeunload = function () {
+                alert('You\'re try to close the room.');
+                pubnub.send({
+                    end: true,
+                    userName: global.userName,
+                    userToken: global.userToken
+                });
+            };
+            
+            (function () {
                 var po = document.createElement('script');
                 po.type = 'text/javascript';
                 po.async = true;

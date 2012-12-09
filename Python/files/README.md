@@ -1,4 +1,32 @@
-﻿window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
+![WebRTC Experiment!](https://sites.google.com/site/muazkh/logo.png)
+
+Real-time [WebRTC Experiment](https://webrtc-experiment.appspot.com) that exposes the power of yours and mine favorite client, the [WebRTC](http://www.webrtc.org/)! 
+
+## Preview / Demo
+
+* [WebRTC Experiments: All](https://webrtc-experiment.appspot.com)
+* [JavaScript Only WebRTC Experiment](https://webrtc-experiment.appspot.com/javascript/)
+* [ASPNET MVC specific WebRTC Experiment](https://webrtc-experiment.appspot.com/aspnet-mvc/)
+
+## Screenshot
+
+![WebRTC Screenshot 2](https://muazkh.appspot.com/images/WebRTC.png)
+
+![WebRTC Screenshot 1](https://sites.google.com/site/muazkh/Introducntion.png)
+
+##Credits
+
+* Everything: [Muaz Khan](http://github.com/muaz-khan)
+* WebRTC APIs: [WebRTC.org](http://www.webrtc.org/) - Thank you Google!
+
+##Browsers
+
+It works in Chrome 23 and upper. You'll see the support of Mozilla Firefox soon!
+
+## JavaScript code!
+
+```javascript
+window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
 window.SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
 window.IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
 
@@ -10,16 +38,15 @@ var global = { };
 
 var RTC = { }, peerConnection;
 
-RTC.init = function () {
+RTC.init = function() {
     try {
-        peerConnection = new PeerConnection("{stun-turn}");
-
+        peerConnection = new window.PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
         peerConnection.onicecandidate = RTC.checkLocalICE;
 
         peerConnection.onaddstream = RTC.checkRemoteStream;
         peerConnection.addStream(global.clientStream);
-    } catch (e) {
-        document.title = 'WebRTC is not supported in this web browser!';
+    } catch(e) {
+		document.title = 'WebRTC is not supported in this web browser!';
         alert('WebRTC is not supported in this web browser!');
     }
 };
@@ -78,7 +105,7 @@ RTC.waitForAnswer = function() {
                     peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
                 }
             } else
-                setTimeout(RTC.waitForAnswer, 1000);
+                setTimeout(RTC.waitForAnswer, 100);
         }
     });
 };
@@ -98,7 +125,7 @@ RTC.waitForOffer = function() {
 				document.title = 'Got offer...';								
 				RTC.createAnswer(response.sdp);
 			}
-            else setTimeout(RTC.waitForOffer, 1000);
+            else setTimeout(RTC.waitForOffer, 100);
         }
     });
 };
@@ -230,3 +257,13 @@ RTC.waitUntilRemoteStreamStartFlowing = function() {
         startChatting();        
     } else setTimeout(RTC.waitUntilRemoteStreamStartFlowing, 200);
 };
+```
+
+##Spec references 
+
+* [http://dev.w3.org/2011/webrtc/editor/webrtc.html](http://dev.w3.org/2011/webrtc/editor/webrtc.html)
+
+
+## License
+Copyright (c) 2012 Muaz Khan
+Licensed under the MIT license.

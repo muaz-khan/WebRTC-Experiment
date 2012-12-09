@@ -5,6 +5,9 @@ from datetime import date
 pubKey = 'demo'
 subKey = 'demo'
 
+global_stun = '{ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] }'
+global_turn = '{ "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] }'
+
 class MainHandler(webapp2.RequestHandler):
     def get(self):
         Index = openFile('index.html')
@@ -49,6 +52,13 @@ class AspNetMVCHandler(webapp2.RequestHandler):
         
         MiniJQuery = openFile(folderURL + 'mini-jquery.js')
         WebRTC = openFile(folderURL + 'WebRTC.js')
+
+        turn = self.request.get('turn')
+        if turn:
+            WebRTC = WebRTC.replace('"{stun-turn}"', global_turn)
+        else:
+            WebRTC = WebRTC.replace('"{stun-turn}"', global_stun)
+        
         UI = openFile(folderURL + 'UI.js')
 
         JavaScript = MiniJQuery + WebRTC + UI
@@ -67,6 +77,13 @@ class AspNetMVCHandler(webapp2.RequestHandler):
 class JavaScriptHandler(webapp2.RequestHandler):
     def get(self):
         Index = openFile('javascript/JavaScript-Only-WebRTC-Experiment.html')
+
+        turn = self.request.get('turn')
+        if turn:
+            Index = Index.replace('"{stun-turn}"', global_turn)
+        else:
+            Index = Index.replace('"{stun-turn}"', global_stun)
+            
         PubNub = openFile('pubnub.js')
         html = Index.replace('{year}', str(date.today().year))\
                .replace('{pubnub-js}', PubNub)\

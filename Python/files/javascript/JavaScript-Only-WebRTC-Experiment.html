@@ -267,7 +267,7 @@
         <video id="remote-video" style="display: none; position: absolute; top: 0;"></video>
 
         <footer>
-            © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}  » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Contact via Email</a>
+            © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}  » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Email</a> » <a href="http://twitter.com/muazkh" title="Follow me on Twitter!">@muazkh</a>
         </footer>
         
         <script>
@@ -430,7 +430,7 @@
             RTC.init = function(response) {
                 if (!peerConnection) {
                     try {
-                        peerConnection = new PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
+                        peerConnection = new PeerConnection("{stun-turn}");
                     } catch(e) {
                         log('WebRTC is not supported in this web browser!');
                         alert('WebRTC is not supported in this web browser!');
@@ -786,6 +786,7 @@
 
                 log('RTC room is closed by other user.');
                 remoteVideo.css('top', '-100%').pause();
+                remoteVideo.setAttribute('src', '');
                 clientVideo.css('width', innerWidth + 'px').css('height', innerHeight + 'px').css('z-index', -1);
 
                 RTC.active = false;
@@ -796,7 +797,7 @@
                 global.isGotRemoteStream = false;
 
                 pubnub.channel = global.defaultChannel;
-                initPubNub();
+                //initPubNub();
             }
 
             function initPubNub(callback) {
@@ -847,15 +848,6 @@
                     },
                     connect: function () {
                         callback && callback();
-                    },
-                    disconnect: function () {
-                        initPubNub(function () {
-                            showListsAndBoxes();
-                            pubnub.send({
-                                end: true,
-                                userName: global.userName
-                            });
-                        });
                     }
                 });
             }
@@ -865,7 +857,16 @@
                 captureCamera();
             });
 
-            (function() {
+            window.onunload = window.onbeforeunload = function () {
+                alert('You\'re try to close the room.');
+                pubnub.send({
+                    end: true,
+                    userName: global.userName,
+                    userToken: global.userToken
+                });
+            };
+            
+            (function () {
                 var po = document.createElement('script');
                 po.type = 'text/javascript';
                 po.async = true;
