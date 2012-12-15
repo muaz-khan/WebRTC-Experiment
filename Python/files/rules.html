@@ -1,9 +1,7 @@
 ﻿<!--
-    /*=============================================== Good Luck! ====================================================
     *  Muaz Khan
     *  @muazkh:  http://twitter.com/muazkh
     *  Github:   github.com/muaz-khan
-    *****************************************************************************************************************/
 -->
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -15,252 +13,185 @@
     <meta itemprop="image" content="https://muazkh.appspot.com/images/WebRTC.png">
 
     <title>WebRTC Experiment Rules/Privacy ® Muaz Khan</title>
-    <meta name="description" content="WebRTC Experiment Rules & Privacy statement — Real-time working WebRTC demo. Share your audio/video streams using the power of WebRTC! No Plugin required!!">
+    <meta name="description" content="WebRTC Experiment Rules & Privacy statement — Real-time working WebRTC demos. Share your audio/video streams using the power of WebRTC! Pubnub/JavaScript Only WebRTC Experiments!">
     
     <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
     <meta name="author" content="Muaz Khan">
     <meta name="copyright" content="© Muaz Khan, {year}">
+
+    <link href= "//fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet" type="text/css" />
     <style>
-html, html *
-{
-    padding: 0;
-    margin: 0;
-    -webkit-user-select: none;
-    font-family:Georgia, Verdana, Arial, Sans-Serif;
-    
-    -webkit-transition:     all .8s ease;
-    -moz-transition:        all .8s ease;
-    -o-transition:          all .8s ease;
-    -ms-transition:         all .8s ease;
-    transition:             all .8s ease;
-    
-    overflow:hidden;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Open Sans';
+            -moz-transition: all .8s ease;
+            -ms-transition: all .8s ease;
+            -o-transition: all .8s ease;
+            -webkit-transition: all .8s ease;
+        }
+        html
+        {
+            background: #ECECEC;
+        }
 
-html
-{
-    color: #420808;
-    background: #420808;
-    background-image: url(/images/loader.gif);
-}
+        body {
+            color: #333;
+            font: 1.4em 'Open Sans', arial, sans-serif;
+            font-weight: 300;
+            line-height: 1.5;
+            margin: 0 3em;
+        }
 
-header
-{
-    background: rgba(101, 135, 187, 0.76);
-    border-bottom: 2px solid rgba(34, 0, 0, 0.28);
-    padding: 5px 15px;
-}
+        h1, h2 {
+            color: #2778ec;
+            font-size: 1.6em;
+            font-weight: 300;
+            line-height: 1.15;
+        }
 
-header:hover, footer:hover
-{
-    background: rgba(101, 135, 187, 0.90);
-}
+        .logo img
+        {
+            border-radius: 50%; 
+            box-shadow: 0 0 5px black, 0 0 5px black, 0 0 5px black, 0 0 5px black, 0 0 5px black;
+        }
 
-.author
-{
-    float:right;
-}
+        blockquote
+        {
+            margin-bottom: 1em;
+        }
+        tr, td
+        {
+            vertical-align: top;
+            padding: .7em 1.4em;
+        }
 
-h1, h2
-{
-    text-shadow: 0 0 2px #FF1010;
-    color: #420808;
-    font-size: 3em;
-}
-h2
-{
-    font-size:2em;
-}
+        @media screen and (max-width: 770px) {
+            body { margin: 0 .1em;font-size: 1em; }
+            tr, td{padding: .1em .4em;}
+        }
 
-.slogan {
-    font-size: 20px;
-    color: rgba(255, 249, 249, 0.72);
-}
+        a
+        {
+            display: inline-block;
+            padding: 0.2em;
+            padding-left: 1.5em;
+            background: url(/images/right-arrow-hover.png) no-repeat left center;
+            color: #1B75C9;
+            text-decoration: none;
+            border-bottom: 1px dotted #0085FF;
+            margin: 0 .2em;
+        }
+        a.logo
+        {
+            background: url(https://webrtc-experiment.appspot.com/images/right-arrow.png) no-repeat left center;
+        }
+        footer a
+        {
+            background: url(https://webrtc-experiment.appspot.com/images/link.png) no-repeat left 17px;
+        }
+        a:hover
+        {
+            color:red;
+        }
 
-a
-{
-    color: #3D0101;
-    text-decoration: none;
-    text-shadow: 0 0 2px #FF1010;
-}
-
-a:hover
-{
-    color: #EB0D0D;
-    text-shadow: 0 0 2px #050505;
-}
-a:focus, a:active
-{
-    color: #160F0F;
-    text-shadow: 0 0 2px #727272;
-}
-
-footer
-{
-    position: absolute;
-    bottom: 0;
-    background: rgba(101, 135, 187, 0.76);
-    width: 100%;
-    text-align: center;
-    font-size: 28px;
-    color: #0F0101;
-}
-
-footer span
-{
-    background: rgba(1, 11, 15, 0.23);
-    padding: 0 .5em;
-}
-
-menu {
-    float: right;
-    color:rgba(255, 249, 249, 0.72);
-}
-menu a {
-    text-shadow: none!important;
-    color:rgba(255, 249, 249, 0.72)!important;
-}
-menu a:hover {
-    color:rgba(255, 249, 249, 0.92)!important;
-}
-
-.experiment-block
-{
-    display: inline-block;
-    width: 45%;
-    border: 2px solid #311010;
-    background: rgba(255, 255, 255, 0.81);
-    margin: 1em;
-    border-radius: 5px;
-    box-shadow: 0 0 3px #FF0A0A;
-    cursor: default;
-    vertical-align: top;
-}
-.experiment-block:hover
-{
-    border: 2px solid #311010;
-    background: rgba(255, 255, 255, 1);
-    border-radius: 15px;
-    box-shadow: 0 0 3px #FF6767;
-}
-.experiment-block h2
-{
-    border-bottom: 2px solid #311010;
-    padding: 5px 10px;
-    font-size: 2em;
-}
-.experiment-block blockquote
-{
-    padding: 10px;
-    line-height: 1.5;
-    font-size: 20px;
-    color: #050000;
-    text-shadow: 0 0 2px #E60000;
-}
-.experiment-links
-{
-    font-size: 25px;
-    border-top:2px solid #311010;
-    padding-left: 7px;
-}
-.experiment-links a
-{
-    padding: 5px 10px;
-    border-right: 2px solid #311010;
-    margin-left: -7px;
-    background-repeat: no-repeat;
-    background-position: 6px;
-    background-image: url(/images/right-arrow.png);
-    padding-left: 40px;
-}
-.experiment-links a:hover
-{
-    background-color: rgba(126, 1, 1, 0.38);
-    background-image: url(/images/right-arrow-hover.png);
-    background-position: 10px;
-    text-shadow:none;
-    color: #0000B6;
-    background-color: rgba(56, 56, 209, 0.22);
-}
-.experiment-links a:focus, .experiment-links a:hover
-{
-    background-color: rgba(214, 18, 18, 0.35);
-    background-position: 15px;
-    background-image: url(/images/right-arrow-hover.png);
-}
-
-.plusone-gplus {
-    position: absolute;
-    bottom: 5%;
-    margin-left: 1em;
-}
-    </style>
+        small
+        {
+            font-size: .6em;
+        }
+        footer
+        {
+            text-align: center;
+        }
+        .g-plusone { position: static;}
+        .plusone-gplus
+        {
+            top: 2.8em;
+            margin-left: -1.7em;
+            position: absolute;
+        }
+	</style>
 
     <link rel="canonical" href="https://webrtc-experiment.appspot.com/" />
-    <script src="https://pubnub.s3.amazonaws.com/pubnub-3.3.min.js"></script>
-    <link rel="prefetch" href="/" />
 </head>
 <body>
-    <header>
-        <menu>
-            <a href="/">HOME</a> » <a href="/rules/">Rules / Privacy</a> » <a href="https://github.com/muaz-khan/WebRTC-Experiment" target="_blank">Source code on Github!</a> » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Email</a>
-        </menu>
-        <div class="slogan">Share your feelings directly & privately with friends!</div>
-        <h1>Rules / Privacy <div class="author"><a href="/" rel="next">WebRTC Experiment</a>!</div></h1>
-    </header>
+    <table>
+        <tr>
+            <td>
+                <a class="logo" href="https://plus.google.com/100325991024054712503">
+                    <img src="https://webrtc-experiment.appspot.com/images/Logo.jpg" width=100 height=100>
+                </a>
+            </td>
 
-    <section class="experiment-block">
-        <h2>Privacy</h2>
+            <td>
+                <h1>WebRTC Experiment Rules / Privacy</h1>
+                <blockquote class="slogan">
+                    When using this app; you MUST agree following rules ↓
+                </blockquote>
+            </td>
+        </tr>
+    </table>
 
-        <blockquote>
-            1. In <a href="/aspnet-mvc/">ASP.NET MVC WebRTC experiment</a>, chat is secure and real-time!
-            <br />
-            <small>
-                PUBNUB has been used for chatting system. Each room is given a unique channel to keep privacy of sharing text messages and streams!
-            </small>
+    <table>
+        <tr>
+            <td>
+                <h2>Rules</h2>
 
-            <br />
-            <br />
-            
-            2. In <a href="/javascript/">JavaScript only WebRTC experiment</a>, first handshake will be smooth, fast and real-time.
+                <blockquote>
+                    1. In <a href="https://webrtc-experiment.appspot.com/aspnet-mvc/">ASP.NET MVC WebRTC experiment</a>, chat is secure and real-time!
+                    <br />
+                    <small>
+                        PUBNUB has been used for chatting system. Each room is given a unique channel to keep privacy of sharing text messages and streams!
+                    </small>
+                </blockquote>
 
-            <br />
-            <br />
+                <blockquote>
+                    2. In <a href="https://webrtc-experiment.appspot.com/javascript/">JavaScript only WebRTC experiment</a>, first handshake will be smooth, fast and real-time.
+                </blockquote>
 
-            3. In <a href="/aspnet-mvc/">ASP.NET MVC WebRTC experiment</a>, private rooms are only visible to your real friends!
-        </blockquote>
+                <blockquote>
+                     3. In <a href="https://webrtc-experiment.appspot.com/aspnet-mvc/">ASP.NET MVC WebRTC experiment</a>, private rooms are only visible to your real friends!
+                </blockquote>
+            </td>
+
+            <td>
+                <h2>Privacy</h2>
+
+                <blockquote>
+                    1. You are not allowed to use this app for illegal activities.
+                </blockquote>
+
+                <blockquote>
+                    2. You MUST have installed this app's compatible web browsers like Google Chrome 23.x and upper, Mozilla Firefox etc.
+                </blockquote>
+
+                <blockquote>
+                     3. You are not allowed to copy this app's code and declare as your own property. A back-link is required in this situation.
+                </blockquote
+            </td>
+        </tr>
+    </table>
+
+    <section class="plusone-gplus">
+        <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
     </section>
-
-    <section class="experiment-block">
-        <h2>Rules</h2>
-
-        <blockquote>
-            1. You are not allowed to use this app for illegal activities.
-
-            <br />
-            <br />
-
-            2. You MUST have installed this app's compatible web browsers like Google Chrome 23.x and upper, Mozilla Firefox etc.
-
-            <br />
-            <br />
-
-            3. You are not allowed to copy this app's code and declare as your own property. A back-link is required in this situation.
-        </blockquote>
-    </section>
-    
-    <section class="plusone-gplus"><div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div></section>
 
     <footer>
-        © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}  » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Contact via Email</a>
+      <a href="https://webrtc-experiment.appspot.com/">Home</a>
+    © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}
+      » <a href="mailto:muazkh@gmail.com">Email</a>
+      » <a href="http://twitter.com/muazkh">@muazkh</a>
+      » <a href="https://github.com/muaz-khan">Github</a>
     </footer>
-    <script>
-        /* Google +1 Button */
+    <script type="text/javascript">
         (function () {
-            var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-            po.src = 'https://apis.google.com/js/plusone.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-        })();
+                var po = document.createElement('script');
+                po.type = 'text/javascript';
+                po.async = true;
+                po.src = 'https://apis.google.com/js/plusone.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(po, s);
+            })();
     </script>
 </body>
 </html>

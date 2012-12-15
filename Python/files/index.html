@@ -1,9 +1,7 @@
 ﻿<!--
-    /*=============================================== Good Luck! ====================================================
     *  Muaz Khan
     *  @muazkh:  http://twitter.com/muazkh
     *  Github:   github.com/muaz-khan
-    *****************************************************************************************************************/
 -->
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -15,232 +13,179 @@
     <meta itemprop="image" content="https://muazkh.appspot.com/images/WebRTC.png">
 
     <title>WebRTC Experiment ® Muaz Khan</title>
-    <meta name="description" content="WebRTC Experiment — Real-time working WebRTC demo. Share your audio/video streams using the power of WebRTC! No Plugin required!!">
+    <meta name="description" content="WebRTC Experiments — Real-time working WebRTC demos. Share your audio/video streams using the power of WebRTC! Pubnub/JavaScript Only WebRTC Experiments!">
     
     <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
     <meta name="author" content="Muaz Khan">
     <meta name="copyright" content="© Muaz Khan, {year}">
+    <link href= "//fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet" type="text/css" />
     <style>
-html, html *
-{
-    padding: 0;
-    margin: 0;
-    -webkit-user-select: none;
-    font-family:Georgia, Verdana, Arial, Sans-Serif;
-    
-    -webkit-transition:     all .8s ease;
-    -moz-transition:        all .8s ease;
-    -o-transition:          all .8s ease;
-    -ms-transition:         all .8s ease;
-    transition:             all .8s ease;
-    
-    overflow:hidden;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Open Sans';
+            -moz-transition: all .8s ease;
+            -ms-transition: all .8s ease;
+            -o-transition: all .8s ease;
+            -webkit-transition: all .8s ease;
+        }
+        html
+        {
+            background: #ECECEC;
+        }
 
-html {
-    color: hsl(0, 0%, 1%);
-    background: hsla(0, 0%, 0%, 0.86);
-}
+        body {
+            color: #333;
+            font: 1.4em 'Open Sans', arial, sans-serif;
+            font-weight: 300;
+            line-height: 1.5;
+            margin: 0 3em;
+        }
 
-body {
-    background: hsla(0, 0%, 0%, 0.72);
-    position: absolute;
-    height: 100%;
-    background-image: url(/images/flyingdots.gif);
-}
-body:hover {
-    background: hsla(187, 85%, 34%, 0.13);
-}
+        h1, h2 {
+            color: #2778ec;
+            font-size: 1.6em;
+            font-weight: 300;
+            line-height: 1.15;
+        }
 
-header {
-    background: hsla(0, 0%, 94%, 0.64);
-    border-bottom: 2px solid hsla(0, 0%, 7%, 0.47);
-    padding: 5px 15px;
-}
+        .logo img
+        {
+            border-radius: 50%; 
+            box-shadow: 0 0 5px black, 0 0 5px black, 0 0 5px black, 0 0 5px black, 0 0 5px black;
+        }
 
-header:hover, footer:hover
-{
-    background: white;
-}
+        blockquote
+        {
+            margin-bottom: 1em;
+        }
+        tr, td
+        {
+            vertical-align: top;
+            padding: .7em 1.4em;
+        }
 
-.author
-{
-    float:right;
-}
+        @media screen and (max-width: 770px) {
+            body { margin: 0 .1em;font-size: 1em; }
+            tr, td{padding: .1em .4em;}
+        }
 
-h1, h2 {
-    text-shadow: 0 0 2px hsl(0, 0%, 6%), 0 0 2px hsl(0, 0%, 6%), 0 0 3px hsl(0, 0%, 6%), 0 0 5px hsl(0, 0%, 6%), 0 0 5px hsl(0, 0%, 6%), 0 0 2px hsl(0, 0%, 6%), 0 0 5px hsl(0, 0%, 6%);
-    color: white;
-    font-size: 3em;
-    font-weight: normal;
-}
-h2
-{
-    font-size:2em;
-}
-
-.slogan {
-    font-size: 20px;
-    color: hsl(202, 100%, 24%)!important;
-}
-
-a {
-    color: hsl(200, 100%, 99%)!important;
-    text-decoration: none;
-    text-shadow: 0 0 2px hsl(0, 6%, 3%), 0 0 2px hsl(0, 6%, 3%), 0 0 2px hsl(0, 6%, 3%), 0 0 2px hsl(0, 6%, 3%), 0 0 2px hsl(0, 6%, 3%);
-}
-
-a:hover {
-    color: hsl(209, 85%, 35%)!important;
-    text-shadow: 0 0 2px hsl(0, 25%, 98%), 0 0 2px hsl(0, 0%, 99%), 0 0 2px white, 0 0 2px hsl(0, 0%, 99%), 0 0 2px white;
-}
-a:focus, a:active
-{
-    color: #160F0F;
-    text-shadow: 0 0 2px #727272;
-}
-
-footer {
-    position: absolute;
-    bottom: 0;
-    background: hsla(0, 0%, 94%, 0.64);
-    width: 100%;
-    text-align: center;
-    font-size: 28px;
-    color: hsl(0, 88%, 3%);
-}
-
-footer span
-{
-    background: rgba(1, 11, 15, 0.23);
-    padding: 0 .5em;
-}
-
-menu {
-    float: right;
-    color: hsl(202, 100%, 24%)!important;
-}
-menu a {
-    text-shadow: none!important;
-    color: hsl(202, 100%, 24%)!important;
-}
-menu a:hover {
-    color:hsl(202, 96%, 10%)!important;
-}
-
-.experiment-block {
-    display: inline-block;
-    width: 45%;
-    border: 2px solid hsl(0, 5%, 4%);
-    background: hsla(0, 100%, 100%, 0.81);
-    margin: 1em;
-    border-radius: 5px;
-    box-shadow: 0 0 3px white;
-    cursor: default;
-    vertical-align: top;
-}
-.experiment-block:hover {
-    border: 2px solid black;
-    background: hsla(0, 100%, 100%, 1);
-    border-radius: 15px;
-    box-shadow: 0 0 10px white;
-}
-.experiment-block h2
-{
-    border-bottom: 2px solid #311010;
-    padding: 5px 10px;
-    font-size: 2em;
-}
-.experiment-block blockquote {
-    padding: 10px;
-    line-height: 1.5;
-    font-size: 20px;
-    color: hsl(0, 0%, 7%);
-}
-.experiment-links
-{
-    font-size: 25px;
-    border-top:2px solid #311010;
-    padding-left: 7px;
-}
-.experiment-links a
-{
-    padding: 5px 10px;
-    border-right: 2px solid #311010;
-    margin-left: -7px;
-    background-repeat: no-repeat;
-    background-position: 6px;
-    background-image: url(/images/right-arrow.png);
-    padding-left: 40px;
-}
-
-.experiment-links a:focus, .experiment-links a:hover
-{
-    background-color: hsla(211, 95%, 36%, 0.91);
-    background-position: 15px;
-    background-image: url(/images/right-arrow-hover.png);
-}
-
-.plusone-gplus {
-    position: absolute;
-    bottom: 5%;
-    margin-left: 1em;
-}
+        a
+        {
+            display: inline-block;
+            padding: 0.2em;
+            padding-left: 1.5em;
+            background: url(https://webrtc-experiment.appspot.com/images/right-arrow-hover.png) no-repeat left center;
+            color: #1B75C9;
+            text-decoration: none;
+            border-bottom: 1px dotted #0085FF;
+            margin: 0 .2em;
+        }
+        a.logo
+        {
+            background: url(https://webrtc-experiment.appspot.com/images/right-arrow.png) no-repeat left center;
+        }
+        footer a
+        {
+            background: url(https://webrtc-experiment.appspot.com/images/link.png) no-repeat left 17px;
+        }
+        a:hover
+        {
+            color:red;
+        }
+        footer
+        {
+            text-align: center;
+        }
+        .g-plusone { position: static;}
+        .plusone-gplus
+        {
+            top: 2.8em;
+            margin-left: -1.7em;
+            position: absolute;
+        }
 	</style>
 
     <link rel="canonical" href="https://webrtc-experiment.appspot.com/" />
-    <link rel="prefetch" href="/javascript/" />
 </head>
-    <body>
-	<img id="background-image" src="/images/1.jpg" style="position: absolute;z-index: -1;width:100%;height:100%;">
-        <header>
-            <menu>
-                <a href="/">HOME</a> » <a href="/rules/">Rules / Privacy</a> » <a href="https://github.com/muaz-khan/WebRTC-Experiment" target="_blank">Source code on Github!</a> » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Email</a>
-            </menu>
-            <div class="slogan">Share your feelings directly & privately with friends!</div>
-            <h1>WebRTC Experiment <div class="author">by <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>!</div></h1>
-        </header>
+<body>
+    <table>
+        <tr>
+            <td>
+                <a class="logo" href="https://plus.google.com/100325991024054712503">
+                    <img src="https://webrtc-experiment.appspot.com/images/Logo.jpg" width=100 height=100>
+                </a>
+            </td>
 
-        <section class="experiment-block">
-            <h2>JavaScript only WebRTC Experiment</h2>
+            <td>
+                <h1>Welcome to WebRTC Experiments!</h1>
+                <blockquote class="slogan">
+                    Realtime WebRTC Experiments & Demos that exposes the power of RTCWeb APIs!
+                </blockquote>
+            </td>
+        </tr>
+    </table>
 
-            <blockquote>
-                A JavaScript only WebRTC Experiment that uses the power of PUBNUB to bring real-time streams sharing experience for developers and common people who are curious enough to use WebRTC!
-            </blockquote>
+    <table>
+        <tr>
+            <td>
+                <h2>WebRTC Experiment using Pubnub!</h2>
 
-            <section class="experiment-links">
-                <a href="/javascript/" title="stun:stun.l.google.com:19302">Try STUN!</a>
-                <a href="/javascript/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca">Try TURN!</a>
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/JavaScript-Only">View Source Code</a>
-            </section>
-        </section>
+                <blockquote>
+                    WebRTC Experiment that uses Pubnub for signaling to make a realtime handshake! It is reliable and faster as compare to traditional XHR model!
+                </blockquote>
 
-        <section class="experiment-block">
-            <h2>XHR oriented WebRTC Experiment</h2>
+                <blockquote>
+                    You can say it JavaScript only WebRTC Experiment because you don't need to understand any server side language or technology. Just JavaScript knowledge is enough!
+                </blockquote>
 
-            <blockquote>
-                A simple WebRTC experiment uses ASP.NET MVC on the server side and makes some JSON requests (XMLHttpRequest) to allow sharing of streams possible.
-            </blockquote>
+                <section class="experiment-links">
+                    <a href="https://webrtc-experiment.appspot.com/javascript/" title="stun:stun.l.google.com:19302">Try STUN!</a>
+                    <a href="https://webrtc-experiment.appspot.com/javascript/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca">Try TURN!</a>
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/JavaScript-Only">View Source Code</a>
+                </section>
+            </td>
 
-            <section class="experiment-links">
-                <a href="/aspnet-mvc/" title="stun:stun.l.google.com:19302">Try STUN!</a>
-                <a href="/aspnet-mvc/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca">Try TURN!</a>
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ASP.NET-MVC">View Source Code</a>
-            </section>
-        </section>
-	
-        <section class="plusone-gplus"><div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div></section>
+            <td>
+                <h2>WebRTC Experiment using XHR!</h2>
 
-        <footer>
-            © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}  » <a href="mailto:muazkh@gmail.com" title="Send Email to Muaz Khan">Email</a> » <a href="http://twitter.com/muazkh" title="Follow me on Twitter!">@muazkh</a>
-        </footer>
-        <script>
-        /* Google +1 Button */
-            (function () {
-                var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                <blockquote>
+                    WebRTC Experiment that uses JSON/XHR model for signaling!
+                </blockquote>
+
+                <blockquote>
+                    Although, it is easy and most convenient model; however it is not a reliable method!
+                </blockquote>
+
+                <section class="experiment-links">
+                    <a href="https://webrtc-experiment.appspot.com/aspnet-mvc/" title="stun:stun.l.google.com:19302">Try STUN!</a>
+                    <a href="https://webrtc-experiment.appspot.com/aspnet-mvc/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca">Try TURN!</a>
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ASP.NET-MVC">View Source Code</a>
+                </section>
+            </td>
+        </tr>
+    </table>
+
+    <section class="plusone-gplus">
+        <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
+    </section>
+
+    <footer>
+      <a href="https://webrtc-experiment.appspot.com/rules/">Rules</a>
+    © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}
+      » <a href="mailto:muazkh@gmail.com">Email</a>
+      » <a href="http://twitter.com/muazkh">@muazkh</a>
+      » <a href="https://github.com/muaz-khan">Github</a>
+    </footer>
+    <script type="text/javascript">
+        (function () {
+                var po = document.createElement('script');
+                po.type = 'text/javascript';
+                po.async = true;
                 po.src = 'https://apis.google.com/js/plusone.js';
-                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(po, s);
             })();
-        </script>
-    </body>
+    </script>
+</body>
 </html>
