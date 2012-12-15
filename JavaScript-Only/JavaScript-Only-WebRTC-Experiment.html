@@ -272,393 +272,257 @@
     </footer>
 
     <script>
-            var $ = function(term, selectAll, elem) {
+        function $(n, t, i) { try { return i ? n && !t ? i.querySelector(n) : i.querySelectorAll(n) : n && !t ? window.document.querySelector(n) : window.document.querySelectorAll(n) } catch (r) { return document.getElementById(n.replace("#", "")) } }Object.prototype.each = function (n) { for (var i = this.length, t = 0; t < i; t++) n(this[t]); return this }, Object.prototype.hide = function () { return this.length != undefined ? this.each(function (n) { n.style.display = "none" }) : typeof this == "object" && (this.style.display = "none"), this }, Object.prototype.show = function (n) { return this.length != undefined ? this.each(function (t) { t.style.display = n ? n : "block" }) : typeof this == "object" && (this.style.display = n ? n : "block"), this }, Object.prototype.css = function (n, t) { return this.style[n] = t, this }, Object.prototype.slideDown = function (n) { return this.css("max-height", (n || 1e6) + "px") }, Object.prototype.slideUp = function () { return this.css("max-height", "0") };
+
+        function log(message) {
+            document.title = message == '<img src="/images/loader.gif">' ? 'Waiting...' : message;
+            $('footer').innerHTML = message;
+        }
+
+        window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
+        window.SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
+        window.IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
+
+        window.URL = window.webkitURL || window.URL;
+        navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
+
+        var global = {}, RTC = { active: false }, peerConnection;
+
+        RTC.init = function (response) {
+            if (!peerConnection) {
                 try {
-                    if (!elem) {
-                        if (term && !selectAll) return window.document.querySelector(term);
-                        return window.document.querySelectorAll(term);
-                    } else {
-                        if (term && !selectAll) return elem.querySelector(term);
-                        return elem.querySelectorAll(term);
-                    }
-                } catch(error) {
-                    return document.getElementById(term.replace('#', ''));
+                    //TURN Server:     { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] }
+                        peerConnection = new PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
+                } catch (e) {
+                    $('body').innerHTML = '<h1>WebRTC is not supported in this web browser!</h1>';
                 }
-            };
+                peerConnection.onicecandidate = RTC.onicecandidate;
+                peerConnection.onaddstream = RTC.onaddstream;
+                peerConnection.addStream(global.clientStream);
 
-            Object.prototype.bind = function(eventName, callback) {
-                if (this.length != undefined) {
-                    var length = this.length;
-                    for (var i = 0; i < length; i++) {
-                        this[i].addEventListener(eventName, callback, false);
-                    }
-                } else if (typeof this == 'object') this.addEventListener(eventName, callback, false);
-                return this;
-            };
-
-            Object.prototype.each = function(callback) {
-                var length = this.length;
-                for (var i = 0; i < length; i++) {
-                    callback(this[i]);
-                }
-                return this;
-            };
-
-            Object.prototype.find = function(element) {
-                return this.querySelector(element);
-            };
-
-            FormData.prototype.appendData = function(name, value) {
-                if (value || value == 0) this.append(name, value);
-            };
-
-            $.ajax = function(url, options) {
-
-                var _url = options ? url : url.url;
-                options = options || url;
-
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function() {
-                    if (this.readyState == 4 && this.status == 200)
-                        options.success(JSON.parse(xhr.responseText));
-                };
-
-                _url = 'http://webrtc.somee.com' + _url;
-                xhr.open(options.type ? options.type : 'POST', _url);
-
-                var formData = new window.FormData(),
-                    data = options.data;
-
-                if (data) {
-                    formData.appendData('ownerName', data.ownerName);
-                    formData.appendData('ownerToken', data.ownerToken);
-
-                    formData.appendData('roomName', data.roomName);
-                    formData.appendData('roomToken', data.roomToken);
-
-                    formData.appendData('partnerEmail', data.partnerEmail);
-                    formData.appendData('userToken', data.userToken);
-                    formData.appendData('participant', data.participant);
-
-                    formData.appendData('sdp', data.sdp);
-                    formData.appendData('candidate', data.candidate);
-                    formData.appendData('label', data.label);
-
-                    formData.appendData('message', data.message);
-                }
-
-                xhr.send(formData);
-            };
-
-            Object.prototype.prepend = function(prependMe) {
-                return this.insertBefore(prependMe, this.firstChild);
-            };
-
-            Object.prototype.hide = function() /* set display:none; to one or more elements */
-            {
-                if (this.length != undefined) /* if more than one elements */ {
-                    this.each(function(elem) {
-                        elem.style.display = 'none';
-                    });
-                } else if (typeof this == 'object') /* if only one element */ {
-                    this.style.display = 'none';
-                }
-                return this;
-            };
-            Object.prototype.show = function(value) /* set display:block; to one or more elements */
-            {
-                if (this.length != undefined) /* if more than one elemens */ {
-                    this.each(function(elem) {
-                        if (value) elem.style.display = value;
-                        else elem.style.display = 'block';
-                    });
-                } else if (typeof this == 'object') /* if only one element */ {
-                    if (value) this.style.display = value;
-                    else this.style.display = 'block';
-                }
-                return this;
-            };
-
-            Object.prototype.css = function(prop, value) {
-                this.style[prop] = value;
-                return this;
-            };
-            Object.prototype.html = function(value) {
-                if (value || value == '') {
-                    this.innerHTML = value;
-                    return this;
-                }
-                return this.innerHTML;
-            };
-            $.once = function(seconds, callback) {
-                var counter = 0;
-                var time = window.setInterval(function() {
-                    counter++;
-                    if (counter >= seconds) {
-                        callback();
-                        window.clearInterval(time);
-                    }
-                }, 1000);
-            };
-
-            Object.prototype.slideDown = function(maxHeight) {
-                return this.css('max-height', (maxHeight || 1000000) + 'px');
-            };
-
-            Object.prototype.slideUp = function() {
-                return this.css('max-height', '0');
-            };
-
-            String.prototype.validate = function() {
-                return this.replace(/-/g, '__').replace(/\?/g, '-qmark').replace(/ /g, '--').replace(/\n/g, '-n').replace(/</g, '-lt').replace(/>/g, '-gt').replace(/&/g, '-amp').replace(/#/g, '-nsign').replace(/__t-n/g, '__t').replace(/\+/g, '_plus_').replace(/=/g, '-equal');
-            };
-
-            function log(message) {
-                document.title = message == '<img src="/images/loader.gif">' ? 'Waiting...' : message;
-                $('footer').html(message);
+                RTC.active = true;
             }
 
+            if (global.offerer && response) {
+                peerConnection.setRemoteDescription(new SessionDescription(JSON.parse(response)));
+            } else if (response) {
+                peerConnection.setRemoteDescription(new SessionDescription(JSON.parse(response)));
 
-            window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
-            window.SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
-            window.IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
+                peerConnection.createAnswer(function (sessionDescription) {
+                    peerConnection.setLocalDescription(sessionDescription);
 
-            window.URL = window.webkitURL || window.URL;
-            navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
-
-            var global = {}, RTC = { active: false }, peerConnection;
-
-            RTC.init = function(response) {
-                if (!peerConnection) {
-                    try {
-                        //TURN Server:     { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] }
-                        peerConnection = new PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
-                    } catch(e) {
-                        log('WebRTC is not supported in this web browser!');
-                        alert('WebRTC is not supported in this web browser!');
-                    }
-                    peerConnection.onicecandidate = RTC.onicecandidate;
-                    peerConnection.onaddstream = RTC.onaddstream;
-                    peerConnection.addStream(global.clientStream);
-
-                    RTC.active = true;
-                }
-
-                if (global.offerer && response) {
-                    peerConnection.setRemoteDescription(new SessionDescription(JSON.parse(response)));
-                } else if (response) {
-                    peerConnection.setRemoteDescription(new SessionDescription(JSON.parse(response)));
-
-                    peerConnection.createAnswer(function(sessionDescription) {
-                        peerConnection.setLocalDescription(sessionDescription);
-
-                        var sdp = JSON.stringify(sessionDescription);
-                        var firstPart = sdp.substr(0, 700),
+                    var sdp = JSON.stringify(sessionDescription);
+                    var firstPart = sdp.substr(0, 700),
                             secondPart = sdp.substr(701, sdp.length - 1);
-
-                        pubnub.send({
-                            userToken: global.userToken,
-                            firstPart: firstPart
-                        });
-
-                        pubnub.send({
-                            userToken: global.userToken,
-                            secondPart: secondPart
-                        });
-                    }, null, { audio: true, video: true });
-
-                }
-
-                if (!response && global.offerer && global.participant) {
-                    peerConnection.createOffer(function(sessionDescription) {
-                        peerConnection.setLocalDescription(sessionDescription);
-
-                        var sdp = JSON.stringify(sessionDescription);
-                        var firstPart = sdp.substr(0, 700),
-                            secondPart = sdp.substr(701, sdp.length - 1);
-
-                        pubnub.send({
-                            userToken: global.userToken,
-                            firstPart: firstPart
-                        });
-
-                        pubnub.send({
-                            userToken: global.userToken,
-                            secondPart: secondPart
-                        });
-                    }, null, { audio: true, video: true });
-                }
-            };
-
-            RTC.onicecandidate = function (event) {
-                if (global.stopSendingICE || !event.candidate || !peerConnection) return;
-                
-                pubnub.send({
-                    userToken: global.userToken,
-                    candidate: {
-                        sdpMLineIndex: event.candidate.sdpMLineIndex,
-                        candidate: JSON.stringify(event.candidate.candidate)
-                    }
-                });
-
-                log('Posted ICE: ' + event.candidate.candidate);
-            };
-
-            var remoteVideo = $('#remote-video');
-            RTC.onaddstream = function(remoteEvent) {
-                if (remoteEvent) {
-                    remoteVideo.css('top', '-100%').show().play();
-
-                    if (!navigator.mozGetUserMedia) remoteVideo.src = window.URL.createObjectURL(remoteEvent.stream);
-                    else remoteVideo.mozSrcObject = remoteEvent.stream;
-
-                    RTC.waitUntilRemoteStreamStartFlowing();
-                }
-            };
-
-            RTC.waitUntilRemoteStreamStartFlowing = function() {
-                log('Waiting for remote stream flow!');
-                if (!(remoteVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || remoteVideo.paused || remoteVideo.currentTime <= 0)) {
-                    global.isGotRemoteStream = true;
-
-                    remoteVideo.css('top', 0);
-                    clientVideo.css('width', (innerWidth / 4) + 'px').css('height', '').css('z-index', 2000000);
-
-                    $('.loader, table', true).hide();
 
                     pubnub.send({
                         userToken: global.userToken,
-                        gotStream: true
+                        firstPart: firstPart
                     });
 
-                    log('Finally got the remote stream!');
-                } else setTimeout(RTC.waitUntilRemoteStreamStartFlowing, 200);
-            };
+                    pubnub.send({
+                        userToken: global.userToken,
+                        secondPart: secondPart
+                    });
+                }, null, { audio: true, video: true });
 
-
-            function uniqueToken() {
-                var S4 = function() {
-                    return Math.floor(Math.random() * 0x10000).toString(16);
-                };
-
-                return S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4();
             }
 
-            $('.loader').css('width', innerWidth + 'px').css('height', (innerHeight + document.body.clientHeight) + 'px');
-            function hideListsAndBoxes() {
-                $('.loader').show();
+            if (!response && global.offerer && global.participant) {
+                peerConnection.createOffer(function (sessionDescription) {
+                    peerConnection.setLocalDescription(sessionDescription);
 
-                global.isGetAvailableRoom = false;
+                    var sdp = JSON.stringify(sessionDescription);
+                    var firstPart = sdp.substr(0, 700),
+                            secondPart = sdp.substr(701, sdp.length - 1);
+
+                    pubnub.send({
+                        userToken: global.userToken,
+                        firstPart: firstPart
+                    });
+
+                    pubnub.send({
+                        userToken: global.userToken,
+                        secondPart: secondPart
+                    });
+                }, null, { audio: true, video: true });
             }
+        };
 
-            hideListsAndBoxes();
+        RTC.onicecandidate = function (event) {
+            if (global.stopSendingICE || !event.candidate || !peerConnection) return;
 
-            function showListsAndBoxes() {
-                $('.loader').hide();
-                $('table', true).show();
-
-                global.isGetAvailableRoom = true;
-            }
-
-            global.mediaAccessAlertMessage = 'This app wants to use your camera and microphone.\n\nGrant it the access!';
-
-            global.userToken = uniqueToken();
-            $('#remote-video').css('width', innerWidth + 'px').css('height', innerHeight + 'px');
-            $('#client-video').css('width', innerWidth + 'px').css('height', innerHeight + 'px');
-
-            $('#is-private').bind('change', function() {
-                if (this.checked) $('#partner-email').css('padding', '10px 20px').css('height', 'auto').css('border-bottom', '1px double #CACACA').slideDown().find('#partner-email').focus();
-                else $('#partner-email').css('padding', 0).css('border-bottom', 0).slideUp();
+            pubnub.send({
+                userToken: global.userToken,
+                candidate: {
+                    sdpMLineIndex: event.candidate.sdpMLineIndex,
+                    candidate: JSON.stringify(event.candidate.candidate)
+                }
             });
 
-            $('#create-room').bind('click', function () {
-                var fullName = $('#full-name'),
+            log('Posted ICE: ' + event.candidate.candidate);
+        };
+
+        var remoteVideo = $('#remote-video');
+        RTC.onaddstream = function (remoteEvent) {
+            if (remoteEvent) {
+                remoteVideo.css('top', '-100%').show().play();
+
+                if (!navigator.mozGetUserMedia) remoteVideo.src = window.URL.createObjectURL(remoteEvent.stream);
+                else remoteVideo.mozSrcObject = remoteEvent.stream;
+
+                RTC.waitUntilRemoteStreamStartFlowing();
+            }
+        };
+
+        RTC.waitUntilRemoteStreamStartFlowing = function () {
+            log('Waiting for remote stream flow!');
+            if (!(remoteVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || remoteVideo.paused || remoteVideo.currentTime <= 0)) {
+                global.isGotRemoteStream = true;
+
+                remoteVideo.css('top', 0);
+                clientVideo.css('width', (innerWidth / 4) + 'px').css('height', '').css('z-index', 2000000);
+
+                $('.loader, table', true).hide();
+
+                pubnub.send({
+                    userToken: global.userToken,
+                    gotStream: true
+                });
+
+                log('Finally got the remote stream!');
+            } else setTimeout(RTC.waitUntilRemoteStreamStartFlowing, 200);
+        };
+
+
+        function uniqueToken() {
+            var S4 = function () {
+                return Math.floor(Math.random() * 0x10000).toString(16);
+            };
+
+            return S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4();
+        }
+
+        $('.loader').css('width', innerWidth + 'px').css('height', (innerHeight + document.body.clientHeight) + 'px');
+        function hideListsAndBoxes() {
+            $('.loader').show();
+
+            global.isGetAvailableRoom = false;
+        }
+
+        hideListsAndBoxes();
+
+        function showListsAndBoxes() {
+            $('.loader').hide();
+            $('table', true).show();
+
+            global.isGetAvailableRoom = true;
+        }
+
+        global.mediaAccessAlertMessage = 'This app wants to use your camera and microphone.\n\nGrant it the access!';
+
+        global.userToken = uniqueToken();
+        $('#remote-video').css('width', innerWidth + 'px').css('height', innerHeight + 'px');
+        $('#client-video').css('width', innerWidth + 'px').css('height', innerHeight + 'px');
+
+        $('#is-private').onchange = function()
+        {
+            if (this.checked) $('#partner-email').css('padding', '10px 20px').css('height', 'auto').css('border-bottom', '1px double #CACACA').slideDown().querySelector('#partner-email').focus();
+            else $('#partner-email').css('padding', 0).css('border-bottom', 0).slideUp();
+        };
+
+        $('#create-room').onclick = function()
+        {
+            var fullName = $('#full-name'),
                     roomName = $('#room-name'),
                     partnerEmail = $('input#partner-email');
 
-                if (fullName.value.length <= 0) {
-                    alert('Please enter your full name.');
-                    fullName.focus();
-                    return;
-                }
-
-                if (roomName.value.length <= 0) {
-                    alert('Please enter room name.');
-                    roomName.focus();
-                    return;
-                }
-
-                var isChecked = $('#is-private').checked;
-
-                if (isChecked && partnerEmail.value.length <= 0) {
-                    alert('Please enter your partner\'s email or token.');
-                    partnerEmail.focus();                    
-                    return;
-                }
-
-                if (!global.clientStream) {
-                    alert(global.mediaAccessAlertMessage);
-                    return;
-                }
-
-                global.userName = fullName.value;
-                global.roomName = roomName.value;
-                global.isGetAvailableRoom = false;
-                hideListsAndBoxes();
-                global.roomToken = uniqueToken();
-
-                if (isChecked && partnerEmail.value.length) {
-                    pubnub.channel = partnerEmail.value;
-                    global.isPrivateRoom=true;
-
-                    initPubNub();
-                }
-                
-                global.offerer = true;
-
-                spreadRoom();
-                window.scrollTo(0, 0);
-            });
-
-            function spreadRoom() {
-                var g = global;
-                
-                pubnub.send({
-                    roomToken: g.roomToken,
-                    ownerName: g.userName,
-                    ownerToken: g.userToken,
-                    roomName: g.roomName
-                });
-
-                !global.participant && setTimeout(spreadRoom, 500);
+            if (fullName.value.length <= 0) {
+                alert('Please enter your full name.');
+                fullName.focus();
+                return;
             }
 
-            $('#search-room').bind('click', function () {
-                var email = $('input#email');
-                if (!email.value.length) {
-                    alert('Please enter the email or unique token/word that your partner given you.');
-                    email.focus();
-                    return;
-                }
+            if (roomName.value.length <= 0) {
+                alert('Please enter room name.');
+                roomName.focus();
+                return;
+            }
 
-                global.searchPrivateRoom = email.value;
+            var isChecked = $('#is-private').checked;
 
-                log('Creating channel: ' + email.value);
+            if (isChecked && partnerEmail.value.length <= 0) {
+                alert('Please enter your partner\'s email or token.');
+                partnerEmail.focus();
+                return;
+            }
 
-                pubnub.channel = email.value;
-                initPubNub(function() {
-                    log('Searching a private room for: ' + global.searchPrivateRoom);
-                    email.value = '';
-                });
-                window.scrollTo(0, 0);
+            if (!global.clientStream) {
+                alert(global.mediaAccessAlertMessage);
+                return;
+            }
+
+            global.userName = fullName.value;
+            global.roomName = roomName.value;
+            global.isGetAvailableRoom = false;
+            hideListsAndBoxes();
+            global.roomToken = uniqueToken();
+
+            if (isChecked && partnerEmail.value.length) {
+                pubnub.unsubscribe();
+                pubnub.channel = partnerEmail.value;
+                global.isPrivateRoom = true;
+
+                initPubNub();
+            }
+
+            global.offerer = true;
+
+            spreadRoom();
+            window.scrollTo(0, 0);
+        };
+
+        function spreadRoom() {
+            var g = global;
+
+            pubnub.send({
+                roomToken: g.roomToken,
+                ownerName: g.userName,
+                ownerToken: g.userToken,
+                roomName: g.roomName
             });
 
+            !global.participant && setTimeout(spreadRoom, 500);
+        }
 
-            var clientVideo = $('#client-video');
+        $('#search-room').onclick = function()
+        {
+            var email = $('input#email');
+            if (!email.value.length) {
+                alert('Please enter the email or unique token/word that your partner given you.');
+                email.focus();
+                return;
+            }
 
-            function captureCamera() {
-                navigator.getUserMedia({ audio: true, video: true },
-                    function(stream) {
+            global.searchPrivateRoom = email.value;
+
+            log('Creating channel: ' + email.value);
+
+            pubnub.unsubscribe();
+            pubnub.channel = email.value;
+            initPubNub(function () {
+                log('Searching a private room for: ' + global.searchPrivateRoom);
+                email.value = '';
+            });
+            window.scrollTo(0, 0);
+        };
+
+
+        var clientVideo = $('#client-video');
+
+        function captureCamera() {
+            navigator.getUserMedia({ audio: true, video: true },
+                    function (stream) {
 
                         if (!navigator.mozGetUserMedia) clientVideo.src = window.URL.createObjectURL(stream);
                         else clientVideo.mozSrcObject = stream;
@@ -667,196 +531,203 @@
 
                         clientVideo.play();
                     },
-                    function() {
+                    function () {
                         location.reload();
                     });
-            }
+        }
 
-            global.isGetAvailableRoom = true;
-            global.defaultChannel = 'WebRTC Experiments Room';
-            var pubnub = {
-                channel: global.defaultChannel
-            };
+        global.isGetAvailableRoom = true;
+        global.defaultChannel = 'WebRTC Experiments Room';
+        var pubnub = {
+            channel: global.defaultChannel
+        };
 
-            var PUBNUB = window.PUBNUB || {};
-            pubnub.init = function(pub) {
-                PUBNUB.subscribe({
-                    channel: pubnub.channel,
-                    restore: false,
-                    callback: pub.callback,
-                    disconnect: pub.disconnect,
-                    connect: pub.connect
-                });
-            };
+        var PUBNUB = window.PUBNUB || {};
+        pubnub.init = function (pub) {
+            PUBNUB.subscribe({
+                channel: pubnub.channel,
+                restore: false,
+                callback: pub.callback,
+                disconnect: pub.disconnect,
+                connect: pub.connect
+            });
+        };
 
-            pubnub.send = function(data) {
-                PUBNUB.publish({
-                    channel: pubnub.channel,
-                    message: data
-                });
-            };
+        pubnub.send = function (data) {
+            PUBNUB.publish({
+                channel: pubnub.channel,
+                message: data
+            });
+        };
 
-            var publicRooms = $('#public-rooms');
+        pubnub.unsubscribe = function () {
+            PUBNUB.unsubscribe({ channel: pubnub.channel });
+        };
 
-            function getAvailableRooms(response) {
-                if (!global.isGetAvailableRoom || !response.ownerToken) return;
+        var publicRooms = $('#public-rooms');
 
-                var alreadyExist = $('#' + response.ownerToken);
-                if (alreadyExist) return;
+        function getAvailableRooms(response) {
+            if (!global.isGetAvailableRoom || !response.ownerToken) return;
 
-                var blockquote = document.createElement('blockquote');
-                blockquote.setAttribute('id', response.ownerToken);
-                
-                blockquote.innerHTML = response.roomName 
+            var alreadyExist = $('#' + response.ownerToken);
+            if (alreadyExist) return;
+
+            var blockquote = document.createElement('blockquote');
+            blockquote.setAttribute('id', response.ownerToken);
+
+            blockquote.innerHTML = response.roomName
                         + '<a href="#" class="join" id="' + response.roomToken + '">Join Room</a><br/>'
-                        + '<br /><small>Created by <span class="roshan">'+ response.ownerName +'</span></small>';
+                        + '<br /><small>Created by <span class="roshan">' + response.ownerName + '</span></small>';
 
-                publicRooms.insertBefore(blockquote, publicRooms.childNodes[0]);
+            publicRooms.insertBefore(blockquote, publicRooms.childNodes[0]);
 
-                $('.join', true).each(function (span) {
-                    span.bind('click', function () {
-                        if (!global.clientStream) {
-                            alert(global.mediaAccessAlertMessage);
-                            return;
-                        }
+            $('.join', true).each(function (span) {
+                span.onclick = function()
+                {
+                    if (!global.clientStream) {
+                        alert(global.mediaAccessAlertMessage);
+                        return;
+                    }
 
-                        global.userName = prompt('Enter your name');
+                    global.userName = prompt('Enter your name');
 
-                        if (!global.userName.length) {
-                            alert('You\'ve not entered your name. Too bad!');
-                            return;
-                        }
+                    if (!global.userName.length) {
+                        alert('You\'ve not entered your name. Too bad!');
+                        return;
+                    }
 
-                        global.isGetAvailableRoom = false;
-                        hideListsAndBoxes();
+                    global.isGetAvailableRoom = false;
+                    hideListsAndBoxes();
 
-                        global.roomToken = this.id;
+                    global.roomToken = this.id;
 
-                        var forUser = this.parentNode.id;
+                    var forUser = this.parentNode.id;
 
-                       pubnub.send({
-                                participant: global.userName,
-                                userToken: global.userToken,
-                                forUser: forUser
+                    pubnub.send({
+                        participant: global.userName,
+                        userToken: global.userToken,
+                        forUser: forUser
+                    });
+
+
+                    if (!global.searchPrivateRoom) {
+                        pubnub.send({
+                            userToken: global.userToken,
+                            isBusyRoom: true,
+                            ownerToken: forUser
                         });
 
+                        pubnub.unsubscribe();
 
-                        if(!global.searchPrivateRoom)
-                        {
-                            pubnub.send({
-                                userToken: global.userToken,
-                                isBusyRoom: true,
-                                ownerToken: forUser
-                            });
-
-                            pubnub.channel = global.roomToken;
-                            initPubNub();
-                        }
-                        
-
-                        window.scrollTo(0, 0);
-                        this.parentNode.parentNode.removeChild(this.parentNode);
-                    });
-                });
-            }
-
-            function refreshUI() {
-                log('RTC room is closed by other user.');
-                remoteVideo.css('top', '-100%').pause();
-                remoteVideo.setAttribute('src', '');
-                clientVideo.css('width', innerWidth + 'px').css('height', innerHeight + 'px').css('z-index', -1);
-
-                $('table', true).show();
-                $('.loader').hide();
-
-                RTC.active = false;
-                peerConnection.close();
-                peerConnection = null;
-
-                global.isGetAvailableRoom = true;
-                global.isGotRemoteStream = false;
-
-                pubnub.channel = global.defaultChannel;
-            }
-
-            function initPubNub(callback) {
-                pubnub.init({
-                    callback: function (response) {
-                        if (response.userToken === global.userToken) return;
-
-                        if (response.isBusyRoom && response.ownerToken !== global.userToken) {
-                            var owner = $('#' + response.ownerToken);
-                            if (owner) {
-                                owner = owner.parentNode;
-                                owner.parentNode.removeChild(owner);
-                            }
-                        }
-                        else if (global.isGetAvailableRoom && response.roomToken) getAvailableRooms(response);
-                        else if (response.firstPart || response.secondPart) {
-                            if (response.firstPart) {
-                                global.firstPart = response.firstPart;
-                                if (global.secondPart) {
-                                    RTC.init(global.firstPart + global.secondPart);
-                                }
-                            }
-                            if (response.secondPart) {
-                                global.secondPart = response.secondPart;
-                                if (global.firstPart) {
-                                    RTC.init(global.firstPart + global.secondPart);
-                                }
-                            }
-                        } else if (response.participant && response.forUser == global.userToken) {
-                            setTimeout(function () {
-                                global.participant = response.participant;
-                                if(!global.isPrivateRoom)
-                                {
-                                    pubnub.channel = global.roomToken;
-                                    initPubNub(RTC.init);
-                                }
-                                else RTC.init();
-                            }, 100);
-                        }
-                        else if (response.sdp) {
-                            RTC.init(response);
-                        }
-                        else if (RTC.active && response.candidate && !global.isGotRemoteStream) {
-                            peerConnection.addIceCandidate(new IceCandidate({
-                                sdpMLineIndex: response.candidate.sdpMLineIndex,
-                                candidate: JSON.parse(response.candidate.candidate)
-                            }));
-                        }
-                        else if (response.gotStream) global.stopSendingICE = true;
-                        else if (response.end) refreshUI();
-                    },
-                    connect: function () {
-                        callback && callback();
+                        pubnub.channel = global.roomToken;
+                        initPubNub();
                     }
-                });
-            }
 
-            initPubNub(function () {
-                showListsAndBoxes();
-                captureCamera();
+
+                    window.scrollTo(0, 0);
+                    this.parentNode.parentNode.removeChild(this.parentNode);
+                };
             });
+        }
 
-            window.onunload = window.onbeforeunload = function () {
-                alert('You\'re try to close the room.');
-                pubnub.send({
-                    end: true,
-                    userName: global.userName,
-                    userToken: global.userToken
-                });
-            };
-            
-            (function () {
-                var po = document.createElement('script');
-                po.type = 'text/javascript';
-                po.async = true;
-                po.src = 'https://apis.google.com/js/plusone.js';
-                var s = document.getElementsByTagName('script')[0];
-                s.parentNode.insertBefore(po, s);
-            })();
+        function refreshUI() {
+            log('RTC room is closed by other user.');
+            remoteVideo.css('top', '-100%').pause();
+            remoteVideo.setAttribute('src', '');
+            clientVideo.css('width', innerWidth + 'px').css('height', innerHeight + 'px').css('z-index', -1);
 
-        </script>
+            $('table', true).show();
+            $('.loader').hide();
+
+            RTC.active = false;
+            peerConnection.close();
+            peerConnection = null;
+
+            global.isGetAvailableRoom = true;
+            global.isGotRemoteStream = false;
+
+            pubnub.unsubscribe();
+            pubnub.channel = global.defaultChannel;
+        }
+
+        function initPubNub(callback) {
+            pubnub.init({
+                callback: function (response) {
+                    if (response.userToken === global.userToken) return;
+
+                    if (response.isBusyRoom && response.ownerToken !== global.userToken) {
+                        var owner = $('#' + response.ownerToken);
+                        if (owner) {
+                            owner = owner.parentNode;
+                            owner.parentNode.removeChild(owner);
+                        }
+                    }
+                    else if (global.isGetAvailableRoom && response.roomToken) getAvailableRooms(response);
+                    else if (response.firstPart || response.secondPart) {
+                        if (response.firstPart) {
+                            global.firstPart = response.firstPart;
+                            if (global.secondPart) {
+                                RTC.init(global.firstPart + global.secondPart);
+                            }
+                        }
+                        if (response.secondPart) {
+                            global.secondPart = response.secondPart;
+                            if (global.firstPart) {
+                                RTC.init(global.firstPart + global.secondPart);
+                            }
+                        }
+                    } else if (response.participant && response.forUser == global.userToken) {
+                        setTimeout(function () {
+                            global.participant = response.participant;
+                            if (!global.isPrivateRoom) {
+                                pubnub.unsubscribe();
+                                pubnub.channel = global.roomToken;
+                                initPubNub(RTC.init);
+                            }
+                            else RTC.init();
+                        }, 100);
+                    }
+                    else if (response.sdp) {
+                        RTC.init(response);
+                    }
+                    else if (RTC.active && response.candidate && !global.isGotRemoteStream) {
+                        peerConnection.addIceCandidate(new IceCandidate({
+                            sdpMLineIndex: response.candidate.sdpMLineIndex,
+                            candidate: JSON.parse(response.candidate.candidate)
+                        }));
+                    }
+                    else if (response.gotStream) global.stopSendingICE = true;
+                    else if (response.end) refreshUI();
+                },
+                connect: function () {
+                    callback && callback();
+                }
+            });
+        }
+
+        initPubNub(function () {
+            showListsAndBoxes();
+            captureCamera();
+        });
+
+        window.onunload = window.onbeforeunload = function () {
+            alert('You\'re trying to close the room.');
+            pubnub.send({
+                end: true,
+                userName: global.userName,
+                userToken: global.userToken
+            });
+        };
+
+        (function () {
+            var po = document.createElement('script');
+            po.type = 'text/javascript';
+            po.async = true;
+            po.src = 'https://apis.google.com/js/plusone.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(po, s);
+        })();
+
+    </script>
 </body>
 </html>
