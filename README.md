@@ -29,7 +29,7 @@ var RTCPeerConnection = function(options)
     var SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
     var IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
 
-	// TURN servers: { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] }
+    // TURN servers: { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] }
     var iceServers = { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] };
     var constraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } };
 
@@ -94,40 +94,40 @@ var RTCPeerConnection = function(options)
 ```javascript
 /* ---------- common configuration -------- */
 var config = config = {
-    getice: function() {},		/* Send ICE via XHR or WebSockets toward other peer! */
-    gotstream: gotstream,		/* Play remote video */
-    iceServers: iceServers,		/* STUN or TURN server: by default it is using: { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] } */
-    stream: clientStream		/* Current user's stream you want to forward to other peer! */
+    getice: function() {},      /* Send ICE via XHR or WebSockets toward other peer! */
+    gotstream: gotstream,       /* Play remote video */
+    iceServers: iceServers,     /* STUN or TURN server: by default it is using: { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] } */
+    stream: clientStream        /* Current user's stream you want to forward to other peer! */
 };
 
 /* ---------- called in case of offer -------- */
 function createOffer() {
-	initconfig();
-    config.onoffer = sendsdp;				/* Send Offer SDP via XHR or WebSocket on the other peer */
-    var rtc = RTCPeerConnection(config);	/* You can use this object "rtc" for later to get Answer SDP or process ICE message */
+    initconfig();
+    config.onoffer = sendsdp;               /* Send Offer SDP via XHR or WebSocket on the other peer */
+    var rtc = RTCPeerConnection(config);    /* You can use this object "rtc" for later to get Answer SDP or process ICE message */
 }
 
 /* ---------- called in case of answer -------- */
 function createAnswer(sdp) {
-	initconfig();
-    config.onanswer = sendsdp;				/* Send Answer SDP via XHR or WebSocket on the other peer */
-    config.offer = sdp;						/* Pass offer SDP sent by other peer for you! */
-    var rtc = RTCPeerConnection(config);	/* You can use this object "rtc" for later to get Answer SDP or process ICE message */
+    initconfig();
+    config.onanswer = sendsdp;              /* Send Answer SDP via XHR or WebSocket on the other peer */
+    config.offer = sdp;                     /* Pass offer SDP sent by other peer for you! */
+    var rtc = RTCPeerConnection(config);    /* You can use this object "rtc" for later to get Answer SDP or process ICE message */
 }
 
 /* ---------- getting answer SDP from 1st peer -------- */
-rtc.onanswer(sdp);		/* Pass Answer SDP to make the handshake complete! */
+rtc.onanswer(sdp);      /* Pass Answer SDP to make the handshake complete! */
 
 /* ---------- add /or process ice candidates sent by other peer -------- */
 rtc.addice({
     sdpMLineIndex: candidate.sdpMLineIndex,
-    candidate: JSON.parse(candidate.candidate)	/* call JSON.parse only if you called JSON.stringify! */
+    candidate: JSON.parse(candidate.candidate)  /* call JSON.parse only if you called JSON.stringify! */
 });
 ```
 
 ##A realtime client side [example](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Python/files/demos/client-side.html) - [Preview / Demo](https://webrtc-experiment.appspot.com/demos/client-side.html)
 
-```javascript
+```html
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
 
 <style>body{text-align: center;}</style>
@@ -227,7 +227,7 @@ rtc.addice({
 
 ##Another realtime but advance client side [example](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Python/files/demos/client-side-socket-io.html) using socket.io over PubNub! - [Preview / Demo](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html)
 
-```javascript
+```html
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
 <script src="https://dh15atwfs066y.cloudfront.net/socket.io.min.js"></script>
 
@@ -250,8 +250,8 @@ rtc.addice({
     });
 
     socket.on('message', function (message) {
-	
-		/* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
+    
+        /* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
 
         if (message.firstPart) {
             global.firstPart = message.firstPart;
@@ -410,7 +410,7 @@ rtc.addice({
 
 ##Another realtime but advance client side [example](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Python/files/demos/client-side-websocket.html) using WebSocket over PubNub! - [Preview / Demo](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html)
 
-```javascript
+```html
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js" type="text/javascript"></script>
 <script src="https://pubnub.a.ssl.fastly.net/pubnub-3.1.min.js"></script>
 <script src="https://webrtc-experiment.appspot.com/dependencies/websocket.js" type="text/javascript"></script>
@@ -431,8 +431,8 @@ rtc.addice({
 
     socket.onmessage = function (event) {
         var message = event.data;
-		
-		/* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
+        
+        /* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
 
         if (message.firstPart) {
             global.firstPart = message.firstPart;
