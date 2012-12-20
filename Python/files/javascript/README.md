@@ -1,469 +1,598 @@
-![WebRTC Experiment!](https://sites.google.com/site/muazkh/logo.png)
+![WebRTC Experiment!](https://muazkh.appspot.com/images/WebRTC.png)
 
-Real-time [WebRTC Experiment](https://webrtc-experiment.appspot.com/javascript/): A Realtime JavaScript Only WebRTC Experiment that uses PUBNUB to allow sharing of WebRTC audio/video streams smoothly and directly right in the JavaScript! No ASP.NET, No Python, No PHP and no Java! 
+--
 
-## Preview / Demo
+[WebRTC Experiments](https://webrtc-experiment.appspot.com) using WebSocket, Socket.io and XHR for signaling. 
 
-* [JavaScript Only WebRTC Experiment](https://webrtc-experiment.appspot.com/javascript/) - [TURN](https://webrtc-experiment.appspot.com/javascript/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/javascript/)
-* [ASPNET MVC specific WebRTC Experiment](https://webrtc-experiment.appspot.com/aspnet-mvc/) - [TURN](https://webrtc-experiment.appspot.com/aspnet-mvc/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/aspnet-mvc/)
+## Preview / Demos / Experiments
 
-## Screenshot
-
-![WebRTC Screenshot 2](https://muazkh.appspot.com/images/WebRTC.png)
+* [WebRTC Experiment: Socket.io over PubNub](https://webrtc-experiment.appspot.com/socket.io/) - [STUN](https://webrtc-experiment.appspot.com/socket.io/) / [TURN](https://webrtc-experiment.appspot.com/socket.io/?turn=true)
+* [WebRTC Experiment: WebSocket over PubNub](https://webrtc-experiment.appspot.com/websocket/) - [STUN](https://webrtc-experiment.appspot.com/websocket/) / [TURN](https://webrtc-experiment.appspot.com/websocket/?turn=true)
+* [WebRTC Experiment: PubNub HTML5 Modern JavaScript](https://webrtc-experiment.appspot.com/javascript/) - [TURN](https://webrtc-experiment.appspot.com/javascript/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/javascript/)
+* [WebRTC Experiment: XHR over ASPNET MVC](https://webrtc-experiment.appspot.com/aspnet-mvc/) - [TURN](https://webrtc-experiment.appspot.com/aspnet-mvc/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/aspnet-mvc/)
 
 ##Credits
 
-* Everything: [Muaz Khan](http://github.com/muaz-khan)
-* WebRTC APIs: [WebRTC.org](http://www.webrtc.org/) - Thank you Google!
+* [Muaz Khan](http://github.com/muaz-khan)!
+* [PubNub](https://github.com/pubnub/pubnub-api)!
 
 ##Browsers
 
-It works in Chrome 23 and upper. You'll see the support of Mozilla Firefox soon!
+It works fine on Google Chrome Stable 23 (and upper stable releases!)
 
-## JavaScript code!
+## JavaScript code from [RTCPeerConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection.js)!
 
 ```javascript
-window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
-            window.SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
-            window.IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
+var RTCPeerConnection = function(options) 
+{
+    var PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
+    var SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
+    var IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
 
-            window.URL = window.webkitURL || window.URL;
-            navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
+	// TURN servers: { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] }
+    var iceServers = { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] };
+    var constraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } };
 
-            var global = {}, RTC = { active: false }, peerConnection;
+    var peerConnection = new PeerConnection(options.iceServers || iceServers);
 
-            RTC.init = function(response) {
-                if (!peerConnection) {
-                    try {
-                        peerConnection = new PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
-                    } catch(e) {
-                        log('WebRTC is not supported in this web browser!');
-                        alert('WebRTC is not supported in this web browser!');
-                    }
-                    peerConnection.onicecandidate = RTC.onicecandidate;
-                    peerConnection.onaddstream = RTC.onaddstream;
-                    peerConnection.addStream(global.clientStream);
+    peerConnection.onicecandidate = onicecandidate;
+    peerConnection.onaddstream = onaddstream;
+    peerConnection.addStream(options.stream);
 
-                    RTC.active = true;
-                }
+    function onicecandidate(event) {
+        if (!event.candidate || !peerConnection) return;
+        if (options.getice) options.getice(event.candidate);
+    }
 
-                if (global.offerer && response) {
-                    peerConnection.setRemoteDescription(new SessionDescription(JSON.parse(response)));
-                } else if (response) {
-                    peerConnection.setRemoteDescription(new SessionDescription(JSON.parse(response)));
+    function onaddstream(event) {
+        options.gotstream && options.gotstream(event);
+    }
 
-                    peerConnection.createAnswer(function(sessionDescription) {
-                        peerConnection.setLocalDescription(sessionDescription);
+    function createOffer() {
+        if (!options.onoffer) return;
 
-                        var sdp = JSON.stringify(sessionDescription);
-                        var firstPart = sdp.substr(0, 700),
-                            secondPart = sdp.substr(701, sdp.length - 1);
+        peerConnection.createOffer(function(sessionDescription) {
 
-                        pubnub.send({
-                            userToken: global.userToken,
-                            firstPart: firstPart
-                        });
+            peerConnection.setLocalDescription(sessionDescription);
+            options.onoffer(sessionDescription);
 
-                        pubnub.send({
-                            userToken: global.userToken,
-                            secondPart: secondPart
-                        });
-                    }, null, { audio: true, video: true });
+        }, null, constraints);
+    }
 
-                }
+    createOffer();
 
-                if (!response && global.offerer && global.participant) {
-                    peerConnection.createOffer(function(sessionDescription) {
-                        peerConnection.setLocalDescription(sessionDescription);
+    function createAnswer() {
+        if (!options.onanswer) return;
 
-                        var sdp = JSON.stringify(sessionDescription);
-                        var firstPart = sdp.substr(0, 700),
-                            secondPart = sdp.substr(701, sdp.length - 1);
+        peerConnection.setRemoteDescription(new SessionDescription(options.offer));
+        peerConnection.createAnswer(function(sessionDescription) {
 
-                        pubnub.send({
-                            userToken: global.userToken,
-                            firstPart: firstPart
-                        });
+            peerConnection.setLocalDescription(sessionDescription);
+            options.onanswer(sessionDescription);
 
-                        pubnub.send({
-                            userToken: global.userToken,
-                            secondPart: secondPart
-                        });
-                    }, null, { audio: true, video: true });
-                }
-            };
+        }, null, constraints);
+    }
 
-            RTC.onicecandidate = function (event) {
-                if (global.stopSendingICE || !event.candidate || !peerConnection) return;
-                
-                pubnub.send({
-                    userToken: global.userToken,
-                    candidate: {
-                        sdpMLineIndex: event.candidate.sdpMLineIndex,
-                        candidate: JSON.stringify(event.candidate.candidate)
-                    }
-                });
+    createAnswer();
 
-                log('Posted ICE: ' + event.candidate.candidate);
-            };
+    return {
+        onanswer: function(sdp) {
+            peerConnection.setRemoteDescription(new SessionDescription(sdp));
+        },
+        addice: function(candidate) {
+            peerConnection.addIceCandidate(new IceCandidate({
+                sdpMLineIndex: candidate.sdpMLineIndex,
+                candidate: candidate.candidate
+            }));
+        }
+    };
+};
+```
 
-            var remoteVideo = $('#remote-video');
-            RTC.onaddstream = function(remoteEvent) {
-                if (remoteEvent) {
-                    remoteVideo.css('top', '-100%').show().play();
+##How to use [above code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection.js)?
 
-                    if (!navigator.mozGetUserMedia) remoteVideo.src = window.URL.createObjectURL(remoteEvent.stream);
-                    else remoteVideo.mozSrcObject = remoteEvent.stream;
+```javascript
+/* ---------- common configuration -------- */
+var config = config = {
+    getice: function() {},		/* Send ICE via XHR or WebSockets toward other peer! */
+    gotstream: gotstream,		/* Play remote video */
+    iceServers: iceServers,		/* STUN or TURN server: by default it is using: { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] } */
+    stream: clientStream		/* Current user's stream you want to forward to other peer! */
+};
 
-                    RTC.waitUntilRemoteStreamStartFlowing();
-                }
-            };
+/* ---------- called in case of offer -------- */
+function createOffer() {
+	initconfig();
+    config.onoffer = sendsdp;				/* Send Offer SDP via XHR or WebSocket on the other peer */
+    var rtc = RTCPeerConnection(config);	/* You can use this object "rtc" for later to get Answer SDP or process ICE message */
+}
 
-            RTC.waitUntilRemoteStreamStartFlowing = function() {
-                log('Waiting for remote stream flow!');
-                if (!(remoteVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || remoteVideo.paused || remoteVideo.currentTime <= 0)) {
-                    global.isGotRemoteStream = true;
+/* ---------- called in case of answer -------- */
+function createAnswer(sdp) {
+	initconfig();
+    config.onanswer = sendsdp;				/* Send Answer SDP via XHR or WebSocket on the other peer */
+    config.offer = sdp;						/* Pass offer SDP sent by other peer for you! */
+    var rtc = RTCPeerConnection(config);	/* You can use this object "rtc" for later to get Answer SDP or process ICE message */
+}
 
-                    remoteVideo.css('top', 0);
-                    clientVideo.css('width', (innerWidth / 4) + 'px').css('height', '').css('z-index', 2000000);
+/* ---------- getting answer SDP from 1st peer -------- */
+rtc.onanswer(sdp);		/* Pass Answer SDP to make the handshake complete! */
 
-                    pubnub.send({
-                        userToken: global.userToken,
-                        gotStream: true
-                    });
+/* ---------- add /or process ice candidates sent by other peer -------- */
+rtc.addice({
+    sdpMLineIndex: candidate.sdpMLineIndex,
+    candidate: JSON.parse(candidate.candidate)	/* call JSON.parse only if you called JSON.stringify! */
+});
+```
 
-                    log('Finally got the remote stream!');
-                    startChatting();
-                } else setTimeout(RTC.waitUntilRemoteStreamStartFlowing, 200);
-            };
+##A realtime client side [example](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Python/files/demos/client-side.html) - [Preview / Demo](https://webrtc-experiment.appspot.com/demos/client-side.html)
 
+```javascript
+<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
 
-            function uniqueToken() {
-                var S4 = function() {
-                    return Math.floor(Math.random() * 0x10000).toString(16);
-                };
+<style>body{text-align: center;}</style>
+<h2>Client video</h2>
+<video id="client-video" autoplay></video>
 
-                return S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4();
-            }
+<h2>Remote video getting stream from peer2</h2>
+<video id="remote-video-1" autoplay></video>
 
-            function hideListsAndBoxes() {
-                $('.create-room-panel').css('left', '-100%');
-                $('aside').css('right', '-100%');
-                $('.private-room').css('bottom', '-100%');
+<h2>Remote video getting stream from peer1</h2>
+<video id="remote-video-2" autoplay></video>
 
-                global.isGetAvailableRoom = false;
-            }
+<!-- First of all; get camera -->
+<script>
+    var clientStream;
 
-            hideListsAndBoxes();
+    getUserMedia({
+        video: document.getElementById('client-video'),
+        onsuccess: function (stream) {
+            clientStream = stream;
 
-            function showListsAndBoxes() {
-                $('.create-room-panel').css('left', 'auto');
-                $('aside').css('right', 'auto');
-                $('.private-room').css('bottom', '4%');
+            /* Got access to camera; Now start creating offer sdp */
+            create1stPeer();
+        }
+    });
+</script>
 
-                global.isGetAvailableRoom = true;
-            }
+<!-- First peer: the offerer -->
+<script>
+    /* "offerSDP" will be used by your participant! */
+    var offerSDP, peer1; 
 
-            global.mediaAccessAlertMessage = 'This app wants to use your camera and microphone.\n\nGrant it the access!';
+    var offerConfig = {
+        onoffer: function(sdp) {
+            console.log('1st peer: offer sdp: ' + sdp);
+            offerSDP = sdp;
 
-            global.userToken = uniqueToken();
-            $('#remote-video').css('width', innerWidth + 'px').css('height', innerHeight + 'px');
-            $('#client-video').css('width', innerWidth + 'px').css('height', innerHeight + 'px');
+            /* Offer created: Now start 2nd peer to create its answer SDP */
+            setTimeout(create2ndPeer, 400);
+        },
+        getice: function(candidate) {
+            console.log('1st peer: candidate' + candidate);
 
-            $('#is-private').bind('change', function() {
-                if (this.checked) $('#partner-email').css('padding', '10px 20px').css('border-bottom', '2px solid rgba(32, 26, 26, 0.28)').slideDown().find('#partner-email').focus();
-                else $('#partner-email').css('padding', 0).css('border-bottom', 0).slideUp();
+            /* 2nd peer should process/add ice candidates sent by 1st peer! */
+            peer2 && peer2.addice({
+                sdpMLineIndex: candidate.sdpMLineIndex,
+                candidate: candidate.candidate
             });
+        },
+        gotstream: function(event) {
+            console.log('1st peer: Wow! Got remote stream!');
+            document.getElementById('remote-video-1').src = URL.createObjectURL(event.stream);
+        }
+    };
+    
+    function create1stPeer() {
+        offerConfig.stream = clientStream;
+        peer1 = RTCPeerConnection(offerConfig);
+    }
+</script>
 
-            $('#create-room').bind('click', function () {
-                var fullName = $('#full-name'),
-                    roomName = $('#room-name'),
-                    partnerEmail = $('input#partner-email');
+<!-- Second peer: the participant -->
+<script>
+    var peer2;
 
-                if (fullName.value.length <= 0) {
-                    alert('Please enter your full name.');
-                    fullName.focus();
-                    return;
+    function  create2ndPeer() {
+        var answerConfig = {
+            onanswer: function(sdp) {
+                console.log('2nd peer: sdp' + sdp);
+
+                /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
+                peer1.onanswer(sdp);
+            },
+            getice: function(candidate) {
+                console.log('2nd peer: candidate' + candidate);
+
+                /* 1st peer should process/add ice candidates sent by 2nd peer! */
+                peer1 && peer1.addice({
+                    sdpMLineIndex: candidate.sdpMLineIndex,
+                    candidate: candidate.candidate
+                });
+            },
+            gotstream: function(event) {
+                console.log('2nd peer: Wow! Got remote stream!');
+                document.getElementById('remote-video-2').src = URL.createObjectURL(event.stream);
+            },
+            stream: clientStream,
+
+            /* You'll use offer SDP here */
+            offer: offerSDP
+        };
+
+        peer2 = RTCPeerConnection(answerConfig);
+    }
+</script>
+```
+
+##Another realtime but advance client side [example](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Python/files/demos/client-side-socket-io.html) using socket.io over PubNub! - [Preview / Demo](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html)
+
+```javascript
+<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
+<script src="https://dh15atwfs066y.cloudfront.net/socket.io.min.js"></script>
+
+<style>body{text-align: center;}</style>
+<h2>Client video</h2>
+<video id="client-video" autoplay></video>
+
+<h2>Remote video getting stream from peer2</h2>
+<video id="remote-video-1" autoplay></video>
+
+<h2>Remote video getting stream from peer1</h2>
+<video id="remote-video-2" autoplay></video>
+
+<!-- First of all; get camera -->
+<script>
+    var socket = io.connect('http://pubsub.pubnub.com/webrtc-experiment', {
+        channel: 'WebRTC Experiment',
+        publish_key: 'demo',
+        subscribe_key: 'demo'
+    });
+
+    socket.on('message', function (message) {
+	
+		/* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
+
+        if (message.firstPart) {
+            global.firstPart = message.firstPart;
+
+            if (global.secondPart) {              
+                if(message.by == 'peer1') 
+                {
+                    offerSDP = JSON.parse(global.firstPart + global.secondPart);
+                    setTimeout(create2ndPeer, 400);
                 }
-
-                if (roomName.value.length <= 0) {
-                    alert('Please enter room name.');
-                    roomName.focus();
-                    return;
+                else 
+                {
+                    /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
+                    peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
                 }
-
-                var isChecked = $('#is-private').checked;
-
-                if (isChecked && partnerEmail.value.length <= 0) {
-                    alert('Please enter your partner\'s email or token.');
-                    partnerEmail.focus();
-                    return;
+            }
+        }
+        
+        if (message.secondPart) {
+            global.secondPart = message.secondPart;
+            if (global.firstPart) {
+                if(message.by == 'peer1') 
+                {
+                    offerSDP = JSON.parse(global.firstPart + global.secondPart);
+                    setTimeout(create2ndPeer, 400);
                 }
-
-                if (!global.clientStream) {
-                    alert(global.mediaAccessAlertMessage);
-                    return;
+                else 
+                {
+                    /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
+                    peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
                 }
-
-                global.userName = fullName.value;
-                global.roomName = roomName.value;
-                global.isGetAvailableRoom = false;
-                hideListsAndBoxes();
-                global.roomToken = uniqueToken();
-
-                if (isChecked && partnerEmail.value.length) global.roomToken = partnerEmail.value + global.roomToken;
-                global.offerer = true;
-                global.isPrivate = isChecked && partnerEmail.value.length;
-
-                spreadRoom();
-            });
-
-            function spreadRoom() {
-                var g = global;
-                
-                pubnub.send({
-                    roomToken: g.roomToken,
-                    ownerName: g.userName,
-                    ownerToken: g.userToken,
-                    roomName: g.roomName,
-                    isPrivate: g.isPrivate
-                });
-
-                !global.participant && setTimeout(spreadRoom, 500);
             }
+        }
 
-            $('#search-room').bind('click', function() {
-                var email = $('input#email');
-                if (!email.value.length) {
-                    alert('Please enter the email or unique token/word that your partner given you.');
-                    email.focus();
-                    return;
+        if (message.candidate) {
+            /* 2nd peer should process/add ice candidates sent by 1st peer! */
+            if(message.by == 'peer1')
+            {
+                peer2 && peer2.addice({
+                    sdpMLineIndex: message.sdpMLineIndex,
+                    candidate: JSON.parse(message.candidate)
+                });
+            }
+            else
+            {
+                peer1 && peer1.addice({
+                    sdpMLineIndex: message.sdpMLineIndex,
+                    candidate: JSON.parse(message.candidate)
+                });
+            }
+        }
+    });
+
+    socket.on('connect', function () {
+        getUserMedia({
+            video: document.getElementById('client-video'),
+            onsuccess: function (stream) {
+                clientStream = stream;
+
+                /* Got access to camera; Now start creating offer sdp */
+                create1stPeer();
+            }
+        });
+    });
+    
+    var clientStream;
+
+    var global = {};
+</script>
+
+<!-- First peer: the offerer -->
+<script>
+    /* "offerSDP" will be used by your participant! */
+    var offerSDP, peer1;
+
+    function create1stPeer() {
+        var offerConfig = {
+            onoffer: function (sdp) {
+                console.log('1st peer: offer sdp: ' + sdp);
+
+                /* Transmit offer SDP toward 2nd peer */
+                sendsdp(sdp, 'peer1');
+            },
+            getice: function (candidate) {
+                console.log('1st peer: candidate' + candidate);
+
+                socket.send({
+                    by: 'peer1',
+                    sdpMLineIndex: candidate.sdpMLineIndex,
+                    candidate: JSON.stringify(candidate.candidate)
+                });
+            },
+            gotstream: function (event) {
+                console.log('1st peer: Wow! Got remote stream!');
+                document.getElementById('remote-video-1').src = URL.createObjectURL(event.stream);
+            },
+            stream: clientStream
+        };
+
+        peer1 = RTCPeerConnection(offerConfig);
+    }
+</script>
+
+<!-- Second peer: the participant -->
+<script>
+
+    var peer2;
+
+    function  create2ndPeer() {
+        var answerConfig = {
+            onanswer: function (sdp) {
+                console.log('2nd peer: sdp' + sdp);
+
+                /* Transmit answer SDP toward 1st peer */
+                sendsdp(sdp, 'peer2');
+            },
+            getice: function (candidate) {
+                console.log('2nd peer: candidate' + candidate);
+
+                socket.send({
+                    by: 'peer2',
+                    sdpMLineIndex: candidate.sdpMLineIndex,
+                    candidate: JSON.stringify(candidate.candidate)
+                });
+            },
+            gotstream: function (event) {
+                console.log('2nd peer: Wow! Got remote stream!');
+                document.getElementById('remote-video-2').src = URL.createObjectURL(event.stream);
+            },
+            stream: clientStream,
+
+            /* You'll use offer SDP here */
+            offer: offerSDP
+        };
+        peer2 = RTCPeerConnection(answerConfig);
+    }
+
+    function sendsdp(sdp, by) {
+        sdp = JSON.stringify(sdp);
+
+        var firstPart = sdp.substr(0, 700),
+            secondPart = sdp.substr(701, sdp.length - 1);
+
+        socket.send({
+            by: by,
+            firstPart: firstPart
+        });
+
+        socket.send({
+            by: by,
+            secondPart: secondPart
+        });
+    }
+</script>
+```
+
+##Another realtime but advance client side [example](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Python/files/demos/client-side-websocket.html) using WebSocket over PubNub! - [Preview / Demo](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html)
+
+```javascript
+<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js" type="text/javascript"></script>
+<script src="https://pubnub.a.ssl.fastly.net/pubnub-3.1.min.js"></script>
+<script src="https://webrtc-experiment.appspot.com/dependencies/websocket.js" type="text/javascript"></script>
+
+<style>body{text-align: center;}</style>
+<h2>Client video</h2>
+<video id="client-video" autoplay></video>
+
+<h2>Remote video getting stream from peer2</h2>
+<video id="remote-video-1" autoplay></video>
+
+<h2>Remote video getting stream from peer1</h2>
+<video id="remote-video-2" autoplay></video>
+
+<!-- First of all; get camera -->
+<script>
+    var socket = new WebSocket('wss://pubsub.pubnub.com/demo/demo/webrtc-experiment');
+
+    socket.onmessage = function (event) {
+        var message = event.data;
+		
+		/* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
+
+        if (message.firstPart) {
+            global.firstPart = message.firstPart;
+
+            if (global.secondPart) {              
+                if(message.by == 'peer1') 
+                {
+                    offerSDP = JSON.parse(global.firstPart + global.secondPart);
+                    setTimeout(create2ndPeer, 400);
                 }
-
-                global.searchPrivateRoom = email.value;
-
-                $('.private-room').css('bottom', '-100%');
-                log('Searching a private room for: ' + global.searchPrivateRoom);
-            });
-
-
-            var clientVideo = $('#client-video');
-
-            function captureCamera() {
-                navigator.getUserMedia({ audio: true, video: true },
-                    function(stream) {
-
-                        if (!navigator.mozGetUserMedia) clientVideo.src = window.URL.createObjectURL(stream);
-                        else clientVideo.mozSrcObject = stream;
-
-                        global.clientStream = stream;
-
-                        clientVideo.play();
-                    },
-                    function() {
-                        location.reload();
-                    });
-            }
-
-            global.isGetAvailableRoom = true;
-            global.defaultChannel = 'WebRTC Experiments Room';
-            var pubnub = {
-                channel: global.defaultChannel
-            };
-
-            var PUBNUB = window.PUBNUB || {};
-            pubnub.init = function(pub) {
-                PUBNUB.subscribe({
-                    channel: pubnub.channel,
-                    restore: false,
-                    callback: pub.callback,
-                    disconnect: pub.disconnect,
-                    connect: pub.connect
-                });
-            };
-
-            pubnub.send = function(data) {
-                PUBNUB.publish({
-                    channel: pubnub.channel,
-                    message: data
-                });
-            };
-
-            var aside = $('aside');
-
-            function getAvailableRooms(response) {
-                if (!global.isGetAvailableRoom || !response.ownerToken) return;
-
-                if (response.isPrivate === true) {
-                    document.title = 'private';
-                    if (!global.searchPrivateRoom) return;
-                    if (response.roomToken.indexOf(global.searchPrivateRoom) !== 0) return;
+                else 
+                {
+                    /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
+                    peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
                 }
+            }
+        }
+        
+        if (message.secondPart) {
+            global.secondPart = message.secondPart;
+            if (global.firstPart) {
+                if(message.by == 'peer1') 
+                {
+                    offerSDP = JSON.parse(global.firstPart + global.secondPart);
+                    setTimeout(create2ndPeer, 400);
+                }
+                else 
+                {
+                    /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
+                    peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
+                }
+            }
+        }
 
-                var alreadyExist = $('#' + response.ownerToken);
-                if (alreadyExist) return;
-
-                aside.innerHTML = '<div id="' + response.ownerToken + '"><h2>' + response.roomName + '</h2><small>Created by ' + response.ownerName + '</small><span id="' + response.roomToken + '">Join</span></div>' + aside.innerHTML;
-
-                $('aside span', true).each(function (span) {
-                    span.bind('click', function () {
-                        if (!global.clientStream) {
-                            alert(global.mediaAccessAlertMessage);
-                            return;
-                        }
-
-                        global.userName = prompt('Enter your name');
-
-                        if (!global.userName.length) {
-                            alert('You\'ve not entered your name. Too bad!');
-                            return;
-                        }
-
-                        global.isGetAvailableRoom = false;
-                        hideListsAndBoxes();
-
-                        global.roomToken = this.id;                       
-
-                        var forUser = this.parentNode.id;
-
-                        pubnub.send({
-                                participant: global.userName,
-                                userToken: global.userToken,
-                                forUser: forUser
-                            });
-
-                        pubnub.channel = global.roomToken;
-                        initPubNub();
-                    });
+        if (message.candidate) {
+            /* 2nd peer should process/add ice candidates sent by 1st peer! */
+            if(message.by == 'peer1')
+            {
+                peer2 && peer2.addice({
+                    sdpMLineIndex: message.sdpMLineIndex,
+                    candidate: JSON.parse(message.candidate)
                 });
             }
-
-
-            function startChatting() {
-                $('footer').css('bottom', '-100%');
-                
-                $('aside').innerHTML = '';
-                $('aside').css('z-index', 100).css('top', 0).css('right', 0).show();
-
-                $('.chat-box').show().find('#chat-message').bind('keyup', function(e) {
-                    if (e.keyCode == 13) postChatMessage();
-                });
-
-                $('#send-chat').bind('click', function() {
-                    postChatMessage();
+            else
+            {
+                peer1 && peer1.addice({
+                    sdpMLineIndex: message.sdpMLineIndex,
+                    candidate: JSON.parse(message.candidate)
                 });
             }
+        }
+    };
+    socket.onopen = function() {
+        getUserMedia({
+            video: document.getElementById('client-video'),
+            onsuccess: function (stream) {
+                clientStream = stream;
 
-            function postChatMessage() {
-                var chatBox = $('#chat-message'),
-                    message = chatBox.value;
+                /* Got access to camera; Now start creating offer sdp */
+                create1stPeer();
+            }
+        });
+    };
+    
+    var clientStream;
 
-                pubnub.send({
-                    userName: global.userName,
-                    userToken: global.userToken,
-                    isChat: true,
-                    message: message
+    var global = {};
+</script>
+
+<!-- First peer: the offerer -->
+<script>
+    /* "offerSDP" will be used by your participant! */
+    var offerSDP, peer1;
+
+    function create1stPeer() {
+        var offerConfig = {
+            onoffer: function (sdp) {
+                console.log('1st peer: offer sdp: ' + sdp);
+
+                /* Transmit offer SDP toward 2nd peer */
+                sendsdp(sdp, 'peer1');
+            },
+            getice: function (candidate) {
+                console.log('1st peer: candidate' + candidate);
+
+                socket.send({
+                    by: 'peer1',
+                    sdpMLineIndex: candidate.sdpMLineIndex,
+                    candidate: JSON.stringify(candidate.candidate)
                 });
+            },
+            gotstream: function (event) {
+                console.log('1st peer: Wow! Got remote stream!');
+                document.getElementById('remote-video-1').src = URL.createObjectURL(event.stream);
+            },
+            stream: clientStream
+        };
 
-                chatBox.value = '';
-                chatBox.focus();
-            }
+        peer1 = RTCPeerConnection(offerConfig);
+    }
+</script>
 
-            function getChatMessage(response) {
-                if(!response.message.length) return;
-                aside.innerHTML = '<div><h2>' + response.userName + '</h2>' + response.message + '</div>' + aside.innerHTML;
-                document.title = response.userName + ': ' + response.message;
-            }
+<!-- Second peer: the participant -->
+<script>
 
-            function refreshUI() {
-                $('footer').css('bottom', '0');
-                $('aside').innerHTML = '';
-                $('aside').css('z-index', 100).css('top', 'auto').css('right', '0').show();
-                $('.chat-box').hide();
-                $('.private-room').css('bottom', '4%');
-                $('.create-room-panel').css('left', 'auto');
+    var peer2;
 
-                log('RTC room is closed by other user.');
-                remoteVideo.css('top', '-100%').pause();
-                clientVideo.css('width', innerWidth + 'px').css('height', innerHeight + 'px').css('z-index', -1);
+    function  create2ndPeer() {
+        var answerConfig = {
+            onanswer: function (sdp) {
+                console.log('2nd peer: sdp' + sdp);
 
-                RTC.active = false;
-                peerConnection.close();
-                peerConnection = null;
+                /* Transmit answer SDP toward 1st peer */
+                sendsdp(sdp, 'peer2');
+            },
+            getice: function (candidate) {
+                console.log('2nd peer: candidate' + candidate);
 
-                global.isGetAvailableRoom = true;
-                global.isGotRemoteStream = false;
-
-                pubnub.channel = global.defaultChannel;
-                initPubNub();
-            }
-
-            function initPubNub(callback) {
-                pubnub.init({
-                    callback: function (response) {
-                        if (response.userToken === global.userToken) return;
-
-
-                        if (global.isGetAvailableRoom && response.roomToken) getAvailableRooms(response);
-                        else if (response.firstPart || response.secondPart) {
-                            if (response.firstPart) {
-                                global.firstPart = response.firstPart;
-                                if (global.secondPart) {
-                                    RTC.init(global.firstPart + global.secondPart);
-                                }
-                            }
-                            if (response.secondPart) {
-                                global.secondPart = response.secondPart;
-                                if (global.firstPart) {
-                                    RTC.init(global.firstPart + global.secondPart);
-                                }
-                            }
-                        } else if (response.participant && response.forUser == global.userToken) {
-                            setTimeout(function() {
-                                global.participant = response.participant;
-                                pubnub.channel = global.roomToken;
-                                initPubNub(RTC.init);
-                            }, 100);
-                        } 
-                        else if (response.sdp) {
-                            RTC.init(response);
-                        } 
-                        else if (RTC.active && response.candidate && !global.isGotRemoteStream) {
-                            peerConnection.addIceCandidate(new IceCandidate({
-                                sdpMLineIndex: response.candidate.sdpMLineIndex,
-                                candidate: JSON.parse(response.candidate.candidate)
-                            }));
-                        } 
-                        else if (response.isChat) getChatMessage(response);
-                        else if (response.gotStream) global.stopSendingICE = true;
-                        else if (response.end) refreshUI();
-                    },
-                    connect: function () {
-                        callback && callback();
-                    },
-                    disconnect: function () {
-                        initPubNub(function () {
-                            showListsAndBoxes();
-                            pubnub.send({
-                                end: true,
-                                userName: global.userName
-                            });
-                        });
-                    }
+                socket.send({
+                    by: 'peer2',
+                    sdpMLineIndex: candidate.sdpMLineIndex,
+                    candidate: JSON.stringify(candidate.candidate)
                 });
-            }
+            },
+            gotstream: function (event) {
+                console.log('2nd peer: Wow! Got remote stream!');
+                document.getElementById('remote-video-2').src = URL.createObjectURL(event.stream);
+            },
+            stream: clientStream,
 
-            initPubNub(function () {
-                showListsAndBoxes();
-                captureCamera();
-            });
+            /* You'll use offer SDP here */
+            offer: offerSDP
+        };
+        peer2 = RTCPeerConnection(answerConfig);
+    }
+
+    function sendsdp(sdp, by) {
+        sdp = JSON.stringify(sdp);
+
+        var firstPart = sdp.substr(0, 700),
+            secondPart = sdp.substr(701, sdp.length - 1);
+
+        socket.send({
+            by: by,
+            firstPart: firstPart
+        });
+
+        socket.send({
+            by: by,
+            secondPart: secondPart
+        });
+    }
+</script>
 ```
 
 ##Spec references 
 
-* [http://dev.w3.org/2011/webrtc/editor/webrtc.html](http://dev.w3.org/2011/webrtc/editor/webrtc.html)
-
+* [WebRTC 1.0: Real-time Communication Between Browsers](http://dev.w3.org/2011/webrtc/editor/webrtc.html)
+* [TURN Server at Wikipedia!](http://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)
+* [STUN Server at Wikipedia!](http://en.wikipedia.org/wiki/STUN)
 
 ## License
-Copyright (c) 2012 Muaz Khan
-Licensed under the MIT license.
+Copyright (c) 2012 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.

@@ -3,6 +3,7 @@ version: 1
 runtime: python27
 api_version: 1
 threadsafe: yes
+default_expiration: "30d 5h"
 
 handlers:
 - url: /favicon\.ico
@@ -12,6 +13,10 @@ handlers:
 - url: /robots\.txt
   static_files: robots.txt
   upload: robots\.txt
+
+- url: /(.*\.(js|css))
+  static_files: files/\1
+  upload: files/(.*\.(js|css))
 
 - url: /images
   static_dir: images
