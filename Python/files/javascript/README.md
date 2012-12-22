@@ -23,15 +23,13 @@ It works fine on Google Chrome Stable 23 (and upper stable releases!)
 ## JavaScript code from [RTCPeerConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection.js)!
 
 ```javascript
-var RTCPeerConnection = function(options) 
-{
+var RTCPeerConnection = function (options) {
     var PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
     var SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
     var IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
 
-	// TURN servers: { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] }
-    var iceServers = { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] };
-    var constraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } };
+    var iceServers = { "iceServers": [{ "url": "stun:stun.l.google.com:19302"}] };
+    var constraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true} };
 
     var peerConnection = new PeerConnection(options.iceServers || iceServers);
 
@@ -51,8 +49,11 @@ var RTCPeerConnection = function(options)
     function createOffer() {
         if (!options.onoffer) return;
 
-        peerConnection.createOffer(function(sessionDescription) {
-
+        peerConnection.createOffer(function (sessionDescription) {
+            
+            /* opus? use it dear! */
+            codecs && (sessionDescription.sdp = codecs.opus(sessionDescription.sdp));
+            
             peerConnection.setLocalDescription(sessionDescription);
             options.onoffer(sessionDescription);
 
@@ -65,8 +66,11 @@ var RTCPeerConnection = function(options)
         if (!options.onanswer) return;
 
         peerConnection.setRemoteDescription(new SessionDescription(options.offer));
-        peerConnection.createAnswer(function(sessionDescription) {
+        peerConnection.createAnswer(function (sessionDescription) {
 
+            /* opus? use it dear! */
+            codecs && (sessionDescription.sdp = codecs.opus(sessionDescription.sdp));
+            
             peerConnection.setLocalDescription(sessionDescription);
             options.onanswer(sessionDescription);
 
@@ -76,10 +80,10 @@ var RTCPeerConnection = function(options)
     createAnswer();
 
     return {
-        onanswer: function(sdp) {
+        onanswer: function (sdp) {
             peerConnection.setRemoteDescription(new SessionDescription(sdp));
         },
-        addice: function(candidate) {
+        addice: function (candidate) {
             peerConnection.addIceCandidate(new IceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
@@ -87,6 +91,112 @@ var RTCPeerConnection = function(options)
         }
     };
 };
+
+function getUserMedia(options) {
+    var URL = window.webkitURL || window.URL;
+    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
+
+    navigator.getUserMedia(options.constraints || { audio: true, video: true },
+        function (stream) {
+
+            if (!navigator.mozGetUserMedia) options.video.src = URL.createObjectURL(stream);
+            else options.video.mozSrcObject = stream;
+
+            options.onsuccess && options.onsuccess(stream);
+
+            return stream;
+        }, options.onerror);
+}
+```
+
+## JavaScript code from [RTCPeerConnection-Helpers.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection-Helpers.js)!
+
+```javascript
+var codecs = {};
+
+/* this function credit goes to Google Chrome WebRTC team! */
+codecs.opus = (function (sdp) {
+    var i, result = preferOpus();
+
+    /* Opus? use it! */
+    function preferOpus() {
+        var sdpLines = sdp.split('\r\n');
+
+        /* m-line for audio tracks */
+        for (i = 0; i < sdpLines.length; i++) {
+            if (sdpLines[i].search('m=audio') !== -1) {
+                var mLineIndex = i;
+                break;
+            }
+        }
+
+        if (mLineIndex === null) return sdp;
+
+        /* Opus? is should be at default audio-track */
+        for (i = 0; i < sdpLines.length; i++) {
+            if (sdpLines[i].search('opus/48000') !== -1) {
+                var opusPayload = extractSdp(sdpLines[i], /:(\d+) opus\/48000/i);
+                if (opusPayload)
+                    sdpLines[mLineIndex] = setDefaultCodec(sdpLines[mLineIndex], opusPayload);
+                break;
+            }
+        }
+
+        /* Remove CN in m line and sdp. */
+        sdpLines = removeCN(sdpLines, mLineIndex);
+
+        sdp = sdpLines.join('\r\n');
+        return sdp;
+    }
+
+    function extractSdp(sdpLine, pattern) {
+        var response = sdpLine.match(pattern);
+        return (response && response.length == 2) ? response[1] : null;
+    }
+
+    function setDefaultCodec(mLine, payload) {
+        var elements = mLine.split(' ');
+        var newLine = new Array();
+        var index = 0;
+        for (i = 0; i < elements.length; i++) {
+
+            /* Format of media starts from the fourth. */
+            if (index === 3) {
+
+                /* Put target payload to the first. */
+                newLine[index++] = payload;
+            }
+            if (elements[i] !== payload) newLine[index++] = elements[i];
+        }
+        return newLine.join(' ');
+    }
+
+    /* Strip CN from sdp before CN constraints is ready. */
+    function removeCN(sdpLines, mLineIndex) {
+        var mLineElements = sdpLines[mLineIndex].split(' ');
+
+        /* Scan from end for the convenience of removing an item. */
+        for (i = sdpLines.length - 1; i >= 0; i--) {
+            var payload = extractSdp(sdpLines[i], /a=rtpmap:(\d+) CN\/\d+/i);
+            if (payload) {
+                var cnPos = mLineElements.indexOf(payload);
+                if (cnPos !== -1) {
+                    
+                    /*Remove CN payload from m line. */
+                    mLineElements.splice(cnPos, 1);
+                }
+
+                /* Remove CN line in sdp */
+                sdpLines.splice(i, 1);
+            }
+        }
+
+        sdpLines[mLineIndex] = mLineElements.join(' ');
+        return sdpLines;
+    }
+
+    return result;
+})();
 ```
 
 ##How to use [above code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection.js)?
@@ -94,40 +204,40 @@ var RTCPeerConnection = function(options)
 ```javascript
 /* ---------- common configuration -------- */
 var config = config = {
-    getice: function() {},		/* Send ICE via XHR or WebSockets toward other peer! */
-    gotstream: gotstream,		/* Play remote video */
-    iceServers: iceServers,		/* STUN or TURN server: by default it is using: { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] } */
-    stream: clientStream		/* Current user's stream you want to forward to other peer! */
+    getice: function() {},      /* Send ICE via XHR or WebSockets toward other peer! */
+    gotstream: gotstream,       /* Play remote video */
+    iceServers: iceServers,     /* STUN or TURN server: by default it is using: { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] } */
+    stream: clientStream        /* Current user's stream you want to forward to other peer! */
 };
 
 /* ---------- called in case of offer -------- */
 function createOffer() {
-	initconfig();
-    config.onoffer = sendsdp;				/* Send Offer SDP via XHR or WebSocket on the other peer */
-    var rtc = RTCPeerConnection(config);	/* You can use this object "rtc" for later to get Answer SDP or process ICE message */
+    initconfig();
+    config.onoffer = sendsdp;               /* Send Offer SDP via XHR or WebSocket on the other peer */
+    var rtc = RTCPeerConnection(config);    /* You can use this object "rtc" for later to get Answer SDP or process ICE message */
 }
 
 /* ---------- called in case of answer -------- */
 function createAnswer(sdp) {
-	initconfig();
-    config.onanswer = sendsdp;				/* Send Answer SDP via XHR or WebSocket on the other peer */
-    config.offer = sdp;						/* Pass offer SDP sent by other peer for you! */
-    var rtc = RTCPeerConnection(config);	/* You can use this object "rtc" for later to get Answer SDP or process ICE message */
+    initconfig();
+    config.onanswer = sendsdp;              /* Send Answer SDP via XHR or WebSocket on the other peer */
+    config.offer = sdp;                     /* Pass offer SDP sent by other peer for you! */
+    var rtc = RTCPeerConnection(config);    /* You can use this object "rtc" for later to get Answer SDP or process ICE message */
 }
 
 /* ---------- getting answer SDP from 1st peer -------- */
-rtc.onanswer(sdp);		/* Pass Answer SDP to make the handshake complete! */
+rtc.onanswer(sdp);      /* Pass Answer SDP to make the handshake complete! */
 
 /* ---------- add /or process ice candidates sent by other peer -------- */
 rtc.addice({
     sdpMLineIndex: candidate.sdpMLineIndex,
-    candidate: JSON.parse(candidate.candidate)	/* call JSON.parse only if you called JSON.stringify! */
+    candidate: JSON.parse(candidate.candidate)  /* call JSON.parse only if you called JSON.stringify! */
 });
 ```
 
 ##A realtime client side [example](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Python/files/demos/client-side.html) - [Preview / Demo](https://webrtc-experiment.appspot.com/demos/client-side.html)
 
-```javascript
+```html
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
 
 <style>body{text-align: center;}</style>
@@ -227,7 +337,7 @@ rtc.addice({
 
 ##Another realtime but advance client side [example](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Python/files/demos/client-side-socket-io.html) using socket.io over PubNub! - [Preview / Demo](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html)
 
-```javascript
+```html
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
 <script src="https://dh15atwfs066y.cloudfront.net/socket.io.min.js"></script>
 
@@ -250,8 +360,8 @@ rtc.addice({
     });
 
     socket.on('message', function (message) {
-	
-		/* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
+    
+        /* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
 
         if (message.firstPart) {
             global.firstPart = message.firstPart;
@@ -410,7 +520,7 @@ rtc.addice({
 
 ##Another realtime but advance client side [example](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Python/files/demos/client-side-websocket.html) using WebSocket over PubNub! - [Preview / Demo](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html)
 
-```javascript
+```html
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js" type="text/javascript"></script>
 <script src="https://pubnub.a.ssl.fastly.net/pubnub-3.1.min.js"></script>
 <script src="https://webrtc-experiment.appspot.com/dependencies/websocket.js" type="text/javascript"></script>
@@ -431,8 +541,8 @@ rtc.addice({
 
     socket.onmessage = function (event) {
         var message = event.data;
-		
-		/* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
+        
+        /* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
 
         if (message.firstPart) {
             global.firstPart = message.firstPart;

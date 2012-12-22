@@ -14,9 +14,17 @@ handlers:
   static_files: robots.txt
   upload: robots\.txt
 
+- url: /sitemap\.xml
+  static_files: sitemap.xml
+  upload: sitemap\.xml
+
 - url: /(.*\.(js|css))
   static_files: files/\1
   upload: files/(.*\.(js|css))
+
+- url: /demos/(.*\.(html))
+  static_files: files/demos/\1
+  upload: files/demos/(.*\.(html))
 
 - url: /images
   static_dir: images

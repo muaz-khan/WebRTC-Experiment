@@ -2,8 +2,8 @@ import webapp2
 import os
 from datetime import date
 
-pubKey = 'demo'
-subKey = 'demo'
+pubKey = 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0'
+subKey = 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a'
 
 # global_stun = '{ "iceServers": [{ "url": "stun:www.stunserver.org" }] }'
 global_stun = '{ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] }'

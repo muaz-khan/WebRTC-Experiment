@@ -90,7 +90,7 @@
                 <h2>Searching for a private room?</h2>
                 <div>
                     <label for="email">Your email:</label>
-                    <input type="text" id="email" style="width: 8.9em;">
+                    <input type="text" id="email" style="width: 8.8em;">
 
                     <a id="search-room" class="search-room" href="#search-room">Search</a>
 
@@ -108,7 +108,7 @@
 </section>
 
 <footer>
-    <a href="https://webrtc-experiment.appspot.com//">Home</a>
+    <a href="https://webrtc-experiment.appspot.com/">Home</a>
     © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}
     » <a href="mailto:muazkh@gmail.com">Email</a>
     » <a href="http://twitter.com/muazkh">@muazkh</a>
@@ -116,12 +116,15 @@
 </footer>
 
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js"></script>
+
 <script>var iceServers = { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] };</script>
-<script src="1-helper.js"> </script>
-<script src="2-rtc-functions.js"></script>
-<script src="3-rtc.js"> </script>
-<script src="4-ui.js"> </script>
-<script src="5-pubnub.js"></script>
+
+<script src="https://webrtc-experiment.appspot.com/javascript/1-helper.js"> </script>
+<script src="https://webrtc-experiment.appspot.com/javascript/2-rtc-functions.js"></script>
+<script src="https://webrtc-experiment.appspot.com/javascript/3-rtc.js"> </script>
+<script src="https://webrtc-experiment.appspot.com/javascript/4-ui.js"> </script>
+<script src="https://webrtc-experiment.appspot.com/javascript/5-pubnub.js"></script>
 
 <script>    
     initPubNub(function () {

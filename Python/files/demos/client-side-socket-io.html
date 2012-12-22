@@ -1,7 +1,19 @@
 ﻿<a href="/" style="position: absolute;background: white;display: block; padding: 5px 10px;z-index: 100;">← Go back to WebRTC Experiments Homepage!</a>
 <link rel="prefetch" href="/">
 
-<script src="../RTCPeerConnection.js" type="text/javascript"></script>
+<script>
+    function uniqueToken() {
+        var s4 = function () {
+            return Math.floor(Math.random() * 0x10000).toString(16);
+        };
+        return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
+    }
+    var uniqueChannel = uniqueToken();
+</script>
+
+<script src="../RTCPeerConnection.js"></script>
+<script src="../RTCPeerConnection-Helpers.js"></script>
+
 <script src="https://dh15atwfs066y.cloudfront.net/socket.io.min.js"></script>
 
 <style>body{text-align: center;}</style>
@@ -16,8 +28,8 @@
 
 <!-- First of all; get camera -->
 <script>
-    var socket = io.connect('http://pubsub.pubnub.com/webrtc-experiment', {
-        channel: 'WebRTC Experiment',
+    var socket = io.connect('http://pubsub.pubnub.com/' + uniqueChannel, {
+        channel: uniqueChannel,
         publish_key: 'demo',
         subscribe_key: 'demo'
     });

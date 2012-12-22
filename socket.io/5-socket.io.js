@@ -93,7 +93,7 @@ function initSocket(callback) {
             else if (response.gotStream) global.stopSendingICE = true;
             
             /* other end closed the webpage! The user is being informed. */
-            else if (response.end) refreshUI();
+            else if (response.end && global.isGotRemoteStream) refreshUI();
         },
         
         /* socket is connected */
@@ -104,7 +104,7 @@ function initSocket(callback) {
 }
 
 /* other end tried to close the webpage.....ending the peer connection! */
-window.onunload = window.onbeforeunload = function () {
+window.onbeforeunload = window.onunload = window.onbeforeunload = function () {
     alert('You\'re trying to close the room.');
     socket.send({
         end: true,

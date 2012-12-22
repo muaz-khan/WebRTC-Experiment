@@ -4,6 +4,8 @@ var pubnub = {
 };
 
 var PUBNUB = window.PUBNUB || {};
+
+/* initialize/subscribe the PUBNUB object */
 pubnub.init = function (pub) {
     PUBNUB.subscribe({
         channel: pubnub.channel,
@@ -14,6 +16,7 @@ pubnub.init = function (pub) {
     });
 };
 
+/* send/publish data over PubNub! */
 pubnub.send = function (data) {
     PUBNUB.publish({
         channel: pubnub.channel,
@@ -21,10 +24,12 @@ pubnub.send = function (data) {
     });
 };
 
+/* unsubscribe the channel */
 pubnub.unsubscribe = function () {
     PUBNUB.unsubscribe({ channel: pubnub.channel });
 };
 
+/* wrapper function to initialize PUBNUB */
 function initPubNub(callback) {
     pubnub.init({
         callback: function (response) {
@@ -82,7 +87,7 @@ function initPubNub(callback) {
 
             }
             else if (response.gotStream) global.stopSendingICE = true;
-            else if (response.end) refreshUI();
+            else if (response.end && global.isGotRemoteStream) refreshUI();
         },
         connect: function () {
             callback && callback();
@@ -90,7 +95,7 @@ function initPubNub(callback) {
     });
 }
 
-window.onunload = window.onbeforeunload = function () {
+window.onbeforeunload = window.onunload = window.onbeforeunload = function () {
     alert('You\'re trying to close the room.');
     pubnub.send({
         end: true,
