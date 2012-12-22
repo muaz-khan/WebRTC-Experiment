@@ -27,7 +27,15 @@
         peerConnection.createOffer(function (sessionDescription) {
             
             /* opus? use it dear! */
-            codecs && (sessionDescription.sdp = codecs.opus(sessionDescription.sdp));
+            codecs && (sdp = codecs.opus(sessionDescription.sdp));
+
+            if(sdp)
+            {
+                sessionDescription = new RTCSessionDescription({
+                    sdp: sdp,
+                    type: sessionDescription.type
+                });
+            }
             
             peerConnection.setLocalDescription(sessionDescription);
             options.onoffer(sessionDescription);
@@ -44,7 +52,15 @@
         peerConnection.createAnswer(function (sessionDescription) {
 
             /* opus? use it dear! */
-            codecs && (sessionDescription.sdp = codecs.opus(sessionDescription.sdp));
+            codecs && (sdp = codecs.opus(sessionDescription.sdp));
+
+            if(sdp)
+            {
+                sessionDescription = new RTCSessionDescription({
+                    sdp: sdp,
+                    type: sessionDescription.type
+                });
+            }
             
             peerConnection.setLocalDescription(sessionDescription);
             options.onanswer(sessionDescription);

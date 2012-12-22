@@ -52,7 +52,15 @@ var RTCPeerConnection = function (options) {
         peerConnection.createOffer(function (sessionDescription) {
             
             /* opus? use it dear! */
-            //codecs && (sessionDescription.sdp = codecs.opus(sessionDescription.sdp));
+            codecs && (sdp = codecs.opus(sessionDescription.sdp));
+
+            if(sdp)
+            {
+                sessionDescription = new RTCSessionDescription({
+                    sdp: sdp,
+                    type: sessionDescription.type
+                });
+            }
             
             peerConnection.setLocalDescription(sessionDescription);
             options.onoffer(sessionDescription);
@@ -69,7 +77,15 @@ var RTCPeerConnection = function (options) {
         peerConnection.createAnswer(function (sessionDescription) {
 
             /* opus? use it dear! */
-            //codecs && (sessionDescription.sdp = codecs.opus(sessionDescription.sdp));
+            codecs && (sdp = codecs.opus(sessionDescription.sdp));
+
+            if(sdp)
+            {
+                sessionDescription = new RTCSessionDescription({
+                    sdp: sdp,
+                    type: sessionDescription.type
+                });
+            }
             
             peerConnection.setLocalDescription(sessionDescription);
             options.onanswer(sessionDescription);
@@ -116,6 +132,10 @@ var codecs = {};
 
 /* this function credit goes to Google Chrome WebRTC team! */
 codecs.opus = function (sdp) {
+
+    /* old chrome? no opus! */
+    if(+navigator.appVersion.split('Chrome/')[1].split(' ')[0].split('.')[0] <= 23) return sdp;
+
     var i, result = preferOpus();
 
     /* Opus? use it! */
