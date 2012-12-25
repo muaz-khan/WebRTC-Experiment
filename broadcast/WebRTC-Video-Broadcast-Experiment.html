@@ -33,9 +33,16 @@
         margin-top: 1em;
         padding: 1em 2em;
     }
+
+    #public-rooms
+    {
+        margin-top:3em;
+    }
 </style>
-<script src="https://pubnub.a.ssl.fastly.net/pubnub-3.1.min.js"></script>
-<script src="https://webrtc-experiment.appspot.com/dependencies/websocket.js" type="text/javascript"></script>
+
+<div id=pubnub ssl=on></div>
+<script src="https://webrtc-experiment.appspot.com/dependencies/socket.io.js"></script>
+
 <table>
     <tr>
         <td>
@@ -44,9 +51,9 @@
             </a>
         </td>
         <td>
-            <h1>(WebSocket/Pubnub/JavaScript) WebRTC Experiment</h1>
+            <h1>WebRTC Broadcast Experiment!</h1>
             <blockquote class="slogan">
-                WebRTC Experiment that uses WebSocket over PubNub for signaling to make a realtime handshake!
+                WebRTC video broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast video over many peers.
             </blockquote>
         </td>
     </tr>
@@ -56,20 +63,20 @@
         <td>
             <section id="public-rooms">
                 <section class="create-room-panel">
-                <h2>Searching for a private room?</h2>
-                <div>
-                    <label for="email">Your email:</label>
-                    <input type="text" id="email" style="width: 8.8em;">
+                    <h2>Searching for a private Broadcast?</h2>
+                    <div>
+                        <label for="email">Your email:</label>
+                        <input type="text" id="email" style="width: 8.8em;">
 
-                    <a id="search-room" class="search-room" href="#search-room">Search</a>
+                        <a id="search-room" class="search-room" href="#search-room">Search</a>
 
-                    <small style="display: block;">Enter the email or token that your room partner given you.</small>
-                </div>
-            </section>
+                        <small style="display: block;">Enter the email or token that your room partner given you.</small>
+                    </div>
+                </section>
             </section>
         </td>
         <td class="create-room-panel">
-            <h2>Create new Room</h2>
+            <h2>Create new Broadcast</h2>
             <div>
                 <label for="full-name">Your name:</label>
                 <input type="text" id="full-name"><br />
@@ -88,14 +95,18 @@
             <div style="float: right;">
                 <input type="checkbox" id="is-private" style="margin-left: 20px;" />
                 <label for="is-private" style="width: auto;">
-                    Is Private Room?</label>
+                    Is Private Broadcast?</label>
             </div>
-            <a id="create-room" class="create-room" href="#create-room">Create Room</a>
+            <a id="create-room" class="create-room" href="#create-room">Create Broadcast</a>
         </td>
     </tr>
 </table>
-<video id="client-video" muted style="position: absolute; top: 0; z-index: -1;"></video>
-<video id="remote-video" style="display: none; position: absolute; top: 0;"></video>
+
+<div id="video-table" style="display: none;text-align: center;background: #ECECEC;margin: 0 -3em;">
+    <video id="client-video" muted></video>
+    <video id="remote-video"></video>
+    <div id="participants" style="margin-top: -1em;"></div>
+</div>
 
 <section class="plusone-gplus">
     <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
@@ -113,21 +124,17 @@
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js"></script>
 
-<script>var iceServers = { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] };</script>
+<script>
+    var iceServers = { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] };
+    var socket_config = {
+        publish_key: 'demo',
+        subscribe_key: 'demo',
+        ssl: true
+    };
+</script>
 
 <script src="1-helper.js"> </script>
 <script src="2-rtc-functions.js"></script>
-<script src="3-rtc.js"> </script>
 <script src="4-ui.js"> </script>
-<script src="5-websocket.js" type="text/javascript"></script>
-<script>
-    var socket_config = {
-        publish_key: 'demo',
-        subscribe_key: 'demo'
-    };
-
-    initSocket(function () {
-        showListsAndBoxes();
-        captureCamera();
-    });
-</script>
+<script src="5-socket.io.js"></script>
+<script src="master-socket.js"></script>

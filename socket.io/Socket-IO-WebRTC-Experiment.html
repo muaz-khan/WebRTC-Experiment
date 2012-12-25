@@ -54,8 +54,19 @@
 <table class="center-table">
     <tr>
         <td>
-            <h2>Public meeting rooms!</h2>
-            <section id="public-rooms"></section>
+            <section id="public-rooms">
+                <section class="create-room-panel">
+                <h2>Searching for a private room?</h2>
+                <div>
+                    <label for="email">Your email:</label>
+                    <input type="text" id="email" style="width: 8.8em;">
+
+                    <a id="search-room" class="search-room" href="#search-room">Search</a>
+
+                    <small style="display: block;">Enter the email or token that your room partner given you.</small>
+                </div>
+            </section>
+            </section>
         </td>
         <td class="create-room-panel">
             <h2>Create new Room</h2>
@@ -82,22 +93,6 @@
             <a id="create-room" class="create-room" href="#create-room">Create Room</a>
         </td>
     </tr>
-    <tr>
-        <td></td>
-        <td>
-            <section class="create-room-panel">
-                <h2>Searching for a private room?</h2>
-                <div>
-                    <label for="email">Your email:</label>
-                    <input type="text" id="email" style="width: 8.8em;">
-
-                    <a id="search-room" class="search-room" href="#search-room">Search</a>
-
-                    <small style="display: block;">Enter the email or token that your room partner given you.</small>
-                </div>
-            </section>
-        </td>
-    </tr>
 </table>
 <video id="client-video" muted style="position: absolute; top: 0; z-index: -1;"></video>
 <video id="remote-video" style="display: none; position: absolute; top: 0;"></video>
@@ -112,18 +107,19 @@
     » <a href="mailto:muazkh@gmail.com">Email</a>
     » <a href="http://twitter.com/muazkh">@muazkh</a>
     » <a href="https://github.com/muaz-khan">Github</a>
+    » <a href="https://plus.google.com/106306286430656356034/posts">Google+</a>
 </footer>
 
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js"></script>
 
-<script>var iceServers = { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] };</script>
+<script>var iceServers = { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] };</script>
 
-<script src="https://webrtc-experiment.appspot.com/socket.io/1-helper.js"> </script>
-<script src="https://webrtc-experiment.appspot.com/socket.io/2-rtc-functions.js"></script>
-<script src="https://webrtc-experiment.appspot.com/socket.io/3-rtc.js"> </script>
-<script src="https://webrtc-experiment.appspot.com/socket.io/4-ui.js"> </script>
-<script src="https://webrtc-experiment.appspot.com/socket.io/5-socket.io.js"></script>
+<script src="1-helper.js"> </script>
+<script src="2-rtc-functions.js"></script>
+<script src="3-rtc.js"> </script>
+<script src="4-ui.js"> </script>
+<script src="5-socket.io.js"></script>
 
 <script>
     var socket_config = {

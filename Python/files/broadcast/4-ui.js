@@ -1,11 +1,18 @@
 ﻿/* client video + capture client camera */
 var clientVideo = $('#client-video');
+
+captureCamera();
+
 function captureCamera() {
     getUserMedia({
         video: clientVideo,
         onsuccess: function (stream) {
             global.clientStream = stream;
             clientVideo.play();
+
+            clientVideo.css('margin', '0 30%');
+
+            $('#video-table').show().scrollIntoView(true);
         },
         onerror: function () {
             location.reload();
@@ -17,6 +24,7 @@ function captureCamera() {
 1) you joined a room
 2) someone joined your room (i.e. you found a participant!)
 */
+
 function hideListsAndBoxes() {
     disable(true);
     global.isGetAvailableRoom = false;
@@ -26,9 +34,9 @@ function hideListsAndBoxes() {
 hideListsAndBoxes();
 
 /* primarily called when someone left your room */
+
 function showListsAndBoxes() {
     disable(false);
-    $('table', true).show();
 
     global.isGetAvailableRoom = true;
 }
@@ -39,12 +47,8 @@ global.mediaAccessAlertMessage = 'This app wants to use your camera and micropho
 /* generating a unique token for current user */
 global.userToken = uniqueToken();
 
-/* setting defaults for both video elements */
-$('#remote-video').css('width', innerWidth + 'px').css('height', innerHeight + 'px');
-$('#client-video').css('width', innerWidth + 'px').css('height', innerHeight + 'px');
-
 /* you wanted to create a private room! */
-$('#is-private').onchange = function () {
+$('#is-private').onchange = function() {
     if (this.checked) $('#partner-email').css('padding', '10px 20px').css('height', 'auto').css('border-bottom', '1px double #CACACA').slideDown().querySelector('#partner-email').focus();
     else $('#partner-email').css('padding', 0).css('border-bottom', 0).slideUp();
 };
@@ -85,45 +89,48 @@ $('#create-room').onclick = function () {
     /* setting users defaults */
     global.userName = fullName.value;
     global.roomName = roomName.value;
-    
+
     /* no need to get anymore rooms */
     global.isGetAvailableRoom = false;
-    
+
     /* don't allow user to play with input boxes because he created a room! */
     hideListsAndBoxes();
-    
+
     /* generating a unique token for room! */
     global.roomToken = uniqueToken();
-
-    /* if client want to create a private room! */
-    if (isChecked && partnerEmail.value.length) {
-        pubnub.unsubscribe();
-        pubnub.channel = partnerEmail.value;
-        global.isPrivateRoom = true;
-
-        initSocket();
-    }
 
     /* client is the one who created offer or...! */
     global.offerer = true;
 
+    if (isChecked && partnerEmail.value.length) {
+        global.isPrivateRoom = true;
+
+        socket.master && (socket.master = null);
+
+        masterSocket(partnerEmail.value, spreadRoom);
+    }
+
     /* propagate room around the globe!! */
-    spreadRoom();
-    window.scrollTo(0, 0);
+    else spreadRoom();
+
+    /* these 3 lines are extras! */
+    socket.answer && (socket.answer = null);
+    remoteVideo.hide();
+    disable(true);
 };
 
 function spreadRoom() {
     var g = global;
 
-    socket.send({
+    socket.master.send({
         roomToken: g.roomToken,
         ownerName: g.userName,
         ownerToken: g.userToken,
         roomName: g.roomName
     });
 
-    /* propagate room around the globe until a participant found! */
-    !global.participant && setTimeout(spreadRoom, 500);
+    /* propagate room around the globe! */
+    setTimeout(spreadRoom, 300);
 }
 
 /* you tried to search a private room! */
@@ -136,35 +143,32 @@ $('#search-room').onclick = function () {
     }
 
     global.searchPrivateRoom = email.value;
+    email.setAttribute('disabled', true);
 
-    log('Creating channel: ' + email.value);
+    socket.master && (socket.master = null);
+    socket.answer && (socket.answer = null);
 
-    pubnub.unsubscribe();
-    pubnub.channel = email.value;
-    initSocket(function () {
-        log('Searching a private room for: ' + global.searchPrivateRoom);
+    window.scrollTo(0, publicRooms.offsetTop);
+
+    answerSocket(email.value, function () {
         email.value = '';
+        email.removeAttribute('disabled');
     });
-    window.scrollTo(0, 0);
 };
 
 /* if other end close the room; refreshing the UI for current user */
-function refreshUI() {
-    log('RTC room is closed by other user.');
-    remoteVideo.css('top', '-100%').pause();
-    remoteVideo.setAttribute('src', '');
-    clientVideo.css('width', innerWidth + 'px').css('height', innerHeight + 'px').css('z-index', -1);
 
-    $('table', true).show();
+function refreshUI() {
+    log('Broadcasted RTC Room is closed by your partner!');
+    remoteVideo.pause();
+    remoteVideo.setAttribute('src', '');
+
     disable(false);
 
     global.rtc = null;
 
     global.isGetAvailableRoom = true;
     global.isGotRemoteStream = false;
-
-    pubnub.unsubscribe();
-    pubnub.channel = global.defaultChannel;
 }
 
 /* searching public (or private) rooms */
@@ -183,8 +187,8 @@ function getAvailableRooms(response) {
     blockquote.setAttribute('id', response.ownerToken);
 
     blockquote.innerHTML = response.roomName
-            + '<a href="#" class="join" id="' + response.roomToken + '">Join Room</a><br/>'
-                + '<br /><small>Created by <span class="roshan">' + response.ownerName + '</span></small>';
+        + '<a href="#" class="join" id="' + response.roomToken + '">Join Room</a><br/>'
+            + '<br /><small>Created by <span class="roshan">' + response.ownerName + '</span></small>';
 
     publicRooms.insertBefore(blockquote, publicRooms.childNodes[0]);
 
@@ -211,7 +215,7 @@ function getAvailableRooms(response) {
             var forUser = this.parentNode.id;
 
             /* telling room owner that I'm your participant! */
-            socket.send({
+            socket.answer.send({
                 participant: global.userName,
                 userToken: global.userToken,
                 forUser: forUser,
@@ -220,23 +224,14 @@ function getAvailableRooms(response) {
                 isopus: isopus
             });
 
+            socket.master && (socket.master = null);
+            socket.answer && (socket.answer = null);
 
-            /* for public rooms; hide the room from all around the globe! because room is busy! */
-            if (!global.searchPrivateRoom) {
-                socket.send({
-                    userToken: global.userToken,
-                    isBusyRoom: true,
-                    ownerToken: forUser
-                });
+            answerSocket(global.userToken);
 
-                pubnub.unsubscribe();
-
-                pubnub.channel = global.roomToken;
-                initSocket();
-            }
-
-            window.scrollTo(0, 0);
             this.parentNode.parentNode.removeChild(this.parentNode);
+
+            participants.scrollIntoView(true);
         };
     });
 }

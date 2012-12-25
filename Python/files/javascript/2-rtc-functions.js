@@ -9,13 +9,19 @@ function sendsdp(sdp) {
     /* transmitting first sdp part */
     pubnub.send({
         userToken: global.userToken,
-        firstPart: firstPart
+        firstPart: firstPart,
+
+        /* let other end know that whether you support opus */
+        isopus: isopus
     });
 
     /* transmitting second sdp part */
     pubnub.send({
         userToken: global.userToken,
-        secondPart: secondPart
+        secondPart: secondPart,
+
+        /* let other end know that whether you support opus */
+        isopus: isopus
     });
 }
 

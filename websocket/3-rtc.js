@@ -14,7 +14,8 @@ function initconfig()
 /* ---------- called in case of offer -------- */
 function createOffer() {
 	initconfig();
-    config.onoffer = sendsdp;
+	config.onoffer = sendsdp;
+    
     global.rtc = RTCPeerConnection(config);
 }
 

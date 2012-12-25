@@ -1,5 +1,5 @@
 ﻿/* send (i.e. transmit) offer/answer sdp */
-function sendsdp(sdp) {
+function sendsdp(sdp, socket, isopus) {
     sdp = JSON.stringify(sdp);
 
     /* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
@@ -7,7 +7,7 @@ function sendsdp(sdp) {
         secondPart = sdp.substr(701, sdp.length - 1);
 
     /* transmitting first sdp part */
-    pubnub.send({
+    socket.send({
         userToken: global.userToken,
         firstPart: firstPart,
 
@@ -16,7 +16,7 @@ function sendsdp(sdp) {
     });
 
     /* transmitting second sdp part */
-    pubnub.send({
+    socket.send({
         userToken: global.userToken,
         secondPart: secondPart,
 
@@ -26,8 +26,9 @@ function sendsdp(sdp) {
 }
 
 /* send (i.e. transmit) ICE candidates */
-function sendice(candidate) {
-    pubnub.send({
+
+function sendice(candidate, socket) {
+    socket.send({
         userToken: global.userToken, /* unique ID to identify the sender */
         candidate: {
             sdpMLineIndex: candidate.sdpMLineIndex,
@@ -38,12 +39,13 @@ function sendice(candidate) {
 
 /* on getting remote stream */
 var remoteVideo = $('#remote-video');
+
 function gotstream(event, recheck) {
 
     if (event) {
 
-        remoteVideo.css('top', 0).css('z-index', 200000).show();
-        clientVideo.css('width', (innerWidth / 4) + 'px').css('height', '').css('z-index', 2000000);
+        remoteVideo.css('margin', '0 30%').show();
+        clientVideo.css('width', (innerWidth / 4) + 'px').css('height', '');
 
         if (!navigator.mozGetUserMedia) remoteVideo.src = URL.createObjectURL(event.stream);
         else video.mozSrcObject = event.stream;
@@ -57,20 +59,18 @@ function gotstream(event, recheck) {
     if (recheck) {
         if (!(remoteVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || remoteVideo.paused || remoteVideo.currentTime <= 0)) {
             finallyGotStream();
-        } else setTimeout(function () {
-            gotstream(null, true);
-        }, 50);
+        } else
+            setTimeout(function() {
+                gotstream(null, true);
+            }, 500);
     }
 }
 
 /* remote stream started flowing */
+
 function finallyGotStream() {
     global.isGotRemoteStream = true;
+    remoteVideo.scrollIntoView(true);
 
-    $('table', true).hide();
-
-    pubnub.send({
-        userToken: global.userToken,
-        gotStream: true
-    });
+    disable(true);
 }

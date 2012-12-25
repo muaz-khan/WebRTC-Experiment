@@ -4,6 +4,8 @@
 
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) using WebSocket, Socket.io and XHR for signaling. 
 
+WebRTC video broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast video over many peers.
+
 ## Preview / Demos / Experiments
 
 * [WebRTC video broadcasting experiment](https://webrtc-experiment.appspot.com/broadcast/) - [STUN](https://webrtc-experiment.appspot.com/broadcast/) / [TURN](https://webrtc-experiment.appspot.com/broadcast/?turn=true)

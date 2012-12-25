@@ -28,6 +28,9 @@ function initSocket(callback) {
             /* if same user sent message; don't get! */
             if (response.userToken === global.userToken) return;
 
+            /* both ends MUST support opus; otherwise don't use it! */
+            response.isopus !== 'undefined' && (isopus = response.isopus && isopus);
+
             /* if a room is gone busy or someone joined the room. Hide room from all other peers! */
             if (response.isBusyRoom && response.ownerToken !== global.userToken) {
 
@@ -101,13 +104,14 @@ function initSocket(callback) {
         /* socket is connected */
         connect: function () {
             callback && callback();
+
+            log('Socket Opened...');
         }
     });
 }
 
 /* other end tried to close the webpage.....ending the peer connection! */
-window.onbeforeunload = window.onunload = window.onbeforeunload = function () {
-    alert('You\'re trying to close the room.');
+window.onbeforeunload = window.onunload = function () {
     socket.send({
         end: true,
         userName: global.userName,

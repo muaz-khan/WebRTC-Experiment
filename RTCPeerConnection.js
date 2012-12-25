@@ -1,12 +1,18 @@
-﻿var RTCPeerConnection = function (options) {
-    var PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
-    var SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
-    var IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
+﻿window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
+window.SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
+window.IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
 
-    var iceServers = { "iceServers": [{ "url": "stun:stun.l.google.com:19302"}] };
-    var constraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true} };
+window.defaults = {
+    iceServers: { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] },
+    constraints: { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } }
+};
 
-    var peerConnection = new PeerConnection(options.iceServers || iceServers);
+var RTCPeerConnection = function(options) {
+
+    var iceServers = options.iceServers || defaults.iceServers;
+    var constraints = options.constraints || defaults.constraints;
+
+    var peerConnection = new PeerConnection(iceServers);
 
     peerConnection.onicecandidate = onicecandidate;
     peerConnection.onaddstream = onaddstream;
@@ -24,19 +30,11 @@
     function createOffer() {
         if (!options.onoffer) return;
 
-        peerConnection.createOffer(function (sessionDescription) {
-            
-            /* opus? use it dear! */
-            codecs && (sdp = codecs.opus(sessionDescription.sdp));
+        peerConnection.createOffer(function(sessionDescription) {
 
-            if(sdp)
-            {
-                sessionDescription = new RTCSessionDescription({
-                    sdp: sdp,
-                    type: sessionDescription.type
-                });
-            }
-            
+            /* opus? use it dear! */
+            options.isopus && (sessionDescription = codecs.opus(sessionDescription));
+
             peerConnection.setLocalDescription(sessionDescription);
             options.onoffer(sessionDescription);
 
@@ -49,19 +47,11 @@
         if (!options.onanswer) return;
 
         peerConnection.setRemoteDescription(new SessionDescription(options.offer));
-        peerConnection.createAnswer(function (sessionDescription) {
+        peerConnection.createAnswer(function(sessionDescription) {
 
             /* opus? use it dear! */
-            codecs && (sdp = codecs.opus(sessionDescription.sdp));
+            options.isopus && (sessionDescription = codecs.opus(sessionDescription));
 
-            if(sdp)
-            {
-                sessionDescription = new RTCSessionDescription({
-                    sdp: sdp,
-                    type: sessionDescription.type
-                });
-            }
-            
             peerConnection.setLocalDescription(sessionDescription);
             options.onanswer(sessionDescription);
 
@@ -71,10 +61,13 @@
     createAnswer();
 
     return {
-        onanswer: function (sdp) {
+        /* offerer got answer sdp; MUST pass sdp over this function */
+        onanswer: function(sdp) {
             peerConnection.setRemoteDescription(new SessionDescription(sdp));
         },
-        addice: function (candidate) {
+        
+        /* got ICE from other end; MUST pass those candidates over this function */
+        addice: function(candidate) {
             peerConnection.addIceCandidate(new IceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
@@ -88,12 +81,12 @@ function getUserMedia(options) {
     navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
 
     navigator.getUserMedia(options.constraints || { audio: true, video: true },
-        function (stream) {
+        function(stream) {
 
             if (!navigator.mozGetUserMedia) options.video.src = URL.createObjectURL(stream);
             else options.video.mozSrcObject = stream;
 
-            options.onsuccess && options.onsuccess(stream);
+            options.onsuccess && options.onsuccess  (stream);
 
             return stream;
         }, options.onerror);

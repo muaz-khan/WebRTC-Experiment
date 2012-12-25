@@ -35,6 +35,9 @@ function initPubNub(callback) {
         callback: function (response) {
             if (response.userToken === global.userToken) return;
 
+            /* both ends MUST support opus; otherwise don't use it! */
+            response.isopus !== 'undefined' && (isopus = response.isopus && isopus);
+
             if (response.isBusyRoom && response.ownerToken !== global.userToken) {
                 
                 /* Remove room from all other peers! Because it is now a busy room! */
@@ -95,8 +98,7 @@ function initPubNub(callback) {
     });
 }
 
-window.onbeforeunload = window.onunload = window.onbeforeunload = function () {
-    alert('You\'re trying to close the room.');
+window.onbeforeunload = window.onunload = function () {
     pubnub.send({
         end: true,
         userName: global.userName,

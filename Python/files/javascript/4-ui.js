@@ -181,7 +181,10 @@ function getAvailableRooms(response) {
             pubnub.send({
                 participant: global.userName,
                 userToken: global.userToken,
-                forUser: forUser
+                forUser: forUser,
+
+                /* let other end know that whether you support opus */
+                isopus: isopus
             });
 
 

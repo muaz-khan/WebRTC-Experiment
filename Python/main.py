@@ -2,8 +2,8 @@ import webapp2
 import os
 from datetime import date
 
-pubKey = 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0'
-subKey = 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a'
+pubKey = 'demo'
+subKey = 'demo'
 
 # global_stun = '{ "iceServers": [{ "url": "stun:www.stunserver.org" }] }'
 global_stun = '{ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] }'
@@ -159,6 +159,37 @@ class WebSocketHandler(webapp2.RequestHandler):
                  .replace('{year}', str(date.today().year))
         
         self.response.out.write(Common)
+
+
+#-----------------------------------------------
+class BroadcastHandler(webapp2.RequestHandler):
+    def get(self):
+
+        Title = 'WebRTC Broadcast Experiment'
+        Description = Title + ': WebRTC video broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast video over many peers. There is no limitation!!!'
+        Canonical = '/broadcast/'
+        
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('broadcast/WebRTC-Video-Broadcast-Experiment.html')
+
+        turn = self.request.get('turn')
+        if turn:
+            Body = Body.replace('"{stun-turn}"', global_turn)
+        else:
+            Body = Body.replace('"{stun-turn}"', global_stun)
+
+        Body = Body.replace('{publish_key}', pubKey)\
+               .replace('{subscribe_key}', subKey)
+
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
+
 #-----------------------------------------------        
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
@@ -166,6 +197,7 @@ app = webapp2.WSGIApplication([
     ('/aspnet-mvc/', AspNetMVCHandler),
     ('/javascript/', JavaScriptHandler),
     ('/socket.io/', SocketIOHandler),
-    ('/websocket/', WebSocketHandler)
+    ('/websocket/', WebSocketHandler),
+    ('/broadcast/', BroadcastHandler)
     ])
         

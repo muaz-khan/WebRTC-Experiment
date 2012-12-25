@@ -55,8 +55,19 @@
 <table class="center-table">
     <tr>
         <td>
-            <h2>Public meeting rooms!</h2>
-            <section id="public-rooms"></section>
+            <section id="public-rooms">
+                <section class="create-room-panel">
+                <h2>Searching for a private room?</h2>
+                <div>
+                    <label for="email">Your email:</label>
+                    <input type="text" id="email" style="width: 8.8em;">
+
+                    <a id="search-room" class="search-room" href="#search-room">Search</a>
+
+                    <small style="display: block;">Enter the email or token that your room partner given you.</small>
+                </div>
+            </section>
+            </section>
         </td>
         <td class="create-room-panel">
             <h2>Create new Room</h2>
@@ -83,22 +94,6 @@
             <a id="create-room" class="create-room" href="#create-room">Create Room</a>
         </td>
     </tr>
-    <tr>
-        <td></td>
-        <td>
-            <section class="create-room-panel">
-                <h2>Searching for a private room?</h2>
-                <div>
-                    <label for="email">Your email:</label>
-                    <input type="text" id="email" style="width: 8.8em;">
-
-                    <a id="search-room" class="search-room" href="#search-room">Search</a>
-
-                    <small style="display: block;">Enter the email or token that your room partner given you.</small>
-                </div>
-            </section>
-        </td>
-    </tr>
 </table>
 <video id="client-video" muted style="position: absolute; top: 0; z-index: -1;"></video>
 <video id="remote-video" style="display: none; position: absolute; top: 0;"></video>
@@ -113,6 +108,7 @@
     » <a href="mailto:muazkh@gmail.com">Email</a>
     » <a href="http://twitter.com/muazkh">@muazkh</a>
     » <a href="https://github.com/muaz-khan">Github</a>
+    » <a href="https://plus.google.com/106306286430656356034/posts">Google+</a>
 </footer>
 
 <script src="../RTCPeerConnection.js"></script>
