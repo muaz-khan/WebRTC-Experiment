@@ -17,11 +17,12 @@ function masterSocket(channel, onopen) {
     }
 
     function callback(data) {
-        if (data.userToken == global.userToken) return;
+        if (data.roomToken || data.userToken == global.userToken) return;
         if (!data.participant || data.forUser != global.userToken) return;
-
-        /* found a participant? .... open new socket for him */
-        data.participant && openSocket(data.userToken);
+        if (data.participant) {
+            /* found a participant? .... open new socket for him */
+            openSocket(data.userToken);
+        }
     }
 }
 
@@ -62,15 +63,24 @@ function openSocket(channel) {
 
         /* unique peer got video from participant; */
         video = document.createElement('video');
-        video.width = (innerWidth / 4);
-        video.height = (innerHeight / 3);
+        video.css('-webkit-transform', 'rotate(0deg)');
 
         /* and added in the "participants" video list: <td id="participants"></td> */
         participants.appendChild(video, participants.firstChild);
-        participants.scrollIntoView(true);
 
         /* unique peer connection opened */
         peer = RTCPeerConnection(config);
+    }
+
+    var invokedOnce = false;
+    function selfInvoker() {
+        if (invokedOnce) return;
+        
+        if (!peer) setTimeout(selfInvoker, 100);
+        else {
+            invokedOnce = true;
+            peer.onanswer(inner.sdp);
+        }
     }
 
     /* unique socket got message from participant */
@@ -86,31 +96,27 @@ function openSocket(channel) {
                 inner.firstPart = response.firstPart;
                 if (inner.secondPart) {
                     inner.sdp = JSON.parse(inner.firstPart + inner.secondPart);
-                    peer.onanswer(inner.sdp);
+                    selfInvoker();
                 }
             }
             if (response.secondPart) {
                 inner.secondPart = response.secondPart;
                 if (inner.firstPart) {
                     inner.sdp = JSON.parse(inner.firstPart + inner.secondPart);
-                    peer.onanswer(inner.sdp);
+                    selfInvoker();
                 }
             }
         }
 
         /* process ice candidates sent by participant */
         if (response.candidate && !isGotRemoteStream) {
-            peer.addice({
+            peer && peer.addice({
                 sdpMLineIndex: response.candidate.sdpMLineIndex,
                 candidate: JSON.parse(response.candidate.candidate)
             });
         }
 
-        if (response.end) 
-        {
-            participants.removeChild(video);
-            socket = null;
-        }
+        if (response.end) video && participants.removeChild(video);
     }
 
     /* sub socket got stream */
@@ -118,7 +124,9 @@ function openSocket(channel) {
         if (event) {
             if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(event.stream);
             else video.mozSrcObject = event.stream;
+
             video.play();
+
             gotstream(null, true);
         }
 
@@ -126,7 +134,7 @@ function openSocket(channel) {
             if (!(video.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || video.paused || video.currentTime <= 0)) {
                 isGotRemoteStream = true;
 
-                participants.scrollIntoView(true);
+                video.css('-webkit-transform', 'rotate(360deg)');
 
             } else setTimeout(function () { gotstream(null, true); }, 50);
         }

@@ -37,27 +37,29 @@ function sendice(candidate, socket) {
     });
 }
 
-/* on getting remote stream */
-var remoteVideo = $('#remote-video');
-
 function gotstream(event, recheck) {
 
     if (event) {
 
-        remoteVideo.css('margin', '0 30%').show();
-        clientVideo.css('width', (innerWidth / 4) + 'px').css('height', '');
+        var video = document.createElement('video');
+        video.src = clientVideo.src;
+        video.play();
 
-        if (!navigator.mozGetUserMedia) remoteVideo.src = URL.createObjectURL(event.stream);
-        else video.mozSrcObject = event.stream;
+        participants.appendChild(video, participants.firstChild);
 
-        remoteVideo.play();
+        clientVideo.pause();
 
-        /* check until remote stream start flowing */
+        if (!navigator.mozGetUserMedia) clientVideo.src = URL.createObjectURL(event.stream);
+        else clientVideo.mozSrcObject = event.stream;
+
+        
+        clientVideo.play();
+
         gotstream(null, true);
     }
 
     if (recheck) {
-        if (!(remoteVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || remoteVideo.paused || remoteVideo.currentTime <= 0)) {
+        if (!(clientVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || clientVideo.paused || clientVideo.currentTime <= 0)) {
             finallyGotStream();
         } else
             setTimeout(function() {
@@ -66,11 +68,7 @@ function gotstream(event, recheck) {
     }
 }
 
-/* remote stream started flowing */
-
 function finallyGotStream() {
+    clientVideo.css('-webkit-transform', 'rotate(0deg)');
     global.isGotRemoteStream = true;
-    remoteVideo.scrollIntoView(true);
-
-    disable(true);
 }

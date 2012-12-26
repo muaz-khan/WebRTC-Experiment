@@ -1,7 +1,7 @@
 ﻿global.defaultChannel = 'WebRTC Experiments Room';
 
 /* container: contains videos from all participants */
-var participants = $('#participants');
+var participants = $('#participants').css('max-height', (innerHeight - 100) + 'px');
 
 /* master socket is created for owner; answer socket for participant */
 var socket = {
@@ -20,6 +20,14 @@ function answerSocket(channel, onopen) {
 
     socket.answer.on('connect', onopen || function() {});
     socket.answer.on('message', socketResponse);
+}
+
+var invokedOnce = false;
+function selfInvoker() {
+    if (invokedOnce) return;
+
+    invokedOnce = true;
+    createAnswer(global.sdp, socket.answer);
 }
 
 function socketResponse(response) {
@@ -41,14 +49,14 @@ function socketResponse(response) {
 
             if (global.secondPart) {
                 global.sdp = JSON.parse(global.firstPart + global.secondPart);
-                createAnswer(global.sdp, socket.answer);
+                selfInvoker();
             }
         }
         if (response.secondPart) {
             global.secondPart = response.secondPart;
             if (global.firstPart) {
                 global.sdp = JSON.parse(global.firstPart + global.secondPart);
-                createAnswer(global.sdp, socket.answer);
+                selfInvoker();
             }
         }
     }
