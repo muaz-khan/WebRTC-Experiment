@@ -7,7 +7,8 @@ function initconfig()
 	    getice: sendice,
 	    gotstream: gotstream,
 	    iceServers: iceServers,
-	    stream: global.clientStream
+	    stream: global.clientStream,
+	    isopus: isopus
 	};
 }
 

@@ -1,0 +1,202 @@
+﻿<style>
+    strong { font-weight: inherit;color: red;}
+    ol{ margin-left: 3em;}
+    code, pre, pre strong, code strong { font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;}
+</style>
+<table>
+    <tr>
+        <td>
+            <a class="logo" href="https://plus.google.com/100325991024054712503">
+                <img src="/images/Muaz-Khan.gif" width="100" height="100">
+            </a>
+        </td>
+        <td>
+            <h1>How to use <a href="/RTCPeerConnection.js">RTCPeerConnection.js</a>?</h1>
+            <blockquote class="slogan">
+                This short guide explains "<strong>how to</strong> use <a href="/RTCPeerConnection.js">RTCPeerConnection.js</a>".
+            </blockquote>
+        </td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <td>
+            <blockquote>
+                First of all; you need to reference it:
+            </blockquote>
+            <code>
+                &lt;script src="<strong>https://webrtc-experiment.appspot.com/RTCPeerConnection.js</strong>"&gt;&lt;/script&gt;
+            </code>
+        </td>
+    </tr>
+    
+    <tr>
+        <td>
+            <blockquote>
+                You also need to reference <a href="/RTCPeerConnection-Helpers.js">RTCPeerConnection-Helpers.js</a> if you want to use <strong>opus</strong> codec:
+            </blockquote>
+            <code>
+                &lt;script src="<strong>https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js</strong>"&gt;&lt;/script&gt;
+            </code>
+        </td>
+    </tr>
+    
+    <tr>
+        <td>
+            <h2>Offerer</h2>
+            <blockquote>
+                Now assume that you are creating "<strong>offer</strong>"...you need to use this code to create <strong>offer sdp</strong>:
+            </blockquote>
+            <pre>
+var peer = <strong>RTCPeerConnection</strong>({
+    <strong>iceServers</strong> : { "iceServers": [{ "url": "<strong>turn:webrtc%40live.com@numb.viagenie.ca</strong>", 
+                                    "credential": "<strong>muazkh</strong>" }] },
+    <strong>stream</strong>     : clientStream,
+    <strong>isopus</strong>     : window.isopus,
+
+    <strong>getice</strong>     : function (candidate) {},
+    <strong>gotstream</strong>  : function (stream) {},
+    <strong>onoffer</strong>    : function(sdp) {}
+});
+</pre>
+
+            <blockquote>
+                Here is the short explanation of above code ↑
+            </blockquote>
+            <ol>
+                <li>
+                    <strong>iceServers</strong>: by default its value is: <code><strong>{"iceServers": [{ "url": "stun:stun.l.google.com:19302" }]}</strong></code>
+                </li>
+                <li>
+                    <strong>stream</strong>: client stream that you need to share with other peer!
+                </li>
+                <li>
+                    <strong>isopus</strong>: this variable takes value from "<code><strong>window.isopus</strong></code>" object from <a href="/RTCPeerConnection-Helpers.js">RTCPeerConnection-Helpers.js</a> file which let him know that both peers support <strong>opus</strong> codec or not.
+                </li>
+                
+                <li>
+                    <blockquote>
+                        <strong>getice</strong>: it returns locally generated <strong>ICE</strong> so you can share them with other end.
+                    </blockquote>
+                    <blockquote>
+                        <strong>candidate</strong> object contains two properties:
+                        <ol>
+                            <li>
+                                candidate.<code><strong>sdpMLineIndex</strong></code>
+                            </li>
+                            <li>
+                                candidate.<code><strong>candidate</strong></code>
+                            </li>
+                        </ol>
+                    </blockquote>
+                </li>
+                <li>
+                    <strong>gotstream</strong>: returns <strong>remote stream</strong> attached by other peer.
+                </li>
+                <li>
+                    <strong>onoffer</strong>: returns <strong>offer sdp</strong>; so you can send it to other peer to get <strong>answer sdp</strong>.
+                </li>
+            </ol>
+            
+            <br />
+            
+            <blockquote>
+                Now assume that other peer generated <strong>answer sdp</strong> and sent to you; you can pass that sdp to this function:
+            </blockquote>
+            <blockquote>
+                <code>
+                    peer.<strong>onanswer</strong>( <strong>answer_sdp</strong> );
+                </code>
+            </blockquote>
+            
+            <blockquote>
+                Now assume that other peer generated <strong>ICE</strong> and sent to you; you can pass that ICE to this function:
+            </blockquote>
+            <blockquote>
+                <pre>
+peer.<strong>addice</strong>({
+    <strong>sdpMLineIndex</strong> : candidate.<strong>sdpMLineIndex</strong>,
+    <strong>candidate</strong> : candidate.<strong>candidate</strong>
+});
+</pre>
+            </blockquote>
+        </td>
+    </tr>
+    
+    <tr>
+        <td>
+            <h2>Answerer</h2>
+            <blockquote>
+                99% process is the same for peer who "<strong>creates answer sdp</strong>"; the only difference is: for that peer you don't need "<code><strong>onoffer</strong></code>" and also you don't need to call "<code><strong>peer.onanswer( answer_sdp );</strong></code>". What extra you need to do is here:
+            </blockquote>
+            <pre>
+var peer = <strong>RTCPeerConnection</strong>({
+    <strong>iceServers</strong> : { "iceServers": [{ "url": "<strong>turn:webrtc%40live.com@numb.viagenie.ca</strong>", 
+                                    "credential": "<strong>muazkh</strong>" }] },
+    <strong>stream</strong>     : clientStream,
+    <strong>isopus</strong>     : window.isopus,
+
+    <strong>getice</strong>     : function (candidate) {},
+    <strong>gotstream</strong>  : function (stream) {},
+    
+    <strong>// see below two additions ↓</strong>
+    <strong>offer</strong>      : offer_sdp,
+    <strong>onanswer</strong>   : function(sdp) {}
+});
+</pre>
+            <br />
+            <blockquote>
+                Let me elaborate:
+            </blockquote>
+            <ol>
+                <li>
+                    <strong>offer</strong>: you need to pass <strong>offer sdp</strong> sent by other peer.
+                </li>
+                <li>
+                    <strong>onanswer</strong>: returns <strong>answer sdp</strong> so you can send it to other end.
+                </li>
+            </ol>
+            <br />
+            <blockquote>
+                For <strong>ICE</strong> sent by other peer; you need to do same thing:
+            </blockquote>
+            <blockquote>
+                <pre>
+peer.<strong>addice</strong>({
+    <strong>sdpMLineIndex</strong> : candidate.<strong>sdpMLineIndex</strong>,
+    <strong>candidate</strong> : candidate.<strong>candidate</strong>
+});
+</pre>
+            </blockquote>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <h2>Some quick tips:</h2>
+            <br />
+            <ol>
+                <li>
+                    You MUST get client stream before opening sockets or XHR requests.
+                </li>
+                <li>
+                    Offerer can create offer sdp any time; but other peer should start creating answer sdp only when it has <code><strong>offer sdp</strong></code>.
+                </li>
+                <li>
+                    Before creating answer; you MUST not add any ICE sent by other peer.
+                </li>
+            </ol>
+        </td>
+    </tr>
+</table>
+<section class="plusone-gplus">
+    <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
+</section>
+<footer>
+    <a href="/">Home</a>
+    © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}
+    » <a href="mailto:muazkh@gmail.com">Email</a>
+    » <a href="http://twitter.com/muazkh">@muazkh</a>
+    » <a href="https://github.com/muaz-khan">Github</a>
+    » <a href="https://plus.google.com/106306286430656356034/posts">Google+</a>
+</footer>

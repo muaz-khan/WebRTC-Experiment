@@ -190,6 +190,24 @@ class BroadcastHandler(webapp2.RequestHandler):
         
         self.response.out.write(Common)
 
+#-----------------------------------------------
+class HowHandler(webapp2.RequestHandler):
+    def get(self):
+        Title = 'How to use RTCPeerConnection.js? WebRTC Guide'
+        Description = Title + ': This guide explains "How to write WebRTC code?"...."How to order WebRTC code"...."How to use RTCPeerConnection.js"....the easiest way to learn and use WebRTC!'
+        Canonical = '/howto/'
+        
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('howto/how-to-use-rtcpeerconnection-js.html')
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
+
 #-----------------------------------------------        
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
@@ -198,6 +216,7 @@ app = webapp2.WSGIApplication([
     ('/javascript/', JavaScriptHandler),
     ('/socket.io/', SocketIOHandler),
     ('/websocket/', WebSocketHandler),
-    ('/broadcast/', BroadcastHandler)
+    ('/broadcast/', BroadcastHandler),
+    ('/howto/', HowHandler)
     ])
         

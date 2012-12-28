@@ -9,12 +9,20 @@
             <h1>
                 Welcome to WebRTC Experiments!</h1>
             <blockquote class="slogan">
-                Realtime WebRTC Experiments & Demos that exposes the power of RTCWeb APIs!
+                Realtime WebRTC Experiments & Demos that exposes the power of RTCWeb APIs!<br />
+                How to use <a href="/RTCPeerConnection.js">RTCPeerConnection.js</a>? A <a href="/howto/">short guide</a>.
             </blockquote>
         </td>
     </tr>
 </table>
 <table>
+    <tr>
+        <td colspan="2" style="text-align: center;">
+            <blockquote style="color:red;">
+                To learn and create a realtime <strong>WebRTC</strong> app, you JUST need a website where you can upload your HTML file and "<strong>that's all you need to do!</strong>"
+            </blockquote>
+        </td>
+    </tr>
     <tr>
         <td colspan="2">
             <h2>WebRTC Broadcast Experiment!</h2>
@@ -26,29 +34,12 @@
             </blockquote>
             <section>
                 <a href="/broadcast/" title="stun:stun.l.google.com:19302">Try STUN</a>
-                » <a href="/broadcast/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca">Try TURN</a>
+                » <a href="/broadcast/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">Try TURN</a>
                 » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/broadcast">View Source Code</a>
             </section>
         </td>
     </tr>
     <tr>
-        <td>
-            <h2>WebRTC Experiment using socket.io!</h2>
-            <blockquote>
-                This experiment is using Socket.io over PubNub for signaling! 
-            </blockquote>
-            <blockquote>
-                The specialty of PubNub oriented Socket.io implementation is that it doesn't require a Node.JS backend also it supports multiplexing!
-            </blockquote>
-            <blockquote>
-                What you need to understand is the only JavaScript!
-            </blockquote>
-            <section>
-                <a href="/socket.io/" title="stun:stun.l.google.com:19302">Try STUN</a>
-                » <a href="/socket.io/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca">Try TURN</a>
-                » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io">View Source Code</a>
-            </section>
-        </td>
         <td>
             <h2>WebRTC Experiment using WebSocket!</h2>
             <blockquote>
@@ -62,29 +53,48 @@
             </blockquote>
             <section>
                 <a href="/websocket/" title="stun:stun.l.google.com:19302">Try STUN</a>
-                » <a href="/websocket/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca">Try TURN</a>
+                » <a href="/websocket/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">Try TURN</a>
                 » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket">View Source Code</a>
             </section>
         </td>
-    </tr>
-    <tr>
         <td>
             <h2>
-                WebRTC Experiment directly using Pubnub!</h2>
+                WebRTC Experiment using Pubnub!</h2>
             <blockquote>
-                WebRTC Experiment that uses Pubnub for signaling to make a realtime handshake! It
+                WebRTC Experiment that uses Pubnub modern JavaScript APIs for signaling to make a realtime handshake! It
                 is reliable and faster as compare to traditional XHR model!
             </blockquote>
             <blockquote>
                 You can say it JavaScript only WebRTC Experiment because you don't need to understand
-                any server side language or technology. Just JavaScript knowledge is enough!
+                any server side language or technology. Even you don't need to worry about server.
             </blockquote>
             <section>
                 <a href="/javascript/" title="stun:stun.l.google.com:19302">Try STUN</a>
-                » <a href="/javascript/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca">Try TURN</a>
+                » <a href="/javascript/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">Try TURN</a>
                 » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/JavaScript-Only">View Source Code</a>
             </section>
         </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <h2>WebRTC Experiment using socket.io!</h2>
+            <blockquote>
+                This experiment is using Socket.io over PubNub for signaling! 
+            </blockquote>
+            <blockquote>
+                The specialty of PubNub oriented Socket.io implementation is that it doesn't require a Node.JS backend also it supports multiplexing!
+            </blockquote>
+            <blockquote>
+                What you need to understand is the only JavaScript!
+            </blockquote>
+            <section>
+                <a href="/socket.io/" title="stun:stun.l.google.com:19302">Try STUN</a>
+                » <a href="/socket.io/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">Try TURN</a>
+                » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io">View Source Code</a>
+            </section>
+        </td>
+    </tr>
+    <tr>        
         <td>
             <h2>
                 WebRTC Experiment using XHR!</h2>
@@ -96,8 +106,18 @@
             </blockquote>
             <section>
                 <a href="/aspnet-mvc/" title="stun:stun.l.google.com:19302">Try STUN</a>
-                » <a href="/aspnet-mvc/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca">Try TURN</a>
+                » <a href="/aspnet-mvc/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">Try TURN</a>
                 » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ASP.NET-MVC">View Source Code</a>
+            </section>
+        </td>
+        <td>
+            <h2>Simple client side experiment using WebSocket</h2>
+            <blockquote>
+                A client side WebRTC experiment/demo using WebSocket over PubNub! It is simple. It is included here for newcomers who are interested to learn WebRTC from demos!
+            </blockquote>
+            <section>
+                <a href="/demos/client-side-websocket.html">Preview</a>
+                » <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-websocket.html">View Source Code</a>
             </section>
         </td>
     </tr>
@@ -121,18 +141,6 @@
             <section>
                 <a href="/demos/client-side-socket-io.html">Preview</a>
                 » <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-socket-io.html">View Source Code</a>
-            </section>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2">
-            <h2>Simple client side experiment using WebSocket</h2>
-            <blockquote>
-                A client side WebRTC experiment/demo using WebSocket over PubNub! It is simple. It is included here for newcomers who are interested to learn WebRTC from demos!
-            </blockquote>
-            <section>
-                <a href="/demos/client-side-websocket.html">Preview</a>
-                » <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-websocket.html">View Source Code</a>
             </section>
         </td>
     </tr>

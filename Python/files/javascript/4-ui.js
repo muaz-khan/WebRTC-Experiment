@@ -1,10 +1,12 @@
 ﻿var clientVideo = $('#client-video');
-function captureCamera() {
+function captureCamera(callback) {
     getUserMedia({
         video: clientVideo,
         onsuccess: function (stream) {
             global.clientStream = stream;
             clientVideo.play();
+
+            callback && callback();
         },
         onerror: function () {
             location.reload();
@@ -39,21 +41,8 @@ $('#is-private').onchange = function () {
 };
 
 $('#create-room').onclick = function () {
-    var fullName = $('#full-name'),
-            roomName = $('#room-name'),
-            partnerEmail = $('input#partner-email');
-
-    if (fullName.value.length <= 0) {
-        alert('Please enter your full name.');
-        fullName.focus();
-        return;
-    }
-
-    if (roomName.value.length <= 0) {
-        alert('Please enter room name.');
-        roomName.focus();
-        return;
-    }
+    var roomName = $('#room-name'),
+        partnerEmail = $('input#partner-email');
 
     var isChecked = $('#is-private').checked;
 
@@ -63,29 +52,23 @@ $('#create-room').onclick = function () {
         return;
     }
 
-    if (!global.clientStream) {
-        alert(global.mediaAccessAlertMessage);
-        return;
-    }
-
-    global.userName = fullName.value;
-    global.roomName = roomName.value;
+    global.userName = 'Anonymous';
+    global.roomName = roomName.value || 'Anonymous';
     global.isGetAvailableRoom = false;
     hideListsAndBoxes();
     global.roomToken = uniqueToken();
 
-    if (isChecked && partnerEmail.value.length) {
-        pubnub.unsubscribe();
-        pubnub.channel = partnerEmail.value;
-        global.isPrivateRoom = true;
-
-        initPubNub();
-    }
-
     global.offerer = true;
 
-    spreadRoom();
-    window.scrollTo(0, 0);
+    captureCamera(function () {
+        if (isChecked && partnerEmail.value.length) {
+            pubnub.unsubscribe();
+            pubnub.channel = partnerEmail.value;
+            global.isPrivateRoom = true;
+
+            initPubNub(spreadRoom);
+        } else spreadRoom();
+    });
 };
 
 function spreadRoom() {
@@ -93,7 +76,6 @@ function spreadRoom() {
 
     pubnub.send({
         roomToken: g.roomToken,
-        ownerName: g.userName,
         ownerToken: g.userToken,
         roomName: g.roomName
     });
@@ -111,15 +93,11 @@ $('#search-room').onclick = function () {
 
     global.searchPrivateRoom = email.value;
 
-    log('Creating channel: ' + email.value);
-
     pubnub.unsubscribe();
     pubnub.channel = email.value;
     initPubNub(function () {
-        log('Searching a private room for: ' + global.searchPrivateRoom);
         email.value = '';
     });
-    window.scrollTo(0, 0);
 };
 
 function refreshUI() {
@@ -152,24 +130,13 @@ function getAvailableRooms(response) {
     blockquote.setAttribute('id', response.ownerToken);
 
     blockquote.innerHTML = response.roomName
-            + '<a href="#" class="join" id="' + response.roomToken + '">Join Room</a><br/>'
-                + '<br /><small>Created by <span class="roshan">' + response.ownerName + '</span></small>';
+            + '<a href="#" class="join" id="' + response.roomToken + '">Join Room</a>';
 
     publicRooms.insertBefore(blockquote, publicRooms.childNodes[0]);
 
     $('.join', true).each(function (span) {
         span.onclick = function () {
-            if (!global.clientStream) {
-                alert(global.mediaAccessAlertMessage);
-                return;
-            }
-
-            global.userName = prompt('Enter your name');
-
-            if (!global.userName.length) {
-                alert('You\'ve not entered your name. Too bad!');
-                return;
-            }
+            global.userName = 'Anonymous';
 
             global.isGetAvailableRoom = false;
             hideListsAndBoxes();
@@ -178,31 +145,30 @@ function getAvailableRooms(response) {
 
             var forUser = this.parentNode.id;
 
-            pubnub.send({
-                participant: global.userName,
-                userToken: global.userToken,
-                forUser: forUser,
-
-                /* let other end know that whether you support opus */
-                isopus: isopus
-            });
-
-
-            if (!global.searchPrivateRoom) {
+            captureCamera(function () {
                 pubnub.send({
+                    participant: global.userName,
                     userToken: global.userToken,
-                    isBusyRoom: true,
-                    ownerToken: forUser
+                    forUser: forUser,
+
+                    /* let other end know that whether you support opus */
+                    isopus: isopus
                 });
 
-                pubnub.unsubscribe();
+                if (!global.searchPrivateRoom) {
+                    pubnub.send({
+                        userToken: global.userToken,
+                        isBusyRoom: true,
+                        ownerToken: forUser
+                    });
 
-                pubnub.channel = global.roomToken;
-                initPubNub();
-            }
+                    pubnub.unsubscribe();
 
+                    pubnub.channel = global.roomToken;
+                    initPubNub();
+                }
+            });
 
-            window.scrollTo(0, 0);
             this.parentNode.parentNode.removeChild(this.parentNode);
         };
     });

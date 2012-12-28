@@ -173,8 +173,6 @@ function getAvailableRooms(response) {
 
             var forUser = this.parentNode.id;
 
-            
-
             captureCamera(function () {
                 /* telling room owner that I'm your participant! */
                 socket.answer.send({

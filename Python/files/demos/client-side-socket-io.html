@@ -37,78 +37,77 @@
 
 <!-- First of all; get camera -->
 <script>
-    var socket = io.connect('http://pubsub.pubnub.com/' + uniqueChannel, {
-        channel: uniqueChannel,
-        publish_key: 'demo',
-        subscribe_key: 'demo'
-    });
+    var socket;
+    function openSocket() {
+        socket = io.connect('http://pubsub.pubnub.com/' + uniqueChannel, {
+            channel: uniqueChannel,
+            publish_key: 'demo',
+            subscribe_key: 'demo'
+        });
 
-    socket.on('message', function (message) {
-        
-        /* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
-        
-        if (message.firstPart) {
-            global.firstPart = message.firstPart;
+        socket.on('message', function (message) {
 
-            if (global.secondPart) {              
-                if(message.by == 'peer1') 
-                {
-                    offerSDP = JSON.parse(global.firstPart + global.secondPart);
-                    setTimeout(create2ndPeer, 400);
-                }
-                else 
-                {
-                    /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
-                    peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
-                }
-            }
-        }
-        
-        if (message.secondPart) {
-            global.secondPart = message.secondPart;
-            if (global.firstPart) {
-                if(message.by == 'peer1') 
-                {
-                    offerSDP = JSON.parse(global.firstPart + global.secondPart);
-                    setTimeout(create2ndPeer, 400);
-                }
-                else 
-                {
-                    /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
-                    peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
+            /* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
+
+            if (message.firstPart) {
+                global.firstPart = message.firstPart;
+
+                if (global.secondPart) {
+                    if (message.by == 'peer1') {
+                        offerSDP = JSON.parse(global.firstPart + global.secondPart);
+                        setTimeout(create2ndPeer, 400);
+                    }
+                    else {
+                        /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
+                        peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
+                    }
                 }
             }
-        }
 
-        if (message.candidate) {
-            /* 2nd peer should process/add ice candidates sent by 1st peer! */
-            if(message.by == 'peer1')
-            {
-                peer2 && peer2.addice({
-                    sdpMLineIndex: message.sdpMLineIndex,
-                    candidate: JSON.parse(message.candidate)
-                });
+            if (message.secondPart) {
+                global.secondPart = message.secondPart;
+                if (global.firstPart) {
+                    if (message.by == 'peer1') {
+                        offerSDP = JSON.parse(global.firstPart + global.secondPart);
+                        setTimeout(create2ndPeer, 400);
+                    }
+                    else {
+                        /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
+                        peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
+                    }
+                }
             }
-            else
-            {
-                peer1 && peer1.addice({
-                    sdpMLineIndex: message.sdpMLineIndex,
-                    candidate: JSON.parse(message.candidate)
-                });
-            }
-        }
-    });
 
-    socket.on('connect', function () {
-        getUserMedia({
-            video: document.getElementById('client-video'),
-            onsuccess: function (stream) {
-                clientStream = stream;
-
-                /* Got access to camera; Now start creating offer sdp */
-                create1stPeer();
+            if (message.candidate) {
+                /* 2nd peer should process/add ice candidates sent by 1st peer! */
+                if (message.by == 'peer1') {
+                    peer2 && peer2.addice({
+                        sdpMLineIndex: message.sdpMLineIndex,
+                        candidate: JSON.parse(message.candidate)
+                    });
+                }
+                else {
+                    peer1 && peer1.addice({
+                        sdpMLineIndex: message.sdpMLineIndex,
+                        candidate: JSON.parse(message.candidate)
+                    });
+                }
             }
         });
+
+        socket.on('connect', function () {
+            /* Socket opened; Now start creating offer sdp */
+            create1stPeer();
+        });
+    }
+
+    getUserMedia({
+        video: document.getElementById('client-video'),
+        onsuccess: function (stream) {
+            clientStream = stream;
+
+            openSocket();
+        }
     });
     
     var clientStream;

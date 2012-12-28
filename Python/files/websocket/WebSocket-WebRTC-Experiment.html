@@ -71,14 +71,8 @@
         <td class="create-room-panel">
             <h2>Create new Room</h2>
             <div>
-                <label for="full-name">Your name:</label>
-                <input type="text" id="full-name"><br />
-                <small>Enter your full name.</small>
-            </div>
-            <div>
                 <label for="room-name">Room name:</label>
                 <input type="text" id="room-name"><br />
-                <small>Enter human-readable room name.</small>
             </div>
             <div id="partner-email" style="border: 0; height: 0; margin: 0; overflow: hidden; padding: 0; padding-left: 0!important;">
                 <label for="partner-email">Partner email:</label>
@@ -113,7 +107,13 @@
 <script src="../RTCPeerConnection.js"></script>
 <script src="../RTCPeerConnection-Helpers.js"></script>
 
-<script>var iceServers = "{stun-turn}";</script>
+<script>
+    var iceServers = "{stun-turn}";
+    var socket_config = {
+        publish_key: '{publish_key}',
+        subscribe_key: '{subscribe_key}'
+    };
+</script>
 
 <script src="1-helper.js"> </script>
 <script src="2-rtc-functions.js"></script>
@@ -121,13 +121,5 @@
 <script src="4-ui.js"> </script>
 <script src="5-websocket.js" type="text/javascript"></script>
 <script>
-    var socket_config = {
-        publish_key: '{publish_key}',
-        subscribe_key: '{subscribe_key}'
-    };
-
-    initSocket(function () {
-        showListsAndBoxes();
-        captureCamera();
-    });
+    initSocket(showListsAndBoxes);
 </script>

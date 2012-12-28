@@ -4,8 +4,6 @@
 
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) using WebSocket, Socket.io and XHR for signaling. 
 
-WebRTC video broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast video over many peers.
-
 ## Preview / Demos / Experiments
 
 * [WebRTC video broadcasting experiment](https://webrtc-experiment.appspot.com/broadcast/) - [STUN](https://webrtc-experiment.appspot.com/broadcast/) / [TURN](https://webrtc-experiment.appspot.com/broadcast/?turn=true)
@@ -221,42 +219,55 @@ codecs.isopus = function () {
 var isopus = !!codecs.isopus();
 ```
 
-##How to use [above code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection.js)?
+##[How to use RTCPeerConnection.js](https://webrtc-experiment.appspot.com/howto/)?
 
 ```javascript
-/* ---------- common configuration -------- */
-var config = config = {
-    getice: function(candidate) {},      /* Send ICE via XHR or WebSockets toward other peer! */
-    gotstream: gotstream,       /* Play remote video */
-    iceServers: iceServers,     /* STUN or TURN server: by default it is using: { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] } */
-    stream: clientStream,       /* Current user's stream you want to forward to other peer! */
-    isopus: window.isopus       /* if opus codec is supported; use it! */
-};
+/* ---------- offerer -------- */
+var peer = RTCPeerConnection({
+    iceServers : { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", 
+                                    "credential": "muazkh" }] },
+    stream     : clientStream,				/* Attach your client stream */
+    isopus     : window.isopus,				/* if opus codec is supported; use it! */
 
-/* ---------- called in case of offer -------- */
-function createOffer() {
-    initconfig();
-    config.onoffer = function(offerSDP) {};    /* Send Offer SDP via XHR or WebSocket on the other peer */
-    var peer = RTCPeerConnection(config);       /* You can use this object "peer" for later to get Answer SDP or process ICE message */
-}
+    getice     : function (candidate) {},	/* Send ICE to other peer! */
+    gotstream  : function (stream) {},		/* Play remote video */
+    onoffer    : function(sdp) {}			/* Get offer SDP and send to other peer */
+});
 
-/* ---------- called in case of answer -------- */
-function createAnswer(sdp) {
-    initconfig();
-    config.onanswer = function(answwerSDP) {};   /* Send Answer SDP via XHR or WebSocket on the other peer */
-    config.offer = sdp;                          /* Pass offer SDP sent by other peer for you! */
-    window.peer = RTCPeerConnection(config);         /* You can use this object "peer" for later to get Answer SDP or process ICE message */
-}
+/* Got answer SDP? pass answer sdp over this function: */
+peer.onanswer( answer_sdp );
 
-/* ---------- getting answer SDP from 1st peer -------- */
-peer.onanswer(sdp);      /* Pass Answer SDP to make the handshake complete! */
-
-/* ---------- add /or process ice candidates sent by other peer -------- */
+/* Got ICE? add ICE using this function */
 peer.addice({
-    sdpMLineIndex: candidate.sdpMLineIndex,
-    candidate: JSON.parse(candidate.candidate)  /* call JSON.parse only if you called JSON.stringify! */
+    sdpMLineIndex : candidate.sdpMLineIndex,
+    candidate : candidate.candidate
+});
+
+/* --------------------------------------------------------------- */
+/* ---------- offerer -------- */
+var peer = RTCPeerConnection({
+    iceServers : { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", 
+                                    "credential": "muazkh" }] },
+    stream     : clientStream,				/* Attach your client stream */
+    isopus     : window.isopus,				/* if opus codec is supported; use it! */
+
+    getice     : function (candidate) {},	/* Send ICE to other peer! */
+    gotstream  : function (stream) {},		/* Play remote video */
+    onanswer   : function(sdp) {}			/* Get answer SDP and send to other peer */,
+	offer:	   : offer_sdp					/* pass offer sdp sent by other peer */
+});
+
+/* Remember: No need to call following function */
+/* peer.onanswer( answer_sdp ); */
+
+/* Got ICE? add ICE using this function */
+peer.addice({
+    sdpMLineIndex : candidate.sdpMLineIndex,
+    candidate : candidate.candidate
 });
 ```
+
+Remember: Don't forget to check: [How to use RTCPeerConnection.js? A short guide](https://webrtc-experiment.appspot.com/howto/)
 
 ##A realtime client side [example](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Python/files/demos/client-side.html) - [Preview / Demo](https://webrtc-experiment.appspot.com/demos/client-side.html)
 

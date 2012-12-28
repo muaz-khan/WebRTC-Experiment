@@ -63,7 +63,9 @@
         gotstream: function(event) {
             console.log('1st peer: Wow! Got remote stream!');
             document.getElementById('remote-video-1').src = URL.createObjectURL(event.stream);
-        }
+        },
+		
+		isopus: window.isopus
     };
     
     function create1stPeer() {
@@ -100,7 +102,9 @@
             stream: clientStream,
 
             /* You'll use offer SDP here */
-            offer: offerSDP
+            offer: offerSDP,
+			
+			isopus: window.isopus
         };
 
         peer2 = RTCPeerConnection(answerConfig);

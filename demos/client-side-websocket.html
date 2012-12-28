@@ -1,16 +1,4 @@
-﻿<title>Simple client-side WebRTC Experiment using WebSocket over PubNub ® Muaz Khan</title>
-<h1>Simple client-side WebRTC Experiment using WebSocket over PubNub</h1>
-
-<meta name="description" content="A client side WebRTC experiment/demo using WebSocket over PubNub! It is simple. It is included here for newcomers who are interested to learn WebRTC from demos!">
-<link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
-<meta name="author" content="Muaz Khan">
-
-<style>@font-face { font-family: 'Open Sans'; font-style: normal; font-weight: 300; src: local('Open Sans Light'), local('OpenSans-Light'), url(/images/font.woff) format('woff'); } html { background: #ECECEC; font-family: 'Open Sans'; } body { color: #333; font: 1.4em 'Open Sans' , arial, sans-serif; font-weight: 300; line-height: 1.5; margin: 0 3em; background: white; border: 1px dotted #BBA9A9; border-top: 0; } h1, h2 { color: #2778ec; font-size: 1.6em; font-weight: 300; line-height: 1.15; }  a { display: inline-block; padding: 0.2em; color: #1B75C9; text-decoration: none; border-bottom: 1px dotted #0085FF; margin: 0 .2em; } a:hover { color: red; }</style>
-
-<a href="/" style="position: absolute;background: white;display: block; padding: 5px 10px;z-index: 100;">← Go back to WebRTC Experiments Homepage!</a>
-<link rel="prefetch" href="/">
-
-<script>
+﻿<script>
     function uniqueToken() {
         var s4 = function () {
             return Math.floor(Math.random() * 0x10000).toString(16);
@@ -38,75 +26,74 @@
 
 <!-- First of all; get camera -->
 <script>
-    var socket = new WebSocket('wss://pubsub.pubnub.com/demo/demo/' + uniqueChannel);
+    var socket;
+    function openSocket() {
+        socket = new WebSocket('wss://pubsub.pubnub.com/demo/demo/' + uniqueChannel);
 
-    socket.onmessage = function (event) {
-        var message = event.data;
+        socket.onmessage = function (event) {
+            var message = event.data;
 
-        /* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
-        
-        if (message.firstPart) {
-            global.firstPart = message.firstPart;
+            /* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
 
-            if (global.secondPart) {              
-                if(message.by == 'peer1') 
-                {
-                    offerSDP = JSON.parse(global.firstPart + global.secondPart);
-                    setTimeout(create2ndPeer, 400);
-                }
-                else 
-                {
-                    /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
-                    peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
+            if (message.firstPart) {
+                global.firstPart = message.firstPart;
+
+                if (global.secondPart) {
+                    if (message.by == 'peer1') {
+                        offerSDP = JSON.parse(global.firstPart + global.secondPart);
+                        setTimeout(create2ndPeer, 400);
+                    }
+                    else {
+                        /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
+                        peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
+                    }
                 }
             }
+
+            if (message.secondPart) {
+                global.secondPart = message.secondPart;
+                if (global.firstPart) {
+                    if (message.by == 'peer1') {
+                        offerSDP = JSON.parse(global.firstPart + global.secondPart);
+                        setTimeout(create2ndPeer, 400);
+                    }
+                    else {
+                        /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
+                        peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
+                    }
+                }
+            }
+
+            if (message.candidate) {
+                /* 2nd peer should process/add ice candidates sent by 1st peer! */
+                if (message.by == 'peer1') {
+                    peer2 && peer2.addice({
+                        sdpMLineIndex: message.sdpMLineIndex,
+                        candidate: JSON.parse(message.candidate)
+                    });
+                }
+                else {
+                    peer1 && peer1.addice({
+                        sdpMLineIndex: message.sdpMLineIndex,
+                        candidate: JSON.parse(message.candidate)
+                    });
+                }
+            }
+        };
+        socket.onopen = function () {
+            /* Socket opened; Now start creating offer sdp */
+            create1stPeer();
+        };
+    }
+
+    getUserMedia({
+        video: document.getElementById('client-video'),
+        onsuccess: function (stream) {
+            clientStream = stream;
+
+            openSocket();
         }
-        
-        if (message.secondPart) {
-            global.secondPart = message.secondPart;
-            if (global.firstPart) {
-                if(message.by == 'peer1') 
-                {
-                    offerSDP = JSON.parse(global.firstPart + global.secondPart);
-                    setTimeout(create2ndPeer, 400);
-                }
-                else 
-                {
-                    /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
-                    peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
-                }
-            }
-        }
-
-        if (message.candidate) {
-            /* 2nd peer should process/add ice candidates sent by 1st peer! */
-            if(message.by == 'peer1')
-            {
-                peer2 && peer2.addice({
-                    sdpMLineIndex: message.sdpMLineIndex,
-                    candidate: JSON.parse(message.candidate)
-                });
-            }
-            else
-            {
-                peer1 && peer1.addice({
-                    sdpMLineIndex: message.sdpMLineIndex,
-                    candidate: JSON.parse(message.candidate)
-                });
-            }
-        }
-    };
-    socket.onopen = function() {
-        getUserMedia({
-            video: document.getElementById('client-video'),
-            onsuccess: function (stream) {
-                clientStream = stream;
-
-                /* Got access to camera; Now start creating offer sdp */
-                create1stPeer();
-            }
-        });
-    };
+    });
     
     var clientStream;
 

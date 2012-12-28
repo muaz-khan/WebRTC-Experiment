@@ -114,7 +114,6 @@ function initSocket(callback) {
 window.onbeforeunload = window.onunload = function () {
     socket.send({
         end: true,
-        userName: global.userName,
         userToken: global.userToken
     });
 };
