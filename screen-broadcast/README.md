@@ -25,8 +25,8 @@ Remember: Don't forget to check: [How to use RTCPeerConnection.js? A short guide
 If you're new to WebRTC; following demos are for you!
 
 * [Runs in only one tab; uses JavaScript variables directly for signalling.](https://webrtc-experiment.appspot.com/demos/client-side.html) - no server for signalling!
-* [Runs in only one tab; uses socket.io for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) - no server for signalling!
-* [Runs in only one tab; uses WebSocket for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) - no server for signalling!
+* [Runs in only one tab; uses socket.io for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html)
+* [Runs in only one tab; uses WebSocket for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html)
 
 ##Credits
 
