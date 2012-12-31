@@ -1,15 +1,9 @@
 ﻿<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js"></script>
 
-<style>body{text-align: center;}</style>
-<h2>Client video</h2>
-<video id="client-video" autoplay></video>
-
-<h2>Remote video getting stream from peer2</h2>
-<video id="remote-video-1" autoplay></video>
-
-<h2>Remote video getting stream from peer1</h2>
-<video id="remote-video-2" autoplay></video>
+<h2>Client video</h2><video id="client-video" autoplay></video>
+<h2>Remote video getting stream from peer2</h2><video id="remote-video-1" autoplay></video>
+<h2>Remote video getting stream from peer1</h2><video id="remote-video-2" autoplay></video>
 
 <!-- First of all; get camera -->
 <script>
@@ -52,8 +46,8 @@
             console.log('1st peer: Wow! Got remote stream!');
             document.getElementById('remote-video-1').src = URL.createObjectURL(event.stream);
         },
-
-        isopus: window.isopus
+		
+		isopus: window.isopus
     };
     
     function create1stPeer() {
@@ -91,8 +85,8 @@
 
             /* You'll use offer SDP here */
             offer: offerSDP,
-
-            isopus: window.isopus
+			
+			isopus: window.isopus
         };
 
         peer2 = RTCPeerConnection(answerConfig);

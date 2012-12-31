@@ -1,0 +1,152 @@
+﻿<style>
+    .center-table td { width: 40%; }
+
+    a.join, a.create-room {
+        background: url(https://webrtc-experiment.appspot.com/images/accept.gif) no-repeat left center;
+        padding-left: 1.5em;
+    }
+
+    a.search-room {
+        background: url(https://webrtc-experiment.appspot.com/images/search.gif) no-repeat left center;
+        padding-left: 2em;
+    }
+
+    label {
+        display: inline-block;
+        font-size: 20px;
+        width: 150px;
+    }
+
+    input { font-size: 1.2em; }
+
+    .create-room-panel h2, .create-room-panel div, .public-rooms blockquote {
+        border-bottom: 1px double #CACACA;
+        margin-bottom: .5em;
+        padding: .2em;
+    }
+
+    .create-room { display: block; }
+
+    #public-rooms blockquote {
+        background: #FCFCFC;
+        border: 1px solid #FF4010;
+        margin-top: 1em;
+        padding: 1em 2em;
+    }
+
+    #public-rooms
+    {
+        margin-top:3em;
+    }
+
+    #participants video:first-child {
+        margin-top: 0;
+    }
+    #participants video {
+        width: 8em;
+        margin-top: -1em;
+    }
+    #participants
+    {
+        max-height: 550px;
+        overflow: hidden;
+        overflow-y: auto;
+    }
+    .hidden
+    {
+        display:none;
+    }
+    .visible {}
+</style>
+
+<table>
+    <tr>
+        <td>
+            <div id="participants" style="width: 8em;"></div>
+            <div class="visible">
+                <a class="logo" href="https://plus.google.com/100325991024054712503">
+                    <img src="https://webrtc-experiment.appspot.com/images/Muaz-Khan.gif" width="100" height="100">
+                </a>
+            </div>
+        </td>
+        <td>
+            <video id="client-video" muted class="hidden"></video>
+            <div class="visible">
+                <h1>WebRTC Screen Broadcasting!</h1>
+                <blockquote class="slogan">
+                    WebRTC screen broadcasting: Using Chrome Experimental tabCapture APIs to broadcast screen over many peers.
+                </blockquote>
+                <a href="https://webrtc-experiment.appspot.com/screen-broadcast/" title="stun:stun.l.google.com:19302">STUN</a>
+                » <a href="https://webrtc-experiment.appspot.com/screen-broadcast/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">TURN</a>
+                » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-broadcast">Source</a>
+            </div>
+        </td>
+    </tr>
+</table>
+<table class="center-table visible">
+    <tr>
+        <td>
+            <section id="public-rooms">
+                <section class="create-room-panel">
+                    <h2>Private Broadcast?</h2>
+                    <div>
+                        <label for="email">Token:</label>
+                        <input type="text" id="email" style="width: 8.8em;">
+
+                        <a id="search-room" class="search-room" href="#search-room">Search</a>
+
+                        <small style="display: block;">Enter the private token to join privately broadcasted screen!</small>
+                    </div>
+                </section>
+            </section>
+        </td>
+        <td>
+            <blockquote>
+                You need to <a href="http://muazkh.googlecode.com/files/webrtc-screen-broadcast.zip">download extension</a> (in ZIP format) if you want to broadcast your screen. To join any broadcasted screen; you don't need to download ZIP file.
+            </blockquote>
+            <blockquote>
+                Note: this experimental chrome extension only works with latest Google Chrome Canary.
+            </blockquote>
+            <blockquote>
+                <ol>
+                    <li>
+                        <a href="/screen-broadcast/how-to-install/">How to install tabCapture extension?</a>
+                    </li>
+                    <li>
+                        <a href="#">How to develop something like this!</a>
+                    </li>
+                </ol>
+            </blockquote>
+        </td>
+    </tr>
+</table>
+
+<section class="plusone-gplus">
+    <div class="g-plusone"></div>
+</section>
+
+<footer>
+    <a href="https://webrtc-experiment.appspot.com/">Home</a>
+    © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}
+    » <a href="mailto:muazkh@gmail.com">Email</a>
+    » <a href="http://twitter.com/muazkh">@muazkh</a>
+    » <a href="https://github.com/muaz-khan">Github</a>
+    » <a href="https://plus.google.com/106306286430656356034/posts">Google+</a>
+</footer>
+
+<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js"></script>
+
+<script>
+    var iceServers = null;
+    var socket_config = {
+        publish_key: 'demo',
+        subscribe_key: 'demo',
+        ssl: true
+    };
+</script>
+
+<script src="1-helper.js"> </script>
+<script src="2-rtc-functions.js"></script>
+<script src="4-ui.js"> </script>
+<script src="answer-socket.js"></script>

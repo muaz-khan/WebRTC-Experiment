@@ -81,12 +81,13 @@ function getUserMedia(options) {
     navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
 
     navigator.getUserMedia(options.constraints || { audio: true, video: true },
-        function(stream) {
+        function (stream) {
 
-            if (!navigator.mozGetUserMedia) options.video.src = URL.createObjectURL(stream);
-            else options.video.mozSrcObject = stream;
+            if (options.video)
+                if (!navigator.mozGetUserMedia) options.video.src = URL.createObjectURL(stream);
+                else options.video.mozSrcObject = stream;
 
-            options.onsuccess && options.onsuccess  (stream);
+            options.onsuccess && options.onsuccess(stream);
 
             return stream;
         }, options.onerror);

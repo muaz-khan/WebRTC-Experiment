@@ -38,7 +38,8 @@ def openFile(file):
             for line in f:
                 output += line
                 
-        return output
+        return output.replace('{publish_key}', pubKey)\
+               .replace('{subscribe_key}', subKey)
 
 #-----------------------------------------------
 class RulesHandler(webapp2.RequestHandler):
@@ -165,8 +166,8 @@ class WebSocketHandler(webapp2.RequestHandler):
 class BroadcastHandler(webapp2.RequestHandler):
     def get(self):
 
-        Title = 'WebRTC Broadcast Experiment'
-        Description = Title + ': WebRTC video broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast video over many peers. There is no limitation!!!'
+        Title = 'WebRTC Video/Stream Broadcasting'
+        Description = Title + ': WebRTC video/stream broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast video over many peers. There is no limitation!!!'
         Canonical = '/broadcast/'
         
         Common = openFile('common.html')\
@@ -175,6 +176,83 @@ class BroadcastHandler(webapp2.RequestHandler):
                  .replace('{canonical}', Canonical)
         
         Body = openFile('broadcast/WebRTC-Video-Broadcast-Experiment.html')
+
+        turn = self.request.get('turn')
+        if turn:
+            Body = Body.replace('"{stun-turn}"', global_turn)
+        else:
+            Body = Body.replace('"{stun-turn}"', global_stun)
+
+        Body = Body.replace('{publish_key}', pubKey)\
+               .replace('{subscribe_key}', subKey)
+
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
+
+#-----------------------------------------------
+class ScreenBroadcastHandler(webapp2.RequestHandler):
+    def get(self):
+
+        Title = 'WebRTC Screen Broadcasting'
+        Description = Title + ': WebRTC screen broadcasting: Using Chrome Experimental tabCapture APIs to broadcast screen over many peers.'
+        Canonical = '/screen-broadcast/'
+        
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('screen-broadcast/WebRTC-Screen-Broadcasting-Experiment.html')
+
+        turn = self.request.get('turn')
+        if turn:
+            Body = Body.replace('"{stun-turn}"', global_turn)
+        else:
+            Body = Body.replace('"{stun-turn}"', global_stun)
+
+        Body = Body.replace('{publish_key}', pubKey)\
+               .replace('{subscribe_key}', subKey)
+
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
+
+#-----------------------------------------------
+class HowToInstallHandler(webapp2.RequestHandler):
+    def get(self):
+        Title = 'How to install tabCapture extension?'
+        Description = Title + ': This guide explains how to install tabCapture extension on Google Chrome canary to broadcast your screen over many peers.'
+        Canonical = '/screen-broadcast/how-to-install/'
+        
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('screen-broadcast/how-to-install-tabCapture-extension.html')
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
+
+        
+#-----------------------------------------------
+class AudioBroadcastHandler(webapp2.RequestHandler):
+    def get(self):
+
+        Title = 'WebRTC Audio/Voice Broadcasting'
+        Description = Title + ': WebRTC audio/voice broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast video over many peers. There is no limitation!!!'
+        Canonical = '/audio-broadcast/'
+        
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('audio-broadcast/WebRTC-Audio-Broadcast-Experiment.html')
 
         turn = self.request.get('turn')
         if turn:
@@ -208,6 +286,24 @@ class HowHandler(webapp2.RequestHandler):
         
         self.response.out.write(Common)
 
+#-----------------------------------------------
+class StatisticsHandler(webapp2.RequestHandler):
+    def get(self):
+        Title = 'Realtime Statistics'
+        Description = Title + ': Realtime Statistics for all WebRTC Experiments & Demos!'
+        Canonical = '/statistics/'
+        
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('statistics.html')
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
+        
 #-----------------------------------------------        
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
@@ -217,6 +313,10 @@ app = webapp2.WSGIApplication([
     ('/socket.io/', SocketIOHandler),
     ('/websocket/', WebSocketHandler),
     ('/broadcast/', BroadcastHandler),
-    ('/howto/', HowHandler)
+    ('/audio-broadcast/', AudioBroadcastHandler),
+    ('/screen-broadcast/', ScreenBroadcastHandler),
+    ('/screen-broadcast/how-to-install/', HowToInstallHandler),
+    ('/howto/', HowHandler),
+    ('/statistics/', StatisticsHandler)
     ])
         

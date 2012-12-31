@@ -59,9 +59,6 @@
     .visible {}
 </style>
 
-<div id=pubnub ssl=on></div>
-<script src="https://webrtc-experiment.appspot.com/dependencies/socket.io.js"></script>
-
 <table>
     <tr>
         <td>
@@ -75,10 +72,13 @@
         <td>
             <video id="client-video" muted class="hidden"></video>
             <div class="visible">
-                <h1>WebRTC Broadcast Experiment!</h1>
+                <h1>WebRTC Video/Stream Broadcast Experiment!</h1>
                 <blockquote class="slogan">
-                    WebRTC video broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast video over many peers.
+                    WebRTC video/stream broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast video stream over many peers.
                 </blockquote>
+                <a href="https://webrtc-experiment.appspot.com/broadcast/" title="stun:stun.l.google.com:19302">STUN</a>
+                » <a href="https://webrtc-experiment.appspot.com/broadcast/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">TURN</a>
+                » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/broadcast">Source</a>
             </div>
         </td>
     </tr>
@@ -121,7 +121,7 @@
 </table>
 
 <section class="plusone-gplus">
-    <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
+    <div class="g-plusone"></div>
 </section>
 
 <footer>
@@ -137,7 +137,7 @@
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js"></script>
 
 <script>
-    var iceServers = { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] };
+    var iceServers = null;
     var socket_config = {
         publish_key: 'demo',
         subscribe_key: 'demo',

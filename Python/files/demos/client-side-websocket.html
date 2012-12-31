@@ -7,7 +7,10 @@
 
 <style>@font-face { font-family: 'Open Sans'; font-style: normal; font-weight: 300; src: local('Open Sans Light'), local('OpenSans-Light'), url(/images/font.woff) format('woff'); } html { background: #ECECEC; font-family: 'Open Sans'; } body { color: #333; font: 1.4em 'Open Sans' , arial, sans-serif; font-weight: 300; line-height: 1.5; margin: 0 3em; background: white; border: 1px dotted #BBA9A9; border-top: 0; } h1, h2 { color: #2778ec; font-size: 1.6em; font-weight: 300; line-height: 1.15; }  a { display: inline-block; padding: 0.2em; color: #1B75C9; text-decoration: none; border-bottom: 1px dotted #0085FF; margin: 0 .2em; } a:hover { color: red; }</style>
 
-<a href="/" style="position: absolute;background: white;display: block; padding: 5px 10px;z-index: 100;">← Go back to WebRTC Experiments Homepage!</a>
+<div style="position: absolute;background: white;display: block; padding: 5px 10px;z-index: 100;">
+    <a href="/">Home</a>
+    » <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-websocket.html">Source Code</a>
+</div>
 <link rel="prefetch" href="/">
 
 <script>
@@ -200,3 +203,7 @@
         });
     }
 </script>
+<div id=pubnub ssl=on></div>
+<script src="/dependencies/socket.io.js"></script>
+<script src="/dependencies/common.js"></script>
+<script src="https://smart-ip.net/geoip-json?callback=getInfo"></script>

@@ -1,4 +1,4 @@
-﻿global.defaultChannel = 'WebRTC Experiments Room';
+﻿global.defaultChannel = 'WebRTC video Broadcast';
 
 /* container: contains videos from all participants */
 var participants = $('#participants').css('max-height', (innerHeight - 100) + 'px');
