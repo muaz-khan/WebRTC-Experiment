@@ -9,6 +9,8 @@
             <h1>Welcome to Realtime Statistics!</h1>
             <blockquote class="slogan">
                 Realtime Statistics for all WebRTC Experiments & Demos!
+                <br />
+                <a href="#" id="history">View History</a>
             </blockquote>
         </td>
     </tr>
@@ -58,16 +60,34 @@
 
         socket.on('message', function (data) {
             if (!data.url) return;
+            prepend(data);
+        });
+
+        function prepend(data) {
             var TR = document.createElement('tr');
             TR.innerHTML += TD(data.countryName);
             TR.innerHTML += TD(data.city);
             TR.innerHTML += TD('<a href="' + data.url + '">' + data.title + '</a>');
 
             statistics.insertBefore(TR, statistics.firstChild);
-        });
+        }
 
         function TD(value) {
             return '<td>' + value + '</td>';
         }
+        window.socket = socket;
+
+
+        document.getElementById('history').onclick = function () {
+            var element = this;
+            element.style.color = 'gray';
+            socket.history({}, function (response) {
+                var data = response[0];
+                for (var i = 0; i < data.length; i++) {
+                    prepend(data[i].data);
+                }
+                element.style.color = '#1B75C9';
+            });
+        };
     })();
 </script>

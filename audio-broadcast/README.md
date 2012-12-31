@@ -2,9 +2,11 @@
 
 --
 
-[WebRTC Experiments](https://webrtc-experiment.appspot.com) using WebSocket, Socket.io and XHR for signaling. Also screen, video and audio broadcasting experiments!
+[WebRTC voice/audio broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/) experiment.
 
-[WebRTC voice/audio broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/) experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast your voice over many peers.
+Note: It works only on Google Chrome Canary.
+
+Broadcasting is not working...you can enjoy one to one (voice only) talk!
 
 ## Preview / Demos / Experiments
 
@@ -18,17 +20,13 @@
 
 If you're new to WebRTC; following demos are for you!
 
-* [A realtime browswer only experiment](https://webrtc-experiment.appspot.com/demos/client-side.html) - no server for signalling!
-* [A realtime browswer only experiment using socket.io](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) - no server for signalling!
-* [A realtime browswer only experiment using WebSocket](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) - no server for signalling!
+* [Runs in only one tab; uses JavaScript variables directly for signalling.](https://webrtc-experiment.appspot.com/demos/client-side.html) - no server for signalling!
+* [Runs in only one tab; uses socket.io for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) - no server for signalling!
+* [Runs in only one tab; uses WebSocket for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) - no server for signalling!
 
 ##Credits
 
 * [Muaz Khan](http://github.com/muaz-khan)!
-
-##Browsers
-
-It works fine on Google Chrome Stable 26 and upper.
 
 Remember: Don't forget to check: [How to use RTCPeerConnection.js? A short guide](https://webrtc-experiment.appspot.com/howto/)
 
@@ -39,4 +37,4 @@ Remember: Don't forget to check: [How to use RTCPeerConnection.js? A short guide
 * [STUN Server at Wikipedia!](http://en.wikipedia.org/wiki/STUN)
 
 ## License
-Copyright (c) 2012 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.
+Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.

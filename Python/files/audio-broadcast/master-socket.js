@@ -36,8 +36,8 @@ function openSocket(channel) {
         /* inner variable stores firstPart and secondPart of the answer SDP sent by the participant */
         inner = {},
         
-        /* unique remote video from participant */
-        video,
+        /* unique remote audio from participant */
+        audio,
 
         /* Amazing situation!....in the same broadcasted room; one or more peers can create peer connections
         *  using opus codec; while other peers can use some other codec. Everything is working fine! */
@@ -61,19 +61,20 @@ function openSocket(channel) {
             isopus: isopus
         };
 
-        /* unique peer got video from participant; */
-        video = document.createElement('audio');
-        video.css('-webkit-transform', 'rotate(0deg)');
-		video.autoplay =true;
-		video.controls = true;
-		
-		video.addEventListener('play', function () {
-                this.muted = false;
-                this.volume = 1;
-			}, false);
+        /* unique peer got audio from participant; */
+        audio = document.createElement('audio');
+        audio.css('-webkit-transform', 'rotate(0deg)');
+        audio.autoplay = true;
+		audio.controls = true;
 
-        /* and added in the "participants" video list: <td id="participants"></td> */
-        participants.appendChild(video, participants.firstChild);
+		audio.addEventListener('play', function () {
+		    this.muted = false;
+		    this.volume = 1;
+		}, false);
+		
+
+        /* and added in the "participants" audio list: <td id="participants"></td> */
+        participants.appendChild(audio, participants.firstChild);
 
         /* unique peer connection opened */
         peer = RTCPeerConnection(config);
@@ -123,27 +124,18 @@ function openSocket(channel) {
             });
         }
 
-        if (response.end) video && participants.removeChild(video);
+        if (response.end) audio && participants.removeChild(audio);
     }
 
     /* sub socket got stream */
-    function gotstream(event, recheck) {
+    function gotstream(event) {
         if (event) {
-            if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(event.stream);
-            else video.mozSrcObject = event.stream;
+            if (!navigator.mozGetUserMedia) audio.src = URL.createObjectURL(event.stream);
+            else audio.mozSrcObject = event.stream;
 
-            video.play();
-
-            gotstream(null, true);
-        }
-
-        if (recheck) {
-            if (!(video.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || video.paused || video.currentTime <= 0)) {
-                isGotRemoteStream = true;
-
-                video.css('-webkit-transform', 'rotate(360deg)');
-
-            } else setTimeout(function () { gotstream(null, true); }, 50);
+            isGotRemoteStream = true;
+            audio.css('-webkit-transform', 'rotate(360deg)');
+            audio.play();
         }
     }
 }

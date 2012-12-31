@@ -1,16 +1,16 @@
 ﻿/* client video + capture client camera */
-var clientVideo = $('#client-video');
+var audio = $('#client-audio');
 function captureCamera(callback) {
     getUserMedia({
-        video: clientVideo,
+        video: audio,
 		constraints: { audio: true, video: false },
         onsuccess: function (stream) {
             global.clientStream = stream;
 
-            clientVideo.show().play();
+            audio.show().play();
             
             setTimeout(function() {
-                clientVideo.css('-webkit-transform', 'rotate(360deg)');
+                audio.css('-webkit-transform', 'rotate(360deg)');
             }, 1000);
 
             $('.visible', true).hide();

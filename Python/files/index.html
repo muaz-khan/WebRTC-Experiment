@@ -25,15 +25,15 @@
     </tr>
     <tr>
         <td colspan="2">
-            <h2>WebRTC Screen Broadcasting!</h2>
+            <h2>Screen Broadcasting!</h2>
             <blockquote>
-                WebRTC screen broadcasting: Using Chrome Experimental tabCapture APIs to broadcast screen over many peers.
+                WebRTC screen broadcasting: using Chrome experimental <span style="color:Red;">tabCapture</span> APIs to <span style="color:Red;">broadcast screen over many peers</span>.
             </blockquote>
             <blockquote>
                 You need to <a href="http://muazkh.googlecode.com/files/webrtc-screen-broadcast.zip">download extension</a> (in ZIP format) if you want to broadcast your screen. To join any broadcasted screen; you don't need to download ZIP file.
             </blockquote>
             <blockquote>
-                Note: this experimental chrome extension only works with latest Google Chrome Canary.
+                <span style="color:Red">Note:</span> <a href="http://muazkh.googlecode.com/files/webrtc-screen-broadcast.zip">This experimental chrome extension</a> only works on Google Chrome Canary.
             </blockquote>
             <section>
                 <a href="/screen-broadcast/" title="stun:stun.l.google.com:19302">Try STUN</a>
@@ -47,7 +47,7 @@
         <td>
             <h2>WebRTC Video Broadcasting!</h2>
             <blockquote>
-                WebRTC video stream broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast video stream over many peers.
+                Broadcast video stream over many peers!
             </blockquote>
             <section>
                 <a href="/broadcast/" title="stun:stun.l.google.com:19302">Try STUN</a>
@@ -59,11 +59,9 @@
         <td>
             <h2>WebRTC Audio Broadcasting!</h2>
             <blockquote>
-                WebRTC voice/audio broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast your voice over many peers.
+                <span style="color:Red;">Note:</span> It works only on Google Chrome Canary.
             </blockquote>
-            <blockquote>
-                Note: It works only on Google Chrome Canary.
-            </blockquote>
+            <span style="color:Red;">Broadcasting is not working...you can enjoy one to one (voice only) talk!</span>
             <section>
                 <a href="/audio-broadcast/" title="stun:stun.l.google.com:19302">Try STUN</a>
                 » <a href="/audio-broadcast/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">Try TURN</a>
@@ -75,13 +73,7 @@
         <td>
             <h2>WebRTC Experiment using WebSocket!</h2>
             <blockquote>
-                This experiment is using WebSocket over PubNub for signaling!
-            </blockquote>
-            <blockquote>
-                The specialty of PubNub oriented WebSocket implementation is that it doesn't require any server side installation or work. You just need an HTML editor and a web browser!
-            </blockquote>
-            <blockquote>
-                What you need to understand is the only JavaScript!
+                WebSocket over PubNub for signaling!
             </blockquote>
             <section>
                 <a href="/websocket/" title="stun:stun.l.google.com:19302">Try STUN</a>
@@ -90,15 +82,9 @@
             </section>
         </td>
         <td>
-            <h2>
-                WebRTC Experiment using Pubnub!</h2>
+            <h2>WebRTC Experiment using Pubnub!</h2>
             <blockquote>
-                WebRTC Experiment that uses Pubnub modern JavaScript APIs for signaling to make a realtime handshake! It
-                is reliable and faster as compare to traditional XHR model!
-            </blockquote>
-            <blockquote>
-                You can say it JavaScript only WebRTC Experiment because you don't need to understand
-                any server side language or technology. Even you don't need to worry about server.
+                Uses Pubnub modern JavaScript APIs for signaling!
             </blockquote>
             <section>
                 <a href="/javascript/" title="stun:stun.l.google.com:19302">Try STUN</a>
@@ -111,13 +97,7 @@
         <td colspan="2">
             <h2>WebRTC Experiment using socket.io!</h2>
             <blockquote>
-                This experiment is using Socket.io over PubNub for signaling! 
-            </blockquote>
-            <blockquote>
-                The specialty of PubNub oriented Socket.io implementation is that it doesn't require a Node.JS backend also it supports multiplexing!
-            </blockquote>
-            <blockquote>
-                What you need to understand is the only JavaScript!
+                socket.io over PubNub for signaling! 
             </blockquote>
             <section>
                 <a href="/socket.io/" title="stun:stun.l.google.com:19302">Try STUN</a>
@@ -129,12 +109,9 @@
     <tr>        
         <td>
             <h2>
-                WebRTC Experiment using XHR and ASP.NET MVC!</h2>
+                XHR and ASP.NET MVC!</h2>
             <blockquote>
-                WebRTC Experiment that uses JSON/XHR model for signaling!
-            </blockquote>
-            <blockquote>
-                Although, it is easy and most convenient model; however it is not a reliable method!
+                This experiment uses JSON model for signaling!
             </blockquote>
             <section>
                 <a href="/aspnet-mvc/" title="stun:stun.l.google.com:19302">Try STUN</a>
@@ -145,7 +122,7 @@
         <td>
             <h2>Simple client side experiment using WebSocket</h2>
             <blockquote>
-                A client side WebRTC experiment/demo using WebSocket over PubNub! It is simple. It is included here for newcomers who are interested to learn WebRTC from demos!
+                Runs in only one tab; uses WebSocket for signalling.
             </blockquote>
             <section>
                 <a href="/demos/client-side-websocket.html">Preview</a>
@@ -158,7 +135,7 @@
         <td>
             <h2>Simple client side experiment</h2>
             <blockquote>
-                A client side WebRTC experiment/demo. It is simple. It is included here for newcomers who are interested to learn WebRTC from demos!
+                Runs in only one tab; uses JavaScript variables directly for signalling.
             </blockquote>
             <section>
                 <a href="/demos/client-side.html">Preview</a>
@@ -168,7 +145,7 @@
         <td>
             <h2>Simple client side experiment using socket.io</h2>
             <blockquote>
-                A client side WebRTC experiment/demo using socket.io over pubnub! It is simple. It is included here for newcomers who are interested to learn WebRTC from demos!
+                Runs in only one tab; uses socket.io for signalling.
             </blockquote>
             <section>
                 <a href="/demos/client-side-socket-io.html">Preview</a>

@@ -40,50 +40,20 @@ function sendice(candidate, socket) {
 function gotstream(event, recheck) {
 
     if (event) {
+        if (!navigator.mozGetUserMedia) audio.src = URL.createObjectURL(event.stream);
+        else audio.mozSrcObject = event.stream;
 
-        var video = document.createElement('audio');
-        video.src = webkitURL.createObjectURL(global.clientStream);
-		video.autoplay =true;
-		video.controls = true;
-        video.play();
-		
-		video.addEventListener('play', function () {
-                this.muted = true;
-                this.volume = 0;
-                console.log('remote video as client >> Unmuting and setting volume to max level');
-            }, false);
+        audio.addEventListener('play', function () {
+            this.muted = false;
+            this.volume = 1;
+        }, false);
 
-        participants.appendChild(video, participants.firstChild);
-
-        clientVideo.pause();
-
-        if (!navigator.mozGetUserMedia) clientVideo.src = URL.createObjectURL(event.stream);
-        else clientVideo.mozSrcObject = event.stream;
-
-        
-        clientVideo.play();
-		
-		clientVideo.addEventListener('play', function () {
-                this.muted = false;
-                this.volume = 1;
-                console.log('client video as remote >> Unmuting and setting volume to max level');
-            }, false);
-
-        gotstream(null, true);
-    }
-
-    if (recheck) {
-        if (!(clientVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || clientVideo.paused || clientVideo.currentTime <= 0)) {
-            finallyGotStream();
-        } else
-            setTimeout(function() {
-                gotstream(null, true);
-            }, 500);
+        finallyGotStream();
     }
 }
 
 function finallyGotStream() {
-    clientVideo.css('-webkit-transform', 'rotate(0deg)');
+    audio.css('-webkit-transform', 'rotate(0deg)');
     global.isGotRemoteStream = true;
 	
 	console.log('successfully got remote stream');
