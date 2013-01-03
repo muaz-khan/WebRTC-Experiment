@@ -1,4 +1,173 @@
-﻿<style>
+﻿<!-- Muaz Khan ( @muazkh ) : github.com/muaz-khan -->
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <meta itemprop="image" content="https://muazkh.appspot.com/images/WebRTC.png">
+
+        <title>How to use RTCPeerConnection.js? (v1.1) ® Muaz Khan</title>
+        <meta name="description" content="How to use RTCPeerConnection.js? (v1.1) WebRTC Guide: This guide explains 'How to write WebRTC code?'....'How to order WebRTC code'....'How to use RTCPeerConnection.js'....the easiest way to learn and use WebRTC!">
+    
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <meta name="author" content="Muaz Khan">
+        <meta name="copyright" content="© Muaz Khan, 2013">
+        <style>
+            @font-face {
+                font-family: 'Open Sans';
+                font-style: normal;
+                font-weight: 300;
+                src: local('Open Sans Light'), local('OpenSans-Light'), url(/images/font.woff) format('woff');
+            }
+            * {
+                margin: 0;
+                padding: 0;
+                font-family: 'Open Sans';
+                -moz-transition: all .8s ease;
+                -ms-transition: all .8s ease;
+                -o-transition: all .8s ease;
+                -webkit-transition: all .8s ease;
+            }
+            html
+            {
+                background: #ECECEC;
+                overflow-x:hidden;
+            }
+
+            body {
+                color: #333;
+                font: 1.4em 'Open Sans', arial, sans-serif;
+                font-weight: 300;
+                line-height: 1.5;
+                margin: 0 3em;
+                background: white;
+                border: 1px dotted #BBA9A9;
+                border-top: 0;
+            }
+
+            h1, h2 {
+                color: #2778ec;
+                font-size: 1.6em;
+                font-weight: 300;
+                line-height: 1.15;
+            }
+
+            .logo img
+            {
+                border-radius: 50%; 
+                box-shadow: 0 0 5px black, 0 0 5px black, 0 0 5px black, 0 0 5px black, 0 0 5px black;
+            }
+
+            blockquote
+            {
+                margin-bottom: 1em;
+            }
+            tr, td, th
+            {
+                vertical-align: top;
+                padding: .7em 1.4em;
+                border-top: 1px dotted #BBA9A9;
+                border-right: 1px dotted #BBA9A9;
+            }
+
+            @media screen and (max-width: 770px) {
+                body { margin: 0 .1em;font-size: 1em; }
+                tr, td{padding: .1em .4em;}
+            }
+
+            a
+            {
+                display: inline-block;
+                padding: 0.2em;
+                color: #1B75C9;
+                text-decoration: none;
+                border-bottom: 1px dotted #0085FF;
+                margin: 0 .2em;
+            }
+            a.logo
+            {
+                background: url(/images/right-arrow.gif) no-repeat left center;
+                padding-left: 1.5em;
+            }
+            a:hover
+            {
+                color:red;
+            }
+            footer
+            {
+                text-align: center;
+            }
+            .g-plusone { position: static;}
+            .plusone-gplus
+            {
+                top: 4.2em;
+                margin-left: -1.7em;
+                position: absolute;
+            }
+            .fork-webrtc-experiment
+            {
+                border:0;
+                outline:0;
+                display: inline;
+            }
+            .fork-webrtc-experiment img
+            {
+                position: absolute;
+                right: 3em;
+            }
+            .log {
+                position: absolute;
+                right: 7em;
+                left: 3.1em;
+                padding: .2em 1em;
+                background: rgba(255, 255, 255, 0.87);
+                border-bottom: 1px dotted #BBA9A9;
+                color: red;
+                display: none;
+            }
+            details {
+                position: absolute;
+                z-index: 1000;
+                background: white;
+                cursor: pointer;
+                border-right: 1px dotted #BBA9A9;
+                border-bottom: 1px dotted #BBA9A9;
+            }
+            details:hover {
+                color: red;
+            }
+            summary {
+                padding: 0 .4em;
+                -webkit-user-select: none;
+            }
+            details a { display: block;}
+            .contact
+            {
+                position: absolute;
+                right: 8em;
+                border: 0;
+                color: red;
+            }
+            .contact:hover{color:#BD0707;}
+        </style>
+    </head>
+    <body>
+        <div id=pubnub ssl=on></div>
+        <script src="/dependencies/socket.io.js"></script>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-webrtc-experiment" target="_blank"><img src="/images/fork-webrtc-experiment.png" alt="Fork WebRTC Experiment"></a>
+        <a href="/issues-messages-requests-feedback-contact/" class="contact" title="Bugs/Errors/Issues, Requests/Suggestions/Feedbacks, and Contact!">Have any message for Muaz Khan?</a>
+        <details>
+            <summary>:</summary>
+            <dl>
+                <dt>
+                    <a href="/" style="display: inline;">Home</a>
+                </dt>
+            </dl>
+        </details>
+        
+		<style>
     strong { font-weight: inherit;color: red;}
     ol{ margin-left: 3em;}
     code, pre, pre strong, code strong { font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;}
@@ -12,29 +181,22 @@
             </a>
         </td>
         <td>
-            <h1>How to use <a href="/RTCPeerConnection.js">RTCPeerConnection.js</a>?</h1>
+            <h1>How to use <a href="/lib/RTCPeerConnection-v1.1.js">RTCPeerConnection.js</a>?</h1>
             <blockquote class="slogan">
-                This guide explains "<strong>how to</strong> use <a href="/RTCPeerConnection.js">RTCPeerConnection.js</a>". Also <a href="#socket-io">How to create a realtime WebRTC app?</a>
+                This guide explains "<strong>how to</strong> use <a href="/lib/RTCPeerConnection-v1.1.js">RTCPeerConnection.js</a>". Also <a href="#socket-io">How to create a realtime WebRTC app?</a>
             </blockquote>
         </td>
     </tr>
 </table>
 
 <table>
-	<tr>
-		<td>
-			<blockquote style="color:red;text-align:center;">
-				<strong>Note</strong>: Latest version of this document (v1.1) is <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">available here</a>.
-			</blockquote>
-		</td>
-	</tr>
     <tr>
         <td>
             <blockquote>
                 First of all; you need to reference it:
             </blockquote>
             <code>
-                &lt;script src="<strong>https://webrtc-experiment.appspot.com/RTCPeerConnection.js</strong>"&gt;&lt;/script&gt;
+                &lt;script src="<strong>https://webrtc-experiment.appspot.com/lib/RTCPeerConnection-v1.1.js</strong>"&gt;&lt;/script&gt;
             </code>
         </td>
     </tr>
@@ -54,18 +216,26 @@
         <td>
             <h2>Offerer</h2>
             <blockquote>
-                Now assume that you are creating "<strong>offer</strong>"...you need to use this code to create <strong>offer sdp</strong>:
+                Now assume that you are creating "<strong>offerSDP</strong>"...you need to use this code to create <strong>offer sdp</strong>:
             </blockquote>
             <pre>
 var peer = <strong>RTCPeerConnection</strong>({
-    <strong>iceServers</strong> : { "iceServers": [{ "url": "<strong>turn:webrtc%40live.com@numb.viagenie.ca</strong>", 
+    <strong title="optional">iceServers</strong> 	: { "iceServers": [{ "url": "<strong>turn:webrtc%40live.com@numb.viagenie.ca</strong>", 
                                     "credential": "<strong>muazkh</strong>" }] },
-    <strong>stream</strong>     : clientStream,
-    <strong>isopus</strong>     : window.isopus,
+    <strong title="required">attachStream</strong>	: clientStream,
+    <strong title="optional">isopus</strong>     		: window.isopus,
 
-    <strong>getice</strong>     : function (candidate) {},
-    <strong>gotstream</strong>  : function (event) {},
-    <strong>onoffer</strong>    : function(sdp) {}
+    <strong title="required">onICE</strong>     		: function (candidate) {},
+    <strong title="optional">onRemoteStream</strong>  	: function (stream) {},
+    <strong title="required">onOfferSDP</strong>    	: function(sdp) {}
+});
+
+<span class="comment">// You can JUST write like this</span>
+var peer = <strong>RTCPeerConnection</strong>({
+    <strong title="required">attachStream</strong>	: clientStream,
+    <strong title="required">onICE</strong>     		: function (candidate) {},
+    <strong title="optional">onRemoteStream</strong>  	: function (stream) {},
+    <strong title="required">onOfferSDP</strong>    	: function(sdp) {}
 });
 </pre>
 
@@ -77,7 +247,7 @@ var peer = <strong>RTCPeerConnection</strong>({
                     <strong>iceServers</strong>: by default its value is: <code><strong>{"iceServers": [{ "url": "stun:stun.l.google.com:19302" }]}</strong></code>
                 </li>
                 <li>
-                    <strong>stream</strong>: client stream that you need to share with other peer!
+                    <strong>attachStream</strong>: client stream that you need to share with other peer!
                 </li>
                 <li>
                     <strong>isopus</strong>: this variable takes value from "<code><strong>window.isopus</strong></code>" object from <a href="/RTCPeerConnection-Helpers.js">RTCPeerConnection-Helpers.js</a> file which let him know that both peers support <strong>opus</strong> codec or not.
@@ -85,7 +255,7 @@ var peer = <strong>RTCPeerConnection</strong>({
                 
                 <li>
                     <blockquote>
-                        <strong>getice</strong>: it returns locally generated <strong>ICE</strong> so you can share them with other end.
+                        <strong>onICE</strong>: it returns locally generated <strong>ICE</strong> so you can share them with other end.
                     </blockquote>
                     <blockquote>
                         <strong>candidate</strong> object contains two properties:
@@ -100,10 +270,10 @@ var peer = <strong>RTCPeerConnection</strong>({
                     </blockquote>
                 </li>
                 <li>
-                    <strong>gotstream</strong>: returns event contains <strong>remote stream</strong> attached by other peer.
+                    <strong>onRemoteStream</strong>: returns <strong>remote stream</strong> attached by other peer.
                 </li>
                 <li>
-                    <strong>onoffer</strong>: returns <strong>offer sdp</strong>; so you can send it to other peer to get <strong>answer sdp</strong>.
+                    <strong>onOfferSDP</strong>: returns <strong>offer sdp</strong>; so you can send it to other peer to get <strong>answer sdp</strong>.
                 </li>
             </ol>
             
@@ -114,7 +284,7 @@ var peer = <strong>RTCPeerConnection</strong>({
             </blockquote>
             <blockquote>
                 <code>
-                    peer.<strong>onanswer</strong>( <strong>answer_sdp</strong> );
+                    peer.<strong>addAnswerSDP</strong>( <strong>answer_sdp</strong> );
                 </code>
             </blockquote>
             
@@ -123,9 +293,9 @@ var peer = <strong>RTCPeerConnection</strong>({
             </blockquote>
             <blockquote>
                 <pre>
-peer.<strong>addice</strong>({
-    <strong>sdpMLineIndex</strong> : candidate.<strong>sdpMLineIndex</strong>,
-    <strong>candidate</strong> : candidate.<strong>candidate</strong>
+peer.<strong>addICE</strong>({
+    <strong>sdpMLineIndex</strong> 	: candidate.<strong>sdpMLineIndex</strong>,
+    <strong>candidate</strong> 		: candidate.<strong>candidate</strong>
 });
 </pre>
             </blockquote>
@@ -136,21 +306,19 @@ peer.<strong>addice</strong>({
         <td>
             <h2>Answerer</h2>
             <blockquote>
-                99% process is the same for peer who "<strong>creates answer sdp</strong>"; the only difference is: for that peer you don't need "<code><strong>onoffer</strong></code>" and also you don't need to call "<code><strong>peer.onanswer( answer_sdp );</strong></code>". What extra you need to do is here:
+                99% process is the same for peer who "<strong>creates answer sdp</strong>"; the only difference is: for that peer you don't need "<code><strong>onOfferSDP</strong></code>" and also you don't need to call "<code><strong>peer.addAnswerSDP( answer_sdp );</strong></code>". What extra you need to do is here:
             </blockquote>
             <pre>
 var peer = <strong>RTCPeerConnection</strong>({
-    <strong>iceServers</strong> : { "iceServers": [{ "url": "<strong>turn:webrtc%40live.com@numb.viagenie.ca</strong>", 
-                                    "credential": "<strong>muazkh</strong>" }] },
-    <strong>stream</strong>     : clientStream,
-    <strong>isopus</strong>     : window.isopus,
+    <strong>attachStream</strong>     	: clientStream,
+    <strong>isopus</strong>     		: window.isopus,
 
-    <strong>getice</strong>     : function (candidate) {},
-    <strong>gotstream</strong>  : function (event) {},
+    <strong>onICE</strong>     		: function (candidate) {},
+    <strong>onRemoteStream</strong>  	: function (stream) {},
     
-    <strong>// see below two additions ↓</strong>
-    <strong>offer</strong>      : offer_sdp,
-    <strong>onanswer</strong>   : function(sdp) {}
+    <span class="comment">// see below two additions ↓</span>
+    <strong>offerSDP</strong>      	: offer_sdp,
+    <strong>onAnswerSDP</strong>   	: function(sdp) {}
 });
 </pre>
             <br />
@@ -159,10 +327,10 @@ var peer = <strong>RTCPeerConnection</strong>({
             </blockquote>
             <ol>
                 <li>
-                    <strong>offer</strong>: you need to pass <strong>offer sdp</strong> sent by other peer.
+                    <strong>offerSDP</strong>: you need to pass <strong>offer sdp</strong> sent by other peer.
                 </li>
                 <li>
-                    <strong>onanswer</strong>: returns <strong>answer sdp</strong> so you can send it to other end.
+                    <strong>onAnswerSDP</strong>: returns <strong>answer sdp</strong> so you can send it to other end.
                 </li>
             </ol>
             <br />
@@ -171,9 +339,9 @@ var peer = <strong>RTCPeerConnection</strong>({
             </blockquote>
             <blockquote>
                 <pre>
-peer.<strong>addice</strong>({
-    <strong>sdpMLineIndex</strong> : candidate.<strong>sdpMLineIndex</strong>,
-    <strong>candidate</strong> : candidate.<strong>candidate</strong>
+peer.<strong>addICE</strong>({
+    <strong>sdpMLineIndex</strong> 	: candidate.<strong>sdpMLineIndex</strong>,
+    <strong>candidate</strong> 		: candidate.<strong>candidate</strong>
 });
 </pre>
             </blockquote>
@@ -211,10 +379,10 @@ peer.<strong>addice</strong>({
             </blockquote>
             <pre>
 var socket = io.connect('http://pubsub.pubnub.com/webrtc-app', {
-    <strong>publish_key</strong>: 'demo',
-    <strong>subscribe_key</strong>: 'demo',
-    <strong>ssl</strong>: true,                   <span class="comment">/* <<< for HTTPS */</span>
-    <strong>channel</strong>: 'WebRTC App'
+    <strong>publish_key</strong>		: 'demo',
+    <strong>subscribe_key</strong>	: 'demo',
+    <strong>ssl</strong>			: true,                   <span class="comment">/* <<< for HTTPS */</span>
+    <strong>channel</strong>		: 'WebRTC App'
 });
 
 socket.on('<strong id="onconnect">connect</strong>', onconnect);
@@ -249,8 +417,8 @@ var <span id="foundParticipant">foundParticipant</span> = false;
 function <span id="transmitRequest">transmitRequest</span>()
 {
     socket.send({
-        userID: userID,
-        type: 'request to join'
+        userID	: userID,
+        type	: 'request to join'
     });
 
     <span class="comment">// Transmit "join request" until participant found</span>
@@ -285,9 +453,9 @@ function <strong id="createOffer">createOffer</strong>()
     peer = <strong>RTCPeerConnection</strong>({
 
         <span class="comment">/* function(offer_sdp) {}, */</span>
-        <strong id="onoffer">onoffer</strong>: <a href="#sendOfferSDP">sendOfferSDP</a>,
+        <strong id="onoffer">onOfferSDP</strong>: <a href="#sendOfferSDP">sendOfferSDP</a>,
 
-        <strong id="getice">getice</strong>: function(candidate) {
+        <strong id="onICE">onICE</strong>: function(candidate) {
             socket && socket.<strong>send</strong>({
                 userID: userID,
                 candidate: {
@@ -296,10 +464,10 @@ function <strong id="createOffer">createOffer</strong>()
                 }
             });
         },
-        <strong id="gotstream">gotstream</strong>: function(event) {
-            if(event) video.<strong>src</strong> = <strong>webkitURL.createObjectURL</strong>(<strong>event.stream</strong>);
+        <strong id="onRemoteStream">onRemoteStream</strong>: function(stream) {
+            if(stream) video.<strong>src</strong> = <strong>webkitURL.createObjectURL</strong>(<strong>stream</strong>);
         },
-        <strong id="clientStream">stream</strong>: clientStream,
+        <strong id="clientStream">attachStream</strong>: clientStream,
         <strong id="isopus">isopus</strong>: window.isopus
     });
 }
@@ -342,7 +510,7 @@ function <strong id="processAnswerSDP">processAnswerSDP</strong>(response)
         answerSDP.firstPart = response.firstPart;
         if (answerSDP.secondPart) {
             var <strong>fullSDP</strong> = JSON.parse(answerSDP.<strong>firstPart</strong> + answerSDP.<strong>secondPart</strong>);
-            <strong id="peer-onanswer">peer.onanswer</strong>(fullSDP);
+            <strong id="peer-onanswer">peer.addAnswerSDP</strong>(fullSDP);
         }
     }
     
@@ -350,7 +518,7 @@ function <strong id="processAnswerSDP">processAnswerSDP</strong>(response)
         answerSDP.secondPart = response.secondPart;
         if (answerSDP.firstPart) {
             var <strong>fullSDP</strong> = JSON.parse(answerSDP.<strong>firstPart</strong> + answerSDP.<strong>secondPart</strong>);
-            <strong>peer.onanswer</strong>(fullSDP);
+            <strong>peer.addAnswerSDP</strong>(fullSDP);
         }
     }
 }
@@ -364,13 +532,13 @@ function <strong id="processAnswerSDP">processAnswerSDP</strong>(response)
         </blockquote>
         <ol>
             <li>
-                For answerer, you don't use "<a href="#onoffer">onoffer</a>" instead you use "<a href="#onanswer">onanswer</a>"
+                For answerer, you don't use "<a href="#onoffer">onOfferSDP</a>" instead you use "<a href="#onanswer">onAnswerSDP</a>"
             </li>
             <li>
-                For answerer, you've to pass "<a href="#offer">offer</a>" object containing "<a href="#offer">offer sdp</a>" sent by offerer
+                For answerer, you've to pass "<a href="#offer">offerSDP</a>" object containing "<a href="#offer">offer sdp</a>" sent by offerer
             </li>
             <li>
-                For answerer, you don't need to call "<a href="#peer-onanswer">peer.onanswer</a>" because this function is for "<a href="#offerer">offerer</a>" only.
+                For answerer, you don't need to call "<a href="#peer-onanswer">peer.addAnswerSDP</a>" because this function is for "<a href="#offerer">offerer</a>" only.
             </li>
         </ol>
         <br />
@@ -395,11 +563,11 @@ function <strong id="createAnswer">createAnswer</strong>(<strong>offer_sdp</stro
 {
     peer = <strong>RTCPeerConnection</strong>({
         <span class="comment">/* you need to pass offer sdp sent by offerer */</span>
-        <strong id="offer">offer</strong>: <span title="This value can only be used for peer who creates answer sdp.">offer_sdp</span>,
-        <strong id="onanswer">onanswer</strong>: <a href="#sendOfferSDP" title="same like offerer: only difference is left-hand object">sendAnswerSDP</a>,
-        <strong>getice</strong>: <a href="#getice" title="same like offerer">getice</a>,
-        <strong>gotstream</strong>: <a href="#gotstream" title="same like offerer">gotstream</a>,
-        <strong>stream</strong>: <a href="#clientStream" title="same like offerer">clientStream</a>,
+        <strong id="offer">offerSDP</strong>: <span title="This value can only be used for peer who creates answer sdp.">offer_sdp</span>,
+        <strong id="onanswer">onAnswerSDP</strong>: <a href="#sendOfferSDP" title="same like offerer: only difference is left-hand object">sendAnswerSDP</a>,
+        <strong>onICE</strong>: <a href="#onICE" title="same like offerer">onICE</a>,
+        <strong>onRemoteStream</strong>: <a href="#onRemoteStream" title="same like offerer">onRemoteStream</a>,
+        <strong>attachStream</strong>: <a href="#clientStream" title="same like offerer">clientStream</a>,
         <strong>isopus</strong>: <a href="#isopus" title="same like offerer">window.isopus</a>
     });
 }
@@ -425,7 +593,7 @@ function <a href="#oncallback">oncallback</a>(response)
 </pre>
 
         <blockquote>
-            Remember: you don't need to call "<a href="#peer-onanswer">peer.onanswer(fullSDP);</a>" instead call "<a href="#createAnswer">createAnswer</a>" like this:
+            Remember: you don't need to call "<a href="#peer-onanswer">peer.addAnswerSDP(fullSDP);</a>" instead call "<a href="#createAnswer">createAnswer</a>" like this:
         </blockquote>
 
         <pre>
@@ -433,7 +601,7 @@ function <a href="#oncallback">oncallback</a>(response)
 </pre>
         <br />
         <blockquote>
-            You MUST get <a href="#clientStream">client stream</a> before creating <a href="#createOffer">offer</a> or <a href="#createAnswer">answer</a>.
+            You MUST get <a href="#clientStream">client stream</a> before creating <a href="#createOffer">offerSDP</a> or <a href="#createAnswer">answer</a>.
         </blockquote>
 
         </td>
@@ -462,7 +630,7 @@ function <a href="#oncallback">oncallback</a>(response)
 
 var socket = new <strong>WebSocket</strong>('<strong>wss://pubsub.pubnub.com/demo/demo/webrtc-app</strong>');
 socket.<strong>onmessage</strong> = <a href="#onconnect">onconnect</a>;
-socket.<strong>onopen</strong> = function(event)
+socket.<strong>onopen</strong> = function(stream)
 {
     <a href="#oncallback">oncallback</a>(event.<strong>data</strong>);
 };
@@ -479,9 +647,15 @@ socket.<strong>onopen</strong> = function(event)
 </section>
 <footer>
     <a href="/">Home</a>
-    © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}
+    © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, 2013
     » <a href="mailto:muazkh@gmail.com">Email</a>
     » <a href="http://twitter.com/muazkh">@muazkh</a>
     » <a href="https://github.com/muaz-khan">Github</a>
     » <a href="https://plus.google.com/106306286430656356034/posts">Google+</a>
 </footer>
+		
+		
+		<script src="/dependencies/common.js"></script>
+		<script src="https://smart-ip.net/geoip-json?callback=getInfo"></script>
+    </body>
+</html>

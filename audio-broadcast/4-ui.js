@@ -19,7 +19,6 @@ function captureCamera(callback) {
         },
         onerror: function () {
             alert('Two possible situations: 1) another window is using your webcam, or 2) you\'ve not allowed you camera. Webcam is mandatory of this app!');
-            location.reload();
         }
     });
 }

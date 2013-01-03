@@ -1,10 +1,11 @@
 {
 	"name" : "ScreenBroadcast",
-	"version" : "1.0",
+	"version" : "1.2",
 	"manifest_version" : 2,
 	"description" : "Screen Broadcasting using WebRTC! - Muaz Khan",
+	"options_page": "extras/options.html",
 	"background": {
-		"scripts": ["broadcaster.js"],
+		"scripts": ["socket.io.js", "RTCPeerConnection.js", "original.js", "broadcaster.js"],
 		"persistent": false
 	},
 	"browser_action" : {
@@ -19,6 +20,9 @@
 		"128": "images/tabCapture128.png"
 	},
 	"permissions": [
-		"tabCapture"
+		"tabCapture", "notifications", "contextMenus"
+	],
+	"web_accessible_resources": [
+		"images/tabCapture48.png"
 	]
-  }
+}
