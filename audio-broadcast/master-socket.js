@@ -6,7 +6,7 @@ function masterSocket(channel, onopen) {
 
     /* if private broadcasted room; unique channel will be passed */
     socket_config.channel = channel || global.defaultChannel;
-    socket.master = io.connect('http://pubsub.pubnub.com/webrtc-experiment', socket_config);
+    socket.master = io.connect('https://pubsub.pubnub.com/webrtc-experiment', socket_config);
 
     socket.master.on('connect', connect);
     socket.master.on('message', callback);
@@ -45,7 +45,7 @@ function openSocket(channel) {
 
     /* here channel === unique token of the participant (global.userToken -> of the participant) */
     socket_config.channel = channel;
-    var socket = io.connect('http://pubsub.pubnub.com/webrtc-experiment', socket_config);
+    var socket = io.connect('https://pubsub.pubnub.com/webrtc-experiment', socket_config);
 
     socket.on('connect', opened);
     socket.on('message', callback);

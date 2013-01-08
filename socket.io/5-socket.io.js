@@ -5,7 +5,7 @@ var pubnub = { channel: global.defaultChannel };
 var socket;
 pubnub.init = function (pub) {
     socket_config.channel = pubnub.channel;
-    socket = io.connect('http://pubsub.pubnub.com/webrtc-experiment', socket_config);
+    socket = io.connect('https://pubsub.pubnub.com/webrtc-experiment', socket_config);
 
     socket.on('connect', pub.connect);
     socket.on('message', pub.callback);

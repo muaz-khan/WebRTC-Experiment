@@ -2,6 +2,7 @@
     strong { font-weight: inherit;color: red;}
     ol{ margin-left: 3em;}
     code, pre, pre strong, code strong { font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;}
+    .comment {color: #0E59DD;font-family: inherit;}
 </style>
 <table>
     <tr>
@@ -13,13 +14,20 @@
         <td>
             <h1>How to use <a href="/RTCPeerConnection.js">RTCPeerConnection.js</a>?</h1>
             <blockquote class="slogan">
-                This short guide explains "<strong>how to</strong> use <a href="/RTCPeerConnection.js">RTCPeerConnection.js</a>".
+                This guide explains "<strong>how to</strong> use <a href="/RTCPeerConnection.js">RTCPeerConnection.js</a>". Also <a href="#socket-io">How to create a realtime WebRTC app?</a>
             </blockquote>
         </td>
     </tr>
 </table>
 
 <table>
+	<tr>
+		<td>
+			<blockquote style="color:red;text-align:center;">
+				<strong>Note</strong>: Latest version of this document (v1.1) is <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">available here</a>.
+			</blockquote>
+		</td>
+	</tr>
     <tr>
         <td>
             <blockquote>
@@ -56,7 +64,7 @@ var peer = <strong>RTCPeerConnection</strong>({
     <strong>isopus</strong>     : window.isopus,
 
     <strong>getice</strong>     : function (candidate) {},
-    <strong>gotstream</strong>  : function (stream) {},
+    <strong>gotstream</strong>  : function (event) {},
     <strong>onoffer</strong>    : function(sdp) {}
 });
 </pre>
@@ -92,7 +100,7 @@ var peer = <strong>RTCPeerConnection</strong>({
                     </blockquote>
                 </li>
                 <li>
-                    <strong>gotstream</strong>: returns <strong>remote stream</strong> attached by other peer.
+                    <strong>gotstream</strong>: returns event contains <strong>remote stream</strong> attached by other peer.
                 </li>
                 <li>
                     <strong>onoffer</strong>: returns <strong>offer sdp</strong>; so you can send it to other peer to get <strong>answer sdp</strong>.
@@ -138,7 +146,7 @@ var peer = <strong>RTCPeerConnection</strong>({
     <strong>isopus</strong>     : window.isopus,
 
     <strong>getice</strong>     : function (candidate) {},
-    <strong>gotstream</strong>  : function (stream) {},
+    <strong>gotstream</strong>  : function (event) {},
     
     <strong>// see below two additions ↓</strong>
     <strong>offer</strong>      : offer_sdp,
@@ -186,6 +194,283 @@ peer.<strong>addice</strong>({
                     Before creating answer; you MUST not add any ICE sent by other peer.
                 </li>
             </ol>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <h2 id="socket-io">How to write a realtime WebRTC app using socket.io?</h2>
+            <blockquote id="socket-io-reference">
+                First of all; you need to reference <a href="/dependencies/socket.io.js">socket.io.js</a>:
+            </blockquote>
+            <pre>
+    &lt;script src="<strong>https://webrtc-experiment.appspot.com/dependencies/socket.io.js</strong>"&gt;&lt;/script&gt;
+</pre>
+            <br />
+            <blockquote>
+                Now, open socket and transmit your request (e.g. room) until a participant found:
+            </blockquote>
+            <pre>
+var socket = io.connect('http://pubsub.pubnub.com/webrtc-app', {
+    <strong>publish_key</strong>: 'demo',
+    <strong>subscribe_key</strong>: 'demo',
+    <strong>ssl</strong>: true,                   <span class="comment">/* <<< for HTTPS */</span>
+    <strong>channel</strong>: 'WebRTC App'
+});
+
+socket.on('<strong id="onconnect">connect</strong>', onconnect);
+socket.on('<strong id="oncallback">message</strong>', oncallback);
+
+<span class="comment">/* socket is opened: it is your time to transmit request! */</span>
+function onconnect() {}
+
+<span class="comment">/* got response */</span>
+function oncallback(response) {}
+</pre>
+            <br />
+            <blockquote>
+                Above code is same for both: <strong>offerer</strong> and <strong>answerer</strong>.
+            </blockquote>
+            <h2 id="offerer">Offerer</h2>
+            <blockquote>
+                Now, assume that it is "<strong>offerer</strong>" who transmits request for participant to join him. He will not create "<strong>offer sdp</strong>" until he receive "<strong>join request</strong>" from his participant.
+            </blockquote>
+            <blockquote>
+                Following code is for <strong>offerer</strong> (95% part of this code can be used for <a href="#answerer">Answerer</a>):
+            </blockquote>
+            <pre>
+function <a href="#onconnect">onconnect</a>()
+{
+    <a href="#transmitRequest">transmitRequest();</a>
+}
+
+var <span id="userID">userID</span> = 'offerer';             <span class="comment">/* unique ID to identify this user */</span>
+var <span id="foundParticipant">foundParticipant</span> = false;
+
+function <span id="transmitRequest">transmitRequest</span>()
+{
+    socket.send({
+        userID: userID,
+        type: 'request to join'
+    });
+
+    <span class="comment">// Transmit "join request" until participant found</span>
+    !<a href="#foundParticipant">foundParticipant</a> && setTimeout(<a href="#transmitRequest">transmitRequest</a>, 1000);
+}
+
+function <a href="#oncallback">oncallback</a>(response) 
+{
+    <span class="comment">// Don't get his own messages</span>
+    if(response.userID == <a href="#userID">userID</a>) return;
+
+    <span class="comment">// if participant found</span>
+    if(response.<strong id="participant">participant</strong>)
+    {
+        <a href="#foundParticipant">foundParticipant</a> = true;
+
+        <span class="comment">// create offer and send him <strong>offer sdp</strong></span>
+        <a href="#createOffer">createOffer();</a>
+    }
+
+    <span class="comment">// answer sdp sent to you: complete handshake</span>
+    if(response.<strong>firstPart</strong> || response.<strong>secondPart</strong>)
+    {
+        <a href="#processAnswerSDP">processAnswerSDP(response);</a>
+    }
+}
+
+var peer;
+
+function <strong id="createOffer">createOffer</strong>()
+{
+    peer = <strong>RTCPeerConnection</strong>({
+
+        <span class="comment">/* function(offer_sdp) {}, */</span>
+        <strong id="onoffer">onoffer</strong>: <a href="#sendOfferSDP">sendOfferSDP</a>,
+
+        <strong id="getice">getice</strong>: function(candidate) {
+            socket && socket.<strong>send</strong>({
+                userID: userID,
+                candidate: {
+                    <strong>sdpMLineIndex</strong>: candidate.<strong>sdpMLineIndex</strong>,
+                    <strong>candidate</strong>: JSON.stringify(candidate.<strong>candidate</strong>)
+                }
+            });
+        },
+        <strong id="gotstream">gotstream</strong>: function(event) {
+            if(event) video.<strong>src</strong> = <strong>webkitURL.createObjectURL</strong>(<strong>event.stream</strong>);
+        },
+        <strong id="clientStream">stream</strong>: clientStream,
+        <strong id="isopus">isopus</strong>: window.isopus
+    });
+}
+
+<span class="comment">// send offer sdp </span>
+function <strong id="sendOfferSDP">sendOfferSDP</strong>(sdp)
+{
+    var sdp = <strong>JSON.stringify</strong>(sdp);
+
+    <span class="comment">/* because sdp size is larger than what pubnub supports for single request...
+    /* that's why it is splitted in two parts */</span>
+    var <strong>firstPart</strong> = sdp.substr(0, 700),
+        <strong>secondPart</strong> = sdp.substr(701, sdp.length - 1);
+
+    <span class="comment">/* transmitting first sdp part */</span>
+    socket.send({
+        userID: userID,
+        <strong>firstPart</strong>: firstPart,
+
+        <span class="comment">/* let other end know that whether you support opus */</span>
+        isopus: window.isopus
+    });
+
+    <span class="comment">/* transmitting second sdp part */</span>
+    socket.send({
+        userID: userID,
+        <strong>secondPart</strong>: secondPart,
+
+        <span class="comment">/* let other end know that whether you support opus */</span>
+        isopus: window.isopus
+    });
+}
+
+var <strong>answerSDP</strong> = {};
+
+<span class="comment">// got answer sdp, process it </span>
+function <strong id="processAnswerSDP">processAnswerSDP</strong>(response)
+{
+    if (response.<strong>firstPart</strong>) {
+        answerSDP.firstPart = response.firstPart;
+        if (answerSDP.secondPart) {
+            var <strong>fullSDP</strong> = JSON.parse(answerSDP.<strong>firstPart</strong> + answerSDP.<strong>secondPart</strong>);
+            <strong id="peer-onanswer">peer.onanswer</strong>(fullSDP);
+        }
+    }
+    
+    if (response.<strong>secondPart</strong>) {
+        answerSDP.secondPart = response.secondPart;
+        if (answerSDP.firstPart) {
+            var <strong>fullSDP</strong> = JSON.parse(answerSDP.<strong>firstPart</strong> + answerSDP.<strong>secondPart</strong>);
+            <strong>peer.onanswer</strong>(fullSDP);
+        }
+    }
+}
+</pre>
+        <blockquote>
+            That was all you need to do for <strong>offerer</strong> side.
+        </blockquote>
+        <h2 id="answerer">Answerer</h2>
+        <blockquote>
+            For <strong>answerer</strong>: you write <strong>95%</strong> same code like offerer; there is just a little bit difference.
+        </blockquote>
+        <ol>
+            <li>
+                For answerer, you don't use "<a href="#onoffer">onoffer</a>" instead you use "<a href="#onanswer">onanswer</a>"
+            </li>
+            <li>
+                For answerer, you've to pass "<a href="#offer">offer</a>" object containing "<a href="#offer">offer sdp</a>" sent by offerer
+            </li>
+            <li>
+                For answerer, you don't need to call "<a href="#peer-onanswer">peer.onanswer</a>" because this function is for "<a href="#offerer">offerer</a>" only.
+            </li>
+        </ol>
+        <br />
+        <blockquote>
+            On the "<a href="#answerer">Answerer</a>" side; when user click "<strong>join</strong>" button; send a message to <a href="#offerer">Offerer</a> to tell him that you're ready to get "<strong>offer sdp</strong>" from him.
+        </blockquote>
+        <pre>
+var <a href="#userID" id="userID2">userID</a> = '<strong>answerer</strong>';
+
+socket && socket.<span id="participant-request">send</span>({
+    <a href="#participant">participant</a>: true,
+    <a href="#isopus">isopus</a>: window.isopus,
+    <a href="#userID2">userID</a>: userID
+});
+</pre>
+        <br />
+        <blockquote>
+            Here is the function that creates "<strong>answer sdp</strong>":
+        </blockquote>
+        <pre>
+function <strong id="createAnswer">createAnswer</strong>(<strong>offer_sdp</strong>)
+{
+    peer = <strong>RTCPeerConnection</strong>({
+        <span class="comment">/* you need to pass offer sdp sent by offerer */</span>
+        <strong id="offer">offer</strong>: <span title="This value can only be used for peer who creates answer sdp.">offer_sdp</span>,
+        <strong id="onanswer">onanswer</strong>: <a href="#sendOfferSDP" title="same like offerer: only difference is left-hand object">sendAnswerSDP</a>,
+        <strong>getice</strong>: <a href="#getice" title="same like offerer">getice</a>,
+        <strong>gotstream</strong>: <a href="#gotstream" title="same like offerer">gotstream</a>,
+        <strong>stream</strong>: <a href="#clientStream" title="same like offerer">clientStream</a>,
+        <strong>isopus</strong>: <a href="#isopus" title="same like offerer">window.isopus</a>
+    });
+}
+</pre>
+        <blockquote>
+            For <strong>answerer</strong>: socket "<strong>callback</strong>" function will be like this:
+        </blockquote>
+
+        <pre>
+function <a href="#oncallback">oncallback</a>(response) 
+{
+    if(response.userID == <a href="#userID2">userID</a>) return;
+	
+    <span class="comment">// you can show a "join" button or you can send <a href="#participant-request">participant request</a></span>
+    if(response.type && response.type == '<strong>request to join</strong>') {}
+
+    <span class="comment">// offer sdp sent to you by offerer</span>
+    if(response.<strong>firstPart</strong> || response.<strong>secondPart</strong>)
+    {
+        <a href="#processAnswerSDP">processAnswerSDP(response);</a>
+    }
+}
+</pre>
+
+        <blockquote>
+            <strong>Remember:</strong> you don't need to call "<a href="#peer-onanswer">peer.onanswer(fullSDP)</a>" in <a href="#processAnswerSDP">processAnswerSDP</a> function; instead call <a href="#createAnswer">createAnswer</a> like this:
+        </blockquote>
+
+        <pre>
+<a href="#createAnswer">createAnswer(fullSDP);</a>
+</pre>
+        <br />
+        <blockquote>
+            You MUST get <a href="#clientStream">client stream</a> before creating <a href="#createOffer">offer</a> or <a href="#createAnswer">answer</a>.
+        </blockquote>
+
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <h2>
+                How to write <a href="#socket-io">same app</a> in WebSocket?
+            </h2>
+            <blockquote>
+                For WebSocket, you need to reference these two libraries instead of <a href="#socket-io-reference">referencing</a> socket.io.js
+            </blockquote>
+
+            <pre>
+&lt;script src="<strong>https://pubnub.a.ssl.fastly.net/pubnub-3.1.min.js</strong>"&gt;&lt;/script&gt;
+&lt;script src="<strong>https://webrtc-experiment.appspot.com/dependencies/websocket.js</strong>"&gt;&lt;/script&gt;
+</pre>
+            <br />
+            <blockquote>
+                You need to create socket like this:
+            </blockquote>
+
+            <pre>
+<strong>"use strict"</strong>
+
+var socket = new <strong>WebSocket</strong>('<strong>wss://pubsub.pubnub.com/demo/demo/webrtc-app</strong>');
+socket.<strong>onmessage</strong> = <a href="#onconnect">onconnect</a>;
+socket.<strong>onopen</strong> = function(event)
+{
+    <a href="#oncallback">oncallback</a>(event.<strong>data</strong>);
+};
+</pre>
+            <br />
+            <blockquote>
+                All other things are 100% same like <a href="#socket-io">above code</a>.
+            </blockquote>
         </td>
     </tr>
 </table>

@@ -130,6 +130,7 @@
             }
             details {
                 position: absolute;
+                z-index: 1000;
                 background: white;
                 cursor: pointer;
                 border-right: 1px dotted #BBA9A9;
@@ -143,50 +144,56 @@
                 -webkit-user-select: none;
             }
             details a { display: block;}
+            .contact
+            {
+                position: absolute;
+                right: 8em;
+                border: 0;
+                color: red;
+            }
+            .contact:hover{color:#BD0707;}
+            dl{max-height: 0;overflow: hidden;}
+            summary{display:block;}
+            dt  
+            {
+                border-top: 1px dotted #BBA9A9;
+                padding: .5em 1em;
+            }
+            dt a {
+                border: 0;
+                padding: 0;
+                margin: 0;
+            }
         </style>
     </head>
     <body>
         <div id=pubnub ssl=on></div>
-        <script src="/dependencies/socket.io.js"></script>
+        <script src="https://bit.ly/socket-io"></script>
         <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-webrtc-experiment" target="_blank"><img src="/images/fork-webrtc-experiment.png" alt="Fork WebRTC Experiment"></a>
+        <a href="/issues-messages-requests-feedback-contact/" class="contact" title="Bugs/Errors/Issues, Requests/Suggestions/Feedbacks, and Contact!">Have any message for Muaz Khan?</a>
         <details>
             <summary>Other WebRTC Experiments</summary>
             <dl>
                 <dt>
-                    <a href="/" style="display: inline;">Home</a> / <a href="/howto/" style="display: inline;">How to use? A short Guide</a> / <a href="/statistics/" style="display: inline;">Statistics</a>
+                    <a href="/" style="display: inline;">Home</a> / <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html" style="display: inline;">How to use? A simple Guide</a> / <a href="/statistics/" style="display: inline;">Statistics</a> / <a href="/calls/" style="display:inline;">Plugin-free calls</a>
                 </dt>
                 <dt>
-                    <a href="/screen-broadcast/" style="display: inline;">WebRTC Screen Broadcasting!</a> / <a href="/screen-broadcast/how-to-install/" style="display: inline;">How to install tabCapture extension?</a>
+                    <a href="/screen-broadcast/" style="display: inline;">WebRTC Screen Broadcasting!</a> / <a href="/screen-broadcast/how-to-install/" style="display: inline;">Installation</a> / <a href="/howto/broadcast-screen/" style="display: inline;">How to - Guide</a>
                 </dt>
                 <dt>
                     <a href="/audio-broadcast/" style="display: inline;">Broadcasting: WebRTC Audio</a> / <a href="/broadcast/" style="display: inline;">Broadcasting: WebRTC Video</a>
                 </dt>
                 <dt>
-                    <a href="/websocket/">WebRTC Experiment using WebSocket!</a>
+                    <a href="/websocket/" style="display: inline;">WebSocket!</a> / <a href="/socket.io/" style="display: inline;">Socket.io!</a> / <a href="/aspnet-mvc/" style="display: inline;">XHR and ASP.NET MVC!</a>
                 </dt>
                 <dt>
-                    <a href="/javascript/">WebRTC Experiment using Pubnub!</a>
-                </dt>
-                <dt>
-                    <a href="/socket.io/">WebRTC Experiment using socket.io!</a>
-                </dt>
-                <dt>
-                    <a href="/aspnet-mvc/">WebRTC Experiment using XHR and ASP.NET MVC!</a>
-                </dt>
-                <dt>
-                    <a href="/demos/client-side-websocket.html">Simple client side experiment using WebSocket</a>
-                </dt>
-                <dt>
-                    <a href="/demos/client-side-socket-io.html">Simple client side experiment using socket.io</a>
-                </dt>
-                <dt>
-                    <a href="/demos/client-side.html">Simple client side experiment</a>
+                    Client Side: <a href="/demos/client-side.html" style="display: inline;">Simple</a> / <a href="/demos/client-side-websocket.html" style="display: inline;">WebSocket</a> / <a href="/demos/client-side-socket-io.html" style="display: inline;">Socket.io</a>
                 </dt>
             </dl>
         </details>
         {body}
 		<script src="/dependencies/common.js"></script>
 		<script src="https://smart-ip.net/geoip-json?callback=getInfo"></script>
-        <blockquote class="log">Opening Socket..</blockquote>
+        <blockquote class="log">Opening Socket..</blockquote> 
     </body>
 </html>

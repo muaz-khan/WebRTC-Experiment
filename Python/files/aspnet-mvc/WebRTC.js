@@ -10,16 +10,16 @@ var global = { };
 
 var RTC = { }, peerConnection;
 
-RTC.init = function () {
+RTC.init = function() {
     try {
-        peerConnection = new PeerConnection(location.search == '?turn=true' ? { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] } : { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
-
+		//TURN Server:     { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh" }] }
+        peerConnection = new window.PeerConnection({ "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] });
         peerConnection.onicecandidate = RTC.checkLocalICE;
 
         peerConnection.onaddstream = RTC.checkRemoteStream;
         peerConnection.addStream(global.clientStream);
-    } catch (e) {
-        document.title = 'WebRTC is not supported in this web browser!';
+    } catch(e) {
+		document.title = 'WebRTC is not supported in this web browser!';
         alert('WebRTC is not supported in this web browser!');
     }
 };

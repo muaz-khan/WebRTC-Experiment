@@ -2,21 +2,46 @@
 
 --
 
-[WebRTC Experiments](https://webrtc-experiment.appspot.com) using WebSocket, Socket.io and XHR for signaling. Also screen, video and audio broadcasting experiments! Enjoy audio only experiment too!
+This repository is a collection of small realtime working "server-less" WebRTC experiments.
 
-## Preview / Demos / Experiments
+"Server-Less" means "No Server Coding" i.e. No PHP, No ASP.NET MVC, No Java, No Python or No Node.js!
+
+You can find here experiments like screen broadcasting (over many peers); audio/video broadcasting too; also audio only experiments.
+
+For each experiment, you can see that code is splitted in many JS-files.
+
+* "rtc-functions.js" and "rtc.js" contains RTCWeb APIs relevant code.
+* "socket.js" opens socket and handles the flow of offer/answer exchange.
+* "ui.js" contains code to handle UI tasks. This file also contains a method to capture camera. This file contains functions to handle transmission of room/channel and to join any room.
+
+For the sake of simplicity and reusability, all experiments are using a js-wrapper library for RTCWeb APIs: 
+
+* [RTCPeerConnection.js](https://bit.ly/RTCPeerConnection) - a simple js-wrapper for RTCWeb APIs 
+* [RTCPeerConnection-Helpers.js](https://bit.ly/RTCPeerConnection-Helpers) - to prefer codecs like OPUS, to take advantage of all useful codecs, and stuff.
+
+## How this app manages to broadcast stream?
+
+Nothing special; it is super easy. If you look at those projects, you can see that there are two js files:
+
+* answer-socket.js
+* master-socket.js
+
+Master socket is the main player here. It handles all upcoming requests and it opens a new socket for each new user/peer. Now it is that newly created peer's job to handle SDP/ICE exchange between that user and itself. Note that the "same client stream" is attached here to make it a real broadcast.
+
+Video conferencing is also super-easy. You can ask each "answer socket" to play a role of "master socket" in case they find other roommates.
+
+## Here is the list of all experiments:
 
 * [Screen Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/screen-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/screen-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/screen-broadcast/?turn=true)
 * [Voice/Audio Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/audio-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/audio-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/audio-broadcast/?turn=true)
 * [Video Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/broadcast/) - [STUN](https://webrtc-experiment.appspot.com/broadcast/) / [TURN](https://webrtc-experiment.appspot.com/broadcast/?turn=true)
 * [WebRTC Experiment using Socket.io for signalling](https://webrtc-experiment.appspot.com/socket.io/) - [STUN](https://webrtc-experiment.appspot.com/socket.io/) / [TURN](https://webrtc-experiment.appspot.com/socket.io/?turn=true)
 * [WebRTC Experiment using WebSocket for signalling](https://webrtc-experiment.appspot.com/websocket/) - [STUN](https://webrtc-experiment.appspot.com/websocket/) / [TURN](https://webrtc-experiment.appspot.com/websocket/?turn=true)
-* [WebRTC Experiment using PubNub](https://webrtc-experiment.appspot.com/javascript/) - [TURN](https://webrtc-experiment.appspot.com/javascript/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/javascript/)
 * [WebRTC Experiment using XHR over ASPNET MVC](https://webrtc-experiment.appspot.com/aspnet-mvc/) - [TURN](https://webrtc-experiment.appspot.com/aspnet-mvc/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/aspnet-mvc/)
 
 If you're new to WebRTC; following demos are for you!
 
-* [Runs in only one tab; uses JavaScript variables directly for signalling.](https://webrtc-experiment.appspot.com/demos/client-side.html) - no server for signalling!
+* [Runs in only one tab; uses JavaScript variables directly for signalling.](https://webrtc-experiment.appspot.com/demos/client-side.html)
 * [Runs in only one tab; uses socket.io for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html)
 * [Runs in only one tab; uses WebSocket for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html)
 
@@ -24,7 +49,9 @@ If you're new to WebRTC; following demos are for you!
 
 * [Muaz Khan](http://github.com/muaz-khan)!
 
-## JavaScript code from [RTCPeerConnection.js](https://webrtc-experiment.appspot.com/lib/RTCPeerConnection-v1.1.js)!
+The app is using following js-wrapper library for RTCWeb APIs:
+
+## JavaScript code from [RTCPeerConnection-v1.1.js](https://webrtc-experiment.appspot.com/lib/RTCPeerConnection-v1.1.js)!
 
 ```javascript
 window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
@@ -122,6 +149,8 @@ function getUserMedia(options) {
         }, options.onerror);
 }
 ```
+
+And to take advantage of useful codecs:
 
 ## JavaScript code from [RTCPeerConnection-Helpers.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection-Helpers.js)!
 
@@ -239,7 +268,7 @@ codecs.isopus = function () {
 var isopus = !!codecs.isopus();
 ```
 
-##[How to use RTCPeerConnection.js](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html)?
+##[How to use RTCPeerConnection-v1.1.js](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html)?
 
 
 ##Spec references 

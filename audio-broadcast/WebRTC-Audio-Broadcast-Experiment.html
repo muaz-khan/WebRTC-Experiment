@@ -64,7 +64,7 @@
 
 <table>
     <tr>
-        <td>
+        <td style="width: 40%;">
             <div id="participants" style="width: 18em;"></div>
             <div class="visible" style="text-align: center;">
                 <a class="logo" href="https://plus.google.com/100325991024054712503">
@@ -74,6 +74,11 @@
                 <a href="https://webrtc-experiment.appspot.com/audio-broadcast/" title="stun:stun.l.google.com:19302">STUN</a>
                 » <a href="https://webrtc-experiment.appspot.com/audio-broadcast/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">TURN</a>
                 » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/audio-broadcast">Source</a>
+                
+                <blockquote style="color:Red; text-align:center;">
+                    Broadcasting is not working...<br />
+                    You can enjoy <a href="https://webrtc-experiment.appspot.com/calls/">one to one (voice only) talk!</a>
+                </blockquote>
             </div>
         </td>
         <td>
@@ -83,18 +88,14 @@
                 <blockquote class="slogan">
                     WebRTC audio/voice broadcasting experiment.
                     <br />
-                    <span style="color:Red;">Note: It works only on Google Chrome Canary.</span>                    
+                    <span style="color:Red;">Note: It works only on Google Chrome Canary.</span>
                 </blockquote>
+                <img src="https://webrtc-experiment.appspot.com/images/audio-only-experiment.png" alt="Audio Only Calls using RTCWeb APIs!">
             </div>
         </td>
     </tr>
 </table>
 <table class="center-table visible">
-    <tr>
-        <td colspan="2">
-            <blockquote style="color:Red; text-align:center;">Broadcasting is not working...you can enjoy one to one (voice only) talk!</blockquote>
-        </td>
-    </tr>
     <tr>
         <td>
             <section id="public-rooms">
@@ -156,8 +157,8 @@
     };
 </script>
 
-<script src="1-helper.js"> </script>
-<script src="2-rtc-functions.js"></script>
-<script src="4-ui.js"> </script>
-<script src="answer-socket.js"></script>
-<script src="master-socket.js"></script>
+<script src="https://webrtc-experiment.appspot.com/audio-broadcast/1-helper.js"> </script>
+<script src="https://webrtc-experiment.appspot.com/audio-broadcast/2-rtc-functions.js"></script>
+<script src="https://webrtc-experiment.appspot.com/audio-broadcast/4-ui.js"> </script>
+<script src="https://webrtc-experiment.appspot.com/audio-broadcast/answer-socket.js"></script>
+<script src="https://webrtc-experiment.appspot.com/audio-broadcast/master-socket.js"></script>

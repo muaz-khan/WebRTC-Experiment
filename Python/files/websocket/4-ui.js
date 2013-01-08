@@ -10,7 +10,7 @@ function captureCamera(callback) {
             callback && callback();
         },
         onerror: function () {
-            location.reload();
+            alert('Either you not allowed access to your microphone/webcam or another application already using it.');
         }
     });
 }

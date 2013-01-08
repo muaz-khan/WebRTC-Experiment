@@ -16,7 +16,7 @@ function answerSocket(channel, onopen) {
     var socket_config = window.socket_config;
 
     socket_config.channel = channel || global.defaultChannel;
-    socket.answer = io.connect('http://pubsub.pubnub.com/webrtc-experiment', socket_config);
+    socket.answer = io.connect('https://pubsub.pubnub.com/webrtc-experiment', socket_config);
 
     socket.answer.on('connect', onopen || function() {});
     socket.answer.on('message', socketResponse);

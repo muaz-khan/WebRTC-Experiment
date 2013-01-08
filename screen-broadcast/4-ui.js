@@ -17,8 +17,7 @@ function captureCamera(callback) {
             callback && callback();
         },
         onerror: function () {
-            alert('Two possible situations: 1) another window is using your webcam, or 2) you\'ve not allowed you camera. Webcam is mandatory of this app!');
-            location.reload();
+            alert('Either you not allowed access to your microphone/webcam or another application already using it.');
         }
     });
 }
@@ -86,7 +85,15 @@ function getAvailableRooms(response) {
 
     /* room is already visible in the current user's page */
     var alreadyExist = $('#' + response.ownerToken);
-    if (alreadyExist) return;
+    
+	if (alreadyExist && response.end)
+	{
+		window.alreadyExist = alreadyExist;
+		alreadyExist.innerHTML += '<br /><br /><span style="color:red;">The broadcast is closed!</span>';
+		alreadyExist.getElementsByTagName('a')[0].hide();
+		return;
+	}
+	else if (alreadyExist) return;
 
     /* showing the room for current user */
     var blockquote = document.createElement('blockquote');
@@ -124,3 +131,17 @@ function getAvailableRooms(response) {
         };
     });
 }
+
+function requestFullScreen(elem) {
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+    }
+}
+
+clientVideo.click = function () {
+    requestFullScreen(clientVideo);
+};

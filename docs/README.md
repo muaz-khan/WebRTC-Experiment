@@ -2,34 +2,56 @@
 
 --
 
-[WebRTC Experiments](https://webrtc-experiment.appspot.com) using WebSocket, Socket.io and XHR for signaling. Also screen, video and audio broadcasting experiments!
+This repository is a collection of small realtime working "server-less" WebRTC experiments.
 
-## Preview / Demos / Experiments
+"Server-Less" means "No Server Coding" i.e. No PHP, No ASP.NET MVC, No Java, No Python or No Node.js!
+
+You can find here experiments like screen broadcasting (over many peers); audio/video broadcasting too; also audio only experiments.
+
+For each experiment, you can see that code is splitted in many JS-files.
+
+* "rtc-functions.js" and "rtc.js" contains RTCWeb APIs relevant code.
+* "socket.js" opens socket and handles the flow of offer/answer exchange.
+* "ui.js" contains code to handle UI tasks. This file also contains a method to capture camera. This file contains functions to handle transmission of room/channel and to join any room.
+
+For the sake of simplicity and reusability, all experiments are using a js-wrapper library for RTCWeb APIs: 
+
+* [RTCPeerConnection.js](https://bit.ly/RTCPeerConnection) - a simple js-wrapper for RTCWeb APIs 
+* [RTCPeerConnection-Helpers.js](https://bit.ly/RTCPeerConnection-Helpers) - to prefer codecs like OPUS, to take advantage of all useful codecs, and stuff.
+
+## How this app manages to broadcast stream?
+
+Nothing special; it is super easy. If you look at those projects, you can see that there are two js files:
+
+* answer-socket.js
+* master-socket.js
+
+Master socket is the main player here. It handles all upcoming requests and it opens a new socket for each new user/peer. Now it is that newly created peer's job to handle SDP/ICE exchange between that user and itself. Note that the "same client stream" is attached here to make it a real broadcast.
+
+Video conferencing is also super-easy. You can ask each "answer socket" to play a role of "master socket" in case they find other roommates.
+
+## Here is the list of all experiments:
 
 * [Screen Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/screen-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/screen-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/screen-broadcast/?turn=true)
 * [Voice/Audio Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/audio-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/audio-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/audio-broadcast/?turn=true)
 * [Video Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/broadcast/) - [STUN](https://webrtc-experiment.appspot.com/broadcast/) / [TURN](https://webrtc-experiment.appspot.com/broadcast/?turn=true)
 * [WebRTC Experiment using Socket.io for signalling](https://webrtc-experiment.appspot.com/socket.io/) - [STUN](https://webrtc-experiment.appspot.com/socket.io/) / [TURN](https://webrtc-experiment.appspot.com/socket.io/?turn=true)
 * [WebRTC Experiment using WebSocket for signalling](https://webrtc-experiment.appspot.com/websocket/) - [STUN](https://webrtc-experiment.appspot.com/websocket/) / [TURN](https://webrtc-experiment.appspot.com/websocket/?turn=true)
-* [WebRTC Experiment using PubNub](https://webrtc-experiment.appspot.com/javascript/) - [TURN](https://webrtc-experiment.appspot.com/javascript/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/javascript/)
 * [WebRTC Experiment using XHR over ASPNET MVC](https://webrtc-experiment.appspot.com/aspnet-mvc/) - [TURN](https://webrtc-experiment.appspot.com/aspnet-mvc/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/aspnet-mvc/)
 
 If you're new to WebRTC; following demos are for you!
 
-* [A realtime browswer only experiment](https://webrtc-experiment.appspot.com/demos/client-side.html) - no server for signalling!
-* [A realtime browswer only experiment using socket.io](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) - no server for signalling!
-* [A realtime browswer only experiment using WebSocket](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) - no server for signalling!
+* [Runs in only one tab; uses JavaScript variables directly for signalling.](https://webrtc-experiment.appspot.com/demos/client-side.html)
+* [Runs in only one tab; uses socket.io for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html)
+* [Runs in only one tab; uses WebSocket for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html)
 
 ##Credits
 
 * [Muaz Khan](http://github.com/muaz-khan)!
-* [PubNub](https://github.com/pubnub/pubnub-api)!
 
-##Browsers
+The app is using following js-wrapper library for RTCWeb APIs:
 
-It works fine on Google Chrome Stable 23 (and upper stable releases!)
-
-## JavaScript code from [RTCPeerConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection.js)!
+## JavaScript code from [RTCPeerConnection-v1.1.js](https://webrtc-experiment.appspot.com/lib/RTCPeerConnection-v1.1.js)!
 
 ```javascript
 window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
@@ -50,19 +72,19 @@ var RTCPeerConnection = function(options) {
 
     peerConnection.onicecandidate = onicecandidate;
     peerConnection.onaddstream = onaddstream;
-    peerConnection.addStream(options.stream);
+    peerConnection.addStream(options.attachStream);
 
     function onicecandidate(event) {
         if (!event.candidate || !peerConnection) return;
-        if (options.getice) options.getice(event.candidate);
+        if (options.onICE) options.onICE(event.candidate);
     }
 
     function onaddstream(event) {
-        options.gotstream && options.gotstream(event);
+        options.onRemoteStream && options.onRemoteStream(event.stream);
     }
 
     function createOffer() {
-        if (!options.onoffer) return;
+        if (!options.onOfferSDP) return;
 
         peerConnection.createOffer(function(sessionDescription) {
 
@@ -70,7 +92,7 @@ var RTCPeerConnection = function(options) {
             options.isopus && (sessionDescription = codecs.opus(sessionDescription));
 
             peerConnection.setLocalDescription(sessionDescription);
-            options.onoffer(sessionDescription);
+            options.onOfferSDP(sessionDescription);
 
         }, null, constraints);
     }
@@ -78,16 +100,16 @@ var RTCPeerConnection = function(options) {
     createOffer();
 
     function createAnswer() {
-        if (!options.onanswer) return;
+        if (!options.onAnswerSDP) return;
 
-        peerConnection.setRemoteDescription(new SessionDescription(options.offer));
+        peerConnection.setRemoteDescription(new SessionDescription(options.offerSDP));
         peerConnection.createAnswer(function(sessionDescription) {
 
             /* opus? use it dear! */
             options.isopus && (sessionDescription = codecs.opus(sessionDescription));
 
             peerConnection.setLocalDescription(sessionDescription);
-            options.onanswer(sessionDescription);
+            options.onAnswerSDP(sessionDescription);
 
         }, null, constraints);
     }
@@ -96,12 +118,12 @@ var RTCPeerConnection = function(options) {
 
     return {
         /* offerer got answer sdp; MUST pass sdp over this function */
-        onanswer: function(sdp) {
+        addAnswerSDP: function(sdp) {
             peerConnection.setRemoteDescription(new SessionDescription(sdp));
         },
         
         /* got ICE from other end; MUST pass those candidates over this function */
-        addice: function(candidate) {
+        addICE: function(candidate) {
             peerConnection.addIceCandidate(new IceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
@@ -127,6 +149,8 @@ function getUserMedia(options) {
         }, options.onerror);
 }
 ```
+
+And to take advantage of useful codecs:
 
 ## JavaScript code from [RTCPeerConnection-Helpers.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection-Helpers.js)!
 
@@ -244,55 +268,8 @@ codecs.isopus = function () {
 var isopus = !!codecs.isopus();
 ```
 
-##[How to use RTCPeerConnection.js](https://webrtc-experiment.appspot.com/howto/)?
+##[How to use RTCPeerConnection-v1.1.js](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html)?
 
-```javascript
-/* ---------- offerer -------- */
-var peer = RTCPeerConnection({
-    iceServers : { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", 
-                                    "credential": "muazkh" }] },
-    stream     : clientStream,				/* Attach your client stream */
-    isopus     : window.isopus,				/* if opus codec is supported; use it! */
-
-    getice     : function (candidate) {},	/* Send ICE to other peer! */
-    gotstream  : function (stream) {},		/* Play remote video */
-    onoffer    : function(sdp) {}			/* Get offer SDP and send to other peer */
-});
-
-/* Got answer SDP? pass answer sdp over this function: */
-peer.onanswer( answer_sdp );
-
-/* Got ICE? add ICE using this function */
-peer && peer.addice({
-    sdpMLineIndex : candidate.sdpMLineIndex,
-    candidate : candidate.candidate			/* JSON.parse!! */
-});
-
-/* --------------------------------------------------------------- */
-/* ---------- offerer -------- */
-var peer = RTCPeerConnection({
-    iceServers : { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", 
-                                    "credential": "muazkh" }] },
-    stream     : clientStream,				/* Attach your client stream */
-    isopus     : window.isopus,				/* if opus codec is supported; use it! */
-
-    getice     : function (candidate) {},	/* Send ICE to other peer! */
-    gotstream  : function (stream) {},		/* Play remote video */
-    onanswer   : function(sdp) {}			/* Get answer SDP and send to other peer */,
-	offer:	   : offer_sdp					/* pass offer sdp sent by other peer */
-});
-
-/* Remember: No need to call following function */
-/* peer.onanswer( answer_sdp ); */
-
-/* Got ICE? add ICE using this function */
-peer && peer.addice({
-    sdpMLineIndex : candidate.sdpMLineIndex,
-    candidate : candidate.candidate			/* JSON.parse!! */
-});
-```
-
-Remember: Don't forget to check: [How to use RTCPeerConnection.js? A short guide](https://webrtc-experiment.appspot.com/howto/)
 
 ##Spec references 
 
@@ -301,4 +278,4 @@ Remember: Don't forget to check: [How to use RTCPeerConnection.js? A short guide
 * [STUN Server at Wikipedia!](http://en.wikipedia.org/wiki/STUN)
 
 ## License
-Copyright (c) 2012 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.
+Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.

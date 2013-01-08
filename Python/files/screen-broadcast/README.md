@@ -2,41 +2,40 @@
 
 --
 
-[WebRTC Experiments](https://webrtc-experiment.appspot.com) using WebSocket, Socket.io and XHR for signaling. Also screen, video and audio broadcasting experiments!
+[This webrtc experiment](https://webrtc-experiment.appspot.com/screen-broadcast/) uses socket.io as signaling gateway.
 
-[WebRTC screen broadcasting](https://webrtc-experiment.appspot.com/screen-broadcast/): Using Chrome Experimental tabCapture APIs to broadcast screen over many peers.
+Pubnub is used as a wrapper for socket.io
 
-[This Google Chrome extension](http://muazkh.googlecode.com/files/webrtc-screen-broadcast.zip) uses experimental tabCapture APIs to [broadcast screen over many peers](https://webrtc-experiment.appspot.com/screen-broadcast/).
+[RTCPeerConnection.js](https://bit.ly/RTCPeerConnection) is used as JavaScript-Wrapper for RTCWeb APIs.
 
-You can read [How to install tabCapture extension?](https://webrtc-experiment.appspot.com/screen-broadcast/how-to-install/) guide [here](https://webrtc-experiment.appspot.com/screen-broadcast/how-to-install/).
+Stream is captured using Google Chrome experimental tabCapture APIs and transmitted over socket.
 
-Remember: Don't forget to check: [How to use RTCPeerConnection.js? A short guide](https://webrtc-experiment.appspot.com/howto/)
+It has the ability to handle unlimited peers. So unlimited peers can get access to broadcasted screen.
 
-## Preview / Demos / Experiments
+Master socket handles the "broadcasting".
 
-* [Screen Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/screen-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/screen-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/screen-broadcast/?turn=true)
-* [Voice/Audio Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/audio-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/audio-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/audio-broadcast/?turn=true)
-* [Video Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/broadcast/) - [STUN](https://webrtc-experiment.appspot.com/broadcast/) / [TURN](https://webrtc-experiment.appspot.com/broadcast/?turn=true)
-* [WebRTC Experiment using Socket.io for signalling](https://webrtc-experiment.appspot.com/socket.io/) - [STUN](https://webrtc-experiment.appspot.com/socket.io/) / [TURN](https://webrtc-experiment.appspot.com/socket.io/?turn=true)
-* [WebRTC Experiment using WebSocket for signalling](https://webrtc-experiment.appspot.com/websocket/) - [STUN](https://webrtc-experiment.appspot.com/websocket/) / [TURN](https://webrtc-experiment.appspot.com/websocket/?turn=true)
-* [WebRTC Experiment using PubNub](https://webrtc-experiment.appspot.com/javascript/) - [TURN](https://webrtc-experiment.appspot.com/javascript/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/javascript/)
-* [WebRTC Experiment using XHR over ASPNET MVC](https://webrtc-experiment.appspot.com/aspnet-mvc/) - [TURN](https://webrtc-experiment.appspot.com/aspnet-mvc/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/aspnet-mvc/)
+The process is like this:
 
-If you're new to WebRTC; following demos are for you!
+* Master socket finds a new socket (or new user, or new peer, or whatever you name it!)
+* Master socket opens an absolute unique new socket to handle offer/answer exchange model.
+* That newly created socket itself creates a new peer connection object and exchanges SDP/ICE with that user.
+* The same client stream is attached with offer for the sake of broadcasting same screen!
 
-* [A realtime browswer only experiment](https://webrtc-experiment.appspot.com/demos/client-side.html) - no server for signalling!
-* [A realtime browswer only experiment using socket.io](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) - no server for signalling!
-* [A realtime browswer only experiment using WebSocket](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) - no server for signalling!
+The following function is used to capture tab/screen:
+
+```javascript
+chrome.tabCapture.capture({ audio: true, video: true }, function(stream) {
+    // broadcastNow(stream);
+});
+```
+
+Don't forget to test it yourself!
+
+[https://webrtc-experiment.appspot.com/screen-broadcast/](https://webrtc-experiment.appspot.com/screen-broadcast/)
 
 ##Credits
 
 * [Muaz Khan](http://github.com/muaz-khan)!
 
-##Spec references 
-
-* [WebRTC 1.0: Real-time Communication Between Browsers](http://dev.w3.org/2011/webrtc/editor/webrtc.html)
-* [TURN Server at Wikipedia!](http://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)
-* [STUN Server at Wikipedia!](http://en.wikipedia.org/wiki/STUN)
-
 ## License
-Copyright (c) 2012 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.
+Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.

@@ -7,7 +7,7 @@ function sendsdp(sdp) {
         secondPart = sdp.substr(701, sdp.length - 1);
 
     /* transmitting first sdp part */
-    pubnub.send({
+    socket.send({
         userToken: global.userToken,
         firstPart: firstPart,
 
@@ -16,7 +16,7 @@ function sendsdp(sdp) {
     });
 
     /* transmitting second sdp part */
-    pubnub.send({
+    socket.send({
         userToken: global.userToken,
         secondPart: secondPart,
 
@@ -27,7 +27,7 @@ function sendsdp(sdp) {
 
 /* send (i.e. transmit) ICE candidates */
 function sendice(candidate) {
-    pubnub.send({
+    socket.send({
         userToken: global.userToken, /* unique ID to identify the sender */
         candidate: {
             sdpMLineIndex: candidate.sdpMLineIndex,
@@ -69,7 +69,7 @@ function finallyGotStream() {
 
     $('table', true).hide();
 
-    pubnub.send({
+    socket.send({
         userToken: global.userToken,
         gotStream: true
     });

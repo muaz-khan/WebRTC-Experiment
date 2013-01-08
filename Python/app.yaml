@@ -3,7 +3,7 @@ version: 1
 runtime: python27
 api_version: 1
 threadsafe: yes
-default_expiration: "30d 5h"
+default_expiration: "1h"
 
 handlers:
 - url: /favicon\.ico
@@ -14,10 +14,6 @@ handlers:
   static_files: robots.txt
   upload: robots\.txt
 
-- url: /sitemap\.xml
-  static_files: sitemap.xml
-  upload: sitemap\.xml
-
 - url: /(.*\.(js|css))
   static_files: files/\1
   upload: files/(.*\.(js|css))
@@ -25,6 +21,10 @@ handlers:
 - url: /demos/(.*\.(html))
   static_files: files/demos/\1
   upload: files/demos/(.*\.(html))
+  
+- url: /docs/(.*\.(html))
+  static_files: files/docs/\1
+  upload: files/docs/(.*\.(html))
 
 - url: /images
   static_dir: images

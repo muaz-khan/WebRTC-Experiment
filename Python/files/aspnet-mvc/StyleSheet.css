@@ -16,14 +16,14 @@
 
 html
 {
-    color: #02246D;
-    background: white;
+    color: #420808;
+    background: #420808;
 }
 
 header
 {
-    background: white;
-    border-bottom: 2px solid lightGrey;
+    background: rgba(214, 206, 206, 0.65);
+    border-bottom: 5px solid rgba(32, 26, 26, 0.28);
     padding: 5px 15px;
 }
 
@@ -34,6 +34,7 @@ header
 
 h1, h2
 {
+    text-shadow: 0 0 5px #572E2E;
     color: #420808;
     font-size: 3em;
 }
@@ -48,29 +49,29 @@ h2
 
 a
 {
-    color: #2778EC;
+    color: white;
     text-decoration: none;
 }
 
 a:hover
 {
-    color: #1F66CC;
+    color: #DBCBCB;
 }
 
 footer
 {
     position: absolute;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.76);
+    background: rgba(18, 112, 165, 0.54);
     width: 100%;
     text-align: center;
     font-size: 28px;
-    color: #050505;
+    color: #FFF0F0;
 }
 
 footer span
 {
-    background: white;
+    background: rgba(1, 11, 15, 0.23);
     padding: 0 .5em;
 }
 
@@ -137,7 +138,9 @@ aside span:active, #create-room:active, #search-room:active, #send-chat:active {
 .create-room-panel, .private-room, .chat-box, .stats {
     position: absolute;
     margin: 5%;
-    border: 1px solid #585858;
+    box-shadow: 0 0 6px #DFDFDF;
+    background: rgba(214, 206, 206, 0.65);
+    border: 2px solid rgba(32, 26, 26, 0.28);
 }
 
 input
@@ -162,7 +165,7 @@ small
 
 .create-room-panel h2, .create-room-panel div, .private-room h2, .private-room div, .chat-box h2, .chat-box div, .stats h2, .stats div
 {
-    border-bottom: 1px solid #585858;
+    border-bottom: 2px solid rgba(32, 26, 26, 0.28);
     padding:10px 20px;
 }
 

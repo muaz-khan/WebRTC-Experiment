@@ -46,7 +46,7 @@ var RTCPeerConnection = function(options) {
     function createAnswer() {
         if (!options.onanswer) return;
 
-        peerConnection.setRemoteDescription(new SessionDescription(options.offer));
+        peerConnection.setRemoteDescription(new window.SessionDescription(options.offer));
         peerConnection.createAnswer(function(sessionDescription) {
 
             /* opus? use it dear! */
@@ -63,7 +63,7 @@ var RTCPeerConnection = function(options) {
     return {
         /* offerer got answer sdp; MUST pass sdp over this function */
         onanswer: function(sdp) {
-            peerConnection.setRemoteDescription(new SessionDescription(sdp));
+            peerConnection.setRemoteDescription(new window.SessionDescription(sdp));
         },
         
         /* got ICE from other end; MUST pass those candidates over this function */
@@ -76,10 +76,10 @@ var RTCPeerConnection = function(options) {
     };
 };
 
-function getUserMedia(options) {
-    var URL = window.webkitURL || window.URL;
-    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
+var URL = window.webkitURL || window.URL;
+navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
 
+function getUserMedia(options) {
     navigator.getUserMedia(options.constraints || { audio: true, video: true },
         function (stream) {
 

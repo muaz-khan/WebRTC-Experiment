@@ -1,4 +1,5 @@
-﻿<table>
+﻿<style>strong{ color: red;font-weight: normal;}code, pre, pre strong, code strong { font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;}</style>
+<table>
     <tr>
         <td>
             <a class="logo" href="https://plus.google.com/100325991024054712503">
@@ -9,6 +10,8 @@
             <h1>WebRTC Experiments inner parts!</h1>
             <blockquote class="slogan">
                 The dependencies and inner parts of this app ↓
+                <br />
+                Explains possibility of failure!
             </blockquote>
         </td>
     </tr>
@@ -16,7 +19,21 @@
 <table>
     <tr>
         <td>
-            This app is heavily using PubNub…which is super easy to use but there is no guarantee of reliability or availability of their service.
+            This app is heavily using <a href="http://www.pubnub.com/" rel="nofollow" target="_blank">PubNub</a>... which is super easy to use but there is <strong>no guarantee</strong> of reliability or <strong>availability</strong> of their service. Personally, I love their service! But hate their limitations!
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Pubnub only allow a few hundred <strong>free</strong> requests. So, <strong>there are 70% chances to fail</strong> to transfer SDP/ICE/etc. If you fail, <strong>try to connect again tomorrow</strong>; otherwise download code of this app and use <strong>public</strong> publish/subscribe keys:
+            <blockquote>
+                <br />
+                <pre>
+var socket_config = {
+    <strong>publish_key</strong>: '<strong>demo</strong>',
+    <strong>subscribe_key</strong>: '<strong>demo</strong>'
+};
+</pre>
+            </blockquote>
         </td>
     </tr>
     <tr>
@@ -37,6 +54,11 @@
     <tr>
         <td>
             <a href="/RTCPeerConnection.js">RTCPeerConnection.js</a> is a JavaScript wrapper for RTCWeb APIs.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            It means that if you <a href="https://github.com/muaz-khan/WebRTC-Experiment">download the code of this app</a> and don't reference these two libraries. You'll get <strong>no result</strong>.
         </td>
     </tr>
 </table>

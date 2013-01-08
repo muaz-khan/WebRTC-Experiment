@@ -78,30 +78,7 @@ class AspNetMVCHandler(webapp2.RequestHandler):
 class JavaScriptHandler(webapp2.RequestHandler):
     def get(self):
 
-        Title = '(Pubnub/JavaScript) WebRTC Experiment'
-        Description = Title + ': WebRTC Experiment that uses Pubnub for signaling to make a realtime handshake! It is reliable and faster as compare to traditional XHR model! You can say it JavaScript only WebRTC Experiment because you don\'t need to understand any server side language or technology. Just JavaScript knowledge is enough!'
-        Canonical = '/javascript/'
-        
-        Common = openFile('common.html')\
-                 .replace('{title}', Title)\
-                 .replace('{description}', Description)\
-                 .replace('{canonical}', Canonical)
-        
-        Body = openFile('javascript/JavaScript-Only-WebRTC-Experiment.html')
-
-        turn = self.request.get('turn')
-        if turn:
-            Body = Body.replace('"{stun-turn}"', global_turn)
-        else:
-            Body = Body.replace('"{stun-turn}"', global_stun)
-
-        Body = Body.replace('pub-key="demo"', 'pub-key="'+ pubKey + '"')\
-               .replace('sub-key="demo"', 'sub-key="'+ subKey + '"')
-
-        Common = Common.replace('{body}', Body)\
-                 .replace('{year}', str(date.today().year))
-        
-        self.response.out.write(Common)
+        self.redirect('/broadcast/')
 
 #-----------------------------------------------
 class SocketIOHandler(webapp2.RequestHandler):
@@ -196,7 +173,7 @@ class ScreenBroadcastHandler(webapp2.RequestHandler):
     def get(self):
 
         Title = 'WebRTC Screen Broadcasting'
-        Description = Title + ': WebRTC screen broadcasting: Using Chrome Experimental tabCapture APIs to broadcast screen over many peers.'
+        Description = Title + ': WebRTC screen broadcasting: Using Chrome tabCapture APIs to broadcast screen over many peers.'
         Canonical = '/screen-broadcast/'
         
         Common = openFile('common.html')\
@@ -269,10 +246,39 @@ class AudioBroadcastHandler(webapp2.RequestHandler):
         self.response.out.write(Common)
 
 #-----------------------------------------------
+class CallsHandler(webapp2.RequestHandler):
+    def get(self):
+
+        Title = 'Realtime Plugin-free calls'
+        Description = Title + ': Allow your visitors to call you directly. No flash! No Plugin. A realtime calling method for everyone!'
+        Canonical = '/calls/'
+        
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('calls/Realtime-PluginFree-Calls.html')
+
+        turn = self.request.get('turn')
+        if turn:
+            Body = Body.replace('"{stun-turn}"', global_turn)
+        else:
+            Body = Body.replace('"{stun-turn}"', global_stun)
+
+        Body = Body.replace('{publish_key}', pubKey)\
+               .replace('{subscribe_key}', subKey)
+
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
+
+#-----------------------------------------------
 class HowHandler(webapp2.RequestHandler):
     def get(self):
         Title = 'How to use RTCPeerConnection.js? WebRTC Guide'
-        Description = Title + ': This guide explains "How to write WebRTC code?"...."How to order WebRTC code"...."How to use RTCPeerConnection.js"....the easiest way to learn and use WebRTC!'
+        Description = Title + ": How to use RTCPeerConnection.js? WebRTC Guide: This guide explains 'How to write WebRTC code?'....'How to order WebRTC code'....'How to use RTCPeerConnection.js'....the easiest way to learn and use WebRTC!"
         Canonical = '/howto/'
         
         Common = openFile('common.html')\
@@ -281,6 +287,24 @@ class HowHandler(webapp2.RequestHandler):
                  .replace('{canonical}', Canonical)
         
         Body = openFile('howto/how-to-use-rtcpeerconnection-js.html')
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
+
+#-----------------------------------------------
+class HowToBroadcastScreenHandler(webapp2.RequestHandler):
+    def get(self):
+        Title = 'How to broadcast/share screen using WebRTC?'
+        Description = Title + ': This document explains how to broadcast/share your screen over many peers using Google Chrome tabCapture extension APIs.'
+        Canonical = '/howto/broadcast-screen/'
+        
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('howto/How-to-Broadcast-Screen-using-WebRTC.html')
         Common = Common.replace('{body}', Body)\
                  .replace('{year}', str(date.today().year))
         
@@ -303,10 +327,51 @@ class StatisticsHandler(webapp2.RequestHandler):
                  .replace('{year}', str(date.today().year))
         
         self.response.out.write(Common)
+
+class ContactHandler(webapp2.RequestHandler):
+    def get(self):
+        Title = 'Have any message for Muaz Khan?'
+        Description = Title+ ': Contact Muaz Khan for issues, bugs, and feedback.'
+        Canonical = '/issues-messages-requests-feedback-contact/'
         
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('contact.html')
+
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
+
+class SiteMapHandler(webapp2.RequestHandler):
+    def get(self):
+        month = date.today().month
+        
+        if month < 10:
+            month = '0' + str(month)
+            
+        day = date.today().day
+
+        if day < 10:
+            day = '0' + str(day)
+
+            
+        year = date.today().year
+        SiteMap = openFile('sitemap.xml')\
+                 .replace('{year}', str(year))\
+                 .replace('{month}', str(month))\
+                 .replace('{day}', str(day))
+
+        self.response.headers['Content-Type'] = 'text/xml'
+        
+        self.response.out.write(SiteMap)
 #-----------------------------------------------        
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
+    ('/sitemap.xml', SiteMapHandler),
     ('/rules/', RulesHandler),
     ('/aspnet-mvc/', AspNetMVCHandler),
     ('/javascript/', JavaScriptHandler),
@@ -314,9 +379,12 @@ app = webapp2.WSGIApplication([
     ('/websocket/', WebSocketHandler),
     ('/broadcast/', BroadcastHandler),
     ('/audio-broadcast/', AudioBroadcastHandler),
+    ('/calls/', CallsHandler),
     ('/screen-broadcast/', ScreenBroadcastHandler),
     ('/screen-broadcast/how-to-install/', HowToInstallHandler),
     ('/howto/', HowHandler),
-    ('/statistics/', StatisticsHandler)
+    ('/howto/broadcast-screen/', HowToBroadcastScreenHandler),
+    ('/statistics/', StatisticsHandler),
+    ('/issues-messages-requests-feedback-contact/', ContactHandler)
     ])
         

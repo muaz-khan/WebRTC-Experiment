@@ -2,39 +2,43 @@
 
 --
 
-[WebRTC voice/audio broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/) experiment.
+[This webrtc experiment](https://webrtc-experiment.appspot.com/audio-broadcast/) uses socket.io as signaling gateway.
 
-Note: It works only on Google Chrome Canary.
+Pubnub is used as a wrapper for socket.io
 
-Broadcasting is not working...you can enjoy one to one (voice only) talk!
+[RTCPeerConnection.js](https://bit.ly/RTCPeerConnection) is used as JavaScript-Wrapper for RTCWeb APIs.
 
-## Preview / Demos / Experiments
+It has the ability to handle unlimited peers. So unlimited peers can get access to broadcasted audio stream.
 
-* [Screen Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/screen-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/screen-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/screen-broadcast/?turn=true)
-* [Voice/Audio Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/audio-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/audio-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/audio-broadcast/?turn=true)
-* [Video Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/broadcast/) - [STUN](https://webrtc-experiment.appspot.com/broadcast/) / [TURN](https://webrtc-experiment.appspot.com/broadcast/?turn=true)
-* [WebRTC Experiment using Socket.io for signalling](https://webrtc-experiment.appspot.com/socket.io/) - [STUN](https://webrtc-experiment.appspot.com/socket.io/) / [TURN](https://webrtc-experiment.appspot.com/socket.io/?turn=true)
-* [WebRTC Experiment using WebSocket for signalling](https://webrtc-experiment.appspot.com/websocket/) - [STUN](https://webrtc-experiment.appspot.com/websocket/) / [TURN](https://webrtc-experiment.appspot.com/websocket/?turn=true)
-* [WebRTC Experiment using PubNub](https://webrtc-experiment.appspot.com/javascript/) - [TURN](https://webrtc-experiment.appspot.com/javascript/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/javascript/)
-* [WebRTC Experiment using XHR over ASPNET MVC](https://webrtc-experiment.appspot.com/aspnet-mvc/) - [TURN](https://webrtc-experiment.appspot.com/aspnet-mvc/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/aspnet-mvc/)
+Master socket handles the "broadcasting".
 
-If you're new to WebRTC; following demos are for you!
+The process is like this:
 
-* [Runs in only one tab; uses JavaScript variables directly for signalling.](https://webrtc-experiment.appspot.com/demos/client-side.html) - no server for signalling!
-* [Runs in only one tab; uses socket.io for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) - no server for signalling!
-* [Runs in only one tab; uses WebSocket for signalling.](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) - no server for signalling!
+* Master socket finds a new socket (or new user, or new peer, or whatever you name it!)
+* Master socket opens an absolute unique new socket to handle offer/answer exchange model.
+* That newly created socket itself creates a new peer connection object and exchanges SDP/ICE with that user.
+* The same client stream is attached with offer for the sake of broadcasting same audio stream!
+
+Following trick is used to make audio-only stream flow possible:
+
+```javascript
+audio.src = webkitURL.createObjectURL(event.stream);
+
+audio.addEventListener('play', function () {
+	this.muted = false;
+	this.volume = 1;
+}, false);
+
+audio.play();
+```
+
+Don't forget to test it yourself!
+
+[https://webrtc-experiment.appspot.com/audio-broadcast/](https://webrtc-experiment.appspot.com/audio-broadcast/)
 
 ##Credits
 
 * [Muaz Khan](http://github.com/muaz-khan)!
-
-Remember: Don't forget to check: [How to use RTCPeerConnection.js? A short guide](https://webrtc-experiment.appspot.com/howto/)
-
-##Spec references 
-
-* [WebRTC 1.0: Real-time Communication Between Browsers](http://dev.w3.org/2011/webrtc/editor/webrtc.html)
-* [TURN Server at Wikipedia!](http://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)
-* [STUN Server at Wikipedia!](http://en.wikipedia.org/wiki/STUN)
 
 ## License
 Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.

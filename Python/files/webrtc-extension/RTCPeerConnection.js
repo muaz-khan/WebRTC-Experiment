@@ -1,38 +1,4 @@
-![WebRTC Experiment!](https://muazkh.appspot.com/images/WebRTC.png)
-
---
-
-[WebRTC Experiments](https://webrtc-experiment.appspot.com) using WebSocket, Socket.io and XHR for signaling. Also screen, video and audio broadcasting experiments!
-
-## Preview / Demos / Experiments
-
-* [Screen Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/screen-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/screen-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/screen-broadcast/?turn=true)
-* [Voice/Audio Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/audio-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/audio-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/audio-broadcast/?turn=true)
-* [Video Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/broadcast/) - [STUN](https://webrtc-experiment.appspot.com/broadcast/) / [TURN](https://webrtc-experiment.appspot.com/broadcast/?turn=true)
-* [WebRTC Experiment using Socket.io for signalling](https://webrtc-experiment.appspot.com/socket.io/) - [STUN](https://webrtc-experiment.appspot.com/socket.io/) / [TURN](https://webrtc-experiment.appspot.com/socket.io/?turn=true)
-* [WebRTC Experiment using WebSocket for signalling](https://webrtc-experiment.appspot.com/websocket/) - [STUN](https://webrtc-experiment.appspot.com/websocket/) / [TURN](https://webrtc-experiment.appspot.com/websocket/?turn=true)
-* [WebRTC Experiment using PubNub](https://webrtc-experiment.appspot.com/javascript/) - [TURN](https://webrtc-experiment.appspot.com/javascript/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/javascript/)
-* [WebRTC Experiment using XHR over ASPNET MVC](https://webrtc-experiment.appspot.com/aspnet-mvc/) - [TURN](https://webrtc-experiment.appspot.com/aspnet-mvc/?turn=true) / [STUN](https://webrtc-experiment.appspot.com/aspnet-mvc/)
-
-If you're new to WebRTC; following demos are for you!
-
-* [A realtime browswer only experiment](https://webrtc-experiment.appspot.com/demos/client-side.html) - no server for signalling!
-* [A realtime browswer only experiment using socket.io](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) - no server for signalling!
-* [A realtime browswer only experiment using WebSocket](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) - no server for signalling!
-
-##Credits
-
-* [Muaz Khan](http://github.com/muaz-khan)!
-* [PubNub](https://github.com/pubnub/pubnub-api)!
-
-##Browsers
-
-It works fine on Google Chrome Stable 23 (and upper stable releases!)
-
-## JavaScript code from [RTCPeerConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection.js)!
-
-```javascript
-window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
+﻿window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
 window.SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;
 window.IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.RTCIceCandidate;
 
@@ -126,11 +92,7 @@ function getUserMedia(options) {
             return stream;
         }, options.onerror);
 }
-```
-
-## JavaScript code from [RTCPeerConnection-Helpers.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection-Helpers.js)!
-
-```javascript
+		
 var codecs = {};
 
 /* this function credit goes to Google Chrome WebRTC team! */
@@ -242,63 +204,3 @@ codecs.isopus = function () {
 
 /* used to know opus codec support */
 var isopus = !!codecs.isopus();
-```
-
-##[How to use RTCPeerConnection.js](https://webrtc-experiment.appspot.com/howto/)?
-
-```javascript
-/* ---------- offerer -------- */
-var peer = RTCPeerConnection({
-    iceServers : { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", 
-                                    "credential": "muazkh" }] },
-    stream     : clientStream,				/* Attach your client stream */
-    isopus     : window.isopus,				/* if opus codec is supported; use it! */
-
-    getice     : function (candidate) {},	/* Send ICE to other peer! */
-    gotstream  : function (stream) {},		/* Play remote video */
-    onoffer    : function(sdp) {}			/* Get offer SDP and send to other peer */
-});
-
-/* Got answer SDP? pass answer sdp over this function: */
-peer.onanswer( answer_sdp );
-
-/* Got ICE? add ICE using this function */
-peer && peer.addice({
-    sdpMLineIndex : candidate.sdpMLineIndex,
-    candidate : candidate.candidate			/* JSON.parse!! */
-});
-
-/* --------------------------------------------------------------- */
-/* ---------- offerer -------- */
-var peer = RTCPeerConnection({
-    iceServers : { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", 
-                                    "credential": "muazkh" }] },
-    stream     : clientStream,				/* Attach your client stream */
-    isopus     : window.isopus,				/* if opus codec is supported; use it! */
-
-    getice     : function (candidate) {},	/* Send ICE to other peer! */
-    gotstream  : function (stream) {},		/* Play remote video */
-    onanswer   : function(sdp) {}			/* Get answer SDP and send to other peer */,
-	offer:	   : offer_sdp					/* pass offer sdp sent by other peer */
-});
-
-/* Remember: No need to call following function */
-/* peer.onanswer( answer_sdp ); */
-
-/* Got ICE? add ICE using this function */
-peer && peer.addice({
-    sdpMLineIndex : candidate.sdpMLineIndex,
-    candidate : candidate.candidate			/* JSON.parse!! */
-});
-```
-
-Remember: Don't forget to check: [How to use RTCPeerConnection.js? A short guide](https://webrtc-experiment.appspot.com/howto/)
-
-##Spec references 
-
-* [WebRTC 1.0: Real-time Communication Between Browsers](http://dev.w3.org/2011/webrtc/editor/webrtc.html)
-* [TURN Server at Wikipedia!](http://en.wikipedia.org/wiki/Traversal_Using_Relays_around_NAT)
-* [STUN Server at Wikipedia!](http://en.wikipedia.org/wiki/STUN)
-
-## License
-Copyright (c) 2012 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.

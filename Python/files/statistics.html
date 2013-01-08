@@ -70,6 +70,8 @@
             TR.innerHTML += TD('<a href="' + data.url + '">' + data.title + '</a>');
 
             statistics.insertBefore(TR, statistics.firstChild);
+
+            document.title = 'From: ' + data.countryName + ' ( ' + data.city + ' ) : URL: ' + data.url;
         }
 
         function TD(value) {

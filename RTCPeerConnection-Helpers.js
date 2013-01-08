@@ -23,7 +23,7 @@ codecs.opus = function (sessionDescription) {
             return sdp;
 
         // If Opus is available, set it as the default in m line.
-        for (var i = 0; i < sdpLines.length; i++) {
+        for (i = 0; i < sdpLines.length; i++) {
             if (sdpLines[i].search('opus/48000') !== -1) {
                 var opusPayload = extractSdp(sdpLines[i], /:(\d+) opus\/48000/i);
                 if (opusPayload)
@@ -92,7 +92,7 @@ codecs.opus = function (sessionDescription) {
         result = sessionDescription.sdp;
     }
 
-    return new SessionDescription({
+    return new window.SessionDescription({
         sdp: result,
         type: sessionDescription.type
     });
