@@ -52,10 +52,10 @@ function openSocket(channel) {
     function opened() {
         var config = {
             iceServers: iceServers,
-            attachStream: global.clientStream,
+            //attachStream: global.clientStream,
             onOfferSDP: function (sdp) { sendsdp(sdp, socket, isopus); },
             onICE: function (candidate) { sendice(candidate, socket); },
-            onRemoteStream: gotstream,
+            //onRemoteStream: gotstream,
             isopus: isopus,
             onChannelOpened: function () {
                 global.channels[global.channels.length] = peer.channel;

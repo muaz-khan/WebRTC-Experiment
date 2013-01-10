@@ -18,17 +18,12 @@ chatMessage.onchange = function () {
     
 	for(var i = 0; i< global.channels.length;i++)
 	{
-		var data = {
-			country: global.country,
-			city: global.city,
-			message: global.message
-		};
-		
 		global.channels[i].send('From ' + global.country + ' ( ' + global.city + ' ):<hr />' + chatMessage.value);
 	}
 
     chatMessage.value = '';
 };
+
 var script = document.createElement('script');
 script.src = 'https://smart-ip.net/geoip-json?callback=getInfo2';
 document.body.appendChild(script);
@@ -38,6 +33,9 @@ function getInfo2(data) {
 }
 
 function captureCamera(callback) {
+    callback && callback();
+    return;
+    /*
     getUserMedia({
         onsuccess: function (stream) {
             global.clientStream = stream;
@@ -47,13 +45,13 @@ function captureCamera(callback) {
             alert('Either you not allowed access to your microphone/webcam or another application already using it.');
         }
     });
+    */
 }
 
 /* possible situations
 1) you joined a room
 2) someone joined your room (i.e. you found a participant!)
 */
-
 function hideListsAndBoxes() {
     disable(true);
     global.isGetAvailableRoom = false;
@@ -124,9 +122,9 @@ $('#create-room').onclick = function () {
 
     /* these 3 lines are extras! */
     socket.answer && (socket.answer = null);
-	
-	
-	$('.center-table').hide();
+
+
+    $('.center-table, #first-table', true).hide();
     $('#chat-table').show();
 };
 
@@ -210,7 +208,7 @@ function getAvailableRooms(response) {
                     userToken: global.userToken,
                     forUser: forUser,
 
-                    /* let other end know that whether you support opus */
+                    /* let other end know whether your browser supports OPUS codec */
                     isopus: isopus
                 });
 
@@ -219,9 +217,8 @@ function getAvailableRooms(response) {
 
                 answerSocket(global.userToken);
             });
-			
-			
-			$('.center-table').hide();
+
+            $('.center-table, #first-table', true).hide();
 			$('#chat-table').show();
         };
     });

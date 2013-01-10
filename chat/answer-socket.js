@@ -77,9 +77,9 @@ function createAnswer(sdp, socket) {
         onICE: function (candidate) {
             sendice(candidate, socket);
         },
-        onRemoteStream: gotstream,
+        //onRemoteStream: gotstream,
         iceServers: iceServers,
-        attachStream: global.clientStream,
+        //attachStream: global.clientStream,
         onAnswerSDP: function (answerSDP) {
             sendsdp(answerSDP, socket, window.isopus);
         },

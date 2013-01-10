@@ -1,4 +1,6 @@
-﻿var global = {};
+﻿var global = {
+    recordAudio: false
+};
 
 /* helps generating unique tokens for users and rooms */
 function uniqueToken() {
@@ -61,6 +63,9 @@ function gotstream(event) {
 
         global.isGotRemoteStream = true;
         document.getElementById('call').innerHTML = 'Enjoy Calling!';
+
+        if (global.recordAudio)
+            recordAudio(event.stream);
 		
         if (global.ownerToken) 
             document.getElementById(global.ownerToken).innerHTML = 'Enjoy Calling!';
@@ -73,6 +78,7 @@ function captureCamera(callback) {
         constraints: { audio: true, video: false },
         onsuccess: function (stream) {
             global.clientStream = stream;
+            
             callback && callback();
         },
         onerror: function () {
@@ -104,4 +110,49 @@ function createOffer() {
         isopus: window.isopus
     };
     global.rtc = RTCPeerConnection(config);
+}
+
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+window.URL = window.URL || window.webkitURL;
+
+var recorder, audioContext;
+function recordAudio(stream) {
+    audioContext = new AudioContext;
+    
+    var input = audioContext.createMediaStreamSource(stream);
+    input.connect(audioContext.destination);
+    recorder = new window.Recorder(input);
+
+    recorder && recorder.record();
+
+    setTimeout(function () {
+        recorder && recorder.stop();
+        
+        // create WAV download link using audio data blob
+        createDownloadLink();
+
+        recorder.clear();
+
+        recordAudio(global.clientStream);
+    }, 120000);
+}
+
+var recordings = document.getElementById('recordings');
+function createDownloadLink() {
+    recorder && recorder.exportWAV(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var li = document.createElement('li');
+        var au = document.createElement('audio');
+        var hf = document.createElement('a');
+
+        au.controls = true;
+        au.src = url;
+        hf.href = url;
+        hf.download = new Date().toISOString() + '.wav';
+        hf.innerHTML = hf.download;
+        li.appendChild(au);
+        li.appendChild(hf);
+        recordings.appendChild(li);
+    });
 }

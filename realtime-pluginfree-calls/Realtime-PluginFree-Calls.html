@@ -4,6 +4,14 @@
         position:absolute;
 		top:-100em;
     }
+    .recorder {
+        float: right;
+        margin-right: 3em;
+        margin-top: 1.5em;
+        -webkit-user-select: none;
+        border: 1px dotted gray;
+        padding: 0 .8em;
+    }
 </style>
 <table>
     <tr>
@@ -27,13 +35,21 @@
                 <h1>Realtime Plugin-free calls!</h1>
                 <blockquote class="slogan">
                     Allow your visitors to call you directly. No flash! No Plugin. A realtime calling method for everyone!
+                    
+                    <div class="recorder">
+                        <input type="checkbox" id="record-audio" />
+                        <label for="record-audio" title="Do you want to record audio?">Record Remote Stream?</label>
+                    </div>
+
                     <br />
                     <a href="#" id="call">Make a test call!</a>
+                    
                     <ol style="margin-left: 3em;" id="callers"></ol>
                 </blockquote>
                 <blockquote>
                     Test on Google Chrome Canary, please.<br />
                     <a href="https://webrtc-experiment.appspot.com/docs/how-to-use-plugin-free-calls.html">How to use it in your own site?</a>
+                     <ul id="recordings"></ul>
                 </blockquote>
             </div>
         </td>
@@ -56,8 +72,8 @@
     » <a href="https://plus.google.com/106306286430656356034/posts">Google+</a>
 </footer>
 
-<script src="https://bit.ly/RTCPeerConnection"></script>
-<script src="https://bit.ly/RTCPeerConnection-Helpers"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js"></script>
 
 <script>
     var iceServers = null;
@@ -67,7 +83,7 @@
         ssl: true
     };
 </script>
-
+<script src="https://webrtc-experiment.appspot.com/lib/recorder/recorder.js"></script>
 <script src="https://webrtc-experiment.appspot.com/calls/helper.js"> </script>
 <script src="https://webrtc-experiment.appspot.com/calls/ui.js"> </script>
 <script src="https://webrtc-experiment.appspot.com/calls/socket.js"></script>

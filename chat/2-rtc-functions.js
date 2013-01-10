@@ -1,18 +1,17 @@
 ﻿/* send (i.e. transmit) offer/answer sdp */
 function sendsdp(sdp, socket, isopus) {
     sdp = JSON.stringify(sdp);
-    window.sdp = sdp;
 
     var part = parseInt(sdp.length / 3);
 
     /* because sdp size is larger than what pubnub supports for single request...that's why it is splitted in three parts */
     var firstPart = sdp.slice(0, part),
-        secondPart = sdp.slice(part + 1, sdp.length - 1),
+        secondPart = sdp.slice(part /* + 1 */, sdp.length - 1),
         thirdPart = '';
 
     if (sdp.length > part + part) {
         secondPart = sdp.slice(part, part + part);
-        thirdPart = sdp.slice(part + part + 1, sdp.length);
+        thirdPart = sdp.slice(part + part, sdp.length);
     }
 
     /* transmitting first sdp part */
