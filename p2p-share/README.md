@@ -18,7 +18,11 @@
 <input type="file" id="file">
 <progress id="progress-bar" max="100" value="5" style="display: none;"></progress>
 <script src="http://p2p-share.rs.af.cm/p2p-share.js"></script>
+
+<!-- And that's all you need to put in your HTML page!!! -->
 ```
+
+##Here is file-sharing.js (to understand how it works)
 
 ```javascript
 function saveToDisk(fileUrl, fileName) {
