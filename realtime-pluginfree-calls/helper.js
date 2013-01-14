@@ -49,33 +49,42 @@ function sendice(candidate) {
     });
 }
 
-function gotstream(event) {
+function gotstream(event, recheck) {
     if (event) {
-        if (!navigator.mozGetUserMedia) audio.src = webkitURL.createObjectURL(event.stream);
+        if (!navigator.mozGetUserMedia) audio.src = URL.createObjectURL(event.stream);
         else audio.mozSrcObject = event.stream;
 
         audio.addEventListener('play', function () {
             this.muted = false;
             this.volume = 1;
+			
+			finallyGotStream();
+			
+			if (global.recordAudio) recordAudio(event.stream);
         }, false);
         
         audio.play();
 
-        global.isGotRemoteStream = true;
-        document.getElementById('call').innerHTML = 'Enjoy Calling!';
-
-        if (global.recordAudio)
-            recordAudio(event.stream);
+		document.getElementById('call').innerHTML = 'Just a few seconds...';		
 		
         if (global.ownerToken) 
-            document.getElementById(global.ownerToken).innerHTML = 'Enjoy Calling!';
+			document.getElementById(global.ownerToken).innerHTML = 'Just a few seconds...';
     }
+}
+
+/* remote stream started flowing */
+function finallyGotStream(event) {
+	global.isGotRemoteStream = true;
+    document.getElementById('call').innerHTML = 'Enjoy Calling!';
+	
+	if (global.ownerToken) document.getElementById(global.ownerToken).innerHTML = 'Enjoy Calling!';
 }
 
 var audio = document.getElementById('audio');
 function captureCamera(callback) {
     getUserMedia({
         constraints: { audio: true, video: false },
+        //constraints: window.defaults.constraints,
         onsuccess: function (stream) {
             global.clientStream = stream;
             
@@ -112,12 +121,20 @@ function createOffer() {
     global.rtc = RTCPeerConnection(config);
 }
 
+// credit of "recorder.js" goes to someone else
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
 window.URL = window.URL || window.webkitURL;
 
 var recorder, audioContext;
+
+var recorderParent = document.getElementsByClassName('recorder')[0];
 function recordAudio(stream) {
+	if(global.recordAudio && recorderParent) 
+	{
+		recorderParent.innerHTML = 'Download WAV';
+		recorderParent.style.cursor = 'pointer';
+	}
     audioContext = new AudioContext;
     
     var input = audioContext.createMediaStreamSource(stream);
@@ -125,18 +142,20 @@ function recordAudio(stream) {
     recorder = new window.Recorder(input);
 
     recorder && recorder.record();
-
-    setTimeout(function () {
-        recorder && recorder.stop();
-        
-        // create WAV download link using audio data blob
-        createDownloadLink();
-
-        recorder.clear();
-
-        recordAudio(global.clientStream);
-    }, 120000);
 }
+
+if(recorderParent) recorderParent.onclick = function() {
+	if(!global.recordAudio || !global.isGotRemoteStream) return;
+	
+	recorder && recorder.stop();
+        
+	// create WAV download link using audio data blob
+	createDownloadLink();
+
+	recorder && recorder.clear();
+
+	if(recorderParent) recorderParent.style.display = 'none';
+};
 
 var recordings = document.getElementById('recordings');
 function createDownloadLink() {
@@ -153,6 +172,15 @@ function createDownloadLink() {
         hf.innerHTML = hf.download;
         li.appendChild(au);
         li.appendChild(hf);
-        recordings.appendChild(li);
+
+        if (recordings) recordings.insertBefore(li, recordings.childNodes[0]);
     });
 }
+
+/* Record voice call or audio stream */
+var recordAudioCheckBox = document.getElementById('record-audio');
+if (recordAudioCheckBox)
+    recordAudioCheckBox.onchange = function () {
+        if (this.checked) global.recordAudio = true;
+        else global.recordAudio = false;
+    };

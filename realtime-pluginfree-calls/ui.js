@@ -90,11 +90,3 @@ function onexit() {
 }
 window.onbeforeunload = onexit;
 window.onunload = onexit;
-
-/* Record voice call or audio stream */
-var recordAudioCheckBox = document.getElementById('record-audio');
-if (recordAudioCheckBox)
-    recordAudioCheckBox.onchange = function () {
-        if (this.checked) global.recordAudio = true;
-        else global.recordAudio = false;
-    };

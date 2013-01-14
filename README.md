@@ -6,7 +6,11 @@ This repository is a collection of small realtime working "server-less" WebRTC e
 
 "Server-Less" means "No Server Coding" i.e. No PHP, No ASP.NET MVC, No Java, No Python or No Node.js!
 
-You can find here experiments like screen broadcasting (over many peers); audio/video broadcasting too; also audio only experiments.
+1. Screen Broadcasting
+2. Video Broadcasting
+3. Text Broadcasting / Chat using RTCDataChannel APIs
+4. Files Broadcasting / Sharing files using RTCDataChannel APIs
+5. Audio Broadcasting / Share your voice over unlimited peers
 
 For each experiment, you can see that code is splitted in many JS-files.
 
@@ -16,15 +20,15 @@ For each experiment, you can see that code is splitted in many JS-files.
 
 For the sake of simplicity and reusability, all experiments are using a js-wrapper library for RTCWeb APIs: 
 
-* [RTCPeerConnection.js](https://bit.ly/RTCPeerConnection) - a simple js-wrapper for RTCWeb APIs 
+* [RTCPeerConnection-v1.2.js](http://bit.ly/RTCPeerConnection-v1-2) - a simple js-wrapper for RTCWeb APIs (included RTCDataChannel APIs in this wrapper file)
 * [RTCPeerConnection-Helpers.js](https://bit.ly/RTCPeerConnection-Helpers) - to prefer codecs like OPUS, to take advantage of all useful codecs, and stuff.
 
 ## How this app manages to broadcast stream?
 
 Nothing special; it is super easy. If you look at those projects, you can see that there are two js files:
 
-* answer-socket.js
-* master-socket.js
+* [answer-socket.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/broadcast/master-socket.js)
+* [master-socket.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/broadcast/answer-socket.js)
 
 Master socket is the main player here. It handles all upcoming requests and it opens a new socket for each new user/peer. Now it is that newly created peer's job to handle SDP/ICE exchange between that user and itself. Note that the "same client stream" is attached here to make it a real broadcast.
 
@@ -32,6 +36,7 @@ Video conferencing is also super-easy. You can ask each "answer socket" to play 
 
 ## Here is the list of all experiments:
 
+* [P2P sharing files using RTCDataChannel APIs](http://p2p-share.tk/)
 * [Realtime Chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/chat/) - [STUN](https://webrtc-experiment.appspot.com/chat/) / [TURN](https://webrtc-experiment.appspot.com/chat/?turn=true)
 * [Plugin-free calls](https://webrtc-experiment.appspot.com/calls/) - [STUN](https://webrtc-experiment.appspot.com/calls/) / [TURN](https://webrtc-experiment.appspot.com/calls/?turn=true)
 * [Screen Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/screen-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/screen-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/screen-broadcast/?turn=true)
@@ -53,7 +58,7 @@ If you're new to WebRTC; following demos are for you!
 
 The app is using following js-wrapper library for RTCWeb APIs:
 
-## JavaScript code from [RTCPeerConnection-v1.1.js](https://webrtc-experiment.appspot.com/lib/RTCPeerConnection-v1.1.js)!
+## JavaScript code from [RTCPeerConnection-v1.2.js](http://bit.ly/RTCPeerConnection-v1-2)!
 
 ```javascript
 window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
@@ -62,19 +67,25 @@ window.IceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || win
 
 window.defaults = {
     iceServers: { "iceServers": [{ "url": "stun:stun.l.google.com:19302" }] },
-    constraints: { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } }
+    constraints: { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } },
+    optional: { optional: [{ RtpDataChannels: true}] }
 };
 
-var RTCPeerConnection = function(options) {
+var RTCPeerConnection = function (options) {
 
     var iceServers = options.iceServers || defaults.iceServers;
     var constraints = options.constraints || defaults.constraints;
+    var optional = options.optional || defaults.optional;
 
-    var peerConnection = new PeerConnection(iceServers);
+    var peerConnection = new PeerConnection(iceServers, optional);
+    openDataChannel();
 
     peerConnection.onicecandidate = onicecandidate;
-    peerConnection.onaddstream = onaddstream;
-    peerConnection.addStream(options.attachStream);
+
+    if (options.attachStream) {
+        peerConnection.onaddstream = onaddstream;
+        peerConnection.addStream(options.attachStream);
+    }
 
     function onicecandidate(event) {
         if (!event.candidate || !peerConnection) return;
@@ -82,13 +93,13 @@ var RTCPeerConnection = function(options) {
     }
 
     function onaddstream(event) {
-        options.onRemoteStream && options.onRemoteStream(event.stream);
+        event && options.onRemoteStream && options.onRemoteStream(event.stream);
     }
 
     function createOffer() {
         if (!options.onOfferSDP) return;
 
-        peerConnection.createOffer(function(sessionDescription) {
+        peerConnection.createOffer(function (sessionDescription) {
 
             /* opus? use it dear! */
             options.isopus && (sessionDescription = codecs.opus(sessionDescription));
@@ -105,7 +116,7 @@ var RTCPeerConnection = function(options) {
         if (!options.onAnswerSDP) return;
 
         peerConnection.setRemoteDescription(new SessionDescription(options.offerSDP));
-        peerConnection.createAnswer(function(sessionDescription) {
+        peerConnection.createAnswer(function (sessionDescription) {
 
             /* opus? use it dear! */
             options.isopus && (sessionDescription = codecs.opus(sessionDescription));
@@ -118,26 +129,66 @@ var RTCPeerConnection = function(options) {
 
     createAnswer();
 
+    var channel;
+    function openDataChannel() {
+        if (!peerConnection || typeof peerConnection.createDataChannel == 'undefined') {
+            if (options.onChannelMessage) {
+                var error = 'RTCDataChannel is not enabled. Use Chrome Canary and enable this flag via chrome://flags';
+                console.error(error);
+                alert(error);
+            }
+            return;
+        }
+
+        channel = peerConnection.createDataChannel(options.channel || 'RTCDataChannel', { reliable: false });
+
+        channel.onmessage = function (event) {
+            if (options.onChannelMessage) options.onChannelMessage(event);
+        };
+
+        channel.onopen = function (event) {
+            console.log('RTCDataChannel opened.');
+            if (options.onChannelOpened) options.onChannelOpened(event);
+        };
+        channel.onclose = function (event) {
+            console.log('RTCDataChannel closed.');
+            if (options.onChannelClosed) options.onChannelClosed(event);
+        };
+        channel.onerror = function (event) {
+            console.error(event);
+            if (options.onChannelError) options.onChannelError(event);
+        };
+
+        peerConnection.ondatachannel = function () {
+            console.log('peerConnection.ondatachannel event fired.');
+        };
+    }
+
     return {
         /* offerer got answer sdp; MUST pass sdp over this function */
-        addAnswerSDP: function(sdp) {
+        addAnswerSDP: function (sdp) {
             peerConnection.setRemoteDescription(new SessionDescription(sdp));
         },
-        
+
         /* got ICE from other end; MUST pass those candidates over this function */
-        addICE: function(candidate) {
+        addICE: function (candidate) {
             peerConnection.addIceCandidate(new IceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
             }));
+        },
+        peer: peerConnection,
+        channel: channel,
+        sendData: function (message) {
+            channel && channel.send(message);
         }
     };
 };
 
-function getUserMedia(options) {
-    var URL = window.webkitURL || window.URL;
-    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
+var URL = window.webkitURL || window.URL;
+navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
 
+function getUserMedia(options) {
     navigator.getUserMedia(options.constraints || { audio: true, video: true },
         function (stream) {
 
@@ -148,7 +199,9 @@ function getUserMedia(options) {
             options.onsuccess && options.onsuccess(stream);
 
             return stream;
-        }, options.onerror);
+        }, function () {
+            options.onerror && options.onerror();
+        });
 }
 ```
 

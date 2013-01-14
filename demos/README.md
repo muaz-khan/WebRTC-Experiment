@@ -4,6 +4,7 @@
 
 There are three experiments in this directory:
 
+* [100% client side---Chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/demos/client-side-datachannel.html)
 * [100% client side---no protocol like websocket or socket.io---no XHR!](https://webrtc-experiment.appspot.com/demos/client-side.html)
 * [100% client side---socket.io as signaling gateway](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html)
 * [100% client side---websocket as signaling gateway](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html)
