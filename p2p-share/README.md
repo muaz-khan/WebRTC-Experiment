@@ -2,7 +2,7 @@
 
 --
 
-[P2P sharing files using RTCDataChannel APIs](http://p2p-share.tk/).
+[P2P sharing files using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/).
 
 ##How to use in your own site?
 
@@ -17,7 +17,7 @@
 <!-- mandatory -->
 <input type="file" id="file">
 <progress id="progress-bar" max="100" value="5" style="display: none;"></progress>
-<script src="http://p2p-share.rs.af.cm/p2p-share.js"></script>
+<script src="http://bit.ly/p2p-share"></script>
 
 <!-- And that's all you need to put in your HTML page!!! -->
 ```

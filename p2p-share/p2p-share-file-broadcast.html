@@ -1,0 +1,67 @@
+﻿<style>
+    progress {
+	    -webkit-appearance: none;
+	    border: solid #cccccc 5px;
+	    border-radius: 10px;
+	    width: 238px;
+	    height: 45px;
+    }
+    progress[role]:after {
+	    background-image: none;
+    }
+    progress::-webkit-progress-bar {
+	    background: #cccccc;
+    }
+    progress::-webkit-progress-value {
+	    border-radius: 5px;
+	    background-image: -webkit-gradient(
+		    linear,
+		    left bottom,
+		    left top,
+		    color-stop(0, rgb(43,194,83)),
+		    color-stop(1, rgb(84,240,84))
+	    );
+	    background-image: -webkit-linear-gradient(
+		    center bottom,
+		    rgb(43,194,83) 37%,
+		    rgb(84,240,84) 69%
+	    );
+    }
+    strong { font-weight: inherit;color: red;}
+    code, code strong { font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;}
+	input[type=button]
+	{
+		padding: 0.1em .42em;
+	}
+</style>
+
+<table style="width: 100%;">
+    <tr>
+        <td style="width: 50%">
+            <blockquote>
+                <input type="button" value="Create Room" id="create-room">
+                <input type="file" id="file" disabled>
+                <progress id="progress-bar" max="100" value="5" style="display: none;"></progress>
+            </blockquote>
+            <blockquote>
+                <div>
+                    <textarea id="message" placeholder="Something went wrong? Need any help?"></textarea>
+                </div>
+                <a id="send-message" class="send-message" href="#send-message">Send Message to Muaz Khan</a>
+            </blockquote>
+        </td>
+        <td id="output-panel">
+            <blockquote>
+                You can use hash "<strong>#</strong>" to change channel (useful to share files <strong>privately</strong>)!!! 
+            </blockquote>
+            <blockquote>
+                After using hash "<strong>#</strong>", <strong>send that link to your friend</strong>, and he will <strong>auto connect</strong> to you! 
+            </blockquote>
+            <blockquote>
+                Like this: <a href="/file-broadcast/"><code>/file-broadcast/<strong id="unique-token">#123456789</strong></code></a>
+            </blockquote>
+        </td>
+    </tr>
+</table>
+
+<script src="http://bit.ly/p2p-share"></script>

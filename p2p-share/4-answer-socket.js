@@ -1,4 +1,4 @@
-﻿global.defaultChannel = location.hash.replace('#', '') || window.defaultChannel || '----------';
+﻿global.defaultChannel = location.hash.replace('#', '') || window.defaultChannel || 'WebRTC File Broadcast';
 
 /* master socket is created for owner; answer socket for participant */
 var socket = {

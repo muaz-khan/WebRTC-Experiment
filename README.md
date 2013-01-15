@@ -36,7 +36,7 @@ Video conferencing is also super-easy. You can ask each "answer socket" to play 
 
 ## Here is the list of all experiments:
 
-* [P2P sharing files using RTCDataChannel APIs](http://p2p-share.tk/)
+* [P2P sharing files using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
 * [Realtime Chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/chat/) - [STUN](https://webrtc-experiment.appspot.com/chat/) / [TURN](https://webrtc-experiment.appspot.com/chat/?turn=true)
 * [Plugin-free calls](https://webrtc-experiment.appspot.com/calls/) - [STUN](https://webrtc-experiment.appspot.com/calls/) / [TURN](https://webrtc-experiment.appspot.com/calls/?turn=true)
 * [Screen Broadcasting using WebRTC](https://webrtc-experiment.appspot.com/screen-broadcast/) - [STUN](https://webrtc-experiment.appspot.com/screen-broadcast/) / [TURN](https://webrtc-experiment.appspot.com/screen-broadcast/?turn=true)
