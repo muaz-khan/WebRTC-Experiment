@@ -23,16 +23,19 @@
 };
 
 var dl = document.getElementsByTagName('dl')[0], expanded = false;
-document.getElementsByTagName('summary')[0].onclick = function () {
-    if (!expanded) {
-        dl.style.maxHeight = '20em';
-        expanded = true;
-    }
-    else {
-        dl.style.maxHeight = '0';
-        expanded = false;
-    }
-};
+var summary = document.getElementsByTagName('summary')[0];
+if(summary) {
+	summary.onclick = function () {
+		if (!expanded) {
+			dl.style.maxHeight = '20em';
+			expanded = true;
+		}
+		else {
+			dl.style.maxHeight = '0';
+			expanded = false;
+		}
+	};
+}
 
 (function () {
     var po = document.createElement('script');
@@ -42,3 +45,27 @@ document.getElementsByTagName('summary')[0].onclick = function () {
     var s = document.getElementsByTagName('script')[0];
     s.parentNode.insertBefore(po, s);
 })();
+
+var script = document.createElement('script');
+script.src = '/dependencies/messenger.js';
+document.body.appendChild(script);
+
+var script = document.createElement('script');
+script.src = 'https://smart-ip.net/geoip-json?callback=getInfo';
+document.body.appendChild(script);
+
+var textarea = document.getElementById('message');
+if (textarea)
+    document.getElementById('send-message').onclick = function() {
+        var element = this;
+        element.style.color = 'gray';
+        element.innerHTML = 'Sending...';
+
+        window.messenger.deliver(textarea.value, function() {
+            element.style.color = '#1B75C9';
+            textarea.value = '';
+            element.innerHTML = 'Send Message';
+
+            alert('Your message has been sent successfully. Thanks');
+        });
+    };

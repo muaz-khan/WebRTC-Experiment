@@ -4,6 +4,8 @@
 
 [This webrtc experiment](https://webrtc-experiment.appspot.com/audio-broadcast/) uses socket.io as signaling gateway.
 
+##[How to share audio-only streams?](https://webrtc-experiment.appspot.com/docs/how-to-share-audio-only-streams.html)
+
 Pubnub is used as a wrapper for socket.io
 
 [RTCPeerConnection.js](https://bit.ly/RTCPeerConnection) is used as JavaScript-Wrapper for RTCWeb APIs.

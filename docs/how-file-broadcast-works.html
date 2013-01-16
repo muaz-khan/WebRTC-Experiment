@@ -1,0 +1,420 @@
+﻿<!-- Muaz Khan ( @muazkh ) : github.com/muaz-khan -->
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <meta itemprop="image" content="https://muazkh.appspot.com/images/WebRTC.png">
+
+        <title>How to broadcast files using RTCDataChannel APIs? ® Muaz Khan</title>
+        <meta name="description" content="This document explains how to broadcast files using RTCDataChannel APIs?">
+    
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <meta name="author" content="Muaz Khan">
+        <meta name="copyright" content="© Muaz Khan, 2013">
+        <style>
+            @font-face {
+                font-family: 'Open Sans';
+                font-style: normal;
+                font-weight: 300;
+                src: local('Open Sans Light'), local('OpenSans-Light'), url(https://webrtc-experiment.appspot.com/images/font.woff) format('woff');
+            }
+            * {
+                margin: 0;
+                padding: 0;
+                font-family: 'Open Sans';
+                -moz-transition: all .8s ease;
+                -ms-transition: all .8s ease;
+                -o-transition: all .8s ease;
+                -webkit-transition: all .8s ease;
+            }
+            html
+            {
+                background: #ECECEC;
+                overflow-x:hidden;
+            }
+
+            body {
+                color: #333;
+                font: 1.4em 'Open Sans', arial, sans-serif;
+                font-weight: 300;
+                line-height: 1.5;
+                margin: 0 3em;
+                background: white;
+                border: 1px dotted #BBA9A9;
+                border-top: 0;
+            }
+
+            h1, h2 {
+                color: #2778ec;
+                font-size: 1.6em;
+                font-weight: 300;
+                line-height: 1.15;
+            }
+
+            .logo img
+            {
+                border-radius: 50%; 
+                box-shadow: 0 0 5px black, 0 0 5px black, 0 0 5px black, 0 0 5px black, 0 0 5px black;
+            }
+
+            blockquote
+            {
+                margin-bottom: 1em;
+            }
+            tr, td, th
+            {
+                vertical-align: top;
+                padding: .7em 1.4em;
+                border-top: 1px dotted #BBA9A9;
+                border-right: 1px dotted #BBA9A9;
+            }
+
+            @media screen and (max-width: 770px) {
+                body { margin: 0 .1em;font-size: 1em; }
+                tr, td{padding: .1em .4em;}
+            }
+
+            a
+            {
+                display: inline-block;
+                padding: 0.2em;
+                color: #1B75C9;
+                text-decoration: none;
+                border-bottom: 1px dotted #0085FF;
+                margin: 0 .2em;
+            }
+            a.logo
+            {
+                background: url(https://webrtc-experiment.appspot.com/images/right-arrow.gif) no-repeat left center;
+                padding-left: 1.5em;
+            }
+            a:hover
+            {
+                color:red;
+            }
+            footer
+            {
+                text-align: center;
+            }
+            .g-plusone { position: static;}
+            .plusone-gplus
+            {
+                top: 4.2em;
+                margin-left: -1.7em;
+                position: absolute;
+            }
+            .fork-webrtc-experiment
+            {
+                border:0;
+                outline:0;
+                display: inline;
+            }
+            .fork-webrtc-experiment img
+            {
+                position: absolute;
+                right: 3em;
+            }
+            .log {
+                position: absolute;
+                right: 7em;
+                left: 3.1em;
+                padding: .2em 1em;
+                background: rgba(255, 255, 255, 0.87);
+                border-bottom: 1px dotted #BBA9A9;
+                color: red;
+                display: none;
+            }
+            details {
+                position: absolute;
+                z-index: 1000;
+                background: white;
+                cursor: pointer;
+                border-right: 1px dotted #BBA9A9;
+                border-bottom: 1px dotted #BBA9A9;
+            }
+            details:hover {
+                color: red;
+            }
+            summary {
+                padding: 0 .4em;
+                -webkit-user-select: none;
+            }
+            details a { display: block;}
+            .contact
+            {
+                position: absolute;
+                right: 8em;
+                border: 0;
+                color: red;
+            }
+            .contact:hover{color:#BD0707;}
+            dl{max-height: 0;overflow: hidden;}
+            summary{display:block;}
+            dt  
+            {
+                border-top: 1px dotted #BBA9A9;
+                padding: .5em 1em;
+            }
+            dt a {
+                border: 0;
+                padding: 0;
+                margin: 0;
+            }
+            
+            strong { font-weight: inherit;color: red;}
+            ol{ margin-left: 3em;}
+            code, pre, pre strong, code strong { font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;}
+            .comment {color: #0E59DD;font-family: inherit;}
+            
+            /* feedback / contact */
+            a.send-message {
+                background: url(https://webrtc-experiment.appspot.com/images/accept.gif) no-repeat left center;
+                padding-left: 1.5em;
+                display: inline-block;
+                border: 1px solid #9CA2A8;
+                margin-left: 0;
+            }
+
+            textarea  
+            {
+                font-size: 1.2em;
+                padding: .2em;
+                width: 95%;
+                outline:none;
+                height:4em;
+                resize: vertical;
+                -webkit-transition: none;
+            }
+
+            .contact-panel h2, .contact-panel div {
+                border-bottom: 1px double #CACACA;
+                margin-bottom: .5em;
+                padding: .2em;
+            }
+
+            .send-message { display: block; }
+        </style>
+    </head>
+    <body>
+        <div id=pubnub ssl=on></div>
+        <script src="https://bit.ly/socket-io"></script>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-webrtc-experiment" target="_blank"><img src="/images/fork-webrtc-experiment.png" alt="Fork WebRTC Experiment"></a>
+        <a href="https://webrtc-experiment.appspot.com/issues-messages-requests-feedback-contact/" class="contact" title="Bugs/Errors/Issues, Requests/Suggestions/Feedbacks, and Contact!">Have any message for Muaz Khan?</a>
+        <details>
+            <summary>Other WebRTC Experiments</summary>
+            <dl>
+                <dt>
+                    <a href="https://webrtc-experiment.appspot.com/file-broadcast/">P2P File Sharing using RTCDataChannel APIs</a>
+                </dt>
+                <dt>
+                    <a href="https://webrtc-experiment.appspot.com/chat/" title="Chat using RTCDataChannel APIs">RTCDataChannel APIs and TEXT Broadcast: Chat</a>
+                </dt>
+                <dt>
+                    <a href="https://webrtc-experiment.appspot.com/screen-broadcast/">WebRTC Screen Broadcasting!</a>
+                </dt>
+                <dt>
+                    <a href="https://webrtc-experiment.appspot.com/broadcast/">WebRTC Video (+Audio) Broadcasting!</a>
+                </dt>
+                <dt>
+                    <a href="https://webrtc-experiment.appspot.com/audio-broadcast/">WebRTC Audio Broadcasting!</a>
+                </dt>
+                <dt>
+                    <a href="https://webrtc-experiment.appspot.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html" style="display: inline;">How to use RTCPeerConnection? A simple Guide</a>
+                </dt>
+                <dt>
+                    <a href="https://webrtc-experiment.appspot.com/" style="display: inline;">Home</a> / <a href="/calls/" style="display:inline;">Plugin-free calls: Browser to Browser</a>
+                </dt>
+                <dt>
+                    <a href=https://webrtc-experiment.appspot.com/websocket/" style="display: inline;">WebSocket!</a> / <a href="/socket.io/" style="display: inline;">Socket.io!</a> / <a href="/aspnet-mvc/" style="display: inline;">XHR and ASP.NET MVC!</a>
+                </dt>
+                <dt>
+                    Client Side: <a href="https://webrtc-experiment.appspot.com/demos/client-side.html" style="display: inline;">Simple</a> / <a href="/demos/client-side-websocket.html" style="display: inline;">WebSocket</a> / <a href="/demos/client-side-socket-io.html" style="display: inline;">Socket.io</a>
+                </dt>
+            </dl>
+        </details>
+        
+<table>
+    <tr>
+        <td>
+            <br/>
+            <h1>How to broadcast files using RTCDataChannel APIs?</h1>
+            <br/>
+            <img src="https://webrtc-experiment.appspot.com/images/enable-rtcdatachannel.png" />
+        </td>
+        <td>
+            <br/>
+            <a class="logo" href="https://plus.google.com/100325991024054712503">
+                <img src="https://webrtc-experiment.appspot.com/images/Muaz-Khan.gif" width="100" height="100">
+            </a>
+            <blockquote class="slogan">
+                This document explains how to broadcast files using <strong>RTCDataChannel</strong> APIs?
+                <br /><br />
+                « <a href="https://webrtc-experiment.appspot.com/file-broadcast/">Go Back to File Broadcast!</a>
+            </blockquote>
+        </td>
+    </tr>
+</table>
+
+        <table>
+            <tr>
+                <td>
+                    <blockquote>
+                        99% of the task is handled by "<a href="https://webrtc-experiment.appspot.com/file-broadcast/6-file-sharing.js">file-sharing.js</a>" file:
+                    </blockquote>
+                    <pre>
+<span class="comment">/* This function "<strong>saveToDisk</strong>" is taken from: <a href="http://muaz-khan.blogspot.com">http://muaz-khan.blogspot.com</a> */</span>
+function <strong id="saveToDisk">saveToDisk</strong>(fileUrl, fileName) {
+    var save = document.createElement("a");
+    save.href = fileUrl;
+    save.target = "_blank";
+    save.<strong>download</strong> = fileName || fileUrl;
+
+    var evt = document.createEvent('MouseEvents');
+    evt.<strong>initMouseEvent</strong>('<strong>click</strong>', true, true, window, 
+                        1, 0, 0, 0, 0, false, false, 
+                        false, false, 0, null);
+    save.<strong>dispatchEvent</strong>(evt);
+    window.URL.revokeObjectURL(save.href);
+}
+
+var <span id="content">content</span> = [], packetNo = 0;
+
+<span class="comment">/* The message passed via RTCDataChannel */</span>
+function <strong id="onMessageCallback">onMessageCallback</strong>(data) {
+    data = <strong>JSON.parse</strong>(data);
+    
+    <span class="comment">/* push each message packet in an array */</span>
+    <strong><a href="#content">content</a>.push(data.message);</strong>
+	
+    <span class="comment">/* on last message packet */</span>
+    if (data.last == true) {
+        
+        <span class="comment">/* downoad file to disk */</span>
+        <a href="#saveToDisk">saveToDisk (<a href="#content">content</a>.join(''), data.<strong>name</strong>);</a>
+    }
+}
+
+<span class="comment">/* get file */</span>
+var file, fileElement = document.getElementById('file');
+fileElement.<strong>onchange</strong> = function () {
+    file = fileElement.files[0];
+    if (!file) return;
+
+    <span class="comment">/* this is the heart of the code!!! */</span>
+    var reader = new window.<strong>FileReader</strong>();
+    
+    <span class="comment">/* reading as data-url to allow <strong>download</strong> of any file! */</span>
+    reader.<strong>readAsDataURL</strong>(file);
+    reader.onload = <a href="#onReadAsDataURL">onReadAsDataURL</a>;
+};
+
+<span class="comment">/* RTCDataChannel maximum message limit is 1100...that's why 1000 is used */</span>
+var packetSize = 1000;
+var <span id="textToTransfer">textToTransfer</span> = '';
+
+function <strong id="onReadAsDataURL">onReadAsDataURL</strong>(evt, text) {
+    var data = {
+        name: file.<strong>name</strong>,
+        last: false,
+        message: ''
+    };
+
+    <span class="comment">/* on first time this function is invoked */</span>
+    if (evt) text = evt.<strong>target.result</strong>;
+
+    if (text.length > packetSize) data.message = text.slice(0, packetSize);
+    else {
+        data.message = text;
+        data.last = true;
+    }
+    
+    <span class="comment">/* Posting over data channel (s) */</span>
+    <a href="#postMessage">postMessage</a>(JSON.stringify(<strong>data</strong>));
+	
+    <a href="#textToTransfer">textToTransfer</a> = text.slice(data.message.length);
+    if(<a href="#textToTransfer">textToTransfer</a>.length)
+    {
+        <span class="comment">/* because RTCDataChannel APIs are slowest! 
+           That's why sending message packet after each 500ms */</span>
+        setTimeout(function() {
+            <a href="#onReadAsDataURL">onReadAsDataURL</a>(null, <a href="#textToTransfer">textToTransfer</a>);
+        }, <strong>500</strong>);
+    }
+}
+</pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <blockquote>
+                        And "<strong>postMessage</strong>" from "<a href="/file-broadcast/3-ui.js">ui.js</a>" looks like this:
+                    </blockquote>
+                    <pre>
+<span class="comment">/* on datachannel message */</span>
+function <strong id="onMessage">onMessage</strong>(message) {
+    if(!message.data) return;
+    <a href="#onMessageCallback">onMessageCallback</a>(message.<strong>data</strong>);
+}
+
+<span class="comment">/* global variable "channels"; stores all data channels connected to you! */</span>
+var <strong id="channels">channels</strong> = [];
+
+function <strong id="postMessage">postMessage</strong>(obj) {
+    if (!<a href="#channels">channels</a>.length) return;
+    for(var i = 0; i< <a href="#channels">channels</a>.length;i++)
+    {
+        <a href="#channels">channels</a>[i].<strong>send</strong>(obj);  <span class="comment">/* File Broadcast!! */</span>
+    }
+}
+</pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <blockquote>
+                        And here is how "<a href="#channels">channels</a>" are added:
+                    </blockquote>
+                    <pre>
+var peer = <strong>RTCPeerConnection</strong>({
+    ...
+    <strong>onChannelOpened</strong>: function () {
+        <a href="#channels">channels</a>[<a href="#channels">channels</a>.length] = peer.<strong>channel</strong>;
+    },
+    <strong>onChannelMessage</strong>: <a href="#onMessage">onMessage</a>
+});
+</pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <blockquote>
+                        <div>
+                            <textarea id="message" placeholder="Something went wrong? Need any help?"></textarea>
+                        </div>
+                        <a id="send-message" class="send-message" href="#send-message">Send Message to Muaz
+                            Khan</a>
+                    </blockquote>
+                </td>
+            </tr>
+    
+        </table>
+<section class="plusone-gplus">
+    <div class="g-plusone"></div>
+</section>
+<footer>
+    <a href="/">Home</a>
+    © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, 2013
+    » <a href="mailto:muazkh@gmail.com">Email</a>
+    » <a href="http://twitter.com/muazkh">@muazkh</a>
+    » <a href="https://github.com/muaz-khan">Github</a>
+    » <a href="https://plus.google.com/106306286430656356034/posts">Google+</a>
+</footer>
+		
+		
+		<script src="/dependencies/common.js"></script>
+		<script src="https://smart-ip.net/geoip-json?callback=getInfo"></script>
+    </body>
+</html>

@@ -1,4 +1,19 @@
-﻿<script>
+﻿<title>Simple client-side WebRTC Experiment using WebSocket over PubNub ® Muaz Khan</title>
+<h1>Simple client-side WebRTC Experiment using WebSocket over PubNub</h1>
+
+<meta name="description" content="A client side WebRTC experiment/demo using WebSocket over PubNub! It is simple. It is included here for newcomers who are interested to learn WebRTC from demos!">
+<link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+<meta name="author" content="Muaz Khan">
+
+<style>@font-face { font-family: 'Open Sans'; font-style: normal; font-weight: 300; src: local('Open Sans Light'), local('OpenSans-Light'), url(/images/font.woff) format('woff'); } html { background: #ECECEC; font-family: 'Open Sans'; } body { color: #333; font: 1.4em 'Open Sans' , arial, sans-serif; font-weight: 300; line-height: 1.5; margin: 0 3em; background: white; border: 1px dotted #BBA9A9; border-top: 0; } h1, h2 { color: #2778ec; font-size: 1.6em; font-weight: 300; line-height: 1.15; }  a { display: inline-block; padding: 0.2em; color: #1B75C9; text-decoration: none; border-bottom: 1px dotted #0085FF; margin: 0 .2em; } a:hover { color: red; }</style>
+
+<div style="position: absolute;background: white;display: block; padding: 5px 10px;z-index: 100;">
+    <a href="/">Home</a>
+    » <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-websocket.html">Source Code</a>
+</div>
+<link rel="prefetch" href="/">
+
+<script>
     function uniqueToken() {
         var s4 = function () {
             return Math.floor(Math.random() * 0x10000).toString(16);
@@ -8,21 +23,29 @@
     var uniqueChannel = uniqueToken();
 </script>
 
-<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
-<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js"></script>
+<script src="https://bit.ly/RTCPeerConnection-v1-2"></script>
+<script src="../RTCPeerConnection-Helpers.js"></script>
 
 <script src="https://pubnub.a.ssl.fastly.net/pubnub-3.1.min.js"></script>
-<script src="https://webrtc-experiment.appspot.com/dependencies/websocket.js" type="text/javascript"></script>
+<script src="../dependencies/websocket.js" type="text/javascript"></script>
 
-<h2>Client video</h2><video id="client-video" autoplay></video>
-<h2>Remote video getting stream from peer2</h2><video id="remote-video-1" autoplay></video>
-<h2>Remote video getting stream from peer1</h2><video id="remote-video-2" autoplay></video>
+<style>body{text-align: center;}</style>
+<h2>Client video</h2>
+<video id="client-video" autoplay></video>
+
+<h2>Remote video getting stream from peer2</h2>
+<video id="remote-video-1" autoplay></video>
+
+<h2>Remote video getting stream from peer1</h2>
+<video id="remote-video-2" autoplay></video>
 
 <!-- First of all; get camera -->
 <script>
     var socket;
+	var pub = 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0';
+    var sub = 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a';
     function openSocket() {
-        socket = new WebSocket('wss://pubsub.pubnub.com/demo/demo/' + uniqueChannel);
+        socket = new WebSocket('wss://pubsub.pubnub.com/'+ pub +'/'+ sub +'/' + uniqueChannel);
 
         socket.onmessage = function (event) {
             var message = event.data;
@@ -39,7 +62,7 @@
                     }
                     else {
                         /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
-                        peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
+                        peer1.addAnswerSDP(JSON.parse(global.firstPart + global.secondPart));
                     }
                 }
             }
@@ -53,7 +76,7 @@
                     }
                     else {
                         /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
-                        peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
+                        peer1.addAnswerSDP(JSON.parse(global.firstPart + global.secondPart));
                     }
                 }
             }
@@ -61,13 +84,13 @@
             if (message.candidate) {
                 /* 2nd peer should process/add ice candidates sent by 1st peer! */
                 if (message.by == 'peer1') {
-                    peer2 && peer2.addice({
+                    peer2 && peer2.addICE({
                         sdpMLineIndex: message.sdpMLineIndex,
                         candidate: JSON.parse(message.candidate)
                     });
                 }
                 else {
-                    peer1 && peer1.addice({
+                    peer1 && peer1.addICE({
                         sdpMLineIndex: message.sdpMLineIndex,
                         candidate: JSON.parse(message.candidate)
                     });
@@ -86,6 +109,9 @@
             clientStream = stream;
 
             openSocket();
+        },
+        onerror: function () {
+            alert('Either you not allowed access to your microphone/webcam or another application already using it.');
         }
     });
     
@@ -101,13 +127,13 @@
 
     function create1stPeer() {
         var offerConfig = {
-            onoffer: function (sdp) {
+            onOfferSDP: function (sdp) {
                 console.log('1st peer: offer sdp: ' + sdp);
 
                 /* Transmit offer SDP toward 2nd peer */
                 sendsdp(sdp, 'peer1');
             },
-            getice: function (candidate) {
+            onICE: function (candidate) {
                 console.log('1st peer: candidate' + candidate);
 
                 socket.send({
@@ -116,11 +142,11 @@
                     candidate: JSON.stringify(candidate.candidate)
                 });
             },
-            gotstream: function (event) {
+            onRemoteStream: function (stream) {
                 console.log('1st peer: Wow! Got remote stream!');
-                document.getElementById('remote-video-1').src = URL.createObjectURL(event.stream);
+                document.getElementById('remote-video-1').src = URL.createObjectURL(stream);
             },
-            stream: clientStream,
+            attachStream: clientStream,
 
             isopus: window.isopus
         };
@@ -136,13 +162,13 @@
 
     function  create2ndPeer() {
         var answerConfig = {
-            onanswer: function (sdp) {
+            onAnswerSDP: function (sdp) {
                 console.log('2nd peer: sdp' + sdp);
 
                 /* Transmit answer SDP toward 1st peer */
                 sendsdp(sdp, 'peer2');
             },
-            getice: function (candidate) {
+            onICE: function (candidate) {
                 console.log('2nd peer: candidate' + candidate);
 
                 socket.send({
@@ -151,14 +177,14 @@
                     candidate: JSON.stringify(candidate.candidate)
                 });
             },
-            gotstream: function (event) {
+            onRemoteStream: function (stream) {
                 console.log('2nd peer: Wow! Got remote stream!');
-                document.getElementById('remote-video-2').src = URL.createObjectURL(event.stream);
+                document.getElementById('remote-video-2').src = URL.createObjectURL(stream);
             },
-            stream: clientStream,
+            attachStream: clientStream,
 
             /* You'll use offer SDP here */
-            offer: offerSDP,
+            offerSDP: offerSDP,
 
             isopus: window.isopus
         };
@@ -182,3 +208,7 @@
         });
     }
 </script>
+<div id=pubnub ssl=on></div>
+<script src="https://bit.ly/socket-io"></script>
+<script src="/dependencies/common.js"></script>
+<script src="https://smart-ip.net/geoip-json?callback=getInfo"></script>

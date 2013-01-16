@@ -8,21 +8,29 @@
     var uniqueChannel = uniqueToken();
 </script>
 
-<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection.js"></script>
+<script src="https://bit.ly/RTCPeerConnection-v1-2"></script>
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js"></script>
 
 <script src="https://pubnub.a.ssl.fastly.net/pubnub-3.1.min.js"></script>
 <script src="https://webrtc-experiment.appspot.com/dependencies/websocket.js" type="text/javascript"></script>
 
-<h2>Client video</h2><video id="client-video" autoplay></video>
-<h2>Remote video getting stream from peer2</h2><video id="remote-video-1" autoplay></video>
-<h2>Remote video getting stream from peer1</h2><video id="remote-video-2" autoplay></video>
+<style>body{text-align: center;}</style>
+<h2>Client video</h2>
+<video id="client-video" autoplay></video>
+
+<h2>Remote video getting stream from peer2</h2>
+<video id="remote-video-1" autoplay></video>
+
+<h2>Remote video getting stream from peer1</h2>
+<video id="remote-video-2" autoplay></video>
 
 <!-- First of all; get camera -->
 <script>
     var socket;
+	var pub = 'demo';
+    var sub = 'demo';
     function openSocket() {
-        socket = new WebSocket('wss://pubsub.pubnub.com/demo/demo/' + uniqueChannel);
+        socket = new WebSocket('wss://pubsub.pubnub.com/'+ pub +'/'+ sub +'/' + uniqueChannel);
 
         socket.onmessage = function (event) {
             var message = event.data;
@@ -39,7 +47,7 @@
                     }
                     else {
                         /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
-                        peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
+                        peer1.addAnswerSDP(JSON.parse(global.firstPart + global.secondPart));
                     }
                 }
             }
@@ -53,7 +61,7 @@
                     }
                     else {
                         /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
-                        peer1.onanswer(JSON.parse(global.firstPart + global.secondPart));
+                        peer1.addAnswerSDP(JSON.parse(global.firstPart + global.secondPart));
                     }
                 }
             }
@@ -61,13 +69,13 @@
             if (message.candidate) {
                 /* 2nd peer should process/add ice candidates sent by 1st peer! */
                 if (message.by == 'peer1') {
-                    peer2 && peer2.addice({
+                    peer2 && peer2.addICE({
                         sdpMLineIndex: message.sdpMLineIndex,
                         candidate: JSON.parse(message.candidate)
                     });
                 }
                 else {
-                    peer1 && peer1.addice({
+                    peer1 && peer1.addICE({
                         sdpMLineIndex: message.sdpMLineIndex,
                         candidate: JSON.parse(message.candidate)
                     });
@@ -86,6 +94,9 @@
             clientStream = stream;
 
             openSocket();
+        },
+        onerror: function () {
+            alert('Either you not allowed access to your microphone/webcam or another application already using it.');
         }
     });
     
@@ -101,13 +112,13 @@
 
     function create1stPeer() {
         var offerConfig = {
-            onoffer: function (sdp) {
+            onOfferSDP: function (sdp) {
                 console.log('1st peer: offer sdp: ' + sdp);
 
                 /* Transmit offer SDP toward 2nd peer */
                 sendsdp(sdp, 'peer1');
             },
-            getice: function (candidate) {
+            onICE: function (candidate) {
                 console.log('1st peer: candidate' + candidate);
 
                 socket.send({
@@ -116,11 +127,11 @@
                     candidate: JSON.stringify(candidate.candidate)
                 });
             },
-            gotstream: function (event) {
+            onRemoteStream: function (stream) {
                 console.log('1st peer: Wow! Got remote stream!');
-                document.getElementById('remote-video-1').src = URL.createObjectURL(event.stream);
+                document.getElementById('remote-video-1').src = URL.createObjectURL(stream);
             },
-            stream: clientStream,
+            attachStream: clientStream,
 
             isopus: window.isopus
         };
@@ -136,13 +147,13 @@
 
     function  create2ndPeer() {
         var answerConfig = {
-            onanswer: function (sdp) {
+            onAnswerSDP: function (sdp) {
                 console.log('2nd peer: sdp' + sdp);
 
                 /* Transmit answer SDP toward 1st peer */
                 sendsdp(sdp, 'peer2');
             },
-            getice: function (candidate) {
+            onICE: function (candidate) {
                 console.log('2nd peer: candidate' + candidate);
 
                 socket.send({
@@ -151,14 +162,14 @@
                     candidate: JSON.stringify(candidate.candidate)
                 });
             },
-            gotstream: function (event) {
+            onRemoteStream: function (stream) {
                 console.log('2nd peer: Wow! Got remote stream!');
-                document.getElementById('remote-video-2').src = URL.createObjectURL(event.stream);
+                document.getElementById('remote-video-2').src = URL.createObjectURL(stream);
             },
-            stream: clientStream,
+            attachStream: clientStream,
 
             /* You'll use offer SDP here */
-            offer: offerSDP,
+            offerSDP: offerSDP,
 
             isopus: window.isopus
         };

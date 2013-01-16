@@ -15,7 +15,7 @@ var Room = {
             alert(global.mediaAccessAlertMessage);
             return;
         }
-        
+
         hideListsAndBoxes();
 
         var data = {
@@ -30,8 +30,8 @@ var Room = {
             success: function (response) {
                 if (response !== false) {
                     global.roomToken = response.roomToken;
-                    global.userToken = response.ownerToken;					
-					log('Created room: ' + global.roomName);
+                    global.userToken = response.ownerToken;
+                    log('Created room: ' + global.roomName);
                     Room.waitForParticipant();
                 }
             }
@@ -42,17 +42,17 @@ var Room = {
             alert(global.mediaAccessAlertMessage);
             return;
         }
-        
+
         hideListsAndBoxes();
 
-		global.userName = prompt('Enter your name', 'Anonymous').validate()
-		
+        global.userName = prompt('Enter your name', 'Anonymous').validate();
+
         var data = {
             roomToken: element.id,
             participant: global.userName
         };
-		
-		
+
+
 
         var email = $('#email');
         if (email.value.length) data.partnerEmail = email.value.validate();
@@ -61,13 +61,13 @@ var Room = {
             data: data,
             success: function (response) {
                 if (response != false) {
-                    global.userToken = response.participantToken;                    
-					log('Connected with ' + response.friend + '!');                    
-					RTC.checkRemoteICE();
-					
-					setTimeout(function() {
-						RTC.waitForOffer();
-					}, 3000);
+                    global.userToken = response.participantToken;
+                    log('Connected with ' + response.friend + '!');
+                    RTC.checkRemoteICE();
+
+                    setTimeout(function () {
+                        RTC.waitForOffer();
+                    }, 3000);
                 }
             }
         });
@@ -85,10 +85,10 @@ var Room = {
             success: function (response) {
                 if (response !== false) {
                     global.participant = response.participant;
-                    log('Connected with ' + response.participant + '!');                    
+                    log('Connected with ' + response.participant + '!');
                     RTC.createOffer();
                 } else {
-                    log('<img src="/images/loader.gif">');
+                    log('<img src="/images/right-arrow.gif">');
                     setTimeout(Room.waitForParticipant, 3000);
                 }
             }
@@ -167,7 +167,7 @@ function captureCamera() {
             clientVideo.play();
         },
         function () {
-            location.reload();
+            alert('Either you not allowed access to your microphone/webcam or another application already using it.');
         });
 }
 
@@ -251,36 +251,34 @@ function startChatting() {
 function startChannel()
 {
 	var aside = $('aside');
-	
+
     PUBNUB.subscribe({
-        channel    : global.roomToken, 
-        restore    : false, 
-        callback   : function(response) {
-			if(response.message) {			 
-				 aside.innerHTML = '<div><h2>' + response.by + '</h2>' + response.message + '</div>' + aside.innerHTML;
-				 document.title = response.by + ': ' + response.message;
-			 }
-			 else
-			 {
-				aside.innerHTML = '<div>'+ response	+'</div>' + aside.innerHTML;
-				 document.title = response;
-			 }
+        channel: global.roomToken,
+        restore: false,
+        callback: function(response) {
+            if (response.message) {
+                aside.innerHTML = '<div><h2>' + response.by + '</h2>' + response.message + '</div>' + aside.innerHTML;
+                document.title = response.by + ': ' + response.message;
+            } else {
+                aside.innerHTML = '<div>' + response + '</div>' + aside.innerHTML;
+                document.title = response;
+            }
         },
-		
-		disconnect : function() {
-			PUBNUB.publish({
-                channel : global.roomToken,
-                message : global.userName + ' is disconnected.'
-            })
+
+        disconnect: function() {
+            PUBNUB.publish({
+                channel: global.roomToken,
+                message: global.userName + ' is disconnected.'
+            });
         },
- 
-        connect    : function() {
-			PUBNUB.publish({
-                channel : global.roomToken,
-                message : global.userName + ' is ready to chat with you!'
-            })
+
+        connect: function() {
+            PUBNUB.publish({
+                channel: global.roomToken,
+                message: global.userName + ' is ready to chat with you!'
+            });
         }
-    })
+    });
 }
 
 function postChatMessage() {

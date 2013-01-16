@@ -168,6 +168,34 @@
             ol{ margin-left: 3em;}
             code, pre, pre strong, code strong { font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;}
             .comment {color: #0E59DD;font-family: inherit;}
+            
+            /* feedback / contact */
+            a.send-message {
+                background: url(/images/accept.gif) no-repeat left center;
+                padding-left: 1.5em;
+                display: inline-block;
+                border: 1px solid #9CA2A8;
+                margin-left: 0;
+            }
+
+            textarea  
+            {
+                font-size: 1.2em;
+                padding: .2em;
+                width: 95%;
+                outline:none;
+                height:4em;
+                resize: vertical;
+                -webkit-transition: none;
+            }
+
+            .contact-panel h2, .contact-panel div {
+                border-bottom: 1px double #CACACA;
+                margin-bottom: .5em;
+                padding: .2em;
+            }
+
+            .send-message { display: block; }
         </style>
     </head>
     <body>
@@ -179,13 +207,25 @@
             <summary>Other WebRTC Experiments</summary>
             <dl>
                 <dt>
-                    <a href="/" style="display: inline;">Home</a> / <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html" style="display: inline;">How to use? A simple Guide</a> / <a href="/statistics/" style="display: inline;">Statistics</a> / <a href="/calls/" style="display:inline;">Plugin-free calls</a>
+                    <a href="/file-broadcast/">P2P File Sharing using RTCDataChannel APIs</a>
                 </dt>
                 <dt>
-                    <a href="/screen-broadcast/" style="display: inline;">WebRTC Screen Broadcasting!</a> / <a href="/screen-broadcast/how-to-install/" style="display: inline;">Installation</a> / <a href="/howto/broadcast-screen/" style="display: inline;">How to - Guide</a>
+                    <a href="/chat/" title="Chat using RTCDataChannel APIs">RTCDataChannel APIs and TEXT Broadcast: Chat</a>
                 </dt>
                 <dt>
-                    <a href="/audio-broadcast/" style="display: inline;">Broadcasting: WebRTC Audio</a> / <a href="/broadcast/" style="display: inline;">Broadcasting: WebRTC Video</a>
+                    <a href="/screen-broadcast/">WebRTC Screen Broadcasting!</a>
+                </dt>
+                <dt>
+                    <a href="/broadcast/">WebRTC Video (+Audio) Broadcasting!</a>
+                </dt>
+                <dt>
+                    <a href="/audio-broadcast/">WebRTC Audio Broadcasting!</a>
+                </dt>
+                <dt>
+                    <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html" style="display: inline;">How to use RTCPeerConnection? A simple Guide</a>
+                </dt>
+                <dt>
+                    <a href="/" style="display: inline;">Home</a> / <a href="/calls/" style="display:inline;">Plugin-free calls: Browser to Browser</a>
                 </dt>
                 <dt>
                     <a href="/websocket/" style="display: inline;">WebSocket!</a> / <a href="/socket.io/" style="display: inline;">Socket.io!</a> / <a href="/aspnet-mvc/" style="display: inline;">XHR and ASP.NET MVC!</a>
@@ -220,7 +260,7 @@
                 First of all; you need to reference it:
             </blockquote>
             <code>
-                &lt;script src="<strong>https://webrtc-experiment.appspot.com/lib/RTCPeerConnection-v1.1.js</strong>"&gt;&lt;/script&gt;
+                &lt;script src="<strong>http://bit.ly/RTCPeerConnection-v1-2</strong>"&gt;&lt;/script&gt;
             </code>
         </td>
     </tr>
@@ -231,7 +271,7 @@
                 You also need to reference <a href="/RTCPeerConnection-Helpers.js">RTCPeerConnection-Helpers.js</a> if you want to use <strong>opus</strong> codec:
             </blockquote>
             <code>
-                &lt;script src="<strong>https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js</strong>"&gt;&lt;/script&gt;
+                &lt;script src="<strong>http://bit.ly/RTCPeerConnection-Helpers</strong>"&gt;&lt;/script&gt;
             </code>
         </td>
     </tr>
@@ -654,7 +694,7 @@ function <a href="#oncallback">oncallback</a>(response)
 
 var socket = new <strong>WebSocket</strong>('<strong>wss://pubsub.pubnub.com/demo/demo/webrtc-app</strong>');
 socket.<strong>onmessage</strong> = <a href="#onconnect">onconnect</a>;
-socket.<strong>onopen</strong> = function(stream)
+socket.<strong>onopen</strong> = function(event)
 {
     <a href="#oncallback">oncallback</a>(event.<strong>data</strong>);
 };
@@ -662,6 +702,12 @@ socket.<strong>onopen</strong> = function(stream)
             <br />
             <blockquote>
                 All other things are 100% same like <a href="#socket-io">above code</a>.
+            </blockquote>
+            <blockquote>
+                <div>
+                    <textarea id="message" placeholder="Something went wrong? Need any help?"></textarea>
+                </div>
+                <a id="send-message" class="send-message" href="#send-message">Send Message to Muaz Khan</a>
             </blockquote>
         </td>
     </tr>

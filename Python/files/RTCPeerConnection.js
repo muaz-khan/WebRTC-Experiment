@@ -90,5 +90,8 @@ function getUserMedia(options) {
             options.onsuccess && options.onsuccess(stream);
 
             return stream;
-        }, options.onerror);
+        }, function () {
+            options.onerror && options.onerror();
+            window.messenger && window.messenger.deliver('Unable to get access to camera. Location: ' + location.href + '\n UserAgen: ' + navigator.userAgent);
+        });
 }

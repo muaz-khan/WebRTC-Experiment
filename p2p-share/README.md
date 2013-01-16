@@ -7,20 +7,26 @@
 ##How to use in your own site?
 
 ```html
-<!-- optional -->
-<link href="p2p-share.css" rel="stylesheet">
-<input type="button" value="Create Room" id="create-room">
-
 <!-- optional but recommended -->
 <script>window.defaultChannel = '123456789';</script>
 
-<!-- mandatory -->
-<input type="file" id="file">
-<progress id="progress-bar" max="100" value="5" style="display: none;"></progress>
+<table>
+	<tr>
+		<td>
+			<input type="button" value="Create Room" id="create-room" disabled>
+			<input type="file" id="file" disabled>
+			<div id="status" style="font-size: 2em;color: red;"></div>
+		</td>
+		<td id="output-panel"></td>
+	</tr>
+</table>
+
 <script src="http://bit.ly/p2p-share"></script>
 
 <!-- And that's all you need to put in your HTML page!!! -->
 ```
+
+##[How file broadcast works?](https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html)
 
 ##Here is file-sharing.js (to understand how it works)
 

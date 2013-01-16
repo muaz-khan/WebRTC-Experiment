@@ -44,21 +44,7 @@ def openFile(file):
 #-----------------------------------------------
 class RulesHandler(webapp2.RequestHandler):
     def get(self):
-        Title = 'WebRTC Experiment Rules/Privacy'
-        Description = Title + ': Real-time working WebRTC demos. Share your audio/video streams using the power of WebRTC! Pubnub/JavaScript Only WebRTC Experiments!'
-        Canonical = '/rules/'
-        
-        Common = openFile('common.html')\
-                 .replace('{title}', Title)\
-                 .replace('{description}', Description)\
-                 .replace('{canonical}', Canonical)
-        
-        Body = openFile('rules.html')
-
-        Common = Common.replace('{body}', Body)\
-                 .replace('{year}', str(date.today().year))
-        
-        self.response.out.write(Common)
+        self.redirect('/', True)
 
 
 #-----------------------------------------------
@@ -78,7 +64,7 @@ class AspNetMVCHandler(webapp2.RequestHandler):
 class JavaScriptHandler(webapp2.RequestHandler):
     def get(self):
 
-        self.redirect('/broadcast/')
+        self.redirect('/broadcast/', True)
 
 #-----------------------------------------------
 class SocketIOHandler(webapp2.RequestHandler):
@@ -368,6 +354,63 @@ class SiteMapHandler(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'text/xml'
         
         self.response.out.write(SiteMap)
+
+class ChatHandler(webapp2.RequestHandler):
+    def get(self):
+
+        Title = 'Realtime Chat using RTCWeb DataChannel APIs!'
+        Description = Title + ': A simple chat application uses WebRTC DataChannel APIs to transmit text message.'
+        Canonical = '/chat/'
+        
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('chat/WebRTC-Chat-using-DataChannel.html')
+
+        turn = self.request.get('turn')
+        if turn:
+            Body = Body.replace('"{stun-turn}"', global_turn)
+        else:
+            Body = Body.replace('"{stun-turn}"', global_stun)
+
+        Body = Body.replace('{publish_key}', pubKey)\
+               .replace('{subscribe_key}', subKey)
+
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
+
+class FileBroadcastHandler(webapp2.RequestHandler):
+    def get(self):
+
+        Title = 'File Broadcast using RTCDataChannel APIs'
+        Description = Title + ': Share your files using WebRTC RTCDataChannel APIs. Broadcast files over many peers (browser to browser) using purse RTCWeb DataChannel APIs.'
+        Canonical = '/file-broadcast/'
+        
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('file-broadcast/p2p-share-file-broadcast.html')
+
+        turn = self.request.get('turn')
+        if turn:
+            Body = Body.replace('"{stun-turn}"', global_turn)
+        else:
+            Body = Body.replace('"{stun-turn}"', global_stun)
+
+        Body = Body.replace('{publish_key}', pubKey)\
+               .replace('{subscribe_key}', subKey)
+
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
+
 #-----------------------------------------------        
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
@@ -385,6 +428,8 @@ app = webapp2.WSGIApplication([
     ('/howto/', HowHandler),
     ('/howto/broadcast-screen/', HowToBroadcastScreenHandler),
     ('/statistics/', StatisticsHandler),
-    ('/issues-messages-requests-feedback-contact/', ContactHandler)
+    ('/issues-messages-requests-feedback-contact/', ContactHandler),
+    ('/chat/', ChatHandler),
+    ('/file-broadcast/', FileBroadcastHandler)
     ])
         

@@ -4,6 +4,8 @@
 
 [This webrtc experiment](https://webrtc-experiment.appspot.com/broadcast/) uses socket.io as signaling gateway.
 
+##[How video broadcast works?](https://webrtc-experiment.appspot.com/docs/how-to-broadcast-video-using-RTCWeb-APIs.html)
+
 Pubnub is used as a wrapper for socket.io
 
 [RTCPeerConnection.js](https://bit.ly/RTCPeerConnection) is used as JavaScript-Wrapper for RTCWeb APIs.
