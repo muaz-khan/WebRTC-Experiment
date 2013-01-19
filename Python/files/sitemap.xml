@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<url>
+  <loc>https://webrtc-experiment.appspot.com/</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/file-broadcast/</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/docs/rtc-datachannel-for-beginners.html</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>    
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/docs/webrtc-for-beginners.html</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/docs/how-to-broadcast-video-using-RTCWeb-APIs.html</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/docs/how-to-share-audio-only-streams.html</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/demos/client-side-datachannel.html</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+	<url>
+        <loc>https://webrtc-experiment.appspot.com/chat/</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/docs/how-to-use-rtcdatachannel.html</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+	<url>
+        <loc>https://webrtc-experiment.appspot.com/docs/how-to-use-plugin-free-calls.html</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+	
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/calls/</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+    
+	<url>
+        <loc>https://webrtc-experiment.appspot.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+	
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/howto/broadcast-screen/</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+    
+	<url>
+        <loc>https://webrtc-experiment.appspot.com/issues-messages-requests-feedback-contact/</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+	
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/screen-broadcast/</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/screen-broadcast/how-to-install/</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+    
+<url>
+  <loc>https://webrtc-experiment.appspot.com/howto/</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://webrtc-experiment.appspot.com/statistics/</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://webrtc-experiment.appspot.com/audio-broadcast/</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://webrtc-experiment.appspot.com/broadcast/</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://webrtc-experiment.appspot.com/socket.io/</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://webrtc-experiment.appspot.com/websocket/</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://webrtc-experiment.appspot.com/javascript/</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://webrtc-experiment.appspot.com/aspnet-mvc/</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://webrtc-experiment.appspot.com/demos/client-side.html</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://webrtc-experiment.appspot.com/demos/client-side-websocket.html</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://webrtc-experiment.appspot.com/rules/</loc>
+  <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+  <changefreq>always</changefreq>
+  <priority>1.00</priority>
+</url>
+</urlset>

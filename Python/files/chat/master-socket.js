@@ -55,8 +55,8 @@ function openSocket(channel) {
             onOfferSDP: function (sdp) { sendsdp(sdp, socket, isopus); },
             onICE: function (candidate) { sendice(candidate, socket); },
             isopus: isopus,
-            onChannelOpened: function () {
-                global.channels[global.channels.length] = peer.channel;
+            onChannelOpened: function (channel) {
+                global.channels[global.channels.length] = channel;
 				chatMessage.removeAttribute('disabled');
 				peer.channel.send('Your friend is now connected with you! Feel free to share text messages with him.');
 				console.log('A new roommate joined you.');

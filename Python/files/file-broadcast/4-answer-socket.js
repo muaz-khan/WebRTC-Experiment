@@ -83,8 +83,8 @@ function createAnswer(sdp, socket) {
         onAnswerSDP: function (answerSDP) {
             sendsdp(answerSDP, socket, window.isopus);
         },
-        onChannelOpened: function () {
-            global.channels[global.channels.length] = global.rtc.channel;
+        onChannelOpened: function (channel) {
+            global.channels[global.channels.length] = channel;
 			disable(false);
 			global.rtc.sendData(JSON.stringify({connected: true}));
         },

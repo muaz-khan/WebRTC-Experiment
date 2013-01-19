@@ -1,90 +1,12 @@
-﻿<style>
-    progress {
-	    -webkit-appearance: none;
-	    border: solid #cccccc 5px;
-	    border-radius: 10px;
-	    width: 238px;
-	    height: 45px;
-    }
-    progress[role]:after {
-	    background-image: none;
-    }
-    progress::-webkit-progress-bar {
-	    background: #cccccc;
-    }
-    progress::-webkit-progress-value {
-	    border-radius: 5px;
-	    background-image: -webkit-gradient(
-		    linear,
-		    left bottom,
-		    left top,
-		    color-stop(0, rgb(43,194,83)),
-		    color-stop(1, rgb(84,240,84))
-	    );
-	    background-image: -webkit-linear-gradient(
-		    center bottom,
-		    rgb(43,194,83) 37%,
-		    rgb(84,240,84) 69%
-	    );
-    }
-    strong { font-weight: inherit;color: red;}
-    code, code strong { font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;}
-	input[type=button]
-	{
-		background: #0370ea;
-		background: -moz-linear-gradient(top,#008dfd 0,#0370ea 100%);
-		background: -webkit-gradient(linear,left top,left bottom,color-stop(0,#008dfd),color-stop(100%,#0370ea));
-		background: -webkit-linear-gradient(top,#008dfd 0,#0370ea 100%);
-		background: -o-linear-gradient(top,#008dfd 0,#0370ea 100%);
-		background: -ms-linear-gradient(top,#008dfd 0,#0370ea 100%);
-		background: linear-gradient(top,#008dfd 0,#0370ea 100%);
-		border: 1px solid #076bd2;
-		-moz-border-radius: 3px;
-		border-radius: 3px;
-		color: #fff !important;
-		display: inline-block;;
-		line-height: 1.3;
-		padding: 8px 25px;
-		text-align: center;
-		text-decoration: none !important;
-		text-shadow: 1px 1px 1px #076bd2;
-		-webkit-transition: none;
-	}
-	input[type=button]:hover
-	{
-		background: rgb(9, 147, 240);
-	}
-	input[type=button][disabled]
-	{
-		background: transparent!important;
-		color: gray!important;
-		text-shadow:none!important;
-	}	
-</style>
-
-<table style="width: 100%;">
-    <tr>
-        <td style="width: 50%">
-            <blockquote>
-                <input type="button" value="Create Room" id="create-room">
-                <input type="file" id="file" disabled>
-                <div id="status" style="font-size: 2em;color: red;"></div>
-            </blockquote>
-            <blockquote>
-                <div>
-                    <textarea id="message" placeholder="Something went wrong? Need any help?"></textarea>
-                </div>
-                <a id="send-message" class="send-message" href="#send-message">Send Message to Muaz Khan</a>
-            </blockquote>
-        </td>
-        <td id="output-panel">
-            <blockquote>
-                You can use hash "<strong>#</strong>" to change channel (useful to share files <strong>privately</strong>)!!! 
-            </blockquote>
-            <blockquote>
-                After using hash "<strong>#</strong>", <strong>send that link to your friend</strong>, and he will <strong>auto connect</strong> to you! 
-            </blockquote>
-        </td>
-    </tr>
+﻿<table>
+	<tr>
+		<td>
+			<input type="button" value="Create Room" id="create-room" disabled>
+			<input type="file" id="file" disabled>
+			<div id="status" style="font-size: 2em;color: red;"></div>
+		</td>
+		<td id="output-panel"></td>
+	</tr>
 </table>
+
 <script src="http://bit.ly/p2p-share"></script>

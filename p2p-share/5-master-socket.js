@@ -61,8 +61,8 @@ function openSocket(channel) {
             iceServers: iceServers,
             onOfferSDP: function (sdp) { sendsdp(sdp, socket, isopus); },
             onICE: function (candidate) { sendice(candidate, socket); },
-            onChannelOpened: function () {
-                global.channels[global.channels.length] = peer.channel;
+            onChannelOpened: function (channel) {
+                global.channels[global.channels.length] = channel;
 				disable(false);
 				peer.sendData(JSON.stringify({connected: true}));
             },

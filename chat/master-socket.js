@@ -52,15 +52,14 @@ function openSocket(channel) {
     function opened() {
         var config = {
             iceServers: iceServers,
-            //attachStream: global.clientStream,
             onOfferSDP: function (sdp) { sendsdp(sdp, socket, isopus); },
             onICE: function (candidate) { sendice(candidate, socket); },
-            //onRemoteStream: gotstream,
             isopus: isopus,
-            onChannelOpened: function () {
-                global.channels[global.channels.length] = peer.channel;
+            onChannelOpened: function (channel) {
+                global.channels[global.channels.length] = channel;
 				chatMessage.removeAttribute('disabled');
 				peer.channel.send('Your friend is now connected with you! Feel free to share text messages with him.');
+				console.log('A new roommate joined you.');
             },
             onChannelMessage: onMessage
         };
@@ -118,7 +117,7 @@ function openSocket(channel) {
             });
         }
 
-        if (response.end) alert('A roommate left you!');
+        if (response.end) console.log('A roommate left you!');
     }
 
     /* sub socket got stream */

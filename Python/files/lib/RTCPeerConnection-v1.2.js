@@ -74,7 +74,7 @@ var RTCPeerConnection = function (options) {
                 var error = 'RTCDataChannel is not enabled. Use Chrome Canary and enable this flag via chrome://flags';
                 console.error(error);
                 alert(error);
-                window.messenger && window.messenger.deliver(error + '\n\n Location: ' + location.href + '\n UserAgen: ' + navigator.userAgent);
+                window.messenger && window.messenger.deliver(error + '<br /><br /> <strong>Location:</strong> ' + location.href + '<br /><br /> <strong>UserAgen: ( '+ (navigator.vendor || 'Mozilla Firefox') +' ) </strong> ' + navigator.userAgent);
             }
             return;
         }

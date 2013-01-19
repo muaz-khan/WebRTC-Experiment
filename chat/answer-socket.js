@@ -85,8 +85,8 @@ function createAnswer(sdp, socket) {
         },
 
         isopus: window.isopus,
-        onChannelOpened: function () {
-            global.channels[global.channels.length] = global.rtc.channel;
+        onChannelOpened: function (channel) {
+            global.channels[global.channels.length] = channel;
 			chatMessage.removeAttribute('disabled');
 			global.rtc.channel.send('Your friend is now connected with you! Feel free to share text messages with him.');
         },

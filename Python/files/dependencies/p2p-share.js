@@ -24,6 +24,6 @@
     };
 	
 	var domain = 'http://p2p-share.rs.af.cm/';
-	var scriptFiles = ['http://bit.ly/socket-io', 'http://bit.ly/RTCPeerConnection-v1-2', domain +'1-helper.js', domain +'2-rtc-functions.js', domain +'4-ui.js', domain +'answer-socket.js', domain +'master-socket.js', domain +'file-sharing.js'];
+	var scriptFiles = ['http://bit.ly/socket-io', 'http://bit.ly/RTCPeerConnection-v1-3', domain +'1-helper.js', domain +'2-rtc-functions.js', domain +'4-ui.js', domain +'answer-socket.js', domain +'master-socket.js', domain +'file-sharing.js'];
 	load(0);
 })();

@@ -1,6 +1,30 @@
 ﻿var content = [];
+var moz = !!navigator.mozGetUserMedia;
+var lastFileName = ''; /* Direct file blob sharing using Firefox Nightly */
+
 function onMessageCallback(data) {
-	data = JSON.parse(data);
+    /* if firefox nightly & file blob shared */
+    if (data.size && moz) {
+        var reader = new window.FileReader();
+        reader.readAsDataURL(data);
+        reader.onload = function (event) {
+            saveToDisk(event.target.result, lastFileName);
+            quickOutput(lastFileName, 'received successfully!');
+            disable(false);
+        };
+        return;
+    }
+
+    data = JSON.parse(data);
+
+    /* if firefox nightly & file blob shared */
+    if (data.lastFileName) {
+        lastFileName = data.lastFileName;
+        quickOutput(lastFileName, 'is ready to transfer.');
+        disable(true);
+        return;
+    }
+
 	if(data.connected) 
 	{
 		quickOutput('Your friend is connected to you.');
@@ -27,6 +51,13 @@ var file, fileElement = document.getElementById('file');
 fileElement.onchange = function() {
     file = fileElement.files[0];
     if (!file) return;
+
+    /* if firefox nightly: share file blob directly */
+    if (moz) {
+        postMessage(JSON.stringify({ lastFileName: file.name }));
+        quickOutput(file.name, 'shared successfully!');
+        return postMessage(file);
+    }
 
     var reader = new window.FileReader();
     reader.readAsDataURL(file);
@@ -60,13 +91,10 @@ function onReadAsDataURL(evt, text) {
 	postMessage(JSON.stringify(data));
 	
 	textToTransfer = text.slice(data.message.length);
-	
-	if(textToTransfer.length)
-	{
-		setTimeout(function() {
-			onReadAsDataURL(null, textToTransfer);
-		}, 500);
-	}
+
+	if (textToTransfer.length) setTimeout(function () {
+	    onReadAsDataURL(null, textToTransfer);
+	}, 500)
 }
 
 function saveToDisk(fileUrl, fileName) {

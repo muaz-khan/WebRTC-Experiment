@@ -239,22 +239,26 @@
 <table>
     <tr>
         <td>
-            <br/>
+            <br/>            
+            <img src="/images/enable-rtcdatachannel.png" />
             <h1>How to use RTCDataChannel?</h1>
             <br/>
-            <img src="/images/enable-rtcdatachannel.png" />
+            <blockquote class="slogan">
+                
+                « <a href="/chat/">Go Back to Chat!</a>
+                / <a href="/demos/client-side-datachannel.html" title="A simple one-page chat demo">Simple Chat Demo</a>
+            </blockquote>
+            <a href="/docs/rtc-datachannel-for-beginners.html">RTCDataChannel for Beginners!</a>
         </td>
         <td>
+            <br/>
+            <img src="/images/firefox-nightly-preference-for-peerconnection.png" alt="Enable WebRTC on Firefox Nightly" /> 
             <br/>
             <a class="logo" href="https://plus.google.com/100325991024054712503">
                 <img src="/images/Muaz-Khan.gif" width="100" height="100">
             </a>
-            <blockquote class="slogan">
-                This guide explains "<strong>how to use RTCDataChannel</strong>".
-                <br /><br />
-                « <a href="/chat/">Go Back to Chat!</a>
-                / <a href="/demos/client-side-datachannel.html" title="A simple one-page chat demo">Simple Chat Demo</a>
-            </blockquote>
+            <br />
+            This guide explains "<strong>how to use RTCDataChannel</strong>".
         </td>
     </tr>
 </table>
@@ -263,7 +267,7 @@
             <tr>
                 <td>
                     <blockquote>
-                        If you're <strong>new</strong> to <strong>WebRTC</strong>; please read <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">this document</a>.
+                        If you're <strong>new</strong> to <strong>WebRTC</strong>; please read <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">this document</a> or this document: <a href="/docs/rtc-datachannel-for-beginners.html">RTCDataChannel for Beginners</a>.
                     </blockquote>
                 </td>
             </tr>
@@ -278,14 +282,22 @@
                         First of all, you need to reference this js-wrapper file for RTCWeb APIs:
                     </blockquote>
                     <code>
-                        &lt;script src="<strong>http://bit.ly/RTCPeerConnection-v1-2</strong>"&gt;&lt;/script&gt;
+                        &lt;script src="<strong>http://bit.ly/RTCPeerConnection-v1-3</strong>"&gt;&lt;/script&gt;
                     </code>
                 </td>
             </tr>
-    
+            <tr>
+                <td style="background: #ECECEC;text-align: center;border: 1px dotted #BBA9A9;">
+                    You JUST need to write below code! Your project will work fine on <a href="http://nightly.mozilla.org/" target="_blank">Mozilla Firefox Nightly</a> and <a href="https://www.google.com/intl/en/chrome/browser/canary.html" target="_blank">Chrome Canary</a>!
+                </td>
+            </tr>
             <tr>
                 <td>
                     <h2>Offerer</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <blockquote>
                         You need to use offer/answer model to exchange SDP/ICE. For "offerer": use code like this:
                     </blockquote>
@@ -298,7 +310,9 @@ var peer = <strong>RTCPeerConnection</strong>({
         <span class="comment">/* event.<strong>data</strong> */ </span>
         <span class="comment">/* or → JSON.<strong>parse</strong>( event.<strong>data</strong> ) */ </span>
      },
-    <strong title="optional">onChannelOpened</strong>: function(event) {}
+    <strong title="optional">onChannelOpened</strong>: function(channel) {
+        window.<strong id="channel">channel</strong> = <strong>channel</strong>;
+    }
 });
 </pre>
 
@@ -329,7 +343,7 @@ var peer = <strong>RTCPeerConnection</strong>({
                             <code><strong>onChannelMessage</strong></code>: The message sent by other peer/channel.
                         </li>
                         <li>
-                            <code><strong>onChannelOpened</strong></code>: On data channel gets ready.
+                            <code><strong>onChannelOpened</strong></code>: On data channel gets ready. It returns <a href="#channel">channel</a> object.
                         </li>
                     </ol>
             
@@ -338,16 +352,16 @@ var peer = <strong>RTCPeerConnection</strong>({
                         You can send messages like this:
                     </blockquote>
                     <pre>
-peer.<strong>channel.send</strong>('<span class="comment">A simple text message</span>');
-peer.<strong>channel.send</strong>( 
-    JSON.<strong>stringify</strong>('<strong>{ message: "<span class="comment">A simple object</span>" }</strong>') 
+<a href="#channel">channel</a>.<strong>send</strong>('<span class="comment">A simple text message</span>');
+<a href="#channel">channel</a>.<strong>send</strong>( 
+    JSON.<strong>stringify</strong>(<strong>{ message: "<span class="comment">A simple object</span>" }</strong>) 
 );
 
 <span class="comment">// or otherwise</span>
 
 peer.<strong>sendData</strong>('<span class="comment">A simple text message</span>');
 peer.<strong>sendData</strong>( 
-    JSON.<strong>stringify</strong>('<strong>{ message: "<span class="comment">A simple object</span>" }</strong>') 
+    JSON.<strong>stringify</strong>(<strong>{ message: "<span class="comment">A simple object</span>" }</strong>) 
 );
 </pre>
 
@@ -384,9 +398,15 @@ var peer = <strong>RTCPeerConnection</strong>({
                     <blockquote>
                         YOU can use WebSocket or XHR for SDP/ICE exchange.
                     </blockquote>
-            
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <h2>On Getting Answer SDP:</h2>
-                    <br />
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <blockquote>
                         Now assume that other peer generated <strong>answer sdp</strong> and sent to you; you can pass that sdp to this function:
                     </blockquote>
@@ -396,10 +416,15 @@ var peer = <strong>RTCPeerConnection</strong>({
                             peer.<strong>addAnswerSDP</strong>( <strong>answer_sdp</strong> );
                         </code>
                     </blockquote>
-            
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <h2>On Getting ICE:</h2>
-                    <br />
-            
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <blockquote>
                         Now assume that other peer generated <strong>ICE</strong> and sent to you; you can pass that ICE to this function:
                     </blockquote>
@@ -413,10 +438,13 @@ peer.<strong>addICE</strong>({
                     </blockquote>
                 </td>
             </tr>
-    
             <tr>
                 <td>
                     <h2>Answerer</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <blockquote>
                         99% process is the same for peer who "<strong>creates answer sdp</strong>"; the only difference is: for that peer you don't need "<code><strong>onOfferSDP</strong></code>" and also you don't need to call "<code><strong>peer.addAnswerSDP( answer_sdp );</strong></code>". What extra you need to do is here:
                     </blockquote>
@@ -431,7 +459,7 @@ var peer = <strong>RTCPeerConnection</strong>({
         <span class="comment">/* event.<strong>data</strong> */ </span>
         <span class="comment">/* or → JSON.<strong>parse</strong>( event.<strong>data</strong> ) */ </span>
      },
-    <strong title="optional">onChannelOpened</strong>       : function(event) {}
+    <strong title="optional">onChannelOpened</strong>       : function(channel) {}
 });
 </pre>
                     <br />
@@ -446,11 +474,25 @@ var peer = <strong>RTCPeerConnection</strong>({
                             <strong>onAnswerSDP</strong>: returns <strong>answer sdp</strong> so you can send it to other peer (offerer).
                         </li>
                     </ol>
-                    <br />
-            
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <blockquote>
                         <strong>Note:</strong> For a detailed document about "<strong>How to write a realtime WebRTC app using socket.io or WebSocket?</strong>" <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">click here</a>.
                     </blockquote>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <blockquote>
+                        Are you interested in a "simple" guide about RTCDataChannel? Read <a href="/docs/rtc-datachannel-for-beginners.html">this document</a>.
+                    </blockquote>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    
                     <blockquote>
                         <div>
                             <textarea id="message" placeholder="Something went wrong? Need any help?"></textarea>
@@ -475,6 +517,5 @@ var peer = <strong>RTCPeerConnection</strong>({
 		
 		
 		<script src="/dependencies/common.js"></script>
-		<script src="https://smart-ip.net/geoip-json?callback=getInfo"></script>
-    </body>
+	</body>
 </html>

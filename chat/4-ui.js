@@ -35,17 +35,6 @@ function getInfo2(data) {
 function captureCamera(callback) {
     callback && callback();
     return;
-    /*
-    getUserMedia({
-        onsuccess: function (stream) {
-            global.clientStream = stream;
-            callback && callback();
-        },
-        onerror: function () {
-            alert('Either you not allowed access to your microphone/webcam or another application already using it.');
-        }
-    });
-    */
 }
 
 /* possible situations

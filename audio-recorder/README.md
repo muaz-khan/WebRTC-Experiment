@@ -1,20 +1,50 @@
-![WebRTC Experiment!](https://muazkh.appspot.com/images/WebRTC.png)
+```javascript
+// credit of "recorder.js" goes to someone else
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+window.URL = window.URL || window.webkitURL;
 
---
+var recorder, audioContext;
+function recordAudio(stream) {
+    audioContext = new AudioContext;
+    
+    var input = audioContext.createMediaStreamSource(stream);
+    input.connect(audioContext.destination);
+    recorder = new window.Recorder(input);
 
-A realtime chat app uses WebRTC DataChannel APIs to transmit text message over many peers! Works fine both on Firefox Nightly and Google Chrome Canary.
+    recorder && recorder.record();
+}
+// recordAudio(your-client-or-remote-stream)
 
-[This webrtc experiment](https://webrtc-experiment.appspot.com/chat/) uses socket.io as signaling gateway.
+if(saveRecordedStreamButton) saveRecordedStreamButton.onclick = function() {
+	recorder && recorder.stop();
+        
+	// create WAV download link using audio data blob
+	createDownloadLink();
 
-Pubnub is used as a wrapper for socket.io
+	recorder && recorder.clear();
+};
 
-[RTCPeerConnection-v1.2.js](https://webrtc-experiment.appspot.com/lib/RTCPeerConnection-v1.2.js) is used as JavaScript-Wrapper for RTCWeb APIs.
+var recordings = document.getElementById('recordings');
+function createDownloadLink() {
+    recorder && recorder.exportWAV(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var li = document.createElement('li');
+        var au = document.createElement('audio');
+        var hf = document.createElement('a');
 
-You can share you text message with unlimited people!
+        au.controls = true;
+        au.src = url;
+        hf.href = url;
+        hf.download = new Date().toISOString() + '.wav';
+        hf.innerHTML = hf.download;
+        li.appendChild(au);
+        li.appendChild(hf);
 
-Don't forget to test it yourself!
-
-[https://webrtc-experiment.appspot.com/chat/](https://webrtc-experiment.appspot.com/chat/)
+        if (recordings) recordings.insertBefore(li, recordings.childNodes[0]);
+    });
+}
+```
 
 * [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/) - works fine on Chrome Canary and Firefox Nightly
 * [Realtime chat using RTCDataChannel APIs: Text broadcasting privately or publicly](https://webrtc-experiment.appspot.com/chat/) - works fine on Chrome Canary and Firefox Nightly
@@ -51,9 +81,15 @@ You can do everything in JavaScript without worrying about node.js or other serv
 
 Note: Currently Mozilla Firefox Nightly opens 16 streams by default. You can increase this limit by passing third argument when calling: peerConnection.connectDataConnection(5001, 5000, 40)
 
-##Credits
+## Browsers Support
+
+* Google Chrome 23 and upper all
+* [Google Chrome Canary](https://www.google.com/intl/en/chrome/browser/canary.html) - for RTCDataCannel APIs (Chat and File Sharing/Broadcasting)
+* [Firefox Nightly](http://nightly.mozilla.org/) - for RTCDataCannel APIs (Chat and File Sharing/Broadcasting)
+
+## Credits
 
 * [Muaz Khan](http://github.com/muaz-khan)!
 
 ## License
-Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.
+Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Feel free to use it in your own site!
