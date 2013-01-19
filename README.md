@@ -1,19 +1,38 @@
-* [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/) - works fine on Chrome Canary and Firefox Nightly
-* [Realtime chat using RTCDataChannel APIs: Text broadcasting privately or publicly](https://webrtc-experiment.appspot.com/chat/) - works fine on Chrome Canary and Firefox Nightly
-* [Screen/Webpage sharing/broadcasting over unlimited peers](https://webrtc-experiment.appspot.com/screen-broadcast/) - works fine on Chrome Canary
-* [Voice/Audio sharing/broadcasting over unlimited peers](https://webrtc-experiment.appspot.com/audio-broadcast/) - works fine on Chrome Canary
-* [Audio+Video sharing/broadcasting over unlimited peers](https://webrtc-experiment.appspot.com/broadcast/) - works fine on Chrome 23 and upper all versions and releases
+### [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
 
-See list of all other WebRTC experiments [here](https://webrtc-experiment.appspot.com/).
+Works fine on *Chrome Canary* and *Firefox Nightly*
 
-## Are you a newbie or beginner to WebRTC?
+--
+### [Realtime chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/chat/)
+Works fine on Chrome Canary and Firefox Nightly
 
-There are [up to dozens](https://webrtc-experiment.appspot.com/) documents and snippets that allows you develop broadcasting type of experiments in minutes!
+--
+### [Screen/Webpage sharing/broadcasting](https://webrtc-experiment.appspot.com/screen-broadcast/)
+Works fine on Chrome Canary - broadcast screen over unlimited peers
 
+--
+### [Voice/Audio sharing/broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/)
+Works fine on Chrome Canary - broadcast voice over unlimited peers
+
+--
+### [Audio + Video sharing/broadcasting](https://webrtc-experiment.appspot.com/broadcast/)
+Works fine on Chrome 23 and upper (Firefox Nightly support coming soon) - broadcast video over unlimited peers
+
+--
+
+See [list of all other WebRTC experiments here](https://webrtc-experiment.appspot.com/).
+
+--
 ## Don't worry about node.js, PHP, Java, Python or ASP.NET MVC!!
 
 You can do everything in JavaScript without worrying about node.js or other server side platforms. Try to focus on JavaScript. "Throw node.js out of the door!" [Sorry]
 
+--
+## Are you a newbie or beginner wants to learn WebRTC?
+
+There are up to dozens [documents/snippets/demos/experiments](https://webrtc-experiment.appspot.com/) that teaches you "how to broadcast streams, audio/video, data, files, screen, etc. in minutes!"
+
+--
 ## A few documents for newbies and beginners
 
 * [WebRTC for Beginners: A getting stared guide!](https://webrtc-experiment.appspot.com/docs/webrtc-for-beginners.html)
@@ -25,6 +44,7 @@ You can do everything in JavaScript without worrying about node.js or other serv
 * [How to broadcast files using RTCDataChannel APIs?](https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html)
 * [How to use Plugin-free calls in your own site?](https://webrtc-experiment.appspot.com/docs/how-to-use-plugin-free-calls.html) - JUST 3 lines of code!
 
+--
 ## Possibilities with RTCDataCannel APIs
 
 * You can share huge data in minutes - For example, you can share up to 100MB file in "less than one minute" on slow internet connections (like 150KB/s i.e. 2MB DSL)
@@ -34,15 +54,18 @@ You can do everything in JavaScript without worrying about node.js or other serv
 
 Note: Currently Mozilla Firefox Nightly opens 16 streams by default. You can increase this limit by passing third argument when calling: peerConnection.connectDataConnection(5001, 5000, 40)
 
+--
 ## Browsers Support
 
 * Google Chrome 23 and upper all
 * [Google Chrome Canary](https://www.google.com/intl/en/chrome/browser/canary.html) - for RTCDataCannel APIs (Chat and File Sharing/Broadcasting)
 * [Firefox Nightly](http://nightly.mozilla.org/) - for RTCDataCannel APIs (Chat and File Sharing/Broadcasting)
 
+--
 ## Credits
 
 * [Muaz Khan](http://github.com/muaz-khan)!
 
+---------
 ## License
 Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Feel free to use it in your own site!
