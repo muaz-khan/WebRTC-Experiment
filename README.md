@@ -1,17 +1,4 @@
-<<<<<<< HEAD
-### [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
-
-Works fine on *Chrome Canary* and *Firefox Nightly*
-
---
-### [Realtime chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/chat/)
-Works fine on Chrome Canary and Firefox Nightly
-
---
-### [Screen/Webpage sharing/broadcasting](https://webrtc-experiment.appspot.com/screen-broadcast/)
-Works fine on Chrome Canary - broadcast screen over unlimited peers
-
-=======
+====
 ## Browser Support
 
 * Firefox [Aurora](http://www.mozilla.org/en-US/firefox/aurora/)
@@ -19,44 +6,61 @@ Works fine on Chrome Canary - broadcast screen over unlimited peers
 * Google Chrome [Stable](https://www.google.com/intl/en_uk/chrome/browser/) 
 * Google Chrome [Canary](https://www.google.com/intl/en/chrome/browser/canary.html)
 
---
-
-### [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
+====
+## [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
 
 Works fine on *Chrome Canary* and *Firefox Nightly*
 
---
-### [Realtime chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/chat/)
+====
+## [Realtime chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/chat/)
+
 Works fine on Chrome Canary and Firefox Nightly
 
---
-### [Screen/Webpage sharing/broadcasting](https://webrtc-experiment.appspot.com/screen-broadcast/)
+====
+## [Screen/Webpage sharing/broadcasting](https://webrtc-experiment.appspot.com/screen-broadcast/)
+
 Works fine on Chrome Canary - broadcast screen over unlimited peers
 
->>>>>>> Firefox Aurora and Nightly is supported for all!
---
-### [Voice/Audio sharing/broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/)
+====
+## [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
+
+Works fine on *Chrome Canary* and *Firefox Nightly*
+
+====
+## [Realtime chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/chat/)
+
+Works fine on Chrome Canary and Firefox Nightly
+
+====
+## [Screen/Webpage sharing/broadcasting](https://webrtc-experiment.appspot.com/screen-broadcast/)
+
+Works fine on Chrome Canary - broadcast screen over unlimited peers
+
+====
+## [Voice/Audio sharing/broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/)
+
 Works fine on Chrome Canary - broadcast voice over unlimited peers
 
---
-### [Audio + Video sharing/broadcasting](https://webrtc-experiment.appspot.com/broadcast/)
+====
+## [Audio + Video sharing/broadcasting](https://webrtc-experiment.appspot.com/broadcast/)
+
 Works fine on Chrome 23 and upper (Firefox Nightly support coming soon) - broadcast video over unlimited peers
 
 --
 
 See [list of all other WebRTC experiments here](https://webrtc-experiment.appspot.com/).
 
---
+====
 ## Don't worry about node.js, PHP, Java, Python or ASP.NET MVC!!
 
 You can do everything in JavaScript without worrying about node.js or other server side platforms. Try to focus on JavaScript. "Throw node.js out of the door!" [Sorry]
 
---
+====
 ## Are you a newbie or beginner wants to learn WebRTC?
 
 There are up to dozens [documents/snippets/demos/experiments](https://webrtc-experiment.appspot.com/) that teaches you "how to broadcast streams, audio/video, data, files, screen, etc. in minutes!"
 
---
+====
 ## A few documents for newbies and beginners
 
 * [WebRTC for Beginners: A getting stared guide!](https://webrtc-experiment.appspot.com/docs/webrtc-for-beginners.html)
@@ -68,7 +72,7 @@ There are up to dozens [documents/snippets/demos/experiments](https://webrtc-exp
 * [How to broadcast files using RTCDataChannel APIs?](https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html)
 * [How to use Plugin-free calls in your own site?](https://webrtc-experiment.appspot.com/docs/how-to-use-plugin-free-calls.html) - JUST 3 lines of code!
 
---
+====
 ## Possibilities with RTCDataCannel APIs
 
 * You can share huge data in minutes - For example, you can share up to 100MB file in "less than one minute" on slow internet connections (like 150KB/s i.e. 2MB DSL)
@@ -76,24 +80,14 @@ There are up to dozens [documents/snippets/demos/experiments](https://webrtc-exp
 * Snap and Sync your webpage
 * Screen sharing - you can take snapshot of the webpage or part of webpage and share in realtime over many streams!
 
-Note: Currently Mozilla Firefox Nightly opens 16 streams by default. You can increase this limit by passing third argument when calling: peerConnection.connectDataConnection(5001, 5000, 40)
+**Note:** *Currently Mozilla Firefox Nightly opens 16 streams by default. You can increase this limit by passing third argument when calling: peerConnection.connectDataConnection(5001, 5000, 40)*
 
---
-## Browsers Support
-
-* Google Chrome 23 and upper all
-* [Google Chrome Canary](https://www.google.com/intl/en/chrome/browser/canary.html) - for RTCDataCannel APIs (Chat and File Sharing/Broadcasting)
-* [Firefox Nightly](http://nightly.mozilla.org/) - for RTCDataCannel APIs (Chat and File Sharing/Broadcasting)
-
---
+====
 ## Credits
 
 * [Muaz Khan](http://github.com/muaz-khan)!
 
-<<<<<<< HEAD
----------
-=======
---
->>>>>>> Firefox Aurora and Nightly is supported for all!
+====
 ## License
+
 Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Feel free to use it in your own site!
