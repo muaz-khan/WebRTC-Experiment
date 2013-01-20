@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ### [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
 
 Works fine on *Chrome Canary* and *Firefox Nightly*
@@ -10,6 +11,29 @@ Works fine on Chrome Canary and Firefox Nightly
 ### [Screen/Webpage sharing/broadcasting](https://webrtc-experiment.appspot.com/screen-broadcast/)
 Works fine on Chrome Canary - broadcast screen over unlimited peers
 
+=======
+## Browser Support
+
+* Firefox [Aurora](http://www.mozilla.org/en-US/firefox/aurora/)
+* Firefox [Nightly](http://nightly.mozilla.org/)
+* Google Chrome [Stable](https://www.google.com/intl/en_uk/chrome/browser/) 
+* Google Chrome [Canary](https://www.google.com/intl/en/chrome/browser/canary.html)
+
+--
+
+### [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
+
+Works fine on *Chrome Canary* and *Firefox Nightly*
+
+--
+### [Realtime chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/chat/)
+Works fine on Chrome Canary and Firefox Nightly
+
+--
+### [Screen/Webpage sharing/broadcasting](https://webrtc-experiment.appspot.com/screen-broadcast/)
+Works fine on Chrome Canary - broadcast screen over unlimited peers
+
+>>>>>>> Firefox Aurora and Nightly is supported for all!
 --
 ### [Voice/Audio sharing/broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/)
 Works fine on Chrome Canary - broadcast voice over unlimited peers
@@ -66,6 +90,10 @@ Note: Currently Mozilla Firefox Nightly opens 16 streams by default. You can inc
 
 * [Muaz Khan](http://github.com/muaz-khan)!
 
+<<<<<<< HEAD
 ---------
+=======
+--
+>>>>>>> Firefox Aurora and Nightly is supported for all!
 ## License
 Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Feel free to use it in your own site!

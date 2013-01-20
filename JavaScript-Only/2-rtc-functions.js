@@ -1,5 +1,5 @@
 ﻿/* send (i.e. transmit) offer/answer sdp */
-function sendsdp(sdp) {
+function sendsdp(sdp, socket, isopus) {
     sdp = JSON.stringify(sdp);
 
     /* because sdp size is larger than what pubnub supports for single request...that's why it is splitted into two parts */
@@ -26,7 +26,8 @@ function sendsdp(sdp) {
 }
 
 /* send (i.e. transmit) ICE candidates */
-function sendice(candidate) {
+
+function sendice(candidate, socket) {
     socket.send({
         userToken: global.userToken, /* unique ID to identify the sender */
         candidate: {
@@ -36,41 +37,40 @@ function sendice(candidate) {
     });
 }
 
-/* on getting remote stream */
-var remoteVideo = $('#remote-video');
-function gotstream(event, recheck) {
+function gotstream(stream, recheck) {
 
-    if (event) {
+    if (stream) {
 
-        remoteVideo.css('top', 0).css('z-index', 200000).show();
-        clientVideo.css('width', (innerWidth / 4) + 'px').css('height', '').css('z-index', 2000000);
+        var video = document.createElement('video');
+        
+		if (!navigator.mozGetUserMedia) video.src = clientVideo.src;
+        else video.mozSrcObject = clientVideo.mozSrcObject;
+		
+        video.play();
 
-        if (!navigator.mozGetUserMedia) remoteVideo.src = URL.createObjectURL(event.stream);
-        else video.mozSrcObject = event.stream;
+        participants.appendChild(video, participants.firstChild);
 
-        remoteVideo.play();
+        clientVideo.pause();
+		
+		if (!navigator.mozGetUserMedia) clientVideo.src = URL.createObjectURL(stream);
+        else clientVideo.mozSrcObject = stream;
+        
+        clientVideo.play();
 
-        /* check until remote stream start flowing */
         gotstream(null, true);
     }
 
     if (recheck) {
-        if (!(remoteVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || remoteVideo.paused || remoteVideo.currentTime <= 0)) {
+        if (!(clientVideo.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || clientVideo.paused || clientVideo.currentTime <= 0)) {
             finallyGotStream();
-        } else setTimeout(function () {
-            gotstream(null, true);
-        }, 50);
+        } else
+            setTimeout(function() {
+                gotstream(null, true);
+            }, 500);
     }
 }
 
-/* remote stream started flowing */
 function finallyGotStream() {
+    clientVideo.css('-webkit-transform', 'rotate(0deg)');
     global.isGotRemoteStream = true;
-
-    $('table', true).hide();
-
-    socket.send({
-        userToken: global.userToken,
-        gotStream: true
-    });
 }

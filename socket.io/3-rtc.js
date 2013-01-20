@@ -4,10 +4,10 @@ var config = {};
 function initconfig()
 {
 	config = {
-	    getice: sendice,
-	    gotstream: gotstream,
+	    onICE: sendice,
+	    onRemoteStream: gotstream,
 	    iceServers: iceServers,
-	    stream: global.clientStream,
+	    attachStream: global.clientStream,
 	    isopus: isopus
 	};
 }
@@ -15,14 +15,14 @@ function initconfig()
 /* ---------- called in case of offer -------- */
 function createOffer() {
 	initconfig();
-    config.onoffer = sendsdp;
+    config.onOfferSDP = sendsdp;
     global.rtc = RTCPeerConnection(config);
 }
 
 /* ---------- called in case of answer -------- */
 function createAnswer(sdp) {
 	initconfig();
-    config.onanswer = sendsdp;
-    config.offer = sdp;
+    config.onAnswerSDP = sendsdp;
+    config.offerSDP = sdp;
     global.rtc = RTCPeerConnection(config);
 }

@@ -37,16 +37,18 @@ function sendice(candidate, socket) {
     });
 }
 
-function gotstream(event, recheck) {
+function gotstream(stream, recheck) {
 
-    if (event) {
-        if (!navigator.mozGetUserMedia) audio.src = URL.createObjectURL(event.stream);
-        else audio.mozSrcObject = event.stream;
+    if (stream) {
+        if (!navigator.mozGetUserMedia) audio.src = URL.createObjectURL(stream);
+        else audio.mozSrcObject = stream;
 
         audio.addEventListener('play', function () {
             this.muted = false;
             this.volume = 1;
         }, false);
+		
+		audio.play();
 
         finallyGotStream();
     }

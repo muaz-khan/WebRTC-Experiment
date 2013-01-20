@@ -8,10 +8,11 @@
     var uniqueChannel = uniqueToken();
 </script>
 
-<script src="https://bit.ly/RTCPeerConnection-v1-2"></script>
+<script src="https://bit.ly/RTCPeerConnection-v1-3"></script>
 <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-Helpers.js"></script>
 
-<script src="https://dh15atwfs066y.cloudfront.net/socket.io.min.js"></script>
+<div id=pubnub ssl=on></div>
+<script src="https://bit.ly/socket-io"></script>
 
 <style>body{text-align: center;}</style>
 <h2>Client video</h2>
@@ -131,7 +132,10 @@
             },
             onRemoteStream: function (stream) {
                 console.log('1st peer: Wow! Got remote stream!');
-                document.getElementById('remote-video-1').src = URL.createObjectURL(stream);
+                var video = document.getElementById('remote-video-1');
+				if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
+				else video.mozSrcObject = stream;
+				video.play();
             },
             attachStream: clientStream,
             isopus: window.isopus
@@ -165,7 +169,10 @@
             },
             onRemoteStream: function (stream) {
                 console.log('2nd peer: Wow! Got remote stream!');
-                document.getElementById('remote-video-2').src = URL.createObjectURL(stream);
+                var video = document.getElementById('remote-video-2');
+				if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
+				else video.mozSrcObject = stream;
+				video.play();
             },
             attachStream: clientStream,
 

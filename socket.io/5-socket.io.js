@@ -52,7 +52,7 @@ function initSocket(callback) {
                     if (global.secondPart) {
                         global.sdp = JSON.parse(global.firstPart + global.secondPart);
 
-                        if (global.offerer) global.rtc.onanswer(global.sdp);
+                        if (global.offerer) global.rtc.addAnswerSDP(global.sdp);
                         else createAnswer(global.sdp);
                     }
                 }
@@ -62,7 +62,7 @@ function initSocket(callback) {
 
                         global.sdp = JSON.parse(global.firstPart + global.secondPart);
 
-                        if (global.offerer) global.rtc.onanswer(global.sdp);
+                        if (global.offerer) global.rtc.addAnswerSDP(global.sdp);
                         else createAnswer(global.sdp);
                     }
                 }
@@ -85,7 +85,7 @@ function initSocket(callback) {
             
             /* process ice candidates sent by other end */
             else if (global.rtc && response.candidate && !global.isGotRemoteStream) {
-                global.rtc.addice({
+                global.rtc.addICE({
                     sdpMLineIndex: response.candidate.sdpMLineIndex,
                     candidate: JSON.parse(response.candidate.candidate)
                 });
