@@ -9,6 +9,8 @@
 ====
 ## [WebRTC video-conferencing / hangout!](https://webrtc-experiment.appspot.com/video-conferencing/)
 
+A many-to-many WebRTC "video-conferencing" experiment. Unlimited people can join a single room and all of them can talk/see each other ... same like Google+ Hangout!
+
 ====
 ## [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
 
