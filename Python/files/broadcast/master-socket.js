@@ -54,10 +54,10 @@ function openSocket(channel) {
     function opened() {
         var config = {
             iceServers: iceServers,
-            stream: global.clientStream,
-            onoffer: function (sdp) { sendsdp(sdp, socket, isopus); },
-            getice: function(candidate) { sendice(candidate, socket); },
-            gotstream: gotstream,
+            attachStream: global.clientStream,
+            onOfferSDP: function (sdp) { sendsdp(sdp, socket, isopus); },
+            onICE: function(candidate) { sendice(candidate, socket); },
+            onRemoteStream: gotstream,
             isopus: isopus
         };
 
@@ -79,7 +79,7 @@ function openSocket(channel) {
         if (!peer) setTimeout(selfInvoker, 100);
         else {
             invokedOnce = true;
-            peer.onanswer(inner.sdp);
+            peer.addAnswerSDP(inner.sdp);
         }
     }
 
@@ -110,7 +110,7 @@ function openSocket(channel) {
 
         /* process ice candidates sent by participant */
         if (response.candidate && !isGotRemoteStream) {
-            peer && peer.addice({
+            peer && peer.addICE({
                 sdpMLineIndex: response.candidate.sdpMLineIndex,
                 candidate: JSON.parse(response.candidate.candidate)
             });
@@ -120,10 +120,10 @@ function openSocket(channel) {
     }
 
     /* sub socket got stream */
-    function gotstream(event, recheck) {
-        if (event) {
-            if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(event.stream);
-            else video.mozSrcObject = event.stream;
+    function gotstream(stream, recheck) {
+        if (stream) {			
+			if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
+			else video.mozSrcObject = stream;
 
             video.play();
 

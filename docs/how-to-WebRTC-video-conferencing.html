@@ -8,8 +8,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <meta itemprop="image" content="https://muazkh.appspot.com/images/WebRTC.png">
 
-        <title>How to use RTCDataChannel ® Muaz Khan</title>
-        <meta name="description" content="This guide explains: How to use RTCDataChannel APIs to build a realtime chat or transfer files.">
+        <title>How to video conferencing in WebRTC? ® Muaz Khan</title>
+        <meta name="description" content="This document explains how to add WebRTC video conferencing in your own site.">
     
         <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
         <meta name="author" content="Muaz Khan">
@@ -242,260 +242,187 @@
 <table>
     <tr>
         <td>
-            <br/>            
-            <img src="/images/enable-rtcdatachannel.png" />
-            <h1>How to use RTCDataChannel?</h1>
-            <br/>
-            <blockquote class="slogan">
-                
-                « <a href="/chat/">Go Back to Chat!</a>
-                / <a href="/demos/client-side-datachannel.html" title="A simple one-page chat demo">Simple Chat Demo</a>
-            </blockquote>
-            <a href="/docs/rtc-datachannel-for-beginners.html">RTCDataChannel for Beginners!</a>
-        </td>
-        <td>
-            <br/>
-            <img src="/images/firefox-nightly-preference-for-peerconnection.png" alt="Enable WebRTC on Firefox Nightly" /> 
-            <br/>
+            <br />
             <a class="logo" href="https://plus.google.com/100325991024054712503">
                 <img src="/images/Muaz-Khan.gif" width="100" height="100">
-            </a>
+            </a><br />
+        </td>
+        <td>
             <br />
-            This guide explains "<strong>how to use RTCDataChannel</strong>".
+            <h1>How to video conferencing in WebRTC?</h1>
+            <blockquote class="slogan">
+                This document explains how to add WebRTC video conferencing in your own site.
+            </blockquote>
+            <a href="/video-conferencing/">Try WebRTC video-conferencing!</a>
         </td>
     </tr>
 </table>
 
         <table>
             <tr>
-                <td>
-                    <blockquote>
-                        If you're <strong>new</strong> to <strong>WebRTC</strong>; please read <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">this document</a> or this document: <a href="/docs/rtc-datachannel-for-beginners.html">RTCDataChannel for Beginners</a>.
-                    </blockquote>
-                </td>
+                <td>First of all, you need to reference two javascript files:</td>
+            </tr>
+            
+            <tr>
+                <td><code>&lt;script src="<strong>http://bit.ly/RTCPeerConnection-v1-3</strong>"&gt;&lt;/script&gt;</code></td>
             </tr>
             <tr>
-                <td style="background: #ECECEC;text-align: center;border: 1px dotted #BBA9A9;">
-                    Here is a <a href="/demos/client-side-datachannel.html" title="A simple one-page chat demo">simple one-page chat demo</a> uses <strong>RTCDataChannel</strong> APIs. <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-datachannel.html">View Source Code</a>
-                </td>
+                <td><code>&lt;script src="<strong>http://bit.ly/webrtc-conferencing</strong>"&gt;&lt;/script&gt;</code></td>
             </tr>
+            
             <tr>
-                <td>
-                    <blockquote>
-                        First of all, you need to reference this js-wrapper file for RTCWeb APIs:
-                    </blockquote>
-                    <code>
-                        &lt;script src="<strong>http://bit.ly/RTCPeerConnection-v1-3</strong>"&gt;&lt;/script&gt;
-                    </code>
-                </td>
+                <td>You JUST need to call "<code>conference</code>" object and pass a few methods/objects and <em>that's all you need to do!</em></td>
             </tr>
+            
             <tr>
-                <td style="background: #ECECEC;text-align: center;border: 1px dotted #BBA9A9;">
-                    You JUST need to write below code! Your project will work fine on Firefox <a href="http://www.mozilla.org/en-US/firefox/aurora/" target="_blank" rel="nofollow">Aurora</a>/<a href="http://nightly.mozilla.org/" target="_blank" rel="nofollow">Nightly</a> and <a href="https://www.google.com/intl/en/chrome/browser/canary.html" target="_blank" rel="nofollow">Chrome Canary</a>!
-                </td>
+                <td><code>var <strong id="conferenceUI">conferenceUI</strong> = <a href="https://bit.ly/webrtc-conferencing">conference</a>(<a href="#config">config</a>);</code></td>
             </tr>
+            
+            <tr>
+                <td>And here is how you should pass options/config:</td>
+            </tr>
+            
             <tr>
                 <td>
-                    <h2>Offerer</h2>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <blockquote>
-                        You need to use offer/answer model to exchange SDP/ICE. For "offerer": use code like this:
-                    </blockquote>
                     <pre>
-var peer = <strong>RTCPeerConnection</strong>({
-    <strong title="required">onICE</strong>: function (candidate) {},
-    <strong title="required">onOfferSDP</strong>: function(sdp) {},
+var <strong id="config">config</strong> = {
+    <strong id="openSocket">openSocket</strong> : function (socket_config) {
+        var socket = io.connect('...');
+        
+        socket.on('<strong>connect</strong>', socket_config.<strong id="onopen">onopen</strong>);
+        socket.on('<strong>message</strong>', socket_config.<strong id="onmessage">onmessage</strong>);
 
-    <strong title="optional">onChannelMessage</strong>: function(event) {
-        <span class="comment">/* event.<strong>data</strong> */ </span>
-        <span class="comment">/* or → JSON.<strong>parse</strong>( event.<strong>data</strong> ) */ </span>
-     },
-    <strong title="optional">onChannelOpened</strong>: function(channel) {
-        window.<strong id="channel">channel</strong> = <strong>channel</strong>;
-    }
+        <strong>return</strong> socket;
+    },
+    <strong id="onRemoteStream">onRemoteStream</strong> : function (media) {
+        document.body.appendChild(media.<strong>video</strong>);
+    },
+    <strong id="onRoomFound">onRoomFound</strong> : function (room) {
+        // room.<strong id="roomName">roomName</strong>
+        // room.<strong id="broadcaster">broadcaster</strong>
+        // room.<strong id="roomToken">roomToken</strong>
+    },
+    <strong id="attachStream">attachStream</strong>: 'client stream'
+};
+</pre>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>To create a new conference room:</td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <pre>
+<a href="#conferenceUI">conferenceUI</a>.<strong>createRoom</strong>({
+    <strong>roomName</strong> : 'Anonymous'
 });
 </pre>
-
-                    <blockquote>
-                        Here is the short explanation of above code ↑
-                    </blockquote>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>To join a room:</td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <pre>
+<a href="#conferenceUI">conferenceUI</a>.<strong id="joinRoom">joinRoom</strong>({
+    <strong>roomToken</strong> : 'unique token of the room',
+    <strong>joinUser</strong> : 'unique token of the room owner/broadcaster'
+});
+</pre>
+                </td>
+            </tr>
+            
+            <tr>
+                <td><a href="/video-conferencing/conference-ui.js">conference-ui.js</a> is a good place to start!</td>
+            </tr>
+            
+            <tr>
+                <td><h2>How <a href="#openSocket">openSocket</a> works?</h2></td>
+            </tr>
+            
+            <tr>
+                <td>
+                    In this function, you JUST need to write socket.io relevant code that will be called by <a href="https://bit.ly/webrtc-conferencing">conference.js</a> many times. 
+                </td>
+            </tr>
+            
+            <tr>
+                <td>What you need to do is JUST <a href="#onopen">open socket</a> and <a href="#onmessage">get messages</a> passed over that socket.</td>
+            </tr>
+            
+            <tr>
+                <td>Then you should call <a href="#onopen">onopen</a> and <a href="#onmessage">onmessage</a> accordingly.</td>
+            </tr>
+            
+            <tr>
+                <td><h2>How <a href="#onRemoteStream">onRemoteStream</a> works?</h2></td>
+            </tr>
+            
+            <tr>
+                <td>The function will be called each time when remote stream starts flowing.</td>
+            </tr>
+            
+            <tr>
+                <td>It will be called for each conference participant.</td>
+            </tr>
+            
+            <tr>
+                <td><a href="https://bit.ly/webrtc-conferencing">conference.js</a> will return two objects: 1) <code>media.<strong>video</strong></code> and 2) <code>media.<strong>stream</strong></code></td>
+            </tr>
+            
+            <tr>
+                <td><h2>How <a href="#onRoomFound">onRoomFound</a> works?</h2></td>
+            </tr>
+            
+            <tr>
+                <td>
+                    When a user opens your webpage; you can show him list of available public/private conference rooms.
+                </td>
+            </tr>
+            
+            <tr>
+                <td>Following 3 objects will be passed over this method:</td>
+            </tr>
+            
+            <tr>
+                <td>
                     <ol>
                         <li>
-                            <blockquote>
-                                <strong>onICE</strong>: It returns locally generated <strong>ICE</strong> candidates; so you can share them with other peer(s).
-                            </blockquote>
-                            <blockquote>
-                                <strong>candidate</strong> object contains two properties:
-                                <ol>
-                                    <li>
-                                        candidate.<code><strong>sdpMLineIndex</strong></code>
-                                    </li>
-                                    <li>
-                                        candidate.<code><strong>candidate</strong></code>
-                                    </li>
-                                </ol>
-                            </blockquote>
+                            <a href="#roomName">roomName</a>: The human readable conference room name.
                         </li>
                         <li>
-                            <strong>onOfferSDP</strong>: returns <strong>offer sdp</strong>; so you can send it to other peer to get <strong>answer sdp</strong>.
+                            <a href="#broadcaster">broadcaster</a>: The person who creates the conference room. You can say him the "owner" of the room.
                         </li>
                         <li>
-                            <code><strong>onChannelMessage</strong></code>: The message sent by other peer/channel.
-                        </li>
-                        <li>
-                            <code><strong>onChannelOpened</strong></code>: On data channel gets ready. It returns <a href="#channel">channel</a> object.
-                        </li>
-                    </ol>
-            
-                    <br />
-                    <blockquote>
-                        You can send messages like this:
-                    </blockquote>
-                    <pre>
-<a href="#channel">channel</a>.<strong>send</strong>('<span class="comment">A simple text message</span>');
-<a href="#channel">channel</a>.<strong>send</strong>( 
-    JSON.<strong>stringify</strong>(<strong>{ message: "<span class="comment">A simple object</span>" }</strong>) 
-);
-
-<span class="comment">// or otherwise</span>
-
-peer.<strong>sendData</strong>('<span class="comment">A simple text message</span>');
-peer.<strong>sendData</strong>( 
-    JSON.<strong>stringify</strong>(<strong>{ message: "<span class="comment">A simple object</span>" }</strong>) 
-);
-</pre>
-
-                    <br />
-                    <blockquote>
-                        Some extra options:
-                    </blockquote>
-                    <pre>
-var peer = <strong>RTCPeerConnection</strong>({
-    ...    
-    <span class="comment">// On DataChannel close event fires</span>
-    <strong title="optional">onChannelClosed</strong>      : function(event) {},
-    
-    <span class="comment">// On DataChannel Error</span>
-    <strong title="optional">onChannelError</strong>       : function(event) {},
-    
-    <span class="comment">// channel name; by default it is "<strong>RTCDataChannel</strong>"</span>
-    <strong title="optional">channel</strong>               : 'ABCDEF',
-    
-    <span class="comment">// Extend second argument passed to RTCPeerConnection object</span>
-    <strong title="optional">optional</strong>             : { <strong>optional</strong>: [{ <strong>RtpDataChannels</strong>: true}] }
-});
-</pre>
-
-                    <br/>
-                    <blockquote>
-                        By default <code>optional</code> value is "<code>{ <strong>optional</strong>: [{ <strong>RtpDataChannels</strong>: true}] }</code>" --- so you don't need to change it.
-                    </blockquote>
-			
-                    <blockquote>
-                        You don't need to attach client stream. You JUST need to exchange SDP/ICE and that's all you need to do!!
-                    </blockquote>
-			
-                    <blockquote>
-                        YOU can use WebSocket or XHR for SDP/ICE exchange.
-                    </blockquote>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h2>On Getting Answer SDP:</h2>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <blockquote>
-                        Now assume that other peer generated <strong>answer sdp</strong> and sent to you; you can pass that sdp to this function:
-                    </blockquote>
-            
-                    <blockquote>
-                        <code>
-                            peer.<strong>addAnswerSDP</strong>( <strong>answer_sdp</strong> );
-                        </code>
-                    </blockquote>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h2>On Getting ICE:</h2>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <blockquote>
-                        Now assume that other peer generated <strong>ICE</strong> and sent to you; you can pass that ICE to this function:
-                    </blockquote>
-                    <blockquote>
-                        <pre>
-peer.<strong>addICE</strong>({
-    <strong>sdpMLineIndex</strong> 	: candidate.<strong>sdpMLineIndex</strong>,
-    <strong>candidate</strong> 		: candidate.<strong>candidate</strong>
-});
-</pre>
-                    </blockquote>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h2>Answerer</h2>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <blockquote>
-                        99% process is the same for peer who "<strong>creates answer sdp</strong>"; the only difference is: for that peer you don't need "<code><strong>onOfferSDP</strong></code>" and also you don't need to call "<code><strong>peer.addAnswerSDP( answer_sdp );</strong></code>". What extra you need to do is here:
-                    </blockquote>
-                    <pre>
-var peer = <strong>RTCPeerConnection</strong>({
-    <span class="comment">// see below two additions ↓</span>
-    <strong>offerSDP</strong>      	: offer_sdp,
-    <strong>onAnswerSDP</strong>   	: function(sdp) {},
-    
-    <strong>onICE</strong>     		: function (candidate) {},
-    <strong title="optional">onChannelMessage</strong>    : function(event) {
-        <span class="comment">/* event.<strong>data</strong> */ </span>
-        <span class="comment">/* or → JSON.<strong>parse</strong>( event.<strong>data</strong> ) */ </span>
-     },
-    <strong title="optional">onChannelOpened</strong>       : function(channel) {}
-});
-</pre>
-                    <br />
-                    <blockquote>
-                        Let me elaborate:
-                    </blockquote>
-                    <ol>
-                        <li>
-                            <strong>offerSDP</strong>: you need to pass <strong>offer sdp</strong> sent by other peer (offerer).
-                        </li>
-                        <li>
-                            <strong>onAnswerSDP</strong>: returns <strong>answer sdp</strong> so you can send it to other peer (offerer).
+                            <a href="#roomToken">roomToken</a>: Unique ID of the room.
                         </li>
                     </ol>
                 </td>
             </tr>
+            
             <tr>
-                <td>
-                    <blockquote>
-                        <strong>Note:</strong> For a detailed document about "<strong>How to write a realtime WebRTC app using socket.io or WebSocket?</strong>" <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">click here</a>.
-                    </blockquote>
-                </td>
+                <td>You'll use <a href="#broadcaster">broadcaster</a> and <a href="#roomToken">roomToken</a> when <a href="#joinRoom">joining a room</a>. So these two values are <strong>mandatory</strong>.</td>
             </tr>
+            
             <tr>
-                <td>
-                    <blockquote>
-                        Are you interested in a "simple" guide about RTCDataChannel? Read <a href="/docs/rtc-datachannel-for-beginners.html">this document</a>.
-                    </blockquote>
-                </td>
+                <td><h2>What is <a href="#attachStream">attachStream</a>?</h2></td>
             </tr>
+            
+            <tr>
+                <td>Obviously, your client media stream (webcam + microphone) to be attached for remote peer(s).</td>
+            </tr>
+            
+            <tr>
+                <td>Again, <a href="/video-conferencing/conference-ui.js">conference-ui.js</a> is a good place to start!</td>
+            </tr>
+
             <tr>
                 <td>
-                    
                     <blockquote>
                         <div>
                             <textarea id="message" placeholder="Something went wrong? Need any help?"></textarea>

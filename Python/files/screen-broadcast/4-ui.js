@@ -9,7 +9,8 @@ function captureCamera(callback) {
             clientVideo.show().play();
             
             setTimeout(function() {
-                clientVideo.css('-webkit-transform', 'rotate(360deg)');
+                if (!navigator.mozGetUserMedia) clientVideo.css('-webkit-transform', 'rotate(360deg)');
+				else clientVideo.css('transform', 'rotate(360deg)');
             }, 1000);
 
             $('.visible', true).hide();

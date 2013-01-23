@@ -207,6 +207,9 @@
             <summary>Other WebRTC Experiments</summary>
             <dl>
                 <dt>
+                    <a href="/video-conferencing/">Video-Conferencing / Hangout!</a>
+                </dt>
+                <dt>
                     <a href="/file-broadcast/">P2P File Sharing using RTCDataChannel APIs</a>
                 </dt>
                 <dt>
@@ -492,7 +495,7 @@ function <a href="#onicecandidate" id="onicecandidate-func">onicecandidate</a>(e
                     For <a href="#answerer">answerer</a>: NEVER <a href="#addIceCandidate">add ICE candidates</a> until that <a href="#answer-sdp">peer</a> generates/creates <a href="#answer-sdp">answer sdp</a>.
                 </li>
                 <li>
-                    Don't create <a href="#peerConnection">peer connection</a> for <a href="#offerer">offerer</a> until you get <a href="#offer-sdp">offer sdp</a>.
+                    Don't create <a href="#peerConnection">peer connection</a> for <a href="#answerer">answerer</a> until you get <a href="#offer-sdp">offer sdp</a>.
                 </li>
                 <li>
                     <a href="#openDataChannel">openDataChannel</a> MUST be called before creating <a href="#offer-sdp">offer</a> or <a href="#answer-sdp">answer</a>.

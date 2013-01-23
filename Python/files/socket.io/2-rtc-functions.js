@@ -38,15 +38,15 @@ function sendice(candidate) {
 
 /* on getting remote stream */
 var remoteVideo = $('#remote-video');
-function gotstream(event, recheck) {
+function gotstream(stream, recheck) {
 
-    if (event) {
-
+    if (stream) {
+	
         remoteVideo.css('top', 0).css('z-index', 200000).show();
         clientVideo.css('width', (innerWidth / 4) + 'px').css('height', '').css('z-index', 2000000);
 
-        if (!navigator.mozGetUserMedia) remoteVideo.src = URL.createObjectURL(event.stream);
-        else video.mozSrcObject = event.stream;
+        if (!navigator.mozGetUserMedia) remoteVideo.src = URL.createObjectURL(stream);
+        else remoteVideo.mozSrcObject = stream;
 
         remoteVideo.play();
 

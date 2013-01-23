@@ -54,10 +54,10 @@ function openSocket(channel) {
     function opened() {
         var config = {
             iceServers: iceServers,
-            stream: global.clientStream,
-            onoffer: function (sdp) { sendsdp(sdp, socket, isopus); },
+            attachStream: global.clientStream,
+            onOfferSDP: function (sdp) { sendsdp(sdp, socket, isopus); },
             getice: function(candidate) { sendice(candidate, socket); },
-            gotstream: gotstream,
+            onRemoteStream: gotstream,
             isopus: isopus
         };
 
@@ -87,7 +87,7 @@ function openSocket(channel) {
         if (!peer) setTimeout(selfInvoker, 100);
         else {
             invokedOnce = true;
-            peer.onanswer(inner.sdp);
+            peer.addAnswerSDP(inner.sdp);
         }
     }
 
@@ -118,7 +118,7 @@ function openSocket(channel) {
 
         /* process ice candidates sent by participant */
         if (response.candidate && !isGotRemoteStream) {
-            peer && peer.addice({
+            peer && peer.addICE({
                 sdpMLineIndex: response.candidate.sdpMLineIndex,
                 candidate: JSON.parse(response.candidate.candidate)
             });
@@ -128,10 +128,15 @@ function openSocket(channel) {
     }
 
     /* sub socket got stream */
-    function gotstream(event) {
-        if (event) {
-            if (!navigator.mozGetUserMedia) audio.src = URL.createObjectURL(event.stream);
-            else audio.mozSrcObject = event.stream;
+    function gotstream(stream) {
+        if (stream) {
+            if (!navigator.mozGetUserMedia) audio.src = URL.createObjectURL(stream);
+            else audio.mozSrcObject = stream;
+			
+			audio.addEventListener('play', function () {
+				this.muted = false;
+				this.volume = 1;
+			}, false);
 
             isGotRemoteStream = true;
             audio.css('-webkit-transform', 'rotate(360deg)');

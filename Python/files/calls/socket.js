@@ -18,7 +18,7 @@ function selfInvoker() {
     invokedOnce = true;
 
     if (global.offerer) {
-        global.rtc.onanswer(global.sdp);
+        global.rtc.addAnswerSDP(global.sdp);
 
         document.getElementById('call').innerHTML = 'Early handshake happened successfully.';
     } else {
@@ -60,7 +60,7 @@ function socketResponse(response) {
     }
 
     else if (global.rtc && response.candidate && !global.isGotRemoteStream) {
-        global.rtc.addice({
+        global.rtc.addICE({
             sdpMLineIndex: response.candidate.sdpMLineIndex,
             candidate: JSON.parse(response.candidate.candidate)
         });

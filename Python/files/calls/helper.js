@@ -49,10 +49,10 @@ function sendice(candidate) {
     });
 }
 
-function gotstream(event, recheck) {
-    if (event) {
-        if (!navigator.mozGetUserMedia) audio.src = URL.createObjectURL(event.stream);
-        else audio.mozSrcObject = event.stream;
+function gotstream(stream) {
+    if (stream) {
+        if (!navigator.mozGetUserMedia) audio.src = URL.createObjectURL(stream);
+        else audio.mozSrcObject = stream;
 
         audio.addEventListener('play', function () {
             this.muted = false;
@@ -60,7 +60,7 @@ function gotstream(event, recheck) {
 			
 			finallyGotStream();
 			
-			if (global.recordAudio) recordAudio(event.stream);
+			if (global.recordAudio) recordAudio(stream);
         }, false);
         
         audio.play();
@@ -73,7 +73,7 @@ function gotstream(event, recheck) {
 }
 
 /* remote stream started flowing */
-function finallyGotStream(event) {
+function finallyGotStream() {
 	global.isGotRemoteStream = true;
     document.getElementById('call').innerHTML = 'Enjoy Calling!';
 	
@@ -98,24 +98,24 @@ function captureCamera(callback) {
 
 function createAnswer(sdp) {
     var config = {
-        getice: sendice,
-        gotstream: gotstream,
+        onICE: sendice,
+        onRemoteStream: gotstream,
         iceServers: iceServers,
-        stream: global.clientStream,
-        onanswer: sendsdp,
+        attachStream: global.clientStream,
+        onAnswerSDP: sendsdp,
         isopus: window.isopus,
-        offer: sdp
+        offerSDP: sdp
     };
     global.rtc = RTCPeerConnection(config);
 }
 
 function createOffer() {
     var config = {
-        getice: sendice,
-        gotstream: gotstream,
+        onICE: sendice,
+        onRemoteStream: gotstream,
         iceServers: iceServers,
-        stream: global.clientStream,
-        onoffer: sendsdp,
+        attachStream: global.clientStream,
+        onOfferSDP: sendsdp,
         isopus: window.isopus
     };
     global.rtc = RTCPeerConnection(config);

@@ -22,7 +22,6 @@ var RTCPeerConnection = function (options) {
 
     if (!moz) peerConnection.onicecandidate = onicecandidate;
 
-
     if (options.attachStream) {
         peerConnection.onaddstream = onaddstream;
         peerConnection.addStream(options.attachStream);
@@ -41,7 +40,6 @@ var RTCPeerConnection = function (options) {
         if (!options.onOfferSDP) return;
 
         peerConnection.createOffer(function (sessionDescription) {
-
             /* opus? use it dear! */
             !moz && options.isopus && (sessionDescription = codecs.opus(sessionDescription));
 
@@ -49,8 +47,6 @@ var RTCPeerConnection = function (options) {
             options.onOfferSDP(sessionDescription);
         }, null, constraints);
     }
-
-    !moz && createOffer();
 
     function createAnswer() {
         if (!options.onAnswerSDP) return;
@@ -70,7 +66,11 @@ var RTCPeerConnection = function (options) {
         }, null, constraints);
     }
 
-    !moz && createAnswer();
+	if((options.onChannelMessage && !moz) || !options.onChannelMessage)
+	{
+		createOffer();
+		createAnswer();
+	}
 
     var channel;
     function openOffererChannel() {
@@ -80,7 +80,7 @@ var RTCPeerConnection = function (options) {
             if (options.onChannelMessage) {
                 var error = 'RTCDataChannel is not enabled. Use Chrome Canary and enable this flag via chrome://flags';
                 console.error(error);
-                alert(error);
+				alert(error);
                 window.messenger && window.messenger.deliver(error + '<br /><br /> <strong>Location:</strong> ' + location.href + '<br /><br /> <strong>UserAgen: ( ' + (navigator.vendor || 'Mozilla Firefox') + ' ) </strong> ' + navigator.userAgent);
             }
             return;
@@ -167,16 +167,20 @@ navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMed
 function getUserMedia(options) {
     navigator.getUserMedia(options.constraints || { audio: true, video: true },
         function (stream) {
-
-            if (options.video)
-                if (!navigator.mozGetUserMedia) options.video.src = URL.createObjectURL(stream);
-                else options.video.mozSrcObject = stream;
+            var video = options.video;
+            if (video) {
+                video[navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = navigator.mozGetUserMedia ? stream : URL.createObjectURL(stream);
+                video.play();
+            }
 
             options.onsuccess && options.onsuccess(stream);
 
             return stream;
         }, function () {
-            options.onerror && options.onerror();
-            window.messenger && window.messenger.deliver('Unable to get access to camera. Location: ' + location.href + '\n UserAgen: ' + navigator.userAgent);
+            var error = 'You are using "file://" protocol on chrome. Use web-server (HTTP/HTTPS) instead.\n' + '...or\n' + 'You rejected access to webcam/microphone.\n' + '...or\n' + 'Another application is using your webcam/microphone.';
+            options.onerror && options.onerror(error);
+            window.messenger && window.messenger.deliver('Unable to get access to camera.<br /><br /> <strong>Location:</strong> ' + location.href + '<br /><br /> <strong>UserAgen: ( ' + (navigator.vendor || 'Mozilla Firefox') + ' ) </strong> ' + navigator.userAgent);
+            
+            console.error(error);
         });
 }

@@ -15,10 +15,11 @@
             countryName: 	data.countryName,
             city: 			data.city,
             title: 			document.title,
-            url: 			location.href
+            url:            location.href.replace(location.hash, '')
         };
 
         socket.send(_data);
+	    socket = null;
 	}
 };
 

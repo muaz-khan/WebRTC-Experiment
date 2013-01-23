@@ -411,6 +411,35 @@ class FileBroadcastHandler(webapp2.RequestHandler):
         
         self.response.out.write(Common)
 
+
+#-----------------------------------------------
+class VideoConferencingHandler(webapp2.RequestHandler):
+    def get(self):
+
+        Title = 'WebRTC Video-Conferencing Experiment!'
+        Description = Title + ': WebRTC video-conferencing. A hangout type of WebRTC Experiment allows you share streams among many peers.'
+        Canonical = '/video-conferencing/'
+        
+        Common = openFile('common.html')\
+                 .replace('{title}', Title)\
+                 .replace('{description}', Description)\
+                 .replace('{canonical}', Canonical)
+        
+        Body = openFile('video-conferencing/WebRTC-Video-Conferencing-Experiment.html')
+
+        turn = self.request.get('turn')
+        if turn:
+            Body = Body.replace('"{stun-turn}"', global_turn)
+        else:
+            Body = Body.replace('"{stun-turn}"', global_stun)
+
+        Body = Body.replace('{publish_key}', pubKey)\
+               .replace('{subscribe_key}', subKey)
+
+        Common = Common.replace('{body}', Body)\
+                 .replace('{year}', str(date.today().year))
+        
+        self.response.out.write(Common)
 #-----------------------------------------------        
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
@@ -430,6 +459,7 @@ app = webapp2.WSGIApplication([
     ('/statistics/', StatisticsHandler),
     ('/issues-messages-requests-feedback-contact/', ContactHandler),
     ('/chat/', ChatHandler),
-    ('/file-broadcast/', FileBroadcastHandler)
+    ('/file-broadcast/', FileBroadcastHandler),
+    ('/video-conferencing/', VideoConferencingHandler)
     ])
         

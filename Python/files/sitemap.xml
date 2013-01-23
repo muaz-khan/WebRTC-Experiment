@@ -10,7 +10,18 @@
   <changefreq>always</changefreq>
   <priority>1.00</priority>
 </url>
-
+	<url>
+        <loc>https://webrtc-experiment.appspot.com/video-conferencing/</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
+    <url>
+        <loc>https://webrtc-experiment.appspot.com/docs/how-to-WebRTC-video-conferencing.html</loc>
+        <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.00</priority>
+    </url>
     <url>
         <loc>https://webrtc-experiment.appspot.com/file-broadcast/</loc>
         <lastmod>{year}-{month}-{day}T06:02:10+00:00</lastmod>

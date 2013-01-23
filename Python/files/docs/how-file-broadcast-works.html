@@ -207,6 +207,9 @@
             <summary>Other WebRTC Experiments</summary>
             <dl>
                 <dt>
+                    <a href="/video-conferencing/">Video-Conferencing / Hangout!</a>
+                </dt>
+                <dt>
                     <a href="/file-broadcast/">P2P File Sharing using RTCDataChannel APIs</a>
                 </dt>
                 <dt>
@@ -380,8 +383,8 @@ function <strong id="postMessage">postMessage</strong>(obj) {
                     <pre>
 var peer = <strong>RTCPeerConnection</strong>({
     ...
-    <strong>onChannelOpened</strong>: function () {
-        <a href="#channels">channels</a>[<a href="#channels">channels</a>.length] = peer.<strong>channel</strong>;
+    <strong>onChannelOpened</strong>: function (channel) {
+        <a href="#channels">channels</a>[<a href="#channels">channels</a>.length] = <strong>channel</strong>;
     },
     <strong>onChannelMessage</strong>: <a href="#onMessage">onMessage</a>
 });

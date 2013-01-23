@@ -1,3 +1,9 @@
+https://webrtc-experiment.appspot.com/video-conferencing/
+
+A many-to-many WebRTC "video-conferencing" experiment. Unlimited people can join a single room and all of them can talk/see each other ... same like Google+ Hangout!
+
+[How to video conferencing in WebRTC?](https://webrtc-experiment.appspot.com/docs/how-to-WebRTC-video-conferencing.html)
+
 ====
 ## Browser Support
 
@@ -5,9 +11,6 @@
 * Firefox [Nightly](http://nightly.mozilla.org/)
 * Google Chrome [Stable](https://www.google.com/intl/en_uk/chrome/browser/) 
 * Google Chrome [Canary](https://www.google.com/intl/en/chrome/browser/canary.html)
-
-====
-## [WebRTC video-conferencing / hangout!](https://webrtc-experiment.appspot.com/video-conferencing/)
 
 ====
 ## [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)

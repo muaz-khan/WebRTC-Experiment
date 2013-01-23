@@ -10,10 +10,6 @@ handlers:
   static_files: favicon.ico
   upload: favicon\.ico
 
-- url: /robots\.txt
-  static_files: robots.txt
-  upload: robots\.txt
-
 - url: /(.*\.(js|css))
   static_files: files/\1
   upload: files/(.*\.(js|css))
@@ -28,10 +24,6 @@ handlers:
 
 - url: /images
   static_dir: images
-
-- url: /googlea39ddc1167f80053\.html
-  static_files: googlea39ddc1167f80053.html
-  upload: googlea39ddc1167f80053\.html  
 
 - url: .*
   script: main.app

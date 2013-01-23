@@ -37,9 +37,9 @@ function sendice(candidate, socket) {
     });
 }
 
-function gotstream(event, recheck) {
+function gotstream(stream, recheck) {
 
-    if (event) {
+    if (stream) {
 
         var video = document.createElement('video');
         video.src = clientVideo.src;
@@ -49,8 +49,8 @@ function gotstream(event, recheck) {
 
         clientVideo.pause();
 
-        if (!navigator.mozGetUserMedia) clientVideo.src = URL.createObjectURL(event.stream);
-        else clientVideo.mozSrcObject = event.stream;
+        if (!navigator.mozGetUserMedia) clientVideo.src = URL.createObjectURL(stream);
+        else clientVideo.mozSrcObject = stream;
 
         
         clientVideo.play();
@@ -69,6 +69,8 @@ function gotstream(event, recheck) {
 }
 
 function finallyGotStream() {
-    clientVideo.css('-webkit-transform', 'rotate(0deg)');
+    if (!navigator.mozGetUserMedia) clientVideo.css('-webkit-transform', 'rotate(0deg)');
+	else clientVideo.css('transform', 'rotate(0deg)');
+	
     global.isGotRemoteStream = true;
 }

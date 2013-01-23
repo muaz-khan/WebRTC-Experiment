@@ -61,10 +61,10 @@ function openSocket(channel) {
             iceServers: iceServers,
             onOfferSDP: function (sdp) { sendsdp(sdp, socket, isopus); },
             onICE: function (candidate) { sendice(candidate, socket); },
-            onChannelOpened: function (channel) {
-                global.channels[global.channels.length] = channel;
+            onChannelOpened: function (_channel) {
+                global.channels[global.channels.length] = _channel;
 				disable(false);
-				peer.sendData(JSON.stringify({connected: true}));
+				_channel.send(JSON.stringify({ connected: true }));
             },
             onChannelMessage: onMessage
         };
@@ -125,10 +125,5 @@ function openSocket(channel) {
         }
 
         if (response.end) console.log('A roommate left you!');
-    }
-
-    /* sub socket got stream */
-    function gotstream() {
-        isGotRemoteStream = true;
     }
 }

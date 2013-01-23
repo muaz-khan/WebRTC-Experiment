@@ -61,7 +61,7 @@ function socketResponse(response) {
 
     /* process ice candidates sent by other end */
     else if (global.rtc && response.candidate && !global.isGotRemoteStream) {
-        global.rtc.addice({
+        global.rtc.addICE({
             sdpMLineIndex: response.candidate.sdpMLineIndex,
             candidate: JSON.parse(response.candidate.candidate)
         });
@@ -74,13 +74,13 @@ function socketResponse(response) {
 /* got offer sdp from master socket; pass your answer sdp over that socket to join broadcasted room */
 function createAnswer(sdp, socket) {
     var config = {
-        getice: function(candidate) {
+        onICE: function(candidate) {
             sendice(candidate, socket);
         },
-        gotstream: gotstream,
+        onRemoteStream: gotstream,
         iceServers: iceServers,
-        stream: global.clientStream,
-        onanswer: function(answerSDP) {
+        attachStream: global.clientStream,
+        onAnswerSDP: function(answerSDP) {
             sendsdp(answerSDP, socket, window.isopus);
         },
         
@@ -88,7 +88,7 @@ function createAnswer(sdp, socket) {
     };
 
     /* pass offer sdp sent by master socket */
-    config.offer = sdp;
+    config.offerSDP = sdp;
 
     /* create RTC peer connection for participant */
     global.rtc = RTCPeerConnection(config);

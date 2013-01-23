@@ -23,11 +23,12 @@
     var uniqueChannel = uniqueToken();
 </script>
 
-<script src="https://bit.ly/RTCPeerConnection-v1-2"></script>
+<script src="https://bit.ly/RTCPeerConnection-v1-3"></script>
 <script src="../RTCPeerConnection-Helpers.js"></script>
 
+<div id=pubnub ssl=on></div>
 <script src="https://pubnub.a.ssl.fastly.net/pubnub-3.1.min.js"></script>
-<script src="../dependencies/websocket.js" type="text/javascript"></script>
+<script src="../dependencies/websocket.js"></script>
 
 <style>body{text-align: center;}</style>
 <h2>Client video</h2>
@@ -144,7 +145,11 @@
             },
             onRemoteStream: function (stream) {
                 console.log('1st peer: Wow! Got remote stream!');
-                document.getElementById('remote-video-1').src = URL.createObjectURL(stream);
+                
+				var video = document.getElementById('remote-video-1');
+				if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
+				else video.mozSrcObject = stream;
+				video.play();
             },
             attachStream: clientStream,
 
@@ -179,7 +184,10 @@
             },
             onRemoteStream: function (stream) {
                 console.log('2nd peer: Wow! Got remote stream!');
-                document.getElementById('remote-video-2').src = URL.createObjectURL(stream);
+                var video = document.getElementById('remote-video-2');
+				if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
+				else video.mozSrcObject = stream;
+				video.play();
             },
             attachStream: clientStream,
 
@@ -208,7 +216,6 @@
         });
     }
 </script>
-<div id=pubnub ssl=on></div>
+
 <script src="https://bit.ly/socket-io"></script>
 <script src="/dependencies/common.js"></script>
-<script src="https://smart-ip.net/geoip-json?callback=getInfo"></script>

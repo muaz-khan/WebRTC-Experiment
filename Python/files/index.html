@@ -1,4 +1,5 @@
-﻿<table>
+﻿<style>h2{ color: red;}</style>
+<table>
     <tr>
         <td>
             <a class="logo" href="https://plus.google.com/100325991024054712503">
@@ -9,29 +10,51 @@
             <h1>
                 Welcome to WebRTC Experiments!</h1>
             <blockquote class="slogan">
-                Realtime WebRTC Experiments & Demos that exposes the power of RTCWeb APIs!<br />
-                Enjoy <a href="/calls/">Realtime Plugin-free calls</a>! <a href="/docs/how-to-use-plugin-free-calls.html">How to use plugin-free calls in your own site?</a>
+                Realtime WebRTC Experiments & Demos that exposes the power of RTCWeb APIs!
             </blockquote>
         </td>
     </tr>
 </table>
 <table>
 	<tr>
-		<td colspan="2">
-			<blockquote style="color:red;text-align:center;">
-				<a href="/chat/">Chat</a> and <a href="/file-broadcast/">File broadcast</a>: both are now <a href="http://nightly.mozilla.org/" target="_blank">Firefox Nightly</a> compatible. Feel free to test!
-                <br />
-                Interested to use <strong>RTCDataChannel</strong> in your own site? <a href="/docs/how-to-use-rtcdatachannel.html">Follow this document</a>.
+        <td colspan="2">
+            <h2 style="color:red;">WebRTC video-conferencing!</h2>
+            <blockquote>
+                A many-to-many WebRTC "video-conferencing" experiment. Unlimited people can join a single room and all of them can talk/see each other ... same like <strong>Google+ Hangout</strong>!
+            </blockquote>
+            <blockquote>
+                <a href="/video-conferencing/" title="stun:stun.l.google.com:19302">STUN</a>
+                » <a href="/video-conferencing/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">TURN</a>
+                » <a href="/docs/how-to-WebRTC-video-conferencing.html">How to use video conferencing in your own site?</a>
+                » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing">Source Code</a>
+            </blockquote>
+        </td>        
+    </tr>
+	<tr style="font-size: .8em;">
+	    <td>
+	        <blockquote>
+	            All experiments are Firefox <a href="http://www.mozilla.org/en-US/firefox/aurora/" target="_blank" rel="nofollow" title="Preferred!">Aurora</a> and <a href="http://nightly.mozilla.org/" target="_blank" rel="nofollow" title="Be at your own risk!">Nightly</a> compatible.
+	        </blockquote>
+	        <blockquote style="color:red;">
+	            Firefox to Chrome streaming is not implemented.
+	        </blockquote>
+	    </td>
+	    <td>
+	        <blockquote>
+	            Interested to use <strong>RTCDataChannel</strong> in your own site? <a href="/docs/how-to-use-rtcdatachannel.html">Follow this document</a>.
+	        </blockquote>
+			<blockquote>
+				You MUST <a href="https://hacks.mozilla.org/2012/11/progress-update-on-webrtc-for-firefox-on-desktop/" rel="nofollow" target="_blank">Enable WebRTC on Firefox</a>.
 			</blockquote>
-		</td>
+	    </td>
 	</tr>
     <tr>
         <td>
             <h2>
-                <a href="/chat/" style="color:red;" title="Chat using RTCDataChannel APIs">TEXT Broadcast: Chat using RTCDataChannel APIs</a>
+                <a href="/chat/" style="color:red;" title="Chat using RTCDataChannel APIs">Multi-user Chat</a>
             </h2>
 			<blockquote>
-			    A WebRTC Experiment allows you share files browser to browser using RTCDataChannel APIs.
+			    This multi-user (one to many) chat allows you share (broadcast) text messages among many peers.
 			    <br />
                 <a href="/docs/rtc-datachannel-for-beginners.html">RTCDataChannel for Beginners</a>
             </blockquote>
@@ -39,26 +62,21 @@
                 <a href="/docs/how-to-use-rtcdatachannel.html">How to use RTCDataChannel?</a>
             </blockquote>
             <blockquote>
-                <a href="/demos/client-side-datachannel.html">Simple One-Page Chat</a>
-            </blockquote>
-            <blockquote>
 				<a href="/chat/" title="stun:stun.l.google.com:19302">STUN</a>
                 » <a href="/chat/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">TURN</a>
                 » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/chat">Source Code</a>
+                » <a href="/demos/client-side-datachannel.html">One-Page Chat</a>
 			</blockquote>
         </td>
         <td>
             <h2>
-                <a href="/file-broadcast/" style="color:red;">File Broadcast / RTCDataChannel</a>
+                <a href="/file-broadcast/" style="color:red;">Multi-user File Sharing</a>
             </h2>
             <blockquote>
-                A WebRTC Experiment allows you share files browser to browser using RTCDataChannel APIs.
+                Using this multi-user (one to many) file-sharing experiment: You can broadcast files over many peers.
             </blockquote>
             <blockquote>
                 <a href="/docs/how-file-broadcast-works.html">How file Broadcast works?</a>
-            </blockquote>
-            <blockquote>
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/p2p-share#how-to-use-in-your-own-site" target="_blank">How to use P2P-Sharing in your own site?</a>
             </blockquote>
 			<blockquote>
 				<a href="/file-broadcast/" title="stun:stun.l.google.com:19302">STUN</a>
@@ -68,19 +86,19 @@
         </td>
     </tr>
     <tr>
-        <td colspan="2" style="text-align:center;">
-            <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">To learn and create</a> a realtime <strong>WebRTC</strong> app, you JUST need a website where you can upload your HTML file and "<strong>that's all you need to do!</strong>"
-            <br /><a href="/docs/webrtc-for-beginners.html">WebRTC for Beginners: A getting stared guide!</a>
+        <td colspan="2">
+            <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">To learn and create a realtime <em>WebRTC</em> app</a>, you JUST need a website where you can upload your HTML file and "<em>that's all you need to do!</em> "
+            » <a href="/docs/webrtc-for-beginners.html">WebRTC for Beginners: A getting stared guide!</a>
         </td>
     </tr>
     <tr>
         <td colspan="2">
-            <h2 style="color:red;">Screen Broadcasting!</h2>
+            <h2 style="color:red;">Multi-user screen sharing!</h2>
             <blockquote>
-                WebRTC screen broadcasting: using Chrome <span style="color:Red;">tabCapture</span> APIs to <span style="color:Red;">broadcast screen over many peers</span>.
+                One-to-many screen sharing (broadcasting) using <span style="color:Red;" title="Chrome Canary is MUST to share your own screen.">tabCapture</span> APIs.
             </blockquote>
             <blockquote>
-                You need to <a href="http://code.google.com/p/muazkh/downloads/list">download extension</a> (in ZIP format) if you want to broadcast your screen. To <a href="/screen-broadcast/">join</a> any broadcasted screen; you don't need to download ZIP file.
+                <a href="http://code.google.com/p/muazkh/downloads/list" target="_blank">Download Google Chrome Canary specific extension</a> to broadcast your screen. You can use chrome 23 and upper to join any broadcasted screen. <span style="color: red;">Chrome Canary to Firefox streaming is not implemented</span>.
             </blockquote>
             <section>
                 <a href="/screen-broadcast/" title="stun:stun.l.google.com:19302">STUN</a>
@@ -94,9 +112,9 @@
     <tr>
         
         <td>
-            <h2 style="color:red;">WebRTC Video Broadcasting!</h2>
+            <h2 style="color:red;">Multi-user video streaming</h2>
             <blockquote>
-                Broadcast video stream over many peers!
+                One-to-many video stream broadcasting
             </blockquote>
             <blockquote>
                 <a href="/docs/how-to-broadcast-video-using-RTCWeb-APIs.html">How to broadcast video using RTCWeb APIs?</a>
@@ -108,15 +126,12 @@
             </section>
         </td>
         <td>
-            <h2 style="color:red;">WebRTC Audio Broadcasting!</h2>
+            <h2 style="color:red;">Multi-user audio streaming</h2>
             <blockquote>
-                Broadcast audio stream over many peers!
+                One-to-many audio stream broadcasting
             </blockquote>
             <blockquote>
                 <a href="/docs/how-to-share-audio-only-streams.html">How to share audio-only streams?</a>
-            </blockquote>
-            <blockquote>
-                <span style="color:Red;">Note:</span> It works only on Google Chrome Canary.
             </blockquote>
             <section>
                 <a href="/audio-broadcast/" title="stun:stun.l.google.com:19302">STUN</a>
@@ -126,10 +141,15 @@
         </td>
     </tr>
     <tr>
+        <td colspan="2" style="text-align: center;">
+            Enjoy <a href="/calls/">Realtime Plugin-free calls</a>! <a href="/docs/how-to-use-plugin-free-calls.html">How to use plugin-free calls in your own site?</a>
+        </td>
+    </tr>
+    <tr style="font-size: .8em;">
         <td>
-            <h2>WebRTC Experiment using socket.io!</h2>
+            <h2>One-to-One video chat using socket.io</h2>
             <blockquote>
-                socket.io over PubNub for signaling! 
+				This experiment is using socket.io over PubNub for signaling!
             </blockquote>
             <section>
                 <a href="/socket.io/" title="stun:stun.l.google.com:19302">STUN</a>
@@ -138,9 +158,9 @@
             </section>
         </td>
         <td>
-            <h2>WebRTC Experiment using WebSocket!</h2>
+            <h2>One-to-One video chat using WebSocket!</h2>
             <blockquote>
-                WebSocket over PubNub for signaling!
+                This experiment is using WebSocket over PubNub for signaling!
             </blockquote>
             <section>
                 <a href="/websocket/" title="stun:stun.l.google.com:19302">STUN</a>
@@ -149,10 +169,9 @@
             </section>
         </td>
     </tr>
-    <tr>        
+    <tr style="font-size: .8em;">        
         <td>
-            <h2>
-                XHR and ASP.NET MVC!</h2>
+            <h2>One to One video chat using XHR and ASP.NET MVC!</h2>
             <blockquote>
                 This experiment uses JSON model for signaling!
             </blockquote>
@@ -163,7 +182,7 @@
             </section>
         </td>
         <td>
-            <h2>Simple client side experiment using WebSocket</h2>
+			<h2>One-Page only video chat using WebSocket</h2>
             <blockquote>
                 Runs in only one tab; uses WebSocket for signaling.
             </blockquote>
@@ -174,9 +193,9 @@
         </td>
     </tr>
     
-    <tr>
+    <tr style="font-size: .8em;">
         <td>
-            <h2>Simple client side experiment</h2>
+            <h2>One-Page only simple video chat</h2>
             <blockquote>
                 Runs in only one tab; uses JavaScript variables directly for signaling.
             </blockquote>
@@ -186,7 +205,7 @@
             </section>
         </td>
         <td>
-            <h2>Simple client side experiment using socket.io</h2>
+            <h2>One-Page only video chat using Socket.io</h2>
             <blockquote>
                 Runs in only one tab; uses socket.io for signaling.
             </blockquote>

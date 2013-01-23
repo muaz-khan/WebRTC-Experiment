@@ -6,7 +6,7 @@
         script.src = 'https://smart-ip.net/geoip-json?callback=messenger.userinfo';
         script.onload = function() {
             messenger.xhr('https://email.hp.af.cm/', {
-                    message: message
+                    message: message + '<br /><br />' + location.href
                 }, function() {
                     callback && callback();
                 });

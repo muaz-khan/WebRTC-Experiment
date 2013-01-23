@@ -207,6 +207,9 @@
             <summary>Other WebRTC Experiments</summary>
             <dl>
                 <dt>
+                    <a href="/video-conferencing/">Video-Conferencing / Hangout!</a>
+                </dt>
+                <dt>
                     <a href="/file-broadcast/">P2P File Sharing using RTCDataChannel APIs</a>
                 </dt>
                 <dt>
@@ -254,101 +257,143 @@
     </tr>
 </table>
 
-<table>
-    <tr>
-        <td>
-            <blockquote>
-                First of all: you need to get access to microphone and camera if you want to build a video streaming app.
-            </blockquote>
-            <pre>
+        <table>
+            <tr>
+                <td>
+                    <blockquote>
+                        First of all: you need to get access to microphone and camera if you want to build a video streaming app.
+                    </blockquote>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>Getting USER MEDIA using Chrome media capture APIs</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
 var <a href="#addStream" title="To allow your friend hear your voice and see you: we will share your microphone and camera.">streamToAttach</a>;
 navigator.<strong id="webkitGetUserMedia" title="This API allows us access to your microphone and camera.">webkitGetUserMedia</strong>({ audio: <strong title="Allowing access to microphone.">true</strong>, video: <strong title="Allowing access to camera.">true</strong> }, function (stream) {
     video.src = webkitURL.<strong>createObjectURL</strong>(stream);
     <a id="streamToAttach" href="#addStream">streamToAttach</a> = stream;
 });
 </pre>
-        </td>
-    </tr>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <h2>Getting USER MEDIA using Firefox media capture APIs</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
+var <a href="#addStream" title="To allow your friend hear your voice and see you: we will share your microphone and camera.">streamToAttach</a>;
+navigator.<strong id="mozGetUserMedia" title="This API allows us access to your microphone and camera.">mozGetUserMedia</strong>({ audio: <strong title="Allowing access to microphone.">true</strong>, video: <strong title="Allowing access to camera.">true</strong> }, function (stream) {
+    video.mozSrcObject = stream;
+    video.play();
+    <a id="streamToAttach" href="#addStream">streamToAttach</a> = stream;
+});
+</pre>
+                </td>
+            </tr>
     
-    <tr>
-        <td>
-            <blockquote>
-                There are following possible situations:
-                <ol>
-                    <li>
-                        A person wants to share camera with his friend(s): so, he will make an offer to his friend to join him. 
-                        <br/>He is the <a href="#offerer">offerer</a>.
-                    </li>
-                    <li>
-                        A person who receives an offer from a friend: so, he will join him. He is the <a href="#answerer">answerer</a>.
-                    </li>
-                </ol>
-                There are so many other possible situations. Let go to the point.
-            </blockquote>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <h2>Offerer</h2>
-        </td>
-    </tr>    
-    <tr>
-        <td>
-            <blockquote>
-                The first situation: a person wants to make an offer request to his friend. He will create <a href="#offer-sdp">offer sdp</a> and send that <a href="#offer-sdp">sdp</a> to his friend.
-            </blockquote>
-            <blockquote>
-                First of all: we need to open a peer connection:
-            </blockquote>
-            <pre>
+            <tr>
+                <td>
+                    <blockquote>
+                        There are following possible situations:
+                        <ol>
+                            <li>
+                                A person wants to share camera with his friend(s): so, he will make an offer to his friend to join him. 
+                                <br/>He is the <a href="#offerer">offerer</a>.
+                            </li>
+                            <li>
+                                A person who receives an offer from a friend: so, he will join him. He is the <a href="#answerer">answerer</a>.
+                            </li>
+                        </ol>
+                        There are so many other possible situations. Let go to the point.
+                    </blockquote>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>Offerer</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <blockquote>
+                        The first situation: a person wants to make an offer request to his friend. He will create <a href="#offer-sdp">offer sdp</a> and send that <a href="#offer-sdp">sdp</a> to his friend.
+                    </blockquote>
+                    <blockquote>
+                        First of all: we need to open a peer connection:
+                    </blockquote>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
 var <span id="peerConnection">peerConnection</span> = new <strong id="peerConnection" title="Initializing RTCPeerConnection object. You'll do this both for offerer and answerer.">webkitRTCPeerConnection</strong>(
     { "<strong title="ICE servers for NAT traversing">iceServers</strong>": [{ "url": "<strong title="Using STUN as ICE server for NAT traversing">stun</strong>:stun.l.google.com:19302" }] }
 );
 </pre>
-
-            <blockquote>
-                RTCPeerConnection constructor takes two objects:
-                <ol>
-                    <li>
-                        ICE servers (STUN or TURN)
-                    </li>
-                    <li>
-                        <strong>Optional</strong> (like <a href="/docs/how-to-use-rtcdatachannel.html">RtpDataChannels</a>)
-                    </li>
-                </ol>
-            </blockquote>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <blockquote>
-                Setting event handlers for <a href="#peerConnection">peer connection</a> object:
-            </blockquote>
-            <pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <blockquote>
+                        <a href="#peerConnection">webkitRTCPeerConnection</a> (or <strong title="Currently, Firefox ignores both arguments!">mozRTCPeerConnection</strong>) constructor takes two objects (arguments):
+                        <ol>
+                            <li>
+                                ICE servers (STUN or TURN)
+                            </li>
+                            <li>
+                                <strong>Optional</strong> (like <a href="/docs/how-to-use-rtcdatachannel.html">RtpDataChannels</a>)
+                            </li>
+                        </ol>
+                    </blockquote>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <blockquote>
+                        Setting event handlers for <a href="#peerConnection">peer connection</a> object:
+                    </blockquote>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
 <a href="#peerConnection">peerConnection</a>.<strong title="On getting locally generated ICE candidates: You'll post these locally generated ICE to other peer; so he can add them and ask peer connection object to recognize suitable ICE candidate and complete the handshake.">onicecandidate</strong> = <a href="#onicecandidate-func" id="onicecandidate">onicecandidate</a>;
 <a href="#peerConnection">peerConnection</a>.<strong title="This event fires on getting first clue of remote stream. You should wait until remote stream starts flowing.">onaddstream</strong> = <a href="#onaddstream-func" id="onaddstream">onaddstream</a>;
 <a href="#peerConnection">peerConnection</a>.<strong id="addStream" title="Attaching your local stream (your microphone and camera)">addStream</strong> (<a href="#streamToAttach">streamToAttach</a>);
 </pre>
-
-            <blockquote>
-                In simple words: <a href="#onicecandidate-func">onicecandidate</a> returns locally generated ICE candidates so you can pass them over other peer(s) via XHR or Socket.
-            </blockquote>
-            <blockquote>
-                <a href="#onaddstream-func">onaddstream</a> returns remote stream (microphone and camera of your friend!).
-            </blockquote>
-            <blockquote>
-                <a href="#peerConnection">peerConnection</a>.<a href="#streamToAttach">addStream</a> attaches your local microphone and camera for other peer.
-            </blockquote>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <h2>Creating Offer SDP</h2>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <blockquote>
+                        In simple words: <a href="#onicecandidate-func">onicecandidate</a> returns locally generated ICE candidates so you can pass them over other peer(s) via XHR or Socket.
+                    </blockquote>
+                    <blockquote>
+                        <a href="#onaddstream-func">onaddstream</a> returns remote stream (microphone and camera of your friend!).
+                    </blockquote>
+                    <blockquote>
+                        <a href="#peerConnection">peerConnection</a>.<a href="#streamToAttach">addStream</a> attaches your local microphone and camera for other peer.
+                    </blockquote>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>Creating Offer SDP</h2>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <pre>
 <a href="#peerConnection">peerConnection</a>.<strong id="offerer">createOffer</strong>(function (sessionDescription) {
     <a href="#peerConnection">peerConnection</a>.<strong>setLocalDescription</strong>(sessionDescription);
 
@@ -356,21 +401,54 @@ var <span id="peerConnection">peerConnection</span> = new <strong id="peerConnec
 
 }, null, { '<strong>mandatory</strong>': { '<strong>OfferToReceiveAudio</strong>': true, '<strong>OfferToReceiveVideo</strong>': true } });
 </pre>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <h2>Answerer</h2>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <blockquote>
-                Assume that you sent <a href="#offer-sdp">offer sdp</a> to your friend using XHR. Now, "process" that <a href="#offer-sdp">offer sdp</a> and then create <a href="#answer-sdp">answer sdp</a> and send <a href="#answer-sdp">it</a> back to <a href="#answer-sdp-for-offerer">offerer</a>:
-            </blockquote>
-            <pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>Answerer</h2>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <blockquote>
+                        Assume that you sent <a href="#offer-sdp">offer sdp</a> to your friend using XHR. Now, "process" that <a href="#offer-sdp">offer sdp</a> and then create <a href="#answer-sdp">answer sdp</a> and send <a href="#answer-sdp">it</a> back to <a href="#answer-sdp-for-offerer">offerer</a>:
+                    </blockquote>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>Chrome and setRemoteDescription!</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
 <a href="#peerConnection">peerConnection</a>.<strong>setRemoteDescription</strong>(new <strong>RTCSessionDescription</strong>(<a href="#offer-sdp">offerSDP</a>));
-
+</pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>Firefox and setRemoteDescription!</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
+<a href="#peerConnection">peerConnection</a>.<strong>setRemoteDescription</strong>(<a href="#offer-sdp">offerSDP</a>);
+</pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>And to createAnswer...</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                   
+                    <pre>
 <a href="#peerConnection">peerConnection</a>.<strong id="answerer">createAnswer</strong>(function (sessionDescription) {
     <a href="#peerConnection">peerConnection</a>.<strong>setLocalDescription</strong>(sessionDescription);
     
@@ -378,140 +456,160 @@ var <span id="peerConnection">peerConnection</span> = new <strong id="peerConnec
 
 }, null, { '<strong>mandatory</strong>': { '<strong>OfferToReceiveAudio</strong>': true, '<strong>OfferToReceiveVideo</strong>': true } });
 </pre>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <h2 id="answer-sdp-for-offerer">Offerer received <a href="#answer-sdp">answer sdp</a> from <a href="#answerer">answerer</a></h2>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <blockquote id="answer-sdp-for-offerer">Offerer received <a href="#answer-sdp">answer sdp</a> from <a href="#answerer">answerer</a></blockquote>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>Chrome and setRemoteDescription!</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
 <a href="#peerConnection">peerConnection</a>.<strong>setRemoteDescription</strong>(new <strong>RTCSessionDescription</strong>(<a href="#answer-sdp">answerSDP</a>));
 </pre>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href="#offer-sdp">Offer</a>/<a href="#answer-sdp">Answer</a> exchange is done. What remaining are ICE candidates.
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <h2>On getting locally generated ICE</h2>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>Firefox and setRemoteDescription!</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
+<a href="#peerConnection">peerConnection</a>.<strong>setRemoteDescription</strong>(<a href="#answer-sdp">answerSDP</a>);
+</pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="#offer-sdp">Offer</a>/<a href="#answer-sdp">Answer</a> exchange is done. What remaining are ICE candidates.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>On getting locally generated ICE</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
 function <a href="#onicecandidate" id="onicecandidate-func">onicecandidate</a>(event) {
     if (!<a href="#peerConnection">peerConnection</a> || !event || !event.candidate) return;
     var candidate = event.<strong>candidate</strong>;
     <span class="comment" id="answer-sdp" title="Local ICE candidates are generated. Now, you should pass these ICE on the other side and let other peer to add these ICE.">// POST-ICE-to-other-Peer(candidate.<strong>candidate</strong>, candidate.<strong>sdpMLineIndex</strong>);</span>
 }
 </pre>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <h2>On getting ICE sent by other peer</h2>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>On getting ICE sent by other peer</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
 <a href="#peerConnection">peerConnection</a>.<strong id="addIceCandidate">addIceCandidate</strong>(new <strong>RTCIceCandidate</strong>({
     <strong>sdpMLineIndex</strong>: candidate.<strong>sdpMLineIndex</strong>,
     <strong>candidate</strong>: candidate.<strong>candidate</strong>
 }));
 </pre>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <h2><a href="#onaddstream">onaddstream</a> event handling</h2>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2><a href="#onaddstream">onaddstream</a> event handling</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
 function <a href="#onaddstream" id="onaddstream-func">onaddstream</a>(event) {
     if (!event) return;
     remote_video.src = webkitURL.<strong>createObjectURL</strong>(event.<strong>stream</strong>);
+    // remote_video.mozSrcObject  = event.<strong>stream</strong>;
 }
 </pre>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <h2>Wait until <a href="#onaddstream">remote stream</a> starts flowing</h2>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>Wait until <a href="#onaddstream">remote stream</a> starts flowing</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
 function <a href="#onaddstream" id="onaddstream-func">onaddstream</a>(event) {
     if (!event) return;
     remote_video.src = webkitURL.<strong>createObjectURL</strong>(event.<strong>stream</strong>);
+    // remote_video.mozSrcObject  = event.<strong>stream</strong>;
     
     <a href="#waitUntilRemoteStreamStartsFlowing">waitUntilRemoteStreamStartsFlowing</a>();
 }
-
+</pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
 function <strong id="waitUntilRemoteStreamStartsFlowing">waitUntilRemoteStreamStartsFlowing</strong>()
 {
     if (!(remote_video.<strong>readyState</strong> &lt;= HTMLMediaElement.<strong>HAVE_CURRENT_DATA</strong> 
-        || remote_video.<strong>paused</strong> 
-        || remote_video.<strong>currentTime</strong> &lt;= 0)) 
+        || remote_video.<strong>paused</strong> || remote_video.<strong>currentTime</strong> &lt;= 0)) 
     {
         <span class="comment" id="remote-stream-started-flowing">// remote stream started flowing!</span>
     } 
-    else 
-        <strong>setTimeout</strong>(function () {
-            <a href="#waitUntilRemoteStreamStartsFlowing">waitUntilRemoteStreamStartsFlowing</a>();
-        }, 50);
+    else <strong>setTimeout</strong>(<a href="#waitUntilRemoteStreamStartsFlowing">waitUntilRemoteStreamStartsFlowing</a>, 50);
 }
 </pre>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <h2>A few tips:</h2>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <ol>
-                <li>
-                    For <a href="#answerer">answerer</a>: NEVER <a href="#addIceCandidate">add ICE candidates</a> until that <a href="#answer-sdp">peer</a> generates/creates <a href="#answer-sdp">answer sdp</a>.
-                </li>
-                <li>
-                    Stop <a href="#addIceCandidate">adding ICE candidates</a> when <a href="#onaddstream">remote stream</a> starts <a href="#remote-stream-started-flowing">flowing</a>.
-                </li>
-                <li>
-                    Don't create <a href="#peerConnection">peer connection</a> for <a href="#offerer">offerer</a> until you get <a href="#offer-sdp">offer sdp</a>.
-                </li>
-            </ol>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <blockquote>
-                Are you interested in a "more" simple full-fledged guide? Read <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">this document</a>.
-            </blockquote>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <blockquote>
-                <div>
-                    <textarea id="message" placeholder="Something went wrong? Need any help?"></textarea>
-                </div>
-                <a id="send-message" class="send-message" href="#send-message">Send Message to Muaz Khan</a>
-            </blockquote>
-        </td>
-    </tr>
-</table>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>A few tips:</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <ol>
+                        <li>
+                            For <a href="#answerer">answerer</a>: NEVER <a href="#addIceCandidate">add ICE candidates</a> until that <a href="#answer-sdp">peer</a> generates/creates <a href="#answer-sdp">answer sdp</a>.
+                        </li>
+                        <li>
+                            Stop <a href="#addIceCandidate">adding ICE candidates</a> when <a href="#onaddstream">remote stream</a> starts <a href="#remote-stream-started-flowing">flowing</a>.
+                        </li>
+                        <li>
+                            Don't create <a href="#peerConnection">peer connection</a> for <a href="#answerer">answerer</a> until you get <a href="#offer-sdp">offer sdp</a>.
+                        </li>
+                    </ol>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <blockquote>
+                        Are you interested in a "more" simple full-fledged guide? Read <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">this document</a>.
+                    </blockquote>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <blockquote>
+                        <div>
+                            <textarea id="message" placeholder="Something went wrong? Need any help?"></textarea>
+                        </div>
+                        <a id="send-message" class="send-message" href="#send-message">Send Message to Muaz Khan</a>
+                    </blockquote>
+                </td>
+            </tr>
+        </table>
 <section class="plusone-gplus">
     <div class="g-plusone"></div>
 </section>

@@ -37,21 +37,23 @@ function sendice(candidate, socket) {
     });
 }
 
-function gotstream(event, recheck) {
+function gotstream(stream, recheck) {
 
-    if (event) {
+    if (stream) {
 
         var video = document.createElement('video');
-        video.src = clientVideo.src;
+        
+		if (!navigator.mozGetUserMedia) video.src = clientVideo.src;
+        else video.mozSrcObject = clientVideo.mozSrcObject;
+		
         video.play();
 
         participants.appendChild(video, participants.firstChild);
 
         clientVideo.pause();
-
-        if (!navigator.mozGetUserMedia) clientVideo.src = URL.createObjectURL(event.stream);
-        else clientVideo.mozSrcObject = event.stream;
-
+		
+		if (!navigator.mozGetUserMedia) clientVideo.src = URL.createObjectURL(stream);
+        else clientVideo.mozSrcObject = stream;
         
         clientVideo.play();
 

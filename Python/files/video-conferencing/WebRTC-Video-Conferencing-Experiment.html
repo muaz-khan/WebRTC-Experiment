@@ -1,0 +1,159 @@
+﻿<style>
+    .center-table td { width: 40%; }
+
+    a.join, a.start-conferencing {
+        background: url(/images/accept.gif) no-repeat left center;
+        padding-left: 1.5em;
+    }
+
+    a.search-room {
+        background: url(/images/search.gif) no-repeat left center;
+        padding-left: 2em;
+    }
+
+    label {
+        display: inline-block;
+        font-size: 20px;
+        width: 150px;
+    }
+
+    input { font-size: 1.2em; }
+
+    .create-room-panel h2, .create-room-panel div, .public-rooms blockquote {
+        border-bottom: 1px double #CACACA;
+        margin-bottom: .5em;
+        padding: .2em;
+    }
+
+    .start-conferencing { display: block; }
+
+    #public-rooms blockquote {
+        background: #FCFCFC;
+        border: 1px solid #FF4010;
+        margin-top: 1em;
+        padding: 1em 2em;
+    }
+
+    #public-rooms
+    {
+        margin-top:3em;
+    }
+
+    #participants video:first-child {
+        margin-top: 0;
+    }
+    #participants video {
+        width: 8em;
+        margin-top: -1em;
+    }
+    #participants
+    {
+        max-height: 550px;
+        overflow: hidden;
+        overflow-y: auto;
+    }
+    .hidden
+    {
+        display:none;
+    }
+    .visible {}
+	table{width:100%;}
+</style>
+
+<table class="visible">
+    <tr>
+        <td>
+            <div>
+                <a class="logo" href="https://plus.google.com/100325991024054712503">
+                    <img src="/images/Muaz-Khan.gif" width="100" height="100">
+                </a>
+            </div>
+        </td>
+        <td>
+            <div>
+                <h1>WebRTC Video-Conferencing Experiment!</h1>
+                <blockquote class="slogan">
+                    WebRTC video-conferencing. A hangout type of WebRTC Experiment allows you share streams among many peers.
+                    » <a href="/docs/how-to-WebRTC-video-conferencing.html">How to use video conferencing in your own site?</a>
+                    » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing">Source Code</a>
+                </blockquote>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<table class="visible">
+	<tr>
+		<td>
+			<h2 style="font-size: 1.2em;">Start New Video-Conference</h2>			
+		</td>
+		<td>
+			<input type="text" id="conference-name" placeholder="Conference Name">
+		</td>
+		<td style="width: 30%;">
+			<a id="start-conferencing" class="start-conferencing" href="#start-conferencing">Start Video-Conferencing</a>
+		</td>
+	</tr>
+</table>
+
+<table class="visible">
+	<tr>
+		<td>
+			<div id="rooms-list"></div>
+		</td>
+	</tr>
+</table>
+
+<table>
+	<tr>
+		<td>
+			<div id="participants"></div>
+		</td>
+	</tr>
+</table>
+
+<table>
+    <tr>
+        <td>
+            If room is created using <strong>Firefox</strong>; please don't try to join on <strong>Google Chrome</strong>.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <blockquote>
+                <div>
+                    <textarea id="message" placeholder="Something went wrong? Need any help?"></textarea>
+                </div>
+                <a id="send-message" class="send-message" href="#send-message">Send Message to Muaz Khan</a>
+            </blockquote>
+        </td>
+    </tr>
+</table>
+
+<section class="plusone-gplus">
+    <div class="g-plusone"></div>
+</section>
+
+<footer>
+    <a href="/">Home</a>
+    © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, {year}
+    » <a href="mailto:muazkh@gmail.com">Email</a>
+    » <a href="http://twitter.com/muazkh">@muazkh</a>
+    » <a href="https://github.com/muaz-khan">Github</a>
+    » <a href="https://plus.google.com/106306286430656356034/posts">Google+</a>
+</footer>
+
+<script src="https://bit.ly/RTCPeerConnection-v1-3"></script>
+<script src="../RTCPeerConnection-Helpers.js"></script>
+
+<script>
+    var iceServers = "{stun-turn}";
+    var socket_config = {
+        publish_key: '{publish_key}',
+        subscribe_key: '{subscribe_key}',
+        ssl: true
+    };
+</script>
+
+<script src="https://bit.ly/webrtc-conferencing"> </script>
+<script src="conference-ui.js"></script>
