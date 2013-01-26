@@ -1,12 +1,13 @@
 ﻿var publicSocket = { };
-var conference = function (config) {
+var rtclib = function (config) {
     var self = {
         userToken: uniqueToken(),
         publicChannel: config.publicChannel || 'video-conferencing'
     },
         channels = '--',
         isbroadcaster,
-        isGetNewRoom = true;
+        isGetNewRoom = true,
+		gotParticipant = false;
 
     function openPublicSocket() {
         var socketConfig = {
@@ -100,14 +101,17 @@ var conference = function (config) {
                     video: video,
                     stream: self.stream
                 });
-
+				
+				if (isbroadcaster) gotParticipant = true;
+				/*
                 if (isbroadcaster && channels.split('--').length > 3) {
-                    /* broadcasting newly connected participant for video-conferencing! */
+                    // broadcasting newly connected participant for video-conferencing! 
                     publicSocket.send({
                         newParticipant: socket.channel,
                         userToken: self.userToken
                     });
                 }
+				*/
 
                 /* closing subsocket here on the offerer side */
                 if(_config.closeSocket) socket = null;
@@ -116,7 +120,7 @@ var conference = function (config) {
         }
 
         /*********************/
-        /* sendsdp // sendice */
+        /****** sendsdp ******/
         /*********************/
 
         function sendsdp(sdp) {
@@ -206,7 +210,7 @@ var conference = function (config) {
             roomName: self.roomName,
             broadcaster: self.userToken
         });
-        setTimeout(startBroadcasting, 3000);
+        !gotParticipant && setTimeout(startBroadcasting, 3000);
     }
 
     function onNewParticipant(channel) {

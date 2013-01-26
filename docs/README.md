@@ -12,6 +12,11 @@
 A many-to-many WebRTC "video-conferencing" experiment. Unlimited people can join a single room and all of them can talk/see each other ... same like Google+ Hangout!
 
 ====
+## [WebRTC chat hangout / Group chat!](https://webrtc-experiment.appspot.com/chat-hangout/)
+
+[This webrtc experiment](https://webrtc-experiment.appspot.com/chat-hangout/) is using socket.io as signaling gateway. It is a Group Chat experiment; using RTCDataChannel APIs for chat. You can say it many to many chat!
+
+====
 ## [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
 
 Works fine on *Chrome Canary* and *Firefox Nightly*
@@ -54,6 +59,8 @@ Works fine on Chrome 23 and upper (Firefox Nightly support coming soon) - broadc
 --
 
 See [list of all other WebRTC experiments here](https://webrtc-experiment.appspot.com/).
+
+![WebRTC Experiment!](https://muazkh.appspot.com/images/WebRTC.png)
 
 ====
 ## Don't worry about node.js, PHP, Java, Python or ASP.NET MVC!!

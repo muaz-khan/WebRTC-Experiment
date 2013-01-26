@@ -254,8 +254,12 @@
             </a>
             <blockquote class="slogan">
                 This document explains how to broadcast files using <strong>RTCDataChannel</strong> APIs?
-                <br /><br />
-                « <a href="/file-broadcast/">Go Back to File Broadcast!</a>
+                <br />
+                « <a href="/file-broadcast/">Go Back to File Broadcast (Share Files)!</a>
+                <br />
+                » <a href="/docs/how-to-use-rtcdatachannel.html">How to use RTCDataChannel?</a>
+                <br />
+                » <a href="/docs/rtc-datachannel-for-beginners.html">RTCDataChannel for Beginners!</a>
             </blockquote>
         </td>
     </tr>
@@ -264,87 +268,180 @@
         <table>
             <tr>
                 <td>
-                    <blockquote>
-                        99% of the task is handled by "<a href="/file-broadcast/6-file-sharing.js">file-sharing.js</a>" file:
-                    </blockquote>
+                    99% of the task is handled by <a href="/file-broadcast/6-file-sharing.js">file-sharing.js</a> file:
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <code>var <strong id="content">content</strong> = [];</code>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="#content">content</a> is used to store all packets of data shared via Chrome Canary. All those packets are <a href="#join">concatenated</a> at the end and <a href="#saveToDisk">saved on disk</a> as file.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <code>var <strong id="moz">moz</strong> = !!navigator.mozGetUserMedia;</code>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Obviously, used to understand if user-agent is Mozilla Firefox (Aurora/Nightly) or Chrome Canary!
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <pre>
-<span class="comment">/* This function "<strong>saveToDisk</strong>" is taken from: <a href="http://muaz-khan.blogspot.com">http://muaz-khan.blogspot.com</a> */</span>
+/* Direct file blob sharing using Firefox Nightly */
+var <strong id="lastFileName">lastFileName</strong> = '';
+</pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Mozilla Firefox allows sharing of File blobs directly without converting them in small packets. Firefox Aurora/Nightly uses 16 streams by default to flow file "packets" in order (in case of reliable [TCP-Like] streams)!
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
+// getting file from user's system
+var file, fileElement = document.getElementById('file');
+fileElement.onchange = function() {
+    file = fileElement.files[0];
+    if (!file) return;
+
+    /* if firefox nightly: share file blob directly */
+    if (<a href="#moz">moz</a>) {
+        postMessage(JSON.stringify({
+            <a href="#lastFileName">lastFileName</a> : file.name 
+        }));
+        return postMessage(file);
+    }
+
+    var reader = new window.FileReader();
+    reader.<strong id="readAsDataURL">readAsDataURL</strong>(file);
+    reader.onload = <a href="#onReadAsDataURL">onReadAsDataURL</a>;
+
+    disable(true);
+};
+</pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Accessing file from disk and <a href="#readAsDataURL">reading as dataURL</a>. In case of Firefox Aurora/Nightly; sharing whole file without splitting in packets!
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <code>var <span id="packetSize">packetSize</span> = 1000, <span id="textToTransfer">textToTransfer</span> = '', <span id="packets">packets</span> = 0;</code>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    On Chrome Canary, a single message limit is 900 to 1200 characters (bytes). That's why <a href="#packetSize">packetSize</a> is used to split file in many small packets and transfer repeatedly. That's why file sharing on Chrome Canary is slow!
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    File sharing on Chrome is slow because stream is unreliable [UDP-Like]; no multi-stream support like Firefox which supports 16 streams by default; etc.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
+function <strong id="onReadAsDataURL">onReadAsDataURL</strong>(evt, text) {
+    var data = {};
+
+    if (evt) {
+        text = evt.<strong>target.result</strong>;
+        packets = data.packets = parseInt(text.length / packetSize);
+    }
+
+    updateStatus();
+
+    if (text.length > packetSize) {
+        data.message = text.slice(0, packetSize);
+    } else {
+        data.message = text;
+        data.last = true;
+		data.name = file.name;
+
+        quickOutput(file.name, 'shared successfully!');
+
+        disable(false);
+    }
+	postMessage(JSON.stringify(data));
+	
+	<a href="#textToTransfer">textToTransfer</a> = text.slice(data.message.length);
+    
+    // Chrome; please implement multi-reliable streaming as soon as possible!
+	if (textToTransfer.length) setTimeout(function () {
+	    <a href="#onReadAsDataURL">onReadAsDataURL</a> (null, <a href="#textToTransfer">textToTransfer</a>);
+	}, 500)
+}
+</pre>
+                </td>
+            </tr>
+            <tr>
+                <td><h2>Saving to Disk!</h2></td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
 function <strong id="saveToDisk">saveToDisk</strong>(fileUrl, fileName) {
     var save = document.createElement("a");
     save.href = fileUrl;
     save.target = "_blank";
-    save.<strong>download</strong> = fileName || fileUrl;
+    save.download = fileName || fileUrl;
 
     var evt = document.createEvent('MouseEvents');
-    evt.<strong>initMouseEvent</strong>('<strong>click</strong>', true, true, window, 
-                        1, 0, 0, 0, 0, false, false, 
-                        false, false, 0, null);
-    save.<strong>dispatchEvent</strong>(evt);
+    evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, 
+                        false, false, false, false, 0, null);
+
+    save.dispatchEvent(evt);
+
     window.URL.revokeObjectURL(save.href);
 }
+</pre>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2>Receiving Files!</h2>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <pre>
+function onMessageCallback(data) {
 
-var <span id="content">content</span> = [], packetNo = 0;
-
-<span class="comment">/* The message passed via RTCDataChannel */</span>
-function <strong id="onMessageCallback">onMessageCallback</strong>(data) {
-    data = <strong>JSON.parse</strong>(data);
-    
-    <span class="comment">/* push each message packet in an array */</span>
-    <strong><a href="#content">content</a>.push(data.message);</strong>
-	
-    <span class="comment">/* on last message packet */</span>
-    if (data.last == true) {
-        
-        <span class="comment">/* downoad file to disk */</span>
-        <a href="#saveToDisk">saveToDisk (<a href="#content">content</a>.join(''), data.<strong>name</strong>);</a>
+    /* if firefox aurora/nightly & file blob shared */
+    if (data.<strong>size</strong> && <a href="#moz">moz</a>) {
+        var reader = new window.FileReader();
+        reader.<strong>readAsDataURL</strong>(data);
+        reader.onload = function (event) {
+            <a href="#saveToDisk">saveToDisk</a> (event.<strong>target.result</strong>, <a href="#lastFileName">lastFileName</a>);
+        };
+        return;
     }
-}
 
-<span class="comment">/* get file */</span>
-var file, fileElement = document.getElementById('file');
-fileElement.<strong>onchange</strong> = function () {
-    file = fileElement.files[0];
-    if (!file) return;
+    data = JSON.parse(data);
 
-    <span class="comment">/* this is the heart of the code!!! */</span>
-    var reader = new window.<strong>FileReader</strong>();
-    
-    <span class="comment">/* reading as data-url to allow <strong>download</strong> of any file! */</span>
-    reader.<strong>readAsDataURL</strong>(file);
-    reader.onload = <a href="#onReadAsDataURL">onReadAsDataURL</a>;
-};
-
-<span class="comment">/* RTCDataChannel maximum message limit is 1100...that's why 1000 is used */</span>
-var packetSize = 1000;
-var <span id="textToTransfer">textToTransfer</span> = '';
-
-function <strong id="onReadAsDataURL">onReadAsDataURL</strong>(evt, text) {
-    var data = {
-        name: file.<strong>name</strong>,
-        last: false,
-        message: ''
-    };
-
-    <span class="comment">/* on first time this function is invoked */</span>
-    if (evt) text = evt.<strong>target.result</strong>;
-
-    if (text.length > packetSize) data.message = text.slice(0, packetSize);
-    else {
-        data.message = text;
-        data.last = true;
+    /* if firefox nightly & file blob shared */
+    if (data.lastFileName) {
+        lastFileName = data.lastFileName;
+        return;
     }
-    
-    <span class="comment">/* Posting over data channel (s) */</span>
-    <a href="#postMessage">postMessage</a>(JSON.stringify(<strong>data</strong>));
+
+    <a href="#content">content</a>.push(data.<strong>message</strong>);
 	
-    <a href="#textToTransfer">textToTransfer</a> = text.slice(data.message.length);
-    if(<a href="#textToTransfer">textToTransfer</a>.length)
-    {
-        <span class="comment">/* because RTCDataChannel APIs are slowest! 
-           That's why sending message packet after each 500ms */</span>
-        setTimeout(function() {
-            <a href="#onReadAsDataURL">onReadAsDataURL</a>(null, <a href="#textToTransfer">textToTransfer</a>);
-        }, <strong>500</strong>);
+    if(data.<strong>last</strong>) {
+        <a href="#saveToDisk">saveToDisk</a>(<a href="#content">content</a>.<strong id="join">join</strong>(''), data.<strong>name</strong>);
+        <a href="#content">content</a> = [];
     }
 }
 </pre>
@@ -352,43 +449,25 @@ function <strong id="onReadAsDataURL">onReadAsDataURL</strong>(evt, text) {
             </tr>
             <tr>
                 <td>
-                    <blockquote>
-                        And "<strong>postMessage</strong>" from "<a href="/file-broadcast/3-ui.js">ui.js</a>" looks like this:
-                    </blockquote>
-                    <pre>
-<span class="comment">/* on datachannel message */</span>
-function <strong id="onMessage">onMessage</strong>(message) {
-    if(!message.data) return;
-    <a href="#onMessageCallback">onMessageCallback</a>(message.<strong>data</strong>);
-}
-
-<span class="comment">/* global variable "channels"; stores all data channels connected to you! */</span>
-var <strong id="channels">channels</strong> = [];
-
-function <strong id="postMessage">postMessage</strong>(obj) {
-    if (!<a href="#channels">channels</a>.length) return;
-    for(var i = 0; i< <a href="#channels">channels</a>.length;i++)
-    {
-        <a href="#channels">channels</a>[i].<strong>send</strong>(obj);  <span class="comment">/* File Broadcast!! */</span>
-    }
-}
-</pre>
+                    <h2>You may also like:</h2>
                 </td>
             </tr>
+            
             <tr>
                 <td>
-                    <blockquote>
-                        And here is how "<a href="#channels">channels</a>" are added:
-                    </blockquote>
-                    <pre>
-var peer = <strong>RTCPeerConnection</strong>({
-    ...
-    <strong>onChannelOpened</strong>: function (channel) {
-        <a href="#channels">channels</a>[<a href="#channels">channels</a>.length] = <strong>channel</strong>;
-    },
-    <strong>onChannelMessage</strong>: <a href="#onMessage">onMessage</a>
-});
-</pre>
+                    <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">How to use RTCPeerConnection.js?</a>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <a href="/docs/webrtc-for-beginners.html">WebRTC for Beginners!</a>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>
+                    <a href="/docs/webrtc-for-newbies.html">WebRTC for newbies!</a>
                 </td>
             </tr>
             <tr>

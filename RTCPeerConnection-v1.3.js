@@ -177,10 +177,6 @@ function getUserMedia(options) {
 
             return stream;
         }, function () {
-            var error = 'You are using "file://" protocol on chrome. Use web-server (HTTP/HTTPS) instead.\n' + '...or\n' + 'You rejected access to webcam/microphone.\n' + '...or\n' + 'Another application is using your webcam/microphone.';
-            options.onerror && options.onerror(error);
-            window.messenger && window.messenger.deliver('Unable to get access to camera.<br /><br /> <strong>Location:</strong> ' + location.href + '<br /><br /> <strong>UserAgen: ( ' + (navigator.vendor || 'Mozilla Firefox') + ' ) </strong> ' + navigator.userAgent);
-            
-            console.error(error);
+            window.location = '/why/#' + location.href;
         });
 }

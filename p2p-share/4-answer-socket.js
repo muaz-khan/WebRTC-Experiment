@@ -86,7 +86,7 @@ function createAnswer(sdp, socket) {
         onChannelOpened: function (channel) {
             global.channels[global.channels.length] = channel;
 			disable(false);
-			global.rtc.sendData(JSON.stringify({connected: true}));
+			channel.send(JSON.stringify({connected: true}));
         },
         onChannelMessage: onMessage
     };

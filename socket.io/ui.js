@@ -1,4 +1,5 @@
-﻿var config = {
+﻿var uniqueChannelForYourSite = 'one-to-one-video-chat-using-socket-io';
+var config = {
     openSocket: function (config) {
         if (!window.io) return false;
 
@@ -9,20 +10,20 @@
                 ssl: true
             };
 
-        socket_config.channel = config.channel || 'video-conferencing';
-        var socket = io.connect('https://pubsub.pubnub.com/conference', socket_config);
+        socket_config.channel = config.channel || uniqueChannelForYourSite;
+        var socket = io.connect('https://pubsub.pubnub.com/socket-io', socket_config);
         config.onopen && socket.on('connect', config.onopen);
         socket.on('message', config.onmessage);
         return socket;
     },
     onRemoteStream: function (media) {
-		var video = media.video;
-		video.setAttribute('controls', true);
-		
-		participants.insertBefore(video, participants.childNodes[0]);
+        var video = media.video;
+        video.setAttribute('controls', true);
 
-		video.play();
-		rotateVideo(video);
+        participants.insertBefore(video, participants.childNodes[0]);
+
+        video.play();
+        rotateVideo(video);
     },
     onRoomFound: function (room) {
         var alreadyExist = document.getElementById(room.broadcaster);
@@ -37,20 +38,20 @@
 
         blockquote.onclick = function () {
             captureUserMedia(function () {
-                conferenceUI.joinRoom({
+                rtc.joinRoom({
                     roomToken: blockquote.querySelector('.join').id,
                     joinUser: blockquote.id
                 });
             });
-			hideUnnecessaryStuff();
+            hideUnnecessaryStuff();
         };
     }
 };
 
 function createButtonClickHandler() {
     captureUserMedia(function () {
-        conferenceUI.createRoom({
-            roomName: ((document.getElementById('conference-name') || { value: null }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
+        rtc.createRoom({
+            roomName: ((document.getElementById('room-name') || { value: null }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
         });
     });
 	hideUnnecessaryStuff();
@@ -60,6 +61,7 @@ function captureUserMedia(callback) {
     var video = document.createElement('video');
     video.setAttribute('autoplay', true);
     video.setAttribute('controls', true);
+	
     participants.insertBefore(video, participants.childNodes[0]);
 	
     getUserMedia({
@@ -67,9 +69,9 @@ function captureUserMedia(callback) {
         onsuccess: function (stream) {
             config.attachStream = stream;
             callback && callback();
-
-            video.setAttribute('muted', true);
+			
 			rotateVideo(video);
+			video.setAttribute('muted', true);
         },
         onerror: function (error) {
             alert(error);
@@ -78,7 +80,7 @@ function captureUserMedia(callback) {
 }
 
 /* on page load: get public rooms */
-var conferenceUI = conference(config);
+var rtc = rtclib(config);
 
 /* UI specific */
 var participants = document.getElementById("participants") || document.body;

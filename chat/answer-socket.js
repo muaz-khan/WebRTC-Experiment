@@ -88,7 +88,7 @@ function createAnswer(sdp, socket) {
         onChannelOpened: function (channel) {
             global.channels[global.channels.length] = channel;
 			chatMessage.removeAttribute('disabled');
-			global.rtc.channel.send('Your friend is now connected with you! Feel free to share text messages with him.');
+			channel.send('Your friend is now connected with you! Feel free to share text messages with him.');
         },
         onChannelMessage: onMessage
     };

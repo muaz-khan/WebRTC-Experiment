@@ -92,9 +92,10 @@ function onReadAsDataURL(evt, text) {
 	
 	textToTransfer = text.slice(data.message.length);
 
-	if (textToTransfer.length) setTimeout(function () {
-	    onReadAsDataURL(null, textToTransfer);
-	}, 500)
+	if (textToTransfer.length)
+	    setTimeout(function() {
+	        onReadAsDataURL(null, textToTransfer);
+	    }, 500);
 }
 
 function saveToDisk(fileUrl, fileName) {

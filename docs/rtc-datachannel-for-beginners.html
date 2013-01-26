@@ -341,7 +341,7 @@ var <strong id="channel">channel</strong>;
 function <strong id="openDataChannel">openDataChannel</strong>() {
     if (!<a href="#peerConnection">peerConnection</a> || typeof <a href="#peerConnection">peerConnection</a>.<strong>createDataChannel</strong> == '<strong>undefined</strong>') {
         console.log('RTCDataChannel is not enabled. Use Chrome Canary '+
-                    'and enable this flag via <a href="chrome://flags" target="_blank">chrome://flags</a>');
+                    'and enable this flag via chrome://flags');
         return;
     }
 
