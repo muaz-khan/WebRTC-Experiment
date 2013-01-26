@@ -1,66 +1,25 @@
 ====
-## Browser Support
+# Browser Support
+[Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
 
-* Firefox [Aurora](http://www.mozilla.org/en-US/firefox/aurora/)
-* Firefox [Nightly](http://nightly.mozilla.org/)
-* Google Chrome [Stable](https://www.google.com/intl/en_uk/chrome/browser/) 
-* Google Chrome [Canary](https://www.google.com/intl/en/chrome/browser/canary.html)
+| Browser        | Support           |
+| ------------- |:-------------:|
+| Firefox | [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) |
+| Firefox | [Nightly](http://nightly.mozilla.org/) |
+| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) |
+| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
 
-====
-## [WebRTC video-conferencing / hangout!](https://webrtc-experiment.appspot.com/video-conferencing/)
+# [Experiments](https://webrtc-experiment.appspot.com)
 
-A many-to-many WebRTC "video-conferencing" experiment. Unlimited people can join a single room and all of them can talk/see each other ... same like Google+ Hangout!
-
-====
-## [WebRTC chat hangout / Group chat!](https://webrtc-experiment.appspot.com/chat-hangout/)
-
-[This webrtc experiment](https://webrtc-experiment.appspot.com/chat-hangout/) is using socket.io as signaling gateway. It is a Group Chat experiment; using RTCDataChannel APIs for chat. You can say it many to many chat!
-
-====
-## [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
-
-Works fine on *Chrome Canary* and *Firefox Nightly*
-
-====
-## [Realtime chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/chat/)
-
-Works fine on Chrome Canary and Firefox Nightly
-
-====
-## [Screen/Webpage sharing/broadcasting](https://webrtc-experiment.appspot.com/screen-broadcast/)
-
-Works fine on Chrome Canary - broadcast screen over unlimited peers
-
-====
-## [File sharing/broadcasting/transferring using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/file-broadcast/)
-
-Works fine on *Chrome Canary* and *Firefox Nightly*
-
-====
-## [Realtime chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/chat/)
-
-Works fine on Chrome Canary and Firefox Nightly
-
-====
-## [Screen/Webpage sharing/broadcasting](https://webrtc-experiment.appspot.com/screen-broadcast/)
-
-Works fine on Chrome Canary - broadcast screen over unlimited peers
-
-====
-## [Voice/Audio sharing/broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/)
-
-Works fine on Chrome Canary - broadcast voice over unlimited peers
-
-====
-## [Audio + Video sharing/broadcasting](https://webrtc-experiment.appspot.com/broadcast/)
-
-Works fine on Chrome 23 and upper (Firefox Nightly support coming soon) - broadcast video over unlimited peers
-
---
-
-See [list of all other WebRTC experiments here](https://webrtc-experiment.appspot.com/).
-
-![WebRTC Experiment!](https://muazkh.appspot.com/images/WebRTC.png)
+| Experiment        | Description       |
+| ------------- |:-------------:|
+| [Video Conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) | A many-to-many WebRTC "video-conferencing" experiment |
+| [File Sharing](https://webrtc-experiment.appspot.com/file-broadcast/) | Broadcast files over many peers |
+| [Chat Hangout](https://webrtc-experiment.appspot.com/chat-hangout/) |  Group chat using RTCDataChannel APIs |
+| [Chat Broadcast](https://webrtc-experiment.appspot.com/chat/) | Broadcast your text message over many peers using RTCDataChannel APIs  |
+| [Audio Broadcast](https://webrtc-experiment.appspot.com/audio-broadcast/) | Broadcast audio stream over unlimited peers |
+| [Screen Sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) | Broadcast your screen over unlimited peers. Requires Chrome Canary experimental tabCapture APIs |
+| [Video Broadcast](https://webrtc-experiment.appspot.com/broadcast/) | Broadcast audio/video stream over unlimited peers |
 
 ====
 ## Don't worry about node.js, PHP, Java, Python or ASP.NET MVC!!
@@ -75,14 +34,17 @@ There are up to dozens [documents/snippets/demos/experiments](https://webrtc-exp
 ====
 ## A few documents for newbies and beginners
 
-* [WebRTC for Beginners: A getting stared guide!](https://webrtc-experiment.appspot.com/docs/webrtc-for-beginners.html)
-* [How to use RTCPeerConnection.js?](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html)
-* [RTCDataChannel for Beginners](https://webrtc-experiment.appspot.com/docs/rtc-datachannel-for-beginners.html)
-* [How to use RTCDataChannel?](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcdatachannel.html) - single code for both canary and nightly
-* [How to broadcast video using RTCWeb APIs?](https://webrtc-experiment.appspot.com/docs/how-to-broadcast-video-using-RTCWeb-APIs.html)
-* [How to share audio-only streams?](https://webrtc-experiment.appspot.com/docs/how-to-share-audio-only-streams.html)
-* [How to broadcast files using RTCDataChannel APIs?](https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html)
-* [How to use Plugin-free calls in your own site?](https://webrtc-experiment.appspot.com/docs/how-to-use-plugin-free-calls.html) - JUST 3 lines of code!
+| Document        |
+| ------------- |
+| [WebRTC for Beginners: A getting stared guide!](https://webrtc-experiment.appspot.com/docs/webrtc-for-beginners.html) |
+| [WebRTC for Newbies ](https://webrtc-experiment.appspot.com/docs/webrtc-for-newbies.html) |
+| [How to use RTCPeerConnection.js?](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html) |
+| [RTCDataChannel for Beginners](https://webrtc-experiment.appspot.com/docs/rtc-datachannel-for-beginners.html) |
+| [How to use RTCDataChannel?](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcdatachannel.html) - single code for both canary and nightly |
+| [How to broadcast video using RTCWeb APIs?](https://webrtc-experiment.appspot.com/docs/how-to-broadcast-video-using-RTCWeb-APIs.html) |
+| [How to share audio-only streams?](https://webrtc-experiment.appspot.com/docs/how-to-share-audio-only-streams.html) |
+| [How to broadcast files using RTCDataChannel APIs?](https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html) |
+| [How to use Plugin-free calls in your own site?](https://webrtc-experiment.appspot.com/docs/how-to-use-plugin-free-calls.html) - JUST 3 lines of code! |
 
 ====
 ## Possibilities with RTCDataCannel APIs
