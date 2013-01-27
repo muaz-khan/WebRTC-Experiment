@@ -15,6 +15,7 @@
 | ------------- |:-------------:|
 | [Video Conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) | A many-to-many WebRTC "video-conferencing" experiment |
 | [File Sharing](https://webrtc-experiment.appspot.com/file-broadcast/) | Broadcast files over many peers |
+| [File Hangout](https://webrtc-experiment.appspot.com/file-hangout/) | Group File Sharing using RTCDataCannel APIs |
 | [Chat Hangout](https://webrtc-experiment.appspot.com/chat-hangout/) |  Group chat using RTCDataChannel APIs |
 | [Chat Broadcast](https://webrtc-experiment.appspot.com/chat/) | Broadcast your text message over many peers using RTCDataChannel APIs  |
 | [Audio Broadcast](https://webrtc-experiment.appspot.com/audio-broadcast/) | Broadcast audio stream over unlimited peers |
