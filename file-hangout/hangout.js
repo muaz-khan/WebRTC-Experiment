@@ -1,7 +1,6 @@
 ﻿var hangout = function (config) {
     var self = {
         userToken: uniqueToken(),
-        publicChannel: config.publicChannel || 'file-hangout',
         userNam: 'Anonymous'
     },
         channels = '--',
@@ -11,11 +10,7 @@
 	var publicSocket = { }, RTCDataChannels = []
 
     function openPublicSocket() {
-        var socketConfig = {
-            channel: self.publicChannel,
-            onmessage: onPublicSocketResponse
-        };
-        publicSocket = config.openSocket(socketConfig);
+        publicSocket = config.openSocket({onmessage: onPublicSocketResponse});
     }
 
     window.onload = openPublicSocket;
@@ -58,7 +53,6 @@
             peer;
 
         var peerConfig = {
-            iceServers: window.iceServers,
             onICE: function (candidate) {
                 socket.send({
                     userToken: self.userToken,

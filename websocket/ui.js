@@ -1,13 +1,13 @@
-﻿var uniqueChannelForYourSite = 'one-to-one-video-chat-using-websocket';
-var config = {
+﻿var config = {
     openSocket: function (config) {
-		"use strict";
-		var socket = new WebSocket('wss://pubsub.pubnub.com/' + (window.publish_key || 'demo') + '/' + (window.subscribe_key || 'demo') + '/' + uniqueChannelForYourSite);
+        "use strict";
+        var socket = new WebSocket('wss://pubsub.pubnub.com/demo/demo/' + (config.channel || location.hash.replace('#', '') || 'rtc-websocket'));
 		socket.onmessage = function (evt) {
 			config.onmessage(evt.data);
 		};
-		if(config.onopen) socket.onopen = config.onopen;	
-        return socket;
+		if(config.onopen) socket.onopen = config.onopen;
+		return socket;
+        
     },
     onRemoteStream: function (media) {
 		var video = media.video;
@@ -26,7 +26,7 @@ var config = {
 
         var blockquote = document.createElement('blockquote');
         blockquote.setAttribute('id', room.broadcaster);
-        blockquote.innerHTML = room.roomName + '<a href="#" class="join" id="' + room.roomToken + '">Join Room</a>';
+        blockquote.innerHTML = room.roomName + '<button class="join" id="' + room.roomToken + '">Join Room</button>';
         roomsList.insertBefore(blockquote, roomsList.childNodes[0]);
 
         blockquote.onclick = function () {
@@ -98,3 +98,15 @@ function rotateVideo(video)
 		video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
 	}, 1000);
 }
+
+(function () {
+    var uniqueToken = document.getElementById('unique-token');
+    if (uniqueToken) {
+        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
+            return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+                return (a ^ Math.random() * 16 >> a / 4).toString(16);
+            });
+        })();
+    }
+})();

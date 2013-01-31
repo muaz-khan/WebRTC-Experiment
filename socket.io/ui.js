@@ -1,17 +1,11 @@
-﻿var uniqueChannelForYourSite = 'one-to-one-video-chat-using-socket-io';
-var config = {
+﻿var config = {
     openSocket: function (config) {
-        if (!window.io) return false;
-
-        if (!window.socket_config)
-            window.socket_config = {
-                publish_key: 'demo',
-                subscribe_key: 'demo',
-                ssl: true
-            };
-
-        socket_config.channel = config.channel || uniqueChannelForYourSite;
-        var socket = io.connect('https://pubsub.pubnub.com/socket-io', socket_config);
+        var socket = io.connect('https://pubsub.pubnub.com/socket-io', {
+            publish_key: 'demo',
+            subscribe_key: 'demo',
+            channel: config.channel || location.hash.replace('#', '') || 'rtc-socket-io',
+            ssl: true
+        });
         config.onopen && socket.on('connect', config.onopen);
         socket.on('message', config.onmessage);
         return socket;
@@ -33,7 +27,7 @@ var config = {
 
         var blockquote = document.createElement('blockquote');
         blockquote.setAttribute('id', room.broadcaster);
-        blockquote.innerHTML = room.roomName + '<a href="#" class="join" id="' + room.roomToken + '">Join Room</a>';
+        blockquote.innerHTML = room.roomName + '<button class="join" id="' + room.roomToken + '">Join Room</button>';
         roomsList.insertBefore(blockquote, roomsList.childNodes[0]);
 
         blockquote.onclick = function () {
@@ -105,3 +99,15 @@ function rotateVideo(video)
 		video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
 	}, 1000);
 }
+
+(function () {
+    var uniqueToken = document.getElementById('unique-token');
+    if (uniqueToken) {
+        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
+            return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+                return (a ^ Math.random() * 16 >> a / 4).toString(16);
+            });
+        })();
+    }
+})();

@@ -1,17 +1,11 @@
-﻿var defaultChannel = location.hash.replace('#', '') || window.defaultChannel || 'file-hangout';
-var config = {
+﻿var config = {
     openSocket: function (config) {
-        if (!window.io) return false;
-
-        if (!window.socket_config)
-            window.socket_config = {
-                publish_key: 'demo',
-                subscribe_key: 'demo',
-                ssl: true
-            };
-
-        socket_config.channel = config.channel || defaultChannel;
-        var socket = io.connect('https://pubsub.pubnub.com/' + defaultChannel, socket_config);
+        var socket = io.connect('https://pubsub.pubnub.com/' + 'hangout', {
+            publish_key: 'demo',
+            subscribe_key: 'demo',
+            channel: config.channel || location.hash.replace('#', '') || 'file-hangout',
+            ssl: true
+        });
         config.onopen && socket.on('connect', config.onopen);
         socket.on('message', config.onmessage);
         return socket;
@@ -26,7 +20,7 @@ var config = {
 		tr.setAttribute('id', room.broadcaster);
 		tr.style.fontSize = '.8em';
         tr.innerHTML = '<td>' + room.roomName + '</td>' +
-					   '<td><a href="#" class="join" id="' + room.roomToken + '">Join</a></td>';
+					   '<td><button class="join" id="' + room.roomToken + '">Join</button></td>';
 
         roomsList.insertBefore(tr, roomsList.childNodes[0]);
 		
@@ -146,7 +140,7 @@ function onMessageCallback(data) {
 var file, fileElement = document.getElementById('file');
 fileElement.onchange = function() {
     file = fileElement.files[0];
-    if (!file) return;
+    if (!file) return false;
 
     /* if firefox nightly: share file blob directly */
     if (moz) {
@@ -161,8 +155,7 @@ fileElement.onchange = function() {
     var reader = new window.FileReader();
     reader.readAsDataURL(file);
     reader.onload = onReadAsDataURL;
-
-    disable(true);
+    return disable(true);
 };
 
 var packetSize = 1000, textToTransfer = '', packets = 0;
@@ -233,13 +226,15 @@ function updateStatus() {
 }
 
 (function() {
-	var uniqueToken = document.getElementById('unique-token');
-	if (uniqueToken)
-		uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
-			return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
-				return (a ^ Math.random() * 16 >> a / 4).toString(16);
-			});
-		})();
+    var uniqueToken = document.getElementById('unique-token');
+    if (uniqueToken) {
+        if(location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() {
+            return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) {
+                return (a ^ Math.random() * 16 >> a / 4).toString(16);
+            });
+        })();
+    }
 })();
 
 function disable(_disable)

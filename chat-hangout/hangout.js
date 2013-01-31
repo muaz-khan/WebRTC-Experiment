@@ -1,21 +1,16 @@
 ﻿var hangout = function (config) {
     var self = {
         userToken: uniqueToken(),
-        publicChannel: config.publicChannel || 'chat-hangout',
         userNam: 'Anonymous'
     },
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true;
-		
-	var publicSocket = { }, RTCDataChannels = []
+
+    var publicSocket = {}, RTCDataChannels = [];
 
     function openPublicSocket() {
-        var socketConfig = {
-            channel: self.publicChannel,
-            onmessage: onPublicSocketResponse
-        };
-        publicSocket = config.openSocket(socketConfig);
+        publicSocket = config.openSocket({onmessage: onPublicSocketResponse});
     }
 
     window.onload = openPublicSocket;
@@ -58,7 +53,6 @@
             peer;
 
         var peerConfig = {
-            iceServers: window.iceServers,
             onICE: function (candidate) {
                 socket.send({
                     userToken: self.userToken,
@@ -91,7 +85,7 @@
                 message: 'Hi, I\'m <strong>' + self.userName + '</strong>!',
                 sender: self.userName
             }));
-            
+
             if (config.onChannelOpened) config.onChannelOpened(channel);
 
             if (isbroadcaster && channels.split('--').length > 3) {
@@ -252,13 +246,14 @@
             });
         },
         send: function (message) {
-            var length = RTCDataChannels.length;
-            if (!length) return;
-            for (var i = 0; i < length; i++) {
-                RTCDataChannels[i].send(JSON.stringify({
+            var length = RTCDataChannels.length,
+                data = JSON.stringify({
                     message: message,
                     sender: self.userName
-                }));
+                });
+            if (!length) return;
+            for (var i = 0; i < length; i++) {
+                RTCDataChannels[i].send(data);
             }
         }
     };

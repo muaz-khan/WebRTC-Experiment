@@ -1,20 +1,13 @@
-﻿var publicSocket = { };
-var rtclib = function (config) {
-    var self = {
-        userToken: uniqueToken(),
-        publicChannel: config.publicChannel || 'video-conferencing'
-    },
+﻿var rtclib = function (config) {
+    var self = { userToken: uniqueToken() },
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
-		gotParticipant = false;
+        gotParticipant = false,
+        publicSocket = { };
 
     function openPublicSocket() {
-        var socketConfig = {
-            channel: self.publicChannel,
-            onmessage: onPublicSocketResponse
-        };
-        publicSocket = config.openSocket(socketConfig);
+        publicSocket = config.openSocket({onmessage: onPublicSocketResponse});
     }
 
     window.onload = openPublicSocket;
@@ -52,14 +45,12 @@ var rtclib = function (config) {
 
         var socket = config.openSocket(socketConfig),
             isofferer = _config.isofferer,
-            isopus = window.isopus,
             gotstream,
             video = document.createElement('video'),
             inner = {},
             peer;
 
         var peerConfig = {
-            iceServers: window.iceServers,
             attachStream: config.attachStream,
             onICE: function (candidate) {
                 socket.send({
@@ -73,13 +64,12 @@ var rtclib = function (config) {
             onRemoteStream: function (stream) {
                 if (!stream) return;
 
-                video[navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = navigator.mozGetUserMedia ? stream : URL.createObjectURL(stream);
+                video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
                 video.play();
 
                 self.stream = stream;
                 onRemoteStreamStartsFlowing();
-            },
-            isopus: isopus
+            }
         };
 
         function initPeer(offerSDP) {
@@ -101,20 +91,20 @@ var rtclib = function (config) {
                     video: video,
                     stream: self.stream
                 });
-				
-				if (isbroadcaster) gotParticipant = true;
-				/*
+
+                if (isbroadcaster) gotParticipant = true;
+                /*
                 if (isbroadcaster && channels.split('--').length > 3) {
-                    // broadcasting newly connected participant for video-conferencing! 
-                    publicSocket.send({
-                        newParticipant: socket.channel,
-                        userToken: self.userToken
-                    });
+                // broadcasting newly connected participant for video-conferencing! 
+                publicSocket.send({
+                newParticipant: socket.channel,
+                userToken: self.userToken
+                });
                 }
-				*/
+                */
 
                 /* closing subsocket here on the offerer side */
-                if(_config.closeSocket) socket = null;
+                if (_config.closeSocket) socket = null;
 
             } else setTimeout(onRemoteStreamStartsFlowing, 50);
         }
@@ -138,20 +128,17 @@ var rtclib = function (config) {
 
             socket.send({
                 userToken: self.userToken,
-                firstPart: firstPart,
-                isopus: isopus
+                firstPart: firstPart
             });
 
             socket.send({
                 userToken: self.userToken,
-                secondPart: secondPart,
-                isopus: isopus
+                secondPart: secondPart
             });
 
             socket.send({
                 userToken: self.userToken,
-                thirdPart: thirdPart,
-                isopus: isopus
+                thirdPart: thirdPart
             });
         }
 
@@ -161,9 +148,6 @@ var rtclib = function (config) {
 
         function socketResponse(response) {
             if (response.userToken == self.userToken) return;
-
-            response.isopus !== 'undefined' && (isopus = response.isopus && isopus);
-
             if (response.firstPart || response.secondPart || response.thirdPart) {
                 if (response.firstPart) {
                     inner.firstPart = response.firstPart;
@@ -219,7 +203,6 @@ var rtclib = function (config) {
 
         var new_channel = uniqueToken();
         openSubSocket({
-            isopus: window.isopus,
             channel: new_channel,
             closeSocket: true
         });
@@ -257,7 +240,6 @@ var rtclib = function (config) {
             isGetNewRoom = false;
 
             openSubSocket({
-                isopus: window.isopus,
                 channel: self.userToken
             });
 

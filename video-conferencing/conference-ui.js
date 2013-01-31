@@ -1,28 +1,23 @@
 ﻿var config = {
     openSocket: function (config) {
-        if (!window.io) return false;
-
-        if (!window.socket_config)
-            window.socket_config = {
-                publish_key: 'demo',
-                subscribe_key: 'demo',
-                ssl: true
-            };
-
-        socket_config.channel = config.channel || 'video-conferencing';
-        var socket = io.connect('https://pubsub.pubnub.com/conference', socket_config);
+        var socket = io.connect('https://pubsub.pubnub.com/hangout', {
+            publish_key: 'demo',
+            subscribe_key: 'demo',
+            channel: config.channel || location.hash.replace('#', '') || 'video-conferencing',
+            ssl: true
+        });
         config.onopen && socket.on('connect', config.onopen);
         socket.on('message', config.onmessage);
         return socket;
     },
     onRemoteStream: function (media) {
-		var video = media.video;
-		video.setAttribute('controls', true);
-		
-		participants.insertBefore(video, participants.childNodes[0]);
+        var video = media.video;
+        video.setAttribute('controls', true);
 
-		video.play();
-		rotateVideo(video);
+        participants.insertBefore(video, participants.childNodes[0]);
+
+        video.play();
+        rotateVideo(video);
     },
     onRoomFound: function (room) {
         var alreadyExist = document.getElementById(room.broadcaster);
@@ -32,7 +27,7 @@
 
         var blockquote = document.createElement('blockquote');
         blockquote.setAttribute('id', room.broadcaster);
-        blockquote.innerHTML = room.roomName + '<a href="#" class="join" id="' + room.roomToken + '">Join Room</a>';
+        blockquote.innerHTML = room.roomName + '<button class="join" id="' + room.roomToken + '">Join Room</button>';
         roomsList.insertBefore(blockquote, roomsList.childNodes[0]);
 
         blockquote.onclick = function () {
@@ -42,7 +37,7 @@
                     joinUser: blockquote.id
                 });
             });
-			hideUnnecessaryStuff();
+            hideUnnecessaryStuff();
         };
     }
 };
@@ -103,3 +98,15 @@ function rotateVideo(video)
 		video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
 	}, 1000);
 }
+
+(function() {
+    var uniqueToken = document.getElementById('unique-token');
+    if (uniqueToken) {
+        if(location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() {
+            return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) {
+                return (a ^ Math.random() * 16 >> a / 4).toString(16);
+            });
+        })();
+    }
+})();

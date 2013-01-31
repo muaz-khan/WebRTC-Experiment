@@ -1,16 +1,11 @@
 ﻿var config = {
     openSocket: function (config) {
-        if (!window.io) return false;
-
-        if (!window.socket_config)
-            window.socket_config = {
-                publish_key: 'demo',
-                subscribe_key: 'demo',
-                ssl: true
-            };
-
-        socket_config.channel = config.channel || 'chat-hangout';
-        var socket = io.connect('https://pubsub.pubnub.com/hangout', socket_config);
+        var socket = io.connect('https://pubsub.pubnub.com/' + 'hangout', {
+            publish_key: 'demo',
+            subscribe_key: 'demo',
+            channel: config.channel || location.hash.replace('#', '') || 'chat-hangout',
+            ssl: true
+        });
         config.onopen && socket.on('connect', config.onopen);
         socket.on('message', config.onmessage);
         return socket;
@@ -21,14 +16,14 @@
 
         var roomsList = document.getElementById('rooms-list') || document.body;
 
-		var tr = document.createElement('tr');
-		tr.setAttribute('id', room.broadcaster);
+        var tr = document.createElement('tr');
+        tr.setAttribute('id', room.broadcaster);
         tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
-					   '<td><a href="#" class="join" id="' + room.roomToken + '">Join Room</a></td>';
+					   '<td><button class="join" id="' + room.roomToken + '">Join Room</button></td>';
 
         roomsList.insertBefore(tr, roomsList.childNodes[0]);
-		
-		tr.onclick = function () {
+
+        tr.onclick = function () {
             hangoutUI.joinRoom({
                 roomToken: tr.querySelector('.join').id,
                 joinUser: tr.id,
@@ -92,5 +87,18 @@ var chatMessage = document.getElementById('chat-message');
 if (chatMessage)
     chatMessage.onchange = function() {
         hangoutUI.send(chatMessage.value);
-		chatMessage.value = '';
+        chatMessage.value = '';
     };
+
+
+(function() {
+    var uniqueToken = document.getElementById('unique-token');
+    if (uniqueToken) {
+        if(location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() {
+            return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) {
+                return (a ^ Math.random() * 16 >> a / 4).toString(16);
+            });
+        })();
+    }
+})();

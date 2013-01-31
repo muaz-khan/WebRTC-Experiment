@@ -1,19 +1,12 @@
-﻿var publicSocket = { };
-var conference = function (config) {
-    var self = {
-        userToken: uniqueToken(),
-        publicChannel: config.publicChannel || 'video-conferencing'
-    },
+﻿var conference = function (config) {
+    var self = { userToken: uniqueToken() },
         channels = '--',
         isbroadcaster,
-        isGetNewRoom = true;
+        isGetNewRoom = true,
+        publicSocket = {};
 
     function openPublicSocket() {
-        var socketConfig = {
-            channel: self.publicChannel,
-            onmessage: onPublicSocketResponse
-        };
-        publicSocket = config.openSocket(socketConfig);
+        publicSocket = config.openSocket({onmessage: onPublicSocketResponse});
     }
 
     window.onload = openPublicSocket;
@@ -51,14 +44,12 @@ var conference = function (config) {
 
         var socket = config.openSocket(socketConfig),
             isofferer = _config.isofferer,
-            isopus = window.isopus,
             gotstream,
             video = document.createElement('video'),
             inner = {},
             peer;
 
         var peerConfig = {
-            iceServers: window.iceServers,
             attachStream: config.attachStream,
             onICE: function (candidate) {
                 socket.send({
@@ -72,13 +63,13 @@ var conference = function (config) {
             onRemoteStream: function (stream) {
                 if (!stream) return;
 
-                video[navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = navigator.mozGetUserMedia ? stream : URL.createObjectURL(stream);
+                video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
+                video.poster = 'https://webrtc-experiment.appspot.com/images/Muaz-Khan.gif';
                 video.play();
 
-                self.stream = stream;
+                _config.stream = stream;
                 onRemoteStreamStartsFlowing();
-            },
-            isopus: isopus
+            }
         };
 
         function initPeer(offerSDP) {
@@ -98,7 +89,7 @@ var conference = function (config) {
 
                 config.onRemoteStream({
                     video: video,
-                    stream: self.stream
+                    stream: _config.stream
                 });
 
                 if (isbroadcaster && channels.split('--').length > 3) {
@@ -110,13 +101,13 @@ var conference = function (config) {
                 }
 
                 /* closing subsocket here on the offerer side */
-                if(_config.closeSocket) socket = null;
+                if (_config.closeSocket) socket = null;
 
             } else setTimeout(onRemoteStreamStartsFlowing, 50);
         }
 
         /*********************/
-        /* sendsdp // sendice */
+        /* SendSDP (offer/answer) */
         /*********************/
 
         function sendsdp(sdp) {
@@ -134,20 +125,17 @@ var conference = function (config) {
 
             socket.send({
                 userToken: self.userToken,
-                firstPart: firstPart,
-                isopus: isopus
+                firstPart: firstPart
             });
 
             socket.send({
                 userToken: self.userToken,
-                secondPart: secondPart,
-                isopus: isopus
+                secondPart: secondPart
             });
 
             socket.send({
                 userToken: self.userToken,
-                thirdPart: thirdPart,
-                isopus: isopus
+                thirdPart: thirdPart
             });
         }
 
@@ -157,9 +145,6 @@ var conference = function (config) {
 
         function socketResponse(response) {
             if (response.userToken == self.userToken) return;
-
-            response.isopus !== 'undefined' && (isopus = response.isopus && isopus);
-
             if (response.firstPart || response.secondPart || response.thirdPart) {
                 if (response.firstPart) {
                     inner.firstPart = response.firstPart;
@@ -215,7 +200,6 @@ var conference = function (config) {
 
         var new_channel = uniqueToken();
         openSubSocket({
-            isopus: window.isopus,
             channel: new_channel,
             closeSocket: true
         });
@@ -253,7 +237,6 @@ var conference = function (config) {
             isGetNewRoom = false;
 
             openSubSocket({
-                isopus: window.isopus,
                 channel: self.userToken
             });
 
