@@ -1,6 +1,7 @@
-Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!
+**Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
 
-Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!
+*Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
+
 ====
 # Browser Support
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
@@ -14,16 +15,16 @@ Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!
 
 # A few top-level [WebRTC Experiments](https://webrtc-experiment.appspot.com)
 
-| Experiment        | Description       |
-| ------------- |:-------------:|
-| [Video Conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) | A many-to-many WebRTC "video-conferencing" experiment |
-| [File Sharing](https://webrtc-experiment.appspot.com/file-broadcast/) | Broadcast files over many peers |
-| [File Hangout](https://webrtc-experiment.appspot.com/file-hangout/) | Group File Sharing using RTCDataCannel APIs |
-| [Chat Hangout](https://webrtc-experiment.appspot.com/chat-hangout/) |  Group chat using RTCDataChannel APIs |
-| [Chat Broadcast](https://webrtc-experiment.appspot.com/chat/) | Broadcast your text message over many peers using RTCDataChannel APIs  |
-| [Audio Broadcast](https://webrtc-experiment.appspot.com/audio-broadcast/) | Broadcast audio stream over unlimited peers |
-| [Screen Sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) | Broadcast your screen over unlimited peers. Requires Chrome Canary experimental tabCapture APIs |
-| [Video Broadcast](https://webrtc-experiment.appspot.com/broadcast/) | Broadcast audio/video stream over unlimited peers |
+| Experiment        |
+| ------------- |
+| [Video Conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) : *A many-to-many WebRTC "video-conferencing" experiment* |
+| [File Sharing](https://webrtc-experiment.appspot.com/file-broadcast/) : *Broadcast files over many peers* |
+| [File Hangout](https://webrtc-experiment.appspot.com/file-hangout/) : *Group File Sharing using RTCDataCannel APIs* |
+| [Chat Hangout](https://webrtc-experiment.appspot.com/chat-hangout/) : *Group chat using RTCDataChannel APIs* |
+| [Chat Broadcast](https://webrtc-experiment.appspot.com/chat/) : *Broadcast your text message over many peers using RTCDataChannel APIs*  |
+| [Audio Broadcast](https://webrtc-experiment.appspot.com/audio-broadcast/) : *Broadcast audio stream over unlimited peers* |
+| [Screen Sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) : *Broadcast your screen over unlimited peers. Requires Chrome Canary experimental tabCapture APIs* |
+| [Video Broadcast](https://webrtc-experiment.appspot.com/broadcast/) : *Broadcast audio/video stream over unlimited peers* |
 
 ====
 ## Don't worry about node.js, PHP, Java, Python or ASP.NET MVC!!
