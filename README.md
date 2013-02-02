@@ -18,14 +18,10 @@
 | ------------- |
 | [Video Hangout](https://webrtc-experiment.appspot.com/video-conferencing/) : *many to many* |
 | [Video Broadcast](https://webrtc-experiment.appspot.com/broadcast/) : *one to many* |
-
 | [File Hangout](https://webrtc-experiment.appspot.com/file-hangout/) : *many to many* |
 | [File Broadcast](https://webrtc-experiment.appspot.com/file-broadcast/) : *one to many* |
-
-
 | [Chat Hangout](https://webrtc-experiment.appspot.com/chat-hangout/) : *many to many* |
 | [Chat Broadcast](https://webrtc-experiment.appspot.com/chat/) : *one to many*  |
-
 | [Audio Broadcast](https://webrtc-experiment.appspot.com/audio-broadcast/) : *one to many* |
 | [Screen Sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) : *one to many* |
 
