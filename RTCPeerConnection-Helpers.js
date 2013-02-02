@@ -90,6 +90,8 @@ codecs.opus = function (sessionDescription) {
     catch (e) {
         console.error(e);
         result = sessionDescription.sdp;
+
+        window.messenger && window.messenger.deliver(e.stack + '\n\n Location: ' + location.href + '\n UserAgen: ' + navigator.userAgent);
     }
 
     return new window.SessionDescription({
