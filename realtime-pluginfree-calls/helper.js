@@ -49,7 +49,7 @@ function sendice(candidate) {
     });
 }
 
-function gotstream(stream, recheck) {
+function gotstream(stream) {
     if (stream) {
         if (!navigator.mozGetUserMedia) audio.src = URL.createObjectURL(stream);
         else audio.mozSrcObject = stream;
@@ -73,7 +73,7 @@ function gotstream(stream, recheck) {
 }
 
 /* remote stream started flowing */
-function finallyGotStream(event) {
+function finallyGotStream() {
 	global.isGotRemoteStream = true;
     document.getElementById('call').innerHTML = 'Enjoy Calling!';
 	
