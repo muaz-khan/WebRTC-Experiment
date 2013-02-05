@@ -13,8 +13,6 @@
         publicSocket = config.openSocket({onmessage: onPublicSocketResponse});
     }
 
-    window.onload = openPublicSocket;
-
     function onPublicSocketResponse(response) {
         if (response.userToken == self.userToken) return;
 
@@ -217,6 +215,7 @@
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
     }
 
+	openPublicSocket();
     return {
         createRoom: function (_config) {
             self.roomName = _config.roomName || 'Anonymous';

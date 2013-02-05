@@ -1,4 +1,5 @@
-﻿var global = {};
+﻿window.URL = window.URL || window.webkitURL;
+var global = {};
 
 function $(n, t, i) {
     try {

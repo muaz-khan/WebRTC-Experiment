@@ -1,4 +1,5 @@
-﻿global.defaultChannel = 'WebRTC video Broadcast';
+﻿console.log('Code by Muaz Khan: https://webrtc-experiment.appspot.com/');
+global.defaultChannel = 'WebRTC video Broadcast';
 
 /* container: contains videos from all participants */
 var participants = $('#participants').css('max-height', (innerHeight - 100) + 'px');

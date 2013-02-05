@@ -97,6 +97,7 @@
                 <img src="https://webrtc-experiment.appspot.com/images/firefox-nightly-preference-for-peerconnection.png" alt="Enable WebRTC on Firefox Nightly" height=150 />
                 <br/>
                 » <a href="https://webrtc-experiment.appspot.com/docs/how-to-use-rtcdatachannel.html">How to use RTCDataChannel in your own site?</a>!
+                » <a href="https://webrtc-experiment.appspot.com/chat-hangout/" title="Share text-message in a group: many to many! Like a conference!">Chat Hangout! [Group Chat]</a>
             </div>
         </td>
     </tr>
@@ -148,9 +149,12 @@
     <tr id="chat-output"></tr>
 </table>
 
+
 <script src="https://bit.ly/socket-io"></script>
 <script src="https://bit.ly/RTCPeerConnection-v1-3"></script>
+
 <script>
+    var iceServers = null;
     var socket_config = {
         publish_key: 'demo',
         subscribe_key: 'demo',

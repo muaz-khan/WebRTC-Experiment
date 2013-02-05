@@ -1,8 +1,9 @@
 ﻿var config = {
     openSocket: function (config) {
+        var isOwnURL = location.origin == 'https://webrtc-experiment.appspot.com';
         var socket = io.connect('https://pubsub.pubnub.com/' + 'hangout', {
-            publish_key: 'demo',
-            subscribe_key: 'demo',
+            publish_key: isOwnURL ? 'pub-c-25856890-d8ff-4218-9a88-a2ffb3040c83' : 'demo',
+            subscribe_key: isOwnURL ? 'sub-c-a95800da-69d0-11e2-a9fa-12313f022c90' : 'demo',
             channel: config.channel || location.hash.replace('#', '') || 'file-hangout',
             ssl: true
         });

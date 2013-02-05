@@ -56,9 +56,7 @@
 			if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
 			else video.mozSrcObject = stream;
 			video.play();
-        },
-		
-		isopus: window.isopus
+        }
     };
     
     function create1stPeer() {
@@ -98,9 +96,7 @@
             attachStream: clientStream,
 
             /* You'll use offer SDP here */
-            offerSDP: offerSDP,
-			
-			isopus: window.isopus
+            offerSDP: offerSDP
         };
 
         peer2 = RTCPeerConnection(answerConfig);

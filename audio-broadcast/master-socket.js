@@ -53,10 +53,9 @@ function openSocket(channel) {
     /* unique socket opened */
     function opened() {
         var config = {
-            iceServers: iceServers,
             attachStream: global.clientStream,
             onOfferSDP: function (sdp) { sendsdp(sdp, socket, isopus); },
-            getice: function(candidate) { sendice(candidate, socket); },
+            onICE: function(candidate) { sendice(candidate, socket); },
             onRemoteStream: gotstream,
             isopus: isopus
         };

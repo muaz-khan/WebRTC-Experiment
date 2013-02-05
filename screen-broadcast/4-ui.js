@@ -143,6 +143,6 @@ function requestFullScreen(elem) {
     }
 }
 
-clientVideo.click = function () {
+clientVideo.onclick = function () {
     requestFullScreen(clientVideo);
 };

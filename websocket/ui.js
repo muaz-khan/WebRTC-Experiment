@@ -1,7 +1,8 @@
 ﻿var config = {
     openSocket: function (config) {
         "use strict";
-        var socket = new WebSocket('wss://pubsub.pubnub.com/demo/demo/' + (config.channel || location.hash.replace('#', '') || 'rtc-websocket'));
+        var isOwnURL = location.origin == 'https://webrtc-experiment.appspot.com';
+        var socket = new WebSocket('wss://pubsub.pubnub.com/' + (isOwnURL ? 'pub-c-9417b51c-a402-4da1-ab31-fe8c7d3b7450' : 'demo') + '/' + (isOwnURL ? 'sub-c-0414204a-69d0-11e2-a9fa-12313f022c90' : 'demo') + '/' + (config.channel || location.hash.replace('#', '') || 'rtc-websocket'));
 		socket.onmessage = function (evt) {
 			config.onmessage(evt.data);
 		};

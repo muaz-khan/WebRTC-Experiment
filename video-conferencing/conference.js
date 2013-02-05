@@ -9,8 +9,6 @@
         publicSocket = config.openSocket({onmessage: onPublicSocketResponse});
     }
 
-    window.onload = openPublicSocket;
-
     function onPublicSocketResponse(response) {
         if (response.userToken == self.userToken) return;
 
@@ -64,7 +62,6 @@
                 if (!stream) return;
 
                 video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
-                video.poster = 'https://webrtc-experiment.appspot.com/images/Muaz-Khan.gif';
                 video.play();
 
                 _config.stream = stream;
@@ -222,7 +219,8 @@
         };
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
     }
-
+	
+	openPublicSocket();
     return {
         createRoom: function (_config) {
             self.roomName = _config.roomName || 'Anonymous';

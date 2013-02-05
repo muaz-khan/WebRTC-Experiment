@@ -5,10 +5,10 @@ var RTCPeerConnection = function (options) {
         SessionDescription = w.RTCSessionDescription,
         IceCandidate = w.RTCIceCandidate || w.mozRTCIceCandidate;
 
-    var STUN = { "iceServers": [{ "url": "stun:stun.l.google.com:19302"}] },
-        TURN = { "iceServers": [{ "url": "turn:webrtc%40live.com@numb.viagenie.ca", "credential": "muazkh"}] };
+    var STUN = { iceServers: [{ url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'}] },
+        TURN = { iceServers: [{ url: "turn:webrtc%40live.com@numb.viagenie.ca", credential: "muazkh"}] };
 
-    var constraints = options.constraints || { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true} },
+    var constraints = options.constraints || { mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true} },
         optional = options.onChannelMessage ? options.optional || { optional: [{ RtpDataChannels: true}]} : {};
 
     var peerConnection = new PeerConnection(location.search.indexOf('turn=true') !== -1 ? TURN : STUN, optional);

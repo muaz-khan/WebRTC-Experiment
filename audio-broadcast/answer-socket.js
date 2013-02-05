@@ -80,7 +80,6 @@ function createAnswer(sdp, socket) {
             sendice(candidate, socket);
         },
         onRemoteStream: gotstream,
-        iceServers: iceServers,
         attachStream: global.clientStream,
         onAnswerSDP: function(answerSDP) {
             sendsdp(answerSDP, socket, window.isopus);

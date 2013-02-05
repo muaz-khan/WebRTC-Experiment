@@ -61,7 +61,7 @@
 
 <table>
     <tr>
-        <td>
+        <td rowspan="3">
             <div id="participants" style="width: 8em;"></div>
             <div class="visible">
                 <a class="logo" href="https://plus.google.com/100325991024054712503">
@@ -72,19 +72,30 @@
         <td>
             <video id="client-video" muted class="hidden"></video>
             <div class="visible">
-                <h1>WebRTC Video/Stream Broadcast Experiment!</h1>
-                <blockquote class="slogan">
-                    WebRTC video/stream broadcasting experiment. It uses socket.io multiplexing over PubNub for signaling and allows you broadcast video stream over many peers.
-                </blockquote>
-                <a href="https://webrtc-experiment.appspot.com/broadcast/" title="stun:stun.l.google.com:19302">STUN</a>
+                <h1>Video broadcasting / Multi-user video sharing!</h1>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            WebRTC video broadcasting: It broadcasts video stream one-to-many (over many peers).
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href="https://webrtc-experiment.appspot.com/broadcast/" title="stun:stun.l.google.com:19302">STUN</a>
                 » <a href="https://webrtc-experiment.appspot.com/broadcast/?turn=true" title="turn:webrtc%40live.com@numb.viagenie.ca" rel="nofollow">TURN</a>
                 » <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/broadcast">Source</a>
                 » <a href="https://webrtc-experiment.appspot.com/docs/how-to-broadcast-video-using-RTCWeb-APIs.html">How to broadcast video using RTCWeb APIs?</a>
-            </div>
         </td>
     </tr>
 </table>
 <table class="center-table visible">
+    <tr>
+        <td colspan="2" style="text-align: center;">
+            <a href="https://webrtc-experiment.appspot.com/video-conferencing/" title="Share video stream in a group: many to many! Like a conference!">WebRTC video-conferencing!</a>
+        </td>
+    </tr>
     <tr>
         <td>
             <section id="public-rooms">
@@ -130,7 +141,6 @@
         ssl: true
     };
 </script>
-
 <script src="https://webrtc-experiment.appspot.com/broadcast/1-helper.js"> </script>
 <script src="https://webrtc-experiment.appspot.com/broadcast/2-rtc-functions.js"></script>
 <script src="https://webrtc-experiment.appspot.com/broadcast/4-ui.js"> </script>

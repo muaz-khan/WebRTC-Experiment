@@ -1,8 +1,9 @@
 ﻿var config = {
     openSocket: function (config) {
+        var isOwnURL = location.origin == 'https://webrtc-experiment.appspot.com';
         var socket = io.connect('https://pubsub.pubnub.com/hangout', {
-            publish_key: 'demo',
-            subscribe_key: 'demo',
+            publish_key: isOwnURL ? 'pub-c-13600cad-f013-4f0f-b5ac-fdd903281285' : 'demo',
+            subscribe_key: isOwnURL ? 'sub-c-d700e872-69cf-11e2-a9fa-12313f022c90' : 'demo',
             channel: config.channel || location.hash.replace('#', '') || 'video-conferencing',
             ssl: true
         });
@@ -101,12 +102,7 @@ function rotateVideo(video)
 
 (function() {
     var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken) {
-        if(location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
-        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() {
-            return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) {
-                return (a ^ Math.random() * 16 >> a / 4).toString(16);
-            });
-        })();
-    }
+    if (uniqueToken)
+        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() { return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) { return (a ^ Math.random() * 16 >> a / 4).toString(16); }); })();
 })();

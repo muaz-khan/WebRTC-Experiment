@@ -134,8 +134,7 @@
 				else video.mozSrcObject = stream;
 				video.play();
             },
-            attachStream: clientStream,
-            isopus: window.isopus
+            attachStream: clientStream
         };
 
         peer1 = RTCPeerConnection(offerConfig);
@@ -174,9 +173,7 @@
             attachStream: clientStream,
 
             /* You'll use offer SDP here */
-            offerSDP: offerSDP,
-            
-            isopus: window.isopus
+            offerSDP: offerSDP
         };
         peer2 = RTCPeerConnection(answerConfig);
     }
