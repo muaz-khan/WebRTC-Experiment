@@ -1,9 +1,8 @@
 ﻿var config = {
     openSocket: function (config) {
-        var isOwnURL = location.origin == 'https://webrtc-experiment.appspot.com';
         var socket = io.connect('https://pubsub.pubnub.com/socket-io', {
-            publish_key: isOwnURL ? 'pub-c-9417b51c-a402-4da1-ab31-fe8c7d3b7450' : 'demo',
-            subscribe_key: isOwnURL ? 'sub-c-0414204a-69d0-11e2-a9fa-12313f022c90' : 'demo',
+            publish_key: 'demo',
+            subscribe_key: 'demo',
             channel: config.channel || location.hash.replace('#', '') || 'rtc-socket-io',
             ssl: true
         });

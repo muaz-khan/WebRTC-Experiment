@@ -1,27 +1,30 @@
-![WebRTC Experiment!](https://muazkh.appspot.com/images/WebRTC.png)
+**Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
 
---
+*Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
 
-[This webrtc experiment](https://webrtc-experiment.appspot.com/screen-broadcast/) uses socket.io as signaling gateway.
+====
+# Browser Support
 
-Pubnub is used as a wrapper for socket.io
+This [WebRTC Experiment](https://webrtc-experiment.appspot.com/screen-broadcast/) works fine on following web-browsers:
 
-[RTCPeerConnection.js](https://bit.ly/RTCPeerConnection) is used as JavaScript-Wrapper for RTCWeb APIs.
+# To Broadcast your own stream
 
-Stream is captured using Google Chrome experimental tabCapture APIs and transmitted over socket.
+| Browser        | Support           |
+| ------------- |:-------------:|
+| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
 
-It has the ability to handle unlimited peers. So unlimited peers can get access to broadcasted screen.
+# To Join any broadcasted screen
 
-Master socket handles the "broadcasting".
+| Browser        | Support           |
+| ------------- |:-------------:|
+| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) |
+| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
+| Google Chrome | Beta |
+| Google Chrome | Dev |
 
-The process is like this:
+## How Screen Broadcast Works?
 
-* Master socket finds a new socket (or new user, or new peer, or whatever you name it!)
-* Master socket opens an absolute unique new socket to handle offer/answer exchange model.
-* That newly created socket itself creates a new peer connection object and exchanges SDP/ICE with that user.
-* The same client stream is attached with offer for the sake of broadcasting same screen!
-
-The following function is used to capture tab/screen:
+Following 3 lines given access to media stream and everything else was same!
 
 ```javascript
 chrome.tabCapture.capture({ audio: true, video: true }, function(stream) {
@@ -29,13 +32,9 @@ chrome.tabCapture.capture({ audio: true, video: true }, function(stream) {
 });
 ```
 
-Don't forget to test it yourself!
+In simple words, multi-peers and sockets are opened to make it work!
 
-[https://webrtc-experiment.appspot.com/screen-broadcast/](https://webrtc-experiment.appspot.com/screen-broadcast/)
+====
+## License & Credits
 
-##Credits
-
-* [Muaz Khan](http://github.com/muaz-khan)!
-
-## License
-Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.
+Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - A link back is MUST! - All rights reserved!

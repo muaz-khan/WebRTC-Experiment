@@ -1,62 +1,28 @@
-[This webrtc experiment](https://webrtc-experiment.appspot.com/file-hangout/) is using socket.io as signaling gateway. It is a Group File Sharing experiment; using RTCDataChannel APIs for sharing files in group. You can say it many to many file sharing!
+**Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
 
-## Just copy HTML and enjoy Group File Sharing in your own site!
+*Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
 
-```html
-<style>
-    input { font-size: 1.2em; }
-    .start-conferencing { display: block; }
-    .hidden { display:none;}
-	table{width:100%;}
-	td {border: 1px dotted #BBA9A9;}
-	input[type=button],button {
-	    background: #0370ea;
-		background: -moz-linear-gradient(top,#008dfd 0,#0370ea 100%);
-		background: -webkit-linear-gradient(top,#008dfd 0,#0370ea 100%);
-		border: 1px solid #076bd2;
-		-moz-border-radius: 3px;
-		border-radius: 3px;
-		color: #fff !important;
-		display: inline-block;
-		line-height: 1.3;
-		padding: 8px 25px;
-		text-align: center;
-		text-shadow: 1px 1px 1px #076bd2;
-		-webkit-transition: none;
-		-moz-transition: none;
-	    font-size: 1.5em;
-	}
-	input[type=button]:hover, button:hover { background: rgb(9, 147, 240); }
-	input[type=button]:active,button:active { background: rgb(10, 118, 190); }
-	.join{font-size: .8em;margin-left: 2em;padding: .2em .6em;}
-</style>
+====
+# Browser Support
 
-<table style="width: 100%;">
-    <tr>
-        <td style="width: 50%">
-            <blockquote>
-                <input type="button" value="Start File-Hangout" id="start-conferencing">
-                <input type="file" id="file" disabled>
-                <div id="status" style="font-size: 2em;color: red;"></div>
-				
-                <table id="participants"></table>
-                <table id="rooms-list" class="visible"></table>
-            </blockquote>
-        </td>
-        <td>
-            <table id="output-panel"></table>
-        </td>
-    </tr>
-</table>
-<script src="https://bit.ly/socket-io"></script>
-<script src="https://bit.ly/RTCPeerConnection-v1-3"></script>
-<script src="https://webrtc-experiment.appspot.com/file-hangout/hangout.js"> </script>
-<script src="https://webrtc-experiment.appspot.com/file-hangout/hangout-ui.js"></script>
-```
+This [WebRTC Experiment](https://webrtc-experiment.appspot.com/file-hangout/) works fine on following web-browsers:
 
-##Credits
+| Browser        | Support           |
+| ------------- |:-------------:|
+| Firefox | [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) |
+| Firefox | [Nightly](http://nightly.mozilla.org/) |
+| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
 
-* [Muaz Khan](http://github.com/muaz-khan)!
+## How File Hangout Works?
 
-## License
-Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.
+In simple words, multi-peers and sockets are opened to make it work!
+
+1. Group file-sharing capability
+2. Private sharing rooms
+3. Easily understand and interchangeable code (use it for free!)
+4. Change only 3 lines to use your own socket.io implementation for signaling. Change maximum 30 lines to use your own algorithm to transfer/save files!
+
+====
+## License & Credits
+
+Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - A link back is MUST! - All rights reserved!
