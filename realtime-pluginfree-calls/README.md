@@ -39,7 +39,7 @@ Add an image or button and set its id to "call" ( User will click this button to
 <button id="call">Make a test call!</button>
 ```
 
-To see list of callers; add an <ol> or <ul> element and set its id to "callers":
+To see list of callers; add an OL or UL element and set its id to "callers":
 
 ```html
 <ol id="callers"></ol>

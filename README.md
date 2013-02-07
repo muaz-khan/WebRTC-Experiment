@@ -26,6 +26,7 @@
 | [Chat Broadcast](https://webrtc-experiment.appspot.com/chat/) : *one to many*  |
 | [Audio Broadcast](https://webrtc-experiment.appspot.com/audio-broadcast/) : *one to many* |
 | [Screen Sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) : *one to many* |
+| [Screen Viewer](https://webrtc-experiment.appspot.com/screen-viewer/) : *A shared screen viewer for everyone!* |
 
 
 | A few documents for newbies and beginners        |
