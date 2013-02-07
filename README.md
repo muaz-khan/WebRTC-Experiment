@@ -12,6 +12,8 @@
 | Firefox | [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) |
 | Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
+| Google Chrome | [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) |
+| Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 
 
 | A few top-level [WebRTC Experiments](https://webrtc-experiment.appspot.com)        |

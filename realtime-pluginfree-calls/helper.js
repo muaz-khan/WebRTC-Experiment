@@ -1,4 +1,6 @@
-﻿var global = {
+﻿window.iceServers = null;
+window.isopus = null;
+var global = {
     recordAudio: false
 };
 

@@ -22,6 +22,33 @@ In simple words, multi-peers and sockets are opened to make it work!
 3. Easily understand and interchangeable code (use it for free!)
 4. Change only 3 lines to use your own socket.io implementation for signaling. Change maximum 30 lines to use your own algorithm to transfer/save files!
 
+# Use your own socket.io implementation!
+
+```javascript
+var config = {
+    // JUST change code in openSocket method
+    openSocket: function (config) {
+        // ---------------------------- from here
+        
+        var socket = io.connect('your own socket.io URL');
+
+        // set channel: 'file-hangout' is the default channel
+        socket.channel = config.channel || 'file-hangout';
+
+        // when socket opens: call 'config.onopen'
+        config.onopen && socket.on('connect', config.onopen);
+
+        // when socket gets message: call 'config.onmessage'
+        socket.on('message', config.onmessage);
+
+        // return socket object; because it will be used later
+        return socket;
+
+        // ---------------------------- to here --- and that's all you need to do!
+    }
+};
+```
+
 ====
 ## License & Credits
 

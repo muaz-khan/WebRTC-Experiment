@@ -11,7 +11,10 @@ This [WebRTC Experiment](https://webrtc-experiment.appspot.com/calls/) works fin
 | ------------- |:-------------:|
 | Firefox | [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) |
 | Firefox | [Nightly](http://nightly.mozilla.org/) |
+| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) |
 | Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
+| Google Chrome | [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) |
+| Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 
 --
 
@@ -25,6 +28,27 @@ audio.addEventListener('play', function () {
 }, false);
 
 audio.play();
+```
+
+## How to use plugin-free calls in your own site?
+
+Add an image or button and set its id to "call" ( User will click this button to call you ) :
+
+
+```html
+<button id="call">Make a test call!</button>
+```
+
+To see list of callers; add an <ol> or <ul> element and set its id to "callers":
+
+```html
+<ol id="callers"></ol>
+```
+
+And last task: the script you need to link:
+
+```html
+<script src="http://bit.ly/plugin-free-calls"> </script>
 ```
 
 ====

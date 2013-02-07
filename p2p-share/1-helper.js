@@ -1,4 +1,7 @@
-﻿var global = {};
+﻿window.URL = webkitURL;
+window.iceServers = null;
+window.isopus = null;
+var global = {};
 
 function $(n, t, i) {
     try {

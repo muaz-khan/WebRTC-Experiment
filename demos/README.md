@@ -1,19 +1,29 @@
-![WebRTC Experiment!](https://muazkh.appspot.com/images/WebRTC.png)
+**Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
 
---
+*Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
 
-There are three experiments in this directory:
+====
+# Browser Support
+[WebRTC Demos](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
 
-* [100% client side---Chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/demos/client-side-datachannel.html)
-* [100% client side---no protocol like websocket or socket.io---no XHR!](https://webrtc-experiment.appspot.com/demos/client-side.html)
-* [100% client side---socket.io as signaling gateway](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html)
-* [100% client side---websocket as signaling gateway](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html)
+| Browser        | Support           |
+| ------------- |:-------------:|
+| Firefox | [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) |
+| Firefox | [Nightly](http://nightly.mozilla.org/) |
+| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) |
+| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
+| Google Chrome | [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) |
+| Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 
-[RTCPeerConnection.js](https://bit.ly/RTCPeerConnection) is used as JavaScript-Wrapper for RTCWeb APIs.
 
-##Credits
+| [WebRTC Demos](https://webrtc-experiment.appspot.com)        |
+| ------------- |
+| [100% client side---Chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/demos/client-side-datachannel.html) |
+| [100% client side---no protocol like websocket or socket.io---no XHR!](https://webrtc-experiment.appspot.com/demos/client-side.html) |
+| [100% client side---socket.io as signaling gateway](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) |
+| [100% client side---websocket as signaling gateway](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) |
 
-* [Muaz Khan](http://github.com/muaz-khan)!
+====
+## License & Credits
 
-## License
-Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - Licensed under the MIT license.
+Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - A link back is MUST! - All rights reserved!

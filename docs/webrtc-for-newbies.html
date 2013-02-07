@@ -1,0 +1,769 @@
+﻿<!-- Muaz Khan ( @muazkh ) : github.com/muaz-khan -->
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta itemprop="image" content="https://muazkh.appspot.com/images/WebRTC.png">
+    <title>WebRTC for newbies! ® Muaz Khan</title>
+    <meta name="description" content="A conceptual documentation for newbies who are interested to getting started with WebRTC from beginning! It explains A-to-Z all basic parts of RTCWeb APIs!">
+    <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+    <meta name="author" content="Muaz Khan">
+    <meta name="copyright" content="© Muaz Khan, 2013">
+    <style>
+        @font-face
+        {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 300;
+            src: local('Open Sans Light'), local('OpenSans-Light'), url(/images/font.woff) format('woff');
+        }
+        *
+        {
+            margin: 0;
+            padding: 0;
+            font-family: 'Open Sans';
+            -moz-transition: all .8s ease;
+            -ms-transition: all .8s ease;
+            -o-transition: all .8s ease;
+            -webkit-transition: all .8s ease;
+        }
+        html
+        {
+            background: #ECECEC;
+            overflow-x: hidden;
+        }
+        
+        body
+        {
+            color: #333;
+            font: 1.4em 'Open Sans' , arial, sans-serif;
+            font-weight: 300;
+            line-height: 1.5;
+            margin: 0 3em;
+            background: white;
+            border: 1px dotted #BBA9A9;
+            border-top: 0;
+        }
+        
+        h1, h2
+        {
+            color: #2778ec;
+            font-size: 1.6em;
+            font-weight: 300;
+            line-height: 1.15;
+        }
+        
+        .logo img
+        {
+            border-radius: 50%;
+            box-shadow: 0 0 5px black, 0 0 5px black, 0 0 5px black, 0 0 5px black, 0 0 5px black;
+        }
+        
+        blockquote
+        {
+            margin-bottom: 1em;
+        }
+        tr, td, th
+        {
+            vertical-align: top;
+            padding: .7em 1.4em;
+            border-top: 1px dotted #BBA9A9;
+            border-right: 1px dotted #BBA9A9;
+        }
+        
+        @media screen and (max-width: 770px)
+        {
+            body
+            {
+                margin: 0 .1em;
+                font-size: 1em;
+            }
+            tr, td
+            {
+                padding: .1em .4em;
+            }
+        }
+        
+        a
+        {
+            display: inline-block;
+            padding: 0.2em;
+            color: #1B75C9;
+            text-decoration: none;
+            border-bottom: 1px dotted #0085FF;
+            margin: 0 .2em;
+        }
+        a.logo
+        {
+            background: url(/images/right-arrow.gif) no-repeat left center;
+            padding-left: 1.5em;
+        }
+        a:hover
+        {
+            color: red;
+        }
+        footer
+        {
+            text-align: center;
+        }
+        .g-plusone
+        {
+            position: static;
+        }
+        .plusone-gplus
+        {
+            top: 4.2em;
+            margin-left: -1.7em;
+            position: absolute;
+        }
+        .fork-webrtc-experiment
+        {
+            border: 0;
+            outline: 0;
+            display: inline;
+        }
+        .fork-webrtc-experiment img
+        {
+            position: absolute;
+            right: 3em;
+        }
+        .log
+        {
+            position: absolute;
+            right: 7em;
+            left: 3.1em;
+            padding: .2em 1em;
+            background: rgba(255, 255, 255, 0.87);
+            border-bottom: 1px dotted #BBA9A9;
+            color: red;
+            display: none;
+        }
+        details
+        {
+            position: absolute;
+            z-index: 1000;
+            background: white;
+            cursor: pointer;
+            border-right: 1px dotted #BBA9A9;
+            border-bottom: 1px dotted #BBA9A9;
+        }
+        details:hover
+        {
+            color: red;
+        }
+        summary
+        {
+            padding: 0 .4em;
+            -webkit-user-select: none;
+        }
+        details a
+        {
+            display: block;
+        }
+        .contact
+        {
+            position: absolute;
+            right: 8em;
+            border: 0;
+            color: red;
+        }
+        .contact:hover
+        {
+            color: #BD0707;
+        }
+        dl
+        {
+            max-height: 0;
+            overflow: hidden;
+        }
+        summary
+        {
+            display: block;
+        }
+        dt
+        {
+            border-top: 1px dotted #BBA9A9;
+            padding: .5em 1em;
+        }
+        dt a
+        {
+            border: 0;
+            padding: 0;
+            margin: 0;
+        }
+        
+        strong
+        {
+            font-weight: inherit;
+            color: red;
+        }
+        ol
+        {
+            margin-left: 3em;
+        }
+        code, pre, pre strong, code strong
+        {
+            font-family: Consolas, "Andale Mono" , "Lucida Console" , "Courier New" , monospace;
+        }
+        .comment
+        {
+            color: #0E59DD;
+            font-family: inherit;
+        }
+        
+        /* feedback / contact */
+        a.send-message
+        {
+            background: url(/images/accept.gif) no-repeat left center;
+            padding-left: 1.5em;
+            display: inline-block;
+            border: 1px solid #9CA2A8;
+            margin-left: 0;
+        }
+        
+        textarea
+        {
+            font-size: 1.2em;
+            padding: .2em;
+            width: 95%;
+            outline: none;
+            height: 4em;
+            resize: vertical;
+            -webkit-transition: none;
+        }
+        
+        .contact-panel h2, .contact-panel div
+        {
+            border-bottom: 1px double #CACACA;
+            margin-bottom: .5em;
+            padding: .2em;
+        }
+        
+        .send-message
+        {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    
+    <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-webrtc-experiment" target="_blank"><img src="/images/fork-webrtc-experiment.png" alt="Fork WebRTC Experiment"></a>
+    <details>
+            <summary>Other WebRTC Experiments</summary>
+            <dl>
+                <dt>
+                    <a href="/video-conferencing/" style="display: inline;">Video-Conferencing!</a> / <a href="/broadcast/" style="display: inline;">Video Broadcasting!</a>
+                </dt>
+                <dt>
+                    <a href="/file-hangout/" style="display: inline;">Files-Hangout!</a> / <a href="/file-broadcast/" style="display: inline;">File Broadcasting!</a>
+                </dt>
+                <dt>
+                    <a href="/chat-hangout/" style="display: inline;">Chat-Hangout!</a> / <a href="/chat/" style="display: inline;">Chat Broadcasting!</a>
+                </dt>
+                <dt>
+                    <a href="/screen-broadcast/">WebRTC Screen Broadcasting!</a>
+                </dt>
+                <dt>
+                    <a href="/audio-broadcast/">WebRTC Audio Broadcasting!</a>
+                </dt>
+                <dt>
+                    <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html" style="display: inline;">How to use RTCPeerConnection? A simple Guide</a>
+                </dt>
+                <dt>
+                    One-to-One: <a href="/websocket/" style="display: inline;">WebSocket!</a> / <a href="/socket.io/" style="display: inline;">Socket.io!</a> / <a href="/calls/" style="display:inline;">Calls</a>
+                </dt>
+                <dt>
+                    One-Page: <a href="/demos/client-side.html" style="display: inline;">Simplest!</a> / <a href="/demos/client-side-websocket.html" style="display: inline;">WebSocket</a> / <a href="/demos/client-side-socket-io.html" style="display: inline;">socket.io</a> / <a href="/demos/client-side-datachannel.html" style="display: inline;">Chat!</a>
+                </dt>
+            </dl>
+        </details>
+    <table>
+        <tr>
+            <td rowspan="3">
+                <br />
+                <a class="logo" href="https://plus.google.com/100325991024054712503">
+                    <img src="/images/Muaz-Khan.gif" width="100" height="100">
+                </a>
+                <br />
+                <div style="text-align: center;">
+                    <a href="/">HOME</a>
+                </div>
+            </td>
+            <td>
+                <br />
+                <h1>
+                    WebRTC for newbies!</h1>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                A conceptual documentation for newbies!
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/docs/webrtc-for-beginners.html">WebRTC for Beginners!</a>
+                » <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">How to use RTCPeerConnection.js?</a>
+                » <a href="/docs/how-to-use-rtcdatachannel.html">RTCDataChannel?</a>
+            </td>
+        </tr>
+    </table>
+    
+    <table>
+		<tr>
+			<td>
+				The exchange of real-time media between two browsers follows the process:
+			</td>
+		</td>
+		
+		<tr>
+			<td>
+				<ol>
+					<li>
+						At the media source, input devices are opened for capture. <small>( getUserMedia )</small>
+					</li>
+					
+					<li>
+						Media from the input devices is encoded into packets that are transmitted across the network.
+					</li>
+					
+					<li>
+						At the media destination, the packets are decoded and formed into a media stream.
+					</li>
+					
+					<li>
+						The media stream is sent to output devices. <small>( onaddstream )</small>
+					</li>
+				</ol>				
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<img src="http://html5labs.interoperabilitybridges.com/cu-rtc-web/overview.png" alt="WebRTC Experiments">
+			</td>
+		</tr>		
+		<tr>
+			<td>
+				An application that wishes to enable two-way audio and video communications between peers can create four media streams:
+				<ol>
+					<li>
+						An audio stream in each direction, 
+					</li>
+					
+					<li>
+						A video stream in each direction.
+					</li>
+				</ol>
+			</td>
+		</tr>
+        <tr>
+            <td>
+                <h2>Any installation needed on the server?</h2>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                For simple WebRTC apps; not at all! For large scale applications; to store recorded media streams (audio/video/files/text/etc.) or data; obviously you need a server and many installations!
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <h2>
+                    I'm confused about node.js!
+                </h2>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                It needs a server and "many/many" installations! For <strong>learning purpose</strong>: you can use Pusher/PubNub APIs.
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <h2>What is signaling and why it is needed?</h2>
+            </td>
+        </tr>
+		
+		<tr>
+            <td>
+                Interoperable real-time media between browsers uses RTP. 
+            </td>
+        </tr>
+		
+		<tr>
+            <td>
+                RTP depends on the existence of a signaling channel to establish a common understanding of the meaning of packets. 
+            </td>
+        </tr>
+		
+		<tr>
+            <td>
+                This includes identification of different streams, codecs, and codec parameters.
+            </td>
+        </tr>
+		
+		<tr>
+            <td>
+                Applications that establish peer-to-peer transports require that the IP addresses of a peer are signaled to the remote peer.
+            </td>
+        </tr>
+		
+		<tr>
+			<td>
+				Each real-time port consists of an IP address, a port number, a username fragment and password. This information is exchanged with the remote peer using whatever signaling mechanism is chosen by the application.
+			</td>
+		</tr>
+		
+		<tr>
+			<td>
+				In order to establish a transport between a local peer and remote peer, the following process is applied:
+			</td>
+		</tr>
+		
+		<tr>
+			<td>
+				<ol>
+					<li>
+						The local peer opens one or more real-time ports. <small>( RTP )</small>
+					</li>
+					
+					<li>
+						The local peer then has to learn of the ports that its remote peer has opened. This uses a signaling channel specific to the application. For instance, a web application could use previously HTTP requests or Websockets connections for this purpose.
+					</li>
+					
+					<li>
+						A process of discovery is used to find a local and remote port pair (a candidate pair) that can exchange UDP packets. One or more connectivity checks are made from different local ports toward different remote ports. A successful connectivity check indicates that packets can reach the peer and that the peer consents to receive packets.
+					</li>
+					
+					<li>
+						Finally, a real-time transport is established on the pair of ports. A security context is established so that secured media packets are able to flow in both directions between peers. Real-Time media streams can then be added to the transport.
+					</li>
+				</ol>
+			</td>
+		</tr>
+		
+        <tr>
+            <td>
+                <h2>What is SDP?</h2>
+            </td>
+        </tr>
+		
+		<tr>
+			<td>
+				A well-defined format for conveying sufficient information to discover and participate in a multimedia session ( <small>video conference</small> ).
+			</td>
+		</tr>
+		
+		<tr>
+			<td>
+				A multimedia session is a set of multimedia senders and receivers and the data streams flowing from senders to receivers. A multimedia conference is an example of a multimedia session.
+			</td>
+		</tr>
+		
+		<tr>
+			<td>
+				When initiating multimedia teleconferences, voice-over-IP calls, streaming video, or other sessions, there is a requirement to convey media details, transport addresses, and other session description metadata to the participants.
+			</td>
+		</tr>
+		
+		<tr>
+			<td>
+				SDP provides a standard representation for such information, irrespective of how that information is transported.
+			</td>
+		</tr>
+        
+        <tr>
+            <td>
+                Here is a simple (short) SDP ( <small>about 1000 to 2200 characters text message</small> ) generated by Google Chrome:
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <pre>
+a=group:BUNDLE <strong title="audio stream – microphone">audio</strong> <strong title="video stream – webcam">video</strong> <strong title="RTCDataChannel – files, images, text, any kind of data!">data</strong>
+...
+a=rtpmap:103 <strong title="ISAC">ISAC</strong>/16000
+a=rtpmap:111 <strong title="opus audio codec">opus</strong>/48000
+a=rtpmap:0 <strong title="PCMU">PCMU</strong>/8000
+...
+a=rtpmap:100 <strong title="VP8">VP8</strong>/90000
+...
+</pre>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <img src="https://sites.google.com/site/muazkh/how-webrtc-offer-answer-model-works.png" alt="How offer/answer model works in WebRTC?">
+            </td>
+        </tr>
+
+        
+        <tr>
+            <td>
+                Cross browser declaration:
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <pre>
+SessionDescription = <strong title="Chrome implementation">RTCSessionDescription</strong> || <strong title="Firefox implementation">mozRTCSessionDescription</strong>
+</pre>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                He is a simple cross-browser "peer.createAnswer" API implementation:
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <pre>
+if (chrome) offerSDP = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(offerSDP);
+peerConnection.<strong title="Setting remote description on both Firefox and Chrome">setRemoteDescription</strong>(offerSDP);
+
+peerConnection.<strong title="Creating answer SDP on both Firefox and Chrome">createAnswer</strong>(function (sessionDescription) {
+    peerConnection.<strong title="Setting local description on both Firefox and Chrome">setLocalDescription</strong>(sessionDescription);
+}, null, constraints);
+</pre>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                For Firefox Aurora/Nightly "current implementation": Don't use <code>new SessionDescription</code> on "setRemoteDescription" when passing "<strong>offer sdp</strong>".
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <h2>How to order WebRTC code?</h2>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                First of all; create "offer sdp" by calling <code>peerConnection.createOffer</code>:
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <pre>
+offerer.<strong title="Creating offer SDP on both Firefox and Chrome">createOffer</strong>(function (offerSDP) {
+    offerer.<strong title="Setting local description on both Firefox and Chrome">setLocalDescription</strong>(offerSDP);
+    // use XHR/WebSocket/etc. to exchange offer-sdp with other peer(s)
+}, null, constraints);
+</pre>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                On the "answerer" side, set "remote descriptions" using "offer sdp":
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <pre>
+if (chrome) <strong title="Offer SDP is passed from offerer via XHR/WebSocket/etc.">offerSDP</strong> = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(<strong title="Offer SDP is passed from offerer via XHR/WebSocket/etc.">offerSDP</strong>);
+answerer.<strong title="Setting remote description on both Firefox and Chrome">setRemoteDescription</strong>(<strong title="Offer SDP is passed from offerer via XHR/WebSocket/etc.">offerSDP</strong>);
+</pre>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                And then create "answer sdp":
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <pre>
+answerer.<strong title="Creating answer SDP on both Firefox and Chrome">createAnswer</strong>(function (answerSDP) {
+    answerer.<strong title="Setting local description on both Firefox and Chrome">setLocalDescription</strong>(answerSDP);
+    
+    // use XHR/WebSocket/etc. to exchange answer-sdp with "offerer"
+}, null, constraints);
+</pre>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                On the offerer side, set remote descriptions using "answer sdp":
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <pre>
+if (chrome) <strong title="Answer SDP is passed from answerer via XHR/WebSocket/etc.">answerSDP</strong> = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(<strong title="Answer SDP is passed from answerer via XHR/WebSocket/etc.">answerSDP</strong>);
+offerer.<strong title="Setting remote description on both Firefox and Chrome">setRemoteDescription</strong>(<strong title="Answer SDP is passed from answerer via XHR/WebSocket/etc.">answerSDP</strong>);
+</pre>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <h2>What is ICE and is it mandatory?</h2>
+            </td>
+        </tr>
+		
+		<tr>
+            <td>
+                The purpose of the ICE protocol is to establish a media path.
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <blockquote style="margin-left: 2em;border-left: 5px solid gray;padding-left: 1em;">
+                    "Making a call starts by sending a SIP INVITE message with an SDP describing on which IP address(es) and port(s) the application can receive audio and/or video packets. These addresses and ports are known as candidates."
+                </blockquote>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                Specifically, a candidate is an IP address and port at which one peer can receive data from another peer.
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                There are 3 types of candidates:
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <h2>1) Local candidate:</h2>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                A local IP address of the client.
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <h2>2) Reflexive or STUN candidates</h2>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                An IP address of the client's NAT (assuming they are only behind a single NAT). These are determined from another entity, and then communicated back to the client.
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <h2>3) Relay or TURN candidate</h2>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                An address on a relay server that has been allocated for use by the client.
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <blockquote style="margin-left: 2em;border-left: 5px solid gray;padding-left: 1em;">
+                    "Traffic can always be sent successfully using relay candidates, unless a firewall blocks all traffic towards the client, in which case no legitimate firewall traversal technique can ever work. The problem with using relay candidates, however, is that they require server resources, and relayed traffic introduces additional delay, loss and jitter in the traffic stream."
+                </blockquote>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                You can use <code>peerConnection.<strong>onicecandidate</strong></code> event to get ICE generated for local peer. You can send those ICE via XHR/WebSocket/WebSync toward destination.
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <pre>
+a=candidate:<strong title="candidate number">1</strong> 1 UDP 2130706431 <strong title="ip address">192.168.1.102</strong> 1816 typ <strong>host</strong>
+a=candidate:<strong title="candidate number">2</strong> 1 UDP 2130706431 <strong title="ip address">23.45.1.102</strong> 3456 typ <strong>srflx</strong>
+a=candidate:<strong title="candidate number">3</strong> 1 UDP 2130706431 <strong title="ip address">34.66.1.102</strong> 5678 typ <strong>relay</strong>
+</pre>
+            </td>
+        </tr>
+		
+		<tr>
+            <td>
+                <blockquote style="margin-left: 2em;border-left: 5px solid gray;padding-left: 1em;">
+                    "Once the callee has sent its ICE candidates, and once the caller receives them, they each start the ICE connectivity checks. At this point, both the parties know about their peer’s potential candidates. Each possible pair of local and remote candidates is formed, creating a number of candidate pairs. A connectivity check is done by sending STUN messages from the local candidate to the remote candidate of each pair, starting with the highest priority (i.e. most preferred) candidate pair first. Both parties exchange STUN messages in this way to determine the best possible candidate pair that they can use to communicate. Once a valid (i.e. successful) message has been sent both ways on a single candidate pair, the connectivity check can stop and media can be sent/received using that candidate pair. "
+                </blockquote>
+            </td>
+        </tr>
+		
+		<tr>
+			<td>
+				Now if the call has been established, both the caller and callee send media to/from their successful candidate addresses. (usually using RTP protocol)
+			</td>
+		</tr>
+
+        <tr>
+            <td>
+                <h2>onaddstream event:</h2>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <code>peerConnection.<strong>onaddstream</strong></code> fires as soon as local peer gets clue of the remote stream. Remember, it takes a few seconds for remote stream to start flowing. You can check whether remote stream started flowing or not using something like this:
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <pre>
+video = event.<strong>stream</strong>; // if chrome: webkitURL.createObjectURL( event.stream )
+if (!(video.<strong>readyState</strong> &lt;= HTMLMediaElement.<strong>HAVE_CURRENT_DATA</strong> 
+                        || video.<strong>paused</strong> 
+                        || video.<strong>currentTime</strong> &lt;= 0)) 
+{ 
+    ....
+}
+</pre>
+            </td>
+        </tr>
+        
+    </table>
+    
+    <section class="plusone-gplus">
+    <div class="g-plusone"></div>
+</section>
+    <footer>
+    <a href="/">Home</a>
+    © <a href="https://plus.google.com/100325991024054712503" rel="author">Muaz Khan</a>, 2013
+    » <a href="mailto:muazkh@gmail.com">Email</a>
+    » <a href="http://twitter.com/muazkh">@muazkh</a>
+    » <a href="https://github.com/muaz-khan">Github</a>
+</footer>
+    
+	<script src="https://bit.ly/socket-io"></script>
+	<script src="/dependencies/common.js"></script>
+	
+</body>
+</html>
