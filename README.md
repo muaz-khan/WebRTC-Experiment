@@ -2,6 +2,8 @@
 
 *Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
 
+Enjoy [Chrome to Firefox video conferencing](https://googledrive.com/host/0B6GWd_dUUTT8dW5ycGVPT0V1bTg/chrome-to-firefox.html)!
+
 ====
 # Browser Support
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
@@ -26,7 +28,7 @@
 | [Chat Broadcast](https://webrtc-experiment.appspot.com/chat/) : *one to many*  |
 | [Audio Broadcast](https://webrtc-experiment.appspot.com/audio-broadcast/) : *one to many* |
 | [Screen Sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) : *one to many* |
-| [Screen Viewer](https://webrtc-experiment.appspot.com/screen-viewer/) : *A shared screen viewer for everyone!* |
+| [Screen Viewer](https://webrtc-experiment.appspot.com/screen-viewer/) : *one-to-many WebRTC Screen Sharing!* |
 
 
 | A few documents for newbies and beginners        |
@@ -39,7 +41,6 @@
 | [How to broadcast video using RTCWeb APIs?](https://webrtc-experiment.appspot.com/docs/how-to-broadcast-video-using-RTCWeb-APIs.html) |
 | [How to share audio-only streams?](https://webrtc-experiment.appspot.com/docs/how-to-share-audio-only-streams.html) |
 | [How to broadcast files using RTCDataChannel APIs?](https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html) |
-| [How to use Plugin-free calls in your own site?](https://webrtc-experiment.appspot.com/docs/how-to-use-plugin-free-calls.html) - JUST 3 lines of code! |
 
 
 ====
