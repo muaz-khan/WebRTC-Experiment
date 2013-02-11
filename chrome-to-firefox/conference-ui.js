@@ -1,9 +1,9 @@
 ﻿var config = {
     openSocket: function (config) {
-        var socket = io.connect('https://pubsub.pubnub.com/hangout', {
-            publish_key: 'demo',
-            subscribe_key: 'demo',
-            channel: config.channel || location.hash.replace('#', '') || 'video-conferencing',
+        var socket = io.connect('https://pubsub.pubnub.com/chrome-hangout', {
+            publish_key: 'pub-c-13600cad-f013-4f0f-b5ac-fdd903281285',
+            subscribe_key: 'sub-c-d700e872-69cf-11e2-a9fa-12313f022c90',
+            channel: config.channel || location.hash.replace('#', '') || 'chrome-to-firefox',
             ssl: true
         });
         config.onopen && socket.on('connect', config.onopen);
