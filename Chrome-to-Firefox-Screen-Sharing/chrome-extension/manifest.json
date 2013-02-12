@@ -1,0 +1,28 @@
+{
+	"name" : "ScreenBroadcast",
+	"version" : "1.3",
+	"manifest_version" : 2,
+	"description" : "Screen Sharing/Broadcasting using WebRTC! - Muaz Khan",
+	"options_page": "extras/options.html",
+	"background": {
+		"scripts": ["socket.io.js", "RTCPeerConnection-v1.4.js", "ScreenSharing.js", "ScreenCapturing.js"],
+		"persistent": false
+	},
+	"browser_action" : {
+		"default_icon" : "images/tabCapture22.png",
+		"default_title" : "Broadcast your Screen!"
+	},
+	"icons" : {
+		"16" : "images/tabCapture16.png",
+		"22" : "images/tabCapture22.png",
+		"32" : "images/tabCapture32.png",
+		"48" : "images/tabCapture48.png",
+		"128": "images/tabCapture128.png"
+	},
+	"permissions": [
+		"tabCapture", "notifications", "contextMenus"
+	],
+	"web_accessible_resources": [
+		"images/tabCapture48.png"
+	]
+}
