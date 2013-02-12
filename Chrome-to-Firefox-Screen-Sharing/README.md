@@ -17,6 +17,8 @@ This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8YUJaMkZ2d0NzQ
 
 You can esily use your own socket.io implementation.
 
+## [How to install Google Chrome tabCapture Extension?](https://webrtc-experiment.appspot.com/screen-broadcast/how-to-install/)
+
 ====
 ## License & Credits
 
