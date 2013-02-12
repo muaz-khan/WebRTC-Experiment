@@ -2,10 +2,8 @@
 
 *Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
 
-Enjoy [Chrome to Firefox video conferencing](https://googledrive.com/host/0B6GWd_dUUTT8dW5ycGVPT0V1bTg/chrome-to-firefox.html)! Just link this file http://bit.ly/RTCPeerConnection-v1-4 and enjoy cross-browser streaming.
-
 ====
-# Browser Support
+# Cross Browser Support
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
 
 | Browser        | Support           |

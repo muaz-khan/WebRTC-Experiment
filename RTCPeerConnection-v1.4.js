@@ -59,20 +59,24 @@ var RTCPeerConnection = function (options) {
     if (moz) constraints.mandatory.MozDontOfferDataChannel = true;
     var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
         extractedChars = '';
-    var charsLength = 0;
 
     function getChars() {
-        charsLength++;
-        extractedChars += chars[parseInt(Math.random() * 40)];
-        if (charsLength < 40) setTimeout(getChars, 0);
-        else extractedChars;
+        extractedChars += chars[parseInt(Math.random() * 40)] || '';
+        if (extractedChars.length < 40) getChars();
+        
+		return extractedChars;
+    }
+
+    function getInteropSDP(sdp) {
+        return moz && sdp.indexOf('a=crypto') == -1 
+			? sdp.replace(/c=IN/g, 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + getChars() + '\r\nc=IN') 
+			: sdp;
     }
 
     function createOffer() {
         if (!options.onOfferSDP) return;
         peerConnection.createOffer(function (sessionDescription) {
-            sessionDescription.sdp = moz && sessionDescription.sdp.indexOf('a=crypto') == -1 ? sessionDescription.sdp.replace(/c=IN/g, 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + getChars() + '\r\nc=IN') : sessionDescription.sdp;
-
+            sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
 
             info('createOffer');
@@ -90,12 +94,11 @@ var RTCPeerConnection = function (options) {
         peerConnection.setRemoteDescription(options.offerSDP);
 
         peerConnection.createAnswer(function (sessionDescription) {
-            sessionDescription.sdp = moz && sessionDescription.sdp.indexOf('a=crypto') == -1 ? sessionDescription.sdp.replace(/c=IN/g, 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + getChars() + '\r\nc=IN') : sessionDescription.sdp;
+            sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
 
             info('createAnswer');
             info(sessionDescription.sdp);
-
             info(constraints.mandatory);
 
             options.onAnswerSDP(sessionDescription);
@@ -177,10 +180,14 @@ var RTCPeerConnection = function (options) {
 
     function useless() {}
 
+    function info(information) {
+        console.log(information);
+    }
+
     return {
         addAnswerSDP: function (sdp) {
             info('addAnswerSDP');
-            info(sdp);
+            info(sdp.sdp);
 
             sdp = new SessionDescription(sdp);
             peerConnection.setRemoteDescription(sdp, function () {
@@ -234,27 +241,8 @@ function getUserMedia(options) {
             video.play();
         }
         options.onsuccess && options.onsuccess(stream);
-
-        info('video_constraints');
-        info(video_constraints.mandatory);
-
         media = stream;
     }
 
     return media;
 }
-
-/* information / logs */
-var ol = document.createElement('ol');
-ol.style.marginLeft = '2em';
-document.body.appendChild(ol);
-
-function info(information) {
-    var li = document.createElement('li');
-    li.innerHTML = information;
-    ol.insertBefore(li, ol.childNodes[0]);
-
-    console.log(information);
-}
-
-info('You can view output in the console too!');

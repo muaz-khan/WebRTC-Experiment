@@ -7,14 +7,17 @@ This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8dW5ycGVPT0V1b
 | ------------- |:-------------:|
 | Firefox | [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) |
+| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
 
 ## [Demo / Preview / Test / Experiment](https://googledrive.com/host/0B6GWd_dUUTT8dW5ycGVPT0V1bTg/chrome-to-firefox.html)
 
-## Cross Browser audio/video streaming?
+Just replace old file with this one to take advantage of cross-browser audio/video streaming! 
 
-Yes, it is Chrome-to-Firefox and Firefox-to-Chrome audio/video streaming (conferencing).
+```html
+<script src="http://bit.ly/RTCPeerConnection-v1-4"></script>
+```
 
-You JUST need to link [http://bit.ly/RTCPeerConnection-v1-4](http://bit.ly/RTCPeerConnection-v1-4) file in your existence experiments and enjoy cross-browser streaming. Remember, RTCDataChannel is NOT yet interoperable with Firefox.
+Cross browser means one browser must be Chrome Beta/Canary and other must be Firefox Nightly.
 
 ====
 ## License & Credits
