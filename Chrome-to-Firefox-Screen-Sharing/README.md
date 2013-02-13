@@ -19,6 +19,10 @@ You can esily use your own socket.io implementation.
 
 ## [How to install Google Chrome tabCapture Extension?](https://webrtc-experiment.appspot.com/screen-broadcast/how-to-install/)
 
+# Download Extension
+
+https://muazkh.googlecode.com/files/Chrome-to-Firefox-Screen-Sharing.zip
+
 ====
 ## License & Credits
 

@@ -2,8 +2,8 @@
 var config = {
     openSocket: function (config) {
         var socket = io.connect('https://pubsub.pubnub.com/' + signalingChannel, {
-            publish_key: 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0',
-			subscribe_key: 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a',
+            publish_key: 'pub-c-ed2bf8af-1921-4b22-b53e-ecb2670ca60c',
+            subscribe_key: 'sub-c-f990bbb4-7263-11e2-8b02-12313f022c90',
             channel: config.channel || signalingChannel,
             ssl: true
         });
@@ -13,19 +13,15 @@ var config = {
     }
 };
 
-function createRoomAndBroadcastN(stream) {
+function broadcastScreen(stream) {
 	config.attachStream = stream;
-	ScreenSharing(config).shareScreen({
-		roomName: ((document.getElementById('conference-name') || { value: null }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
-    });
+	ScreenSharing(config).shareScreen();
 }
 
 var isStopBroadcasting = false;
 var ScreenSharing = function (config) {
     var self = { userToken: uniqueToken() },
         channels = '--',
-        isbroadcaster,
-        isGetNewRoom = true,
         publicSocket = {};
 
     function openPublicSocket() {
@@ -37,7 +33,6 @@ var ScreenSharing = function (config) {
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
             openSubSocket({
-                isofferer: true,
                 channel: response.channel || response.userToken,
                 closeSocket: true
             });
@@ -54,25 +49,22 @@ var ScreenSharing = function (config) {
             }
         };
 
-        var socket = config.openSocket(socketConfig),
-            isofferer = _config.isofferer,
-            gotstream,
-            video = document.createElement('video'),
-            inner = {},
-            peer;
-
+        var socket = config.openSocket(socketConfig), inner = {}, peer;
         var peerConfig = {
             attachStream: config.attachStream,
 			onOfferSDP: sendsdp,
             onICE: function (candidate) {
-                socket.send({
+                socket && socket.send({
                     userToken: self.userToken,
                     candidate: {
                         sdpMLineIndex: candidate.sdpMLineIndex,
                         candidate: JSON.stringify(candidate.candidate)
                     }
                 });
-            }
+            },
+			onRemoteStream: function() {
+				webkitNotifications.createHTMLNotification('extras/participant.html').show();
+			}
         };
 
         function sendsdp(sdp) {
@@ -122,7 +114,7 @@ var ScreenSharing = function (config) {
                 }
             }
 
-            if (response.candidate && !gotstream) {
+            if (response.candidate) {
                 peer && peer.addICE({
                     sdpMLineIndex: response.candidate.sdpMLineIndex,
                     candidate: JSON.parse(response.candidate.candidate)
@@ -156,12 +148,9 @@ var ScreenSharing = function (config) {
 	
 	openPublicSocket();
     return {
-        shareScreen: function (_config) {
-            self.roomName = _config.roomName || 'Anonymous';
-            self.roomToken = uniqueToken();
-
-            isbroadcaster = true;
-            isGetNewRoom = false;
+        shareScreen: function () {
+			self.roomToken = uniqueToken();
+            self.roomName = prompt('Enter room name', self.roomToken) || self.roomToken;
             startBroadcasting();
         }
     };

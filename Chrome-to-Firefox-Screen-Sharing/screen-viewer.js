@@ -1,9 +1,9 @@
 ﻿var signalingChannel = 'cross-browser-screen-sharing';
 var config = {
     openSocket: function (config) {
-        var socket = io.connect('https://pubsub.pubnub.com/' + signalingChannel, {
-            publish_key: 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0',
-            subscribe_key: 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a',
+		var socket = io.connect('https://pubsub.pubnub.com/' + signalingChannel, {
+            publish_key: 'pub-c-ed2bf8af-1921-4b22-b53e-ecb2670ca60c',
+            subscribe_key: 'sub-c-f990bbb4-7263-11e2-8b02-12313f022c90',
             channel: config.channel || signalingChannel,
             ssl: true
         });

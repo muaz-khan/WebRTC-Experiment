@@ -33,15 +33,12 @@ function captureScreen()
 {	
 	chrome.tabs.getSelected(null, function (tab) {
 		chrome.tabCapture.capture({ audio: true, video: true }, function(stream) {
-			createRoomAndBroadcastN(stream);
-			
+			broadcastScreen(stream);			
 			webkitNotifications.createHTMLNotification('extras/started.html').show();
 		});
 	});
 	chrome.browserAction.setIcon({ path: 'images/pause22.png' });
 }
-
-/* context menu item */
 try{
 	chrome.contextMenus.create({
 		title: 'Broadcast Screen',
