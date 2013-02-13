@@ -3,7 +3,7 @@
 *Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
 
 ====
-# Browser Support
+# Cross Browser Support (Interoperable)
 
 This [WebRTC Experiment](https://webrtc-experiment.appspot.com/websocket/) works fine on following web-browsers:
 

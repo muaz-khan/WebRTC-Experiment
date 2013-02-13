@@ -1,5 +1,5 @@
 ====
-# Browser Support
+# Cross Browser Support (Interoperable)
 
 This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8dW5ycGVPT0V1bTg/chrome-to-firefox.html) works fine on following web-browsers:
 

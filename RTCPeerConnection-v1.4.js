@@ -232,7 +232,9 @@ function getUserMedia(options) {
     n.getMedia(options.constraints || {
         audio: true,
         video: video_constraints
-    }, streaming, options.onerror);
+    }, streaming, options.onerror || function(e) {
+		console.error(e);
+	});
 
     function streaming(stream) {
         var video = options.video;

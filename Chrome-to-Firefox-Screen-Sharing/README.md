@@ -1,5 +1,5 @@
 ====
-# Browser Support
+# Cross Browser Support (Interoperable)
 
 This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8YUJaMkZ2d0NzQmc/WebRTC-Screen-Viewer.html) works fine on following web-browsers:
 
