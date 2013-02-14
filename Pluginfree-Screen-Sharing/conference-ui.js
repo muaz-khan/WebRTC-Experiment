@@ -13,6 +13,7 @@
     onRemoteStream: function (media) {
         var video = media.video;
         video.setAttribute('controls', true);
+		video.onclick = function () { requestFullScreen(this); };
 
         participants.insertBefore(video, participants.childNodes[0]);
 
@@ -58,6 +59,8 @@ function captureUserMedia(callback) {
     video.setAttribute('autoplay', true);
     video.setAttribute('controls', true);
     participants.insertBefore(video, participants.childNodes[0]);
+	
+	video.onclick = function () { requestFullScreen(this); };
 	
     getUserMedia({
         video: video,
@@ -108,3 +111,13 @@ function rotateVideo(video)
         if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
         else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() { return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) { return (a ^ Math.random() * 16 >> a / 4).toString(16); }); })();
 })();
+
+function requestFullScreen(elem) {
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+    }
+}

@@ -225,7 +225,7 @@ function getUserMedia(options) {
         video: video_constraints
     }, streaming, /* options.onerror || */ function(e) {
 		console.error(e);
-		alert('Please Enable screen capture support in getUserMedia() in latest chrome canary using about://config');
+		alert('Please Enable screen capture support in getUserMedia() in latest chrome canary using chrome://flags');
 	});
 
     function streaming(stream) {
