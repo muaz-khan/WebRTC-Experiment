@@ -4,11 +4,22 @@
 
 Open "chrome://flags" in the latest chrome canary. 
 
-Scroll in the bottom of the page. 
+Scroll to the bottom of the page. 
 
 Enable flag "Enable screen capture support in getUserMedia()" 
 
 That flag allows web pages to request access to the screen contents via the getUserMedia() API.
+
+```javascript
+var video_constraints = {
+    mandatory: { chromeMediaSource: 'screen' },
+    optional: []
+};
+navigator.webkitGetUserMedia({
+    audio: false,
+    video: video_constraints
+}, onstreaming, onfailure);
+```
 
 ====
 # Cross Browser Support (Interoperable)
@@ -23,6 +34,29 @@ This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0Rqe
 | Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
 | Google Chrome | [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) |
 | Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
+
+## Use it in your own site!
+
+```html
+<table class="visible">
+    <tr>
+        <td style="text-align: right;">
+            <input type="text" id="conference-name" placeholder="Room Name">
+        </td>
+        <td>
+            <button id="start-conferencing">Share your screen</button>
+        </td>
+    </tr>
+</table>
+
+<table id="rooms-list" class="visible"></table>
+<div id="participants"></div>
+
+<script src="https://bit.ly/socket-io"></script>
+<script src="https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/RTCPeerConnection-v1.4.js"></script>
+<script src="https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/conference.js"> </script>
+<script src="https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/conference-ui.js"></script>
+```
 
 ====
 ## License & Credits
