@@ -1,0 +1,25 @@
+﻿<table class="visible">
+    <tr>
+        <td style="text-align: right;">
+            <input type="text" id="conference-name" placeholder="Broadcast Name">
+        </td>
+        <td>
+            <select id="broadcasting-option" style="font-size: 1.8em;">
+                <option>Audio + Video</option>
+                <option>Only Audio</option>
+                <option>Screen</option>
+            </select>
+        </td>
+        <td>
+            <button id="start-conferencing">Start Broadcasting</button>
+        </td>
+    </tr>
+</table>
+
+<table id="rooms-list" class="visible"></table>
+<div id="participants"></div>
+
+<script src="https://bit.ly/socket-io"></script>
+<script src="https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCPeerConnection-v1.4.js"></script>
+<script src="https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/broadcast.js"></script>
+<script src="https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/broadcast-ui.js"></script>
