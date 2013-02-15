@@ -19,6 +19,33 @@ Just replace old file with this one to take advantage of cross-browser audio/vid
 
 Cross browser means one browser must be Chrome Beta/Canary and other must be Firefox Nightly.
 
+# Use your own socket.io implementation!
+
+```javascript
+var config = {
+    // JUST change code in openSocket method
+    openSocket: function (config) {
+        // ---------------------------- from here
+        
+        var socket = io.connect('your own socket.io URL');
+
+        // set channel: 'chrome-to-firefox' is the default channel
+        socket.channel = config.channel || 'chrome-to-firefox';
+
+        // when socket opens: call 'config.onopen'
+        config.onopen && socket.on('connect', config.onopen);
+
+        // when socket gets message: call 'config.onmessage'
+        socket.on('message', config.onmessage);
+
+        // return socket object; because it will be used later
+        return socket;
+
+        // ---------------------------- to here --- and that's all you need to do!
+    }
+};
+```
+
 ====
 ## License & Credits
 

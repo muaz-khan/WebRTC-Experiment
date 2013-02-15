@@ -23,6 +23,33 @@ You can esily use your own socket.io implementation.
 
 https://muazkh.googlecode.com/files/Chrome-to-Firefox-Screen-Sharing.zip
 
+# Use your own socket.io implementation!
+
+```javascript
+var config = {
+    // JUST change code in openSocket method
+    openSocket: function (config) {
+        // ---------------------------- from here
+        
+        var socket = io.connect('your own socket.io URL');
+
+        // set channel: 'screen-sharing' is the default channel
+        socket.channel = config.channel || 'screen-sharing';
+
+        // when socket opens: call 'config.onopen'
+        config.onopen && socket.on('connect', config.onopen);
+
+        // when socket gets message: call 'config.onmessage'
+        socket.on('message', config.onmessage);
+
+        // return socket object; because it will be used later
+        return socket;
+
+        // ---------------------------- to here --- and that's all you need to do!
+    }
+};
+```
+
 ====
 ## License & Credits
 

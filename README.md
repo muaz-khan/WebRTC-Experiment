@@ -2,8 +2,6 @@
 
 *Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
 
-[Plugin free screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html)
-
 ====
 # Cross Browser Support (All Experiments are Interoperable!)
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
@@ -20,6 +18,7 @@
 
 | A few top-level [WebRTC Experiments](https://webrtc-experiment.appspot.com)        |
 | ------------- |
+| [Plugin free screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html) : *Directly Share full screen / No Extension / No Add-ons* |
 | [Video Hangout](https://webrtc-experiment.appspot.com/video-conferencing/) : *many to many* |
 | [Video Broadcast](https://webrtc-experiment.appspot.com/broadcast/) : *one to many* |
 | [File Hangout](https://webrtc-experiment.appspot.com/file-hangout/) : *many to many* |
