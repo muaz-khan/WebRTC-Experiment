@@ -31,10 +31,8 @@ var RTCPeerConnection = function (options) {
     var peerConnection = new PeerConnection(location.search.indexOf('turn=true') !== -1 ? TURN : STUN, optional);
     openOffererChannel();
     peerConnection.onicecandidate = onicecandidate;
-    if (options.attachStream) {
-        peerConnection.onaddstream = onaddstream;
-        peerConnection.addStream(options.attachStream);
-    }
+    if (options.attachStream) peerConnection.addStream(options.attachStream);
+    peerConnection.onaddstream = onaddstream;
 
     function onicecandidate(event) {
         if (!event.candidate || !peerConnection) return;
@@ -212,7 +210,16 @@ var RTCPeerConnection = function (options) {
 };
 
 var video_constraints = {
-    mandatory: {chromeMediaSource: 'screen'},
+    mandatory: {},
+    optional: []
+};
+if (location.search.indexOf('hd=true') !== -1) video_constraints = {
+    mandatory: {
+        minHeight: 720,
+        minWidth: 1280,
+        maxAspectRatio: 1.778,
+        minAspectRatio: 1.777
+    },
     optional: []
 };
 
@@ -221,11 +228,10 @@ function getUserMedia(options) {
         media;
     n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
     n.getMedia(options.constraints || {
-        audio: false,
+        audio: true,
         video: video_constraints
-    }, streaming, /* options.onerror || */ function(e) {
+    }, streaming, options.onerror || function(e) {
 		console.error(e);
-		alert('Please Enable screen capture support in getUserMedia() in latest chrome canary using chrome://flags');
 	});
 
     function streaming(stream) {

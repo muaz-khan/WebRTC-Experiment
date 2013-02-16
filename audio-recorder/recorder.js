@@ -1,6 +1,6 @@
 (function(window){
 
-  var WORKER_PATH = 'https://raw.github.com/muaz-khan/WebRTC-Experiment/master/audio-recorder/recorderWorker.js';
+  var WORKER_PATH = 'https://webrtc-experiment.appspot.com/lib/recorder/recorderWorker.js';
 
   var Recorder = function(source, cfg){
     var config = cfg || {};
