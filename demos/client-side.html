@@ -1,15 +1,21 @@
 ﻿<script src="https://bit.ly/RTCPeerConnection-v1-3"></script>
+<style>
+    body {
+        text-align: center;
+    }
+</style>
 
-<style>body{text-align: center;}</style>
 <h2>Client video</h2>
+
 <video id="client-video" autoplay></video>
 
 <h2>Remote video getting stream from peer2</h2>
+
 <video id="remote-video-1" autoplay></video>
 
 <h2>Remote video getting stream from peer1</h2>
-<video id="remote-video-2" autoplay></video>
 
+<video id="remote-video-2" autoplay></video>
 <!-- First of all; get camera -->
 <script>
     var clientStream;
@@ -27,11 +33,10 @@
         }
     });
 </script>
-
 <!-- First peer: the offerer -->
 <script>
     /* "offerSDP" will be used by your participant! */
-    var offerSDP, peer1; 
+    var offerSDP, peer1;
 
     var offerConfig = {
         onOfferSDP: function (sdp) {
@@ -53,23 +58,22 @@
         onRemoteStream: function (stream) {
             console.log('1st peer: Wow! Got remote stream!');
             var video = document.getElementById('remote-video-1');
-			if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
-			else video.mozSrcObject = stream;
-			video.play();
+            if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
+            else video.mozSrcObject = stream;
+            video.play();
         }
     };
-    
+
     function create1stPeer() {
         offerConfig.attachStream = clientStream;
         peer1 = RTCPeerConnection(offerConfig);
     }
 </script>
-
 <!-- Second peer: the participant -->
 <script>
     var peer2;
 
-    function  create2ndPeer() {
+    function create2ndPeer() {
         var answerConfig = {
             onAnswerSDP: function (sdp) {
                 console.log('2nd peer: sdp' + sdp);
@@ -89,9 +93,9 @@
             onRemoteStream: function (stream) {
                 console.log('2nd peer: Wow! Got remote stream!');
                 var video = document.getElementById('remote-video-2');
-				if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
-				else video.mozSrcObject = stream;
-				video.play();
+                if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
+                else video.mozSrcObject = stream;
+                video.play();
             },
             attachStream: clientStream,
 

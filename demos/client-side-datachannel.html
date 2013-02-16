@@ -2,32 +2,28 @@
     <tr>
         <td>
             <input id="from-first-peer" type="text" placeholder="First Peer" disabled>
-            <ol id="messages-sent-by-second-peer">
-            </ol>
+            <ol id="messages-sent-by-second-peer"></ol>
         </td>
         <td>
             <input id="from-second-peer" type="text" placeholder="Second Peer" disabled>
-            <ol id="messages-sent-by-first-peer">
-            </ol>
+            <ol id="messages-sent-by-first-peer"></ol>
         </td>
     </tr>
     <tr style="text-align:center;">
         <td colspan=2>
-            <img src="https://webrtc-experiment.appspot.com/images/enable-rtcdatachannel.png" width=400 height=150 />            
+            <img src="https://webrtc-experiment.appspot.com/images/enable-rtcdatachannel.png" width=400 height=150 />
             <img src="https://webrtc-experiment.appspot.com/images/firefox-nightly-preference-for-peerconnection.png" alt="Enable WebRTC on Firefox Nightly" height=150 />
         </td>
     </tr>
     <tr style="text-align:center;">
         <td colspan=2>
-            <h2><a href="https://webrtc-experiment.appspot.com/docs/rtc-datachannel-for-beginners.html">RTCDataChannel for Beginners</a></h2>
+             <h2><a href="https://webrtc-experiment.appspot.com/docs/rtc-datachannel-for-beginners.html">RTCDataChannel for Beginners</a></h2>
+
         </td>
     </tr>
 </table>
-
 <!-- --------------------------------------------------- -->
-
 <script src="https://bit.ly/RTCPeerConnection-v1-3"></script>
-
 <!-- UI -->
 <script>
     var firstPeerTextBox = document.getElementById('from-first-peer');
@@ -36,7 +32,7 @@
     var firstPeerOutput = document.getElementById('messages-sent-by-second-peer');
     var secondPeerOutput = document.getElementById('messages-sent-by-first-peer');
 
-    HTMLElement.prototype.addLI = function(message) {
+    HTMLElement.prototype.addLI = function (message) {
         var li = document.createElement('li');
         li.innerHTML = message;
         this.insertBefore(li, this.childNodes[0]);
@@ -46,23 +42,23 @@
         if (!peer1 || this.disabled) return;
 
         peer1.sendData(this.value);
-		this.value = '';
+        this.value = '';
     };
 
     secondPeerTextBox.onchange = function () {
         if (!peer2 || this.disabled) return;
 
         peer2.sendData(this.value);
-		this.value = '';
+        this.value = '';
     };
 </script>
-
 <!-- First peer: the offerer -->
 <script>
     /* "offerSDP" will be used by your participant! */
     var offerSDP, peer1;
 
     window.onload = create1stPeer;
+
     function create1stPeer() {
         peer1 = RTCPeerConnection({
             onOfferSDP: function (sdp) {
@@ -91,12 +87,11 @@
         });
     }
 </script>
-
 <!-- Second peer: the participant -->
 <script>
     var peer2;
 
-    function  create2ndPeer() {
+    function create2ndPeer() {
         peer2 = RTCPeerConnection({
             onAnswerSDP: function (sdp) {
                 console.log('2nd peer: sdp' + sdp);
@@ -124,5 +119,4 @@
         });
     }
 </script>
-
 <!-- --------------------------------------------------- -->

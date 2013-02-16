@@ -1,7 +1,9 @@
-Code is not mine! Copryright of this js-file goes to: https://github.com/mattdiamond/Recorderjs
+**Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
+
+*Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
 
 ====
-# Browser Support
+## Cross Browser Support (All Experiments are interoperable!)
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
 
 | Browser        | Support           |
@@ -13,77 +15,10 @@ Code is not mine! Copryright of this js-file goes to: https://github.com/mattdia
 | Google Chrome | [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) |
 | Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 
-This code is used to record audio; that’s why it is included here. 
-
-Here is how I used it in my [Plugin-free call](https://webrtc-experiment.appspot.com/calls/) experiment:
-
-First of all, link this: https://bit.ly/webrtc-recorder [You MUST use HTTPS/SSL. Otherwise, download [both js-files](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/audio-recorder) and host on your own server]
-
-```javascript
-// credit of "recorder.js" goes to someone else
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
-window.URL = window.URL || window.webkitURL;
-
-var recorder, audioContext;
-
-// A button to start recording audio-stream
-var recorderParent = document.getElementsByClassName('recorder')[0];
-
-// I called this method "recordAudio" in the "peer.onaddstream" event
-// when remote stream starts flowing
-function recordAudio(stream) {
-	if(global.recordAudio && recorderParent) 
-	{
-		recorderParent.innerHTML = 'Download WAV';
-		recorderParent.style.cursor = 'pointer';
-	}
-    audioContext = new AudioContext;
-    
-    var input = audioContext.createMediaStreamSource(stream);
-    input.connect(audioContext.destination);
-    recorder = new window.Recorder(input);
-
-    recorder && recorder.record();
-}
-
-if(recorderParent) recorderParent.onclick = function() {
-	if(!global.recordAudio || !global.isGotRemoteStream) return;
-	
-	recorder && recorder.stop();
-        
-	// create WAV download link using audio data blob
-	createDownloadLink();
-
-	recorder && recorder.clear();
-
-	if(recorderParent) recorderParent.style.display = 'none';
-};
-
-var recordings = document.getElementById('recordings');
-function createDownloadLink() {
-    recorder && recorder.exportWAV(function (blob) {
-        var url = URL.createObjectURL(blob);
-        var li = document.createElement('li');
-        var au = document.createElement('audio');
-        var hf = document.createElement('a');
-
-        au.controls = true;
-        au.src = url;
-        hf.href = url;
-        hf.download = new Date().toISOString() + '.wav';
-        hf.innerHTML = hf.download;
-        li.appendChild(au);
-        li.appendChild(hf);
-
-        if (recordings) recordings.insertBefore(li, recordings.childNodes[0]);
-    });
-}
-```
-
 
 | A few top-level [WebRTC Experiments](https://webrtc-experiment.appspot.com)        |
 | ------------- |
+| [Plugin free screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html) : *Directly Share full screen / No Extension / No Add-ons* |
 | [Video Hangout](https://webrtc-experiment.appspot.com/video-conferencing/) : *many to many* |
 | [Video Broadcast](https://webrtc-experiment.appspot.com/broadcast/) : *one to many* |
 | [File Hangout](https://webrtc-experiment.appspot.com/file-hangout/) : *many to many* |
@@ -92,6 +27,9 @@ function createDownloadLink() {
 | [Chat Broadcast](https://webrtc-experiment.appspot.com/chat/) : *one to many*  |
 | [Audio Broadcast](https://webrtc-experiment.appspot.com/audio-broadcast/) : *one to many* |
 | [Screen Sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) : *one to many* |
+| [Screen Viewer](https://webrtc-experiment.appspot.com/screen-viewer/) : *one-to-many WebRTC Screen Sharing!* |
+| [Chrome to Firefox Screen Sharing](https://googledrive.com/host/0B6GWd_dUUTT8YUJaMkZ2d0NzQmc/WebRTC-Screen-Viewer.html) :  Cross Browser Screen Sharing! |
+| [WebRTC One-Way Broadcasting](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/) : *One-way audio/video/screen broadcasting. Participants don't need to have camera/microphone.* |
 
 
 | A few documents for newbies and beginners        |
@@ -104,8 +42,60 @@ function createDownloadLink() {
 | [How to broadcast video using RTCWeb APIs?](https://webrtc-experiment.appspot.com/docs/how-to-broadcast-video-using-RTCWeb-APIs.html) |
 | [How to share audio-only streams?](https://webrtc-experiment.appspot.com/docs/how-to-share-audio-only-streams.html) |
 | [How to broadcast files using RTCDataChannel APIs?](https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html) |
-| [How to use Plugin-free calls in your own site?](https://webrtc-experiment.appspot.com/docs/how-to-use-plugin-free-calls.html) - JUST 3 lines of code! |
 
+
+## Use your own socket.io implementation!
+
+```javascript
+var config = {
+    openSocket: function (config) {
+        var socket = io.connect('your own socket.io URL');
+        socket.channel = config.channel || 'WebRTC-Experiment';
+        config.onopen && socket.on('connect', config.onopen);
+        socket.on('message', config.onmessage);
+        return socket;
+    }
+};
+```
+
+For testing purpose, use firebase:
+
+```javascript
+var config = {
+    openSocket: function (config) {
+        var channel = config.channel || 'WebRTC-Experiment';
+        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+        socket.channel = channel;
+        socket.on("child_added", function (data) {
+            config.onmessage && config.onmessage(data.val());
+        });
+        socket.send = function (data) {
+            this.push(data);
+        }
+        config.onopen && setTimeout(config.onopen, 1);
+        socket.onDisconnect().remove();
+        return socket;
+    }
+};
+
+```
+
+or pubnub:
+
+```javascript
+var config = {
+    openSocket: function (config) {
+        var socket = io.connect('http://pubsub.pubnub.com/WebRTC-Experiment', {
+            publish_key: 'pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd',
+            subscribe_key: 'sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90',
+            channel: config.channel || 'WebRTC-Experiment'
+        });
+        config.onopen && socket.on('connect', config.onopen);
+        socket.on('message', config.onmessage);
+        return socket;
+    }
+};
+```
 
 ====
 ## License & Credits

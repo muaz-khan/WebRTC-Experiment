@@ -7,28 +7,34 @@
     }
     var uniqueChannel = uniqueToken();
 </script>
-
 <script src="https://bit.ly/RTCPeerConnection-v1-3"></script>
 <script src="https://bit.ly/socket-io"></script>
+<style>
+    body {
+        text-align: center;
+    }
+</style>
 
-<style>body{text-align: center;}</style>
 <h2>Client video</h2>
+
 <video id="client-video" autoplay></video>
 
 <h2>Remote video getting stream from peer2</h2>
+
 <video id="remote-video-1" autoplay></video>
 
 <h2>Remote video getting stream from peer1</h2>
-<video id="remote-video-2" autoplay></video>
 
+<video id="remote-video-2" autoplay></video>
 <!-- First of all; get camera -->
 <script>
     var socket;
+
     function openSocket() {
         socket = io.connect('https://pubsub.pubnub.com/' + uniqueChannel, {
             channel: uniqueChannel,
-            publish_key: 'demo',
-			subscribe_key: 'demo',
+            publish_key: 'pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd',
+            subscribe_key: 'sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90',
             ssl: true
         });
 
@@ -43,8 +49,7 @@
                     if (message.by == 'peer1') {
                         offerSDP = JSON.parse(global.firstPart + global.secondPart);
                         setTimeout(create2ndPeer, 400);
-                    }
-                    else {
+                    } else {
                         /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
                         peer1.addAnswerSDP(JSON.parse(global.firstPart + global.secondPart));
                     }
@@ -57,8 +62,7 @@
                     if (message.by == 'peer1') {
                         offerSDP = JSON.parse(global.firstPart + global.secondPart);
                         setTimeout(create2ndPeer, 400);
-                    }
-                    else {
+                    } else {
                         /* 1st peer should complete the handshake using answer SDP provided by 2nd peer! */
                         peer1.addAnswerSDP(JSON.parse(global.firstPart + global.secondPart));
                     }
@@ -72,8 +76,7 @@
                         sdpMLineIndex: message.sdpMLineIndex,
                         candidate: JSON.parse(message.candidate)
                     });
-                }
-                else {
+                } else {
                     peer1 && peer1.addICE({
                         sdpMLineIndex: message.sdpMLineIndex,
                         candidate: JSON.parse(message.candidate)
@@ -99,12 +102,11 @@
             alert('Either you not allowed access to your microphone/webcam or another application already using it.');
         }
     });
-    
+
     var clientStream;
 
     var global = {};
 </script>
-
 <!-- First peer: the offerer -->
 <script>
     /* "offerSDP" will be used by your participant! */
@@ -130,9 +132,9 @@
             onRemoteStream: function (stream) {
                 console.log('1st peer: Wow! Got remote stream!');
                 var video = document.getElementById('remote-video-1');
-				if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
-				else video.mozSrcObject = stream;
-				video.play();
+                if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
+                else video.mozSrcObject = stream;
+                video.play();
             },
             attachStream: clientStream
         };
@@ -140,13 +142,11 @@
         peer1 = RTCPeerConnection(offerConfig);
     }
 </script>
-
 <!-- Second peer: the participant -->
 <script>
-
     var peer2;
 
-    function  create2ndPeer() {
+    function create2ndPeer() {
         var answerConfig = {
             onAnswerSDP: function (sdp) {
                 console.log('2nd peer: sdp' + sdp);
@@ -166,9 +166,9 @@
             onRemoteStream: function (stream) {
                 console.log('2nd peer: Wow! Got remote stream!');
                 var video = document.getElementById('remote-video-2');
-				if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
-				else video.mozSrcObject = stream;
-				video.play();
+                if (!navigator.mozGetUserMedia) video.src = URL.createObjectURL(stream);
+                else video.mozSrcObject = stream;
+                video.play();
             },
             attachStream: clientStream,
 
