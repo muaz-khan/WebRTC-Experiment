@@ -182,7 +182,7 @@
     }
 
     function startBroadcasting() {
-        publicSocket.send({
+        publicSocket && publicSocket.send({
             roomToken: self.roomToken,
             roomName: self.roomName,
             broadcaster: self.userToken,

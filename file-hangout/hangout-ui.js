@@ -1,8 +1,8 @@
 ﻿var config = {
     openSocket: function (config) {
         var socket = io.connect('https://pubsub.pubnub.com/' + 'hangout', {
-            publish_key: 'demo',
-            subscribe_key: 'demo',
+            publish_key: 'pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd',
+            subscribe_key: 'sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90',
             channel: config.channel || location.hash.replace('#', '') || 'file-hangout',
             ssl: true
         });
@@ -16,15 +16,15 @@
 
         var roomsList = document.getElementById('rooms-list') || document.body;
 
-		var tr = document.createElement('tr');
-		tr.setAttribute('id', room.broadcaster);
-		tr.style.fontSize = '.8em';
+        var tr = document.createElement('tr');
+        tr.setAttribute('id', room.broadcaster);
+        tr.style.fontSize = '.8em';
         tr.innerHTML = '<td>' + room.roomName + '</td>' +
-					   '<td><button class="join" id="' + room.roomToken + '">Join</button></td>';
+            '<td><button class="join" id="' + room.roomToken + '">Join</button></td>';
 
         roomsList.insertBefore(tr, roomsList.childNodes[0]);
-		
-		tr.onclick = function () {
+
+        tr.onclick = function () {
             hangoutUI.joinRoom({
                 roomToken: tr.querySelector('.join').id,
                 joinUser: tr.id,
@@ -33,26 +33,27 @@
             hideUnnecessaryStuff();
         };
     },
-    onChannelOpened: function (/* channel */) {
+    onChannelOpened: function ( /* channel */ ) {
         unnecessaryStuffVisible && hideUnnecessaryStuff();
-		if(fileElement) fileElement.removeAttribute('disabled');
+        if (fileElement) fileElement.removeAttribute('disabled');
     },
     onChannelMessage: function (data) {
-		if(data.sender && participants) {
-			var tr = document.createElement('tr');
-			tr.innerHTML = '<td>' + data.sender + ' is ready to receive files!</td>';
-			participants.insertBefore(tr, participants.childNodes[0]);
-		}
-		else onMessageCallback(data);
+        if (data.sender && participants) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + data.sender + ' is ready to receive files!</td>';
+            participants.insertBefore(tr, participants.childNodes[0]);
+        } else onMessageCallback(data);
     }
 };
 
 function createButtonClickHandler() {
     hangoutUI.createRoom({
         userName: prompt('Enter your name', 'Anonymous'),
-        roomName: ((document.getElementById('conference-name') || { value: null }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
+        roomName: ((document.getElementById('conference-name') || {
+            value: null
+        }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
     });
-	hideUnnecessaryStuff();
+    hideUnnecessaryStuff();
 }
 
 
@@ -62,11 +63,12 @@ var hangoutUI = hangout(config);
 /* UI specific */
 var startConferencing = document.getElementById('start-conferencing');
 if (startConferencing) startConferencing.onclick = createButtonClickHandler;
-var participants =  document.getElementById('participants');
+var participants = document.getElementById('participants');
 
 var chatOutput = document.getElementById('chat-output');
 
 var unnecessaryStuffVisible = true;
+
 function hideUnnecessaryStuff() {
     var visibleElements = document.getElementsByClassName('visible'),
         length = visibleElements.length;
@@ -75,23 +77,22 @@ function hideUnnecessaryStuff() {
         visibleElements[i].style.display = 'none';
     }
     unnecessaryStuffVisible = false;
-	if (startConferencing) startConferencing.style.display = 'none';
+    if (startConferencing) startConferencing.style.display = 'none';
 }
 
 var chatMessage = document.getElementById('chat-message');
-if (chatMessage)
-    chatMessage.onchange = function() {
-        hangoutUI.send(chatMessage.value);
-		chatMessage.value = '';
-    };
-	
+if (chatMessage) chatMessage.onchange = function () {
+    hangoutUI.send(chatMessage.value);
+    chatMessage.value = '';
+};
 
-/* ---------------------------------------- */	
+
+/* ---------------------------------------- */
 /* file sharing stuff */
-/* ---------------------------------------- */	
+/* ---------------------------------------- */
 
 var content = [];
-var moz = !!navigator.mozGetUserMedia;
+var moz = !! navigator.mozGetUserMedia;
 var lastFileName = ''; /* Direct file blob sharing using Firefox Nightly */
 
 function onMessageCallback(data) {
@@ -115,40 +116,41 @@ function onMessageCallback(data) {
         return;
     }
 
-	if(data.connected) 
-	{
-		quickOutput('Your friend is connected to you.');
-		return;
-	}
-	
-	disable(true);
-	
+    if (data.connected) {
+        quickOutput('Your friend is connected to you.');
+        return;
+    }
+
+    disable(true);
+
     if (data.packets) packets = parseInt(data.packets);
-	updateStatus();
-	
+    updateStatus();
+
     content.push(data.message);
-	
-	if(data.last) {
-		saveToDisk(content.join(''), data.name);
+
+    if (data.last) {
+        saveToDisk(content.join(''), data.name);
         quickOutput(data.name, 'received successfully!');
-		disable(false);
-		content = [];
+        disable(false);
+        content = [];
     }
 }
 
 // getting file from user's system
 var file, fileElement = document.getElementById('file');
-fileElement.onchange = function() {
+fileElement.onchange = function () {
     file = fileElement.files[0];
     if (!file) return false;
 
     /* if firefox nightly: share file blob directly */
     if (moz) {
-        hangoutUI.send(JSON.stringify({ lastFileName: file.name }));
+        hangoutUI.send(JSON.stringify({
+            lastFileName: file.name
+        }));
         quickOutput(file.name, 'shared successfully!');
-		setTimeout(function() {
-			if(fileElement) fileElement.value = '';
-		}, 0);
+        setTimeout(function () {
+            if (fileElement) fileElement.value = '';
+        }, 0);
         return hangoutUI.send(file);
     }
 
@@ -158,7 +160,10 @@ fileElement.onchange = function() {
     return disable(true);
 };
 
-var packetSize = 1000, textToTransfer = '', packets = 0;
+var packetSize = 1000,
+    textToTransfer = '',
+    packets = 0;
+
 function onReadAsDataURL(evt, text) {
     var data = {};
 
@@ -174,23 +179,22 @@ function onReadAsDataURL(evt, text) {
     } else {
         data.message = text;
         data.last = true;
-		data.name = file.name;
+        data.name = file.name;
 
         quickOutput(file.name, 'shared successfully!');
 
         disable(false);
-		setTimeout(function() {
-			if(fileElement) fileElement.value = '';
-		}, 0);
+        setTimeout(function () {
+            if (fileElement) fileElement.value = '';
+        }, 0);
     }
-	hangoutUI.send(JSON.stringify(data));
-	
-	textToTransfer = text.slice(data.message.length);
+    hangoutUI.send(JSON.stringify(data));
 
-	if (textToTransfer.length)
-	    setTimeout(function() {
-	        onReadAsDataURL(null, textToTransfer);
-	    }, 500);
+    textToTransfer = text.slice(data.message.length);
+
+    if (textToTransfer.length) setTimeout(function () {
+        onReadAsDataURL(null, textToTransfer);
+    }, 500);
 }
 
 function saveToDisk(fileUrl, fileName) {
@@ -209,37 +213,38 @@ function saveToDisk(fileUrl, fileName) {
 
 // UI
 var outputPanel = document.getElementById('output-panel');
+
 function quickOutput(message, message2) {
-    if (!outputPanel) return;	
-	if(message2) message = '<strong>' + message + '</strong> ' + message2;
-	
-	var tr = document.createElement('tr');
-	tr.innerHTML = '<td style="width:80%;">' + message + '</td>';
-	outputPanel.insertBefore(tr, outputPanel.childNodes[0]);
+    if (!outputPanel) return;
+    if (message2) message = '<strong>' + message + '</strong> ' + message2;
+
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td style="width:80%;">' + message + '</td>';
+    outputPanel.insertBefore(tr, outputPanel.childNodes[0]);
 }
 
 var statusDiv = document.getElementById('status');
-function updateStatus() {	
-	packets--;
-	if(statusDiv) statusDiv.innerHTML = packets + ' items remaining.';
-	if(packets <= 0) statusDiv.innerHTML = '';
+
+function updateStatus() {
+    packets--;
+    if (statusDiv) statusDiv.innerHTML = packets + ' items remaining.';
+    if (packets <= 0) statusDiv.innerHTML = '';
 }
 
-(function() {
+(function () {
     var uniqueToken = document.getElementById('unique-token');
     if (uniqueToken) {
-        if(location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
-        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() {
-            return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) {
+        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
+            return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
                 return (a ^ Math.random() * 16 >> a / 4).toString(16);
             });
         })();
     }
 })();
 
-function disable(_disable)
-{
-	if(!fileElement) return;
-	if(!_disable) fileElement.removeAttribute('disabled');
-	else fileElement.setAttribute('disabled', true);
+function disable(_disable) {
+    if (!fileElement) return;
+    if (!_disable) fileElement.removeAttribute('disabled');
+    else fileElement.setAttribute('disabled', true);
 }

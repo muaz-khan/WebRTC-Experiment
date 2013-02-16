@@ -1,8 +1,8 @@
 ﻿var config = {
     openSocket: function (config) {
         var socket = io.connect('https://pubsub.pubnub.com/broadcast', {
-            publish_key: 'demo',
-            subscribe_key: 'demo',
+            publish_key: 'pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd',
+            subscribe_key: 'sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90',
             channel: config.channel || 'video-broadcast',
             ssl: true
         });
@@ -28,8 +28,7 @@
         var tr = document.createElement('tr');
         tr.setAttribute('id', room.broadcaster);
 
-        if (room.isAudio)
-            tr.setAttribute('accesskey', room.isAudio);
+        if (room.isAudio) tr.setAttribute('accesskey', room.isAudio);
 
         tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
             '<td><button class="join" id="' + room.roomToken + '">Join</button></td>';

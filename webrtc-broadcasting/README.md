@@ -20,7 +20,7 @@ This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxc
 
 In simple words, multi-peers and sockets are opened to make it work!
 
-You can share audio/video or screen and anyone can join you regardless of whether he has webcam/microphone or not. It is a real braodcast!
+You can share audio/video or screen and anyone can join you regardless of whether he has webcam/microphone or not. It is a real broadcast!
 
 Just copy following HTML code to enjoy webrtc broadcasting in your own site!
 

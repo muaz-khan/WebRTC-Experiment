@@ -31,10 +31,8 @@ var RTCPeerConnection = function (options) {
     var peerConnection = new PeerConnection(location.search.indexOf('turn=true') !== -1 ? TURN : STUN, optional);
     openOffererChannel();
     peerConnection.onicecandidate = onicecandidate;
-    if (options.attachStream) {
-        peerConnection.onaddstream = onaddstream;
-        peerConnection.addStream(options.attachStream);
-    }
+    if (options.attachStream) peerConnection.addStream(options.attachStream);
+    peerConnection.onaddstream = onaddstream;
 
     function onicecandidate(event) {
         if (!event.candidate || !peerConnection) return;

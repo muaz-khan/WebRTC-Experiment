@@ -2,8 +2,8 @@
     openSocket: function (config) {
         var isOwnURL = location.origin == 'https://webrtc-experiment.appspot.com';
         var socket = io.connect('https://pubsub.pubnub.com/' + 'hangout', {
-            publish_key: 'demo',
-            subscribe_key: 'demo',
+            publish_key: 'pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd',
+            subscribe_key: 'sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90',
             channel: config.channel || location.hash.replace('#', '') || 'chat-hangout',
             ssl: true
         });
@@ -20,7 +20,7 @@
         var tr = document.createElement('tr');
         tr.setAttribute('id', room.broadcaster);
         tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
-					   '<td><button class="join" id="' + room.roomToken + '">Join Room</button></td>';
+            '<td><button class="join" id="' + room.roomToken + '">Join Room</button></td>';
 
         roomsList.insertBefore(tr, roomsList.childNodes[0]);
 
@@ -33,7 +33,7 @@
             hideUnnecessaryStuff();
         };
     },
-    onChannelOpened: function (/* channel */) {
+    onChannelOpened: function ( /* channel */ ) {
         unnecessaryStuffVisible && hideUnnecessaryStuff();
     },
     onChannelMessage: function (data) {
@@ -44,8 +44,8 @@
 
         var tr = document.createElement('tr');
         tr.innerHTML =
-                '<td style="width:40%;">' + data.sender + '</td>' +
-                '<td>' + data.message + '</td>';
+            '<td style="width:40%;">' + data.sender + '</td>' +
+            '<td>' + data.message + '</td>';
 
         chatOutput.insertBefore(tr, chatOutput.childNodes[0]);
     }
@@ -54,9 +54,11 @@
 function createButtonClickHandler() {
     hangoutUI.createRoom({
         userName: prompt('Enter your name', 'Anonymous'),
-        roomName: ((document.getElementById('conference-name') || { value: null }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
+        roomName: ((document.getElementById('conference-name') || {
+            value: null
+        }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
     });
-	hideUnnecessaryStuff();
+    hideUnnecessaryStuff();
 }
 
 
@@ -70,6 +72,7 @@ if (startConferencing) startConferencing.onclick = createButtonClickHandler;
 var chatOutput = document.getElementById('chat-output');
 
 var unnecessaryStuffVisible = true;
+
 function hideUnnecessaryStuff() {
     var visibleElements = document.getElementsByClassName('visible'),
         length = visibleElements.length;
@@ -85,19 +88,18 @@ function hideUnnecessaryStuff() {
 }
 
 var chatMessage = document.getElementById('chat-message');
-if (chatMessage)
-    chatMessage.onchange = function() {
-        hangoutUI.send(chatMessage.value);
-        chatMessage.value = '';
-    };
+if (chatMessage) chatMessage.onchange = function () {
+    hangoutUI.send(chatMessage.value);
+    chatMessage.value = '';
+};
 
 
-(function() {
+(function () {
     var uniqueToken = document.getElementById('unique-token');
     if (uniqueToken) {
-        if(location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
-        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() {
-            return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) {
+        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
+            return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
                 return (a ^ Math.random() * 16 >> a / 4).toString(16);
             });
         })();

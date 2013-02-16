@@ -1,8 +1,8 @@
 ﻿var config = {
     openSocket: function (config) {
         var socket = io.connect('https://pubsub.pubnub.com/hangout', {
-            publish_key: 'demo',
-            subscribe_key: 'demo',
+            publish_key: 'pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd',
+            subscribe_key: 'sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90',
             channel: config.channel || location.hash.replace('#', '') || 'video-conferencing',
             ssl: true
         });
@@ -45,10 +45,12 @@
 function createButtonClickHandler() {
     captureUserMedia(function () {
         conferenceUI.createRoom({
-            roomName: ((document.getElementById('conference-name') || { value: null }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
+            roomName: ((document.getElementById('conference-name') || {
+                value: null
+            }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
         });
     });
-	hideUnnecessaryStuff();
+    hideUnnecessaryStuff();
 }
 
 function captureUserMedia(callback) {
@@ -56,7 +58,7 @@ function captureUserMedia(callback) {
     video.setAttribute('autoplay', true);
     video.setAttribute('controls', true);
     participants.insertBefore(video, participants.childNodes[0]);
-	
+
     getUserMedia({
         video: video,
         onsuccess: function (stream) {
@@ -64,7 +66,7 @@ function captureUserMedia(callback) {
             callback && callback();
 
             video.setAttribute('muted', true);
-			rotateVideo(video);
+            rotateVideo(video);
         },
         onerror: function (error) {
             alert(error);
@@ -81,27 +83,27 @@ var startConferencing = document.getElementById('start-conferencing');
 
 if (startConferencing) startConferencing.onclick = createButtonClickHandler;
 
-function hideUnnecessaryStuff()
-{
-	var visibleElements = document.getElementsByClassName('visible'),
-		length = visibleElements.length;
-	for(var i = 0; i< length; i++)
-	{
-		visibleElements[i].style.display = 'none';
-	}
+function hideUnnecessaryStuff() {
+    var visibleElements = document.getElementsByClassName('visible'),
+        length = visibleElements.length;
+    for (var i = 0; i < length; i++) {
+        visibleElements[i].style.display = 'none';
+    }
 }
 
-function rotateVideo(video)
-{
-	video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
-	setTimeout(function() {
-		video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
-	}, 1000);
+function rotateVideo(video) {
+    video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
+    setTimeout(function () {
+        video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
+    }, 1000);
 }
 
-(function() {
+(function () {
     var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken)
-        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
-        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() { return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) { return (a ^ Math.random() * 16 >> a / 4).toString(16); }); })();
+    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
+        return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+            return (a ^ Math.random() * 16 >> a / 4).toString(16);
+        });
+    })();
 })();
