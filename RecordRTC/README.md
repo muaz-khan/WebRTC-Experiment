@@ -24,8 +24,8 @@ audio.src = recorder.getBlob();
    You MUST put this file in the same directory where you put HTML; 
    otherwise set location of this worker file like this:
 */
-window.AudioRecorder = ‘/audio-recorder.js’;
-window.AudioRecorder = ‘/js/audio-recorder.js’;
+window.AudioRecorder = '/audio-recorder.js';
+window.AudioRecorder = '/js/audio-recorder.js';
 ```
 
 ## How to record video?
