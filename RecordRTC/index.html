@@ -1,0 +1,107 @@
+﻿<html>    
+    <head>
+        <title>RecordRTC: WebRTC audio/video recording ® Muaz Khan</title>
+    </head>    
+    <body>        
+		<h2>
+			RecordRTC: WebRTC audio/video recording
+		</h2>
+        <script src="RecordRTC.js"></script>
+        <video id="client-video" autoplay loop></video>
+        <script>
+            var video = document.getElementById('client-video'),
+                constraints = {
+                    audio: true,
+                    video: {
+                        mandatory: {},
+                        optional: []
+                    }
+                };
+            navigator.webkitGetUserMedia(constraints, function (stream) {
+                video.src = webkitURL.createObjectURL(stream);
+                recorder = RecordRTC({
+                    stream: stream,
+                    video: video
+                })
+            });
+        </script>
+        <br />
+        <button id="record-audio">Record Audio</button>
+        <button id="record-video">Record Video</button>
+        <br />
+        <button id="stop-recording-audio" disabled>Stop Recording Audio</button>
+        <button id="stop-recording-video" disabled>Stop Recording Video</button>
+        <script>
+            function getByID(id) {
+                return document.getElementById(id);
+            }
+
+            var recordAudio = getByID('record-audio'),
+                recordVideo = getByID('record-video'),
+                stopRecordingAudio = getByID('stop-recording-audio'),
+                stopRecordingVideo = getByID('stop-recording-video');
+
+            var recorder;
+
+            recordAudio.onclick = function () {
+                recorder.recordAudio();
+
+                this.disabled = true;
+                stopRecordingAudio.disabled = false;
+                recordVideo.disabled = true;
+                disableSaveGetBlob();
+            };
+
+            recordVideo.onclick = function () {
+                recorder.recordVideo();
+
+                this.disabled = true;
+                stopRecordingVideo.disabled = false;
+                recordAudio.disabled = true;
+                disableSaveGetBlob();
+            };
+
+            stopRecordingAudio.onclick = function () {
+                recorder.stopAudio();
+                this.disabled = true;
+                recordAudio.disabled = false;
+                recordVideo.disabled = false;
+                enableSaveGetBlob();
+            };
+
+            stopRecordingVideo.onclick = function () {
+                recorder.stopVideo();
+                this.disabled = true;
+                recordVideo.disabled = false;
+                recordAudio.disabled = false;
+                enableSaveGetBlob();
+            };
+        </script>
+        <textarea id="blob-output" style="width:100%;height:8em;" disabled></textarea>
+        <button id="get-blob" disabled>Get Blob</button>
+        <button id="save-to-disk" disabled>Save to Disk</button>
+        <script>
+            var getBlob = getByID('get-blob'),
+                blobOutput = getByID('blob-output'),
+                saveToDisk = getByID('save-to-disk');
+
+            getBlob.onclick = function () {
+                blobOutput.value = recorder.getBlob();
+            }
+
+            saveToDisk.onclick = function () {
+                recorder.save();
+            };
+
+            function disableSaveGetBlob() {
+                getBlob.disabled = true;
+                saveToDisk.disabled = true;
+            }
+
+            function enableSaveGetBlob() {
+                getBlob.disabled = false;
+                saveToDisk.disabled = false;
+            }
+        </script>
+    </body>
+</html>

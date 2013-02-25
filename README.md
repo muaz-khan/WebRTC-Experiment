@@ -97,6 +97,8 @@ var config = {
 };
 ```
 
+[RecordRTC: WebRTC audio/video recording](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
+
 ====
 ## License & Credits
 
