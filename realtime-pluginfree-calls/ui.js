@@ -1,92 +1,155 @@
-﻿global.mediaAccessAlertMessage = 'This app wants to use your microphone.';
-global.userToken = uniqueToken();
+﻿var config = {
+    openSocket: function (config) {
+        if (!window.Firebase) return;
+        var channel = config.channel || location.hash.replace('#', '') || 'audio-only-calls';
+        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+        socket.channel = channel;
+        socket.on("child_added", function (data) {
+            config.onmessage && config.onmessage(data.val());
+        });
+        socket.send = function (data) {
+            this.push(data);
+        }
+        config.onopen && setTimeout(config.onopen, 1);
+        socket.onDisconnect().remove();
+        return socket;
+    },
+    onRemoteStream: function (media) {
+        var audio = media.audio;
+        audio.setAttribute('controls', true);
 
-/* getting current user's geo-data */
-var script = document.createElement('script');
-script.src = 'https://smart-ip.net/geoip-json?callback=getInfo2';
-document.body.appendChild(script);
-function getInfo2(data) {
-    global.country = data.countryName;
-    global.city = data.city;
-}
+        participants.insertBefore(audio, participants.childNodes[0]);
 
-document.getElementById('call').onclick = function () {
-	if(global.isGotRemoteStream) return;
-	
-    global.isGetAvailableRoom = false;
-    global.roomToken = uniqueToken();
-    global.offerer = true;
-    captureCamera(function() {
-		spreadRoom();
-		document.getElementById('call').innerHTML = 'Calling...';
-	});
+        audio.play();
+        rotateAudio(audio);
+
+        if (saveRecordedStreams) saveRecordedStreams.style.display = '';
+
+        /* recording remote stream */
+        if (typeof remoteStreamRecorder === 'undefined') window.remoteStreamRecorder = null;
+        remoteStreamRecorder = RecordRTC({
+            stream: media.stream,
+            audioWorkerPath: audioWorkerPath
+        });
+        remoteStreamRecorder.recordAudio();
+
+        if (saveRemoteStream) saveRemoteStream.style.display = '';
+    },
+    onRoomFound: function (room) {
+        var alreadyExist = document.getElementById(room.broadcaster);
+        if (alreadyExist) return;
+
+        if (typeof roomsList === 'undefined') roomsList = document.body;
+
+        var tr = document.createElement('tr');
+        tr.setAttribute('id', room.broadcaster);
+        tr.innerHTML = '<td style="width:80%;">' + room.roomName + ' is calling you!</td>' +
+            '<td><button class="join" id="' + room.roomToken + '">Receive Call</button></td>';
+        roomsList.insertBefore(tr, roomsList.childNodes[0]);
+
+        tr.onclick = function () {
+            var tr = this;
+            captureUserMedia(function () {
+                broadcastUI.joinRoom({
+                    roomToken: tr.querySelector('.join').id,
+                    joinUser: tr.id
+                });
+            });
+            hideUnnecessaryStuff();
+        };
+    }
 };
 
-function spreadRoom() {
-    var g = global;
-    socket.send({
-        roomToken: g.roomToken,
-        ownerToken: g.userToken,
-        country: g.country,
-        city: g.city
-    });
-    !global.participant && setTimeout(spreadRoom, 3000);
-}
-
-function refreshUI() {
-    global.rtc = null;
-    global.isGetAvailableRoom = true;
-    global.isGotRemoteStream = false;
-
-    document.getElementById('call').innerHTML = 'Make a test Call!';
-}
-global.isGetAvailableRoom = true;
-
-var callers = document.getElementById('callers');
-function getAvailableRooms(response) {
-    if (!global.isGetAvailableRoom || !response.ownerToken) return;
-
-    var alreadyExist = document.getElementById(response.ownerToken);
-    if (alreadyExist) return;
-
-    /* showing the room for current user */
-    var li = document.createElement('li');
-    
-    li.setAttribute('id', response.ownerToken);
-    li.setAttribute('accesskey', response.roomToken);
-    
-    li.innerHTML = '<a href="#">A person calling you from <span style="color:red">' + response.country + ', ' + response.city + '</span></a>';
-    callers.insertBefore(li, callers.childNodes[0]);
-
-    document.getElementById(response.ownerToken).onclick = function () {
-		if(global.isGotRemoteStream) return;
-		
-        this.innerHTML = 'Joining..';
-        global.ownerToken = response.ownerToken;
-
-        global.isGetAvailableRoom = false;
-        global.roomToken = this.id;
-
-        var forUser = this.id;
-        var roomToken = this.getAttribute('accesskey');
-
-        captureCamera(function () {
-            socket.send({
-                participant: global.userToken,
-                userToken: global.userToken,
-                forUser: forUser,
-                isopus: isopus
-            });
-            initSocket(roomToken, function() {});
+function createButtonClickHandler() {
+    captureUserMedia(function () {
+        broadcastUI.createRoom({
+            roomName: (document.getElementById('your-name') || {}).value || 'Anonymous'
         });
-    };
+    });
+    hideUnnecessaryStuff();
 }
 
-function onexit() {
-    socket.send({
-        end: true,
-        userToken: global.userToken
+function captureUserMedia(callback) {
+    var audio = document.createElement('audio');
+    audio.setAttribute('autoplay', true);
+    audio.setAttribute('controls', true);
+    participants.insertBefore(audio, participants.childNodes[0]);
+
+    getUserMedia({
+        video: audio,
+        constraints: {
+            audio: true,
+            video: false
+        },
+        onsuccess: function (stream) {
+            config.attachStream = stream;
+
+            audio.setAttribute('muted', true);
+            rotateAudio(audio);
+
+            // recording local stream
+            if (typeof localStreamRecorder === 'undefined') window.localStreamRecorder = null;
+            localStreamRecorder = RecordRTC({
+                stream: stream,
+                audioWorkerPath: audioWorkerPath
+            });
+            localStreamRecorder.recordAudio();
+            if (saveLocalStream) saveLocalStream.style.display = '';
+
+            callback && callback();
+        },
+        onerror: function () {
+            alert('unable to get access to your headphone (microphone).');
+        }
     });
 }
-window.onbeforeunload = onexit;
-window.onunload = onexit;
+
+/* on page load: get public rooms */
+var broadcastUI = broadcast(config);
+
+/* UI specific */
+var participants = document.getElementById("participants") || document.body;
+var startConferencing = document.getElementById('start-audio-only-call');
+var roomsList = document.getElementById('rooms-list');
+var saveRecordedStreams = document.getElementById('save-recorded-streams');
+
+if (startConferencing) startConferencing.onclick = createButtonClickHandler;
+
+function hideUnnecessaryStuff() {
+    var visibleElements = document.getElementsByClassName('visible'),
+        length = visibleElements.length;
+    for (var i = 0; i < length; i++) {
+        visibleElements[i].style.display = 'none';
+    }
+}
+
+function rotateAudio(audio) {
+    audio.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
+    setTimeout(function () {
+        audio.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
+    }, 1000);
+}
+
+/* saving recorded local/remove audio streams */
+var saveRemoteStream = document.getElementById('save-remote-stream'),
+    saveLocalStream = document.getElementById('save-local-stream');
+
+if (saveRemoteStream) saveRemoteStream.onclick = function () {
+    if (remoteStreamRecorder) {
+        remoteStreamRecorder.stopAudio();
+        setTimeout(remoteStreamRecorder.save, 1000);
+    }
+    this.parentNode.removeChild(this);
+};
+
+if (saveLocalStream) saveLocalStream.onclick = function () {
+    if (localStreamRecorder) {
+        localStreamRecorder.stopAudio();
+        setTimeout(localStreamRecorder.save, 1000);
+    }
+    this.parentNode.removeChild(this);
+};
+
+/* setting worker file URL */
+var remoteStreamRecorder, localStreamRecorder;
+var audioWorkerPath = 'audio-recorder.js';

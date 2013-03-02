@@ -30,27 +30,6 @@ audio.addEventListener('play', function () {
 audio.play();
 ```
 
-## How to use plugin-free calls in your own site?
-
-Add an image or button and set its id to "call" ( User will click this button to call you ) :
-
-
-```html
-<button id="call">Make a test call!</button>
-```
-
-To see list of callers; add an OL or UL element and set its id to "callers":
-
-```html
-<ol id="callers"></ol>
-```
-
-And last task: the script you need to link:
-
-```html
-<script src="http://bit.ly/plugin-free-calls"> </script>
-```
-
 ====
 ## License & Credits
 

@@ -5,7 +5,13 @@
 
 ```javascript
 var recorder = RecordRTC({
-	stream: stream
+	stream: stream,
+	
+	/* For audio, there is a worker javascript file: audio-recorder.js
+	   You MUST put this file in the same directory where you put HTML; 
+	   otherwise set location of this worker file like this:
+	*/
+	audioWorkerPath: '/audio-recorder.js'
 });
 
 /* start recording audio */
@@ -19,13 +25,6 @@ recorder.save();
 
 /* get blob URL to play audio directly in the browser */    
 audio.src = recorder.getBlob();
-
-/* For audio, there is a worker javascript file: audio-recorder.js
-   You MUST put this file in the same directory where you put HTML; 
-   otherwise set location of this worker file like this:
-*/
-window.AudioRecorder = '/audio-recorder.js';
-window.AudioRecorder = '/js/audio-recorder.js';
 ```
 
 ## How to record video?

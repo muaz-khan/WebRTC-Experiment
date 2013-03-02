@@ -1,19 +1,24 @@
 ﻿var config = {
     openSocket: function (config) {
-        var socket = io.connect('https://pubsub.pubnub.com/screen-sharing', {
-            publish_key: 'pub-c-13600cad-f013-4f0f-b5ac-fdd903281285',
-            subscribe_key: 'sub-c-d700e872-69cf-11e2-a9fa-12313f022c90',
-            channel: config.channel || location.hash.replace('#', '') || 'pluginfree-screen-sharing',
-            ssl: true
+        var channel = config.channel || location.hash.replace('#', '') || 'pluginfree-screen-sharing';
+        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+        socket.channel = channel;
+        socket.on('child_added', function (data) {
+            config.onmessage && config.onmessage(data.val());
         });
-        config.onopen && socket.on('connect', config.onopen);
-        socket.on('message', config.onmessage);
+        socket.send = function (data) {
+            this.push(data);
+        }
+        config.onopen && setTimeout(config.onopen, 1);
+        socket.onDisconnect().remove();
         return socket;
     },
     onRemoteStream: function (media) {
         var video = media.video;
         video.setAttribute('controls', true);
-		video.onclick = function () { requestFullScreen(this); };
+        video.onclick = function () {
+            requestFullScreen(this);
+        };
 
         participants.insertBefore(video, participants.childNodes[0]);
 
@@ -24,21 +29,20 @@
         var alreadyExist = document.getElementById(room.broadcaster);
         if (alreadyExist) return;
 
-        if(typeof roomsList === 'undefined') roomsList = document.body;
+        if (typeof roomsList === 'undefined') roomsList = document.body;
 
         var tr = document.createElement('tr');
         tr.setAttribute('id', room.broadcaster);
         tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
-					   '<td><button class="join" id="' + room.roomToken + '">Open Screen</button></td>';
+            '<td><button class="join" id="' + room.roomToken + '">Open Screen</button></td>';
         roomsList.insertBefore(tr, roomsList.childNodes[0]);
 
         tr.onclick = function () {
-			var tr = this;
-            captureUserMedia(function () {
-                conferenceUI.joinRoom({
-                    roomToken: tr.querySelector('.join').id,
-                    joinUser: tr.id
-                });
+            var tr = this;
+            config.attachStream = null;
+            conferenceUI.joinRoom({
+                roomToken: tr.querySelector('.join').id,
+                joinUser: tr.id
             });
             hideUnnecessaryStuff();
         };
@@ -48,10 +52,12 @@
 function createButtonClickHandler() {
     captureUserMedia(function () {
         conferenceUI.createRoom({
-            roomName: ((document.getElementById('conference-name') || { value: null }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
+            roomName: ((document.getElementById('conference-name') || {
+                value: null
+            }).value || 'Anonymous') + ' shared screen with you'
         });
     });
-	hideUnnecessaryStuff();
+    hideUnnecessaryStuff();
 }
 
 function captureUserMedia(callback) {
@@ -59,20 +65,33 @@ function captureUserMedia(callback) {
     video.setAttribute('autoplay', true);
     video.setAttribute('controls', true);
     participants.insertBefore(video, participants.childNodes[0]);
-	
-	video.onclick = function () { requestFullScreen(this); };
-	
+
+    video.onclick = function () {
+        requestFullScreen(this);
+    };
+
+    var screen_constraints = {
+        mandatory: {
+            chromeMediaSource: 'screen'
+        },
+        optional: []
+    };
+    var constraints = {
+        audio: false,
+        video: screen_constraints
+    };
     getUserMedia({
         video: video,
+        constraints: constraints,
         onsuccess: function (stream) {
             config.attachStream = stream;
             callback && callback();
 
             video.setAttribute('muted', true);
-			rotateVideo(video);
+            rotateVideo(video);
         },
         onerror: function () {
-            alert('unable to get access to your webcam');
+            alert('Please Enable screen capture support in getUserMedia() in latest chrome canary using chrome://flags');
         }
     });
 }
@@ -87,29 +106,29 @@ var roomsList = document.getElementById('rooms-list');
 
 if (startConferencing) startConferencing.onclick = createButtonClickHandler;
 
-function hideUnnecessaryStuff()
-{
-	var visibleElements = document.getElementsByClassName('visible'),
-		length = visibleElements.length;
-	for(var i = 0; i< length; i++)
-	{
-		visibleElements[i].style.display = 'none';
-	}
+function hideUnnecessaryStuff() {
+    var visibleElements = document.getElementsByClassName('visible'),
+        length = visibleElements.length;
+    for (var i = 0; i < length; i++) {
+        visibleElements[i].style.display = 'none';
+    }
 }
 
-function rotateVideo(video)
-{
-	video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
-	setTimeout(function() {
-		video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
-	}, 1000);
+function rotateVideo(video) {
+    video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
+    setTimeout(function () {
+        video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
+    }, 1000);
 }
 
-(function() {
+(function () {
     var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken)
-        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
-        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() { return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) { return (a ^ Math.random() * 16 >> a / 4).toString(16); }); })();
+    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
+        return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+            return (a ^ Math.random() * 16 >> a / 4).toString(16);
+        });
+    })();
 })();
 
 function requestFullScreen(elem) {

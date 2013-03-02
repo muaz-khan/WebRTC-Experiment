@@ -74,6 +74,14 @@
                 peerConfig.offerSDP = offerSDP;
                 peerConfig.onAnswerSDP = sendsdp;
             }
+			/* OfferToReceiveVideo MUST be false for audio-only streaming */
+			peerConfig.constraints = {
+				optional: [],
+				mandatory: {
+					OfferToReceiveAudio: true,
+					OfferToReceiveVideo: false
+				}
+			};
 
             peer = RTCPeerConnection(peerConfig);
         }

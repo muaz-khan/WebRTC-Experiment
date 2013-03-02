@@ -1,4 +1,4 @@
-﻿var conference = function (config) {
+﻿var broadcast = function (config) {
     var self = {
         userToken: uniqueToken()
     },
@@ -18,8 +18,6 @@
 
         if (isGetNewRoom && response.roomToken && response.broadcaster) config.onRoomFound(response);
 
-        if (response.newParticipant) onNewParticipant(response.newParticipant);
-
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
             openSubSocket({
@@ -29,10 +27,6 @@
             });
         }
     }
-
-    /*********************/
-    /* CLOSURES / PRIVATE stuff */
-    /*********************/
 
     function openSubSocket(_config) {
         if (!_config.channel) return;
@@ -47,7 +41,7 @@
         var socket = config.openSocket(socketConfig),
             isofferer = _config.isofferer,
             gotstream,
-            htmlElement = document.createElement('video'),
+            audio = document.createElement('audio'),
             inner = {},
             peer;
 
@@ -65,8 +59,8 @@
             onRemoteStream: function (stream) {
                 if (!stream) return;
 
-                htmlElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
-                htmlElement.play();
+                audio[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
+                audio.play();
 
                 _config.stream = stream;
                 onRemoteStreamStartsFlowing();
@@ -80,88 +74,46 @@
                 peerConfig.offerSDP = offerSDP;
                 peerConfig.onAnswerSDP = sendsdp;
             }
+            /* OfferToReceiveVideo MUST be false for audio-only streaming */
+            peerConfig.constraints = {
+                optional: [],
+                mandatory: {
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: false
+                }
+            };
 
             peer = RTCPeerConnection(peerConfig);
         }
 
         function onRemoteStreamStartsFlowing() {
-            if (!(htmlElement.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || htmlElement.paused || htmlElement.currentTime <= 0)) {
-                afterRemoteStreamStartedFlowing();
-            } else setTimeout(onRemoteStreamStartsFlowing, 50);
-        }
+            audio.addEventListener('play', function () {
+                this.muted = false;
+                this.volume = 1;
 
-        function afterRemoteStreamStartedFlowing() {
-            gotstream = true;
+                gotstream = true;
+                self.stopBroadcasting = true;
 
-            config.onRemoteStream({
-                video: htmlElement
-            });
-
-            if (isbroadcaster && channels.split('--').length > 3) {
-                /* broadcasting newly connected participant for video-conferencing! */
-                publicSocket.send({
-                    newParticipant: socket.channel,
-                    userToken: self.userToken
+                config.onRemoteStream({
+                    audio: audio,
+                    stream: _config.stream
                 });
-            }
-
-            /* closing subsocket here on the offerer side */
-            if (_config.closeSocket) socket = null;
+                if (publicSocket) publicSocket = null;
+            }, false);
         }
-
-        /*********************/
-        /* SendSDP (offer/answer) */
-        /*********************/
 
         function sendsdp(sdp) {
-            sdp = JSON.stringify(sdp);
-            var part = parseInt(sdp.length / 3);
-
-            var firstPart = sdp.slice(0, part),
-                secondPart = sdp.slice(part, sdp.length - 1),
-                thirdPart = '';
-
-            if (sdp.length > part + part) {
-                secondPart = sdp.slice(part, part + part);
-                thirdPart = sdp.slice(part + part, sdp.length);
-            }
-
             socket.send({
                 userToken: self.userToken,
-                firstPart: firstPart
-            });
-
-            socket.send({
-                userToken: self.userToken,
-                secondPart: secondPart
-            });
-
-            socket.send({
-                userToken: self.userToken,
-                thirdPart: thirdPart
+                sdp: JSON.stringify(sdp)
             });
         }
-
-        /*********************/
-        /* socket response */
-        /*********************/
 
         function socketResponse(response) {
             if (response.userToken == self.userToken) return;
-            if (response.firstPart || response.secondPart || response.thirdPart) {
-                if (response.firstPart) {
-                    inner.firstPart = response.firstPart;
-                    if (inner.secondPart && inner.thirdPart) selfInvoker();
-                }
-                if (response.secondPart) {
-                    inner.secondPart = response.secondPart;
-                    if (inner.firstPart && inner.thirdPart) selfInvoker();
-                }
-
-                if (response.thirdPart) {
-                    inner.thirdPart = response.thirdPart;
-                    if (inner.firstPart && inner.secondPart) selfInvoker();
-                }
+            if (response.sdp) {
+                inner.sdp = response.sdp;
+                selfInvoker();
             }
 
             if (response.candidate && !gotstream) {
@@ -172,9 +124,6 @@
             }
         }
 
-        /*********************/
-        /* socket response */
-        /*********************/
         var invokedOnce = false;
 
         function selfInvoker() {
@@ -182,42 +131,20 @@
 
             invokedOnce = true;
 
-            inner.sdp = JSON.parse(inner.firstPart + inner.secondPart + inner.thirdPart);
+            inner.sdp = JSON.parse(inner.sdp);
             if (isofferer) peer.addAnswerSDP(inner.sdp);
             else initPeer(inner.sdp);
         }
     }
 
     function startBroadcasting() {
-        publicSocket.send({
+        publicSocket && publicSocket.send({
             roomToken: self.roomToken,
             roomName: self.roomName,
             broadcaster: self.userToken
         });
-        setTimeout(startBroadcasting, 3000);
+        !self.stopBroadcasting && setTimeout(startBroadcasting, 3000);
     }
-
-    function onNewParticipant(channel) {
-        if (!channel || channels.indexOf(channel) != -1 || channel == self.userToken) return;
-        channels += channel + '--';
-
-        var new_channel = uniqueToken();
-        openSubSocket({
-            channel: new_channel,
-            closeSocket: true
-        });
-
-        publicSocket.send({
-            participant: true,
-            userToken: self.userToken,
-            joinUser: channel,
-            channel: new_channel
-        });
-    }
-
-    /*********************/
-    /* HELPERS */
-    /*********************/
 
     function uniqueToken() {
         var s4 = function () {

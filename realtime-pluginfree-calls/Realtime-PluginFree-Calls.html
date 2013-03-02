@@ -1,50 +1,28 @@
-﻿<style>
-    .hidden {
-        position:absolute;
-        top:-100em;
-    }
-    .recorder {
-        float: right;
-        margin-right: 3em;
-        margin-top: 1.5em;
-        -webkit-user-select: none;
-        border: 1px dotted gray;
-        padding: 0 .8em;
-    }
-</style>
-<table>
-    <tr>
-        <td>
-            <div id="participants" style="width: 18em;"></div>
+﻿<table>
+    <tr class="visible">
+        <td style="text-align: right;">
+            <input type="text" id="your-name" placeholder="Your Name">
         </td>
         <td>
-            <audio id="client-audio" class="hidden" autoplay controls></audio>
-            <div class="visible">
-                <blockquote class="slogan">
-                    <div class="recorder">
-                        <input type="checkbox" id="record-audio" />
-                        <label for="record-audio" title="Do you want to record audio?">Record Remote Stream?</label>
-                    </div>
-                    <br />
-                    <a href="#" id="call">Make a test call!</a>
-                    <ol style="margin-left: 3em;" id="callers"></ol>
-                </blockquote>
-                <ul id="recordings"></ul>
-            </div>
+            <button id="start-audio-only-call">Start Audio-only call</button>
+        </td>
+    </tr>
+    <tr id="save-recorded-streams" style="display:none;">
+        <td style="text-align: right;">
+            	<h2>Save Recorded Streams:</h2>
+        </td>
+        <td>
+            <button id="save-remote-stream" style="text-align: right;">Remote</button>
+            <button id="save-local-stream" style="text-align: right;">Local</button>
         </td>
     </tr>
 </table>
-<audio id="audio" class="hidden" autoplay></audio>
-<script src="https://bit.ly/socket-io"></script>
-<script src="https://bit.ly/RTCPeerConnection-v1-3"></script>
-<script>
-    var socket_config = {
-        publish_key: 'pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd',
-        subscribe_key: 'sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90',
-        ssl: true
-    };
-</script>
-<script src="https://bit.ly/webrtc-recorder"></script>
-<script src="helper.js"></script>
+
+<table id="rooms-list" class="visible"></table>
+<div id="participants"></div>
+
+<script src='https://cdn.firebase.com/v0/firebase.js'></script>
+<script src="https://bit.ly/RTCPeerConnection-v1-4"></script>
+<script src="RecordRTC.js"></script>
+<script src="RTCLib.js"></script>
 <script src="ui.js"></script>
-<script src="socket.js"></script>

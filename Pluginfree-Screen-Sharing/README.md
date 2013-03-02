@@ -2,7 +2,7 @@
 
 ## Enable screen capture support in getUserMedia()
 
-Open "chrome://flags" in the latest chrome canary. 
+Open "chrome://flags" in the latest chrome (canary/beta). 
 
 Scroll to the bottom of the page. 
 

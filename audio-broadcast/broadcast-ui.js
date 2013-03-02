@@ -1,10 +1,9 @@
 ﻿var config = {
     openSocket: function (config) {
-        var socket = io.connect('https://pubsub.pubnub.com/broadcast', {
+        var socket = io.connect('http://pubsub.pubnub.com/WebRTC-Experiment', {
             publish_key: 'pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd',
             subscribe_key: 'sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90',
-            channel: config.channel || 'audio-broadcast',
-            ssl: true
+            channel: config.channel || 'Audio-Broadcasting'
         });
         config.onopen && socket.on('connect', config.onopen);
         socket.on('message', config.onmessage);
@@ -104,3 +103,13 @@ function rotateAudio(audio) {
         audio.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
     }, 1000);
 }
+
+(function () {
+    var uniqueToken = document.getElementById('unique-token');
+    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
+        return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+            return (a ^ Math.random() * 16 >> a / 4).toString(16);
+        });
+    })();
+})();

@@ -25,62 +25,79 @@ var RTCPeerConnection = function (options) {
         optional.optional = [{
             DtlsSrtpKeyAgreement: true
         }];
-        if (options.onChannelMessage) optional.optional[0].RtpDataChannels = true;
+        if (options.onChannelMessage) optional.optional = [{
+            RtpDataChannels: true
+        }];
     }
 
     var peerConnection = new PeerConnection(location.search.indexOf('turn=true') !== -1 ? TURN : STUN, optional);
     openOffererChannel();
     peerConnection.onicecandidate = onicecandidate;
-    if (options.attachStream) peerConnection.addStream(options.attachStream);
+    if (options.attachStream) {
+        info('\n-----------------peerConnection.addStream\n');
+        console.log(options.attachStream);
+        console.log('\n------------------------\n');
+        peerConnection.addStream(options.attachStream);
+    }
     peerConnection.onaddstream = onaddstream;
 
     function onicecandidate(event) {
         if (!event.candidate || !peerConnection) return;
         if (options.onICE) options.onICE(event.candidate);
+        
+        console.log(event.candidate.candidate);
     }
 
     var remoteStreamEventFired = false;
 
     function onaddstream(event) {
+        info('------------onaddstream');
         if (remoteStreamEventFired || !event || !options.onRemoteStream) return;
         remoteStreamEventFired = true;
         options.onRemoteStream(event.stream);
     }
 
-    var constraints = {
+    var constraints = options.constraints || {
         optional: [],
         mandatory: {
             OfferToReceiveAudio: true,
             OfferToReceiveVideo: true
         }
     };
-    if (moz) constraints.mandatory.MozDontOfferDataChannel = true;
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+	
+    var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
         extractedChars = '';
 
     function getChars() {
         extractedChars += chars[parseInt(Math.random() * 40)] || '';
         if (extractedChars.length < 40) getChars();
-        
-		return extractedChars;
+
+        return extractedChars;
     }
 
     function getInteropSDP(sdp) {
-        return moz && sdp.indexOf('a=crypto') == -1 
-			? sdp.replace(/c=IN/g, 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + getChars() + '\r\nc=IN') 
-			: sdp;
+        var inline = getChars() + '\r\n' + (extractedChars = '');
+        sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
+            'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
+            'c=IN') : sdp;
+
+        if (options.offerSDP) {
+            info('\n--------offer sdp provided by offerer\n');
+            info(options.offerSDP.sdp);
+        }
+
+        info(options.onOfferSDP ? '\n--------offer\n' : '\n--------answer\n');
+        info('sdp: ' + sdp);
+
+        return sdp;
     }
 
     function createOffer() {
         if (!options.onOfferSDP) return;
+        if (moz) constraints.mandatory.MozDontOfferDataChannel = true;
         peerConnection.createOffer(function (sessionDescription) {
             sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
-
-            info('createOffer');
-            info(sessionDescription.sdp);
-            info(constraints.mandatory);
-
             options.onOfferSDP(sessionDescription);
         }, null, constraints);
     }
@@ -94,11 +111,6 @@ var RTCPeerConnection = function (options) {
         peerConnection.createAnswer(function (sessionDescription) {
             sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
-
-            info('createAnswer');
-            info(sessionDescription.sdp);
-            info(constraints.mandatory);
-
             options.onAnswerSDP(sessionDescription);
             moz && options.onChannelMessage && setTimeout(function () {
                 peerConnection.connectDataConnection(5001, 5000);
@@ -176,7 +188,7 @@ var RTCPeerConnection = function (options) {
         }
     }
 
-    function useless() {}
+    function useless() { }
 
     function info(information) {
         console.log(information);
@@ -184,7 +196,7 @@ var RTCPeerConnection = function (options) {
 
     return {
         addAnswerSDP: function (sdp) {
-            info('addAnswerSDP');
+            info('adding answer sdp:');
             info(sdp.sdp);
 
             sdp = new SessionDescription(sdp);
@@ -194,7 +206,6 @@ var RTCPeerConnection = function (options) {
         },
         addICE: function (candidate) {
             info(candidate.candidate);
-
             peerConnection.addIceCandidate(new IceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
@@ -230,9 +241,9 @@ function getUserMedia(options) {
     n.getMedia(options.constraints || {
         audio: true,
         video: video_constraints
-    }, streaming, options.onerror || function(e) {
-		console.error(e);
-	});
+    }, streaming, options.onerror || function (e) {
+        console.error(e);
+    });
 
     function streaming(stream) {
         var video = options.video;
