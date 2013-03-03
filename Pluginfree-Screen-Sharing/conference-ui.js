@@ -1,5 +1,6 @@
 ﻿var config = {
     openSocket: function (config) {
+		/* Using Firebase for Signaling; see other signaling methods: http://bit.ly/webrtc-signaling */
         var channel = config.channel || location.hash.replace('#', '') || 'pluginfree-screen-sharing';
         var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
         socket.channel = channel;
@@ -26,26 +27,37 @@
         rotateVideo(video);
     },
     onRoomFound: function (room) {
-        var alreadyExist = document.getElementById(room.broadcaster);
-        if (alreadyExist) return;
+        var hash = location.hash.replace('#', '').length;
+        if (!hash) {
+            var alreadyExist = document.getElementById(room.broadcaster);
+            if (alreadyExist) return;
 
-        if (typeof roomsList === 'undefined') roomsList = document.body;
+            if (typeof roomsList === 'undefined') roomsList = document.body;
 
-        var tr = document.createElement('tr');
-        tr.setAttribute('id', room.broadcaster);
-        tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
-            '<td><button class="join" id="' + room.roomToken + '">Open Screen</button></td>';
-        roomsList.insertBefore(tr, roomsList.childNodes[0]);
+            var tr = document.createElement('tr');
+            tr.setAttribute('id', room.broadcaster);
+            tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
+                '<td><button class="join" id="' + room.roomToken + '">Open Screen</button></td>';
+            roomsList.insertBefore(tr, roomsList.childNodes[0]);
 
-        tr.onclick = function () {
-            var tr = this;
+            tr.onclick = function () {
+                var tr = this;
+                config.attachStream = null;
+                conferenceUI.joinRoom({
+                    roomToken: tr.querySelector('.join').id,
+                    joinUser: tr.id
+                });
+                hideUnnecessaryStuff();
+            };
+        } else {
+            /* auto join privately shared room */
             config.attachStream = null;
             conferenceUI.joinRoom({
-                roomToken: tr.querySelector('.join').id,
-                joinUser: tr.id
+                roomToken: room.roomToken,
+                joinUser: room.broadcaster
             });
             hideUnnecessaryStuff();
-        };
+        }
     }
 };
 
@@ -66,10 +78,11 @@ function captureUserMedia(callback) {
     video.setAttribute('controls', true);
     participants.insertBefore(video, participants.childNodes[0]);
 
-    video.onclick = function () {
+    video.onlick = function () {
         requestFullScreen(this);
     };
 
+	/* constraint to get captured screen */
     var screen_constraints = {
         mandatory: {
             chromeMediaSource: 'screen'
@@ -77,7 +90,7 @@ function captureUserMedia(callback) {
         optional: []
     };
     var constraints = {
-        audio: false,
+        audio: false, /* audio must be false */
         video: screen_constraints
     };
     getUserMedia({
@@ -91,7 +104,7 @@ function captureUserMedia(callback) {
             rotateVideo(video);
         },
         onerror: function () {
-            alert('Please Enable screen capture support in getUserMedia() in latest chrome canary using chrome://flags');
+            alert('Please use HTTPS and Enable screen capture support in getUserMedia() in latest chrome canary using chrome://flags');
         }
     });
 }
@@ -121,16 +134,15 @@ function rotateVideo(video) {
     }, 1000);
 }
 
+/* creating unique hash token for private rooms */
 (function () {
     var uniqueToken = document.getElementById('unique-token');
     if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
-    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
-        return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
-            return (a ^ Math.random() * 16 >> a / 4).toString(16);
-        });
-    })();
+    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href =
+        '#' + Math.random().toString(36).substr(2, 35).toUpperCase()
 })();
 
+/* requesting full screen on video click event handler */
 function requestFullScreen(elem) {
     if (elem.requestFullscreen) {
         elem.requestFullscreen();

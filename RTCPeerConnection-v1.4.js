@@ -94,7 +94,7 @@ var RTCPeerConnection = function (options) {
 
     function createOffer() {
         if (!options.onOfferSDP) return;
-        if (moz) constraints.mandatory.MozDontOfferDataChannel = true;
+        if (moz && !options.onChannelMessage) constraints.mandatory.MozDontOfferDataChannel = true;
         peerConnection.createOffer(function (sessionDescription) {
             sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
