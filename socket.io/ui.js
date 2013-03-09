@@ -14,7 +14,7 @@
         var video = media.video;
         video.setAttribute('controls', true);
 
-        participants.insertBefore(video, participants.childNodes[0]);
+        participants.insertBefore(video, participants.firstChild);
 
         video.play();
         rotateVideo(video);
@@ -23,18 +23,20 @@
         var alreadyExist = document.getElementById(room.broadcaster);
         if (alreadyExist) return;
 
-        var roomsList = document.getElementById('rooms-list') || document.body;
+		if(typeof roomsList === 'undefined') roomsList = document.body;
 
-        var blockquote = document.createElement('blockquote');
-        blockquote.setAttribute('id', room.broadcaster);
-        blockquote.innerHTML = room.roomName + '<button class="join" id="' + room.roomToken + '">Join Room</button>';
-        roomsList.insertBefore(blockquote, roomsList.childNodes[0]);
+        var tr = document.createElement('tr');
+        tr.setAttribute('id', room.broadcaster);
+        tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
+					   '<td><button class="join" id="' + room.roomToken + '">Join Room</button></td>';
+        roomsList.insertBefore(tr, roomsList.firstChild);
 
-        blockquote.onclick = function () {
+        tr.onclick = function () {
+			var tr = this;
             captureUserMedia(function () {
                 rtc.joinRoom({
-                    roomToken: blockquote.querySelector('.join').id,
-                    joinUser: blockquote.id
+                    roomToken: tr.querySelector('.join').id,
+                    joinUser: tr.id
                 });
             });
             hideUnnecessaryStuff();
@@ -45,32 +47,30 @@
 function createButtonClickHandler() {
     captureUserMedia(function () {
         rtc.createRoom({
-            roomName: ((document.getElementById('room-name') || {
-                value: null
-            }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
+            roomName: ((document.getElementById('room-name') || { value: null }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
         });
     });
-    hideUnnecessaryStuff();
+	hideUnnecessaryStuff();
 }
 
 function captureUserMedia(callback) {
     var video = document.createElement('video');
     video.setAttribute('autoplay', true);
     video.setAttribute('controls', true);
-
-    participants.insertBefore(video, participants.childNodes[0]);
-
+	
+    participants.insertBefore(video, participants.firstChild);
+	
     getUserMedia({
         video: video,
         onsuccess: function (stream) {
             config.attachStream = stream;
             callback && callback();
-
-            rotateVideo(video);
-            video.setAttribute('muted', true);
+			
+			rotateVideo(video);
+			video.setAttribute('muted', true);
         },
         onerror: function (error) {
-            alert(error);
+            alert('unable to get access to your webcam');
         }
     });
 }
@@ -81,22 +81,26 @@ var rtc = rtclib(config);
 /* UI specific */
 var participants = document.getElementById("participants") || document.body;
 var startConferencing = document.getElementById('start-conferencing');
+var roomsList = document.getElementById('rooms-list');
 
 if (startConferencing) startConferencing.onclick = createButtonClickHandler;
 
-function hideUnnecessaryStuff() {
-    var visibleElements = document.getElementsByClassName('visible'),
-        length = visibleElements.length;
-    for (var i = 0; i < length; i++) {
-        visibleElements[i].style.display = 'none';
-    }
+function hideUnnecessaryStuff()
+{
+	var visibleElements = document.getElementsByClassName('visible'),
+		length = visibleElements.length;
+	for(var i = 0; i< length; i++)
+	{
+		visibleElements[i].style.display = 'none';
+	}
 }
 
-function rotateVideo(video) {
-    video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
-    setTimeout(function () {
-        video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
-    }, 1000);
+function rotateVideo(video)
+{
+	video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
+	setTimeout(function() {
+		video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
+	}, 1000);
 }
 
 (function () {

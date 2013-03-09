@@ -3,17 +3,18 @@
         userToken: uniqueToken()
     },
     channels = '--',
-        isbroadcaster,
-        isGetNewRoom = true,
-        publicSocket = {};
+    isbroadcaster,
+    isGetNewRoom = true,
+	participants = 1,
+    defaultSocket = {};
 
-    function openPublicSocket() {
-        publicSocket = config.openSocket({
-            onmessage: onPublicSocketResponse
+    function openDefaultSocket() {
+        defaultSocket = config.openSocket({
+            onmessage: defaultSocketResponse
         });
     }
 
-    function onPublicSocketResponse(response) {
+    function defaultSocketResponse(response) {
         if (response.userToken == self.userToken) return;
 
         if (isGetNewRoom && response.roomToken && response.broadcaster) config.onRoomFound(response);
@@ -29,10 +30,6 @@
             });
         }
     }
-
-    /*********************/
-    /* CLOSURES / PRIVATE stuff */
-    /*********************/
 
     function openSubSocket(_config) {
         if (!_config.channel) return;
@@ -54,7 +51,7 @@
         var peerConfig = {
             attachStream: config.attachStream,
             onICE: function (candidate) {
-                socket.send({
+                socket && socket.send({
                     userToken: self.userToken,
                     candidate: {
                         sdpMLineIndex: candidate.sdpMLineIndex,
@@ -63,8 +60,6 @@
                 });
             },
             onRemoteStream: function (stream) {
-                if (!stream) return;
-
                 htmlElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
                 htmlElement.play();
 
@@ -74,13 +69,11 @@
         };
 
         function initPeer(offerSDP) {
-            if (!offerSDP) {
-                peerConfig.onOfferSDP = sendsdp;
-            } else {
+            if (!offerSDP) peerConfig.onOfferSDP = sendsdp;
+            else {
                 peerConfig.offerSDP = offerSDP;
                 peerConfig.onAnswerSDP = sendsdp;
             }
-
             peer = RTCPeerConnection(peerConfig);
         }
 
@@ -99,7 +92,7 @@
 
             if (isbroadcaster && channels.split('--').length > 3) {
                 /* broadcasting newly connected participant for video-conferencing! */
-                publicSocket.send({
+                defaultSocket && defaultSocket.send({
                     newParticipant: socket.channel,
                     userToken: self.userToken
                 });
@@ -108,10 +101,6 @@
             /* closing subsocket here on the offerer side */
             if (_config.closeSocket) socket = null;
         }
-
-        /*********************/
-        /* SendSDP (offer/answer) */
-        /*********************/
 
         function sendsdp(sdp) {
             sdp = JSON.stringify(sdp);
@@ -126,25 +115,21 @@
                 thirdPart = sdp.slice(part + part, sdp.length);
             }
 
-            socket.send({
+            socket && socket.send({
                 userToken: self.userToken,
                 firstPart: firstPart
             });
 
-            socket.send({
+            socket && socket.send({
                 userToken: self.userToken,
                 secondPart: secondPart
             });
 
-            socket.send({
+            socket && socket.send({
                 userToken: self.userToken,
                 thirdPart: thirdPart
             });
         }
-
-        /*********************/
-        /* socket response */
-        /*********************/
 
         function socketResponse(response) {
             if (response.userToken == self.userToken) return;
@@ -172,9 +157,6 @@
             }
         }
 
-        /*********************/
-        /* socket response */
-        /*********************/
         var invokedOnce = false;
 
         function selfInvoker() {
@@ -183,13 +165,16 @@
             invokedOnce = true;
 
             inner.sdp = JSON.parse(inner.firstPart + inner.secondPart + inner.thirdPart);
-            if (isofferer) peer.addAnswerSDP(inner.sdp);
+            if (isofferer) {
+				peer.addAnswerSDP(inner.sdp);
+				if(config.onNewParticipant) config.onNewParticipant(participants++);
+			}
             else initPeer(inner.sdp);
         }
     }
 
     function startBroadcasting() {
-        publicSocket.send({
+        defaultSocket && defaultSocket.send({
             roomToken: self.roomToken,
             roomName: self.roomName,
             broadcaster: self.userToken
@@ -207,7 +192,7 @@
             closeSocket: true
         });
 
-        publicSocket.send({
+        defaultSocket.send({
             participant: true,
             userToken: self.userToken,
             joinUser: channel,
@@ -215,18 +200,11 @@
         });
     }
 
-    /*********************/
-    /* HELPERS */
-    /*********************/
-
     function uniqueToken() {
-        var s4 = function () {
-            return Math.floor(Math.random() * 0x10000).toString(16);
-        };
-        return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
+        return Math.random().toString(36).substr(2, 35);
     }
 
-    openPublicSocket();
+    openDefaultSocket();
     return {
         createRoom: function (_config) {
             self.roomName = _config.roomName || 'Anonymous';
@@ -244,7 +222,7 @@
                 channel: self.userToken
             });
 
-            publicSocket.send({
+            defaultSocket.send({
                 participant: true,
                 userToken: self.userToken,
                 joinUser: _config.joinUser

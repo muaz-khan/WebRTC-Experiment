@@ -9,6 +9,7 @@ This [WebRTC Experiment](https://webrtc-experiment.appspot.com/socket.io/) works
 
 | Browser        | Support           |
 | ------------- |:-------------:|
+| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) |
 | Firefox | [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) |
 | Firefox | [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) |

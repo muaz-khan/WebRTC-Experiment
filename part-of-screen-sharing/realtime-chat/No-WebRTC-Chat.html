@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <title>NoWebRTC Realtime Text Chat! ® Muaz Khan</title>
+        <style>
+            * {
+                font-family:Calibri;
+            }
+            label {
+                -webkit-user-select:none;
+            }
+            html {
+                background: #ECECEC;
+            }
+            button {
+                background: #0370ea;
+                background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
+                background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
+                border: 1px solid #076bd2;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                color: #fff;
+                display: inline-block;
+                line-height: 1.3;
+                padding: 5px 12px;
+                text-align: center;
+                text-shadow: 1px 1px 1px #076bd2;
+                font-size: 2em;
+            }
+            button:hover {
+                background: rgb(9, 147, 240);
+            }
+            button:active {
+                background: rgb(10, 118, 190);
+            }
+            button[disabled] {
+                background:none;
+                color:gray;
+                text-shadow:none;
+                border: 1px solid rgb(187, 181, 181);
+            }
+            #render-me {
+                border:1px solid Gray;
+                font-size:2em;
+                color:red;
+                border-radius:3px;
+                outline:none;
+                width:40%;
+                max-width:40%;
+                display:inline-block;
+                vertical-align: top;
+            }
+            #chat-input {
+                border: 1px solid gray;
+                font-size:1em;
+                width:97%;
+                margin: .1em;
+                resize:vertical;
+                outline:none;
+            }
+            #chat-input:focus {
+                border:2px solid gray;
+            }
+            td {
+                vertical-align:top;
+            }
+            .text-message {
+                padding:.4em .8em;
+                border-bottom: 1px solid gray;
+            }
+            code, pre, pre strong, code strong {
+                font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;
+                padding: .4em .8em;
+                font-size: .7em;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <script src="Core.js"></script>
+        <script src="Font.js"></script>
+        <script src="Generate.js"></script>
+        <script src="Parse.js"></script>
+        <script src="Preload.js"></script>
+        <script src="Queue.js"></script>
+        <script src="Renderer.js"></script>
+        <script src="Support.js"></script>
+        <script src="Util.js"></script>
+        <script src="renderers/Canvas.js"></script>
+        <script src="renderers/SVG.js"></script>
+        <script src="request-animation-frame.js"></script>
+        <input type="checkbox" id="realtime">
+        <label for="realtime">Is Sync in Realtime?</label>/
+        <label for="custom-time" title="milliseconds">Custom Time (ms):</label>
+        <input type="text" id="custom-time" title="milliseconds" value="1000" style="width: 3em;text-align: center;">
+        <input type="checkbox" id="pause">
+        <label for="pause">Is Pause Syncing?</label>
+        <input type="checkbox" id="iscode">
+        <label for="iscode">Is Code?</label>
+        <a href="how-this-work.html" target="_blank">How this work?</a> / 
+		<a href="https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/" target="_blank">Realtime Chat using RTCDataChannel!</a>
+        <br />
+        <div id="render-me">
+            <input type="text" id="chat-input">
+            <div id="chat-output"></div>
+        </div>
+        <img src="" id="preview" alt="Preview image">
+		<script src='https://cdn.firebase.com/v0/firebase.js'></script>
+        <script>
+            var renderMe = document.getElementById('render-me');
+            startSendingImage();
+
+            var realtime = document.getElementById('realtime'),
+                customTime = document.getElementById('custom-time');
+            window.pause = false;
+
+            function startSendingImage() {
+                if (window.pause) {
+                    window.requestAnimationFrame(startSendingImage);
+                    return;
+                }
+                html2canvas(renderMe, {
+                    onrendered: function (canvas) {
+                        var dataURL = canvas.toDataURL('image/webp', 1);
+                        firebase && firebase.push({
+                            userID: userID,
+                            image: dataURL
+                        });
+
+                        if (realtime.checked) window.requestAnimationFrame(startSendingImage);
+                        else setTimeout(startSendingImage, customTime.value);
+                    }
+                });
+            }
+
+            realtime.onchange = function () {
+                customTime.disabled = !! this.checked;
+            }
+        </script>
+        <div id="older-chats"></div>
+        <script>
+            var channel = location.hash.replace('#', '') || 'Realtime-Text-Chat';
+            var firebase = new Firebase('https://chat.firebaseIO.com/' + channel);
+            firebase.on("child_added", function (data) {
+                onMessage(data.val());
+            });
+            setTimeout(onOpen, 1);
+            firebase.onDisconnect().remove();
+
+            function onMessage(data) {
+                if (data.image) preview.src = data.image;
+                if (data.userID != userID && data.message) {
+                    var div = document.createElement(data.iscode ? 'pre' : 'div');
+                    div.innerHTML = data.message;
+                    div.className = 'text-message';
+                    chatOutput.insertBefore(div, chatOutput.firstChild);
+                    suppressChatPanelLength();
+                }
+            }
+            var userID = Math.random().toString(36).substr(2, 35).toUpperCase();
+            var colors = ['green', 'blue', 'black', 'rgb(133, 14, 81)', 'rgb(3, 114, 119)', 'rgb(100, 119, 3)', 'rgb(119, 49, 3)'];
+            var userColor = colors[parseInt(Math.random() * colors.length)] || 'red';
+
+            function onOpen() {
+                console.log('firebase opened');
+            }
+
+            var preview = document.getElementById('preview'),
+                chatOutput = document.getElementById('chat-output'),
+                iscode = document.getElementById('iscode');
+
+            document.getElementById('chat-input').onkeypress = function (e) {
+                var value = this.value;
+                if (e.keyCode !== 13 || !value.length) return;
+
+                this.value = '';
+
+                var is_code = !! iscode.checked,
+                    div = document.createElement(is_code ? 'pre' : 'div');
+
+                div.innerHTML = value;
+                div.className = 'text-message';
+                div.style.color = userColor;
+
+                firebase && firebase.push({
+                    userID: userID,
+                    message: value,
+                    iscode: is_code
+                });
+
+                chatOutput.insertBefore(div, chatOutput.firstChild);
+                suppressChatPanelLength();
+            }
+            document.getElementById('pause').onchange = function () {
+                window.pause = this.checked;
+            };
+            var olderChats = document.getElementById('older-chats');
+
+            function suppressChatPanelLength() {
+                var chats = chatOutput.querySelectorAll('.text-message');
+                if (chats.length <= 10) return;
+                var olderMessage = chats[chats.length - 1];
+                olderChats.insertBefore(olderMessage, olderChats.firstChild);
+            }
+        </script>
+		<h2>intro:</h2>
+
+        <ol>
+            <li>Sharing <code>part of the screen</code>... not the entire screen!</li>
+            <li>Everything is <code>synchronized</code> in realtime.</li>
+            <li>It is a realtime text chat with a <code> realtime preview</code>!</li>
+            <li>You can see what your fellow is typing...in realtime!</li>
+            <li>Works fine on all modern web browsers. Firefox
+                <a href="http://nightly.mozilla.org/" target="_blank">nightly</a> /
+                <a href="http://www.mozilla.org/en-US/firefox/aurora/" target="_blank">aurora</a> /
+                <a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">stable</a> or Chrome
+				<a href="https://www.google.com/intl/en/chrome/browser/canary.html" target="_blank">canary</a> is <code>preferred</code>/<code>recommended</code>
+			</li>
+        </ol>
+    </body>
+</html>

@@ -8,6 +8,7 @@
 
 | Browser        | Support           |
 | ------------- |:-------------:|
+| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) |
 | Firefox | [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) |
 | Firefox | [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) |
@@ -22,14 +23,14 @@
 | [Video Hangout](https://webrtc-experiment.appspot.com/video-conferencing/) : *many to many* |
 | [Video Broadcast](https://webrtc-experiment.appspot.com/broadcast/) : *one to many* |
 | [File Hangout](https://webrtc-experiment.appspot.com/file-hangout/) : *many to many* |
-| [File Broadcast](https://webrtc-experiment.appspot.com/file-broadcast/) : *one to many* |
 | [Chat Hangout](https://webrtc-experiment.appspot.com/chat-hangout/) : *many to many* |
-| [Chat Broadcast](https://webrtc-experiment.appspot.com/chat/) : *one to many*  |
 | [Audio Broadcast](https://webrtc-experiment.appspot.com/audio-broadcast/) : *one to many* |
 | [Screen Sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) : *one to many* |
 | [Screen Viewer](https://webrtc-experiment.appspot.com/screen-viewer/) : *one-to-many WebRTC Screen Sharing!* |
 | [Chrome to Firefox Screen Sharing](https://googledrive.com/host/0B6GWd_dUUTT8YUJaMkZ2d0NzQmc/WebRTC-Screen-Viewer.html) :  Cross Browser Screen Sharing! |
 | [WebRTC One-Way Broadcasting](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/) : *One-way audio/video/screen broadcasting. Participants don't need to have camera/microphone.* |
+| [WebRTC part of screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/) : *Sharing part of screen; not the entire screen!* |
+| [RecordRTC: WebRTC audio/video recording](http://bit.ly/RecordRTC) : [Demo](http://bit.ly/RecordRTC-Demo) |
 
 
 | A few documents for newbies and beginners        |
@@ -96,8 +97,6 @@ var config = {
     }
 };
 ```
-
-[RecordRTC: WebRTC audio/video recording](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
 
 ====
 ## License & Credits

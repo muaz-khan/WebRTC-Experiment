@@ -1,3 +1,6 @@
+====
+## Try [RecordRTC](http://bit.ly/RecordRTC) / [Demo](http://bit.ly/RecordRTC-Demo)
+
 **Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
 
 *Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*

@@ -1,7 +1,7 @@
 ﻿var config = {
     openSocket: function (config) {
         "use strict";
-        var socket = new WebSocket('wss://pubsub.pubnub.com/demo/demo/' + (config.channel || location.hash.replace('#', '') || 'rtc-websocket'));
+        var socket = new WebSocket('wss://pubsub.pubnub.com/pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd/sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90/' + (config.channel || location.hash.replace('#', '') || 'rtc-websocket'));
 		socket.onmessage = function (evt) {
 			config.onmessage(evt.data);
 		};
@@ -13,7 +13,7 @@
 		var video = media.video;
 		video.setAttribute('controls', true);
         
-		participants.insertBefore(video, participants.childNodes[0]);
+		participants.insertBefore(video, participants.firstChild);
 		
 		video.play();
 		rotateVideo(video);
@@ -22,18 +22,20 @@
         var alreadyExist = document.getElementById(room.broadcaster);
         if (alreadyExist) return;
 
-        var roomsList = document.getElementById('rooms-list') || document.body;
+		if(typeof roomsList === 'undefined') roomsList = document.body;
 
-        var blockquote = document.createElement('blockquote');
-        blockquote.setAttribute('id', room.broadcaster);
-        blockquote.innerHTML = room.roomName + '<button class="join" id="' + room.roomToken + '">Join Room</button>';
-        roomsList.insertBefore(blockquote, roomsList.childNodes[0]);
+        var tr = document.createElement('tr');
+        tr.setAttribute('id', room.broadcaster);
+        tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
+					   '<td><button class="join" id="' + room.roomToken + '">Join Room</button></td>';
+        roomsList.insertBefore(tr, roomsList.firstChild);
 
-        blockquote.onclick = function () {
+        tr.onclick = function () {
+			var tr = this;
             captureUserMedia(function () {
                 rtc.joinRoom({
-                    roomToken: blockquote.querySelector('.join').id,
-                    joinUser: blockquote.id
+                    roomToken: tr.querySelector('.join').id,
+                    joinUser: tr.id
                 });
             });
 			hideUnnecessaryStuff();
@@ -55,7 +57,7 @@ function captureUserMedia(callback) {
     video.setAttribute('autoplay', true);
     video.setAttribute('controls', true);
 	
-    participants.insertBefore(video, participants.childNodes[0]);
+    participants.insertBefore(video, participants.firstChild);
 	
     getUserMedia({
         video: video,
@@ -67,7 +69,7 @@ function captureUserMedia(callback) {
 			video.setAttribute('muted', true);
         },
         onerror: function (error) {
-            alert(error);
+            alert('unable to get access to your webcam');
         }
     });
 }
@@ -78,6 +80,7 @@ var rtc = rtclib(config);
 /* UI specific */
 var participants = document.getElementById("participants") || document.body;
 var startConferencing = document.getElementById('start-conferencing');
+var roomsList = document.getElementById('rooms-list');
 
 if (startConferencing) startConferencing.onclick = createButtonClickHandler;
 

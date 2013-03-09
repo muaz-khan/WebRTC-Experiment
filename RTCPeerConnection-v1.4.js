@@ -1,4 +1,5 @@
 window.moz = !! navigator.mozGetUserMedia;
+window.android = navigator.userAgent.indexOf('Mobile Safari') !== -1 && navigator.userAgent.indexOf('Android') !== -1;
 var RTCPeerConnection = function (options) {
     var w = window,
         PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
@@ -10,7 +11,7 @@ var RTCPeerConnection = function (options) {
             url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
         }]
     },
-    TURN = {
+    TURN = { /* use: ?turn=true */
         iceServers: [{
             url: "turn:webrtc%40live.com@numb.viagenie.ca",
             credential: "muazkh"
@@ -21,7 +22,7 @@ var RTCPeerConnection = function (options) {
         optional: []
     };
 
-    if (!moz) {
+    if (!moz && !android) {
         optional.optional = [{
             DtlsSrtpKeyAgreement: true
         }];
@@ -31,20 +32,18 @@ var RTCPeerConnection = function (options) {
     }
 
     var peerConnection = new PeerConnection(location.search.indexOf('turn=true') !== -1 ? TURN : STUN, optional);
+
+    var dataPorts = getPorts();
     openOffererChannel();
+
     peerConnection.onicecandidate = onicecandidate;
-    if (options.attachStream) {
-        info('\n-----------------peerConnection.addStream\n');
-        console.log(options.attachStream);
-        console.log('\n------------------------\n');
-        peerConnection.addStream(options.attachStream);
-    }
+    if (options.attachStream) peerConnection.addStream(options.attachStream);
     peerConnection.onaddstream = onaddstream;
 
     function onicecandidate(event) {
         if (!event.candidate || !peerConnection) return;
         if (options.onICE) options.onICE(event.candidate);
-        
+
         console.log(event.candidate.candidate);
     }
 
@@ -64,7 +63,7 @@ var RTCPeerConnection = function (options) {
             OfferToReceiveVideo: true
         }
     };
-	
+
     var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
         extractedChars = '';
 
@@ -95,6 +94,7 @@ var RTCPeerConnection = function (options) {
     function createOffer() {
         if (!options.onOfferSDP) return;
         if (moz && !options.onChannelMessage) constraints.mandatory.MozDontOfferDataChannel = true;
+
         peerConnection.createOffer(function (sessionDescription) {
             sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
@@ -112,8 +112,10 @@ var RTCPeerConnection = function (options) {
             sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
+
+            /* signaling method MUST be faster; otherwise increase "300" */
             moz && options.onChannelMessage && setTimeout(function () {
-                peerConnection.connectDataConnection(5001, 5000);
+                peerConnection.connectDataConnection(dataPorts[0], dataPorts[1]);
             }, 300);
         }, null, constraints);
     }
@@ -188,20 +190,30 @@ var RTCPeerConnection = function (options) {
         }
     }
 
-    function useless() { }
+    function useless() {}
 
     function info(information) {
         console.log(information);
     }
 
+    function getPorts(ports) {
+        if (!moz || !options.onChannelMessage) return false;
+        ports = ports || options.dataPorts || [5001, 5000];
+        info('--------using data ports: ' + ports[0] + ' and ' + ports[1]);
+        return ports;
+    }
+
     return {
-        addAnswerSDP: function (sdp) {
-            info('adding answer sdp:');
+        addAnswerSDP: function (sdp, dataPorts) {
+            info('--------adding answer sdp:');
             info(sdp.sdp);
 
             sdp = new SessionDescription(sdp);
             peerConnection.setRemoteDescription(sdp, function () {
-                moz && options.onChannelMessage && peerConnection.connectDataConnection(5000, 5001);
+                if (moz && options.onChannelMessage) {
+                    var ports = getPorts(dataPorts);
+                    peerConnection.connectDataConnection(ports[1], ports[0]);
+                }
             });
         },
         addICE: function (candidate) {
@@ -224,19 +236,17 @@ var video_constraints = {
     mandatory: {},
     optional: []
 };
-if (location.search.indexOf('hd=true') !== -1) video_constraints = {
+
+if (android) video_constraints = {
     mandatory: {
-        minHeight: 720,
-        minWidth: 1280,
-        maxAspectRatio: 1.778,
-        minAspectRatio: 1.777
+        maxHeight: 320,
+        maxWidth: 240
     },
     optional: []
 };
 
 function getUserMedia(options) {
-    var n = navigator,
-        media;
+    var n = navigator, media;
     n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
     n.getMedia(options.constraints || {
         audio: true,

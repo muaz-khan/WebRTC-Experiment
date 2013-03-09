@@ -1,6 +1,5 @@
 ﻿var config = {
     openSocket: function (config) {
-		/* Using Firebase for Signaling; see other signaling methods: http://bit.ly/webrtc-signaling */
         var channel = config.channel || location.hash.replace('#', '') || 'pluginfree-screen-sharing';
         var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
         socket.channel = channel;
@@ -17,12 +16,7 @@
     onRemoteStream: function (media) {
         var video = media.video;
         video.setAttribute('controls', true);
-        video.onclick = function () {
-            requestFullScreen(this);
-        };
-
-        participants.insertBefore(video, participants.childNodes[0]);
-
+        participants.insertBefore(video, participants.firstChild);
         video.play();
         rotateVideo(video);
     },
@@ -38,7 +32,7 @@
             tr.setAttribute('id', room.broadcaster);
             tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
                 '<td><button class="join" id="' + room.roomToken + '">Open Screen</button></td>';
-            roomsList.insertBefore(tr, roomsList.childNodes[0]);
+            roomsList.insertBefore(tr, roomsList.firstChild);
 
             tr.onclick = function () {
                 var tr = this;
@@ -58,7 +52,13 @@
             });
             hideUnnecessaryStuff();
         }
-    }
+    },
+	onNewParticipant: function(participants)
+	{
+		var numberOfParticipants = document.getElementById('number-of-participants');
+		if(!numberOfParticipants) return;
+		numberOfParticipants.innerHTML = participants + ' room participants';
+	}
 };
 
 function createButtonClickHandler() {
@@ -76,13 +76,8 @@ function captureUserMedia(callback) {
     var video = document.createElement('video');
     video.setAttribute('autoplay', true);
     video.setAttribute('controls', true);
-    participants.insertBefore(video, participants.childNodes[0]);
+    participants.insertBefore(video, participants.firstChild);
 
-    video.onlick = function () {
-        requestFullScreen(this);
-    };
-
-	/* constraint to get captured screen */
     var screen_constraints = {
         mandatory: {
             chromeMediaSource: 'screen'
@@ -90,7 +85,7 @@ function captureUserMedia(callback) {
         optional: []
     };
     var constraints = {
-        audio: false, /* audio must be false */
+        audio: false,
         video: screen_constraints
     };
     getUserMedia({
@@ -104,7 +99,7 @@ function captureUserMedia(callback) {
             rotateVideo(video);
         },
         onerror: function () {
-            alert('Please use HTTPS and Enable screen capture support in getUserMedia() in latest chrome canary using chrome://flags');
+            alert('Please Enable screen capture support in getUserMedia() in latest chrome canary using chrome://flags');
         }
     });
 }
@@ -134,21 +129,14 @@ function rotateVideo(video) {
     }, 1000);
 }
 
-/* creating unique hash token for private rooms */
 (function () {
-    var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
-    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href =
-        '#' + Math.random().toString(36).substr(2, 35).toUpperCase()
-})();
-
-/* requesting full screen on video click event handler */
-function requestFullScreen(elem) {
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
+	function getRandom() {
+        var s4 = function () {
+            return Math.floor(Math.random() * 0x10000).toString(16);
+        };
+        return (s4() + '-' + s4() + '-' + s4()).toUpperCase();
     }
-}
+    var uniqueToken = document.getElementById('unique-token');
+    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;">You can share this <span style="color:red;">private link</span> with your friends.</h2><input type=text value="' + window.location.href + '" style="width:100%;text-align:center;">';
+    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + getRandom()
+})();

@@ -1,19 +1,19 @@
 ﻿var hangout = function (config) {
     var self = {
         userToken: uniqueToken(),
-        userNam: 'Anonymous'
+        userName: 'Anonymous'
     },
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true;
 		
-	var publicSocket = { }, RTCDataChannels = []
+	var defaultSocket = { }, RTCDataChannels = []
 
-    function openPublicSocket() {
-        publicSocket = config.openSocket({onmessage: onPublicSocketResponse});
+    function openDefaultSocket() {
+        defaultSocket = config.openSocket({onmessage: onDefaultSocketResponse});
     }
 
-    function onPublicSocketResponse(response) {
+    function onDefaultSocketResponse(response) {
         if (response.userToken == self.userToken) return;
 
         if (isGetNewRoom && response.roomToken && response.broadcaster) config.onRoomFound(response);
@@ -29,10 +29,10 @@
             });
         }
     }
-
-    /*********************/
-    /* CLOSURES / PRIVATE stuff */
-    /*********************/
+	
+	function getPort() {
+        return Math.random() * 1000 << 10;
+    }
 
     function openSubSocket(_config) {
         if (!_config.channel) return;
@@ -48,6 +48,7 @@
             isofferer = _config.isofferer,
             gotstream,
             inner = {},
+			dataPorts = [getPort(), getPort()],
             peer;
 
         var peerConfig = {
@@ -72,6 +73,7 @@
             } else {
                 peerConfig.offerSDP = offerSDP;
                 peerConfig.onAnswerSDP = sendsdp;
+				peerConfig.dataPorts = dataPorts;
             }
 
             peer = RTCPeerConnection(peerConfig);
@@ -85,7 +87,7 @@
 
             if (isbroadcaster && channels.split('--').length > 3) {
                 /* broadcasting newly connected participant for video-conferencing! */
-                publicSocket.send({
+                defaultSocket.send({
                     newParticipant: socket.channel,
                     userToken: self.userToken
                 });
@@ -96,10 +98,6 @@
 
             gotstream = true;
         }
-
-        /*********************/
-        /* sendsdp // offer/answer */
-        /*********************/
 
         function sendsdp(sdp) {
             sdp = JSON.stringify(sdp);
@@ -116,7 +114,10 @@
 
             socket.send({
                 userToken: self.userToken,
-                firstPart: firstPart
+                firstPart: firstPart,
+
+                /* sending RTCDataChannel ports alongwith sdp */
+                dataPorts: dataPorts
             });
 
             socket.send({
@@ -129,10 +130,6 @@
                 thirdPart: thirdPart
             });
         }
-
-        /*********************/
-        /* socket response */
-        /*********************/
 
         function socketResponse(response) {
             if (response.userToken == self.userToken) return;
@@ -151,6 +148,7 @@
                     inner.thirdPart = response.thirdPart;
                     if (inner.firstPart && inner.secondPart) selfInvoker();
                 }
+				if (response.dataPorts) inner.dataPorts = response.dataPorts;
             }
 
             if (response.candidate && !gotstream) {
@@ -161,9 +159,6 @@
             }
         }
 
-        /*********************/
-        /* socket response */
-        /*********************/
         var invokedOnce = false;
 
         function selfInvoker() {
@@ -172,13 +167,15 @@
             invokedOnce = true;
 
             inner.sdp = JSON.parse(inner.firstPart + inner.secondPart + inner.thirdPart);
-            if (isofferer) peer.addAnswerSDP(inner.sdp);
+            
+			/* using random data ports to support wide connection on firefox! */
+            if (isofferer) peer.addAnswerSDP(inner.sdp, inner.dataPorts);
             else initPeer(inner.sdp);
         }
     }
 
     function startBroadcasting() {
-        publicSocket.send({
+        defaultSocket.send({
             roomToken: self.roomToken,
             roomName: self.roomName,
             broadcaster: self.userToken
@@ -196,17 +193,13 @@
             closeSocket: true
         });
 
-        publicSocket.send({
+        defaultSocket.send({
             participant: true,
             userToken: self.userToken,
             joinUser: channel,
             channel: new_channel
         });
     }
-
-    /*********************/
-    /* HELPERS */
-    /*********************/
 
     function uniqueToken() {
         var s4 = function () {
@@ -215,7 +208,7 @@
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
     }
 
-	openPublicSocket();
+	openDefaultSocket();
     return {
         createRoom: function (_config) {
             self.roomName = _config.roomName || 'Anonymous';
@@ -235,7 +228,7 @@
                 channel: self.userToken
             });
 
-            publicSocket.send({
+            defaultSocket.send({
                 participant: true,
                 userToken: self.userToken,
                 joinUser: _config.joinUser

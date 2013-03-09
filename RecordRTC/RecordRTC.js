@@ -1,7 +1,7 @@
 function RecordRTC(config) {
     var win = window,
-    requestAnimationFrame = win.webkitRequestAnimationFrame,
-    cancelAnimationFrame = win.webkitCancelAnimationFrame;
+        requestAnimationFrame = win.webkitRequestAnimationFrame,
+        cancelAnimationFrame = win.webkitCancelAnimationFrame;
     URL = win.webkitURL,
     canvas = document.createElement('canvas'),
     context = canvas.getContext('2d'),
@@ -18,7 +18,7 @@ function RecordRTC(config) {
 
     function recordVideo() {
         if (!video) {
-            alert('No video found. Use like this:\n\nRecordRTC({video: videoElement})');
+            alert('No video element found.');
             return;
         }
         console.log('started recording video frames');
@@ -67,10 +67,10 @@ function RecordRTC(config) {
 
     function recordAudio() {
         if (!config.stream) {
-            alert('No audio stream found. Use like this:\n\nRecordRTC({stream: audioStream})');
+            alert('No audio stream found.');
             return;
         }
-		initAudioRecorder(audioWorkerPath);
+        initAudioRecorder(config.audioWorkerPath);
         audioContext = new AudioContext;
         var mediaStreamSource = audioContext.createMediaStreamSource(config.stream)
 
@@ -97,8 +97,7 @@ function RecordRTC(config) {
             blobURL = event.target.result;
         };
     }
-
-	var audioWorkerPath = config.audioWorkerPath || 'audio-recorder.js';
+	
     return {
         stopAudio: stopAudioRecording,
         stopVideo: stopVideoRecording,
@@ -111,7 +110,7 @@ function RecordRTC(config) {
     };
 }
 
-/* https://github.com/mattdiamond/Recorderjs */ 
+/* https://github.com/mattdiamond/Recorderjs */
 function initAudioRecorder(audioWorkerPath) {
 
     var WORKER_PATH = audioWorkerPath || 'audio-recorder.js';

@@ -1,5 +1,5 @@
 ====
-# [RecordRTC: WebRTC audio/video recording](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RecordRTC/)
+# [RecordRTC: WebRTC audio/video recording](http://bit.ly/RecordRTC-Demo)
 
 ## How to record audio?
 
@@ -84,4 +84,3 @@ This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxc
 ## Spec & Reference
 
 1. [Web Audio API](https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html)
-2. [Audio Recorder](http://webaudiodemos.appspot.com/AudioRecorder/index.html)

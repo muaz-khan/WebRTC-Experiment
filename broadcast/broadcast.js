@@ -3,13 +3,13 @@
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
-        publicSocket = {};
+        defaultSocket = {};
 
-    function openPublicSocket() {
-        publicSocket = config.openSocket({onmessage: onPublicSocketResponse});
+    function openDefaultSocket() {
+        defaultSocket = config.openSocket({onmessage: onDefaultSocketResponse});
     }
 
-    function onPublicSocketResponse(response) {
+    function onDefaultSocketResponse(response) {
         if (response.userToken == self.userToken) return;
 
         if (isGetNewRoom && response.roomToken && response.broadcaster) config.onRoomFound(response);
@@ -23,10 +23,6 @@
             });
         }
     }
-
-    /*********************/
-    /* CLOSURES / PRIVATE stuff */
-    /*********************/
 
     function openSubSocket(_config) {
         if (!_config.channel) return;
@@ -93,10 +89,6 @@
             } else setTimeout(onRemoteStreamStartsFlowing, 50);
         }
 
-        /*********************/
-        /* SendSDP (offer/answer) */
-        /*********************/
-
         function sendsdp(sdp) {
             sdp = JSON.stringify(sdp);
             var part = parseInt(sdp.length / 3);
@@ -126,10 +118,6 @@
             });
         }
 
-        /*********************/
-        /* socket response */
-        /*********************/
-
         function socketResponse(response) {
             if (response.userToken == self.userToken) return;
             if (response.firstPart || response.secondPart || response.thirdPart) {
@@ -156,9 +144,6 @@
             }
         }
 
-        /*********************/
-        /* socket response */
-        /*********************/
         var invokedOnce = false;
 
         function selfInvoker() {
@@ -173,17 +158,13 @@
     }
 
     function startBroadcasting() {
-        publicSocket.send({
+        defaultSocket.send({
             roomToken: self.roomToken,
             roomName: self.roomName,
             broadcaster: self.userToken
         });
         setTimeout(startBroadcasting, 3000);
     }
-
-    /*********************/
-    /* HELPERS */
-    /*********************/
 
     function uniqueToken() {
         var s4 = function () {
@@ -192,7 +173,7 @@
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
     }
 	
-	openPublicSocket();
+	openDefaultSocket();
     return {
         createRoom: function (_config) {
             self.roomName = _config.roomName || 'Anonymous';
@@ -210,7 +191,7 @@
                 channel: self.userToken
             });
 
-            publicSocket.send({
+            defaultSocket.send({
                 participant: true,
                 userToken: self.userToken,
                 joinUser: _config.joinUser
