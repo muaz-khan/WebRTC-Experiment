@@ -198,7 +198,7 @@ var RTCPeerConnection = function (options) {
 
     function getPorts(ports) {
         if (!moz || !options.onChannelMessage) return false;
-        ports = ports || options.dataPorts || [5001, 5000];
+        ports = ports || options.dataPorts || [5000, 5001];
         info('--------using data ports: ' + ports[0] + ' and ' + ports[1]);
         return ports;
     }

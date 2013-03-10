@@ -137,6 +137,7 @@
             if (response.userToken == self.userToken) return;
 
             if (response.firstPart || response.secondPart || response.thirdPart) {
+				if (response.dataPorts) inner.dataPorts = response.dataPorts;
                 if (response.firstPart) {
                     inner.firstPart = response.firstPart;
                     if (inner.secondPart && inner.thirdPart) selfInvoker();
@@ -150,7 +151,6 @@
                     inner.thirdPart = response.thirdPart;
                     if (inner.firstPart && inner.secondPart) selfInvoker();
                 }
-				if (response.dataPorts) inner.dataPorts = response.dataPorts;
             }
 
             if (response.candidate && !gotstream) {

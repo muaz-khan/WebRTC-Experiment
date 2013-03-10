@@ -24,9 +24,9 @@ Share part of screen; not the entire screen!
 1. Used "html2canvas" library to take screenshot of the entire webpage or part of webpage.
 2. Sharing those screenshots using RTCDataChannel APIs.
 3. Firefox is preferred because Firefox uses 16 streams by default; so it is realtime and superfast on Firefox!
-4. To share your custom part of screen; open "index.html" file; and find "renderMe" object that is getting any element by id: "render-me"....and that's all you need to do!
+4. To share your custom part of screen; open "index.html" file; and find "renderMe" object that is getting an element by id: "render-me"....and that's all you need to do!
 
-Add link to javascript libraries; then take screenshot like this:
+Link html2canvas javascript library; then take screenshots like this:
 
 ```javascript
 html2canvas(renderMe, {
