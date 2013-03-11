@@ -48,7 +48,7 @@ html2canvas(renderMe, {
 *Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
 
 ====
-## Cross Browser Support (All Experiments are interoperable!)
+## Cross Browser Support
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
 
 | Browser        | Support           |

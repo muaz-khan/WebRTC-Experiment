@@ -3,7 +3,7 @@
 *Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
 
 ====
-# Cross Browser Support (Interoperable)
+# Cross Browser Support
 
 This [WebRTC Experiment](https://webrtc-experiment.appspot.com/broadcast/) works fine on following web-browsers:
 
@@ -15,6 +15,8 @@ This [WebRTC Experiment](https://webrtc-experiment.appspot.com/broadcast/) works
 | Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
 | Google Chrome | [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) |
 | Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
+| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
+| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta) |
 
 ## How Video Broadcast Works?
 
