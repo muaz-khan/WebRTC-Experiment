@@ -4,8 +4,8 @@
 ====
 ## How to use in your own site?
 
-```javascript
-<script src="screenshot.js"> </script>
+```html
+<script src="screenshot.js"></script>
 <script>
 var divToShare = document.getElementById('div-to-share');
 html2canvas(divToShare, {
