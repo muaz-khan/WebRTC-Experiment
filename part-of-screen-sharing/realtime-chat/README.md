@@ -31,7 +31,7 @@ Above code will take screenshot of the DIV or other HTML element and return you
 and image. You can preview image to render in IMG element or draw to Canvas2D.
 */
 </script>
-```html
+```
 
 Share part of screen; not the entire screen!
 
