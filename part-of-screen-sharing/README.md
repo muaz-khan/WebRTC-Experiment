@@ -1,5 +1,37 @@
 ====
-## WebRTC Part of Screen Sharing / [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/)
+## WebRTC Part of Screen Sharing / [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/)
+
+====
+## How to use in your own site?
+
+```javascript
+<script src="screenshot.js"> </script>
+<script>
+var divToShare = document.getElementById('div-to-share');
+html2canvas(divToShare, {
+    onrendered: function (canvas) {
+        var screenshot = canvas.toDataURL();
+        // image.src = screenshot;
+        // context.drawImage(screenshot, x, y, width, height);
+        // firebase.push(screenshot);
+        // pubnub.send(screenshot);
+        // socketio.send(screenshot);
+        // signaler.send(screenshot);
+        // window.open(screenshot);
+    }
+});
+
+/*
+-----Note:
+Put above code in a function; use "requestAnimationFrame" to loop the function
+and post/transmit DataURL in realtime!
+
+-----what above code will do?
+Above code will take screenshot of the DIV or other HTML element and return you
+and image. You can preview image to render in IMG element or draw to Canvas2D.
+*/
+</script>
+```html
 
 Share part of screen; not the entire screen!
 
@@ -26,22 +58,12 @@ Share part of screen; not the entire screen!
 3. Firefox is preferred because Firefox uses 16 streams by default; so it is realtime and superfast on Firefox!
 4. To share your custom part of screen; open "index.html" file; and find "renderMe" object that is getting an element by id: "render-me"....and that's all you need to do!
 
-Link html2canvas javascript library; then take screenshots like this:
+====
+## Demos (for Part of Screen Sharing)
 
-```javascript
-html2canvas(renderMe, {
-	onrendered: function(canvas) {
-		var dataURL = canvas.toDataURL();
-		// image.src = dataURL;
-		// context.drawImage(dataURL, x, y, width, height);
-		// firebase.push(dataURL);
-		// pubnub.send(dataURL);
-		// socketio.send(dataURL);
-		// signaler.send(dataURL);
-		// window.open(dataURL);
-	}
-});
-```
+1. [Part of Screen Sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/)
+2. [Realtime Chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/)
+3. [NowWebRTC Realtime Chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html)
 
 **Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
 

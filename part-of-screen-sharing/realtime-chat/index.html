@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+    
     <head>
         <title>Realtime text chat using RTCDataChannel and html2canvas! ® Muaz Khan</title>
         <meta name="description" content="WebRTC realtime text-chat; used RTCDataChannel to stream screenshots in realtime! Preview chat input/output panels in realtime from all users!">
@@ -52,28 +53,19 @@
                 color:red;
             }
         </style>
+        <script src="../screenshot.js"></script>
+        <script src="https://cdn.firebase.com/v0/firebase.js"></script>
     </head>
     
     <body>
-		<h1>
+        	<h1>
 			Realtime text chat using RTCDataChannel and html2canvas!
 			<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing" style="font-size:.8em;font-weight:normal;">Source code on  Github</a>
 		</h1>
-		<section class="plusone-gplus">
+
+        <section class="plusone-gplus">
             <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
         </section>
-        <script src="Core.js"></script>
-        <script src="Font.js"></script>
-        <script src="Generate.js"></script>
-        <script src="Parse.js"></script>
-        <script src="Preload.js"></script>
-        <script src="Queue.js"></script>
-        <script src="Renderer.js"></script>
-        <script src="Support.js"></script>
-        <script src="Util.js"></script>
-        <script src="renderers/Canvas.js"></script>
-        <script src="renderers/SVG.js"></script>
-        <script src="request-animation-frame.js"></script>
         <input type="checkbox" id="realtime" checked>
         <label for="realtime">Is Sync in Realtime?</label>/
         <label for="custom-time" title="milliseconds">Custom Time (ms):</label>
@@ -82,7 +74,7 @@
         <label for="pause">Is Pause Syncing?</label>
         <input type="checkbox" id="iscode">
         <label for="iscode">Is Code?</label>
-        <a href="how-this-work.html" target="_blank">How this work?</a> /
+        <a href="how-this-work.html" target="_blank">How this work?</a>/
         <a href="No-WebRTC-Chat.html" target="_blank">NoWebRTC Chat</a>
         <br />
         <div id="render-me">
@@ -104,10 +96,10 @@
                 }
                 html2canvas(renderMe, {
                     onrendered: function (canvas) {
-                        var dataURL = canvas.toDataURL('image/webp', 1);
+                        var screenshot = canvas.toDataURL('image/webp', 1);
                         hangoutUI.send({
                             userID: userID,
-                            image: dataURL
+                            screenshot: screenshot
                         });
 
                         if (realtime.checked) window.requestAnimationFrame(startSendingImage);
@@ -122,7 +114,7 @@
         </script>
         <script>
             function onMessage(data) {
-                if (data.image) preview.src = data.image;
+                if (data.screenshot) preview.src = data.screenshot;
                 if (data.userID != userID && data.message) {
                     var div = document.createElement(data.iscode ? 'pre' : 'div');
                     div.innerHTML = data.message;
@@ -175,13 +167,14 @@
         </script>
         <br />
         <br />
-        <button id="start-conferencing">Start Realtime Public Chat!</button>	
-		<span id="hide-me-later"><strong>Private chat</strong> ?? <a href="#" target="_blank" title="Open private chat room."><span><strong id="unique-token">#123456789</strong></span></a></span>
-        <script src='https://cdn.firebase.com/v0/firebase.js'></script>
+        <button id="start-conferencing">Start Realtime Public Chat!</button>	<span id="hide-me-later"><strong>Private chat</strong> ?? <a href="#" target="_blank" title="Open private chat room."><span><strong id="unique-token">#123456789</strong></span>
+        </a>
+        </span>
+        <!-- using RTCDataChannel to share part of screen -->
         <script src="https://bit.ly/RTCPeerConnection-v1-4"></script>
-        <script src="chat-hangout/hangout.js"></script>
-        <script src="chat-hangout/hangout-ui.js"></script>
-        <h2>intro:</h2>
+        <script src="RTCDataChannel/hangout.js"></script>
+        <script src="RTCDataChannel/hangout-ui.js"></script>
+         <h2>intro:</h2>
 
         <ol>
             <li>Sharing <code>part of the screen</code> using RTCDataChannel APIs!</li>
@@ -189,11 +182,12 @@
             <li>It is a realtime text chat with a <code> realtime preview</code>!</li>
             <li>You can see what your fellow is typing...in realtime!</li>
             <li>Firefox
-                <a href="http://nightly.mozilla.org/" target="_blank">nightly</a> /
-                <a href="http://www.mozilla.org/en-US/firefox/aurora/" target="_blank">aurora</a> /
-                <a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">stable</a> is <code>preferred</code>/<code>recommended</code>.</li>
+                <a href="http://nightly.mozilla.org/" target="_blank">nightly</a>/
+                <a href="http://www.mozilla.org/en-US/firefox/aurora/" target="_blank">aurora</a>/
+                <a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">stable</a>is <code>preferred</code>/<code>recommended</code>.</li>
             <li>Works fine on Chrome
-                <a href="https://www.google.com/intl/en/chrome/browser/canary.html" target="_blank">canary</a> too.</li>
+                <a href="https://www.google.com/intl/en/chrome/browser/canary.html" target="_blank">canary</a>too.</li>
         </ol>
     </body>
+
 </html>

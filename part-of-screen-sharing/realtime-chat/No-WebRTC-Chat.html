@@ -76,28 +76,16 @@
                 font-size: .7em;
             }
         </style>
+        <script src="../screenshot.js"></script>
+        <script src="https://cdn.firebase.com/v0/firebase.js"></script>
     </head>
     
     <body>
-		<h1>
+        	<h1>
 			NoWebRTC Realtime text chat!
 			<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing" style="font-size:.8em;font-weight:normal;">Source code on  Github</a>
 		</h1>
-		<section class="plusone-gplus">
-            <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
-        </section>
-        <script src="Core.js"></script>
-        <script src="Font.js"></script>
-        <script src="Generate.js"></script>
-        <script src="Parse.js"></script>
-        <script src="Preload.js"></script>
-        <script src="Queue.js"></script>
-        <script src="Renderer.js"></script>
-        <script src="Support.js"></script>
-        <script src="Util.js"></script>
-        <script src="renderers/Canvas.js"></script>
-        <script src="renderers/SVG.js"></script>
-        <script src="request-animation-frame.js"></script>
+
         <input type="checkbox" id="realtime">
         <label for="realtime">Is Sync in Realtime?</label>/
         <label for="custom-time" title="milliseconds">Custom Time (ms):</label>
@@ -106,15 +94,14 @@
         <label for="pause">Is Pause Syncing?</label>
         <input type="checkbox" id="iscode">
         <label for="iscode">Is Code?</label>
-        <a href="how-this-work.html" target="_blank">How this work?</a> / 
-		<a href="https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/" target="_blank">Realtime Chat using RTCDataChannel!</a>
+        <a href="how-this-work.html" target="_blank">How this work?</a>/
+        <a href="https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/" target="_blank">Realtime Chat using RTCDataChannel!</a>
         <br />
         <div id="render-me">
             <input type="text" id="chat-input">
             <div id="chat-output"></div>
         </div>
         <img src="" id="preview" alt="Preview image">
-		<script src='https://cdn.firebase.com/v0/firebase.js'></script>
         <script>
             var renderMe = document.getElementById('render-me');
             startSendingImage();
@@ -130,10 +117,10 @@
                 }
                 html2canvas(renderMe, {
                     onrendered: function (canvas) {
-                        var dataURL = canvas.toDataURL('image/webp', 1);
+                        var screenshot = canvas.toDataURL('image/webp', 1);
                         firebase && firebase.push({
                             userID: userID,
-                            image: dataURL
+                            screenshot: screenshot
                         });
 
                         if (realtime.checked) window.requestAnimationFrame(startSendingImage);
@@ -148,7 +135,7 @@
         </script>
         <div id="older-chats"></div>
         <script>
-            var channel = location.hash.replace('#', '') || 'Realtime-Text-Chat';
+            var channel = location.hash.replace('#', '') || 'NoWebRTC-Realtime-Text-Chat';
             var firebase = new Firebase('https://chat.firebaseIO.com/' + channel);
             firebase.on("child_added", function (data) {
                 onMessage(data.val());
@@ -157,7 +144,7 @@
             firebase.onDisconnect().remove();
 
             function onMessage(data) {
-                if (data.image) preview.src = data.image;
+                if (data.screenshot) preview.src = data.screenshot;
                 if (data.userID != userID && data.message) {
                     var div = document.createElement(data.iscode ? 'pre' : 'div');
                     div.innerHTML = data.message;
@@ -212,7 +199,7 @@
                 olderChats.insertBefore(olderMessage, olderChats.firstChild);
             }
         </script>
-		<h2>intro:</h2>
+        	<h2>intro:</h2>
 
         <ol>
             <li>Sharing <code>part of the screen</code>... not the entire screen!</li>
@@ -220,11 +207,13 @@
             <li>It is a realtime text chat with a <code> realtime preview</code>!</li>
             <li>You can see what your fellow is typing...in realtime!</li>
             <li>Works fine on all modern web browsers. Firefox
-                <a href="http://nightly.mozilla.org/" target="_blank">nightly</a> /
-                <a href="http://www.mozilla.org/en-US/firefox/aurora/" target="_blank">aurora</a> /
-                <a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">stable</a> or Chrome
-				<a href="https://www.google.com/intl/en/chrome/browser/canary.html" target="_blank">canary</a> is <code>preferred</code>/<code>recommended</code>
-			</li>
+                <a href="http://nightly.mozilla.org/" target="_blank">nightly</a>/
+                <a href="http://www.mozilla.org/en-US/firefox/aurora/" target="_blank">aurora</a>/
+                <a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">stable</a>or Chrome
+                <a href="https://www.google.com/intl/en/chrome/browser/canary.html" target="_blank">canary</a>is <code>preferred</code>/<code>recommended</code>
+
+            </li>
         </ol>
     </body>
+
 </html>
