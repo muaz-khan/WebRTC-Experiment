@@ -1,5 +1,5 @@
 ====
-## WebRTC Part of Screen Sharing / [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/)
+## WebRTC Part of Screen Sharing / [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/)
 
 ====
 ## How to use in your own site?
@@ -61,9 +61,10 @@ Share part of screen; not the entire screen!
 ====
 ## Demos (for Part of Screen Sharing)
 
-1. [Part of Screen Sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/)
-2. [Realtime Chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/)
-3. [NowWebRTC Realtime Chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html)
+1. [Part of Screen Sharing using RTCDataChannel](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/RTCDataChannel/)
+2. [Part of Screen Sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/)
+3. [Realtime Chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/)
+4. [NowWebRTC Realtime Chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html)
 
 **Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
 
