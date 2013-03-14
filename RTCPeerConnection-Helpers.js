@@ -1,4 +1,6 @@
-﻿var codecs = {};
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
+var codecs = {};
 
 /* this function credit goes to Google Chrome WebRTC team! */
 codecs.opus = function (sessionDescription) {

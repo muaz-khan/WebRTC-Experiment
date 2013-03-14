@@ -1,3 +1,5 @@
+/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
 /* Core -------------------- */
 
 "use strict";

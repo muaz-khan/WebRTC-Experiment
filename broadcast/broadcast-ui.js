@@ -1,4 +1,6 @@
-﻿var config = {
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
+var config = {
     openSocket: function (config) {
         if (!window.Firebase) return;
         var channel = config.channel || location.hash.replace('#', '') || 'video-broadcast';

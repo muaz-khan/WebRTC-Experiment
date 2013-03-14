@@ -1,4 +1,4 @@
-﻿console.log('Code by Muaz Khan: https://webrtc-experiment.appspot.com/');
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
 
 window.PeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection || window.RTCPeerConnection;
 window.SessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.RTCSessionDescription;

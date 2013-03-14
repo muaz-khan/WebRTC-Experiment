@@ -1,7 +1,5 @@
 **Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
 
-*Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
-
 # [WebRTC Shared Screens Viewer](https://webrtc-experiment.appspot.com/screen-viewer/)
 
 WebRTC Screen Sharing using Google Chrome experimental tabCapture APIs.
@@ -80,4 +78,4 @@ var config = {
 ====
 ## License & Credits
 
-Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - A link back is MUST! - All rights reserved!
+MIT: https://webrtc-experiment.appspot.com/licence/ : Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

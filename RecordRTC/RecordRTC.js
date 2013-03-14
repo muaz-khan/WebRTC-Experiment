@@ -1,3 +1,5 @@
+/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
 function RecordRTC(config) {
     var win = window,
         requestAnimationFrame = win.webkitRequestAnimationFrame,

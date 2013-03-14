@@ -1,8 +1,6 @@
 ====
 # Cross Browser Support (Interoperable)
 
-This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8YUJaMkZ2d0NzQmc/WebRTC-Screen-Viewer.html) works fine on following web-browsers:
-
 | Browser        | Support           |
 | ------------- |:-------------:|
 | Firefox | [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) |
@@ -53,4 +51,4 @@ var config = {
 ====
 ## License & Credits
 
-Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - A link back is MUST! - All rights reserved!
+MIT: https://webrtc-experiment.appspot.com/licence/ : Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

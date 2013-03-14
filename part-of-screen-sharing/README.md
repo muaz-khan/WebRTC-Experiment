@@ -64,11 +64,9 @@ Share part of screen; not the entire screen!
 1. [Part of Screen Sharing using RTCDataChannel](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/RTCDataChannel/)
 2. [Part of Screen Sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/)
 3. [Realtime Chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/)
-4. [NowWebRTC Realtime Chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html)
+4. [No-WebRTC Realtime Chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html)
 
 **Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
-
-*Only one limitation: A link back to [Muaz Khan](http://github.com/muaz-khan)!*
 
 ====
 ## Cross Browser Support
@@ -84,4 +82,4 @@ Share part of screen; not the entire screen!
 ====
 ## License & Credits
 
-Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - A link back is MUST! - All rights reserved!
+MIT: https://webrtc-experiment.appspot.com/licence/ : Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

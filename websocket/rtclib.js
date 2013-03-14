@@ -1,4 +1,6 @@
-﻿var rtclib = function (config) {
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
+var rtclib = function (config) {
     var self = { userToken: uniqueToken() },
         channels = '--',
         isbroadcaster,

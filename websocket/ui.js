@@ -1,4 +1,6 @@
-﻿var config = {
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
+var config = {
     openSocket: function (config) {
         "use strict";
         var socket = new WebSocket('wss://pubsub.pubnub.com/pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd/sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90/' + (config.channel || location.hash.replace('#', '') || 'rtc-websocket'));

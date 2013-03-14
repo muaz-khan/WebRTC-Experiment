@@ -1,4 +1,6 @@
-﻿var conference = function (config) {
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
+var conference = function (config) {
     var self = { userToken: uniqueToken() },
         channels = '--',
         isbroadcaster,

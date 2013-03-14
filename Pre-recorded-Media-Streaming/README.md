@@ -28,7 +28,32 @@ partial interface HTMLMediaElement {
 
     attribute any src;
 };
+
+// we will be able to get stream from video like this:
+// video.src = 'your pre-recorded webm/etc. video';
+// var preRecordedStream = video.captureStream();
+// peer.addStream ( preRecordedStream );
 ```
+
+====
+## How this experiment works?
+
+1. Getting access to WebM video file using File API
+2. Reading it as array buffer using File Reader API
+3. Splitting buffers in predefined small chunks; and posting /transmitting those chunks in a loop using Firebase.
+4. As soon as other party receives first chunk; MediaSource API will start playing video without waiting for all chunks to be download!
+5. You can save/store/record those chunks in any database; because it is a typed array [Uint8Array] in text form.
+
+====
+## Let's say you want to:
+
+1. Stream 5min to 7 min of video data i.e. total two minutes of video data over all sockets from first WebM file.
+2. Then, quickly you want to stream 17 to 19 minutes i.e. total two minutes of data from second WebM file.
+3. Then you want to stream 11 to 15 minutes i.e. total 4 minutes of data from first WebM file.
+
+You can do all such things today!
+
+In simple words; you can stream part of video from first WebM file; part of video from second WebM file and so on, in realtime!
 
 ====
 ## Spec Reference
@@ -47,4 +72,4 @@ partial interface HTMLMediaElement {
 ====
 ## License & Credits
 
-Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503) - A link back is MUST! - All rights reserved!
+MIT: https://webrtc-experiment.appspot.com/licence/ : Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

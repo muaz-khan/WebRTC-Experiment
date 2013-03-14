@@ -1,4 +1,6 @@
-﻿var config = {
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
+var config = {
     openSocket: function (config) {
         var socket = io.connect('https://pubsub.pubnub.com/webrtc-experiment', {
             publish_key: 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0',

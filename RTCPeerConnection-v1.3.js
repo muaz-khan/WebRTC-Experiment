@@ -1,3 +1,5 @@
+/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
 window.moz = !!navigator.mozGetUserMedia;
 var RTCPeerConnection = function (options) {
     var w = window,

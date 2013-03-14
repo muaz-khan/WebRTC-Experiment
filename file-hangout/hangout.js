@@ -1,4 +1,6 @@
-﻿var hangout = function (config) {
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
+var hangout = function (config) {
     var self = {
         userToken: uniqueToken(),
         userName: 'Anonymous'

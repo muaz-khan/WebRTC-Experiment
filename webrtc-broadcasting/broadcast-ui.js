@@ -1,4 +1,6 @@
-﻿var config = {
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
+var config = {
     openSocket: function (config) {
         var channel = config.channel || location.hash.replace('#', '') || 'video-oneway-broadcasting';
         var socket = new Firebase('https://chat.firebaseIO.com/' + channel);

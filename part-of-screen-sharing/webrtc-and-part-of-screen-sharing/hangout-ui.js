@@ -1,4 +1,6 @@
-﻿var hangoutUI = hangout({
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
+var hangoutUI = hangout({
     openSocket: function (config) {
         if (!window.Firebase) return;
         var channel = config.channel || location.hash.replace('#', '') || 'webrtc-sharing-part-of-screen';
