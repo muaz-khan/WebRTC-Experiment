@@ -49,12 +49,12 @@ video.src = recorder.getBlob();
 
 ## Make sure that:
 
-1. You're using Chrome (Canary)[https://www.google.com/intl/en/chrome/browser/canary.html]
+1. You're using Chrome [Canary](https://www.google.com/intl/en/chrome/browser/canary.html)
 2. You enabled flag `Web Audio Input` via `chrome://flags`
 
 ## Possible issues/failures:
 
-1. Unfortunately, (RecordRTC)[https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RecordRTC/] is unable to record videos longer than one minute.
+1. Unfortunately, [RecordRTC](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RecordRTC/) is unable to record videos longer than one minute.
 2. It is appeared that audio-recording has 70% percent chances of failures.
 
 Possible audio-recording failures:
@@ -113,4 +113,4 @@ This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxc
 ====
 ## License
 
-(WebRTC Experiments)[https://github.com/muaz-khan/WebRTC-Experiment] are released under (MIT licence)[https://webrtc-experiment.appspot.com/licence/] . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
