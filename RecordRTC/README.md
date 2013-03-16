@@ -1,5 +1,5 @@
 ====
-# [RecordRTC: WebRTC audio/video recording](http://bit.ly/RecordRTC-Demo)
+# RecordRTC: WebRTC audio/video recording / [Demo](http://bit.ly/RecordRTC-Demo)
 
 ## How to record audio?
 
@@ -47,6 +47,31 @@ recorder.save();
 video.src = recorder.getBlob();
 ```
 
+## Make sure that:
+
+1. You're using Chrome (Canary)[https://www.google.com/intl/en/chrome/browser/canary.html]
+2. You enabled flag `Web Audio Input` via `chrome://flags`
+
+## Possible issues/failures:
+
+1. Unfortunately, (RecordRTC)[https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RecordRTC/] is unable to record videos longer than one minute.
+2. It is appeared that audio-recording has 70% percent chances of failures.
+
+Possible audio-recording failures:
+
+1. Different audio input/output devices
+2. You're using chrome stable/dev/beta
+3. `Web Audio Input` flag is not enabled on `chrome canary`
+
+Saving to disk failures occurs because blob-URL (DataURL) gets longer than what DOM-parser can imagine/understand/expect.
+
+```javascript
+video.src = LongestBlobURL;     // works fine
+a.href = LongestBlobURL;   // fails; because browser can't expect a site's URL to be so long
+```
+
+For maximum URL length, not the most precise [answer](http://stackoverflow.com/questions/3721034/how-long-an-url-can-internet-explorer-9-take), but it looks like 2083 characters in the address bar and 5165 characters when following a link.
+
 ## FAQ
 
 **How to record audio and video in a single stream?**
@@ -84,3 +109,8 @@ This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxc
 ## Spec & Reference
 
 1. [Web Audio API](https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html)
+
+====
+## License
+
+(WebRTC Experiments)[https://github.com/muaz-khan/WebRTC-Experiment] are released under (MIT licence)[https://webrtc-experiment.appspot.com/licence/] . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

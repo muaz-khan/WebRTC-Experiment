@@ -1,19 +1,15 @@
-/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
-
 function RecordRTC(config) {
     var win = window,
         requestAnimationFrame = win.webkitRequestAnimationFrame,
-        cancelAnimationFrame = win.webkitCancelAnimationFrame;
-    URL = win.webkitURL,
-    canvas = document.createElement('canvas'),
-    context = canvas.getContext('2d'),
-    video = config.video;
+        cancelAnimationFrame = win.webkitCancelAnimationFrame,
+        URL = win.webkitURL,
+        canvas = document.createElement('canvas'),
+        context = canvas.getContext('2d'),
+        video = config.video;
 
     if (video) {
-        video.width = 320;
-        video.height = 240;
-        canvas.width = video.width;
-        canvas.height = video.height;
+        video.width = canvas.width = 320;
+        video.height = canvas.height = 240;
     }
 
     var requestedAnimationFrame, frames = [];
@@ -29,7 +25,7 @@ function RecordRTC(config) {
 
         frames = [];
 
-        function drawVideoFrame(time) {
+        function drawVideoFrame() {
             requestedAnimationFrame = requestAnimationFrame(drawVideoFrame);
             context.drawImage(video, 0, 0, width, height);
             frames.push(canvas.toDataURL('image/webp', 1));
@@ -74,7 +70,7 @@ function RecordRTC(config) {
         }
         initAudioRecorder(config.audioWorkerPath);
         audioContext = new AudioContext;
-        var mediaStreamSource = audioContext.createMediaStreamSource(config.stream)
+        var mediaStreamSource = audioContext.createMediaStreamSource(config.stream);
 
         mediaStreamSource.connect(audioContext.destination);
         recorder = new window.Recorder(mediaStreamSource);
@@ -137,40 +133,39 @@ function initAudioRecorder(audioWorkerPath) {
             worker.postMessage({
                 command: 'record',
                 buffer: [
-                e.inputBuffer.getChannelData(0),
-                e.inputBuffer.getChannelData(1)]
+                    e.inputBuffer.getChannelData(0),
+                    e.inputBuffer.getChannelData(1)]
             });
-        }
+        };
 
-        this.configure = function (cfg) {
-            for (var prop in cfg) {
-                if (cfg.hasOwnProperty(prop)) {
-                    config[prop] = cfg[prop];
+        this.configure = function (_cfg) {
+            for (var prop in _cfg) {
+                if (_cfg.hasOwnProperty(prop)) {
+                    config[prop] = _cfg[prop];
                 }
             }
-        }
+        };
 
         this.record = function () {
             recording = true;
-        }
+        };
 
         this.stop = function () {
             recording = false;
-        }
+        };
 
         this.clear = function () {
             worker.postMessage({
                 command: 'clear'
             });
-        }
+        };
 
         this.getBuffer = function (cb) {
             currCallback = cb || config.callback;
             worker.postMessage({
                 command: 'getBuffer'
-            })
-        }
-
+            });
+        };
         this.exportWAV = function (cb, type) {
             currCallback = cb || config.callback;
             type = type || config.type || 'audio/wav';
@@ -179,18 +174,18 @@ function initAudioRecorder(audioWorkerPath) {
                 command: 'exportWAV',
                 type: type
             });
-        }
+        };
 
-        worker.onmessage = function (e) {
+        worker.onmessage = function(e) {
             var blob = e.data;
             currCallback(blob);
-        }
+        };
 
         source.connect(this.node);
         this.node.connect(this.context.destination);
     };
 
-    Recorder.forceDownload = function (blob, filename) {
+    Recorder.forceDownload = function(blob, filename) {
         var url = (window.URL || window.webkitURL).createObjectURL(blob);
         var link = window.document.createElement('a');
         link.href = url;
@@ -198,7 +193,7 @@ function initAudioRecorder(audioWorkerPath) {
         var click = document.createEvent("Event");
         click.initEvent("click", true, true);
         link.dispatchEvent(click);
-    }
+    };
 
     window.Recorder = Recorder;
 
