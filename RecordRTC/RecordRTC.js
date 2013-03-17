@@ -34,30 +34,34 @@ function RecordRTC(config) {
         requestedAnimationFrame = requestAnimationFrame(drawVideoFrame);
     }
 
-    var blobURL, fileName;
+    var blobURL, blobURL2, fileType;
 
     function stopVideoRecording() {
         console.warn('stopped recording video frames');
         cancelAnimationFrame(requestedAnimationFrame);
 
         blobURL = Whammy.fromImageArray(frames, 1000 / 60);
+        fileType = 'webm';
         setBlob(blobURL);
-        fileName = 'WebRTC Recorded Video.webm';
         frames = [];
     }
 
     function saveToDisk() {
-        console.log('saving recorded stream to disk!');
-        var save = document.createElement('a');
-        save.href = blobURL;
-        save.target = '_blank';
-        save.download = fileName || 'recorded media';
+        var url = writer.toURL();
+        if (url) return window.open(url);
+        else {
+            console.log('saving recorded stream to disk!');
+            var save = document.createElement('a');
+            save.href = blobURL2;
+            save.target = '_blank';
+            save.download = (Math.random() * 1000 << 1000) + '.' + fileType;
 
-        var event = document.createEvent('Event');
-        event.initEvent('click', true, true);
+            var event = document.createEvent('Event');
+            event.initEvent('click', true, true);
 
-        save.dispatchEvent(event);
-        URL.revokeObjectURL(save.href);
+            save.dispatchEvent(event);
+            URL.revokeObjectURL(save.href);
+        }
     }
 
     var AudioContext = win.webkitAudioContext,
@@ -82,20 +86,31 @@ function RecordRTC(config) {
         console.warn('stopped recording audio frames');
         recorder && recorder.stop();
         recorder && recorder.exportWAV(function (blob) {
+            fileType = 'wav';
             setBlob(blob);
-            fileName = 'WebRTC Recorded Audio.wav';
         });
         recorder && recorder.clear();
     }
+    var writer;
 
     function setBlob(blob) {
+        blobURL = blob;
+
+        var config = {
+            blob: blobURL,
+            type: fileType === 'webm' ? 'video/webm' : 'audio/wav',
+            fileName: (Math.random() * 1000 << 1000) + '.' + fileType,
+            size: blobURL.length
+        };
+        writer = RecordRTCFileWriter(config);
+
         var reader = new win.FileReader();
-        reader.readAsDataURL(blob);
+        reader.readAsDataURL(blobURL);
         reader.onload = function (event) {
-            blobURL = event.target.result;
+            blobURL2 = event.target.result;
         };
     }
-	
+
     return {
         stopAudio: stopAudioRecording,
         stopVideo: stopVideoRecording,
@@ -103,7 +118,101 @@ function RecordRTC(config) {
         recordAudio: recordAudio,
         save: saveToDisk,
         getBlob: function () {
-            return blobURL;
+            return blobURL2;
+        },
+        toURL: function () {
+            return writer.toURL();
+        }
+    };
+}
+
+function RecordRTCFileWriter(config) {
+    window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+    var file;
+
+    var size = config.size,
+        fileName = config.fileName,
+        blob = config.blob,
+        type = config.type;
+
+    window.requestFileSystem(window.TEMPORARY, size, onsuccess, onerror);
+
+    function onsuccess(fileSystem) {
+        fileSystem.root.getFile(fileName, {
+            create: true,
+            exclusive: false
+        }, onsuccess, onerror);
+
+        function onsuccess(fileEntry) {
+            fileEntry.createWriter(onsuccess, onerror);
+
+            function onsuccess(fileWriter) {
+                fileWriter.onwriteend = function (e) {
+                    console.log(fileEntry.toURL());
+                    file = fileEntry;
+                };
+
+                fileWriter.onerror = function (e) {
+                    error('fileWriter error', e);
+                };
+
+                blob = new Blob([blob], {
+                    type: type
+                });
+
+                fileWriter.write(blob);
+            }
+
+            function onerror(e) {
+                error('fileEntry error', e);
+            }
+        }
+
+        function onerror(e) {
+            error('fileSystem error', e);
+        }
+    }
+
+    function onerror(e) {
+        error('requestFileSystem error', e);
+    }
+
+    var errorMessage;
+
+    function error(level, e) {
+        var msg = '';
+
+        switch (e.code) {
+            case FileError.QUOTA_EXCEEDED_ERR:
+                msg = 'QUOTA_EXCEEDED_ERR';
+                break;
+            case FileError.NOT_FOUND_ERR:
+                msg = 'NOT_FOUND_ERR';
+                break;
+            case FileError.SECURITY_ERR:
+                msg = 'SECURITY_ERR';
+                break;
+            case FileError.INVALID_MODIFICATION_ERR:
+                msg = 'INVALID_MODIFICATION_ERR';
+                break;
+            case FileError.INVALID_STATE_ERR:
+                msg = 'INVALID_STATE_ERR';
+                break;
+            default:
+                msg = 'Unknown Error';
+                break;
+        };
+
+        errorMessage = msg;
+        if (errorMessage === 'SECURITY_ERR')
+            errorMessage = 'SECURITY_ERR: Are you using chrome incognito mode?';
+
+        console.error(level + ':\n' + errorMessage);
+    }
+    return {
+        toURL: function () {
+            if (errorMessage) alert(errorMessage);
+            else return file.toURL();
         }
     };
 }
@@ -133,8 +242,8 @@ function initAudioRecorder(audioWorkerPath) {
             worker.postMessage({
                 command: 'record',
                 buffer: [
-                    e.inputBuffer.getChannelData(0),
-                    e.inputBuffer.getChannelData(1)]
+                e.inputBuffer.getChannelData(0),
+                e.inputBuffer.getChannelData(1)]
             });
         };
 
@@ -176,7 +285,7 @@ function initAudioRecorder(audioWorkerPath) {
             });
         };
 
-        worker.onmessage = function(e) {
+        worker.onmessage = function (e) {
             var blob = e.data;
             currCallback(blob);
         };
@@ -185,7 +294,7 @@ function initAudioRecorder(audioWorkerPath) {
         this.node.connect(this.context.destination);
     };
 
-    Recorder.forceDownload = function(blob, filename) {
+    Recorder.forceDownload = function (blob, filename) {
         var url = (window.URL || window.webkitURL).createObjectURL(blob);
         var link = window.document.createElement('a');
         link.href = url;

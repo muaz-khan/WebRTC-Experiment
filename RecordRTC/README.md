@@ -1,5 +1,5 @@
 ====
-# RecordRTC: WebRTC audio/video recording / [Demo](http://bit.ly/RecordRTC-Demo)
+# [RecordRTC](http://bit.ly/RecordRTC): WebRTC audio/video recording / [Demo](http://bit.ly/RecordRTC-Demo)
 
 ## How to record audio?
 
@@ -54,8 +54,7 @@ video.src = recorder.getBlob();
 
 ## Possible issues/failures:
 
-1. Unfortunately, [RecordRTC](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RecordRTC/) is unable to record videos longer than one minute.
-2. It is appeared that audio-recording has 70% percent chances of failures.
+It is appeared that audio-recording has many chances of failures.
 
 Possible audio-recording failures:
 
@@ -63,14 +62,12 @@ Possible audio-recording failures:
 2. You're using chrome stable/dev/beta
 3. `Web Audio Input` flag is not enabled on `chrome canary`
 
-Saving to disk failures occurs because blob-URL (DataURL) gets longer than what DOM-parser can imagine/understand/expect.
+## Saving to disk failures:
 
-```javascript
-video.src = LongestBlobURL;     // works fine
-a.href = LongestBlobURL;   // fails; because browser can't expect a site's URL to be so long
-```
+1. You're using chrome `incognito` mode
+2. `RecordRTC` created **duplicate** temporary file
 
-For maximum URL length, not the most precise [answer](http://stackoverflow.com/questions/3721034/how-long-an-url-can-internet-explorer-9-take), but it looks like 2083 characters in the address bar and 5165 characters when following a link.
+Click `Save to Disk` button; new tab will open; right-click over video and choose `Save video as...` option from context menu.
 
 ## FAQ
 
@@ -85,7 +82,7 @@ It is work in progress.
 ====
 # Browser Support
 
-This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RecordRTC/) works fine on following web-browsers:
+[RecordRTC Demo](http://bit.ly/RecordRTC-Demo) works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------:|
@@ -97,13 +94,8 @@ This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxc
 ====
 ## Credits
 
-1. [Audio Recording](https://github.com/mattdiamond/Recorderjs)
-2. [Video Recording](https://github.com/antimatter15/whammy)
-
-====
-## Demo
-
-[RecordRTC: WebRTC audio/video recording](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RecordRTC/)
+1. [Recorderjs](https://github.com/mattdiamond/Recorderjs) / Audio Recording
+2. [whammy](https://github.com/antimatter15/whammy) / Video Recording
 
 ====
 ## Spec & Reference
@@ -113,4 +105,4 @@ This [WebRTC Experiment](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxc
 ====
 ## License
 
-[WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RecordRTC](http://bit.ly/RecordRTC) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

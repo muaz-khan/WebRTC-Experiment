@@ -1,9 +1,9 @@
-**Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
+**Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
 
 ====
-# Cross Browser Support
+## Browser Support / [Demo](https://webrtc-experiment.appspot.com/websocket/)
 
-This [WebRTC Experiment](https://webrtc-experiment.appspot.com/websocket/) works fine on following web-browsers:
+This [One-to-one WebRTC video chat using WebSocket](https://webrtc-experiment.appspot.com/websocket/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------:|
@@ -21,37 +21,7 @@ This [WebRTC Experiment](https://webrtc-experiment.appspot.com/websocket/) works
 2. Easily understand and usable code
 3. Change maximum 3 lines to use your own WebSocket implementation!
 
-# Use your own WebSocket implementation!
-
-```javascript
-var config = {
-    // JUST change code in openSocket method
-    openSocket: function (config) {
-        // ---------------------------- from here
-
-		'use strict';
-		var socket = new WebSocket('your own WebSocket URL');
-
-		// set channel: 'video-chat' is the default channel
-        socket.channel = config.channel || 'video-chat';
-
-		// when socket gets message: call 'config.onmessage'
-		socket.onmessage = function (evt) {
-			config.onmessage(evt.data);
-		};
-
-		// when socket opens: call 'config.onopen'
-		if(config.onopen) socket.onopen = config.onopen;
-
-        // return socket object; because it will be used later
-        return socket;
-
-        // ---------------------------- to here --- and that's all you need to do!
-    }
-};
-```
-
 ====
-## License & Credits
+## License
 
-MIT: https://webrtc-experiment.appspot.com/licence/ : Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+This [WebRTC Experiment](https://webrtc-experiment.appspot.com/websocket/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

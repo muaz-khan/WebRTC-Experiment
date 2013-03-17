@@ -1,148 +1,88 @@
-﻿<html>
+﻿<!DOCTYPE html>
+<html id="home" lang="en">
+    
     <head>
         <title>RecordRTC: WebRTC audio/video recording ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset=utf-8>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    </head>
-    
-    <body>
-        <h1 style="text-align: center;">
-            <a href="http://bit.ly/RecordRTC">RecordRTC</a>: <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC</a> audio/video recording
-        </h1>
-
-        <script src="RecordRTC.js"></script>
-        <video id="client-video" autoplay loop></video>
-
-        <script>
-            var video = document.getElementById('client-video'),
-                constraints = {
-                    audio: true,
-                    video: {
-                        mandatory: { },
-                        optional: []
-                    }
-                };
-            navigator.webkitGetUserMedia(constraints, function(stream) {
-                video.src = window.webkitURL.createObjectURL(stream);
-                recorder = RecordRTC({
-                    stream: stream,
-                    video: video
-                });
-            });
-        </script>
-        <br />
-        <button id="record-audio">Record Audio</button>
-        <button id="record-video">Record Video</button>
-        <br />
-        <button id="stop-recording-audio" disabled>Stop Recording Audio</button>
-        <button id="stop-recording-video" disabled>Stop Recording Video</button>
-        <script>
-            function getByID(id) {
-                return document.getElementById(id);
-            }
-
-            var recordAudio = getByID('record-audio'),
-                recordVideo = getByID('record-video'),
-                stopRecordingAudio = getByID('stop-recording-audio'),
-                stopRecordingVideo = getByID('stop-recording-video');
-
-            var recorder;
-
-            recordAudio.onclick = function() {
-                window.isAudio = true;
-                recorder.recordAudio();
-
-                this.disabled = true;
-                stopRecordingAudio.disabled = false;
-                recordVideo.disabled = true;
-                disableSaveGetBlob();
-            };
-
-            recordVideo.onclick = function() {
-                window.isAudio = false;
-                recorder.recordVideo();
-
-                this.disabled = true;
-                stopRecordingVideo.disabled = false;
-                recordAudio.disabled = true;
-                disableSaveGetBlob();
-            };
-
-            stopRecordingAudio.onclick = function() {
-                recorder.stopAudio();
-                this.disabled = true;
-                recordAudio.disabled = false;
-                recordVideo.disabled = false;
-                enableSaveGetBlob();
-            };
-
-            stopRecordingVideo.onclick = function() {
-                recorder.stopVideo();
-                this.disabled = true;
-                recordVideo.disabled = false;
-                recordAudio.disabled = false;
-                enableSaveGetBlob();
-            };
-        </script>
-        <textarea id="blob-output" style="height: 8em; width: 100%;" disabled></textarea>
-        <button id="get-blob" disabled>Get Blob</button>
-        <button id="save-to-disk" disabled>Save to Disk</button>
-        <script>
-            var getBlob = getByID('get-blob'),
-                blobOutput = getByID('blob-output'),
-                saveToDisk = getByID('save-to-disk');
-
-            getBlob.onclick = function() {
-                blobOutput.value = recorder.getBlob();
-            };
-
-            saveToDisk.onclick = function() {
-                recorder.save();
-            };
-
-            function disableSaveGetBlob() {
-                getBlob.disabled = true;
-                saveToDisk.disabled = true;
-                preview.disabled = true;
-            }
-
-            function enableSaveGetBlob() {
-                getBlob.disabled = false;
-                saveToDisk.disabled = false;
-                preview.disabled = false;
-            }
-        </script>
-        <button id="source-code">View Source Code of this Page</button>
-        <button id="preview" disabled>Preview</button>
-        <script>
-            getByID('source-code').onclick = function() {
-                location.href = 'view-source:' + location.href;
-            };
-            var preview = getByID('preview');
-            preview.onclick = function() {
-                if (window.isAudio) {
-                    var audio = document.createElement('audio');
-                    audio.src = recorder.getBlob();
-                    audio.controls = true;
-                    audio.onplay = function() {
-                        this.muted = false;
-                        this.volume = 1;
-                    };
-                    document.body.insertBefore(audio, document.body.childNodes[0]);
-                    audio.play();
-                } else {
-                    var video = document.createElement('video');
-                    video.src = recorder.getBlob();
-                    video.controls = true;
-                    document.body.insertBefore(video, document.body.childNodes[0]);
-                    video.play();
-                }
-            };
-        </script>
         <style>
-            * { font-family: Calibri; }
-
-            html { background: #ECECEC; }
-
+            @import url(https://fonts.googleapis.com/css?family=Inconsolata);
+            html {
+                background: #eee;
+            }
+            body {
+                margin: 0;
+                font-family:"Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+                font-size: 1.2em;
+                line-height: 1.2em;
+            }
+            article, footer {
+                display: block;
+                min-width: 360px;
+                max-width: 900px;
+                width: 80%;
+            }
+            article {
+                margin: 2.5em auto 0 auto;
+                border: 1px solid;
+                border-color: #ddd #aaa #aaa #ddd;
+                padding: 2em;
+                background: #fff;
+            }
+            h1 {
+                margin-top: 0;
+            }
+            article p:first-of-type {
+                margin-top: 1.6em;
+            }
+            article p:last-child {
+                margin-bottom: 0;
+            }
+            footer {
+                margin: 0em auto 2em auto;
+                text-align: center;
+            }
+            footer a {
+                color: #666;
+                text-shadow: 0 1px 1px #fff;
+                text-decoration:none;
+                font-size:inherit;
+                padding: 1em;
+            }
+            footer a:hover, footer a:focus {
+                color: #111;
+            }
+            h1 {
+                font-weight:normal;
+                display:inline;
+                border-bottom:1px solid black;
+                padding:0 0 3px 0;
+                line-height: 36px;
+            }
+            a {
+                color:#2844FA;
+                text-decoration:none;
+            }
+            a:hover, a:focus {
+                color:#1B29A4;
+            }
+            a:active {
+                color:#000;
+            }
+            :-moz-any-link:focus {
+                color:#000;
+                border:0;
+            }
+            ::selection {
+                background:#ccc;
+            }
+            ::-moz-selection {
+                background:#ccc;
+            }
             button {
                 -moz-border-radius: 3px;
                 -moz-transition: none;
@@ -159,53 +99,206 @@
                 padding: 5px 12px;
                 text-align: center;
                 text-shadow: 1px 1px 1px #076bd2;
+                font-family:inherit;
             }
-
-            button:hover { background: rgb(9, 147, 240); }
-
-            button:active { background: rgb(10, 118, 190); }
-
+            button:hover {
+                background: rgb(9, 147, 240);
+            }
+            button:active {
+                background: rgb(10, 118, 190);
+            }
             button[disabled] {
                 background: none;
                 border: 1px solid rgb(187, 181, 181);
                 color: gray;
                 text-shadow: none;
             }
-
-            code { color: red; }
+            code {
+                color: red;
+                font-family:inherit;
+            }
         </style>
-        <a href="http://bit.ly/RecordRTC">Source code on Github!</a>
-        <h2>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+    </head>
+    
+    <body>
+        <article>
+            
+		<h1>
+            <a href="http://bit.ly/RecordRTC" target="_blank">RecordRTC</a>: <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC</a> audio/video recording
+        </h1>
+
+            <p>Copyright © 2013
+                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>&lt;
+                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>&gt;.</p>
+            
+            <script src="RecordRTC.js"></script>
+            <video id="client-video" autoplay loop></video>
+            <script>
+                var video = document.getElementById('client-video'),
+                    constraints = {
+                        audio: true,
+                        video: {
+                            mandatory: {},
+                            optional: []
+                        }
+                    };
+                navigator.webkitGetUserMedia(constraints, function (stream) {
+                    video.src = window.webkitURL.createObjectURL(stream);
+                    recorder = RecordRTC({
+                        stream: stream,
+                        video: video
+                    });
+                });
+            </script>
+            <br />
+            <button id="record-audio">Record Audio</button>
+            <button id="record-video">Record Video</button>
+            <br />
+            <button id="stop-recording-audio" disabled>Stop Recording Audio</button>
+            <button id="stop-recording-video" disabled>Stop Recording Video</button>
+            <script>
+                function getByID(id) {
+                    return document.getElementById(id);
+                }
+
+                var recordAudio = getByID('record-audio'),
+                    recordVideo = getByID('record-video'),
+                    stopRecordingAudio = getByID('stop-recording-audio'),
+                    stopRecordingVideo = getByID('stop-recording-video');
+
+                var recorder;
+
+                recordAudio.onclick = function () {
+                    window.isAudio = true;
+                    recorder.recordAudio();
+
+                    this.disabled = true;
+                    stopRecordingAudio.disabled = false;
+                    recordVideo.disabled = true;
+                    disableSaveGetBlob();
+                };
+
+                recordVideo.onclick = function () {
+                    window.isAudio = false;
+                    recorder.recordVideo();
+
+                    this.disabled = true;
+                    stopRecordingVideo.disabled = false;
+                    recordAudio.disabled = true;
+                    disableSaveGetBlob();
+                };
+
+                stopRecordingAudio.onclick = function () {
+                    recorder.stopAudio();
+                    this.disabled = true;
+                    recordAudio.disabled = false;
+                    recordVideo.disabled = false;
+                    enableSaveGetBlob();
+                };
+
+                stopRecordingVideo.onclick = function () {
+                    recorder.stopVideo();
+                    this.disabled = true;
+                    recordVideo.disabled = false;
+                    recordAudio.disabled = false;
+                    enableSaveGetBlob();
+                };
+            </script>
+            <textarea id="blob-output" style="height: 8em; width: 100%;" disabled></textarea>
+            <button id="get-url" disabled>Get URL</button>
+            <button id="save-to-disk" disabled>Save to Disk</button>
+            <script>
+                var getURL = getByID('get-url'),
+                    blobOutput = getByID('blob-output'),
+                    saveToDisk = getByID('save-to-disk');
+
+                getURL.onclick = function () {
+                    blobOutput.value = recorder.toURL();
+                };
+
+                saveToDisk.onclick = function () {
+                    recorder.save();
+                };
+
+                function disableSaveGetBlob() {
+                    getURL.disabled = true;
+                    saveToDisk.disabled = true;
+                    preview.disabled = true;
+                }
+
+                function enableSaveGetBlob() {
+                    getURL.disabled = false;
+                    saveToDisk.disabled = false;
+                    preview.disabled = false;
+                }
+            </script>
+            <button id="preview" disabled>Preview</button>
+            <script>
+                var preview = getByID('preview');
+                preview.onclick = function () {
+                    var htmlElement;
+                    if (window.isAudio) {
+                        htmlElement = document.createElement('audio');
+                        htmlElement.src = recorder.getBlob();
+                        htmlElement.onplay = function () {
+                            this.muted = false;
+                            this.volume = 1;
+                        };
+                    } else {
+                        htmlElement = document.createElement('video');
+                        htmlElement.src = recorder.getBlob();
+                    }
+
+                    var article = document.querySelector('article') || document.body;
+                    article.insertBefore(htmlElement, article.firstChild);
+
+                    htmlElement.controls = true;
+                    htmlElement.play();
+                };
+            </script>
+            <a href="http://bit.ly/RecordRTC" target="_blank">Source code on Github!</a>
+             <h2>
             Make sure that:
         </h2>
 
-        <ol>
-            <li>You're using Chrome Canary</li>
-            <li>You enabled flag "<code>Web Audio Input</code>" via "<code>chrome://flags</code>"</li>
-        </ol>
-		
-        <h2>
+            <ol>
+                <li>You're using Chrome Canary</li>
+                <li>You enabled flag "<code>Web Audio Input</code>" via "<code>chrome://flags</code>"</li>
+            </ol>
+             <h2>
             Possible <a href="http://bit.ly/webrtc-issues" target="_blank">issues</a>/<a href="http://bit.ly/webrtc-issues" target="_blank">failures</a>:
         </h2>
-		
-        <ol>
-            <li>
-                Unfortunately, RecordRTC is unable to record videos longer than one minute.
-            </li>
-			
-            <li>
-                It is appeared that audio-recording has 70% percent chances of failures.<br />
-                Possible audio-recording failures:
+
+            <p>It is appeared that audio-recording has many chances of failures.
+                <br />Possible audio-recording failures:
                 <ol>
                     <li>Different audio input/output devices</li>
                     <li>You're using chrome stable/dev/beta</li>
                     <li>"<code>Web Audio Input</code>" flag is not enabled on "<code>chrome canary</code>"</li>
                 </ol>
-            </li>
-			
-            <li>
-                Saving to disk failures occurs because blob-URL (DataURL) gets longer than what DOM-parser can imagine/understand/expect.
-            </li>
-        </ol>
+            </p>
+            	<h2>
+			Saving to disk failures:
+		</h2>
+
+            <ol>
+                <li>You're using chrome <code>incognito</code> mode</li>
+                <li> <code>RecordRTC</code> created <code>duplicate</code> temporary file</li>
+            </ol>Click <code>Save to Disk</code> button; new tab will open; right-click over video and choose <code>Save video as...</code> option from context menu.
+        </article>
+        <footer>
+            <p>
+                <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC Experiments!</a>©
+                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span> 2013 </span> »
+                <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
+                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
+                <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+            </p>
+        </footer>
     </body>
 </html>

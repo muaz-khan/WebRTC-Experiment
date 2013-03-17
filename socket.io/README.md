@@ -1,9 +1,9 @@
-**Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
+**Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
 
 ====
-# Cross Browser Support (Interoperable)
+## Browser Support / [Demo](https://webrtc-experiment.appspot.com/socket.io/)
 
-This [WebRTC Experiment](https://webrtc-experiment.appspot.com/socket.io/) works fine on following web-browsers:
+This [One-to-one WebRTC video chat using socket.io](https://webrtc-experiment.appspot.com/socket.io/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------:|
@@ -19,34 +19,28 @@ This [WebRTC Experiment](https://webrtc-experiment.appspot.com/socket.io/) works
 2. Easily understand and usable code
 3. Change maximum 3 lines to use your own node.js specific socket.io implementation!
 
-# Use your own socket.io implementation!
+## Use your own socket.io implementation!
+
+You must link `socket.io.js` file before using below code:
 
 ```javascript
 var config = {
-    // JUST change code in openSocket method
     openSocket: function (config) {
-        // ---------------------------- from here
-        
-        var socket = io.connect('your own socket.io URL');
+        var socket = io.connect('http://your-site:8888');
+        socket.channel = config.channel || 'WebRTC-Experiment';
+		socket.on('message', config.onmessage);
+		
+        socket.send = function (data) {
+            socket.emit('message', data);
+        };
 
-        // set channel: 'video-chat' is the default channel
-        socket.channel: config.channel || 'video-chat';
-
-        // when socket opens: call 'config.onopen'
-        config.onopen && socket.on('connect', config.onopen);
-
-        // when socket gets message: call 'config.onmessage'
-        socket.on('message', config.onmessage);
-
-        // return socket object; because it will be used later
+        if (config.onopen) setTimeout(config.onopen, 1);
         return socket;
-
-        // ---------------------------- to here --- and that's all you need to do!
     }
 };
 ```
 
 ====
-## License & Credits
+## License
 
-MIT: https://webrtc-experiment.appspot.com/licence/ : Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+This [WebRTC Experiment](https://webrtc-experiment.appspot.com/socket.io/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

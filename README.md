@@ -1,7 +1,7 @@
-**Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
+**Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
 
 ====
-## Cross Browser Support (All Experiments are interoperable!)
+## Browser Support
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
 
 | Browser        | Support           |
@@ -29,13 +29,14 @@
 | [Screen Sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) : *one to many* |
 | [Screen Viewer](https://webrtc-experiment.appspot.com/screen-viewer/) : *one-to-many WebRTC Screen Sharing!* |
 | [Chrome to Firefox Screen Sharing](https://googledrive.com/host/0B6GWd_dUUTT8YUJaMkZ2d0NzQmc/WebRTC-Screen-Viewer.html) :  Cross Browser Screen Sharing! |
-| [WebRTC part of screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/) : *Sharing part of screen; not the entire screen!* |
-| [RecordRTC: WebRTC audio/video recording](http://bit.ly/RecordRTC) : [Demo](http://bit.ly/RecordRTC-Demo) |
 
-[Pre-recorded media streaming](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/Pre-recorded-Media-Streaming/)
+1. [WebRTC part of screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/) / *Sharing part of screen (DIV/SECTION/ASIDE/ARTICLE/etc.); not the entire screen!*
+2. [RecordRTC: WebRTC audio/video recording](http://bit.ly/RecordRTC) / [Demo](http://bit.ly/RecordRTC-Demo)
+3. [Pre-recorded media streaming](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/Pre-recorded-Media-Streaming/)
 
 | A few documents for newbies and beginners        |
 | ------------- |
+| [RTCPeerConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/wiki/RTCPeerConnection-Documentation) |
 | [How to use RTCPeerConnection.js?](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html) |
 | [RTCDataChannel for Beginners](https://webrtc-experiment.appspot.com/docs/rtc-datachannel-for-beginners.html) |
 | [How to use RTCDataChannel?](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcdatachannel.html) - single code for both canary and nightly |
@@ -45,22 +46,30 @@
 | [How to share audio-only streams?](https://webrtc-experiment.appspot.com/docs/how-to-share-audio-only-streams.html) |
 | [How to broadcast files using RTCDataChannel APIs?](https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html) |
 
+Some other documents on [WebRTC Wiki](https://github.com/muaz-khan/WebRTC-Experiment/wiki) pages.
 
 ## Use your own socket.io implementation!
+
+You must link `socket.io.js` file before using below code:
 
 ```javascript
 var config = {
     openSocket: function (config) {
-        var socket = io.connect('your own socket.io URL');
+        var socket = io.connect('http://your-site:8888');
         socket.channel = config.channel || 'WebRTC-Experiment';
-        config.onopen && socket.on('connect', config.onopen);
-        socket.on('message', config.onmessage);
+		socket.on('message', config.onmessage);
+		
+        socket.send = function (data) {
+            socket.emit('message', data);
+        };
+
+        if (config.onopen) setTimeout(config.onopen, 1);
         return socket;
     }
 };
 ```
 
-For testing purpose, use firebase:
+For `testing purpose`, you can use **Firebase**. Remember, You must link [firebase.js](https://cdn.firebase.com/v0/firebase.js) file before using below code:
 
 ```javascript
 var config = {
@@ -80,23 +89,6 @@ var config = {
     }
 };
 
-```
-
-or pubnub:
-
-```javascript
-var config = {
-    openSocket: function (config) {
-        var socket = io.connect('http://pubsub.pubnub.com/WebRTC-Experiment', {
-            publish_key: 'pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd',
-            subscribe_key: 'sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90',
-            channel: config.channel || 'WebRTC-Experiment'
-        });
-        config.onopen && socket.on('connect', config.onopen);
-        socket.on('message', config.onmessage);
-        return socket;
-    }
-};
 ```
 
 ====

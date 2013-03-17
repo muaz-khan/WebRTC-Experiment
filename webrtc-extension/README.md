@@ -1,23 +1,21 @@
-**Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
+Try [WebRTC plugin free screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html) instead. No tabCapture APIs; No chrome extension; No Firefox add-ons!
 
 ====
 # Browser Support
 
-This [WebRTC Experiment](https://webrtc-experiment.appspot.com/screen-broadcast/) works fine on following web-browsers:
+[WebRTC Screen Broadcasting Experiment](https://webrtc-experiment.appspot.com/screen-broadcast/) works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------:|
 | Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
 
-## How Screen Broadcast Extension Works?
-
 In simple words, multi-peers and sockets are opened to make it work!
 
 [This webrtc experiment](https://webrtc-experiment.appspot.com/screen-broadcast/) uses socket.io as signaling gateway.
 
-Stream is captured using Google Chrome experimental tabCapture APIs and transmitted over socket.
+Stream is captured using Google Chrome experimental `tabCapture APIs` and transmitted over socket.
 
-## Download: http://code.google.com/p/muazkh/downloads/list
+## [Download](http://code.google.com/p/muazkh/downloads/list) chrome extension using tabCapture APIs
 
 It has the ability to handle unlimited peers. So unlimited peers can get access to broadcasted screen.
 
@@ -46,14 +44,14 @@ chrome.tabCapture.capture({ audio: true, video: true }, function(stream) {
 ...
 ```
 
-You can see permission for tabCapture APIs.
+You can see permission for `tabCapture APIs`.
 
 1. [socket.io.js](https://webrtc-experiment.appspot.com/webrtc-extension/socket.io.js)
 2. [RTCPeerConnection.js](https://webrtc-experiment.appspot.com/webrtc-extension/RTCPeerConnection.js)
 3. [original.js](https://webrtc-experiment.appspot.com/webrtc-extension/original.js)
 4. [broadcaster.js](https://webrtc-experiment.appspot.com/webrtc-extension/broadcaster.js)
 
-I used socket.io over PubNub...you can use whatever you want. So only [broadcaster.js](https://webrtc-experiment.appspot.com/webrtc-extension/broadcaster.js) file is important for you!
+I used socket.io over `PubNub`...you can use whatever you want. So only [broadcaster.js](https://webrtc-experiment.appspot.com/webrtc-extension/broadcaster.js) file is important for you!
 
 # Remember:
 
@@ -68,6 +66,6 @@ var socket_config = {
 ```
 
 ====
-## License & Credits
+## License
 
-MIT: https://webrtc-experiment.appspot.com/licence/ : Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Screen Broadcasting Experiment](https://webrtc-experiment.appspot.com/screen-broadcast/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

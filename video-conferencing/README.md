@@ -1,9 +1,9 @@
-**Just copy HTML code in your site and that's all you need to do. Nothing to install! No requirements!**
+**Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
 
 ====
-# Cross Browser Support
+## Browser Support / [Demo](https://webrtc-experiment.appspot.com/video-conferencing/)
 
-This [WebRTC Experiment](https://webrtc-experiment.appspot.com/video-conferencing/) works fine on following web-browsers:
+This [WebRTC Video Conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------:|
@@ -27,34 +27,7 @@ In simple words, multi-peers and sockets are opened to make it work!
 4. Easily understandable code (use it free of cost!)
 5. Change only 3-lines to use your own socket.io implementation!
 
-# Use your own socket.io implementation!
-
-```javascript
-var config = {
-    // JUST change code in openSocket method
-    openSocket: function (config) {
-        // ---------------------------- from here
-        
-        var socket = io.connect('your own socket.io URL');
-
-        // set channel: 'video-conferencing' is the default channel
-        socket.channel = config.channel || 'video-conferencing';
-
-        // when socket opens: call 'config.onopen'
-        config.onopen && socket.on('connect', config.onopen);
-
-        // when socket gets message: call 'config.onmessage'
-        socket.on('message', config.onmessage);
-
-        // return socket object; because it will be used later
-        return socket;
-
-        // ---------------------------- to here --- and that's all you need to do!
-    }
-};
-```
-
 ====
-## License & Credits
+## License
 
-MIT: https://webrtc-experiment.appspot.com/licence/ : Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+This [WebRTC Experiment](https://webrtc-experiment.appspot.com/video-conferencing/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
