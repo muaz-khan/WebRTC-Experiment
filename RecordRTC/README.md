@@ -66,6 +66,8 @@ Possible audio-recording failures:
 
 1. You're using chrome `incognito` mode
 2. `RecordRTC` created **duplicate** temporary file
+3. the requesting scheme is none of the following: `http`, `https`, `chrome`, extension's, or `file` (only works with `--allow-file-access-from-files`)
+4. the browser cannot create/initialize the metadata database for the API under the profile directory
 
 Click `Save to Disk` button; new tab will open; right-click over video and choose `Save video as...` option from context menu.
 
