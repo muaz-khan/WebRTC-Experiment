@@ -66,8 +66,8 @@ Possible audio-recording failures:
 
 1. You're using chrome `incognito` mode
 2. `RecordRTC` created **duplicate** temporary file
-3. the requesting scheme is none of the following: `http`, `https`, `chrome`, extension's, or `file` (only works with `--allow-file-access-from-files`)
-4. the browser cannot create/initialize the metadata database for the API under the profile directory
+3. The requesting scheme is none of the following: `http`, `https`, `chrome`, extension's, or `file` (only works with `--allow-file-access-from-files`)
+4. The browser cannot create/initialize the metadata database for the API under the profile directory
 
 Click `Save to Disk` button; new tab will open; right-click over video and choose `Save video as...` option from context menu.
 
@@ -88,10 +88,8 @@ It is work in progress.
 
 | Browser        | Support           |
 | ------------- |:-------------:|
-| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) |
-| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
-| Google Chrome | [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) |
-| Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
+| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
+| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 
 ====
 ## Credits

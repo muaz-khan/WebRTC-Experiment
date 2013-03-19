@@ -205,7 +205,7 @@ function RecordRTCFileWriter(config) {
 
         errorMessage = msg;
         if (errorMessage === 'SECURITY_ERR')
-            errorMessage = 'SECURITY_ERR: Are you using chrome incognito mode?';
+            errorMessage = 'SECURITY_ERR: Are you using chrome incognito mode? It seems that access to "requestFileSystem" API is denied.';
 
         console.error(level + ':\n' + errorMessage);
     }

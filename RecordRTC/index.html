@@ -1,6 +1,5 @@
 ﻿<!DOCTYPE html>
 <html id="home" lang="en">
-    
     <head>
         <title>RecordRTC: WebRTC audio/video recording ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -56,7 +55,7 @@
             footer a:hover, footer a:focus {
                 color: #111;
             }
-            h1 {
+            h1,h2 {
                 font-weight:normal;
                 display:inline;
                 border-bottom:1px solid black;
@@ -114,7 +113,7 @@
                 text-shadow: none;
             }
             code {
-                color: red;
+                color: rgb(204, 14, 14);
                 font-family:inherit;
             }
         </style>
@@ -128,14 +127,13 @@
     <body>
         <article>
             
-		<h1>
-            <a href="http://bit.ly/RecordRTC" target="_blank">RecordRTC</a>: <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC</a> audio/video recording
-        </h1>
+			<h1>
+				<a href="http://bit.ly/RecordRTC" target="_blank">RecordRTC</a>: <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC</a> audio/video recording
+			</h1>
 
-            <p>Copyright © 2013
-                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>&lt;
-                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>&gt;.</p>
-            
+            <p>
+				Copyright © 2013 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>&lt;<a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>&gt;.
+			</p>
             <script src="RecordRTC.js"></script>
             <video id="client-video" autoplay loop></video>
             <script>
@@ -209,16 +207,20 @@
                     enableSaveGetBlob();
                 };
             </script>
-            <textarea id="blob-output" style="height: 8em; width: 100%;" disabled></textarea>
+			<br />
+			<h2 id="url-preview" style="display:none;"></h2>
+			<br />
             <button id="get-url" disabled>Get URL</button>
             <button id="save-to-disk" disabled>Save to Disk</button>
             <script>
                 var getURL = getByID('get-url'),
-                    blobOutput = getByID('blob-output'),
+                    urlPreview = getByID('url-preview'),
                     saveToDisk = getByID('save-to-disk');
 
                 getURL.onclick = function () {
-                    blobOutput.value = recorder.toURL();
+                    var url = recorder.toURL();
+					urlPreview.innerHTML = '<a href="'+ url +'" target="_blank">'+ url +'</a>';
+					urlPreview.style.display = 'inline-block';
                 };
 
                 saveToDisk.onclick = function () {
@@ -262,9 +264,10 @@
                 };
             </script>
             <a href="http://bit.ly/RecordRTC" target="_blank">Source code on Github!</a>
-             <h2>
-            Make sure that:
-        </h2>
+             <br />
+			<h2>
+				Make sure that:
+			</h2>
 
             <ol>
                 <li>You're using Chrome Canary</li>
@@ -280,6 +283,8 @@
                     <li>Different audio input/output devices</li>
                     <li>You're using chrome stable/dev/beta</li>
                     <li>"<code>Web Audio Input</code>" flag is not enabled on "<code>chrome canary</code>"</li>
+					<li>The requesting scheme is none of the following: http, https, chrome, extension's, or file (only works with --allow-file-access-from-files)</li>
+					<li>The browser cannot create/initialize the metadata database for the API under the profile directory</li>
                 </ol>
             </p>
             	<h2>
@@ -293,7 +298,7 @@
         </article>
         <footer>
             <p>
-                <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC Experiments!</a>©
+                <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC Experiments!</a> ©
                 <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span> 2013 </span> »
                 <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
                 <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»

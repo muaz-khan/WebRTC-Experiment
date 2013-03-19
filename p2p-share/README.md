@@ -1,32 +1,55 @@
+# WebRTC P2P File Sharing
+
+It is a WebRTC `one-to-many` file sharing experiment.
+
+This ***WebRTC File Broadcasting* experiment is a little bit old. 
+
+Try [WebRTC P2P Group File Sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout) experiment that allows you:
+
+1. Share files in a group (many-to-many)
+2. Unlimited data connections on Firefox
+
+## How WebRTC file sharing experiment works?
+
+1. It shares the file directly over all connected data ports
+2. By default `16 SCTP streams` are used by Firefox...data sharing is faster!
+
+## Is this a P2P file distributing system?
+
+Sure, it is a P2P file distribution using `RTCDataChannel` APIs; over `SCTP` data ports, in the moment.
+
+## Is this a torrent like file distributing/sharing system?
+
+This P2P file sharing experiment works like this:
+
+1. Multi-peers are opened to support Multi-users
+2. Multi data ports are opened in muli-directions
+3. If `UserA` share file...file will be transferred asynchronously over all connected data ports.
+4. All other users are connected directly to each other; like a hexagon or other many directional shape.
+
+## Chrome and unreliable data connection...how it works?
+
+In a simple one-to-one data session; two RTP ports get open on chrome:
+
+1. One RTP data port of outband
+2. One RTP data port of inband
+
+So many limitations in the moment; to resolve all those limitations; data/files gets splitted in small chunks; and those chunks are transferred `one-after-other` after predefined time interval to make distribution consistent and reliable.
+
+## How to use `One-to-Many File Sharing` in your own site?
+
 **Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
 
-====
 ## Browser Support
 
-WebRTC **File Broadcasting Experiment** works fine on following web-browsers:
+WebRTC **File Broadcasting** (file sharing) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------:|
-| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) |
-| Firefox | [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) |
-| Firefox | [Nightly](http://nightly.mozilla.org/) |
-| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) |
-| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
-| Google Chrome | [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) |
-| Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
+| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
+| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
-| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta) |
 
-## How File Broadcasting Works?
-
-In simple words, multi-peers and sockets are opened to make it work!
-
-1. File broadcasting capability (one-to-many)
-2. Private broadcasting rooms
-3. Used best algorithms to keep your data safe! Nothing will lose!
-4. On Firefox, it will be superfast!
-
-====
 ## License
 
 WebRTC **File Broadcasting** experiment is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

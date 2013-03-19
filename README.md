@@ -6,33 +6,60 @@
 
 | Browser        | Support           |
 | ------------- |:-------------:|
-| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) |
-| Firefox | [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) |
-| Firefox | [Nightly](http://nightly.mozilla.org/) |
-| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) |
-| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
-| Google Chrome | [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) |
-| Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
+| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
+| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
-| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta) |
 
 
-| A few top-level [WebRTC Experiments](https://webrtc-experiment.appspot.com)        |
+| Hangout / Conferencing / Group Sharing |
 | ------------- |
-| [WebRTC One-Way Broadcasting](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/) : *One-way audio/video/screen broadcasting. Participants don't need to have camera/microphone.* |
-| [Plugin free screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html) : *Directly Share full screen / No Extension / No Add-ons* |
-| [Video Conferencing / Hangout](https://webrtc-experiment.appspot.com/video-conferencing/) : *many to many* |
-| [Video Broadcast](https://webrtc-experiment.appspot.com/broadcast/) : *one to many* |
-| [File Sharing / Hangout](https://webrtc-experiment.appspot.com/file-hangout/) : *many to many* |
-| [Text Chat Hangout](https://webrtc-experiment.appspot.com/chat-hangout/) : *many to many* |
-| [Audio Broadcast](https://webrtc-experiment.appspot.com/audio-broadcast/) : *one to many* |
-| [Screen Sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) : *one to many* |
-| [Screen Viewer](https://webrtc-experiment.appspot.com/screen-viewer/) : *one-to-many WebRTC Screen Sharing!* |
-| [Chrome to Firefox Screen Sharing](https://googledrive.com/host/0B6GWd_dUUTT8YUJaMkZ2d0NzQmc/WebRTC-Screen-Viewer.html) :  Cross Browser Screen Sharing! |
+| [Video Conferencing / Hangout](https://webrtc-experiment.appspot.com/video-conferencing/) : Group video sharing |
+| [File Sharing / Hangout](https://webrtc-experiment.appspot.com/file-hangout/) : Group file sharing |
+| [Text Chat Hangout](https://webrtc-experiment.appspot.com/chat-hangout/) : Group text chat |
 
-1. [WebRTC part of screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/) / *Sharing part of screen (DIV/SECTION/ASIDE/ARTICLE/etc.); not the entire screen!*
-2. [RecordRTC: WebRTC audio/video recording](http://bit.ly/RecordRTC) / [Demo](http://bit.ly/RecordRTC-Demo)
-3. [Pre-recorded media streaming](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/Pre-recorded-Media-Streaming/)
+
+| Broadcasting |
+| ------------- |
+| [One-Way Broadcasting](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/) : Unidirectional i.e. one-way audio, video and screen sharing |
+| [Video Broadcast](https://webrtc-experiment.appspot.com/broadcast/) : One-to-Many video sharing |
+| [Audio Broadcast](https://webrtc-experiment.appspot.com/audio-broadcast/) : One-to-Many audio sharing |
+
+
+| One-to-One |
+| ------------- |
+| [One-to-one WebRTC video chat using WebSocket](https://webrtc-experiment.appspot.com/websocket/) |
+| [One-to-one WebRTC video chat using socket.io](https://webrtc-experiment.appspot.com/socket.io/) |
+
+
+| in-Page / One-Page / Client Side |
+| ------------- |
+| [Text chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/demos/client-side-datachannel.html) |
+| [Simple video chat](https://webrtc-experiment.appspot.com/demos/client-side.html) |
+| [Sharing video - using socket.io for signaling](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) |
+| [Sharing video - using WebSockets for signaling](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) |
+
+
+| Screen Sharing |
+| ------------- |
+| [Plugin free screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html) : Share screen directly without any plugin/extension/add-ons installation! |
+| [Chrome to Firefox Screen Sharing](https://googledrive.com/host/0B6GWd_dUUTT8YUJaMkZ2d0NzQmc/WebRTC-Screen-Viewer.html) :  Cross Browser Screen Sharing using tabCapture APIs! |
+| [Screen Sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) : One-to-Many screen sharing/broadcasting using tabCapture APIs |
+| [Screen Viewer](https://webrtc-experiment.appspot.com/screen-viewer/) : Broadcasted/Shared screens viewer |
+
+
+| `Part of Screen` Sharing |
+| ------------- |
+| [Using RTCDataChannel](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/RTCDataChannel/) |
+| [Using Firebase](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/) |
+| [A realtime chat using RTCDataChannel](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/) |
+| [A realtime chat using Firebase](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html) |
+
+
+| Other WebRTC Experiments |
+| ------------- |
+| [RecordRTC: WebRTC audio/video recording](http://bit.ly/RecordRTC) / [Demo](http://bit.ly/RecordRTC-Demo) |
+| [Pre-recorded media streaming](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/Pre-recorded-Media-Streaming/) |
+
 
 | A few documents for newbies and beginners        |
 | ------------- |
@@ -43,10 +70,9 @@
 | [WebRTC for Beginners: A getting stared guide!](https://webrtc-experiment.appspot.com/docs/webrtc-for-beginners.html) |
 | [WebRTC for Newbies ](https://webrtc-experiment.appspot.com/docs/webrtc-for-newbies.html) |
 | [How to broadcast video using RTCWeb APIs?](https://webrtc-experiment.appspot.com/docs/how-to-broadcast-video-using-RTCWeb-APIs.html) |
-| [How to share audio-only streams?](https://webrtc-experiment.appspot.com/docs/how-to-share-audio-only-streams.html) |
 | [How to broadcast files using RTCDataChannel APIs?](https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html) |
 
-Some other documents on [WebRTC Wiki](https://github.com/muaz-khan/WebRTC-Experiment/wiki) pages.
+A few other documents on [WebRTC Wiki](https://github.com/muaz-khan/WebRTC-Experiment/wiki) pages.
 
 ## Use your own socket.io implementation!
 
