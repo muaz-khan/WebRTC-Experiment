@@ -1,10 +1,8 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
-
-var hangout = function (config) {
+﻿var hangout = function (config) {
     var self = {
         userToken: uniqueToken()
     },
-    channels = '--',
+        channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
         defaultSocket = {}, RTCDataChannels = [];
@@ -176,7 +174,6 @@ var hangout = function (config) {
     function startBroadcasting() {
         defaultSocket.send({
             roomToken: self.roomToken,
-            roomName: self.roomName,
             broadcaster: self.userToken
         });
         setTimeout(startBroadcasting, 3000);
@@ -209,10 +206,8 @@ var hangout = function (config) {
 
     openDefaultSocket();
     return {
-        createRoom: function (_config) {
-            self.roomName = _config.roomName || 'Anonymous';
+        createRoom: function () {
             self.roomToken = uniqueToken();
-            self.userName = _config.userName || 'Anonymous';
 
             isbroadcaster = true;
             isGetNewRoom = false;
@@ -220,7 +215,6 @@ var hangout = function (config) {
         },
         joinRoom: function (_config) {
             self.roomToken = _config.roomToken;
-            self.userName = _config.userName || 'Anonymous';
             isGetNewRoom = false;
 
             openSubSocket({
