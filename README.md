@@ -1,7 +1,7 @@
 **Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
 
 ====
-## Browser Support
+### Browser Support
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
 
 | Browser        | Support           |
@@ -74,7 +74,7 @@
 
 A few other documents on [WebRTC Wiki](https://github.com/muaz-khan/WebRTC-Experiment/wiki) pages.
 
-## Use your own socket.io implementation!
+### Use your own socket.io implementation!
 
 You must link `socket.io.js` file before using below code:
 
@@ -117,7 +117,53 @@ var config = {
 
 ```
 
-====
-## License
+### Use [RTCDataConnection](http://bit.ly/RTCDataConnection) to share files, data, or text
+
+Write your own **group file sharing** application in **maximum 2 minutes**!!
+
+```html
+<script src="https://bit.ly/RTCDataConnection-v1-0"></script>
+```
+
+```javascript
+var rtcDataConnection = new RTCDataConnection({
+    onmessage: function (data) {
+        console.log(data);
+    },
+    openSignalingChannel: function (config) {
+        var socket = io.connect('http://your-site:8888');
+        socket.channel = config.channel || 'WebRTC-RTCDataConnection';
+		socket.on('message', config.onmessage);
+		
+        socket.send = function (data) {
+            socket.emit('message', data);
+        };
+
+        if (config.onopen) setTimeout(config.onopen, 1);
+        return socket;
+    },
+	
+    // 'one-to-one' || 'one-to-many' || 'many-to-many'
+    // default: 'many-to-many' ------- it is optional
+    direction: 'one-to-many'
+});
+
+// Only session initiator should call below line; 
+// All other 10000 room participants don't need to call "initDataConnection"!
+rtcDataConnection.initDataConnection();
+
+// to send file/data /or text
+var file = this.files[0];
+rtcDataConnection.send( file );
+
+rtcDataConnection.send( data );
+rtcDataConnection.send( 'text' );
+```
+
+### Read [RTCDataConnection Documentation](http://bit.ly/RTCDataConnection)
+
+
+
+### License
 
 [WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
