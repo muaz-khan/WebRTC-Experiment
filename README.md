@@ -1,7 +1,7 @@
 **Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
 
 ====
-### Browser Support
+#### Browser Support
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
 
 | Browser        | Support           |
@@ -74,7 +74,7 @@
 
 A few other documents on [WebRTC Wiki](https://github.com/muaz-khan/WebRTC-Experiment/wiki) pages.
 
-### Use your own socket.io implementation!
+#### Use your own socket.io implementation!
 
 You must link `socket.io.js` file before using below code:
 
@@ -117,7 +117,49 @@ var config = {
 
 ```
 
-### Use [RTCDataConnection](http://bit.ly/RTCDataConnection) to share files, data, or text
+[RTCMultiConnection](http://bit.ly/RTCMultiConnection) highly simplifies multi-user connectivity along with multi-session establishment. 
+
+#### Write a `video conferencing` application using `RTCMultiConnection` / [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/videoconferencing.html)
+
+```html
+<script src="https://bit.ly/RTCMultiConnection-v1-0"></script>
+```
+
+```javascript
+var rtcMultiConnection = new RTCMultiConnection({
+    direction: Direction.ManyToMany,
+    session: Session.AudioVideo,
+    openSignalingChannel: function (config) {
+        throw 'use your socket.io implementation here';
+    },
+    onRemoteStream: function (media) {},
+    onLocalStream: function (media) {}
+});
+rtcMultiConnection.initSession();
+```
+
+1. Default **direction** is **ManyToMany** - so you can skip that line.
+2. Default **session** is **AudioVideo** - so you can skip that line too.
+3. Only **openSignalingChannel** is mandatory.
+4. To understand how to write your own socket.io implementation in `openSignalingChannel` method; click [here](http://bit.ly/RTCMultiConnection#openSignalingChannel);
+
+For further demos and information; read [RTCMultiConnection Documentation](http://bit.ly/RTCMultiConnection).
+
+#### RTCMultiConnection [Demos](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/) / [All-in-One Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/)
+
+1. [video conferencing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/videoconferencing.html)
+2. [audio conferencing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/audioconferencing.html)
+3. [video conferencing + file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/videoconferencing-plus-filesharing-plus-textchat.html)
+4. [audio conferencing + file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/audioconferencing-plus-filesharing-plus-textchat.html)
+5. [screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/screen-sharing.html)
+6. [screen sharing + file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/screensharing-plus-filesharing-plus-textchat.html)
+7. [file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/filesharing-plus-textchat.html)
+8. [one-to-one file sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/one-to-one-filesharing.html)
+9. [video broadcasting](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/video-broadcasting.html)
+10. [video broadcasting + file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/video-broadcasting-plus-filesharing-plus-textchat.html)
+
+
+#### Use [RTCDataConnection](http://bit.ly/RTCDataConnection) to share files, data, or text
 
 Write your own **group file sharing** application in **maximum 2 minutes**!!
 
@@ -160,10 +202,9 @@ rtcDataConnection.send( data );
 rtcDataConnection.send( 'text' );
 ```
 
-### Read [RTCDataConnection Documentation](http://bit.ly/RTCDataConnection)
+#### Read [RTCDataConnection Documentation](http://bit.ly/RTCDataConnection)
 
 
-
-### License
+#### License
 
 [WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

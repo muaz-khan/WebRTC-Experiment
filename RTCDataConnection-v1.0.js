@@ -358,7 +358,7 @@ function Connector(config) {
             },
             onChannelOpened: onChannelOpened,
             onChannelMessage: function (event) {
-                config.onChannelMessage(event.data);
+                if(config.onChannelMessage) config.onChannelMessage(event.data);
             }
         };
 
