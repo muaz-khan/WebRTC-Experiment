@@ -333,20 +333,20 @@
         <h2>// For file/data sharing</h2>
         <a href="http://bit.ly/RTCMultiConnection#onopen" target="_blank">onopen</a>: function(channel) {},
         <a href="http://bit.ly/RTCMultiConnection#onmessage" target="_blank">onmessage</a>: function(data) {},
-        <a href="http://bit.ly/RTCMultiConnection#onFileProgress" target="_blank">onFileProgress</a>: function(packets) {},
-        <a href="http://bit.ly/RTCMultiConnection#onFileReceived" target="_blank">onFileReceived</a>: function(fileName) {},
-        <a href="http://bit.ly/RTCMultiConnection#onFileSent" target="_blank">onFileSent</a>: function(file) {},
+        <a href="http://bit.ly/RTCMultiConnection#onfileprogress" target="_blank">onFileProgress</a>: function(packets) {},
+        <a href="http://bit.ly/RTCMultiConnection#onfilereceived" target="_blank">onFileReceived</a>: function(fileName) {},
+        <a href="http://bit.ly/RTCMultiConnection#onfilesent" target="_blank">onFileSent</a>: function(file) {},
         
         <h2>// Your own signaling channel</h2>
-        <a href="http://bit.ly/RTCMultiConnection#openSignalingChannel" target="_blank">openSignalingChannel</a>: function (config) {
+        <a href="http://bit.ly/RTCMultiConnection#opensignalingchannel" target="_blank">openSignalingChannel</a>: function (config) {
             // <a href="https://github.com/muaz-khan/WebRTC-Experiment#use-your-own-socketio-implementation" target="_blank">How to use your own socket.io implementation?</a>
         },
         
         <h2>// For video-conferencing</h2>
-        <a href="http://bit.ly/RTCMultiConnection#onRemoteStream" target="_blank">onRemoteStream</a>: function(media) {},
-        <a href="http://bit.ly/RTCMultiConnection#onLocalStream" target="_blank">onLocalStream</a>: function(media) {}
+        <a href="http://bit.ly/RTCMultiConnection#onremotestream" target="_blank">onRemoteStream</a>: function(media) {},
+        <a href="http://bit.ly/RTCMultiConnection#onlocalstream" target="_blank">onLocalStream</a>: function(media) {}
     });
-    rtcMultiConnection.<a href="http://bit.ly/RTCMultiConnection#initSession" target="_blank">initSession</a>();
+    rtcMultiConnection.<a href="http://bit.ly/RTCMultiConnection#initsession" target="_blank">initSession</a>();
 
     <h2>// Send File</h2>
     rtcMultiConnection.send(file);

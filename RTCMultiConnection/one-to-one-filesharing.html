@@ -276,13 +276,13 @@
     var rtcMultiConnection = new <a href="http://bit.ly/RTCMultiConnection" target="_blank">RTCMultiConnection</a>({
         <a href="http://bit.ly/RTCMultiConnection#direction" target="_blank">direction</a>: Direction.OneToOne,
         <a href="http://bit.ly/RTCMultiConnection#session" target="_blank">session</a>: Session.Data,
-        <a href="http://bit.ly/RTCMultiConnection#openSignalingChannel" target="_blank">openSignalingChannel</a>: function (config) {
+        <a href="http://bit.ly/RTCMultiConnection#opensignalingchannel" target="_blank">openSignalingChannel</a>: function (config) {
             // <a href="https://github.com/muaz-khan/WebRTC-Experiment#use-your-own-socketio-implementation" target="_blank">How to use your own socket.io implementation?</a>
         },
         <a href="http://bit.ly/RTCMultiConnection#onopen" target="_blank">onopen</a>: function(channel) {},
         <a href="http://bit.ly/RTCMultiConnection#onmessage" target="_blank">onmessage</a>: function(data) {}
     });
-    rtcMultiConnection.<a href="http://bit.ly/RTCMultiConnection#initSession" target="_blank">initSession</a>();
+    rtcMultiConnection.<a href="http://bit.ly/RTCMultiConnection#initsession" target="_blank">initSession</a>();
 	
     rtcMultiConnection.<a href="http://bit.ly/RTCMultiConnection#send" target="_blank">send</a>(file);
     rtcMultiConnection.<a href="http://bit.ly/RTCMultiConnection#send" target="_blank">send</a>(data);

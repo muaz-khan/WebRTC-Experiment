@@ -1,4 +1,4 @@
-### Use [RTCDataConnection](http://bit.ly/RTCDataConnection) to share files, data, or text
+#### Use [RTCDataConnection](http://bit.ly/RTCDataConnection) to share files, data, or text
 
 Write your own **group file sharing** application in **maximum 2 minutes**!!
 
@@ -34,19 +34,19 @@ var rtcDataConnection = new RTCDataConnection({
 rtcDataConnection.initDataConnection();
 
 // to send file/data /or text
-var file = this.files[0];
-rtcDataConnection.send( file );
-
-rtcDataConnection.send( blob );
-rtcDataConnection.send( data );
-rtcDataConnection.send( 'text' );
+rtcDataConnection.send( file || data || 'text' );
 ```
 
-### Read [RTCDataConnection Documentation](http://bit.ly/RTCDataConnection)
+#### Features
+
+1. Share files of any size — directly
+2. Share text messages of any length
+3. Share any kind of data — directly
+
+#### Read [RTCDataConnection Documentation](http://bit.ly/RTCDataConnection)
 
 
-====
-### Browser Support
+#### Browser Support
 [RTCDataConnection](http://bit.ly/RTCDataConnection) works fine on following web-browsers:
 
 | Browser        | Support           |
@@ -56,6 +56,6 @@ rtcDataConnection.send( 'text' );
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 
 
-### License
+#### License
 
 [RTCDataConnection](http://bit.ly/RTCDataConnection) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

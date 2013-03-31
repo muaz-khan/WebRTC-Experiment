@@ -149,6 +149,10 @@
 				Copyright © 2013 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>&lt;<a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>&gt;.	
 			</p>
             
+			<section class="plusone-gplus">
+                <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
+            </section>
+            
 			<div id="result"></div>
             <input type="text" id="input-message" style="font-size:2em;width:100%;">
             <button id="open-connection">Open Data Connection</button>
@@ -160,6 +164,7 @@
                         appendDIV(data);
                     },
                     openSignalingChannel: function (config) {
+                        if (!window.Firebase) return;
                         var channel = config.channel || location.hash.replace('#', '') || 'RTCDataConnection-Test';
                         var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
                         socket.channel = channel;
@@ -227,6 +232,18 @@ rtcDataConnection.<strong>send</strong>( <strong>file</strong> );
 rtcDataConnection.<strong>send</strong>( <strong>data</strong> );
 rtcDataConnection.<strong>send</strong>( <strong>'text'</strong> );
 </pre>
+
+			<br /><br />
+            <table style="width: 100%;">
+                <tr>
+                    <td>
+                        <div>
+                            <textarea id="message" style="height: 8em; width: 100%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                        </div>
+                        <button id="send-message" class="send-message" style="font-size: 1em;">Send Message</button>
+                    </td>
+                </tr>
+            </table>
         </article>
         <footer>
             <p>
@@ -237,6 +254,7 @@ rtcDataConnection.<strong>send</strong>( <strong>'text'</strong> );
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
             </p>
         </footer>
+        <script src="https://bit.ly/commonjs"></script>
     </body>
 
 </html>

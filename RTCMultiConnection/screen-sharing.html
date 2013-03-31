@@ -198,16 +198,9 @@
         <table style="width: 100%; border-left: 1px solid black;">
             <tr>
                 <td>
-                    <h2 style="display: block; text-align: center;">Local Media Streams</h2>
+                    <h2 style="display: block; text-align: center;">Screen Sharing using WebRTC</h2>
 
                     <section id="local-media-stream"></section>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h2 style="display: block; text-align: center;">Remote Media Streams</h2>
-
-                    <section id="remote-media-streams"></section>
                 </td>
             </tr>
         </table>
@@ -260,13 +253,13 @@
     var rtcMultiConnection = new <a href="http://bit.ly/RTCMultiConnection" target="_blank">RTCMultiConnection</a>({
         <a href="http://bit.ly/RTCMultiConnection#direction" target="_blank">direction</a>: Direction.OneWay,
         <a href="http://bit.ly/RTCMultiConnection#session" target="_blank">session</a>: Session.Screen,
-        <a href="http://bit.ly/RTCMultiConnection#openSignalingChannel" target="_blank">openSignalingChannel</a>: function (config) {
+        <a href="http://bit.ly/RTCMultiConnection#opensignalingchannel" target="_blank">openSignalingChannel</a>: function (config) {
             // <a href="https://github.com/muaz-khan/WebRTC-Experiment#use-your-own-socketio-implementation" target="_blank">How to use your own socket.io implementation?</a>
         },
-        <a href="http://bit.ly/RTCMultiConnection#onRemoteStream" target="_blank">onRemoteStream</a>: function(media) {},
-        <a href="http://bit.ly/RTCMultiConnection#onLocalStream" target="_blank">onLocalStream</a>: function(media) {}
+        <a href="http://bit.ly/RTCMultiConnection#onremotestream" target="_blank">onRemoteStream</a>: function(media) {},
+        <a href="http://bit.ly/RTCMultiConnection#onlocalstream" target="_blank">onLocalStream</a>: function(media) {}
     });
-    rtcMultiConnection.<a href="http://bit.ly/RTCMultiConnection#initSession" target="_blank">initSession</a>();
+    rtcMultiConnection.<a href="http://bit.ly/RTCMultiConnection#initsession" target="_blank">initSession</a>();
 &lt;/script&gt;
 </pre>
 

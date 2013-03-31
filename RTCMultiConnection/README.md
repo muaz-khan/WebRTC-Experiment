@@ -18,13 +18,14 @@ var rtcMultiConnection = new RTCMultiConnection({
 });
 rtcMultiConnection.initSession();
 ```
-
-1. Default **direction** is **ManyToMany** - so you can skip that line.
-2. Default **session** is **AudioVideo** - so you can skip that line too.
-3. Only **openSignalingChannel** is mandatory.
-4. To understand how to write your own socket.io implementation in `openSignalingChannel` method; click [here](http://bit.ly/RTCMultiConnection#openSignalingChannel);
-
 For further demos and information; read [RTCMultiConnection Documentation](http://bit.ly/RTCMultiConnection).
+
+#### Features
+
+1. Share files of any size — directly
+2. Share text messages of any length
+3. Share any kind of data — directly
+4. Open multi-streams in single session like audio/video + file sharing + text chat
 
 #### RTCMultiConnection [Demos](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/) / [All-in-One Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/)
 
@@ -38,8 +39,9 @@ For further demos and information; read [RTCMultiConnection Documentation](http:
 8. [one-to-one file sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/one-to-one-filesharing.html)
 9. [video broadcasting](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/video-broadcasting.html)
 10. [video broadcasting + file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/video-broadcasting-plus-filesharing-plus-textchat.html)
+11. [Manual Session Establishment](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/Manual-Session-Establishment.html)
+12. [Join with/without camera](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/join-with-or-without-camera.html)
 
-====
 #### Browser Support
 
 | Browser        | Support           |

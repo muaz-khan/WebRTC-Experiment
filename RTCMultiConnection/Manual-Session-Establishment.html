@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>screen-sharing + file-sharing + text-chat using RTCMultiConnection ® Muaz Khan</title>
+    <title>RTCMultiConnection Manual Session Establishment ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -145,6 +145,12 @@
             font-weight: normal;
         }
 
+        #result div {
+            padding: .8em 1.5em;
+            border: 1px solid Gray;
+            border-bottom: 0;
+        }
+
         select {
             color: black;
             text-shadow: none;
@@ -161,27 +167,16 @@
         td {
             vertical-align: top;
         }
-
-        #chat-output div {
-            border: 1px solid black;
-            border-bottom: 0;
-            padding: .1em .4em;
-        }
-
-        input {
-            border: 1px solid black;
-            outline: none;
-            margin: .1em .3em;
-            font-family: inherit;
-            padding: .1em .2em;
-            width: 93%;
-        }
-
-        #chat-output {
-            max-height: 12em;
-            overflow: auto;
-            margin: 0 0 0 .4em;
-        }
+		label {
+			display:inline-block;
+			margin: 0 1em;
+		}
+		input {
+			width:90%;
+			border:0;
+			outline:none;
+			padding: 0 .3em;
+		}
     </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -195,8 +190,7 @@
 <body>
     <article>
         <a href="http://bit.ly/webrtc-home" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; text-decoration: none; right: 0; top: 0;">←HOME</a>
-        <h1>screen-sharing + file-sharing + text-chat
-        </h1>
+        <h1><a href="http://bit.ly/RTCMultiConnection" target="_blank">RTCMultiConnection</a> Manual Session Establishment</h1>
 
         <p>
             <span>Copyright © 2013</span>
@@ -205,45 +199,48 @@
         <section class="plusone-gplus">
             <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
         </section>
-        <section>
-            <h2>Start FileSharing + ScreenSharing + TextChat</h2>
-
-            <button id="init-RTCMultiConnection" title="Only first person should click this button in the entire media session.">Open Session</button>
-        </section>
+		<table>
+			<tr>
+				<td>session unique id</td>
+				<td style="border: 1px solid black;"><input type="text" id="session-id" placeholder="session name"></td>
+			</tr>
+			<tr>
+				<td>user unique id</td>
+				<td style="border: 1px solid black;"><input type="text" id="user-id" placeholder="user name"></td>
+			</tr>
+			<tr>
+				<td>
+					<h2>Open Session</h2>
+					<button id="open-RTCMultiConnection">Open Session</button>
+				</td>
+				<td>
+					<h2>Or Join Session</h2>
+					<button id="join-RTCMultiConnection">Join Session</button>
+				</td>
+			</tr>
+		</table>
         <table style="width: 100%; border-left: 1px solid black;">
             <tr>
-                <td style="width: 80%;">
-                    <h2 style="display: block; text-align: center;">Screen Sharing using WebRTC</h2>
+                <td>
+                    <h2 style="display: block; text-align: center;">Local Media Streams</h2>
 
                     <section id="local-media-stream"></section>
                 </td>
-                <td style="border-left: 1px solid black; background: white;">
-                    <h2 style="display: block; font-size: 1em; text-align: center;">Share Files</h2>
+            </tr>
+            <tr>
+                <td>
+                    <h2 style="display: block; text-align: center;">Remote Media Streams</h2>
 
-                    <input type="file" id="file" disabled>
-                    <br />
-                    <h2 style="display: block; font-size: 1em; text-align: center;">Text Chat</h2>
-
-                    <div id="chat-output"></div>
-                    <input type="text" id="chat-input" style="font-size: 1.2em;" placeholder="chat message" disabled>
+                    <section id="remote-media-streams"></section>
                 </td>
             </tr>
         </table>
         <script>
             var rtcMultiConnection = new RTCMultiConnection({
-                session: Session.ScreenData,
-                direction: Direction.OneWay,
-                onopen: function () {
-                    document.getElementById('chat-input').disabled = false;
-                    document.getElementById('file').disabled = false;
-
-                    document.getElementById('init-RTCMultiConnection').disabled = true;
-                },
-                onmessage: function (data) {
-                    appendDIV(data);
-                },
+                session: Session.AudioVideo,
+                direction: Direction.ManyToMany,
                 openSignalingChannel: function (config) {
-                    var channel = config.channel || location.hash.replace('#', '') || 'screensharing-plug-filesharing';
+                    var channel = config.channel || location.hash.replace('#', '') || 'videoconferencing';
                     var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
                     socket.channel = channel;
                     socket.on('child_added', function (data) {
@@ -259,104 +256,97 @@
                 onRemoteStream: function (media) {
                     var mediaElement = media.mediaElement;
 
-                    var localMediaStreams = document.getElementById('local-media-stream');
-                    localMediaStreams.insertBefore(mediaElement, localMediaStreams.firstChild);
+                    var remoteMediaStreams = document.getElementById('remote-media-streams');
+                    remoteMediaStreams.insertBefore(mediaElement, remoteMediaStreams.firstChild);
 
                     mediaElement.controls = true;
                 },
                 onLocalStream: function (media) {
                     var mediaElement = media.mediaElement;
-                    document.getElementById('local-media-stream').appendChild(mediaElement);
+                    var mainVideo = document.getElementById('local-media-stream');
+                    mainVideo.appendChild(mediaElement);
                     mediaElement.controls = true;
                 },
-                onFileProgress: function (packets) {
-                    appendDIV(packets.remaining + ' packets remaining.');
-                    if (packets.sent) appendDIV(packets.sent + ' packets sent.');
-                    if (packets.received) appendDIV(packets.received + ' packets received.');
-                },
-                onFileReceived: function (fileName) {
-                    appendDIV(fileName + ' received.');
-                },
-                onFileSent: function (file) {
-                    appendDIV(file.name + ' sent.');
-                }
+				onNewSession: function(session) {
+					window.session = session;
+				}
             });
 
-            document.getElementById('init-RTCMultiConnection').onclick = function () {
-                rtcMultiConnection.initSession();
+            document.getElementById('open-RTCMultiConnection').onclick = function () {
+                rtcMultiConnection.initSession({
+					callback: function(session) {
+						sessionid.value = session.sessionid;
+						userid.value = session.userid;
+					},
+					userid: userid.value,
+					sessionid: sessionid.value
+				});
                 this.disabled = true;
             };
-
-            document.getElementById('file').onchange = function () {
-                var file = this.files[0];
-                rtcMultiConnection.send(file);
-            };
-
-            var chatOutput = document.getElementById('chat-output');
-
-            function appendDIV(data) {
-                var div = document.createElement('div');
-                div.innerHTML = data;
-                chatOutput.insertBefore(div, chatOutput.firstChild);
-                div.tabIndex = 0;
-                div.focus();
-            }
-
-            document.getElementById('chat-input').onkeypress = function (e) {
-                if (e.keyCode !== 13 || !this.value) return;
-                appendDIV(this.value);
-                rtcMultiConnection.send(this.value);
-                this.value = '';
-                this.focus();
+			
+			var sessionid = document.getElementById('session-id'),
+				userid = document.getElementById('user-id');
+				
+			document.getElementById('join-RTCMultiConnection').onclick = function () {
+				rtcMultiConnection.connectSession({
+					sessionid: sessionid.value,
+					userid: userid.value
+				});
+                this.disabled = true;
             };
         </script>
         <br />
         <br />
-        <h2>FileSharing + ScreenSharing using <a href="http://bit.ly/RTCMultiConnection" target="_blank">RTCMultiConnection</a></h2>
+        <h2>How to manually open sessions using <a href="http://bit.ly/RTCMultiConnection" target="_blank">RTCMultiConnection</a>?</h2>
         <pre>
 &lt;script src="<a href="https://bit.ly/RTCMultiConnection-v1-0" target="_blank">https://bit.ly/RTCMultiConnection-v1-0</a>"&gt;&lt;/script&gt;
 &lt;script&gt;
     var rtcMultiConnection = new <a href="http://bit.ly/RTCMultiConnection" target="_blank">RTCMultiConnection</a>({
-        <h2>// One-Way</h2>
-        <a href="http://bit.ly/RTCMultiConnection#direction" target="_blank">direction</a>: <a href="http://bit.ly/RTCMultiConnection#direction" target="_blank">Direction</a>.OneWay,
-        
-        <h2>// Data + Screen</h2>
-        <a href="http://bit.ly/RTCMultiConnection#session" target="_blank">session</a>: <a href="http://bit.ly/RTCMultiConnection#session" target="_blank">Session</a>.ScreenData,
-        
-        <h2>// For file/data sharing</h2>
-        <a href="http://bit.ly/RTCMultiConnection#onopen" target="_blank">onopen</a>: function(channel) {},
-        <a href="http://bit.ly/RTCMultiConnection#onmessage" target="_blank">onmessage</a>: function(data) {},
-        <a href="http://bit.ly/RTCMultiConnection#onfileprogress" target="_blank">onFileProgress</a>: function(packets) {},
-        <a href="http://bit.ly/RTCMultiConnection#onfilereceived" target="_blank">onFileReceived</a>: function(fileName) {},
-        <a href="http://bit.ly/RTCMultiConnection#onfilesent" target="_blank">onFileSent</a>: function(file) {},
-        
-        <h2>// Your own signaling channel</h2>
         <a href="http://bit.ly/RTCMultiConnection#opensignalingchannel" target="_blank">openSignalingChannel</a>: function (config) {
             // <a href="https://github.com/muaz-khan/WebRTC-Experiment#use-your-own-socketio-implementation" target="_blank">How to use your own socket.io implementation?</a>
         },
-        
-        <h2>// For screen sharing</h2>
         <a href="http://bit.ly/RTCMultiConnection#onremotestream" target="_blank">onRemoteStream</a>: function(media) {},
-        <a href="http://bit.ly/RTCMultiConnection#onlocalstream" target="_blank">onLocalStream</a>: function(media) {}
+        <a href="http://bit.ly/RTCMultiConnection#onlocalstream" target="_blank">onLocalStream</a>: function(media) {},
+		
+        // <span style="color:red">onNewSession</span> informs RTCMultiConnection to 
+        // not auto-connect session on the participant's side
+        <a href="http://bit.ly/RTCMultiConnection#onnewsession" target="_blank">onNewSession</a>: function(session) {
+            console.log('session name', session.sessionid);
+            console.log('user name', session.userid);
+        }
     });
-    rtcMultiConnection.<a href="http://bit.ly/RTCMultiConnection#initsession" target="_blank">initSession</a>();
-
-    <h2>// Send File</h2>
-    rtcMultiConnection.send(file);
-
-    <h2>// Send Data</h2>
-    rtcMultiConnection.send({
-        data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 'Hmm!'],
-        boolean: true,
-        number: 0123456789
-    });
-
-    <h2>// Send Text Message</h2>
-    rtcMultiConnection.send('text message');
+	
+    // the person who opens the media/data session
+    [Button-Manually-<span style="color:red">Open</span>-Session].onclick = function() {
+        rtcMultiConnection.<a href="http://bit.ly/RTCMultiConnection#initsession" target="_blank">initSession</a>({
+            <span style="color:red">sessionid</span>: 'session-name',		// optional
+            <span style="color:red">userid</span>: 'user-name',		// optional
+            callback: function(session) {	// optional
+                console.log('session name', session.sessionid);
+                console.log('user name', session.userid);
+            }
+        });
+    }
+	
+    // the person who joins the media/data session
+    [Button-Manually-<span style="color:red">Join</span>-Session].onclick = function() {
+        rtcMultiConnection.<a href="http://bit.ly/RTCMultiConnection#connectsession" target="_blank">connectSession</a>({
+            <span style="color:red">sessionid</span>: 'session-name',
+            <span style="color:red">userid</span>: 'user-name'
+        });
+    }
 &lt;/script&gt;
 </pre>
 
         <br />
+        <br />
+		<h2>Features:</h2>
+		<ol>
+			<li>You can use your own session/user ids</li>
+			<li>You can manually join the session you created</li>
+			<li>You can store session/user ids in database in your real projects.</li>
+		</ol>
+		<br />
         <br />
         <table style="width: 100%;">
             <tr>
@@ -378,7 +368,7 @@
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
         </p>
     </footer>
-    <script src="https://bit.ly/commonjs"></script>
+    <!-- <script src="https://bit.ly/commonjs"></script> -->
 </body>
 
 </html>
