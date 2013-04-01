@@ -54,15 +54,6 @@ Same like WebSockets; `onopen` and `onmessage` methods:
 </script>
 ```
 
-You can send files/text or data same like WebSockets:
-
-```html
-<script>
-    // you can send anything of any length!
-    connection.send(file || data || 'text');
-</script>
-```
-
 #### Are you trying to write audio/video/screen sharing application?
 
 ```html
@@ -84,7 +75,7 @@ You can send files/text or data same like WebSockets:
 | ------------- | ------------- |
 | `stream.type` | `local` or `remote` |
 | `stream.mediaElement` | `HTMLAudioElement` or `HTMLVideoElement` |
-| `stream.stream` | LocalMediaStream || MediaStream |
+| `stream.stream` | `LocalMediaStream` or `MediaStream` |
 | `stream.blobURL` | `src` of audio or video element. |
 | `stream.session` | Using this object, you can understand what is being shared. Is it audio-only streaming or video conferencing? |
 | `stream.direction` |  This object allows you track the direction of the session. |
@@ -414,7 +405,7 @@ connection.session = 'audio + video + data';
 connection.session = 'audio-video-data';
 connection.session = 'audio and video and data';
 connection.session = Session.AudioVideoData;
-connection.session = 'AUDIO + VIDEO and DATE';
+connection.session = 'AUDIO + VIDEO and DATA';
 ```
 
 Hmm, **it is your choice!**
@@ -507,9 +498,12 @@ You can see that `attachStream` object is used to attach **same stream** in abso
 4. You may want to allow end-users to anonymously join/view main-video session or chatting room
 5. You may want to open one-to-one private session between chairperson and CEO! — in the same session; same page!
 
-There are **unlimited** use-cases of multi-sessions. **Ladies and gentleman! Today, multi-sessions are possible using RTCMultiConnection.js library!**
+There are **many other** use-cases of multi-sessions.
 
 #### Demos / Experiments using RTCMultiConnection library
+
+1. [Multi-Session Establishment using RTCMultiConnection](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection-v1.1/multi-session-establishment.html)
+2. [File Sharing + Text Chat using RTCMultiConnection](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection-v1.1/group-file-sharing-plus-text-chat.html)
 
 Here is the [list of all WebRTC Experiments](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection-v1.1/) using RTCMultiConnection.js library.
 

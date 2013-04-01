@@ -114,7 +114,7 @@ Majority of WebRTC Experiments are using libraries like:
 </script>
 ```
 
-#### Getting started with [RTCMultiConnection.js](http://bit.ly/RTCMultiConnection) - v1.1
+#### Getting started with [RTCMultiConnection.js](http://bit.ly/RTCMultiConnection-Documentation) - v1.1
 
 ```html
 <script src="https://bit.ly/RTCMultiConnection-v1-1"></script>
@@ -155,7 +155,7 @@ Majority of WebRTC Experiments are using libraries like:
 4. You may want to allow end-users to anonymously join/view main-video session or chatting room
 5. You may want to open one-to-one private session between chairperson and CEO! — in the same session; same page!
 
-There are **unlimited** use-cases of multi-sessions. **Ladies and gentleman! Today, multi-sessions are possible using RTCMultiConnection.js library!**
+There are **many other** use-cases of multi-sessions. Read [RTCMultiConnection Documentation](http://bit.ly/RTCMultiConnection-Documentation)
 
 #### Getting started with [RTCDataConnection.js](http://bit.ly/RTCDataConnection)
 

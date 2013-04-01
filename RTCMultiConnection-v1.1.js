@@ -1,7 +1,7 @@
 /*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
 2013, Muaz Khan<muazkh>--[ github.com/muaz-khan ] 
     
-Demo & Documentation: http:/bit.ly/RTCMultiConnection-Documentation */
+Demo & Documentation: http://bit.ly/RTCMultiConnection-Documentation */
 
 function RTCMultiConnection(channel) {
     this.channel = channel;
