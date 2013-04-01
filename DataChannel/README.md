@@ -26,7 +26,7 @@ Syntax of **DataChannel.js** is same like **WebSockets**.
     // to send text/data or file
     channel.send(file || data || 'text');
 	
-    // if soemone already created a channel; to join it: use "connect" method
+    // if someone already created a channel; to join it: use "connect" method
     channel.connect('channel-name');
 </script>
 ```

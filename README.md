@@ -103,7 +103,7 @@ Majority of WebRTC Experiments are using libraries like:
     // to send text/data or file
     channel.send(file || data || 'text');
 	
-    // if soemone already created a channel; to join it: use "connect" method
+    // if someone already created a channel; to join it: use "connect" method
     channel.connect('channel-name');
 
     // to be alerted on data ports get open
@@ -114,28 +114,48 @@ Majority of WebRTC Experiments are using libraries like:
 </script>
 ```
 
-#### Getting started with [RTCMultiConnection.js](http://bit.ly/RTCMultiConnection) - v1.0
+#### Getting started with [RTCMultiConnection.js](http://bit.ly/RTCMultiConnection) - v1.1
 
 ```html
-<script src="https://bit.ly/RTCMultiConnection-v1-0"></script>
+<script src="https://bit.ly/RTCMultiConnection-v1-1"></script>
 <script>
-var rtcMultiConnection = new RTCMultiConnection({
-    direction: Direction.ManyToMany,
-    session: Session.AudioVideo,
-    openSignalingChannel: function (config) {
-        throw 'use your socket.io implementation here';
-    },
-    onRemoteStream: function (media) {},
-    onLocalStream: function (media) {}
-});
-rtcMultiConnection.initSession();
+    var connection = new RTCMultiConnection();
+
+    // to create/open a new session
+    connection.open('session-id');
+
+    // if someone already created a session; to join it: use "connect" method
+    connection.connect('session-id');
+
+    // get access to local or remote streams
+    connection.onstream = function (stream) {
+        if (stream.type === 'local') {
+            mainVideo.src = stream.blobURL;
+        }
+
+        if (stream.type === 'remote') {
+            document.body.appendChild(stream.mediaElement);
+        }
+    }
 </script>
 ```
 
-`RTCMultiConnection-v1.1.js` coming soon with:
+1. You can open multi-sessions and multi-connections — in the same page
+2. You can share files of any size — directly
+3. You can share text messages of any length
+4. You can share one-stream in many unique ways — in the same page
 
-1. Simplest possible design — WebSockets like syntax
-2. Multi-session support — you can share one-video in a conference as well as broadcast same video as one-way + many other things in the single page!
+**RTCMultiConnection** can help you write file sharing applications along with screen sharing and audio/video conferencing applications — in minutes.
+
+**RTCMultiConnection** highly simplifies multi-sessions connectivity on the same page. To understand why multi-sessions are so important:
+
+1. Sometimes you want to one-way broadcast your video for users who have no-camera or no-microphone
+2. You may want to allow audio-conferencing along with video-conferencing in the same session / same stream!
+3. You may want to open one-to-one ports between main-peer and the server to record speaker's speech or to further broadcast the stream
+4. You may want to allow end-users to anonymously join/view main-video session or chatting room
+5. You may want to open one-to-one private session between chairperson and CEO! — in the same session; same page!
+
+There are **unlimited** use-cases of multi-sessions. **Ladies and gentleman! Today, multi-sessions are possible using RTCMultiConnection.js library!**
 
 #### Getting started with [RTCDataConnection.js](http://bit.ly/RTCDataConnection)
 
