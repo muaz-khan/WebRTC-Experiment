@@ -1,4 +1,6 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
+    It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
+*/
 
 var config = {
     openSocket: function (config) {
@@ -20,7 +22,7 @@ var config = {
         var alreadyExist = document.getElementById(room.broadcaster);
         if (alreadyExist) return;
 
-        if(typeof roomsList === 'undefined') roomsList = document.body;
+        if (typeof roomsList === 'undefined') roomsList = document.body;
 
         var tr = document.createElement('tr');
         tr.setAttribute('id', room.broadcaster);
@@ -30,7 +32,7 @@ var config = {
         roomsList.insertBefore(tr, roomsList.firstChild);
 
         tr.onclick = function () {
-			var tr = this;
+            var tr = this;
             hangoutUI.joinRoom({
                 roomToken: tr.querySelector('.join').id,
                 joinUser: tr.id,
@@ -62,7 +64,7 @@ function createButtonClickHandler() {
         userName: prompt('Enter your name', 'Anonymous'),
         roomName: ((document.getElementById('conference-name') || { value: null }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
     });
-	hideUnnecessaryStuff();
+    hideUnnecessaryStuff();
 }
 
 
@@ -93,9 +95,9 @@ function hideUnnecessaryStuff() {
 
 var chatMessage = document.getElementById('chat-message');
 if (chatMessage)
-    chatMessage.onchange = function() {
+    chatMessage.onchange = function () {
         hangoutUI.send(chatMessage.value);
-		var tr = document.createElement('tr');
+        var tr = document.createElement('tr');
         tr.innerHTML =
                 '<td style="width:40%;">You:</td>' +
                 '<td>' + chatMessage.value + '</td>';
@@ -105,14 +107,12 @@ if (chatMessage)
     };
 
 
-(function() {
+(function () {
     var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken) {
-        if(location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
-        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() {
-            return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) {
-                return (a ^ Math.random() * 16 >> a / 4).toString(16);
-            });
-        })();
-    }
+    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">You can share this private link with your friends.</a></h2>';
+    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
+        return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+            return (a ^ Math.random() * 16 >> a / 4).toString(16);
+        });
+    })();
 })();

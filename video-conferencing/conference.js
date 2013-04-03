@@ -1,4 +1,6 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
+    It is recommended to use RTCMultiConnection.js for audio/video/screen sharing: <http://bit.ly/RTCMultiConnection-Documentation>
+*/
 
 var conference = function (config) {
     var self = { userToken: uniqueToken() },
@@ -8,7 +10,7 @@ var conference = function (config) {
         defaultSocket = {};
 
     function openDefaultSocket() {
-        defaultSocket = config.openSocket({onmessage: onDefaultSocketResponse});
+        defaultSocket = config.openSocket({ onmessage: onDefaultSocketResponse });
     }
 
     function onDefaultSocketResponse(response) {
@@ -202,8 +204,8 @@ var conference = function (config) {
         };
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
     }
-	
-	openDefaultSocket();
+
+    openDefaultSocket();
     return {
         createRoom: function (_config) {
             self.roomName = _config.roomName || 'Anonymous';

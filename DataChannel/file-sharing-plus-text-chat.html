@@ -160,7 +160,7 @@
     <body>
         <article>
             <a href="http://bit.ly/webrtc-home" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
-            <h1>File Sharing + Text Chat using WebRTC <a href="https://bit.ly/DataChannel" target="_blank">DataChannel</a>
+            <h1>File Sharing + Text Chat using WebRTC <a href="https://bit.ly/DataChannel-Documentation" target="_blank">DataChannel</a>
             </h1>
 
             <p>
@@ -193,6 +193,7 @@
                 </tr>
             </table>
             <script>
+				document.getElementById('channel').value = Math.round(Math.random() * 60535) + 500000;
                 var channel = new DataChannel();
 
                 // [optional] onmessage/onopen is for sending/receiving data/text
@@ -262,11 +263,11 @@
             </script>
             <br />
             <br />
-            <h2>Getting started with WebRTC <a href="https://bit.ly/DataChannel" target="_blank">DataChannel</a></h2>
+            <h2>Getting started with WebRTC <a href="https://bit.ly/DataChannel-Documentation" target="_blank">DataChannel</a></h2>
             <pre>
 &lt;script src="<a href="http://bit.ly/DataChannel" target="_blank">http://bit.ly/DataChannel</a>"&gt;&lt;/script&gt;
 &lt;script&gt;
-    var channel = new <strong>DataChannel</strong>('channel-name');
+    var channel = new <strong>DataChannel</strong>();
 
     // to create/open a new channel
     channel.<strong>open</strong>('channel-name');
@@ -343,7 +344,7 @@
     // by default <a href="http://firebase.com" target="_blank" rel="nofollow">Firebase</a> is used for signaling; you can override it
     channel.<strong>openSignalingChannel</strong> = function(config) {
         var socket = io.connect('http://your-site:8888');
-        socket.channel = config.channel || self.channel || 'default-channel';
+        socket.channel = config.channel || this.channel || 'default-channel';
         socket.on('message', config.onmessage);
 
         socket.send = function (data) {

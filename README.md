@@ -18,7 +18,7 @@ Plug & play type of WebRTC Experiments. Nothing to install. No requirements. Jus
 2. [Group file sharing](https://webrtc-experiment.appspot.com/file-hangout/)
 3. [Group text chat](https://webrtc-experiment.appspot.com/chat-hangout/)
 4. [Group file sharing + text chat](http://bit.ly/DataChannel-Demo) — using [DataChannel.js](http://bit.ly/DataChannel) library
-5. [All-in-One Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection) library — screen, audio/video, text chat, files, audio-conferencing, broadcasting, etc.
+5. [All-in-One Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection-Documentation) library — screen, audio/video, text chat, files, audio-conferencing, broadcasting, etc.
 
 [Many other demos](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/) using RTCMultiConnection library.
 
@@ -28,13 +28,13 @@ Plug & play type of WebRTC Experiments. Nothing to install. No requirements. Jus
 2. [Video broadcasting](https://webrtc-experiment.appspot.com/broadcast/)
 3. [Audio broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/)
 4. [Video broadcasting using RTCMultiConnection library](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/video-broadcasting.html)
-5. [Video broadcasting + file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/video-broadcasting-plus-filesharing-plus-textchat.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection) library
+5. [Video broadcasting + file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/video-broadcasting-plus-filesharing-plus-textchat.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection-Documentation) library
 
 #### One-to-One style of WebRTC Experiments
 
 1. [One-to-one WebRTC video chat using WebSocket](https://webrtc-experiment.appspot.com/websocket/)
 2. [One-to-one WebRTC video chat using socket.io](https://webrtc-experiment.appspot.com/socket.io/)
-3. [One-to-One file sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/one-to-one-filesharing.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection) library
+3. [One-to-One file sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/one-to-one-filesharing.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection-Documentation) library
 
 | in-Page / One-Page / Client Side |
 | ------------- |
@@ -49,8 +49,8 @@ Plug & play type of WebRTC Experiments. Nothing to install. No requirements. Jus
 2. [Chrome to Firefox Screen Sharing](https://googledrive.com/host/0B6GWd_dUUTT8YUJaMkZ2d0NzQmc/WebRTC-Screen-Viewer.html)
 3. [Screen sharing](https://webrtc-experiment.appspot.com/screen-broadcast/)
 4. [Screen viewer](https://webrtc-experiment.appspot.com/screen-viewer/)
-5. [One-Way screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/screen-sharing.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection) library
-6. [One-Way screen sharing + file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/screensharing-plus-filesharing-plus-textchat.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection) library
+5. [One-Way screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/screen-sharing.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection-Documentation) library
+6. [One-Way screen sharing + file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/screensharing-plus-filesharing-plus-textchat.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection-Documentation) library
 
 #### Part of screen sharing
 
@@ -86,11 +86,11 @@ There is a **video-conferencing** experiment that acts as **one-way video broadc
 
 Majority of WebRTC Experiments are using libraries like:
 
-1. [DataChannel.js](http://bit.ly/DataChannel-Demo)
-2. [RTCMultiConnection.js](http://bit.ly/RTCMultiConnection)
+1. [DataChannel.js](http://bit.ly/DataChannel-Documentation)
+2. [RTCMultiConnection.js](http://bit.ly/RTCMultiConnection-Documentation)
 3. [RTCDataConnection.js](http://bit.ly/RTCDataConnection)
 
-#### Getting started with [DataChannel.js](http://bit.ly/DataChannel-Demo)
+#### Getting started with [DataChannel.js](http://bit.ly/DataChannel-Documentation)
 
 ```html
 <script src="http://bit.ly/DataChannel"></script>

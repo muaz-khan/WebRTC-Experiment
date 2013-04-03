@@ -6,6 +6,8 @@ DataChannel library highly simplifies coding. It allows you:
 2. Share text messages of any length
 3. Share any kind of data — directly
 
+**DataChannel.js** supports **fallback** to `websocket`/`socket.io` or your other preferred signaling method.
+
 Syntax of **DataChannel.js** is same like **WebSockets**.
 
 #### First Step: Link the library
@@ -22,12 +24,12 @@ Syntax of **DataChannel.js** is same like **WebSockets**.
 
     // to create/open a new channel
     channel.open('channel-name');
-
-    // to send text/data or file
-    channel.send(file || data || 'text');
 	
     // if someone already created a channel; to join it: use "connect" method
     channel.connect('channel-name');
+	
+    // to send text/data or file
+    channel.send(file || data || 'text');
 </script>
 ```
 

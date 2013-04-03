@@ -1,43 +1,44 @@
 /*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
 	2013, Muaz Khan<muazkh>--[ github.com/muaz-khan ] 
     
-    Demo & Documentation: http:/bit.ly/DataChannel-Demo */
-
+    Demo: http://bit.ly/DataChannel-Demo
+	Documentation: http://bit.ly/DataChannel-Documentation
+*/
 function DataChannel(channel) {
     this.channel = channel;
     var self = this,
         dataConnector, fileReceiver, textReceiver;
 
-    self.onmessage = function(message) {
+    self.onmessage = function (message) {
         console.debug('DataChannel message:', message);
     };
 
-    self.onopen = function(_channel) {
+    self.onopen = function (_channel) {
         _channel.send('First text message!');
     };
 
-    self.onFileReceived = function(fileName) {
+    self.onFileReceived = function (fileName) {
         console.debug('File <', fileName, '> received successfully.');
     };
 
-    self.onFileSent = function(file) {
+    self.onFileSent = function (file) {
         console.debug('File <', file.name, '> sent successfully.');
     };
-    self.onFileProgress = function(packets) {
+    self.onFileProgress = function (packets) {
         console.debug('<', packets.remaining, '> items remaining.');
     };
 
     function prepareInit(callback) {
         if (!self.openSignalingChannel) {
-            self.openSignalingChannel = function(config) {
+            self.openSignalingChannel = function (config) {
                 config = config || {};
                 channel = config.channel || self.channel || 'default-channel';
                 var socket = new window.Firebase('https://chat.firebaseIO.com/' + channel);
                 socket.channel = channel;
-                socket.on('child_added', function(data) {
+                socket.on('child_added', function (data) {
                     config.onmessage && config.onmessage(data.val());
                 });
-                socket.send = function(data) {
+                socket.send = function (data) {
                     this.push(data);
                 };
                 config.onopen && setTimeout(config.onopen, 1);
@@ -50,17 +51,16 @@ function DataChannel(channel) {
                 script.src = 'https://cdn.firebase.com/v0/firebase.js';
                 script.onload = callback;
                 document.documentElement.appendChild(script);
-            }
-			else callback();
+            } else callback();
         } else callback();
     }
 
     function init() {
         self.config = {
-            openSocket: function(config) {
+            openSocket: function (config) {
                 return self.openSignalingChannel(config);
             },
-            onRoomFound: function(room) {
+            onRoomFound: function (room) {
                 if (self.joinedARoom) return;
                 self.joinedARoom = true;
 
@@ -69,11 +69,16 @@ function DataChannel(channel) {
                     joinUser: room.broadcaster
                 });
             },
-            onChannelOpened: function() {
+            onChannelOpened: function () {
                 self.onopen(self);
             },
-            onChannelMessage: function(data) {
-                if (!data.size) data = JSON.parse(data);
+            onChannelMessage: function (data) {
+                if (IsDataChannelSupported && !data.size) data = JSON.parse(data);
+
+                if (!IsDataChannelSupported) {
+                    if (data.userid === window.userid) return;
+                    data = data.message;
+                }
 
                 if (data.type === 'text')
                     textReceiver.receive(data, self.onmessage);
@@ -85,25 +90,30 @@ function DataChannel(channel) {
             onChannelClosed: self.onclose,
             onChannelError: self.onerror,
             onFileReceived: self.onFileReceived,
-            onFileProgress: self.onFileProgress
+            onFileProgress: self.onFileProgress,
+            channel: self.channel
         };
-        dataConnector = new DataConnector(self.config);
+
+        dataConnector = IsDataChannelSupported ?
+            new DataConnector(self.config) :
+            new SocketConnector(self.config);
+
         fileReceiver = new FileReceiver();
         textReceiver = new TextReceiver();
     }
 
-    self.open = function(_channel) {
+    self.open = function (_channel) {
         if (_channel) self.channel = _channel;
-        prepareInit(function() {
+        prepareInit(function () {
             init();
-            dataConnector.createRoom();
+            if (IsDataChannelSupported) dataConnector.createRoom();
         });
     };
-    self.connect = function(_channel) {
+    self.connect = function (_channel) {
         if (_channel) self.channel = _channel;
         prepareInit(init);
     };
-    self.send = function(data) {
+    self.send = function (data) {
         if (!data) throw 'No file, data or text message to share.';
         if (data.size)
             FileSender.send({
@@ -121,6 +131,7 @@ function DataChannel(channel) {
 }
 
 window.moz = !!navigator.mozGetUserMedia;
+window.IsDataChannelSupported = !((moz && !navigator.mozGetUserMedia) || (!moz && !navigator.webkitGetUserMedia));
 
 /* RTCPeerConnection is a wrapper for RTCWeb APIs */
 
@@ -133,7 +144,8 @@ function RTCPeerConnection(options) {
     var iceServers = {
         iceServers: [{
             url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-        }]
+        }
+        ]
     };
 
     var optional = {
@@ -143,15 +155,14 @@ function RTCPeerConnection(options) {
     if (!moz) {
         optional.optional = [{
             RtpDataChannels: true
-        }];
+        }
+        ];
 
     }
 
     var peerConnection = new PeerConnection(iceServers, optional);
 
-    var dataPorts = getPorts();
     openOffererChannel();
-
     peerConnection.onicecandidate = onicecandidate;
 
     function onicecandidate(event) {
@@ -170,7 +181,7 @@ function RTCPeerConnection(options) {
     function createOffer() {
         if (!options.onOfferSDP) return;
 
-        peerConnection.createOffer(function(sessionDescription) {
+        peerConnection.createOffer(function (sessionDescription) {
             peerConnection.setLocalDescription(sessionDescription);
             options.onOfferSDP(sessionDescription);
         }, null, constraints);
@@ -182,14 +193,9 @@ function RTCPeerConnection(options) {
         options.offerSDP = new SessionDescription(options.offerSDP);
         peerConnection.setRemoteDescription(options.offerSDP);
 
-        peerConnection.createAnswer(function(sessionDescription) {
+        peerConnection.createAnswer(function (sessionDescription) {
             peerConnection.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
-
-            /* signaling method MUST be faster; otherwise increase "300" */
-            moz && options.onChannelMessage && setTimeout(function() {
-                peerConnection.connectDataConnection(dataPorts[0], dataPorts[1]);
-            }, 300);
         }, null, constraints);
     }
 
@@ -203,17 +209,16 @@ function RTCPeerConnection(options) {
     function openOffererChannel() {
         if (!options.onChannelMessage || (moz && !options.onOfferSDP)) return;
 
-        if (!moz) _openOffererChannel();
-        else peerConnection.onconnection = _openOffererChannel;
+        _openOffererChannel()
 
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function(stream) {
-                    peerConnection.addStream(stream);
-                    createOffer();
-                }, useless);
+                audio: true,
+                fake: true
+            }, function (stream) {
+                peerConnection.addStream(stream);
+                createOffer();
+            }, useless);
         }
     }
 
@@ -223,21 +228,22 @@ function RTCPeerConnection(options) {
             moz ? {} : {
                 reliable: false
             });
+        if (moz) channel.binaryType = 'blob';
         setChannelEvents();
     }
 
     function setChannelEvents() {
-        channel.onmessage = function(event) {
+        channel.onmessage = function (event) {
             if (options.onChannelMessage) options.onChannelMessage(event);
         };
 
-        channel.onopen = function() {
+        channel.onopen = function () {
             if (options.onChannelOpened) options.onChannelOpened(channel);
         };
-        channel.onclose = function(event) {
+        channel.onclose = function (event) {
             if (options.onChannelClosed) options.onChannelClosed(event);
         };
-        channel.onerror = function(event) {
+        channel.onerror = function (event) {
             console.error(event);
             if (options.onChannelError) options.onChannelError(event);
         };
@@ -246,44 +252,31 @@ function RTCPeerConnection(options) {
     if (options.onAnswerSDP && moz) openAnswererChannel();
 
     function openAnswererChannel() {
-        peerConnection.ondatachannel = function(_channel) {
-            channel = _channel;
+        peerConnection.ondatachannel = function (event) {
+            channel = event.channel;
             channel.binaryType = 'blob';
             setChannelEvents();
         };
 
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function(stream) {
-                    peerConnection.addStream(stream);
-                    createAnswer();
-                }, useless);
+                audio: true,
+                fake: true
+            }, function (stream) {
+                peerConnection.addStream(stream);
+                createAnswer();
+            }, useless);
         }
     }
 
-    function useless() {
-    }
-
-    function getPorts(ports) {
-        if (!moz || !options.onChannelMessage) return false;
-        ports = ports || options.dataPorts || [123, 321];
-        console.debug('--------using data ports: ', ports[0], ' and ', ports[1]);
-        return ports;
-    }
+    function useless() { }
 
     return {
-        addAnswerSDP: function(sdp, _dataPorts) {
+        addAnswerSDP: function (sdp) {
             sdp = new SessionDescription(sdp);
-            peerConnection.setRemoteDescription(sdp, function() {
-                if (moz && options.onChannelMessage) {
-                    var ports = getPorts(_dataPorts);
-                    peerConnection.connectDataConnection(ports[1], ports[0]);
-                }
-            });
+            peerConnection.setRemoteDescription(sdp);
         },
-        addICE: function(candidate) {
+        addICE: function (candidate) {
             peerConnection.addIceCandidate(new IceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
@@ -292,7 +285,7 @@ function RTCPeerConnection(options) {
 
         peer: peerConnection,
         channel: channel,
-        sendData: function(message) {
+        sendData: function (message) {
             channel && channel.send(message);
         }
     };
@@ -331,16 +324,12 @@ function DataConnector(config) {
         }
     }
 
-    function getPort() {
-        return Math.round(Math.random() * 60535) + 5000;
-    }
-
     function openSubSocket(_config) {
         if (!_config.channel) return;
         var socketConfig = {
             channel: _config.channel,
             onmessage: socketResponse,
-            onopen: function() {
+            onopen: function () {
                 if (isofferer && !peer) initPeer();
             }
         };
@@ -349,11 +338,10 @@ function DataConnector(config) {
             isofferer = _config.isofferer,
             gotstream,
             inner = {},
-            dataPorts = [getPort(), getPort()],
             peer;
 
         var peerConfig = {
-            onICE: function(candidate) {
+            onICE: function (candidate) {
                 socket.send({
                     userToken: self.userToken,
                     candidate: {
@@ -363,7 +351,7 @@ function DataConnector(config) {
                 });
             },
             onChannelOpened: onChannelOpened,
-            onChannelMessage: function(event) {
+            onChannelMessage: function (event) {
                 if (config.onChannelMessage) config.onChannelMessage(event.data);
             }
         };
@@ -377,7 +365,6 @@ function DataConnector(config) {
             } else {
                 peerConfig.offerSDP = offerSDP;
                 peerConfig.onAnswerSDP = sendsdp;
-                peerConfig.dataPorts = dataPorts;
             }
 
             peer = RTCPeerConnection(peerConfig);
@@ -416,8 +403,7 @@ function DataConnector(config) {
 
             socket.send({
                 userToken: self.userToken,
-                firstPart: firstPart,
-                dataPorts: dataPorts
+                firstPart: firstPart
             });
 
             socket.send({
@@ -435,7 +421,6 @@ function DataConnector(config) {
             if (response.userToken == self.userToken) return;
 
             if (response.firstPart || response.secondPart || response.thirdPart) {
-                if (response.dataPorts) inner.dataPorts = response.dataPorts;
                 if (response.firstPart) {
                     inner.firstPart = response.firstPart;
                     if (inner.secondPart && inner.thirdPart) selfInvoker();
@@ -467,7 +452,7 @@ function DataConnector(config) {
             invokedOnce = true;
             inner.sdp = JSON.parse(inner.firstPart + inner.secondPart + inner.thirdPart);
 
-            if (isofferer) peer.addAnswerSDP(inner.sdp, inner.dataPorts);
+            if (isofferer) peer.addAnswerSDP(inner.sdp);
             else initPeer(inner.sdp);
         }
     }
@@ -507,14 +492,14 @@ function DataConnector(config) {
 
     openDefaultSocket();
     return {
-        createRoom: function() {
+        createRoom: function () {
             self.roomToken = uniqueToken();
 
             isbroadcaster = true;
             isGetNewRoom = false;
             startBroadcasting();
         },
-        joinRoom: function(_config) {
+        joinRoom: function (_config) {
             self.roomToken = _config.roomToken;
             isGetNewRoom = false;
 
@@ -528,7 +513,7 @@ function DataConnector(config) {
                 joinUser: _config.joinUser
             });
         },
-        send: function(message) {
+        send: function (message) {
             var _channels = RTCDataChannels,
                 data, length = _channels.length;
             if (!length) return;
@@ -542,13 +527,32 @@ function DataConnector(config) {
     };
 }
 
+function SocketConnector(config) {
+    var channel = config.openSocket({
+        channel: config.channel,
+        onopen: config.onChannelOpened,
+        onmessage: config.onChannelMessage
+    });
+
+    return {
+        send: function (message) {
+            channel.send({
+                userid: userid,
+                message: message
+            });
+        }
+    };
+}
+
+window.userid = Math.random() * 9000 << 9000;
+
 var FileSender = {
-    send: function(config) {
+    send: function (config) {
         var channel = config.channel,
             file = config.file;
 
         /* if firefox nightly: share file blob directly */
-        if (moz) {
+        if (moz && IsDataChannelSupported) {
             /* used on the receiver side to set received file name */
             channel.send({
                 fileName: file.name,
@@ -564,7 +568,7 @@ var FileSender = {
         }
 
         /* if chrome */
-        if (!moz) {
+        if (!IsDataChannelSupported || !moz) {
             var reader = new window.FileReader();
             reader.readAsDataURL(file);
             reader.onload = onReadAsDataURL;
@@ -606,7 +610,7 @@ var FileSender = {
             textToTransfer = text.slice(data.message.length);
 
             if (textToTransfer.length)
-                setTimeout(function() {
+                setTimeout(function () {
                     onReadAsDataURL(null, textToTransfer);
                 }, 500);
         }
@@ -626,7 +630,7 @@ function FileReceiver() {
             if (data.size) {
                 var reader = new window.FileReader();
                 reader.readAsDataURL(data);
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     FileSaver.SaveToDisk(event.target.result, fileName);
                     if (config.onFileReceived) config.onFileReceived(fileName);
                 };
@@ -659,7 +663,7 @@ function FileReceiver() {
 }
 
 var FileSaver = {
-    SaveToDisk: function(fileUrl, fileName) {
+    SaveToDisk: function (fileUrl, fileName) {
         var save = document.createElement('a');
         save.href = fileUrl;
         save.target = '_blank';
@@ -675,15 +679,19 @@ var FileSaver = {
 };
 
 var TextSender = {
-    send: function(config) {
+    send: function (config) {
         var channel = config.channel,
             initialText = config.text,
             packetSize = 1000 /* chars */,
-            textToTransfer = '';
+            textToTransfer = '',
+            isobject = false;
 
-        if (typeof initialText !== 'string') initialText = JSON.stringify(initialText);
+        if (typeof initialText !== 'string') {
+            isobject = true;
+            initialText = JSON.stringify(initialText);
+        }
 
-        if (moz || initialText.length <= packetSize) channel.send(config.text);
+        if (IsDataChannelSupported && (moz || initialText.length <= packetSize)) channel.send(config.text);
         else sendText(initialText);
 
         function sendText(textMessage, text) {
@@ -701,6 +709,7 @@ var TextSender = {
             else {
                 data.message = text;
                 data.last = true;
+                data.isobject = isobject;
             }
 
             channel.send(data);
@@ -708,7 +717,7 @@ var TextSender = {
             textToTransfer = text.slice(data.message.length);
 
             if (textToTransfer.length)
-                setTimeout(function() {
+                setTimeout(function () {
                     sendText(null, textToTransfer);
                 }, 500);
         }
@@ -721,7 +730,9 @@ function TextReceiver() {
     function receive(data, onmessage) {
         content.push(data.message);
         if (data.last) {
-            if (onmessage) onmessage(content.join(''));
+            content = content.join('');
+            if (data.isobject) content = JSON.parse(content);
+            if (onmessage) onmessage(content);
             content = [];
         }
     }

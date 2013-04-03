@@ -1,4 +1,6 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
+    It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
+*/
 
 var hangout = function (config) {
     var self = {
@@ -11,7 +13,7 @@ var hangout = function (config) {
 		defaultSocket = {}, RTCDataChannels = [];
 
     function openDefaultSocket() {
-        defaultSocket = config.openSocket({onmessage: onDefaultSocketResponse});
+        defaultSocket = config.openSocket({ onmessage: onDefaultSocketResponse });
     }
 
     function onDefaultSocketResponse(response) {
@@ -30,10 +32,6 @@ var hangout = function (config) {
             });
         }
     }
-	
-	function getPort() {
-        return Math.random() * 1000 << 10;
-    }
 
     function openSubSocket(_config) {
         if (!_config.channel) return;
@@ -49,7 +47,6 @@ var hangout = function (config) {
             isofferer = _config.isofferer,
             gotstream,
             inner = {},
-			dataPorts = [getPort(), getPort()],
             peer;
 
         var peerConfig = {
@@ -74,7 +71,6 @@ var hangout = function (config) {
             } else {
                 peerConfig.offerSDP = offerSDP;
                 peerConfig.onAnswerSDP = sendsdp;
-				peerConfig.dataPorts = dataPorts;
             }
 
             peer = RTCPeerConnection(peerConfig);
@@ -118,10 +114,7 @@ var hangout = function (config) {
 
             socket.send({
                 userToken: self.userToken,
-                firstPart: firstPart,
-
-                /* sending RTCDataChannel ports alongwith sdp */
-                dataPorts: dataPorts
+                firstPart: firstPart
             });
 
             socket.send({
@@ -139,7 +132,6 @@ var hangout = function (config) {
             if (response.userToken == self.userToken) return;
 
             if (response.firstPart || response.secondPart || response.thirdPart) {
-				if (response.dataPorts) inner.dataPorts = response.dataPorts;
                 if (response.firstPart) {
                     inner.firstPart = response.firstPart;
                     if (inner.secondPart && inner.thirdPart) selfInvoker();
@@ -171,9 +163,8 @@ var hangout = function (config) {
             invokedOnce = true;
 
             inner.sdp = JSON.parse(inner.firstPart + inner.secondPart + inner.thirdPart);
-            
-			/* using random data ports to support wide connection on firefox! */
-            if (isofferer) peer.addAnswerSDP(inner.sdp, inner.dataPorts);
+
+            if (isofferer) peer.addAnswerSDP(inner.sdp);
             else initPeer(inner.sdp);
         }
     }
@@ -212,7 +203,7 @@ var hangout = function (config) {
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
     }
 
-	openDefaultSocket();
+    openDefaultSocket();
     return {
         createRoom: function (_config) {
             self.roomName = _config.roomName || 'Anonymous';
