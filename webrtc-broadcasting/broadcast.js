@@ -1,6 +1,4 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
-
-var broadcast = function (config) {
+﻿var broadcast = function (config) {
     var self = {
         userToken: uniqueToken()
     },

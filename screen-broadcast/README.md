@@ -1,43 +1,35 @@
-**Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
+#### Tab Sharing using tabCapture APIs / [Download ZIP](http://code.google.com/p/muazkh/downloads/list)
 
-====
-# Browser Support
+Sharing tab using chrome **experimental tabCapture APIs**; broadcasting over many peers.
 
-This [WebRTC Screen Broadcasting Experiment](https://webrtc-experiment.appspot.com/screen-broadcast/) works fine on following web-browsers:
+#### [You can view broadcasted tabs here](https://webrtc-experiment.appspot.com/screen-broadcast/)
 
-# To Broadcast your own stream
+You can also view broadcasted tab using Firefox nightly, aurora, and 18+stable!
 
-| Browser        | Support           |
-| ------------- |:-------------:|
-| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
+There is a plugin-free screen sharing experiment too! [Try it Now!](https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html)
 
-# To Join any broadcasted screen
-
-| Browser        | Support           |
-| ------------- |:-------------:|
-| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) |
-| Firefox | [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) |
-| Firefox | [Nightly](http://nightly.mozilla.org/) |
-| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) |
-| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
-| Google Chrome | [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) |
-| Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
-| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta) |
-
-## How Screen Broadcast Works?
-
-Following 3 lines give us access to media stream:
+#### How to capture stream using tabCapture APIs?
 
 ```javascript
-chrome.tabCapture.capture({ audio: true, video: true }, function(stream) {
-    // broadcastNow(stream);
-});
+function captureTab() {
+    chrome.tabs.getSelected(null, function(tab) {
+        var video_constraints = {
+            mandatory: {
+                chromeMediaSource: 'tab'
+            }
+        };
+        var constraints = {
+            audio: false,
+            video: true,
+            videoConstraints: video_constraints
+        };
+        chrome.tabCapture.capture(constraints, function(stream) {
+            // it is a LocalMediaStream object!!
+        });
+    });
+}
 ```
 
-In simple words, multi-peers and sockets are opened to make it work!
+#### License
 
-====
-## License
-
-This [WebRTC Experiment](https://webrtc-experiment.appspot.com/screen-broadcast/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[TabCapture Extension](http://code.google.com/p/muazkh/downloads/list) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

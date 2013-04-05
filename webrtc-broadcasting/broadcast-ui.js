@@ -1,6 +1,4 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
-
-var config = {
+﻿var config = {
     openSocket: function (config) {
         var channel = config.channel || location.hash.replace('#', '') || 'video-oneway-broadcasting';
         var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
@@ -8,9 +6,9 @@ var config = {
         socket.on("child_added", function (data) {
             config.onmessage && config.onmessage(data.val());
         });
-        socket.send = function (data) {
+        socket.send = function(data) {
             this.push(data);
-        }
+        };
         config.onopen && setTimeout(config.onopen, 1);
         socket.onDisconnect().remove();
         return socket;
@@ -39,7 +37,7 @@ var config = {
             roomsList.insertBefore(tr, roomsList.firstChild);
 
             tr.onclick = function () {
-                var tr = this;
+                tr = this;
                 broadcastUI.joinRoom({
                     roomToken: tr.querySelector('.join').id,
                     joinUser: tr.id,
@@ -58,12 +56,11 @@ var config = {
             hideUnnecessaryStuff();
         }
     },
-	onNewParticipant: function(participants)
-	{
-		var numberOfParticipants = document.getElementById('number-of-participants');
-		if(!numberOfParticipants) return;
-		numberOfParticipants.innerHTML = participants + ' room participants';
-	}
+    onNewParticipant: function (participants) {
+        var numberOfParticipants = document.getElementById('number-of-participants');
+        if (!numberOfParticipants) return;
+        numberOfParticipants.innerHTML = participants + ' room participants';
+    }
 };
 
 function createButtonClickHandler() {
@@ -88,7 +85,7 @@ function captureUserMedia(callback) {
             video: false
         };
     }
-    if (option === 'Screen') {
+    if (option === 'Screen') {		
         var video_constraints = {
             mandatory: {
                 chromeMediaSource: 'screen'
@@ -116,7 +113,12 @@ function captureUserMedia(callback) {
             rotateInCircle(htmlElement);
         },
         onerror: function () {
-            alert('unable to get access to your webcam');
+			if (option === 'Only Audio') alert('unable to get access to your microphone');
+			else if(option === 'Screen') {
+				if(location.protocol === 'http:') alert('Please test this WebRTC experiment on HTTPS.');
+				else alert('Screen capturing is either denied or not supported.');
+			}
+			else alert('unable to get access to your webcam');
         }
     };
     if (constraints) mediaConfig.constraints = constraints;
@@ -152,7 +154,7 @@ function rotateInCircle(video) {
 
 (function () {
     var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;">You can share this private link with your friends.</h2><input type=text value="' + location.href + '" style="width:100%;text-align:center;">';
+    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="'+ location.href +'" target="_blank">You can share this private link with your friends.</a></h2>';
     else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
         return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
             return (a ^ Math.random() * 16 >> a / 4).toString(16);
