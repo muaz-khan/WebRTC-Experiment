@@ -30,21 +30,30 @@ function toggle()
 }
 
 function captureScreen()
-{	
-	chrome.tabs.getSelected(null, function (tab) {
-		chrome.tabCapture.capture({ audio: true, video: true }, function(stream) {
-			broadcastScreen(stream);			
+{
+	chrome.tabs.getSelected(null, function(tab) {
+        var video_constraints = {
+            mandatory: {
+                chromeMediaSource: 'tab'
+            }
+        };
+        var constraints = {
+            audio: false,
+            video: true,
+            videoConstraints: video_constraints
+        };
+        chrome.tabCapture.capture(constraints, function(stream) {
+            broadcastScreen(stream);			
 			webkitNotifications.createHTMLNotification('extras/started.html').show();
-		});
-	});
-	chrome.browserAction.setIcon({ path: 'images/pause22.png' });
+        });
+    });
+    chrome.browserAction.setIcon({ path: 'images/pause22.png' });
 }
-try{
-	chrome.contextMenus.create({
+
+chrome.contextMenus.create({
 		title: 'Broadcast Screen',
 		id: '000007'
 	});
-}catch(e) {console.log('On creating new tab: error: contextMenus.create!!');}
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
 	toggle();

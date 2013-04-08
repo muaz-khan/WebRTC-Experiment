@@ -1,24 +1,24 @@
-## WebRTC P2P File Sharing
+#### It is considered deprecated! Try [WebRTC P2P Group File Sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout) Experiment instead.
 
-It is a WebRTC **one-to-many** file sharing experiment.
-
-This **WebRTC File Broadcasting** experiment is a little bit old. 
-
-Try [WebRTC P2P Group File Sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout) experiment that allows you:
+that allows you:
 
 1. Share files in a group (many-to-many)
 2. Unlimited data connections on Firefox
 
-### How WebRTC file sharing experiment works?
+#### How WebRTC file sharing experiment works?
 
 1. It shares the file directly over all connected data ports
 2. By default `16 SCTP` ports are used by Firefox!
 
-### Is this a P2P file distributing system?
+If 16 SCTP streams are used in one-to-one data connection. In 10 peers session; **160 SCTP** streams will be used which is really awkward!
 
-Sure, it is a P2P file distribution using `RTCDataChannel` APIs.
+That's why it is strongly suggested to not open multiple peer connections on single page!
 
-### Is this a torrent like file distributing/sharing system?
+#### Is this a P2P file distributing system?
+
+Well, maybe!
+
+#### Is this a torrent like file distributing/sharing system?
 
 This P2P file sharing experiment works like this:
 
@@ -27,7 +27,7 @@ This P2P file sharing experiment works like this:
 3. If `UserA` share file...file will be transferred asynchronously over all connected data ports.
 4. All other users are connected directly to each other; like a hexagon or other many directional shape.
 
-### Chrome and unreliable data connection...how it works?
+#### Chrome and unreliable data connection...how it works?
 
 In a simple one-to-one data session; chrome opens two RTP ports:
 
@@ -40,16 +40,16 @@ So many limitations in the moment; to resolve all those limitations; data/files 
 
 **Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
 
-### Browser Support
+#### Browser Support
 
 WebRTC **File Broadcasting** (file sharing) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
-| ------------- |:-------------:|
+| ------------- |-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 
-### License
+#### License
 
 WebRTC **File Broadcasting** experiment is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

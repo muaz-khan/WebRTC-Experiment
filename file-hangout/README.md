@@ -1,53 +1,86 @@
-## WebRTC P2P Group File Sharing
+#### WebRTC P2P Group File Sharing / [Demo](https://webrtc-experiment.appspot.com/file-hangout/)
 
-It is a WebRTC **many-to-many** file sharing experiment.
+This WebRTC Experiment allows you share file of any size among group of people.
 
-This **WebRTC File Hangout** experiment allows you:
+It opens multiple peer connections to support group data connectivity.
 
-1. Share files in a group (many-to-many)
-2. Unlimited data connections on Firefox
+In 10 users data session; 10 peer connections will be opened on each user's side.
 
-### How WebRTC group file sharing experiment works?
+Each peer connection will open 2 RTP data ports on chrome.
 
-1. It shares the file directly over all connected data ports
-2. By default **16 SCTP** ports/streams are opened/used by Firefox!
+1. One **outband** RTP data port to send text messages
+2. One **inband** RTP data port to receive text messages
 
-### Is this a P2P file distributing system?
+So, `20` RTP data ports will be opened in `10` users data session. **Embarrassing...?!!**
 
-Sure, it is a P2P file distribution using `RTCDataChannel` APIs.
+On Firefox, by default 16 SCTP data ports will be opened for single peer. So, about 160 SCTP data ports will be opened in 10 users data session. Too awkward!
 
-### Is this a torrent like file distributing/sharing system?
+#### Multiple peer connections.....is it a solution?
 
-This P2P group file sharing experiment works like this:
+No, not at all. It is just a **temporary** workaround.
 
-1. Multi-peers are opened to support multi-users
-2. Multi data ports are opened in multi-directions
-3. If `UserA` share file...file will be transferred asynchronously over all connected data ports.
-4. All other users are connected directly to each other; like a hexagon or other many directional shape.
+You're strongly suggested to use **peer-to-server** model instead of opening multi-peers.
 
-### Chrome and unreliable data connection...how it works?
+#### How peer-to-server model works?
 
-In a simple one-to-one data session: chrome opens two **RTP** ports:
+In this model, server plays a role of another peer. Server receives **offer-sdp** sent from browser-oriented peer; dynamically generates **answer-sdp** and returns back to appropriate peer.
 
-1. One RTP data port of outband
-2. One RTP data port of inband
+Server must be intelligent enough to generate right **answer-sdp**.
 
-So many limitations in the moment; to resolve all those limitations; data/files are splitted in small chunks; and those chunks are transferred **step-by-step** after predefined time interval to make distribution consistent and reliable.
+Remember, WebRTC peer object will send **DTLS/SRTP** packets maybe as **ByteStream**. Target media server must be able to capture/understand those packets.
 
-### How to use `Group File Sharing` in your own site?
+Server can manipulate messages or data coming from 10 or more unique data ports and transfer over single data port!
 
-**Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
+#### ideas!!!
 
-### Browser Support
+Room initiator opens a peer-to-server data connection. 10 room participants also open peer-to-server data connection in the same room.
+
+Room initiator and participants are not connected directly with each other.
+
+If room initiator want to send text message, data or file over all those 10 participants; it will send it to server.
+
+Server will send that data message over all 10 participants' data ports.
+
+So, original idea is: **user to server to all other peers**.
+
+It is a reality that we will never be able to deny that WebRTC was formed to work entirely client side.
+
+But dear friend! You can never deny that server is mandatory in corporate level applications.
+
+To support thousands of peers connectivity; you need a media server.
+
+Media servers are usually used as **transcoders**.
+
+Transcoding plays important role to support wide devices and platforms.
+
+You need a transcoder to integrate/interoperate VP8 and H.264 for video.
+
+Obviously, media servers can record entire session using your preferred methods.
+
+Sending audio RTP streams over PSTN networks is easy but receiving incoming audio isn't!
+
+Because DTMF travels over a separate channel.
+
+Your media server must be smart enough to capture those DTMF streams.
+
+**Kamailio** media server is designed to capture those DTMF channels, though.
+
+It would be really interesting if we will be able to open data session between WebRTC client and PSTN networks.
+
+So, we maybe able to send data/text and files over majority of mobile devices.
+
+Though, it seems not possible! Because their infrastructure is different.
+
+#### Browser Support
 
 WebRTC [Group File Sharing](https://webrtc-experiment.appspot.com/file-hangout/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
-| ------------- |:-------------:|
+| ------------- |-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 
-### License
+#### License
 
 WebRTC [Group File Sharing](https://webrtc-experiment.appspot.com/file-hangout/) experiment is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

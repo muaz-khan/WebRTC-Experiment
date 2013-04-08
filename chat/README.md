@@ -1,22 +1,29 @@
-**Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
+#### WebRTC P2P Text Chat / [Demo](https://webrtc-experiment.appspot.com/chat-hangout/)
 
-====
-## Browser Support
+This WebRTC Experiment allows you share text messages among many peers.
 
-This **WebRTC Text Broadcasting** experiment works fine on following web-browsers:
+It opens multiple peer connections to support group data broadcasting.
 
-| Browser        | Support           |
-| ------------- |:-------------:|
-| Firefox | [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) |
-| Firefox | [Nightly](http://nightly.mozilla.org/) |
-| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
+#### On room initiator's side
 
-In simple words, multi-peers and sockets are opened to make it work!
+1. 10 peer connections will be opened
+2. 10 sockets will be opened to exchange SDP/ICE
 
-1. Text broadcasting capability (one-to-many)
-2. Private broadcasting rooms
+#### On chrome, how many RTP data ports will be opened
 
-====
-## License
+In 10 users data session; about 20 RTP data ports will be opened:
 
-**WebRTC Text Broadcasting** experiment is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+1. 10 RTP data ports for outband i.e. for outgoing data messages
+2. 10 RTP data ports for inband i.e. for incoming data messages
+
+Firefox opens 16 SCTP data ports for single data session.
+
+It means that about 160 SCTP data ports will be opened on room initiator's side in 10 users data session.
+
+#### On participants' side
+
+Only 2 RTP data ports will be opened because participants are not connected with each other. They're connected directly with room initiator.
+
+#### License
+
+[WebRTC Experiments](https://webrtc-experiment.appspot.com/) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

@@ -1,7 +1,8 @@
-====
-# [RecordRTC](http://bit.ly/RecordRTC): WebRTC audio/video recording / [Demo](http://bit.ly/RecordRTC-Demo)
+#### [RecordRTC](http://bit.ly/RecordRTC): WebRTC audio/video recording / [Demo](http://bit.ly/RecordRTC-Demo)
 
-## How to record audio?
+**RecordRTC** library allows you record audio and/or video streams separately.
+
+##### How to record audio?
 
 ```javascript
 var recorder = RecordRTC({
@@ -27,7 +28,7 @@ recorder.save();
 audio.src = recorder.getBlob();
 ```
 
-## How to record video?
+#### How to record video?
 
 ```javascript
 var recorder = RecordRTC({
@@ -47,12 +48,12 @@ recorder.save();
 video.src = recorder.getBlob();
 ```
 
-## Make sure that:
+#### Make sure that:
 
 1. You're using Chrome [Canary](https://www.google.com/intl/en/chrome/browser/canary.html)
 2. You enabled flag `Web Audio Input` via `chrome://flags`
 
-## Possible issues/failures:
+#### Possible issues/failures:
 
 It is appeared that audio-recording has many chances of failures.
 
@@ -62,7 +63,7 @@ Possible audio-recording failures:
 2. You're using chrome stable/dev/beta
 3. `Web Audio Input` flag is not enabled on `chrome canary`
 
-## Saving to disk failures:
+#### Saving to disk failures:
 
 1. You're using chrome `incognito` mode
 2. `RecordRTC` created **duplicate** temporary file
@@ -71,38 +72,24 @@ Possible audio-recording failures:
 
 Click `Save to Disk` button; new tab will open; right-click over video and choose `Save video as...` option from context menu.
 
-## FAQ
-
-**How to record audio and video in a single stream?**
-
-It is work in progress.
-
-**How to save audio/video in many formats?**
-
-It is work in progress.
-
-====
-# Browser Support
+#### Browser Support
 
 [RecordRTC Demo](http://bit.ly/RecordRTC-Demo) works fine on following web-browsers:
 
 | Browser        | Support           |
-| ------------- |:-------------:|
+| ------------- |-------------|
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 
-====
-## Credits
+#### Credits
 
 1. [Recorderjs](https://github.com/mattdiamond/Recorderjs) / Audio Recording
 2. [whammy](https://github.com/antimatter15/whammy) / Video Recording
 
-====
-## Spec & Reference
+#### Spec & Reference
 
 1. [Web Audio API](https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html)
 
-====
-## License
+#### License
 
 [RecordRTC](http://bit.ly/RecordRTC) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>How to share files using RTCDataChannel APIs? ® Muaz Khan</title>
+    <title>How to share tab using tabCapture APIs? ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -141,6 +141,21 @@
             font-family: inherit;
             font-weight: normal;
         }
+
+        tr, td, th {
+            vertical-align: top;
+            padding: .7em 1.4em;
+            border-top: 1px dotted #BBA9A9;
+            border-right: 1px dotted #BBA9A9;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        blockquote {
+            margin: 1em 0;
+        }
     </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -152,7 +167,7 @@
 <body>
     <article>
         <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
-        <h1>How to <a href="https://webrtc-experiment.appspot.com/file-hangout/" target="_blank">share files</a> using <a href="https://webrtc-experiment.appspot.com/docs/rtc-datachannel-for-beginners.html" target="_blank">RTCDataChannel API</a>s?
+        <h1>How to share tab using tabCapture APIs?
         </h1>
         <p>
             <span>Copyright © 2013</span>
@@ -163,175 +178,150 @@
             <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
         </section>
 
-        <h2>Getting started — You'll</h2>
+        If you're newcomer, newbie or beginner; you're suggested to try <a href="http://bit.ly/RTCMultiConnection-Documentation" target="_blank">RTCMultiConnection.js</a> or <a href="http://bit.ly/DataChannel-Documentation" target="_blank">DataChannel.js</a> libraries.
+
+        <br />
+        <br />
+
+        <table>
+            <tr>
+                <td>If you <a href="http://code.google.com/p/muazkh/downloads/list">download</a> extension, you can see a file <a href="/webrtc-extension/broadcaster.js">broadcaster.js</a>. This file do all the stuff needed to interact with Google Chrome extension APIs. Also, this file uses <strong>tabCapture</strong> APIs to capture the tab.
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <blockquote style="padding: 0 .2em;">
+                        <img src="/images/capture-tab-using-tabCapture-APIs.png" />
+                    </blockquote>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Now, you've access to LocalMediaStream object. <strong>Do whatever you want!</strong> So easy!!!!!
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <a href="/webrtc-extension/manifest.json">manifest.json</a> file looks like this:
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <pre>
+...
+"background": {
+    "scripts": ["<a href="/webrtc-extension/socket.io.js">socket.io.js</a>", 
+                "<a href="/webrtc-extension/RTCPeerConnection-v1.5.js">RTCPeerConnection-v1.5.js</a>", 
+                "<a href="/webrtc-extension/broadcast.js">broadcast.js</a>", 
+                "<a href="/webrtc-extension/broadcaster.js">broadcaster.js</a>"],
+    "persistent": false
+},
+...
+"permissions": [
+    "<strong>tabCapture</strong>"
+],
+...
+</pre>
+                </td>
+            </tr>
+
+            <tr>
+                <td>You can see permission for <strong>tabCapture</strong> APIs.
+                </td>
+            </tr>
+        </table>
+
+        <br />
+        <br />
+
+        <h2>How to use your own socket.io implementation?</h2>
+        <br />
+        <br />
+        This tab sharing experiment is using socket.io implementation over pubnub.
+         <br />
+        <br />
         <ol>
-            <li>Get access to file using input—type=file</li>
-            <li>Read file as Data-URL using FileReader API</li>
-            <li>Define chunk length i.e. 1000 chars — to make sure it should work on chrome</li>
-            <li>Get first chunk accordingly; transmit and continue...</li>
+            <li>
+                <a href="/webrtc-extension/broadcast.js" target="_blank">broadcast.js</a>
+            </li>
+            <li>
+                <a href="/screen-broadcast/screen-viewer.js" target="_blank">screen-viewer.js</a>
+            </li>
         </ol>
+        <br />
+        <br />
+        <h2><a href="/webrtc-extension/broadcast.js" target="_blank">broadcast.js</a> — Line 181</h2>
 
         <br />
         <br />
 
-        <h2>First step: Getting access to file using INPUT-File element</h2>
-        <pre>
-document.querySelector('input[type=file]').onchange = function() {
-    var file = this.files[0];
-};
-        </pre>
-
-        <br />
-        <br />
-
-        <h2>Second step: Reading file as Data-URL using FileReader API</h2>
-        <pre>
-var reader = new window.FileReader();
-reader.readAsDataURL(file);
-reader.onload = onReadAsDataURL;
-        </pre>
-
-        <br />
-        <br />
-
-        <h2>Third step: Defining chunk length</h2>
+        At line <strong>181</strong>, you can see <code>openSocket</code> method:
 
         <pre>
-var chunkLength = 1000;
-        </pre>
-
-        <br />
-        <br />
-
-        <h2>Fourth step: Getting chunk and transmitting...</h2>
-
-        <pre>
-function onReadAsDataURL(event, text) {
-    var data = {}; // data object to transmit over data channel
-
-    if (event) text = event.target.result; // on first invocation
-
-    if (text.length > chunkLength) {
-        data.message = text.slice(0, chunkLength); // getting chunk using predefined chunk length
-    } else {
-        data.message = text;
-        data.last = true;
-    }
-
-    dataChannel.send(data); // use JSON.stringify for chrome!
-
-    var remainingDataURL = text.slice(data.message.length);
-    if (remainingDataURL.length) setTimeout(function () {
-        onReadAsDataURL(null, remainingDataURL); // continue transmitting
-    }, 500)
+openSocket: function(config) {
+    var socket = io.connect('https://pubsub.pubnub.com/webrtc-rtcweb', {
+        publish_key: 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0',
+        subscribe_key: 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a',
+        channel: config.channel || 'webrtc-tab-sharing',
+        ssl: true
+    });
+    config.onopen && socket.on('connect', config.onopen);
+    config.onmessage && socket.on('message', config.onmessage);
+    return socket;
 }
         </pre>
 
         <br />
         <br />
 
-        <h2>Fifth step: Receive chunks; store in array and...</h2>
+        <h2><a href="/screen-broadcast/screen-viewer.js" target="_blank">screen-viewer.js</a> — Line 185</h2>
+
+        <br />
+        <br />
+
+        At line <strong>185</strong>, you can see <strong>same</strong> <code>openSocket</code> method:
 
         <pre>
-var arrayToStoreChunks = [];
-dataChannel.onmessage = function (event) {
-    var data = JSON.parse(event.data);
-
-    arrayToStoreChunks.push(data.message); // pushing chunks in array
-
-    if (data.last) {
-        saveToDisk(arrayToStoreChunks.join(''), 'fake fileName');
-        arrayToStoreChunks = []; // resetting array
-    }
-};
+openSocket: function(config) {
+    var socket = io.connect('https://pubsub.pubnub.com/webrtc-rtcweb', {
+        publish_key: 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0',
+        subscribe_key: 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a',
+        channel: config.channel || 'webrtc-tab-sharing',
+        ssl: true
+    });
+    config.onopen && socket.on('connect', config.onopen);
+    config.onmessage && socket.on('message', config.onmessage);
+    return socket;
+}
         </pre>
 
         <br />
         <br />
 
-        <h2>Sending/Receving files using Firefox</h2>
+        <h2>To use your own socket.io implementation...</h2>
+        <br />
+        <br />
+        Replace <code>openSocket</code> method's code in <strong>both files</strong> with:
 
         <pre>
-document.querySelector('input[type=file]').onchange = function () {
-    var file = this.files[0];
-    dataChannel.send(file);
-};
-
-dataChannel.onmessage = function (event) {
-    var blob = event.data; // Firefox allows us send blobs directly
-
-    var reader = new window.FileReader();
-    reader.readAsDataURL(blob);
-    reader.onload = function (event) {
-        var fileDataURL = event.target.result; // it is Data URL...can be saved to disk
-        SaveToDisk(fileDataURL, 'fake fileName');
+openSocket: function (config) {
+    var socket = io.connect('http://your-site:8888');
+    socket.channel = config.channel || 'webrtc-tab-sharing';
+    socket.on('message', config.onmessage);
+		
+    socket.send = function (data) {
+        socket.emit('message', data);
     };
-};
-        </pre>
 
-        <br />
-        <br />
-
-        <h2>SaveToDisk function — old syntax</h2>
-
-        <pre>
-function saveToDisk(fileUrl, fileName) {
-    var save = document.createElement('a');
-    save.href = fileUrl;
-    save.target = '_blank';
-    save.download = fileName || fileUrl;
-
-    var evt = document.createEvent('MouseEvents');
-    evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-
-    save.dispatchEvent(evt);
-
-    (window.URL || window.webkitURL).revokeObjectURL(save.href);
+    if (config.onopen) setTimeout(config.onopen, 1);
+    return socket;
 }
         </pre>
 
-        <br />
-        <br />
-
-        <h2>SaveToDisk function — new syntax</h2>
-
-        <pre>
-function saveToDisk(fileUrl, fileName) {
-    var save = document.createElement('a');
-    save.href = fileUrl;
-    save.target = '_blank';
-    save.download = fileName || fileUrl;
-
-    var event = document.createEvent('Event');
-    event.initEvent('click', true, true);
-
-    save.dispatchEvent(event);
-    (window.URL || window.webkitURL).revokeObjectURL(save.href);
-}
-        </pre>
-
-        <br />
-        <br />
-
-        <h2>Links</h2>
-
-        <ol>
-            <li>
-                <a href="https://webrtc-experiment.appspot.com/file-hangout/" target="_blank">Share Files / Demo</a>
-            </li>
-
-            <li>
-                <a href="https://webrtc-experiment.appspot.com/docs/rtc-datachannel-for-beginners.html" target="_blank">RTCDataChannel APIs for Beginners</a>
-            </li>
-
-            <li>
-                <a href="http://bit.ly/DataChannel-Documentation" target="_blank">DataChannel.js</a> — A library for RTCDataChannels
-            </li>
-
-            <li>
-                <a href="http://bit.ly/RTCMultiConnection-Documentation" target="_blank">RTCMultiConnection.js</a> — A library for everything!
-            </li>
-        </ol>
+        Now, <strong>your own socket.io will be used for signaling!</strong>
 
         <br />
         <br />
