@@ -17,24 +17,21 @@ Plug & play type of WebRTC Experiments. Nothing to install. No requirements. Jus
 1. [Group video sharing / video-conferencing](https://webrtc-experiment.appspot.com/video-conferencing/)
 2. [Group file sharing](https://webrtc-experiment.appspot.com/file-hangout/)
 3. [Group text chat](https://webrtc-experiment.appspot.com/chat-hangout/)
-4. [Group file sharing + text chat](http://bit.ly/DataChannel-Demo) — using [DataChannel.js](http://bit.ly/DataChannel) library
-5. [All-in-One Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection-Documentation) library — screen, audio/video, text chat, files, audio-conferencing, broadcasting, etc.
 
-[Many other demos](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/) using RTCMultiConnection library.
+
+### One-way video broadcasting
+
+1. [WebRTC one-way video broadcasting](https://webrtc-experiment.appspot.com/webrtc-broadcasting/)
 
 #### One-to-Many style of WebRTC Experiments
 
-1. [One-Way audio+video+screen broadcasting](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/)
-2. [Video broadcasting](https://webrtc-experiment.appspot.com/broadcast/)
-3. [Audio broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/)
-4. [Video broadcasting using RTCMultiConnection library](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/video-broadcasting.html)
-5. [Video broadcasting + file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/video-broadcasting-plus-filesharing-plus-textchat.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection-Documentation) library
+1. [Video broadcasting](https://webrtc-experiment.appspot.com/broadcast/)
+2. [Audio broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/)
 
 #### One-to-One style of WebRTC Experiments
 
 1. [One-to-one WebRTC video chat using WebSocket](https://webrtc-experiment.appspot.com/websocket/)
 2. [One-to-one WebRTC video chat using socket.io](https://webrtc-experiment.appspot.com/socket.io/)
-3. [One-to-One file sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/one-to-one-filesharing.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection-Documentation) library
 
 | in-Page / One-Page / Client Side |
 | ------------- |
@@ -43,37 +40,45 @@ Plug & play type of WebRTC Experiments. Nothing to install. No requirements. Jus
 | [Sharing video - using socket.io for signaling](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) |
 | [Sharing video - using WebSockets for signaling](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) |
 
-#### WebRTC Experiments to share screen
+#### [Screen sharing](https://webrtc-experiment.appspot.com/#screen-sharing)
 
-1. [Plugin free screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html)
-2. [Chrome to Firefox Screen Sharing](https://googledrive.com/host/0B6GWd_dUUTT8YUJaMkZ2d0NzQmc/WebRTC-Screen-Viewer.html)
-3. [Screen sharing](https://webrtc-experiment.appspot.com/screen-broadcast/)
-4. [Screen viewer](https://webrtc-experiment.appspot.com/screen-viewer/)
-5. [One-Way screen sharing](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/screen-sharing.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection-Documentation) library
-6. [One-Way screen sharing + file sharing + text chat](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/screensharing-plus-filesharing-plus-textchat.html) — using [RTCMultiConnection](http://bit.ly/RTCMultiConnection-Documentation) library
+1. [Plugin free screen sharing](https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/)
+2. [Screen sharing](https://webrtc-experiment.appspot.com/screen-broadcast/)
 
-#### Part of screen sharing
+#### [Part of screen sharing](https://webrtc-experiment.appspot.com/#part-of-screen-sharing)
 
-1. [Using RTCDataChannel](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/RTCDataChannel/)
-2. [Using Firebase](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/part-of-screen-sharing/)
+1. [Using RTCDataChannel](https://webrtc-experiment.appspot.com/part-of-screen-sharing/webrtc-data-channel/)
+2. [Using Firebase](https://webrtc-experiment.appspot.com/part-of-screen-sharing/)
 3. [A realtime chat using RTCDataChannel](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/)
 4. [A realtime chat using Firebase](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html)
 
 #### WebRTC Audio + Video Recording
 
-[RecordRTC: WebRTC audio/video recording](http://bit.ly/RecordRTC) / [Demo](http://bit.ly/RecordRTC-Demo)
+[RecordRTC: WebRTC audio/video recording](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) / [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
 
 #### Pre-recorded media streaming
 
-[Pre-recorded media streaming](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/Pre-recorded-Media-Streaming/)
+[Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/)
 
-There is a **video-conferencing** experiment that acts as **one-way video broadcasting** if end-user has no camera/microphone. Try [join session with/without camera](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection/demos/join-with-or-without-camera.html)
+#### [RTCMultiConnection Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection)
 
-#### Documents for newcomers
+1. [Multi-Session Establishment](https://webrtc-experiment.appspot.com/RTCMultiConnection/multi-session-establishment/)
+2. [File Sharing + Text Chat](https://webrtc-experiment.appspot.com/group-file-sharing-plus-text-chat/)
+3. [All-in-One test](https://webrtc-experiment.appspot.com/RTCMultiConnection/)
+4. [Video Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-conferencing/)
+5. [Video Broadcasting](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-broadcasting/)
+6. [Audio Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/audio-conferencing/)
+7. [Join with/without camera](https://webrtc-experiment.appspot.com/RTCMultiConnection/join-with-or-without-camera/)
+8. [Screen Sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/screen-sharing/)
+9. [One-to-One file sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/one-to-one-filesharing/)
+
+#### Documents for newcomers/newbies/beginners
 
 | A few documents for newbies and beginners        |
 | ------------- |
-| [RTCPeerConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/wiki/RTCPeerConnection-Documentation) |
+| [RTCPeerConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection) |
+| [RTCMultiConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) |
+| [DataChannel Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) |
 | [How to use RTCPeerConnection.js?](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html) |
 | [RTCDataChannel for Beginners](https://webrtc-experiment.appspot.com/docs/rtc-datachannel-for-beginners.html) |
 | [How to use RTCDataChannel?](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcdatachannel.html) - single code for both canary and nightly |
@@ -86,14 +91,14 @@ There is a **video-conferencing** experiment that acts as **one-way video broadc
 
 Majority of WebRTC Experiments are using libraries like:
 
-1. [DataChannel.js](http://bit.ly/DataChannel-Documentation)
-2. [RTCMultiConnection.js](http://bit.ly/RTCMultiConnection-Documentation)
-3. [RTCDataConnection.js](http://bit.ly/RTCDataConnection)
+1. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
+2. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
+3. [RTCDataConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCDataConnection)
 
-#### Getting started with [DataChannel.js](http://bit.ly/DataChannel-Documentation)
+#### Getting started with [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
 
 ```html
-<script src="http://bit.ly/DataChannel"></script>
+<script src="https://webrtc-experiment.appspot.com/DataChannel.js"></script>
 <script>
     var channel = new DataChannel();
 
@@ -114,10 +119,10 @@ Majority of WebRTC Experiments are using libraries like:
 </script>
 ```
 
-#### Getting started with [RTCMultiConnection.js](http://bit.ly/RTCMultiConnection-Documentation) - v1.1
+#### Getting started with [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) - v1.1
 
 ```html
-<script src="https://bit.ly/RTCMultiConnection-v1-1"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.1.js"></script>
 <script>
     var connection = new RTCMultiConnection();
 
@@ -155,32 +160,7 @@ Majority of WebRTC Experiments are using libraries like:
 4. You may want to allow end-users to anonymously join/view main-video session or chatting room
 5. You may want to open one-to-one private session between chairperson and CEO! — in the same session; same page!
 
-There are **many other** use-cases of multi-sessions. Read [RTCMultiConnection Documentation](http://bit.ly/RTCMultiConnection-Documentation)
-
-#### Getting started with [RTCDataConnection.js](http://bit.ly/RTCDataConnection)
-
-```html
-<script src="https://bit.ly/RTCDataConnection-v1-0"></script>
-<script>
-var rtcDataConnection = new RTCDataConnection({
-    onmessage: function (data) {
-        console.log(data);
-    },
-    openSignalingChannel: function (config) {
-        throw 'use your own socket.io implementation here';
-    },
-	
-    // 'one-to-one' || 'one-to-many' || 'many-to-many'
-    direction: 'one-to-many'
-});
-
-// Only session initiator should call below line; 
-rtcDataConnection.initDataConnection();
-
-// to send file/data /or text
-rtcDataConnection.send( file || data || 'text' );
-</script>
-```
+There are **many other** use-cases of multi-sessions. Read [RTCMultiConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
 
 #### Use your own socket.io implementation!
 
@@ -224,6 +204,46 @@ var config = {
 };
 
 ```
+
+##### How to use [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
+
+```html
+<script src="https://webrtc-experiment.appspot.com/RecordRTC.js"></script>
+```
+
+#### How to record video using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
+
+```javascript
+var recorder = RecordRTC({
+	video: HTMLVideoElement
+});
+
+/* start recording video */
+recorder.recordVideo();
+
+/* stop recording video and save recorded file to disk */
+recorder.stopVideo(function(recordedFileURL) {
+   window.open(recordedFileURL);
+});
+```
+
+##### How to record audio using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
+
+```javascript
+var recorder = RecordRTC({
+	stream: MediaStream || LocalMediaStream
+});
+
+/* start recording audio */
+recorder.recordAudio();
+
+/* stop recording audio and save recorded file to disk */
+recorder.stopAudio(function(recordedFileURL) {
+   window.open(recordedFileURL);
+});
+```
+
+[RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
 
 #### License
 

@@ -154,7 +154,7 @@
         }
 
         input {
-            width:100%;
+            width: 100%;
         }
 
         #chat-table blockquote {
@@ -179,8 +179,7 @@
 <body>
     <article>
         <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
-        <h1>
-            RTCDataChannel Simple Demo
+        <h1>RTCDataChannel Simple Demo
             / <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos" target="_blank">Source Code on Github</a>
         </h1>
         <p>
@@ -208,6 +207,31 @@
         </table>
 
         <script>
+            var answererDataChannel, offererDataChannel;
+            var firstPeerTextBox = document.getElementById('from-first-peer');
+            var secondPeerTextBox = document.getElementById('from-second-peer');
+
+            var firstPeerOutput = document.getElementById('messages-sent-by-second-peer');
+            var secondPeerOutput = document.getElementById('messages-sent-by-first-peer');
+
+            HTMLElement.prototype.addLI = function (message) {
+                var li = document.createElement('li');
+                li.innerHTML = message;
+                this.insertBefore(li, this.firstChild);
+            };
+
+            firstPeerTextBox.onchange = function () {
+                offererDataChannel.send(this.value);
+                this.value = '';
+            };
+
+            secondPeerTextBox.onchange = function () {
+                answererDataChannel.send(this.value);
+                this.value = '';
+            };
+        </script>
+
+        <script>
             /* RTCDataChannel implementation for chrome */
 
             function RTCDataChannelForChrome() {
@@ -224,9 +248,9 @@
                 };
 
                 var offerer = new webkitRTCPeerConnection(iceServers, optionalRtpDataChannels),
-                    answerer, answererDataChannel;
+                    answerer;
 
-                var offererDataChannel = offerer.createDataChannel('RTCDataChannel', {
+                offererDataChannel = offerer.createDataChannel('RTCDataChannel', {
                     reliable: false
                 });
 
@@ -274,15 +298,17 @@
                 function setChannelEvents(channel, channelNameForConsoleOutput) {
                     channel.onmessage = function (event) {
                         console.debug(channelNameForConsoleOutput, 'received a message:', event.data);
+
+                        if (channelNameForConsoleOutput == 'offerer')
+                            firstPeerOutput.addLI(event.data);
+                        else
+                            secondPeerOutput.addLI(event.data);
                     };
 
                     channel.onopen = function () {
                         channel.send('first text message over RTP data ports');
                     };
                 }
-
-                window.offererDataChannel = offererDataChannel;
-                window.answererDataChannel = answererDataChannel;
             }
         </script>
 
@@ -293,6 +319,11 @@
                 function setChannelEvents(channel, channelNameForConsoleOutput) {
                     channel.onmessage = function (event) {
                         console.debug(channelNameForConsoleOutput, 'received a message:', event.data);
+
+                        if (channelNameForConsoleOutput == 'offerer')
+                            firstPeerOutput.addLI(event.data);
+                        else
+                            secondPeerOutput.addLI(event.data);
                     };
                     channel.onopen = function () {
                         channel.send('first text message over SCTP data ports');
@@ -304,12 +335,10 @@
                 var iceServers = {
                     iceServers: [{
                         url: 'stun:23.21.150.121'
-                    }
-                    ]
+                    }]
                 };
 
-                var offerer = new mozRTCPeerConnection(iceServers),
-                    answerer, answererDataChannel, offererDataChannel;
+                var offerer = new mozRTCPeerConnection(iceServers), answerer;
 
                 offererDataChannel = offerer.createDataChannel('channel', {});
                 offererDataChannel.binaryType = 'blob';
@@ -360,8 +389,6 @@
 
                     }, useless);
                 }
-                window.offererDataChannel = offererDataChannel;
-                window.answererDataChannel = answererDataChannel;
             }
         </script>
 
@@ -370,30 +397,6 @@
 
             if (isFirefox) RTCDataChannelForFirefox();
             else RTCDataChannelForChrome();
-        </script>
-
-        <script>
-            var firstPeerTextBox = document.getElementById('from-first-peer');
-            var secondPeerTextBox = document.getElementById('from-second-peer');
-
-            var firstPeerOutput = document.getElementById('messages-sent-by-second-peer');
-            var secondPeerOutput = document.getElementById('messages-sent-by-first-peer');
-
-            HTMLElement.prototype.addLI = function (message) {
-                var li = document.createElement('li');
-                li.innerHTML = message;
-                this.insertBefore(li, this.firstChild);
-            };
-
-            firstPeerTextBox.onchange = function () {
-                window.offererDataChannel.send(this.value);
-                this.value = '';
-            };
-
-            secondPeerTextBox.onchange = function () {
-                window.answererDataChannel.send(this.value);
-                this.value = '';
-            };
         </script>
 
         <br />
@@ -429,6 +432,6 @@
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
         </p>
     </footer>
-    <script src="https://bit.ly/commonjs"> </script>
+    <script src="https://webrtc-experiment.appspot.com/common.js"> </script>
 </body>
 </html>

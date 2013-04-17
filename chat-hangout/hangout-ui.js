@@ -6,7 +6,7 @@ var config = {
     openSocket: function (config) {
         if (!window.Firebase) return;
         var channel = config.channel || location.hash.replace('#', '') || 'chat-hangout';
-        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+        var socket = new Firebase('https://rtcweb.firebaseIO.com/' + channel);
         socket.channel = channel;
         socket.on("child_added", function (data) {
             config.onmessage && config.onmessage(data.val());
@@ -26,7 +26,7 @@ var config = {
 
         var tr = document.createElement('tr');
         tr.setAttribute('id', room.broadcaster);
-        tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
+        tr.innerHTML = '<td>' + room.roomName + '</td>' +
 					   '<td><button class="join" id="' + room.roomToken + '">Join Room</button></td>';
 
         roomsList.insertBefore(tr, roomsList.firstChild);

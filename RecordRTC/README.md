@@ -1,56 +1,80 @@
-#### [RecordRTC](http://bit.ly/RecordRTC): WebRTC audio/video recording / [Demo](http://bit.ly/RecordRTC-Demo)
+#### RecordRTC: WebRTC audio/video recording / [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
 
-**RecordRTC** library allows you record audio and/or video streams separately.
+[RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC.js) allows you record audio and/or video streams.
 
-##### How to record audio?
+#### Features
 
-```javascript
-var recorder = RecordRTC({
-	stream: stream,
-	
-	/* For audio, there is a worker javascript file: audio-recorder.js
-	   You MUST put this file in the same directory where you put HTML; 
-	   otherwise set location of this worker file like this:
-	*/
-	audioWorkerPath: '/audio-recorder.js'
-});
+1. Writes recorded file on disk and returns file URL
+2. It is your choice to get URL blob or file URL
 
-/* start recording audio */
-recorder.recordAudio();
+##### How to use RecordRTC?
 
-/* stop recording audio */
-recorder.stopAudio();   
-
-/* save recorded audio to disk */
-recorder.save();    
-
-/* get blob URL to play audio directly in the browser */    
-audio.src = recorder.getBlob();
+```html
+<script src="https://webrtc-experiment.appspot.com/RecordRTC.js"></script>
 ```
 
 #### How to record video?
 
 ```javascript
 var recorder = RecordRTC({
-	video: video
+	video: HTMLVideoElement
 });
 
 /* start recording video */
 recorder.recordVideo();
 
-/* stop recording video */
-recorder.stopVideo();   
-
-/* save recorded video to disk */
-recorder.save();    
-
-/* get blob URL to play video directly in the browser */    
-video.src = recorder.getBlob();
+/* stop recording video and save recorded file to disk */
+recorder.stopVideo(function(recordedFileURL) {
+   window.open(recordedFileURL);
+});
 ```
+
+##### How to record audio?
+
+```javascript
+var recorder = RecordRTC({
+	stream: MediaStream || LocalMediaStream
+});
+
+/* start recording audio */
+recorder.recordAudio();
+
+/* stop recording audio and save recorded file to disk */
+recorder.stopAudio(function(recordedFileURL) {
+   window.open(recordedFileURL);
+});
+```
+
+#### Additional Features
+
+```javascript
+/* getting URL Blob */
+window.open( recorder.getBlob() );
+
+/* getting recorded file URL */
+window.open( recorder.toURL() );
+
+/* save recorded Blob to disk */
+recorder.save();
+```
+
+It is recommended to use `stopAudio` and `stopVideo` **callback parameter** to get recorde file URL or recorded Blob.
+
+```javascript
+recorder.stopVideo(function(recordedFileURL) {
+   window.open(recordedFileURL);
+});
+
+recorder.stopAudio(function(recordedFileURL) {
+   window.open(recordedFileURL);
+});
+```
+
+This method is reliable and works all the time without any failure.
 
 #### Make sure that:
 
-1. You're using Chrome [Canary](https://www.google.com/intl/en/chrome/browser/canary.html)
+1. You're using Chrome [Canary](https://www.google.com/intl/en/chrome/browser/canary.html), beta or dev
 2. You enabled flag `Web Audio Input` via `chrome://flags`
 
 #### Possible issues/failures:
@@ -59,22 +83,21 @@ It is appeared that audio-recording has many chances of failures.
 
 Possible audio-recording failures:
 
-1. Different audio input/output devices
-2. You're using chrome stable/dev/beta
-3. `Web Audio Input` flag is not enabled on `chrome canary`
+1. Audio input/output devices mismatch
+2. You're using old chrome and `Web Audio Input` flag is not enabled
 
 #### Saving to disk failures:
 
 1. You're using chrome `incognito` mode
-2. `RecordRTC` created **duplicate** temporary file
+2. **RecordRTC** created **duplicate** temporary file
 3. The requesting scheme is none of the following: `http`, `https`, `chrome`, extension's, or `file` (only works with `--allow-file-access-from-files`)
 4. The browser cannot create/initialize the metadata database for the API under the profile directory
 
-Click `Save to Disk` button; new tab will open; right-click over video and choose `Save video as...` option from context menu.
+Click **Save to Disk** button; new tab will open; **right-click** over video and choose **Save video as...** option from context menu.
 
 #### Browser Support
 
-[RecordRTC Demo](http://bit.ly/RecordRTC-Demo) works fine on following web-browsers:
+[RecordRTC Demo](https://webrtc-experiment.appspot.com/RecordRTC/) works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -83,8 +106,8 @@ Click `Save to Disk` button; new tab will open; right-click over video and choos
 
 #### Credits
 
-1. [Recorderjs](https://github.com/mattdiamond/Recorderjs) / Audio Recording
-2. [whammy](https://github.com/antimatter15/whammy) / Video Recording
+1. [Recorderjs](https://github.com/mattdiamond/Recorderjs) for audio recording
+2. [whammy](https://github.com/antimatter15/whammy) for video recording
 
 #### Spec & Reference
 
@@ -92,4 +115,4 @@ Click `Save to Disk` button; new tab will open; right-click over video and choos
 
 #### License
 
-[RecordRTC](http://bit.ly/RecordRTC) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

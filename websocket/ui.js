@@ -3,7 +3,8 @@
 var config = {
     openSocket: function (config) {
         "use strict";
-        var socket = new WebSocket('wss://pubsub.pubnub.com/pub-c-4bd21bab-6c3e-49cb-a01a-e1d1c6d172bd/sub-c-5eae0bd8-7817-11e2-89a1-12313f022c90/' + (config.channel || location.hash.replace('#', '') || 'rtc-websocket'));
+        var isOwnURL = location.origin == 'https://webrtc-experiment.appspot.com';
+        var socket = new WebSocket('wss://pubsub.pubnub.com/' + (isOwnURL ? 'pub-c-43a717c8-5815-4a7a-b118-19cd690fe879' : 'demo') + '/' + (isOwnURL ? 'sub-c-a0cf38de-7263-11e2-8b02-12313f022c90' : 'demo') + '/' + (config.channel || location.hash.replace('#', '') || 'rtc-websocket'));
 		socket.onmessage = function (evt) {
 			config.onmessage(evt.data);
 		};
@@ -72,6 +73,7 @@ function captureUserMedia(callback) {
         },
         onerror: function (error) {
             alert('unable to get access to your webcam');
+			callback && callback();
         }
     });
 }
@@ -106,12 +108,10 @@ function rotateVideo(video)
 
 (function () {
     var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken) {
-        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
-        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
-            return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
-                return (a ^ Math.random() * 16 >> a / 4).toString(16);
-            });
-        })();
-    }
+    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="'+ location.href +'" target="_blank">You can share this private link with your friends.</a></h2>';
+    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
+        return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+            return (a ^ Math.random() * 16 >> a / 4).toString(16);
+        });
+    })();
 })();

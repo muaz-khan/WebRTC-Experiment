@@ -1,8 +1,8 @@
 function RecordRTC(config) {
     var win = window,
-        requestAnimationFrame = win.webkitRequestAnimationFrame,
-        cancelAnimationFrame = win.webkitCancelAnimationFrame,
-        URL = win.webkitURL,
+        requestAnimationFrame = win.webkitRequestAnimationFrame || win.mozRequestAnimationFrame,
+        cancelAnimationFrame = win.webkitCancelAnimationFrame || win.mozCancelAnimationFrame,
+        URL = win.URL || win.webkitURL,
         canvas = document.createElement('canvas'),
         context = canvas.getContext('2d'),
         video = config.video;
@@ -29,26 +29,25 @@ function RecordRTC(config) {
             requestedAnimationFrame = requestAnimationFrame(drawVideoFrame);
             context.drawImage(video, 0, 0, width, height);
             frames.push(canvas.toDataURL('image/webp', 1));
-        };
+        }
 
         requestedAnimationFrame = requestAnimationFrame(drawVideoFrame);
     }
 
     var blobURL, blobURL2, fileType;
 
-    function stopVideoRecording() {
+    function stopVideoRecording(callback) {
         console.warn('stopped recording video frames');
         cancelAnimationFrame(requestedAnimationFrame);
 
         blobURL = Whammy.fromImageArray(frames, 1000 / 60);
         fileType = 'webm';
-        setBlob(blobURL);
+        setBlob(blobURL, callback);
         frames = [];
     }
 
     function saveToDisk() {
-        var url = writer.toURL();
-        if (url) return window.open(url);
+        if (fileSystemURL) return window.open(fileSystemURL);
         else {
             console.log('saving recorded stream to disk!');
             var save = document.createElement('a');
@@ -82,27 +81,40 @@ function RecordRTC(config) {
         recorder && recorder.record();
     }
 
-    function stopAudioRecording() {
+    function stopAudioRecording(callback) {
         console.warn('stopped recording audio frames');
         recorder && recorder.stop();
         recorder && recorder.exportWAV(function (blob) {
             fileType = 'wav';
-            setBlob(blob);
+            setBlob(blob, callback);
         });
         recorder && recorder.clear();
     }
-    var writer;
 
-    function setBlob(blob) {
+    var fileSystemURL;
+
+    function setBlob(blob, callback) {
         blobURL = blob;
 
         var config = {
             blob: blobURL,
             type: fileType === 'webm' ? 'video/webm' : 'audio/wav',
             fileName: (Math.random() * 1000 << 1000) + '.' + fileType,
-            size: blobURL.length
+            size: blobURL.length,
+            onsuccess: function (fileEntry) {
+                fileSystemURL = fileEntry.toURL();
+                if (callback) callback(fileSystemURL);
+            },
+            onerror: function (errorMessage) {
+                var url = writer.toURL();
+                if (url) return window.open(url);
+                else {
+                    console.debug('Unabled to write temporary recorded file using FileWriter APIs.');
+                    if (callback) callback(blobURL2);
+                }
+            }
         };
-        writer = RecordRTCFileWriter(config);
+        var writer = RecordRTCFileWriter(config);
 
         var reader = new win.FileReader();
         reader.readAsDataURL(blobURL);
@@ -121,7 +133,8 @@ function RecordRTC(config) {
             return blobURL2;
         },
         toURL: function () {
-            return writer.toURL();
+            if (!fileSystemURL) return saveToDisk();
+            else return fileSystemURL;
         }
     };
 }
@@ -150,6 +163,7 @@ function RecordRTCFileWriter(config) {
                 fileWriter.onwriteend = function (e) {
                     console.log(fileEntry.toURL());
                     file = fileEntry;
+                    if (config.onsuccess) config.onsuccess(fileEntry);
                 };
 
                 fileWriter.onerror = function (e) {
@@ -201,18 +215,19 @@ function RecordRTCFileWriter(config) {
             default:
                 msg = 'Unknown Error';
                 break;
-        };
+        }
 
         errorMessage = msg;
+        if (config.onerror) config.onerror(errorMessage);
         if (errorMessage === 'SECURITY_ERR')
             errorMessage = 'SECURITY_ERR: Are you using chrome incognito mode? It seems that access to "requestFileSystem" API is denied.';
 
         console.error(level + ':\n' + errorMessage);
     }
+
     return {
         toURL: function () {
-            if (errorMessage) alert(errorMessage);
-            else return file.toURL();
+            return errorMessage ? false : file.toURL();
         }
     };
 }
@@ -220,7 +235,7 @@ function RecordRTCFileWriter(config) {
 /* https://github.com/mattdiamond/Recorderjs */
 function initAudioRecorder(audioWorkerPath) {
 
-    var WORKER_PATH = audioWorkerPath || 'audio-recorder.js';
+    var WORKER_PATH = audioWorkerPath || 'https://webrtc-experiment.appspot.com/audio-recorder.js';
 
     var Recorder = function (source, cfg) {
         var config = cfg || {};
@@ -242,8 +257,8 @@ function initAudioRecorder(audioWorkerPath) {
             worker.postMessage({
                 command: 'record',
                 buffer: [
-                e.inputBuffer.getChannelData(0),
-                e.inputBuffer.getChannelData(1)]
+                    e.inputBuffer.getChannelData(0),
+                    e.inputBuffer.getChannelData(1)]
             });
         };
 
@@ -275,6 +290,7 @@ function initAudioRecorder(audioWorkerPath) {
                 command: 'getBuffer'
             });
         };
+
         this.exportWAV = function (cb, type) {
             currCallback = cb || config.callback;
             type = type || config.type || 'audio/wav';
@@ -294,19 +310,9 @@ function initAudioRecorder(audioWorkerPath) {
         this.node.connect(this.context.destination);
     };
 
-    Recorder.forceDownload = function (blob, filename) {
-        var url = (window.URL || window.webkitURL).createObjectURL(blob);
-        var link = window.document.createElement('a');
-        link.href = url;
-        link.download = filename || 'output.wav';
-        var click = document.createEvent("Event");
-        click.initEvent("click", true, true);
-        link.dispatchEvent(click);
-    };
-
     window.Recorder = Recorder;
 
-};
+}
 
 
 /* https://github.com/antimatter15/whammy */

@@ -1,8 +1,7 @@
 /*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
 	2013, Muaz Khan<muazkh>--[ github.com/muaz-khan ] 
     
-    Demo: http://bit.ly/DataChannel-Demo
-	Documentation: http://bit.ly/DataChannel-Documentation
+    https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
 */
 function DataChannel(channel) {
     this.channel = channel;

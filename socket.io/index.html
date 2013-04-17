@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>WebRTC Group File Sharing using RTCDataChannel APIs! ® Muaz Khan</title>
+    <title>WebRTC over socket.io ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -15,9 +15,11 @@
         html {
             background: #eee;
         }
-
+		* 
+		{
+			font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+		}
         body {
-            font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
             font-size: 1.2em;
             line-height: 1.2em;
             margin: 0;
@@ -157,17 +159,9 @@
             font-size: 2em;
         }
 
-        #chat-table blockquote {
-            border: 1px dotted gray;
-            padding: 1em 2em;
-            margin: 1em 5em;
+        #participants video {
+            width:14em;
         }
-
-            #chat-table blockquote hr {
-                margin: 1em -2em;
-                border: 0;
-                border-top: 1px dotted #BBA9A9;
-            }
     </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -178,9 +172,9 @@
 
 <body>
     <article>
-        <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
-        <h1>WebRTC Group File Sharing using RTCDataChannel APIs!
-        </h1>
+        <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
+
+        <h1>Using socket.io for signaling</h1>
         <p>
             <span>Copyright © 2013</span>
             <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
@@ -190,47 +184,49 @@
             <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
         </section>
 
-        <table style="width: 100%;">
+        <table class="visible">
             <tr>
-                <td>
-                    <input type="button" value="Start Sharing Files in Group!" id="start-conferencing">
-                    <input type="file" id="file" disabled>
-                    <div id="status" style="font-size: 2em; color: red;"></div>
-                    <table id="participants"></table>
-                    <table id="rooms-list" class="visible"></table>
+                <td style="text-align: right;">
+                    <input type="text" id="conference-name" placeholder="Conference Name">
                 </td>
                 <td>
-                    <table id="output-panel"></table>
+                    <button id="start-conferencing">Start video-conferencing</button>
                 </td>
             </tr>
         </table>
+        <table id="rooms-list" class="visible"></table>
+
         <table class="visible">
             <tr>
                 <td style="text-align: center;">
-                    <strong>Private file-hangout</strong> ?? <a href="/file-hangout/" target="_blank" title="Open this link in new tab. Then your file-hangout will be private!"><code>/file-hangout/<strong id="unique-token">#123456789</strong></code></a>
+                    <strong>Private conference</strong> ?? <a href="/socket.io/" target="_blank" title="Open this link in new tab. Then your room will be private!"><code>/socket.io/<strong id="unique-token">#123456789</strong></code></a>
                 </td>
             </tr>
         </table>
 
-        <script src='https://cdn.firebase.com/v0/firebase.js'></script>
-        <script src="https://bit.ly/RTCPeerConnection-v1-5"></script>
-        <script src="hangout.js"> </script>
-        <script src="hangout-ui.js"></script>
+        <div id="participants"></div>
+
+        <script src="https://webrtc-experiment.appspot.com/dependencies/socket.io.js"></script>
+        <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-v1.5.js"></script>
+        <script src="https://webrtc-experiment.appspot.com/socket.io/rtclib.js"> </script>
+        <script src="https://webrtc-experiment.appspot.com/socket.io/ui.js"></script>
 
         <br />
         <br />
+		
+        <h2 style="float:right;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io" target="_blank">Source Code on Github</a></h2>
+        
+        <br />
+        <br />
 
-        A file-hangout experiment where all participants can share files like a group!
+        WebRTC one-to-one video sharing experiment where socket.io is used for signaling.
 
 	    <br />
         <br />
 
-        It is preferred to use <a href="http://bit.ly/DataChannel-Documentation" target="_blank">DataChannel.js</a> or <a href="http://bit.ly/RTCMultiConnection-Documentation" target="_blank">RTCMultiConnection.js</a> for sharing text/data or files.
+        You can use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> for audio/video/screen conferencing/broadcasting, multi-sessions on the same page, text chat and file sharing!
 			
-        <br />
-        <br />
-        <h2><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout">Source Code on Github</a></h2>
-        <br />
+		<br />
         <br />
         <table style="width: 100%;">
             <tr>
@@ -252,6 +248,6 @@
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
         </p>
     </footer>
-    <script src="https://bit.ly/commonjs"> </script>
+    <script src="https://webrtc-experiment.appspot.com/common.js"> </script>
 </body>
 </html>

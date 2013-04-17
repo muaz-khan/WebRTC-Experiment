@@ -1,4 +1,4 @@
-#### WebRTC One-to-Many video sharing/broadcasting / [Demo](https://webrtc-experiment.appspot.com/audio-broadcast/)
+#### WebRTC One-to-Many audio sharing/broadcasting / [Demo](https://webrtc-experiment.appspot.com/audio-broadcast/)
 
 It is a one-to-many audio broadcasting experiment.
 

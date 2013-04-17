@@ -1,0 +1,25 @@
+﻿<table class="visible">
+	<tr>
+		<td style="text-align: right;">
+			<input type="text" id="room-name" placeholder="Room Name">
+		</td>
+		<td>
+			<button id="start-conferencing">Start One-to-One video chat!</button>
+		</td>
+	</tr>
+</table>
+
+<table id="rooms-list" class="visible"></table>
+
+<table>
+    <tr>
+        <td>
+            <div id="participants"></div>
+        </td>
+    </tr>
+</table>
+
+<script src="https://webrtc-experiment.appspot.com/dependencies/websocket.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-v1.5.js"></script>
+<script src="https://webrtc-experiment.appspot.com/websocket/rtclib.js"> </script>
+<script src="https://webrtc-experiment.appspot.com/websocket/ui.js"></script>

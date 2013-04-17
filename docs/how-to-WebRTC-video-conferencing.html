@@ -193,220 +193,181 @@
 
         <ol>
             <li>Open multiple peers to support multi-user connectivity</li>
-            <li>Open multiple sockets to exchange SDP/ICE among mulitple users</li>
+            <li>Open multiple sockets to exchange SDP/ICE among multiple users</li>
         </ol>
 
         and that's all!
         <br />
         <br />
 
-        This document is aimed to be updated with correct/relevant information, soon. 
+        <h2>You should</h2>
 
-        <br />
-        <br />
-        
-        <h2>Below all sections are irrelevant.</h2>
-        <br />
-        <br />
+        <ol>
+            <li>create two reusable functions: one for creating offer and other for creating answer. These will be called/invoked many times on each new room participation request.</li>
+            <li>create a function like "openSignalingChannel" that should open new socket on each invocation.</li>
+            <li>uniquely identify the current user</li>
+        </ol>
 
-        <table>
-        <tr>
-            <td>First of all, you need to reference two javascript files:</td>
-        </tr>
+        <p>It is preferred to use socket.io because it supports multiplexing. WebSockets is useless in conferencing.</p>
 
-        <tr>
-            <td><code>&lt;script src="<strong>http://bit.ly/RTCPeerConnection-v1-5</strong>"&gt;&lt;/script&gt;</code></td>
-        </tr>
-        <tr>
-            <td><code>&lt;script src="<strong>http://bit.ly/webrtc-conferencing</strong>"&gt;&lt;/script&gt;</code></td>
-        </tr>
+        <h2>Those functions</h2>
 
-        <tr>
-            <td>You JUST need to call "<code>conference</code>" object and pass a few methods/objects and <em>that's all you need to do!</em></td>
-        </tr>
+        <p>On invocation; those functions should:</p>
 
-        <tr>
-            <td><code>var <strong id="conferenceUI">conferenceUI</strong> = <a href="https://bit.ly/webrtc-conferencing">conference</a>(<a href="#config">config</a>);</code></td>
-        </tr>
+        <ol>
+            <li>create a new peer connection</li>
+            <li>create offer or answer session-descriptions accordingly</li>
+        </ol>
 
-        <tr>
-            <td>And here is how you should pass options/config:</td>
-        </tr>
 
-        <tr>
-            <td>
-                <pre>
-var <strong id="config">config</strong> = {
-    <strong id="openSocket">openSocket</strong> : function (socket_config) {
-        var socket = io.connect('...');
-        
-        socket.on('<strong>connect</strong>', socket_config.<strong id="onopen">onopen</strong>);
-        socket.on('<strong>message</strong>', socket_config.<strong id="onmessage">onmessage</strong>);
+        <h2>Then, on page load</h2>
+        <p>On page load: call "openSignalingChannel" method. This time your "openSignalingChannel" must open "default-channel" that must be active all the time. That default channel will be used to:</p>
 
-        <strong>return</strong> socket;
-    },
-    <strong id="onRemoteStream">onRemoteStream</strong> : function (media) {
-        document.body.appendChild(media.<strong>video</strong>);
-    },
-    <strong id="onRoomFound">onRoomFound</strong> : function (room) {
-        // room.<strong id="roomName">roomName</strong>
-        // room.<strong id="broadcaster">broadcaster</strong>
-        // room.<strong id="roomToken">roomToken</strong>
-    },
-    <strong id="attachStream">attachStream</strong>: 'client stream'
+        <ol>
+            <li>show list of all active rooms</li>
+            <li>allow new users to send "participation requests"</li>
+        </ol>
+
+        <h2>For room creator</h2>
+
+        <p>If someone creates new room; you should continuously transmit his room details over the "default-channel".</p>
+
+        <p>You can use transmission-interval i.e. 3 or 5 seconds. It should be your own preference.</p>
+
+        <h2>For room participant</h2>
+
+        <p>Send "participation request" over same "default-channel".</p>
+
+        <p>You should also send participant's unique id in the "participation request" message.</p>
+
+        <p>Call "openSignalingChannel" method to create new socket where you should use his unique id as channel name/label.</p>
+
+        <p>That newly created socket will be used to get offer-sdp from room owner. It will also be used to get ICE gathered by room owner.</p>
+
+        <h2>As soon as room owner will receive participation-request</h2>
+
+        <p>You should create new socket using "openSignalingChannel" method where you should use participant's unique id for channel name/label. Otherwise, use random number that must be passed along with "participation request" message.</p>
+
+        <p>That new socket will be used to exchange SDP/ICE between room owner and that participant.</p>
+
+        <h2>On the room owner's side</h2>
+
+        <p>You should quickly create a new peer connection.</p>
+        <p>You should also quickly create "offer" because room-owner is expected to play the room of "offerer" for each new participant.</p>
+        <p>As soon as offer is created; you should pass that "offer sdp" over same socket that is being used to exchange SDP/ICE between room owner and participant.</p>
+
+        <h2>on the participant's side</h2>
+        <p>You should quickly create a new peer connection there too.</p>
+        <p>Set remote descriptions using offer sdp sent by room owner.</p>
+        <p>Create answer. Participant will always play role of "answerer" on joining new room.</p>
+        <p>As soon as answer is created; you should pass that "answer sdp" over same socket that is being used to exchange SDP/ICE between room owner and participant.</p>
+
+        <h2>Again, on the room owner's side</h2>
+        <p>Set remote descriptions using answer sdp sent by participant.</p>
+
+        <p>And handshake is completed! Are you sure? Wait....there is something else!</p>
+
+        <h2>ICE candidates gathered on room owner's side</h2>
+        <p>You should use same socket to exchange/post/transfer these ICE candidates on participant's side.</p>
+
+        <h2>ICE candidates gathered on participant's side</h2>
+        <p>You should use same socket to exchange/post/transfer these ICE candidates on room owner's side.</p>
+
+        <h2>Finally...</h2>
+        <p>And finally handshake is completed. You're done! Good job Sir!</p>
+
+        <h2>For upcoming participants</h2>
+
+        <p>For each new participant; repeat above process and that's it!</p>
+
+        <br /><br />
+        <p>Explaining above theory using (a little bit real however) pseudo codes.</p>
+
+        <h2>Reusable functions...</h2>
+
+        <pre>
+function openSignalingChannel(channel)
+{
+   var socket = io.connect('http://your-site:8888/' + channel);
+}
+
+function createOffer()
+{
+   var peer = new RTCPeerConnection(...);
+   peer.createOffer(onSuccess);
+}
+
+function createAnswer(offer_sdp)
+{
+   var peer = new RTCPeerConnection(...);
+   peer.setRemoteDescription(offer_sdp);
+   peer.createAnswer(onSuccess);
+}
+        </pre>
+
+        <h2>Opening default signaling channel</h2>
+        <pre>
+var channel = openSignalingChannel('default-channel');
+channel.onmessage = function(message)
+{
+   if(message.participationRequest) {}
+   if(message.sharingRoomDetails) {}
 };
-</pre>
-            </td>
-        </tr>
+        </pre>
 
-        <tr>
-            <td>To create a new conference room:</td>
-        </tr>
-
-        <tr>
-            <td>
-                <pre>
-<a href="#conferenceUI">conferenceUI</a>.<strong>createRoom</strong>({
-    <strong>roomName</strong> : 'Anonymous'
+        <h2>Assuming a new participant</h2>
+        <pre>
+channel.send({
+   isNewParticipant: true,
+   participant_id: participant_id
 });
-</pre>
-            </td>
-        </tr>
 
-        <tr>
-            <td>To join a room:</td>
-        </tr>
+// this private socket will be used to exchange sdp/ice
+var privateChannel = openSignalingChannel(participant_id);
+privateChannel.onmessage = function(message)
+{
+   if(message.type === 'offer')
+   {
+       createAnswer(message.sdp);
 
-        <tr>
-            <td>
-                <pre>
-<a href="#conferenceUI">conferenceUI</a>.<strong id="joinRoom">joinRoom</strong>({
-    <strong>roomToken</strong> : 'unique token of the room',
-    <strong>joinUser</strong> : 'unique token of the room owner/broadcaster'
-});
-</pre>
-            </td>
-        </tr>
+       // on creating answer-sdp; transmit it over "privateChannel"
+       privateChannel.send(answer_sdp);
+   }
+};
+        </pre>
 
-        <tr>
-            <td><a href="/video-conferencing/conference-ui.js">conference-ui.js</a> is a good place to start!</td>
-        </tr>
+        <h2>On participation request</h2>
 
-        <tr>
-            <td>
-                <h2>How <a href="#openSocket">openSocket</a> works?</h2>
-            </td>
-        </tr>
+        <pre>
+if(message.isNewParticipant)
+{
+   var privateChannel = openSignalingChannel(message.participant_id);
 
-        <tr>
-            <td>In this function, you JUST need to write socket.io relevant code that will be called by <a href="https://bit.ly/webrtc-conferencing">conference.js</a> many times. 
-            </td>
-        </tr>
+   createOffer();
 
-        <tr>
-            <td>What you need to do is JUST <a href="#onopen">open socket</a> and <a href="#onmessage">get messages</a> passed over that socket.</td>
-        </tr>
+   // on creating offer-sdp; transmit it over "privateChannel"
+   privateChannel.send(offer_sdp);
+   privateChannel.onmessage = function(message)
+   {
+      if(message.type === 'answer') peer.setRemoteDescription(message.sdp);
+   };
+}
+        </pre>
 
-        <tr>
-            <td>Then you should call <a href="#onopen">onopen</a> and <a href="#onmessage">onmessage</a> accordingly.</td>
-        </tr>
+        <h2>Exchanging ICE</h2>
 
-        <tr>
-            <td>
-                <h2>How <a href="#onRemoteStream">onRemoteStream</a> works?</h2>
-            </td>
-        </tr>
+        <pre>
+privateChannel.onmessage = function(message)
+{
+   if(message.ice) peer.addIceCandidate(new RTCIceCandidate(message.ice));
+};
 
-        <tr>
-            <td>The function will be called each time when remote stream starts flowing.</td>
-        </tr>
+peer.onicecandidate = function(event)
+{
+   privateChannel.send(event.candidate);
+};
+        </pre>
 
-        <tr>
-            <td>It will be called for each conference participant.</td>
-        </tr>
-
-        <tr>
-            <td><a href="https://bit.ly/webrtc-conferencing">conference.js</a> will return two objects: 1) <code>media.<strong>video</strong></code> and 2) <code>media.<strong>stream</strong></code></td>
-        </tr>
-
-        <tr>
-            <td>
-                <h2>How <a href="#onRoomFound">onRoomFound</a> works?</h2>
-            </td>
-        </tr>
-
-        <tr>
-            <td>When a user opens your webpage; you can show him list of available public/private conference rooms.
-            </td>
-        </tr>
-
-        <tr>
-            <td>Following 3 objects will be passed over this method:</td>
-        </tr>
-
-        <tr>
-            <td>
-                <ol>
-                    <li>
-                        <a href="#roomName">roomName</a>: The human readable conference room name.
-                    </li>
-                    <li>
-                        <a href="#broadcaster">broadcaster</a>: The person who creates the conference room. You can say him the "owner" of the room.
-                    </li>
-                    <li>
-                        <a href="#roomToken">roomToken</a>: Unique ID of the room.
-                    </li>
-                </ol>
-            </td>
-        </tr>
-
-        <tr>
-            <td>You'll use <a href="#broadcaster">broadcaster</a> and <a href="#roomToken">roomToken</a> when <a href="#joinRoom">joining a room</a>. So these two values are <strong>mandatory</strong>.</td>
-        </tr>
-
-        <tr>
-            <td>
-                <h2>What is <a href="#attachStream">attachStream</a>?</h2>
-            </td>
-        </tr>
-
-        <tr>
-            <td>Obviously, your client media stream (webcam + microphone) to be attached for remote peer(s).</td>
-        </tr>
-
-        <tr>
-            <td>Again, <a href="/video-conferencing/conference-ui.js">conference-ui.js</a> is a good place to start!</td>
-        </tr>
-
-        <tr>
-            <td>
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/video-conferencing/WebRTC-Video-Conferencing-Experiment.html">Just copy this HTML file</a> and upload at your own web server and enjoy video-conferencing!
-            </td>
-        </tr>
-
-        <tr>
-            <td>Following experiments are using same techniques demonstrated in this document with a little bit changes:
-            </td>
-        </tr>
-
-        <tr>
-            <td>
-                <ol>
-                    <li>
-                        <a href="/video-conferencing/">Video Conferencing / Hangout!</a>
-                    </li>
-
-                    <li>
-                        <a href="/chat-hangout/">Chat Conferencing / Hangout!</a>
-                    </li>
-
-                    <li>
-                        <a href="/file-hangout/">Files Hangout!</a>
-                    </li>
-                </ol>
-            </td>
-        </tr>
-    </table>
 
         <table style="width: 100%;">
             <tr>
@@ -428,6 +389,6 @@ var <strong id="config">config</strong> = {
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
         </p>
     </footer>
-    <script src="https://bit.ly/commonjs"> </script>
+    <script src="https://webrtc-experiment.appspot.com/common.js"> </script>
 </body>
 </html>

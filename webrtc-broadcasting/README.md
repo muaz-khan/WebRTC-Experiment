@@ -1,4 +1,4 @@
-#### WebRTC One-Way video sharing/broadcasting / [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/)
+#### WebRTC One-Way video sharing/broadcasting / [Demo](https://webrtc-experiment.appspot.com/webrtc-broadcasting/)
 
 Participants can view your broadcasted video **anonymously**. They can also listen you without allowing access to their own microphone!
 
@@ -39,7 +39,7 @@ Again, because it is one-way streaming; **no outgoing RTP ports** will be opened
 
 #### Browser Support
 
-This [WebRTC One-Way Broadcasting](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/) experiment works fine on following web-browsers:
+This [WebRTC One-Way Broadcasting](https://webrtc-experiment.appspot.com/webrtc-broadcasting/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------:|
@@ -49,4 +49,4 @@ This [WebRTC One-Way Broadcasting](https://googledrive.com/host/0B6GWd_dUUTT8RzV
 
 #### License
 
-[WebRTC One-Way Broadcasting](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/) experiment is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC One-Way Broadcasting](https://webrtc-experiment.appspot.com/webrtc-broadcasting/) experiment is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

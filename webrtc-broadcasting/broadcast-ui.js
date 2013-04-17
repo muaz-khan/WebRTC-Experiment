@@ -1,7 +1,7 @@
 ﻿var config = {
     openSocket: function (config) {
         var channel = config.channel || location.hash.replace('#', '') || 'video-oneway-broadcasting';
-        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+        var socket = new Firebase('https://webrtc.firebaseIO.com/' + channel);
         socket.channel = channel;
         socket.on("child_added", function (data) {
             config.onmessage && config.onmessage(data.val());

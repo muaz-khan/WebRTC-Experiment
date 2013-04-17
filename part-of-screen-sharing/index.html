@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>Part of screen sharing using WebRTC Data Channel ® Muaz Khan</title>
+    <title>Part of screen sharing ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset=utf-8>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -170,7 +170,6 @@
         document.createElement('article');
         document.createElement('footer');
     </script>
-    <script src="https://webrtc-experiment.appspot.com/DataChannel.js"></script>
     <script src="https://webrtc-experiment.appspot.com/screenshot.js"></script>
     <script src="https://webrtc-experiment.appspot.com/firebase.js"></script>
 </head>
@@ -180,13 +179,13 @@
 <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
 
 <h1>
+    Part of screen sharing
+
     <div title="Stop sharing your DIVs"
-         style="color:red;border:2px solid red;border-bottom:0;padding:.1em .4em;float:right;">
+         style="color:red;border:2px solid red;border-bottom:0;display:inline-block;padding:.1em .4em;">
         <input type="checkbox" id="pause" checked>
         <label for="pause">Pause Sharing</label>
     </div>
-
-    Part of screen sharing using WebRTC Data Channel
 
     <script>
         var pause = document.getElementById('pause');
@@ -203,19 +202,6 @@
 <section class="plusone-gplus">
     <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
 </section>
-
-<section>
-    <h2>Open Data Channel</h2>
-    <input type="text" id="channel" value="channel" style="font-size: 1.1em; text-align: right; width: 4em;"
-           title="channel name - use your own channel name">
-    <button id="init-RTCMultiConnection">Open</button>
-    <h2>or join:</h2>
-    <button id="join-RTCMultiConnection">Join</button>
-</section>
-
-<br/>
-<br/>
-
 <div id="first-div" class="share-me" contenteditable title="Tick checkbox to share this DIV">
     <h2>First DIV</h2>
 
@@ -237,35 +223,6 @@
     <input type="checkbox" id="share-div-3">
     <label for="share-div-3">Share DIV Number 3</label>
 </div>
-
-<script>
-    document.getElementById('channel').value = Math.round(Math.random() * 60535) + 500000;
-    var channel = new DataChannel();
-
-    channel.onopen = function () {
-        window.IsDataChannelOpened = true;
-    };
-
-    channel.onmessage = function (message) {
-        onMessage(message);
-    };
-
-    document.getElementById('init-RTCMultiConnection').onclick = function () {
-        channel.open(document.getElementById('channel').value || 'channel');
-        disableButtons();
-    };
-
-    document.getElementById('join-RTCMultiConnection').onclick = function () {
-        channel.connect(document.getElementById('channel').value || 'channel');
-        disableButtons();
-    };
-
-    function disableButtons() {
-        document.getElementById('join-RTCMultiConnection').disabled = true;
-        document.getElementById('init-RTCMultiConnection').disabled = true;
-    }
-</script>
-
 <script>
     function find(id) {
         return document.getElementById(id);
@@ -317,17 +274,13 @@
     var shareMeDIVs = document.querySelectorAll('.share-me');
     for (var i = 0; i < shareMeDIVs.length; i++) {
         shareMeDIVs[i].onclick = function () {
-            if (!window.IsDataChannelOpened) {
-                alert('WebRTC Data Channel connection is not opened.');
-                return;
-            }
             var input = this.querySelector('input');
             input.checked = true;
             onchange(input);
         };
     }
 </script>
-<!-- this script is taking screenshot and transmitting them over webrtc data channels -->
+<!-- this script is taking screenshot and transmitting them over firebase -->
 <script>
     var isShareDIV = false;
 
@@ -339,14 +292,12 @@
         html2canvas(window.elementToShare, {
             onrendered: function (canvas) {
                 var screenshot = canvas.toDataURL('image/webp', 1);
-                channel.send({
+                firebase && firebase.push({
                     userID: userID,
                     screenshot: screenshot
                 });
-				
-				if(!!navigator.webkitGetUserMedia) setTimeout(shareDIV, 1000);
-                else setTimeout(shareDIV, 10);
-				// window.requestAnimationFrame(shareDIV);
+                //window.requestAnimationFrame(shareDIV);
+                setTimeout(shareDIV, 500);
             }
         });
     }
@@ -373,6 +324,14 @@
         return image;
     }
 
+    var channel = location.hash.replace('#', '') || 'Part-of-Screen-Sharing';
+    var firebase = new Firebase('https://muazkh.firebaseIO.com/' + channel);
+    firebase.on("child_added", function (data) {
+        onMessage(data.val());
+    });
+    setTimeout(onFirebaseConnectionOpend, 1);
+    firebase.onDisconnect().remove();
+
     function onMessage(data) {
         if (!data.screenshot) return;
         var image = document.getElementById(data.userID);
@@ -380,7 +339,11 @@
         image.src = data.screenshot;
     }
 
-    window.userID = Math.round(Math.random() * 60535) + 500000;
+    window.userID = Math.random() * 1000 << 10;
+
+    function onFirebaseConnectionOpend() {
+        console.log('firebase connection is opened');
+    }
 </script>
 <br/>
 <br/>
@@ -396,14 +359,14 @@
 
 <ol>
     <li>Share screenshots of the entire DIV, ASIDE or BODY element in realtime!</li>
-    <li>Using WebRTC Data Channel to transmit screenshots in realtime!</li>
+    <li>Using Firebase to transmit screenshots in realtime! (sharing screenshots after each 500 milliseconds)</li>
     <li>It is better to "<strong>pause sharing</strong>" to scroll down and see others' shared regions.</li>
     <li>It supports multi-user connectivity too! Hmm! i.e. you can share region of screen with many friends!</li>
 </ol>
 <h2 style="text-align: center;font-weight: normal;display: block;"
     title="Using RTCDataChannel APIs to share your DIVs' screenshots. It is super-fast and 100% realtime on Firefox!">
-    Try <a href="https://webrtc-experiment.appspot.com/part-of-screen-sharing/" target="_blank">Part
-    of Screen Sharing using Firebase</a>
+    Try <a href="https://webrtc-experiment.appspot.com/part-of-screen-sharing/webrtc-data-channel/" target="_blank">Part
+    of Screen Sharing using WebRTC Data Channel</a> / 100% realtime!
 </h2>
 
             <pre>

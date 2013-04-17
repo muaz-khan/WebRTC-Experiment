@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>WebRTC Group Text Chat using RTCDataChannel APIs! ® Muaz Khan</title>
+    <title>WebRTC Group File Sharing using RTCDataChannel APIs! ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -178,8 +178,9 @@
 
 <body>
     <article>
-        <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
-        <h1>WebRTC Group Text Chat using RTCDataChannel APIs!
+        <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
+
+        <h1>WebRTC Group File Sharing using RTCDataChannel APIs!
         </h1>
         <p>
             <span>Copyright © 2013</span>
@@ -190,47 +191,37 @@
             <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
         </section>
 
-        <!-- <required> -->
-        <table class="visible">
+        <table style="width: 100%;">
             <tr>
-                <td style="text-align: right;">
-                    <input type="text" id="conference-name" placeholder="Hangout Name...">
+                <td>
+                    <input type="button" value="Start sharing files in group!" id="start-conferencing">
+                    <input type="file" id="file" disabled>
+                    <div id="status" style="font-size: 2em; color: red;"></div>
+                    <table id="participants"></table>
+                    <table id="rooms-list" class="visible"></table>
                 </td>
                 <td>
-                    <button id="start-conferencing" href="#">Start Chat-Hangout</button>
+                    <table id="output-panel"></table>
                 </td>
             </tr>
         </table>
-
-        <table id="rooms-list" class="visible"></table>
-
         <table class="visible">
             <tr>
                 <td style="text-align: center;">
-                    <strong>Private chat-hangout</strong> ?? <a href="/chat-hangout/" target="_blank" title="Open this link in new tab. Then your chat-hangout room will be private!"><code>/chat-hangout/<strong id="unique-token">#123456789</strong></code></a>
+                    <strong>Private file-hangout</strong> ?? <a href="/file-hangout/" target="_blank" title="Open this link in new tab. Then your file-hangout will be private!"><code>/file-hangout/<strong id="unique-token">#123456789</strong></code></a>
                 </td>
             </tr>
         </table>
 
-        <table id="chat-table" class="center-table hidden">
-            <tr>
-                <td style="text-align: center;">
-                    <input type="text" id="chat-message" style="width: 80%">
-                    <button id="post-chat-message">Post Message</button>
-                </td>
-            </tr>
-        </table>
-        <table id="chat-output" class="hidden"></table>
-
-        <script src='https://cdn.firebase.com/v0/firebase.js'></script>
-        <script src="https://bit.ly/RTCPeerConnection-v1-5"></script>
-        <script src="hangout.js"> </script>
-        <script src="hangout-ui.js"></script>
+        <script src='https://webrtc-experiment.appspot.com/firebase.js'></script>
+        <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-v1.5.js"></script>
+        <script src="https://webrtc-experiment.appspot.com/file-hangout/hangout.js"> </script>
+        <script src="https://webrtc-experiment.appspot.com/file-hangout/hangout-ui.js"></script>
 
         <br />
         <br />
 
-        A text chat-hangout experiment where all participants can share text messages in a group!
+        A file-hangout experiment where all participants can share files like a group!
 
 	    <br />
         <br />
@@ -239,7 +230,19 @@
 			
         <br />
         <br />
-        <h2><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/chat-hangout">Source Code on Github</a></h2>
+        <h2>How it works?</h2>
+        <h2><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout">Source Code on Github</a></h2>
+        <ol>
+            <li>Multi-peers for group data connectivity</li>
+            <li>Multip-sockets for group offer/answer exchange</li>
+            <li>Multi SCTP/RTP data ports on single chrome/firefox instance</li>
+            <li>Custom file sharing implementation for chrome</li>
+            <li>in reality, it is peer-to-peer-to-peers....</li>
+        </ol>
+        <br />
+        <br />
+
+        <h2>Interested to learn <a href="https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html" target="_blank">how to share files using RTCDataChannel APIs?</a></h2>
         <br />
         <br />
         <table style="width: 100%;">
@@ -262,6 +265,6 @@
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
         </p>
     </footer>
-    <script src="https://bit.ly/commonjs"> </script>
+    <script src="https://webrtc-experiment.appspot.com/common.js"> </script>
 </body>
 </html>

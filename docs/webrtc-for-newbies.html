@@ -156,6 +156,9 @@
         blockquote {
             margin: 1em 0;
         }
+		img {
+			width: 100%;
+		}
     </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -166,8 +169,9 @@
 
 <body>
     <article>
-        <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
-        <h1>WebRTC for newbies!
+    <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
+
+    <h1>WebRTC for newbies!
         </h1>
         <p>
             <span>Copyright © 2013</span>
@@ -189,7 +193,7 @@
 
         <table>
             <tr>
-                <td>The exchange of real-time media between two browsers follows the process:
+                <td>The exchange of real-time media between two browsers follows this process:
                 </td>
                 </td>
 		
@@ -216,12 +220,12 @@
                 </td>
             </tr>
             <tr>
-                <td>An application that wishes to enable two-way audio and video communications between peers can create four media streams:
+                <td>An application that wishes to enable two-way audio and video communications between peers can create four media streams (i.e. 4 RTP streams):
 				<ol>
-                    <li>An audio stream in each direction, 
+                    <li>An audio stream in each direction, <small>(i.e. outgoing/incoming audio RTP streams)</small>
                     </li>
 
-                    <li>A video stream in each direction.
+                    <li>A video stream in each direction. <small>(i.e. outgoing/incoming video RTP streams)</small>
                     </li>
                 </ol>
                 </td>
@@ -232,7 +236,22 @@
                 </td>
             </tr>
             <tr>
-                <td>For simple WebRTC apps; not at all! For large scale applications; to store recorded media streams (audio/video/files/text/etc.) or data; obviously you need a server and many installations!
+                <td>
+                    For simple WebRTC apps; not at all!
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    For large scale applications:
+
+                    <ol>
+                        <li>to store recorded media streams (audio/video/files/text/etc.) or data</li>
+                        <li>to make SIP calls to PSTN networks</li>
+                        <li>
+                            to transcode streams
+                        </li>
+                    </ol>
+                    obviously you need a media server and many installations!
                 </td>
             </tr>
 
@@ -244,7 +263,14 @@
             </tr>
 
             <tr>
-                <td>It needs a server and "many/many" installations! For <strong>learning purpose</strong>: you can use Pusher/PubNub APIs.
+                <td>
+                    It can be your custom signaling gateway. It needs installations; server side work and more!
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    It is suggested to use Firebase, PubNub or Pusher for signaling until you get mature!
                 </td>
             </tr>
 
@@ -299,6 +325,18 @@
                         <li>Finally, a real-time transport is established on the pair of ports. A security context is established so that secured media packets are able to flow in both directions between peers. Real-Time media streams can then be added to the transport.
                         </li>
                     </ol>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    The initial connection between peers must be accomplished via an application server that provides for user discovery, communication, and Network Address Translation (NAT) with data streaming.
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    Signalling is the mechanism by which peers send control messages to each other for the purpose of establishing the communication protocol, channel, and method. These are not specified in the WebRTC standard. Rather, the developer may choose any messaging protocol (such as SIP or XMPP), and any two-way communication channel (such as WebSocket or XMLHttpRequest) in tandem with a persistent connection server API (like the <a href="https://developers.google.com/appengine/docs/python/channel/overview" target="_blank">Google Channel API</a>) for AppEngine.
                 </td>
             </tr>
 
@@ -376,18 +414,13 @@ SessionDescription = <strong title="Chrome implementation">RTCSessionDescription
             <tr>
                 <td>
                     <pre>
-if (chrome) offerSDP = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(offerSDP);
+offerSDP = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(offerSDP);
 peerConnection.<strong title="Setting remote description on both Firefox and Chrome">setRemoteDescription</strong>(offerSDP);
 
 peerConnection.<strong title="Creating answer SDP on both Firefox and Chrome">createAnswer</strong>(function (sessionDescription) {
     peerConnection.<strong title="Setting local description on both Firefox and Chrome">setLocalDescription</strong>(sessionDescription);
 }, null, constraints);
 </pre>
-                </td>
-            </tr>
-
-            <tr>
-                <td>For Firefox Aurora/Nightly "current implementation": Don't use <code>new SessionDescription</code> on "setRemoteDescription" when passing "<strong>offer sdp</strong>".
                 </td>
             </tr>
 
@@ -421,7 +454,7 @@ offerer.<strong title="Creating offer SDP on both Firefox and Chrome">createOffe
             <tr>
                 <td>
                     <pre>
-if (chrome) <strong title="Offer SDP is passed from offerer via XHR/WebSocket/etc.">offerSDP</strong> = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(<strong title="Offer SDP is passed from offerer via XHR/WebSocket/etc.">offerSDP</strong>);
+<strong title="Offer SDP is passed from offerer via XHR/WebSocket/etc.">offerSDP</strong> = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(<strong title="Offer SDP is passed from offerer via XHR/WebSocket/etc.">offerSDP</strong>);
 answerer.<strong title="Setting remote description on both Firefox and Chrome">setRemoteDescription</strong>(<strong title="Offer SDP is passed from offerer via XHR/WebSocket/etc.">offerSDP</strong>);
 </pre>
                 </td>
@@ -452,7 +485,7 @@ answerer.<strong title="Creating answer SDP on both Firefox and Chrome">createAn
             <tr>
                 <td>
                     <pre>
-if (chrome) <strong title="Answer SDP is passed from answerer via XHR/WebSocket/etc.">answerSDP</strong> = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(<strong title="Answer SDP is passed from answerer via XHR/WebSocket/etc.">answerSDP</strong>);
+<strong title="Answer SDP is passed from answerer via XHR/WebSocket/etc.">answerSDP</strong> = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(<strong title="Answer SDP is passed from answerer via XHR/WebSocket/etc.">answerSDP</strong>);
 offerer.<strong title="Setting remote description on both Firefox and Chrome">setRemoteDescription</strong>(<strong title="Answer SDP is passed from answerer via XHR/WebSocket/etc.">answerSDP</strong>);
 </pre>
                 </td>
@@ -571,13 +604,11 @@ a=candidate:<strong title="candidate number">3</strong> 1 UDP 2130706431 <strong
             <tr>
                 <td>
                     <pre>
-video = event.<strong>stream</strong>; // if chrome: webkitURL.createObjectURL( event.stream )
+if (chrome) video.src = webkitURL.createObjectURL( event.stream )
+if (firefox) video.mozSrcObject = event.<strong>stream</strong>;
 if (!(video.<strong>readyState</strong> &lt;= HTMLMediaElement.<strong>HAVE_CURRENT_DATA</strong> 
-                        || video.<strong>paused</strong> 
-                        || video.<strong>currentTime</strong> &lt;= 0)) 
-{ 
-    ....
-}
+    || video.<strong>paused</strong>
+    || video.<strong>currentTime</strong> &lt;= 0))  { }
 </pre>
                 </td>
             </tr>
@@ -604,6 +635,6 @@ if (!(video.<strong>readyState</strong> &lt;= HTMLMediaElement.<strong>HAVE_CURR
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
         </p>
     </footer>
-    <script src="https://bit.ly/commonjs"> </script>
+    <script src="https://webrtc-experiment.appspot.com/common.js"> </script>
 </body>
 </html>

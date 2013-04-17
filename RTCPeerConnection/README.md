@@ -46,7 +46,7 @@ peerConnection.addStream(attachStream);
 
 #### `offerSDP`
 
-In one-to-one media session; this object will be used by **answerer** as soon as he will get **offer sdp** sent from **offerer*. Actually you're adding **offer sdp** here:
+In one-to-one media session; this object will be used by **answerer** as soon as he will get **offer sdp** sent from **offerer**. Actually you're adding **offer sdp** here:
 
 ```javascript
 offerSDP = {
@@ -154,7 +154,7 @@ Use `addICE` method on both peer's side.
 
 #### `addAnswerSDP`
 
-Use `addAnswerSDP` instance method add **answer-sdp** sent by answerer. This method should only be used in offerer's side.
+Use `addAnswerSDP` instance method to add **answer-sdp** sent by answerer. This method should only be used in offerer's side.
 
 ```javascript
 peer.addAnswerSDP(answerSDP);
@@ -172,7 +172,7 @@ peer.addAnswerSDP(answerSDP);
 
 ```javascript
 peer.sendData('hi there, I am a text message');
-peer.channel.send(hi there, I am a text message');
+peer.channel.send('hi there, I am a text message');
 
 /* to send an object */
 var object = {

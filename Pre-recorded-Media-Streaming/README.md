@@ -1,4 +1,4 @@
-#### Pre-recorded media streaming / [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/Pre-recorded-Media-Streaming/)
+#### Pre-recorded media streaming / [Demo](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/)
 
 1. Streaming pre-recorded video (media file)
 2. Currently, using `Firebase` for streaming chunks of data because `MediaSource APIs` are only supported on chrome canary which has unreliable RTP (RTCDataChannel) streams.
@@ -8,50 +8,45 @@
 #### How to stream your own video?
 
 ```html
-<script src="streamer.js"> </script>
-<script>
-    var streamer = new Streamer();
-</script>
+<script src="https://webrtc-experiment.appspot.com/streamer.js"> </script>
 ```
 
-/* pre-recorded media sender */
-
-```html
-<script>
-    streamer.push = function (chunk) {
-        socket.send(chunk);
-    };
-
-    document.querySelector('input[type=file]').onchange = function () {
-        streamer.stream(this.files[0]);
-    };
-</script>
+```javascript
+var streamer = new Streamer();
 ```
 
-/* pre-recorded media receiver */
+#### /* pre-recorded media sender */
 
-```html
-<script>
-    streamer.video = document.querySelector('video');
-    streamer.receive();
+```javascript
+streamer.push = function (chunk) {
+    socket.send(chunk);
+};
 
-    function onData(data) {
-        if (data.end) streamer.end();
-        else streamer.append(data);
-    }
-</script>
+document.querySelector('input[type=file]').onchange = function () {
+    streamer.stream(this.files[0]);
+};
 ```
 
+#### /* pre-recorded media receiver */
+
+```javascript
+streamer.video = document.querySelector('video');
+streamer.receive();
+
+function onData(data) {
+    if (data.end) streamer.end();
+    else streamer.append(data);
+}
+```
+
+#### /* socket.io/websocket to push chunks */
+
+```javascript
 /* socket.io/websocket to push chunks */
+socket.onmessage = onData;
 
-```html
-<script>
-    /* socket.io/websocket to push chunks */
-    socket.onmessage = onData;
-
-    // or
-    socket.on('message', onData);
-</script>
+// or
+socket.on('message', onData);
 ```
 
 #### It is an early release!
@@ -106,7 +101,7 @@ In simple words; you can stream part of video from first WebM file; part of vide
 
 #### Browser Support
 
-[Pre-recorded media streaming](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/Pre-recorded-Media-Streaming/) experiment works fine on following web-browsers:
+[Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------:|
@@ -114,4 +109,4 @@ In simple words; you can stream part of video from first WebM file; part of vide
 
 ##### License
 
-[Pre-recorded media streaming](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/Pre-recorded-Media-Streaming/) experiment is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/) experiment is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

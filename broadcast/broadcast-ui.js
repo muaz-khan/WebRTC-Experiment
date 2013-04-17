@@ -4,7 +4,7 @@ var config = {
     openSocket: function (config) {
         if (!window.Firebase) return;
         var channel = config.channel || location.hash.replace('#', '') || 'video-broadcast';
-        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+        var socket = new Firebase('https://rtcweb.firebaseIO.com/' + channel);
         socket.channel = channel;
         socket.on("child_added", function (data) {
             config.onmessage && config.onmessage(data.val());
@@ -76,6 +76,7 @@ function captureUserMedia(callback) {
         },
         onerror: function () {
             alert('unable to get access to your webcam');
+			callback && callback();
         }
     });
 }
@@ -108,9 +109,12 @@ function rotateVideo(video)
 	}, 1000);
 }
 
-(function() {
+(function () {
     var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken)
-        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
-        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function() { return "#private-" + ("" + 1e10).replace( /[018]/g , function(a) { return (a ^ Math.random() * 16 >> a / 4).toString(16); }); })();
+    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="'+ location.href +'" target="_blank">You can share this private link with your friends.</a></h2>';
+    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
+        return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+            return (a ^ Math.random() * 16 >> a / 4).toString(16);
+        });
+    })();
 })();

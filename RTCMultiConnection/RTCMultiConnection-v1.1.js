@@ -1,7 +1,7 @@
 /*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
-    2013, Muaz Khan<muazkh>--[ github.com/muaz-khan ] 
+    2013, Muaz Khan<muazkh>--[github.com/muaz-khan] 
     
-    Demo & Documentation: http://bit.ly/RTCMultiConnection-Documentation */
+	https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection */
 
 function RTCMultiConnection(channel) {
     this.channel = channel;
@@ -150,7 +150,7 @@ function RTCMultiConnection(channel) {
     function captureUserMedia(callback) {
         var constraints, session = self.session;
 
-        if (session === Session.Data)
+        if (session === Session.Data || self.dontAttachStream)
             return callback();
 
         if (self.attachStream) {

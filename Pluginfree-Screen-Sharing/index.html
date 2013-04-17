@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>WebRTC Video-Conferencing Experiment!! ® Muaz Khan</title>
+    <title>WebRTC Screen Sharing | Plugin-free ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -15,9 +15,11 @@
         html {
             background: #eee;
         }
-
+		* {
+		font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+     
+		}
         body {
-            font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
             font-size: 1.2em;
             line-height: 1.2em;
             margin: 0;
@@ -114,11 +116,11 @@
             display: inline-block;
             font-family: inherit;
             font-size: .8em;
+            font-size: 1.5em;
             line-height: 1.3;
             padding: 5px 12px;
             text-align: center;
             text-shadow: 1px 1px 1px #076bd2;
-            font-size: 1.5em;
         }
 
             button:hover, input[type=button]:hover {
@@ -143,10 +145,10 @@
         }
 
         tr, td, th {
-            vertical-align: top;
-            padding: .7em 1.4em;
-            border-top: 1px dotted #BBA9A9;
             border-right: 1px dotted #BBA9A9;
+            border-top: 1px dotted #BBA9A9;
+            padding: .7em 1.4em;
+            vertical-align: top;
         }
 
         table {
@@ -159,15 +161,25 @@
 
         #chat-table blockquote {
             border: 1px dotted gray;
-            padding: 1em 2em;
             margin: 1em 5em;
+            padding: 1em 2em;
         }
 
             #chat-table blockquote hr {
-                margin: 1em -2em;
                 border: 0;
                 border-top: 1px dotted #BBA9A9;
+                margin: 1em -2em;
             }
+
+        blockquote {
+            border-left: 2px solid gray;
+            padding-left: 1em;
+        }
+		
+		#participants video
+		{
+			width:100%;
+		}
     </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -178,9 +190,9 @@
 
 <body>
     <article>
-        <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
-        <h1>WebRTC Video-Conferencing Experiment!
-        </h1>
+        <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
+
+        <h1>WebRTC Plugin-free Screen Sharing</h1>
         <p>
             <span>Copyright © 2013</span>
             <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
@@ -190,46 +202,78 @@
             <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
         </section>
 
+        <div id="participants"></div>
         <table class="visible">
             <tr>
                 <td style="text-align: right;">
-                    <input type="text" id="conference-name" placeholder="Conference Name">
+                    <input type="text" id="conference-name" placeholder="Room Name">
                 </td>
                 <td>
-                    <button id="start-conferencing">Start video-conferencing</button>
+                    <button id="start-conferencing">Share your screen</button>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td style="text-align: center;"><strong>Private sharing</strong> ??
+                    <a href="https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html" target="_blank" title="Open this link in new tab. Then your conference room will be private!"><code>Pluginfree-Screen-Sharing.html<strong id="unique-token">#123456789</strong></code>
+                    </a>
                 </td>
             </tr>
         </table>
         <table id="rooms-list" class="visible"></table>
+        <script src='https://webrtc-experiment.appspot.com/firebase.js'></script>
+        <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-v1.5.js"></script>
+        <script src="https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/conference.js"></script>
+        <script src="https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/conference-ui.js"></script>
 
-        <table class="visible">
-            <tr>
-                <td style="text-align: center;">
-                    <strong>Private conference</strong> ?? <a href="/video-conferencing/" target="_blank" title="Open this link in new tab. Then your conference room will be private!"><code>/video-conferencing/<strong id="unique-token">#123456789</strong></code></a>
-                </td>
-            </tr>
-        </table>
+		<br />
+		<br />
+		<h2>Nowadays failures!</h2>
+		<blockquote>
+            This experiment seems delaying in latest canary. Please be patient. It will capture shared screen 2 or 3 minutes later!
+        </blockquote>
+		<br />
+		<br />
+        <h2>You must make sure that:</h2>
 
-        <div id="participants"></div>
+        <blockquote>
+            <ol>
+                <li>You're using <span style="color: red;">chrome canary</span> (If you want to share your own screen).</li>
+                <li>You enabled flag "<code>Enable screen capture support in getUserMedia()</code>" – via – "<code>chrome://flags</code>"</li>
+            </ol>
+        </blockquote>
 
-        <script src='https://cdn.firebase.com/v0/firebase.js'></script>
-        <script src="https://bit.ly/RTCPeerConnection-v1-5"></script>
-        <script src="conference.js"> </script>
-        <script src="conference-ui.js"></script>
+        <h2>To use code in your own site, you must understand following limitations:</h2>
+
+        <blockquote>
+            Chrome Canary <span style="color: red;">denies</span> "screen capturing" request automatically if:
+            <ol>
+                <li>You've not used '<code>chromeMediaSource</code>' constraint:
+                    <br />
+                    <pre>
+mandatory: {chromeMediaSource: 'screen'}
+</pre>
+
+                </li>
+                <li>You requested audio-stream alongwith '<code>chromeMediaSource</code>' – it is not permitted.</li>
+                <li>You're not testing it on SSL origin (HTTPS domain).</li>
+            </ol>
+            <br />
+            Remember, recursive cascade images or blurred screen is chrome's implementation issues. It will be solved soon.
+            <br />
+            <br />
+            <code>mandatory: {chromeMediaSource: '<span style="color: red;">tab</span>'}</code> can only be useful in chrome extensions. See <a href="https://webrtc-experiment.appspot.com/screen-broadcast/" target="_blank">Tab sharing using tabCapture APIs</a>.
+        </blockquote>
 
         <br />
-        <br />
-
-        A video-hangout: All participants can share video in a group.
-
-	    <br />
         <br />
 
         It is preferred to use <a href="http://bit.ly/RTCMultiConnection-Documentation" target="_blank">RTCMultiConnection.js</a> for audio/video/screen conferencing/broadcasting.
 			
         <br />
         <br />
-        <h2><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing">Source Code on Github</a></h2>
+        <h2><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing">Source Code on Github</a></h2>
         <br />
         <br />
         <table style="width: 100%;">
@@ -252,6 +296,6 @@
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
         </p>
     </footer>
-    <script src="https://bit.ly/commonjs"> </script>
+    <script src="https://webrtc-experiment.appspot.com/common.js"> </script>
 </body>
 </html>
