@@ -124,6 +124,10 @@ function RTCMultiConnection(channel) {
             captureUserMedia(rtcSession.initSession);
         });
     };
+    self.close = function () {
+        self.config.attachStream.stop();
+        rtcSession.close();
+    };
     self.connect = function (_channel) {
         if (_channel) self.channel = _channel;
         prepareInit(init);
@@ -420,7 +424,6 @@ var RTCPeerConnection = function (options) {
         channel.onclose = function (event) {
             if (options.onChannelClosed)
                 options.onChannelClosed(event);
-            console.warn('WebRTC Data Channel closed.', event);
         };
         channel.onerror = function (event) {
             if (options.onChannelError)
@@ -469,6 +472,9 @@ var RTCPeerConnection = function (options) {
         channel: channel,
         sendData: function (message) {
             channel && channel.send(message);
+        },
+        close: function() {
+            peerConnection.close();
         }
     };
 };
@@ -512,7 +518,7 @@ function RTCMultiSession(config) {
         channels = '--',
         isbroadcaster,
         isAcceptNewSession = true,
-        defaultSocket = {}, RTCDataChannels = [];
+        defaultSocket = {}, RTCDataChannels = [], RTCPeerConnections = [];
 
     function openDefaultSocket() {
         defaultSocket = config.openSignalingChannel({
@@ -608,6 +614,7 @@ function RTCMultiSession(config) {
                 peerConfig.onChannelMessage = null;
 
             peer = RTCPeerConnection(peerConfig);
+            RTCPeerConnections[RTCPeerConnections.length] = peer;
         }
 
         function onRemoteStreamStartsFlowing() {
@@ -809,6 +816,11 @@ function RTCMultiSession(config) {
                 session: session,
                 direction: direction
             };
+        },
+        close: function () {
+            for (var i = 0; i < RTCPeerConnections.length; i++) {
+                RTCPeerConnections[i].close();
+            }
         }
     };
 }
