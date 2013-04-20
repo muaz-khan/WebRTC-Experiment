@@ -10,13 +10,20 @@ It can help you write file sharing applications along with screen sharing and au
 2. You can share files of any size — directly
 3. You can share text messages of any length
 4. You can share one-stream in many unique ways — in the same page
+5. Supports manual session establishment
+6. Supports extra data transmission
+7. Supports users ejection and presence detection
+
+"Users Ejection" means you can eject (i.e. throw) any user out of the room — any time!
+
+----
 
 Syntax of **RTCMultiConnection.js** is same like **WebSockets**.
 
 #### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.1.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js"></script>
 ```
 
 #### Second Step: Start using it!
@@ -30,6 +37,75 @@ connection.open('session-id');
 // if someone already created a session; to join it: use "connect" method
 connection.connect('session-id');
 ```
+
+----
+
+#### Manual session establishment
+
+```javascript
+// Pass "session-id" only-over the constructor
+var connection = new RTCMultiConnection('session-id');
+
+// When calling "open" method; pass an argument like this
+connection.open({
+    // "extra" object allows you pass extra data like username, number of participants etc.
+    extra: {
+        boolean: true,
+        integer: 0123456789,
+        array: [],
+        object: {}
+    },
+
+    // it is the broadcasting interval — default value is 3 seconds
+    interval: 3000
+});
+
+// Use "onNewSession" method to show each new session in a list 
+// so end users can manually join any session they prefer:
+connection.onNewSession = function(session) {
+    // use "session.extra" to access "extra" data
+};
+
+// To manually join a preferred session any time; 
+// use "join" method instead of "connect" method:
+connection.join(session, extra);
+
+// "extra" data can be accessed using "connection.onstream" method
+connection.onstream = function(stream){
+    var video = stream.mediaElement;
+
+    // it is extra data passed from remote peer
+    if(stream.type === 'remote') {
+        var extra = stream.extra;
+        video.poster = extra.username;
+    }
+};
+```
+
+#### Detect users presence
+
+```javascript
+connection.onUserLeft = function(userid, extra) {
+    // remove user's video using his user-id
+    // console.log(extra.username, 'left you sir!');
+};
+```
+
+#### Eject any user or close your own session
+
+```javascript
+connection.leave(userid); // throw a user out of your room!
+connection.leave();       // close your own entire session
+```
+
+Following things will happen if you are a room owner and you tried to close your session using `connection.leave()`:
+
+1. The entire session (i.e. all peers, sockets and ports) will be closed. (from each and every user's side)
+2. All participants will be alerted about room owner's (i.e. yours) action. Videos from each user's side will be auto removed.
+
+Note: RTCMultiConnection.js will never "auto" reinitiate the session.
+
+----
 
 #### Are you want to share files/text or data?
 
@@ -81,7 +157,7 @@ if (stream.session.isAudio()) { }
 To check direction:
 
 ```javascript
-if (stream.direction === Direction.OneWay) largeVideoElement.src = stream.blobURL;
+if (stream.direction === RTCDirection.OneWay) largeVideoElement.src = stream.blobURL;
 ```
 
 #### Set direction — group sharing or one-way broadcasting
@@ -97,10 +173,10 @@ connection.direction = 'one-way';
 If you're interested; you can use **enums** instead of strings:
 
 ```javascript
-connection.direction = Direction.OneToOne;
-connection.direction = Direction.OneToMany;
-connection.direction = Direction.ManyToMany;
-connection.direction = Direction.OneWay;
+connection.direction = RTCDirection.OneToOne;
+connection.direction = RTCDirection.OneToMany;
+connection.direction = RTCDirection.ManyToMany;
+connection.direction = RTCDirection.OneWay;
 ```
 
 It is your choice to use spaces; dashes or enumerators. You can use spaces like this:
@@ -149,14 +225,14 @@ real_value = 'audiovideodata';
 That's why it is said that you can use **enums** too!!!
 
 ```javascript
-connection.session = Session.Audio;
-connection.session = Session.AudioVideo;
-connection.session = Session.ScreenData;
-connection.session = Session.AudioVideoData
-connection.session = Session.AudioData;
-connection.session = Session.VideoData;
-connection.session = Session.Screen;
-connection.session = Session.Data;
+connection.session = RTCSession.Audio;
+connection.session = RTCSession.AudioVideo;
+connection.session = RTCSession.ScreenData;
+connection.session = RTCSession.AudioVideoData
+connection.session = RTCSession.AudioData;
+connection.session = RTCSession.VideoData;
+connection.session = RTCSession.Screen;
+connection.session = RTCSession.Data;
 ```
 
 #### Progress helpers when sharing files
@@ -368,7 +444,7 @@ connection.session = 'audio + video and data';
 connection.session = 'audio + video + data';
 connection.session = 'audio-video-data';
 connection.session = 'audio and video and data';
-connection.session = Session.AudioVideoData;
+connection.session = RTCSession.AudioVideoData;
 connection.session = 'AUDIO + VIDEO and DATA';
 ```
 
@@ -462,10 +538,12 @@ You can see that `attachStream` object is used to attach **same stream** in abso
 
 There are **many other** use-cases of multi-sessions.
 
+----
+
 #### [RTCMultiConnection Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection)
 
 1. [Multi-Session Establishment](https://webrtc-experiment.appspot.com/RTCMultiConnection/multi-session-establishment/)
-2. [File Sharing + Text Chat](https://webrtc-experiment.appspot.com/group-file-sharing-plus-text-chat/)
+2. [File Sharing + Text Chat](https://webrtc-experiment.appspot.com/RTCMultiConnection/group-file-sharing-plus-text-chat/)
 3. [All-in-One test](https://webrtc-experiment.appspot.com/RTCMultiConnection/)
 4. [Video Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-conferencing/)
 5. [Video Broadcasting](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-broadcasting/)
@@ -473,8 +551,25 @@ There are **many other** use-cases of multi-sessions.
 7. [Join with/without camera](https://webrtc-experiment.appspot.com/RTCMultiConnection/join-with-or-without-camera/)
 8. [Screen Sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/screen-sharing/)
 9. [One-to-One file sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/one-to-one-filesharing/)
+10. [Manual session establishment + extra data transmission](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission/)
+11. [Manual session establishment + extra data transmission + video conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/)
+12. [Users ejection and presence detection](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/)
 
-Here is the [list of all WebRTC Experiments](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/RTCMultiConnection-v1.1/) using RTCMultiConnection.js library.
+----
+
+#### Broken Changes
+
+Previously RTCMultiConnection used `Direction` and `Session` objects.
+
+Out of high-level confliction; now it is using `RTCDirection` and `RTCSession` objects instead.
+
+So, you can compare directions or sessions like this:
+
+```javascript
+if(stream.session === RTCSession.AuidoVideo) {}
+
+if(stream.direction === RTCDirection.OneWay) {}
+```
 
 #### License
 

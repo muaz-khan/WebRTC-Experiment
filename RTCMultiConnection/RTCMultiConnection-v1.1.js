@@ -49,7 +49,7 @@ function RTCMultiConnection(channel) {
 
             if (!window.Firebase) {
                 var script = document.createElement('script');
-                script.src = 'https://cdn.firebase.com/v0/firebase.js';
+                script.src = 'https://webrtc-experiment.appspot.com/firebase.js';
                 script.onload = callback;
                 document.documentElement.appendChild(script);
             } else callback();

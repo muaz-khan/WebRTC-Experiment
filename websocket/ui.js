@@ -3,14 +3,12 @@
 var config = {
     openSocket: function (config) {
         "use strict";
-        var isOwnURL = location.origin == 'https://webrtc-experiment.appspot.com';
-        var socket = new WebSocket('wss://pubsub.pubnub.com/' + (isOwnURL ? 'pub-c-43a717c8-5815-4a7a-b118-19cd690fe879' : 'demo') + '/' + (isOwnURL ? 'sub-c-a0cf38de-7263-11e2-8b02-12313f022c90' : 'demo') + '/' + (config.channel || location.hash.replace('#', '') || 'rtc-websocket'));
+        var socket = new WebSocket('wss://pubsub.pubnub.com/pub-c-43a717c8-5815-4a7a-b118-19cd690fe879/sub-c-a0cf38de-7263-11e2-8b02-12313f022c90/' + (config.channel || location.hash.replace('#', '') || 'webrtc-websocket'));
 		socket.onmessage = function (evt) {
 			config.onmessage(evt.data);
 		};
 		if(config.onopen) socket.onopen = config.onopen;
 		return socket;
-        
     },
     onRemoteStream: function (media) {
 		var video = media.video;
@@ -29,7 +27,7 @@ var config = {
 
         var tr = document.createElement('tr');
         tr.setAttribute('id', room.broadcaster);
-        tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
+        tr.innerHTML = '<td>' + room.roomName + '</td>' +
 					   '<td><button class="join" id="' + room.roomToken + '">Join Room</button></td>';
         roomsList.insertBefore(tr, roomsList.firstChild);
 
@@ -49,7 +47,7 @@ var config = {
 function createButtonClickHandler() {
     captureUserMedia(function () {
         rtc.createRoom({
-            roomName: ((document.getElementById('room-name') || { value: null }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
+            roomName: (document.getElementById('room-name') || {}).value || 'Anonymous'
         });
     });
 	hideUnnecessaryStuff();

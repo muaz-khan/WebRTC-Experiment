@@ -245,7 +245,7 @@ getUserMedia({
 3. [RTCPeerConnection-v1.3.js](https://bit.ly/RTCPeerConnection-v1-3)
 4. [RTCPeerConnection-v1.2.js](https://bit.ly/RTCPeerConnection-v1-2)
 5. [RTCPeerConnection-v1.1.js](https://bit.ly/RTCPeerConnection-v1-1)
-6. [RTCPeerConnection.js](https://bit.ly/RTCPeerConnection-v1-0)
+6. [RTCPeerConnection.js](https://bit.ly/RTCPeerConnection)
 
 #### License
 

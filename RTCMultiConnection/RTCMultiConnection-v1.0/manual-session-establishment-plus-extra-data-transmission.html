@@ -1,8 +1,8 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html id="home" lang="en">
 
 <head>
-    <title>File Sharing + Text Chat using WebRTC DataChannel ® Muaz Khan</title>
+    <title>Manual session establishment + extra data transmission using RTCMultiConnection ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -171,7 +171,7 @@
             overflow: auto;
         }
 
-         pre {
+        pre {
             border-left: 2px solid red;
             margin-left: 2em;
             padding-left: 1em;
@@ -183,17 +183,18 @@
         document.createElement('footer');
     </script>
 
-    <script src="https://webrtc-experiment.appspot.com/DataChannel.js"></script>
     <script src="https://webrtc-experiment.appspot.com/firebase.js"></script>
+    <script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js"></script>
 </head>
 
 <body>
 <article>
-<a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
+<a href="https://webrtc-experiment.appspot.com/"
+   style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑
+    WEBRTC EXPERIMENTS</a>
 
 
-<h1>File Sharing + Text Chat using WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel"
-                                             target="_blank">DataChannel</a>
+<h1>Manual session establishment + extra data transmission
 </h1>
 
 <p>
@@ -205,13 +206,10 @@
     <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
 </section>
 <section>
-    <h2>Open Data Channel</h2>
-    <input type="text" id="channel" value="channel" style="font-size: 1.1em; text-align: right; width: 4em;"
-           title="channel name - use your own channel name">
-    <button id="init-RTCMultiConnection">Open</button>
-    <h2>or join:</h2>
-    <button id="join-RTCMultiConnection">Join</button>
+    <h2>New Session:</h2>
+    <button id="start-new-session">Start New Data Session</button>
 </section>
+
 <table style="border-left: 1px solid black; width: 100%;">
     <tr>
         <td>
@@ -227,52 +225,97 @@
             <div id="file-progress"></div>
         </td>
     </tr>
+    <tr>
+        <td colspan="2">
+            <table id="sessions-list" style="width:100%;"></table>
+        </td>
+    </tr>
 </table>
 <script>
-    document.getElementById('channel').value = Math.round(Math.random() * 60535) + 500000;
-    var channel = new DataChannel();
+    //window.username = Math.random() * 9999 << 9999;
 
-    // [optional] onmessage/onopen is for sending/receiving data/text
-    channel.onmessage = function (data) {
+    var connection = new RTCMultiConnection('session-id-0123456789-007');
+    connection.session = 'only-data';
+
+    var sessionsList = document.getElementById('sessions-list');
+    connection.onNewSession = function (session) {
+        var alreadyExists = document.getElementById(session.userid);
+        if (alreadyExists) return;
+
+        if (!window.sessions) window.sessions = {};
+        window.sessions[session.userid] = session;
+
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + session.extra.username + '</td>';
+
+        var td = document.createElement('td');
+
+        var button = document.createElement('button');
+        button.setAttribute('id', session.userid);
+        button.innerHTML = 'join';
+
+        td.appendChild(button);
+        tr.appendChild(td);
+        sessionsList.insertBefore(tr, sessionsList.firstChild);
+
+        button.onclick = function () {
+            if (!window.username) window.username = prompt('Please enter your username') || 'Anonymous';
+
+            var session = window.sessions[this.id];
+
+            // connection.join(session, extra)
+            connection.join(session, {
+                username: window.username
+            });
+
+            document.getElementById('start-new-session').disabled = true;
+            sessionsList.style.display = 'none';
+        };
+    };
+
+    document.getElementById('start-new-session').onclick = function () {
+        if (!window.username) window.username = prompt('Please enter your username') || 'Anonymous';
+
+        // connection.open( session-id, extra );
+        connection.open({
+            extra: {
+                username: window.username
+            },
+            interval: 1000
+        });
+
+        document.getElementById('start-new-session').disabled = true;
+        sessionsList.style.display = 'none';
+    };
+
+    connection.onmessage = function (data) {
         appendDIV(data);
     };
 
-    channel.onopen = function () {
-        if (document.getElementById('chat-input')) document.getElementById('chat-input').disabled = false;
-        if (document.getElementById('file')) document.getElementById('file').disabled = false;
+    connection.onopen = function (extra) {
+        document.getElementById('chat-input').disabled = false;
+        document.getElementById('file').disabled = false;
 
-        if (document.getElementById('init-RTCMultiConnection')) document.getElementById('init-RTCMultiConnection').disabled = true;
+        document.getElementById('start-new-session').disabled = true;
+        appendDIV('You are connected with ' + extra.username);
     };
 
-    // [optional] onFileProgress/onFileSent/onFileReceived for sharing files
-    channel.onFileProgress = function (packets) {
+    connection.onFileProgress = function (packets) {
         appendDIV(packets.remaining + ' packets remaining.', fileProgress);
         if (packets.sent) appendDIV(packets.sent + ' packets sent.', fileProgress);
         if (packets.received) appendDIV(packets.received + ' packets received.', fileProgress);
     };
-    channel.onFileSent = function (file) {
+    connection.onFileSent = function (file) {
         appendDIV(file.name + ' sent.', fileProgress);
     };
 
-    channel.onFileReceived = function (fileName) {
+    connection.onFileReceived = function (fileName) {
         appendDIV(fileName + ' received.', fileProgress);
-    };
-
-    document.getElementById('init-RTCMultiConnection').onclick = function () {
-        channel.open(document.getElementById('channel').value || 'channel');
-        document.getElementById('join-RTCMultiConnection').disabled = true;
-        document.getElementById('init-RTCMultiConnection').disabled = true;
-    };
-
-    document.getElementById('join-RTCMultiConnection').onclick = function () {
-        channel.connect(document.getElementById('channel').value || 'channel');
-        document.getElementById('join-RTCMultiConnection').disabled = true;
-        document.getElementById('init-RTCMultiConnection').disabled = true;
     };
 
     document.getElementById('file').onchange = function () {
         var file = this.files[0];
-        channel.send(file);
+        connection.send(file);
     };
 
     var chatOutput = document.getElementById('chat-output'),
@@ -287,123 +330,83 @@
 
         div.tabIndex = 0;
         div.focus();
-
-        chatInput.focus();
     }
 
-    var chatInput = document.getElementById('chat-input');
-    chatInput.onkeypress = function (e) {
+    document.getElementById('chat-input').onkeypress = function (e) {
         if (e.keyCode !== 13 || !this.value) return;
         appendDIV(this.value);
-        channel.send(this.value);
+        connection.send(this.value);
         this.value = '';
         this.focus();
     };
 </script>
+
 <br/>
 <br/>
 
-<h2>Getting started with WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel</a></h2>
-            <pre>
-&lt;script src="<a href="https://webrtc-experiment.appspot.com/DataChannel.js" target="_blank">https://webrtc-experiment.appspot.com/DataChannel.js</a>"&gt;&lt;/script&gt;
-&lt;script&gt;
-    var channel = new <strong>DataChannel</strong>();
+<h2 id="go">Go ahead and try!</h2>
 
-    // to create/open a new channel
-    channel.<strong>open</strong>('channel-name');
-
-    // to send text/data or file
-    channel.<strong>send</strong>(file || data || 'text');
-	
-    // if soemone already created a channel; to join it: use "connect" method
-    channel.<strong>connect</strong>('channel-name');
-&lt;/script&gt;
+<p>Pass "session-id" only-over the constructor:</p>
+<pre>
+var connection = new RTCMultiConnection('session-id');
 </pre>
-Remember, A-to-Z, everything is optional! You can set <strong>channel-name</strong> in constructor or in
-<strong>open</strong>/<strong>connect</strong> methods. It is your choice!
 
-<br/>
-<br/>
+<p>When calling "open" method; pass an argument like this:</p>
 
-<h2>Features:</h2>
-<ol>
-    <li>Send file directly &#8212; of any size</li>
-    <li>Send text-message of any length</li>
-    <li>Send data directly</li>
-    <li>Simplest syntax ever! Same like WebSockets.</li>
-    <li>Supports fallback to socket.io/websockets/etc.</li>
-    <li>Auto users' presence detection</li>
-    <li>Allows you eject any user; or close your entire data session</li>
-</ol>
-<br/>
-<br/>
+<pre>
+connection.open({
+    // "extra" object allows you pass extra data like username, number of participants etc.
+    extra: {
+        boolean: true,
+        integer: 0123456789,
+        array: [],
+        object: {}
+    },
 
-<h2>Additional:</h2>
-            <pre>
-&lt;script&gt;
-    // to be alerted on data ports get open
-    channel.<strong>onopen</strong> = function(channel) {}
-	
-    // to be alerted on data ports get new message
-    channel.<strong>onmessage</strong> = function(message) {}
-	
-    // by default; connection is [many-to-many]; you can use following directions
-    channel.<strong>direction</strong> = 'one-to-one';
-    channel.<strong>direction</strong> = 'one-to-many';
-    channel.<strong>direction</strong> = 'many-to-many';	// --- it is default
+    // it is the broadcasting interval — default value is 3 seconds
+    interval: 3000
+});
+</pre>
 
-    // show progress bar!
-    channel.<strong>onFileProgress</strong> = function (packets) {
-        // packets.remaining
-        // packets.sent
-        // packets.received
-        // packets.length
-    };
+<p>Use "onNewSession" method to show each new session in a list so end users can manually join any session they
+    prefer:</p>
 
-    // on file successfully sent
-    channel.<strong>onFileSent</strong> = function (file) {
-        // file.name
-        // file.size
-    };
+<pre>
+connection.onNewSession = function(session) {
+    // use "session.extra" to access "extra" data
+};
+</pre>
 
-    // on file successfully received
-    channel.<strong>onFileReceived</strong> = function (fileName) {};
-&lt;/script&gt;
+<p>To manually join a preferred session any time; use "join" method instead of "connect" method:</p>
+
+<pre>
+connection.join(session, extra);
+
+// e.g. string
+connection.join(session, 'username');
+
+// e.g. object
+connection.join(session, {
+    username: 'mine user name'
+});
+</pre>
+
+<p>"extra" data can be accessed using "connection.onopen" method:</p>
+
+<pre>
+connection.onopen = function(extra){
+    console.log('Data Connection is opened between you and ', extra.username);
+};
 </pre>
 <br/>
 <br/>
 
-<h2>Errors Handling</h2>
+<h2><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection"
+                            target="_blank">RTCMultiConnection</a> v1.2</h2>
             <pre>
-&lt;script&gt;
-    // error to open data ports
-    channel.<strong>onerror</strong> = function(event) {}
-	
-    // data ports suddenly dropped
-    channel.<strong>onclose</strong> = function(event) {}
-&lt;/script&gt;
+&lt;script src="<a href="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js" target="_blank">https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js</a>"&gt;&lt;/script&gt;
 </pre>
-<br/>
-<br/>
 
-<h2>Use your own socket.io for signaling</h2>
-            <pre>
-&lt;script&gt;
-    // by default <a href="http://firebase.com" target="_blank" rel="nofollow">Firebase</a> is used for signaling; you can override it
-    channel.<strong>openSignalingChannel</strong> = function(config) {
-        var socket = io.connect('http://your-site:8888');
-        socket.channel = config.channel || this.channel || 'default-channel';
-        socket.on('message', config.onmessage);
-
-        socket.send = function (data) {
-            socket.emit('message', data);
-        };
-
-        if (config.onopen) setTimeout(config.onopen, 1);
-        return socket;
-    }
-&lt;/script&gt;
-</pre>
 <br/>
 <br/>
 <table style="width: 100%;">

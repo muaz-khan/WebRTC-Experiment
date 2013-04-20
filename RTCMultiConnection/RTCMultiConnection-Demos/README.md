@@ -462,10 +462,10 @@ You can see that `attachStream` object is used to attach **same stream** in abso
 
 There are **many other** use-cases of multi-sessions.
 
-#### Demos / Experiments using RTCMultiConnection library
+#### [RTCMultiConnection Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection)
 
 1. [Multi-Session Establishment](https://webrtc-experiment.appspot.com/RTCMultiConnection/multi-session-establishment/)
-2. [File Sharing + Text Chat](https://webrtc-experiment.appspot.com/group-file-sharing-plus-text-chat/)
+2. [File Sharing + Text Chat](https://webrtc-experiment.appspot.com/RTCMultiConnection/group-file-sharing-plus-text-chat/)
 3. [All-in-One test](https://webrtc-experiment.appspot.com/RTCMultiConnection/)
 4. [Video Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-conferencing/)
 5. [Video Broadcasting](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-broadcasting/)

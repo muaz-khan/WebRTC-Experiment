@@ -4,16 +4,14 @@
 
 var config = {
     openSocket: function (config) {
-        var socket = io.connect('http://webrtc-signaling.jit.su');
-        socket.channel = config.channel || location.hash.replace('#', '') || 'webrtc-signaling-using-socketio-one-to-one';
-        socket.on('message', function (message) {
-            console.log(message);
-            config.onmessage(message);
+        var socket = io.connect('https://pubsub.pubnub.com/webrtc-socketio', {
+            publish_key: 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0',
+            subscribe_key: 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a',
+            channel: config.channel || 'webrtc-socketio',
+            ssl: true
         });
-        socket.send = function (data) {
-            socket.emit('message', data);
-        };
-        if (config.onopen) setTimeout(config.onopen, 1);
+        if(config.onopen) socket.on('connect', config.onopen);
+        socket.on('message', config.onmessage);
         return socket;
     },
     onRemoteStream: function (media) {
@@ -53,9 +51,7 @@ var config = {
 function createButtonClickHandler() {
     captureUserMedia(function () {
         conferenceUI.createRoom({
-            roomName: ((document.getElementById('conference-name') || {
-                value: null
-            }).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
+            roomName: (document.getElementById('room-name') || {}).value || 'Anonymous'
         });
     });
     hideUnnecessaryStuff();

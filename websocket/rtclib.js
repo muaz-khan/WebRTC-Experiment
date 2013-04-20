@@ -1,18 +1,19 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
+    It is recommended to use RTCMultiConnection.js for audio/video/screen sharing: <http://bit.ly/RTCMultiConnection-Documentation>
+*/
 
 var rtclib = function (config) {
     var self = { userToken: uniqueToken() },
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
-        gotParticipant = false,
-        publicSocket = { };
+        defaultSocket = {};
 
-    function openPublicSocket() {
-        publicSocket = config.openSocket({onmessage: onPublicSocketResponse});
+    function openDefaultSocket() {
+        defaultSocket = config.openSocket({ onmessage: onDefaultSocketResponse });
     }
 
-    function onPublicSocketResponse(response) {
+    function onDefaultSocketResponse(response) {
         if (response.userToken == self.userToken) return;
 
         if (isGetNewRoom && response.roomToken && response.broadcaster) config.onRoomFound(response);
@@ -28,10 +29,6 @@ var rtclib = function (config) {
             });
         }
     }
-
-    /*********************/
-    /* CLOSURES / PRIVATE stuff */
-    /*********************/
 
     function openSubSocket(_config) {
         if (!_config.channel) return;
@@ -67,7 +64,7 @@ var rtclib = function (config) {
                 video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
                 video.play();
 
-                self.stream = stream;
+                _config.stream = stream;
                 onRemoteStreamStartsFlowing();
             }
         };
@@ -89,29 +86,22 @@ var rtclib = function (config) {
 
                 config.onRemoteStream({
                     video: video,
-                    stream: self.stream
+                    stream: _config.stream
                 });
 
-                if (isbroadcaster) gotParticipant = true;
-                /*
                 if (isbroadcaster && channels.split('--').length > 3) {
-                // broadcasting newly connected participant for video-conferencing! 
-                publicSocket.send({
-                newParticipant: socket.channel,
-                userToken: self.userToken
-                });
+                    /* broadcasting newly connected participant for video-conferencing! */
+                    defaultSocket.send({
+                        newParticipant: socket.channel,
+                        userToken: self.userToken
+                    });
                 }
-                */
 
                 /* closing subsocket here on the offerer side */
                 if (_config.closeSocket) socket = null;
 
             } else setTimeout(onRemoteStreamStartsFlowing, 50);
         }
-
-        /*********************/
-        /****** sendsdp ******/
-        /*********************/
 
         function sendsdp(sdp) {
             sdp = JSON.stringify(sdp);
@@ -142,10 +132,6 @@ var rtclib = function (config) {
             });
         }
 
-        /*********************/
-        /* socket response */
-        /*********************/
-
         function socketResponse(response) {
             if (response.userToken == self.userToken) return;
             if (response.firstPart || response.secondPart || response.thirdPart) {
@@ -172,9 +158,6 @@ var rtclib = function (config) {
             }
         }
 
-        /*********************/
-        /* socket response */
-        /*********************/
         var invokedOnce = false;
 
         function selfInvoker() {
@@ -189,12 +172,12 @@ var rtclib = function (config) {
     }
 
     function startBroadcasting() {
-        publicSocket.send({
+        defaultSocket.send({
             roomToken: self.roomToken,
             roomName: self.roomName,
             broadcaster: self.userToken
         });
-        !gotParticipant && setTimeout(startBroadcasting, 3000);
+        setTimeout(startBroadcasting, 3000);
     }
 
     function onNewParticipant(channel) {
@@ -207,7 +190,7 @@ var rtclib = function (config) {
             closeSocket: true
         });
 
-        publicSocket.send({
+        defaultSocket.send({
             participant: true,
             userToken: self.userToken,
             joinUser: channel,
@@ -215,19 +198,14 @@ var rtclib = function (config) {
         });
     }
 
-    /*********************/
-    /* HELPERS */
-    /*********************/
-
     function uniqueToken() {
         var s4 = function () {
             return Math.floor(Math.random() * 0x10000).toString(16);
         };
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
     }
-	
-	openPublicSocket();
 
+    openDefaultSocket();
     return {
         createRoom: function (_config) {
             self.roomName = _config.roomName || 'Anonymous';
@@ -245,7 +223,7 @@ var rtclib = function (config) {
                 channel: self.userToken
             });
 
-            publicSocket.send({
+            defaultSocket.send({
                 participant: true,
                 userToken: self.userToken,
                 joinUser: _config.joinUser

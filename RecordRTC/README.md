@@ -58,7 +58,7 @@ window.open( recorder.toURL() );
 recorder.save();
 ```
 
-It is recommended to use `stopAudio` and `stopVideo` **callback parameter** to get recorde file URL or recorded Blob.
+It is recommended to use `stopAudio` and `stopVideo` **callback parameter** to get recorded file URL or recorded Blob.
 
 ```javascript
 recorder.stopVideo(function(recordedFileURL) {
