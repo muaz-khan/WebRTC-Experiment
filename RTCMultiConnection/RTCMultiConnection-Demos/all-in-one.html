@@ -71,7 +71,7 @@
     }
 
     footer {
-        margin: 0em auto 2em auto;
+        margin: 0 auto 2em auto;
         text-align: center;
     }
 
@@ -205,6 +205,12 @@
         overflow: auto;
         margin: 0 0 0 .4em;
     }
+
+     pre {
+            border-left: 2px solid red;
+            margin-left: 2em;
+            padding-left: 1em;
+        }
 </style>
 <!-- for HTML5 el styling -->
 <script>
@@ -329,7 +335,7 @@
         appendDIV(fileName + ' received.');
     };
 
-    connection.onFileSent = function (packets) {
+    connection.onFileSent = function (file) {
         appendDIV(file.name + ' sent.');
     };
 

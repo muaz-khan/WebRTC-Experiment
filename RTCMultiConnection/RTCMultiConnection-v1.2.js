@@ -4,7 +4,8 @@
  https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection */
 
 (function () {
-    function RTCMultiConnection(channel, extras) {
+
+    window.RTCMultiConnection = function (channel, extras) {
         extras = extras || {};
         this.channel = channel;
         var self = this,
@@ -34,30 +35,39 @@
             console.debug('New Session', session);
         };
 
-        self.session = Session.AudioVideo;
-        self.direction = Direction.ManyToMany;
+        self.session = extras.session || Session.AudioVideo;
+        self.direction = extras.direction || Direction.ManyToMany;
 
         function prepareInit(callback) {
+            if (extras.openSignalingChannel) self.openSignalingChannel = extras.openSignalingChannel;
             if (!self.openSignalingChannel) {
+
+                // Room initiator shouldn't continously send session details - one time is enough! It is useful only with Firebase.
+                if (typeof extras.transmitRoomOnce == 'undefined') extras.transmitRoomOnce = true;
+
                 self.openSignalingChannel = function (config) {
                     config = config || {};
                     channel = config.channel || self.channel || 'default-channel';
-                    var socket = new window.Firebase('https://chat.firebaseIO.com/' + channel);
+                    var socket = new window.Firebase('https://' + (extras.firebase || self.firebase || 'chat') + '.firebaseIO.com/' + channel);
                     socket.channel = channel;
                     socket.on('child_added', function (data) {
-                        config.onmessage && config.onmessage(data.val());
+                        var value = data.val();
+
+                        if (value == 'joking') config.onopen && config.onopen();
+                        else config.onmessage(value);
                     });
                     socket.send = function (data) {
                         this.push(data);
                     };
                     config.onopen && setTimeout(config.onopen, 1);
-                    socket.onDisconnect().remove();
+                    socket.push('joking');
+					self.socket = socket;
                     return socket;
                 };
 
                 if (!window.Firebase) {
                     var script = document.createElement('script');
-                    script.src = 'https://webrtc-experiment.appspot.com/firebase.js';
+                    script.src = 'https://cdn.firebase.com/v0/firebase.js';
                     script.onload = callback;
                     document.documentElement.appendChild(script);
                 } else callback();
@@ -75,17 +85,14 @@
                 onNewSession: function (session) {
                     if (self.onNewSession) return self.onNewSession(session);
 
-                    if (self.channel !== session.sessionid) return;
+                    if (self.channel !== session.sessionid) return false;
 
-                    if (self.joinedARoom) return;
+                    if (self.joinedARoom) return false;
                     self.joinedARoom = true;
 
-                    if (session.direction === Direction.OneWay || session.session === Session.Data)
-                        joinSession(session);
-                    else
-                        captureUserMedia(function () {
-                            joinSession(session);
-                        });
+                    joinSession(session, session.extra);
+
+                    return true;
                 },
                 onChannelOpened: function (extra) {
                     self.onopen(extra);
@@ -111,22 +118,26 @@
                 onFileProgress: function (packets) {
                     self.onFileProgress(packets);
                 },
-                iceServers: extras.iceServers || self.iceServers,
 
+                iceServers: extras.iceServers || self.iceServers,
                 attachStream: extras.attachStream || self.attachStream,
+
                 onRemoteStream: function (stream) {
                     self.onstream(stream);
                 },
 
                 onUserLeft: function (userid, extra) {
-                    self.onUserLeft(userid, extra)
+                    self.onUserLeft(userid, extra);
                 },
 
-                direction: extras.direction || self.direction,
-                session: extras.session || self.session,
-                channel: self.channel
+                direction: self.direction.lowercase(),
+                session: self.session.lowercase(),
+                channel: self.channel,
+                transmitRoomOnce: extras.transmitRoomOnce
             };
             rtcSession = new RTCMultiSession(self.config);
+
+            // these two must be fixed. Must be able to receive many files concurrently.
             fileReceiver = new FileReceiver();
             textReceiver = new TextReceiver();
         }
@@ -137,25 +148,22 @@
 
             self.session = session.session;
             self.direction = session.direction;
-
-            rtcSession.joinSession(session, extra || {});
-        }
-
-        self.join = function (session, extra) {
-            if (session.direction === Direction.OneWay || session.session === Session.Data)
-                joinSession(session, extra);
+			
+			if (session.direction === Direction.OneWay || session.session === Session.Data)
+                rtcSession.joinSession(session, extra || {});
             else
                 captureUserMedia(function () {
-                    joinSession(session, extra);
+                    rtcSession.joinSession(session, extra || {});
                 });
-        };
+        }
+
+        self.join = joinSession;
 
         self.open = function (_channel, extra) {
             if (typeof _channel === 'string') {
                 if (_channel) self.channel = _channel;
                 extra = extra || {};
-            }
-            else extra = _channel;
+            } else extra = _channel;
 
             prepareInit(function () {
                 init();
@@ -163,6 +171,8 @@
                     rtcSession.initSession(extra);
                 });
             });
+			
+			if(self.socket) self.socket.onDisconnect().remove();
         };
 
         self.connect = function (_channel) {
@@ -182,8 +192,12 @@
                 FileSender.send({
                     file: data,
                     channel: rtcSession,
-                    onFileSent: self.onFileSent,
-                    onFileProgress: self.onFileProgress
+                    onFileSent: function (file) {
+                        self.onFileSent(file);
+                    },
+                    onFileProgress: function (packets) {
+                        self.onFileProgress(packets);
+                    }
                 });
             else
                 TextSender.send({
@@ -204,12 +218,14 @@
             }
 
             if (session.isAudio()) {
+                console.debug('audio-only session');
                 constraints = {
                     audio: true,
                     video: false
                 };
             }
             if (session.isScreen()) {
+                console.debug('screen-only session');
                 video_constraints = {
                     mandatory: {
                         chromeMediaSource: 'screen'
@@ -223,7 +239,8 @@
             }
 
             if (session === Session.Video || session === Session.VideoData) {
-                var video_constraints = {
+                console.debug('audio-less video-only session.');
+                video_constraints = {
                     mandatory: {},
                     optional: []
                 };
@@ -248,7 +265,7 @@
                 },
                 onerror: function () {
                     if (session.isAudio())
-                        throw 'unable to get access to your microphone';
+                        throw 'Unable to get access to your microphone';
                     else if (session.isScreen()) {
                         if (location.protocol === 'http:') {
                             throw 'Please test this WebRTC experiment on HTTPS.';
@@ -267,16 +284,13 @@
             return true;
         }
 
-        this.onUserLeft = function (userid, extra) {
+        this.onUserLeft = function (userid/*, extra */) {
             console.debug(userid, 'left!');
-        }
-
+        };
         this.leave = function (userid) {
             rtcSession.leave(userid);
-        }
-    }
-
-    window.RTCMultiConnection = RTCMultiConnection;
+        };
+    };
 
     var Session = {
         AudioVideoData: 'audiovideodata',
@@ -570,7 +584,7 @@
                 id: uniqueToken(),
                 sessionid: config.channel,
                 sockets: [],
-				socketObjects: {}
+                socketObjects: {}
             },
             channels = '--',
             isbroadcaster,
@@ -616,7 +630,7 @@
                         initPeer();
 
                     self.socketObjects[socketConfig.channel] = socket;
-					self.sockets[self.sockets.length] = socket;
+                    self.sockets[self.sockets.length] = socket;
                 }
             };
 
@@ -646,6 +660,8 @@
                 attachStream: config.attachStream,
                 onRemoteStream: function (stream) {
                     mediaElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
+					mediaElement.autoplay = true;
+					mediaElement.controls = true;
                     mediaElement.play();
 
                     _config.stream = stream;
@@ -790,20 +806,19 @@
                         peer.peer.close();
                         peer.peer = null;
                     }
-					
-					if (response.closeEntireSession) {
-						// room owner asked me to leave his room
-						leaveARoom();
-					}
-					else if(socket) {
-						socket.send({
-							left: true,
-							extra: self.extra,
-							id: self.id
-						});
-						socket = null;
-					}
-					
+
+                    if (response.closeEntireSession) {
+                        // room owner asked me to leave his room
+                        leaveARoom();
+                    } else if (socket) {
+                        socket.send({
+                            left: true,
+                            extra: self.extra,
+                            id: self.id
+                        });
+                        socket = null;
+                    }
+
                     if (config.onUserLeft) config.onUserLeft(response.id, response.extra);
                 }
             }
@@ -845,16 +860,16 @@
         }
 
         function uniqueToken() {
-            return Math.round(Math.random() * 60535) + 5000
+            return Math.round(Math.random() * 60535) + 5000;
         }
 
         function leaveARoom(channel) {
             var alert = {
                 left: true,
                 extra: self.extra || {},
-				id: self.id
+                id: self.id
             };
-			
+
             // if room initiator is leaving the room; close the entire session
             if (isbroadcaster) alert.closeEntireSession = true;
 
@@ -880,16 +895,18 @@
                 }
             }
         }
-		
-		window.onunload = function() {
-		    leaveARoom();
-		};
+
+        window.onunload = function () {
+            leaveARoom();
+        };
 
         openDefaultSocket();
         return {
             initSession: function (extra) {
                 isbroadcaster = true;
                 isAcceptNewSession = false;
+				
+				extra = extra || {};
 
                 extra.interval = extra.interval || 3000;
                 self.extra = extra.extra = extra.extra || {};
@@ -903,11 +920,13 @@
                         extra: extra.extra
                     });
 
-                    if (config.direction === Direction.OneToOne) {
-                        if (!window.isFirstConnectionOpened)
+                    if (!config.transmitRoomOnce) {
+                        if (config.direction === Direction.OneToOne) {
+                            if (!window.isFirstConnectionOpened)
+                                setTimeout(transmit, extra.interval);
+                        } else
                             setTimeout(transmit, extra.interval);
-                    } else
-                        setTimeout(transmit, extra.interval);
+                    }
                 })();
 
                 self.extra = extra;

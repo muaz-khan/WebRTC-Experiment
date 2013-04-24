@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>How to video conferencing in WebRTC? ® Muaz Khan</title>
+    <title>How to write video-conferencing application using WebRTC? ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -156,6 +156,12 @@
         blockquote {
             margin: 1em 0;
         }
+
+         pre {
+            border-left: 2px solid red;
+            margin-left: 2em;
+            padding-left: 1em;
+        }
     </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -167,7 +173,7 @@
 <body>
     <article>
         <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
-        <h1>How to video conferencing in WebRTC?
+        <h1>How to write video-conferencing application using WebRTC?
         </h1>
         <p>
             <span>Copyright © 2013</span>
@@ -253,11 +259,10 @@
         <h2>On the room owner's side</h2>
 
         <p>You should quickly create a new peer connection.</p>
-        <p>You should also quickly create "offer" because room-owner is expected to play the room of "offerer" for each new participant.</p>
+        <p>You should also quickly create "offer" because room-owner is expected to play the role of "offerer" for each new participant.</p>
         <p>As soon as offer is created; you should pass that "offer sdp" over same socket that is being used to exchange SDP/ICE between room owner and participant.</p>
 
-        <h2>on the participant's side</h2>
-        <p>You should quickly create a new peer connection there too.</p>
+        <h2>On the participant's side</h2>
         <p>Set remote descriptions using offer sdp sent by room owner.</p>
         <p>Create answer. Participant will always play role of "answerer" on joining new room.</p>
         <p>As soon as answer is created; you should pass that "answer sdp" over same socket that is being used to exchange SDP/ICE between room owner and participant.</p>
@@ -279,6 +284,11 @@
         <h2>For upcoming participants</h2>
 
         <p>For each new participant; repeat above process and that's it!</p>
+
+        <h2>For video-conferencing</h2>
+        <p>After successful handshake between room owner and the participant; transmit participant's details over all other connected sockets i.e. toward all other room participants.</p>
+        <p>As soon as other participants will receive transmitted details; make "auto" participation request toward that "last participant".</p>
+        <p>And then follow above process again.</p>
 
         <br /><br />
         <p>Explaining above theory using (a little bit real however) pseudo codes.</p>
@@ -303,7 +313,7 @@ function createAnswer(offer_sdp)
    peer.setRemoteDescription(offer_sdp);
    peer.createAnswer(onSuccess);
 }
-        </pre>
+</pre>
 
         <h2>Opening default signaling channel</h2>
         <pre>
@@ -313,7 +323,7 @@ channel.onmessage = function(message)
    if(message.participationRequest) {}
    if(message.sharingRoomDetails) {}
 };
-        </pre>
+</pre>
 
         <h2>Assuming a new participant</h2>
         <pre>
@@ -334,7 +344,7 @@ privateChannel.onmessage = function(message)
        privateChannel.send(answer_sdp);
    }
 };
-        </pre>
+</pre>
 
         <h2>On participation request</h2>
 
@@ -352,7 +362,7 @@ if(message.isNewParticipant)
       if(message.type === 'answer') peer.setRemoteDescription(message.sdp);
    };
 }
-        </pre>
+</pre>
 
         <h2>Exchanging ICE</h2>
 
@@ -366,7 +376,24 @@ peer.onicecandidate = function(event)
 {
    privateChannel.send(event.candidate);
 };
-        </pre>
+</pre>
+
+        <h2>For video-conferencing</h2>
+
+        <p>After successful handshake:</p>
+        <pre>
+for(var i = 0; i < otherParticipants.length; i++)
+{
+    var participant = otherParticipants[i];
+
+    // send/emit/push/etc.
+    participant.send({
+        isNewParticipant: true,
+        participant_id: '0123456789'
+    });
+}
+</pre>
+        <p>Use "participant_id" you can make additional participation requests to him.</p>
 
 
         <table style="width: 100%;">

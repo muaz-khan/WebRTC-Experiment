@@ -232,6 +232,8 @@
     document.getElementById('channel').value = Math.round(Math.random() * 60535) + 500000;
     var channel = new DataChannel();
 
+    channel.firebase = 'webrtc-experiment';
+
     // [optional] onmessage/onopen is for sending/receiving data/text
     channel.onmessage = function (data) {
         appendDIV(data);
@@ -342,10 +344,10 @@ Remember, A-to-Z, everything is optional! You can set <strong>channel-name</stro
             <pre>
 &lt;script&gt;
     // to be alerted on data ports get open
-    channel.<strong>onopen</strong> = function(channel) {}
+    channel.<strong>onopen</strong> = function(userid) {}
 	
     // to be alerted on data ports get new message
-    channel.<strong>onmessage</strong> = function(message) {}
+    channel.<strong>onmessage</strong> = function(message, userid) {}
 	
     // by default; connection is [many-to-many]; you can use following directions
     channel.<strong>direction</strong> = 'one-to-one';

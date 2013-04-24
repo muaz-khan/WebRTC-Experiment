@@ -1,18 +1,21 @@
-#### [DataChannel.js](https://webrtc-experiment.appspot.com/DataChannel.js) : A JavaScript wrapper library for RTCDataChannel APIs / [Demo](https://webrtc-experiment.appspot.com/DataChannel/)
+#### [DataChannel.js](https://webrtc-experiment.appspot.com/DataChannel.js) : A JavaScript wrapper library for RTCDataChannel APIs / [Demos](https://webrtc-experiment.appspot.com/#DataChannel)
 
-DataChannel library highly simplifies coding. It also supports fallback to socket.io/websockets/firebase or other your own preferred signaling method. It allows you:
+DataChannel.js is a JavaScript library useful to write many-to-many i.e. group file/data sharing or text chat applications. Its syntax is easier to use and understand. It highly simplifies complex tasks like any or all user rejection/ejection; direct messages delivery; and more.
 
-1. Send file directly — of any size
-2. Send text-message of any length
-3. Send data directly
-4. Simplest syntax ever! Same like WebSockets.
-5. Supports fallback to socket.io/websockets/etc.
-6. Auto users' presence detection
-7. Allows you eject any user; or close your entire data session
+----
 
-**DataChannel.js** supports **fallback** to `websocket`/`socket.io` or your other preferred signaling method.
+#### Features
 
-Syntax of **DataChannel.js** is same like **WebSockets**.
+1. Direct messages — to any user using his `user-id`
+2. Eject/Reject any user — using his `user-id`
+3. Leave any room (i.e. data session) or close entire session using `leave` method
+4. File size is limitless!
+5. Text message length is limitless!
+6. Size of data is also limitless!
+7. Fallback to firebase/socket.io/websockets/etc.
+8. Users' presence detection using `onleave`
+
+----
 
 #### First Step: Link the library
 
@@ -20,79 +23,51 @@ Syntax of **DataChannel.js** is same like **WebSockets**.
 <script src="https://webrtc-experiment.appspot.com/DataChannel.js"></script>
 ```
 
-#### Second Step: Start using it!
-
-Data sessions will be auto created/joined if and only if `channel-name` is passed over the constructor.
+#### Last Step: Start using it!
 
 ```javascript
 var channel = new DataChannel('channel-name');
+channel.send(file || data || 'text-message');
+```
 
-// to manually create/open a new channel
-channel.open('channel-name');
+#### `onopen` and `onmessage`
 
-// if someone already created a channel; to manually join him: use "connect" method
-channel.connect('channel-name');
+If you're familiar with WebSockets; these two methods works in the exact same way:
 
-// to send text/data or file
-channel.send(file || data || 'text');
+```javascript
+channel.onopen = function(userid) { }
+channel.onmessage = function(message, userid) { }
+```
+
+`user-ids` can be used to send **direct messages** or to **eject/leave** any user:
+
+#### Direct messages
+
+```javascript
+channel.channels[userid].send(file || data || 'text message');
+```
+
+#### Eject/Reject users using their `user-ids`
+
+```javascript
+channel.leave(userid);  // throw a user out of your room!
+```
+
+#### Close/Leave the entire room
+
+```javascript
+channel.leave();        // close your own entire data session
 ```
 
 #### Detect users' presence
 
-To be alerted if a user leaves your room:
-
 ```javascript
-channel.onUserLeft = function(userid) {
-    // remove that user's photo/image using his user-id
-};
+channel.onleave = function(userid) { };
 ```
 
-#### Manually eject a user or close your data session
+----
 
-```javascript
-channel.leave(userid);  // throw a user out of your room!
-channel.leave();        // close your own entire data session
-```
-
-Following things will happen if you are a room owner and you tried to close your data session using `channel.leave()`:
-
-1. The entire data session (i.e. all peers, sockets and data ports) will be closed. (from each and every user's side)
-2. All participants will be alerted about room owner's (i.e. yours) action. They'll unable to send any single message over same room because everything is closed!
-
-#### Note
-
-DataChannel.js will never "auto" reinitiate the data session.
-
-#### `user-id` over `onopen` method
-
-```javascript
-channel.onopen = function(userid) {
-    // user.photo.id = userid; ---- see "onUserLeft" and "leave" above ?
-}
-```
-
-Remember, A-to-Z, everything is optional! You can set `channel-name` in constructor or in `open`/`connect` methods. It is your choice! 
-
-#### Additional 
-
-```javascript
-// to be alerted on data ports get open
-channel.onopen = function(userid) {}
-
-// to be alerted on data ports get new message
-channel.onmessage = function(message) {}
-```
-
-#### Set direction — Group data sharing or One-to-One
-
-```javascript
-// by default; connection is [many-to-many]; you can use following directions
-channel.direction = 'one-to-one';
-channel.direction = 'one-to-many';
-channel.direction = 'many-to-many';	// --- it is default direction
-```
-
-#### Progress helpers when sharing files
+#### To Share files
 
 ```javascript
 // show progress bar!
@@ -113,6 +88,8 @@ channel.onFileSent = function (file) {
 channel.onFileReceived = function (fileName) {};
 ```
 
+----
+
 #### Errors Handling
 
 ```javascript
@@ -123,7 +100,47 @@ channel.onerror = function(event) {}
 channel.onclose = function(event) {}
 ```
 
+----
+
+#### Data session direction
+
+Default direction is `many-to-many`.
+
+```javascript
+channel.direction = 'one-to-one';
+channel.direction = 'one-to-many';
+channel.direction = 'many-to-many';
+```
+
+----
+
 #### Use your own socket.io for signaling
+
+DataChannel.js opens data sessions in two ways:
+
+1. Automatic sessions i.e. auto created/joined sessions
+2. Manual sessions i.e. manually created/joined sessions
+
+For first case: i.e. for auto created data sessions; you must use `openSignalingChannel` like this:
+
+```javascript
+var channel = new DataChannel('default-channel', {
+    openSignalingChannel: function (config) {
+        var socket = io.connect('http://your-site:8888');
+        socket.channel = config.channel || this.channel || 'default-channel';
+        socket.on('message', config.onmessage);
+
+        socket.send = function (data) {
+            socket.emit('message', data);
+        };
+
+        if (config.onopen) setTimeout(config.onopen, 1);
+        return socket;
+    }
+});
+```
+
+For second case: i.e. for manually created sessions; you can use above style too. Follownig will also work:
 
 ```javascript
 // by default Firebase is used for signaling; you can override it
@@ -141,10 +158,75 @@ channel.openSignalingChannel = function(config) {
 }
 ```
 
-#### Demos using [DataChannel.js](https://webrtc-experiment.appspot.com/DataChannel.js)
+----
+
+#### `transmitRoomOnce`
+
+`transmitRoomOnce` is preferred when using Firebase for signaling. It saves bandwidth and asks DataChannel.js library to not repeatedly transmit room details.
+
+```javascript
+var channel = new DataChannel('channel-name', {
+    transmitRoomOnce: true
+});
+```
+
+If you want to use Firebase for signaling; you must use it like this:
+
+```javascript
+var channel = new DataChannel('default-channel', {
+    openSignalingChannel: function (config) {
+        config = config || {};
+        channel = config.channel || self.channel || 'default-channel';
+        var socket = new window.Firebase('https://chat.firebaseIO.com/' + channel);
+        socket.channel = channel;
+        socket.on('child_added', function (data) {
+            var value = data.val();
+            if (value == 'joking') config.onopen && config.onopen();
+            else config.onmessage(value);
+        });
+        socket.send = function (data) {
+            this.push(data);
+        };
+        socket.push('joking');
+        self.socket = socket;
+        return socket;
+    }
+});
+```
+
+----
+
+#### For auto-created data sessions
+
+You can pass `direction` or other parts like this:
+
+```javascript
+var channel = new DataChannel('channel-name', {
+    transmitRoomOnce: true,
+    direction: 'one-to-many',
+});
+```
+
+----
+
+#### Manually open/connect data sessions
+
+```javascript
+// to create/open a new channel
+channel.open('channel-name');
+
+// if soemone already created a channel; to join it: use "connect" method
+channel.connect('channel-name');
+```
+
+----
+
+#### [Demos using DataChannel.js](https://webrtc-experiment.appspot.com/#DataChannel)
 
 1. [DataChannel basic demo](https://webrtc-experiment.appspot.com/DataChannel/)
 2. [Auto Session Establishment and Users presence detection](https://webrtc-experiment.appspot.com/DataChannel/auto-session-establishment/)
+
+----
 
 #### Browser Support
 
@@ -155,6 +237,12 @@ channel.openSignalingChannel = function(config) {
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
+
+----
+
+#### For features requests or bugs submission
+
+Feel free to add comment [here](https://github.com/muaz-khan/WebRTC-Experiment/issues/16).
 
 ----
 

@@ -49,7 +49,7 @@ function RTCMultiConnection(channel) {
 
             if (!window.Firebase) {
                 var script = document.createElement('script');
-                script.src = 'https://webrtc-experiment.appspot.com/firebase.js';
+                script.src = 'https://cdn.firebase.com/v0/firebase.js';
                 script.onload = callback;
                 document.documentElement.appendChild(script);
             } else callback();
@@ -578,6 +578,8 @@ function RTCMultiSession(config) {
             attachStream: config.attachStream,
             onRemoteStream: function (stream) {
                 mediaElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
+				mediaElement.autoplay = true;
+				mediaElement.controls = true;
                 mediaElement.play();
 
                 _config.stream = stream;

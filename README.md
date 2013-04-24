@@ -136,24 +136,9 @@ Majority of WebRTC Experiments are using libraries like:
 <script src="https://webrtc-experiment.appspot.com/DataChannel.js"></script>
 <script>
     var channel = new DataChannel('channel-name');
-
-    // to send text/data or file
     channel.send(file || data || 'text');
-
-    // to be alerted on data ports get open
-    channel.onopen = function(userid) {}
-	
-    // to be alerted on data ports get new message
-    channel.onmessage = function(message) {}
-	
-    // Use "onUserLeft" to be get alerted if a user leaves the room	
-    channel.onUserLeft = function(userid) {
-        // remove that user's photo/image using his user-id
-    };
-	
-    // Eject a user or close your own entire session
+    channel.onleave = function(userid) { };
     channel.leave(userid); // throw a user out of your room!
-    channel.leave();       // close your own entire session
 </script>
 ```
 

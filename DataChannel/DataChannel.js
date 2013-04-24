@@ -3,8 +3,9 @@
     
     https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
 */
+
 (function () {
-    function DataChannel(channel, extras) {
+    window.DataChannel = function (channel, extras) {
         if (channel) this.automatic = true;
         this.channel = channel;
 
@@ -13,20 +14,21 @@
         var self = this,
             dataConnector, fileReceiver, textReceiver;
 
-        this.onmessage = function (message) {
-            console.debug('DataChannel message:', message);
+        this.onmessage = function (message, userid) {
+            console.debug(userid, 'sent message:', message);
         };
 
-        this.onopen = function (_channel) {
-            _channel.send('First text message!');
+        this.channels = {};
+        this.onopen = function (userid/*, _channel */) {
+            self.send(userid, 'is connected with you.');
         };
 
-        this.onclose = function () {
-            console.error('data channel closed.');
+        this.onclose = function (event) {
+            console.error('data channel closed:', event);
         };
 
-        this.onerror = function () {
-            console.error('data channel error.');
+        this.onerror = function (event) {
+            console.error('data channel error:', event);
         };
 
         this.onFileReceived = function (fileName) {
@@ -44,19 +46,25 @@
         function prepareInit(callback) {
             if (extras.openSignalingChannel) self.openSignalingChannel = extras.openSignalingChannel;
             if (!self.openSignalingChannel) {
+
+                if (typeof extras.transmitRoomOnce == 'undefined') extras.transmitRoomOnce = true;
+
                 self.openSignalingChannel = function (config) {
                     config = config || {};
                     channel = config.channel || self.channel || 'default-channel';
-                    var socket = new window.Firebase('https://chat.firebaseIO.com/' + channel);
+                    var socket = new window.Firebase('https://' + (extras.firebase || self.firebase || 'chat') + '.firebaseIO.com/' + channel);
                     socket.channel = channel;
                     socket.on('child_added', function (data) {
-                        config.onmessage && config.onmessage(data.val());
+                        var value = data.val();
+                        if (value == 'joking') config.onopen && config.onopen();
+                        else config.onmessage(value);
                     });
                     socket.send = function (data) {
                         this.push(data);
                     };
-                    config.onopen && setTimeout(config.onopen, 1);
-                    socket.onDisconnect().remove();
+                    socket.push('joking');
+					
+					self.socket = socket;
                     return socket;
                 };
 
@@ -83,10 +91,16 @@
                         joinUser: room.broadcaster
                     });
                 },
-                onChannelOpened: function (userid) {
-                    self.onopen(userid);
+                onChannelOpened: function (userid, _channel) {
+                    self.onopen(userid, _channel);
+                    self.channels[userid] = {
+                        channel: _channel,
+                        send: function (data) {
+                            self.send(data, this.channel);
+                        }
+                    };
                 },
-                onChannelMessage: function (data) {
+                onChannelMessage: function (data, userid) {
                     if (IsDataChannelSupported && !data.size) data = JSON.parse(data);
 
                     if (!IsDataChannelSupported) {
@@ -95,10 +109,12 @@
                     }
 
                     if (data.type === 'text')
-                        textReceiver.receive(data, self.onmessage);
+                        textReceiver.receive(data, self.onmessage, userid);
+
                     else if (data.size || data.type === 'file')
                         fileReceiver.receive(data, self.config);
-                    else self.onmessage(data);
+
+                    else self.onmessage(data, userid);
                 },
                 direction: extras.direction || self.direction || 'many-to-many',
                 onChannelClosed: function (event) {
@@ -117,26 +133,28 @@
                 onDefaultSocketOpened: function () {
                     if (self.onDefaultSocketOpened) self.onDefaultSocketOpened();
                 },
-                onUserLeft: function (userid) {
-                    self.onUserLeft(userid);
-                }
+                onleave: function (userid) {
+                    self.onleave(userid);
+                },
+                transmitRoomOnce: !!extras.transmitRoomOnce
             };
 
             dataConnector = IsDataChannelSupported ?
-                new DataConnector(self.config) :
-                new SocketConnector(self.config);
+            new DataConnector(self.config) :
+            new SocketConnector(self.config);
 
             fileReceiver = new FileReceiver();
             textReceiver = new TextReceiver();
         }
 
         this.open = function (_channel) {
-            this.joinedARoom = true;
+            self.joinedARoom = true;
             if (_channel) self.channel = _channel;
             prepareInit(function () {
                 init();
                 if (IsDataChannelSupported) dataConnector.createRoom();
             });
+			if(self.socket) self.socket.onDisconnect().remove();
         };
         this.connect = function (_channel) {
             if (_channel) self.channel = _channel;
@@ -147,44 +165,51 @@
         if (this.automatic) {
             this.connect();
             this.onDefaultSocketOpened = function () {
-
                 if (self.isDefaultSocketOpened) return;
                 self.isDefaultSocketOpened = true;
 
-                setTimeout(function () {
-                    if (!self.joinedARoom) self.open();
-                }, 5000);
+                if (!self.joinedARoom)
+                // wait 5 seconds for pre-created room; otherwise create new one
+                    setTimeout(function () {
+                        if (!self.joinedARoom) self.open();
+                    }, 5000);
             };
         }
 
-        this.send = function (data) {
+        this.send = function (data, _channel) {
             if (!data) throw 'No file, data or text message to share.';
             if (data.size)
                 FileSender.send({
                     file: data,
                     channel: dataConnector,
-                    onFileSent: self.onFileSent,
-                    onFileProgress: self.onFileProgress
+
+                    onFileSent: function (file) {
+                        self.onFileSent(file);
+                    },
+                    onFileProgress: function (packets) {
+                        self.onFileProgress(packets);
+                    },
+
+                    _channel: _channel
                 });
             else
                 TextSender.send({
                     text: data,
-                    channel: dataConnector
+                    channel: dataConnector,
+                    _channel: _channel
                 });
         };
 
-        this.onUserLeft = function (userid) {
+        this.onleave = function (userid) {
             console.debug(userid, 'left!');
-        }
+        };
 
         this.leave = function (userid) {
             dataConnector.leave(userid);
-        }
-    }
+        };
+    };
 
-    window.DataChannel = DataChannel;
-
-    window.moz = !! navigator.mozGetUserMedia;
+    window.moz = !!navigator.mozGetUserMedia;
     window.IsDataChannelSupported = !((moz && !navigator.mozGetUserMedia) || (!moz && !navigator.webkitGetUserMedia));
 
     function RTCPeerConnection(options) {
@@ -195,9 +220,8 @@
 
         var iceServers = {
             iceServers: [{
-                    url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-                }
-            ]
+                url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
+            }]
         };
 
         var optional = {
@@ -206,9 +230,8 @@
 
         if (!moz) {
             optional.optional = [{
-                    RtpDataChannels: true
-                }
-            ];
+                RtpDataChannels: true
+            }];
         }
 
         var peerConnection = new PeerConnection(iceServers, optional);
@@ -224,8 +247,8 @@
         var constraints = options.constraints || {
             optional: [],
             mandatory: {
-                OfferToReceiveAudio: !! moz,
-                OfferToReceiveVideo: !! moz
+                OfferToReceiveAudio: !!moz,
+                OfferToReceiveVideo: !!moz
             }
         };
 
@@ -260,8 +283,7 @@
         function openOffererChannel() {
             if (!options.onChannelMessage || (moz && !options.onOfferSDP)) return;
 
-            _openOffererChannel()
-
+            _openOffererChannel();
             if (moz && !options.attachStream) {
                 navigator.mozGetUserMedia({
                     audio: true,
@@ -275,8 +297,8 @@
 
         function _openOffererChannel() {
             channel = peerConnection.createDataChannel(
-                options.channel || 'RTCDataChannel',
-                moz ? {} : {
+            options.channel || 'RTCDataChannel',
+            moz ? {} : {
                 reliable: false
             });
             if (moz) channel.binaryType = 'blob';
@@ -320,7 +342,8 @@
             }
         }
 
-        function useless() {}
+        function useless() {
+        }
 
         return {
             addAnswerSDP: function (sdp) {
@@ -371,6 +394,8 @@
 
             if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
                 channels += response.userToken + '--';
+
+                console.debug('A person whose id is', response.userToken || response.channel, 'particiated with me!');
                 openSubSocket({
                     isofferer: true,
                     channel: response.channel || response.userToken,
@@ -393,14 +418,14 @@
             };
 
             var socket = config.openSocket(socketConfig),
-                isofferer = _config.isofferer,
-                gotstream,
-                inner = {},
-                peer;
+            isofferer = _config.isofferer,
+            gotstream,
+            inner = {},
+            peer;
 
             var peerConfig = {
                 onICE: function (candidate) {
-                    socket.send({
+                    socket && socket.send({
                         userToken: self.userToken,
                         candidate: {
                             sdpMLineIndex: candidate.sdpMLineIndex,
@@ -410,19 +435,14 @@
                 },
                 onChannelOpened: onChannelOpened,
                 onChannelMessage: function (event) {
-                    if (config.onChannelMessage) config.onChannelMessage(event.data);
+                    if (config.onChannelMessage) config.onChannelMessage(event.data, _config.userid);
                 },
-                onChannelClosed: function (event) {
-                    if (config.onChannelClosed) config.onChannelClosed(event);
-                },
-                onChannelError: function (event) {
-                    if (config.onChannelError) config.onChannelError(event);
-                }
+                onChannelClosed: config.onChannelClosed,
+                onChannelError: config.onChannelError
             };
 
             function initPeer(offerSDP) {
-                if (config.direction === 'one-to-one' && window.isFirstConnectionOpened)
-                    return;
+                if (config.direction === 'one-to-one' && window.isFirstConnectionOpened) return;
 
                 if (!offerSDP) {
                     peerConfig.onOfferSDP = sendsdp;
@@ -436,16 +456,19 @@
 
             function onChannelOpened(channel) {
                 RTCDataChannels[RTCDataChannels.length] = channel;
-                if (config.onChannelOpened) config.onChannelOpened(_config.userid);
+                if (config.onChannelOpened) config.onChannelOpened(_config.userid, channel);
 
                 if (config.direction === 'many-to-many' && isbroadcaster && channels.split('--').length > 3) {
+
+                    console.debug('It is time to transmit participant\'s details: ', socket.channel);
+
                     defaultSocket.send({
                         newParticipant: socket.channel,
                         userToken: self.userToken
                     });
                 }
 
-                if (_config.closeSocket) socket = null;
+                //if (_config.closeSocket) socket = null;
 
                 window.isFirstConnectionOpened = gotstream = true;
             }
@@ -482,10 +505,12 @@
             function socketResponse(response) {
                 if (response.userToken == self.userToken) return;
 
+                console.log(response);
+
                 if (response.firstPart || response.secondPart || response.thirdPart) {
                     if (response.firstPart) {
                         // sdp sender's user id passed over "onopen" method
-                        _config.userid = response.id;
+                        _config.userid = response.userToken;
 
                         inner.firstPart = response.firstPart;
                         if (inner.secondPart && inner.thirdPart) selfInvoker();
@@ -525,7 +550,7 @@
                         socket = null;
                     }
 
-                    if (config.onUserLeft) config.onUserLeft(response.userToken);
+                    if (config.onleave) config.onleave(response.userToken);
                 }
             }
 
@@ -540,17 +565,6 @@
                 if (isofferer) peer.addAnswerSDP(inner.sdp);
                 else initPeer(inner.sdp);
             }
-        }
-
-        function startBroadcasting() {
-            defaultSocket.send({
-                roomToken: self.roomToken,
-                broadcaster: self.userToken
-            });
-
-            if (config.direction === 'one-to-one') {
-                if (!window.isFirstConnectionOpened) setTimeout(startBroadcasting, 3000);
-            } else setTimeout(startBroadcasting, 3000);
         }
 
         function onNewParticipant(channel) {
@@ -618,7 +632,19 @@
 
                 isbroadcaster = true;
                 isGetNewRoom = false;
-                startBroadcasting();
+
+                (function transmit() {
+                    defaultSocket.send({
+                        roomToken: self.roomToken,
+                        broadcaster: self.userToken
+                    });
+
+                    if (!config.transmitRoomOnce) {
+                        if (config.direction === 'one-to-one') {
+                            if (!window.isFirstConnectionOpened) setTimeout(transmit, 3000);
+                        } else setTimeout(transmit, 3000);
+                    }
+                })();
             },
             joinRoom: function (_config) {
                 self.roomToken = _config.roomToken;
@@ -634,15 +660,16 @@
                     joinUser: _config.joinUser
                 });
             },
-            send: function (message) {
+            send: function (message, _channel) {
                 var _channels = RTCDataChannels,
-                    data, length = _channels.length;
+					data, length = _channels.length;
                 if (!length) return;
 
                 if (moz && message.file) data = message.file;
                 else data = JSON.stringify(message);
 
-                for (var i = 0; i < length; i++)
+                if (_channel) _channel.send(data);
+                else for (var i = 0; i < length; i++)
                     _channels[i].send(data);
             },
             leave: leaveChannels
@@ -671,7 +698,8 @@
     var FileSender = {
         send: function (config) {
             var channel = config.channel,
-                file = config.file;
+			_channel = config._channel,
+            file = config.file;
 
             /* if firefox nightly: share file blob directly */
             if (moz && IsDataChannelSupported) {
@@ -679,12 +707,12 @@
                 channel.send({
                     fileName: file.name,
                     type: 'file'
-                });
+                }, _channel);
 
                 /* sending entire file at once */
                 channel.send({
                     file: file
-                });
+                }, _channel);
 
                 if (config.onFileSent) config.onFileSent(file);
             }
@@ -727,7 +755,7 @@
                     if (config.onFileSent) config.onFileSent(file);
                 }
 
-                channel.send(data);
+                channel.send(data, _channel);
 
                 textToTransfer = text.slice(data.message.length);
 
@@ -803,8 +831,9 @@
     var TextSender = {
         send: function (config) {
             var channel = config.channel,
+				_channel = config._channel,
                 initialText = config.text,
-                packetSize = 1000 /* chars */ ,
+                packetSize = 1000 /* chars */,
                 textToTransfer = '',
                 isobject = false;
 
@@ -813,7 +842,7 @@
                 initialText = JSON.stringify(initialText);
             }
 
-            if (IsDataChannelSupported && (moz || initialText.length <= packetSize)) channel.send(config.text);
+            if (IsDataChannelSupported && (moz || initialText.length <= packetSize)) channel.send(config.text, _channel);
             else sendText(initialText);
 
             function sendText(textMessage, text) {
@@ -834,7 +863,7 @@
                     data.isobject = isobject;
                 }
 
-                channel.send(data);
+                channel.send(data, _channel);
 
                 textToTransfer = text.slice(data.message.length);
 
@@ -849,12 +878,12 @@
     function TextReceiver() {
         var content = [];
 
-        function receive(data, onmessage) {
+        function receive(data, onmessage, userid) {
             content.push(data.message);
             if (data.last) {
                 content = content.join('');
                 if (data.isobject) content = JSON.parse(content);
-                if (onmessage) onmessage(content);
+                if (onmessage) onmessage(content, userid);
                 content = [];
             }
         }
