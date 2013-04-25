@@ -10,7 +10,7 @@
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <style>
-        /* @import url(https://fonts.googleapis.com/css?family=Inconsolata); */
+        @import url(https://fonts.googleapis.com/css?family=Inconsolata);
 
         html {
             background: #eee;
@@ -327,7 +327,7 @@
     };
 	
 	// someone ejects current user or lefts the room
-	connection.onUserLeft = function(userid, extra) {
+	connection.onleave = function(userid, extra) {
 		console.log(extra.username + ' left you!');
 		var button = document.getElementById(userid);
 		if(button) button.parentNode.parentNode.removeChild(button.parentNode);
@@ -372,9 +372,9 @@
 var connection = new RTCMultiConnection('session-id');
 </pre>
 
-	<p>Use "onUserLeft" to be get alerted if a user manually or automatically leaves you:</p>
+	<p>Use "onleave" to be get alerted if a user manually or automatically leaves you:</p>
 <pre>
-connection.onUserLeft = function(userid, extra) {
+connection.onleave = function(userid, extra) {
     // remove user's video using his user-id
     // console.log(extra.username, 'left you sir!');
 };
@@ -446,24 +446,20 @@ connection.onstream = function(stream){
         var extra = stream.<strong>extra</strong>;
         video.poster = <strong>extra</strong>.username;
 		
-        // stream.userid ---- this user-id can be used to eject any user when "onUserLeft" fires
+        // stream.userid ---- this user-id can be used to eject any user when "onleave" fires
     }
 };
 </pre>
 
     <br/>
     <br/>
-<table style="width: 100%;">
-    <tr>
-        <td>
-            <div>
-                <textarea id="message" style="height: 8em; margin: .2em; width: 98%;"
-                          placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-            </div>
-            <button id="send-message" style="font-size: 1em;">Send Message</button>
-        </td>
-    </tr>
-</table>
+<section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
+                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+                <div>
+                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button>
+            </section>
 </article>
 <footer>
     <p>
@@ -475,6 +471,6 @@ connection.onstream = function(stream){
         <a href="https://github.com/muaz-khan" target="_blank">Github</a>
     </p>
 </footer>
-<!-- <script src="https://webrtc-experiment.appspot.com/common.js"></script> -->
+<script src="https://webrtc-experiment.appspot.com/common.js"></script>
 </body>
 </html>

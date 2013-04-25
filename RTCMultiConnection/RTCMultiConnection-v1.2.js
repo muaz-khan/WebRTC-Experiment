@@ -4,7 +4,6 @@
  https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection */
 
 (function () {
-
     window.RTCMultiConnection = function (channel, extras) {
         extras = extras || {};
         this.channel = channel;
@@ -42,7 +41,6 @@
             if (extras.openSignalingChannel) self.openSignalingChannel = extras.openSignalingChannel;
             if (!self.openSignalingChannel) {
 
-                // Room initiator shouldn't continously send session details - one time is enough! It is useful only with Firebase.
                 if (typeof extras.transmitRoomOnce == 'undefined') extras.transmitRoomOnce = true;
 
                 self.openSignalingChannel = function (config) {
@@ -56,12 +54,14 @@
                         if (value == 'joking') config.onopen && config.onopen();
                         else config.onmessage(value);
                     });
+
                     socket.send = function (data) {
                         this.push(data);
                     };
+
                     config.onopen && setTimeout(config.onopen, 1);
                     socket.push('joking');
-					self.socket = socket;
+                    self.socket = socket;
                     return socket;
                 };
 
@@ -75,6 +75,8 @@
         }
 
         function init() {
+            if (self.config) return;
+
             self.direction = self.direction.lowercase();
             self.session = self.session.lowercase();
 
@@ -126,8 +128,8 @@
                     self.onstream(stream);
                 },
 
-                onUserLeft: function (userid, extra) {
-                    self.onUserLeft(userid, extra);
+                onleave: function (userid, extra) {
+                    self.onleave(userid, extra);
                 },
 
                 direction: self.direction.lowercase(),
@@ -146,10 +148,12 @@
             if (!session || !session.userid || !session.sessionid)
                 throw 'invalid data passed.';
 
+            setDefaults(false, extra);
+
             self.session = session.session;
             self.direction = session.direction;
-			
-			if (session.direction === Direction.OneWay || session.session === Session.Data)
+
+            if (session.direction === Direction.OneWay || session.session === Session.Data)
                 rtcSession.joinSession(session, extra || {});
             else
                 captureUserMedia(function () {
@@ -163,7 +167,9 @@
             if (typeof _channel === 'string') {
                 if (_channel) self.channel = _channel;
                 extra = extra || {};
-            } else extra = _channel;
+            } else extra = _channel || {};
+
+            setDefaults(true, extra);
 
             prepareInit(function () {
                 init();
@@ -171,12 +177,13 @@
                     rtcSession.initSession(extra);
                 });
             });
-			
-			if(self.socket) self.socket.onDisconnect().remove();
+
+            if (self.socket) self.socket.onDisconnect().remove();
         };
 
         self.connect = function (_channel) {
             if (_channel) self.channel = _channel;
+
             prepareInit(init);
         };
 
@@ -209,7 +216,7 @@
         function captureUserMedia(callback) {
             var constraints, session = self.session;
 
-            if (session === Session.Data || self.dontAttachStream)
+            if (session === Session.Data || self.dontAttachStream || self.config.attachStream)
                 return callback();
 
             if (self.attachStream) {
@@ -224,6 +231,7 @@
                     video: false
                 };
             }
+
             if (session.isScreen()) {
                 console.debug('screen-only session');
                 video_constraints = {
@@ -287,9 +295,42 @@
         this.onUserLeft = function (userid/*, extra */) {
             console.debug(userid, 'left!');
         };
+
+        this.onleave = function (userid, extra) {
+            self.onUserLeft(userid, extra);
+        };
+
         this.leave = function (userid) {
+            if (typeof userid === 'function') {
+                var callback = userid;
+                userid = null;
+            }
+
+            if (!userid) {
+                rtcSession.leaving = true;
+                if (callback) (function looper() {
+                    if (rtcSession.left) callback();
+                    else setTimeout(looper, 100);
+                })();
+            }
+
             rtcSession.leave(userid);
         };
+
+        function setDefaults(isInitiator, extra) {
+            self.defaults = {
+                extra: extra,
+                isInitiator: isInitiator
+            };
+
+            self.reconnect = function () {
+                if (self.joinedARoom) self.leave();
+                self.joinedARoom = false;
+
+                if (self.defaults.isInitiator) self.open(null, self.defaults.extra);
+                else self.connect();
+            };
+        }
     };
 
     var Session = {
@@ -660,17 +701,20 @@
                 attachStream: config.attachStream,
                 onRemoteStream: function (stream) {
                     mediaElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
-					mediaElement.autoplay = true;
-					mediaElement.controls = true;
+                    mediaElement.autoplay = true;
+                    mediaElement.controls = true;
                     mediaElement.play();
 
                     _config.stream = stream;
                     if (session.isAudio()) {
-                        mediaElement.addEventListener('play', function () {
+                        var videoTracks = _config.stream.getVideoTracks();
+                        var audioTracks = _config.stream.getAudioTracks();
+
+                        if (audioTracks.length == 1 && videoTracks.length == 0) {
                             this.muted = false;
                             this.volume = 1;
                             afterRemoteStreamStartedFlowing();
-                        }, false);
+                        }
                     } else
                         onRemoteStreamStartsFlowing();
                 },
@@ -690,6 +734,17 @@
 
                 if (session.indexOf('data') === -1)
                     peerConfig.onChannelMessage = null;
+
+                if (session.isAudio()) {
+                    /* OfferToReceiveVideo MUST be false for audio-only streaming */
+                    peerConfig.constraints = {
+                        optional: [],
+                        mandatory: {
+                            OfferToReceiveAudio: true,
+                            OfferToReceiveVideo: false
+                        }
+                    };
+                }
 
                 peer = RTCPeerConnection(peerConfig);
             }
@@ -774,7 +829,7 @@
 
                 if (response.firstPart || response.secondPart || response.thirdPart) {
                     if (response.firstPart) {
-                        // sdp sender's user id passed over onRemoteStream method
+                        // sdp sender's user id passed over onRemoteStream and onopen
                         _config.userid = response.id;
 
                         inner.firstPart = response.firstPart;
@@ -819,7 +874,7 @@
                         socket = null;
                     }
 
-                    if (config.onUserLeft) config.onUserLeft(response.id, response.extra);
+                    if (config.onleave) config.onleave(response.id, response.extra);
                 }
             }
 
@@ -884,6 +939,17 @@
                         delete sockets[i];
                     }
                 }
+
+                /* closing all RTCDataChannels */
+                length = RTCDataChannels.length;
+                for (i = 0; i < length; i++) {
+                    var _channel = RTCDataChannels[i];
+                    if (_channel) {
+                        _channel.close();
+                        delete RTCDataChannels[i];
+                    }
+                }
+                that.left = true;
             }
 
             // eject a specific user!
@@ -896,6 +962,8 @@
             }
         }
 
+        var that = this;
+
         window.onunload = function () {
             leaveARoom();
         };
@@ -905,8 +973,8 @@
             initSession: function (extra) {
                 isbroadcaster = true;
                 isAcceptNewSession = false;
-				
-				extra = extra || {};
+
+                extra = extra || {};
 
                 extra.interval = extra.interval || 3000;
                 self.extra = extra.extra = extra.extra || {};
@@ -920,7 +988,7 @@
                         extra: extra.extra
                     });
 
-                    if (!config.transmitRoomOnce) {
+                    if (!config.transmitRoomOnce && !that.leaving) {
                         if (config.direction === Direction.OneToOne) {
                             if (!window.isFirstConnectionOpened)
                                 setTimeout(transmit, extra.interval);
@@ -978,7 +1046,13 @@
                     direction: direction
                 };
             },
-            leave: leaveARoom
+            leave: function (userid) {
+                leaveARoom(userid);
+                if (!userid) {
+                    self.joinedARoom = isbroadcaster = false;
+                    isAcceptNewSession = true;
+                }
+            }
         };
     }
 

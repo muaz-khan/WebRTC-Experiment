@@ -584,11 +584,14 @@ function RTCMultiSession(config) {
 
                 _config.stream = stream;
                 if (session.isAudio()) {
-                    mediaElement.addEventListener('play', function () {
+                    var videoTracks = _config.stream.getVideoTracks();
+                    var audioTracks = _config.stream.getAudioTracks();
+
+                    if (audioTracks.length == 1 && videoTracks.length == 0) {
                         this.muted = false;
                         this.volume = 1;
                         afterRemoteStreamStartedFlowing();
-                    }, false);
+                    }
                 } else
                     onRemoteStreamStartsFlowing();
             },
@@ -608,6 +611,17 @@ function RTCMultiSession(config) {
 
             if (session.indexOf('data') === -1)
                 peerConfig.onChannelMessage = null;
+
+            if (session.isAudio()) {
+                /* OfferToReceiveVideo MUST be false for audio-only streaming */
+                peerConfig.constraints = {
+                    optional: [],
+                    mandatory: {
+                        OfferToReceiveAudio: true,
+                        OfferToReceiveVideo: false
+                    }
+                };
+            }
 
             peer = RTCPeerConnection(peerConfig);
         }

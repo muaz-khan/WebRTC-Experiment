@@ -1,0 +1,83 @@
+﻿<script>
+    var offerer, answerer;
+
+    window.RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+    window.RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
+    window.RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+
+    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    window.URL = window.webkitURL || window.URL;
+
+    window.iceServers = {
+        iceServers: [{
+                url: 'stun:23.21.150.121'
+            }
+        ]
+    };
+</script>
+<script>
+    /* offerer */
+
+    function offererPeer(stream) {
+        offerer = new RTCPeerConnection(window.iceServers);
+
+        // stream is only attached by offerer
+        offerer.addStream(stream);
+
+        offerer.onicecandidate = function (event) {
+            if (!event || !event.candidate) return;
+            answerer.addIceCandidate(event.candidate);
+        };
+
+        offerer.createOffer(function (offer) {
+            console.debug('offer sdp', offer.sdp);
+
+            offerer.setLocalDescription(offer);
+            answererPeer(offer);
+        });
+    }
+</script>
+<script>
+    /* answerer */
+
+    function answererPeer(offer) {
+        answerer = new RTCPeerConnection(window.iceServers);
+
+        // stream that is flowing from offerer toward answerer
+        answerer.onaddstream = function (event) {
+            console.debug('remote stream', event.stream);
+
+            var audio = document.createElement('audio');
+            audio.src = URL.createObjectURL(event.stream);
+            document.body.appendChild(audio);
+            audio.controls = true;
+            audio.play();
+        };
+
+        answerer.onicecandidate = function (event) {
+            if (!event || !event.candidate) return;
+            offerer.addIceCandidate(event.candidate);
+        };
+
+        answerer.setRemoteDescription(offer);
+        answerer.createAnswer(function (answer) {
+            console.debug('answer sdp', answer.sdp);
+
+            answerer.setLocalDescription(answer);
+            offerer.setRemoteDescription(answer);
+        });
+    }
+</script>
+<script>
+    function getUserMedia(callback) {
+        navigator.getUserMedia({
+            audio: true,
+            video: false
+        }, callback, onerror);
+
+        function onerror(e) {
+            console.error(e);
+        }
+    }
+    getUserMedia(offererPeer);
+</script>
