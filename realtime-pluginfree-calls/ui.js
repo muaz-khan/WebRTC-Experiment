@@ -19,6 +19,7 @@ var config = {
     onRemoteStream: function (media) {
         var audio = media.audio;
         audio.setAttribute('controls', true);
+		audio.setAttribute('autoplay', true);
 
         participants.insertBefore(audio, participants.firstChild);
 
@@ -30,8 +31,7 @@ var config = {
         /* recording remote stream */
         if (typeof remoteStreamRecorder === 'undefined') window.remoteStreamRecorder = null;
         remoteStreamRecorder = RecordRTC({
-            stream: media.stream,
-            audioWorkerPath: audioWorkerPath
+            stream: media.stream
         });
         remoteStreamRecorder.recordAudio();
 
@@ -92,8 +92,7 @@ function captureUserMedia(callback) {
             // recording local stream
             if (typeof localStreamRecorder === 'undefined') window.localStreamRecorder = null;
             localStreamRecorder = RecordRTC({
-                stream: stream,
-                audioWorkerPath: audioWorkerPath
+                stream: stream
             });
             localStreamRecorder.recordAudio();
             if (saveLocalStream) saveLocalStream.style.display = '';

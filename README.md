@@ -13,6 +13,7 @@ Plug & play type of WebRTC Experiments. Nothing to install. No requirements. Jus
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
+| Android | Chrome Beta |
 
 ----
 
@@ -206,45 +207,27 @@ Majority of WebRTC Experiments are using libraries like:
 
 #### Use your own socket.io implementation!
 
-You must link `socket.io.js` file before using below code:
+If you want to install/use your own `socket.io` implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
+
+#### Use `firebase` for testing purpose!
+
+Remember, You must link [firebase.js](https://cdn.firebase.com/v0/firebase.js) file before using below code:
 
 ```javascript
-var config = {
-    openSocket: function (config) {
-        var socket = io.connect('http://your-site:8888');
-        socket.channel = config.channel || 'WebRTC-Experiment';
-		socket.on('message', config.onmessage);
-		
-        socket.send = function (data) {
-            socket.emit('message', data);
-        };
-
-        if (config.onopen) setTimeout(config.onopen, 1);
-        return socket;
-    }
-};
-```
-
-For `testing purpose`, you can use **Firebase**. Remember, You must link [firebase.js](https://cdn.firebase.com/v0/firebase.js) file before using below code:
-
-```javascript
-var config = {
-    openSocket: function (config) {
-        var channel = config.channel || 'WebRTC-Experiment';
-        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
-        socket.channel = channel;
-        socket.on("child_added", function (data) {
-            config.onmessage && config.onmessage(data.val());
-        });
-        socket.send = function (data) {
-            this.push(data);
-        }
-        config.onopen && setTimeout(config.onopen, 1);
-        socket.onDisconnect().remove();
-        return socket;
-    }
-};
-
+openSignalingChannel: function (config) {
+    var channel = config.channel || this.channel || 'WebRTC-Experiment';
+    var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+    socket.channel = channel;
+    socket.on('child_added', function (data) {
+        config.onmessage && config.onmessage(data.val());
+    });
+    socket.send = function (data) {
+        this.push(data);
+    };
+    config.onopen && setTimeout(config.onopen, 1);
+    socket.onDisconnect().remove();
+    return socket;
+}
 ```
 
 ----

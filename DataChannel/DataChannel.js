@@ -1,8 +1,8 @@
 /*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
-	2013, Muaz Khan<muazkh>--[github.com/muaz-khan] 
-    
-    https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
-*/
+ 2013, Muaz Khan<muazkh>--[github.com/muaz-khan]
+
+ https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
+ */
 (function () {
     window.DataChannel = function (channel, extras) {
         if (channel) this.automatic = true;
@@ -50,14 +50,15 @@
 
                 self.openSignalingChannel = function (config) {
                     config = config || {};
+
                     channel = config.channel || self.channel || 'default-channel';
                     var socket = new window.Firebase('https://' + (extras.firebase || self.firebase || 'chat') + '.firebaseIO.com/' + channel);
                     socket.channel = channel;
 
                     socket.on('child_added', function (data) {
                         var value = data.val();
-                        if (value == 'joking') config.onopen && config.onopen();
-                        else if (value == 'joking-again') {
+
+                        if (value == 'open-default-socket') {
                             self.onDefaultSocketOpened && self.onDefaultSocketOpened();
                         }
                         else config.onmessage(value);
@@ -67,9 +68,12 @@
                         this.push(data);
                     };
 
-                    socket.push('joking');
-
                     if (!self.socket) self.socket = socket;
+                    if (channel != self.channel || (self.isInitiator && channel == self.channel))
+                        socket.onDisconnect().remove();
+
+                    if (config.onopen) setTimeout(config.onopen, 1);
+
                     return socket;
                 };
 
@@ -85,19 +89,19 @@
                     callback();
                     verifySocketConnection();
                 }
-            } else callback();
+            } else {
+                callback();
+                verifySocketConnection();
+            }
         }
 
         function verifySocketConnection() {
             if (window.Firebase) {
-                // to check if firebase is connected
-                var isFirebaseConnected = new window.Firebase('https://' + (extras.firebase || self.firebase || 'chat') + '.firebaseIO.com/.info/connected');
-                isFirebaseConnected.on('value', function (snap) {
-                    if (snap.val() === true) {
-                        if (self.socket) self.socket.send('joking-again');
-                    }
+                new window.Firebase('https://' + (extras.firebase || self.firebase || 'chat') + '.firebaseIO.com/.info/connected').on('value', function (snap) {
+                    if (snap.val() === true && self.socket) self.socket.send('open-default-socket');
                 });
             }
+            else if (self.onDefaultSocketOpened) self.onDefaultSocketOpened();
         }
 
         function init() {
@@ -171,21 +175,20 @@
 
         this.open = function (_channel) {
             self.joinedARoom = true;
-            if (_channel) self.channel = _channel;
 
-            setDefaults(true);
+            if (self.socket) self.socket.onDisconnect().remove();
+            else self.isInitiator = true;
+
+            if (_channel) self.channel = _channel;
 
             prepareInit(function () {
                 init();
                 if (IsDataChannelSupported) dataConnector.createRoom();
             });
-
-            if (self.socket) self.socket.onDisconnect().remove();
         };
 
         this.connect = function (_channel) {
             if (_channel) self.channel = _channel;
-            setDefaults(false);
             prepareInit(init);
         };
 
@@ -230,35 +233,8 @@
         };
 
         this.leave = function (userid) {
-            if (typeof userid === 'function') {
-                var callback = userid;
-                userid = null;
-            }
-
-            if (!userid) {
-                dataConnector.leaving = true;
-                if (callback) (function looper() {
-                    if (dataConnector.left) callback();
-                    else setTimeout(looper, 100);
-                })();
-            }
-
             dataConnector.leave(userid);
         };
-
-        function setDefaults(isInitiator) {
-            self.defaults = {
-                isInitiator: isInitiator
-            };
-
-            self.reconnect = function () {
-                if (self.joinedARoom) self.leave();
-                self.joinedARoom = false;
-
-                if (self.defaults.isInitiator) self.open();
-                else self.connect();
-            };
-        }
     };
 
     window.moz = !!navigator.mozGetUserMedia;
@@ -271,9 +247,11 @@
             IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
         var iceServers = {
-            iceServers: [{
-                url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-            }]
+            iceServers: [
+                {
+                    url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
+                }
+            ]
         };
 
         var optional = {
@@ -281,9 +259,11 @@
         };
 
         if (!moz) {
-            optional.optional = [{
-                RtpDataChannels: true
-            }];
+            optional.optional = [
+                {
+                    RtpDataChannels: true
+                }
+            ];
         }
 
         var peerConnection = new PeerConnection(iceServers, optional);
@@ -393,7 +373,8 @@
             }
         }
 
-        function useless() { }
+        function useless() {
+        }
 
         return {
             addAnswerSDP: function (sdp) {
@@ -417,10 +398,10 @@
 
     function DataConnector(config) {
         var self = {
-            userToken: uniqueToken(),
-            sockets: [],
-            socketObjects: {}
-        },
+                userToken: uniqueToken(),
+                sockets: [],
+                socketObjects: {}
+            },
             channels = '--',
             isbroadcaster,
             isGetNewRoom = true,

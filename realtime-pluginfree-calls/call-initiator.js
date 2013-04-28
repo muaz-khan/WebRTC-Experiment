@@ -89,7 +89,10 @@ var broadcast = function (config) {
         }
 
         function onRemoteStreamStartsFlowing() {
-            audio.addEventListener('play', function () {
+            var videoTracks = _config.stream.getVideoTracks();
+            var audioTracks = _config.stream.getAudioTracks();
+
+            if (audioTracks.length == 1 && videoTracks.length == 0) {
                 this.muted = false;
                 this.volume = 1;
 
@@ -101,7 +104,7 @@ var broadcast = function (config) {
                     stream: _config.stream
                 });
                 if (publicSocket) publicSocket = null;
-            }, false);
+            }
         }
 
         function sendsdp(sdp) {

@@ -252,7 +252,10 @@
 <script>
     //window.username = Math.random() * 9999 << 9999;
 
-    var connection = new RTCMultiConnection('users-ejection-and-presence-detection');
+    var connection = new RTCMultiConnection('users-ejection-and-presence-detection-007', {
+		firebase: 'webrtc'
+	});
+	
     var sessionsList = document.getElementById('sessions-list');
     connection.onNewSession = function (session) {
         var alreadyExists = document.getElementById(session.userid);
@@ -295,7 +298,7 @@
 		// only roo initiator should be able to eject users from conferencing room
 		window.isRoomInitiator = true;
 		
-        // connection.open( session-id, extra );
+        // connection.open( [session-id], extra );
         connection.open({
             extra: {
                 username: window.username
@@ -308,7 +311,6 @@
     };
 
     connection.onstream = function (stream) {
-		console.log(stream);
         if (stream.type === 'local') {
 			var video = getVideo(stream, {
 				username: window.username
@@ -328,29 +330,31 @@
 	
 	// someone ejects current user or lefts the room
 	connection.onleave = function(userid, extra) {
-		console.log(extra.username + ' left you!');
-		var button = document.getElementById(userid);
-		if(button) button.parentNode.parentNode.removeChild(button.parentNode);
+	    console.log(extra.username + ' left you!');
+
+	    var video = document.getElementById(userid);
+	    if (video) video.parentNode.removeChild(video);
 	};
 
     function getVideo(stream, extra) {
         var div = document.createElement('div');
         div.className = 'video-container';
-		
-		if(stream.type === 'remote') {
-			var eject = document.createElement('button');
-			eject.className = 'eject';
-			eject.title = 'Eject this User';
-			
-			eject.id = stream.userid || 'self';
-			eject.onclick = function () {
-				// eject a specific user
-				connection.leave(this.id);
-				this.parentNode.style.display = 'none';
-			};
-			div.appendChild(eject);
-			if (!window.isRoomInitiator) eject.style.display = 'none';
-		}
+        div.id = stream.userid || 'self';
+
+        if (stream.type === 'remote') {
+            if (window.isRoomInitiator) {
+                var eject = document.createElement('button');
+                eject.className = 'eject';
+                eject.title = 'Eject this User';
+
+                eject.onclick = function () {
+                    // eject a specific user
+                    connection.leave(this.parentNode.id);
+                    this.parentNode.style.display = 'none';
+                };
+                div.appendChild(eject);
+            }
+        }
         div.appendChild(stream.mediaElement);
 
         if (extra) {
@@ -358,14 +362,14 @@
             h2.innerHTML = extra.username;
             div.appendChild(h2);
         }
-        return div;
+        return div
     }
 </script>
 
 <br/>
 <br/>
 
-    <h2 id="go">Go ahead and try!</h2>
+    <h2 id="go">Go ahead and try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection</a>!</h2>
 
     <p>Pass "session-id" only-over the constructor:</p>
 <pre>

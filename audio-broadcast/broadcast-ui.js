@@ -19,6 +19,7 @@ var config = {
     onRemoteStream: function (media) {
         var audio = media.audio;
         audio.setAttribute('controls', true);
+		audio.setAttribute('autoplay', true);
 
         participants.insertBefore(audio, participants.firstChild);
 

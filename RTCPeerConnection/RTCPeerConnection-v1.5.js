@@ -71,6 +71,11 @@ var RTCPeerConnection = function (options) {
     }
 
     function getInteropSDP(sdp) {
+        // for audio-only streaming: multiple-crypto lines are not allowed
+        if (options.onAnswerSDP)
+            sdp = sdp.replace(/(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g, '');
+
+
         var inline = getChars() + '\r\n' + (extractedChars = '');
         sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
             'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +

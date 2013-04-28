@@ -26,10 +26,6 @@ var broadcast = function (config) {
         }
     }
 
-    /*********************/
-    /* CLOSURES / PRIVATE stuff */
-    /*********************/
-
     function openSubSocket(_config) {
         if (!_config.channel) return;
         var socketConfig = {
@@ -89,11 +85,14 @@ var broadcast = function (config) {
         }
 
         function onRemoteStreamStartsFlowing() {
-			audio.addEventListener('play', function () {
-				this.muted = false;
-				this.volume = 1;
-				
-				gotstream = true;
+            var videoTracks = _config.stream.getVideoTracks();
+            var audioTracks = _config.stream.getAudioTracks();
+
+            if (audioTracks.length == 1 && videoTracks.length == 0) {
+                this.muted = false;
+                this.volume = 1;
+
+                gotstream = true;
 
                 config.onRemoteStream({
                     audio: audio,
@@ -102,12 +101,8 @@ var broadcast = function (config) {
 
                 /* closing subsocket here on the offerer side */
                 if (_config.closeSocket) socket = null;
-			}, false);
+            }
         }
-
-        /*********************/
-        /* SendSDP (offer/answer) */
-        /*********************/
 
         function sendsdp(sdp) {
             sdp = JSON.stringify(sdp);

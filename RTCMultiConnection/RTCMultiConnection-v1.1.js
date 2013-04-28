@@ -43,7 +43,11 @@ function RTCMultiConnection(channel) {
                     this.push(data);
                 };
                 config.onopen && setTimeout(config.onopen, 1);
-                socket.onDisconnect().remove();
+
+                if (!self.socket) self.socket = socket;
+                if (channel != self.channel || (self.isInitiator && channel == self.channel))
+                    socket.onDisconnect().remove();
+
                 return socket;
             };
 
@@ -118,6 +122,9 @@ function RTCMultiConnection(channel) {
     }
 
     self.open = function (_channel) {
+        if (self.socket) self.socket.onDisconnect().remove();
+        else self.isInitiator = true;
+
         if (_channel) self.channel = _channel;
         prepareInit(function () {
             init();
@@ -336,6 +343,10 @@ var RTCPeerConnection = function (options) {
     }
 
     function getInteropSDP(sdp) {
+        // for audio-only streaming: multiple-crypto lines are not allowed
+        if (options.onAnswerSDP)
+            sdp = sdp.replace(/(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g, '');
+
         var inline = getChars() + '\r\n' + (extractedChars = '');
         sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
             'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
@@ -588,8 +599,8 @@ function RTCMultiSession(config) {
                     var audioTracks = _config.stream.getAudioTracks();
 
                     if (audioTracks.length == 1 && videoTracks.length == 0) {
-                        this.muted = false;
-                        this.volume = 1;
+                        mediaElement.muted = false;
+                        mediaElement.volume = 1;
                         afterRemoteStreamStartedFlowing();
                     }
                 } else

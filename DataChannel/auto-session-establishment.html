@@ -216,7 +216,7 @@
             </table>
             <script>
                 var channel = new DataChannel('auto-session-establishment', {
-                    firebase: 'rtcweb'
+                    firebase: 'webrtc'
                 });
 
                 channel.onmessage = function(data, userid) {
@@ -427,17 +427,13 @@ channel.leave();        // close your own entire data session
 </pre>
             <br />
             <br />
-            <table style="width: 100%;">
-                <tr>
-                    <td>
-                        <div>
-                            <textarea id="message" style="height: 8em; margin: .2em; width: 98%;"
-                                      placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                        </div>
-                        <button id="send-message" style="font-size: 1em;">Send Message</button>
-                    </td>
-                </tr>
-            </table>
+            <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
+                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+                <div>
+                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button>
+            </section>
         </article>
         <footer>
             <p>

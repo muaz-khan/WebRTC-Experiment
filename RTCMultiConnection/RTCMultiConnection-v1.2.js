@@ -30,10 +30,6 @@
             console.debug('<', packets.remaining, '> items remaining.');
         };
 
-        self.onNewSession = function (session) {
-            console.debug('New Session', session);
-        };
-
         self.session = extras.session || Session.AudioVideo;
         self.direction = extras.direction || Direction.ManyToMany;
 
@@ -45,23 +41,24 @@
 
                 self.openSignalingChannel = function (config) {
                     config = config || {};
+
                     channel = config.channel || self.channel || 'default-channel';
                     var socket = new window.Firebase('https://' + (extras.firebase || self.firebase || 'chat') + '.firebaseIO.com/' + channel);
                     socket.channel = channel;
                     socket.on('child_added', function (data) {
                         var value = data.val();
-
-                        if (value == 'joking') config.onopen && config.onopen();
-                        else config.onmessage(value);
+                        config.onmessage(value);
                     });
 
                     socket.send = function (data) {
                         this.push(data);
                     };
 
-                    config.onopen && setTimeout(config.onopen, 1);
-                    socket.push('joking');
-                    self.socket = socket;
+                    if (!self.socket) self.socket = socket;
+                    if (channel != self.channel || (self.isInitiator && channel == self.channel))
+                        socket.onDisconnect().remove();
+
+                    if (config.onopen) setTimeout(config.onopen, 1);
                     return socket;
                 };
 
@@ -85,20 +82,18 @@
                     return self.openSignalingChannel(config);
                 },
                 onNewSession: function (session) {
-                    if (self.onNewSession) return self.onNewSession(session);
-
                     if (self.channel !== session.sessionid) return false;
+
+                    if (self.onNewSession) return self.onNewSession(session);
 
                     if (self.joinedARoom) return false;
                     self.joinedARoom = true;
 
-                    joinSession(session, session.extra);
-
-                    return true;
+                    return joinSession(session, session.extra);
                 },
-                onChannelOpened: function (extra) {
-                    self.onopen(extra);
-                },
+                onChannelOpened: function(userid) {
+					self.onopen(userid);
+				},
                 onChannelMessage: function (data) {
                     if (!data.size) data = JSON.parse(data);
 
@@ -108,30 +103,26 @@
                         fileReceiver.receive(data, self.config);
                     else self.onmessage(data);
                 },
-                onChannelClosed: function (event) {
-                    self.onclose(event);
-                },
-                onChannelError: function (event) {
-                    self.onerror(event);
-                },
-                onFileReceived: function (fileName) {
-                    self.onFileReceived(fileName);
-                },
-                onFileProgress: function (packets) {
-                    self.onFileProgress(packets);
-                },
-
+                onChannelClosed: function(event) {
+					self.onclose(event);
+				},
+                onChannelError: function(event) {
+					self.onerror(event);
+				},
+                onFileReceived: function(fileName) {
+					self.onFileReceived(fileName);
+				},
+                onFileProgress: function(packets) {
+					self.onFileProgress(packets);
+				},
                 iceServers: extras.iceServers || self.iceServers,
                 attachStream: extras.attachStream || self.attachStream,
-
-                onRemoteStream: function (stream) {
-                    self.onstream(stream);
-                },
-
-                onleave: function (userid, extra) {
-                    self.onleave(userid, extra);
-                },
-
+                onRemoteStream: function(stream) {
+					self.onstream(stream);
+				},
+                onleave: function(userid, extra) {
+					self.onleave(userid, extra);
+				},
                 direction: self.direction.lowercase(),
                 session: self.session.lowercase(),
                 channel: self.channel,
@@ -148,8 +139,6 @@
             if (!session || !session.userid || !session.sessionid)
                 throw 'invalid data passed.';
 
-            setDefaults(false, extra);
-
             self.session = session.session;
             self.direction = session.direction;
 
@@ -164,12 +153,13 @@
         self.join = joinSession;
 
         self.open = function (_channel, extra) {
+            if (self.socket) self.socket.onDisconnect().remove();
+            else self.isInitiator = true;
+
             if (typeof _channel === 'string') {
                 if (_channel) self.channel = _channel;
                 extra = extra || {};
             } else extra = _channel || {};
-
-            setDefaults(true, extra);
 
             prepareInit(function () {
                 init();
@@ -177,8 +167,6 @@
                     rtcSession.initSession(extra);
                 });
             });
-
-            if (self.socket) self.socket.onDisconnect().remove();
         };
 
         self.connect = function (_channel) {
@@ -186,8 +174,6 @@
 
             prepareInit(init);
         };
-
-        if (self.channel) self.connect();
 
         self.onstream = function (stream) {
             console.debug('stream:', stream);
@@ -301,36 +287,10 @@
         };
 
         this.leave = function (userid) {
-            if (typeof userid === 'function') {
-                var callback = userid;
-                userid = null;
-            }
-
-            if (!userid) {
-                rtcSession.leaving = true;
-                if (callback) (function looper() {
-                    if (rtcSession.left) callback();
-                    else setTimeout(looper, 100);
-                })();
-            }
-
             rtcSession.leave(userid);
         };
 
-        function setDefaults(isInitiator, extra) {
-            self.defaults = {
-                extra: extra,
-                isInitiator: isInitiator
-            };
-
-            self.reconnect = function () {
-                if (self.joinedARoom) self.leave();
-                self.joinedARoom = false;
-
-                if (self.defaults.isInitiator) self.open(null, self.defaults.extra);
-                else self.connect();
-            };
-        }
+        if (self.channel) self.connect();
     };
 
     var Session = {
@@ -453,6 +413,10 @@
         }
 
         function getInteropSDP(sdp) {
+            // for audio-only streaming: multiple-crypto lines are not allowed
+            if (options.onAnswerSDP)
+                sdp = sdp.replace(/(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g, '');
+
             var inline = getChars() + '\r\n' + (extractedChars = '');
             sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
                 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
@@ -711,8 +675,8 @@
                         var audioTracks = _config.stream.getAudioTracks();
 
                         if (audioTracks.length == 1 && videoTracks.length == 0) {
-                            this.muted = false;
-                            this.volume = 1;
+                            mediaElement.muted = false;
+                            mediaElement.volume = 1;
                             afterRemoteStreamStartedFlowing();
                         }
                     } else
