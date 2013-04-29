@@ -224,8 +224,9 @@
                 </tr>
             </table>
             <script>
-                var connection = new RTCMultiConnection('only-audio-and-data');
-                connection.session = 'audio+data';
+                var connection = new RTCMultiConnection('only-audio-and-data', {
+					session: 'audio+data'
+				});
 				
 				var roomsList = document.getElementById('rooms-list');
 				connection.onNewSession = function(session) {

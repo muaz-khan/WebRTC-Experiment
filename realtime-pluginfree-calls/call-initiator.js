@@ -2,9 +2,9 @@
 
 var broadcast = function (config) {
     var self = {
-        userToken: uniqueToken()
-    },
-    channels = '--',
+            userToken: uniqueToken()
+        },
+        channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
         publicSocket = {};
@@ -89,22 +89,22 @@ var broadcast = function (config) {
         }
 
         function onRemoteStreamStartsFlowing() {
-            var videoTracks = _config.stream.getVideoTracks();
-            var audioTracks = _config.stream.getAudioTracks();
+            audio.addEventListener('play', function () {
+                setTimeout(function () {
+                    audio.muted = false;
+                    audio.volume = 1;
 
-            if (audioTracks.length == 1 && videoTracks.length == 0) {
-                this.muted = false;
-                this.volume = 1;
+                    window.audio = audio;
 
-                gotstream = true;
-                self.stopBroadcasting = true;
+                    gotstream = true;
+                    self.stopBroadcasting = true;
 
-                config.onRemoteStream({
-                    audio: audio,
-                    stream: _config.stream
-                });
-                if (publicSocket) publicSocket = null;
-            }
+                    config.onRemoteStream({
+                        audio: audio,
+                        stream: _config.stream
+                    });
+                }, 3000);
+            }, false);
         }
 
         function sendsdp(sdp) {

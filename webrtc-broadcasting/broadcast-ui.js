@@ -32,7 +32,7 @@
 
             if (room.isAudio) tr.setAttribute('accesskey', room.isAudio);
 
-            tr.innerHTML = '<td style="width:80%;">' + room.roomName + '</td>' +
+            tr.innerHTML = '<td>' + room.roomName + '</td>' +
                 '<td><button class="join" id="' + room.roomToken + '">Join</button></td>';
             roomsList.insertBefore(tr, roomsList.firstChild);
 

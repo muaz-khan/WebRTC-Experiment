@@ -1,6 +1,6 @@
 ﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
-    It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
-*/
+ It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
+ */
 
 var config = {
     openSocket: function (config) {
@@ -28,7 +28,7 @@ var config = {
         tr.setAttribute('id', room.broadcaster);
         tr.style.fontSize = '.8em';
         tr.innerHTML = '<td>' + room.roomName + '</td>' +
-					   '<td><button class="join" id="' + room.roomToken + '">Join</button></td>';
+            '<td><button class="join" id="' + room.roomToken + '">Join</button></td>';
 
         roomsList.insertBefore(tr, roomsList.firstChild);
 
@@ -102,7 +102,8 @@ if (chatMessage)
 
 var content = [];
 var moz = !!navigator.mozGetUserMedia;
-var lastFileName = ''; /* Direct file blob sharing using Firefox Nightly */
+var lastFileName = '';
+/* Direct file blob sharing using Firefox Nightly */
 
 function onMessageCallback(data) {
     /* if firefox nightly & file blob shared */
@@ -238,10 +239,10 @@ function updateStatus() {
     var uniqueToken = document.getElementById('unique-token');
     if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">You can share this private link with your friends.</a></h2>';
     else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
-        return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
-            return (a ^ Math.random() * 16 >> a / 4).toString(16);
-        });
-    })();
+            return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+                return (a ^ Math.random() * 16 >> a / 4).toString(16);
+            });
+        })();
 })();
 
 function disable(_disable) {

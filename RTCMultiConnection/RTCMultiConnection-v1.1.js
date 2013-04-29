@@ -1,7 +1,7 @@
 /*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
-    2013, Muaz Khan<muazkh>--[github.com/muaz-khan] 
-    
-	https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection */
+ 2013, Muaz Khan<muazkh>--[github.com/muaz-khan]
+
+ https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection */
 
 function RTCMultiConnection(channel) {
     this.channel = channel;
@@ -289,13 +289,17 @@ var RTCPeerConnection = function (options) {
     };
 
     if (!moz) {
-        optional.optional = [{
-            DtlsSrtpKeyAgreement: true
-        }];
+        optional.optional = [
+            {
+                DtlsSrtpKeyAgreement: true
+            }
+        ];
         if (options.onChannelMessage)
-            optional.optional = [{
-                RtpDataChannels: true
-            }];
+            optional.optional = [
+                {
+                    RtpDataChannels: true
+                }
+            ];
     }
 
     var peerConnection = new PeerConnection(iceServers, optional);
@@ -589,20 +593,20 @@ function RTCMultiSession(config) {
             attachStream: config.attachStream,
             onRemoteStream: function (stream) {
                 mediaElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
-				mediaElement.autoplay = true;
-				mediaElement.controls = true;
+                mediaElement.autoplay = true;
+                mediaElement.controls = true;
                 mediaElement.play();
 
                 _config.stream = stream;
                 if (session.isAudio()) {
-                    var videoTracks = _config.stream.getVideoTracks();
-                    var audioTracks = _config.stream.getAudioTracks();
-
-                    if (audioTracks.length == 1 && videoTracks.length == 0) {
-                        mediaElement.muted = false;
-                        mediaElement.volume = 1;
-                        afterRemoteStreamStartedFlowing();
-                    }
+                    mediaElement.addEventListener('play', function () {
+                        setTimeout(function () {
+                            mediaElement.muted = false;
+                            mediaElement.volume = 1;
+                            window.audio = mediaElement;
+                            afterRemoteStreamStartedFlowing();
+                        }, 3000);
+                    }, false);
                 } else
                     onRemoteStreamStartsFlowing();
             },

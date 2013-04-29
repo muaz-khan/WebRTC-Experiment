@@ -234,8 +234,9 @@
 <script>
     //window.username = Math.random() * 9999 << 9999;
 
-    var connection = new RTCMultiConnection('session-id-0123456789-007');
-    connection.session = 'only-data';
+    var connection = new RTCMultiConnection('session-id-0123456789-007', {
+        session: 'only-data'
+    });
 
     var sessionsList = document.getElementById('sessions-list');
     connection.onNewSession = function (session) {
@@ -402,7 +403,7 @@ connection.onopen = function(extra){
 <br/>
 
 <h2><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection"
-                            target="_blank">RTCMultiConnection</a> v1.2</h2>
+       target="_blank">RTCMultiConnection</a> v1.2</h2>
             <pre>
 &lt;script src="<a href="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js" target="_blank">https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js</a>"&gt;&lt;/script&gt;
 </pre>
@@ -410,12 +411,15 @@ connection.onopen = function(extra){
 <br/>
 <br/>
 <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
-                <div>
-                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button>
-            </section>
+    <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+
+    <div>
+        <textarea id="message"
+                  style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;"
+                  placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+    </div>
+    <button id="send-message" style="font-size: 1em;">Send Message</button>
+</section>
 </article>
 <footer>
     <p>

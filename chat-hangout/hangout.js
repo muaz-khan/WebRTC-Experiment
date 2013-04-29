@@ -1,16 +1,16 @@
 ﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
-    It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
-*/
+ It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
+ */
 
 var hangout = function (config) {
     var self = {
-        userToken: uniqueToken(),
-        userName: 'Anonymous'
-    },
+            userToken: uniqueToken(),
+            userName: 'Anonymous'
+        },
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
-		defaultSocket = {}, RTCDataChannels = [];
+        defaultSocket = {}, RTCDataChannels = [];
 
     function openDefaultSocket() {
         defaultSocket = config.openSocket({ onmessage: onDefaultSocketResponse });
@@ -92,9 +92,6 @@ var hangout = function (config) {
                     userToken: self.userToken
                 });
             }
-
-            /* closing subsocket here on the offerer side */
-            if (_config.closeSocket) socket = null;
 
             gotstream = true;
         }
@@ -230,6 +227,7 @@ var hangout = function (config) {
             });
         },
         send: function (message) {
+            console.log('list of data channels', RTCDataChannels);
             var length = RTCDataChannels.length,
                 data = JSON.stringify({
                     message: message,

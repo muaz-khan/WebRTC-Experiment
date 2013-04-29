@@ -1,13 +1,24 @@
 #### Using Socket.io over Node.js for WebRTC Signaling / [Demo](http://webrtc-signaling.jit.su/)
 
-This experiment is using socket.io over node.js for signaling. Follow these steps:
+This experiment is using **socket.io over node.js** for signaling. Follow these steps:
 
-1. Download ZIP file of this repository; extract and then copy `signaler.js` file's `folder-location`
-3. Open **Node.js command prompt**; and type command `cd folder-location` then quickly type `node signaler`
+1. Download **ZIP file** of this repository 
+2. Extract and then copy `folder-location` of the`signaler.js` file
+3. Open **Node.js command prompt**
+4. Type command `cd folder-location`
+5. Type `node signaler`
 
 `http://localhost:8888/` will be auto-opened.
 
-If you want to deploy your application; create an account at `nodejitsu`. After verifying account; in the same **Node.js command prompt** window; type `jitsu deploy` and you're done!
+----
+
+#### If you want to deploy your application
+
+1. Create an account at `nodejitsu`
+2. Use same **Node.js command prompt** window
+3. Type `jitsu deploy` 
+
+and you're done!
 
 ----
 
@@ -36,10 +47,10 @@ Actually, these lines are auto-opening chrome/firefox instances.
 
 In the `static` directory; you can see two files:
 
-1. DataChannel.js
-2. RTCMultiConnection-v1.2.js
+1. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/webrtc-signaling/static/DataChannel.js)
+2. [RTCMultiConnection-v1.2.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/webrtc-signaling/static/RTCMultiConnection-v1.2.js)
 
-These are two libraries; these are modified to work with this project. You must use same files all the time.
+These are two libraries; these are modified to work with this project.
 
 ----
 
@@ -95,8 +106,8 @@ Default port `8888` is used for this experiment. You can manually open this URL,
 
 You need to memorize following points:
 
-1. Same like other WebRTC Experiments; `onmessage` is used to pass data; however `onopen` is not used anywhere.
-2. Instead of using `onopen`; we used `callback`
+1. Same like other WebRTC Experiments; `onmessage` is used to pass data; however `onopen` is skipped.
+2. Instead of using `onopen`; `callback` is used.
 
 For example; in other WebRTC Experiments; we're doing like this:
 
@@ -106,7 +117,7 @@ defaultSocket = config.openSocket({
 });
 ```
 
-But we need to use something like this for current socket.io implementation usage:
+But we need to use something like this for current socket.io implementation:
 
 ```javascript
 defaultSocket = config.openSocket({
@@ -118,8 +129,6 @@ defaultSocket = config.openSocket({
 ```
 
 You can see `callback` additional object.
-
-Second but last change you need to do is here:
 
 ```javascript
 // other firebase specific WebRTC Experiments are using code like this
@@ -147,7 +156,7 @@ var socketConfig = {
 
 And done!
 
-Note: Each WebRTC Experiment has a method named `startBroadcasting` that is invoked by `room initiator`. You just need to use `if-block` to check whether `defaultSocket` is null or not:
+Note: Each WebRTC Experiment has a method named `startBroadcasting` that is invoked by `room initiator`. You just need to use `if-block` to check whether `defaultSocket` is `null` or not:
 
 ```javascript
 if(defaultSocket) defaultSocket.send(...);
@@ -159,7 +168,7 @@ if(defaultSocket) defaultSocket.send(...);
 // openSignalingChannel or openSocket!
 openSignalingChannel: function(config) {
    var URL = '/';
-   var channel = config.channel || location.hash.replace('#', '') || 'one-to-one-video-chat';
+   var channel = config.channel || this.channel || 'one-to-one-video-chat';
    var sender = Math.round(Math.random() * 60535) + 5000;
    
    io.connect(URL).emit('new-channel', {

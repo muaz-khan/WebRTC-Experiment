@@ -19,7 +19,7 @@ var config = {
     onRemoteStream: function (media) {
         var audio = media.audio;
         audio.setAttribute('controls', true);
-		audio.setAttribute('autoplay', true);
+        audio.setAttribute('autoplay', true);
 
         participants.insertBefore(audio, participants.firstChild);
 
@@ -135,10 +135,10 @@ function rotateAudio(audio) {
     var uniqueToken = document.getElementById('unique-token');
     if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
     else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
-        return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
-            return (a ^ Math.random() * 16 >> a / 4).toString(16);
-        });
-    })();
+            return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+                return (a ^ Math.random() * 16 >> a / 4).toString(16);
+            });
+        })();
 })();
 
 /* saving recorded local/remove audio streams */

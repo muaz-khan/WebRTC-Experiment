@@ -72,36 +72,34 @@ var broadcast = function (config) {
                 peerConfig.offerSDP = offerSDP;
                 peerConfig.onAnswerSDP = sendsdp;
             }
-			/* OfferToReceiveVideo MUST be false for audio-only streaming */
-			peerConfig.constraints = {
-				optional: [],
-				mandatory: {
-					OfferToReceiveAudio: true,
-					OfferToReceiveVideo: false
-				}
-			};
+            /* OfferToReceiveVideo MUST be false for audio-only streaming */
+            peerConfig.constraints = {
+                optional: [],
+                mandatory: {
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: false
+                }
+            };
 
             peer = RTCPeerConnection(peerConfig);
         }
 
         function onRemoteStreamStartsFlowing() {
-            var videoTracks = _config.stream.getVideoTracks();
-            var audioTracks = _config.stream.getAudioTracks();
+            audio.addEventListener('play', function () {
+                setTimeout(function () {
+                    audio.muted = false;
+                    audio.volume = 1;
 
-            if (audioTracks.length == 1 && videoTracks.length == 0) {
-                this.muted = false;
-                this.volume = 1;
+                    window.audio = audio;
 
-                gotstream = true;
+                    gotstream = true;
 
-                config.onRemoteStream({
-                    audio: audio,
-                    stream: _config.stream
-                });
-
-                /* closing subsocket here on the offerer side */
-                if (_config.closeSocket) socket = null;
-            }
+                    config.onRemoteStream({
+                        audio: audio,
+                        stream: _config.stream
+                    });
+                }, 3000);
+            }, false);
         }
 
         function sendsdp(sdp) {
@@ -133,10 +131,6 @@ var broadcast = function (config) {
             });
         }
 
-        /*********************/
-        /* socket response */
-        /*********************/
-
         function socketResponse(response) {
             if (response.userToken == self.userToken) return;
             if (response.firstPart || response.secondPart || response.thirdPart) {
@@ -163,9 +157,6 @@ var broadcast = function (config) {
             }
         }
 
-        /*********************/
-        /* socket response */
-        /*********************/
         var invokedOnce = false;
 
         function selfInvoker() {
@@ -198,8 +189,8 @@ var broadcast = function (config) {
         };
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
     }
-	
-	openPublicSocket();
+
+    openPublicSocket();
     return {
         createRoom: function (_config) {
             self.roomName = _config.roomName || 'Anonymous';

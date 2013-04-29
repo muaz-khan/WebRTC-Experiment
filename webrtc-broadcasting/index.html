@@ -164,9 +164,9 @@
             <table class="visible">
                 <tr>
                     <td style="text-align: center;"> <strong>Private broadcast</strong> ??
-                        <a href="https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/" target="_blank" title="Open this link in new tab. Then your broadcasting room will be private!"><code>/webrtc-broadcasting/<strong id="unique-token">#123456789</strong></code>
-
-                        </a>
+                        <h2>
+                            <a href="https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/" target="_blank" title="Open this link in new tab. Then your broadcasting room will be private!"><code>/webrtc-broadcasting/<strong id="unique-token">#123456789</strong></code></a>
+                        </h2>
                     </td>
                 </tr>
             </table>
@@ -175,25 +175,33 @@
 			<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-v1.5.js"></script>
             <script src="https://webrtc-experiment.appspot.com/webrtc-broadcasting/broadcast.js"></script>
             <script src="https://webrtc-experiment.appspot.com/webrtc-broadcasting/broadcast-ui.js"></script>
-             <h2>
-            <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/webrtc-broadcasting/WebRTC-One-Way-Broadcasting.html">Source code on Github!</a>
-        </h2>
-
+            
             <ol>
                 <li>Share your screen in one-way over many peers</li>
                 <li>Share you camera in one-way over many peers</li>
                 <li>Share/transmit your voice in one-way over many peers</li>
             </ol>
-            <table style="width: 100%;">
-                <tr>
-                    <td>
-                        <div>
-                            <textarea id="message" style="height: 8em; width: 100%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                        </div>
-                        <button id="send-message" class="send-message" style="font-size: 1em;">Send Message</button>
-                    </td>
-                </tr>
-            </table>
+
+            <br />
+
+            All users will be able to listen your voice or see your video anonymously; i.e. users who've no camera/microphone attached/installed are still be able to see your broadcasted stream.
+
+            <br /><br />
+
+             <h2>
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/webrtc-broadcasting">Source code on Github!</a>
+            </h2>
+
+            <br /><br />
+            You can use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> for audio/video/screen sharing (i.e. conferencing/broadcasting); it supports multi-sessions establishment on the same page, group text chat and file sharing, auto user presence detection and many other features.
+		    <br /><br />
+            <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
+                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+                <div>
+                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button>
+            </section>
         </article>
         <footer>
             <p>

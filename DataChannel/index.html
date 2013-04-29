@@ -171,7 +171,7 @@
             overflow: auto;
         }
 
-         pre {
+        pre {
             border-left: 2px solid red;
             margin-left: 2em;
             padding-left: 1em;
@@ -189,11 +189,14 @@
 
 <body>
 <article>
-<a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
+<a href="https://webrtc-experiment.appspot.com/"
+   style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑
+    WEBRTC EXPERIMENTS</a>
 
 
-<h1>File Sharing + Text Chat using WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel"
-                                             target="_blank">DataChannel</a>
+<h1>File Sharing + Text Chat using WebRTC <a
+        href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel"
+        target="_blank">DataChannel</a>
 </h1>
 
 <p>
@@ -228,13 +231,16 @@
         </td>
     </tr>
 </table>
+
 <script>
     document.getElementById('channel').value = Math.round(Math.random() * 60535) + 500000;
+</script>
+
+<script>
     var channel = new DataChannel();
 
     channel.firebase = 'webrtc-experiment';
 
-    // [optional] onmessage/onopen is for sending/receiving data/text
     channel.onmessage = function (data) {
         appendDIV(data);
     };
@@ -246,12 +252,12 @@
         if (document.getElementById('init-RTCMultiConnection')) document.getElementById('init-RTCMultiConnection').disabled = true;
     };
 
-    // [optional] onFileProgress/onFileSent/onFileReceived for sharing files
     channel.onFileProgress = function (packets) {
         appendDIV(packets.remaining + ' packets remaining.', fileProgress);
         if (packets.sent) appendDIV(packets.sent + ' packets sent.', fileProgress);
         if (packets.received) appendDIV(packets.received + ' packets received.', fileProgress);
     };
+
     channel.onFileSent = function (file) {
         appendDIV(file.name + ' sent.', fileProgress);
     };
@@ -305,7 +311,8 @@
 <br/>
 <br/>
 
-<h2>Getting started with WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel</a></h2>
+<h2>Getting started with WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel"
+                                   target="_blank">DataChannel</a></h2>
             <pre>
 &lt;script src="<a href="https://webrtc-experiment.appspot.com/DataChannel.js" target="_blank">https://webrtc-experiment.appspot.com/DataChannel.js</a>"&gt;&lt;/script&gt;
 &lt;script&gt;
@@ -409,12 +416,15 @@ Remember, A-to-Z, everything is optional! You can set <strong>channel-name</stro
 <br/>
 <br/>
 <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-            <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
-            <div>
-                <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-            </div>
-            <button id="send-message" style="font-size: 1em;">Send Message</button>
-        </section>
+    <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+
+    <div>
+        <textarea id="message"
+                  style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;"
+                  placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+    </div>
+    <button id="send-message" style="font-size: 1em;">Send Message</button>
+</section>
 </article>
 <footer>
     <p>

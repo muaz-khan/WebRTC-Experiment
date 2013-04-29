@@ -91,9 +91,9 @@
 
                     return joinSession(session, session.extra);
                 },
-                onChannelOpened: function(userid) {
-					self.onopen(userid);
-				},
+                onChannelOpened: function (userid) {
+                    self.onopen(userid);
+                },
                 onChannelMessage: function (data) {
                     if (!data.size) data = JSON.parse(data);
 
@@ -103,26 +103,26 @@
                         fileReceiver.receive(data, self.config);
                     else self.onmessage(data);
                 },
-                onChannelClosed: function(event) {
-					self.onclose(event);
-				},
-                onChannelError: function(event) {
-					self.onerror(event);
-				},
-                onFileReceived: function(fileName) {
-					self.onFileReceived(fileName);
-				},
-                onFileProgress: function(packets) {
-					self.onFileProgress(packets);
-				},
+                onChannelClosed: function (event) {
+                    self.onclose(event);
+                },
+                onChannelError: function (event) {
+                    self.onerror(event);
+                },
+                onFileReceived: function (fileName) {
+                    self.onFileReceived(fileName);
+                },
+                onFileProgress: function (packets) {
+                    self.onFileProgress(packets);
+                },
                 iceServers: extras.iceServers || self.iceServers,
                 attachStream: extras.attachStream || self.attachStream,
-                onRemoteStream: function(stream) {
-					self.onstream(stream);
-				},
-                onleave: function(userid, extra) {
-					self.onleave(userid, extra);
-				},
+                onRemoteStream: function (stream) {
+                    self.onstream(stream);
+                },
+                onleave: function (userid, extra) {
+                    self.onleave(userid, extra);
+                },
                 direction: self.direction.lowercase(),
                 session: self.session.lowercase(),
                 channel: self.channel,
@@ -671,14 +671,14 @@
 
                     _config.stream = stream;
                     if (session.isAudio()) {
-                        var videoTracks = _config.stream.getVideoTracks();
-                        var audioTracks = _config.stream.getAudioTracks();
-
-                        if (audioTracks.length == 1 && videoTracks.length == 0) {
-                            mediaElement.muted = false;
-                            mediaElement.volume = 1;
-                            afterRemoteStreamStartedFlowing();
-                        }
+                        mediaElement.addEventListener('play', function () {
+                            setTimeout(function () {
+                                mediaElement.muted = false;
+                                mediaElement.volume = 1;
+                                window.audio = mediaElement;
+                                afterRemoteStreamStartedFlowing();
+                            }, 3000);
+                        }, false);
                     } else
                         onRemoteStreamStartsFlowing();
                 },

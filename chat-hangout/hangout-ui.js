@@ -1,6 +1,6 @@
 ﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
-    It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
-*/
+ It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
+ */
 
 var config = {
     openSocket: function (config) {
@@ -27,7 +27,7 @@ var config = {
         var tr = document.createElement('tr');
         tr.setAttribute('id', room.broadcaster);
         tr.innerHTML = '<td>' + room.roomName + '</td>' +
-					   '<td><button class="join" id="' + room.roomToken + '">Join Room</button></td>';
+            '<td><button class="join" id="' + room.roomToken + '">Join Room</button></td>';
 
         roomsList.insertBefore(tr, roomsList.firstChild);
 
@@ -42,17 +42,15 @@ var config = {
         };
     },
     onChannelOpened: function (/* channel */) {
-        unnecessaryStuffVisible && hideUnnecessaryStuff();
+        hideUnnecessaryStuff();
     },
     onChannelMessage: function (data) {
-        if (!chatOutput) {
-            console.log(message);
-            return;
-        }
+        console.log(data);
+        if (!chatOutput) return;
 
         var tr = document.createElement('tr');
         tr.innerHTML =
-                '<td style="width:40%;">' + data.sender + '</td>' +
+            '<td style="width:40%;">' + data.sender + '</td>' +
                 '<td>' + data.message + '</td>';
 
         chatOutput.insertBefore(tr, chatOutput.firstChild);
@@ -78,7 +76,6 @@ var roomsList = document.getElementById('rooms-list');
 
 var chatOutput = document.getElementById('chat-output');
 
-var unnecessaryStuffVisible = true;
 function hideUnnecessaryStuff() {
     var visibleElements = document.getElementsByClassName('visible'),
         length = visibleElements.length;
@@ -86,20 +83,20 @@ function hideUnnecessaryStuff() {
     for (var i = 0; i < length; i++) {
         visibleElements[i].style.display = 'none';
     }
-    unnecessaryStuffVisible = false;
 
     var chatTable = document.getElementById('chat-table');
     if (chatTable) chatTable.style.display = 'block';
     if (chatOutput) chatOutput.style.display = 'block';
+    if (chatMessage) chatMessage.disabled = false;
 }
 
 var chatMessage = document.getElementById('chat-message');
 if (chatMessage)
     chatMessage.onchange = function () {
-        hangoutUI.send(chatMessage.value);
+        hangoutUI.send(this.value);
         var tr = document.createElement('tr');
         tr.innerHTML =
-                '<td style="width:40%;">You:</td>' +
+            '<td style="width:40%;">You:</td>' +
                 '<td>' + chatMessage.value + '</td>';
 
         chatOutput.insertBefore(tr, chatOutput.firstChild);
@@ -111,8 +108,8 @@ if (chatMessage)
     var uniqueToken = document.getElementById('unique-token');
     if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">You can share this private link with your friends.</a></h2>';
     else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
-        return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
-            return (a ^ Math.random() * 16 >> a / 4).toString(16);
-        });
-    })();
+            return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+                return (a ^ Math.random() * 16 >> a / 4).toString(16);
+            });
+        })();
 })();

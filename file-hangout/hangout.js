@@ -1,12 +1,12 @@
 ﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
-    It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
-*/
+ It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
+ */
 
 var hangout = function (config) {
     var self = {
-        userToken: uniqueToken(),
-        userName: 'Anonymous'
-    },
+            userToken: uniqueToken(),
+            userName: 'Anonymous'
+        },
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true;
