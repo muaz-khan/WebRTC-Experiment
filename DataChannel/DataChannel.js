@@ -19,7 +19,7 @@
 
         this.channels = {};
         this.onopen = function (userid) {
-            self.send(userid, 'is connected with you.');
+            self.send('is connected with you.');
         };
 
         this.onclose = function (event) {
@@ -192,18 +192,6 @@
             prepareInit(init);
         };
 
-        if (this.automatic) {
-            this.connect();
-            this.onDefaultSocketOpened = function () {
-                if (self.isDefaultSocketOpened) return;
-                self.isDefaultSocketOpened = true;
-
-                if (!self.joinedARoom) setTimeout(function () {
-                    if (!self.joinedARoom) self.open();
-                }, 1500);
-            };
-        }
-
         this.send = function (data, _channel) {
             if (!data) throw 'No file, data or text message to share.';
             if (data.size)
@@ -235,6 +223,23 @@
         this.leave = function (userid) {
             dataConnector.leave(userid);
         };
+        
+        for (var extra in extras) {
+          this[extra] = extras[extra];
+        }
+
+        if (this.automatic) {
+            this.connect();
+            this.onDefaultSocketOpened = function () {
+                if (self.isDefaultSocketOpened) return;
+                self.isDefaultSocketOpened = true;
+  
+                if (!self.joinedARoom) setTimeout(function () {
+                    if (!self.joinedARoom) self.open();
+                }, 1500);
+            };
+        }
+
     };
 
     window.moz = !!navigator.mozGetUserMedia;
