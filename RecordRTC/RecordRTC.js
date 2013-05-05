@@ -63,7 +63,7 @@ function RecordRTC(config) {
         }
     }
 
-    var AudioContext = win.webkitAudioContext,
+    var AudioContext = win.webkitAudioContext, mediaStreamSource,
         recorder, audioContext;
 
     function recordAudio() {
@@ -73,22 +73,23 @@ function RecordRTC(config) {
         }
         initAudioRecorder(config.audioWorkerPath);
         audioContext = new AudioContext;
-        var mediaStreamSource = audioContext.createMediaStreamSource(config.stream);
-
+		
+        mediaStreamSource = audioContext.createMediaStreamSource(config.stream);
         mediaStreamSource.connect(audioContext.destination);
         recorder = new window.Recorder(mediaStreamSource);
 
-        recorder && recorder.record();
+        recorder.record();
     }
 
     function stopAudioRecording(callback) {
+		if(!recorder) return;
         console.warn('stopped recording audio frames');
-        recorder && recorder.stop();
-        recorder && recorder.exportWAV(function (blob) {
+        recorder.stop();
+        recorder.exportWAV(function (blob) {
             fileType = 'wav';
             setBlob(blob, callback);
         });
-        recorder && recorder.clear();
+        recorder.clear();
     }
 
     var fileSystemURL;
@@ -242,6 +243,7 @@ function initAudioRecorder(audioWorkerPath) {
         var bufferLen = config.bufferLen || 4096;
         this.context = source.context;
         this.node = this.context.createJavaScriptNode(bufferLen, 2, 2);
+		
         var worker = new Worker(config.workerPath || WORKER_PATH);
         worker.postMessage({
             command: 'init',
@@ -254,20 +256,18 @@ function initAudioRecorder(audioWorkerPath) {
 
         this.node.onaudioprocess = function (e) {
             if (!recording) return;
-            worker.postMessage({
-                command: 'record',
-                buffer: [
-                    e.inputBuffer.getChannelData(0),
-                    e.inputBuffer.getChannelData(1)]
-            });
-        };
-
-        this.configure = function (_cfg) {
-            for (var prop in _cfg) {
-                if (_cfg.hasOwnProperty(prop)) {
-                    config[prop] = _cfg[prop];
-                }
-            }
+			
+			var buffer = [
+					e.inputBuffer.getChannelData(0),
+					e.inputBuffer.getChannelData(1)
+				];
+				
+				worker.postMessage({
+					command: 'record',
+					buffer: buffer
+				});
+				
+				console.log('pushing buffers', buffer[0], buffer[1]);
         };
 
         this.record = function () {

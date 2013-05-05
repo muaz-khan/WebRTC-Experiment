@@ -143,13 +143,20 @@
         audio, video {
             vertical-align: bottom;
         }
+
+         pre {
+            border-left: 2px solid red;
+            margin-left: 2em;
+            padding-left: 1em;
+        }
     </style>
     <!-- for HTML5 el styling -->
     <script>
         document.createElement('article');
         document.createElement('footer');
     </script>
-    <script src="https://webrtc-experiment.appspot.com/RecordRTC.js"></script>
+    
+	<script src="https://webrtc-experiment.appspot.com/RecordRTC.js"></script>
     <script src="https://webrtc-experiment.appspot.com/audio-recorder.js"></script>
 </head>
 
@@ -176,7 +183,8 @@
 </p>
 
 <div>
-    <audio id="client-audio" autoplay loop controls muted></audio>
+    <audio id="client-audio" autoplay loop controls muted style="display:none;"></audio>
+	<h2>Record your voice!</h2>
     <button id="record-audio">Record Audio</button>
     <button id="stop-recording-audio" disabled>Stop Recording Audio</button>
     <h2 id="audio-url-preview"></h2>
@@ -224,6 +232,7 @@
 
     recordAudio.onclick = function () {
         if (!audioStream) navigator.webkitGetUserMedia(audioConstraints, function (stream) {
+			stream = new webkitMediaStream(stream.getAudioTracks());
             playAudio(stream);
 
             audioStream = stream;
@@ -244,11 +253,15 @@
     };
 
     function playAudio(stream) {
+		/*
         audio.src = window.webkitURL.createObjectURL(stream);
         audio.addEventListener('play', function () {
-            this.muted = false;
-            this.volume = 1;
+            setTimeout(function() {
+				audio.muted = false;
+				audio.volume = 1;
+			}, 3000);
         }, false);
+		*/
     }
 
     recordVideo.onclick = function () {
@@ -296,7 +309,7 @@
 
             <pre>
 &lt;script src="https://webrtc-experiment.appspot.com/RecordRTC.js"&gt;&lt;/script&gt;
-            </pre>
+</pre>
 
 <h2>How to record video using RecordRTC?</h2>
 
@@ -312,7 +325,7 @@ recorder.recordVideo();
 recorder.stopVideo(function(recordedFileURL) {
    window.open(recordedFileURL);
 });
-            </pre>
+</pre>
 
 <h2>How to record audio using RecordRTC?</h2>
             <pre>
@@ -327,7 +340,7 @@ recorder.recordAudio();
 recorder.stopAudio(function(recordedFileURL) {
    window.open(recordedFileURL);
 });
-            </pre>
+</pre>
 
 
 <br/><br/>
@@ -378,17 +391,13 @@ Click <code>Save to Disk</code> button; new tab will open; right-click over vide
 </h2>
 <br/>
 <br/>
-<table style="width: 100%;">
-    <tr>
-        <td>
-            <div>
-                <textarea id="message" style="height: 8em; width: 100%;"
-                          placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-            </div>
-            <button id="send-message" class="send-message" style="font-size: 1em;">Send Message</button>
-        </td>
-    </tr>
-</table>
+<section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
+                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+                <div>
+                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button>
+            </section>
 </article>
 <footer>
     <p>
@@ -400,6 +409,7 @@ Click <code>Save to Disk</code> button; new tab will open; right-click over vide
         <a href="https://github.com/muaz-khan" target="_blank">Github</a>
     </p>
 </footer>
+
 <script src="https://webrtc-experiment.appspot.com/common.js"></script>
 </body>
 </html>

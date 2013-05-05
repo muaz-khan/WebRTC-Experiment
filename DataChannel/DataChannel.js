@@ -19,7 +19,7 @@
 
         this.channels = {};
         this.onopen = function (userid) {
-            self.send('is connected with you.');
+            console.debug(userid, 'is connected with you.');
         };
 
         this.onclose = function (event) {
@@ -45,7 +45,6 @@
         function prepareInit(callback) {
             if (extras.openSignalingChannel) self.openSignalingChannel = extras.openSignalingChannel;
             if (!self.openSignalingChannel) {
-
                 if (typeof extras.transmitRoomOnce == 'undefined') extras.transmitRoomOnce = true;
 
                 self.openSignalingChannel = function (config) {
@@ -56,12 +55,7 @@
                     socket.channel = channel;
 
                     socket.on('child_added', function (data) {
-                        var value = data.val();
-
-                        if (value == 'open-default-socket') {
-                            self.onDefaultSocketOpened && self.onDefaultSocketOpened();
-                        }
-                        else config.onmessage(value);
+                        config.onmessage(data.val());
                     });
 
                     socket.send = function (data) {
@@ -80,28 +74,10 @@
                 if (!window.Firebase) {
                     var script = document.createElement('script');
                     script.src = 'https://cdn.firebase.com/v0/firebase.js';
-                    script.onload = function () {
-                        callback();
-                        verifySocketConnection();
-                    };
+                    script.onload = callback;
                     document.documentElement.appendChild(script);
-                } else {
-                    callback();
-                    verifySocketConnection();
-                }
-            } else {
-                callback();
-                verifySocketConnection();
-            }
-        }
-
-        function verifySocketConnection() {
-            if (window.Firebase) {
-                new window.Firebase('https://' + (extras.firebase || self.firebase || 'chat') + '.firebaseIO.com/.info/connected').on('value', function (snap) {
-                    if (snap.val() === true && self.socket) self.socket.send('open-default-socket');
-                });
-            }
-            else if (self.onDefaultSocketOpened) self.onDefaultSocketOpened();
+                } else callback();
+            } else callback();
         }
 
         function init() {
@@ -112,6 +88,11 @@
                     return self.openSignalingChannel(config);
                 },
                 onRoomFound: function (room) {
+                    if (!dataConnector) {
+                        self.room = room;
+                        return;
+                    }
+
                     if (self.joinedARoom) return;
                     self.joinedARoom = true;
 
@@ -162,7 +143,7 @@
                 onleave: function (userid) {
                     self.onleave(userid);
                 },
-                transmitRoomOnce: !!extras.transmitRoomOnce
+                transmitRoomOnce: !! extras.transmitRoomOnce
             };
 
             dataConnector = IsDataChannelSupported ?
@@ -171,6 +152,8 @@
 
             fileReceiver = new FileReceiver();
             textReceiver = new TextReceiver();
+
+            if (self.room) self.config.onRoomFound(self.room);
         }
 
         this.open = function (_channel) {
@@ -223,26 +206,39 @@
         this.leave = function (userid) {
             dataConnector.leave(userid);
         };
-        
+
         for (var extra in extras) {
-          this[extra] = extras[extra];
+            this[extra] = extras[extra];
         }
 
-        if (this.automatic) {
-            this.connect();
-            this.onDefaultSocketOpened = function () {
-                if (self.isDefaultSocketOpened) return;
-                self.isDefaultSocketOpened = true;
-  
-                if (!self.joinedARoom) setTimeout(function () {
-                    if (!self.joinedARoom) self.open();
-                }, 1500);
-            };
-        }
+        this.openNewSession = function (isOpenNewSession, isNonFirebaseClient) {
+            if (isOpenNewSession) {
+                if (self.isNewSessionOpened) return;
+                self.isNewSessionOpened = true;
 
+                if (!self.joinedARoom) self.open();
+            }
+
+            if (!isOpenNewSession || isNonFirebaseClient) self.connect();
+
+            // for non-firebase clients
+            if (isNonFirebaseClient) setTimeout(function () {
+                    self.openNewSession(true);
+                }, 5000);
+        };
+
+        if (self.automatic) {
+            if (window.Firebase) {
+                console.debug('about to check presence of a room');
+                new window.Firebase('https://' + (extras.firebase || self.firebase || 'chat') + '.firebaseIO.com/' + self.channel).once('value', function (data) {
+                    console.debug('room is present? ', data.val() != null);
+                    self.openNewSession(data.val() == null);
+                });
+            } else self.openNewSession(false, true);
+        }
     };
 
-    window.moz = !!navigator.mozGetUserMedia;
+    window.moz = !! navigator.mozGetUserMedia;
     window.IsDataChannelSupported = !((moz && !navigator.mozGetUserMedia) || (!moz && !navigator.webkitGetUserMedia));
 
     function RTCPeerConnection(options) {
@@ -252,8 +248,7 @@
             IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
         var iceServers = {
-            iceServers: [
-                {
+            iceServers: [{
                     url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
                 }
             ]
@@ -264,8 +259,7 @@
         };
 
         if (!moz) {
-            optional.optional = [
-                {
+            optional.optional = [{
                     RtpDataChannels: true
                 }
             ];
@@ -284,8 +278,8 @@
         var constraints = options.constraints || {
             optional: [],
             mandatory: {
-                OfferToReceiveAudio: !!moz,
-                OfferToReceiveVideo: !!moz
+                OfferToReceiveAudio: !! moz,
+                OfferToReceiveVideo: !! moz
             }
         };
 
@@ -336,8 +330,8 @@
             channel = peerConnection.createDataChannel(
                 options.channel || 'RTCDataChannel',
                 moz ? {} : {
-                    reliable: false
-                });
+                reliable: false
+            });
             if (moz) channel.binaryType = 'blob';
             setChannelEvents();
         }
@@ -378,8 +372,7 @@
             }
         }
 
-        function useless() {
-        }
+        function useless() {}
 
         return {
             addAnswerSDP: function (sdp) {
@@ -403,10 +396,10 @@
 
     function DataConnector(config) {
         var self = {
-                userToken: uniqueToken(),
-                sockets: [],
-                socketObjects: {}
-            },
+            userToken: uniqueToken(),
+            sockets: [],
+            socketObjects: {}
+        },
             channels = '--',
             isbroadcaster,
             isGetNewRoom = true,
@@ -488,7 +481,9 @@
             }
 
             function onChannelOpened(channel) {
+                channel.peer = peer.peer;
                 RTCDataChannels[RTCDataChannels.length] = channel;
+
                 if (config.onChannelOpened) config.onChannelOpened(_config.userid, channel);
 
                 if (config.direction === 'many-to-many' && isbroadcaster && channels.split('--').length > 3) {
@@ -643,7 +638,13 @@
                 for (i = 0; i < length; i++) {
                     var _channel = RTCDataChannels[i];
                     if (_channel) {
-                        _channel.close();
+                        // closing peer connnections instead of just data channels!
+                        var peer = _channel.peer;
+                        if (peer) {
+                            peer.close();
+                            peer = null;
+                        }
+                        // if(_channel) _channel.close();
                         delete RTCDataChannels[i];
                     }
                 }
@@ -711,7 +712,7 @@
 
                 if (_channel) _channel.send(data);
                 else for (var i = 0; i < length; i++)
-                    _channels[i].send(data);
+                        _channels[i].send(data);
             },
             leave: function (userid) {
                 leaveChannels(userid);
@@ -880,7 +881,7 @@
             var channel = config.channel,
                 _channel = config._channel,
                 initialText = config.text,
-                packetSize = 1000 /* chars */,
+                packetSize = 1000 /* chars */ ,
                 textToTransfer = '',
                 isobject = false;
 
