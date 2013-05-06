@@ -2,12 +2,11 @@
 
 var config = {
     openSocket: function (config) {
-        if (!window.Firebase) return;
         var channel = config.channel || location.hash.replace('#', '') || 'audio-only-calls';
         var socket = new Firebase('https://webrtc-experiment.firebaseIO.com/' + channel);
         socket.channel = channel;
-        socket.on("child_added", function (data) {
-            config.onmessage && config.onmessage(data.val());
+        socket.on('child_added', function (data) {
+            config.onmessage(data.val());
         });
         socket.send = function (data) {
             this.push(data);
@@ -28,7 +27,7 @@ var config = {
 
         if (saveRecordedStreams) saveRecordedStreams.style.display = '';
 
-        /* recording remote stream */
+        /* recording remote stream using RecordRTC */
         if (typeof remoteStreamRecorder === 'undefined') window.remoteStreamRecorder = null;
         remoteStreamRecorder = RecordRTC({
             stream: media.stream
@@ -45,14 +44,14 @@ var config = {
 
         var tr = document.createElement('tr');
         tr.setAttribute('id', room.broadcaster);
-        tr.innerHTML = '<td style="width:80%;">' + room.roomName + ' is calling you!</td>' +
+        tr.innerHTML = '<td>' + room.roomName + ' is calling you!</td>' +
             '<td><button class="join" id="' + room.roomToken + '">Receive Call</button></td>';
         roomsList.insertBefore(tr, roomsList.firstChild);
 
         tr.onclick = function () {
             var tr = this;
             captureUserMedia(function () {
-                broadcastUI.joinRoom({
+                callerUI.joinRoom({
                     roomToken: tr.querySelector('.join').id,
                     joinUser: tr.id
                 });
@@ -64,8 +63,8 @@ var config = {
 
 function createButtonClickHandler() {
     captureUserMedia(function () {
-        broadcastUI.createRoom({
-            roomName: (document.getElementById('your-name') || {}).value || 'Anonymous'
+        callerUI.createRoom({
+            roomName: (document.getElementById('caller-name') || {}).value || 'Anonymous'
         });
     });
     hideUnnecessaryStuff();
@@ -89,7 +88,7 @@ function captureUserMedia(callback) {
             audio.setAttribute('muted', true);
             rotateAudio(audio);
 
-            // recording local stream
+            // recording local stream using RecordRTC
             if (typeof localStreamRecorder === 'undefined') window.localStreamRecorder = null;
             localStreamRecorder = RecordRTC({
                 stream: stream
@@ -100,21 +99,46 @@ function captureUserMedia(callback) {
             callback && callback();
         },
         onerror: function () {
-            alert('unable to get access to your headphone (microphone).');
+            alert('unable to get access to your microphone.');
         }
     });
 }
 
 /* on page load: get public rooms */
-var broadcastUI = broadcast(config);
+var callerUI = CallInitiator(config);
 
 /* UI specific */
 var participants = document.getElementById("participants") || document.body;
-var startConferencing = document.getElementById('start-audio-only-call');
+var call = document.getElementById('start-calling');
 var roomsList = document.getElementById('rooms-list');
 var saveRecordedStreams = document.getElementById('save-recorded-streams');
 
-if (startConferencing) startConferencing.onclick = createButtonClickHandler;
+if (call) call.onclick = createButtonClickHandler;
+
+/* saving recorded local/remove audio streams */
+
+var saveRemoteStream = document.getElementById('save-remote-stream'),
+    saveLocalStream = document.getElementById('save-local-stream');
+
+if (saveRemoteStream) saveRemoteStream.onclick = function () {
+    if (remoteStreamRecorder) remoteStreamRecorder.stopAudio(insertRecordedFileURL);
+    this.parentNode.removeChild(this);
+};
+
+if (saveLocalStream) saveLocalStream.onclick = function () {
+    if (localStreamRecorder) localStreamRecorder.stopAudio(insertRecordedFileURL);
+    this.parentNode.removeChild(this);
+};
+
+var remoteStreamRecorder, localStreamRecorder;
+
+function insertRecordedFileURL(recordedFileURL) {
+	roomsList.style.display = '';
+	
+	var tr = document.createElement('tr');
+	tr.innerHTML = '<td>Open/Save recorded audio file</td><td><a href="' + recordedFileURL + '" target="_blank">OPEN</a></td>';
+	roomsList.insertBefore(tr, roomsList.firstChild);
+}
 
 function hideUnnecessaryStuff() {
     var visibleElements = document.getElementsByClassName('visible'),
@@ -133,35 +157,10 @@ function rotateAudio(audio) {
 
 (function () {
     var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<input type=text value="' + location.href + '" style="width:100%;text-align:center;" title="You can share this private link with your friends.">';
+    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">You can share this private link with your friends.</a></h2>';
     else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
-            return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
-                return (a ^ Math.random() * 16 >> a / 4).toString(16);
-            });
-        })();
+        return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
+            return (a ^ Math.random() * 16 >> a / 4).toString(16);
+        });
+    })();
 })();
-
-/* saving recorded local/remove audio streams */
-
-var saveRemoteStream = document.getElementById('save-remote-stream'),
-    saveLocalStream = document.getElementById('save-local-stream');
-
-if (saveRemoteStream) saveRemoteStream.onclick = function () {
-    if (remoteStreamRecorder) {
-        remoteStreamRecorder.stopAudio();
-        setTimeout(remoteStreamRecorder.save, 1000);
-    }
-    this.parentNode.removeChild(this);
-};
-
-if (saveLocalStream) saveLocalStream.onclick = function () {
-    if (localStreamRecorder) {
-        localStreamRecorder.stopAudio();
-        setTimeout(localStreamRecorder.save, 1000);
-    }
-    this.parentNode.removeChild(this);
-};
-
-/* setting worker file URL */
-var remoteStreamRecorder, localStreamRecorder;
-var audioWorkerPath = '/dependencies/audio-recorder.js';

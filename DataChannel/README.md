@@ -65,6 +65,19 @@ channel.leave();        // close your own entire data session
 channel.onleave = function(userid) { };
 ```
 
+#### Auto Close Entire Session
+
+When room initiator leaves; you can enforce auto-closing of the entire session. By default: it is `false`:
+
+```javascript
+channel.autoCloseEntireSession = true;
+
+// or 
+new DataChannel('channel-name', {
+    autoCloseEntireSession: true
+});
+```
+
 ----
 
 #### To Share files

@@ -4,12 +4,11 @@
 
 var config = {
     openSocket: function (config) {
-        if (!window.Firebase) return;
         var channel = config.channel || location.hash.replace('#', '') || 'chat-hangout';
         var socket = new Firebase('https://rtcweb.firebaseIO.com/' + channel);
         socket.channel = channel;
-        socket.on("child_added", function (data) {
-            config.onmessage && config.onmessage(data.val());
+        socket.on('child_added', function (data) {
+            config.onmessage(data.val());
         });
         socket.send = function (data) {
             this.push(data);

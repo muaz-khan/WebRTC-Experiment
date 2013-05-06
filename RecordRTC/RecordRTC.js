@@ -63,7 +63,8 @@ function RecordRTC(config) {
         }
     }
 
-    var AudioContext = win.webkitAudioContext, mediaStreamSource,
+    var AudioContext = win.webkitAudioContext,
+        mediaStreamSource,
         recorder, audioContext;
 
     function recordAudio() {
@@ -73,7 +74,7 @@ function RecordRTC(config) {
         }
         initAudioRecorder(config.audioWorkerPath);
         audioContext = new AudioContext;
-		
+
         mediaStreamSource = audioContext.createMediaStreamSource(config.stream);
         mediaStreamSource.connect(audioContext.destination);
         recorder = new window.Recorder(mediaStreamSource);
@@ -82,7 +83,7 @@ function RecordRTC(config) {
     }
 
     function stopAudioRecording(callback) {
-		if(!recorder) return;
+        if (!recorder) return;
         console.warn('stopped recording audio frames');
         recorder.stop();
         recorder.exportWAV(function (blob) {
@@ -198,24 +199,24 @@ function RecordRTCFileWriter(config) {
         var msg = '';
 
         switch (e.code) {
-            case FileError.QUOTA_EXCEEDED_ERR:
-                msg = 'QUOTA_EXCEEDED_ERR';
-                break;
-            case FileError.NOT_FOUND_ERR:
-                msg = 'NOT_FOUND_ERR';
-                break;
-            case FileError.SECURITY_ERR:
-                msg = 'SECURITY_ERR';
-                break;
-            case FileError.INVALID_MODIFICATION_ERR:
-                msg = 'INVALID_MODIFICATION_ERR';
-                break;
-            case FileError.INVALID_STATE_ERR:
-                msg = 'INVALID_STATE_ERR';
-                break;
-            default:
-                msg = 'Unknown Error';
-                break;
+        case FileError.QUOTA_EXCEEDED_ERR:
+            msg = 'QUOTA_EXCEEDED_ERR';
+            break;
+        case FileError.NOT_FOUND_ERR:
+            msg = 'NOT_FOUND_ERR';
+            break;
+        case FileError.SECURITY_ERR:
+            msg = 'SECURITY_ERR';
+            break;
+        case FileError.INVALID_MODIFICATION_ERR:
+            msg = 'INVALID_MODIFICATION_ERR';
+            break;
+        case FileError.INVALID_STATE_ERR:
+            msg = 'INVALID_STATE_ERR';
+            break;
+        default:
+            msg = 'Unknown Error';
+            break;
         }
 
         errorMessage = msg;
@@ -234,6 +235,7 @@ function RecordRTCFileWriter(config) {
 }
 
 /* https://github.com/mattdiamond/Recorderjs */
+
 function initAudioRecorder(audioWorkerPath) {
 
     var WORKER_PATH = audioWorkerPath || 'https://webrtc-experiment.appspot.com/audio-recorder.js';
@@ -243,7 +245,7 @@ function initAudioRecorder(audioWorkerPath) {
         var bufferLen = config.bufferLen || 4096;
         this.context = source.context;
         this.node = this.context.createJavaScriptNode(bufferLen, 2, 2);
-		
+
         var worker = new Worker(config.workerPath || WORKER_PATH);
         worker.postMessage({
             command: 'init',
@@ -256,18 +258,16 @@ function initAudioRecorder(audioWorkerPath) {
 
         this.node.onaudioprocess = function (e) {
             if (!recording) return;
-			
-			var buffer = [
-					e.inputBuffer.getChannelData(0),
-					e.inputBuffer.getChannelData(1)
-				];
-				
-				worker.postMessage({
-					command: 'record',
-					buffer: buffer
-				});
-				
-				console.log('pushing buffers', buffer[0], buffer[1]);
+
+            var buffer = [
+                e.inputBuffer.getChannelData(0),
+                e.inputBuffer.getChannelData(1)
+            ];
+
+            worker.postMessage({
+                command: 'record',
+                buffer: buffer
+            });
         };
 
         this.record = function () {

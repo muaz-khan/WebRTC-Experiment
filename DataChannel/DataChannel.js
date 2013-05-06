@@ -3,6 +3,7 @@
 
  https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
  */
+ 
 (function () {
     window.DataChannel = function (channel, extras) {
         if (channel) this.automatic = true;
@@ -130,13 +131,13 @@
                 onChannelClosed: function (event) {
                     var myChannels = self.channels,
                         closedChannel = event.currentTarget;
-                    
+
                     for (var userid in myChannels) {
-                      if (closedChannel === myChannels[userid].channel) {
-                        delete myChannels[userid];
-                      }
+                        if (closedChannel === myChannels[userid].channel) {
+                            delete myChannels[userid];
+                        }
                     }
-                    
+
                     self.onclose(event);
                 },
                 onChannelError: function (event) {
@@ -152,7 +153,9 @@
                 onleave: function (userid) {
                     self.onleave(userid);
                 },
-                transmitRoomOnce: !! extras.transmitRoomOnce
+                transmitRoomOnce: !! extras.transmitRoomOnce,
+                autoCloseEntireSession: typeof self.autoCloseEntireSession == 'undefined' ? false : self.autoCloseEntireSession,
+                connection: self
             };
 
             dataConnector = IsDataChannelSupported ?
@@ -245,6 +248,16 @@
                 });
             } else self.openNewSession(false, true);
         }
+    };
+
+    Array.prototype.swap = function () {
+        var swapped = [],
+            arr = this,
+            length = arr.length;
+        for (var i = 0; i < length; i++) {
+            if (arr[i]) swapped[swapped.length] = arr[i];
+        }
+        return swapped;
     };
 
     window.moz = !! navigator.mozGetUserMedia;
@@ -447,8 +460,9 @@
                 onopen: function () {
                     if (isofferer && !peer) initPeer();
 
+                    _config.socketIndex = socket.index = self.sockets.length;
                     self.socketObjects[socketConfig.channel] = socket;
-                    self.sockets[self.sockets.length] = socket;
+                    self.sockets[_config.socketIndex] = socket;
                 }
             };
 
@@ -488,13 +502,13 @@
 
                 peer = RTCPeerConnection(peerConfig);
             }
-            
+
             function onChannelClosed(event) {
-              var idx = RTCDataChannels.indexOf(event.currentTarget);
-              if (idx != -1)
-                RTCDataChannels.splice(idx, 1);
-              
-              if (config.onChannelClosed) config.onChannelClosed(event);              
+                var idx = RTCDataChannels.indexOf(event.currentTarget);
+                if (idx != -1)
+                    RTCDataChannels.splice(idx, 1);
+
+                if (config.onChannelClosed) config.onChannelClosed(event);
             }
 
             function onChannelOpened(channel) {
@@ -592,6 +606,12 @@
 
                     if (config.onleave) config.onleave(response.userToken);
                 }
+
+                if (response.playRoleOfBroadcaster) setTimeout(function () {
+                        self.roomToken = response.roomToken;
+                        config.connection.open(self.roomToken);
+                        self.sockets = self.sockets.swap();
+                    }, 600);
             }
 
             var invokedOnce = false;
@@ -636,7 +656,14 @@
             };
 
             // if room initiator is leaving the room; close the entire session
-            if (isbroadcaster) alert.closeEntireSession = true;
+            if (isbroadcaster) {
+                if (config.autoCloseEntireSession) alert.closeEntireSession = true;
+                else self.sockets[0].send({
+                        playRoleOfBroadcaster: true,
+                        userToken: self.userToken,
+                        roomToken: self.roomToken
+                    });
+            }
 
             if (!channel) {
                 // closing all sockets
@@ -644,23 +671,33 @@
                     length = sockets.length;
 
                 for (var i = 0; i < length; i++) {
-                    if (sockets[i]) {
-                        sockets[i].send(alert);
+                    var socket = sockets[i];
+                    if (socket) {
+                        socket.send(alert);
+
+                        if (self.socketObjects[socket.channel])
+                            delete self.socketObjects[socket.channel];
+
                         delete sockets[i];
                     }
                 }
-        
+
                 that.left = true;
             }
 
             // eject a specific user!
             if (channel) {
-                var socket = self.socketObjects[channel];
+                socket = self.socketObjects[channel];
                 if (socket) {
                     socket.send(alert);
+
+                    if (self.sockets[socket.index])
+                        delete self.sockets[socket.index];
+
                     delete self.socketObjects[channel];
                 }
             }
+            self.sockets = self.sockets.swap();
         }
 
         var that = this;
@@ -713,8 +750,7 @@
                 else data = JSON.stringify(message);
 
                 if (_channel) _channel.send(data);
-                else for (var i = 0; i < length; i++)
-                        _channels[i].send(data);
+                else for (var i = 0; i < length; i++) _channels[i].send(data);
             },
             leave: function (userid) {
                 leaveChannels(userid);

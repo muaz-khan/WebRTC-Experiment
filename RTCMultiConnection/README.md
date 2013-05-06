@@ -40,6 +40,29 @@ connection.connect('session-id');
 
 ----
 
+#### Detect users presence
+
+```javascript
+connection.onleave = function(userid, extra) {
+    // remove user's video using his user-id
+    // console.log(extra.username, 'left you sir!');
+};
+```
+
+#### Eject any user or close your own session
+
+```javascript
+connection.leave(userid); // throw a user out of your room!
+connection.leave();       // close your own entire session
+```
+
+Following things will happen if you are a room owner and you tried to close your session using `connection.leave()`:
+
+1. The entire session (i.e. all peers, sockets and ports) will be closed. (from each and every user's side)
+2. All participants will be alerted about room owner's (i.e. yours) action. Videos from each user's side will be auto removed.
+
+Note: RTCMultiConnection.js will never "auto" reinitiate the session.
+
 #### Manual session establishment
 
 ```javascript
@@ -82,28 +105,18 @@ connection.onstream = function(stream){
 };
 ```
 
-#### Detect users presence
+#### Auto Close Entire Session
+
+When room initiator leaves; you can enforce auto-closing of the entire session. By default: it is `false`:
 
 ```javascript
-connection.onUserLeft = function(userid, extra) {
-    // remove user's video using his user-id
-    // console.log(extra.username, 'left you sir!');
-};
+connection.autoCloseEntireSession = true;
+
+// or 
+new RTCMultiConnection('session-id', {
+    autoCloseEntireSession: true
+});
 ```
-
-#### Eject any user or close your own session
-
-```javascript
-connection.leave(userid); // throw a user out of your room!
-connection.leave();       // close your own entire session
-```
-
-Following things will happen if you are a room owner and you tried to close your session using `connection.leave()`:
-
-1. The entire session (i.e. all peers, sockets and ports) will be closed. (from each and every user's side)
-2. All participants will be alerted about room owner's (i.e. yours) action. Videos from each user's side will be auto removed.
-
-Note: RTCMultiConnection.js will never "auto" reinitiate the session.
 
 ----
 
