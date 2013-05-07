@@ -1,24 +1,18 @@
 #### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) : A JavaScript wrapper library for RTCWeb/RTCDataChannel APIs
 
-RTCMultiConnection's syntax is simple to use. It is useful in each and every WebRTC application.
-
-It can help you write file sharing applications along with screen sharing and audio/video conferencing applications — in minutes.
+RTCMultiConnection.js a javascript library supports features like audio/video conferencing; (one-way and one-to-many) broadcasting; screen sharing; data/text/file sharing (of any size); multi-and-manual sessions establishment; users ejection, rejection and presence detection; and more. It automatically keeps session "active" all the time; even if initiator leaves.
 
 #### Features
 
-1. You can open multi-sessions and multi-connections — in the same page
-2. You can share files of any size — directly
-3. You can share text messages of any length
-4. You can share one-stream in many unique ways — in the same page
-5. Supports manual session establishment
-6. Supports extra data transmission
-7. Supports users ejection and presence detection
+1. Users ejection, rejection and presence detection support
+2. Multi-sessions establishment as well as manual-sessions establishment
+3. Sessions will be active all the time; even if initiator leaves!
+4. Data i.e. Text/File sharing (of any size)
+5. Screen sharing, audio-video conferencing; file sharing and one-way broadcasting
 
 "Users Ejection" means you can eject (i.e. throw) any user out of the room — any time!
 
 ----
-
-Syntax of **RTCMultiConnection.js** is same like **WebSockets**.
 
 #### First Step: Link the library
 
@@ -53,56 +47,7 @@ connection.onleave = function(userid, extra) {
 
 ```javascript
 connection.leave(userid); // throw a user out of your room!
-connection.leave();       // close your own entire session
-```
-
-Following things will happen if you are a room owner and you tried to close your session using `connection.leave()`:
-
-1. The entire session (i.e. all peers, sockets and ports) will be closed. (from each and every user's side)
-2. All participants will be alerted about room owner's (i.e. yours) action. Videos from each user's side will be auto removed.
-
-Note: RTCMultiConnection.js will never "auto" reinitiate the session.
-
-#### Manual session establishment
-
-```javascript
-// Pass "session-id" only-over the constructor
-var connection = new RTCMultiConnection('session-id');
-
-// When calling "open" method; pass an argument like this
-connection.open({
-    // "extra" object allows you pass extra data like username, number of participants etc.
-    extra: {
-        boolean: true,
-        integer: 0123456789,
-        array: [],
-        object: {}
-    },
-
-    // it is the broadcasting interval — default value is 3 seconds
-    interval: 3000
-});
-
-// Use "onNewSession" method to show each new session in a list 
-// so end users can manually join any session they prefer:
-connection.onNewSession = function(session) {
-    // use "session.extra" to access "extra" data
-};
-
-// To manually join a preferred session any time; 
-// use "join" method instead of "connect" method:
-connection.join(session, extra);
-
-// "extra" data can be accessed using "connection.onstream" method
-connection.onstream = function(stream){
-    var video = stream.mediaElement;
-
-    // it is extra data passed from remote peer
-    if(stream.type === 'remote') {
-        var extra = stream.extra;
-        video.poster = extra.username;
-    }
-};
+connection.eject();       // close your own entire session
 ```
 
 #### Auto Close Entire Session
@@ -118,6 +63,15 @@ new RTCMultiConnection('session-id', {
 });
 ```
 
+It means that session will be kept active all the time; even if initiator leaves the session.
+
+You can set `autoCloseEntireSession` before calling `leave` method; which will enforce closing of the entire session:
+
+```javascript
+connection.autoCloseEntireSession = true;
+connection.leave(); // closing entire session
+```
+
 ----
 
 #### Are you want to share files/text or data?
@@ -131,7 +85,7 @@ Same like WebSockets; `onopen` and `onmessage` methods:
 
 ```javascript
 // to be alerted on data ports get open
-connection.onopen = function (channel) { }
+connection.onopen = function () { }
 
 // to be alerted on data ports get new message
 connection.onmessage = function (message) { }
@@ -279,23 +233,80 @@ connection.onerror = function (event) { }
 connection.onclose = function (event) { }
 ```
 
-#### Use your own socket.io for signaling
+#### Manual session establishment
 
 ```javascript
-// by default Firebase is used for signaling; you can override it
-connection.openSignalingChannel = function(config) {
-    var socket = io.connect('http://your-site:8888');
-    socket.channel = config.channel || this.channel || 'default-channel';
-    socket.on('message', config.onmessage);
+// Pass "session-id" only-over the constructor
+var connection = new RTCMultiConnection('session-id');
 
-    socket.send = function (data) {
-        socket.emit('message', data);
+// When calling "open" method; pass an argument like this
+connection.open({
+    // "extra" object allows you pass extra data like username, number of participants etc.
+    extra: {
+        boolean: true,
+        integer: 0123456789,
+        array: [],
+        object: {}
+    },
+
+    // it is the broadcasting interval — default value is 3 seconds
+    interval: 3000
+});
+
+// Use "onNewSession" method to show each new session in a list 
+// so end users can manually join any session they prefer:
+connection.onNewSession = function(session) {
+    // use "session.extra" to access "extra" data
+};
+
+// To manually join a preferred session any time; 
+// use "join" method instead of "connect" method:
+connection.join(session, extra);
+
+// "extra" data can be accessed using "connection.onstream" method
+connection.onstream = function(stream){
+    var video = stream.mediaElement;
+
+    // it is extra data passed from remote peer
+    if(stream.type === 'remote') {
+        var extra = stream.extra;
+        video.poster = extra.username;
+    }
+};
+```
+
+#### Use [your own](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) socket.io over node.js for signaling
+
+```javascript
+openSignalingChannel: function(config) {
+   var URL = '/';
+   var channel = config.channel || this.channel || 'Default-Socket';
+   var sender = Math.round(Math.random() * 60535) + 5000;
+
+   io.connect(URL).emit('new-channel', {
+      channel: channel,
+      sender : sender
+   });
+
+   var socket = io.connect(URL + channel);
+   socket.channel = channel;
+
+   socket.on('connect', function () {
+      if (config.callback) config.callback(socket);
+   });
+
+   socket.send = function (message) {
+        socket.emit('message', {
+            sender: sender,
+            data  : message
+        });
     };
 
-    if (config.onopen) setTimeout(config.onopen, 1);
-    return socket;
+   socket.on('message', config.onmessage);
 }
 ```
+
+For a ready-made socket.io over node.js implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
 
 ====
 #### Browser Support
@@ -307,7 +318,7 @@ connection.openSignalingChannel = function(config) {
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
-| Android | Chrome Beta |
+| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
 #### Write video-conferencing application
 
@@ -317,7 +328,7 @@ var connection = new RTCMultiConnection();
 // to create/open a new session
 connection.open('session-id');
 
-// if someone already created a session; to join it: use "connect" method
+// if someone already created a session; to join him: use "connect" method
 connection.connect('session-id');
 
 // get access to local or remote streams

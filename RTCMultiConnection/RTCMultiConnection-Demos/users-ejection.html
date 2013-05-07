@@ -331,7 +331,6 @@
         stream.mediaElement.width = innerWidth / 3.4;
     };
 
-    // someone ejects current user or lefts the room
     connection.onleave = function (userid, extra) {
         console.log(extra.username + ' left you!');
 
@@ -352,7 +351,7 @@
 
                 eject.onclick = function () {
                     // eject a specific user
-                    connection.leave(this.parentNode.id);
+                    connection.eject(this.parentNode.id);
                     this.parentNode.style.display = 'none';
                 };
                 div.appendChild(eject);
@@ -382,31 +381,14 @@ var connection = new RTCMultiConnection('session-id');
 
 <p>Use "onleave" to be get alerted if a user manually or automatically leaves you:</p>
 <pre>
-connection.onleave = function(userid, extra) {
-    // remove user's video using his user-id
-    // console.log(extra.username, 'left you sir!');
-};
+connection.onleave = function(userid) { };
 </pre>
 
 <p>Eject a user or close entire session:</p>
 <pre>
-connection.leave(userid); // throw a user out of your room!
+connection.eject(userid); // throw a user out of your room!
 connection.leave();       // close your own entire session
 </pre>
-
-<p>Following things will happen if you are a room owner and you tried to close your session using <code>connection.leave()</code>:
-</p>
-
-<ol>
-    <li>The entire session (i.e. all peers, sockets and ports) will be closed.
-        <small>(from each and every user's side)</small>
-    </li>
-    <li>All participants will be alerted about room owner's (i.e. yours) action. Videos from each user's side will be
-        auto removed.
-    </li>
-</ol>
-
-<h2>Note</h2>: RTCMultiConnection.js will never "auto" reinitiate the session.
 
 <p>When calling "open" method; pass an argument like this:</p>
 
@@ -463,6 +445,15 @@ connection.onstream = function(stream){
     }
 };
 </pre>
+
+    <br/>
+    <br/>
+
+    <h2>What is <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection</a>?</h2>
+    <br/>
+    <br/>
+    RTCMultiConnection.js a javascript library supports features like audio/video conferencing; (one-way and one-to-many) broadcasting; screen sharing; data/text/file sharing (of any size); multi-and-manual sessions establishment; users ejection, rejection and presence detection; and more. It automatically keeps session "active" all the time; even if initiator leaves. 
+
 
 <br/>
 <br/>

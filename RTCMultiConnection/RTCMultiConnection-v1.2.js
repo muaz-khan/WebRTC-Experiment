@@ -81,6 +81,11 @@
                 onNewSession: function (session) {
                     if (self.channel !== session.sessionid) return false;
 
+                    if (!rtcSession) {
+                        self._session = session;
+                        return;
+                    }
+
                     if (self.onNewSession) return self.onNewSession(session);
 
                     if (self.joinedARoom) return false;
@@ -132,6 +137,8 @@
             // these two must be fixed. Must be able to receive many files concurrently.
             fileReceiver = new FileReceiver();
             textReceiver = new TextReceiver();
+
+            if (self._session) self.config.onNewSession(self._session);
         }
 
         function joinSession(session, extra) {
@@ -287,6 +294,11 @@
         };
 
         this.leave = function (userid) {
+            rtcSession.leave(userid, self.autoCloseEntireSession);
+        };
+
+        this.eject = function (userid) {
+            if (!userid) throw '"user-id" is mandatory.';
             rtcSession.leave(userid);
         };
 
@@ -1042,7 +1054,8 @@
                     direction: direction
                 };
             },
-            leave: function (userid) {
+            leave: function (userid, autoCloseEntireSession) {
+                if (autoCloseEntireSession) config.autoCloseEntireSession = true;
                 leaveARoom(userid);
                 if (!userid) {
                     self.joinedARoom = isbroadcaster = false;
