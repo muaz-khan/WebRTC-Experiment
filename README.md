@@ -1,6 +1,10 @@
 #### Realtime working WebRTC Experiments and Demos
 
-Plug & play type of WebRTC Experiments. Nothing to install. No requirements. Just copy HTML/JavaScript code in your site and that's all you need to do!
+It is a repository uniquely experimented WebRTC demos; written by [Muaz Khan](https://twitter.com/muazkh); helped by you and the community!
+
+No special requirement! Just Chrome or Firefox!
+
+These demos/experiments are entirely client-side; i.e. no server installation needed!
 
 ----
 
@@ -118,16 +122,14 @@ Plug & play type of WebRTC Experiments. Nothing to install. No requirements. Jus
 | [WebRTC for Newbies ](https://webrtc-experiment.appspot.com/docs/webrtc-for-newbies.html) |
 | [How to write video-conferencing application using WebRTC?](https://webrtc-experiment.appspot.com/docs/how-to-WebRTC-video-conferencing.html) |
 | [How to broadcast files using RTCDataChannel APIs?](https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html) |
+| [WebRTC Signaling Concepts](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/Signaling-Concepts.md) |
 
 ----
-
-#### [WebRTC Wiki Pages](https://github.com/muaz-khan/WebRTC-Experiment/wiki)
 
 Majority of WebRTC Experiments are using libraries like:
 
 1. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
 2. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
-3. [RTCDataConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCDataConnection)
 
 ----
 
@@ -139,7 +141,7 @@ Majority of WebRTC Experiments are using libraries like:
     var channel = new DataChannel('channel-name');
     channel.send(file || data || 'text');
     channel.onleave = function(userid) { };
-    channel.leave(userid); // throw a user out of your room!
+    channel.eject(userid); // throw a user out of your room!
 </script>
 ```
 
@@ -149,58 +151,18 @@ Majority of WebRTC Experiments are using libraries like:
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js"></script>
-<script>
-    var connection = new RTCMultiConnection('session-id');
+```
 
-    // to create/open a new session - argument is optional
-    connection.open({
-        // "extra" object allows you pass extra data like username, number of participants etc.
-        extra: { },
+```javascript
+var connection = new RTCMultiConnection();
 
-        // it is the broadcasting interval — default value is 3 seconds
-        interval: 3000
-    });
+// to create/open a new session
+connection.open('session-id');
 
-    // get access to local or remote streams
-    connection.onstream = function (stream) {
-        if (stream.type === 'local') {
-            mainVideo.src = stream.blobURL;
-        }
+// if someone already created a session; to join it: use "connect" method
+connection.connect('session-id');
 
-        if (stream.type === 'remote') {
-            var video = stream.mediaElement;
-            video.id = stream.userid;    // useful to remove user video when he leaves your room
-            document.body.appendChild();
-        }
-    }
-
-    // Use "onUserLeft" to be get alerted if a user leaves the room	
-    connection.onUserLeft = function(userid, extra) {
-        // remove user's video using his user-id
-    };
-	
-    // Eject a user or close your own entire session
-    connection.leave(userid); // throw a user out of your room!
-    connection.leave();       // close your own entire session
-	
-    // Use "onNewSession" method to show each new session in a list 
-    // so end users can manually join any session they prefer:
-    connection.onNewSession = function(session) {
-        // use "session.extra" to access "extra" data
-    };
-	
-    // To manually join a preferred session any time; 
-    // use "join" method instead of "connect" method
-    connection.join(session, extra);
-
-    // e.g. passing string
-    connection.join(session, 'username');
-
-    // e.g. passing object
-    connection.join(session, {
-        username: 'mine user name'
-    });
-</script>
+connection.eject(userid); // throw a user out of your room!
 ```
 
 ----
@@ -208,32 +170,32 @@ Majority of WebRTC Experiments are using libraries like:
 #### Use [your own](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) socket.io implementation!
 
 ```javascript
-openSignalingChannel: function(config) {
+connection.openSignalingChannel = function(config) {
    var URL = '/';
-   var channel = config.channel || this.channel || 'Default-Socket';
+   var channel = config.channel || this.channel || 'default-channel';
    var sender = Math.round(Math.random() * 60535) + 5000;
-
+   
    io.connect(URL).emit('new-channel', {
       channel: channel,
       sender : sender
    });
-
+   
    var socket = io.connect(URL + channel);
    socket.channel = channel;
-
+   
    socket.on('connect', function () {
       if (config.callback) config.callback(socket);
    });
-
+   
    socket.send = function (message) {
         socket.emit('message', {
             sender: sender,
             data  : message
         });
     };
-
+   
    socket.on('message', config.onmessage);
-}
+};
 ```
 
 For a ready-made socket.io over node.js implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).

@@ -1,9 +1,7 @@
-/*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
- 2013, Muaz Khan<muazkh>--[github.com/muaz-khan]
+/* MIT License: https://webrtc-experiment.appspot.com/licence/
+ 2013, <Muaz Khan>--<@muazkh>--<github.com/muaz-khan>
+ https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel */
 
- https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
- */
- 
 (function () {
     window.DataChannel = function (channel, extras) {
         if (channel) this.automatic = true;
@@ -48,6 +46,7 @@
             if (!self.openSignalingChannel) {
                 if (typeof extras.transmitRoomOnce == 'undefined') extras.transmitRoomOnce = true;
 
+                // socket.io over node.js: https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
                 self.openSignalingChannel = function (config) {
                     config = config || {};
 
@@ -153,7 +152,7 @@
                 onleave: function (userid) {
                     self.onleave(userid);
                 },
-                transmitRoomOnce: !! extras.transmitRoomOnce,
+                transmitRoomOnce: !!extras.transmitRoomOnce,
                 autoCloseEntireSession: typeof self.autoCloseEntireSession == 'undefined' ? false : self.autoCloseEntireSession,
                 connection: self
             };
@@ -216,7 +215,12 @@
         };
 
         this.leave = function (userid) {
-            dataConnector.leave(userid);
+            dataConnector.leave(userid, self.autoCloseEntireSession);
+        };
+
+        this.eject = function (userid) {
+            if (!userid) throw '"user-id" is mandatory.';
+            dataConnector.leave(userid, self.autoCloseEntireSession);
         };
 
         for (var extra in extras) {
@@ -235,8 +239,8 @@
 
             // for non-firebase clients
             if (isNonFirebaseClient) setTimeout(function () {
-                    self.openNewSession(true);
-                }, 5000);
+                self.openNewSession(true);
+            }, 5000);
         };
 
         if (self.automatic) {
@@ -260,7 +264,7 @@
         return swapped;
     };
 
-    window.moz = !! navigator.mozGetUserMedia;
+    window.moz = !!navigator.mozGetUserMedia;
     window.IsDataChannelSupported = !((moz && !navigator.mozGetUserMedia) || (!moz && !navigator.webkitGetUserMedia));
 
     function RTCPeerConnection(options) {
@@ -270,7 +274,8 @@
             IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
         var iceServers = {
-            iceServers: [{
+            iceServers: [
+                {
                     url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
                 }
             ]
@@ -281,7 +286,8 @@
         };
 
         if (!moz) {
-            optional.optional = [{
+            optional.optional = [
+                {
                     RtpDataChannels: true
                 }
             ];
@@ -300,8 +306,8 @@
         var constraints = options.constraints || {
             optional: [],
             mandatory: {
-                OfferToReceiveAudio: !! moz,
-                OfferToReceiveVideo: !! moz
+                OfferToReceiveAudio: !!moz,
+                OfferToReceiveVideo: !!moz
             }
         };
 
@@ -352,8 +358,8 @@
             channel = peerConnection.createDataChannel(
                 options.channel || 'RTCDataChannel',
                 moz ? {} : {
-                reliable: false
-            });
+                    reliable: false
+                });
             if (moz) channel.binaryType = 'blob';
             setChannelEvents();
         }
@@ -394,7 +400,8 @@
             }
         }
 
-        function useless() {}
+        function useless() {
+        }
 
         return {
             addAnswerSDP: function (sdp) {
@@ -418,10 +425,10 @@
 
     function DataConnector(config) {
         var self = {
-            userToken: uniqueToken(),
-            sockets: [],
-            socketObjects: {}
-        },
+                userToken: uniqueToken(),
+                sockets: [],
+                socketObjects: {}
+            },
             channels = '--',
             isbroadcaster,
             isGetNewRoom = true,
@@ -608,10 +615,10 @@
                 }
 
                 if (response.playRoleOfBroadcaster) setTimeout(function () {
-                        self.roomToken = response.roomToken;
-                        config.connection.open(self.roomToken);
-                        self.sockets = self.sockets.swap();
-                    }, 600);
+                    self.roomToken = response.roomToken;
+                    config.connection.open(self.roomToken);
+                    self.sockets = self.sockets.swap();
+                }, 600);
             }
 
             var invokedOnce = false;
@@ -646,7 +653,7 @@
         }
 
         function uniqueToken() {
-            return Math.round(Math.random() * 60535) + 500000;
+            return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
         }
 
         function leaveChannels(channel) {
@@ -659,10 +666,10 @@
             if (isbroadcaster) {
                 if (config.autoCloseEntireSession) alert.closeEntireSession = true;
                 else self.sockets[0].send({
-                        playRoleOfBroadcaster: true,
-                        userToken: self.userToken,
-                        roomToken: self.roomToken
-                    });
+                    playRoleOfBroadcaster: true,
+                    userToken: self.userToken,
+                    roomToken: self.roomToken
+                });
             }
 
             if (!channel) {
@@ -752,7 +759,8 @@
                 if (_channel) _channel.send(data);
                 else for (var i = 0; i < length; i++) _channels[i].send(data);
             },
-            leave: function (userid) {
+            leave: function (userid, autoCloseEntireSession) {
+                if (autoCloseEntireSession) config.autoCloseEntireSession = true;
                 leaveChannels(userid);
                 if (!userid) {
                     self.joinedARoom = isbroadcaster = false;
@@ -779,7 +787,7 @@
         };
     }
 
-    window.userid = Math.round(Math.random() * 60535) + 5000;
+    window.userid = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
 
     var FileSender = {
         send: function (config) {

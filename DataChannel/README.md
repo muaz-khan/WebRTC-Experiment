@@ -50,7 +50,7 @@ channel.channels[userid].send(file || data || 'text message');
 #### Eject/Reject users using their `user-ids`
 
 ```javascript
-channel.leave(userid);  // throw a user out of your room!
+channel.eject(userid);  // throw a user out of your room!
 ```
 
 #### Close/Leave the entire room
@@ -76,6 +76,15 @@ channel.autoCloseEntireSession = true;
 new DataChannel('channel-name', {
     autoCloseEntireSession: true
 });
+```
+
+It means that session will be kept active all the time; even if initiator leaves the session.
+
+You can set `autoCloseEntireSession` before calling `leave` method; which will enforce closing of the entire session:
+
+```javascript
+channel.autoCloseEntireSession = true;
+channel.leave(); // closing entire session
 ```
 
 ----
@@ -127,48 +136,36 @@ channel.direction = 'many-to-many';
 
 ----
 
-#### Use your own socket.io for signaling
-
-DataChannel.js opens data sessions in two ways:
-
-1. Automatic sessions i.e. auto created/joined sessions
-2. Manual sessions i.e. manually created/joined sessions
-
-For first case: i.e. for auto created data sessions; you must use `openSignalingChannel` like this:
+#### Use [your own socket.io for signaling](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs)
 
 ```javascript
-var channel = new DataChannel('default-channel', {
-    openSignalingChannel: function (config) {
-        var socket = io.connect('http://your-site:8888');
-        socket.channel = config.channel || this.channel || 'default-channel';
-        socket.on('message', config.onmessage);
-
-        socket.send = function (data) {
-            socket.emit('message', data);
-        };
-
-        if (config.onopen) setTimeout(config.onopen, 1);
-        return socket;
-    }
-});
-```
-
-For second case: i.e. for manually created sessions; you can use above style too. Follownig will also work:
-
-```javascript
-// by default Firebase is used for signaling; you can override it
+var channel = new DataChannel('default-channel');
 channel.openSignalingChannel = function(config) {
-    var socket = io.connect('http://your-site:8888');
-    socket.channel = config.channel || this.channel || 'default-channel';
-    socket.on('message', config.onmessage);
-
-    socket.send = function (data) {
-        socket.emit('message', data);
+   var URL = '/';
+   var channel = config.channel || this.channel || 'default-channel';
+   var sender = Math.round(Math.random() * 60535) + 5000;
+   
+   io.connect(URL).emit('new-channel', {
+      channel: channel,
+      sender : sender
+   });
+   
+   var socket = io.connect(URL + channel);
+   socket.channel = channel;
+   
+   socket.on('connect', function () {
+      if (config.callback) config.callback(socket);
+   });
+   
+   socket.send = function (message) {
+        socket.emit('message', {
+            sender: sender,
+            data  : message
+        });
     };
-
-    if (config.onopen) setTimeout(config.onopen, 1);
-    return socket;
-}
+   
+   socket.on('message', config.onmessage);
+};
 ```
 
 ----
@@ -250,13 +247,7 @@ channel.connect('channel-name');
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
-| Android | Chrome Beta |
-
-----
-
-#### For features requests or bugs submission
-
-Feel free to add comment [here](https://github.com/muaz-khan/WebRTC-Experiment/issues/16).
+| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
 ----
 

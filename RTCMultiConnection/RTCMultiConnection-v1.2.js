@@ -1,7 +1,7 @@
-/*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
- 2013, Muaz Khan<muazkh>--[github.com/muaz-khan]
-
+/* MIT License: https://webrtc-experiment.appspot.com/licence/
+ 2013, <Muaz Khan>--<@muazkh>--<github.com/muaz-khan>
  https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection */
+
 (function () {
     window.RTCMultiConnection = function (channel, extras) {
         extras = extras || {};
@@ -36,6 +36,7 @@
             if (!self.openSignalingChannel) {
                 if (typeof self.transmitRoomOnce == 'undefined') self.transmitRoomOnce = true;
 
+                // socket.io over node.js: https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
                 self.openSignalingChannel = function (config) {
                     config = config || {};
 
@@ -134,7 +135,7 @@
             };
             rtcSession = new RTCMultiSession(self.config);
 
-            // these two must be fixed. Must be able to receive many files concurrently.
+            // bug: these two must be fixed. Must be able to receive many files concurrently.
             fileReceiver = new FileReceiver();
             textReceiver = new TextReceiver();
 
@@ -285,7 +286,7 @@
             return true;
         }
 
-        this.onUserLeft = function (userid /*, extra */ ) {
+        this.onUserLeft = function (userid /*, extra */) {
             console.debug(userid, 'left!');
         };
 
@@ -299,7 +300,7 @@
 
         this.eject = function (userid) {
             if (!userid) throw '"user-id" is mandatory.';
-            rtcSession.leave(userid);
+            rtcSession.leave(userid, self.autoCloseEntireSession);
         };
 
         for (var extra in extras) {
@@ -357,7 +358,7 @@
 
     window.MediaStream = window.MediaStream || window.webkitMediaStream;
 
-    window.moz = !! navigator.mozGetUserMedia;
+    window.moz = !!navigator.mozGetUserMedia;
     var RTCPeerConnection = function (options) {
         var w = window,
             PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
@@ -381,12 +382,14 @@
         };
 
         if (!moz) {
-            optional.optional = [{
+            optional.optional = [
+                {
                     DtlsSrtpKeyAgreement: true
                 }
             ];
             if (options.onChannelMessage)
-                optional.optional = [{
+                optional.optional = [
+                    {
                         RtpDataChannels: true
                     }
                 ];
@@ -444,7 +447,7 @@
             var inline = getChars() + '\r\n' + (extractedChars = '');
             sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
                 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
-                'c=IN') : sdp;
+                    'c=IN') : sdp;
 
             return sdp;
         }
@@ -505,8 +508,8 @@
             channel = peerConnection.createDataChannel(
                 options.channel || 'RTCDataChannel',
                 moz ? {} : {
-                reliable: false
-            });
+                    reliable: false
+                });
 
             if (moz) channel.binaryType = 'blob';
             setChannelEvents();
@@ -555,7 +558,8 @@
             }
         }
 
-        function useless() {}
+        function useless() {
+        }
 
         return {
             addAnswerSDP: function (sdp) {
@@ -871,12 +875,12 @@
                 }
 
                 if (response.playRoleOfBroadcaster) setTimeout(function () {
-                        self.id = response.id;
-                        config.connection.open({
-                            extra: self.extra
-                        });
-                        self.sockets = self.sockets.swap();
-                    }, 600);
+                    self.id = response.id;
+                    config.connection.open({
+                        extra: self.extra
+                    });
+                    self.sockets = self.sockets.swap();
+                }, 600);
             }
 
             var invokedOnce = false;
@@ -916,7 +920,7 @@
         }
 
         function uniqueToken() {
-            return Math.round(Math.random() * 60535) + 5000;
+            return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
         }
 
         function leaveARoom(channel) {
@@ -930,9 +934,9 @@
             if (isbroadcaster) {
                 if (config.autoCloseEntireSession) alert.closeEntireSession = true;
                 else self.sockets[0].send({
-                        playRoleOfBroadcaster: true,
-                        id: self.id
-                    });
+                    playRoleOfBroadcaster: true,
+                    id: self.id
+                });
             }
 
             if (!channel) {
@@ -1031,7 +1035,7 @@
                     extra: extra || {}
                 });
 
-                // used to make sure each room's messages must be stay in the same room 
+                // used to make sure each room's messages must be stay in the same room
                 // outsiders must be unable to acess them
                 self.broadcasterid = _config.userid;
             },

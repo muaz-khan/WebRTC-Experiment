@@ -46,8 +46,8 @@ connection.onleave = function(userid, extra) {
 #### Eject any user or close your own session
 
 ```javascript
-connection.leave(userid); // throw a user out of your room!
-connection.eject();       // close your own entire session
+connection.eject(userid); // throw a user out of your room!
+connection.leave();       // close your own entire session
 ```
 
 #### Auto Close Entire Session
