@@ -41,6 +41,19 @@ channel.onmessage = function(message, userid) { }
 
 `user-ids` can be used to send **direct messages** or to **eject/leave** any user:
 
+#### Use custom user-ids
+
+```javascript
+channel.userid = 'predefined-userid';
+
+// or for auto-initiated data connections
+new DataChannel('channel-name', {
+    userid: 'predefined-userid'
+});
+```
+
+Remeber; custom defined `user-id` must be unique username.
+
 #### Direct messages
 
 ```javascript

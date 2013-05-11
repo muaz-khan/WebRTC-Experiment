@@ -1,8 +1,9 @@
-/*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
- 2013, Muaz Khan<muazkh>--[github.com/muaz-khan]
+/*
+ 2013, @muazkh » github.com/muaz-khan
+ MIT License » https://webrtc-experiment.appspot.com/licence/
+ Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
+*/
 
- https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
- */
 (function () {
     window.DataChannel = function (channel, extras) {
         if (channel) this.automatic = true;
@@ -10,8 +11,7 @@
 
         extras = extras || {};
 
-        var self = this,
-            dataConnector, fileReceiver, textReceiver;
+        var self = this, dataConnector, fileReceiver, textReceiver;
 
         this.onmessage = function (message, userid) {
             console.debug(userid, 'sent message:', message);
@@ -19,7 +19,7 @@
 
         this.channels = {};
         this.onopen = function (userid) {
-            self.send(userid, 'is connected with you.');
+            console.debug(userid, 'is connected with you.');
         };
 
         this.onclose = function (event) {
@@ -43,39 +43,77 @@
         };
 
         function prepareInit(callback) {
-            if (extras.openSignalingChannel) self.openSignalingChannel = extras.openSignalingChannel;
-            callback();
-            setTimeout(function () {
-                if (self.onDefaultSocketOpened) self.onDefaultSocketOpened();
-            }, 3000);
+            for (var extra in extras) {
+                self[extra] = extras[extra];
+            }
+            self.direction = self.direction || 'many-to-many';
+            if(self.userid) window.userid = self.userid;
+
+            if (!self.openSignalingChannel) {
+                if (typeof self.transmitRoomOnce == 'undefined') self.transmitRoomOnce = true;
+
+                // socket.io over node.js: https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
+                self.openSignalingChannel = function (config) {
+                    config = config || {};
+
+                    channel = config.channel || self.channel || 'default-channel';
+                    var socket = new window.Firebase('https://' + (self.firebase || 'chat') + '.firebaseIO.com/' + channel);
+                    socket.channel = channel;
+
+                    socket.on('child_added', function (data) {
+                        config.onmessage(data.val());
+                    });
+
+                    socket.send = function (data) {
+                        this.push(data);
+                    };
+
+                    if (!self.socket) self.socket = socket;
+                    if (channel != self.channel || (self.isInitiator && channel == self.channel))
+                        socket.onDisconnect().remove();
+
+                    if (config.onopen) setTimeout(config.onopen, 1);
+
+                    return socket;
+                };
+
+                if (!window.Firebase) {
+                    var script = document.createElement('script');
+                    script.src = 'https://cdn.firebase.com/v0/firebase.js';
+                    script.onload = callback;
+                    document.documentElement.appendChild(script);
+                } else callback();
+            } else callback();
         }
 
         function init() {
             if (self.config) return;
 
             self.config = {
-                openSocket      : function (config) {
-                    return self.openSignalingChannel(config);
-                },
-                onRoomFound     : function (room) {
+                onroom: function (room) {
+                    if (!dataConnector) {
+                        self.room = room;
+                        return;
+                    }
+
                     if (self.joinedARoom) return;
                     self.joinedARoom = true;
 
                     dataConnector.joinRoom({
                         roomToken: room.roomToken,
-                        joinUser : room.broadcaster
+                        joinUser: room.broadcaster
                     });
                 },
-                onChannelOpened : function (userid, _channel) {
+                onopen: function (userid, _channel) {
                     self.onopen(userid, _channel);
                     self.channels[userid] = {
                         channel: _channel,
-                        send   : function (data) {
+                        send: function (data) {
                             self.send(data, this.channel);
                         }
                     };
                 },
-                onChannelMessage: function (data, userid) {
+                onmessage: function (data, userid) {
                     if (IsDataChannelSupported && !data.size) data = JSON.parse(data);
 
                     if (!IsDataChannelSupported) {
@@ -91,32 +129,28 @@
 
                     else self.onmessage(data, userid);
                 },
-                direction       : extras.direction || self.direction || 'many-to-many',
-                onChannelClosed : function (event) {
+                onclose: function (event) {
+                    var myChannels = self.channels,
+                        closedChannel = event.currentTarget;
+
+                    for (var userid in myChannels) {
+                        if (closedChannel === myChannels[userid].channel) {
+                            delete myChannels[userid];
+                        }
+                    }
+
                     self.onclose(event);
-                },
-                onChannelError  : function (event) {
-                    self.onerror(event);
-                },
-                onFileReceived  : function (fileName) {
-                    self.onFileReceived(fileName);
-                },
-                onFileProgress  : function (packets) {
-                    self.onFileProgress(packets);
-                },
-                channel         : self.channel,
-                onleave         : function (userid) {
-                    self.onleave(userid);
-                },
-                transmitRoomOnce: !!extras.transmitRoomOnce
+                }
             };
 
             dataConnector = IsDataChannelSupported ?
-                new DataConnector(self.config) :
-                new SocketConnector(self.config);
+                new DataConnector(self, self.config) :
+                new SocketConnector(self.channel, self.config);
 
             fileReceiver = new FileReceiver();
             textReceiver = new TextReceiver();
+
+            if (self.room) self.config.onroom(self.room);
         }
 
         this.open = function (_channel) {
@@ -138,26 +172,14 @@
             prepareInit(init);
         };
 
-        if (this.automatic) {
-            this.connect();
-            this.onDefaultSocketOpened = function () {
-                if (self.isDefaultSocketOpened) return;
-                self.isDefaultSocketOpened = true;
-
-                if (!self.joinedARoom) setTimeout(function () {
-                    if (!self.joinedARoom) self.open();
-                }, 1500);
-            };
-        }
-
         this.send = function (data, _channel) {
             if (!data) throw 'No file, data or text message to share.';
             if (data.size)
                 FileSender.send({
-                    file   : data,
+                    file: data,
                     channel: dataConnector,
 
-                    onFileSent    : function (file) {
+                    onFileSent: function (file) {
                         self.onFileSent(file);
                     },
                     onFileProgress: function (packets) {
@@ -168,8 +190,8 @@
                 });
             else
                 TextSender.send({
-                    text    : data,
-                    channel : dataConnector,
+                    text: data,
+                    channel: dataConnector,
                     _channel: _channel
                 });
         };
@@ -178,254 +200,94 @@
             console.debug(userid, 'left!');
         };
 
-        this.leave = function (userid) {
-            dataConnector.leave(userid);
+        this.leave = this.eject = function (userid) {
+            dataConnector.leave(userid, self.autoCloseEntireSession);
         };
+
+        this.openNewSession = function (isOpenNewSession, isNonFirebaseClient) {
+            if (isOpenNewSession) {
+                if (self.isNewSessionOpened) return;
+                self.isNewSessionOpened = true;
+
+                if (!self.joinedARoom) self.open();
+            }
+
+            if (!isOpenNewSession || isNonFirebaseClient) self.connect();
+
+            // for non-firebase clients
+            if (isNonFirebaseClient) setTimeout(function () {
+                    self.openNewSession(true);
+                }, 5000);
+        };
+
+        if (self.automatic) {
+            if (window.Firebase) {
+                console.debug('checking presence of the room..');
+                new window.Firebase('https://' + (extras.firebase || self.firebase || 'chat') + '.firebaseIO.com/' + self.channel).once('value', function (data) {
+                    console.debug('room is present?', data.val() != null);
+                    self.openNewSession(data.val() == null);
+                });
+            } else self.openNewSession(false, true);
+        }
     };
 
-    window.moz = !!navigator.mozGetUserMedia;
-    window.IsDataChannelSupported = !((moz && !navigator.mozGetUserMedia) || (!moz && !navigator.webkitGetUserMedia));
+    function DataConnector(root, config) {
+        var self = {};
+        var that = this;
 
-    function RTCPeerConnection(options) {
-        var w = window,
-            PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
-            SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
-            IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
+        self.userToken = root.userid || uniqueToken();
+        self.sockets = [];
+        self.socketObjects = {};
 
-        var iceServers = {
-            iceServers: [
-                {
-                    url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-                }
-            ]
-        };
+        var channels = '--',
+            isbroadcaster, isGetNewRoom = true,
+            RTCDataChannels = [];
 
-        var optional = {
-            optional: []
-        };
-
-        if (!moz) {
-            optional.optional = [
-                {
-                    RtpDataChannels: true
-                }
-            ];
-        }
-
-        var peerConnection = new PeerConnection(iceServers, optional);
-
-        openOffererChannel();
-        peerConnection.onicecandidate = onicecandidate;
-
-        function onicecandidate(event) {
-            if (!event.candidate || !peerConnection) return;
-            if (options.onICE) options.onICE(event.candidate);
-        }
-
-        var constraints = options.constraints || {
-            optional : [],
-            mandatory: {
-                OfferToReceiveAudio: !!moz,
-                OfferToReceiveVideo: !!moz
-            }
-        };
-
-        function createOffer() {
-            if (!options.onOfferSDP) return;
-
-            peerConnection.createOffer(function (sessionDescription) {
-                peerConnection.setLocalDescription(sessionDescription);
-                options.onOfferSDP(sessionDescription);
-            }, null, constraints);
-        }
-
-        function createAnswer() {
-            if (!options.onAnswerSDP) return;
-
-            options.offerSDP = new SessionDescription(options.offerSDP);
-            peerConnection.setRemoteDescription(options.offerSDP);
-
-            peerConnection.createAnswer(function (sessionDescription) {
-                peerConnection.setLocalDescription(sessionDescription);
-                options.onAnswerSDP(sessionDescription);
-            }, null, constraints);
-        }
-
-        if ((options.onChannelMessage && !moz) || !options.onChannelMessage) {
-            createOffer();
-            createAnswer();
-        }
-
-        var channel;
-
-        function openOffererChannel() {
-            if (!options.onChannelMessage || (moz && !options.onOfferSDP)) return;
-
-            _openOffererChannel();
-            if (moz && !options.attachStream) {
-                navigator.mozGetUserMedia({
-                    audio: true,
-                    fake : true
-                }, function (stream) {
-                    peerConnection.addStream(stream);
-                    createOffer();
-                }, useless);
-            }
-        }
-
-        function _openOffererChannel() {
-            channel = peerConnection.createDataChannel(
-                options.channel || 'RTCDataChannel',
-                moz ? {} : {
-                    reliable: false
-                });
-            if (moz) channel.binaryType = 'blob';
-            setChannelEvents();
-        }
-
-        function setChannelEvents() {
-            channel.onmessage = function (event) {
-                if (options.onChannelMessage) options.onChannelMessage(event);
-            };
-
-            channel.onopen = function () {
-                if (options.onChannelOpened) options.onChannelOpened(channel);
-            };
-            channel.onclose = function (event) {
-                if (options.onChannelClosed) options.onChannelClosed(event);
-            };
-            channel.onerror = function (event) {
-                if (options.onChannelError) options.onChannelError(event);
-            };
-        }
-
-        if (options.onAnswerSDP && moz) openAnswererChannel();
-
-        function openAnswererChannel() {
-            peerConnection.ondatachannel = function (event) {
-                channel = event.channel;
-                channel.binaryType = 'blob';
-                setChannelEvents();
-            };
-
-            if (moz && !options.attachStream) {
-                navigator.mozGetUserMedia({
-                    audio: true,
-                    fake : true
-                }, function (stream) {
-                    peerConnection.addStream(stream);
-                    createAnswer();
-                }, useless);
-            }
-        }
-
-        function useless() {
-        }
-
-        return {
-            addAnswerSDP: function (sdp) {
-                sdp = new SessionDescription(sdp);
-                peerConnection.setRemoteDescription(sdp);
-            },
-            addICE      : function (candidate) {
-                peerConnection.addIceCandidate(new IceCandidate({
-                    sdpMLineIndex: candidate.sdpMLineIndex,
-                    candidate    : candidate.candidate
-                }));
-            },
-
-            peer    : peerConnection,
-            channel : channel,
-            sendData: function (message) {
-                channel && channel.send(message);
-            }
-        };
-    }
-
-    function DataConnector(config) {
-        var self = {
-                userToken    : uniqueToken(),
-                sockets      : [],
-                socketObjects: {}
-            },
-            channels = '--',
-            isbroadcaster,
-            isGetNewRoom = true,
-            defaultSocket = {}, RTCDataChannels = [];
-
-        function openDefaultSocket() {
-            defaultSocket = config.openSocket({
-                onmessage: onDefaultSocketResponse,
-                callback : function (socket) {
-                    defaultSocket = socket;
-                }
-            });
-        }
-
-        function onDefaultSocketResponse(response) {
-            if (response.userToken == self.userToken) return;
-
-            if (isGetNewRoom && response.roomToken && response.broadcaster) config.onRoomFound(response);
-
-            if (response.newParticipant) onNewParticipant(response.newParticipant);
-
-            if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
-                channels += response.userToken + '--';
-
-                console.debug('A person whose id is', response.userToken || response.channel, 'is trying to share data with me!');
-                openSubSocket({
-                    isofferer  : true,
-                    channel    : response.channel || response.userToken,
-                    closeSocket: true
-                });
-            }
-        }
-
-        function openSubSocket(_config) {
-            if (!_config.channel) return;
+        function newPrivateSocket(_config) {
             var socketConfig = {
-                channel  : _config.channel,
+                channel: _config.channel,
                 onmessage: socketResponse,
-                callback : function (_socket) {
-                    socket = _socket;
-
+                onopen: function () {
                     if (isofferer && !peer) initPeer();
 
+                    _config.socketIndex = socket.index = self.sockets.length;
                     self.socketObjects[socketConfig.channel] = socket;
-                    self.sockets[self.sockets.length] = socket;
+                    self.sockets[_config.socketIndex] = socket;
                 }
             };
 
-            var socket = config.openSocket(socketConfig),
+            socketConfig.callback = function (_socket) {
+                socket = _socket;
+                socketConfig.onopen();
+            };
+
+            var socket = root.openSignalingChannel(socketConfig),
                 isofferer = _config.isofferer,
-                gotstream,
-                inner = {},
-                peer;
+                gotstream, inner = {}, peer;
 
             var peerConfig = {
-                onICE           : function (candidate) {
+                onICE: function (candidate) {
                     socket && socket.send({
                         userToken: self.userToken,
                         candidate: {
                             sdpMLineIndex: candidate.sdpMLineIndex,
-                            candidate    : JSON.stringify(candidate.candidate)
+                            candidate: JSON.stringify(candidate.candidate)
                         }
                     });
                 },
-                onChannelOpened : onChannelOpened,
-                onChannelMessage: function (event) {
-                    if (config.onChannelMessage) config.onChannelMessage(event.data, _config.userid);
+                onopen: onChannelOpened,
+                onmessage: function (event) {
+                    config.onmessage(event.data, _config.userid);
                 },
-                onChannelClosed : config.onChannelClosed,
-                onChannelError  : config.onChannelError
+                onclose: config.onclose,
+                onerror: root.onerror
             };
 
             function initPeer(offerSDP) {
-                if (config.direction === 'one-to-one' && window.isFirstConnectionOpened) return;
+                if (root.direction === 'one-to-one' && window.isFirstConnectionOpened) return;
 
-                if (!offerSDP) {
-                    peerConfig.onOfferSDP = sendsdp;
-                } else {
+                if (!offerSDP) peerConfig.onOfferSDP = sendsdp;
+                else {
                     peerConfig.offerSDP = offerSDP;
                     peerConfig.onAnswerSDP = sendsdp;
                 }
@@ -434,13 +296,15 @@
             }
 
             function onChannelOpened(channel) {
+                channel.peer = peer.peer;
                 RTCDataChannels[RTCDataChannels.length] = channel;
-                if (config.onChannelOpened) config.onChannelOpened(_config.userid, channel);
 
-                if (config.direction === 'many-to-many' && isbroadcaster && channels.split('--').length > 3) {
-                    defaultSocket.send({
+                config.onopen(_config.userid, channel);
+
+                if (root.direction === 'many-to-many' && isbroadcaster && channels.split('--').length > 3) {
+                    defaultSocket && defaultSocket.send({
                         newParticipant: socket.channel,
-                        userToken     : self.userToken
+                        userToken: self.userToken
                     });
                 }
 
@@ -466,7 +330,7 @@
                 });
 
                 socket.send({
-                    userToken : self.userToken,
+                    userToken: self.userToken,
                     secondPart: secondPart
                 });
 
@@ -501,10 +365,10 @@
                 if (response.candidate && !gotstream) {
                     peer && peer.addICE({
                         sdpMLineIndex: response.candidate.sdpMLineIndex,
-                        candidate    : JSON.parse(response.candidate.candidate)
+                        candidate: JSON.parse(response.candidate.candidate)
                     });
 
-                    console.log('remote candidate', response.candidate.candidate);
+                    console.debug('ice candidate', response.candidate.candidate);
                 }
 
                 if (response.left) {
@@ -513,19 +377,23 @@
                         peer.peer = null;
                     }
 
-                    if (response.closeEntireSession) {
-                        // room owner is trying to close the entire session
-                        leaveChannels();
-                    } else if (socket) {
+                    if (response.closeEntireSession) leaveChannels();
+                    else if (socket) {
                         socket.send({
-                            left     : true,
+                            left: true,
                             userToken: self.userToken
                         });
                         socket = null;
                     }
 
-                    if (config.onleave) config.onleave(response.userToken);
+                    root.onleave(response.userToken);
                 }
+
+                if (response.playRoleOfBroadcaster) setTimeout(function () {
+                        self.roomToken = response.roomToken;
+                        root.open(self.roomToken);
+                        self.sockets = self.sockets.swap();
+                    }, 600);
             }
 
             var invokedOnce = false;
@@ -539,7 +407,7 @@
                 if (isofferer) peer.addAnswerSDP(inner.sdp);
                 else initPeer(inner.sdp);
 
-                console.log('remote sdp', inner.sdp.sdp);
+                console.debug('sdp', inner.sdp.sdp);
             }
         }
 
@@ -548,31 +416,39 @@
             channels += channel + '--';
 
             var new_channel = uniqueToken();
-            openSubSocket({
-                channel    : new_channel,
+
+            newPrivateSocket({
+                channel: new_channel,
                 closeSocket: true
             });
 
             defaultSocket.send({
                 participant: true,
-                userToken  : self.userToken,
-                joinUser   : channel,
-                channel    : new_channel
+                userToken: self.userToken,
+                joinUser: channel,
+                channel: new_channel
             });
         }
 
         function uniqueToken() {
-            return Math.round(Math.random() * 60535) + 500000;
+            return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
         }
 
         function leaveChannels(channel) {
             var alert = {
-                left     : true,
+                left: true,
                 userToken: self.userToken
             };
 
             // if room initiator is leaving the room; close the entire session
-            if (isbroadcaster) alert.closeEntireSession = true;
+            if (isbroadcaster) {
+                if (root.autoCloseEntireSession) alert.closeEntireSession = true;
+                else self.sockets[0].send({
+                        playRoleOfBroadcaster: true,
+                        userToken: self.userToken,
+                        roomToken: self.roomToken
+                    });
+            }
 
             if (!channel) {
                 // closing all sockets
@@ -580,44 +456,63 @@
                     length = sockets.length;
 
                 for (var i = 0; i < length; i++) {
-                    if (sockets[i]) {
-                        sockets[i].send(alert);
+                    var socket = sockets[i];
+                    if (socket) {
+                        socket.send(alert);
+
+                        if (self.socketObjects[socket.channel])
+                            delete self.socketObjects[socket.channel];
+
                         delete sockets[i];
                     }
                 }
 
-                /* closing all RTCDataChannels */
-                length = RTCDataChannels.length;
-                for (i = 0; i < length; i++) {
-                    var _channel = RTCDataChannels[i];
-                    if (_channel) {
-                        _channel.close();
-                        delete RTCDataChannels[i];
-                    }
-                }
                 that.left = true;
             }
 
             // eject a specific user!
             if (channel) {
-                var socket = self.socketObjects[channel];
+                socket = self.socketObjects[channel];
                 if (socket) {
                     socket.send(alert);
+
+                    if (self.sockets[socket.index])
+                        delete self.sockets[socket.index];
+
                     delete self.socketObjects[channel];
                 }
             }
+            self.sockets = self.sockets.swap();
         }
 
-        var that = this;
-
         window.onunload = function () {
-            e.preventDefault();
             leaveChannels();
-
-            setTimeout(window.close, 1000);
         };
 
-        openDefaultSocket();
+        var defaultSocket = root.openSignalingChannel({
+            onmessage: function (response) {
+                if (response.userToken == self.userToken) return;
+
+                if (isGetNewRoom && response.roomToken && response.broadcaster) config.onroom(response);
+
+                if (response.newParticipant) onNewParticipant(response.newParticipant);
+
+                if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
+                    channels += response.userToken + '--';
+
+                    console.debug('Data connection is being opened between you and', response.userToken || response.channel);
+                    newPrivateSocket({
+                        isofferer: true,
+                        channel: response.channel || response.userToken,
+                        closeSocket: true
+                    });
+                }
+            },
+            callback: function (socket) {
+                defaultSocket = socket;
+            }
+        });
+
         return {
             createRoom: function () {
                 self.roomToken = uniqueToken();
@@ -627,32 +522,32 @@
 
                 (function transmit() {
                     defaultSocket && defaultSocket.send({
-                        roomToken  : self.roomToken,
+                        roomToken: self.roomToken,
                         broadcaster: self.userToken
                     });
 
-                    if (!config.transmitRoomOnce && !that.leaving) {
-                        if (config.direction === 'one-to-one') {
+                    if (!root.transmitRoomOnce && !that.leaving) {
+                        if (root.direction === 'one-to-one') {
                             if (!window.isFirstConnectionOpened) setTimeout(transmit, 3000);
                         } else setTimeout(transmit, 3000);
                     }
                 })();
             },
-            joinRoom  : function (_config) {
+            joinRoom: function (_config) {
                 self.roomToken = _config.roomToken;
                 isGetNewRoom = false;
 
-                openSubSocket({
+                newPrivateSocket({
                     channel: self.userToken
                 });
 
                 defaultSocket.send({
                     participant: true,
-                    userToken  : self.userToken,
-                    joinUser   : _config.joinUser
+                    userToken: self.userToken,
+                    joinUser: _config.joinUser
                 });
             },
-            send      : function (message, _channel) {
+            send: function (message, _channel) {
                 var _channels = RTCDataChannels,
                     data, length = _channels.length;
                 if (!length) return;
@@ -661,10 +556,10 @@
                 else data = JSON.stringify(message);
 
                 if (_channel) _channel.send(data);
-                else for (var i = 0; i < length; i++)
-                    _channels[i].send(data);
+                else for (var i = 0; i < length; i++) _channels[i].send(data);
             },
-            leave     : function (userid) {
+            leave: function (userid, autoCloseEntireSession) {
+                if (autoCloseEntireSession) root.autoCloseEntireSession = true;
                 leaveChannels(userid);
                 if (!userid) {
                     self.joinedARoom = isbroadcaster = false;
@@ -674,24 +569,24 @@
         };
     }
 
-    function SocketConnector(config) {
+    function SocketConnector(_channel, config) {
         var channel = config.openSocket({
-            channel  : config.channel,
-            onopen   : config.onChannelOpened,
-            onmessage: config.onChannelMessage
+            channel: _channel,
+            onopen: config.onopen,
+            onmessage: config.onmessage
         });
 
         return {
             send: function (message) {
-                channel.send({
-                    userid : userid,
+                channel && channel.send({
+                    userid: userid,
                     message: message
                 });
             }
         };
     }
 
-    window.userid = Math.round(Math.random() * 60535) + 5000;
+    window.userid = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
 
     var FileSender = {
         send: function (config) {
@@ -704,7 +599,7 @@
                 /* used on the receiver side to set received file name */
                 channel.send({
                     fileName: file.name,
-                    type    : 'file'
+                    type: 'file'
                 }, _channel);
 
                 /* sending entire file at once */
@@ -740,8 +635,8 @@
                 if (config.onFileProgress)
                     config.onFileProgress({
                         remaining: packets--,
-                        length   : numberOfPackets,
-                        sent     : numberOfPackets - packets
+                        length: numberOfPackets,
+                        sent: numberOfPackets - packets
                     });
 
                 if (text.length > packetSize) data.message = text.slice(0, packetSize);
@@ -791,8 +686,8 @@
                 if (config.onFileProgress)
                     config.onFileProgress({
                         remaining: packets--,
-                        length   : numberOfPackets,
-                        received : numberOfPackets - packets
+                        length: numberOfPackets,
+                        received: numberOfPackets - packets
                     });
 
                 content.push(data.message);
@@ -831,7 +726,7 @@
             var channel = config.channel,
                 _channel = config._channel,
                 initialText = config.text,
-                packetSize = 1000 /* chars */,
+                packetSize = 1000 /* chars */ ,
                 textToTransfer = '',
                 isobject = false;
 
@@ -888,6 +783,163 @@
 
         return {
             receive: receive
+        };
+    }
+
+    Array.prototype.swap = function () {
+        var swapped = [],
+            arr = this,
+            length = arr.length;
+        for (var i = 0; i < length; i++) if (arr[i]) swapped[swapped.length] = arr[i];
+        return swapped;
+    };
+
+    window.moz = !! navigator.mozGetUserMedia;
+    window.IsDataChannelSupported = !((moz && !navigator.mozGetUserMedia) || (!moz && !navigator.webkitGetUserMedia));
+
+    function RTCPeerConnection(options) {
+        var w = window,
+            PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
+            SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
+            IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
+
+        var iceServers = {
+            iceServers: [{
+                    url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
+                }
+            ]
+        };
+
+        var optional = {
+            optional: []
+        };
+
+        if (!moz) {
+            optional.optional = [{
+                    RtpDataChannels: true
+                }
+            ];
+        }
+
+        var peerConnection = new PeerConnection(iceServers, optional);
+
+        openOffererChannel();
+        peerConnection.onicecandidate = onicecandidate;
+
+        function onicecandidate(event) {
+            if (!event.candidate || !peerConnection) return;
+            if (options.onICE) options.onICE(event.candidate);
+        }
+
+        var constraints = options.constraints || {
+            optional: [],
+            mandatory: {
+                OfferToReceiveAudio: !! moz,
+                OfferToReceiveVideo: !! moz
+            }
+        };
+
+        function createOffer() {
+            if (!options.onOfferSDP) return;
+
+            peerConnection.createOffer(function (sessionDescription) {
+                peerConnection.setLocalDescription(sessionDescription);
+                options.onOfferSDP(sessionDescription);
+            }, null, constraints);
+        }
+
+        function createAnswer() {
+            if (!options.onAnswerSDP) return;
+
+            options.offerSDP = new SessionDescription(options.offerSDP);
+            peerConnection.setRemoteDescription(options.offerSDP);
+
+            peerConnection.createAnswer(function (sessionDescription) {
+                peerConnection.setLocalDescription(sessionDescription);
+                options.onAnswerSDP(sessionDescription);
+            }, null, constraints);
+        }
+
+        if (!moz) {
+            createOffer();
+            createAnswer();
+        }
+
+        var channel;
+
+        function openOffererChannel() {
+            if (moz && !options.onOfferSDP) return;
+
+            _openOffererChannel();
+            if (moz) {
+                navigator.mozGetUserMedia({
+                    audio: true,
+                    fake: true
+                }, function (stream) {
+                    peerConnection.addStream(stream);
+                    createOffer();
+                }, useless);
+            }
+        }
+
+        function _openOffererChannel() {
+            channel = peerConnection.createDataChannel(
+                options.channel || 'RTCDataChannel',
+                moz ? {} : {
+                reliable: false
+            });
+            if (moz) channel.binaryType = 'blob';
+            setChannelEvents();
+        }
+
+        function setChannelEvents() {
+            channel.onmessage = options.onmessage;
+            channel.onopen = function () {
+                options.onopen(channel);
+            };
+            channel.onclose = options.onclose;
+            channel.onerror = options.onerror;
+        }
+
+        if (options.onAnswerSDP && moz) openAnswererChannel();
+
+        function openAnswererChannel() {
+            peerConnection.ondatachannel = function (event) {
+                channel = event.channel;
+                channel.binaryType = 'blob';
+                setChannelEvents();
+            };
+
+            if (moz) {
+                navigator.mozGetUserMedia({
+                    audio: true,
+                    fake: true
+                }, function (stream) {
+                    peerConnection.addStream(stream);
+                    createAnswer();
+                }, useless);
+            }
+        }
+
+        function useless() {}
+
+        return {
+            addAnswerSDP: function (sdp) {
+                sdp = new SessionDescription(sdp);
+                peerConnection.setRemoteDescription(sdp);
+            },
+            addICE: function (candidate) {
+                peerConnection.addIceCandidate(new IceCandidate({
+                    sdpMLineIndex: candidate.sdpMLineIndex,
+                    candidate: candidate.candidate
+                }));
+            },
+
+            peer: peerConnection,
+            channel: channel,
+            sendData: function (message) {
+                channel && channel.send(message);
+            }
         };
     }
 })();

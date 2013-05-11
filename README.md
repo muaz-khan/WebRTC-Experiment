@@ -1,10 +1,10 @@
 #### Realtime working WebRTC Experiments and Demos
 
-It is a repository uniquely experimented WebRTC demos; written by [Muaz Khan](https://twitter.com/muazkh); helped by you and the community!
+It is a repository of uniquely experimented WebRTC demos; written by [Muaz Khan](https://twitter.com/muazkh); contributed by you and the community!
 
 No special requirement! Just Chrome or Firefox!
 
-These demos/experiments are entirely client-side; i.e. no server installation needed!
+These demos/experiments are entirely client-side; i.e. no server installation needed! (for basic webpages only!)
 
 ----
 
