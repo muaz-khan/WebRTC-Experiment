@@ -1,7 +1,8 @@
-/*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
- 2013, Muaz Khan<muazkh>--[github.com/muaz-khan]
-
- Demo & Documentation: http://bit.ly/RTCPeerConnection-Documentation */
+/*
+     2013, @muazkh » github.com/muaz-khan
+     MIT License » https://webrtc-experiment.appspot.com/licence/
+     Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
+*/
 
 window.moz = !!navigator.mozGetUserMedia;
 var RTCPeerConnection = function (options) {
@@ -9,6 +10,8 @@ var RTCPeerConnection = function (options) {
         PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
         SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
         IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
+
+    isDataChannel = !!options.onChannelMessage;
 
     STUN = {
         url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
@@ -33,7 +36,7 @@ var RTCPeerConnection = function (options) {
         iceServers.iceServers[2] = TURN2;
     }
 
-    var optional = {
+    optional = {
         optional: []
     };
 
@@ -42,7 +45,7 @@ var RTCPeerConnection = function (options) {
             DtlsSrtpKeyAgreement: true
         }];
 
-        if (options.onChannelMessage)
+        if (isDataChannel)
             optional.optional = [{
                 RtpDataChannels: true
             }];
@@ -52,25 +55,33 @@ var RTCPeerConnection = function (options) {
 
     openOffererChannel();
 
-    peerConnection.onicecandidate = onicecandidate;
-    if (options.attachStream) peerConnection.addStream(options.attachStream);
+    peerConnection.onicecandidate = function (event) {
+        if (!event.candidate) returnSDP();
+        else console.debug('injecting ice in sdp:', event.candidate);
+    };
+
+    if (options.attachStream)
+        peerConnection.addStream(options.attachStream);
+
     peerConnection.onaddstream = onaddstream;
 
-    function onicecandidate(event) {
-        if (!event.candidate || !peerConnection) return;
-        if (options.onICE) options.onICE(event.candidate);
-    }
-
-    var remoteStreamEventFired = false;
-
     function onaddstream(event) {
-        info('------------onaddstream');
-        if (remoteStreamEventFired || !event || !options.onRemoteStream) return;
-        remoteStreamEventFired = true;
-        options.onRemoteStream(event.stream);
+        console.debug('on:add:stream:', event.stream);
+        if (options.onRemoteStream) options.onRemoteStream(event.stream);
     }
 
-    var constraints = options.constraints || {
+    peerConnection.ongatheringchange = function (event) {
+        if (event.currentTarget.iceGatheringState === 'complete') returnSDP();
+    };
+
+    function returnSDP() {
+        console.debug('sharing localDescription', peerConnection.localDescription);
+
+        if (options.onOfferSDP) options.onOfferSDP(peerConnection.localDescription);
+        else options.onAnswerSDP(peerConnection.localDescription);
+    }
+
+    constraints = options.constraints || {
         optional: [],
         mandatory: {
             OfferToReceiveAudio: true,
@@ -78,47 +89,23 @@ var RTCPeerConnection = function (options) {
         }
     };
 
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-        extractedChars = '';
-
-    function getChars() {
-        extractedChars += chars[parseInt(Math.random() * 40)] || '';
-        if (extractedChars.length < 40) getChars();
-
-        return extractedChars;
-    }
-
-    function getInteropSDP(sdp) {
-        // for audio-only streaming: multiple-crypto lines are not allowed
-        if (options.onAnswerSDP)
-            sdp = sdp.replace(/(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g, '');
-
-
-        var inline = getChars() + '\r\n' + (extractedChars = '');
-        sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
-            'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
-                'c=IN') : sdp;
-
-        if (options.offerSDP) {
-            info('\n--------offer sdp provided by offerer\n');
-            info(options.offerSDP.sdp);
+    if (!moz && isDataChannel && !options.attachStream) constraints = {
+        optional: [],
+        mandatory: {
+            OfferToReceiveAudio: false,
+            OfferToReceiveVideo: false
         }
+    };
 
-        info(options.onOfferSDP ? '\n--------offer\n' : '\n--------answer\n');
-        info('sdp: ' + sdp);
-
-        return sdp;
-    }
-
-    if (moz && !options.onChannelMessage) constraints.mandatory.MozDontOfferDataChannel = true;
+    if (moz && !isDataChannel)
+        constraints.mandatory.MozDontOfferDataChannel = true;
 
     function createOffer() {
         if (!options.onOfferSDP) return;
 
         peerConnection.createOffer(function (sessionDescription) {
-            sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
-            options.onOfferSDP(sessionDescription);
+            if (moz) returnSDP();
         }, null, constraints);
     }
 
@@ -129,13 +116,12 @@ var RTCPeerConnection = function (options) {
         peerConnection.setRemoteDescription(options.offerSDP);
 
         peerConnection.createAnswer(function (sessionDescription) {
-            sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
-            options.onAnswerSDP(sessionDescription);
+            if (moz) returnSDP();
         }, null, constraints);
     }
 
-    if ((options.onChannelMessage && !moz) || !options.onChannelMessage) {
+    if ((isDataChannel && !moz) || !isDataChannel) {
         createOffer();
         createAnswer();
     }
@@ -143,7 +129,7 @@ var RTCPeerConnection = function (options) {
     var channel;
 
     function openOffererChannel() {
-        if (!options.onChannelMessage || (moz && !options.onOfferSDP)) return;
+        if (!isDataChannel || (moz && !options.onOfferSDP)) return;
 
         _openOffererChannel();
 
@@ -171,7 +157,7 @@ var RTCPeerConnection = function (options) {
 
     function setChannelEvents() {
         channel.onmessage = function (event) {
-            if (options.onChannelMessage) options.onChannelMessage(event);
+            if (isDataChannel) options.onChannelMessage(event);
         };
 
         channel.onopen = function () {
@@ -181,7 +167,6 @@ var RTCPeerConnection = function (options) {
             if (options.onChannelClosed) options.onChannelClosed(event);
         };
         channel.onerror = function (event) {
-            console.error(event);
             if (options.onChannelError) options.onChannelError(event);
         };
     }
@@ -206,29 +191,15 @@ var RTCPeerConnection = function (options) {
         }
     }
 
-    function useless() {
-    }
-
-    function info(information) {
-        console.log(information);
-    }
+    function useless() { }
 
     return {
         addAnswerSDP: function (sdp) {
-            info('--------adding answer sdp:');
-            info(sdp.sdp);
+            console.debug('adding answer sdp:', sdp.sdp);
 
             sdp = new SessionDescription(sdp);
             peerConnection.setRemoteDescription(sdp);
         },
-        addICE: function (candidate) {
-            info(candidate.candidate);
-            peerConnection.addIceCandidate(new IceCandidate({
-                sdpMLineIndex: candidate.sdpMLineIndex,
-                candidate: candidate.candidate
-            }));
-        },
-
         peer: peerConnection,
         channel: channel,
         sendData: function (message) {

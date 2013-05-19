@@ -109,10 +109,6 @@ function rotateAudio(audio) {
 
 (function () {
     var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">You can share this private link with your friends.</a></h2>';
-    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
-            return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {
-                return (a ^ Math.random() * 16 >> a / 4).toString(16);
-            });
-        })();
+    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
+    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
 })();

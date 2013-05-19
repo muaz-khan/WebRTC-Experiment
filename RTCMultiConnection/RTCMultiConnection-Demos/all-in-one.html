@@ -11,7 +11,10 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <script>
             var hash = window.location.hash.replace('#', '');
-            if (!hash.length) location.href = location.href + '#' + (Math.random() * 1000 << 10);
+            if (!hash.length) {
+				location.href = location.href + '#' + ((Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-'));
+				location.reload();
+			}
         </script>
         <style>
             @import url(https://fonts.googleapis.com/css?family=Inconsolata);
@@ -376,8 +379,7 @@
                     return div
                 }
 
-                if (window.Firebase) {
-                    console.debug('about to check presence of a room');
+                console.debug('about to check presence of a room');
                     new window.Firebase('https://rtcweb.firebaseIO.com/' + hash).once('value', function (data) {
                         var isRoomPresent = data.val() != null;
                         if (isRoomPresent) {
@@ -392,7 +394,6 @@
 
                         console.debug('room is present? ', isRoomPresent);
                     });
-                }
             </script>
             <br />
             <br />

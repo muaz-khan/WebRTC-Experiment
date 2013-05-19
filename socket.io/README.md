@@ -8,6 +8,35 @@ This `WebRTC Experiment` is using [socket.io over node.js](https://github.com/mu
 
 If you want to install/use your own `socket.io` implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
 
+```javascript
+connection.openSignalingChannel = function(config) {
+   var URL = 'http://domain.com:8888/';
+   var channel = config.channel || this.channel || 'default-channel';
+   var sender = Math.round(Math.random() * 60535) + 5000;
+   
+   io.connect(URL).emit('new-channel', {
+      channel: channel,
+      sender : sender
+   });
+   
+   var socket = io.connect(URL + channel);
+   socket.channel = channel;
+   
+   socket.on('connect', function () {
+      if (config.callback) config.callback(socket);
+   });
+   
+   socket.send = function (message) {
+        socket.emit('message', {
+            sender: sender,
+            data  : message
+        });
+    };
+   
+   socket.on('message', config.onmessage);
+};
+```
+
 ----
 
 #### Browser Support

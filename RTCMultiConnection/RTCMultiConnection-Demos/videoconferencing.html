@@ -11,7 +11,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <script>
             var hash = window.location.hash.replace('#', '');
-            if (!hash.length) location.href = location.href + '#' + (Math.random() * 1000 << 10);
+            if (!hash.length) location.href = location.href + '#' + ((Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-'));
         </script>
         <style>
             @import url(https://fonts.googleapis.com/css?family=Inconsolata);

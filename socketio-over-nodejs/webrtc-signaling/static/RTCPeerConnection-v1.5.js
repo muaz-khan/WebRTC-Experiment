@@ -10,30 +10,42 @@ var RTCPeerConnection = function (options) {
         SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
         IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
-    var iceServers = {
-        iceServers: [
-            {
-                url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-            }
-        ]
+    STUN = {
+        url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
     };
+
+    TURN1 = {
+        url: 'turn:73922577-1368147610@108.59.80.54',
+        credential: 'b3f7d809d443a34b715945977907f80a'
+    };
+
+    TURN2 = {
+        url: 'turn:webrtc%40live.com@numb.viagenie.ca',
+        credential: 'muazkh'
+    };
+
+    iceServers = {
+        iceServers: options.iceServers || [STUN]
+    };
+
+    if (!moz && !options.iceServers) {
+        iceServers.iceServers[1] = TURN1;
+        iceServers.iceServers[2] = TURN2;
+    }
 
     var optional = {
         optional: []
     };
 
     if (!moz) {
-        optional.optional = [
-            {
-                DtlsSrtpKeyAgreement: true
-            }
-        ];
+        optional.optional = [{
+            DtlsSrtpKeyAgreement: true
+        }];
+
         if (options.onChannelMessage)
-            optional.optional = [
-                {
-                    RtpDataChannels: true
-                }
-            ];
+            optional.optional = [{
+                RtpDataChannels: true
+            }];
     }
 
     var peerConnection = new PeerConnection(iceServers, optional);
@@ -59,7 +71,7 @@ var RTCPeerConnection = function (options) {
     }
 
     var constraints = options.constraints || {
-        optional : [],
+        optional: [],
         mandatory: {
             OfferToReceiveAudio: true,
             OfferToReceiveVideo: true
@@ -138,7 +150,7 @@ var RTCPeerConnection = function (options) {
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
                 audio: true,
-                fake : true
+                fake: true
             }, function (stream) {
                 peerConnection.addStream(stream);
                 createOffer();
@@ -186,7 +198,7 @@ var RTCPeerConnection = function (options) {
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
                 audio: true,
-                fake : true
+                fake: true
             }, function (stream) {
                 peerConnection.addStream(stream);
                 createAnswer();
@@ -209,16 +221,16 @@ var RTCPeerConnection = function (options) {
             sdp = new SessionDescription(sdp);
             peerConnection.setRemoteDescription(sdp);
         },
-        addICE      : function (candidate) {
+        addICE: function (candidate) {
             info(candidate.candidate);
             peerConnection.addIceCandidate(new IceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
-                candidate    : candidate.candidate
+                candidate: candidate.candidate
             }));
         },
 
-        peer    : peerConnection,
-        channel : channel,
+        peer: peerConnection,
+        channel: channel,
         sendData: function (message) {
             channel && channel.send(message);
         }
@@ -227,7 +239,7 @@ var RTCPeerConnection = function (options) {
 
 var video_constraints = {
     mandatory: {},
-    optional : []
+    optional: []
 };
 
 function getUserMedia(options) {

@@ -9,7 +9,7 @@ It not only simplifies coding but also handles complex cross browser implementat
 First of all; library to be linked!
 
 ```html
-<script src="https://bit.ly/RTCPeerConnection-v1-5"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-v1.6.js"></script>
 ```
 
 **RTCPeerConnection** object's structure looks like this:
@@ -17,9 +17,8 @@ First of all; library to be linked!
 ```javascript
 var peer = RTCPeerConnection({
     attachStream: localMediaStream,
-    offerSDP: offerSDP_sent_from_offerer,
+    offerSDP: RTCSessionDescription,
 
-    onICE: function (candidate) {},
     onRemmoteSteam: function (stream) {},
 
     onOfferSDP: function (offerSDP) {},
@@ -53,18 +52,6 @@ offerSDP = {
    type: 'offer',
    sdp: '------'
 }
-```
-
-#### `onICE`
-
-On traversing NAT for local peer; **RTCPeerConnection** object will return ICE gathered for current peer. You can get access to all those gathered ICE using this method:
-
-```javascript
-onICE: function (_RTCIceCandidate) {
-    // _RTCIceCandidate.candidate
-    // _RTCIceCandidate.sdpMLineIndex
-    // etc.
-};
 ```
 
 #### `onRemmoteSteam`
@@ -135,22 +122,8 @@ Here is how to get access to those instance methods:
 var peer = RTCPeerConnection(configuration);
 
 // using "peer" object; you can call those instance methods
-peer.addICE(...);
 peer.addAnswerSDP(...);
 ```
-
-#### `addICE`
-
-Use this instance method to add ICE candidates sent by other peer.
-
-```javascript
-peer.addICE({
-    sdpMLineIndex: websocketMessage.sdpMLineIndex,
-    candidate: websocketMessage.candidate
-});
-```
-
-Use `addICE` method on both peer's side.
 
 #### `addAnswerSDP`
 

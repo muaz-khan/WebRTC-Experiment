@@ -21,11 +21,11 @@ io.sockets.on('connection', function (socket) {
     if (!io.connected) io.connected = true;
 
     socket.on('new-channel', function (data) {
-        onNewNamespace(socket, data.channel, data.sender);
+        onNewNamespace(data.channel, data.sender);
     });
 });
 
-function onNewNamespace(socket, channel, sender) {
+function onNewNamespace(channel, sender) {
     io.of('/' + channel).on('connection', function (socket) {
         if (io.isConnected) {
             io.isConnected = false;

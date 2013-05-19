@@ -1,4 +1,4 @@
-#### Using Socket.io over Node.js for WebRTC Signaling / [Demo](http://webrtc-signaling.jit.su/)
+#### Using [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) for WebRTC Signaling / [Demo](http://webrtc-signaling.jit.su/)
 
 This experiment is using **socket.io over node.js** for signaling. Follow these steps:
 
@@ -88,6 +88,14 @@ var URL = '/';
 
 This is the URL of your site. By default it will be equal to `http://localhost:8888/`.
 
+It is strongly recommended to use absolute URL including port number:
+
+```javascript
+var URL = 'http://domain.com:8888/';
+```
+
+In `signaler.js` file; there is a function named `handler`. Sometimes (in case of failure) you need to use express framework to access/render files.
+
 ----
 
 #### Are you beginner or totally novice?
@@ -167,7 +175,7 @@ if(defaultSocket) defaultSocket.send(...);
 ```javascript
 // openSignalingChannel or openSocket!
 openSignalingChannel: function(config) {
-   var URL = '/';
+   var URL = 'http://domain.com:8888/';
    var channel = config.channel || this.channel || 'one-to-one-video-chat';
    var sender = Math.round(Math.random() * 60535) + 5000;
    

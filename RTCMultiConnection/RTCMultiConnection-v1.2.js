@@ -980,6 +980,16 @@
             leaveARoom();
         };
 
+        (function () {
+            var anchors = document.querySelectorAll('a'), length = anchors.length;
+            for (var i = 0; i < length; i++) {
+                a = anchors[i];
+                if (a.href.indexOf('#') !== 0 && a.getAttribute('target') != '_blank') a.onclick = function () {
+                    leaveARoom();
+                };
+            }
+        })();
+
         openDefaultSocket();
         return {
             initSession: function (extra) {

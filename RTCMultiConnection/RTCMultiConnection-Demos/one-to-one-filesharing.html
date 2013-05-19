@@ -225,7 +225,7 @@
     </tr>
 </table>
 <script>
-    document.getElementById('channel').value = Math.round(Math.random() * 60535) + 500000;
+    document.getElementById('channel').value = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
     var connection = new RTCMultiConnection();
 
     connection.session = 'only-data';

@@ -171,7 +171,7 @@ connection.eject(userid); // throw a user out of your room!
 
 ```javascript
 connection.openSignalingChannel = function(config) {
-   var URL = '/';
+   var URL = 'http://domain.com:8888/';
    var channel = config.channel || this.channel || 'default-channel';
    var sender = Math.round(Math.random() * 60535) + 5000;
    

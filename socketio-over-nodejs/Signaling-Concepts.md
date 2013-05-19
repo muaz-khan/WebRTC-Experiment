@@ -66,7 +66,7 @@ Client side:
 
 ```javascript
 connection.openSignalingChannel = function(config) {
-   var URL = '/';
+   var URL = 'http://domain.com:8888/';
    var channel = config.channel || this.channel || 'default-channel';
    var sender = Math.round(Math.random() * 60535) + 5000;
    
@@ -101,7 +101,7 @@ All WebRTC Experiments separated signaling portion; so you can define a single m
 
 ```javascript
 // socket.io URL
-var URL = '/';
+var URL = 'http://domain.com:8888/';
 
 // socket.io channel name
 var channel = config.channel || this.channel || 'default-channel';

@@ -1,23 +1,32 @@
-#### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) : A JavaScript wrapper library for RTCWeb/RTCDataChannel APIs
+`RTCMultiConnection-v1.3` is under development. Don't use it please.
 
-RTCMultiConnection.js a javascript library supports features like audio/video conferencing; (one-way and one-to-many) broadcasting; screen sharing; data/text/file sharing (of any size); multi-and-manual sessions establishment; users ejection, rejection and presence detection; and more. It automatically keeps session "active" all the time; even if initiator leaves.
+----
 
-#### Features
+#### [https://webrtc-experiment.appspot.com/#RTCMultiConnection): A simple library to handle advance tasks!
 
-1. Users ejection, rejection and presence detection support
-2. Multi-sessions establishment as well as manual-sessions establishment
-3. Sessions will be active all the time; even if initiator leaves!
-4. Data i.e. Text/File sharing (of any size)
-5. Screen sharing, audio-video conferencing; file sharing and one-way broadcasting
+Supports features like
 
-"Users Ejection" means you can eject (i.e. throw) any user out of the room — any time!
+1. audio/video/screen/data conferences (oneway/broadcast/many-to-many)
+2. multiple streams renegotiation and removal of individual streams
+3. mute/unmute of individual streams
+4. users ejection/rejection and presence detection
+5. multi as well as manual session establishment
+6. sessions will be LIVE all the time; even if initiator leaves!
+
+and much more.
+
+----
+
+#### Disclaimer
+
+This document is for [RTCMultiConnection-v1.3](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js) and upper releases. For [v1.2](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js) and earlier releases; [read this documentation](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.2-and-earlier.md).
 
 ----
 
 #### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js"></script>
 ```
 
 #### Second Step: Start using it!
@@ -25,21 +34,141 @@ RTCMultiConnection.js a javascript library supports features like audio/video co
 ```javascript
 var connection = new RTCMultiConnection();
 
-// to create/open a new session
-connection.open('session-id');
+connection.session = {
+    audio: true,
+    video: true
+};
 
-// if someone already created a session; to join it: use "connect" method
+// get access to local or remote streams
+connection.onstream = function (e) {
+    if (e.type === 'local') mainVideo.src = e.blobURL;
+    if (e.type === 'remote') document.body.appendChild(e.mediaElement);
+}
+
+// searching/connecting pre-created session
 connection.connect('session-id');
+
+// to create/open a new session
+// it should be called "only-once" by the session-initiator
+[button-init-session].onclick = function() {
+    connection.open('session-id');
+};
 ```
+
+----
+
+#### `onstream`
+
+```javascript
+connection.onstream = function (e) {
+    // e.mediaElement
+    // e.stream
+    // e.streamid
+    // e.session
+    // e.blobURL
+    // e.type
+    // e.extra
+    // e.userid
+}
+```
+
+1. `mediaElement`: `HTMLVideoElement` or `HTMLAudioElement`
+2. `stream`: `MediaStream` object
+3. `streamid`: stream-id can be used to mute/unmute or remove individual streams
+4. `session`: session object e.g. `{audio: true, video: true}`
+5. `blobURL`: blob-URL of the stream
+6. `type`: either `remote` or `local`
+7. `extra`: extra data passed by the user
+8. `userid`: id of the user stream coming from
+
+----
+
+#### Renegotiation
+
+Cases:
+
+1. You're sharing files in a group; or doing text chat; and suddenly want to share audio/video or screen among a few users or the entire group.
+2. In video-conferencing room; you want to sharing screen.
+3. In audio-conferencing room; you want to share video or screen or data.
+4. In screen sharing room; you want to share audio/video or data.
+
+You want to use same peer-connection to append dynamic streams at runtime.
+
+```javascript
+// runtime sharing of audio/video among all users
+connection.addStream({
+    audio: true,
+    video: true
+});
+
+// runtime sharing of screen among two unique users
+// one is you; and other is person whose id is give below
+connection.peers['user-id'].addStream({
+    screen: true,
+    oneway: true
+});
+```
+
+Possible renegotiation pairs
+
+1. `{audio: true, video: true}`
+2. `{audio: true, video: true, data: true}`
+3. `{screen: true, oneway: true}`
+4. `{audio: true, video: true, broadcast: true}`
+
+and many others.
+
+----
+
+#### `session`
+
+Possible values for the `session` object:
+
+```javascript
+audio: true
+video: true
+data: true
+screen: true
+
+oneway: true
+broadcast: true
+```
+
+----
+
+#### Mute/UnMute
+
+```javascript
+// mute
+connection.streams['stream-id'].mute({
+    audio: true,
+    video: true
+});
+
+// unmute
+connection.streams['stream-id'].unmute({
+    audio: true
+});
+```
+
+----
+
+#### `removeStream`
+
+```javascript
+connection.streams['stream-id'].removeStream();
+```
+
+Above line will remove a stream and renegotiate the peer connection.
 
 ----
 
 #### Detect users presence
 
 ```javascript
-connection.onleave = function(userid, extra) {
-    // remove user's video using his user-id
-    // console.log(extra.username, 'left you sir!');
+connection.onleave = function(e) {
+    // e.userid
+    // e.extra
 };
 ```
 
@@ -56,20 +185,14 @@ When room initiator leaves; you can enforce auto-closing of the entire session. 
 
 ```javascript
 connection.autoCloseEntireSession = true;
-
-// or 
-new RTCMultiConnection('session-id', {
-    autoCloseEntireSession: true
-});
 ```
 
-It means that session will be kept active all the time; even if initiator leaves the session.
+It means that session will be `LIVE` all the time; even if initiator leaves the session.
 
-You can set `autoCloseEntireSession` before calling `leave` method; which will enforce closing of the entire session:
+You can call `close` method to enforce closing of the entire session:
 
 ```javascript
-connection.autoCloseEntireSession = true;
-connection.leave(); // closing entire session
+connection.close(); // close entire session
 ```
 
 ----
@@ -77,7 +200,7 @@ connection.leave(); // closing entire session
 #### Are you want to share files/text or data?
 
 ```javascript
-// to send text/data or file
+// to send text/data or file of any size
 connection.send(file || data || 'text');
 ```
 
@@ -85,121 +208,17 @@ Same like WebSockets; `onopen` and `onmessage` methods:
 
 ```javascript
 // to be alerted on data ports get open
-connection.onopen = function () { }
+connection.onopen = function (e) {
+    // e.userid
+    // e.extra
+}
 
 // to be alerted on data ports get new message
-connection.onmessage = function (message) { }
-```
-
-#### Are you trying to write audio/video/screen sharing application?
-
-```javascript
-// get access to local or remote streams
-connection.onstream = function (stream) {
-    if (stream.type === 'local') {
-        mainVideo.src = stream.blobURL;
-    }
-
-    if (stream.type === 'remote') {
-        document.body.appendChild(stream.mediaElement);
-    }
+connection.onmessage = function (e) {
+    // e.data
+    // e.userid
+    // e.extra
 }
-```
-
-| --- | --- |
-| ------------- | ------------- |
-| `stream.type` | `local` or `remote` |
-| `stream.mediaElement` | `HTMLAudioElement` or `HTMLVideoElement` |
-| `stream.stream` | `LocalMediaStream` or `MediaStream` |
-| `stream.blobURL` | `src` of audio or video element. |
-| `stream.session` | Using this object, you can understand what is being shared. Is it audio-only streaming or video conferencing? |
-| `stream.direction` |  This object allows you track the direction of the session. |
-
-To understand whether it is audio streaming:
-
-```javascript
-if (stream.session.isAudio()) { }
-```
-
-To check direction:
-
-```javascript
-if (stream.direction === RTCDirection.OneWay) largeVideoElement.src = stream.blobURL;
-```
-
-#### Set direction — group sharing or one-way broadcasting
-
-```javascript
-// by default; connection is [many-to-many]; you can use following directions
-connection.direction = 'one-to-one';
-connection.direction = 'one-to-many';
-connection.direction = 'many-to-many';	// --- it is default
-connection.direction = 'one-way';
-```
-
-If you're interested; you can use **enums** instead of strings:
-
-```javascript
-connection.direction = RTCDirection.OneToOne;
-connection.direction = RTCDirection.OneToMany;
-connection.direction = RTCDirection.ManyToMany;
-connection.direction = RTCDirection.OneWay;
-```
-
-It is your choice to use spaces; dashes or enumerators. You can use spaces like this:
-
-```javascript
-connection.direction = 'one to one';
-connection.direction = 'one to many';
-connection.direction = 'many to many';
-connection.direction = 'one way';
-```
-
-You can use all capital letters; first capital letter; all lower-case letters; etc. It is your choice!
-
-```javascript
-connection.direction = 'One to One';
-connection.direction = 'ONE to MANY';
-connection.direction = 'MANY-TO-MANY';
-connection.direction = 'oNe-wAy';
-```
-
-#### Set session — audio or video or screen or file
-
-You can set `session` object for appropriate value.
-
-```javascript
-connection.session = 'only-audio';
-connection.session = 'audio + video';
-connection.session = 'screen + data';
-connection.session = 'audio + video + data';
-connection.session = 'only-audio and data';
-connection.session = 'only video + data';
-connection.session = 'only screen';
-connection.session = 'only-data';
-```
-
-Feel free to use word like "only" or "and", symbols like plus, dashes or spaces because **behind-the-scene all these values are replaced with empty string**.
-
-```javascript
-var input = 'audio and-video + data';
-real_value = input.toLowerCase().replace(/-|( )|\+|only|and/g, '');
-
-// so the real value will be
-real_value = 'audiovideodata';
-```
-
-That's why it is said that you can use **enums** too!!!
-
-```javascript
-connection.session = RTCSession.Audio;
-connection.session = RTCSession.AudioVideo;
-connection.session = RTCSession.ScreenData;
-connection.session = RTCSession.AudioVideoData
-connection.session = RTCSession.AudioData;
-connection.session = RTCSession.VideoData;
-connection.session = RTCSession.Screen;
-connection.session = RTCSession.Data;
 ```
 
 #### Progress helpers when sharing files
@@ -227,59 +246,133 @@ connection.onFileReceived = function (fileName) { };
 
 ```javascript
 // error to open data ports
-connection.onerror = function (event) { }
+connection.onerror = function (e) {
+    // e.userid
+    // e.extra
+}
 
 // data ports suddenly dropped
-connection.onclose = function (event) { }
+connection.onclose = function (e) {
+    // e.userid
+    // e.extra
+}
 ```
 
-#### Manual session establishment
+#### Extra Data
+
+You can pass extra-data like username, full name, location, bandwidth, etc.
 
 ```javascript
-// Pass "session-id" only-over the constructor
-var connection = new RTCMultiConnection('session-id');
-
-// When calling "open" method; pass an argument like this
-connection.open({
-    // "extra" object allows you pass extra data like username, number of participants etc.
-    extra: {
-        boolean: true,
-        integer: 0123456789,
-        array: [],
-        object: {}
-    },
-
-    // it is the broadcasting interval — default value is 3 seconds
-    interval: 3000
-});
-
-// Use "onNewSession" method to show each new session in a list 
-// so end users can manually join any session they prefer:
-connection.onNewSession = function(session) {
-    // use "session.extra" to access "extra" data
-};
-
-// To manually join a preferred session any time; 
-// use "join" method instead of "connect" method:
-connection.join(session, extra);
-
-// "extra" data can be accessed using "connection.onstream" method
-connection.onstream = function(stream){
-    var video = stream.mediaElement;
-
-    // it is extra data passed from remote peer
-    if(stream.type === 'remote') {
-        var extra = stream.extra;
-        video.poster = extra.username;
-    }
+connection.extra = {
+	username: 'muazkh',
+	fullname: 'Muaz Khan',
+	email: 'muazkh@gmail.com'
 };
 ```
+
+Your `extra-data` will be passed over `onNewSession`, `onmessage`, `onopen`, `onclose`, `onerror` and `onstream` methods:
+
+```javascript
+connection.onmessage = function(e){
+    // userData = e.extra
+    // userData.username
+    // userData.fullname
+    // userData.email
+	
+    // console.debug(userData.username, 'sent you a message', e.data);
+};
+
+connection.onNewSession = function(session) {
+    // session.extra
+};
+
+connection.onstream = function(e){
+    // e.extra
+};
+
+connection.onopen = function(e){
+    // e.extra
+};
+``` 
+
+----
+
+#### Custom user-id
+
+You can use custom `user-names` as user-id:
+
+```javascript
+connection.userid = 'custom-user-id';
+```
+
+See how user-id is used:
+
+```javascript
+connection.onopen = function(e) {
+    // e.userid
+}
+
+connection.onclose = function(e) {
+    // e.userid
+}
+
+connection.onerror = function(e) {
+    // e.userid
+}
+
+connection.onstream = function(e) {
+    // e.userid
+}
+
+connection.onmessage = function(e) {
+    // e.userid
+}
+```
+
+----
+
+#### `onNewSession`
+
+`onNewSession` is fired for each new session.
+
+```javascript
+connection.onNewSession = function(session) {
+    // session.extra -- extra data you passed or {}
+    // session.sessionid -- it is session's unique identifier
+    // session.userid -- it is room owner's id
+    // session.session e.g. {audio:true, video:true}
+};
+```
+
+`onNewSession` is useful to show a `join` button that allows end-users to manually join any preferred session.
+
+----
+
+#### Other features
+
+```javascript
+// It is room transmission interval; useful for socket.io implementations only.
+connection.interval = 1000;
+
+// It is useful only for Firebase signaling gateway!
+connection.transmitRoomOnce = true;
+
+// If you prefer using Firebase; you can provide your self-created firebase id.
+connection.firebase = 'chat';
+
+// if you want to attach external stream
+// this feature is useful in multi-sessions initiations
+connection.dontAttachStream = true; // it means that don't try to attach NEW stream
+connection.attachStream = MediaStream;
+```
+
+----
 
 #### Use [your own](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) socket.io over node.js for signaling
 
 ```javascript
 openSignalingChannel: function(config) {
-   var URL = '/';
+   var URL = 'http://domain.com:8888/';
    var channel = config.channel || this.channel || 'Default-Socket';
    var sender = Math.round(Math.random() * 60535) + 5000;
 
@@ -308,7 +401,8 @@ openSignalingChannel: function(config) {
 
 For a ready-made socket.io over node.js implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
 
-====
+----
+
 #### Browser Support
 
 [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) supports following browsers:
@@ -320,281 +414,7 @@ For a ready-made socket.io over node.js implementation; [visit this link](https:
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-#### Write video-conferencing application
-
-```javascript
-var connection = new RTCMultiConnection();
-
-// to create/open a new session
-connection.open('session-id');
-
-// if someone already created a session; to join him: use "connect" method
-connection.connect('session-id');
-
-// get access to local or remote streams
-connection.onstream = function (stream) {
-    if (stream.type === 'local') {
-        mainVideo.src = stream.blobURL;
-    }
-
-    if (stream.type === 'remote') {
-        document.body.appendChild(stream.mediaElement);
-    }
-}
-```
-
-#### Write an audio-conferencing application
-
-```javascript
-var connection = new RTCMultiConnection();
-
-// set session to 'audio-only'
-connection.session = 'only audio';
-
-// to create/open a new session
-connection.open('session-id');
-
-// if someone already created a session; to join it: use "connect" method
-connection.connect('session-id');
-
-// get access to local or remote streams
-connection.onstream = function (stream) {
-    if (stream.type === 'local') {
-        mainVideo.src = stream.blobURL;
-    }
-
-    if (stream.type === 'remote') {
-        document.body.appendChild(stream.mediaElement);
-    }
-}
-```
-
-#### Write screen sharing application
-
-```javascript
-var connection = new RTCMultiConnection();
-
-connection.direction = 'one-way';
-connection.session = 'only screen';
-
-// to create/open a new session
-connection.open('session-id');
-
-// if someone already created a session; to join it: use "connect" method
-connection.connect('session-id');
-
-// get access to local or remote streams
-connection.onstream = function (stream) {
-    if (stream.type === 'local') {
-        mainVideo.src = stream.blobURL;
-    }
-
-    if (stream.type === 'remote') {
-        document.body.appendChild(stream.mediaElement);
-    }
-}
-```
-
-#### Write group file sharing application + text chat
-
-```javascript
-var connection = new RTCMultiConnection();
-
-// set session to 'data-only'
-connection.session = 'only data';
-
-// to create/open a new session
-connection.open('session-id');
-
-// if someone already created a session; to join it: use "connect" method
-connection.connect('session-id');
-
-// you can send anything of any length!
-connection.send(file || data || 'text');
-
-// to be alerted on data ports get open
-connection.onopen = function (channel) { }
-
-// to be alerted on data ports get new message
-connection.onmessage = function (message) { }
-
-// show progress bar!
-connection.onFileProgress = function (packets) {
-    // packets.remaining
-    // packets.sent
-    // packets.received
-    // packets.length
-};
-
-// on file successfully sent
-connection.onFileSent = function (file) {
-    // file.name
-    // file.size
-};
-
-// on file successfully received
-connection.onFileReceived = function (fileName) { };
-```
-
-Remember, **A-to-Z, everything is optional!**
-
-#### Write video-conferencing + file sharing + text chat
-
-```javascript
-var connection = new RTCMultiConnection();
-
-// set session to 'audio + video + data'
-connection.session = 'audio + video and data';
-
-// to create/open a new session
-connection.open('session-id');
-
-// if someone already created a session; to join it: use "connect" method
-connection.connect('session-id');
-
-// you can send anything of any length!
-connection.send(file || data || 'text');
-
-// get access to local or remote streams
-connection.onstream = function (stream) {
-    if (stream.type === 'local') { }
-    if (stream.type === 'remote') { }
-}
-```
-
-Again, the real session will be `audiovideodata`. Following all sessions points to same session:
-
-```javascript
-connection.session = 'audio + video and data';
-connection.session = 'audio + video + data';
-connection.session = 'audio-video-data';
-connection.session = 'audio and video and data';
-connection.session = RTCSession.AudioVideoData;
-connection.session = 'AUDIO + VIDEO and DATA';
-```
-
-Hmm, **it is your choice!**
-
-#### Advance usage: open multi-sessions and multi-connections
-
-```javascript
-var connection = new RTCMultiConnection();
-
-// get access to local or remote streams
-connection.onstream = function (stream) {
-    if (stream.type === 'local') {
-        //------------------------
-        //-------------- see here!
-        //------------------------
-        var stream = stream.stream;
-        open_audio_conferencing_session(stream);
-        open_audio_video_broadcasting_session(stream);
-        open_only_audio_broadcasting_session(stream);
-        open_only_video_broadcasting_session(stream);
-    }
-}
-
-// to create/open a new session
-connection.open('session-id');
-
-// if someone already created a session; to join it: use "connect" method
-connection.connect('session-id');
-
-function open_audio_conferencing_session(stream) {
-    var new_connection = new RTCMultiConnection();
-
-    // -------- getting only-audio stream!
-    stream = new MediaStream(stream.getAudioTracks());
-    new_connection.attachStream = stream;
-
-    new_connection.session = 'only-audio';
-
-    new_connection.open('audio conferencing session-id');
-}
-
-function open_audio_video_broadcasting_session(stream) {
-    var new_connection = new RTCMultiConnection();
-
-    // -------- attaching same stream!
-    new_connection.attachStream = stream;
-
-    // -------- setting 'one way' direction
-    new_connection.direction = 'one-way';
-
-    new_connection.open('audio-video broadcasting session-id');
-}
-
-function open_only_audio_broadcasting_session(stream) {
-    var new_connection = new RTCMultiConnection();
-
-    // -------- getting only-audio stream!
-    stream = new MediaStream(stream.getAudioTracks());
-    new_connection.attachStream = stream;
-
-    new_connection.session = 'only-audio';
-    new_connection.direction = 'one-way';
-
-    new_connection.open('audio one-way broadcasting session-id');
-}
-
-function open_only_video_broadcasting_session(stream) {
-    var new_connection = new RTCMultiConnection();
-
-    // -------- getting only-video stream!
-    stream = new MediaStream(stream.getVideoTracks());
-    new_connection.attachStream = stream;
-
-    new_connection.session = 'only-video';
-    new_connection.direction = 'one-way';
-
-    new_connection.open('video one-way broadcasting session-id');
-}
-```
-
-You can see that `attachStream` object is used to attach **same stream** in absolute unique sessions.
-
-#### Why multi-sessions?
-
-1. Sometimes you want to one-way broadcast your video for users who have no-camera or no-microphone
-2. You may want to allow audio-conferencing along with video-conferencing in the same session / same stream!
-3. You may want to open one-to-one ports between main-peer and the server to record speaker's speech or to further broadcast the stream
-4. You may want to allow end-users to anonymously join/view main-video session or chatting room
-5. You may want to open one-to-one private session between chairperson and CEO! — in the same session; same page!
-
-There are **many other** use-cases of multi-sessions.
-
 ----
-
-#### [RTCMultiConnection Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection)
-
-1. [Multi-Session Establishment](https://webrtc-experiment.appspot.com/RTCMultiConnection/multi-session-establishment/)
-2. [File Sharing + Text Chat](https://webrtc-experiment.appspot.com/RTCMultiConnection/group-file-sharing-plus-text-chat/)
-3. [All-in-One test](https://webrtc-experiment.appspot.com/RTCMultiConnection/)
-4. [Video Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-conferencing/)
-5. [Video Broadcasting](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-broadcasting/)
-6. [Audio Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/audio-conferencing/)
-7. [Join with/without camera](https://webrtc-experiment.appspot.com/RTCMultiConnection/join-with-or-without-camera/)
-8. [Screen Sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/screen-sharing/)
-9. [One-to-One file sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/one-to-one-filesharing/)
-10. [Manual session establishment + extra data transmission](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission/)
-11. [Manual session establishment + extra data transmission + video conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/)
-12. [Users ejection and presence detection](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/)
-
-----
-
-#### Broken Changes
-
-Previously RTCMultiConnection used `Direction` and `Session` objects.
-
-Out of high-level confliction; now it is using `RTCDirection` and `RTCSession` objects instead.
-
-So, you can compare directions or sessions like this:
-
-```javascript
-if(stream.session === RTCSession.AuidoVideo) {}
-
-if(stream.direction === RTCDirection.OneWay) {}
-```
 
 #### License
 
