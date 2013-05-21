@@ -1,10 +1,7 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
- It is recommended to use RTCMultiConnection.js for audio/video/screen sharing: <http://bit.ly/RTCMultiConnection-Documentation>
- */
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
 
 var config = {
     openSocket    : function (config) {
-        var URL = '/';
         var channel = config.channel || location.hash.replace('#', '') || 'video-conferencing';
         var sender = Math.round(Math.random() * 60535) + 5000;
 

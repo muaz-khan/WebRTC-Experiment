@@ -1,22 +1,16 @@
 /*  MIT License: https://webrtc-experiment.appspot.com/licence/ -- https://github.com/muaz-khan */
 
-var app = require('http').createServer(handler).listen(8888);
+// var port = 80; // use port:80 for non-localhost tests
+var port = 8888; // use port:8888 for localhost tests
 
-function handler(request, response) {
-    var pathname = require('url').parse(request.url).pathname;
-    if (pathname == '/') pathname = 'index.html';
-    pathname = pathname.replace('/', 'static/');
+var app = require('express')(),
+    server = require('http').createServer(app),
+    io = require('socket.io').listen(server);
 
-    setContentType(pathname, response);
-
-    require('fs').readFile(pathname, function (err, file) {
-        response.end(file);
-    });
-}
+server.listen(port);
 
 /* -------------- <socket.io> -------------- */
 
-var io = require('socket.io').listen(app);
 io.sockets.on('connection', function (socket) {
     if (!io.connected) io.connected = true;
 
@@ -40,25 +34,39 @@ function onNewNamespace(channel, sender) {
 
 /* -------------- </socket.io> -------------- */
 
-// setting static files' content-types
-function setContentType(pathname, response) {
-    if (pathname.indexOf('.html') !== -1)
-        response.writeHead(200, { 'Content-Type': 'text/html' });
+app.get('/', function (req, res) {
+    res.sendfile(__dirname + '/static/video-conferencing/index.html');
+});
 
-    if (pathname.indexOf('.js') !== -1)
-        response.writeHead(200, { 'Content-Type': 'application/javascript' });
+app.get('/socketio.js', function (req, res) {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendfile(__dirname + '/static/socket.io.js');
+});
 
-    if (pathname.indexOf('.ico') !== -1)
-        response.writeHead(200, { 'Content-Type': 'image/icon' });
+app.get('/RTCPeerConnection-v1.5.js', function (req, res) {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendfile(__dirname + '/static/video-conferencing/RTCPeerConnection-v1.5.js');
+});
 
-    if (pathname.indexOf('.png') !== -1)
-        response.writeHead(200, { 'Content-Type': 'image/png' });
-}
+app.get('/conference.js', function (req, res) {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendfile(__dirname + '/static/video-conferencing/conference.js');
+});
+
+app.get('/conference-ui.js', function (req, res) {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendfile(__dirname + '/static/video-conferencing/conference-ui.js');
+});
+
+// text chat
+app.get('/chat', function (req, res) {
+    res.sendfile(__dirname + '/static/text-chat.html');
+});
 
 // following lines aimed to auto-open the browser
 // you can remove them if causing failure
 var childProcess = require('child_process'),
-    openURL = 'http://localhost:8888/';
+    openURL = 'http://localhost:' + port + '/';
 
 var chromeURL = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
     firefoxURL = 'c:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe';

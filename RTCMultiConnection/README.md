@@ -2,7 +2,7 @@
 
 ----
 
-#### [https://webrtc-experiment.appspot.com/#RTCMultiConnection): A simple library to handle advance tasks!
+#### [RTCMultiConnection](https://webrtc-experiment.appspot.com/#RTCMultiConnection): A simple library to handle advance tasks!
 
 Supports features like
 

@@ -43,17 +43,6 @@ Actually, these lines are auto-opening chrome/firefox instances.
 
 ----
 
-#### Keep in mind that...
-
-In the `static` directory; you can see two files:
-
-1. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/webrtc-signaling/static/DataChannel.js)
-2. [RTCMultiConnection-v1.2.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/webrtc-signaling/static/RTCMultiConnection-v1.2.js)
-
-These are two libraries; these are modified to work with this project.
-
-----
-
 #### What is `cd folder-location`?
 
 Using this command; you can open project's directory (i.e. folder).

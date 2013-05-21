@@ -147,22 +147,41 @@ Majority of WebRTC Experiments are using libraries like:
 
 ----
 
-#### Getting started with [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) - v1.1
+#### Getting started with [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js"></script>
 ```
 
 ```javascript
 var connection = new RTCMultiConnection();
 
-// to create/open a new session
-connection.open('session-id');
+connection.session = {
+    audio: true,
+    video: true
+};
 
-// if someone already created a session; to join it: use "connect" method
+// get access to local or remote streams
+connection.onstream = function (e) {
+    if (e.type === 'local') mainVideo.src = e.blobURL;
+    if (e.type === 'remote') document.body.appendChild(e.mediaElement);
+}
+
+// searching/connecting pre-created session
 connection.connect('session-id');
 
+// to create/open a new session
+// it should be called "only-once" by the session-initiator
+[button-init-session].onclick = function() {
+    connection.open('session-id');
+};
+
+// other features
 connection.eject(userid); // throw a user out of your room!
+connection.onleave = function(e) {
+    // e.userid
+    // e.extra
+}
 ```
 
 ----
