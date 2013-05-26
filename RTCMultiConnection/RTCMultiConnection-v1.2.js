@@ -368,14 +368,17 @@
         var STUN = {
             url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
         };
+		
         var TURN = {
             url: 'turn:webrtc%40live.com@numb.viagenie.ca',
             credential: 'muazkh'
         };
+		
         var iceServers = {
             iceServers: options.iceServers || [STUN]
         };
-        if (!moz && !options.iceServers) iceServers.iceServers[1] = TURN;
+		
+		if (!moz && !options.iceServers) iceServers.iceServers = [TURN, STUN];
 
         var optional = {
             optional: []

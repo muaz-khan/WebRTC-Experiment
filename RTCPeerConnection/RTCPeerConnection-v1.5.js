@@ -14,12 +14,7 @@ var RTCPeerConnection = function (options) {
         url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
     };
 
-    TURN1 = {
-        url: 'turn:73922577-1368147610@108.59.80.54',
-        credential: 'b3f7d809d443a34b715945977907f80a'
-    };
-
-    TURN2 = {
+    TURN = {
         url: 'turn:webrtc%40live.com@numb.viagenie.ca',
         credential: 'muazkh'
     };
@@ -28,10 +23,7 @@ var RTCPeerConnection = function (options) {
         iceServers: options.iceServers || [STUN]
     };
 
-    if (!moz && !options.iceServers) {
-        iceServers.iceServers[1] = TURN1;
-        iceServers.iceServers[2] = TURN2;
-    }
+    if (!moz && !options.iceServers) iceServers.iceServers = [TURN, STUN];
 
     var optional = {
         optional: []

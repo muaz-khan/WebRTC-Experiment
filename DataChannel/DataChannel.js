@@ -431,7 +431,7 @@
         }
 
         function uniqueToken() {
-            return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
+            return Math.round(Math.random() * 60535) + 5000000;
         }
 
         function leaveChannels(channel) {
@@ -813,12 +813,20 @@
             SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
             IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
-        var iceServers = {
-            iceServers: [{
-                    url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-                }
-            ]
+        STUN = {
+            url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
         };
+
+        TURN = {
+            url: 'turn:webrtc%40live.com@numb.viagenie.ca',
+            credential: 'muazkh'
+        };
+
+        iceServers = {
+            iceServers: options.iceServers || [STUN]
+        };
+
+        if (!moz && !options.iceServers) iceServers.iceServers = [TURN, STUN];
 
         var optional = {
             optional: []

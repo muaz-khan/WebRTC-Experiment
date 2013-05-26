@@ -8,8 +8,7 @@ window.moz = !!navigator.mozGetUserMedia;
 var RTCPeerConnection = function (options) {
     var w = window,
         PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
-        SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
-        IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
+        SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription;
 
     isDataChannel = !!options.onChannelMessage;
 
@@ -17,12 +16,7 @@ var RTCPeerConnection = function (options) {
         url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
     };
 
-    TURN1 = {
-        url: 'turn:73922577-1368147610@108.59.80.54',
-        credential: 'b3f7d809d443a34b715945977907f80a'
-    };
-
-    TURN2 = {
+    TURN = {
         url: 'turn:webrtc%40live.com@numb.viagenie.ca',
         credential: 'muazkh'
     };
@@ -31,10 +25,7 @@ var RTCPeerConnection = function (options) {
         iceServers: options.iceServers || [STUN]
     };
 
-    if (!moz && !options.iceServers) {
-        iceServers.iceServers[1] = TURN1;
-        iceServers.iceServers[2] = TURN2;
-    }
+    if (!moz && !options.iceServers) iceServers.iceServers = [TURN, STUN];
 
     optional = {
         optional: []
@@ -105,19 +96,17 @@ var RTCPeerConnection = function (options) {
 
         peerConnection.createOffer(function (sessionDescription) {
             peerConnection.setLocalDescription(sessionDescription);
-            if (moz) returnSDP();
+            if (moz) options.onOfferSDP(sessionDescription);
         }, null, constraints);
     }
 
     function createAnswer() {
         if (!options.onAnswerSDP) return;
 
-        options.offerSDP = new SessionDescription(options.offerSDP);
-        peerConnection.setRemoteDescription(options.offerSDP);
-
+        peerConnection.setRemoteDescription(new SessionDescription(options.offerSDP));
         peerConnection.createAnswer(function (sessionDescription) {
             peerConnection.setLocalDescription(sessionDescription);
-            if (moz) returnSDP();
+            if (moz) options.onAnswerSDP(sessionDescription);
         }, null, constraints);
     }
 
@@ -195,10 +184,7 @@ var RTCPeerConnection = function (options) {
 
     return {
         addAnswerSDP: function (sdp) {
-            console.debug('adding answer sdp:', sdp.sdp);
-
-            sdp = new SessionDescription(sdp);
-            peerConnection.setRemoteDescription(sdp);
+            peerConnection.setRemoteDescription(new SessionDescription(sdp));
         },
         peer: peerConnection,
         channel: channel,

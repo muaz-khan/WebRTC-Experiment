@@ -209,7 +209,7 @@
 </section>
 <section>
     <h2>Open Data Channel</h2>
-    <input type="text" id="channel" value="channel" style="font-size: 1.1em; text-align: right; width: 8em;"
+    <input type="text" id="channel" value="channel" style="font-size: 1.1em; text-align: right; width: 4em;"
            title="channel name - use your own channel name">
     <button id="init-RTCMultiConnection">Open</button>
     <h2>or join:</h2>
@@ -233,7 +233,7 @@
 </table>
 
 <script>
-    document.getElementById('channel').value = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
+    document.getElementById('channel').value = Math.round(Math.random() * 60535) + 5000000;
 </script>
 
 <script>

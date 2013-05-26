@@ -126,35 +126,33 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 
 ----
 
-Majority of WebRTC Experiments are using libraries like:
-
-1. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
-2. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
-
-----
-
-#### Getting started with [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
+#### [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/DataChannel.js"></script>
-<script>
-    var channel = new DataChannel('channel-name');
-    channel.send(file || data || 'text');
-    channel.onleave = function(userid) { };
-    channel.eject(userid); // throw a user out of your room!
-</script>
+```
+
+```javascript
+channel = new DataChannel('channel-name');
+channel.send(file || data || 'text');
+
+channel.onopen = function(e) {};
+channel.onmessage = function(e) {};
+
+channel.onleave = function (userid) {};
+channel.eject(userid); // throw a user out of your room!
 ```
 
 ----
 
-#### Getting started with [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
+#### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js"></script>
 ```
 
 ```javascript
-var connection = new RTCMultiConnection();
+connection = new RTCMultiConnection();
 
 connection.session = {
     audio: true,
@@ -182,6 +180,46 @@ connection.onleave = function(e) {
     // e.userid
     // e.extra
 }
+```
+
+----
+
+#### [RTCall.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall)
+
+```html
+<script src="https://webrtc-experiment.appspot.com/RTCall.js"></script>
+```
+
+```javascript
+call = new RTCall();
+
+// "onincomingcall" fires each time if someone calls you
+call.onincomingcall = function(caller) {
+   call.receive(caller.receiverid);
+};
+
+// "oncustomer" is fired only for admin
+// you can set admin like this:
+// call.admin = true;
+call.oncustomer = function(customer) {
+   call.call(customer.callerid);
+};
+
+// "onstream" returns you remote media stream
+call.onstream = function(e) {
+   // e.stream   ---- remote media stream object
+   // e.callerid ---- id of the remote person
+   
+   audio = e.audio;
+   audio.play(); // "e.audio" object is paused by default
+   document.documentElement.appendChild(audio);
+};
+
+// initializing "RTCall" object
+call.init();
+
+// customers can call "admin" using his caller-id
+call.call('admin-caller-id');
 ```
 
 ----
@@ -251,7 +289,7 @@ openSignalingChannel: function (config) {
 #### How to record video using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
 
 ```javascript
-var recorder = RecordRTC({
+recorder = RecordRTC({
 	video: HTMLVideoElement
 });
 
@@ -267,7 +305,7 @@ recorder.stopVideo(function(recordedFileURL) {
 ##### How to record audio using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
 
 ```javascript
-var recorder = RecordRTC({
+recorder = RecordRTC({
 	stream: MediaStream || LocalMediaStream
 });
 

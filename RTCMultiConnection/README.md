@@ -1,7 +1,3 @@
-`RTCMultiConnection-v1.3` is under development. Don't use it please.
-
-----
-
 #### [RTCMultiConnection](https://webrtc-experiment.appspot.com/#RTCMultiConnection): A simple library to handle advance tasks!
 
 Supports features like

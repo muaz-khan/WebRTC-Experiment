@@ -115,7 +115,7 @@
                     else self.onmessage(e);
                 }
             };
-            rtcSession = new RTCMultiSession(self, self.config);
+            rtcSession = new RTCMultiSession(self);
 
             // bug: these two must be fixed. Must be able to receive many files concurrently.
             fileReceiver = new FileReceiver();
@@ -141,7 +141,7 @@
             var constraints;
             session = _session || self.session;
 
-            log(session);
+            log(JSON.stringify(session).replace(/{|}/g, '').replace(/,/g, '\n').replace(/:/g, ':\t'));
 
             if (isData(session) || self.dontAttachStream) return callback();
 
@@ -154,7 +154,7 @@
                 };
             }
 
-            if (session.screen) {
+            else if (session.screen) {
                 video_constraints = {
                     mandatory: {
                         chromeMediaSource: 'screen'
@@ -167,7 +167,7 @@
                 };
             }
 
-            if (session.video && !session.audio) {
+            else if (session.video && !session.audio) {
                 video_constraints = {
                     mandatory: {},
                     optional: []
@@ -224,9 +224,9 @@
         };
 
         this.addStream = function (session, socket) {
-            captureUserMedia(function () {
+            captureUserMedia(function (stream) {
                 rtcSession.addStream({
-                    stream: self.attachStream,
+                    stream: stream,
                     renegotiate: session,
                     socket: socket
                 });
@@ -236,7 +236,8 @@
         Defaulter(self);
     };
 
-    function RTCMultiSession(root, config) {
+    function RTCMultiSession(root) {
+        config = root.config;
         session = root.session;
 
         self = {};
@@ -382,11 +383,9 @@
             }
 
             function onSessionOpened() {
-                //if (_config.isGotStream) return;
-                //_config.isGotStream = true;
-
                 // user-id in <socket> object
-                //if(socket.userid == _config.userid) return;
+                if (socket.userid == _config.userid) return;
+
                 socket.userid = _config.userid;
                 sockets[_config.socketIndex] = socket;
 
@@ -452,18 +451,27 @@
                     });
                 }
 
-                if (response.playRoleOfBroadcaster) setTimeout(function () {
-                    self.userid = response.userid;
-                    root.open({
-                        extra: root.extra
-                    });
-                    sockets = sockets.swap();
-                }, 600);
+                if (response.playRoleOfBroadcaster)
+                    setTimeout(function () {
+                        self.userid = response.userid;
+                        root.open({
+                            extra: root.extra
+                        });
+                        sockets = sockets.swap();
+                    }, 600);
 
                 if (response.suggestRenegotiation) {
                     log('It is suggested to play role of renegotiator.');
-                    root.captureUserMedia(function () {
-                        if (!response.renegotiate.nostream) peer.connection.addStream(root.attachStream);
+
+                    if (response.renegotiate.removeStream)
+                        createOffer();
+                    else
+                        root.captureUserMedia(function () {
+                            peer.connection.addStream(root.attachStream);
+                            createOffer();
+                        }, response.renegotiate);
+
+                    function createOffer() {
                         peer.recreateOffer(function (sdp) {
                             sendsdp({
                                 sdp: sdp,
@@ -471,38 +479,34 @@
                                 renegotiate: response.renegotiate
                             });
                         });
-                    }, response.renegotiate);
+                    }
                 }
             }
 
             function sdpInvoker(sdp) {
-                if (isofferer) peer.addAnswerSDP(sdp);
-                else {
-                    if (!_config.renegotiate)
-                        initPeer(sdp);
-                    else {
-                        session = _config.renegotiate;
-                        if (!session.oneway && !session.nostream) {
-                            root.captureUserMedia(function () {
-                                peer.connection.addStream(root.attachStream);
-                                createAnswer();
-                            }, _config.renegotiate);
-                            delete _config.renegotiate;
-                        }
-                        else createAnswer();
-
-                        function createAnswer() {
-                            peer.recreateAnswer(sdp, function (_sdp) {
-                                sendsdp({
-                                    sdp: _sdp,
-                                    socket: socket
-                                });
-                            });
-                        }
-                    }
-                }
-
                 log(sdp.sdp);
+
+                if (isofferer) return peer.addAnswerSDP(sdp);
+                if (!_config.renegotiate) return initPeer(sdp);
+                
+                session = _config.renegotiate;
+                if (session.oneway || session.removeStream)
+                    createAnswer();
+                else
+                    root.captureUserMedia(function () {
+                        peer.connection.addStream(root.attachStream);
+                        createAnswer();
+                    }, _config.renegotiate);
+
+                delete _config.renegotiate;
+                function createAnswer() {
+                    peer.recreateAnswer(sdp, function (_sdp) {
+                        sendsdp({
+                            sdp: _sdp,
+                            socket: socket
+                        });
+                    });
+                }
             }
         }
 
@@ -582,31 +586,33 @@
             var anchors = document.querySelectorAll('a'), length = anchors.length;
             for (var i = 0; i < length; i++) {
                 a = anchors[i];
-                if (a.href.indexOf('#') !== 0 && a.getAttribute('target') != '_blank') a.onclick = function () {
-                    leaveARoom();
-                };
+                if (a.href.indexOf('#') !== 0 && a.getAttribute('target') != '_blank')
+                    a.onclick = function () {
+                        leaveARoom();
+                    };
             }
         })();
 
-        var that = this, defaultSocket = root.openSignalingChannel({
-            onmessage: function (response) {
-                if (response.userid == self.userid) return;
-                if (isAcceptNewSession && response.sessionid && response.userid) config.onNewSession(response);
-                if (response.newParticipant && self.joinedARoom && self.broadcasterid === response.userid) onNewParticipant(response.newParticipant, response.extra);
-                if (response.userid && response.targetUser == self.userid && response.participant && channels.indexOf(response.userid) == -1) {
-                    channels += response.userid + '--';
-                    newPrivateSocket({
-                        isofferer: true,
-                        channel: response.channel || response.userid,
-                        closeSocket: true,
-                        extra: response.extra
-                    });
+        var that = this,
+            defaultSocket = root.openSignalingChannel({
+                onmessage: function (response) {
+                    if (response.userid == self.userid) return;
+                    if (isAcceptNewSession && response.sessionid && response.userid) config.onNewSession(response);
+                    if (response.newParticipant && self.joinedARoom && self.broadcasterid === response.userid) onNewParticipant(response.newParticipant, response.extra);
+                    if (response.userid && response.targetUser == self.userid && response.participant && channels.indexOf(response.userid) == -1) {
+                        channels += response.userid + '--';
+                        newPrivateSocket({
+                            isofferer: true,
+                            channel: response.channel || response.userid,
+                            closeSocket: true,
+                            extra: response.extra
+                        });
+                    }
+                },
+                callback: function (socket) {
+                    defaultSocket = socket;
                 }
-            },
-            callback: function (socket) {
-                defaultSocket = socket;
-            }
-        });
+            });
 
         this.initSession = function () {
             isbroadcaster = true;
@@ -681,7 +687,7 @@
 
                 // if offerer; renegotiate
                 if (peer.connection.localDescription.type == 'offer') {
-                    if (!session.nostream) peer.connection.addStream(e.stream);
+                    if (!session.removeStream) peer.connection.addStream(e.stream);
                     peer.recreateOffer(function (sdp) {
                         sendsdp({
                             sdp: sdp,
@@ -904,12 +910,7 @@
             url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
         };
 
-        TURN1 = {
-            url: 'turn:73922577-1368147610@108.59.80.54',
-            credential: 'b3f7d809d443a34b715945977907f80a'
-        };
-
-        TURN2 = {
+        TURN = {
             url: 'turn:webrtc%40live.com@numb.viagenie.ca',
             credential: 'muazkh'
         };
@@ -918,10 +919,7 @@
             iceServers: options.iceServers || [STUN]
         };
 
-        if (!moz && !options.iceServers) {
-            iceServers.iceServers[1] = TURN1;
-            iceServers.iceServers[2] = TURN2;
-        }
+        if (!moz && !options.iceServers) iceServers.iceServers = [TURN, STUN];
 
         optional = {
             optional: []
@@ -1213,7 +1211,7 @@
                     rtcSession.addStream({
                         socket: socket,
                         renegotiate: {
-                            nostream: true
+                            removeStream: true
                         }
                     });
 
