@@ -47,7 +47,7 @@ var config = {
 function createButtonClickHandler() {
     captureUserMedia(function () {
         rtc.createRoom({
-            roomName: (document.getElementById('room-name') || {}).value || 'Anonymous'
+            roomName: (document.getElementById('createButtonClickHandler') || {}).value || 'Anonymous'
         });
     });
     hideUnnecessaryStuff();
