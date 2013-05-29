@@ -1,8 +1,12 @@
-#### Realtime working WebRTC Experiments and Demos
+#### Realtime working [WebRTC Experiments and Demos](https://webrtc-experiment.appspot.com/)
 
-It is a repository of uniquely experimented WebRTC demos; written by [Muaz Khan](https://twitter.com/muazkh); contributed by you and the community!
+It is a repository of uniquely experimented WebRTC demos; written by [Muaz Khan](https://github.com/muaz-khan); contributed by you and the community!
 
-No special requirement! Just Chrome or Firefox!
+----
+
+No special requirement! Just Chrome (for desktop and android) or Firefox!
+
+----
 
 These demos/experiments are entirely client-side; i.e. no server installation needed! (for basic webpages only!)
 
@@ -18,6 +22,15 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
+
+----
+
+1. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) — A JavaScript library for data/file/text sharing!
+2. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) — A JavaScript library for streams renegotiation and sharing; multi-session establishment and much more.
+3. [RecordRTC.js](https://webrtc-experiment.appspot.com/RecordRTC/) — A library to record audio/video streams
+4. [Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/) — Most demanded and useful feature!
+5. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) — Copy/Paste/Deploy and you're done!
+6. [RTCall.js](https://webrtc-experiment.appspot.com/RRTCall/) — A library for Browser-to-Browser audio-only calling
 
 ----
 
@@ -47,13 +60,6 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 1. [One-to-one WebRTC video chat using WebSocket](https://webrtc-experiment.appspot.com/websocket/)
 2. [One-to-one WebRTC video chat using socket.io](https://webrtc-experiment.appspot.com/socket.io/)
 
-| in-Page / One-Page / Client Side |
-| ------------- |
-| [Text chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/demos/client-side-datachannel.html) |
-| [Simple video chat](https://webrtc-experiment.appspot.com/demos/client-side.html) |
-| [Sharing video - using socket.io for signaling](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) |
-| [Sharing video - using WebSockets for signaling](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) |
-
 ----
 
 #### [Screen sharing](https://webrtc-experiment.appspot.com/#screen-sharing)
@@ -72,7 +78,7 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 
 ----
 
-#### WebRTC Audio + Video Recording
+#### WebRTC Audio/Video Recording
 
 [RecordRTC: WebRTC audio/video recording](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) / [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
 
@@ -105,6 +111,15 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 10. [Manual session establishment + extra data transmission](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission/)
 11. [Manual session establishment + extra data transmission + video conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/)
 12. [Users ejection and presence detection](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/)
+
+----
+
+| in-Page / One-Page / Client Side |
+| ------------- |
+| [Text chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/demos/client-side-datachannel.html) |
+| [Simple video chat](https://webrtc-experiment.appspot.com/demos/client-side.html) |
+| [Sharing video - using socket.io for signaling](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) |
+| [Sharing video - using WebSockets for signaling](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) |
 
 ----
 
@@ -153,13 +168,11 @@ channel.eject(userid); // throw a user out of your room!
 
 ```javascript
 connection = new RTCMultiConnection();
-
+connection.userid = 'muazkh';
 connection.session = {
     audio: true,
     video: true
 };
-
-// get access to local or remote streams
 connection.onstream = function (e) {
     if (e.type === 'local') mainVideo.src = e.blobURL;
     if (e.type === 'remote') document.body.appendChild(e.mediaElement);
@@ -173,13 +186,6 @@ connection.connect('session-id');
 [button-init-session].onclick = function() {
     connection.open('session-id');
 };
-
-// other features
-connection.eject(userid); // throw a user out of your room!
-connection.onleave = function(e) {
-    // e.userid
-    // e.extra
-}
 ```
 
 ----
@@ -192,34 +198,12 @@ connection.onleave = function(e) {
 
 ```javascript
 call = new RTCall();
-
-// "onincomingcall" fires each time if someone calls you
 call.onincomingcall = function(caller) {
    call.receive(caller.receiverid);
 };
-
-// "oncustomer" is fired only for admin
-// you can set admin like this:
-// call.admin = true;
 call.oncustomer = function(customer) {
    call.call(customer.callerid);
 };
-
-// "onstream" returns you remote media stream
-call.onstream = function(e) {
-   // e.stream   ---- remote media stream object
-   // e.callerid ---- id of the remote person
-   
-   audio = e.audio;
-   audio.play(); // "e.audio" object is paused by default
-   document.documentElement.appendChild(audio);
-};
-
-// initializing "RTCall" object
-call.init();
-
-// customers can call "admin" using his caller-id
-call.call('admin-caller-id');
 ```
 
 ----
@@ -228,16 +212,16 @@ call.call('admin-caller-id');
 
 ```javascript
 connection.openSignalingChannel = function(config) {
-   var URL = 'http://domain.com:8888/';
-   var channel = config.channel || this.channel || 'default-channel';
-   var sender = Math.round(Math.random() * 60535) + 5000;
+   URL = 'http://domain.com:8888/';
+   channel = config.channel || this.channel || 'default-channel';
+   sender = Math.round(Math.random() * 60535) + 5000;
    
    io.connect(URL).emit('new-channel', {
       channel: channel,
       sender : sender
    });
    
-   var socket = io.connect(URL + channel);
+   socket = io.connect(URL + channel);
    socket.channel = channel;
    
    socket.on('connect', function () {
@@ -263,8 +247,8 @@ Remember, You must link [firebase.js](https://cdn.firebase.com/v0/firebase.js) f
 
 ```javascript
 openSignalingChannel: function (config) {
-    var channel = config.channel || this.channel || 'WebRTC-Experiment';
-    var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+    channel = config.channel || this.channel || 'WebRTC-Experiment';
+    socket = new Firebase('https://chat.firebaseIO.com/' + channel);
     socket.channel = channel;
     socket.on('child_added', function (data) {
         config.onmessage && config.onmessage(data.val());
@@ -324,4 +308,4 @@ recorder.stopAudio(function(recordedFileURL) {
 
 #### License
 
-[WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Experiments](https://webrtc-experiment.appspot.com/) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

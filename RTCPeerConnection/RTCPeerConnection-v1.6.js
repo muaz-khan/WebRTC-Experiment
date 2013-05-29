@@ -62,7 +62,7 @@ var RTCPeerConnection = function (options) {
     }
 
     peerConnection.ongatheringchange = function (event) {
-        if (event.currentTarget.iceGatheringState === 'complete') returnSDP();
+        if (event.currentTarget && event.currentTarget.iceGatheringState === 'complete') returnSDP();
     };
 
     function returnSDP() {

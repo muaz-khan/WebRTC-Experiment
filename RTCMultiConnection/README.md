@@ -28,8 +28,8 @@ This document is for [RTCMultiConnection-v1.3](https://webrtc-experiment.appspot
 #### Second Step: Start using it!
 
 ```javascript
-var connection = new RTCMultiConnection();
-
+connection = new RTCMultiConnection();
+connection.userid = 'muazkh'; // username or user-id!
 connection.session = {
     audio: true,
     video: true
@@ -217,6 +217,14 @@ connection.onmessage = function (e) {
 }
 ```
 
+### Direct Messages
+
+You can share data directly between two unique users using their user-ids:
+
+```javascript
+connection.channels['user-id'].send(file || data || 'text');
+```
+
 #### Progress helpers when sharing files
 
 ```javascript
@@ -364,20 +372,76 @@ connection.attachStream = MediaStream;
 
 ----
 
-#### Use [your own](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) socket.io over node.js for signaling
+#### Broadcasting/Conferencing/etc.
+
+Three possible scenarios are supported:
+
+1. One-to-Many `one-way` broadcasting
+2. One-to-Many `two-way` broadcasting
+3. Many-to-Many `video-conferencing`
+
+For one-way broadcasting
+
+```javascript
+connection.stream = {
+    oneway: true,
+    screen: true
+};
+```
+
+For two-way broadcasting
+
+```javascript
+connection.stream = {
+    broadcast: true,
+    audio: true
+};
+```
+
+For video-conferencing; don't use `oneway` or `broadcast` values:
+
+```javascript
+connection.stream = {
+    audio: true,
+    video: true
+};
+```
+
+----
+
+#### Bandwidth
+
+You can set bandwidth for both outgoing audio/video streams.
+
+```javascript
+connection.bandwidth = {
+    audio: 50,
+    video: 256
+};
+
+// or change them individually
+connection.bandwidth.audio = 50;
+connection.bandwidth.video = 256;
+```
+
+Default audio bandwidth is `50` and default video bandwidth is `256`.
+
+----
+
+#### Use your own [socket.io over node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) for signaling
 
 ```javascript
 openSignalingChannel: function(config) {
-   var URL = 'http://domain.com:8888/';
-   var channel = config.channel || this.channel || 'Default-Socket';
-   var sender = Math.round(Math.random() * 60535) + 5000;
+   URL = 'http://domain.com:8888/';
+   channel = config.channel || this.channel || 'Default-Socket';
+   sender = Math.round(Math.random() * 60535) + 5000;
 
    io.connect(URL).emit('new-channel', {
       channel: channel,
       sender : sender
    });
 
-   var socket = io.connect(URL + channel);
+   socket = io.connect(URL + channel);
    socket.channel = channel;
 
    socket.on('connect', function () {
@@ -395,13 +459,13 @@ openSignalingChannel: function(config) {
 }
 ```
 
-For a ready-made socket.io over node.js implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
+For a `ready-made` socket.io over node.js implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
 
 ----
 
 #### Browser Support
 
-[RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) supports following browsers:
+[RTCMultiConnection.js](https://webrtc-experiment.appspot.com/#RTCMultiConnection) supports following browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------|
@@ -414,4 +478,4 @@ For a ready-made socket.io over node.js implementation; [visit this link](https:
 
 #### License
 
-[RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RTCMultiConnection.js](https://webrtc-experiment.appspot.com/#RTCMultiConnection) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

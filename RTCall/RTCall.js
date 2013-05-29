@@ -30,7 +30,7 @@
         };
 
         var self = this;
-        this.callerid = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
+        this.callerid = Math.round(Math.random() * 60535) + 5000000;
 
         var caller;
         this.init = function () {
@@ -48,11 +48,11 @@
                     document.documentElement.appendChild(script);
                 }
 
-                // if firebase.js is already linked; don't download it again
+                    // if firebase.js is already linked; don't download it again
                 else caller = new RTCall.Caller(self);
             }
 
-            // for custom signaling channel; e.g. socket.io; just use it!
+                // for custom signaling channel; e.g. socket.io; just use it!
             else caller = new RTCall.Caller(self);
         };
 
@@ -86,8 +86,8 @@
         var defaultSocket;
         root.openSignalingChannel({
             onmessage: function (response) {
-                if (response.customer) root.oncustomer(response);
-                if (response.request) root.onincomingcall(response);
+                if (response.customer && root.admin) root.oncustomer(response);
+                if (response.request && response.receiverid == root.callerid) root.onincomingcall(response);
             },
             onconnection: function (socket) {
                 defaultSocket = socket;
@@ -187,7 +187,7 @@
         }
     };
 
-    window.moz = !! navigator.mozGetUserMedia;
+    window.moz = !!navigator.mozGetUserMedia;
     window.RTCall.PeerConnection = function (options) {
         var w = window,
             PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
@@ -213,9 +213,9 @@
         };
 
         if (!moz) optional.optional = [{
-                    DtlsSrtpKeyAgreement: true
-                }
-            ];
+            DtlsSrtpKeyAgreement: true
+        }
+        ];
 
         var peerConnection = new PeerConnection(iceServers, optional);
 
@@ -233,7 +233,7 @@
         }
 
         peerConnection.ongatheringchange = function (event) {
-            if (event.currentTarget.iceGatheringState === 'complete') returnSDP();
+            if (event.currentTarget && event.currentTarget.iceGatheringState === 'complete') returnSDP();
         };
 
         function returnSDP() {

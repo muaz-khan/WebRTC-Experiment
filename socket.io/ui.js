@@ -84,7 +84,7 @@ var conferenceUI = conference(config);
 
 /* UI specific */
 var participants = document.getElementById("participants") || document.body;
-var startConferencing = document.getElementById('start-conferencing');
+var startConferencing = document.getElementById('share-camera');
 var roomsList = document.getElementById('rooms-list');
 
 if (startConferencing) startConferencing.onclick = createButtonClickHandler;

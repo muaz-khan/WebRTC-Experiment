@@ -21,20 +21,33 @@ Remember: All lines are optional!
 
 ```javascript
 call = new RTCall();
+```
 
-// "onincomingcall" fires each time if someone calls you
+#### `onincomingcall`
+
+`onincomingcall` fires each time if someone calls you:
+
+```javascript
 call.onincomingcall = function(caller) {
    call.receive(caller.receiverid);
 };
+```
 
-// "oncustomer" is fired only for admin
-// you can set admin like this:
-// call.admin = true;
+#### `oncustomer`
+
+`oncustomer` is fired only for `admin`:
+
+```javascript
 call.oncustomer = function(customer) {
    call.call(customer.callerid);
 };
+```
 
-// "onstream" returns you remote media stream
+#### `onstream`
+
+`onstream` returns remote media stream:
+
+```javascript
 call.onstream = function(e) {
    // e.stream   ---- remote media stream object
    // e.callerid ---- id of the remote person
@@ -43,12 +56,48 @@ call.onstream = function(e) {
    audio.play(); // "e.audio" object is paused by default
    document.documentElement.appendChild(audio);
 };
+```
 
-// initializing "RTCall" object
+#### `init`
+
+initializing `RTCall` object:
+
+```javascript
 call.init();
+```
 
-// customers can call "admin" using his caller-id
+#### call
+
+Admin can call customers using their caller-ids. Remeber, customers caller-ids are always passed over `oncustomer` method:
+
+```javascript
+call.oncustomer = function(customer) {
+   call.call(customer.callerid);
+};
+```
+
+Customers can call the admin too; using admin's `caller-id`:
+
+```javascript
 call.call('admin-caller-id');
+```
+
+#### `receive`
+
+`receiver-id` is always passed over `onincomingcall`:
+
+```javascript
+call.onincomingcall = function(caller) {
+   call.receive(caller.receiverid);
+};
+```
+
+#### `admin`
+
+By default: `admin` is `false`:
+
+```javascript
+call.admin = true;
 ```
 
 ----

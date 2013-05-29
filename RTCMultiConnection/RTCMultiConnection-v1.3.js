@@ -28,19 +28,21 @@
 
         this.join = joinSession;
 
-        this.send = function (data) {
+        this.send = function (data, _channel) {
             if (!data) throw 'No file, data or text message to share.';
             if (data.size)
                 FileSender.send({
                     file: data,
                     channel: rtcSession,
                     onFileSent: self.onFileSent,
-                    onFileProgress: self.onFileProgress
+                    onFileProgress: self.onFileProgress,
+                    _channel: _channel
                 });
             else
                 TextSender.send({
                     text: data,
-                    channel: rtcSession
+                    channel: rtcSession,
+                    _channel: _channel
                 });
         };
 
@@ -143,9 +145,10 @@
 
             log(JSON.stringify(session).replace(/{|}/g, '').replace(/,/g, '\n').replace(/:/g, ':\t'));
 
-            if (isData(session) || self.dontAttachStream) return callback();
+            if (self.dontAttachStream) return callback();
 
             self.attachStream = null;
+            if (isData(session)) return callback();
 
             if (session.audio && !session.video) {
                 constraints = {
@@ -199,6 +202,8 @@
                     });
 
                     if (callback) callback(stream);
+                    mediaElement.autoplay = true;
+                    mediaElement.controls = true;
                 },
                 onerror: function () {
                     if (session.audio && !session.video) throw 'Microphone access is denied.';
@@ -310,7 +315,8 @@
                 },
 
                 attachStream: root.attachStream,
-                iceServers: root.iceServers
+                iceServers: root.iceServers,
+                bandwidth: root.bandwidth
             };
 
             function initPeer(offerSDP) {
@@ -372,7 +378,7 @@
             }
 
             function onChannelOpened(channel) {
-                RTCDataChannels[RTCDataChannels.length] = channel;
+                RTCDataChannels[RTCDataChannels.length] = _config.channel = channel;
 
                 root.onopen({
                     extra: _config.extra,
@@ -399,6 +405,14 @@
                     }
                 };
 
+                // connection.channels['user-id'].send(data);				
+                root.channels[_config.userid] = {
+                    channel: _config.channel,
+                    send: function (data) {
+                        root.send(data, this.channel);
+                    }
+                };
+
                 // connection.streams['stream-id'].mute({audio:true})
                 root.streams[_config.streamid] = root._getStream({
                     stream: _config.stream,
@@ -411,7 +425,7 @@
                     defaultSocket.send({
                         newParticipant: socket.channel,
                         userid: self.userid,
-                        extra: _config.extra
+                        extra: _config.extra || {}
                     });
             }
 
@@ -488,15 +502,20 @@
 
                 if (isofferer) return peer.addAnswerSDP(sdp);
                 if (!_config.renegotiate) return initPeer(sdp);
-                
+
                 session = _config.renegotiate;
-                if (session.oneway || session.removeStream)
+                if (session.oneway || session.removeStream || isData(session))
                     createAnswer();
-                else
+                else {
+                    if (_config.capturing) return;
+                    _config.capturing = true;
+
                     root.captureUserMedia(function () {
+                        _config.capturing = false;
                         peer.connection.addStream(root.attachStream);
                         createAnswer();
                     }, _config.renegotiate);
+                }
 
                 delete _config.renegotiate;
                 function createAnswer() {
@@ -655,14 +674,16 @@
             self.broadcasterid = _config.userid;
         };
 
-        this.send = function (message) {
-            var _channels = RTCDataChannels, data, length = _channels.length;
+        this.send = function (message, _channel) {
+            var _channels = RTCDataChannels,
+                    data, length = _channels.length;
             if (!length) return;
 
             if (moz && message.file) data = message.file;
             else data = JSON.stringify(message);
 
-            for (var i = 0; i < length; i++) _channels[i].send(data);
+            if (_channel) _channel.send(data);
+            else for (var i = 0; i < length; i++) _channels[i].send(data);
         };
 
         this.leave = function (userid) {
@@ -685,10 +706,13 @@
                 if (!peer) throw 'No such peer exists.';
                 peer = peer.peer;
 
+                log(peer);
+
                 // if offerer; renegotiate
                 if (peer.connection.localDescription.type == 'offer') {
-                    if (!session.removeStream) peer.connection.addStream(e.stream);
+                    if (!session.removeStream && (session.audio || session.video)) peer.connection.addStream(e.stream);
                     peer.recreateOffer(function (sdp) {
+                        log(sdp);
                         sendsdp({
                             sdp: sdp,
                             socket: socket,
@@ -696,30 +720,34 @@
                         });
                     });
                 }
-                else
+                else {
+                    log('no way, it is too bad!');
                     // otherwise; suggest other user to play role of renegotiator
                     socket.send({
                         userid: self.userid,
                         renegotiate: e.renegotiate,
                         suggestRenegotiation: true
                     });
+                }
             }
         };
     }
 
     FileSender = {
         send: function (config) {
-            var channel = config.channel, file = config.file;
+            channel = config.channel;
+            file = config.file;
+            _channel = config._channel;
 
             if (moz) {
                 channel.send({
                     fileName: file.name,
                     type: 'file'
-                });
+                }, _channel);
 
                 channel.send({
                     file: file
-                });
+                }, _channel);
 
                 config.onFileSent(file);
             }
@@ -760,7 +788,7 @@
                     config.onFileSent(file);
                 }
 
-                channel.send(data);
+                channel.send(data, _channel);
 
                 textToTransfer = text.slice(data.message.length);
 
@@ -827,11 +855,13 @@
             var channel = config.channel,
                 initialText = config.text,
                 packetSize = 1000 /* chars */,
-                textToTransfer = '';
+                textToTransfer = '',
+				_channel = config._channel;
+
 
             if (typeof initialText !== 'string') initialText = JSON.stringify(initialText);
 
-            if (moz || initialText.length <= packetSize) channel.send(config.text);
+            if (moz || initialText.length <= packetSize) channel.send(config.text, _channel);
             else sendText(initialText);
 
             function sendText(textMessage, text) {
@@ -850,7 +880,7 @@
                     data.last = true;
                 }
 
-                channel.send(data);
+                channel.send(data, _channel);
 
                 textToTransfer = text.slice(data.message.length);
 
@@ -903,8 +933,7 @@
     var RTCPeerConnection = function (options) {
         var w = window,
             PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
-            SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
-            IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
+            SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription;
 
         STUN = {
             url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
@@ -945,7 +974,7 @@
         };
 
         peer.ongatheringchange = function (event) {
-            if (event.currentTarget.iceGatheringState === 'complete') returnSDP();
+            if (event.currentTarget && event.currentTarget.iceGatheringState === 'complete') returnSDP();
         };
 
         function returnSDP() {
@@ -985,8 +1014,8 @@
             if (!options.onOfferSDP) return;
 
             peer.createOffer(function (sessionDescription) {
+                sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
-                if (moz) returnSDP();
             }, null, constraints);
         }
 
@@ -997,14 +1026,21 @@
             peer.setRemoteDescription(options.offerSDP);
 
             peer.createAnswer(function (sessionDescription) {
+                sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
-                if (moz) returnSDP();
             }, null, constraints);
         }
 
         if ((options.onmessage && !moz) || !options.onmessage) {
             createOffer();
             createAnswer();
+        }
+
+        bandwidth = options.bandwidth;
+        function setBandwidth(sdp) {
+            sdp = sdp.replace(/m=audio([^\r\n]+)/g, '$1\r\nb=AS:' + (bandwidth.audio || 50))
+            sdp = sdp.replace(/m=video([^\r\n]+)/g, '$1\r\nb=AS:' + (bandwidth.video || 256))
+            return sdp;
         }
 
         var channel;
@@ -1113,7 +1149,7 @@
     }
 
     function isData(session) {
-        return !session.audio && !session.video && !session.screen;
+        return !session.audio && !session.video && !session.screen && session.data;
     }
 
     Array.prototype.swap = function () {
@@ -1122,8 +1158,8 @@
         return swapped;
     };
 
-    function log(a, b, c, d, e, f) {
-        console.debug(a || '', b || '', c || '', d || '', e || '', f || ''); // console.debug(arguments);
+    function log() {
+        console.debug(arguments)
     }
 
     function Defaulter(self) {
@@ -1169,11 +1205,18 @@
 
         self.peers = {};
         self.streams = {};
+        self.channels = {};
         self.extra = {};
 
         self.session = {
             audio: true,
-            video: true
+            video: true,
+            data: true
+        };
+
+        self.bandwidth = {
+            audio: 50,
+            video: 256
         };
 
         self._getStream = function (e) {

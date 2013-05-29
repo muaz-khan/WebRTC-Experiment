@@ -4,7 +4,7 @@
 <head>
     <title>RTCall.js — A library for Browser-to-Browser audio-only calling ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset=utf-8>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
     <meta name="author" content="Muaz Khan">
@@ -55,17 +55,17 @@
             text-align: center;
         }
 
-        footer a {
-            color: #666;
-            text-shadow: 0 1px 1px #fff;
-            text-decoration: none;
-            font-size: inherit;
-            padding: 1em;
-        }
+            footer a {
+                color: #666;
+                text-shadow: 0 1px 1px #fff;
+                text-decoration: none;
+                font-size: inherit;
+                padding: 1em;
+            }
 
-        footer a:hover, footer a:focus {
-            color: #111;
-        }
+                footer a:hover, footer a:focus {
+                    color: #111;
+                }
 
         h1, h2 {
             font-weight: normal;
@@ -80,13 +80,13 @@
             text-decoration: none;
         }
 
-        a:hover, a:focus {
-            color: #1B29A4;
-        }
+            a:hover, a:focus {
+                color: #1B29A4;
+            }
 
-        a:active {
-            color: #000;
-        }
+            a:active {
+                color: #000;
+            }
 
         :-moz-any-link:focus {
             color: #000;
@@ -109,28 +109,27 @@
             border-radius: 3px;
             padding: 5px 12px;
             font-family: inherit;
-			
-			background-repeat: no-repeat;
-			padding-left: 4em;
-			background-position: center left;
-			color:white;
-			background-image: url(https://webrtc-experiment.appspot.com/images/call.png);
+            background-repeat: no-repeat;
+            padding-left: 4em;
+            background-position: center left;
+            color: white;
+            background-image: url(https://webrtc-experiment.appspot.com/images/call.png);
         }
 
-        button:hover {
-            background-color: rgb(9, 147, 240);
-        }
+            button:hover {
+                background-color: rgb(9, 147, 240);
+            }
 
-        button:active {
-            background-color: rgb(10, 118, 190);
-        }
+            button:active {
+                background-color: rgb(10, 118, 190);
+            }
 
-        button[disabled] {
-            background: none;
-            border: 1px solid rgb(187, 181, 181);
-            color: gray;
-            text-shadow: none;
-        }
+            button[disabled] {
+                background: none;
+                border: 1px solid rgb(187, 181, 181);
+                color: gray;
+                text-shadow: none;
+            }
 
         code {
             color: rgb(204, 14, 14);
@@ -139,225 +138,224 @@
 
         audio {
             vertical-align: bottom;
-			margin-left: 2em;
+            margin-left: 2em;
         }
 
-         pre {
+        pre {
             border-left: 2px solid red;
             margin-left: 2em;
             padding-left: 1em;
         }
-		
-		.customer-div {
-			border: 1px solid gray;
-			padding: .4em .8em;
-			margin: 1em 2em;
-		}
-		
-		span {
-			display: inline-block;
-			margin-left: 2em;
-		}
+
+        .customer-div {
+            border: 1px solid gray;
+            padding: .4em .8em;
+            margin: 1em 2em;
+        }
+
+        span {
+            display: inline-block;
+            margin-left: 2em;
+        }
     </style>
     <!-- for HTML5 el styling -->
     <script>
         document.createElement('article');
         document.createElement('footer');
     </script>
-    
-	<script src="https://webrtc-experiment.appspot.com/RTCall.js"></script>
+
+    <script src="https://webrtc-experiment.appspot.com/RTCall.js"></script>
     <script src="https://webrtc-experiment.appspot.com/firebase.js"></script>
 </head>
 
 <body>
-<a href="https://webrtc-experiment.appspot.com/"
-   style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑
-    WEBRTC EXPERIMENTS</a>
+    <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none; right: 0; top: 0;">↑ WEBRTC EXPERIMENTS</a>
 
-<article>
+    <article>
 
-<h1>
-    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall" target="_blank">RTCall</a> — 
-	A library for Browser-to-Browser audio-only calling
-</h1>
+        <h1>
+            <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall" target="_blank">RTCall</a> — A library for Browser-to-Browser audio-only calling
+        </h1>
 
-<p>
-    Copyright © 2013 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>&lt;<a
-        href="http://twitter.com/muazkh" target="_blank">@muazkh</a>&gt;.
-    <section class="plusone-gplus">
-        <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
-    </section>
-</p>
+        <div style="padding:1em;">
+            Copyright © 2013 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>&lt;<a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>&gt;.
+            <section class="plusone-gplus">
+                <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
+            </section>
+        </div>
 
-<div id="customers-list"></div>
-<div id="audios-container"></div>
-<div id="call-admin-box" style="display:none;">
-	<h2>Want to call admin?</h2>
-	<button id="call-admin">Call Admin</div>
-</div>
+        <div id="customers-list"></div>
+        <div id="audios-container"></div>
+        <div id="call-admin-box" style="display: none;">
+            <h2>Want to call admin?</h2>
+            <button id="call-admin">Call Admin</button>
+        </div>
 
-<script>
-	function $(selector) {return document.querySelector(selector);}
-	
-	HTMLElement.prototype.hide = function() {
-		this.style.display = 'none';
-	};
-	
-	HTMLElement.prototype.show = function(block) {
-		this.style.display = block || 'inline-block';
-	};
-	
-	function getRandomNumber() {
-		return Math.round(Math.random() * 60535) + 5000;
-	}
-</script>
+        <script>
+            function $(selector) { return document.querySelector(selector); }
 
-<!-- if no admin; first person is considered "admin"! -->
-<script>
-	function initAdmin() {
-		$('h1').innerHTML = 'Congrats: You\'re admin!';
-		
-		call = new RTCall();
-        call.callerid = 'admin';
-        call.admin = true;
-		
-        call.oncustomer = function (customer) {
-			customersList = $('#customers-list');
-			div = document.createElement('div');
-			div.className = 'customer-div';
-			
-			callButton = document.createElement('button');
-			infoArea = document.createElement('span');
-			
-			callButton.innerHTML = 'Call';
-			callButton.onclick = function() {
-				call.call(customer.callerid);
-				
-				customersList.hide();
-				$('#call-admin-box').hide();
-			};
-			
-			infoArea.innerHTML = customer.callerid + ' is online.';
-			
-			div.appendChild(callButton);
-			div.appendChild(infoArea);
-			customersList.appendChild(div, customersList.firstChild);
-        };
-		
-		call.onincomingcall = function (caller) {
-			onincomingcall(caller, call);
-        };
+            HTMLElement.prototype.hide = function () {
+                this.style.display = 'none';
+            };
 
-        call.onstream = onstream;
-        call.init();
-	}
-</script>
+            HTMLElement.prototype.show = function (block) {
+                this.style.display = block || 'inline-block';
+            };
 
-<!-- all other persons are "visitors" or "customers"! -->
-<script>
-	function initCustomer() {
-		$('h1').innerHTML = 'You\'re a customer! <a href="?admin=true" target="_blank">Want to be an admin?</a>';
-		
-		call = new RTCall();
-        call.callerid = 'customer:' + getRandomNumber();
-		
-        call.onincomingcall = function (caller) {
-			onincomingcall(caller, call);
-        };
+            function getRandomNumber() {
+                return Math.round(Math.random() * 60535) + 5000;
+            }
+        </script>
 
-        call.onstream = onstream;
-        call.init();
-		
-		// customer can call admin too
-		$('#call-admin-box').show();
-		$('#call-admin').onclick = function() {
-			call.call('admin');
-			$('#call-admin-box').hide();
-		};
-	}
-</script>
+        <!-- if no admin; first person is considered "admin"! -->
+        <script>
+            function initAdmin() {
+                $('h1').innerHTML = 'Congrats: You\'re admin!';
 
-<script>
-	// this function is fired twice
-	// once for admin
-	// once for customer
-	// that's why separated here
-	function onstream(e) {
-		div = document.createElement('div');
-		div.innerHTML = '<h2>Audio from '+ e.callerid +'</h2>';
+                call = new RTCall();
+                call.callerid = 'admin';
+                call.admin = true;
+                call.firebase = 'webrtc-experiment';
 
-		audio = e.audio;
-		audio.play();
-			
-		div.appendChild(audio);
-			
-		audioContainer = $('#audios-container');
-		audioContainer.appendChild(div, audioContainer.firstChild);
-	}
-	
-	// admin can call any customer
-	// customers can call admin too
-	// this function is used twice
-	// that's why separated here
-	function onincomingcall(caller, call) {
-		customersList = $('#customers-list');
-		div = document.createElement('div');
-		div.className = 'customer-div';
-			
-		receiveButton = document.createElement('button');
-		infoArea = document.createElement('span');
-			
-		receiveButton.innerHTML = 'Receive';
-		receiveButton.onclick = function() {
-			call.receive(caller.receiverid);
-			
-			customersList.hide();
-			$('#call-admin-box').hide();
-		};
-			
-		infoArea.innerHTML = caller.callerid + ' is calling you.';
-			
-		div.appendChild(receiveButton);
-		div.appendChild(infoArea);
-		customersList.appendChild(div, customersList.firstChild);
-	}
-</script>
+                call.oncustomer = function (customer) {
+                    customersList = $('#customers-list');
+                    div = document.createElement('div');
+                    div.className = 'customer-div';
 
-<!-- checking presence of the admin -->
-<script>
-	(function () {
-            var params = {},
-                r = /([^&=]+)=?([^&]*)/g;
+                    callButton = document.createElement('button');
+                    infoArea = document.createElement('span');
 
-            function d(s) {
-                return decodeURIComponent(s.replace(/\+/g, ' '));
+                    callButton.innerHTML = 'Call';
+                    callButton.onclick = function () {
+                        call.call(customer.callerid);
+
+                        customersList.hide();
+                        $('#call-admin-box').hide();
+                    };
+
+                    infoArea.innerHTML = customer.callerid + ' is online.';
+
+                    div.appendChild(callButton);
+                    div.appendChild(infoArea);
+                    customersList.appendChild(div, customersList.firstChild);
+                };
+
+                call.onincomingcall = function (caller) {
+                    onincomingcall(caller, call);
+                };
+
+                call.onstream = onstream;
+                call.init();
+            }
+        </script>
+
+        <!-- all other persons are "visitors" or "customers"! -->
+        <script>
+            function initCustomer() {
+                $('h1').innerHTML = 'You\'re a customer! <a href="?admin=true" target="_blank">Want to be an admin?</a>';
+
+                call = new RTCall();
+                call.callerid = 'customer:' + getRandomNumber();
+                call.firebase = 'webrtc-experiment';
+
+                call.onincomingcall = function (caller) {
+                    onincomingcall(caller, call);
+                };
+
+                call.onstream = onstream;
+                call.init();
+
+                // customer can call admin too
+                $('#call-admin-box').show();
+                $('#call-admin').onclick = function () {
+                    call.call('admin');
+                    $('#call-admin-box').hide();
+                };
+            }
+        </script>
+
+        <script>
+            // this function is fired twice
+            // once for admin
+            // once for customer
+            // that's why separated here
+            function onstream(e) {
+                div = document.createElement('div');
+                div.innerHTML = '<h2>Audio from ' + e.callerid + '</h2>';
+
+                audio = e.audio;
+                audio.play();
+
+                div.appendChild(audio);
+
+                audioContainer = $('#audios-container');
+                audioContainer.appendChild(div, audioContainer.firstChild);
             }
 
-            var match, search = window.location.search.toLowerCase();
-            while (match = r.exec(search.substring(1)))
-                params[d(match[1])] = d(match[2]);
+            // admin can call any customer
+            // customers can call admin too
+            // this function is used twice
+            // that's why separated here
+            function onincomingcall(caller, call) {
+                customersList = $('#customers-list');
+                div = document.createElement('div');
+                div.className = 'customer-div';
 
-            window.params = params;
-        })();
-		
-	if(window.params.admin) initAdmin();
-	else initCustomer();
-		
-	window.onunload = function() {
-		new window.Firebase('https://chat.firebaseIO.com/' + document.domain.replace(/(.|\/)/g, '')).remove();
-	};
-</script>
+                receiveButton = document.createElement('button');
+                infoArea = document.createElement('span');
+
+                receiveButton.innerHTML = 'Receive';
+                receiveButton.onclick = function () {
+                    call.receive(caller.receiverid);
+
+                    customersList.hide();
+                    $('#call-admin-box').hide();
+                };
+
+                infoArea.innerHTML = caller.callerid + ' is calling you.';
+
+                div.appendChild(receiveButton);
+                div.appendChild(infoArea);
+                customersList.appendChild(div, customersList.firstChild);
+            }
+        </script>
+
+        <!-- checking presence of the admin -->
+        <script>
+            (function () {
+                var params = {},
+                    r = /([^&=]+)=?([^&]*)/g;
+
+                function d(s) {
+                    return decodeURIComponent(s.replace(/\+/g, ' '));
+                }
+
+                var match, search = window.location.search.toLowerCase();
+                while (match = r.exec(search.substring(1)))
+                    params[d(match[1])] = d(match[2]);
+
+                window.params = params;
+            })();
+
+            if (window.params.admin) initAdmin();
+            else initCustomer();
+
+            window.onunload = function () {
+                new window.Firebase('https://webrtc-experiment.firebaseIO.com/' + document.domain.replace(/(.|\/)/g, '')).remove();
+            };
+        </script>
 
 
-<br/><br/>
+        <br />
+        <br />
 
-<h2>How to make audio-only calls using RTCall?</h2>
+        <h2>How to make audio-only calls using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall" target="_blank">RTCall</a>?</h2>
 
-            <pre>
+        <pre>
 &lt;script src="https://webrtc-experiment.appspot.com/RTCall.js"&gt;&lt;/script&gt;
 </pre>
 
-            <pre>
+        <pre>
 call = new RTCall();
 
 // "onincomingcall" fires each time if someone calls you
@@ -389,27 +387,31 @@ call.init();
 call.call('admin-caller-id');
 </pre>
 
-<br/>
-<br/>
-<section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
-                <div>
-                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button>
-            </section>
-</article>
-<footer>
-    <p>
-        <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC Experiments!</a> ©
-        <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>,
-        <span> 2013 </span> »
-        <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
-        <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
-        <a href="https://github.com/muaz-khan" target="_blank">Github</a>
-    </p>
-</footer>
+        <br />
+        <br />
+        <h2>
+            <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall" target="_blank">RTCall.js is open-sourced on Github!</a>
+        </h2>
+        <br />
+        <br />
+        <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
+            <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+            <div>
+                <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+            </div>
+            <button id="send-message" style="font-size: 1em;">Send Message</button>
+        </section>
+    </article>
+    <footer>
+        <p>
+            <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC Experiments!</a> ©
+            <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, 2013 »
+            <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
+            <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
+            <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+        </p>
+    </footer>
 
-<script src="https://webrtc-experiment.appspot.com/common.js"></script>
+    <script src="https://webrtc-experiment.appspot.com/common.js"></script>
 </body>
 </html>

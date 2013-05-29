@@ -79,12 +79,14 @@ This method is reliable and works all the time without any failure.
 
 #### Possible issues/failures:
 
-It is appeared that audio-recording has many chances of failures.
+Do you know "RecordRTC" fails recording audio because following conditions fails:
 
-Possible audio-recording failures:
+1. Sample rate and channel configuration must be the same for input and output sides on Windows i.e. audio input/output devices mismatch
+2. Only the Default microphone device can be used for capturing.
+3. The requesting scheme is none of the following: http, https, chrome, extension's, or file (only works with `--allow-file-access-from-files`)
+4. The browser cannot create/initialize the metadata database for the API under the profile directory
 
-1. Audio input/output devices mismatch
-2. You're using old chrome and `Web Audio Input` flag is not enabled
+If you see this error message: `Uncaught Error: SecurityError: DOM Exception 18`; it means that you're using `HTTP`; whilst your webpage is loading worker file (i.e. `audio-recorder.js`) from `HTTPS`. Both files's (i.e. `RecordRTC.js` and `audio-recorder.js`) scheme MUST be same!
 
 #### Saving to disk failures:
 
