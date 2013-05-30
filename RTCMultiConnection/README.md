@@ -463,6 +463,24 @@ For a `ready-made` socket.io over node.js implementation; [visit this link](http
 
 ----
 
+#### [RTCMultiConnection Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection)
+
+1. [Multi-Session Establishment](https://webrtc-experiment.appspot.com/RTCMultiConnection/multi-session-establishment/)
+2. [File Sharing + Text Chat](https://webrtc-experiment.appspot.com/RTCMultiConnection/group-file-sharing-plus-text-chat/)
+3. [All-in-One test](https://webrtc-experiment.appspot.com/RTCMultiConnection/)
+4. [Video Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-conferencing/)
+5. [Video Broadcasting](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-broadcasting/)
+6. [Audio Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/audio-conferencing/)
+7. [Join with/without camera](https://webrtc-experiment.appspot.com/RTCMultiConnection/join-with-or-without-camera/)
+8. [Screen Sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/screen-sharing/)
+9. [One-to-One file sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/one-to-one-filesharing/)
+10. [Manual session establishment + extra data transmission](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission/)
+11. [Manual session establishment + extra data transmission + video conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/)
+12. [Users ejection and presence detection](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/)
+13. [Customizing Bandwidth](https://webrtc-experiment.appspot.com/RTCMultiConnection/bandwidth/)
+
+----
+
 #### Browser Support
 
 [RTCMultiConnection.js](https://webrtc-experiment.appspot.com/#RTCMultiConnection) supports following browsers:

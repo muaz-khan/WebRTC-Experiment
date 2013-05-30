@@ -111,6 +111,7 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 10. [Manual session establishment + extra data transmission](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission/)
 11. [Manual session establishment + extra data transmission + video conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/)
 12. [Users ejection and presence detection](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/)
+13. [Customizing Bandwidth](https://webrtc-experiment.appspot.com/RTCMultiConnection/bandwidth/)
 
 ----
 
