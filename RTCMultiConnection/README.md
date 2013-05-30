@@ -217,7 +217,7 @@ connection.onmessage = function (e) {
 }
 ```
 
-### Direct Messages
+#### Direct Messages
 
 You can share data directly between two unique users using their user-ids:
 

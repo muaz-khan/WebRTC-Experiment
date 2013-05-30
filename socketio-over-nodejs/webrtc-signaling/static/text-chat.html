@@ -1,6 +1,4 @@
-﻿<script>var URL = '/';</script>
-
-<title>Simple Text-Chat using Socket.io over Node.js ® Muaz Khan</title>
+﻿<title>Simple Text-Chat using Socket.io over Node.js ® Muaz Khan</title>
 
 <h1 style="text-align: center;display: block;border-bottom: 1px solid #CCCCCC;margin-bottom: 0em;padding: .6em 0;font-size: 2em;">Simple Text-Chat using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs" target="_blank">Socket.io over Node.js</a></h1>
 
@@ -66,15 +64,16 @@
 <input type="text" disabled>
 <div id="output"></div>
 <script>
-    var channel = 'channel-name';
-    var sender = Math.round(Math.random() * 60535) + 5000;
+    URL = '/';
+    channel = 'channel-name';
+    sender = Math.round(Math.random() * 60535) + 5000;
 
     io.connect(URL).emit('new-channel', {
         channel: channel,
         sender: sender
     });
 
-    var socket = io.connect(URL + channel);
+    socket = io.connect(URL + channel);
     socket.on('connect', function () {
         if (!window.username) window.username = prompt('Please enter your full name') || 'Anonymous';
 
@@ -97,7 +96,7 @@
     });
 </script>
 <script>
-    var input = document.querySelector('input[type=text]');
+    input = document.querySelector('input[type=text]');
     input.onkeypress = function (e) {
         if (e.keyCode !== 13 || !this.value.length) return;
         socket.send(this.value);
@@ -111,10 +110,9 @@
         this.value = '';
     };
 
-    var output = document.querySelector('#output');
-
+    output = document.querySelector('#output');
     function appendDIV(data) {
-        var div = document.createElement('div');
+        div = document.createElement('div');
         div.innerHTML = '<section class="name">' + data.sender + '</section><section class="message">' + data.message + '</section>';
         output.insertBefore(div, output.firstChild);
 

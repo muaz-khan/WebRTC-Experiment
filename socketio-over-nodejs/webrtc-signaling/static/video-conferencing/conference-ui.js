@@ -1,16 +1,17 @@
 ﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
 
-var config = {
+config = {
     openSocket    : function (config) {
-        var channel = config.channel || location.hash.replace('#', '') || 'video-conferencing';
-        var sender = Math.round(Math.random() * 60535) + 5000;
+        URL = '/';
+        channel = config.channel || location.hash.replace('#', '') || 'video-conferencing';
+        sender = Math.round(Math.random() * 60535) + 5000;
 
         io.connect(URL).emit('new-channel', {
             channel: channel,
             sender : sender
         });
 
-        var socket = io.connect(URL + channel);
+        socket = io.connect(URL + channel);
         socket.channel = channel;
         socket.on('connect', function () {
             if (config.callback) config.callback(socket);
@@ -91,12 +92,12 @@ function captureUserMedia(callback) {
 }
 
 /* on page load: get public rooms */
-var conferenceUI = conference(config);
+conferenceUI = conference(config);
 
 /* UI specific */
-var participants = document.getElementById("participants") || document.body;
-var startConferencing = document.getElementById('start-conferencing');
-var roomsList = document.getElementById('rooms-list');
+participants = document.getElementById("participants") || document.body;
+startConferencing = document.getElementById('start-conferencing');
+roomsList = document.getElementById('rooms-list');
 
 if (startConferencing) startConferencing.onclick = createButtonClickHandler;
 
@@ -116,7 +117,7 @@ function rotateVideo(video) {
 }
 
 (function () {
-    var uniqueToken = document.getElementById('unique-token');
+    uniqueToken = document.getElementById('unique-token');
     if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">You can share this private link with your friends.</a></h2>';
     else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = (function () {
             return "#private-" + ("" + 1e10).replace(/[018]/g, function (a) {

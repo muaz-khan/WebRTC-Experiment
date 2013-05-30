@@ -209,7 +209,7 @@
                     if (session.audio && !session.video) throw 'Microphone access is denied.';
                     else if (session.screen) {
                         if (location.protocol === 'http:') throw '<https> is mandatory to capture screen.';
-                        else throw 'Multi-capturing of screen is not allowed. Capturing process is denied.';
+                        else throw 'Multi-capturing of screen is not allowed. Capturing process is denied. Are you enabled flag: "Enable screen capture support in getUserMedia"?';
                     } else throw 'Webcam access is denied.';
                 }
             };
@@ -600,6 +600,10 @@
         window.onunload = function () {
             leaveARoom();
         };
+		
+		window.onkeyup = function(e) {
+            if(e.keyCode == 116) leaveARoom();
+        };
 
         (function () {
             var anchors = document.querySelectorAll('a'), length = anchors.length;
@@ -948,7 +952,15 @@
             iceServers: options.iceServers || [STUN]
         };
 
-        if (!moz && !options.iceServers) iceServers.iceServers = [TURN, STUN];
+        if (!moz && !options.iceServers) {
+			if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
+				TURN = {
+					url: 'turn:numb.viagenie.ca',
+					credential: 'muazkh',
+					username: 'webrtc@live.com'
+			};
+			iceServers.iceServers = [TURN, STUN];
+		}
 
         optional = {
             optional: []

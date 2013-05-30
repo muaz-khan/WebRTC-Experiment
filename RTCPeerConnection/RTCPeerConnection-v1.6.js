@@ -3,14 +3,13 @@
      MIT License » https://webrtc-experiment.appspot.com/licence/
      Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
 */
-
-window.moz = !!navigator.mozGetUserMedia;
+window.moz = !! navigator.mozGetUserMedia;
 var RTCPeerConnection = function (options) {
     var w = window,
         PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
         SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription;
 
-    isDataChannel = !!options.onChannelMessage;
+    isDataChannel = !! options.onChannelMessage;
 
     STUN = {
         url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
@@ -25,7 +24,15 @@ var RTCPeerConnection = function (options) {
         iceServers: options.iceServers || [STUN]
     };
 
-    if (!moz && !options.iceServers) iceServers.iceServers = [TURN, STUN];
+    if (!moz && !options.iceServers) {
+        if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
+            TURN = {
+                url: 'turn:numb.viagenie.ca',
+                credential: 'muazkh',
+                username: 'webrtc@live.com'
+        };
+        iceServers.iceServers = [TURN, STUN];
+    }
 
     optional = {
         optional: []
@@ -33,13 +40,15 @@ var RTCPeerConnection = function (options) {
 
     if (!moz) {
         optional.optional = [{
-            DtlsSrtpKeyAgreement: true
-        }];
+                DtlsSrtpKeyAgreement: true
+            }
+        ];
 
         if (isDataChannel)
             optional.optional = [{
-                RtpDataChannels: true
-            }];
+                    RtpDataChannels: true
+                }
+            ];
     }
 
     var peerConnection = new PeerConnection(iceServers, optional);
@@ -81,11 +90,11 @@ var RTCPeerConnection = function (options) {
     };
 
     if (!moz && isDataChannel && !options.attachStream) constraints = {
-        optional: [],
-        mandatory: {
-            OfferToReceiveAudio: false,
-            OfferToReceiveVideo: false
-        }
+            optional: [],
+            mandatory: {
+                OfferToReceiveAudio: false,
+                OfferToReceiveVideo: false
+            }
     };
 
     if (moz && !isDataChannel)
@@ -95,9 +104,9 @@ var RTCPeerConnection = function (options) {
         if (!options.onOfferSDP) return;
 
         peerConnection.createOffer(function (sessionDescription) {
-            peerConnection.setLocalDescription(sessionDescription);
-            if (moz) options.onOfferSDP(sessionDescription);
-        }, null, constraints);
+                peerConnection.setLocalDescription(sessionDescription);
+                if (moz) options.onOfferSDP(sessionDescription);
+            }, null, constraints);
     }
 
     function createAnswer() {
@@ -105,9 +114,9 @@ var RTCPeerConnection = function (options) {
 
         peerConnection.setRemoteDescription(new SessionDescription(options.offerSDP));
         peerConnection.createAnswer(function (sessionDescription) {
-            peerConnection.setLocalDescription(sessionDescription);
-            if (moz) options.onAnswerSDP(sessionDescription);
-        }, null, constraints);
+                peerConnection.setLocalDescription(sessionDescription);
+                if (moz) options.onAnswerSDP(sessionDescription);
+            }, null, constraints);
     }
 
     if ((isDataChannel && !moz) || !isDataChannel) {
@@ -124,12 +133,12 @@ var RTCPeerConnection = function (options) {
 
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function (stream) {
-                peerConnection.addStream(stream);
-                createOffer();
-            }, useless);
+                    audio: true,
+                    fake: true
+                }, function (stream) {
+                    peerConnection.addStream(stream);
+                    createOffer();
+                }, useless);
         }
     }
 
@@ -154,6 +163,8 @@ var RTCPeerConnection = function (options) {
         };
         channel.onclose = function (event) {
             if (options.onChannelClosed) options.onChannelClosed(event);
+
+            console.warn('WebRTC DataChannel closed', event);
         };
         channel.onerror = function (event) {
             if (options.onChannelError) options.onChannelError(event);
@@ -171,16 +182,16 @@ var RTCPeerConnection = function (options) {
 
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function (stream) {
-                peerConnection.addStream(stream);
-                createAnswer();
-            }, useless);
+                    audio: true,
+                    fake: true
+                }, function (stream) {
+                    peerConnection.addStream(stream);
+                    createAnswer();
+                }, useless);
         }
     }
 
-    function useless() { }
+    function useless() {}
 
     return {
         addAnswerSDP: function (sdp) {
@@ -200,14 +211,15 @@ var video_constraints = {
 };
 
 function getUserMedia(options) {
-    var n = navigator, media;
+    var n = navigator,
+        media;
     n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
     n.getMedia(options.constraints || {
-        audio: true,
-        video: video_constraints
-    }, streaming, options.onerror || function (e) {
-        console.error(e);
-    });
+            audio: true,
+            video: video_constraints
+        }, streaming, options.onerror || function (e) {
+            console.error(e);
+        });
 
     function streaming(stream) {
         var video = options.video;

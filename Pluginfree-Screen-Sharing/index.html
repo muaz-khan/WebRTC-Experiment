@@ -228,20 +228,29 @@
         <script src="https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/conference.js"></script>
         <script src="https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/conference-ui.js"></script>
 
-		<br />
-		<br />
-        <h2>You must make sure that:</h2>
-
+        <br />
+        <br />
+		
         <blockquote>
-            <ol>
-                <li>You're using <span style="color: red;">chrome canary</span> (If you want to share your own screen).</li>
-                <li>You enabled flag "<code>Enable screen capture support in getUserMedia()</code>" – via – "<code>chrome://flags</code>"</li>
-            </ol>
+        <h2>Enable screen capture support in getUserMedia()</h2>
+		
+        <br /><br />
+		
+        Allow web pages to request access to the screen contents via the getUserMedia() API. #enable-usermedia-screen-capture
+		
+        <br /><br />
+		
+        You must enable this flag via "chrome://flags/"
+		
         </blockquote>
-
-        <h2>To use code in your own site, you must understand following limitations:</h2>
+		
+        <br />
+        <br />        
 
         <blockquote>
+            <h2>To use code in your own site, you must understand following limitations:</h2>
+            <br />
+            <br />
             Chrome Canary <span style="color: red;">denies</span> "screen capturing" request automatically if:
             <ol>
                 <li>You've not used '<code>chromeMediaSource</code>' constraint:
@@ -253,6 +262,7 @@ mandatory: {chromeMediaSource: 'screen'}
                 </li>
                 <li>You requested audio-stream alongwith '<code>chromeMediaSource</code>' – it is not permitted.</li>
                 <li>You're not testing it on SSL origin (HTTPS domain).</li>
+				<li>"screen capturing" is requested multiple times per tab. Maximum one request is permitted per page!</li>
             </ol>
             <br />
             Remember, recursive cascade images or blurred screen is chrome's implementation issues. It will be solved soon.

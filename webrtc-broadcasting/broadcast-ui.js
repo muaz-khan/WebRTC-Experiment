@@ -116,7 +116,7 @@ function captureUserMedia(callback) {
 			if (option === 'Only Audio') alert('unable to get access to your microphone');
 			else if(option === 'Screen') {
 				if(location.protocol === 'http:') alert('Please test this WebRTC experiment on HTTPS.');
-				else alert('Screen capturing is either denied or not supported.');
+				else alert('Screen capturing is either denied or not supported. Are you enabled flag: "Enable screen capture support in getUserMedia"?');
 			}
 			else alert('unable to get access to your webcam');
         }

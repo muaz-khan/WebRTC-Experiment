@@ -2,8 +2,7 @@
  2013, Muaz Khan<muazkh>--[github.com/muaz-khan]
 
  Demo & Documentation: http://bit.ly/RTCPeerConnection-Documentation */
-
-window.moz = !!navigator.mozGetUserMedia;
+window.moz = !! navigator.mozGetUserMedia;
 var RTCPeerConnection = function (options) {
     var w = window,
         PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
@@ -23,7 +22,15 @@ var RTCPeerConnection = function (options) {
         iceServers: options.iceServers || [STUN]
     };
 
-    if (!moz && !options.iceServers) iceServers.iceServers = [TURN, STUN];
+    if (!moz && !options.iceServers) {
+        if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
+            TURN = {
+                url: 'turn:numb.viagenie.ca',
+                credential: 'muazkh',
+                username: 'webrtc@live.com'
+        };
+        iceServers.iceServers = [TURN, STUN];
+    }
 
     var optional = {
         optional: []
@@ -31,13 +38,15 @@ var RTCPeerConnection = function (options) {
 
     if (!moz) {
         optional.optional = [{
-            DtlsSrtpKeyAgreement: true
-        }];
+                DtlsSrtpKeyAgreement: true
+            }
+        ];
 
         if (options.onChannelMessage)
             optional.optional = [{
-                RtpDataChannels: true
-            }];
+                    RtpDataChannels: true
+                }
+            ];
     }
 
     var peerConnection = new PeerConnection(iceServers, optional);
@@ -89,7 +98,7 @@ var RTCPeerConnection = function (options) {
         var inline = getChars() + '\r\n' + (extractedChars = '');
         sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
             'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
-                'c=IN') : sdp;
+            'c=IN') : sdp;
 
         if (options.offerSDP) {
             info('\n--------offer sdp provided by offerer\n');
@@ -108,10 +117,10 @@ var RTCPeerConnection = function (options) {
         if (!options.onOfferSDP) return;
 
         peerConnection.createOffer(function (sessionDescription) {
-            sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
-            peerConnection.setLocalDescription(sessionDescription);
-            options.onOfferSDP(sessionDescription);
-        }, null, constraints);
+                sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
+                peerConnection.setLocalDescription(sessionDescription);
+                options.onOfferSDP(sessionDescription);
+            }, null, constraints);
     }
 
     function createAnswer() {
@@ -121,10 +130,10 @@ var RTCPeerConnection = function (options) {
         peerConnection.setRemoteDescription(options.offerSDP);
 
         peerConnection.createAnswer(function (sessionDescription) {
-            sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
-            peerConnection.setLocalDescription(sessionDescription);
-            options.onAnswerSDP(sessionDescription);
-        }, null, constraints);
+                sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
+                peerConnection.setLocalDescription(sessionDescription);
+                options.onAnswerSDP(sessionDescription);
+            }, null, constraints);
     }
 
     if ((options.onChannelMessage && !moz) || !options.onChannelMessage) {
@@ -141,12 +150,12 @@ var RTCPeerConnection = function (options) {
 
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function (stream) {
-                peerConnection.addStream(stream);
-                createOffer();
-            }, useless);
+                    audio: true,
+                    fake: true
+                }, function (stream) {
+                    peerConnection.addStream(stream);
+                    createOffer();
+                }, useless);
         }
     }
 
@@ -171,6 +180,8 @@ var RTCPeerConnection = function (options) {
         };
         channel.onclose = function (event) {
             if (options.onChannelClosed) options.onChannelClosed(event);
+
+            console.warn('WebRTC DataChannel closed', event);
         };
         channel.onerror = function (event) {
             console.error(event);
@@ -189,17 +200,16 @@ var RTCPeerConnection = function (options) {
 
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function (stream) {
-                peerConnection.addStream(stream);
-                createAnswer();
-            }, useless);
+                    audio: true,
+                    fake: true
+                }, function (stream) {
+                    peerConnection.addStream(stream);
+                    createAnswer();
+                }, useless);
         }
     }
 
-    function useless() {
-    }
+    function useless() {}
 
     function info(information) {
         console.log(information);
@@ -216,9 +226,9 @@ var RTCPeerConnection = function (options) {
         addICE: function (candidate) {
             info(candidate.candidate);
             peerConnection.addIceCandidate(new IceCandidate({
-                sdpMLineIndex: candidate.sdpMLineIndex,
-                candidate: candidate.candidate
-            }));
+                        sdpMLineIndex: candidate.sdpMLineIndex,
+                        candidate: candidate.candidate
+                    }));
         },
 
         peer: peerConnection,
@@ -235,14 +245,15 @@ var video_constraints = {
 };
 
 function getUserMedia(options) {
-    var n = navigator, media;
+    var n = navigator,
+        media;
     n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
     n.getMedia(options.constraints || {
-        audio: true,
-        video: video_constraints
-    }, streaming, options.onerror || function (e) {
-        console.error(e);
-    });
+            audio: true,
+            video: video_constraints
+        }, streaming, options.onerror || function (e) {
+            console.error(e);
+        });
 
     function streaming(stream) {
         var video = options.video;

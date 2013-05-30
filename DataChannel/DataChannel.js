@@ -488,6 +488,10 @@
         window.onunload = function () {
             leaveChannels();
         };
+		
+        window.onkeyup = function(e) {
+            if(e.keyCode == 116) leaveChannels();
+        };
 
         (function () {
             var anchors = document.querySelectorAll('a'), length = anchors.length;
@@ -826,7 +830,15 @@
             iceServers: options.iceServers || [STUN]
         };
 
-        if (!moz && !options.iceServers) iceServers.iceServers = [TURN, STUN];
+        if (!moz && !options.iceServers) {
+			if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
+				TURN = {
+					url: 'turn:numb.viagenie.ca',
+					credential: 'muazkh',
+					username: 'webrtc@live.com'
+			};
+			iceServers.iceServers = [TURN, STUN];
+		}
 
         var optional = {
             optional: []

@@ -83,8 +83,6 @@ It is strongly recommended to use absolute URL including port number:
 var URL = 'http://domain.com:8888/';
 ```
 
-In `signaler.js` file; there is a function named `handler`. Sometimes (in case of failure) you need to use express framework to access/render files.
-
 ----
 
 #### Are you beginner or totally novice?

@@ -87,7 +87,7 @@ function captureUserMedia(callback) {
             if (location.protocol === 'http:') {
                 alert('Please test this WebRTC experiment on HTTPS.');
             } else {
-                alert('Screen capturing is either denied or not supported.');
+                alert('Screen capturing is either denied or not supported. Are you enabled flag: "Enable screen capture support in getUserMedia"?');
             }
         }
     });

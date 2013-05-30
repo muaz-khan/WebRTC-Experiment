@@ -272,7 +272,7 @@
                         if (location.protocol === 'http:') {
                             throw 'Please test this WebRTC experiment on HTTPS.';
                         } else {
-                            throw 'Screen capturing is either denied or not supported.';
+                            throw 'Screen capturing is either denied or not supported. Are you enabled flag: "Enable screen capture support in getUserMedia"?';
                         }
                     } else {
                         throw 'Unable to get access to your webcam';
@@ -378,7 +378,15 @@
             iceServers: options.iceServers || [STUN]
         };
 		
-		if (!moz && !options.iceServers) iceServers.iceServers = [TURN, STUN];
+		if (!moz && !options.iceServers) {
+			if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
+				TURN = {
+					url: 'turn:numb.viagenie.ca',
+					credential: 'muazkh',
+					username: 'webrtc@live.com'
+			};
+			iceServers.iceServers = [TURN, STUN];
+		}
 
         var optional = {
             optional: []

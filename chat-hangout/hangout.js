@@ -1,19 +1,21 @@
 ﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
  It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
  */
-
 var hangout = function (config) {
     var self = {
-            userToken: uniqueToken(),
-            userName: 'Anonymous'
-        },
+        userToken: uniqueToken(),
+        userName: 'Anonymous'
+    },
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
+        sockets = [],
         defaultSocket = {}, RTCDataChannels = [];
 
     function openDefaultSocket() {
-        defaultSocket = config.openSocket({ onmessage: onDefaultSocketResponse });
+        defaultSocket = config.openSocket({
+                onmessage: onDefaultSocketResponse
+            });
     }
 
     function onDefaultSocketResponse(response) {
@@ -26,10 +28,10 @@ var hangout = function (config) {
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
             openSubSocket({
-                isofferer: true,
-                channel: response.channel || response.userToken,
-                closeSocket: true
-            });
+                    isofferer: true,
+                    channel: response.channel || response.userToken,
+                    closeSocket: true
+                });
         }
     }
 
@@ -40,6 +42,7 @@ var hangout = function (config) {
             onmessage: socketResponse,
             onopen: function () {
                 if (isofferer && !peer) initPeer();
+                sockets[sockets.length] = socket;
             }
         };
 
@@ -52,12 +55,12 @@ var hangout = function (config) {
         var peerConfig = {
             onICE: function (candidate) {
                 socket.send({
-                    userToken: self.userToken,
-                    candidate: {
-                        sdpMLineIndex: candidate.sdpMLineIndex,
-                        candidate: JSON.stringify(candidate.candidate)
-                    }
-                });
+                        userToken: self.userToken,
+                        candidate: {
+                            sdpMLineIndex: candidate.sdpMLineIndex,
+                            candidate: JSON.stringify(candidate.candidate)
+                        }
+                    });
             },
             onChannelOpened: onChannelOpened,
             onChannelMessage: function (event) {
@@ -79,18 +82,18 @@ var hangout = function (config) {
         function onChannelOpened(channel) {
             RTCDataChannels[RTCDataChannels.length] = channel;
             channel.send(JSON.stringify({
-                message: 'Hi, I\'m <strong>' + self.userName + '</strong>!',
-                sender: self.userName
-            }));
+                        message: 'Hi, I\'m <strong>' + self.userName + '</strong>!',
+                        sender: self.userName
+                    }));
 
             if (config.onChannelOpened) config.onChannelOpened(channel);
 
             if (isbroadcaster && channels.split('--').length > 3) {
                 /* broadcasting newly connected participant for video-conferencing! */
                 defaultSocket.send({
-                    newParticipant: socket.channel,
-                    userToken: self.userToken
-                });
+                        newParticipant: socket.channel,
+                        userToken: self.userToken
+                    });
             }
 
             gotstream = true;
@@ -110,19 +113,19 @@ var hangout = function (config) {
             }
 
             socket.send({
-                userToken: self.userToken,
-                firstPart: firstPart
-            });
+                    userToken: self.userToken,
+                    firstPart: firstPart
+                });
 
             socket.send({
-                userToken: self.userToken,
-                secondPart: secondPart
-            });
+                    userToken: self.userToken,
+                    secondPart: secondPart
+                });
 
             socket.send({
-                userToken: self.userToken,
-                thirdPart: thirdPart
-            });
+                    userToken: self.userToken,
+                    thirdPart: thirdPart
+                });
         }
 
         function socketResponse(response) {
@@ -146,9 +149,16 @@ var hangout = function (config) {
 
             if (response.candidate && !gotstream) {
                 peer && peer.addICE({
-                    sdpMLineIndex: response.candidate.sdpMLineIndex,
-                    candidate: JSON.parse(response.candidate.candidate)
-                });
+                        sdpMLineIndex: response.candidate.sdpMLineIndex,
+                        candidate: JSON.parse(response.candidate.candidate)
+                    });
+            }
+
+            if (response.left) {
+                if (peer && peer.peer) {
+                    peer.peer.close();
+                    peer.peer = null;
+                }
             }
         }
 
@@ -166,12 +176,46 @@ var hangout = function (config) {
         }
     }
 
+    function leave() {
+        length = sockets.length;
+        for (var i = 0; i < length; i++) {
+            socket = sockets[i];
+            if (socket) {
+                socket.send({
+                        left: true,
+                        userToken: self.userToken
+                    });
+                delete sockets[i];
+            }
+        }
+    }
+
+    window.onunload = function () {
+        leave();
+    };
+
+    window.onkeyup = function (e) {
+        if (e.keyCode == 116) leave();
+    };
+
+    (function () {
+            var anchors = document.querySelectorAll('a'),
+                length = anchors.length;
+            for (var i = 0; i < length; i++) {
+                a = anchors[i];
+                if (a.href.indexOf('#') !== 0 && a.getAttribute('target') != '_blank')
+                    a.onclick = function () {
+                        leave();
+                };
+            }
+        })();
+
     function startBroadcasting() {
         defaultSocket.send({
-            roomToken: self.roomToken,
-            roomName: self.roomName,
-            broadcaster: self.userToken
-        });
+                roomToken: self.roomToken,
+                roomName: self.roomName,
+                broadcaster: self.userToken
+            });
         setTimeout(startBroadcasting, 3000);
     }
 
@@ -181,16 +225,16 @@ var hangout = function (config) {
 
         var new_channel = uniqueToken();
         openSubSocket({
-            channel: new_channel,
-            closeSocket: true
-        });
+                channel: new_channel,
+                closeSocket: true
+            });
 
         defaultSocket.send({
-            participant: true,
-            userToken: self.userToken,
-            joinUser: channel,
-            channel: new_channel
-        });
+                participant: true,
+                userToken: self.userToken,
+                joinUser: channel,
+                channel: new_channel
+            });
     }
 
     function uniqueToken() {
@@ -217,22 +261,22 @@ var hangout = function (config) {
             isGetNewRoom = false;
 
             openSubSocket({
-                channel: self.userToken
-            });
+                    channel: self.userToken
+                });
 
             defaultSocket.send({
-                participant: true,
-                userToken: self.userToken,
-                joinUser: _config.joinUser
-            });
+                    participant: true,
+                    userToken: self.userToken,
+                    joinUser: _config.joinUser
+                });
         },
         send: function (message) {
             console.log('list of data channels', RTCDataChannels);
             var length = RTCDataChannels.length,
                 data = JSON.stringify({
-                    message: message,
-                    sender: self.userName
-                });
+                        message: message,
+                        sender: self.userName
+                    });
             if (!length) return;
             for (var i = 0; i < length; i++) {
                 RTCDataChannels[i].send(data);
