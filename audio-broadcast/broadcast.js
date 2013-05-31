@@ -1,14 +1,21 @@
 ﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
 
 var broadcast = function (config) {
-    var self = { userToken: uniqueToken() },
+    var self = {
+        userToken: uniqueToken()
+    },
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
         publicSocket = {};
 
     function openPublicSocket() {
-        publicSocket = config.openSocket({onmessage: onPublicSocketResponse});
+        publicSocket = config.openSocket({
+                onmessage: onPublicSocketResponse,
+                callback: function (socket) {
+                    publicSocket = socket;
+                }
+            });
     }
 
     function onPublicSocketResponse(response) {
@@ -19,10 +26,10 @@ var broadcast = function (config) {
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
             openSubSocket({
-                isofferer: true,
-                channel: response.channel || response.userToken,
-                closeSocket: true
-            });
+                    isofferer: true,
+                    channel: response.channel || response.userToken,
+                    closeSocket: true
+                });
         }
     }
 
@@ -36,6 +43,11 @@ var broadcast = function (config) {
             }
         };
 
+        socketConfig.callback = function (_socket) {
+            socket = _socket;
+            this.onopen();
+        };
+
         var socket = config.openSocket(socketConfig),
             isofferer = _config.isofferer,
             gotstream,
@@ -47,12 +59,12 @@ var broadcast = function (config) {
             attachStream: config.attachStream,
             onICE: function (candidate) {
                 socket.send({
-                    userToken: self.userToken,
-                    candidate: {
-                        sdpMLineIndex: candidate.sdpMLineIndex,
-                        candidate: JSON.stringify(candidate.candidate)
-                    }
-                });
+                        userToken: self.userToken,
+                        candidate: {
+                            sdpMLineIndex: candidate.sdpMLineIndex,
+                            candidate: JSON.stringify(candidate.candidate)
+                        }
+                    });
             },
             onRemoteStream: function (stream) {
                 if (!stream) return;
@@ -86,20 +98,20 @@ var broadcast = function (config) {
 
         function onRemoteStreamStartsFlowing() {
             audio.addEventListener('play', function () {
-                setTimeout(function () {
-                    audio.muted = false;
-                    audio.volume = 1;
+                    setTimeout(function () {
+                            audio.muted = false;
+                            audio.volume = 1;
 
-                    window.audio = audio;
+                            window.audio = audio;
 
-                    gotstream = true;
+                            gotstream = true;
 
-                    config.onRemoteStream({
-                        audio: audio,
-                        stream: _config.stream
-                    });
-                }, 3000);
-            }, false);
+                            config.onRemoteStream({
+                                    audio: audio,
+                                    stream: _config.stream
+                                });
+                        }, 3000);
+                }, false);
         }
 
         function sendsdp(sdp) {
@@ -116,19 +128,19 @@ var broadcast = function (config) {
             }
 
             socket.send({
-                userToken: self.userToken,
-                firstPart: firstPart
-            });
+                    userToken: self.userToken,
+                    firstPart: firstPart
+                });
 
             socket.send({
-                userToken: self.userToken,
-                secondPart: secondPart
-            });
+                    userToken: self.userToken,
+                    secondPart: secondPart
+                });
 
             socket.send({
-                userToken: self.userToken,
-                thirdPart: thirdPart
-            });
+                    userToken: self.userToken,
+                    thirdPart: thirdPart
+                });
         }
 
         function socketResponse(response) {
@@ -151,9 +163,9 @@ var broadcast = function (config) {
 
             if (response.candidate && !gotstream) {
                 peer && peer.addICE({
-                    sdpMLineIndex: response.candidate.sdpMLineIndex,
-                    candidate: JSON.parse(response.candidate.candidate)
-                });
+                        sdpMLineIndex: response.candidate.sdpMLineIndex,
+                        candidate: JSON.parse(response.candidate.candidate)
+                    });
             }
         }
 
@@ -171,11 +183,11 @@ var broadcast = function (config) {
     }
 
     function startBroadcasting() {
-        publicSocket.send({
-            roomToken: self.roomToken,
-            roomName: self.roomName,
-            broadcaster: self.userToken
-        });
+        publicSocket && publicSocket.send({
+                roomToken: self.roomToken,
+                roomName: self.roomName,
+                broadcaster: self.userToken
+            });
         setTimeout(startBroadcasting, 3000);
     }
 
@@ -205,14 +217,14 @@ var broadcast = function (config) {
             isGetNewRoom = false;
 
             openSubSocket({
-                channel: self.userToken
-            });
+                    channel: self.userToken
+                });
 
             publicSocket.send({
-                participant: true,
-                userToken: self.userToken,
-                joinUser: _config.joinUser
-            });
+                    participant: true,
+                    userToken: self.userToken,
+                    joinUser: _config.joinUser
+                });
         }
     };
 };

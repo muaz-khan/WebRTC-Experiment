@@ -1,13 +1,20 @@
 ﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
 
-var ScreenViewer = function(config) {
-    var self = { userToken: uniqueToken() },
+var ScreenViewer = function (config) {
+    var self = {
+        userToken: uniqueToken()
+    },
         channels = '--',
         isGetNewRoom = true,
         defaultSocket = {};
 
     function openDefaultSocket() {
-        defaultSocket = config.openSocket({ onmessage: onDefaultSocketResponse });
+        defaultSocket = config.openSocket({
+                onmessage: onDefaultSocketResponse,
+                callback: function (socket) {
+                    defaultSocket = socket;
+                }
+            });
     }
 
     function onDefaultSocketResponse(response) {
@@ -18,10 +25,10 @@ var ScreenViewer = function(config) {
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
             openSubSocket({
-                isofferer: true,
-                channel: response.channel || response.userToken,
-                closeSocket: true
-            });
+                    isofferer: true,
+                    channel: response.channel || response.userToken,
+                    closeSocket: true
+                });
         }
     }
 
@@ -30,9 +37,14 @@ var ScreenViewer = function(config) {
         var socketConfig = {
             channel: _config.channel,
             onmessage: socketResponse,
-            onopen: function() {
+            onopen: function () {
                 if (isofferer && !peer) initPeer();
             }
+        };
+
+        socketConfig.callback = function (_socket) {
+            socket = _socket;
+            this.onopen();
         };
 
         var socket = config.openSocket(socketConfig),
@@ -44,16 +56,16 @@ var ScreenViewer = function(config) {
 
         var peerConfig = {
             attachStream: config.attachStream,
-            onICE: function(candidate) {
+            onICE: function (candidate) {
                 socket.send({
-                    userToken: self.userToken,
-                    candidate: {
-                        sdpMLineIndex: candidate.sdpMLineIndex,
-                        candidate: JSON.stringify(candidate.candidate)
-                    }
-                });
+                        userToken: self.userToken,
+                        candidate: {
+                            sdpMLineIndex: candidate.sdpMLineIndex,
+                            candidate: JSON.stringify(candidate.candidate)
+                        }
+                    });
             },
-            onRemoteStream: function(stream) {
+            onRemoteStream: function (stream) {
                 if (!stream) return;
 
                 video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
@@ -80,9 +92,9 @@ var ScreenViewer = function(config) {
                 gotstream = true;
 
                 config.onRemoteStream({
-                    video: video,
-                    stream: _config.stream
-                });
+                        video: video,
+                        stream: _config.stream
+                    });
 
             } else setTimeout(onRemoteStreamStartsFlowing, 50);
         }
@@ -101,19 +113,19 @@ var ScreenViewer = function(config) {
             }
 
             socket.send({
-                userToken: self.userToken,
-                firstPart: firstPart
-            });
+                    userToken: self.userToken,
+                    firstPart: firstPart
+                });
 
             socket.send({
-                userToken: self.userToken,
-                secondPart: secondPart
-            });
+                    userToken: self.userToken,
+                    secondPart: secondPart
+                });
 
             socket.send({
-                userToken: self.userToken,
-                thirdPart: thirdPart
-            });
+                    userToken: self.userToken,
+                    thirdPart: thirdPart
+                });
         }
 
         function socketResponse(response) {
@@ -136,9 +148,9 @@ var ScreenViewer = function(config) {
 
             if (response.candidate && !gotstream) {
                 peer && peer.addICE({
-                    sdpMLineIndex: response.candidate.sdpMLineIndex,
-                    candidate: JSON.parse(response.candidate.candidate)
-                });
+                        sdpMLineIndex: response.candidate.sdpMLineIndex,
+                        candidate: JSON.parse(response.candidate.candidate)
+                    });
             }
         }
 
@@ -156,7 +168,7 @@ var ScreenViewer = function(config) {
     }
 
     function uniqueToken() {
-        var s4 = function() {
+        var s4 = function () {
             return Math.floor(Math.random() * 0x10000).toString(16);
         };
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
@@ -164,36 +176,36 @@ var ScreenViewer = function(config) {
 
     openDefaultSocket();
     return {
-        joinScreen: function(_config) {
+        joinScreen: function (_config) {
             self.roomToken = _config.roomToken;
             isGetNewRoom = false;
 
             openSubSocket({
-                channel: self.userToken
-            });
+                    channel: self.userToken
+                });
 
             defaultSocket.send({
-                participant: true,
-                userToken: self.userToken,
-                joinUser: _config.joinUser
-            });
+                    participant: true,
+                    userToken: self.userToken,
+                    joinUser: _config.joinUser
+                });
         }
     };
 };
 
 var config = {
-    openSocket: function(config) {
+    openSocket: function (config) {
         var socket = io.connect('https://pubsub.pubnub.com/webrtc-rtcweb', {
-            publish_key: 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0',
-            subscribe_key: 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a',
-            channel: config.channel || 'webrtc-tab-sharing',
-            ssl: true
-        });
+                publish_key: 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0',
+                subscribe_key: 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a',
+                channel: config.channel || 'webrtc-tab-sharing',
+                ssl: true
+            });
         config.onopen && socket.on('connect', config.onopen);
         config.onmessage && socket.on('message', config.onmessage);
         return socket;
     },
-    onRemoteStream: function(media) {
+    onRemoteStream: function (media) {
         var video = media.video;
         video.setAttribute('controls', true);
 
@@ -202,7 +214,7 @@ var config = {
         video.play();
         rotateVideo(video);
     },
-    onRoomFound: function(room) {
+    onRoomFound: function (room) {
         console.log(room);
         var alreadyExist = document.getElementById(room.broadcaster);
         if (alreadyExist) return;
@@ -211,15 +223,14 @@ var config = {
 
         var tr = document.createElement('tr');
         tr.setAttribute('id', room.broadcaster);
-        tr.innerHTML = '<td>' + room.roomName + '</td>' 
-                     + '<td><button class="view-broadcasted-tab" id="' + room.roomToken + '">View Broadcasted Tab</button></td>';
+        tr.innerHTML = '<td>' + room.roomName + '</td>' + '<td><button class="view-broadcasted-tab" id="' + room.roomToken + '">View Broadcasted Tab</button></td>';
         roomsList.insertBefore(tr, roomsList.firstChild);
 
-        tr.onclick = function() {
+        tr.onclick = function () {
             screenViewer.joinScreen({
-                roomToken: this.querySelector('.view-broadcasted-tab').id,
-                joinUser: this.id
-            });
+                    roomToken: this.querySelector('.view-broadcasted-tab').id,
+                    joinUser: this.id
+                });
             hideUnnecessaryStuff();
         };
     }
@@ -240,7 +251,7 @@ function hideUnnecessaryStuff() {
 
 function rotateVideo(video) {
     video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
-    setTimeout(function() {
-        video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
-    }, 1000);
+    setTimeout(function () {
+            video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
+        }, 1000);
 }

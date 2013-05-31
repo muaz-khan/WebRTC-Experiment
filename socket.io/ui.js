@@ -1,6 +1,4 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
- It is recommended to use RTCMultiConnection.js for audio/video/screen sharing: <http://bit.ly/RTCMultiConnection-Documentation>
- */
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
 
 var config = {
     openSocket: function (config) {
@@ -38,7 +36,7 @@ var config = {
         tr.onclick = function () {
             var tr = this;
             captureUserMedia(function () {
-                conferenceUI.joinRoom({
+                rtc.joinRoom({
                     roomToken: tr.querySelector('.join').id,
                     joinUser: tr.id
                 });
@@ -50,7 +48,7 @@ var config = {
 
 function createButtonClickHandler() {
     captureUserMedia(function () {
-        conferenceUI.createRoom({
+        rtc.createRoom({
             roomName: (document.getElementById('room-name') || {}).value || 'Anonymous'
         });
     });
@@ -61,6 +59,7 @@ function captureUserMedia(callback) {
     var video = document.createElement('video');
     video.setAttribute('autoplay', true);
     video.setAttribute('controls', true);
+
     participants.insertBefore(video, participants.firstChild);
 
     getUserMedia({
@@ -69,10 +68,10 @@ function captureUserMedia(callback) {
             config.attachStream = stream;
             callback && callback();
 
-            video.setAttribute('muted', true);
             rotateVideo(video);
+            video.setAttribute('muted', true);
         },
-        onerror: function () {
+        onerror: function (error) {
             alert('unable to get access to your webcam');
             callback && callback();
         }
@@ -80,7 +79,7 @@ function captureUserMedia(callback) {
 }
 
 /* on page load: get public rooms */
-var conferenceUI = conference(config);
+var rtc = rtclib(config);
 
 /* UI specific */
 var participants = document.getElementById("participants") || document.body;

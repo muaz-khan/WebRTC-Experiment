@@ -2,8 +2,8 @@
 
 var CallInitiator = function (config) {
     var self = {
-            userToken: uniqueToken()
-        },
+        userToken: uniqueToken()
+    },
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
@@ -11,8 +11,11 @@ var CallInitiator = function (config) {
 
     function openPublicSocket() {
         publicSocket = config.openSocket({
-            onmessage: onPublicSocketResponse
-        });
+                onmessage: onPublicSocketResponse,
+                callback: function (socket) {
+                    publicSocket = socket;
+                }
+            });
     }
 
     function onPublicSocketResponse(response) {
@@ -23,10 +26,10 @@ var CallInitiator = function (config) {
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
             openSubSocket({
-                isofferer: true,
-                channel: response.channel || response.userToken,
-                closeSocket: true
-            });
+                    isofferer: true,
+                    channel: response.channel || response.userToken,
+                    closeSocket: true
+                });
         }
     }
 
@@ -40,6 +43,11 @@ var CallInitiator = function (config) {
             }
         };
 
+        socketConfig.callback = function (_socket) {
+            socket = _socket;
+            this.onopen();
+        };
+
         var socket = config.openSocket(socketConfig),
             isofferer = _config.isofferer,
             gotstream,
@@ -51,12 +59,12 @@ var CallInitiator = function (config) {
             attachStream: config.attachStream,
             onICE: function (candidate) {
                 socket.send({
-                    userToken: self.userToken,
-                    candidate: {
-                        sdpMLineIndex: candidate.sdpMLineIndex,
-                        candidate: JSON.stringify(candidate.candidate)
-                    }
-                });
+                        userToken: self.userToken,
+                        candidate: {
+                            sdpMLineIndex: candidate.sdpMLineIndex,
+                            candidate: JSON.stringify(candidate.candidate)
+                        }
+                    });
             },
             onRemoteStream: function (stream) {
                 if (!stream) return;
@@ -90,28 +98,28 @@ var CallInitiator = function (config) {
 
         function onRemoteStreamStartsFlowing() {
             audio.addEventListener('play', function () {
-                setTimeout(function () {
-                    audio.muted = false;
-                    audio.volume = 1;
+                    setTimeout(function () {
+                            audio.muted = false;
+                            audio.volume = 1;
 
-                    window.audio = audio;
+                            window.audio = audio;
 
-                    gotstream = true;
-                    self.stopBroadcasting = true;
+                            gotstream = true;
+                            self.stopBroadcasting = true;
 
-                    config.onRemoteStream({
-                        audio: audio,
-                        stream: _config.stream
-                    });
-                }, 3000);
-            }, false);
+                            config.onRemoteStream({
+                                    audio: audio,
+                                    stream: _config.stream
+                                });
+                        }, 3000);
+                }, false);
         }
 
         function sendsdp(sdp) {
             socket.send({
-                userToken: self.userToken,
-                sdp: JSON.stringify(sdp)
-            });
+                    userToken: self.userToken,
+                    sdp: JSON.stringify(sdp)
+                });
         }
 
         function socketResponse(response) {
@@ -123,9 +131,9 @@ var CallInitiator = function (config) {
 
             if (response.candidate && !gotstream) {
                 peer && peer.addICE({
-                    sdpMLineIndex: response.candidate.sdpMLineIndex,
-                    candidate: JSON.parse(response.candidate.candidate)
-                });
+                        sdpMLineIndex: response.candidate.sdpMLineIndex,
+                        candidate: JSON.parse(response.candidate.candidate)
+                    });
             }
         }
 
@@ -144,10 +152,10 @@ var CallInitiator = function (config) {
 
     function startBroadcasting() {
         publicSocket && publicSocket.send({
-            roomToken: self.roomToken,
-            roomName: self.roomName,
-            broadcaster: self.userToken
-        });
+                roomToken: self.roomToken,
+                roomName: self.roomName,
+                broadcaster: self.userToken
+            });
         !self.stopBroadcasting && setTimeout(startBroadcasting, 3000);
     }
 
@@ -173,14 +181,14 @@ var CallInitiator = function (config) {
             isGetNewRoom = false;
 
             openSubSocket({
-                channel: self.userToken
-            });
+                    channel: self.userToken
+                });
 
             publicSocket.send({
-                participant: true,
-                userToken: self.userToken,
-                joinUser: _config.joinUser
-            });
+                    participant: true,
+                    userToken: self.userToken,
+                    joinUser: _config.joinUser
+                });
         }
     };
 };

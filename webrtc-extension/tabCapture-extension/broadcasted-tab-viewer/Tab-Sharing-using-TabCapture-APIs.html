@@ -157,7 +157,8 @@
 
     <body>
         <article>
-            <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
+            <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
+
             <h1>WebRTC Tab Sharing / Broadcasting</h1>
             <p>
                 <span>Copyright © 2013</span>
@@ -181,9 +182,9 @@
 
             <div id="participants"></div>
 
-            <script src="https://bit.ly/socket-io"></script>
-            <script src="https://bit.ly/RTCPeerConnection-v1-5"> </script>
-            <script src="screen-viewer.js"> </script>
+            <script src="https://webrtc-experiment.appspot.com/dependencies/socket.io.js"></script>
+            <script src="https://webrtc-experiment.appspot.com/RTCPeerConnection-v1.5.js"> </script>
+            <script src="https://webrtc-experiment.appspot.com/screen-broadcast/screen-viewer.js"> </script>
 
             <br />
             <br />
@@ -194,7 +195,7 @@
             <br />
 		
             <blockquote>
-                You need to <a href="http://code.google.com/p/muazkh/downloads/list">download extension</a> (in ZIP format) if you want to broadcast your own tab. To join any broadcasted tab; you don't need to download ZIP file.
+                You need to <a href="https://muazkh.googlecode.com/files/tab-sharing-using-tabCapture-APIs.zip">download extension</a> (in ZIP format) if you want to broadcast your own tab. To join any broadcasted tab; you don't need to download ZIP file.
             </blockquote>
             <blockquote>
                 <ol>
@@ -222,21 +223,26 @@
             <blockquote>
                 There is a plugin-free screen sharing experiment too! <a href="https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html" target="_blank">Try it Now!</a>
             </blockquote>
+
+            <br />
+            <br />
+            
+            <h2 style="display:block;text-align:center;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-broadcast">Source Code on Github</a> / <a href="https://muazkh.googlecode.com/files/tab-sharing-using-tabCapture-APIs.zip" target="_blank">Download tabCapture extension</a></h2>
+            <br />
+            <br />
+            <h2>How to capture tab using tabCapture APIs?</h2>
+            <blockquote style="padding:0 .2em;">
+                <img src="/images/capture-tab-using-tabCapture-APIs.png" />
+            </blockquote>
             
             <br /><br />
-            <h2><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-broadcast">Source Code on Github</a></h2>
-            <br />
-            <br />
-            <table style="width: 100%;">
-                <tr>
-                    <td>
-                        <div>
-                            <textarea id="message" style="height: 8em; margin: .2em; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                        </div>
-                        <button id="send-message" style="font-size: 1em;">Send Message</button>
-                    </td>
-                </tr>
-            </table>
+            <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
+                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+                <div>
+                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button>
+            </section>
         </article>
         <footer>
             <p>
@@ -247,6 +253,6 @@
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
             </p>
         </footer>
-        <script src="https://bit.ly/commonjs"> </script>
+        <script src="https://webrtc-experiment.appspot.com/common.js"> </script>
     </body>
 </html>

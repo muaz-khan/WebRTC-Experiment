@@ -1,16 +1,21 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
-    It is recommended to use RTCMultiConnection.js for audio/video/screen sharing: <http://bit.ly/RTCMultiConnection-Documentation>
-*/
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
 
 var rtclib = function (config) {
-    var self = { userToken: uniqueToken() },
+    var self = {
+        userToken: uniqueToken()
+    },
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
         defaultSocket = {};
 
     function openDefaultSocket() {
-        defaultSocket = config.openSocket({ onmessage: onDefaultSocketResponse });
+        defaultSocket = config.openSocket({
+                onmessage: onDefaultSocketResponse,
+                callback: function (socket) {
+                    defaultSocket = socket;
+                }
+            });
     }
 
     function onDefaultSocketResponse(response) {
@@ -23,10 +28,10 @@ var rtclib = function (config) {
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
             openSubSocket({
-                isofferer: true,
-                channel: response.channel || response.userToken,
-                closeSocket: true
-            });
+                    isofferer: true,
+                    channel: response.channel || response.userToken,
+                    closeSocket: true
+                });
         }
     }
 
@@ -40,6 +45,11 @@ var rtclib = function (config) {
             }
         };
 
+        socketConfig.callback = function (_socket) {
+            socket = _socket;
+            this.onopen();
+        };
+
         var socket = config.openSocket(socketConfig),
             isofferer = _config.isofferer,
             gotstream,
@@ -51,12 +61,12 @@ var rtclib = function (config) {
             attachStream: config.attachStream,
             onICE: function (candidate) {
                 socket.send({
-                    userToken: self.userToken,
-                    candidate: {
-                        sdpMLineIndex: candidate.sdpMLineIndex,
-                        candidate: JSON.stringify(candidate.candidate)
-                    }
-                });
+                        userToken: self.userToken,
+                        candidate: {
+                            sdpMLineIndex: candidate.sdpMLineIndex,
+                            candidate: JSON.stringify(candidate.candidate)
+                        }
+                    });
             },
             onRemoteStream: function (stream) {
                 if (!stream) return;
@@ -85,16 +95,16 @@ var rtclib = function (config) {
                 gotstream = true;
 
                 config.onRemoteStream({
-                    video: video,
-                    stream: _config.stream
-                });
+                        video: video,
+                        stream: _config.stream
+                    });
 
                 if (isbroadcaster && channels.split('--').length > 3) {
                     /* broadcasting newly connected participant for video-conferencing! */
                     defaultSocket.send({
-                        newParticipant: socket.channel,
-                        userToken: self.userToken
-                    });
+                            newParticipant: socket.channel,
+                            userToken: self.userToken
+                        });
                 }
 
                 /* closing subsocket here on the offerer side */
@@ -117,19 +127,19 @@ var rtclib = function (config) {
             }
 
             socket.send({
-                userToken: self.userToken,
-                firstPart: firstPart
-            });
+                    userToken: self.userToken,
+                    firstPart: firstPart
+                });
 
             socket.send({
-                userToken: self.userToken,
-                secondPart: secondPart
-            });
+                    userToken: self.userToken,
+                    secondPart: secondPart
+                });
 
             socket.send({
-                userToken: self.userToken,
-                thirdPart: thirdPart
-            });
+                    userToken: self.userToken,
+                    thirdPart: thirdPart
+                });
         }
 
         function socketResponse(response) {
@@ -152,9 +162,9 @@ var rtclib = function (config) {
 
             if (response.candidate && !gotstream) {
                 peer && peer.addICE({
-                    sdpMLineIndex: response.candidate.sdpMLineIndex,
-                    candidate: JSON.parse(response.candidate.candidate)
-                });
+                        sdpMLineIndex: response.candidate.sdpMLineIndex,
+                        candidate: JSON.parse(response.candidate.candidate)
+                    });
             }
         }
 
@@ -172,11 +182,11 @@ var rtclib = function (config) {
     }
 
     function startBroadcasting() {
-        defaultSocket.send({
-            roomToken: self.roomToken,
-            roomName: self.roomName,
-            broadcaster: self.userToken
-        });
+        defaultSocket && defaultSocket.send({
+                roomToken: self.roomToken,
+                roomName: self.roomName,
+                broadcaster: self.userToken
+            });
         setTimeout(startBroadcasting, 3000);
     }
 
@@ -186,16 +196,16 @@ var rtclib = function (config) {
 
         var new_channel = uniqueToken();
         openSubSocket({
-            channel: new_channel,
-            closeSocket: true
-        });
+                channel: new_channel,
+                closeSocket: true
+            });
 
         defaultSocket.send({
-            participant: true,
-            userToken: self.userToken,
-            joinUser: channel,
-            channel: new_channel
-        });
+                participant: true,
+                userToken: self.userToken,
+                joinUser: channel,
+                channel: new_channel
+            });
     }
 
     function uniqueToken() {
@@ -220,14 +230,14 @@ var rtclib = function (config) {
             isGetNewRoom = false;
 
             openSubSocket({
-                channel: self.userToken
-            });
+                    channel: self.userToken
+                });
 
             defaultSocket.send({
-                participant: true,
-                userToken: self.userToken,
-                joinUser: _config.joinUser
-            });
+                    participant: true,
+                    userToken: self.userToken,
+                    joinUser: _config.joinUser
+                });
         }
     };
 };

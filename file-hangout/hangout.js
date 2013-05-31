@@ -1,6 +1,5 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
- It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
- */
+﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+
 var hangout = function (config) {
     var self = {
         userToken: uniqueToken(),
@@ -15,7 +14,10 @@ var hangout = function (config) {
 
         function openDefaultSocket() {
             defaultSocket = config.openSocket({
-                    onmessage: onDefaultSocketResponse
+                    onmessage: onDefaultSocketResponse,
+                    callback: function (socket) {
+                        defaultSocket = socket;
+                    }
                 });
         }
 
@@ -45,6 +47,11 @@ var hangout = function (config) {
                     if (isofferer && !peer) initPeer();
                     sockets[sockets.length] = socket;
                 }
+            };
+
+            socketConfig.callback = function (_socket) {
+                socket = _socket;
+                this.onopen();
             };
 
             var socket = config.openSocket(socketConfig),
@@ -214,7 +221,7 @@ var hangout = function (config) {
         })();
 
     function startBroadcasting() {
-        defaultSocket.send({
+        defaultSocket && defaultSocket.send({
                 roomToken: self.roomToken,
                 roomName: self.roomName,
                 broadcaster: self.userToken
