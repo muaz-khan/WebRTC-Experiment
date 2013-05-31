@@ -1,13 +1,10 @@
 #### Using [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) for WebRTC Signaling / [Demo](http://webrtc-signaling.jit.su/)
 
-This directory contains two files:
-
-1. `signaler.js`: socket.io main script
-2. `index.html`: homepage
+This directory contains only one file: [signaler.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/webrtc-signaling/signaler.js) / socket.io main script
 
 ----
 
-#### `signaler.js`
+#### [signaler.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/webrtc-signaling/signaler.js)
 
 It listens/publishes/creates `dynamic namespaces`. Remeber, no-external framework like "express" is used to access/render files. That's why `signaler.js` fails on some systems. 
 
@@ -16,7 +13,14 @@ If it fails; try to replace entire `handler` function with `express framework` e
 Here is `signaler.js`'s socket.io part:
 
 ```javascript
-var io = require('socket.io').listen(app);
+var port = 8888; // use port:80 for non-localhost tests
+
+var app = require('express')(),
+    server = require('http').createServer(app),
+    io = require('socket.io').listen(server);
+
+server.listen(port);
+
 io.sockets.on('connection', function (socket) {
     if (!io.connected) io.connected = true;
 
@@ -37,7 +41,6 @@ function onNewNamespace(channel, sender) {
         });
     });
 }
-
 ```
 
 ----

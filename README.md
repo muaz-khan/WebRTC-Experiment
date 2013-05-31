@@ -149,14 +149,10 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 ```
 
 ```javascript
-channel = new DataChannel('channel-name');
-channel.send(file || data || 'text');
-
+var channel = new DataChannel('channel-name');
 channel.onopen = function(e) {};
 channel.onmessage = function(e) {};
-
-channel.onleave = function (userid) {};
-channel.eject(userid); // throw a user out of your room!
+channel.send(file || data || 'text');
 ```
 
 ----
@@ -168,12 +164,7 @@ channel.eject(userid); // throw a user out of your room!
 ```
 
 ```javascript
-connection = new RTCMultiConnection();
-connection.userid = 'muazkh';
-connection.session = {
-    audio: true,
-    video: true
-};
+var connection = new RTCMultiConnection();
 connection.onstream = function (e) {
     if (e.type === 'local') mainVideo.src = e.blobURL;
     if (e.type === 'remote') document.body.appendChild(e.mediaElement);
@@ -198,7 +189,7 @@ connection.connect('session-id');
 ```
 
 ```javascript
-call = new RTCall();
+var call = new RTCall();
 call.onincomingcall = function(caller) {
    call.receive(caller.receiverid);
 };
@@ -212,17 +203,18 @@ call.oncustomer = function(customer) {
 #### Use [your own](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) socket.io implementation!
 
 ```javascript
-connection.openSignalingChannel = function(config) {
-   URL = 'http://domain.com:8888/';
-   channel = config.channel || this.channel || 'default-channel';
-   sender = Math.round(Math.random() * 60535) + 5000;
+// openSignalingChannel or openSocket!
+openSignalingChannel: function(config) {
+   var URL = 'http://domain.com:8888/';
+   var channel = config.channel || this.channel || 'one-to-one-video-chat';
+   var sender = Math.round(Math.random() * 60535) + 5000;
    
    io.connect(URL).emit('new-channel', {
       channel: channel,
       sender : sender
    });
    
-   socket = io.connect(URL + channel);
+   var socket = io.connect(URL + channel);
    socket.channel = channel;
    
    socket.on('connect', function () {
@@ -237,7 +229,7 @@ connection.openSignalingChannel = function(config) {
     };
    
    socket.on('message', config.onmessage);
-};
+}
 ```
 
 For a ready-made socket.io over node.js implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
@@ -248,8 +240,8 @@ Remember, You must link [firebase.js](https://cdn.firebase.com/v0/firebase.js) f
 
 ```javascript
 openSignalingChannel: function (config) {
-    channel = config.channel || this.channel || 'WebRTC-Experiment';
-    socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+    var channel = config.channel || this.channel || 'WebRTC-Experiment';
+    var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
     socket.channel = channel;
     socket.on('child_added', function (data) {
         config.onmessage && config.onmessage(data.val());
@@ -274,7 +266,7 @@ openSignalingChannel: function (config) {
 #### How to record video using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
 
 ```javascript
-recorder = RecordRTC({
+var recorder = RecordRTC({
 	video: HTMLVideoElement
 });
 
@@ -290,7 +282,7 @@ recorder.stopVideo(function(recordedFileURL) {
 ##### How to record audio using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
 
 ```javascript
-recorder = RecordRTC({
+var recorder = RecordRTC({
 	stream: MediaStream || LocalMediaStream
 });
 

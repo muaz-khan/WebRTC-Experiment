@@ -38,17 +38,23 @@ Node.js must catch messages passed from client-side and broadcast/transmit that 
 Node.js server:
 
 ```javascript
-var app = require('http').createServer(handler).listen(8888);
-var io = require('socket.io').listen(app);
+var port = 8888; // use port:80 for non-localhost tests
+
+var app = require('express')(),
+    server = require('http').createServer(app),
+    io = require('socket.io').listen(server);
+
+server.listen(port);
+
 io.sockets.on('connection', function (socket) {
     if (!io.connected) io.connected = true;
 
     socket.on('new-channel', function (data) {
-        onNewNamespace(socket, data.channel, data.sender);
+        onNewNamespace(data.channel, data.sender);
     });
 });
 
-function onNewNamespace(socket, channel, sender) {
+function onNewNamespace(channel, sender) {
     io.of('/' + channel).on('connection', function (socket) {
         if (io.isConnected) {
             io.isConnected = false;
@@ -96,48 +102,6 @@ connection.openSignalingChannel = function(config) {
 All WebRTC Experiments separated signaling portion; so you can define a single method to control the entire infrastructure of WebRTC Signaling!
 
 `openSignalingChannel` or `openSocket` are kind of those "custom" reusable methods.
-
-#### Exploring client-side code
-
-```javascript
-// socket.io URL
-var URL = 'http://domain.com:8888/';
-
-// socket.io channel name
-var channel = config.channel || this.channel || 'default-channel';
-
-// unique identifier used to uniquely identify current users' messages
-var sender = Math.round(Math.random() * 60535) + 5000;
-  
-// opening unique namespace i.e. channel
-io.connect(URL).emit('new-channel', {
-    channel: channel,
-    sender : sender
-});
-
-// new socket that will use above uniquely created namespace   
-var socket = io.connect(URL + channel);
-
-// used in video-conferencing
-socket.channel = channel;
-
-// node.js server fired "connect" event
-socket.on('connect', function () {
-   // passing socket object back to caller
-   if (config.callback) config.callback(socket);
-});
-   
-// "emit" encapsulation
-socket.send = function (message) {
-    socket.emit('message', {
-        sender: sender,
-        data  : message
-    });
-};
-
-// transmitted message   
-socket.on('message', config.onmessage);
-```
 
 #### What about Firebase?
 
