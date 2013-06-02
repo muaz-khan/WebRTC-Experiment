@@ -257,6 +257,8 @@
                         self.config.attachStream = stream;
                         callback && callback();
 
+                        // issue #37: Sometimes Firefox crashes while echoing and you have to hard reboot your PC ( Ubuntu 13.04, FF 21 )
+                        mediaElement.muted = true;
                         self.onstream({
                                 stream: stream,
                                 mediaElement: mediaElement,

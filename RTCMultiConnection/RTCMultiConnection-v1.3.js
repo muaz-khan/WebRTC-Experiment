@@ -183,8 +183,10 @@
                     video: mediaElement,
                     onsuccess: function (stream) {
                         self.attachStream = stream;
-
                         streamid = self.token();
+						
+                        // issue #37: Sometimes Firefox crashes while echoing and you have to hard reboot your PC ( Ubuntu 13.04, FF 21 )
+                        mediaElement.muted = true;
                         self.onstream({
                                 stream: stream,
                                 streamid: streamid,
@@ -484,13 +486,15 @@
                             });
                     }
 
-                    if (response.playRoleOfBroadcaster)
+                    if (response.playRoleOfBroadcaster)						
                         setTimeout(function () {
+                                root.dontAttachStream = true;
                                 self.userid = response.userid;
                                 root.open({
                                         extra: root.extra
                                     });
-                                sockets = sockets.swap();
+                                sockets = sockets.swap();								
+                                root.dontAttachStream = false;
                             }, 600);
 
                     if (response.suggestRenegotiation) {
@@ -529,9 +533,9 @@
                         if (_config.capturing) return;
                         _config.capturing = true;
 
-                        root.captureUserMedia(function () {
+                        root.captureUserMedia(function (stream) {
                                 _config.capturing = false;
-                                peer.connection.addStream(root.attachStream);
+                                peer.connection.addStream(stream);
                                 createAnswer();
                             }, _config.renegotiate);
                     }
@@ -721,6 +725,7 @@
             };
 
             this.addStream = function (e) {
+				console.log('this.addStream', e);
                 session = e.renegotiate;
 
                 if (e.socket) addStream(e.socket);
@@ -731,13 +736,12 @@
                     if (!peer) throw 'No such peer exists.';
                     peer = peer.peer;
 
-                    log(peer);
-
                     // if offerer; renegotiate
                     if (peer.connection.localDescription.type == 'offer') {
-                        if (!session.removeStream && (session.audio || session.video)) peer.connection.addStream(e.stream);
+                        if (!session.removeStream && (session.audio || session.video)) 
+							peer.connection.addStream(e.stream);
+							
                         peer.recreateOffer(function (sdp) {
-                                log(sdp);
                                 sendsdp({
                                         sdp: sdp,
                                         socket: socket,
@@ -1004,7 +1008,6 @@
             openOffererChannel();
 
             peer.onicecandidate = function (event) {
-                console.log(event);
                 if (event && event.candidate) options.onICE(event.candidate);
             };
 
@@ -1024,7 +1027,7 @@
                 }
             };
 
-            if (!moz && options.onmessage && !options.attachStream) constraints = {
+            if (!moz && ( !options.attachStream || options.onmessage )) constraints = {
                     optional: [],
                     mandatory: {
                         OfferToReceiveAudio: false,
@@ -1065,6 +1068,7 @@
             bandwidth = options.bandwidth;
 
             function setBandwidth(sdp) {
+                if(bandwidth.audio == 50 && bandwidth.video == 256) return sdp;
                 sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:' + (bandwidth.audio || 50) + '\r\n');
                 sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + (bandwidth.video || 256) + '\r\n');
                 return sdp;
@@ -1194,8 +1198,13 @@
             return swapped;
         };
 
-        function log() {
-            console.debug(arguments)
+        function log(a,b,c,d,e,f) {
+			if(f) console.log(a,b,c,d,e,f);
+			else if(e) console.log(a,b,c,d,e);
+			else if(d) console.log(a,b,c,d);
+			else if(c) console.log(a,b,c);
+			else if(b) console.log(a,b);
+			else if(a) console.log(a);
         }
 
         function Defaulter(self) {

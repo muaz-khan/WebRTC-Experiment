@@ -3,6 +3,7 @@
  MIT License » https://webrtc-experiment.appspot.com/licence/
  Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall
 */
+
 (function () {
         window.RTCall = function (channel) {
             this.channel = channel || document.domain.replace(/(.|\/)/g, '');
@@ -107,6 +108,13 @@
                                 self.callerid = response.callerid;
                                 peer.addAnswerSDP(response.sdp);
                             }
+
+                            if (response.candidate) {
+                                peer && peer.addICE({
+                                        sdpMLineIndex: response.candidate.sdpMLineIndex,
+                                        candidate: JSON.parse(response.candidate.candidate)
+                                    });
+                            }
                         },
                         onconnection: function (socket) {
                             getUserMedia({
@@ -114,6 +122,14 @@
                                         peer = new RTCall.PeerConnection({
                                                 onRemoteStream: onRemoteStream,
                                                 attachStream: stream,
+                                                onICE: function (candidate) {
+                                                    socket.send({
+                                                            candidate: {
+                                                                sdpMLineIndex: candidate.sdpMLineIndex,
+                                                                candidate: JSON.stringify(candidate.candidate)
+                                                            }
+                                                        });
+                                                },
                                                 onOfferSDP: function (sdp) {
                                                     socket.send({
                                                             sdp: sdp
@@ -139,6 +155,14 @@
                                                     onRemoteStream: onRemoteStream,
                                                     attachStream: stream,
                                                     offerSDP: response.sdp,
+                                                    onICE: function (candidate) {
+                                                        socket.send({
+                                                                candidate: {
+                                                                    sdpMLineIndex: candidate.sdpMLineIndex,
+                                                                    candidate: JSON.stringify(candidate.candidate)
+                                                                }
+                                                            });
+                                                    },
                                                     onAnswerSDP: function (sdp) {
                                                         socket.send({
                                                                 sdp: sdp
@@ -146,6 +170,13 @@
                                                     }
                                                 });
                                         }
+                                    });
+                            }
+
+                            if (response.candidate) {
+                                peer && peer.addICE({
+                                        sdpMLineIndex: response.candidate.sdpMLineIndex,
+                                        candidate: JSON.parse(response.candidate.candidate)
                                     });
                             }
                         },
@@ -175,7 +206,7 @@
                 audio.play();
 
                 setTimeout(function () {
-                        audio.muted = false;
+                        audio.muted = true;
                         audio.volume = 1;
                         audio.pause();
                         root.onstream({
@@ -191,7 +222,8 @@
         window.RTCall.PeerConnection = function (options) {
             var w = window,
                 PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
-                SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription;
+                SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
+                IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
             STUN = {
                 url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
@@ -212,7 +244,7 @@
                         url: 'turn:numb.viagenie.ca',
                         credential: 'muazkh',
                         username: 'webrtc@live.com'
-                    };
+                };
                 iceServers.iceServers = [TURN, STUN];
             }
 
@@ -228,8 +260,7 @@
             var peerConnection = new PeerConnection(iceServers, optional);
 
             peerConnection.onicecandidate = function (event) {
-                if (!event.candidate) returnSDP();
-                else console.debug('injecting ice in sdp:', event.candidate);
+                if (event && event.candidate) options.onICE(event.candidate);
             };
 
             peerConnection.addStream(options.attachStream);
@@ -238,17 +269,6 @@
             function onaddstream(event) {
                 console.debug('on:add:stream:', event.stream);
                 options.onRemoteStream(event.stream);
-            }
-
-            peerConnection.ongatheringchange = function (event) {
-                if (event.currentTarget && event.currentTarget.iceGatheringState === 'complete') returnSDP();
-            };
-
-            function returnSDP() {
-                console.debug('sharing localDescription', peerConnection.localDescription.sdp);
-
-                if (options.onOfferSDP) options.onOfferSDP(peerConnection.localDescription);
-                else options.onAnswerSDP(peerConnection.localDescription);
             }
 
             constraints = {
@@ -266,7 +286,7 @@
 
                 peerConnection.createOffer(function (sessionDescription) {
                         peerConnection.setLocalDescription(sessionDescription);
-                        if (moz) options.onOfferSDP(sessionDescription);
+                        options.onOfferSDP(sessionDescription);
                     }, null, constraints);
             }
 
@@ -276,7 +296,7 @@
                 peerConnection.setRemoteDescription(new SessionDescription(options.offerSDP));
                 peerConnection.createAnswer(function (sessionDescription) {
                         peerConnection.setLocalDescription(sessionDescription);
-                        if (moz) options.onAnswerSDP(sessionDescription);
+                        options.onAnswerSDP(sessionDescription);
                     }, null, constraints);
             }
 
@@ -287,6 +307,12 @@
                 addAnswerSDP: function (sdp) {
                     peerConnection.setRemoteDescription(new SessionDescription(sdp));
                     console.debug('remoteDescription', peerConnection.remoteDescription.sdp);
+                },
+                addICE: function (candidate) {
+                    peerConnection.addIceCandidate(new IceCandidate({
+                                sdpMLineIndex: candidate.sdpMLineIndex,
+                                candidate: candidate.candidate
+                            }));
                 },
                 connection: peerConnection
             };

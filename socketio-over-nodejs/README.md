@@ -72,7 +72,7 @@ See the demo URL: http://webrtc-signaling.jit.su/
 Each experiment is using something like this:
 
 ```javascript
-var URL = '/';
+var SIGNALING_SERVER = '/';
 ```
 
 This is the URL of your site. By default it will be equal to `http://localhost:8888/`.
@@ -80,7 +80,7 @@ This is the URL of your site. By default it will be equal to `http://localhost:8
 It is strongly recommended to use absolute URL including port number:
 
 ```javascript
-var URL = 'http://domain.com:8888/';
+var SIGNALING_SERVER = 'http://domain.com:8888/';
 ```
 
 ----
@@ -100,16 +100,16 @@ Default port `8888` is used for this experiment. You can manually open this URL,
 ```javascript
 // openSignalingChannel or openSocket!
 openSignalingChannel: function(config) {
-   var URL = 'http://domain.com:8888/';
+   var SIGNALING_SERVER = 'http://domain.com:8888/';
    var channel = config.channel || this.channel || 'one-to-one-video-chat';
    var sender = Math.round(Math.random() * 60535) + 5000;
    
-   io.connect(URL).emit('new-channel', {
+   io.connect(SIGNALING_SERVER).emit('new-channel', {
       channel: channel,
       sender : sender
    });
    
-   var socket = io.connect(URL + channel);
+   var socket = io.connect(SIGNALING_SERVER + channel);
    socket.channel = channel;
    
    socket.on('connect', function () {

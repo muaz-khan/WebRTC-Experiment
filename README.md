@@ -2,11 +2,7 @@
 
 It is a repository of uniquely experimented WebRTC demos; written by [Muaz Khan](https://github.com/muaz-khan); contributed by you and the community!
 
-----
-
 No special requirement! Just Chrome (for desktop and android) or Firefox!
-
-----
 
 These demos/experiments are entirely client-side; i.e. no server installation needed! (for basic webpages only!)
 
@@ -25,12 +21,19 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 
 ----
 
+### Simplest Libraries Ever!
+
 1. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) — A JavaScript library for data/file/text sharing!
 2. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) — A JavaScript library for streams renegotiation and sharing; multi-session establishment and much more.
 3. [RecordRTC.js](https://webrtc-experiment.appspot.com/RecordRTC/) — A library to record audio/video streams
-4. [Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/) — Most demanded and useful feature!
-5. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) — Copy/Paste/Deploy and you're done!
-6. [RTCall.js](https://webrtc-experiment.appspot.com/RRTCall/) — A library for Browser-to-Browser audio-only calling
+4. [RTCall.js](https://webrtc-experiment.appspot.com/RTCall/) — A library for Browser-to-Browser audio-only calling
+
+Scroll to bottom of the page to see how to use these four unique libraries!
+
+----
+
+1. [Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/) — Most demanded and useful feature!
+2. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) — Copy/Paste/Deploy and you're done!
 
 ----
 
@@ -112,6 +115,7 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 11. [Manual session establishment + extra data transmission + video conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/)
 12. [Users ejection and presence detection](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/)
 13. [Customizing Bandwidth](https://webrtc-experiment.appspot.com/RTCMultiConnection/bandwidth/)
+14. [RTCMultiConnection-v1.3 testing demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3/)
 
 ----
 
@@ -205,16 +209,16 @@ call.oncustomer = function(customer) {
 ```javascript
 // openSignalingChannel or openSocket!
 openSignalingChannel: function(config) {
-   var URL = 'http://domain.com:8888/';
+   var SIGNALING_SERVER = 'http://domain.com:8888/';
    var channel = config.channel || this.channel || 'one-to-one-video-chat';
    var sender = Math.round(Math.random() * 60535) + 5000;
    
-   io.connect(URL).emit('new-channel', {
+   io.connect(SIGNALING_SERVER).emit('new-channel', {
       channel: channel,
       sender : sender
    });
    
-   var socket = io.connect(URL + channel);
+   var socket = io.connect(SIGNALING_SERVER + channel);
    socket.channel = channel;
    
    socket.on('connect', function () {
@@ -240,18 +244,19 @@ Remember, You must link [firebase.js](https://cdn.firebase.com/v0/firebase.js) f
 
 ```javascript
 openSignalingChannel: function (config) {
+    var SIGNALING_SERVER = 'https://chat.firebaseIO.com/';
     var channel = config.channel || this.channel || 'WebRTC-Experiment';
-    var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
-    socket.channel = channel;
-    socket.on('child_added', function (data) {
+    var firebase = new Firebase(SIGNALING_SERVER + channel);
+    firebase.channel = channel;
+    firebase.on('child_added', function (data) {
         config.onmessage && config.onmessage(data.val());
     });
-    socket.send = function (data) {
+    firebase.send = function (data) {
         this.push(data);
     };
     config.onopen && setTimeout(config.onopen, 1);
-    socket.onDisconnect().remove();
-    return socket;
+    firebase.onDisconnect().remove();
+    return firebase;
 }
 ```
 

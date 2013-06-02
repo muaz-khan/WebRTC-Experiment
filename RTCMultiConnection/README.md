@@ -1,3 +1,7 @@
+`RTCMultiConnection-v1.3` is still under developement; see a [testing demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3/). You're recommended to try [v1.2](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.2-and-earlier.md) until `v1.3` gets ready.
+
+----
+
 #### [RTCMultiConnection](https://webrtc-experiment.appspot.com/#RTCMultiConnection): A simple library to handle advance tasks!
 
 Supports features like
@@ -478,6 +482,7 @@ For a `ready-made` socket.io over node.js implementation; [visit this link](http
 11. [Manual session establishment + extra data transmission + video conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/)
 12. [Users ejection and presence detection](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/)
 13. [Customizing Bandwidth](https://webrtc-experiment.appspot.com/RTCMultiConnection/bandwidth/)
+14. [RTCMultiConnection-v1.3 testing demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3/)
 
 ----
 

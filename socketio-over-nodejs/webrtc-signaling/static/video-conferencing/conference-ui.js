@@ -2,16 +2,16 @@
 
 config = {
     openSocket    : function (config) {
-        URL = '/';
-        channel = config.channel || location.hash.replace('#', '') || 'video-conferencing';
-        sender = Math.round(Math.random() * 60535) + 5000;
+        var SIGNALING_SERVER = '/';
+        var channel = config.channel || location.hash.replace('#', '') || 'video-conferencing';
+        var sender = Math.round(Math.random() * 60535) + 5000;
 
-        io.connect(URL).emit('new-channel', {
+        io.connect(SIGNALING_SERVER).emit('new-channel', {
             channel: channel,
             sender : sender
         });
 
-        socket = io.connect(URL + channel);
+        var socket = io.connect(SIGNALING_SERVER + channel);
         socket.channel = channel;
         socket.on('connect', function () {
             if (config.callback) config.callback(socket);

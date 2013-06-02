@@ -72,16 +72,16 @@ Client side:
 
 ```javascript
 connection.openSignalingChannel = function(config) {
-   var URL = 'http://domain.com:8888/';
+   var SIGNALING_SERVER = 'http://domain.com:8888/';
    var channel = config.channel || this.channel || 'default-channel';
    var sender = Math.round(Math.random() * 60535) + 5000;
    
-   io.connect(URL).emit('new-channel', {
+   io.connect(SIGNALING_SERVER).emit('new-channel', {
       channel: channel,
       sender : sender
    });
    
-   var socket = io.connect(URL + channel);
+   var socket = io.connect(SIGNALING_SERVER + channel);
    socket.channel = channel;
    
    socket.on('connect', function () {
