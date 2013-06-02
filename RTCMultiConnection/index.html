@@ -284,7 +284,10 @@
                     connection.onmessage = appendDIV;
                     connection.onstream = function (stream) {
                         var video = getVideo(stream);
-                        if (stream.type === 'local') document.getElementById('local-media-stream').appendChild(video);
+                        if (stream.type === 'local') {
+                        	video.mediaElement.muted = true;
+                        	document.getElementById('local-media-stream').appendChild(video);
+                        }
 
                         if (stream.type === 'remote') {
                             if (stream.direction !== RTCDirection.OneWay) {
