@@ -485,7 +485,7 @@
             self.sockets = self.sockets.swap();
         }
 
-        window.onunload = function () {
+        window.onbeforeunload = function () {
             leaveChannels();
         };
 		

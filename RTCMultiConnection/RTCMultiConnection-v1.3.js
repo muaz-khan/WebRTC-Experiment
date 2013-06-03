@@ -621,7 +621,7 @@
                 sockets = sockets.swap();
             }
 
-            window.onunload = function () {
+            window.onbeforeunload = function () {
                 leaveARoom();
             };
 
@@ -1068,7 +1068,7 @@
             bandwidth = options.bandwidth;
 
             function setBandwidth(sdp) {
-                if(bandwidth.audio == 50 && bandwidth.video == 256) return sdp;
+                //if(bandwidth.audio == 50 && bandwidth.video == 256) return sdp;
                 sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:' + (bandwidth.audio || 50) + '\r\n');
                 sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + (bandwidth.video || 256) + '\r\n');
                 return sdp;
