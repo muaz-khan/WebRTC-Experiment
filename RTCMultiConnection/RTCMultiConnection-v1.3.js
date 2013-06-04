@@ -1,7 +1,7 @@
 /*
-     2013, @muazkh » github.com/muaz-khan
-     MIT License » https://webrtc-experiment.appspot.com/licence/
-     Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
+     2013, @muazkh ï¿½ github.com/muaz-khan
+     MIT License ï¿½ https://webrtc-experiment.appspot.com/licence/
+     Documentation ï¿½ https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
 */
 (function () {
         window.RTCMultiConnection = function (channel) {
@@ -52,7 +52,7 @@
                 if (!self.openSignalingChannel) {
                     if (typeof self.transmitRoomOnce == 'undefined') self.transmitRoomOnce = true;
 
-                    // for custom socket.io over node.js implementation » visit » https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
+                    // for custom socket.io over node.js implementation ï¿½ visit ï¿½ https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
                     self.openSignalingChannel = function (config) {
                         channel = config.channel || self.channel || 'default-channel';
                         socket = new window.Firebase('https://' + (self.firebase || 'chat') + '.firebaseIO.com/' + channel);
@@ -1162,29 +1162,54 @@
             optional: []
         };
 
-        function getUserMedia(options) {
-            var n = navigator,
-                media;
-            n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
-            n.getMedia(options.constraints || {
-                    audio: true,
-                    video: video_constraints
-                }, streaming, options.onerror || function (e) {
-                    console.error(e);
-                });
+        var currentUserMediaRequest = {
+		streams: [],
+		mutex: false,
+		queueRequests: []
+	};
 
-            function streaming(stream) {
-                video = options.video;
-                if (video) {
-                    video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
-                    video.play();
-                }
-                options.onsuccess(stream);
-                media = stream;
-            }
+	function getUserMedia(options) {
+		if (currentUserMediaRequest.mutex === true) {
+			currentUserMediaRequest.queueRequests.push(options);
+			return;
+		}
+		currentUserMediaRequest.mutex = true;
+		var n = navigator,
+				media,
+				resourcesNeeded = options.constraints || {
+			audio: true,
+			video: video_constraints
+		};
+		
+		//easy way to match 
+		var idInstance = JSON.stringify(resourcesNeeded);
 
-            return media;
-        }
+		function streaming(stream) {
+			var video = options.video;
+			if (video) {
+				video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
+				video.play();
+			}
+
+			options.onsuccess(stream);
+			currentUserMediaRequest.streams[idInstance] = media = stream;
+			currentUserMediaRequest.mutex = false;
+			if (currentUserMediaRequest.queueRequests.length > 0)
+				getUserMedia(currentUserMediaRequest.queueRequests.shift());
+		}
+
+		if (currentUserMediaRequest.streams[idInstance])
+			streaming(currentUserMediaRequest.streams[idInstance]);
+		else {
+			n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
+			n.getMedia(resourcesNeeded, streaming, options.onerror || function(e) {
+				console.error(e);
+			});
+		}
+
+		// always undefined!
+		return media;
+	}
 
         function isData(session) {
             return !session.audio && !session.video && !session.screen && session.data;
