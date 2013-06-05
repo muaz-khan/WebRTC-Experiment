@@ -1,4 +1,5 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+﻿// MIT License: https://webrtc-experiment.appspot.com/licence/
+// Try WebSocket over Node.js for signaling! https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs
 
 var config = {
     openSocket: function (config) {

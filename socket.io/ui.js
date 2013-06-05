@@ -1,4 +1,5 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+﻿// MIT License: https://webrtc-experiment.appspot.com/licence/
+// Use Socket.io over Node.js for signaling: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
 
 var config = {
     openSocket: function (config) {

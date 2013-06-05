@@ -1,0 +1,364 @@
+﻿<!DOCTYPE html>
+<html id="home" lang="en">
+    
+    <head>
+        <title>RTCMultiConnection test / using WebSocket over Node.js for Signaling! ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <meta name="author" content="Muaz Khan">
+        <script>
+            var hash = window.location.hash.replace('#', '');
+            if (!hash.length) {
+                location.href = location.href + '#' + ((Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-'));
+                location.reload();
+            }
+        </script>
+        <style>
+            @import url(https://fonts.googleapis.com/css?family=Inconsolata);
+            html {
+                background: #eee;
+            }
+            body {
+                font-family:"Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+                font-size: 1.2em;
+                line-height: 1.2em;
+                margin: 0;
+            }
+            article, footer {
+                display: block;
+                max-width: 900px;
+                min-width: 360px;
+                width: 80%;
+            }
+            article {
+                background: #fff;
+                border: 1px solid;
+                border-color: #ddd #aaa #aaa #ddd;
+                margin: 2.5em auto 0 auto;
+                padding: 2em;
+            }
+            h1 {
+                margin-top: 0;
+            }
+            article p:first-of-type {
+                margin-top: 1.6em;
+            }
+            article p:last-child {
+                margin-bottom: 0;
+            }
+            footer {
+                margin: 0 auto 2em auto;
+                text-align: center;
+            }
+            footer a {
+                color: #666;
+                font-size: inherit;
+                padding: 1em;
+                text-decoration: none;
+                text-shadow: 0 1px 1px #fff;
+            }
+            footer a:hover, footer a:focus {
+                color: #111;
+            }
+            h1, h2 {
+                border-bottom: 1px solid black;
+                display: inline;
+                font-weight: normal;
+                line-height: 36px;
+                padding: 0 0 3px 0;
+            }
+            a {
+                color: #2844FA;
+                text-decoration: none;
+            }
+            a:hover, a:focus {
+                color: #1B29A4;
+            }
+            a:active {
+                color: #000;
+            }
+            :-moz-any-link:focus {
+                border: 0;
+                color: #000;
+            }
+            ::selection {
+                background: #ccc;
+            }
+            ::-moz-selection {
+                background: #ccc;
+            }
+            button, select {
+                -moz-border-radius: 3px;
+                -moz-transition: none;
+                -webkit-transition: none;
+                background: #0370ea;
+                background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
+                background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
+                border: 1px solid #076bd2;
+                border-radius: 3px;
+                color: #fff;
+                display: inline-block;
+                font-family: inherit;
+                font-size: .8em;
+                line-height: 1.3;
+                padding: 5px 12px;
+                text-align: center;
+                text-shadow: 1px 1px 1px #076bd2;
+            }
+            button:hover {
+                background: rgb(9, 147, 240);
+            }
+            button:active {
+                background: rgb(10, 118, 190);
+            }
+            button[disabled] {
+                background: none;
+                border: 1px solid rgb(187, 181, 181);
+                color: gray;
+                text-shadow: none;
+            }
+            strong {
+                color: rgb(204, 14, 14);
+                font-family: inherit;
+                font-weight: normal;
+            }
+            select {
+                color: black;
+                text-shadow: none;
+            }
+            td {
+                vertical-align: top;
+            }
+            #chat-output div, #file-progress div {
+                border: 1px solid black;
+                border-bottom: 0;
+                padding: .1em .4em;
+            }
+            input {
+                border: 1px solid black;
+                font-family: inherit;
+                margin: .1em .3em;
+                outline: none;
+                padding: .1em .2em;
+                width: 97%;
+            }
+            #chat-output, #file-progress {
+                margin: 0 0 0 .4em;
+                max-height: 12em;
+                overflow: auto;
+            }
+            pre {
+                border-left: 2px solid red;
+                margin-left: 2em;
+                padding-left: 1em;
+            }
+            .video-container {
+                display: inline-block;
+                border: 2px solid black;
+                padding: .1em;
+                border-radius: 0.2em;
+                margin: 2em .2em;
+                background: white;
+                vertical-align: top;
+            }
+            .video-container h2 {
+                border: 0;
+                border-top: 1px solid black;
+                margin: 0;
+                text-align: center;
+                display: block;
+            }
+            .eject {
+                background-position: center center !important;
+                background-repeat: no-repeat !important;
+                background-image: url('https://webrtc-experiment.appspot.com/images/eject.png') !important;
+                width: 30px;
+                height: 30px;
+                position: absolute;
+                z-index: 200;
+                margin: .2em;
+                border-color: white;
+                border-radius: 0;
+            }
+        </style>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+        <script src="/RTCMultiConnection-v1.2.js">
+            
+        </script>
+    </head>
+    
+    <body>
+        	<h1 style="font-size: 1.3em;display: block;text-align: center;border-bottom: 5px solid gray;">
+      <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">
+        RTCMultiConnection test
+      </a>
+      using 
+      <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs" target="_blank">
+        WebSocket over Node.js
+      </a>
+      for signaling
+    </h1>
+
+        <article>
+            <table style="border-left: 1px solid black; width: 100%;">
+                <tr>
+                    <td id="local-video-container">
+                         <h2>
+              Local video container
+            </h2>
+
+                    </td>
+                    <td id="remote-videos-container" style="background: white; border-left: 1px solid black;">
+                         <h2>
+              Remote videos container
+            </h2>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table id="sessions-list" style="width:100%;"></table>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- checking presence of the channel: useful to auto-establish the session -->
+            <script>
+                var SIGNALING_SERVER = 'ws://' + document.domain + ':8888/';
+                var defaultChannel = location.hash.replace('#', '') || 'default-channel';
+
+                function testChannelPresence(channel) {
+                    var websocket = new WebSocket(SIGNALING_SERVER);
+                    websocket.onopen = function () {
+                        websocket.send(JSON.stringify({
+                            checkPresence: true,
+                            channel: channel
+                        }));
+                    };
+                    websocket.onmessage = function (event) {
+                        isChannelPresent = JSON.parse(event.data).isChannelPresent;
+                        if (!isChannelPresent) startNewSession();
+
+                        console.log('is channel present', isChannelPresent);
+                    };
+                }
+
+                // test whether default channel already created or not!
+                testChannelPresence(defaultChannel);
+            </script>
+
+            <script>
+                window.username = Math.random() * 9999 << 9999;
+
+                var connection = new RTCMultiConnection(defaultChannel, {
+                    openSignalingChannel: function (config) {
+                        config.channel = config.channel || this.channel || defaultChannel;
+                        var websocket = new WebSocket(SIGNALING_SERVER);
+                        websocket.channel = config.channel;
+                        websocket.onopen = function () {
+                            websocket.push(JSON.stringify({
+                                open: true,
+                                channel: config.channel
+                            }));
+                            if (config.callback) config.callback(websocket);
+                        };
+                        websocket.onmessage = function (event) {
+                            config.onmessage(JSON.parse(event.data));
+                        };
+                        websocket.push = websocket.send;
+                        websocket.send = function (data) {
+                            websocket.push(JSON.stringify({
+                                data: data,
+                                channel: config.channel
+                            }));
+                        };
+                    }
+                });
+
+
+                function startNewSession() {
+                    if (!window.username) window.username = prompt('Please enter your username') || 'Anonymous';
+                    connection.open({
+                        extra: {
+                            username: window.username
+                        },
+                        interval: 1000
+                    });
+                }
+
+                connection.onstream = function (stream) {
+                    if (stream.type === 'local') {
+                        var video = getVideo(stream, {
+                            username: window.username
+                        });
+
+                        document.getElementById('local-video-container').appendChild(video);
+                    }
+
+                    if (stream.type === 'remote') {
+                        var video = getVideo(stream, stream.extra);
+
+                        var remoteVideosContainer = document.getElementById('remote-videos-container');
+                        remoteVideosContainer.appendChild(video, remoteVideosContainer.firstChild);
+                    }
+                    stream.mediaElement.width = innerWidth / 3.4;
+                };
+
+                connection.onleave = function (userid, extra) {
+                    console.log(extra.username + ' left you!');
+
+                    var video = document.getElementById(userid);
+                    if (video) video.parentNode.removeChild(video);
+                };
+
+                function getVideo(stream, extra) {
+                    var div = document.createElement('div');
+                    div.className = 'video-container';
+                    div.id = stream.userid || 'self';
+
+                    if (stream.type === 'remote') {
+                        if (connection.isInitiator) {
+                            var eject = document.createElement('button');
+                            eject.className = 'eject';
+                            eject.title = 'Eject this User';
+
+                            eject.onclick = function () {
+                                connection.eject(this.parentNode.id);
+                                this.parentNode.style.display = 'none';
+                            };
+                            div.appendChild(eject);
+                        }
+                    }
+                    div.appendChild(stream.mediaElement);
+
+                    if (extra) {
+                        var h2 = document.createElement('h2');
+                        h2.innerHTML = extra.username;
+                        div.appendChild(h2);
+                    }
+                    return div
+                }
+            </script>
+        </article>
+        <article>
+             <h2>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs" target="_blank">
+          WebSocket over Node.js
+        </a> as a signaling gateway!
+      </h2>
+
+        <p>This <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC Experiment</a> is using "WebSocket" for signaling. WebSocket is hosted on a Node.js server.</p>
+        </article>
+        <footer>
+            <p> <a href="https://webrtc-experiment.appspot.com/" target="_blank">https://webrtc-experiment.appspot.com/</a></p>
+        </footer>
+    </body>
+
+</html>

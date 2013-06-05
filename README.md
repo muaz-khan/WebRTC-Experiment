@@ -8,32 +8,34 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 
 ----
 
-#### Browser Support
+### Libraries
 
-[WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
-
-| Browser        | Support           |
-| ------------- |-------------|
-| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
-| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
-| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
+1. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) — A JavaScript library for streams renegotiation and sharing; multi-session establishment and much more.
+2. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) — A JavaScript library for data/file/text sharing!
+3. [RecordRTC.js](https://webrtc-experiment.appspot.com/RecordRTC/) — A library to record audio/video streams / [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
+4. [RTCall.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) — A library for Browser-to-Browser audio-only calling / [Demo](https://webrtc-experiment.appspot.com/RTCall/)
 
 ----
 
-### Simplest Libraries Ever!
+#### WebRTC Signaling Gateways
 
-1. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) — A JavaScript library for data/file/text sharing!
-2. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) — A JavaScript library for streams renegotiation and sharing; multi-session establishment and much more.
-3. [RecordRTC.js](https://webrtc-experiment.appspot.com/RecordRTC/) — A library to record audio/video streams
-4. [RTCall.js](https://webrtc-experiment.appspot.com/RTCall/) — A library for Browser-to-Browser audio-only calling
+Following signaling gateways can work with each and every [WebRTC Experiment](https://webrtc-experiment.appspot.com/)!
 
-Scroll to bottom of the page to see how to use these four unique libraries!
+1. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) — [Demo](http://websocket-over-nodejs.jit.su/)
+2. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) — [Demo](http://webrtc-signaling.jit.su/)
 
 ----
 
-1. [Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/) — Most demanded and useful feature!
-2. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) — Copy/Paste/Deploy and you're done!
+1. [RecordRTC: WebRTC audio/video recording](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) / [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
+2. [Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/)
+3. [WebRTC one-way video broadcasting](https://webrtc-experiment.appspot.com/webrtc-broadcasting/)
+
+----
+
+#### [Screen sharing](https://webrtc-experiment.appspot.com/#screen-sharing)
+
+1. [Plugin free screen sharing](https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/)
+2. [Screen sharing](https://webrtc-experiment.appspot.com/screen-broadcast/)
 
 ----
 
@@ -45,51 +47,12 @@ Scroll to bottom of the page to see how to use these four unique libraries!
 
 ----
 
-### One-way video broadcasting
-
-1. [WebRTC one-way video broadcasting](https://webrtc-experiment.appspot.com/webrtc-broadcasting/)
-
-----
-
-#### One-to-Many style of WebRTC Experiments
-
-1. [Video broadcasting](https://webrtc-experiment.appspot.com/broadcast/)
-2. [Audio broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/)
-
-----
-
-#### One-to-One style of WebRTC Experiments
-
-1. [One-to-one WebRTC video chat using WebSocket](https://webrtc-experiment.appspot.com/websocket/)
-2. [One-to-one WebRTC video chat using socket.io](https://webrtc-experiment.appspot.com/socket.io/)
-
-----
-
-#### [Screen sharing](https://webrtc-experiment.appspot.com/#screen-sharing)
-
-1. [Plugin free screen sharing](https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/)
-2. [Screen sharing](https://webrtc-experiment.appspot.com/screen-broadcast/)
-
-----
-
 #### [Part of screen sharing](https://webrtc-experiment.appspot.com/#part-of-screen-sharing)
 
 1. [Using RTCDataChannel](https://webrtc-experiment.appspot.com/part-of-screen-sharing/webrtc-data-channel/)
 2. [Using Firebase](https://webrtc-experiment.appspot.com/part-of-screen-sharing/)
 3. [A realtime chat using RTCDataChannel](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/)
 4. [A realtime chat using Firebase](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html)
-
-----
-
-#### WebRTC Audio/Video Recording
-
-[RecordRTC: WebRTC audio/video recording](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) / [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
-
-----
-
-#### Pre-recorded media streaming
-
-[Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/)
 
 ----
 
@@ -116,6 +79,21 @@ Scroll to bottom of the page to see how to use these four unique libraries!
 12. [Users ejection and presence detection](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/)
 13. [Customizing Bandwidth](https://webrtc-experiment.appspot.com/RTCMultiConnection/bandwidth/)
 14. [RTCMultiConnection-v1.3 testing demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3/)
+
+
+----
+
+#### One-to-Many style of WebRTC Experiments
+
+1. [Video broadcasting](https://webrtc-experiment.appspot.com/broadcast/)
+2. [Audio broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/)
+
+----
+
+#### One-to-One style of WebRTC Experiments
+
+1. [One-to-one WebRTC video chat using WebSocket](https://webrtc-experiment.appspot.com/websocket/)
+2. [One-to-one WebRTC video chat using socket.io](https://webrtc-experiment.appspot.com/socket.io/)
 
 ----
 
@@ -154,9 +132,16 @@ Scroll to bottom of the page to see how to use these four unique libraries!
 
 ```javascript
 var channel = new DataChannel('channel-name');
+
 channel.onopen = function(e) {};
 channel.onmessage = function(e) {};
+
+// share with all participants
 channel.send(file || data || 'text');
+
+// Direct messages using user-ids
+channel.userid = 'muazkh';
+channel.channels['muazkh'].send(file || data || 'text');
 ```
 
 ----
@@ -169,6 +154,14 @@ channel.send(file || data || 'text');
 
 ```javascript
 var connection = new RTCMultiConnection();
+connection.session = {
+    audio: true,
+    video: true
+};
+connection.bandwidth = {
+    audio: 50,
+    video: 256
+};
 connection.onstream = function (e) {
     if (e.type === 'local') mainVideo.src = e.blobURL;
     if (e.type === 'remote') document.body.appendChild(e.mediaElement);
@@ -178,10 +171,7 @@ connection.onstream = function (e) {
 connection.connect('session-id');
 
 // to create/open a new session
-// it should be called "only-once" by the session-initiator
-[button-init-session].onclick = function() {
-    connection.open('session-id');
-};
+connection.open('session-id');
 ```
 
 ----
@@ -204,7 +194,40 @@ call.oncustomer = function(customer) {
 
 ----
 
-#### Use [your own](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) socket.io implementation!
+#### Use [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) for signaling
+
+In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
+
+```javascript
+var SIGNALING_SERVER = 'ws://' + document.domain + ':8888/';
+openSignalingChannel: function(config) {
+    config.channel = config.channel || 'default-channel';
+    var websocket = new WebSocket(SIGNALING_SERVER);
+    websocket.channel = config.channel;
+    websocket.onopen = function() {
+        websocket.push(JSON.stringify({
+            open: true,
+            channel: config.channel
+        }));
+        if (config.callback)
+            config.callback(websocket);
+    };
+    websocket.onmessage = function(event) {
+        config.onmessage(JSON.parse(event.data));
+    };
+    websocket.push = websocket.send;
+    websocket.send = function(data) {
+        websocket.push(JSON.stringify({
+            data: data,
+            channel: config.channel
+        }));
+    };
+}
+```
+
+----
+
+#### Use [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) for signaling!
 
 ```javascript
 // openSignalingChannel or openSocket!
@@ -238,7 +261,9 @@ openSignalingChannel: function(config) {
 
 For a ready-made socket.io over node.js implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
 
-#### Use `firebase` for testing purpose!
+----
+
+#### Use `firebase` for signaling!
 
 Remember, You must link [firebase.js](https://cdn.firebase.com/v0/firebase.js) file before using below code:
 
@@ -301,6 +326,19 @@ recorder.stopAudio(function(recordedFileURL) {
 ```
 
 [RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
+
+----
+
+#### Browser Support
+
+[WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
+
+| Browser        | Support           |
+| ------------- |-------------|
+| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
+| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
+| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
+| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
 ----
 

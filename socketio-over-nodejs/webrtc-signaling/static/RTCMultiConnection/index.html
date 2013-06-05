@@ -207,8 +207,7 @@
 
                     </td>
                     <td id="remote-videos-container" style="background: white; border-left: 1px solid black;">
-                         <h2>Remote videos
-            container</h2>
+                         <h2>Remote videos container</h2>
 
                     </td>
                 </tr>
@@ -237,7 +236,7 @@
             <script>
                 window.username = Math.random() * 9999 << 9999;
 
-                var connection = new RTCMultiConnection('session-id', {
+                var connection = new RTCMultiConnection(defaultChannel, {
                         openSignalingChannel: function (config) {
 
                             var channel = config.channel || defaultChannel;

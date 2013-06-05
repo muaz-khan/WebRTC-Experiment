@@ -749,7 +749,6 @@
                                     });
                             });
                     } else {
-                        log('no way, it is too bad!');
                         // otherwise; suggest other user to play role of renegotiator
                         socket.send({
                                 userid: self.userid,

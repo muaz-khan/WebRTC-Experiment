@@ -1,7 +1,11 @@
-/*  MIT License: https://webrtc-experiment.appspot.com/licence/ -- https://github.com/muaz-khan */
+/*
+     2013, @muazkh » github.com/muaz-khan
+     MIT License » https://webrtc-experiment.appspot.com/licence/
+     Documentation » https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
+     Demo » http://webrtc-signaling.jit.su/
+*/
 
-var port = 8888;
-// use port:80 for non-localhost (i.e. real) web servers
+var port = 8888; // use port:80 for non-localhost (i.e. real) web servers
 var app = require('express')(),
 server = require('http').createServer(app),
 io = require('socket.io').listen(server);
@@ -14,37 +18,37 @@ var channels = {};
 
 /* -------------- <socket.io> -------------- */
 
-io.sockets.on('connection', function(socket) {
+io.sockets.on('connection', function (socket) {
     var initiatorChannel = '';
     if (!io.connected)
         io.connected = true;
 
-    socket.on('new-channel', function(data) {
+    socket.on('new-channel', function (data) {
         channels[data.channel] = data.channel;
         onNewNamespace(data.channel, data.sender);
     });
 
-    socket.on('presence', function(channel) {
+    socket.on('presence', function (channel) {
         var isChannelPresent = !!channels[channel];
         socket.emit('presence', isChannelPresent);
         if (!isChannelPresent)
             initiatorChannel = channel;
     });
 
-    socket.on('disconnect', function(channel) {
+    socket.on('disconnect', function (channel) {
         if (initiatorChannel)
             channels[initiatorChannel] = null;
     });
 });
 
 function onNewNamespace(channel, sender) {
-    io.of('/' + channel).on('connection', function(socket) {
+    io.of('/' + channel).on('connection', function (socket) {
         if (io.isConnected) {
             io.isConnected = false;
             socket.emit('connect', true);
         }
 
-        socket.on('message', function(data) {
+        socket.on('message', function (data) {
             if (data.sender == sender)
                 socket.broadcast.emit('message', data.data);
         });
@@ -53,42 +57,37 @@ function onNewNamespace(channel, sender) {
 
 /* -------------- </socket.io> -------------- */
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
     res.sendfile(__dirname + '/static/video-conferencing/index.html');
 });
 
-app.get('/socketio.js', function(req, res) {
-    res.setHeader('Content-Type', 'application/javascript');
-    res.sendfile(__dirname + '/static/socket.io.js');
-});
-
-app.get('/RTCPeerConnection-v1.5.js', function(req, res) {
+app.get('/RTCPeerConnection-v1.5.js', function (req, res) {
     res.setHeader('Content-Type', 'application/javascript');
     res.sendfile(__dirname + '/static/video-conferencing/RTCPeerConnection-v1.5.js');
 });
 
-app.get('/conference.js', function(req, res) {
+app.get('/conference.js', function (req, res) {
     res.setHeader('Content-Type', 'application/javascript');
     res.sendfile(__dirname + '/static/video-conferencing/conference.js');
 });
 
-app.get('/conference-ui.js', function(req, res) {
+app.get('/conference-ui.js', function (req, res) {
     res.setHeader('Content-Type', 'application/javascript');
     res.sendfile(__dirname + '/static/video-conferencing/conference-ui.js');
 });
 
 /* -------------- text chat -------------- */
-app.get('/chat', function(req, res) {
+app.get('/chat', function (req, res) {
     res.sendfile(__dirname + '/static/text-chat.html');
 });
 
 /* -------------- RTCMultiConnection demos -------------- */
 
-app.get('/RTCMultiConnection', function(req, res) {
+app.get('/RTCMultiConnection', function (req, res) {
     res.sendfile(__dirname + '/static/RTCMultiConnection/index.html');
 });
 
-app.get('/RTCMultiConnection-v1.2.js', function(req, res) {
+app.get('/RTCMultiConnection-v1.2.js', function (req, res) {
     res.setHeader('Content-Type', 'application/javascript');
     res.sendfile(__dirname + '/static/RTCMultiConnection/RTCMultiConnection-v1.2.js');
 });

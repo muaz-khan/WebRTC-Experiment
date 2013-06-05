@@ -1,11 +1,11 @@
-#### Using [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) for WebRTC Signaling / [Demo](http://webrtc-signaling.jit.su/)
+#### [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) / [Demo](http://webrtc-signaling.jit.su/)
 
 This experiment is using **socket.io over node.js** for signaling. Follow these steps:
 
 1. Download **ZIP file** of this repository 
 2. Extract and then copy `folder-location` of the`signaler.js` file
 3. Open **Node.js command prompt**
-4. Type command `cd folder-location`
+4. Type command `cd folder-location` where `folder-location` can be `C:\webrtc-signaling`
 5. Type `node signaler`
 
 `http://localhost:8888/` will be auto-opened.
@@ -19,6 +19,65 @@ This experiment is using **socket.io over node.js** for signaling. Follow these 
 3. Type `jitsu deploy` 
 
 and you're done!
+
+----
+
+#### How to use?
+
+In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
+
+```javascript
+var SIGNALING_SERVER = 'http://domain.com:8888/';
+openSignalingChannel: function(config) {   
+   var channel = config.channel || this.channel || 'one-to-one-video-chat';
+   var sender = Math.round(Math.random() * 60535) + 5000;
+   
+   io.connect(SIGNALING_SERVER).emit('new-channel', {
+      channel: channel,
+      sender : sender
+   });
+   
+   var socket = io.connect(SIGNALING_SERVER + channel);
+   socket.channel = channel;
+   
+   socket.on('connect', function () {
+      if (config.callback) config.callback(socket);
+   });
+   
+   socket.send = function (message) {
+        socket.emit('message', {
+            sender: sender,
+            data  : message
+        });
+    };
+   
+   socket.on('message', config.onmessage);
+}
+```
+
+`io.connect(URL).emit('new-channel')` starts a new namespace that is used privately or publicly to transmit appropriate stuff e.g. room-details, participation-requests, SDP, ICE, etc.
+
+----
+
+#### Presence Detection
+
+You can detect presence of a room like this:
+
+```javascript
+var SIGNALING_SERVER = 'http://localhost:8888/';
+function testChannelPresence(channel) {
+    var socket = io.connect(SIGNALING_SERVER);
+    socket.on('presence', function (isChannelPresent) {
+        console.log('is channel present', isChannelPresent);
+        if (!isChannelPresent) startNewSession();
+    });
+    socket.emit('presence', channel);
+}
+
+// test whether default channel already created or not!
+testChannelPresence('default-channel');
+```
+
 
 ----
 
@@ -87,47 +146,10 @@ var SIGNALING_SERVER = 'http://domain.com:8888/';
 
 #### Are you beginner or totally novice?
 
-To run socket.io on your computer; you need to download `node.js` software from `nodejs.org`.
-
-If you're using windows; in the `Start Menus`; you type `node` in the search-box. `Node.js command prompt` will be listed at the top.
-
-You can use same command prompt to run any `node.js` file; also you can write `nodejitsu` commands in the same place e.g. `jitsu deploy` or `jitsu login` etc.
-
-Default port `8888` is used for this experiment. You can manually open this URL, localy: `http://localhost:8888/`
-
-----
-
-```javascript
-// openSignalingChannel or openSocket!
-openSignalingChannel: function(config) {
-   var SIGNALING_SERVER = 'http://domain.com:8888/';
-   var channel = config.channel || this.channel || 'one-to-one-video-chat';
-   var sender = Math.round(Math.random() * 60535) + 5000;
-   
-   io.connect(SIGNALING_SERVER).emit('new-channel', {
-      channel: channel,
-      sender : sender
-   });
-   
-   var socket = io.connect(SIGNALING_SERVER + channel);
-   socket.channel = channel;
-   
-   socket.on('connect', function () {
-      if (config.callback) config.callback(socket);
-   });
-   
-   socket.send = function (message) {
-        socket.emit('message', {
-            sender: sender,
-            data  : message
-        });
-    };
-   
-   socket.on('message', config.onmessage);
-}
-```
-
-`io.connect(URL).emit('new-channel')` starts a new namespace that is used privately or publicly to transmit appropriate stuff e.g. room-details, participation-requests, SDP, ICE, etc.
+1. To run socket.io on your computer; you need to download `node.js` software from `nodejs.org`.
+2. If you're using windows; in the `Start Menus`; you can type `node` in the search-box. `Node.js command prompt` will be listed at the top.
+3. You can use same command prompt to run any `node.js` file; also you can write `nodejitsu` commands in the same place e.g. `jitsu deploy` or `jitsu login` etc.
+4. Default port `8888` is used for this experiment. You can manually open this URL: `http://localhost:8888/`
 
 ----
 
@@ -137,17 +159,6 @@ Interested to understand WebRTC Signaling Concepts? Read [this document](https:/
 
 ----
 
-All [WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
-
-| Browser        | Support           |
-| ------------- |-------------|
-| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
-| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
-| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
-
-----
-
 #### License
 
-[WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
