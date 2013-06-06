@@ -233,7 +233,7 @@ openSignalingChannel: function(config) {
 // openSignalingChannel or openSocket!
 openSignalingChannel: function(config) {
    var SIGNALING_SERVER = 'http://domain.com:8888/';
-   var channel = config.channel || this.channel || 'one-to-one-video-chat';
+   var channel = config.channel || this.channel || 'default-channel';
    var sender = Math.round(Math.random() * 60535) + 5000;
    
    io.connect(SIGNALING_SERVER).emit('new-channel', {

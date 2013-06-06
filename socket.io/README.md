@@ -6,20 +6,21 @@ This `WebRTC Experiment` is using [socket.io over node.js](https://github.com/mu
 
 #### Use your own socket.io implementation!
 
-If you want to install/use your own `socket.io` implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
+There is a built-in [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) implementation that can be used in each and every WebRTC Experiment.
 
 ```javascript
-connection.openSignalingChannel = function(config) {
-   var URL = 'http://domain.com:8888/';
+// openSignalingChannel or openSocket!
+openSignalingChannel: function(config) {
+   var SIGNALING_SERVER = 'http://domain.com:8888/';
    var channel = config.channel || this.channel || 'default-channel';
    var sender = Math.round(Math.random() * 60535) + 5000;
    
-   io.connect(URL).emit('new-channel', {
+   io.connect(SIGNALING_SERVER).emit('new-channel', {
       channel: channel,
       sender : sender
    });
    
-   var socket = io.connect(URL + channel);
+   var socket = io.connect(SIGNALING_SERVER + channel);
    socket.channel = channel;
    
    socket.on('connect', function () {
@@ -34,7 +35,7 @@ connection.openSignalingChannel = function(config) {
     };
    
    socket.on('message', config.onmessage);
-};
+}
 ```
 
 ----
@@ -44,11 +45,11 @@ connection.openSignalingChannel = function(config) {
 This [One-to-one WebRTC video chat using socket.io](https://webrtc-experiment.appspot.com/socket.io/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
-| ------------- |:-------------:|
+| ------------- |-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
-| Android | Chrome Beta |
+| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
 ----
 
