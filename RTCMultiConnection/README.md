@@ -1,7 +1,3 @@
-`RTCMultiConnection-v1.3` is still under developement; see a [testing demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3/). You're recommended to try [v1.2](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.2-and-earlier.md) until `v1.3` gets ready.
-
-----
-
 #### [RTCMultiConnection](https://webrtc-experiment.appspot.com/#RTCMultiConnection): A simple library to handle advance tasks!
 
 Supports features like
@@ -150,16 +146,6 @@ connection.streams['stream-id'].unmute({
     audio: true
 });
 ```
-
-----
-
-#### `removeStream`
-
-```javascript
-connection.streams['stream-id'].removeStream();
-```
-
-Above line will remove a stream and renegotiate the peer connection.
 
 ----
 

@@ -10,10 +10,10 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 
 ### Libraries
 
-1. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) — A JavaScript library for streams renegotiation and sharing; multi-session establishment and much more.
-2. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) — A JavaScript library for data/file/text sharing!
-3. [RecordRTC.js](https://webrtc-experiment.appspot.com/RecordRTC/) — A library to record audio/video streams / [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
-4. [RTCall.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) — A library for Browser-to-Browser audio-only calling / [Demo](https://webrtc-experiment.appspot.com/RTCall/)
+1. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) — [Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection)
+2. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) — [Demos](https://webrtc-experiment.appspot.com/#DataChannel)
+3. [RecordRTC.js](https://webrtc-experiment.appspot.com/RecordRTC/) — [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
+4. [RTCall.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) — [Demo](https://webrtc-experiment.appspot.com/RTCall/)
 
 ----
 
@@ -21,8 +21,8 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 
 Following signaling gateways can work with each and every [WebRTC Experiment](https://webrtc-experiment.appspot.com/)!
 
-1. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) — [Demo](http://websocket-over-nodejs.jit.su/)
-2. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) — [Demo](http://webrtc-signaling.jit.su/)
+1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) — [Demo](http://webrtc-signaling.jit.su/)
+2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) — [Demo](http://websocket-over-nodejs.jit.su/)
 
 ----
 
