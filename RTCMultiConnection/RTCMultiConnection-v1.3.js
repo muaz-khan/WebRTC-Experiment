@@ -54,7 +54,7 @@
                  // for custom socket.io over node.js implementation - visit - https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
                  self.openSignalingChannel = function (config) {
                      channel = config.channel || self.channel || 'default-channel';
-                     socket = new window.Firebase('https://' + (self.firebase || 'chat') + '.firebaseIO.com/' + channel);
+                     var socket = new window.Firebase('https://' + (self.firebase || 'chat') + '.firebaseIO.com/' + channel);
                      socket.channel = channel;
                      socket.on('child_added', function (data) {
                          config.onmessage(data.val());
@@ -72,7 +72,7 @@
                  };
 
                  if (!window.Firebase) {
-                     script = document.createElement('script');
+                     var script = document.createElement('script');
                      script.src = 'https://cdn.firebase.com/v0/firebase.js';
                      script.onload = callback;
                      document.documentElement.appendChild(script);
@@ -128,7 +128,7 @@
 
              self.session = session.session;
 
-             extra = self.extra || session.extra || {};
+             var extra = self.extra || session.extra || {};
 
              if (session.oneway || session.data) rtcSession.joinSession(session, extra);
              else captureUserMedia(function () {
@@ -138,7 +138,7 @@
 
          function captureUserMedia(callback, _session) {
              var constraints;
-             session = _session || self.session;
+             var session = _session || self.session;
 
              log(JSON.stringify(session).replace(/{|}/g, '').replace(/,/g, '\n').replace(/:/g, ':\t'));
 
@@ -175,12 +175,12 @@
                      video: video_constraints
                  };
              }
-             mediaElement = document.createElement(session.audio && !session.video ? 'audio' : 'video');
-             mediaConfig = {
+            var mediaElement = document.createElement(session.audio && !session.video ? 'audio' : 'video');
+            var mediaConfig = {
                  video: mediaElement,
                  onsuccess: function (stream) {
                      self.attachStream = stream;
-                     streamid = self.token();
+                     var streamid = self.token();
 
                      self.onstream({
                          stream: stream,
@@ -240,13 +240,13 @@
      };
 
      function RTCMultiSession(root) {
-         config = root.config;
-         session = root.session;
+         var config = root.config,
+             session = root.session;
 
-         self = {};
-         socketObjects = {};
-         peers = {};
-         sockets = [];
+         var self = {},
+             socketObjects = {},
+             peers = {},
+             sockets = [];
 
          self.userid = root.userid = root.userid || root.token();
          self.sessionid = root.channel;
@@ -278,7 +278,7 @@
                  inner = {},
                  peer, mediaElement;
 
-             peerConfig = {
+             var peerConfig = {
                  onopen: onChannelOpened,
                  onICE: function (candidate) {
                      socket && socket.send({
@@ -357,7 +357,7 @@
                      root.onstreamended(streamedObject);
                  };
 
-                 streamid = root.token();
+                 var streamid = root.token();
 
                  var streamedObject = {
                      mediaElement: mediaElement,
@@ -413,7 +413,7 @@
                      }
                  };
 
-                 // connection.channels['user-id'].send(data);				
+                 // connection.channels['user-id'].send(data); 			
                  if (_config.channel) root.channels[_config.userid] = {
                      channel: _config.channel,
                      send: function (data) {
@@ -483,12 +483,12 @@
                      root.open({
                          extra: root.extra
                      });
-                     sockets = sockets.swap();
+                     sockets = sockets.swapNotTrue();
                      root.dontAttachStream = false;
                  }, 600);
 
                  if (response.suggestRenegotiation) {
-                     renegotiate = response.renegotiate;
+                     var renegotiate = response.renegotiate;
                      if (isData(renegotiate)) createOffer();
                      else root.captureUserMedia(function (stream, streamid) {
                          peer.connection.addStream(stream);
@@ -554,7 +554,7 @@
              if (!channel || channels.indexOf(channel) != -1 || channel == self.userid) return;
              channels += channel + '--';
 
-             new_channel = root.token();
+             var new_channel = root.token();
              newPrivateSocket({
                  channel: new_channel,
                  closeSocket: true,
@@ -586,7 +586,8 @@
              }
 
              if (!channel) {
-                 length = sockets.length;
+                 var length = sockets.length,
+						               socket;
                  for (var i = 0; i < length; i++) {
                      socket = sockets[i];
                      if (socket) {
@@ -606,7 +607,9 @@
                      delete socketObjects[channel];
                  }
              }
-             sockets = sockets.swap();
+			          // when someone leaves, sometimes sockets[whoLeftId] is set to true
+			          // and when is called sockets[whoLeftId].func the app fails
+             sockets = sockets.swapNotTrue();
          }
 
          window.onbeforeunload = function () {
@@ -714,14 +717,14 @@
 
          this.addStream = function (e) {
              console.log('this.addStream', e);
-             session = e.renegotiate;
+             var session = e.renegotiate;
 
              if (e.socket) addStream(e.socket);
              else for (var i = 0; i < sockets.length; i++)
              addStream(sockets[i]);
 
              function addStream(socket) {
-                 peer = root.peers[socket.userid];
+                 var peer = root.peers[socket.userid];
                  if (!peer) throw 'No such peer exists.';
                  peer = peer.peer;
 
@@ -749,11 +752,11 @@
          };
      }
 
-     FileSender = {
+     var FileSender = {
          send: function (config) {
-             channel = config.channel;
-             file = config.file;
-             _channel = config._channel;
+             var channel = config.channel,
+				file = config.file,
+				_channel = config._channel;
 
              if (moz) {
                  channel.send({
@@ -769,7 +772,7 @@
              }
 
              if (!moz) {
-                 reader = new window.FileReader();
+                 var reader = new window.FileReader();
                  reader.readAsDataURL(file);
                  reader.onload = onReadAsDataURL;
              }
@@ -823,14 +826,14 @@
              numberOfPackets = 0;
 
          this.receive = function (e) {
-             data = e.data;
-             connection = e.connection;
+             var data = e.data,
+				connection = e.connection;
 
              if (moz) {
                  if (data.fileName) fileName = data.fileName;
 
                  if (data.size) {
-                     reader = new window.FileReader();
+                     var reader = new window.FileReader();
                      reader.readAsDataURL(data);
                      reader.onload = function (event) {
                          FileSaver.SaveToDisk({
@@ -865,7 +868,7 @@
          };
      }
 
-     TextSender = {
+     var TextSender = {
          send: function (config) {
              var channel = config.channel,
                  initialText = config.text,
@@ -881,7 +884,7 @@
              else sendText(initialText);
 
              function sendText(textMessage, text) {
-                 data = {
+                 var data = {
                      type: 'text'
                  };
 
@@ -908,11 +911,11 @@
      };
 
      function TextReceiver() {
-         content = [];
+         var content = [];
 
          function receive(e) {
-             data = e.data;
-             connection = e.connection;
+             var data = e.data,
+				connection = e.connection;
 
              content.push(data.message);
              if (data.last) {
@@ -926,14 +929,14 @@
          };
      }
 
-     FileSaver = {
+     var FileSaver = {
          SaveToDisk: function (e) {
-             save = document.createElement('a');
+             var save = document.createElement('a');
              save.href = e.fileURL;
              save.target = '_blank';
              save.download = e.fileName || e.fileURL;
 
-             evt = document.createEvent('MouseEvents');
+             var evt = document.createEvent('MouseEvents');
              evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
 
              save.dispatchEvent(evt);
@@ -949,7 +952,8 @@
              var w = window,
                  PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
                  SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
-                 IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
+                 IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate,
+				 constraints;
 
              STUN = {
                  url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
@@ -1008,7 +1012,7 @@
              };
 
              function setConstraints() {
-                 session = options.session;
+                 var session = options.session;
                  constraints = options.constraints || {
                      optional: [],
                      mandatory: {
@@ -1049,7 +1053,7 @@
                  createAnswer();
              }
 
-             bandwidth = options.bandwidth;
+             var bandwidth = options.bandwidth;
 
              function setBandwidth(sdp) {
                  //if(bandwidth.audio == 50 && bandwidth.video == 256) return sdp;
@@ -1216,6 +1220,15 @@
          if (arr[i]) swapped[swapped.length] = arr[i];
          return swapped;
      };
+	 
+	 Array.prototype.swapNotTrue = function () {
+         var swapped = [],
+             arr = this,
+             length = arr.length;
+         for (var i = 0; i < length; i++)
+         if (arr[i] && arr[i] !== true) swapped[swapped.length] = arr[i];
+         return swapped;
+     };
 
      function log(a, b, c, d, e, f) {
          if (f) console.log(a, b, c, d, e, f);
@@ -1311,12 +1324,12 @@
                      };
 
                      if (session.audio) {
-                         audioTracks = stream.getAudioTracks()[0];
+                         var audioTracks = stream.getAudioTracks()[0];
                          if (audioTracks) audioTracks.enabled = !enabled;
                      }
 
                      if (session.video) {
-                         videoTracks = stream.getVideoTracks()[0];
+                         var videoTracks = stream.getVideoTracks()[0];
                          if (videoTracks) videoTracks.enabled = !enabled;
                      }
                  }
