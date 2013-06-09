@@ -579,10 +579,11 @@
 
              if (isbroadcaster) {
                  if (root.autoCloseEntireSession) alert.closeEntireSession = true;
-                 else sockets[0].send({
-                     playRoleOfBroadcaster: true,
-                     userid: self.userid
-                 });
+                 else if(sockets[0])
+                     sockets[0].send({
+                         playRoleOfBroadcaster: true,
+                         userid: self.userid
+                     });
              }
 
              if (!channel) {
