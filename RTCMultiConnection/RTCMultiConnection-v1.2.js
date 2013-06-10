@@ -386,7 +386,9 @@
                         credential: 'muazkh',
                         username: 'webrtc@live.com'
                 };
-                iceServers.iceServers = [TURN, STUN];
+				
+                // No STUN to make sure it works all the time!
+                iceServers.iceServers = [TURN];
             }
 
             var optional = {

@@ -1,8 +1,9 @@
 /*
-     2013, @muazkh » github.com/muaz-khan
-     MIT License » https://webrtc-experiment.appspot.com/licence/
-     Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
+     2013, @muazkh - github.com/muaz-khan
+     MIT License - https://webrtc-experiment.appspot.com/licence/
+     Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
 */
+
 window.moz = !! navigator.mozGetUserMedia;
 var RTCPeerConnection = function (options) {
     var w = window,
@@ -31,7 +32,9 @@ var RTCPeerConnection = function (options) {
                 credential: 'muazkh',
                 username: 'webrtc@live.com'
         };
-        iceServers.iceServers = [TURN, STUN];
+		
+        // No STUN to make sure it works all the time!
+        iceServers.iceServers = [TURN];
     }
 
     optional = {

@@ -79,6 +79,18 @@ connection.onstream = function (e) {
 
 ----
 
+#### `onstreamended`
+
+`onstreamended` will be fired if media streams stopped flowing between two peers. It is preferred to use `onstreamended` to remove media elements instead of using `onleave`.
+
+```javascript
+connection.onstreamended = function(e) {
+    // "e" contains all objects passed to above "onstream" method
+};
+```
+
+----
+
 #### Renegotiation
 
 Cases:
