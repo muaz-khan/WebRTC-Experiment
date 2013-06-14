@@ -215,7 +215,7 @@
                 call = new RTCall();
                 call.callerid = 'admin';
                 call.admin = true;
-                call.firebase = 'webrtc-experiment';
+                call.firebase = 'muazkh';
 
                 call.oncustomer = function (customer) {
                     customersList = $('#customers-list');
@@ -256,7 +256,7 @@
 
                 call = new RTCall();
                 call.callerid = 'customer:' + getRandomNumber();
-                call.firebase = 'webrtc-experiment';
+                call.firebase = 'muazkh';
 
                 call.onincomingcall = function (caller) {
                     onincomingcall(caller, call);

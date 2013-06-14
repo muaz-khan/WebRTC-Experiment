@@ -45,16 +45,38 @@ recorder.stopAudio(function(recordedFileURL) {
 });
 ```
 
-#### Additional Features
+#### Get Data URL
 
 ```javascript
-/* getting URL Blob */
-window.open( recorder.getBlob() );
+window.open( recorder.getDataURL() );
+```
 
-/* getting recorded file URL */
+#### Get Blob object
+
+```javascript
+blob = recorder.getBlob();
+```
+
+#### POST on server
+
+```javascript
+blob = recorder.getBlob();
+
+formData = new FormData();
+formData.append('key', blob);
+
+xhr.send(formData);
+```
+
+#### Get File URL
+
+```javascript
 window.open( recorder.toURL() );
+```
 
-/* save recorded Blob to disk */
+#### Save to Disk
+
+```javascript
 recorder.save();
 ```
 
@@ -70,7 +92,14 @@ recorder.stopAudio(function(recordedFileURL) {
 });
 ```
 
-This method is reliable and works all the time without any failure.
+This method is reliable and works all the time without any failure. However, it fails on `incognito` mode.
+
+You can use like this too:
+
+```javascript
+recorder.stopVideo();
+recorder.stopAudio(function();
+```
 
 #### Make sure that:
 

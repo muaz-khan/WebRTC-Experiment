@@ -1,3 +1,10 @@
+/*
+futures:
+frame rate: want to record at
+duration: of the recording
+file prefix or  file path: save recorded file to
+*/
+
 function RecordRTC(config) {
     var win = window,
         requestAnimationFrame = win.webkitRequestAnimationFrame || win.mozRequestAnimationFrame,
@@ -34,7 +41,7 @@ function RecordRTC(config) {
         requestedAnimationFrame = requestAnimationFrame(drawVideoFrame);
     }
 
-    var blobURL, blobURL2, fileType;
+    var blobURL, dataURL, fileType;
 
     function stopVideoRecording(callback) {
         console.warn('stopped recording video frames');
@@ -51,7 +58,7 @@ function RecordRTC(config) {
         else {
             console.log('saving recorded stream to disk!');
             var save = document.createElement('a');
-            save.href = blobURL2;
+            save.href = dataURL;
             save.target = '_blank';
             save.download = (Math.random() * 1000 << 1000) + '.' + fileType;
 
@@ -112,7 +119,7 @@ function RecordRTC(config) {
                 if (url) return window.open(url);
                 else {
                     console.debug('Unabled to write temporary recorded file using FileWriter APIs.');
-                    if (callback) callback(blobURL2);
+                    if (callback) callback(dataURL);
                 }
             }
         };
@@ -121,7 +128,7 @@ function RecordRTC(config) {
         var reader = new win.FileReader();
         reader.readAsDataURL(blobURL);
         reader.onload = function (event) {
-            blobURL2 = event.target.result;
+            dataURL = event.target.result;
         };
     }
 
@@ -132,7 +139,10 @@ function RecordRTC(config) {
         recordAudio: recordAudio,
         save: saveToDisk,
         getBlob: function () {
-            return blobURL2;
+            return blobURL;
+        },
+		getDataURL: function () {
+            return dataURL;
         },
         toURL: function () {
             if (!fileSystemURL) return saveToDisk();

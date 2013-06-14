@@ -30,8 +30,8 @@ var RTCPeerConnection = function (options) {
                 url: 'turn:numb.viagenie.ca',
                 credential: 'muazkh',
                 username: 'webrtc@live.com'
-        };
-		
+            };
+
         // No STUN to make sure it works all the time!
         iceServers.iceServers = [TURN];
     }
@@ -42,15 +42,13 @@ var RTCPeerConnection = function (options) {
 
     if (!moz) {
         optional.optional = [{
-                DtlsSrtpKeyAgreement: true
-            }
-        ];
+            DtlsSrtpKeyAgreement: true
+        }];
 
         if (options.onChannelMessage)
             optional.optional = [{
-                    RtpDataChannels: true
-                }
-            ];
+                RtpDataChannels: true
+            }];
     }
 
     var peerConnection = new PeerConnection(iceServers, optional);
@@ -104,6 +102,8 @@ var RTCPeerConnection = function (options) {
             'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
             'c=IN') : sdp;
 
+        sdp = setBandwidth(sdp);
+
         if (options.offerSDP) {
             info('\n--------offer sdp provided by offerer\n');
             info(options.offerSDP.sdp);
@@ -121,10 +121,10 @@ var RTCPeerConnection = function (options) {
         if (!options.onOfferSDP) return;
 
         peerConnection.createOffer(function (sessionDescription) {
-                sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
-                peerConnection.setLocalDescription(sessionDescription);
-                options.onOfferSDP(sessionDescription);
-            }, null, constraints);
+            sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
+            peerConnection.setLocalDescription(sessionDescription);
+            options.onOfferSDP(sessionDescription);
+        }, null, constraints);
     }
 
     function createAnswer() {
@@ -134,10 +134,24 @@ var RTCPeerConnection = function (options) {
         peerConnection.setRemoteDescription(options.offerSDP);
 
         peerConnection.createAnswer(function (sessionDescription) {
-                sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
-                peerConnection.setLocalDescription(sessionDescription);
-                options.onAnswerSDP(sessionDescription);
-            }, null, constraints);
+            sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
+            peerConnection.setLocalDescription(sessionDescription);
+            options.onAnswerSDP(sessionDescription);
+        }, null, constraints);
+    }
+
+    function setBandwidth(sdp) {
+        // Firefox has no support of "b=AS"
+        if (moz) return sdp;
+
+        // remove existing bandwidth lines
+        sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
+
+        sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:50\r\n');
+        sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:256\r\n');
+        sdp = sdp.replace(/a=mid:data\r\n/g, 'a=mid:data\r\nb=AS:1638400\r\n');
+
+        return sdp;
     }
 
     if ((options.onChannelMessage && !moz) || !options.onChannelMessage) {
@@ -154,12 +168,12 @@ var RTCPeerConnection = function (options) {
 
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function (stream) {
-                    peerConnection.addStream(stream);
-                    createOffer();
-                }, useless);
+                audio: true,
+                fake: true
+            }, function (stream) {
+                peerConnection.addStream(stream);
+                createOffer();
+            }, useless);
         }
     }
 
@@ -204,12 +218,12 @@ var RTCPeerConnection = function (options) {
 
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function (stream) {
-                    peerConnection.addStream(stream);
-                    createAnswer();
-                }, useless);
+                audio: true,
+                fake: true
+            }, function (stream) {
+                peerConnection.addStream(stream);
+                createAnswer();
+            }, useless);
         }
     }
 
@@ -230,9 +244,9 @@ var RTCPeerConnection = function (options) {
         addICE: function (candidate) {
             info(candidate.candidate);
             peerConnection.addIceCandidate(new IceCandidate({
-                        sdpMLineIndex: candidate.sdpMLineIndex,
-                        candidate: candidate.candidate
-                    }));
+                sdpMLineIndex: candidate.sdpMLineIndex,
+                candidate: candidate.candidate
+            }));
         },
 
         peer: peerConnection,
@@ -253,11 +267,11 @@ function getUserMedia(options) {
         media;
     n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
     n.getMedia(options.constraints || {
-            audio: true,
-            video: video_constraints
-        }, streaming, options.onerror || function (e) {
-            console.error(e);
-        });
+        audio: true,
+        video: video_constraints
+    }, streaming, options.onerror || function (e) {
+        console.error(e);
+    });
 
     function streaming(stream) {
         var video = options.video;

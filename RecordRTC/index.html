@@ -302,10 +302,10 @@ recorder.stopAudio(function(recordedFileURL) {
 
             <p>Do you know "RecordRTC" fails recording audio because following conditions fails:
                 <ol>
-                    <li>Sample rate and channel configuration must be the same for input and output sides on Windows i.e. audio input/output devices mismatch</li>
+                    <li>Sample rate and channel configuration must be the same for input and output sides on Windows i.e. audio input/output devices must match</li>
                     <li>Only the Default microphone device can be used for capturing.</li>
-                    <li>The requesting scheme is none of the following: http, https, chrome, extension's, or file (only works with --allow-file-access-from-files)</li>
-                    <li>The browser cannot create/initialize the metadata database for the API under the profile directory</li>
+                    <li>The requesting scheme is must be one of the following: http, https, chrome, extension's, or file (only works with --allow-file-access-from-files)</li>
+                    <li>The browser must be able to create/initialize the metadata database for the API under the profile directory</li>
                 </ol>If you see this error message: "<code>Uncaught Error: SecurityError: DOM Exception 18</code>"; it means that you're using <code>HTTP</code>; whilst your webpage is loading worker file (i.e. audio-recorder.js) from <code>HTTPS</code>. Both files's (i.e.
                 RecordRTC.js and audio-recorder.js) scheme MUST be same!</p>
             

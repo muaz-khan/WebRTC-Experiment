@@ -1,7 +1,8 @@
-/*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
- 2013, Muaz Khan<muazkh>--[github.com/muaz-khan]
-
- https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection */
+/*
+     2013, @muazkh - github.com/muaz-khan
+     MIT License - https://webrtc-experiment.appspot.com/licence/
+     Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
+*/
 
 function RTCMultiConnection(channel) {
     this.channel = channel;
@@ -267,7 +268,7 @@ String.prototype.lowercase = function () {
 
 window.MediaStream = window.MediaStream || window.webkitMediaStream;
 
-window.moz = !!navigator.mozGetUserMedia;
+window.moz = !! navigator.mozGetUserMedia;
 var RTCPeerConnection = function (options) {
     var w = window,
         PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
@@ -284,33 +285,29 @@ var RTCPeerConnection = function (options) {
     var iceServers = {
         iceServers: options.iceServers || [STUN]
     };
-    
-		if (!moz && !options.iceServers) {
-			if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
-				TURN = {
-					url: 'turn:numb.viagenie.ca',
-					credential: 'muazkh',
-					username: 'webrtc@live.com'
-			};
-			iceServers.iceServers = [TURN, STUN];
-		}
+
+    if (!moz && !options.iceServers) {
+        if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
+            TURN = {
+                url: 'turn:numb.viagenie.ca',
+                credential: 'muazkh',
+                username: 'webrtc@live.com'
+            };
+        iceServers.iceServers = [TURN, STUN];
+    }
 
     var optional = {
         optional: []
     };
 
     if (!moz) {
-        optional.optional = [
-            {
-                DtlsSrtpKeyAgreement: true
-            }
-        ];
+        optional.optional = [{
+            DtlsSrtpKeyAgreement: true
+        }];
         if (options.onChannelMessage)
-            optional.optional = [
-                {
-                    RtpDataChannels: true
-                }
-            ];
+            optional.optional = [{
+                RtpDataChannels: true
+            }];
     }
 
     var peerConnection = new PeerConnection(iceServers, optional);
@@ -365,7 +362,9 @@ var RTCPeerConnection = function (options) {
         var inline = getChars() + '\r\n' + (extractedChars = '');
         sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
             'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
-                'c=IN') : sdp;
+            'c=IN') : sdp;
+
+        sdp = setBandwidth(sdp);
 
         return sdp;
     }
@@ -396,6 +395,20 @@ var RTCPeerConnection = function (options) {
             peerConnection.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
         }, null, constraints);
+    }
+
+    function setBandwidth(sdp) {
+        // Firefox has no support of "b=AS"
+        if (moz) return sdp;
+
+        // remove existing bandwidth lines
+        sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
+
+        sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:50\r\n');
+        sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:256\r\n');
+        sdp = sdp.replace(/a=mid:data\r\n/g, 'a=mid:data\r\nb=AS:1638400\r\n');
+
+        return sdp;
     }
 
     if ((options.onChannelMessage && !moz) || !options.onChannelMessage) {
@@ -476,8 +489,7 @@ var RTCPeerConnection = function (options) {
         }
     }
 
-    function useless() {
-    }
+    function useless() {}
 
     return {
         addAnswerSDP: function (sdp) {
@@ -884,7 +896,7 @@ var FileSender = {
             reader.onload = onReadAsDataURL;
         }
 
-        var packetSize = 1000 /* chars */,
+        var packetSize = 1000 /* chars */ ,
             textToTransfer = '',
             numberOfPackets = 0,
             packets = 0;
@@ -924,7 +936,7 @@ var FileSender = {
             if (textToTransfer.length)
                 setTimeout(function () {
                     onReadAsDataURL(null, textToTransfer);
-                }, 500);
+                }, 1);
         }
     }
 };
@@ -982,7 +994,7 @@ var TextSender = {
     send: function (config) {
         var channel = config.channel,
             initialText = config.text,
-            packetSize = 1000 /* chars */,
+            packetSize = 1000 /* chars */ ,
             textToTransfer = '';
 
         if (typeof initialText !== 'string') initialText = JSON.stringify(initialText);
@@ -1014,7 +1026,7 @@ var TextSender = {
             if (textToTransfer.length)
                 setTimeout(function () {
                     sendText(null, textToTransfer);
-                }, 500);
+                }, 1);
         }
     }
 };

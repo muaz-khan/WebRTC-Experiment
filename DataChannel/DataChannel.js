@@ -11,7 +11,8 @@
 
         extras = extras || {};
 
-        var self = this, dataConnector, fileReceiver, textReceiver;
+        var self = this,
+            dataConnector, fileReceiver, textReceiver;
 
         this.onmessage = function (message, userid) {
             console.debug(userid, 'sent message:', message);
@@ -47,7 +48,7 @@
                 self[extra] = extras[extra];
             }
             self.direction = self.direction || 'many-to-many';
-            if(self.userid) window.userid = self.userid;
+            if (self.userid) window.userid = self.userid;
 
             if (!self.openSignalingChannel) {
                 if (typeof self.transmitRoomOnce == 'undefined') self.transmitRoomOnce = true;
@@ -216,8 +217,8 @@
 
             // for non-firebase clients
             if (isNonFirebaseClient) setTimeout(function () {
-                    self.openNewSession(true);
-                }, 5000);
+                self.openNewSession(true);
+            }, 5000);
         };
 
         if (self.automatic) {
@@ -390,10 +391,10 @@
                 }
 
                 if (response.playRoleOfBroadcaster) setTimeout(function () {
-                        self.roomToken = response.roomToken;
-                        root.open(self.roomToken);
-                        self.sockets = self.sockets.swap();
-                    }, 600);
+                    self.roomToken = response.roomToken;
+                    root.open(self.roomToken);
+                    self.sockets = self.sockets.swap();
+                }, 600);
             }
 
             var invokedOnce = false;
@@ -444,10 +445,10 @@
             if (isbroadcaster) {
                 if (root.autoCloseEntireSession) alert.closeEntireSession = true;
                 else self.sockets[0].send({
-                        playRoleOfBroadcaster: true,
-                        userToken: self.userToken,
-                        roomToken: self.roomToken
-                    });
+                    playRoleOfBroadcaster: true,
+                    userToken: self.userToken,
+                    roomToken: self.roomToken
+                });
             }
 
             if (!channel) {
@@ -488,13 +489,14 @@
         window.onbeforeunload = function () {
             leaveChannels();
         };
-		
-        window.onkeyup = function(e) {
-            if(e.keyCode == 116) leaveChannels();
+
+        window.onkeyup = function (e) {
+            if (e.keyCode == 116) leaveChannels();
         };
 
         (function () {
-            var anchors = document.querySelectorAll('a'), length = anchors.length;
+            var anchors = document.querySelectorAll('a'),
+                length = anchors.length;
             for (var i = 0; i < length; i++) {
                 a = anchors[i];
                 if (a.href.indexOf('#') !== 0 && a.getAttribute('target') != '_blank') a.onclick = function () {
@@ -570,7 +572,8 @@
                 else data = JSON.stringify(message);
 
                 if (_channel) _channel.send(data);
-                else for (var i = 0; i < length; i++) _channels[i].send(data);
+                else
+                    for (var i = 0; i < length; i++) _channels[i].send(data);
             },
             leave: function (userid, autoCloseEntireSession) {
                 if (autoCloseEntireSession) root.autoCloseEntireSession = true;
@@ -669,7 +672,7 @@
                 if (textToTransfer.length)
                     setTimeout(function () {
                         onReadAsDataURL(null, textToTransfer);
-                    }, 500);
+                    }, 1);
             }
         }
     };
@@ -777,7 +780,7 @@
                 if (textToTransfer.length)
                     setTimeout(function () {
                         sendText(null, textToTransfer);
-                    }, 500);
+                    }, 1);
             }
         }
     };
@@ -804,7 +807,8 @@
         var swapped = [],
             arr = this,
             length = arr.length;
-        for (var i = 0; i < length; i++) if (arr[i]) swapped[swapped.length] = arr[i];
+        for (var i = 0; i < length; i++)
+            if (arr[i]) swapped[swapped.length] = arr[i];
         return swapped;
     };
 
@@ -831,14 +835,14 @@
         };
 
         if (!moz && !options.iceServers) {
-			if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
-				TURN = {
-					url: 'turn:numb.viagenie.ca',
-					credential: 'muazkh',
-					username: 'webrtc@live.com'
-			};
-			iceServers.iceServers = [TURN, STUN];
-		}
+            if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
+                TURN = {
+                    url: 'turn:numb.viagenie.ca',
+                    credential: 'muazkh',
+                    username: 'webrtc@live.com'
+                };
+            iceServers.iceServers = [TURN, STUN];
+        }
 
         var optional = {
             optional: []
@@ -846,9 +850,8 @@
 
         if (!moz) {
             optional.optional = [{
-                    RtpDataChannels: true
-                }
-            ];
+                RtpDataChannels: true
+            }];
         }
 
         var peerConnection = new PeerConnection(iceServers, optional);
@@ -873,6 +876,7 @@
             if (!options.onOfferSDP) return;
 
             peerConnection.createOffer(function (sessionDescription) {
+                sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peerConnection.setLocalDescription(sessionDescription);
                 options.onOfferSDP(sessionDescription);
             }, null, constraints);
@@ -885,9 +889,22 @@
             peerConnection.setRemoteDescription(options.offerSDP);
 
             peerConnection.createAnswer(function (sessionDescription) {
+                sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peerConnection.setLocalDescription(sessionDescription);
                 options.onAnswerSDP(sessionDescription);
             }, null, constraints);
+        }
+
+        function setBandwidth(sdp) {
+            // Firefox has no support of "b=AS"
+            if (moz) return sdp;
+
+            // remove existing bandwidth lines
+            sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
+
+            sdp = sdp.replace(/a=mid:data\r\n/g, 'a=mid:data\r\nb=AS:1638400\r\n');
+
+            return sdp;
         }
 
         if (!moz) {
@@ -916,8 +933,8 @@
             channel = peerConnection.createDataChannel(
                 options.channel || 'RTCDataChannel',
                 moz ? {} : {
-                reliable: false
-            });
+                    reliable: false
+                });
             if (moz) channel.binaryType = 'blob';
             setChannelEvents();
         }

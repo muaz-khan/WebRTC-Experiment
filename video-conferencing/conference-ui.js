@@ -1,5 +1,7 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
-    It is recommended to use RTCMultiConnection.js for audio/video/screen sharing: <http://bit.ly/RTCMultiConnection-Documentation>
+﻿/*
+     2013, @muazkh - github.com/muaz-khan
+     MIT License - https://webrtc-experiment.appspot.com/licence/
+     Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
 */
 
 var config = {

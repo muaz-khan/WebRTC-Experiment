@@ -184,7 +184,7 @@
     </script>
 
     <script src="https://webrtc-experiment.appspot.com/firebase.js"></script>
-    <script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.1.js"></script>
+    <script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js"></script>
 </head>
 
 <body>
@@ -234,11 +234,13 @@
     document.getElementById('channel').value = Math.round(Math.random() * 60535) + 500000;
     var connection = new RTCMultiConnection();
 
-    connection.session = 'only-data';
+    connection.session = {
+		data: true
+	};
 
     // [optional] onmessage/onopen is for sending/receiving data/text
-    connection.onmessage = function (data) {
-        appendDIV(data);
+    connection.onmessage = function (e) {
+        appendDIV(e.data);
     };
 
     connection.onopen = function () {
@@ -307,18 +309,22 @@
 <h2>Getting started with <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection"
                             target="_blank">RTCMultiConnection</a></h2>
             <pre>
-&lt;script src="<a href="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.1.js" target="_blank">https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.1.js</a>"&gt;&lt;/script&gt;
+&lt;script src="<a href="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js" target="_blank">https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js</a>"&gt;&lt;/script&gt;
 &lt;script&gt;
     var connection = new <strong>RTCMultiConnection</strong>();
+	
+    connection.<strong>session</strong> = {
+        data: true
+    };
 
     // to create/open a new session
     connection.<strong>open</strong>('session-id');
-
-    // to send text/data or file
-    connection.<strong>send</strong>(file || data || 'text');
 	
     // if someone already created a session; to join it: use "connect" method
     connection.<strong>connect</strong>('session-id');
+	
+	// to send text/data or file
+    connection.<strong>send</strong>(file || data || 'text');
 &lt;/script&gt;
 </pre>
 Remember, A-to-Z, everything is optional! You can set <strong>session-id</strong> in constructor or in
@@ -340,15 +346,10 @@ Remember, A-to-Z, everything is optional! You can set <strong>session-id</strong
             <pre>
 &lt;script&gt;
     // to be alerted on data ports get open
-    connection.<strong>onopen</strong> = function(channel) {}
+    connection.<strong>onopen</strong> = function(e) {}
 	
     // to be alerted on data ports get new message
-    connection.<strong>onmessage</strong> = function(message) {}
-	
-    // by default; connection is [many-to-many]; you can use following directions
-    connection.<strong>direction</strong> = 'one-to-one';
-    connection.<strong>direction</strong> = 'one-to-many';
-    connection.<strong>direction</strong> = 'many-to-many';	// --- it is default
+    connection.<strong>onmessage</strong> = function(e) {}
 
     // show progress bar!
     connection.<strong>onFileProgress</strong> = function (packets) {
@@ -375,33 +376,13 @@ Remember, A-to-Z, everything is optional! You can set <strong>session-id</strong
             <pre>
 &lt;script&gt;
     // error to open data ports
-    connection.<strong>onerror</strong> = function(event) {}
+    connection.<strong>onerror</strong> = function(e) {}
 	
     // data ports suddenly dropped
-    connection.<strong>onclose</strong> = function(event) {}
+    connection.<strong>onclose</strong> = function(e) {}
 &lt;/script&gt;
 </pre>
-<br/>
-<br/>
 
-<h2>Use your own socket.io for signaling</h2>
-            <pre>
-&lt;script&gt;
-    // by default <a href="http://firebase.com" target="_blank" rel="nofollow">Firebase</a> is used for signaling; you can override it
-    connection.<strong>openSignalingChannel</strong> = function(config) {
-        var socket = io.connect('http://your-site:8888');
-        socket.channel = config.channel || this.channel || 'default-channel';
-        socket.on('message', config.onmessage);
-
-        socket.send = function (data) {
-            socket.emit('message', data);
-        };
-
-        if (config.onopen) setTimeout(config.onopen, 1);
-        return socket;
-    }
-&lt;/script&gt;
-</pre>
 <br/>
 <br/>
 

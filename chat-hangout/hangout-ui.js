@@ -1,6 +1,8 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/ 
- It is recommended to use DataChannel.js for text/file/data sharing: <http://bit.ly/DataChannel-Documentation>
- */
+﻿/*
+ 2013, @muazkh » github.com/muaz-khan
+ MIT License » https://webrtc-experiment.appspot.com/licence/
+ Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
+*/
 
 var config = {
     openSocket: function (config) {
