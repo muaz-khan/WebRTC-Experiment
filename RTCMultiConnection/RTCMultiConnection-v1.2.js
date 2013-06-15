@@ -462,7 +462,7 @@
                 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
                 'c=IN') : sdp;
 
-            sdp = setBandwidth(sdp);
+            //sdp = setBandwidth(sdp);
 
             return sdp;
         }
@@ -1189,7 +1189,7 @@
                 if (textToTransfer.length)
                     setTimeout(function () {
                         onReadAsDataURL(null, textToTransfer);
-                    }, 1);
+                    }, 500);
             }
         }
     };
@@ -1279,7 +1279,7 @@
                 if (textToTransfer.length)
                     setTimeout(function () {
                         sendText(null, textToTransfer);
-                    }, 1);
+                    }, 500);
             }
         }
     };

@@ -2,7 +2,7 @@
 <html id="home" lang="en">
     
     <head>
-        <title>RTCPeerConnection Demo ® Muaz Khan</title>
+        <title>Attaching Remote Media Streams ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -160,8 +160,8 @@
     <body>
         <article> <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
 
-             <h1>RTCPeerConnection Simple Demo
-            / <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos" target="_blank">Source Code on Github</a>
+        <h1>
+			<a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/experimental" target="_blank">Attaching Remote Media Streams</a>
         </h1>
 
             <p> <span>Copyright © 2013</span>
@@ -171,19 +171,23 @@
             <section class="plusone-gplus">
                 <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
             </section>
-            <div style="text-align:center;">
-                <div class="videos-container">
-                    <video id="peer2-to-peer1" autoplay controls></video>
-                     <h2>Offerer-to-Answerer</h2>
-
-                </div>
-                <div class="videos-container">
-                    <video id="peer1-to-peer2" autoplay controls></video>
-                     <h2>Answerer-to-Offerer</h2>
-
-                </div>
-            </div>
+            <div id="videos-container" style="text-align:center;"></div>
 			<script>
+				function appendStream(stream, h2Content) {
+					var div = document.createElement('div');
+					div.className = 'videos-container';
+					
+					var video = document.createElement('video');
+					video.src = URL.createObjectURL(stream);
+					div.appendChild(video);
+					
+					var h2 = document.createElement('h2');
+					h2.innerHTML = h2Content;
+					div.appendChild(h2);
+					
+					video.play();
+					document.getElementById('videos-container').appendChild(div);
+				}
 				 var mediaConstraints = {
 					optional: [],
 					mandatory: {
@@ -193,7 +197,6 @@
 				};
 			</script>
             <script>
-                var offerer, answerer;
                 var offererToAnswerer = document.getElementById('peer1-to-peer2');
                 var answererToOfferer = document.getElementById('peer2-to-peer1');
 
@@ -212,15 +215,26 @@
                 };
             </script>
             <script>
+				var offerer, answerer;
                 /* offerer */
 
-                function offererPeer(video_stream, screen_stream) {
+                function offererPeer(stream) {
                     offerer = new RTCPeerConnection(window.iceServers);
-                    offerer.addStream(video_stream);
+                    offerer.addStream(stream);
 
                     offerer.onaddstream = function (event) {
-                        offererToAnswerer.src = URL.createObjectURL(event.stream);
-                        offererToAnswerer.play();
+                        appendStream(event.stream, 'for offerer');
+						
+						// Now, trying to attach remote media stream
+						!window.once && setTimeout(function() {
+							window.once = true;
+							
+							var div = document.createElement('div');
+							div.innerHTML = '<hr /><hr /><h2>Remote media streams are attached for below videos</h2><hr /><hr />';
+							document.getElementById('videos-container').appendChild(div);
+							
+							offererPeer2(event.stream);
+						}, 1000);
                     };
 
                     offerer.onicecandidate = function (event) {
@@ -230,20 +244,19 @@
 
                     offerer.createOffer(function (offer) {
                         offerer.setLocalDescription(offer);
-                        answererPeer(offer, screen_stream);
+                        answererPeer(offer, stream);
                     }, null, mediaConstraints);
                 }
             </script>
             <script>
                 /* answerer */
 
-                function answererPeer(offer, screen_stream) {
+                function answererPeer(offer, stream) {
                     answerer = new RTCPeerConnection(window.iceServers);
-                    answerer.addStream(screen_stream);
+                    answerer.addStream(stream);
 
                     answerer.onaddstream = function (event) {
-                        answererToOfferer.src = URL.createObjectURL(event.stream);
-                        answererToOfferer.play();
+                        appendStream(event.stream, 'for answerer');
                     };
 
                     answerer.onicecandidate = function (event) {
@@ -283,23 +296,71 @@
                 }
             </script>
             <script>
-                getUserMedia(function (video_stream) {
-                    var video_constraints = {
-                        mandatory: {
-                            chromeMediaSource: 'screen'
-                        },
-                        optional: []
-                    };
-
-                    var constraints = {
-                        audio: false,
-                        video: video_constraints
-                    };
-
-                    getUserMedia(function (screen_stream) {
-                        offererPeer(video_stream, screen_stream);
-                    }, constraints);
+                getUserMedia(function (stream) {
+					var div = document.createElement('div');
+					div.innerHTML = '<hr /><hr /><h2>Local media streams are attached for below videos</h2><hr /><hr />';
+					document.getElementById('videos-container').appendChild(div);
+                    offererPeer(stream);
                 });
+            </script>
+			
+			<!-- for remote media streams attachment -->
+			
+			<script>
+				var offerer2, answerer2;
+
+                function offererPeer2(stream) {
+                    offerer2 = new RTCPeerConnection(window.iceServers);
+                    offerer2.addStream(stream);
+
+                    offerer2.onaddstream = function (event) {
+                        appendStream(event.stream, 'for offerer2');
+						
+						// Now, trying to attach remote media stream
+						!window.once && setTimeout(function() {
+							window.once = true;
+							
+							var div = document.createElement('div');
+							div.innerHTML = '<hr /><hr /><h2>Remote media streams are attached for below videos</h2><hr /><hr />';
+							document.getElementById('videos-container').appendChild(div);
+							
+							offererPeer(event.stream);
+						}, 1000);
+                    };
+
+                    offerer2.onicecandidate = function (event) {
+                        if (!event || !event.candidate) return;
+                        answerer2.addIceCandidate(event.candidate);
+                    };
+
+                    offerer2.createOffer(function (offer) {
+                        offerer2.setLocalDescription(offer);
+                        answererPeer2(offer, stream);
+                    }, null, mediaConstraints);
+                }
+            </script>
+            <script>
+                /* answerer2 */
+
+                function answererPeer2(offer, stream) {
+                    answerer2 = new RTCPeerConnection(window.iceServers);
+                    answerer2.addStream(stream);
+
+                    answerer2.onaddstream = function (event) {
+                        appendStream(event.stream, 'for answerer2');
+                    };
+
+                    answerer2.onicecandidate = function (event) {
+                        if (!event || !event.candidate) return;
+                        offerer2.addIceCandidate(event.candidate);
+                    };
+
+                    answerer2.setRemoteDescription(offer);
+                    answerer2.createAnswer(function (answer) {
+                        answerer2.setLocalDescription(answer);
+                        offerer2.setRemoteDescription(answer);
+                    }, null, mediaConstraints);
+                }
             </script>
 
             <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">

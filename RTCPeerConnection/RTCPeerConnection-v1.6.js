@@ -105,7 +105,7 @@ var RTCPeerConnection = function (options) {
         if (!options.onOfferSDP) return;
 
         peerConnection.createOffer(function (sessionDescription) {
-            sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
+            //sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
             if (moz) options.onOfferSDP(sessionDescription);
         }, null, constraints);
@@ -116,7 +116,7 @@ var RTCPeerConnection = function (options) {
 
         peerConnection.setRemoteDescription(new SessionDescription(options.offerSDP));
         peerConnection.createAnswer(function (sessionDescription) {
-            sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
+            //sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
             if (moz) options.onAnswerSDP(sessionDescription);
         }, null, constraints);

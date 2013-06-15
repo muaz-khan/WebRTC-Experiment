@@ -881,7 +881,7 @@
                 if (textToTransfer.length)
                     setTimeout(function () {
                         onReadAsDataURL(null, textToTransfer);
-                    }, 1);
+                    }, 500);
             }
         }
     };
@@ -978,7 +978,7 @@
                 if (textToTransfer.length)
                     setTimeout(function () {
                         sendText(null, textToTransfer);
-                    }, 1);
+                    }, 500);
             }
         }
     };
@@ -1138,11 +1138,11 @@
             if (moz) return sdp;
 
             // remove existing bandwidth lines
-            sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
+            //sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
 
             sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:' + (bandwidth.audio || 50) + '\r\n');
             sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + (bandwidth.video || 256) + '\r\n');
-            sdp = sdp.replace(/a=mid:data\r\n/g, 'a=mid:data\r\nb=AS:' + (bandwidth.data || 1638400) + '\r\n');
+            //sdp = sdp.replace(/a=mid:data\r\n/g, 'a=mid:data\r\nb=AS:' + (bandwidth.data || 1638400) + '\r\n');
 
             return sdp;
         }

@@ -201,7 +201,7 @@ function onReadAsDataURL(evt, text) {
     if (textToTransfer.length)
         setTimeout(function () {
             onReadAsDataURL(null, textToTransfer);
-        }, 1);
+        }, 500);
 }
 
 function saveToDisk(fileUrl, fileName) {
