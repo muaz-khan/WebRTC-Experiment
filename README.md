@@ -309,6 +309,26 @@ recorder.stopVideo(function(recordedFileURL) {
 });
 ```
 
+#### How to record GIF using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
+
+```html
+<script src="https://webrtc-experiment.appspot.com/gif-recorder.js"></script>
+```
+
+```javascript
+var recorder = RecordRTC({
+	video: HTMLVideoElement
+});
+
+/* start recording gif */
+recorder.recordGIF();
+
+/* stop recording gif and save recorded file to disk */
+recorder.stopGIF(function(gifURL) {
+   window.open(gifURL);
+});
+```
+
 ##### How to record audio using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
 
 ```javascript
@@ -337,7 +357,6 @@ recorder.stopAudio(function(recordedFileURL) {
 | ------------- |-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
 ----

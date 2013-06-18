@@ -462,7 +462,7 @@
                 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
                 'c=IN') : sdp;
 
-            //sdp = setBandwidth(sdp);
+            sdp = setBandwidth(sdp);
 
             return sdp;
         }

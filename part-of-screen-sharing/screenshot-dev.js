@@ -1,4 +1,11 @@
-/* MIT License: https://webrtc-experiment.appspot.com/licence/ */
+/*
+     2013, @muazkh - github.com/muaz-khan
+     MIT License - https://webrtc-experiment.appspot.com/licence/
+     Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+	 
+	 Note: 	All libraries listed in this file are "external libraries" 
+			and has their own copyrights. Taken from "html2canvas" project.
+*/
 
 /* Core -------------------- */
 

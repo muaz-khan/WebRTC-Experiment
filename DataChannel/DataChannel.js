@@ -876,7 +876,7 @@
             if (!options.onOfferSDP) return;
 
             peerConnection.createOffer(function (sessionDescription) {
-                //sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
+                sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peerConnection.setLocalDescription(sessionDescription);
                 options.onOfferSDP(sessionDescription);
             }, null, constraints);
@@ -889,7 +889,7 @@
             peerConnection.setRemoteDescription(options.offerSDP);
 
             peerConnection.createAnswer(function (sessionDescription) {
-                //sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
+                sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peerConnection.setLocalDescription(sessionDescription);
                 options.onAnswerSDP(sessionDescription);
             }, null, constraints);

@@ -418,12 +418,14 @@ You can set bandwidth for both outgoing audio/video streams.
 ```javascript
 connection.bandwidth = {
     audio: 50,
-    video: 256
+    video: 256,
+    data: 1638400
 };
 
 // or change them individually
 connection.bandwidth.audio = 50;
 connection.bandwidth.video = 256;
+connection.bandwidth.data = 1638400;
 ```
 
 Default audio bandwidth is `50` and default video bandwidth is `256`.
@@ -492,7 +494,6 @@ For a `ready-made` socket.io over node.js implementation; [visit this link](http
 | ------------- |:-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
 ----
