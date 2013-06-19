@@ -15,11 +15,15 @@ So, `20` RTP data ports will be opened in `10` users data session. **Embarrassin
 
 On Firefox, by default 16 SCTP data ports will be opened for single peer. So, about 160 SCTP data ports will be opened in 10 users data session. Too awkward!
 
+----
+
 #### Multiple peer connections.....is it a solution?
 
 No, not at all. It is just a **temporary** workaround.
 
 You're strongly suggested to use **peer-to-server** model instead of opening multi-peers.
+
+----
 
 #### How peer-to-server model works?
 
@@ -31,6 +35,8 @@ Remember, WebRTC peer object will send **DTLS/SRTP** packets maybe as **ByteStre
 
 Server can manipulate messages or data coming from 10 or more unique data ports and transfer over single data port!
 
+----
+
 #### Browser Support
 
 WebRTC [Group Text Chat](https://webrtc-experiment.appspot.com/chat-hangout/) experiment works fine on following web-browsers:
@@ -39,7 +45,9 @@ WebRTC [Group Text Chat](https://webrtc-experiment.appspot.com/chat-hangout/) ex
 | ------------- |-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
+| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
+
+----
 
 #### License
 

@@ -1095,9 +1095,6 @@
                     OfferToReceiveVideo: !! session.video || !! session.screen
                 }
             };
-
-            if (moz)
-                constraints.mandatory[options.onmessage ? 'OfferToReceiveVideo' : 'MozDontOfferDataChannel'] = true;
         }
         setConstraints();
 

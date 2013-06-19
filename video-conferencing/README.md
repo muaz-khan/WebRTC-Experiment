@@ -1,74 +1,150 @@
-## WebRTC Group video sharing / [Demo](https://webrtc-experiment.appspot.com/video-conferencing/)
+#### WebRTC Meeting i.e. Video-Conferencing / [Demo](https://webrtc-experiment.appspot.com/meeting/)
 
-This is a `many-to-many` video sharing experiment.
+----
 
-## How `video conferencing` Works?
+#### First Step: Link the library
 
-In simple words, `multi-peers` and `sockets` are opened to make it work!
+```html
+<script src="https://webrtc-experiment.appspot.com/meeting/meeting.js"></script>
+```
 
-For 10 people sharing videos in a group:
+----
 
-1. Creating 10 `unique` peer connections
-2. Opening 10 unique `sockets` to exchange SDP/ICE
+#### Last Step: Start using it!
 
-For your information; in One-to-One video session; 4 RTP streams/ports get open:
+```javascript
+var meeting = new Meeting('meeting-unique-id');
 
-1. One RTP port for **outgoing video**
-2. One RTP port for **outgoing audio**
-3. One RTP port for **incoming video**
-4. One RTP port for **incoming audio**
+// on getting local or remote streams
+meeting.onaddstream = function(e) {
+    // e.type == 'local' ---- it is local media stream
+    // e.type == 'remote' --- it is remote media stream
+    document.body.appendChild(e.video);
+};
 
-So, for 10 peers sharing video in a group; `40 RTP` ports get open. Which causes:
+// check pre-created meeting rooms
+// it is useful to auto-join
+// or search pre-created sessions
+meeting.check();
 
-1. Blurry video experience
-2. Unclear voice
-3. Bandwidth issues / slow streaming
+document.getElementById('setup-new-meeting').onclick = function() {
+    meeting.setup('meeting room name');
+};
+```
 
-The best solution is to use a **middle media server** like **asterisk** or **kamailio** to broadcast your camera stream. 
+----
 
-To overcome burden and to deliver HD stream over thousands of peers; we need a media server that should **broadcast** stream coming from room owner's side.
+#### Custom user-ids?
 
-Process should be like this:
+```javascript
+meeting.userid = 'username';
+```
 
-1. Conferencing **initiator** opens **peer-to-server** connection
-2. On successful handshake; media server starts broadcasting **remote stream** over all other thousands of peers.
+----
 
-It means that those peers are not connected directly with **room initiator**.
+#### Custom signaling channel?
 
-But, this is **video broadcasting**; it is not **video conferencing**.
+You can use each and every signaling channel:
 
-In video-conferencing, each peer connects directly with all others.
+1. SIP-over-WebSockets
+2. WebSocket over Node.js/PHP/etc.
+3. Socket.io over Node.js/etc.
+4. XMPP/etc.
+5. XHR-POST-ing
 
-To make a **media server** work with video-conferencing also to just open only-one peer connection for each user; I've following assumptions:
+```javascript
+meeting.openSignalingChannel = function(callback) {
+    return io.connect().on('message', callback);
+};
+```
 
-1. Room initiator opens **peer-to-server** connection
-2. Server gets **remote stream** from room initiator
-3. A participant opens **peer-to-server** connect
-4. Server gets **remote stream** from that participant
-5. Server sends **remote stream** coming from participant toward **room iniator**
-6. Server also sends **remote stream** coming from room-initiator toward **participant**
-7. Another participant opens **peer-to-server** connection...and process continues.
+If you want to write `socket.io over node.js`; here is the server code:
 
-Media server should mix all video streams; and stream it over single RTP port.
+```javascript
+io.sockets.on('connection', function (socket) {
+    socket.on('message', function (data) {
+        socket.broadcast.emit('message', data);
+    });
+});
+```
 
-If 10 room participants are sending video streams; server should mix them to generate a single media stream; then send that stream over single **incoming** RTP port opened between server and **room initiator**.
+That's it! Isn't it easiest method ever!
 
-## How to use `video conferencing` in your own site?
+Want to use `Firebase` for signaling?
 
-**Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
+```javascript
+// "chat" is your firebase id
+meeting.firebase = 'chat';
+```
 
-====
-## Browser Support
+----
 
-This [WebRTC Video Conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) experiment works fine on following web-browsers:
+#### Want to manually join rooms?
+
+```javascript
+meeting.onmeeting = function(room) {
+    var li = document.createElement('li');
+    li.setAttribute('user-id', room.userid);
+    li.setAttribute('room-id', room.roomid);
+    li.onclick = function() {
+        var room = {
+            userid: this.getAttribute('user-id'),
+            roomid: this.getAttribute('room-id')
+        };
+        meeting.meet(room);
+    };
+};
+```
+
+`onmeeting` is called for each new meeting; and `meet` method allows you manually join a meeting room.
+
+----
+
+#### If someone leaves...
+
+Participants' presence can be detected using `onuserleft`:
+
+```javascript
+// if someone leaves; just remove his video
+meeting.onuserleft = function(userid) {
+    var video = document.getElementById(userid);
+    if(video) video.parentNode.removeChild(video);
+};
+```
+
+----
+
+#### `onaddstream`
+
+It is called both for `local` and `remote` media streams. It returns:
+
+1. `video`: i.e. `HTMLVideoElement` object
+2. `stream`: i.e. `MediaStream` object
+3. `userid`: i.e. id of the user stream coming from
+4. `type`: i.e. type of the stream e.g. `local` or `remote`
+
+```javascript
+meeting.onaddstream = function(e) {
+    // e.type == 'local' ---- it is local media stream
+    // e.type == 'remote' --- it is remote media stream
+    document.body.appendChild(e.video);
+};
+```
+
+----
+
+#### Browser Support
+
+This [WebRTC Meeting](https://webrtc-experiment.appspot.com/meeting/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
-| ------------- |:-------------:|
+| ------------- |-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
+| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-====
-## License
+----
 
-[WebRTC Video Conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+#### License
+
+[WebRTC Meeting](https://webrtc-experiment.appspot.com/meeting/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

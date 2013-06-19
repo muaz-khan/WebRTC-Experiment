@@ -369,9 +369,6 @@ var RTCPeerConnection = function (options) {
         return sdp;
     }
 
-    if (moz && !options.onChannelMessage)
-        constraints.mandatory.MozDontOfferDataChannel = true;
-
     function createOffer() {
         if (!options.onOfferSDP)
             return;

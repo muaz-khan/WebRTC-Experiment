@@ -98,9 +98,6 @@ var RTCPeerConnection = function (options) {
         }
     };
 
-    if (moz && !isDataChannel)
-        constraints.mandatory.MozDontOfferDataChannel = true;
-
     function createOffer() {
         if (!options.onOfferSDP) return;
 

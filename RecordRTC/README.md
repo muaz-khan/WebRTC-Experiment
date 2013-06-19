@@ -51,7 +51,19 @@ recorder.stopVideo(function(videoURL) {
 
 ```javascript
 var recorder = RecordRTC({
-	video: HTMLVideoElement
+	video: HTMLVideoElement,
+	
+	// Number: frame per second
+	// Default value of "frameRate" is 200
+	frameRate: 200,
+	
+	// Sets quality of color quantization (conversion of images to the 
+	// maximum 256 colors allowed by the GIF specification). 
+	// -----
+	// Default value of "quality" is 10
+	// Lower values (minimum = 1) produce better colors
+	// Values greater than 20 do not yield significant improvements in speed.
+	quality: 10
 });
 
 /* start recording gif */
@@ -73,7 +85,8 @@ recorder.stopGIF(function(gifURL) {
 
 ```javascript
 var recorder = RecordRTC({
-	stream: MediaStream || LocalMediaStream
+	stream: MediaStream || LocalMediaStream,
+	audioWorkerPath: '/audio-recorder.js'
 });
 
 /* start recording audio */
@@ -152,7 +165,8 @@ You can use like this too:
 
 ```javascript
 recorder.stopVideo();
-recorder.stopAudio(function();
+recorder.stopGIF();
+recorder.stopAudio();
 ```
 
 ----

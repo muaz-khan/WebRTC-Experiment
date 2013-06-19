@@ -41,7 +41,7 @@ Following signaling gateways can work with each and every [WebRTC Experiment](ht
 
 #### Many-to-Many style of WebRTC Experiments
 
-1. [Group video sharing / video-conferencing](https://webrtc-experiment.appspot.com/video-conferencing/)
+1. [Group video sharing / video-conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) / [Latest Demo](https://webrtc-experiment.appspot.com/meeting/)
 2. [Group file sharing](https://webrtc-experiment.appspot.com/file-hangout/)
 3. [Group text chat](https://webrtc-experiment.appspot.com/chat-hangout/)
 
@@ -85,8 +85,8 @@ Following signaling gateways can work with each and every [WebRTC Experiment](ht
 
 #### One-to-Many style of WebRTC Experiments
 
-1. [Video broadcasting](https://webrtc-experiment.appspot.com/broadcast/)
-2. [Audio broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/)
+1. [Video broadcasting](https://webrtc-experiment.appspot.com/broadcast/) / [Latest Demo](https://webrtc-experiment.appspot.com/one-to-many-video-broadcasting/)
+2. [Audio broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/) / [Latest Demo](https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/)
 
 ----
 
@@ -160,10 +160,11 @@ connection.session = {
 };
 connection.bandwidth = {
     audio: 50,
-    video: 256
+    video: 256,
+    data: 1638400
 };
 connection.onstream = function (e) {
-    if (e.type === 'local') mainVideo.src = e.blobURL;
+    if (e.type === 'local') mainVideo.src = e.blobURL; // or URL.createObjectURL(e.stream)
     if (e.type === 'remote') document.body.appendChild(e.mediaElement);
 }
 
