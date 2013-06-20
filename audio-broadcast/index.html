@@ -108,7 +108,7 @@
                 padding-left: 1em;
             }
         </style>
-        <script src="https://webrtc-experiment.appspot.com/firebase.js"> </script>
+        <script src="https://webrtc-experiment.appspot.com/firebase.js"></script>
         <script src="https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/meeting.js"> </script>
     </head>
     <body>
@@ -144,6 +144,7 @@
             </tr>
         </table>
         <script>
+            var hash = window.location.hash.replace('#', '');
             var meeting = new Meeting(hash);
 
             var remoteMediaStreams = document.getElementById('remote-media-streams');
@@ -176,6 +177,19 @@
             };
         </script>
         <br />
+        <br />
+		
+		<p>If 10 users join your broadcasted room, <strong>20 RTP ports</strong> will be opened on your browser:<p>
+		<ol>
+			<li>10 RTP ports for <strong>outgoing</strong> audio streams</li>
+			<li>10 RTP ports for <strong>incoming</strong> audio streams</li>
+		</ol>
+		<h2>Difference between one-way broadcasting and one-to-many broadcasting</h2>
+		<p>For 10 users session, maximum 10 RTP ports for outgoing audio stream will be opened.<p>
+		<p>On each participant's side; only one <strong>incoming</strong> RTP port will be opened.<p>
+		<p>Unlike one-way broadcasting; one-to-many broadcasting experiment opens both outgoing as well as incoming RTP ports for each participant.<p>
+		
+		<br />
         <br />
         <pre>
 &lt;script src="https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/meeting.js"&gt;&lt;/script&gt;

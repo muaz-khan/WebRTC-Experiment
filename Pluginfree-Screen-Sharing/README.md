@@ -1,5 +1,51 @@
 #### WebRTC Screen-Sharing / [Demo](https://webrtc-experiment.appspot.com/screen-sharing/)
 
+Ad-ons free; plugin-free; extension free; direct browser-to-browser screen sharing.
+
+#### Enable screen capture support in getUserMedia()
+
+You must enable this flag via `chrome://flags`.
+
+That flag allows web pages to request access to the screen contents via the getUserMedia() API
+
+```javascript
+var video_constraints = {
+    mandatory: { chromeMediaSource: 'screen' },
+    optional: []
+};
+navigator.webkitGetUserMedia({
+    audio: false,
+    video: video_constraints
+}, onsuccess, onfailure);
+```
+
+----
+
+#### Desktop Sharing?
+
+Obviously, it is one of the most requested features; however not supported yet. Chrome WebRTC team is planning to support it in near future.
+
+These screen sharing APIs (i.e. `{ chromeMediaSource: 'screen' }`) allows only state-less (non-interactive) screen sharing.
+
+----
+
+#### To use code in your own site, you must understand following limitations:
+
+Chrome Canary denies "screen capturing" request automatically if:
+
+1. You've not used 'chromeMediaSource' constraint: `mandatory: {chromeMediaSource: 'screen'}`
+2. You requested audio-stream alongwith 'chromeMediaSource' – it is not permitted in a "single" getUserMedia request.
+3. You've not installed SSL certificate (i.e. testing on non-HTTPS domain)
+4. "screen capturing" is requested multiple times per tab. Maximum one request is permitted per page!
+
+----
+
+#### Why recursive cascade images or blurred screen?
+
+Remember, recursive cascade images or blurred screen is chrome's implementation issue. It will be solved soon.
+
+mandatory: {chromeMediaSource: 'tab'} can only be useful in chrome extensions. See [Tab sharing using tabCapture APIs](https://webrtc-experiment.appspot.com/screen-broadcast/).
+
 ----
 
 #### First Step: Link the library

@@ -6,9 +6,7 @@ This directory contains only one file: [signaler.js](https://github.com/muaz-kha
 
 #### [signaler.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/webrtc-signaling/signaler.js)
 
-It listens/publishes/creates `dynamic namespaces`. Remeber, no-external framework like "express" is used to access/render files. That's why `signaler.js` fails on some systems. 
-
-If it fails; try to replace entire `handler` function with `express framework` equivalent.
+It listens/publishes/creates `dynamic namespaces`.
 
 Here is `signaler.js`'s socket.io part:
 

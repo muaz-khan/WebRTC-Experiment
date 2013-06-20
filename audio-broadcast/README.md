@@ -1,5 +1,20 @@
 #### WebRTC One-to-Many audio-broadcasting / [Demo](https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/)
 
+If 10 users join your broadcasted room, **20 RTP ports** will be opened on your browser:
+
+1. 10 RTP ports for **outgoing** audio streams
+2. 10 RTP ports for **incoming** audio streams
+
+----
+
+#### Difference between one-way broadcasting and one-to-many broadcasting
+
+For 10 users session, maximum 10 RTP ports for outgoing audio stream will be opened.
+
+On each participant's side; only one **incoming** RTP port will be opened.
+
+Unlike one-way broadcasting; one-to-many broadcasting experiment opens both outgoing as well as incoming RTP ports for each participant.
+
 ----
 
 #### First Step: Link the library

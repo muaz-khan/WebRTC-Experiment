@@ -55,10 +55,6 @@ Media server should mix all video streams; and stream it over single RTP port.
 
 If 10 room participants are sending video streams; server should mix them to generate a single media stream; then send that stream over single **incoming** RTP port opened between server and **room initiator**.
 
-## How to use `video conferencing` in your own site?
-
-**Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
-
 ----
 
 #### Browser Support

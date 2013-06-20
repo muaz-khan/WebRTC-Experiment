@@ -92,6 +92,11 @@ app.get('/RTCMultiConnection-v1.2.js', function (req, res) {
     res.sendfile(__dirname + '/static/RTCMultiConnection/RTCMultiConnection-v1.2.js');
 });
 
+app.get('/socketio.js', function (req, res) {
+	res.setHeader('Content-Type', 'application/javascript');
+    res.sendfile(__dirname + '/static/socket.io.js');
+});
+
 // following lines aimed to auto-open the browser instance
 // you can remove them if causing failure
 var childProcess = require('child_process'),

@@ -4,16 +4,18 @@ It is old one-to-many WebRTC video-broadcasting Experiment.
 
 Try latest [one-to-many video broadcasting](https://webrtc-experiment.appspot.com/one-to-many-video-broadcasting/) experiment.
 
+----
+
 If 10 users join your broadcasted room, **40 RTP ports** will be opened on your browser:
 
-1. 10 RTP ports for **outgoing** audio stream
-2. 10 RTP ports for **outgoing** video stream
-3. 10 RTP ports for **incoming** audio stream
-4. 10 RTP ports for **incoming** video stream
+1. 10 RTP ports for **outgoing** audio streams
+2. 10 RTP ports for **outgoing** video streams
+3. 10 RTP ports for **incoming** audio streams
+4. 10 RTP ports for **incoming** video streams
 
 ----
 
-#### Difference between one-way broadcasting and simple broadcasting
+#### Difference between one-way broadcasting and one-to-many broadcasting
 
 For 10 users session, in one-way broadcasting:
 
@@ -24,7 +26,7 @@ i.e. total 20 **outgoing** RTP ports will be opened on your browser.
 
 On each participant's side; only 2 **incoming** RTP ports will be opened.
 
-Unlike one-way broadcasting; simple broadcasting experiment opens both outgoing as well as incoming RTP ports for each participant.
+Unlike one-way broadcasting; one-to-many broadcasting experiment opens both outgoing as well as incoming RTP ports for each participant.
 
 ----
 

@@ -108,7 +108,7 @@
                 padding-left: 1em;
             }
         </style>
-        <script src="https://webrtc-experiment.appspot.com/firebase.js"> </script>
+        <script src="https://webrtc-experiment.appspot.com/firebase.js"></script>
         <script src="https://webrtc-experiment.appspot.com/meeting/meeting.js"> </script>
     </head>
     <body>
@@ -144,6 +144,7 @@
             </tr>
         </table>
         <script>
+            var hash = window.location.hash.replace('#', '');
             var meeting = new Meeting(hash);
 
             var remoteMediaStreams = document.getElementById('remote-media-streams');
@@ -176,6 +177,36 @@
             };
         </script>
         <br />
+        <br />
+		
+		<ol>
+			<li>Multiple peer-connections are opened to bring multi-users connectivity experience.</li>
+			<li>Maximum peers limit on chrome is temporarily 10.</li>
+			<li>Huge bandwidth and CPU-usage out of multi-peers and number of RTP-ports</li>
+		</ol>
+		
+		<p>To understand 3rd option better; assume that 10 users are sharing video in a group. 40 RTP-ports i.e. streams will be created for each user. All streams are expected to be flowing concurrently; which causes blur video experience and audio lose/noise issues.</p>
+		
+		<p>For each user:</p>
+		
+		<ol>
+			<li>10 RTP ports are opened to send video upward i.e. for outgoing video streams</li>
+			<li>10 RTP ports are opened to send audio upward i.e. for outgoing audio streams</li>
+			<li>10 RTP ports are opened to receive video i.e. for incoming video streams</li>
+			<li>10 RTP ports are opened to receive audio i.e. for incoming audio streams</li>
+		</ol>
+		
+		<p>Possible issues:</p>
+		
+		<ol>
+			<li>Blurry video experience</li>
+			<li>Unclear voice and audio lost</li>
+			<li>Bandwidth issues / slow streaming / CPU overwhelming</li>
+		</ol>
+		
+		<p>Solution? Obviously a media server. To overcome burden and to deliver HD stream over thousands of peers; we need a media server that should broadcast stream over number of peers.</p>
+		
+		<br />
         <br />
         <pre>
 &lt;script src="https://webrtc-experiment.appspot.com/meeting/meeting.js"&gt;&lt;/script&gt;

@@ -42,8 +42,8 @@ Following signaling gateways can work with each and every [WebRTC Experiment](ht
 #### Many-to-Many style of WebRTC Experiments
 
 1. [Group video sharing / video-conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) / [Latest Demo](https://webrtc-experiment.appspot.com/meeting/)
-2. [Group file sharing](https://webrtc-experiment.appspot.com/file-hangout/)
-3. [Group text chat](https://webrtc-experiment.appspot.com/chat-hangout/)
+2. [Group file sharing](https://webrtc-experiment.appspot.com/file-hangout/) / [Latest Demo](https://webrtc-experiment.appspot.com/file-sharing/)
+3. [Group text chat](https://webrtc-experiment.appspot.com/chat-hangout/) / [Latest Demo](https://webrtc-experiment.appspot.com/text-chat/)
 
 ----
 
