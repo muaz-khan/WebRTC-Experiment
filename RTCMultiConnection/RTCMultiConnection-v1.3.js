@@ -1384,7 +1384,7 @@
                 mute: function (session) {
                     this._private(session, true);
                 },
-                unmute: function () {
+                unmute: function (session) {
                     this._private(session, false);
                 },
                 _private: function (session, enabled) {
