@@ -1,8 +1,6 @@
-/*
-    2013, @muazkh - github.com/muaz-khan
-    MIT License - https://webrtc-experiment.appspot.com/licence/
-    Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
-*/
+// 2013, @muazkh - github.com/muaz-khan
+// MIT License - https://webrtc-experiment.appspot.com/licence/
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
 
 (function() {
 
@@ -92,14 +90,20 @@
             if (!window.Firebase) throw 'You must link <https://cdn.firebase.com/v0/firebase.js> file.';
 
             // Firebase is capable to store data in JSON format
-            root.transmitOnce = true;
-            var socket = new Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + channel);
-            socket.on('child_added', function(data) {
-                data = data.val();
+            // root.transmitOnce = true;
+            var socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + channel);
+            socket.on('child_added', function(snap) {
+                var data = snap.val();
                 if (data.userid != userid) {
                     if (data.leaving && root.onuserleft) root.onuserleft(data.userid);
                     else signaler.onmessage(data);
                 }
+
+                // we want socket.io behavior; 
+                // that's why data is removed from firebase servers 
+                // as soon as it is received
+                // data.userid != userid && 
+                if (data.userid != userid) snap.ref().remove();
             });
 
             // method to signal the data
@@ -190,7 +194,7 @@
                     signaler.creatingOffer = false;
                     if (signaler.participants &&
                         signaler.participants.length) repeatedlyCreateOffer();
-                }, 30000);
+                }, 5000);
             } else {
                 if (!signaler.participants) signaler.participants = [];
                 signaler.participants[signaler.participants.length] = _userid;
@@ -224,7 +228,7 @@
                 signaler.creatingOffer = false;
                 if (signaler.participants[0])
                     repeatedlyCreateOffer();
-            }, 30000);
+            }, 5000);
         }
 
         // if someone shared SDP
@@ -326,7 +330,7 @@
                     broadcasting: true
                 });
 
-                !root.transmitOnce && setTimeout(transmit, 30000);
+                !root.transmitOnce && setTimeout(transmit, 3000);
             })();
 
             // if broadcaster leaves; clear all JSON files from Firebase servers

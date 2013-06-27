@@ -1,11 +1,11 @@
 /*
-     2013, @muazkh - github.com/muaz-khan
-     MIT License - https://webrtc-experiment.appspot.com/licence/
-     Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+2013, @muazkh - github.com/muaz-khan
+MIT License - https://webrtc-experiment.appspot.com/licence/
+Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
 */
 
-(function () {
-    window.RecordRTC = function (config) {
+(function() {
+    window.RecordRTC = function(config) {
         var win = window,
             requestAnimationFrame = win.webkitRequestAnimationFrame || win.mozRequestAnimationFrame,
             cancelAnimationFrame = win.webkitCancelAnimationFrame || win.mozCancelAnimationFrame,
@@ -105,7 +105,23 @@
             cancelAnimationFrame(requestedAnimationFrame);
 
             dataURL = blob = 'data:image/gif;base64,' + encode64(gifEncoder.stream().getData());
-            if (callback) callback(dataURL);
+
+            var writer = RecordRTCFileWriter({
+                blob: new Uint8Array(gifEncoder.stream().bin),
+                type: 'image/gif',
+                fileName: (Math.round(Math.random() * 60535) + 5000) + '.gif',
+                size: blob.length,
+                onsuccess: function(fileEntry) {
+                    fileSystemURL = fileEntry.toURL();
+                    if (callback) callback(fileSystemURL);
+                },
+                onerror: function(errorMessage) {
+                    console.debug('Unabled to write temporary recorded file using FileWriter APIs.', errorMessage);
+                    if (callback) callback(dataURL);
+                    var url = writer.toURL();
+                    if (url) return window.open(url);
+                }
+            });
         }
 
         function recordAudio() {
@@ -124,7 +140,7 @@
             if (!recorder) return;
             console.warn('stopped recording audio frames');
             recorder.stop();
-            recorder.exportWAV(function (blob) {
+            recorder.exportWAV(function(blob) {
                 fileType = 'wav';
                 setBlob(blob, callback);
             });
@@ -139,21 +155,21 @@
                 type: fileType === 'webm' ? 'video/webm' : 'audio/wav',
                 fileName: (Math.round(Math.random() * 60535) + 5000) + '.' + fileType,
                 size: blob.length,
-                onsuccess: function (fileEntry) {
+                onsuccess: function(fileEntry) {
                     fileSystemURL = fileEntry.toURL();
                     if (callback) callback(fileSystemURL);
                 },
-                onerror: function (errorMessage) {
+                onerror: function(errorMessage) {
                     console.debug('Unabled to write temporary recorded file using FileWriter APIs.', errorMessage);
+                    if (callback) callback(dataURL);
                     var url = writer.toURL();
                     if (url) return window.open(url);
-                    if (callback) callback(dataURL);
                 }
             });
 
             var reader = new win.FileReader();
             reader.readAsDataURL(blob);
-            reader.onload = function (event) {
+            reader.onload = function(event) {
                 dataURL = event.target.result;
             };
         }
@@ -178,19 +194,19 @@
             recordVideo: recordVideo,
             recordAudio: recordAudio,
             recordGIF: recordGIF,
-            
+
             stopAudio: stopAudioRecording,
             stopVideo: stopVideoRecording,
             stopGIF: stopGIFRecording,
-            
+
             save: saveToDisk,
-            getBlob: function () {
+            getBlob: function() {
                 return blob;
             },
-            getDataURL: function () {
+            getDataURL: function() {
                 return dataURL;
             },
-            toURL: function () {
+            toURL: function() {
                 return fileSystemURL || dataURL;
             }
         };
@@ -220,13 +236,13 @@
                 fileEntry.createWriter(onsuccess, onerror);
 
                 function onsuccess(fileWriter) {
-                    fileWriter.onwriteend = function (e) {
+                    fileWriter.onwriteend = function() {
                         console.log(fileEntry.toURL());
                         file = fileEntry;
                         if (config.onsuccess) config.onsuccess(fileEntry);
                     };
 
-                    fileWriter.onerror = function (e) {
+                    fileWriter.onerror = function(e) {
                         error('fileWriter error', e);
                     };
 
@@ -257,24 +273,24 @@
             var msg = '';
 
             switch (e.code) {
-                case FileError.QUOTA_EXCEEDED_ERR:
-                    msg = 'QUOTA_EXCEEDED_ERR';
-                    break;
-                case FileError.NOT_FOUND_ERR:
-                    msg = 'NOT_FOUND_ERR';
-                    break;
-                case FileError.SECURITY_ERR:
-                    msg = 'SECURITY_ERR';
-                    break;
-                case FileError.INVALID_MODIFICATION_ERR:
-                    msg = 'INVALID_MODIFICATION_ERR';
-                    break;
-                case FileError.INVALID_STATE_ERR:
-                    msg = 'INVALID_STATE_ERR';
-                    break;
-                default:
-                    msg = 'Unknown Error';
-                    break;
+            case FileError.QUOTA_EXCEEDED_ERR:
+                msg = 'QUOTA_EXCEEDED_ERR';
+                break;
+            case FileError.NOT_FOUND_ERR:
+                msg = 'NOT_FOUND_ERR';
+                break;
+            case FileError.SECURITY_ERR:
+                msg = 'SECURITY_ERR';
+                break;
+            case FileError.INVALID_MODIFICATION_ERR:
+                msg = 'INVALID_MODIFICATION_ERR';
+                break;
+            case FileError.INVALID_STATE_ERR:
+                msg = 'INVALID_STATE_ERR';
+                break;
+            default:
+                msg = 'Unknown Error';
+                break;
             }
 
             errorMessage = msg;
@@ -286,7 +302,7 @@
         }
 
         return {
-            toURL: function () {
+            toURL: function() {
                 return errorMessage ? false : file.toURL();
             }
         };
@@ -298,8 +314,8 @@
     function initAudioRecorder(audioWorkerPath) {
         var WORKER_PATH = audioWorkerPath || 'https://webrtc-experiment.appspot.com/audio-recorder.js';
 
-        var Recorder = function (source, cfg) {
-            var config = cfg || {};
+        var Recorder = function(source, cfg) {
+            var config = cfg || { };
             var bufferLen = config.bufferLen || 4096;
             this.context = source.context;
             this.node = this.context.createJavaScriptNode(bufferLen, 2, 2);
@@ -314,7 +330,7 @@
             var recording = false,
                 currCallback;
 
-            this.node.onaudioprocess = function (e) {
+            this.node.onaudioprocess = function(e) {
                 if (!recording) return;
 
                 var buffer = [
@@ -328,28 +344,28 @@
                 });
             };
 
-            this.record = function () {
+            this.record = function() {
                 recording = true;
             };
 
-            this.stop = function () {
+            this.stop = function() {
                 recording = false;
             };
 
-            this.clear = function () {
+            this.clear = function() {
                 worker.postMessage({
                     command: 'clear'
                 });
             };
 
-            this.getBuffer = function (cb) {
+            this.getBuffer = function(cb) {
                 currCallback = cb || config.callback;
                 worker.postMessage({
                     command: 'getBuffer'
                 });
             };
 
-            this.exportWAV = function (cb, type) {
+            this.exportWAV = function(cb, type) {
                 currCallback = cb || config.callback;
                 type = type || config.type || 'audio/wav';
                 if (!currCallback) throw new Error('Callback not set');
@@ -359,7 +375,7 @@
                 });
             };
 
-            worker.onmessage = function (e) {
+            worker.onmessage = function(e) {
                 var blob = e.data;
                 currCallback(blob);
             };
@@ -370,9 +386,9 @@
 
         window.Recorder = Recorder;
     }
-	
-	// external library to record video in WebM format
-	// https://github.com/antimatter15/whammy
+
+    // external library to record video in WebM format
+    // https://github.com/antimatter15/whammy
     var Whammy=function(){function g(a){for(var b=a[0].width,e=a[0].height,c=a[0].duration,d=1;d<a.length;d++){if(a[d].width!=b)throw"Frame "+(d+1)+" has a different width";if(a[d].height!=e)throw"Frame "+(d+1)+" has a different height";if(0>a[d].duration)throw"Frame "+(d+1)+" has a weird duration";c+=a[d].duration}var f=0,a=[{id:440786851,data:[{data:1,id:17030},{data:1,id:17143},{data:4,id:17138},{data:8,id:17139},{data:"webm",id:17026},{data:2,id:17031},{data:2,id:17029}]},{id:408125543,data:[{id:357149030,
     data:[{data:1E6,id:2807729},{data:"whammy",id:19840},{data:"whammy",id:22337},{data:[].slice.call(new Uint8Array((new Float64Array([c])).buffer),0).map(function(a){return String.fromCharCode(a)}).reverse().join(""),id:17545}]},{id:374648427,data:[{id:174,data:[{data:1,id:215},{data:1,id:25541},{data:0,id:156},{data:"und",id:2274716},{data:"V_VP8",id:134},{data:"VP8",id:2459272},{data:1,id:131},{id:224,data:[{data:b,id:176},{data:e,id:186}]}]}]},{id:524531317,data:[{data:0,id:231}].concat(a.map(function(a){var b;
     b=a.data.slice(4);var c=Math.round(f);b=[129,c>>8,c&255,128].map(function(a){return String.fromCharCode(a)}).join("")+b;f+=a.duration;return{data:b,id:163}}))}]}];return j(a)}function m(a){for(var b=[];0<a;)b.push(a&255),a>>=8;return new Uint8Array(b.reverse())}function k(a){for(var b=[],a=(a.length%8?Array(9-a.length%8).join("0"):"")+a,e=0;e<a.length;e+=8)b.push(parseInt(a.substr(e,8),2));return new Uint8Array(b)}function j(a){for(var b=[],e=0;e<a.length;e++){var c=a[e].data;"object"==typeof c&&

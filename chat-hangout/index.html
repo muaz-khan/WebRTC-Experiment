@@ -101,22 +101,36 @@
                 margin-left: 2em;
                 padding-left: 1em;
             }
-			
-			input {
-				font-size: 2em;
-			}
-			
-			#chat-table blockquote {
-				border: 1px dotted gray;
-				padding: 1em 2em;
-				margin: 1em 5em;
-			}
 
-			#chat-table blockquote hr {
-				margin: 1em -2em;
-				border: 0;
-				border-top: 1px dotted #BBA9A9;
-			}
+            input { font-size: 2em; }
+
+            #chat-table blockquote {
+                border: 1px dotted gray;
+                margin: 1em 5em;
+                padding: 1em 2em;
+            }
+
+            #chat-table blockquote hr {
+                border: 0;
+                border-top: 1px dotted #BBA9A9;
+                margin: 1em -2em;
+            }
+
+            .user-id {
+                border-right: 1px solid gray;
+                float: left;
+                height: 1em;
+                margin: 0 2em;
+                overflow: hidden;
+                padding: 0 1em;
+                text-align: right;
+                width: 3%;
+            }
+
+            .message {
+                border-bottom: 1px solid gray;
+                margin-left: 6em;
+            }
         </style>
         <script src="https://webrtc-experiment.appspot.com/firebase.js"> </script>
         <script src="https://webrtc-experiment.appspot.com/data-connection.js"> </script>
@@ -124,7 +138,7 @@
     <body>
         <h1>
             WebRTC Text Chat / Data Sharing / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout"
-                                                    target="_blank">Source Code</a>
+                                                 target="_blank">Source Code</a>
         </h1>
         <p>
             <span>Copyright © 2013</span> <a href="https://github.com/muaz-khan" target="_blank">
@@ -138,12 +152,13 @@
 
             <button id="setup-new-connection">Setup New Data Connection</button>
         </section>
-        <table style="border-left: 1px solid black; width: 100%;border-right: 1px solid black;">
+        <table style="border-left: 1px solid black; border-right: 1px solid black; width: 100%;">
             <tr>
                 <td>
                     <h2 style="display: block; font-size: 1em; text-align: center;">
                         Group Text Chat</h2>
-                    <div id="chat-output"></div>
+                    <div id="chat-output">
+                    </div>
                     <input type="text" id="user-id" style="font-size: 1.2em; margin-right: 0; width: 5em;"
                            placeholder="all" disabled title="Enter user-id to send direct messages.">
                     <input type="text" id="chat-input" style="font-size: 1.2em; margin-left: -.5em; width: 80%;"
@@ -152,7 +167,8 @@
             </tr>
         </table>
         <script>
-            var connection = new DataConnection(window.location.hash.replace('#', ''));
+            var roomid = window.location.hash.substr(1);
+            var connection = new DataConnection();
 
         // connection.userid = prompt('Enter your username') || 'Anonymous';
 
@@ -180,9 +196,10 @@
             };
 
         /* custom signaling gateway
-            connection.openSignalingChannel = function(callback) {
-                return io.connect().on('message', callback);
-            }; */
+        connection.openSignalingChannel = function(callback) {
+        return io.connect().on('message', callback);
+        }; 
+        */
 
 
         // using firebase for signaling
@@ -194,11 +211,11 @@
             };
 
         // check pre-created data connections
-            connection.check();
+            connection.check(roomid);
 
             document.getElementById('setup-new-connection').onclick = function() {
                 // setup new data connection
-                connection.setup('data connection name');
+                connection.setup(roomid);
                 this.disabled = true;
 
                 this.parentNode.innerHTML = '<h2><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
@@ -209,7 +226,7 @@
             function appendDIV(data, userid) {
                 var div = document.createElement('div');
                 div.innerHTML = '<section class="user-id" contenteditable title="Use his user-id to send him direct messages or throw out of the room!">' + userid + '</section>'
-                        + '<section class="message" contenteditable>' + data + '</section>';
+                    + '<section class="message" contenteditable>' + data + '</section>';
 
                 chatOutput.insertBefore(div, chatOutput.firstChild);
                 div.tabIndex = 0;
@@ -241,7 +258,7 @@
 &lt;script src="https://webrtc-experiment.appspot.com/data-connection.js"&gt;&lt;/script&gt;
 </pre>
         <pre>
-var connection = new DataConnection('connection-unique-id');
+var connection = new DataConnection();
 
 connection.onopen = function(userid) {};
 connection.onmessage = function(message, userid) {};
@@ -258,10 +275,10 @@ connection.openSignalingChannel = function(callback) {
 };
 
 // check existing connections
-connection.check();
+connection.check('room-name');
 
 document.getElementById('setup-new-connection').onclick = function() {
-    connection.setup('data connection name');
+    connection.setup('room-name');
 };
 </pre>
         <br />

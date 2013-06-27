@@ -153,6 +153,8 @@
         <br />
         <div>
             <video id="client-video" autoplay loop controls muted></video>
+			<input type="checkbox" id="record-screen">
+			<label for="record-screen">Record Screen</label>
             <button id="record-video">
                 Record Video</button>
             <button id="stop-recording-video" disabled>
@@ -216,11 +218,23 @@
                 stopRecordingAudio.disabled = false;
             };
 
+			function isCaptureScreen() {
+				if(document.getElementById('record-screen').checked)
+				{
+					screen_constraints = {
+						mandatory: { chromeMediaSource: 'screen' },
+						optional: []
+					};
+					videoConstraints.video = screen_constraints;
+				}
+			}
             recordVideo.onclick = function() {
+				isCaptureScreen();
                 recordVideoOrGIF(true);
             };
 
             recordGIF.onclick = function() {
+				isCaptureScreen();
                 recordVideoOrGIF(false);
             };
 
@@ -235,7 +249,15 @@
 
                         if (isRecordVideo) recorder.recordVideo();
                         else recorder.recordGIF();
-                    });
+                    }, function() {
+						if (document.getElementById('record-screen').checked) {
+							if (location.protocol === 'http:')
+								alert('<https> is mandatory to capture screen.');
+							else
+								alert('Multi-capturing of screen is not allowed. Capturing process is denied. Are you enabled flag: "Enable screen capture support in getUserMedia"?');
+						} else
+							alert('Webcam access is denied.');
+					});
                 else {
                     video.src = window.webkitURL.createObjectURL(videoStream);
 
@@ -392,6 +414,6 @@ recorder.stopGIF(function(gifURL) {
 
             </p>
         </footer>
-        <script src="https://webrtc-experiment.appspot.com/common.js"> </script>
+       <script src="https://webrtc-experiment.appspot.com/common.js"> </script>
     </body>
 </html>

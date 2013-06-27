@@ -1,130 +1,51 @@
 // 2013, @muazkh - github.com/muaz-khan
 // MIT License - https://webrtc-experiment.appspot.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
 
 (function() {
 
     // a middle-agent between public API and the Signaler object
-    window.RTCMultiConnection = function(channel) {
+    window.DataChannel = function(channel, extras) {
         var signaler, self = this;
 
         this.channel = channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
         this.userid = getToken();
 
+        if (channel) self.automatic = true;
+        extras = extras || { };
+
         // on each new session
-        this.onNewSession = function(session) {
-            if (self._roomid && self._roomid != session.roomid) return;
+        this.onroom = function(room) {
+            if (room.roomid != self.channel) return;
 
             if (self.detectedRoom) return;
             self.detectedRoom = true;
 
-            self.join(session);
+            self.join(room);
         };
 
         function initSignaler() {
             signaler = new Signaler(self);
         }
 
-        function captureUserMedia(callback) {
-            var session = self.session,
-                constraints = {
-                    audio: true,
-                    video: true
-                };
-
-            console.debug(JSON.stringify(session, null, '\t'));
-
-            // using "noMediaStream" instead of "dontAttachStream"
-            // using "stream" instead of "attachStream"
-            if (self.noMediaStream || self.stream) return callback();
-
-            if (isData(session)) {
-                self.stream = null;
-                return callback();
-            }
-
-            if (session.audio && !session.video) {
-                constraints = {
-                    audio: true,
-                    video: false
-                };
-            } else if (session.screen) {
-                var screen_constraints = {
-                    mandatory: {
-                        chromeMediaSource: 'screen'
-                    },
-                    optional: []
-                };
-                constraints = {
-                    audio: false,
-                    video: screen_constraints
-                };
-            } else if (session.video && !session.audio) {
-                var video_constraints = {
-                    mandatory: { },
-                    optional: []
-                };
-                constraints = {
-                    audio: false,
-                    video: video_constraints
-                };
-            }
-
-            navigator.getUserMedia(constraints, onstream, mediaError);
-
-            function onstream(stream) {
-                var mediaElement = getMediaElement(stream, session);
-                var streamid = getToken();
-
-                // if local stream is stopped
-                stream.onended = function() {
-                    if (self.onstreamended) self.onstreamended(streamOutput);
-                };
-
-                var streamOutput = {
-                    mediaElement: mediaElement,
-                    stream: stream,
-                    userid: 'self',
-                    extra: self.extra || { },
-                    streamid: streamid,
-                    session: self.session,
-                    type: 'local'
-                };
-
-                self.onstream(streamOutput);
-
-                if (!self.streams) self.streams = { };
-                self.streams[streamid] = getStream(stream);
-
-                self.stream = stream;
-                callback(stream);
-            }
-        }
-
         // open new connection
-        this.open = function(roomid) {
+        this.open = function(_channel) {
             self.detectedRoom = true;
-            captureUserMedia(function() {
-                !signaler && initSignaler();
-                signaler.broadcast({
-                    roomid: roomid
-                });
+            if (_channel) self.channel = _channel;
+
+            !signaler && initSignaler();
+            signaler.broadcast({
+                roomid: self.channel
             });
         };
 
         // join pre-created data connection
         this.join = function(room) {
-            // if room is shared oneway; don't capture self-media
-            if (this.session.oneway) join();
-            else captureUserMedia(join);
-
-            function join() {
-                !signaler && initSignaler();
-                signaler.join({
-                    to: room.userid,
-                    roomid: room.roomid
-                });
-            }
+            !signaler && initSignaler();
+            signaler.join({
+                to: room.userid,
+                roomid: room.roomid
+            });
         };
 
         this.send = function(data, _channel) {
@@ -134,36 +55,71 @@
                     file: data,
                     root: self,
                     channel: _channel,
-                    userid: self.userid,
-                    extra: self.extra
+                    userid: self.userid
                 });
             else
                 TextSender.send({
                     text: data,
                     root: self,
                     channel: _channel,
-                    userid: self.userid,
-                    extra: self.extra
+                    userid: self.userid
                 });
         };
 
-        this.connect = function(roomid) {
-            if (roomid) self._roomid = roomid;
+        this.connect = function(_channel) {
+            if (_channel) self.channel = _channel;
             initSignaler();
         };
 
-        this.session = {
-            audio: true,
-            video: true,
-            data: true
+        for (var extra in extras) {
+            self[extra] = extras[extra];
+        }
+
+        this.openNewSession = function(isOpenNewSession, isNonFirebaseClient) {
+            if (isOpenNewSession) {
+                if (self.isNewSessionOpened) return;
+                self.isNewSessionOpened = true;
+
+                if (!self.joinedARoom) self.open();
+            }
+
+            if (!isOpenNewSession || isNonFirebaseClient) self.connect();
+
+            // for non-firebase clients
+            if (isNonFirebaseClient)
+                setTimeout(function() {
+                    self.openNewSession(true);
+                }, 5000);
         };
+
+        function detectPresence() {
+            if (window.Firebase) {
+                console.debug('checking presence of the room..');
+                new window.Firebase('https://' + (self.firebase || 'chat') + '.firebaseIO.com/' + self.channel).once('value', function(data) {
+                    console.debug('room is present?', data.val() != null);
+                    self.openNewSession(data.val() == null);
+                });
+            } else self.openNewSession(false, true);
+        }
+
+        if (self.automatic) setTimeout(detectPresence, 1000);
+
     };
 
     // it is a backbone object
 
     function Signaler(root) {
-        // unique session-id
-        var channel = root.channel;
+        // unique identifier for the current user
+        var userid = root.userid || getToken();
+
+        // self instance
+        var signaler = this;
+
+        // object to store all connected peers
+        var peers = { };
+
+        // object to store all connected participants's ids
+        var participants = { };
 
         function onSocketMessage(data) {
             // don't get self-sent data
@@ -171,6 +127,7 @@
 
             // if it is not a leaving alert
             if (!data.leaving) return signaler.onmessage(data);
+
 
             root.onleave
                 && root.onleave({
@@ -190,20 +147,6 @@
             }
         }
 
-        // unique identifier for the current user
-        var userid = root.userid || getToken();
-
-        // self instance
-        var signaler = this;
-
-        var session = root.session;
-
-        // object to store all connected peers
-        var peers = { };
-
-        // object to store all connected participants's ids
-        var participants = { };
-
         // it is called when your signaling implementation fires "onmessage"
         this.onmessage = function(message) {
             // if new room detected
@@ -214,8 +157,7 @@
                     && !signaler.sentParticipationRequest) {
 
                 // broadcaster's and participant's session must be identical
-                root.session = message.session;
-                root.onNewSession(message);
+                root.onroom(message);
 
             } else
                 // for pretty logging
@@ -244,7 +186,7 @@
             // it is useful for multi-users connectivity
             if (message.conferencing && message.newcomer != userid && !!participants[message.newcomer] == false) {
                 participants[message.newcomer] = message.newcomer;
-                root.stream && signaler.signal({
+                signaler.signal({
                     participationRequest: true,
                     to: message.newcomer
                 });
@@ -283,9 +225,7 @@
 
         function createOffer(message) {
             var _options = merge(options, {
-                to: message.userid,
-                extra: message.extra,
-                stream: root.stream
+                to: message.userid
             });
             peers[message.userid] = Offer.createOffer(_options);
         }
@@ -318,8 +258,6 @@
             if (sdp.type == 'offer') {
                 var _options = merge(options, {
                     to: message.userid,
-                    extra: message.extra,
-                    stream: root.stream,
                     sdp: sdp
                 });
                 peers[message.userid] = Answer.createAnswer(_options);
@@ -341,70 +279,14 @@
             onsdp: function(e) {
                 signaler.signal({
                     sdp: e.sdp,
-                    to: e.userid,
-                    extra: e.extra
+                    to: e.userid
                 });
             },
             onicecandidate: function(e) {
                 signaler.signal({
                     candidate: e.candidate,
-                    to: e.userid,
-                    extra: e.extra
+                    to: e.userid
                 });
-            },
-            onstream: function(e) {
-                var stream = e.stream;
-
-                console.debug('onaddstream', '>>>>>>', stream);
-
-                // stream-id allows you stop/mute/unmute any stream
-                var streamid = getToken();
-
-                // HTMLAudioElement or HTMLVideoElement
-                var mediaElement = getMediaElement(stream, session);
-
-                function onRemoteStreamStartsFlowing() {
-                    if (!(mediaElement.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || mediaElement.paused || mediaElement.currentTime <= 0)) {
-                        afterRemoteStreamStartedFlowing();
-                    } else
-                        setTimeout(onRemoteStreamStartsFlowing, 300);
-                }
-
-                function afterRemoteStreamStartedFlowing() {
-                    if (!root.onstream) return;
-
-                    var streamOutput = {
-                        mediaElement: mediaElement,
-                        stream: stream,
-                        userid: e.userid,
-                        extra: e.extra,
-                        streamid: streamid,
-                        session: session,
-                        type: 'remote'
-                    };
-
-                    // if stream stopped
-                    stream.onended = function() {
-                        if (root.onstreamended) root.onstreamended(streamOutput);
-                    };
-
-                    root.onstream(streamOutput);
-                    if (!root.streams) root.streams = { };
-                    root.streams[streamid] = getStream(stream);
-
-                    forwardParticipant(e);
-                }
-
-                // check whether audio-only streaming
-                if (session.audio && !session.video)
-                    mediaElement.addEventListener('play', function() {
-                        setTimeout(function() {
-                            mediaElement.muted = false;
-                            mediaElement.volume = 1;
-                            afterRemoteStreamStartedFlowing();
-                        }, 3000);
-                    }, false);
-                else onRemoteStreamStartsFlowing();
             },
             onopen: function(e) {
                 if (!root.channels) root.channels = { };
@@ -416,37 +298,28 @@
                 };
                 if (root.onopen) root.onopen(e);
 
-                // for data-only sessions
-                if (isData(session))
-                    forwardParticipant(e);
+                forwardParticipant(e);
             },
             onmessage: function(e) {
                 var message = e.data;
-
                 if (!message.size)
                     message = JSON.parse(message);
 
-                if (message.type === 'text')
+                if (message.type == 'text')
                     textReceiver.receive({
                         data: message,
                         root: root,
-                        userid: e.userid,
-                        extra: e.extra
+                        userid: e.userid
                     });
 
-                else if (message.size || message.type === 'file')
+                else if (message.size || message.type == 'file')
                     fileReceiver.receive({
                         data: message,
                         root: root,
-                        userid: e.userid,
-                        extra: e.extra
+                        userid: e.userid
                     });
                 else if (root.onmessage)
-                    root.onmessage({
-                        data: message,
-                        userid: e.userid,
-                        extra: e.extra
-                    });
+                    root.onmessage(message, e.userid);
             },
             onclose: function(e) {
                 if (root.onclose) root.onclose(e);
@@ -462,32 +335,21 @@
             onerror: function(e) {
                 if (root.onerror) root.onerror(e);
             },
-            session: session,
-            bandwidth: root.bandwidth,
-            framerate: root.framerate,
-            bitrate: root.bitrate
+            bandwidth: root.bandwidth
         };
 
         function forwardParticipant(e) {
-            if (session.broadcast || session.oneway) return;
-
             // for multi-users connectivity
             // i.e. video-conferencing
             signaler.isbroadcaster &&
                 signaler.signal({
                     conferencing: true,
-                    newcomer: e.userid,
-                    extra: e.extra
+                    newcomer: e.userid
                 });
         }
 
         var textReceiver = new TextReceiver();
         var fileReceiver = new FileReceiver();
-
-        if (session.data && isChrome)
-            optionalArgument.optional = [{
-                RtpDataChannels: true
-            }];
 
         // call only for session initiator
         this.broadcast = function(_config) {
@@ -497,9 +359,7 @@
             (function transmit() {
                 signaler.signal({
                     roomid: signaler.roomid,
-                    broadcasting: true,
-                    session: session,
-                    extra: root.extra || { }
+                    broadcasting: true
                 });
 
                 !root.transmitRoomOnce
@@ -516,8 +376,7 @@
             signaler.roomid = _config.roomid;
             this.signal({
                 participationRequest: true,
-                to: _config.to,
-                extra: root.extra || { }
+                to: _config.to
             });
             signaler.sentParticipationRequest = true;
         };
@@ -604,26 +463,24 @@
             if (!window.Firebase) throw 'You must link <https://cdn.firebase.com/v0/firebase.js> file.';
 
             // Firebase is capable to store data in JSON format
-            // root.transmitRoomOnce = true;
-            var socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + channel);
+            root.transmitRoomOnce = true;
+            var socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + root.channel);
             socket.on('child_added', function(snap) {
-                data = snap.val();
+                var data = snap.val();
                 onSocketMessage(data);
 
                 // we want socket.io behavior; 
                 // that's why data is removed from firebase servers 
                 // as soon as it is received
-                // data.userid != userid && 
                 snap.ref().remove();
             });
 
             // method to signal the data
             this.signal = function(data) {
                 data.userid = userid;
-                data.extra = data.extra || { };
 
                 // "set" allow us overwrite old data
-                // it is preferred to use "set" instead of "push"
+                // it is suggested to use "set" however preferred "push"!
                 socket.push(data);
             };
         } else {
@@ -637,7 +494,6 @@
             // method to signal the data
             this.signal = function(data) {
                 data.userid = userid;
-                data.extra = data.extra || { };
                 socket.send(JSON.stringify(data));
             };
         }
@@ -683,15 +539,15 @@
 
     var optionalArgument = {
         optional: [{
-            DtlsSrtpKeyAgreement: true
+            RtpDataChannels: true
         }]
     };
 
     var offerAnswerConstraints = {
         optional: [],
         mandatory: {
-            OfferToReceiveAudio: true,
-            OfferToReceiveVideo: true
+            OfferToReceiveAudio: isFirefox,
+            OfferToReceiveVideo: isFirefox
         }
     };
 
@@ -742,10 +598,7 @@
         createOffer: function(config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
 
-            var session = config.session;
-
-            if (session.data)
-                DataChannel.createDataChannel(peer, config);
+            RTCDataChannel.createDataChannel(peer, config);
 
             function sdpCallback() {
                 if (!config.onsdp) return;
@@ -756,15 +609,6 @@
                 });
             }
 
-            if (config.stream) peer.addStream(config.stream);
-            if (config.onstream)
-                peer.onaddstream = function(event) {
-                    config.onstream({
-                        stream: event.stream,
-                        userid: config.to,
-                        extra: config.extra
-                    });
-                };
             if (config.onicecandidate)
                 peer.onicecandidate = function(event) {
                     if (!event.candidate) sdpCallback();
@@ -775,12 +619,13 @@
                     sdpCallback();
             };
 
-            if (isChrome || !session.data) {
+            if (isChrome) {
                 peer.createOffer(function(sdp) {
                     sdp = serializeSdp(sdp, config);
                     peer.setLocalDescription(sdp);
                 }, null, offerAnswerConstraints);
-            } else if (isFirefox && session.data) {
+
+            } else if (isFirefox) {
                 navigator.mozGetUserMedia({
                         audio: true,
                         fake: true
@@ -791,8 +636,7 @@
                             if (config.onsdp)
                                 config.onsdp({
                                     sdp: sdp,
-                                    userid: config.to,
-                                    extra: config.extra
+                                    userid: config.to
                                 });
                         }, null, offerAnswerConstraints);
 
@@ -820,15 +664,14 @@
     var Answer = {
         createAnswer: function(config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument), channel;
-            var session = config.session;
 
-            if (isChrome && session.data)
-                DataChannel.createDataChannel(peer, config);
-            else if (isFirefox && session.data) {
+            if (isChrome)
+                RTCDataChannel.createDataChannel(peer, config);
+            else if (isFirefox) {
                 peer.ondatachannel = function(event) {
                     channel = event.channel;
                     channel.binaryType = 'blob';
-                    DataChannel.setChannelEvents(channel, config);
+                    RTCDataChannel.setChannelEvents(channel, config);
                 };
 
                 navigator.mozGetUserMedia({
@@ -843,34 +686,23 @@
                             if (config.onsdp)
                                 config.onsdp({
                                     sdp: sdp,
-                                    userid: config.to,
-                                    extra: config.extra
+                                    userid: config.to
                                 });
                         }, null, offerAnswerConstraints);
 
                     }, mediaError);
             }
 
-            if (config.stream) peer.addStream(config.stream);
-            if (config.onstream)
-                peer.onaddstream = function(event) {
-                    config.onstream({
-                        stream: event.stream,
-                        userid: config.to,
-                        extra: config.extra
-                    });
-                };
             if (config.onicecandidate)
                 peer.onicecandidate = function(event) {
                     if (event.candidate)
                         config.onicecandidate({
                             candidate: event.candidate,
-                            userid: config.to,
-                            extra: config.extra
+                            userid: config.to
                         });
                 };
 
-            if (isChrome || !session.data) {
+            if (isChrome) {
                 peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
                 peer.createAnswer(function(sdp) {
                     sdp = serializeSdp(sdp, config);
@@ -879,8 +711,7 @@
                     if (config.onsdp)
                         config.onsdp({
                             sdp: sdp,
-                            userid: config.to,
-                            extra: config.extra
+                            userid: config.to
                         });
                 }, null, offerAnswerConstraints);
             }
@@ -897,9 +728,9 @@
         }
     };
 
-    // DataChannel.createDataChannel(peer, config);
-    // DataChannel.setChannelEvents(channel, config);
-    var DataChannel = {
+    // RTCDataChannel.createDataChannel(peer, config);
+    // RTCDataChannel.setChannelEvents(channel, config);
+    var RTCDataChannel = {
         createDataChannel: function(peer, config) {
             var channel = peer.createDataChannel('channel', { reliable: false });
             this.setChannelEvents(channel, config);
@@ -908,32 +739,28 @@
             channel.onopen = function() {
                 config.onopen({
                     channel: channel,
-                    userid: config.to,
-                    extra: config.extra
+                    userid: config.to
                 });
             };
 
             channel.onmessage = function(e) {
                 config.onmessage({
                     data: e.data,
-                    userid: config.to,
-                    extra: config.extra
+                    userid: config.to
                 });
             };
 
             channel.onclose = function(event) {
                 config.onclose({
                     event: event,
-                    userid: config.to,
-                    extra: config.extra
+                    userid: config.to
                 });
             };
 
             channel.onerror = function(event) {
                 config.onerror({
                     event: event,
-                    userid: config.to,
-                    extra: config.extra
+                    userid: config.to
                 });
             };
         }
@@ -983,8 +810,7 @@
                 if (root.onFileSent)
                     root.onFileSent({
                         file: file,
-                        userid: config.userid,
-                        extra: config.extra
+                        userid: config.userid
                     });
             }
 
@@ -1014,8 +840,7 @@
                         remaining: packets--,
                         length: numberOfPackets,
                         sent: numberOfPackets - packets,
-                        userid: config.userid,
-                        extra: config.extra
+                        userid: config.userid
                     });
 
                 if (text.length > packetSize)
@@ -1028,8 +853,7 @@
                     if (root.onFileSent)
                         root.onFileSent({
                             file: file,
-                            userid: config.userid,
-                            extra: config.extra
+                            userid: config.userid
                         });
                 }
 
@@ -1073,8 +897,7 @@
                         if (root.onFileReceived)
                             root.onFileReceived({
                                 fileName: fileName,
-                                userid: config.userid,
-                                extra: config.extra
+                                userid: config.userid
                             });
                     };
                 }
@@ -1089,8 +912,7 @@
                         remaining: packets--,
                         length: numberOfPackets,
                         received: numberOfPackets - packets,
-                        userid: config.userid,
-                        extra: config.extra
+                        userid: config.userid
                     });
 
                 content.push(data.message);
@@ -1104,8 +926,7 @@
                     if (root.onFileReceived)
                         root.onFileReceived({
                             fileName: data.name,
-                            userid: config.userid,
-                            extra: config.extra
+                            userid: config.userid
                         });
                     content = [];
                 }
@@ -1187,8 +1008,7 @@
                 if (root.onmessage)
                     root.onmessage({
                         data: content.join(''),
-                        userid: config.userid,
-                        extra: config.extra
+                        userid: config.userid
                     });
                 content = [];
             }
@@ -1217,65 +1037,7 @@
         return mergein;
     }
 
-    // is data-only session
-
-    function isData(session) {
-        return !session.audio && !session.video && !session.screen && session.data;
-    }
-
-    // Get HTMLAudioElement/HTMLVideoElement accordingly
-
-    function getMediaElement(stream, session) {
-        var mediaElement = document.createElement(session.audio && !session.video ? 'audio' : 'video');
-        mediaElement[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
-        mediaElement.autoplay = true;
-        mediaElement.controls = true;
-        mediaElement.play();
-        return mediaElement;
-    }
-
     function mediaError() {
-        var error = 'Either Microphone/Webcam access is denied.\r\n\r\n';
-        error += 'For screen sharing; <HTTPS> is <temporarily> mandatory.\r\n\r\n';
-        error += 'Also, make sure that you are not making multiple screen capturing requests and you have enabled the appropriate flag.';
-        throw error;
-    }
-
-    // help mute/unmute streams individually
-
-    function getStream(stream) {
-        return {
-            stream: stream,
-            stop: function() {
-                var stream = this.stream;
-                if (stream && stream.stop) stream.stop();
-            },
-            mute: function(session) {
-                this._private(session, true);
-            },
-            unmute: function(session) {
-                this._private(session, false);
-            },
-            _private: function(session, enabled) {
-                var stream = this.stream;
-
-                session = session || {
-                    audio: true,
-                    video: true
-                };
-
-                if (session.audio) {
-                    var audioTracks = stream.getAudioTracks()[0];
-                    if (audioTracks)
-                        audioTracks.enabled = !enabled;
-                }
-
-                if (session.video) {
-                    var videoTracks = stream.getVideoTracks()[0];
-                    if (videoTracks)
-                        videoTracks.enabled = !enabled;
-                }
-            }
-        };
+        throw 'Unable to get access to fake audio.';
     }
 })();

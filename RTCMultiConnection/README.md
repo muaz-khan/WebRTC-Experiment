@@ -15,14 +15,14 @@ and much more.
 
 #### Disclaimer
 
-This document is for [RTCMultiConnection-v1.3](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js) and upper releases. For [v1.2](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js) and earlier releases; [read this documentation](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.2-and-earlier.md).
+This document is for `RTCMultiConnection` [v1.3](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js), [v1.4](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js) and upper releases. For [v1.2](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js) and earlier releases; [read this documentation](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.2-and-earlier.md).
 
 ----
 
 #### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js"></script>
 ```
 
 #### Second Step: Start using it!
@@ -85,13 +85,15 @@ connection.onstream = function (e) {
 
 ```javascript
 connection.onstreamended = function(e) {
-    // "e" contains all objects passed to above "onstream" method
+    e.mediaElement.parentNode.removeChild(e.mediaElement);
 };
 ```
 
 ----
 
 #### Renegotiation
+
+Remember, renegotiation is not implemented in `RTCMultiConnection-v1.4`, yet.
 
 Cases:
 
@@ -144,7 +146,7 @@ broadcast: true
 
 ----
 
-#### Mute/UnMute
+#### Mute/UnMute/Stop
 
 ```javascript
 // mute
@@ -157,6 +159,12 @@ connection.streams['stream-id'].mute({
 connection.streams['stream-id'].unmute({
     audio: true
 });
+```
+
+In `RTCMultiConnection-v1.4` and higher releases, you can `stop` streams too:
+
+```javascript
+connection.streams['stream-id'].stop();
 ```
 
 ----
@@ -246,6 +254,24 @@ connection.onFileSent = function (file) {
 
 // on file successfully received
 connection.onFileReceived = function (fileName) { };
+```
+
+In `RTCMultiConnection-v1.4` and higher releases, an object is passed over `onFileSent` and `onFileReceived`:
+
+```javascript
+connection.onFileSent = function (e) {
+    // e.file.name
+    // e.file.size
+    // e.userid
+    // e.extra
+};
+
+// on file successfully received
+connection.onFileReceived = function (e) {
+    // e.fileName
+    // e.userid
+    // e.extra
+};
 ```
 
 #### Errors Handling when sharing files/data/text
@@ -343,7 +369,7 @@ connection.onmessage = function(e) {
 
 ```javascript
 connection.onNewSession = function(session) {
-    // session.extra -- extra data you passed or {}
+    // session.extra -- extra data you passed or empty object {}
     // session.sessionid -- it is session's unique identifier
     // session.userid -- it is room owner's id
     // session.session e.g. {audio:true, video:true}
@@ -351,6 +377,17 @@ connection.onNewSession = function(session) {
 ```
 
 `onNewSession` is useful to show a `join` button that allows end-users to manually join any preferred session.
+
+In `RTCMultiConnection-v1.4` and higher releases, `onNewSession` looks like this:
+
+```javascript
+connection.onNewSession = function(session) {
+    // session.extra -- extra data you passed or empty object {}
+    // session.roomid -- it is session's unique identifier
+    // session.userid -- it is room owner's id
+    // session.session e.g. {audio:true, video:true}
+};
+```
 
 ----
 
@@ -370,6 +407,19 @@ connection.firebase = 'chat';
 // this feature is useful in multi-sessions initiations
 connection.dontAttachStream = true; // it means that don't try to attach NEW stream
 connection.attachStream = MediaStream;
+```
+
+In `RTCMultiConnection-v1.4` and higher releases, `dontAttachStream` is replaced with `noMediaStream` and `attachStream` is replaced with `stream`:
+
+```javascript
+// if you don't want to prompt any getUserMedia
+// it is useful in join with/without camera type of experiments
+connection.noMediaStream = true;
+
+// if you want to attach external stream
+// this feature is useful in multi-sessions initiations
+connection.noMediaStream = true;
+connection.stream = MediaStream;
 ```
 
 ----
@@ -432,7 +482,49 @@ Default audio bandwidth is `50` and default video bandwidth is `256`.
 
 ----
 
+#### Framerate
+
+In `RTCMultiConnection-v1.4` and higher releases, you can set frame-rate for audio streams too:
+
+```javascript
+connection.framerate = {
+    minptime: 10,
+    maxptime: 60
+};
+```
+
+----
+
+#### Custom Signaling implementation for `v1.4` and higher releases
+
+Your server-side node.js code looks like this:
+
+```javascript
+io.sockets.on('connection', function (socket) {
+    socket.on('message', function (data) {
+        socket.broadcast.emit('message', data);
+    });
+});
+```
+
+And to override `openSignalingChannel` on the client side:
+
+```javascript
+connection.openSignalingChannel = function(callback) {
+    return io.connect().on('message', callback);
+};
+```
+
+It means that now:
+
+1. No dynamic namespace or channel is required.
+2. A single socket connection is opened for the lifetime of the webpage
+
+----
+
 #### Use your own [socket.io over node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) for signaling
+
+Remember, it is for `v1.3` and lower releases.
 
 ```javascript
 openSignalingChannel: function(config) {
@@ -464,6 +556,39 @@ openSignalingChannel: function(config) {
 ```
 
 For a `ready-made` socket.io over node.js implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
+
+----
+
+#### Custom Handlers on the Server
+
+`RTCMultiConnection` allows you set custom handlers on your server too. Set `transmitRoomOnce` to `true`:
+
+1. Your room details will be sent once; server can store those details in the cache and continuously transmit it over rest of the socket connections.
+2. Or like Firebase, you can store room details in a persistent storage
+
+```javascript
+connection.transmitRoomOnce = true;
+```
+
+The message posted is JSON-stringified. You can use `JSON.parse` and read user-id like this:
+
+```javascript
+// assuming that it is node.js code
+io.sockets.on('connection', function (socket) {
+    socket.on('message', function (data) {
+        // JSON.parse to get the object
+        data = JSON.parse(data);
+		
+        // data.userid
+        console.log('user-id is', data.userid);
+		
+        // JSON.stringify again
+        data = JSON.stringify(data);
+		
+        socket.broadcast.emit('message', data);
+    });
+});
+```
 
 ----
 

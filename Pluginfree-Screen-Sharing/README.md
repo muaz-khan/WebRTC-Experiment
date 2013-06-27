@@ -31,12 +31,12 @@ These screen sharing APIs (i.e. `{ chromeMediaSource: 'screen' }`) allows only s
 
 #### To use code in your own site, you must understand following limitations:
 
-Chrome Canary denies "screen capturing" request automatically if:
+Chrome canary denies **screen capturing** request automatically if:
 
-1. You've not used 'chromeMediaSource' constraint: `mandatory: {chromeMediaSource: 'screen'}`
-2. You requested audio-stream alongwith 'chromeMediaSource' – it is not permitted in a "single" getUserMedia request.
+1. You've not used `chromeMediaSource` constraint: `mandatory: {chromeMediaSource: 'screen'}`
+2. You requested audio-stream alongwith `chromeMediaSource` – it is not permitted in a **single** `getUserMedia` request.
 3. You've not installed SSL certificate (i.e. testing on non-HTTPS domain)
-4. "screen capturing" is requested multiple times per tab. Maximum one request is permitted per page!
+4. **screen capturing** is requested multiple times per tab. Maximum one request is permitted per page!
 
 ----
 
@@ -44,7 +44,7 @@ Chrome Canary denies "screen capturing" request automatically if:
 
 Remember, recursive cascade images or blurred screen is chrome's implementation issue. It will be solved soon.
 
-mandatory: {chromeMediaSource: 'tab'} can only be useful in chrome extensions. See [Tab sharing using tabCapture APIs](https://webrtc-experiment.appspot.com/screen-broadcast/).
+`mandatory: {chromeMediaSource: 'tab'}` can only be useful in chrome extensions. See [Tab sharing using tabCapture APIs](https://webrtc-experiment.appspot.com/screen-broadcast/).
 
 ----
 

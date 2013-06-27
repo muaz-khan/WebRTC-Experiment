@@ -11,7 +11,7 @@
         <link type="text/css" href="https://fonts.googleapis.com/css?family=Inconsolata" />
         <script>
             var hash = window.location.hash.replace('#', '');
-            if (!hash.length) location.href = location.href + '#screen-id-' + ((Math.random() * new Date().getTime()).toString(36).toLowerCase().replace(/\./g, '-'));
+            if (!hash.length) location.href = location.href + '#screen-id-' + ((Math.random() * new Date().getTime()).toString(36).toLowerCase().replace( /\./g , '-'));
         </script>
         <style>
             html { background: #eee; }
@@ -100,7 +100,10 @@
                 font-family: inherit;
             }
 
-            video { vertical-align: bottom; width:90%; }
+            video {
+                vertical-align: bottom;
+                width: 90%;
+            }
 
             pre {
                 border-left: 2px solid red;
@@ -108,12 +111,13 @@
                 padding-left: 1em;
             }
         </style>
-        <script src="https://webrtc-experiment.appspot.com/firebase.js"></script>
+        <script src="https://webrtc-experiment.appspot.com/firebase.js"> </script>
         <script src="https://webrtc-experiment.appspot.com/screen-sharing/screen.js"> </script>
     </head>
     <body>
         <h1>
-            WebRTC Screen Sharing / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing" target="_blank">Source Code</a>
+            WebRTC Screen Sharing / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing"
+                                       target="_blank">Source Code</a>
         </h1>
         <p>
             <span>Copyright © 2013</span> <a href="https://github.com/muaz-khan" target="_blank">
@@ -130,7 +134,8 @@
         <table style="border-left: 1px solid black; width: 100%;">
             <tr>
                 <td>
-                    <h2 style="display: block; text-align: center;">Screens Preview</h2>
+                    <h2 style="display: block; text-align: center;">
+                        Screens Preview</h2>
                     <section id="screens-preview"></section>
                 </td>
             </tr>
@@ -165,10 +170,16 @@
                 this.parentNode.innerHTML = '<h2><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
             };
         </script>
-		<br /><br />
-		<h2>Enable screen capture support in getUserMedia()</h2>
-		<p>Allow web pages to request access to the screen contents via the getUserMedia() API. #enable-usermedia-screen-capture </p>
-		<p>You must enable this flag via "chrome://flags"</p>
+        <br />
+        <br />
+        <h2>
+            Enable screen capture support in getUserMedia()</h2>
+        <p>
+            Allow web pages to request access to the screen contents via the getUserMedia()
+            API. #enable-usermedia-screen-capture
+        </p>
+        <p>
+            You must enable this flag via "chrome://flags"</p>
         <br />
         <br />
         <pre>
@@ -202,31 +213,46 @@ document.getElementById('share-screen').onclick = function() {
 </pre>
         <br />
         <br />
-		<h2>To use code in your own site, you must understand following limitations: </h2>
-		<p>Chrome Canary denies "screen capturing" request automatically if:</p>
-		<ol>
-			<li>
-				You've not used 'chromeMediaSource' constraint:
-				<pre>
+        <h2>
+            To use code in your own site, you must understand following limitations:
+        </h2>
+        <p>
+            Chrome Canary denies "screen capturing" request automatically if:</p>
+        <ol>
+            <li>You've not used 'chromeMediaSource' constraint:
+                <pre>
 mandatory: {chromeMediaSource: 'screen'}
 </pre>
-			</li>
-			<li>You requested audio-stream alongwith 'chromeMediaSource' – it is not permitted in a "single" getUserMedia request.</li>
-			<li>You've not installed SSL certificate (i.e. testing on non-HTTPS domain)</li>
-			<li>"screen capturing" is requested multiple times per tab. Maximum one request is permitted per page!</li>
-		</ol>
-		
-		<br /><br />
-		<h2>Why recursive cascade images or blurred screen?</h2>
-		<p>Remember, recursive cascade images or blurred screen is chrome's implementation issue. It will be solved soon. </p>
-		<p>mandatory: {chromeMediaSource: 'tab'} can only be useful in chrome extensions. See <a href="https://webrtc-experiment.appspot.com/screen-broadcast/" target="_blank">Tab sharing using tabCapture APIs.</a></p>
-		
-		<br />
+            </li>
+            <li>You requested audio-stream alongwith 'chromeMediaSource' – it is not permitted in
+                a "single" getUserMedia request.</li>
+            <li>You've not installed SSL certificate (i.e. testing on non-HTTPS domain)</li>
+            <li>"screen capturing" is requested multiple times per tab. Maximum one request is permitted
+                per page!</li>
+        </ol>
         <br />
-		<h2>What about Desktop Sharing?</h2>
-		<p>Obviously, it is one of the most requested features; however not supported yet. Chrome WebRTC team is planning to support it in near future.</p>
-		<p>These screen sharing APIs (i.e. <code>{ chromeMediaSource: 'screen' }</code>) allows only state-less (non-interactive) screen sharing.</p>
-		<br />
+        <br />
+        <h2>
+            Why recursive cascade images or blurred screen?</h2>
+        <p>
+            Remember, recursive cascade images or blurred screen is chrome's implementation
+            issue. It will be solved soon.
+        </p>
+        <p>
+            mandatory: {chromeMediaSource: 'tab'} can only be useful in chrome extensions. See
+            <a href="https://webrtc-experiment.appspot.com/screen-broadcast/" target="_blank">Tab
+                sharing using tabCapture APIs.</a></p>
+        <br />
+        <br />
+        <h2>
+            What about Desktop Sharing?</h2>
+        <p>
+            Obviously, it is one of the most requested features; however not supported yet.
+            Chrome WebRTC team is planning to support it in near future.</p>
+        <p>
+            These screen sharing APIs (i.e. <code>{ chromeMediaSource: 'screen' }</code>) allows
+            only state-less (non-interactive) screen sharing.</p>
+        <br />
         <br />
         <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
             <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>

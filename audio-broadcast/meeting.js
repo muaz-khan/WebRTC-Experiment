@@ -1,8 +1,6 @@
-/*
-    2013, @muazkh - github.com/muaz-khan
-    MIT License - https://webrtc-experiment.appspot.com/licence/
-    Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/audio-broadcast
-*/
+// 2013, @muazkh - github.com/muaz-khan
+// MIT License - https://webrtc-experiment.appspot.com/licence/
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/audio-broadcast
 
 (function() {
 
@@ -92,14 +90,20 @@
             if (!window.Firebase) throw 'You must link <https://cdn.firebase.com/v0/firebase.js> file.';
 
             // Firebase is capable to store data in JSON format
-            root.transmitOnce = true;
-            var socket = new Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + channel);
-            socket.on('child_added', function(data) {
-                data = data.val();
+            // root.transmitOnce = true;
+            var socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + channel);
+            socket.on('child_added', function(snap) {
+                var data = snap.val();
                 if (data.userid != userid) {
                     if (data.leaving && root.onuserleft) root.onuserleft(data.userid);
                     else signaler.onmessage(data);
                 }
+
+                // we want socket.io behavior; 
+                // that's why data is removed from firebase servers 
+                // as soon as it is received
+                // data.userid != userid && 
+                if (data.userid != userid) snap.ref().remove();
             });
 
             // method to signal the data
@@ -228,15 +232,15 @@
                 audio[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
                 audio.autoplay = true;
                 audio.controls = true;
-				
-                audio.addEventListener('play', function () {
-                    setTimeout(function () {
+
+                audio.addEventListener('play', function() {
+                    setTimeout(function() {
                         audio.muted = false;
                         audio.volume = 1;
                         afterRemoteStreamStartedFlowing();
                     }, 3000);
                 }, false);
-				
+
                 audio.play();
 
                 function afterRemoteStreamStartedFlowing() {
@@ -261,7 +265,7 @@
                     broadcasting: true
                 });
 
-                !root.transmitOnce && setTimeout(transmit, 30000);
+                !root.transmitOnce && setTimeout(transmit, 3000);
             })();
 
             // if broadcaster leaves; clear all JSON files from Firebase servers
@@ -411,17 +415,6 @@
             }));
         }
     };
-
-    // swap arrays
-
-    function swap(arr) {
-        var swapped = [],
-            length = arr.length;
-        for (var i = 0; i < length; i++)
-            if (arr[i] && arr[i] !== true)
-                swapped[swapped.length] = arr[i];
-        return swapped;
-    }
 
     function unloadHandler(userid, signaler) {
         window.onbeforeunload = function() {

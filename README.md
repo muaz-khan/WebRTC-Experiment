@@ -149,20 +149,31 @@ channel.channels['muazkh'].send(file || data || 'text');
 #### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js"></script>
 ```
 
 ```javascript
 var connection = new RTCMultiConnection();
+
+// session is included in v1.3 and higher releases
 connection.session = {
     audio: true,
     video: true
 };
+
+// bandwidth is included in v1.3 and higher releases
 connection.bandwidth = {
     audio: 50,
     video: 256,
     data: 1638400
 };
+
+// framerate is included in v1.4 and higher releases
+connection.framerate = {
+    minptime: 10,
+    maxptime: 60
+};
+
 connection.onstream = function (e) {
     if (e.type === 'local') mainVideo.src = e.blobURL; // or URL.createObjectURL(e.stream)
     if (e.type === 'remote') document.body.appendChild(e.mediaElement);
@@ -228,7 +239,36 @@ openSignalingChannel: function(config) {
 
 ----
 
+#### Custom Signaling implementation for all new experiments and releases
+
+Your server-side node.js code looks like this:
+
+```javascript
+io.sockets.on('connection', function (socket) {
+    socket.on('message', function (data) {
+        socket.broadcast.emit('message', data);
+    });
+});
+```
+
+And to override `openSignalingChannel` on the client side:
+
+```javascript
+connection.openSignalingChannel = function(callback) {
+    return io.connect().on('message', callback);
+};
+```
+
+It means that now:
+
+1. No dynamic namespace or channel is required.
+2. A single socket connection is opened for the lifetime of the webpage
+
+----
+
 #### Use [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) for signaling!
+
+**Note:** These signaling implementations were designed for old WebRTC experiments. You can still use them with each new experiment; however it is not recommended. It is recommended to use signaling implementation from previous section.
 
 ```javascript
 // openSignalingChannel or openSocket!
