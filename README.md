@@ -17,16 +17,7 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 
 ----
 
-#### WebRTC Signaling Gateways
-
-Following signaling gateways can work with each and every [WebRTC Experiment](https://webrtc-experiment.appspot.com/)!
-
-1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) — [Demo](http://webrtc-signaling.jit.su/)
-2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) — [Demo](http://websocket-over-nodejs.jit.su/)
-
-----
-
-1. [RecordRTC: WebRTC audio/video recording](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) / [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
+1. [RecordRTC: A library for WebRTC audio/video recording](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) / [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
 2. [Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/)
 3. [WebRTC one-way video broadcasting](https://webrtc-experiment.appspot.com/webrtc-broadcasting/)
 
@@ -34,8 +25,8 @@ Following signaling gateways can work with each and every [WebRTC Experiment](ht
 
 #### [Screen sharing](https://webrtc-experiment.appspot.com/#screen-sharing)
 
-1. [Plugin free screen sharing](https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/)
-2. [Screen sharing](https://webrtc-experiment.appspot.com/screen-broadcast/)
+1. [Plugin free screen sharing](https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/) / [Latest Demo](https://webrtc-experiment.appspot.com/screen-sharing/)
+2. [Tab sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) / using `tabCapture` APIs
 
 ----
 
@@ -56,14 +47,14 @@ Following signaling gateways can work with each and every [WebRTC Experiment](ht
 
 ----
 
-#### Demos using [DataChannel.js](https://webrtc-experiment.appspot.com/DataChannel.js)
+#### Demos using [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
 
 1. [DataChannel basic demo](https://webrtc-experiment.appspot.com/DataChannel/)
 2. [Auto Session Establishment and Users presence detection](https://webrtc-experiment.appspot.com/DataChannel/auto-session-establishment/)
 
 ----
 
-#### [RTCMultiConnection Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection)
+#### [RTCMultiConnection Demos](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
 
 1. [Multi-Session Establishment](https://webrtc-experiment.appspot.com/RTCMultiConnection/multi-session-establishment/)
 2. [File Sharing + Text Chat](https://webrtc-experiment.appspot.com/RTCMultiConnection/group-file-sharing-plus-text-chat/)
@@ -110,21 +101,18 @@ Following signaling gateways can work with each and every [WebRTC Experiment](ht
 
 | A few documents for newbies and beginners        |
 | ------------- |
-| [RTCPeerConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection) |
 | [RTCMultiConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) |
 | [DataChannel Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) |
+| [RTCPeerConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection) |
 | [How to use RTCPeerConnection.js?](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html) |
 | [RTCDataChannel for Beginners](https://webrtc-experiment.appspot.com/docs/rtc-datachannel-for-beginners.html) |
 | [How to use RTCDataChannel?](https://webrtc-experiment.appspot.com/docs/how-to-use-rtcdatachannel.html) - single code for both canary and nightly |
 | [WebRTC for Beginners: A getting stared guide!](https://webrtc-experiment.appspot.com/docs/webrtc-for-beginners.html) |
 | [WebRTC for Newbies ](https://webrtc-experiment.appspot.com/docs/webrtc-for-newbies.html) |
-| [How to write video-conferencing application using WebRTC?](https://webrtc-experiment.appspot.com/docs/how-to-WebRTC-video-conferencing.html) |
-| [How to broadcast files using RTCDataChannel APIs?](https://webrtc-experiment.appspot.com/docs/how-file-broadcast-works.html) |
-| [WebRTC Signaling Concepts](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/Signaling-Concepts.md) |
 
 ----
 
-#### [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
+#### [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) / A library for RTCDataChannel APIs
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/DataChannel.js"></script>
@@ -146,7 +134,7 @@ channel.channels['muazkh'].send(file || data || 'text');
 
 ----
 
-#### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
+#### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) / A library for all WebRTC APIs
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js"></script>
@@ -184,11 +172,17 @@ connection.connect('session-id');
 
 // to create/open a new session
 connection.open('session-id');
+
+// runtime/dynamic streams insertion i.e. renegotiation
+connection.users['user-id'].addStream({
+    audio: true,
+    video: true
+});
 ```
 
 ----
 
-#### [RTCall.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall)
+#### [RTCall.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) / A library for audio-only calling
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/RTCall.js"></script>
@@ -206,40 +200,7 @@ call.oncustomer = function(customer) {
 
 ----
 
-#### Use [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) for signaling
-
-In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
-
-```javascript
-var SIGNALING_SERVER = 'ws://' + document.domain + ':8888/';
-openSignalingChannel: function(config) {
-    config.channel = config.channel || 'default-channel';
-    var websocket = new WebSocket(SIGNALING_SERVER);
-    websocket.channel = config.channel;
-    websocket.onopen = function() {
-        websocket.push(JSON.stringify({
-            open: true,
-            channel: config.channel
-        }));
-        if (config.callback)
-            config.callback(websocket);
-    };
-    websocket.onmessage = function(event) {
-        config.onmessage(JSON.parse(event.data));
-    };
-    websocket.push = websocket.send;
-    websocket.send = function(data) {
-        websocket.push(JSON.stringify({
-            data: data,
-            channel: config.channel
-        }));
-    };
-}
-```
-
-----
-
-#### Custom Signaling implementation for all new experiments and releases
+#### signaling using socket.io over node.js
 
 Your server-side node.js code looks like this:
 
@@ -257,73 +218,6 @@ And to override `openSignalingChannel` on the client side:
 connection.openSignalingChannel = function(callback) {
     return io.connect().on('message', callback);
 };
-```
-
-It means that now:
-
-1. No dynamic namespace or channel is required.
-2. A single socket connection is opened for the lifetime of the webpage
-
-----
-
-#### Use [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) for signaling!
-
-**Note:** These signaling implementations were designed for old WebRTC experiments. You can still use them with each new experiment; however it is not recommended. It is recommended to use signaling implementation from previous section.
-
-```javascript
-// openSignalingChannel or openSocket!
-openSignalingChannel: function(config) {
-   var SIGNALING_SERVER = 'http://domain.com:8888/';
-   var channel = config.channel || this.channel || 'default-channel';
-   var sender = Math.round(Math.random() * 60535) + 5000;
-   
-   io.connect(SIGNALING_SERVER).emit('new-channel', {
-      channel: channel,
-      sender : sender
-   });
-   
-   var socket = io.connect(SIGNALING_SERVER + channel);
-   socket.channel = channel;
-   
-   socket.on('connect', function () {
-      if (config.callback) config.callback(socket);
-   });
-   
-   socket.send = function (message) {
-        socket.emit('message', {
-            sender: sender,
-            data  : message
-        });
-    };
-   
-   socket.on('message', config.onmessage);
-}
-```
-
-For a ready-made socket.io over node.js implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
-
-----
-
-#### Use `firebase` for signaling!
-
-Remember, You must link [firebase.js](https://cdn.firebase.com/v0/firebase.js) file before using below code:
-
-```javascript
-openSignalingChannel: function (config) {
-    var SIGNALING_SERVER = 'https://chat.firebaseIO.com/';
-    var channel = config.channel || this.channel || 'WebRTC-Experiment';
-    var firebase = new Firebase(SIGNALING_SERVER + channel);
-    firebase.channel = channel;
-    firebase.on('child_added', function (data) {
-        config.onmessage && config.onmessage(data.val());
-    });
-    firebase.send = function (data) {
-        this.push(data);
-    };
-    config.onopen && setTimeout(config.onopen, 1);
-    firebase.onDisconnect().remove();
-    return firebase;
-}
 ```
 
 ----

@@ -174,25 +174,32 @@
             <div id="videos-container" style="text-align:center;"></div>
 			<script>
 				function appendStream(stream, h2Content) {
+					console.log('stream', stream);
+					console.log('getAudioTracks', stream.getAudioTracks());
+					console.log('getVideoTracks', stream.getVideoTracks());
+					
 					var div = document.createElement('div');
 					div.className = 'videos-container';
 					
-					var video = document.createElement('video');
-					video.src = URL.createObjectURL(stream);
-					div.appendChild(video);
+					var audio = document.createElement('audio');
+					audio.src = URL.createObjectURL(stream);
+					audio.autoplay = true;
+					audio.controls = true;
+					div.appendChild(audio);
 					
 					var h2 = document.createElement('h2');
 					h2.innerHTML = h2Content;
 					div.appendChild(h2);
 					
-					video.play();
+					audio.play();
 					document.getElementById('videos-container').appendChild(div);
+					return audio;
 				}
 				 var mediaConstraints = {
 					optional: [],
 					mandatory: {
 						OfferToReceiveAudio: true,
-						OfferToReceiveVideo: true
+						OfferToReceiveVideo: false
 					}
 				};
 			</script>
@@ -223,7 +230,7 @@
                     offerer.addStream(stream);
 
                     offerer.onaddstream = function (event) {
-                        appendStream(event.stream, 'for offerer');
+                        appendStream(event.stream, 'for offerer').pause();
 						
 						// Now, trying to attach remote media stream
 						!window.once && setTimeout(function() {
@@ -256,7 +263,7 @@
                     answerer.addStream(stream);
 
                     answerer.onaddstream = function (event) {
-                        appendStream(event.stream, 'for answerer');
+                        appendStream(event.stream, 'for answerer').pause()
                     };
 
                     answerer.onicecandidate = function (event) {
@@ -282,7 +289,7 @@
                     n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
                     n.getMedia(constraints || {
                         audio: true,
-                        video: video_constraints
+                        video: false
                     }, callback, onerror);
 
                     function onerror(e) {
@@ -315,17 +322,6 @@
 
                     offerer2.onaddstream = function (event) {
                         appendStream(event.stream, 'for offerer2');
-						
-						// Now, trying to attach remote media stream
-						!window.once && setTimeout(function() {
-							window.once = true;
-							
-							var div = document.createElement('div');
-							div.innerHTML = '<hr /><hr /><h2>Remote media streams are attached for below videos</h2><hr /><hr />';
-							document.getElementById('videos-container').appendChild(div);
-							
-							offererPeer(event.stream);
-						}, 1000);
                     };
 
                     offerer2.onicecandidate = function (event) {

@@ -1,4 +1,4 @@
-#### [RTCMultiConnection-v1.4.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js) Documentation
+#### [RTCMultiConnection-v1.3](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js) Documentation
 
 Supports features like
 
@@ -24,7 +24,7 @@ and much more.
 #### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js"></script>
 ```
 
 #### Second Step: Start using it!
@@ -95,30 +95,38 @@ connection.onstreamended = function(e) {
 
 #### Renegotiation
 
-Scenarios:
+Cases:
 
-1. In group file sharing applications; dynamic/runtime invocation of audio/video/screen streams using same peer connections.
-2. In audio-conferencing applications; dynamic/runtime invocation of video/data streams using pre-created peer connections.
-3. In screen sharing applications; dynamic/runtime invocation of audio/data streams
+1. You're sharing files in a group; or doing text chat; and suddenly want to share audio/video or screen among a few users or the entire group.
+2. In video-conferencing room; you want to sharing screen.
+3. In audio-conferencing room; you want to share video or screen or data.
+4. In screen sharing room; you want to share audio/video or data.
 
-Limitations:
-
-1. Streams can be renegotiated between two unique users (in a single invocation)
-2. Renegotiation can only be invoked by session initiator; participants are not allowed to invoke renegotiation
+You want to use same peer-connection to append dynamic streams at runtime.
 
 ```javascript
-connection.users['user-id'].addStream({
+// runtime sharing of audio/video among all users
+connection.addStream({
     audio: true,
     video: true
 });
 
-connection.users['user-id'].addStream({
+// runtime sharing of screen among two unique users
+// one is you; and other is person whose id is give below
+connection.peers['user-id'].addStream({
     screen: true,
     oneway: true
 });
 ```
 
-`{oneway:true}` allows you force renegotiated stream to flow in one-way direction.
+Possible renegotiation pairs
+
+1. `{audio: true, video: true}`
+2. `{audio: true, video: true, data: true}`
+3. `{screen: true, oneway: true}`
+4. `{audio: true, video: true, broadcast: true}`
+
+and many others.
 
 ----
 
@@ -138,7 +146,7 @@ broadcast: true
 
 ----
 
-#### Mute/UnMute/Stop
+#### Mute/UnMute
 
 ```javascript
 // mute
@@ -151,9 +159,6 @@ connection.streams['stream-id'].mute({
 connection.streams['stream-id'].unmute({
     audio: true
 });
-
-// stop a stream
-connection.streams['stream-id'].stop();
 ```
 
 ----
@@ -236,19 +241,13 @@ connection.onFileProgress = function (packets) {
 };
 
 // on file successfully sent
-connection.onFileSent = function (e) {
-    // e.file.name
-    // e.file.size
-    // e.userid
-    // e.extra
+connection.onFileSent = function (file) {
+    // file.name
+    // file.size
 };
 
 // on file successfully received
-connection.onFileReceived = function (e) {
-    // e.fileName
-    // e.userid
-    // e.extra
-};
+connection.onFileReceived = function (fileName) { };
 ```
 
 #### Errors Handling when sharing files/data/text
@@ -347,7 +346,7 @@ connection.onmessage = function(e) {
 ```javascript
 connection.onNewSession = function(session) {
     // session.extra -- extra data you passed or empty object {}
-    // session.roomid -- it is session's unique identifier
+    // session.sessionid -- it is session's unique identifier
     // session.userid -- it is room owner's id
     // session.session e.g. {audio:true, video:true}
 };
@@ -357,58 +356,35 @@ connection.onNewSession = function(session) {
 
 ----
 
-#### `interval`
-
-Interval in milliseconds, after which repeatedly transmit room details.
+#### Other features
 
 ```javascript
+// It is room transmission interval; useful for socket.io implementations only.
 connection.interval = 1000;
-```
 
-----
-
-#### `transmitRoomOnce`
-
-You may prefer using it with firebase. It is `false` by default.
-
-```javascript
+// It is useful only for Firebase signaling gateway!
 connection.transmitRoomOnce = true;
-```
 
-----
-
-#### `firebase`
-
-Firebase instance name e.g. `https://instance.firebaseio.com/`.
-
-```javascript
+// If you prefer using Firebase; you can provide your self-created firebase id.
 connection.firebase = 'chat';
+
+// if you want to attach external stream
+// this feature is useful in multi-sessions initiations
+connection.dontAttachStream = true; // it means that don't try to attach NEW stream
+connection.attachStream = MediaStream;
 ```
 
 ----
 
-#### `noMediaStream`
+#### Broadcasting/Conferencing/etc.
 
-If you don't want to prompt any `getUserMedia`. It is useful in join with/without camera type of experiments.
+Three possible scenarios are supported:
 
-```javascript
-connection.noMediaStream = true;
-```
+1. One-to-Many `one-way` broadcasting
+2. One-to-Many `two-way` broadcasting
+3. Many-to-Many `video-conferencing`
 
-----
-
-#### Attach external stream
-
-This feature is useful in multi-sessions initiations.
-
-```javascript
-connection.noMediaStream = true;
-connection.stream = MediaStream;
-```
-
-----
-
-#### `one-way`
+For one-way broadcasting
 
 ```javascript
 connection.stream = {
@@ -417,9 +393,7 @@ connection.stream = {
 };
 ```
 
-----
-
-#### `one-to-many`
+For two-way broadcasting
 
 ```javascript
 connection.stream = {
@@ -428,25 +402,13 @@ connection.stream = {
 };
 ```
 
-----
-
-#### `many-to-many`
+For video-conferencing; don't use `oneway` or `broadcast` values:
 
 ```javascript
 connection.stream = {
     audio: true,
     video: true
 };
-```
-
-----
-
-#### `maxParticipantsAllowed`
-
-A customizable way to set direction e.g. `one-to-one` etc. Its default value is `10`.
-
-```javascript
-connection.maxParticipantsAllowed = 1; // for one-to-one
 ```
 
 ----
@@ -472,51 +434,38 @@ Default audio bandwidth is `50` and default video bandwidth is `256`.
 
 ----
 
-#### Framerate
-
-You can set frame-rate for audio streams too:
+#### Use your own [socket.io over node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) for signaling
 
 ```javascript
-connection.framerate = {
-    minptime: 10,
-    maxptime: 60
-};
+openSignalingChannel: function(config) {
+   URL = 'http://domain.com:8888/';
+   channel = config.channel || this.channel || 'Default-Socket';
+   sender = Math.round(Math.random() * 60535) + 5000;
+
+   io.connect(URL).emit('new-channel', {
+      channel: channel,
+      sender : sender
+   });
+
+   socket = io.connect(URL + channel);
+   socket.channel = channel;
+
+   socket.on('connect', function () {
+      if (config.callback) config.callback(socket);
+   });
+
+   socket.send = function (message) {
+        socket.emit('message', {
+            sender: sender,
+            data  : message
+        });
+    };
+
+   socket.on('message', config.onmessage);
+}
 ```
 
-----
-
-#### Detect number of connected users
-
-You can detect how many users are participanting using `users` object:
-
-```javascript
-var numberOfUsers = 0;
-for(var user in connection.users) numberOfUsers++;
-
-console.log('number of users:', numberOfUsers);
-```
-
-----
-
-#### signaling using socket.io over node.js
-
-Your server-side node.js code looks like this:
-
-```javascript
-io.sockets.on('connection', function (socket) {
-    socket.on('message', function (data) {
-        socket.broadcast.emit('message', data);
-    });
-});
-```
-
-And to override `openSignalingChannel` on the client side:
-
-```javascript
-connection.openSignalingChannel = function(callback) {
-    return io.connect().on('message', callback);
-};
-```
+For a `ready-made` socket.io over node.js implementation; [visit this link](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs).
 
 ----
 
@@ -574,7 +523,7 @@ io.sockets.on('connection', function (socket) {
 
 #### Browser Support
 
-[RTCMultiConnection-v1.4.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js) supports following browsers:
+[RTCMultiConnection-v1.3.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js) supports following browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------|
@@ -586,4 +535,4 @@ io.sockets.on('connection', function (socket) {
 
 #### License
 
-[RTCMultiConnection-v1.4.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RTCMultiConnection-v1.3.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
