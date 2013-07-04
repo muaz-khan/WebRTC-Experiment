@@ -1,178 +1,87 @@
-#### WebRTC File Sharing i.e. Data Sharing / [Demo](https://webrtc-experiment.appspot.com/file-sharing/)
+#### WebRTC P2P Group File Sharing / [Demo](https://webrtc-experiment.appspot.com/file-hangout/)
 
-`DataConnection.js` library lets you:
+This WebRTC Experiment allows you share file of any size among group of people.
 
-1. Share file of any size
-2. Share text message of any length
-3. Text data regardless of the size and type
+It opens multiple peer connections to support group data connectivity.
 
-----
+In 10 users data session; 10 peer connections will be opened on each user's side.
 
-#### First Step: Link the library
+Each peer connection will open 2 RTP data ports on chrome.
 
-```html
-<script src="https://webrtc-experiment.appspot.com/data-connection.js"></script>
-```
+1. One **outband** RTP data port to send text messages
+2. One **inband** RTP data port to receive text messages
 
-----
+So, `20` RTP data ports will be opened in `10` users data session. **Embarrassing...?!!**
 
-#### Last Step: Start using it!
-
-```javascript
-var connection = new DataConnection('connection-unique-id');
-
-// check pre-established connections
-connection.check();
-
-document.getElementById('setup-new-connection').onclick = function() {
-    connection.setup('connection-name');
-};
-```
+On Firefox, by default 16 SCTP data ports will be opened for single peer. So, about 160 SCTP data ports will be opened in 10 users data session. Too awkward!
 
 ----
 
-#### Text Chat i.e. Text Sharing
+#### Multiple peer connections.....is it a solution?
 
-```javascript
-connection.send('longest possible text message');
-```
+No, not at all. It is just a **temporary** workaround.
 
-You may want to share direct messages:
-
-```javascript
-connection.channels['user-id'].send('longest possible text message');
-```
+You're strongly suggested to use **peer-to-server** model instead of opening multi-peers.
 
 ----
 
-#### File Sharing
+#### How peer-to-server model works?
 
-```javascript
-connection.send(file);
-```
+In this model, server plays a role of another peer. Server receives **offer-sdp** sent from browser-oriented peer; dynamically generates **answer-sdp** and returns back to appropriate peer.
 
-You may want to share file between two unique users directly:
+Server must be intelligent enough to generate right **answer-sdp**.
 
-```javascript
-connection.channels['user-id'].send(file);
-```
+Remember, WebRTC peer object will send **DTLS/SRTP** packets maybe as **ByteStream**. Target media server must be able to capture/understand those packets.
 
-Extra events:
-
-```javascript
-// show progress bar!
-channel.onFileProgress = function (packets, userid) {
-    // packets.remaining
-    // packets.sent      (for sender)
-    // packets.received  (for receiver)
-    // packets.length
-};
-
-// on file successfully sent
-channel.onFileSent = function (file, userid) {
-    // file.name
-    // file.size
-};
-
-// on file successfully received
-channel.onFileReceived = function (fileName, userid) {};
-```
+Server can manipulate messages or data coming from 10 or more unique data ports and transfer over single data port!
 
 ----
 
-#### Errors Handling
+#### ideas!!!
 
-```javascript
-// error to open data connection
-connection.onerror = function(event, userid) {}
+Room initiator opens a peer-to-server data connection. 10 room participants also open peer-to-server data connection in the same room.
 
-// data ports suddenly dropped
-connection.onclose = function(event, userid) {}
-```
+Room initiator and participants are not connected directly with each other.
 
-----
+If room initiator want to send text message, data or file over all those 10 participants; it will send it to server.
 
-#### Custom user-ids?
+Server will send that data message over all 10 participants' data ports.
 
-```javascript
-connection.userid = 'username';
-```
+So, original idea is: **user to server to all other peers**.
 
-----
+It is a reality that we will never be able to deny that WebRTC was formed to work entirely client side.
 
-#### Custom signaling channel?
+But dear friend! You can never deny that server is mandatory in corporate level applications.
 
-You can use each and every signaling channel:
+To support thousands of peers connectivity; you need a media server.
 
-1. SIP-over-WebSockets
-2. WebSocket over Node.js/PHP/etc.
-3. Socket.io over Node.js/etc.
-4. XMPP/etc.
-5. XHR-POST-ing
+Media servers are usually used as **transcoders**.
 
-```javascript
-connection.openSignalingChannel = function(callback) {
-    return io.connect().on('message', callback);
-};
-```
+Transcoding plays important role to support wide devices and platforms.
 
-If you want to write `socket.io over node.js`; here is the server code:
+You need a transcoder to integrate/interoperate VP8 and H.264 for video.
 
-```javascript
-io.sockets.on('connection', function (socket) {
-    socket.on('message', function (data) {
-        socket.broadcast.emit('message', data);
-    });
-});
-```
+Obviously, media servers can record entire session using your preferred methods.
 
-That's it! Isn't it easiest method ever!
+Sending audio RTP streams over PSTN networks is easy but receiving incoming audio isn't!
 
-Want to use `Firebase` for signaling?
+Because DTMF travels over a separate channel.
 
-```javascript
-// "chat" is your firebase id
-connection.firebase = 'chat';
-```
+Your media server must be smart enough to capture those DTMF streams.
 
-----
+**Kamailio** media server is designed to capture those DTMF channels, though.
 
-#### Want to manually join rooms?
+It would be really interesting if we will be able to open data session between WebRTC client and PSTN networks.
 
-```javascript
-connection.onconnection = function(room) {
-    var li = document.createElement('li');
-    li.setAttribute('user-id', room.userid);
-    li.setAttribute('room-id', room.roomid);
-    li.onclick = function() {
-        var room = {
-            userid: this.getAttribute('user-id'),
-            roomid: this.getAttribute('room-id')
-        };
-        connection.join(room);
-    };
-};
-```
+So, we maybe able to send data/text and files over majority of mobile devices.
 
-`onconnection` is called for each new data connection; and `join` method allows you manually join previously created connections.
-
-----
-
-#### If someone leaves...
-
-Participants' presence can be detected using `onuserleft`:
-
-```javascript
-connection.onuserleft = function(userid) {
-    console.debug(userid, 'left');
-};
-```
+Though, it seems not possible! Because their infrastructure is different.
 
 ----
 
 #### Browser Support
 
-This [DataConnection.js](https://webrtc-experiment.appspot.com/data-connection.js) library is compatible to following web-browsers:
+WebRTC [Group File Sharing](https://webrtc-experiment.appspot.com/file-hangout/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -184,4 +93,4 @@ This [DataConnection.js](https://webrtc-experiment.appspot.com/data-connection.j
 
 #### License
 
-[DataConnection.js](https://webrtc-experiment.appspot.com/data-connection.js) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+WebRTC [Group File Sharing](https://webrtc-experiment.appspot.com/file-hangout/) experiment is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

@@ -187,16 +187,26 @@
         // self instance
         var signaler = this;
 
+        // is session initiator?
+        var broadcaster = false;
+
         var session = root.session;
 
         // object to store all connected peers
         var peers = { };
 
+        var participationRequests = [];
+
+        // contains all objects returned over "onstream"
+        var streamObjects = { };
+
         // object to store all connected users' ids
         root.users = { };
 
-        // object to allow mute/unmute/stop any stream
-        root.streams = { }; // it is called when your signaling implementation fires "onmessage"
+        // object to allow mute/unmute/stop over any media-stream
+        root.streams = { };
+
+        // it is called when your signaling implementation fires "onmessage"
         this.onmessage = function(message) {
             // if new room detected
             if (message.roomid && message.broadcasting) {
@@ -204,17 +214,18 @@
                 if (!signaler.sentParticipationRequest) {
                     // broadcaster's and participant's session must be identical
                     root.session = message.session;
+
                     root.onNewSession(message);
                 }
             } else
                 // for pretty logging
                 console.debug(JSON.stringify(message, function(key, value) {
                     if (value && value.sdp) {
-                        console.log(value.sdp.type, '————', value.sdp.sdp);
+                        console.log(value.sdp.type, '----', value.sdp.sdp);
                         return '';
                     } else
                         return value;
-                }, '————'));
+                }, '----'));
 
             // if someone shared SDP
             if (message.sdp && message.to == userid)
@@ -248,17 +259,21 @@
                 // make sure "newcomer" is not "he", himself
                 && message.newcomer != userid
 
-                    // make sure it is absolute "NEW" user for him
-                    && !!root.users[message.newcomer] == false) {
+                    // make sure external rooms NEVER conflict
+                    && message.roomid == signaler.roomid
+
+                        // make sure it is absolute "NEW" user for him
+                        && !!root.users[message.newcomer] == false) {
 
                 root.users[message.newcomer] = merge(usersArrayOptions, {
                     userid: message.newcomer
                 });
 
-                root.stream && signaler.signal({
-                    participationRequest: true,
-                    to: message.newcomer
-                });
+                root.stream
+                    && signaler.signal({
+                        participationRequest: true,
+                        to: message.newcomer
+                    });
             }
 
             // if current user is suggested to play role of broadcaster
@@ -272,7 +287,7 @@
             if (message.getOut && message.who == userid)
                 leave();
 
-            if (message.renegotiate /* && message.to == userid */) {
+            if (message.renegotiate && message.to == userid) {
                 addStream(message.session, function() {
                     signaler.signal({
                         readyForRenegotation: true,
@@ -284,7 +299,7 @@
             if (message.readyForRenegotation && message.to == userid) renegotiate(message.userid);
         };
 
-        // it is appeared that 10 or more users can send 
+        // it is appeared that 10 or more users can send
         // participation requests concurrently
         // onicecandidate fails in such case
         // that's why timeout "intervals" used for loop-back
@@ -295,14 +310,11 @@
                 createOffer(message);
                 setTimeout(function() {
                     signaler.creatingOffer = false;
-                    if (signaler.participants &&
-                        signaler.participants.length)
+                    if (participationRequests.length)
                         repeatedlyCreateOffer();
                 }, 5000);
             } else {
-                if (!signaler.participants)
-                    signaler.participants = [];
-                signaler.participants[signaler.participants.length] = message;
+                participationRequests[participationRequests.length] = message;
             }
         }
 
@@ -320,7 +332,7 @@
         // reusable function to create new offer repeatedly
 
         function repeatedlyCreateOffer() {
-            var firstParticipant = signaler.participants[0];
+            var firstParticipant = participationRequests[0];
             if (!firstParticipant)
                 return;
 
@@ -328,12 +340,12 @@
             createOffer(firstParticipant);
 
             // delete "firstParticipant" and swap array
-            delete signaler.participants[0];
-            signaler.participants = swap(signaler.participants);
+            delete participationRequests[0];
+            participationRequests = swap(participationRequests);
 
             setTimeout(function() {
                 signaler.creatingOffer = false;
-                if (signaler.participants[0])
+                if (participationRequests[0])
                     repeatedlyCreateOffer();
             }, 5000);
         }
@@ -347,6 +359,7 @@
                     to: message.userid,
                     extra: message.extra,
                     stream: root.stream,
+                    renegotiated: !!message.renegotiated,
                     sdp: sdp
                 });
                 peers[message.userid] = Answer.createAnswer(_options);
@@ -425,6 +438,11 @@
                     root.streams[streamid] = getStream(stream);
 
                     if (!e.renegotiated) forwardParticipant(e);
+
+                    // sometimes "onstreamended" not fires; this is a quick ugly workaround
+                    if (!streamObjects[e.userid]) streamObjects[e.userid] = [];
+                    var obj = streamObjects[e.userid];
+                    streamObjects[e.userid][obj.length] = streamOutput;
                 }
 
                 // check whether audio-only streaming
@@ -502,18 +520,38 @@
             session: session,
             bandwidth: root.bandwidth,
             framerate: root.framerate,
-            bitrate: root.bitrate
+            bitrate: root.bitrate,
+
+            // called when "oniceconnectionstatechange" is "disconnected"
+            removePeer: function(userid) {
+                console.log('<oniceconnectionstatechange> is <disconnected>.');
+                var peer = peers[userid];
+                if (peer) delete peers[userid];
+            }
         };
 
+        // close peer connection
+
+        function closePeer(peer) {
+            if (peer.readyState != 'closed' && peer.signalingState != 'closed') {
+                if (peer.close) peer.close();
+            }
+        }
+
         function forwardParticipant(e) {
+            // for one-to-one or fixed sessions
+            if (getLength(root.users) > root.maxParticipantsAllowed) return;
+
+            // for one-to-many or many-to-many
             if (session.broadcast || session.oneway)
                 return;
 
             // for multi-users connectivity
             // i.e. video-conferencing
-            signaler.isbroadcaster &&
+            broadcaster &&
                 signaler.signal({
                     conferencing: true,
+                    roomid: signaler.roomid,
                     newcomer: e.userid,
                     extra: e.extra
                 });
@@ -533,7 +571,7 @@
         this.broadcast = function(_config) {
             _config = _config || { };
             signaler.roomid = _config.roomid || getToken();
-            signaler.isbroadcaster = true;
+            broadcaster = true;
 
             // share room details in a loop
             (function transmit() {
@@ -554,7 +592,7 @@
             })();
 
             // if broadcaster leaves; clear all JSON files from Firebase servers
-            // it is useless in current implementation because 
+            // it is useless in current implementation because
             // we are using "snap.ref().remove()" to behave like "socket.io"
             if (socket.onDisconnect)
                 socket.onDisconnect().remove();
@@ -572,6 +610,9 @@
         };
 
         function leave() {
+            // it seems that he has not joined any room yet.
+            if (!root.stream) return;
+
             // for firebase; again, it is useless out of "socket.io" behavior of firebase
             if (socket.remove) socket.remove();
 
@@ -579,15 +620,15 @@
             signaler.signal({
                 leaving: true,
 
-                // is he session initiator?
-                broadcaster: !!signaler.broadcaster,
+                // make sure videos are removed from same room only
+                roomid: signaler.roomid,
 
                 // is he willing to close the entire session
                 forceClosingTheEntireSession: !!root.autoCloseEntireSession
             });
 
             // if broadcaster leaves; don't close the entire session
-            if (signaler.isbroadcaster && !root.autoCloseEntireSession) {
+            if (broadcaster && !root.autoCloseEntireSession) {
                 var gotFirstParticipant;
                 for (var participant in root.users) {
                     if (gotFirstParticipant) break;
@@ -606,7 +647,7 @@
             for (var peer in peers) {
                 peer = peers[peer];
                 if (peer.peer)
-                    peer.peer.close();
+                    closePeer(peer.peer);
             }
             peers = { };
 
@@ -623,7 +664,7 @@
                 return leave();
 
             // broadcaster can throw any user out of the room
-            signaler.broadcaster
+            broadcaster
                 && signaler.signal({
                     getOut: true,
                     who: _userid
@@ -662,14 +703,15 @@
         // this function is used only by offerer
 
         function renegotiate(_userid) {
-            if (!signaler.isbroadcaster)
+            if (!broadcaster)
                 throw 'Renegotiation priviliges are given only to session initiator. '
                     + 'Don\'t try to renegotiate streams from participants\' side.';
 
             console.log('<renegotiation process started>');
 
             var _session = merge(options, {
-                session: session
+                session: session,
+                stream: root.stream
             });
 
             var peer = peers[_userid];
@@ -698,14 +740,12 @@
             else
                 root.captureUserMedia(function() {
                     // renegotiation priviliges are given only to session initiator
-                    if (signaler.isbroadcaster) {
-                        var _options = merge(options, {
+                    if (broadcaster) {
+                        signaler.signal({
                             renegotiate: true,
                             session: session,
-                            stream: root.stream,
                             to: _userid
                         });
-                        signaler.signal(_options);
                     } else if (callback) callback();
                 });
         }
@@ -727,30 +767,35 @@
             if (!data.leaving)
                 return signaler.onmessage(data);
 
-            // below code is executed only if "data.leaving" is true
-            // i.e. someone is leaving
-
-            if (root.onleave) {
-                root.onleave({
-                    userid: data.userid,
-                    extra: data.extra
-                });
-            }
-
-            // if room owner requested to leave his room
-            if (data.broadcaster && data.forceClosingTheEntireSession) {
-                leave();
-            }
-
-            // closing peer connection
-            var peer = peers[data.userid];
-            if (peer && peer.peer) {
-                try {
-                    peer.peer.close();
-                } catch(e) {
-                    console.error('This <peer.close> error must be fixed.', e);
+            if (data.leaving) {
+                // closing peer connection
+                var peer = peers[data.userid];
+                if (peer && peer.peer) {
+                    closePeer(peer.peer);
+                    delete peers[data.userid];
                 }
-                delete peers[data.userid];
+
+                // if room owner requested to leave his room
+                if (data.forceClosingTheEntireSession && data.roomid == signaler.roomid) {
+                    leave();
+                }
+
+                if (root.onleave) {
+                    root.onleave({
+                        userid: data.userid,
+                        extra: data.extra
+                    });
+                }
+
+                // ugly workaround
+                if (streamObjects[data.userid]) {
+                    var objects = streamObjects[data.userid];
+                    if (objects.length) {
+                        for (var i = 0; i < objects.length; i++) {
+                            root.onstreamended(streamObjects[data.userid][i]);
+                        }
+                    }
+                }
             }
         }
 
@@ -768,8 +813,8 @@
                 data = snap.val();
                 onSocketMessage(data);
 
-                // we want socket.io behavior; 
-                // that's why data is removed from firebase servers 
+                // we want socket.io behavior;
+                // that's why data is removed from firebase servers
                 // as soon as it is received.
                 snap.ref().remove();
             });
@@ -809,15 +854,15 @@
 
     var Offer = {
         createOffer: function(config) {
-            var renegotiating = !!this.peer;
+            var renegotiating = !!config.renegotiated,
+                peer;
 
             // if not renegotiating
             if (!renegotiating)
-                var peer = new RTCPeerConnection(iceServers, optionalArgument);
+                peer = new RTCPeerConnection(iceServers, optionalArgument);
 
-                // if renegotiating
-            else
-                var peer = this.peer;
+            else // if renegotiating
+                peer = this.peer;
 
             var session = config.session;
 
@@ -828,9 +873,12 @@
                 config.onsdp({
                     sdp: peer.localDescription,
                     userid: config.to,
-                    extra: config.extra
+                    extra: config.extra,
+                    renegotiated: !!config.renegotiated
                 });
             }
+
+            if (!isData(session) && !config.stream) throw 'Offerer can\'t be recvonly.';
 
             if (config.stream)
                 peer.addStream(config.stream);
@@ -854,6 +902,16 @@
             peer.ongatheringchange = function(event) {
                 if (event.currentTarget && event.currentTarget.iceGatheringState === 'complete')
                     sdpCallback();
+            };
+
+            peer.oniceconnectionstatechange = function() {
+                // "disconnected" state: Liveness checks have failed for one or more components.
+                // This is more aggressive than failed, and may trigger intermittently
+                // (and resolve itself without action) on a flaky network.
+                if (!!peer && peer.iceConnectionState == 'disconnected') {
+                    peer.close();
+                    config.removePeer(config.to);
+                }
             };
 
             if (isChrome || !session.data) {
@@ -911,15 +969,15 @@
 
     var Answer = {
         createAnswer: function(config) {
-            var renegotiating = !!this.peer;
+            var renegotiating = config.renegotiated,
+                peer, channel;
 
             // if not renegotiating
             if (!renegotiating)
-                var peer = new RTCPeerConnection(iceServers, optionalArgument), channel;
+                peer = new RTCPeerConnection(iceServers, optionalArgument);
 
-                // if renegotiating
-            else
-                var peer = this.peer;
+            else // if renegotiating
+                peer = this.peer;
 
             var session = config.session;
 
@@ -941,12 +999,11 @@
                         peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
                         peer.createAnswer(function(sdp) {
                             peer.setLocalDescription(sdp);
-                            if (config.onsdp)
-                                config.onsdp({
-                                    sdp: sdp,
-                                    userid: config.to,
-                                    extra: config.extra
-                                });
+                            config.onsdp({
+                                sdp: sdp,
+                                userid: config.to,
+                                extra: config.extra
+                            });
                         }, null, offerAnswerConstraints);
                     }, mediaError);
             }
@@ -969,6 +1026,16 @@
                         userid: config.to,
                         extra: config.extra
                     });
+            };
+
+            peer.oniceconnectionstatechange = function() {
+                // "disconnected" state: Liveness checks have failed for one or more components.
+                // This is more aggressive than failed, and may trigger intermittently
+                // (and resolve itself without action) on a flaky network.
+                if (!!peer && peer.iceConnectionState == 'disconnected') {
+                    peer.close();
+                    config.removePeer(config.to);
+                }
             };
 
             if (isChrome || !session.data) {
@@ -995,6 +1062,56 @@
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
             }));
+        }
+    };
+
+    // DataChannel.createDataChannel(peer, config);
+    // DataChannel.setChannelEvents(channel, config);
+
+    var DataChannel = {
+        createDataChannel: function(peer, config) {
+            // in renegotiation process; don't create data channels multiple times
+            if (peer.localDescription && peer.localDescription.sdp.indexOf('a=mid:data') !== -1) return;
+
+            var channel = peer.createDataChannel('channel', { reliable: false });
+            this.setChannelEvents(channel, config);
+        },
+        setChannelEvents: function(channel, config) {
+            channel.onopen = function() {
+                config.onopen({
+                    channel: channel,
+                    userid: config.to,
+                    extra: config.extra,
+
+                    // used to make sure we're not forwaring
+                    // details of renegotiated streams
+                    renegotiated: !!config.renegotiated
+                });
+            };
+
+            channel.onmessage = function(e) {
+                config.onmessage({
+                    data: e.data,
+                    userid: config.to,
+                    extra: config.extra
+                });
+            };
+
+            channel.onclose = function(event) {
+                config.onclose({
+                    event: event,
+                    userid: config.to,
+                    extra: config.extra
+                });
+            };
+
+            channel.onerror = function(event) {
+                config.onerror({
+                    event: event,
+                    userid: config.to,
+                    extra: config.extra
+                });
+            };
         }
     };
 
@@ -1045,7 +1162,9 @@
         optional: [],
         mandatory: {
             OfferToReceiveAudio: true,
-            OfferToReceiveVideo: true
+            OfferToReceiveVideo: true,
+            VoiceActivityDetection: true,
+            IceRestart: true
         }
     };
 
@@ -1176,57 +1295,7 @@
         };
     }
 
-    // DataChannel.createDataChannel(peer, config);
-    // DataChannel.setChannelEvents(channel, config);
-
-    var DataChannel = {
-        createDataChannel: function(peer, config) {
-            // in renegotiation process; don't create data channels multiple times
-            if (peer.localDescription && peer.localDescription.sdp.indexOf('a=mid:data') !== -1) return;
-
-            var channel = peer.createDataChannel('channel', { reliable: false });
-            this.setChannelEvents(channel, config);
-        },
-        setChannelEvents: function(channel, config) {
-            channel.onopen = function() {
-                config.onopen({
-                    channel: channel,
-                    userid: config.to,
-                    extra: config.extra,
-
-                    // used to make sure we're not forwaring
-                    // details of renegotiated streams
-                    renegotiated: !!config.renegotiated
-                });
-            };
-
-            channel.onmessage = function(e) {
-                config.onmessage({
-                    data: e.data,
-                    userid: config.to,
-                    extra: config.extra
-                });
-            };
-
-            channel.onclose = function(event) {
-                config.onclose({
-                    event: event,
-                    userid: config.to,
-                    extra: config.extra
-                });
-            };
-
-            channel.onerror = function(event) {
-                config.onerror({
-                    event: event,
-                    userid: config.to,
-                    extra: config.extra
-                });
-            };
-        }
-    };
-
-    // FileSender.send(config);
+    // FileSender.send({root, file, channel, onFileSent, onFileProgress});
 
     var FileSender = {
         send: function(config) {
@@ -1317,8 +1386,7 @@
         }
     };
 
-
-    // new FileReceiver().receive(config);
+    // new FileReceiver().receive({root, data, onFileReceived, onFileProgress});
 
     function FileReceiver() {
         var content = [],
@@ -1386,7 +1454,24 @@
         };
     }
 
-    // TextSender.send(config);
+    // FileSaver.SaveToDisk({fileName,fileURL});
+
+    var FileSaver = {
+        SaveToDisk: function(e) {
+            var save = document.createElement('a');
+            save.href = e.fileURL;
+            save.target = '_blank';
+            save.download = e.fileName || e.fileURL;
+
+            var evt = document.createEvent('MouseEvents');
+            evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+
+            save.dispatchEvent(evt);
+            (window.URL || window.webkitURL).revokeObjectURL(save.href);
+        }
+    };
+
+    // TextSender.send({root, channel, text});
 
     var TextSender = {
         send: function(config) {
@@ -1447,7 +1532,7 @@
         }
     };
 
-    // new TextReceiver().receive(config);
+    // new TextReceiver().receive({root, data, onmessage});
 
     function TextReceiver() {
         var content = [];
@@ -1473,20 +1558,4 @@
         };
     }
 
-    // FileSaver.SaveToDisk({fileName,fileURL});
-
-    var FileSaver = {
-        SaveToDisk: function(e) {
-            var save = document.createElement('a');
-            save.href = e.fileURL;
-            save.target = '_blank';
-            save.download = e.fileName || e.fileURL;
-
-            var evt = document.createEvent('MouseEvents');
-            evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-
-            save.dispatchEvent(evt);
-            (window.URL || window.webkitURL).revokeObjectURL(save.href);
-        }
-    };
 })();

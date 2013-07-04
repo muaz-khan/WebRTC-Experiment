@@ -81,54 +81,6 @@
     // it is a backbone object
 
     function Signaler(root) {
-        // unique session-id
-        var channel = root.channel;
-
-        // signaling implementation
-        // if no custom signaling channel is provided; use Firebase
-        if (!root.openSignalingChannel) {
-            if (!window.Firebase) throw 'You must link <https://cdn.firebase.com/v0/firebase.js> file.';
-
-            // Firebase is capable to store data in JSON format
-            // root.transmitOnce = true;
-            var socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + channel);
-            socket.on('child_added', function(snap) {
-                var data = snap.val();
-                if (data.userid != userid) {
-                    if (data.leaving && root.onuserleft) root.onuserleft(data.userid);
-                    else signaler.onmessage(data);
-                }
-
-                // we want socket.io behavior; 
-                // that's why data is removed from firebase servers 
-                // as soon as it is received
-                // data.userid != userid && 
-                if (data.userid != userid) snap.ref().remove();
-            });
-
-            // method to signal the data
-            this.signal = function(data) {
-                data.userid = userid;
-                socket.push(data);
-            };
-        } else {
-            // custom signaling implementations
-            // e.g. WebSocket, Socket.io, SignalR, WebSycn, XMLHttpRequest, Long-Polling etc.
-            var socket = root.openSignalingChannel(function(message) {
-                message = JSON.parse(message);
-                if (message.userid != userid) {
-                    if (message.leaving && root.onuserleft) root.onuserleft(message.userid);
-                    else signaler.onmessage(message);
-                }
-            });
-
-            // method to signal the data
-            this.signal = function(data) {
-                data.userid = userid;
-                socket.send(JSON.stringify(data));
-            };
-        }
-
         // unique identifier for the current user
         var userid = root.userid || getToken();
 
@@ -137,9 +89,6 @@
 
         // object to store all connected peers
         var peers = { };
-
-        // object to store ICE candidates for answerer
-        var candidates = { };
 
         // object to store all connected participants's ids
         var participants = { };
@@ -153,15 +102,16 @@
             else
                 // for pretty logging
                 console.debug(JSON.stringify(message, function(key, value) {
-                    if (value.sdp) {
-                        console.log(value.sdp.type, '————', value.sdp.sdp);
+                    if (value && value.sdp) {
+                        console.log(value.sdp.type, '---', value.sdp.sdp);
                         return '';
                     } else return value;
-                }, '————'));
+                }, '---'));
 
             // if someone shared SDP
-            if (message.sdp && message.to == userid)
+            if (message.sdp && message.to == userid) {
                 this.onsdp(message);
+            }
 
             // if someone shared ICE
             if (message.candidate && message.to == userid)
@@ -194,7 +144,7 @@
                     signaler.creatingOffer = false;
                     if (signaler.participants &&
                         signaler.participants.length) repeatedlyCreateOffer();
-                }, 5000);
+                }, 1000);
             } else {
                 if (!signaler.participants) signaler.participants = [];
                 signaler.participants[signaler.participants.length] = _userid;
@@ -213,7 +163,6 @@
         // reusable function to create new offer repeatedly
 
         function repeatedlyCreateOffer() {
-            console.log('signaler.participants', signaler.participants);
             var firstParticipant = signaler.participants[0];
             if (!firstParticipant) return;
 
@@ -228,7 +177,7 @@
                 signaler.creatingOffer = false;
                 if (signaler.participants[0])
                     repeatedlyCreateOffer();
-            }, 5000);
+            }, 1000);
         }
 
         // if someone shared SDP
@@ -251,21 +200,8 @@
         // if someone shared ICE
         this.onice = function(message) {
             var peer = peers[message.userid];
-            if (!peer) {
-                var candidate = candidates[message.userid];
-                if (candidate) candidates[message.userid][candidate.length] = message.candidate;
-                else candidates[message.userid] = [message.candidate];
-            } else {
+            if (peer)
                 peer.addIceCandidate(message.candidate);
-
-                var _candidates = candidates[message.userid] || [];
-                if (_candidates.length) {
-                    for (var i = 0; i < _candidates.length; i++) {
-                        peer.addIceCandidate(_candidates[i]);
-                    }
-                    candidates[message.userid] = [];
-                }
-            }
         };
 
         // it is passed over Offer/Answer objects for reusability
@@ -300,6 +236,13 @@
                 }
 
                 function afterRemoteStreamStartedFlowing() {
+                    // for video conferencing
+                    signaler.isbroadcaster &&
+                        signaler.signal({
+                            conferencing: true,
+                            newcomer: _userid
+                        });
+
                     if (!root.onaddstream) return;
                     root.onaddstream({
                         video: video,
@@ -310,13 +253,6 @@
                 }
 
                 onRemoteStreamStartsFlowing();
-
-                // for video conferencing
-                signaler.isbroadcaster &&
-                    signaler.signal({
-                        conferencing: true,
-                        newcomer: _userid
-                    });
             }
         };
 
@@ -348,6 +284,52 @@
         };
 
         unloadHandler(userid, signaler);
+
+        // signaling implementation
+        // if no custom signaling channel is provided; use Firebase
+        if (!root.openSignalingChannel) {
+            if (!window.Firebase) throw 'You must link <https://cdn.firebase.com/v0/firebase.js> file.';
+
+            // Firebase is capable to store data in JSON format
+            // root.transmitOnce = true;
+            var socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + root.channel);
+            socket.on('child_added', function(snap) {
+                var data = snap.val();
+
+                if (data.userid != userid) {
+                    if (data.leaving) root.onuserleft && root.onuserleft(data.userid);
+                    else signaler.onmessage(data);
+                }
+
+                // we want socket.io behavior; 
+                // that's why data is removed from firebase servers 
+                // as soon as it is received
+                // data.userid != userid && 
+                if (data.userid != userid) snap.ref().remove();
+            });
+
+            // method to signal the data
+            this.signal = function(data) {
+                data.userid = userid;
+                socket.push(data);
+            };
+        } else {
+            // custom signaling implementations
+            // e.g. WebSocket, Socket.io, SignalR, WebSycn, XMLHttpRequest, Long-Polling etc.
+            var socket = root.openSignalingChannel(function(message) {
+                message = JSON.parse(message);
+                if (message.userid != userid) {
+                    if (message.leaving) root.onuserleft && root.onuserleft(message.userid);
+                    else signaler.onmessage(message);
+                }
+            });
+
+            // method to signal the data
+            this.signal = function(data) {
+                data.userid = userid;
+                socket.send(JSON.stringify(data));
+            };
+        }
     }
 
     // reusable stuff
@@ -389,7 +371,6 @@
     var optionalArgument = {
         optional: [{
             DtlsSrtpKeyAgreement: true
-        // RtpDataChannels: true
         }]
     };
 
@@ -419,15 +400,23 @@
                 peer.onaddstream = function(event) {
                     config.onaddstream(event.stream, config.to);
                 };
-            if (config.onicecandidate)
-                peer.onicecandidate = function(event) {
-                    if (event.candidate) config.onicecandidate(event.candidate, config.to);
-                };
+
+            peer.onicecandidate = function(event) {
+                if (!event.candidate) sdpCallback();
+            };
+
+            peer.ongatheringchange = function(event) {
+                if (event.currentTarget && event.currentTarget.iceGatheringState === 'complete')
+                    sdpCallback();
+            };
 
             peer.createOffer(function(sdp) {
                 peer.setLocalDescription(sdp);
-                if (config.onsdp) config.onsdp(sdp, config.to);
             }, null, offerAnswerConstraints);
+
+            function sdpCallback() {
+                config.onsdp(peer.localDescription, config.to);
+            }
 
             this.peer = peer;
 
@@ -458,15 +447,15 @@
                 peer.onaddstream = function(event) {
                     config.onaddstream(event.stream, config.to);
                 };
-            if (config.onicecandidate)
-                peer.onicecandidate = function(event) {
-                    if (event.candidate) config.onicecandidate(event.candidate, config.to);
-                };
+
+            peer.onicecandidate = function(event) {
+                config.onicecandidate(event.candidate, config.to);
+            };
 
             peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
             peer.createAnswer(function(sdp) {
                 peer.setLocalDescription(sdp);
-                if (config.onsdp) config.onsdp(sdp, config.to);
+                config.onsdp(sdp, config.to);
             }, null, offerAnswerConstraints);
 
             this.peer = peer;

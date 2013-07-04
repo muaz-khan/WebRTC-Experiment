@@ -1,4 +1,4 @@
-#### WebRTC One-to-Many audio-broadcasting / [Demo](https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/)
+#### WebRTC One-to-Many audio sharing/broadcasting / [Demo](https://webrtc-experiment.appspot.com/audio-broadcast/)
 
 If 10 users join your broadcasted room, **20 RTP ports** will be opened on your browser:
 
@@ -17,140 +17,9 @@ Unlike one-way broadcasting; one-to-many broadcasting experiment opens both outg
 
 ----
 
-#### First Step: Link the library
+#### Browser Support 
 
-```html
-<script src="https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/meeting.js"></script>
-```
-
-----
-
-#### Last Step: Start using it!
-
-```javascript
-var meeting = new Meeting('meeting-unique-id');
-
-// on getting local or remote streams
-meeting.onaddstream = function(e) {
-    // e.type == 'local' ---- it is local media stream
-    // e.type == 'remote' --- it is remote media stream
-    document.body.appendChild(e.audio);
-};
-
-// check pre-created meeting rooms
-// it is useful to auto-join
-// or search pre-created sessions
-meeting.check();
-
-document.getElementById('setup-new-meeting').onclick = function() {
-    meeting.setup('meeting room name');
-};
-```
-
-----
-
-#### Custom user-ids?
-
-```javascript
-meeting.userid = 'username';
-```
-
-----
-
-#### Custom signaling channel?
-
-You can use each and every signaling channel:
-
-1. SIP-over-WebSockets
-2. WebSocket over Node.js/PHP/etc.
-3. Socket.io over Node.js/etc.
-4. XMPP/etc.
-5. XHR-POST-ing
-
-```javascript
-meeting.openSignalingChannel = function(callback) {
-    return io.connect().on('message', callback);
-};
-```
-
-If you want to write `socket.io over node.js`; here is the server code:
-
-```javascript
-io.sockets.on('connection', function (socket) {
-    socket.on('message', function (data) {
-        socket.broadcast.emit('message', data);
-    });
-});
-```
-
-That's it! Isn't it easiest method ever!
-
-Want to use `Firebase` for signaling?
-
-```javascript
-// "chat" is your firebase id
-meeting.firebase = 'chat';
-```
-
-----
-
-#### Want to manually join rooms?
-
-```javascript
-meeting.onmeeting = function(room) {
-    var li = document.createElement('li');
-    li.setAttribute('user-id', room.userid);
-    li.setAttribute('room-id', room.roomid);
-    li.onclick = function() {
-        var room = {
-            userid: this.getAttribute('user-id'),
-            roomid: this.getAttribute('room-id')
-        };
-        meeting.meet(room);
-    };
-};
-```
-
-`onmeeting` is called for each new meeting; and `meet` method allows you manually join a meeting room.
-
-----
-
-#### If someone leaves...
-
-Participants' presence can be detected using `onuserleft`:
-
-```javascript
-// if someone leaves; just remove his audio
-meeting.onuserleft = function(userid) {
-    var audio = document.getElementById(userid);
-    if(audio) audio.parentNode.removeChild(audio);
-};
-```
-
-----
-
-#### `onaddstream`
-
-It is called both for `local` and `remote` media streams. It returns:
-
-1. `audio`: i.e. `HTMLAudioElement` object
-2. `stream`: i.e. `MediaStream` object
-3. `userid`: i.e. id of the user stream coming from
-4. `type`: i.e. type of the stream e.g. `local` or `remote`
-
-```javascript
-meeting.onaddstream = function(e) {
-    // e.type == 'local' ---- it is local media stream
-    // e.type == 'remote' --- it is remote media stream
-    document.body.appendChild(e.audio);
-};
-```
-
-----
-
-#### Browser Support
-
-This [WebRTC One-to-Many audio-broadcasting](https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/) experiment works fine on following web-browsers:
+This [WebRTC Audio Broadcasting Experiment](https://webrtc-experiment.appspot.com/audio-broadcast/) works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -162,4 +31,4 @@ This [WebRTC One-to-Many audio-broadcasting](https://webrtc-experiment.appspot.c
 
 #### License
 
-[WebRTC One-to-Many audio-broadcasting](https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+WebRTC [Audio Broadcasting Experiment](https://webrtc-experiment.appspot.com/audio-broadcast/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

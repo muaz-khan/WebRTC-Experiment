@@ -1,162 +1,63 @@
-#### WebRTC Meeting i.e. Video-Conferencing / [Demo](https://webrtc-experiment.appspot.com/meeting/)
+#### WebRTC Group video sharing / [Demo](https://webrtc-experiment.appspot.com/video-conferencing/)
 
-1. Multiple peer-connections are opened to bring multi-users connectivity experience.
-2. Maximum peers limit on chrome is temporarily 10.
-3. Huge bandwidth and CPU-usage out of multi-peers and number of RTP-ports
+----
 
-To understand 3rd option better; assume that 10 users are sharing video in a group. 40 RTP-ports i.e. streams will be created for each user. All streams are expected to be flowing concurrently; which causes blur video experience and audio lose/noise issues.
+#### How `video conferencing` Works?
 
-For each user:
+In simple words, `multi-peers` and `sockets` are opened to make it work!
 
-1. 10 RTP ports are opened to send video upward i.e. for outgoing video streams
-2. 10 RTP ports are opened to send audio upward i.e. for outgoing audio streams
-3. 10 RTP ports are opened to receive video i.e. for incoming video streams
-4. 10 RTP ports are opened to receive audio i.e. for incoming audio streams
+For 10 people sharing videos in a group:
 
-Possible issues:
+1. Creating 10 `unique` peer connections
+2. Opening 10 unique `sockets` to exchange SDP/ICE
+
+For your information; in One-to-One video session; 4 RTP streams/ports get open:
+
+1. One RTP port for **outgoing video**
+2. One RTP port for **outgoing audio**
+3. One RTP port for **incoming video**
+4. One RTP port for **incoming audio**
+
+So, for 10 peers sharing video in a group; `40 RTP` ports get open. Which causes:
 
 1. Blurry video experience
-2. Unclear voice and audio lost
-3. Bandwidth issues / slow streaming / CPU overwhelming
+2. Unclear voice
+3. Bandwidth issues / slow streaming
 
-Solution? Obviously a media server. To overcome burden and to deliver HD stream over thousands of peers; we need a media server that should broadcast stream over number of peers.
+The best solution is to use a **middle media server** like **asterisk** or **kamailio** to broadcast your camera stream. 
 
-----
+To overcome burden and to deliver HD stream over thousands of peers; we need a media server that should **broadcast** stream coming from room owner's side.
 
-#### First Step: Link the library
+Process should be like this:
 
-```html
-<script src="https://webrtc-experiment.appspot.com/meeting/meeting.js"></script>
-```
+1. Conferencing **initiator** opens **peer-to-server** connection
+2. On successful handshake; media server starts broadcasting **remote stream** over all other thousands of peers.
 
-----
+It means that those peers are not connected directly with **room initiator**.
 
-#### Last Step: Start using it!
+But, this is **video broadcasting**; it is not **video conferencing**.
 
-```javascript
-var meeting = new Meeting('meeting-unique-id');
+In video-conferencing, each peer connects directly with all others.
 
-// on getting local or remote streams
-meeting.onaddstream = function(e) {
-    // e.type == 'local' ---- it is local media stream
-    // e.type == 'remote' --- it is remote media stream
-    document.body.appendChild(e.video);
-};
+To make a **media server** work with video-conferencing also to just open only-one peer connection for each user; I've following assumptions:
 
-// check pre-created meeting rooms
-// it is useful to auto-join
-// or search pre-created sessions
-meeting.check();
+1. Room initiator opens **peer-to-server** connection
+2. Server gets **remote stream** from room initiator
+3. A participant opens **peer-to-server** connect
+4. Server gets **remote stream** from that participant
+5. Server sends **remote stream** coming from participant toward **room iniator**
+6. Server also sends **remote stream** coming from room-initiator toward **participant**
+7. Another participant opens **peer-to-server** connection...and process continues.
 
-document.getElementById('setup-new-meeting').onclick = function() {
-    meeting.setup('meeting room name');
-};
-```
+Media server should mix all video streams; and stream it over single RTP port.
 
-----
-
-#### Custom user-ids?
-
-```javascript
-meeting.userid = 'username';
-```
-
-----
-
-#### Custom signaling channel?
-
-You can use each and every signaling channel:
-
-1. SIP-over-WebSockets
-2. WebSocket over Node.js/PHP/etc.
-3. Socket.io over Node.js/etc.
-4. XMPP/etc.
-5. XHR-POST-ing
-
-```javascript
-meeting.openSignalingChannel = function(callback) {
-    return io.connect().on('message', callback);
-};
-```
-
-If you want to write `socket.io over node.js`; here is the server code:
-
-```javascript
-io.sockets.on('connection', function (socket) {
-    socket.on('message', function (data) {
-        socket.broadcast.emit('message', data);
-    });
-});
-```
-
-That's it! Isn't it easiest method ever!
-
-Want to use `Firebase` for signaling?
-
-```javascript
-// "chat" is your firebase id
-meeting.firebase = 'chat';
-```
-
-----
-
-#### Want to manually join rooms?
-
-```javascript
-meeting.onmeeting = function(room) {
-    var li = document.createElement('li');
-    li.setAttribute('user-id', room.userid);
-    li.setAttribute('room-id', room.roomid);
-    li.onclick = function() {
-        var room = {
-            userid: this.getAttribute('user-id'),
-            roomid: this.getAttribute('room-id')
-        };
-        meeting.meet(room);
-    };
-};
-```
-
-`onmeeting` is called for each new meeting; and `meet` method allows you manually join a meeting room.
-
-----
-
-#### If someone leaves...
-
-Participants' presence can be detected using `onuserleft`:
-
-```javascript
-// if someone leaves; just remove his video
-meeting.onuserleft = function(userid) {
-    var video = document.getElementById(userid);
-    if(video) video.parentNode.removeChild(video);
-};
-```
-
-----
-
-#### `onaddstream`
-
-It is called both for `local` and `remote` media streams. It returns:
-
-1. `video`: i.e. `HTMLVideoElement` object
-2. `stream`: i.e. `MediaStream` object
-3. `userid`: i.e. id of the user stream coming from
-4. `type`: i.e. type of the stream e.g. `local` or `remote`
-
-```javascript
-meeting.onaddstream = function(e) {
-    // e.type == 'local' ---- it is local media stream
-    // e.type == 'remote' --- it is remote media stream
-    document.body.appendChild(e.video);
-};
-```
+If 10 room participants are sending video streams; server should mix them to generate a single media stream; then send that stream over single **incoming** RTP port opened between server and **room initiator**.
 
 ----
 
 #### Browser Support
 
-This [WebRTC Meeting](https://webrtc-experiment.appspot.com/meeting/) experiment works fine on following web-browsers:
+This [WebRTC Video Conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -168,4 +69,4 @@ This [WebRTC Meeting](https://webrtc-experiment.appspot.com/meeting/) experiment
 
 #### License
 
-[WebRTC Meeting](https://webrtc-experiment.appspot.com/meeting/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Video Conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

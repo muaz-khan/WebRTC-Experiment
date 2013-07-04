@@ -1,103 +1,128 @@
-#### Realtime working [WebRTC Experiments and Demos](https://webrtc-experiment.appspot.com/)
+## Realtime/Working [WebRTC Experiments](https://webrtc-experiment.appspot.com/)
 
-It is a repository of uniquely experimented WebRTC demos; written by [Muaz Khan](https://github.com/muaz-khan); contributed by you and the community!
+1. It is a repository of uniquely experimented WebRTC demos; written by <a href="https://github.com/muaz-khan">Muaz Khan</a>!
+2. No special requirement! Just Chrome (for desktop and android) or Firefox!
+3. These demos/experiments are entirely client-side; i.e. no server installation needed!
 
-No special requirement! Just Chrome (for desktop and android) or Firefox!
-
-These demos/experiments are entirely client-side; i.e. no server installation needed! (for basic webpages only!)
-
-----
+=
 
 ### Libraries
 
-1. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) — [Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection)
-2. [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) — [Demos](https://webrtc-experiment.appspot.com/#DataChannel)
-3. [RecordRTC.js](https://webrtc-experiment.appspot.com/RecordRTC/) — [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
-4. [RTCall.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) — [Demo](https://webrtc-experiment.appspot.com/RTCall/)
+| Library Name        | Short Description           | Documentation | Demos |
+| ------------- |-------------|-------------|-------------|
+| `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://webrtc-experiment.appspot.com/RecordRTC/) |
+| `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) | [Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection) |
+| `DataChannel.js` | An ultimate wrapper library for `RTCDataChannel APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) | [Demos](https://webrtc-experiment.appspot.com/#DataChannel) |
+| `RTCall.js` | A library for voice (i.e. audio-only) calls | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) | [Demos](https://webrtc-experiment.appspot.com/RTCall/) |
+| `meeting.js` | A library for audio/video conferencing | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) | [Demos](https://webrtc-experiment.appspot.com/meeting/) |
 
-----
+=
 
-1. [RecordRTC: A library for WebRTC audio/video recording](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) / [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
-2. [Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/)
-3. [WebRTC one-way video broadcasting](https://webrtc-experiment.appspot.com/webrtc-broadcasting/)
+##### Important Experiments
 
-----
+| Experiment Name        | Short Description           | Source Code | Demo |
+| ------------- |-------------|-------------|-------------|
+| `Pre-recorded Media Streaming` | Stream video files in realtime; same like webcam streaming! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pre-recorded-Media-Streaming) | [Demo](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/) |
+| `Part of Screen Sharing` | Share a region of the screen; not the entire screen! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing) | [Demo](https://webrtc-experiment.appspot.com/part-of-screen-sharing/) |
+| `Plugin-free Screen Sharing` | Share the entire screen | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharinghttps://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) | [Demo](https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/) |
+| `One-Way Broadcasting` | Same like radio stations; transmit audio/video/screen streams in one-way direction. Though, it is browser-to-browser streaming! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-broadcasting) | [Demo](https://webrtc-experiment.appspot.com/webrtc-broadcasting/) |
+| `Audio-only Calls` | Realtime, plugin-free, voice-only calls | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls) | [Demo](https://webrtc-experiment.appspot.com/calls/) |
 
-#### [Screen sharing](https://webrtc-experiment.appspot.com/#screen-sharing)
+=
 
-1. [Plugin free screen sharing](https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/) / [Latest Demo](https://webrtc-experiment.appspot.com/screen-sharing/)
-2. [Tab sharing](https://webrtc-experiment.appspot.com/screen-broadcast/) / using `tabCapture` APIs
+##### Useful Experiments
 
-----
+| Experiment Name        | Previous Demos           | New Demos |
+| ------------- |-------------|-------------|
+| **video-conferencing** / multi-user (group) video sharing | [Demo](https://webrtc-experiment.appspot.com/video-conferencing/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing) | [Demo](https://webrtc-experiment.appspot.com/meeting/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) |
+| **file sharing** / multi-user (group) files hangout | [Demo](https://webrtc-experiment.appspot.com/file-hangout/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout) | [Demo](https://webrtc-experiment.appspot.com/file-sharing/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-sharing) |
+| **text chat** / multi-user (group) text chat | [Demo](https://webrtc-experiment.appspot.com/chat-hangout/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/chat-hangout) | [Demo](https://webrtc-experiment.appspot.com/text-chat/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/text-chat) |
 
-#### Many-to-Many style of WebRTC Experiments
+=
 
-1. [Group video sharing / video-conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) / [Latest Demo](https://webrtc-experiment.appspot.com/meeting/)
-2. [Group file sharing](https://webrtc-experiment.appspot.com/file-hangout/) / [Latest Demo](https://webrtc-experiment.appspot.com/file-sharing/)
-3. [Group text chat](https://webrtc-experiment.appspot.com/chat-hangout/) / [Latest Demo](https://webrtc-experiment.appspot.com/text-chat/)
+##### One-to-Many style of WebRTC Experiments
 
-----
+| Experiment Name        | Previous Demos           | New Demos |
+| ------------- |-------------|-------------|
+| **video-broadcasting** | [Demo](https://webrtc-experiment.appspot.com/broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/broadcast) | [Demo](https://webrtc-experiment.appspot.com/one-to-many-video-broadcasting/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/one-to-many-video-broadcasting) |
+| **audio-broadcasting** | [Demo](https://webrtc-experiment.appspot.com/audio-broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/audio-broadcast) | [Demo](https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/one-to-many-audio-broadcasting) |
 
-#### [Part of screen sharing](https://webrtc-experiment.appspot.com/#part-of-screen-sharing)
+=
 
-1. [Using RTCDataChannel](https://webrtc-experiment.appspot.com/part-of-screen-sharing/webrtc-data-channel/)
-2. [Using Firebase](https://webrtc-experiment.appspot.com/part-of-screen-sharing/)
-3. [A realtime chat using RTCDataChannel](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/)
-4. [A realtime chat using Firebase](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html)
+##### One-to-One style of WebRTC Experiments
 
-----
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| **One-to-one WebRTC video chat using WebSocket** | [Demo](https://webrtc-experiment.appspot.com/websocket/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket) |
+| **One-to-one WebRTC video chat using socket.io** | [Demo](https://webrtc-experiment.appspot.com/socket.io/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io) |
 
-#### Demos using [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
+=
 
-1. [DataChannel basic demo](https://webrtc-experiment.appspot.com/DataChannel/)
-2. [Auto Session Establishment and Users presence detection](https://webrtc-experiment.appspot.com/DataChannel/auto-session-establishment/)
+##### Single-Page / One-Page / Client Side
 
-----
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| **Share screen and audio/video from single peer connection!** | [Demo](https://webrtc-experiment.appspot.com/demos/screen-and-video-from-single-peer.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/screen-and-video-from-single-peer.html) |
+| **Text chat using RTCDataChannel APIs** | [Demo](https://webrtc-experiment.appspot.com/demos/client-side-datachannel.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/) |client-side-datachannel.html
+| **Simple video chat** | [Demo](https://webrtc-experiment.appspot.com/demos/client-side.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side.html) |
+| **Sharing video - using socket.io for signaling** |[Demo](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-socket-io.html) |
+| **Sharing video - using WebSockets for signaling** | [Demo](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-websocket.html) |
+| **Audio Only Streaming** | ---- | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/audio-only-streaming.html) |
 
-#### [RTCMultiConnection Demos](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
+=
 
-1. [Multi-Session Establishment](https://webrtc-experiment.appspot.com/RTCMultiConnection/multi-session-establishment/)
-2. [File Sharing + Text Chat](https://webrtc-experiment.appspot.com/RTCMultiConnection/group-file-sharing-plus-text-chat/)
-3. [All-in-One test](https://webrtc-experiment.appspot.com/RTCMultiConnection/)
-4. [Video Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-conferencing/)
-5. [Video Broadcasting](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-broadcasting/)
-6. [Audio Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/audio-conferencing/)
-7. [Join with/without camera](https://webrtc-experiment.appspot.com/RTCMultiConnection/join-with-or-without-camera/)
-8. [Screen Sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/screen-sharing/)
-9. [One-to-One file sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/one-to-one-filesharing/)
-10. [Manual session establishment + extra data transmission](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission/)
-11. [Manual session establishment + extra data transmission + video conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/)
-12. [Users ejection and presence detection](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/)
-13. [Customizing Bandwidth](https://webrtc-experiment.appspot.com/RTCMultiConnection/bandwidth/)
-14. [RTCMultiConnection-v1.3 testing demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3/)
+##### Experiments to share tab/screen
 
+| Experiment Name        | Previous Demos           | New Demos |
+| ------------- |-------------|-------------|
+| **Plugin-free screen sharing** / share the entire screen | [Demo](https://webrtc-experiment.appspot.com/Pluginfree-Screen-Sharing/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) | [Demo](https://webrtc-experiment.appspot.com/screen-sharing/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing) |
+| **Tab sharing** / using `tabCapture` APIs | [Demo](https://webrtc-experiment.appspot.com/screen-broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-broadcast) | ---- |
 
-----
+=
 
-#### One-to-Many style of WebRTC Experiments
+##### Experiments to share region/part of the screen
 
-1. [Video broadcasting](https://webrtc-experiment.appspot.com/broadcast/) / [Latest Demo](https://webrtc-experiment.appspot.com/one-to-many-video-broadcasting/)
-2. [Audio broadcasting](https://webrtc-experiment.appspot.com/audio-broadcast/) / [Latest Demo](https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/)
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| Share part-of-screen **using RTCDataChannel APIs** | [Demo](https://webrtc-experiment.appspot.com/part-of-screen-sharing/webrtc-data-channel/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/webrtc-and-part-of-screen-sharing) |
+| Share part-of-screen **using Firebase** | [Demo](https://webrtc-experiment.appspot.com/part-of-screen-sharing/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing) |
+| **A realtime chat using RTCDataChannel** | [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/realtime-chat/RTCDataChannel) |
+| **A realtime chat using Firebase** | [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/realtime-chat) |
 
-----
+=
 
-#### One-to-One style of WebRTC Experiments
+##### Demos using [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) library
 
-1. [One-to-one WebRTC video chat using WebSocket](https://webrtc-experiment.appspot.com/websocket/)
-2. [One-to-one WebRTC video chat using socket.io](https://webrtc-experiment.appspot.com/socket.io/)
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| **DataChannel basic demo** | [Demo](https://webrtc-experiment.appspot.com/DataChannel/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/DataChannel/index.html) |
+| **Auto Session Establishment** | [Demo](https://webrtc-experiment.appspot.com/DataChannel/auto-session-establishment/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/DataChannel/auto-session-establishment.html) |
+| **Private Chat** | [Demo](https://muazkh.appspot.com/privatechat/) | ---- |
 
-----
+=
 
-| in-Page / One-Page / Client Side |
-| ------------- |
-| [Text chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/demos/client-side-datachannel.html) |
-| [Simple video chat](https://webrtc-experiment.appspot.com/demos/client-side.html) |
-| [Sharing video - using socket.io for signaling](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) |
-| [Sharing video - using WebSockets for signaling](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) |
+##### Demos using [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) library
 
-----
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| **All-in-One test** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/all-in-one.html) |
+| **Video Conferencing** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-conferencing/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/videoconferencing.html) |
+| **Multi-Session Establishment** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/multi-session-establishment/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/multi-session-establishment.html) |
+| **RTCMultiConnection-v1.3 testing demo** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/RTCMultiConnection-v1.3-demo.html) |
+| **Video Broadcasting** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-broadcasting/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/video-broadcasting.html) |
+| **File Sharing + Text Chat** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/group-file-sharing-plus-text-chat/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/group-file-sharing-plus-text-chat.html) |
+| **Audio Conferencing** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/audio-conferencing/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/audioconferencing.html) |
+| **Join with/without camera** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/join-with-or-without-camera/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/join-with-or-without-camera.html) |
+| **Screen Sharing** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/screen-sharing/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/screen-sharing.html) |
+| **One-to-One file sharing** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/one-to-one-filesharing/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/one-to-one-filesharing.html) |
+| **Manual session establishment + extra data transmission** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission.htmlhttps://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission.html) |
+| **Manual session establishment + extra data transmission + video conferencing** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html) |
+| **Customizing Bandwidth** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/bandwidth/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/bandwidth.html) |
+| **Users ejection and presence detection** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/users-ejection.html) |
 
-#### Documents for newcomers/newbies/beginners
+=
+
+##### Documents for newcomers/newbies/beginners
 
 | A few documents for newbies and beginners        |
 | ------------- |
@@ -110,9 +135,9 @@ These demos/experiments are entirely client-side; i.e. no server installation ne
 | [WebRTC for Beginners: A getting stared guide!](https://webrtc-experiment.appspot.com/docs/webrtc-for-beginners.html) |
 | [WebRTC for Newbies ](https://webrtc-experiment.appspot.com/docs/webrtc-for-newbies.html) |
 
-----
+=
 
-#### [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) / A library for RTCDataChannel APIs
+##### [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) / A library for RTCDataChannel APIs
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/DataChannel.js"></script>
@@ -132,9 +157,9 @@ channel.userid = 'muazkh';
 channel.channels['muazkh'].send(file || data || 'text');
 ```
 
-----
+=
 
-#### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) / A library for all WebRTC APIs
+##### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) / A library for all WebRTC APIs
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js"></script>
@@ -180,9 +205,9 @@ connection.users['user-id'].addStream({
 });
 ```
 
-----
+=
 
-#### [RTCall.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) / A library for audio-only calling
+##### [RTCall.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) / A library for audio-only calling
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/RTCall.js"></script>
@@ -198,9 +223,9 @@ call.oncustomer = function(customer) {
 };
 ```
 
-----
+=
 
-#### signaling using socket.io over node.js
+##### signaling using socket.io over node.js
 
 Your server-side node.js code looks like this:
 
@@ -220,7 +245,9 @@ connection.openSignalingChannel = function(callback) {
 };
 ```
 
-----
+Want to use XHR, WebSockets, SIP, XMPP, etc. for signaling? Read [this post](https://github.com/muaz-khan/WebRTC-Experiment/issues/56#issuecomment-20090650).
+
+=
 
 ##### How to use [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
 
@@ -228,7 +255,9 @@ connection.openSignalingChannel = function(callback) {
 <script src="https://webrtc-experiment.appspot.com/RecordRTC.js"></script>
 ```
 
-#### How to record video using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
+=
+
+##### How to record video using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
 
 ```javascript
 var recorder = RecordRTC({
@@ -244,7 +273,9 @@ recorder.stopVideo(function(recordedFileURL) {
 });
 ```
 
-#### How to record GIF using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
+=
+
+##### How to record GIF using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/gif-recorder.js"></script>
@@ -264,6 +295,8 @@ recorder.stopGIF(function(gifURL) {
 });
 ```
 
+=
+
 ##### How to record audio using [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/)?
 
 ```javascript
@@ -280,11 +313,13 @@ recorder.stopAudio(function(recordedFileURL) {
 });
 ```
 
+=
+
 [RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
 
-----
+=
 
-#### Browser Support
+##### Browser Support
 
 [WebRTC Experiments](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
 
@@ -294,8 +329,8 @@ recorder.stopAudio(function(recordedFileURL) {
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-----
+=
 
-#### License
+##### License
 
 [WebRTC Experiments](https://webrtc-experiment.appspot.com/) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

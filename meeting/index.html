@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>WebRTC Meeting ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link type="text/css" href="https://fonts.googleapis.com/css?family=Inconsolata" />
+        <script>
+            var hash = window.location.hash.replace('#', '');
+            if (!hash.length) location.href = location.href + '#meeting-roomid-' + ((Math.random() * new Date().getTime()).toString(36).toLowerCase().replace( /\./g , '-'));
+        </script>
+        <style>
+            html { background: #eee; }
+
+            body {
+                font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+                font-size: 1.2em;
+                line-height: 1.2em;
+                margin: 0;
+            }
+
+            body {
+                background: #fff;
+                border: 1px solid;
+                border-color: #ddd #aaa #aaa #ddd;
+                border-radius: 5px;
+                margin: .5em auto 0 auto;
+                padding: .8em;
+                padding-top: 0;
+            }
+
+            h1, h2 {
+                border-bottom: 1px solid black;
+                display: inline;
+                font-weight: normal;
+                line-height: 36px;
+                padding: 0 0 3px 0;
+            }
+
+            h1 {
+                background: rgb(238, 238, 238);
+                border-bottom-width: 2px;
+                display: block;
+                margin-top: 0;
+                padding: .3em;
+                text-align: center;
+            }
+
+            :-moz-any-link:focus {
+                border: 0;
+                color: #000;
+            }
+
+            ::selection { background: #ccc; }
+
+            ::-moz-selection { background: #ccc; }
+
+            button {
+                -moz-border-radius: 3px;
+                -moz-transition: none;
+                -webkit-transition: none;
+                background: #0370ea;
+                background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
+                background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
+                border: 1px solid #076bd2;
+                border-radius: 3px;
+                color: #fff;
+                display: inline-block;
+                font-family: inherit;
+                font-size: .8em;
+                line-height: 1.3;
+                padding: 5px 12px;
+                text-align: center;
+                text-shadow: 1px 1px 1px #076bd2;
+            }
+
+            button:hover { background: rgb(9, 147, 240); }
+
+            button:active { background: rgb(10, 118, 190); }
+
+            button[disabled] {
+                background: none;
+                border: 1px solid rgb(187, 181, 181);
+                color: gray;
+                text-shadow: none;
+            }
+
+            #remote-media-streams video { width: 10em; }
+
+            #local-media-stream video { width: 34em; }
+
+            footer { text-align: center; }
+
+            code {
+                color: rgb(204, 14, 14);
+                font-family: inherit;
+            }
+
+            audio, video { vertical-align: bottom; }
+
+            pre {
+                border-left: 2px solid red;
+                margin-left: 2em;
+                padding-left: 1em;
+            }
+        </style>
+        <script src="https://webrtc-experiment.appspot.com/firebase.js"> </script>
+        <script src="https://webrtc-experiment.appspot.com/meeting/meeting.js"> </script>
+    </head>
+    <body>
+        <h1>
+            WebRTC Meeting / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting"
+                                target="_blank">Source Code</a>
+        </h1>
+        <p>
+            <span>Copyright © 2013</span> <a href="https://github.com/muaz-khan" target="_blank">
+                                              Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
+        </p>
+        <section class="plusone-gplus">
+            <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
+        </section>
+        <section>
+            <h2>Setup a new meeting:</h2>
+
+            <button id="setup-new-meeting">Setup New Meeting</button>
+        </section>
+        <table style="border-left: 1px solid black; width: 100%;">
+            <tr>
+                <td>
+                    <h2 style="display: block; text-align: center;">
+                        Local Media Stream</h2>
+                    <section id="local-media-stream"></section>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h2 style="display: block; text-align: center;">
+                        Remote Media Streams</h2>
+                    <section id="remote-media-streams"></section>
+                </td>
+            </tr>
+        </table>
+        <script>
+            var hash = window.location.hash.replace('#', '');
+            var meeting = new Meeting(hash);
+
+            var remoteMediaStreams = document.getElementById('remote-media-streams');
+            var localMediaStream = document.getElementById('local-media-stream');
+
+        // on getting media stream
+            meeting.onaddstream = function(e) {
+                if (e.type == 'local') localMediaStream.appendChild(e.video);
+                if (e.type == 'remote') remoteMediaStreams.insertBefore(e.video, remoteMediaStreams.firstChild);
+            };
+
+        // using firebase for signaling
+            meeting.firebase = 'rtcweb';
+
+        // if someone leaves; just remove his video
+            meeting.onuserleft = function(userid) {
+                var video = document.getElementById(userid);
+                if (video) video.parentNode.removeChild(video);
+            };
+
+        // check pre-created meeting rooms
+            meeting.check();
+
+            document.getElementById('setup-new-meeting').onclick = function() {
+                // setup new meeting room
+                meeting.setup('meeting room name');
+                this.disabled = true;
+
+                this.parentNode.innerHTML = '<h2><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
+            };
+        </script>
+        <br />
+        <br />
+        <ol>
+            <li>Multiple peer-connections are opened to bring multi-users connectivity experience.</li>
+            <li>Maximum peers limit on chrome is temporarily 10.</li>
+            <li>Huge bandwidth and CPU-usage out of multi-peers and number of RTP-ports</li>
+        </ol>
+        <p>
+            To understand 3rd option better; assume that 10 users are sharing video in a group.
+            40 RTP-ports i.e. streams will be created for each user. All streams are expected
+            to be flowing concurrently; which causes blur video experience and audio lose/noise
+            issues.</p>
+        <p>
+            For each user:</p>
+        <ol>
+            <li>10 RTP ports are opened to send video upward i.e. for outgoing video streams</li>
+            <li>10 RTP ports are opened to send audio upward i.e. for outgoing audio streams</li>
+            <li>10 RTP ports are opened to receive video i.e. for incoming video streams</li>
+            <li>10 RTP ports are opened to receive audio i.e. for incoming audio streams</li>
+        </ol>
+        <p>
+            Possible issues:</p>
+        <ol>
+            <li>Blurry video experience</li>
+            <li>Unclear voice and audio lost</li>
+            <li>Bandwidth issues / slow streaming / CPU overwhelming</li>
+        </ol>
+        <p>
+            Solution? Obviously a media server. To overcome burden and to deliver HD stream
+            over thousands of peers; we need a media server that should broadcast stream over
+            number of peers.</p>
+        <br />
+        <br />
+        <pre>
+&lt;script src="https://webrtc-experiment.appspot.com/meeting/meeting.js"&gt;&lt;/script&gt;
+</pre>
+        <pre>
+var meeting = new Meeting('meeting-unique-id');
+
+// on getting local or remote streams
+meeting.onaddstream = function(e) {
+    // e.type == 'local' ---- it is local media stream
+    // e.type == 'remote' --- it is remote media stream
+    document.body.appendChild(e.video);
+};
+
+// custom signaling channel
+// you can use each and every signaling channel
+// any websocket, socket.io, or XHR implementation
+// any SIP server
+// anything! etc.
+meeting.openSignalingChannel = function(callback) {
+    return io.connect().on('message', callback);
+};
+
+// check pre-created meeting rooms
+// it is useful to auto-join
+// or search pre-created sessions
+meeting.check();
+
+document.getElementById('setup-new-meeting').onclick = function() {
+    meeting.setup('meeting room name');
+};
+
+// if someone leaves; just remove his video
+meeting.onuserleft = function(userid) {
+    var video = document.getElementById(userid);
+    if(video) video.parentNode.removeChild(video);
+};
+</pre>
+        <br />
+        <br />
+        <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
+            <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>
+
+            <div>
+                <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+            </div>
+            <button id="send-message" style="font-size: 1em;">Send Message</button>
+        </section>
+        <footer>
+            <p> <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC Experiments!</a> © <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span> » <a href="mailto:muazkh@gmail.com" target="_blank">Email</a> » <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a> » <a href="https://github.com/muaz-khan" target="_blank">Github</a></p>
+        </footer>
+        <script src="https://webrtc-experiment.appspot.com/common.js"> </script>
+    </body>
+</html>
