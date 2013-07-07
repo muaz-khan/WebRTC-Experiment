@@ -101,7 +101,7 @@
 
 =
 
-##### OExperimental (Non-Functional)
+##### Experimental (Non-Functional)
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
