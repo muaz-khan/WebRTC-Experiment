@@ -101,6 +101,16 @@
 
 =
 
+##### OExperimental (Non-Functional)
+
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| **Attaching Remote Media Streams** | [Demo](https://webrtc-experiment.appspot.com/remote-media-stream-attachment/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/remote-media-stream-attachment) |
+| **mozCaptureStreamUntilEnded for pre-recorded media streaming** | [Demo](https://webrtc-experiment.appspot.com/mozCaptureStreamUntilEnded/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/mozCaptureStreamUntilEnded) |
+| **Remote audio stream recording** | [Demo](https://webrtc-experiment.appspot.com/demos/remote-stream-recording.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/remote-stream-recording.html) |
+
+=
+
 ##### Demos using [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) library
 
 | Experiment Name        | Demo           | Source Code |
@@ -119,6 +129,17 @@
 | **Manual session establishment + extra data transmission + video conferencing** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html) |
 | **Customizing Bandwidth** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/bandwidth/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/bandwidth.html) |
 | **Users ejection and presence detection** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/users-ejection.html) |
+| **RTCMultiConnection-v1.3 and socket.io** | ---- | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/RTCMultiConnection-v1.3-and-socket.io.html) |
+
+=
+
+##### Demos using [RTCMultiConnection-v1.4](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) library
+
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| **All-in-One test** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4-Demos/All-in-One.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/) |
+| **Renegotiation & Mute/UnMute/Stop** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4-Demos/Renegotiation.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/) |
+| **Video-Conferencing** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/) |
 
 =
 

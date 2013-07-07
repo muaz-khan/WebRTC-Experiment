@@ -1,6 +1,7 @@
 // 2013, @muazkh - github.com/muaz-khan
 // MIT License - https://webrtc-experiment.appspot.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
+// Documentation (file sharing) - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-sharing
+// Documentation (text chat)    - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/text-chat
 
 (function() {
 
@@ -93,10 +94,9 @@
             if (!data.leaving) return signaler.onmessage(data);
 
 
-            root.onleave
-                && root.onleave({
-                    userid: data.userid
-                });
+            root.onleave && root.onleave({
+                userid: data.userid
+            });
 
             if (data.broadcaster && data.forceClosingTheEntireSession) leave();
 
@@ -114,11 +114,10 @@
         // it is called when your signaling implementation fires "onmessage"
         this.onmessage = function(message) {
             // if new room detected
-            if (message.roomid
-                && message.broadcasting
+            if (message.roomid && message.broadcasting
 
-                    // one user can participate in one room at a time
-                    && !signaler.sentParticipationRequest) {
+                // one user can participate in one room at a time
+                && !signaler.sentParticipationRequest) {
 
                 // broadcaster's and participant's session must be identical
                 root.onconnection(message);
@@ -126,7 +125,7 @@
             } else
                 // for pretty logging
                 console.debug(JSON.stringify(message, function(key, value) {
-                    if (value.sdp) {
+                    if (value && value.sdp) {
                         console.log(value.sdp.type, '————', value.sdp.sdp);
                         return '';
                     } else return value;
@@ -136,7 +135,7 @@
             if (message.sdp && message.to == userid)
                 this.onsdp(message);
 
-            // if someone shared ICE
+            // if someone shared ICE candidate
             if (message.candidate && message.to == userid)
                 this.onice(message);
 
@@ -170,7 +169,6 @@
         function participationRequest(message) {
             // it is appeared that 10 or more users can send 
             // participation requests concurrently
-            // onicecandidate fails in such case
             if (!signaler.creatingOffer) {
                 signaler.creatingOffer = true;
                 createOffer(message);
@@ -215,6 +213,11 @@
             }, 5000);
         }
 
+        this.onice = function(message) {
+            var peer = peers[message.userid];
+            if (peer) peer.addIceCandidate(message.candidate);
+        };
+
         // if someone shared SDP
         this.onsdp = function(message) {
             var sdp = message.sdp;
@@ -232,12 +235,6 @@
             }
         };
 
-        // if someone shared ICE
-        this.onice = function(message) {
-            var peer = peers[message.userid];
-            if (peer) peer.addIceCandidate(message.candidate);
-        };
-
         // it is passed over Offer/Answer objects for reusability
         var options = {
             onsdp: function(e) {
@@ -253,6 +250,8 @@
                 });
             },
             onopen: function(e) {
+                if (root.onopen) root.onopen(e);
+
                 if (!root.channels) root.channels = { };
                 root.channels[e.userid] = {
                     send: function(message) {
@@ -260,7 +259,6 @@
                     },
                     channel: e.channel
                 };
-                if (root.onopen) root.onopen(e);
 
                 forwardParticipant(e);
             },
@@ -295,9 +293,13 @@
                     if (closedChannel === myChannels[_userid].channel)
                         delete root.channels[_userid];
                 }
+
+                console.error('DataChannel closed', e);
             },
             onerror: function(e) {
                 if (root.onerror) root.onerror(e);
+
+                console.error('DataChannel error', e);
             },
             bandwidth: root.bandwidth
         };
@@ -326,9 +328,7 @@
                     broadcasting: true
                 });
 
-                !root.transmitRoomOnce
-                    && !signaler.left
-                        && setTimeout(transmit, root.interval || 3000);
+                !root.transmitRoomOnce && !signaler.left && setTimeout(transmit, root.interval || 3000);
             })();
 
             // if broadcaster leaves; clear all JSON files from Firebase servers
@@ -391,11 +391,10 @@
             if (!_userid) return leave();
 
             // broadcaster can throw any user out of the room
-            signaler.broadcaster
-                && signaler.signal({
-                    getOut: true,
-                    who: _userid
-                });
+            signaler.broadcaster && signaler.signal({
+                getOut: true,
+                who: _userid
+            });
         };
 
         // if someone closes the window or tab
@@ -427,7 +426,7 @@
             if (!window.Firebase) throw 'You must link <https://cdn.firebase.com/v0/firebase.js> file.';
 
             // Firebase is capable to store data in JSON format
-            root.transmitRoomOnce = true;
+            // root.transmitRoomOnce = true;
             var socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + channel);
             socket.on('child_added', function(snap) {
                 var data = snap.val();
@@ -436,7 +435,7 @@
                 // we want socket.io behavior; 
                 // that's why data is removed from firebase servers 
                 // as soon as it is received
-                snap.ref().remove();
+                if (data.userid != userid) snap.ref().remove();
             });
 
             // method to signal the data
@@ -480,8 +479,8 @@
 
     // old TURN syntax
     var TURN = {
-        url: 'turn:webrtc%40live.com@numb.viagenie.ca',
-        credential: 'muazkh'
+        url: 'turn:homeo@turn.bistri.com:80',
+        credential: 'homeo'
     };
 
     var iceServers = {
@@ -492,13 +491,13 @@
         // in chrome M29 and higher
         if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
             TURN = {
-                url: 'turn:numb.viagenie.ca',
-                credential: 'muazkh',
-                username: 'webrtc@live.com'
+                url: 'turn:turn.bistri.com:80',
+                credential: 'homeo',
+                username: 'homeo'
             };
 
         // No STUN to make sure it works all the time!
-        iceServers.iceServers = [TURN];
+        iceServers.iceServers = [STUN, TURN];
     }
 
     var optionalArgument = {
@@ -524,23 +523,8 @@
 
         // remove existing bandwidth lines
         sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
-
-        sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:' + (bandwidth.audio || 50) + '\r\n');
-        sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + (bandwidth.video || 256) + '\r\n');
         sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:' + (bandwidth.data || 1638400) + '\r\n');
 
-        return sdp;
-    }
-
-    function setBitrate(sdp/*, bitrate*/) {
-        // sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\na=rtpmap:120 VP8/90000\r\na=fmtp:120 x-google-min-bitrate=' + (bitrate || 10) + '\r\n');
-        return sdp;
-    }
-
-    function setFramerate(sdp, framerate) {
-        framerate = framerate || { };
-        sdp = sdp.replace('a=fmtp:111 minptime=10', 'a=fmtp:111 minptime=' + (framerate.minptime || 10));
-        sdp = sdp.replace('a=maxptime:60', 'a=maxptime:' + (framerate.maxptime || 60));
         return sdp;
     }
 
@@ -549,8 +533,6 @@
 
         var sdp = sessionDescription.sdp;
         sdp = setBandwidth(sdp, config.bandwidth);
-        sdp = setFramerate(sdp, config.framerate);
-        sdp = setBitrate(sdp, config.bitrate);
         sessionDescription.sdp = sdp;
         return sessionDescription;
     }
@@ -565,22 +547,29 @@
             RTCDataChannel.createDataChannel(peer, config);
 
             function sdpCallback() {
-                if (!config.onsdp) return;
-
                 config.onsdp({
                     sdp: peer.localDescription,
                     userid: config.to
                 });
             }
 
-            if (config.onicecandidate)
-                peer.onicecandidate = function(event) {
-                    if (!event.candidate) sdpCallback();
-                };
+            peer.onicecandidate = function(event) {
+                if (!event.candidate) sdpCallback();
+            };
 
             peer.ongatheringchange = function(event) {
                 if (event.currentTarget && event.currentTarget.iceGatheringState === 'complete')
                     sdpCallback();
+            };
+
+            peer.oniceconnectionstatechange = function() {
+                // "disconnected" state: Liveness checks have failed for one or more components.
+                // This is more aggressive than failed, and may trigger intermittently
+                // (and resolve itself without action) on a flaky network.
+                if (!!peer && peer.iceConnectionState == 'disconnected') {
+                    peer.close();
+                    console.error('iceConnectionState is <disconnected>.');
+                }
             };
 
             if (isChrome) {
@@ -597,11 +586,10 @@
                         peer.addStream(stream);
                         peer.createOffer(function(sdp) {
                             peer.setLocalDescription(sdp);
-                            if (config.onsdp)
-                                config.onsdp({
-                                    sdp: sdp,
-                                    userid: config.to
-                                });
+                            config.onsdp({
+                                sdp: sdp,
+                                userid: config.to
+                            });
                         }, null, offerAnswerConstraints);
 
                     }, mediaError);
@@ -627,7 +615,8 @@
     // answer.addIceCandidate(candidate);
     var Answer = {
         createAnswer: function(config) {
-            var peer = new RTCPeerConnection(iceServers, optionalArgument), channel;
+            var peer = new RTCPeerConnection(iceServers, optionalArgument),
+                channel;
 
             if (isChrome)
                 RTCDataChannel.createDataChannel(peer, config);
@@ -647,36 +636,44 @@
                         peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
                         peer.createAnswer(function(sdp) {
                             peer.setLocalDescription(sdp);
-                            if (config.onsdp)
-                                config.onsdp({
-                                    sdp: sdp,
-                                    userid: config.to
-                                });
+                            config.onsdp({
+                                sdp: sdp,
+                                userid: config.to
+                            });
                         }, null, offerAnswerConstraints);
 
                     }, mediaError);
             }
 
-            if (config.onicecandidate)
-                peer.onicecandidate = function(event) {
-                    if (event.candidate)
-                        config.onicecandidate({
-                            candidate: event.candidate,
-                            userid: config.to
-                        });
-                };
+            peer.onicecandidate = function(event) {
+                if (event.candidate) {
+                    config.onicecandidate({
+                        candidate: event.candidate,
+                        userid: config.to
+                    });
+                }
+            };
+
+            peer.oniceconnectionstatechange = function() {
+                // "disconnected" state: Liveness checks have failed for one or more components.
+                // This is more aggressive than failed, and may trigger intermittently
+                // (and resolve itself without action) on a flaky network.
+                if (!!peer && peer.iceConnectionState == 'disconnected') {
+                    peer.close();
+                    console.error('iceConnectionState is <disconnected>.');
+                }
+            };
 
             if (isChrome) {
                 peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
                 peer.createAnswer(function(sdp) {
                     sdp = serializeSdp(sdp, config);
-
                     peer.setLocalDescription(sdp);
-                    if (config.onsdp)
-                        config.onsdp({
-                            sdp: sdp,
-                            userid: config.to
-                        });
+
+                    config.onsdp({
+                        sdp: sdp,
+                        userid: config.to
+                    });
                 }, null, offerAnswerConstraints);
             }
 
@@ -696,7 +693,9 @@
     // RTCDataChannel.setChannelEvents(channel, config);
     var RTCDataChannel = {
         createDataChannel: function(peer, config) {
-            var channel = peer.createDataChannel('channel', { reliable: false });
+            var channel = peer.createDataChannel('RTCDataChannel', {
+                reliable: false
+            });
             this.setChannelEvents(channel, config);
         },
         setChannelEvents: function(channel, config) {
@@ -801,9 +800,11 @@
 
                 if (root.onFileProgress)
                     root.onFileProgress({
-                        remaining: packets--,
-                        length: numberOfPackets,
-                        sent: numberOfPackets - packets,
+                        packets: {
+                            remaining: packets--,
+                            length: numberOfPackets,
+                            sent: numberOfPackets - packets
+                        },
                         userid: config.userid
                     });
 
@@ -873,9 +874,11 @@
 
                 if (root.onFileProgress)
                     root.onFileProgress({
-                        remaining: packets--,
-                        length: numberOfPackets,
-                        received: numberOfPackets - packets,
+                        packets: {
+                            remaining: packets--,
+                            length: numberOfPackets,
+                            received: numberOfPackets - packets
+                        },
                         userid: config.userid
                     });
 

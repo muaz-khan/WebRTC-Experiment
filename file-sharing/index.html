@@ -137,7 +137,7 @@
     </head>
     <body>
         <h1>
-            WebRTC File Sharing / Data Sharing / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout"
+            WebRTC File Sharing / Data Sharing / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-sharing"
                                                     target="_blank">Source Code</a>
         </h1>
         <p>
@@ -176,34 +176,34 @@
         // connection.userid = prompt('Enter your username') || 'Anonymous';
 
         // on data connection opens
-            connection.onopen = function(userid) {
-                appendDIV('Data connection opened between you and ' + userid, userid);
-                if (document.getElementById('file')) document.getElementById('file').disabled = false;
+            connection.onopen = function(e) {
+                document.getElementById('file').disabled = false;
+                appendDIV('Data connection opened between you and ' + e.userid, e.userid);
             };
 
         // on data connection error
-            connection.onerror = function(e, userid) {
-                console.debug('Error in data connection. Target user id', userid, 'Error', e);
+            connection.onerror = function(e) {
+                console.debug('Error in data connection. Target user id', e.userid, 'Error', e);
             };
 
         // on data connection close
-            connection.onclose = function(e, userid) {
-                console.debug('Data connection closed. Target user id', userid, 'Error', e);
+            connection.onclose = function(e) {
+                console.debug('Data connection closed. Target user id', e.userid, 'Error', e);
             };
 
         // on file in progress
-            connection.onFileProgress = function(packets, userid) {
-                appendDIV(packets.remaining + ' packets remaining.', userid);
+            connection.onFileProgress = function(e) {
+                appendDIV(e.packets.remaining + ' packets remaining.', e.userid);
             };
 
         // on file successfully sent
-            connection.onFileSent = function(file, userid) {
-                appendDIV(file.name + ' sent.', userid);
+            connection.onFileSent = function(e) {
+                appendDIV(e.file.name + ' sent.', e.userid);
             };
 
         // on file successfully received
-            connection.onFileReceived = function(fileName, userid) {
-                appendDIV(fileName + ' received.', userid);
+            connection.onFileReceived = function(e) {
+                appendDIV(e.fileName + ' received.', e.userid);
             };
 
         /* custom signaling gateway
@@ -213,11 +213,11 @@
 
 
         // using firebase for signaling
-            connection.firebase = 'rtcweb';
+            connection.firebase = 'signaling';
 
         // if someone leaves; just remove his video
             connection.onuserleft = function(userid) {
-                console.debug(userid, 'left.');
+                appendDIV(userid + ' Left.', userid);
             };
 
         // check pre-created data connections
@@ -251,7 +251,7 @@
         <pre>
 var connection = new DataConnection();
 
-connection.onopen = function(userid) {};
+connection.onopen = function(e) { /* e.userid */ };
 connection.onmessage = function(message, userid) {};
 
 // share data with all connected users

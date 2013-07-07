@@ -19,10 +19,10 @@
 #### Last Step: Start using it!
 
 ```javascript
-var connection = new DataConnection('connection-unique-id');
+var connection = new DataConnection( /* 'optional::firebase-channel' */ );
 
 // check pre-established connections
-connection.check();
+connection.check('connection-name');
 
 document.getElementById('setup-new-connection').onclick = function() {
     connection.setup('connection-name');
@@ -61,7 +61,10 @@ Extra events:
 
 ```javascript
 // show progress bar!
-channel.onFileProgress = function (packets, userid) {
+channel.onFileProgress = function (e) {
+    // e.userid
+    // var packets = e.packets;
+	
     // packets.remaining
     // packets.sent      (for sender)
     // packets.received  (for receiver)
@@ -69,13 +72,16 @@ channel.onFileProgress = function (packets, userid) {
 };
 
 // on file successfully sent
-channel.onFileSent = function (file, userid) {
+channel.onFileSent = function (e) {
+    // e.userid
+    
+    // var file = e.file;
     // file.name
     // file.size
 };
 
 // on file successfully received
-channel.onFileReceived = function (fileName, userid) {};
+channel.onFileReceived = function (e) { /* e.fileName, e.userid */ };
 ```
 
 ----
@@ -84,10 +90,10 @@ channel.onFileReceived = function (fileName, userid) {};
 
 ```javascript
 // error to open data connection
-connection.onerror = function(event, userid) {}
+connection.onerror = function(e) {}
 
 // data ports suddenly dropped
-connection.onclose = function(event, userid) {}
+connection.onclose = function(e) {}
 ```
 
 ----
@@ -135,20 +141,16 @@ Want to use `Firebase` for signaling?
 connection.firebase = 'chat';
 ```
 
+Want to use XHR, WebSockets, SIP, XMPP, etc. for signaling? Read [this post](https://github.com/muaz-khan/WebRTC-Experiment/issues/56#issuecomment-20090650).
+
 ----
 
 #### Want to manually join rooms?
 
 ```javascript
 connection.onconnection = function(room) {
-    var li = document.createElement('li');
-    li.setAttribute('user-id', room.userid);
-    li.setAttribute('room-id', room.roomid);
-    li.onclick = function() {
-        var room = {
-            userid: this.getAttribute('user-id'),
-            roomid: this.getAttribute('room-id')
-        };
+    var button = document.createElement('button');
+    button.onclick = function() {
         connection.join(room);
     };
 };

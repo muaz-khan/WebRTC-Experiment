@@ -137,7 +137,7 @@
     </head>
     <body>
         <h1>
-            WebRTC Text Chat / Data Sharing / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout"
+            WebRTC Text Chat / Data Sharing / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/text-chat"
                                                  target="_blank">Source Code</a>
         </h1>
         <p>
@@ -173,10 +173,11 @@
         // connection.userid = prompt('Enter your username') || 'Anonymous';
 
         // on data connection opens
-            connection.onopen = function(userid) {
-                console.debug('Data connection opened between you and', userid);
-                if (document.getElementById('chat-input')) document.getElementById('chat-input').disabled = false;
-                if (useridBox) useridBox.disabled = false;
+            connection.onopen = function(e) {
+                document.getElementById('chat-input').disabled = false;
+                useridBox.disabled = false;
+
+                appendDIV('Data connection opened between you and ' + e.userid, e.userid);
             };
 
         // on text message or data object received
@@ -186,13 +187,13 @@
             };
 
         // on data connection error
-            connection.onerror = function(e, userid) {
-                console.debug('Error in data connection. Target user id', userid, 'Error', e);
+            connection.onerror = function(e) {
+                console.debug('Error in data connection. Target user id', e.userid, 'Error', e);
             };
 
         // on data connection close
-            connection.onclose = function(e, userid) {
-                console.debug('Data connection closed. Target user id', userid, 'Error', e);
+            connection.onclose = function(e) {
+                console.debug('Data connection closed. Target user id', e.userid, 'Error', e);
             };
 
         /* custom signaling gateway
@@ -203,11 +204,11 @@
 
 
         // using firebase for signaling
-            connection.firebase = 'rtcweb';
+            connection.firebase = 'signaling';
 
         // if someone leaves; just remove his video
             connection.onuserleft = function(userid) {
-                console.debug(userid, 'left.');
+                appendDIV(userid + ' Left.', userid);
             };
 
         // check pre-created data connections
@@ -260,7 +261,7 @@
         <pre>
 var connection = new DataConnection();
 
-connection.onopen = function(userid) {};
+connection.onopen = function(e) { /* e.userid */ };
 connection.onmessage = function(message, userid) {};
 
 // share data with all connected users

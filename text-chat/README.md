@@ -19,10 +19,10 @@
 #### Last Step: Start using it!
 
 ```javascript
-var connection = new DataConnection('connection-unique-id');
+var connection = new DataConnection( /* 'optional::firebase-channel' */);
 
 // check pre-established connections
-connection.check();
+connection.check('connection-name');
 
 document.getElementById('setup-new-connection').onclick = function() {
     connection.setup('connection-name');
@@ -41,41 +41,6 @@ You may want to share direct messages:
 
 ```javascript
 connection.channels['user-id'].send('longest possible text message');
-```
-
-----
-
-#### File Sharing
-
-```javascript
-connection.send(file);
-```
-
-You may want to share file between two unique users directly:
-
-```javascript
-connection.channels['user-id'].send(file);
-```
-
-Extra events:
-
-```javascript
-// show progress bar!
-channel.onFileProgress = function (packets, userid) {
-    // packets.remaining
-    // packets.sent      (for sender)
-    // packets.received  (for receiver)
-    // packets.length
-};
-
-// on file successfully sent
-channel.onFileSent = function (file, userid) {
-    // file.name
-    // file.size
-};
-
-// on file successfully received
-channel.onFileReceived = function (fileName, userid) {};
 ```
 
 ----
@@ -135,20 +100,16 @@ Want to use `Firebase` for signaling?
 connection.firebase = 'chat';
 ```
 
+Want to use XHR, WebSockets, SIP, XMPP, etc. for signaling? Read [this post](https://github.com/muaz-khan/WebRTC-Experiment/issues/56#issuecomment-20090650).
+
 ----
 
 #### Want to manually join rooms?
 
 ```javascript
 connection.onconnection = function(room) {
-    var li = document.createElement('li');
-    li.setAttribute('user-id', room.userid);
-    li.setAttribute('room-id', room.roomid);
-    li.onclick = function() {
-        var room = {
-            userid: this.getAttribute('user-id'),
-            roomid: this.getAttribute('room-id')
-        };
+    var button = document.createElement('button');
+    button.onclick = function() {
         connection.join(room);
     };
 };
