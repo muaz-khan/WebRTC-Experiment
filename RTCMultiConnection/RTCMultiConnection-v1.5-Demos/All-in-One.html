@@ -1,0 +1,443 @@
+﻿<!DOCTYPE html>
+<html id="home" lang="en">
+    <head>
+        <title>RTCMultiConnection-v1.4 All-in-One Test ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <script>
+            var hash = window.location.hash.replace('#', '');
+            if (!hash.length) {
+                location.href = location.href + '#' + ((Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-'));
+                location.reload();
+            }
+        </script>
+        <style>
+            @import url(https://fonts.googleapis.com/css?family=Inconsolata);
+
+            html { background: #eee; }
+
+            body {
+                font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+                font-size: 1.2em;
+                line-height: 1.2em;
+                margin: 0;
+            }
+
+            article, footer {
+                display: block;
+                max-width: 900px;
+                min-width: 360px;
+                width: 80%;
+            }
+
+            article {
+                background: #fff;
+                border: 1px solid;
+                border-color: #ddd #aaa #aaa #ddd;
+                margin: 2.5em auto 0 auto;
+                padding: 2em;
+            }
+
+            h1 { margin-top: 0; }
+
+            article p:first-of-type { margin-top: 1.6em; }
+
+            article p:last-child { margin-bottom: 0; }
+
+            footer {
+                margin: 0 auto 2em auto;
+                text-align: center;
+            }
+
+            footer a {
+                color: #666;
+                font-size: inherit;
+                padding: 1em;
+                text-decoration: none;
+                text-shadow: 0 1px 1px #fff;
+            }
+
+            footer a:hover, footer a:focus { color: #111; }
+
+            h1, h2 {
+                border-bottom: 1px solid black;
+                display: inline;
+                font-weight: normal;
+                line-height: 36px;
+                padding: 0 0 3px 0;
+            }
+
+            a {
+                color: #2844FA;
+                text-decoration: none;
+            }
+
+            a:hover, a:focus { color: #1B29A4; }
+
+            a:active { color: #000; }
+
+            :-moz-any-link:focus {
+                border: 0;
+                color: #000;
+            }
+
+            ::selection { background: #ccc; }
+
+            ::-moz-selection { background: #ccc; }
+
+            button, select {
+                -moz-border-radius: 3px;
+                -moz-transition: none;
+                -webkit-transition: none;
+                background: #0370ea;
+                background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
+                background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
+                border: 1px solid #076bd2;
+                border-radius: 3px;
+                color: #fff;
+                display: inline-block;
+                font-family: inherit;
+                font-size: .8em;
+                line-height: 1.3;
+                padding: 5px 12px;
+                text-align: center;
+                text-shadow: 1px 1px 1px #076bd2;
+            }
+
+            button:hover { background: rgb(9, 147, 240); }
+
+            button:active { background: rgb(10, 118, 190); }
+
+            button[disabled] {
+                background: none;
+                border: 1px solid rgb(187, 181, 181);
+                color: gray;
+                text-shadow: none;
+            }
+
+            strong {
+                color: rgb(204, 14, 14);
+                font-family: inherit;
+                font-weight: normal;
+            }
+
+            #result div {
+                border: 1px solid Gray;
+                border-bottom: 0;
+                padding: .8em 1.5em;
+            }
+
+            select {
+                background: transparent;
+                color: black;
+                text-align: left;
+                text-shadow: none;
+            }
+
+            #remote-media-streams video { width: 10em; }
+
+            #local-media-stream video { width: 34em; }
+
+            td { vertical-align: top; }
+
+            #chat-output div {
+                border: 1px solid black;
+                border-bottom: 0;
+                padding: .1em .4em;
+            }
+
+            input {
+                border: 1px solid black;
+                font-family: inherit;
+                margin: .1em .3em;
+                outline: none;
+                padding: .1em .2em;
+                width: 93%;
+            }
+
+            #chat-output {
+                margin: 0 0 0 .4em;
+                max-height: 12em;
+                overflow: auto;
+            }
+
+            pre {
+                border-left: 2px solid red;
+                margin-left: 2em;
+                padding-left: 1em;
+            }
+
+            .video-container {
+                background: white;
+                border: 2px solid black;
+                border-radius: 0.2em;
+                display: inline-block;
+                margin: 2em .2em;
+                padding: .1em;
+                vertical-align: top;
+            }
+
+            .video-container h2 {
+                border: 0;
+                border-top: 1px solid black;
+                display: block;
+                margin: 0;
+                text-align: center;
+            }
+
+            .eject {
+                background-image: url('https://webrtc-experiment.appspot.com/images/eject.png') !important;
+                background-position: center center !important;
+                background-repeat: no-repeat !important;
+                border-color: white;
+                border-radius: 0;
+                height: 30px;
+                margin: .2em;
+                position: absolute;
+                width: 30px;
+                z-index: 200;
+            }
+        </style>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+        <script src="https://webrtc-experiment.appspot.com/firebase.js"> </script>
+        <script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js"> </script>
+    </head>
+    <body>
+        <article> <a href="https://webrtc-experiment.appspot.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ WEBRTC EXPERIMENTS</a>
+
+            <h1>
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection-v1.4</a>
+                all-in-one test
+            </h1>
+
+            <p> <span>Copyright © 2013</span>  <a href="https://github.com/muaz-khan" target="_blank">Muaz
+                                                   Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
+
+            </p>
+            <section class="plusone-gplus">
+                <div class="g-plusone" data-href="https://webrtc-experiment.appspot.com/"></div>
+            </section>
+            <section>
+                <h2>Open New Session:</h2>
+
+                <select id="session" title="Session">
+                    <option>audio+video+data</option>
+                    <option>audio+video</option>
+                    <option>audio+data</option>
+                    <option>video+data</option>                    
+                    <option>audio</option>
+                    <option>video</option>
+                    <option>data</option>
+                    <option>screen</option>
+                    <option>screen+data</option>
+                </select>
+                <select id="direction" title="Direction">
+                    <option>many-to-many</option>
+                    <option>one-to-one</option>
+                    <option>one-to-many</option>
+                    <option>one-way</option>
+                </select>
+                <button id="open-session" disabled>Open NEW Session</button>
+            </section>
+            <table style="border-left: 1px solid black; width: 100%;">
+                <tr>
+                    <td style="width: 80%;">
+                        <h2 style="display: block; text-align: center;">Local Media Stream</h2>
+
+                        <section id="local-media-stream"></section>
+                    </td>
+                    <td style="background: white; border-left: 1px solid black;">
+                        <h2 style="display: block; font-size: 1em; text-align: center;">Share Files</h2>
+
+                        <input type="file" id="file" disabled>
+                        <br />
+                        <h2 style="display: block; font-size: 1em; text-align: center;">Text Chat</h2>
+
+                        <div id="chat-output"></div>
+                        <input type="text" id="chat-input" style="font-size: 1.2em;" placeholder="chat message" disabled>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <h2 style="display: block; text-align: center;">Remote Media Streams</h2>
+
+                        <section id="remote-media-streams"></section>
+                    </td>
+                </tr>
+            </table>
+            <script>
+                function initConnection(config) {
+                    window.connection = new RTCMultiConnection(config.sessionid);
+
+                    connection.firebase = 'signaling';
+                    connection.session = config.session;
+
+                    connection.maxParticipantsAllowed = config.maxParticipantsAllowed;
+
+                    connection.onopen = function() {
+                        document.getElementById('chat-input').disabled = false;
+                        document.getElementById('file').disabled = false;
+                        if (document.getElementById('open-session'))
+                            document.getElementById('open-session').disabled = true;
+                    };
+                    connection.onmessage = function(e) {
+                        appendDIV(e.data);
+                    };
+                    connection.onstream = function(e) {
+                        var video = getVideo(e);
+                        if (e.type === 'local') document.getElementById('local-media-stream').appendChild(video);
+
+                        if (e.type === 'remote') {
+                            if (!e.session.oneway) {
+                                var remoteMediaStreams = document.getElementById('remote-media-streams');
+                                remoteMediaStreams.appendChild(video, remoteMediaStreams.firstChild);
+                            } else document.getElementById('local-media-stream').appendChild(video);
+                        }
+                        e.mediaElement.width = innerWidth / 3.4;
+                    };
+
+                    connection.onFileProgress = function(e) {
+                        var packets = e.packets;
+
+                        appendDIV(packets.remaining + ' packets remaining.');
+                        if (packets.sent) appendDIV(packets.sent + ' packets sent.');
+                        if (packets.received) appendDIV(packets.received + ' packets received.');
+                    };
+
+                    connection.onFileReceived = function(e) {
+                        appendDIV(e.fileName + ' received.');
+                    };
+
+                    connection.onFileSent = function(e) {
+                        appendDIV(e.file.name + ' sent.');
+                    };
+
+                    connection.onstreamended = function(e) {
+                        if (e.mediaElement.parentNode && e.mediaElement.parentNode.parentNode) e.mediaElement.parentNode.parentNode.removeChild(e.mediaElement.parentNode);
+                    };
+
+                    connection.connect(config.sessionid);
+                }
+
+                document.getElementById('open-session').onclick = function() {
+                    var direction = document.getElementById('direction').value;
+                    var _session = document.getElementById('session').value;
+                    var splittedSession = _session.split('+');
+
+                    var session = { };
+                    for (var i = 0; i < splittedSession.length; i++) {
+                        session[splittedSession[i]] = true;
+                    }
+
+                    var maxParticipantsAllowed = 10;
+
+                    if (direction == 'one-to-one') maxParticipantsAllowed = 1;
+                    if (direction == 'one-to-many') session.broadcast = true;
+                    if (direction == 'one-way') session.oneway = true;
+
+                    initConnection({
+                        sessionid: hash,
+                        session: session,
+                        maxParticipantsAllowed: maxParticipantsAllowed
+                    });
+                    connection.open(hash);
+
+                    this.disabled = true;
+                    this.parentNode.innerHTML = '<h2><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
+                    window.isRoomInitiator = true;
+                };
+
+                document.getElementById('file').onchange = function() {
+                    var file = this.files[0];
+                    connection.send(file);
+                };
+
+                var chatOutput = document.getElementById('chat-output');
+
+                function appendDIV(data) {
+                    var div = document.createElement('div');
+                    div.innerHTML = data;
+                    chatOutput.insertBefore(div, chatOutput.firstChild);
+                    div.tabIndex = 0;
+                    div.focus();
+
+                    chatInput.focus();
+                }
+
+                var chatInput = document.getElementById('chat-input');
+                chatInput.onkeypress = function(e) {
+                    if (e.keyCode !== 13 || !this.value) return;
+                    appendDIV(this.value);
+                    connection.send(this.value);
+
+                    this.value = '';
+                    this.focus();
+                };
+
+                function getVideo(d) {
+                    var div = document.createElement('div');
+                    div.className = 'video-container';
+                    div.id = d.userid || 'self';
+
+                    if (d.type === 'remote') {
+                        if (window.isRoomInitiator) {
+                            var eject = document.createElement('button');
+                            eject.className = 'eject';
+                            eject.title = 'Eject this User';
+
+                            eject.onclick = function() {
+                                // eject a specific user
+                                connection.eject(this.parentNode.id);
+                                this.parentNode.style.display = 'none';
+                            };
+                            div.appendChild(eject);
+                        }
+                    }
+                    div.appendChild(d.mediaElement);
+                    return div;
+                }
+
+                console.debug('about to check presence of a room');
+                new window.Firebase('https://signaling.firebaseIO.com/' + hash).once('value', function(data) {
+                    var isRoomPresent = data.val() != null;
+                    if (isRoomPresent) {
+                        initConnection({
+                            sessionid: hash
+                        });
+                        document.getElementById('open-session').disabled = true;
+                        window.isRoomInitiator = false;
+                    } else document.getElementById('open-session').disabled = false;
+
+                    console.debug('room is present? ', isRoomPresent);
+                });
+            </script>
+            <br />
+            <br />
+             
+            <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
+                <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>
+
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button>
+            </section>
+        </article>
+        <footer>
+            <p> <a href="https://webrtc-experiment.appspot.com/" target="_blank">WebRTC Experiments!</a>© <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>» <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
+                <a
+                    href="http://twitter.com/muazkh" target="_blank">@muazkh</a>» <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+
+            </p>
+        </footer>
+        <script src="https://webrtc-experiment.appspot.com/common.js"> </script>
+    </body>
+</html>
