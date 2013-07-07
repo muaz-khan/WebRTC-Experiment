@@ -826,8 +826,8 @@
         };
 
         TURN = {
-            url: 'turn:webrtc%40live.com@numb.viagenie.ca',
-            credential: 'muazkh'
+            url: 'turn:homeo@turn.bistri.com:80',
+            credential: 'homeo'
         };
 
         iceServers = {
@@ -837,9 +837,9 @@
         if (!moz && !options.iceServers) {
             if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
                 TURN = {
-                    url: 'turn:numb.viagenie.ca',
-                    credential: 'muazkh',
-                    username: 'webrtc@live.com'
+                    url: 'turn:turn.bistri.com:80',
+                    credential: 'homeo',
+                    username: 'homeo'
                 };
             iceServers.iceServers = [TURN, STUN];
         }

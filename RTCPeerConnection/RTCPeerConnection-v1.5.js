@@ -16,8 +16,8 @@ var RTCPeerConnection = function (options) {
     };
 
     TURN = {
-        url: 'turn:webrtc%40live.com@numb.viagenie.ca',
-        credential: 'muazkh'
+        url: 'turn:homeo@turn.bistri.com:80',
+        credential: 'homeo'
     };
 
     iceServers = {
@@ -27,13 +27,13 @@ var RTCPeerConnection = function (options) {
     if (!moz && !options.iceServers) {
         if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
             TURN = {
-                url: 'turn:numb.viagenie.ca',
-                credential: 'muazkh',
-                username: 'webrtc@live.com'
+                url: 'turn:turn.bistri.com:80',
+                credential: 'homeo',
+                username: 'homeo'
             };
 
         // No STUN to make sure it works all the time!
-        iceServers.iceServers = [TURN];
+        iceServers.iceServers = [STUN, TURN];
     }
 
     var optional = {

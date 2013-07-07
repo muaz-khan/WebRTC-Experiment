@@ -279,21 +279,25 @@ var RTCPeerConnection = function (options) {
         url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
     };
     var TURN = {
-        url: 'turn:webrtc%40live.com@numb.viagenie.ca',
-        credential: 'muazkh'
-    };
-    var iceServers = {
-        iceServers: options.iceServers || [STUN]
+        url: 'turn:homeo@turn.bistri.com:80',
+        credential: 'homeo'
     };
 
-    if (!moz && !options.iceServers) {
-        if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
+    var iceServers = {
+        iceServers: [STUN]
+    };
+
+    if (isChrome) {
+        // in chrome M29 and higher
+        if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
             TURN = {
-                url: 'turn:numb.viagenie.ca',
-                credential: 'muazkh',
-                username: 'webrtc@live.com'
+                url: 'turn:turn.bistri.com:80',
+                credential: 'homeo',
+                username: 'homeo'
             };
-        iceServers.iceServers = [TURN, STUN];
+
+        // No STUN to make sure it works all the time!
+        iceServers.iceServers = [STUN, TURN];
     }
 
     var optional = {
