@@ -1,4 +1,4 @@
-#### [RTCMultiConnection-v1.4.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js) Documentation
+##### [RTCMultiConnection-v1.5.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5.js) Documentation (Experimental Release)
 
 Supports features like
 
@@ -11,23 +11,24 @@ Supports features like
 
 and much more.
 
-----
+=
 
-#### Documentations History
+##### Documentations History
 
 1. [`RTCMultiConnection-v1.4`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection)
 2. [`RTCMultiConnection-v1.3`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.3.md)
 3. [`RTCMultiConnection-v1.2 and earlier`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.2-and-earlier.md)
+4. [`RTCMultiConnection-v1.5 --- experimental`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-experimental.md)
 
-----
+=
 
-#### First Step: Link the library
+##### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5.js"></script>
 ```
 
-#### Second Step: Start using it!
+##### Second Step: Start using it!
 
 ```javascript
 connection = new RTCMultiConnection();
@@ -53,9 +54,9 @@ connection.connect('session-id');
 };
 ```
 
-----
+=
 
-#### `onstream`
+##### `onstream`
 
 ```javascript
 connection.onstream = function (e) {
@@ -79,9 +80,9 @@ connection.onstream = function (e) {
 7. `extra`: extra data passed by the user
 8. `userid`: id of the user stream coming from
 
-----
+=
 
-#### `onstreamended`
+##### `onstreamended`
 
 `onstreamended` will be fired if media streams stopped flowing between two peers. It is preferred to use `onstreamended` to remove media elements instead of using `onleave`.
 
@@ -91,9 +92,9 @@ connection.onstreamended = function(e) {
 };
 ```
 
-----
+=
 
-#### Renegotiation
+##### Renegotiation
 
 Scenarios:
 
@@ -120,9 +121,9 @@ connection.users['user-id'].addStream({
 
 `{oneway:true}` allows you force renegotiated stream to flow in one-way direction.
 
-----
+=
 
-#### `session`
+##### `session`
 
 Possible values for the `session` object:
 
@@ -136,9 +137,9 @@ oneway: true
 broadcast: true
 ```
 
-----
+=
 
-#### Mute/UnMute/Stop
+##### Mute/UnMute/Stop
 
 ```javascript
 // mute
@@ -156,9 +157,9 @@ connection.streams['stream-id'].unmute({
 connection.streams['stream-id'].stop();
 ```
 
-----
+=
 
-#### Detect users presence
+##### Detect users presence
 
 ```javascript
 connection.onleave = function(e) {
@@ -167,14 +168,18 @@ connection.onleave = function(e) {
 };
 ```
 
-#### Eject any user or close your own session
+=
+
+##### Eject any user or close your own session
 
 ```javascript
 connection.eject(userid); // throw a user out of your room!
 connection.leave();       // close your own entire session
 ```
 
-#### Auto Close Entire Session
+=
+
+##### Auto Close Entire Session
 
 When room initiator leaves; you can enforce auto-closing of the entire session. By default: it is `false`:
 
@@ -190,9 +195,9 @@ You can call `close` method to enforce closing of the entire session:
 connection.close(); // close entire session
 ```
 
-----
+=
 
-#### Are you want to share files/text or data?
+##### Are you want to share files/text or data?
 
 ```javascript
 // to send text/data or file of any size
@@ -216,7 +221,9 @@ connection.onmessage = function (e) {
 }
 ```
 
-#### Direct Messages
+=
+
+##### Direct Messages
 
 You can share data directly between two unique users using their user-ids:
 
@@ -224,7 +231,9 @@ You can share data directly between two unique users using their user-ids:
 connection.channels['user-id'].send(file || data || 'text');
 ```
 
-#### Progress helpers when sharing files
+=
+
+##### Progress helpers when sharing files
 
 ```javascript
 // show progress bar!
@@ -251,7 +260,9 @@ connection.onFileReceived = function (e) {
 };
 ```
 
-#### Errors Handling when sharing files/data/text
+=
+
+##### Errors Handling when sharing files/data/text
 
 ```javascript
 // error to open data ports
@@ -267,7 +278,9 @@ connection.onclose = function (e) {
 }
 ```
 
-#### Extra Data
+=
+
+##### Extra Data
 
 You can pass extra-data like username, full name, location, bandwidth, etc.
 
@@ -304,9 +317,9 @@ connection.onopen = function(e){
 };
 ``` 
 
-----
+=
 
-#### Custom user-id
+##### Custom user-id
 
 You can use custom `user-names` as user-id:
 
@@ -338,9 +351,9 @@ connection.onmessage = function(e) {
 }
 ```
 
-----
+=
 
-#### `onNewSession`
+##### `onNewSession`
 
 `onNewSession` is fired for each new session.
 
@@ -355,9 +368,9 @@ connection.onNewSession = function(session) {
 
 `onNewSession` is useful to show a `join` button that allows end-users to manually join any preferred session.
 
-----
+=
 
-#### `interval`
+##### `interval`
 
 Interval in milliseconds, after which repeatedly transmit room details.
 
@@ -365,9 +378,9 @@ Interval in milliseconds, after which repeatedly transmit room details.
 connection.interval = 1000;
 ```
 
-----
+=
 
-#### `transmitRoomOnce`
+##### `transmitRoomOnce`
 
 You may prefer using it with firebase. It is `false` by default.
 
@@ -375,9 +388,9 @@ You may prefer using it with firebase. It is `false` by default.
 connection.transmitRoomOnce = true;
 ```
 
-----
+=
 
-#### `firebase`
+##### `firebase`
 
 Firebase instance name e.g. `https://instance.firebaseio.com/`.
 
@@ -385,9 +398,9 @@ Firebase instance name e.g. `https://instance.firebaseio.com/`.
 connection.firebase = 'chat';
 ```
 
-----
+=
 
-#### `noMediaStream`
+##### `noMediaStream`
 
 If you don't want to prompt any `getUserMedia`. It is useful in join with/without camera type of experiments.
 
@@ -395,9 +408,9 @@ If you don't want to prompt any `getUserMedia`. It is useful in join with/withou
 connection.noMediaStream = true;
 ```
 
-----
+=
 
-#### Attach external stream
+##### Attach external stream
 
 This feature is useful in multi-sessions initiations.
 
@@ -406,9 +419,9 @@ connection.noMediaStream = true;
 connection.stream = MediaStream;
 ```
 
-----
+=
 
-#### `one-way`
+##### `one-way`
 
 ```javascript
 connection.stream = {
@@ -417,9 +430,9 @@ connection.stream = {
 };
 ```
 
-----
+=
 
-#### `one-to-many`
+##### `one-to-many`
 
 ```javascript
 connection.stream = {
@@ -428,9 +441,9 @@ connection.stream = {
 };
 ```
 
-----
+=
 
-#### `many-to-many`
+##### `many-to-many`
 
 ```javascript
 connection.stream = {
@@ -439,9 +452,9 @@ connection.stream = {
 };
 ```
 
-----
+=
 
-#### `maxParticipantsAllowed`
+##### `maxParticipantsAllowed`
 
 A customizable way to set direction e.g. `one-to-one` etc. Its default value is `10`.
 
@@ -449,9 +462,9 @@ A customizable way to set direction e.g. `one-to-one` etc. Its default value is 
 connection.maxParticipantsAllowed = 1; // for one-to-one
 ```
 
-----
+=
 
-#### Bandwidth
+##### Bandwidth
 
 You can set bandwidth for both outgoing audio/video streams.
 
@@ -470,9 +483,9 @@ connection.bandwidth.data = 1638400;
 
 Default audio bandwidth is `50` and default video bandwidth is `256`.
 
-----
+=
 
-#### Framerate
+##### Framerate
 
 You can set frame-rate for audio streams too:
 
@@ -483,9 +496,9 @@ connection.framerate = {
 };
 ```
 
-----
+=
 
-#### Detect number of connected users
+##### Detect number of connected users
 
 You can detect how many users are participanting using `users` object:
 
@@ -496,9 +509,9 @@ for(var user in connection.users) numberOfUsers++;
 console.log('number of users:', numberOfUsers);
 ```
 
-----
+=
 
-#### signaling using socket.io over node.js
+##### signaling using socket.io over node.js
 
 Your server-side node.js code looks like this:
 
@@ -518,9 +531,9 @@ connection.openSignalingChannel = function(callback) {
 };
 ```
 
-----
+=
 
-#### Custom Handlers on the Server
+##### Custom Handlers on the Server
 
 `RTCMultiConnection` allows you set custom handlers on your server too. Set `transmitRoomOnce` to `true`:
 
@@ -551,30 +564,21 @@ io.sockets.on('connection', function (socket) {
 });
 ```
 
-----
+=
 
-#### [RTCMultiConnection Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection)
+##### Demos using [RTCMultiConnection-v1.5](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5.js) library
 
-1. [Multi-Session Establishment](https://webrtc-experiment.appspot.com/RTCMultiConnection/multi-session-establishment/)
-2. [File Sharing + Text Chat](https://webrtc-experiment.appspot.com/RTCMultiConnection/group-file-sharing-plus-text-chat/)
-3. [All-in-One test](https://webrtc-experiment.appspot.com/RTCMultiConnection/)
-4. [Video Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-conferencing/)
-5. [Video Broadcasting](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-broadcasting/)
-6. [Audio Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/audio-conferencing/)
-7. [Join with/without camera](https://webrtc-experiment.appspot.com/RTCMultiConnection/join-with-or-without-camera/)
-8. [Screen Sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/screen-sharing/)
-9. [One-to-One file sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/one-to-one-filesharing/)
-10. [Manual session establishment + extra data transmission](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission/)
-11. [Manual session establishment + extra data transmission + video conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/)
-12. [Users ejection and presence detection](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/)
-13. [Customizing Bandwidth](https://webrtc-experiment.appspot.com/RTCMultiConnection/bandwidth/)
-14. [RTCMultiConnection-v1.3 testing demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3/)
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| **All-in-One test** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5-Demos/All-in-One.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-Demos/All-in-One.html) |
+| **Renegotiation & Mute/UnMute/Stop** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5-Demos/Renegotiation.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-Demos/Renegotiation.html) |
+| **Video-Conferencing** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5-Demos/Video-Conferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-Demos/Video-Conferencing.html) |
 
-----
+=
 
-#### Browser Support
+##### Browser Support
 
-[RTCMultiConnection-v1.4.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js) supports following browsers:
+[RTCMultiConnection-v1.5.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5.js) supports following browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------|
@@ -582,8 +586,8 @@ io.sockets.on('connection', function (socket) {
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-----
+=
 
-#### License
+##### License
 
-[RTCMultiConnection-v1.4.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RTCMultiConnection-v1.5.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5.js) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
