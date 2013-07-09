@@ -455,8 +455,7 @@
                 onSessionOpened();
             }
 
-            function onSessionOpened() {
-                // user-id in <socket> object
+            function updateSocket() {
                 if (socket.userid == _config.userid)
                     return;
 
@@ -472,6 +471,12 @@
                         root.addStream(session, this.socket);
                     }
                 };
+            }
+
+            function onSessionOpened() {
+                // user-id in <socket> object
+                if (socket.userid == _config.userid)
+                    return;
 
                 // original conferencing infrastructure!
                 if (!session.oneway && !session.broadcast && isbroadcaster && getLength(participants) > 1 && getLength(participants) <= root.maxParticipantsAllowed) {
@@ -491,6 +496,11 @@
                     _config.userid = response.userid;
                     _config.extra = response.extra;
                     _config.renegotiate = response.renegotiate;
+
+                    // to make sure user-id for socket object is set
+                    // even if one-way streaming
+                    updateSocket();
+
                     sdpInvoker(response.sdp);
                 }
 
@@ -703,9 +713,9 @@
                     if (response.userid == self.userid)
                         return;
                     if (isAcceptNewSession && response.sessionid && response.userid) {
-						root.session = session = response.session;
+                        root.session = session = response.session;
                         config.onNewSession(response);
-					}
+                    }
                     if (response.newParticipant && self.joinedARoom && self.broadcasterid === response.userid)
                         onNewParticipant(response.newParticipant, response.extra);
                     if (getLength(participants) < root.maxParticipantsAllowed && response.userid && response.targetUser == self.userid && response.participant && !participants[response.userid]) {
