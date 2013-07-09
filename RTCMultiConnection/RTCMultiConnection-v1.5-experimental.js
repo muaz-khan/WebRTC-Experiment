@@ -1,6 +1,6 @@
 // 2013, @muazkh - github.com/muaz-khan
 // MIT License - https://webrtc-experiment.appspot.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-experimental.md
 
 // RTCMultiConnection-v1.5 (it is experimental release)
 // any signaling channel other than firebase is preferred
@@ -76,7 +76,7 @@
                 };
             }
 
-            navigator.getUserMedia(constraints, onstream, mediaError);
+            getUserMedia(constraints, onstream, mediaError);
 
             function onstream(stream) {
                 var mediaElement = getMediaElement(stream, session);
@@ -1118,7 +1118,24 @@
     var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
     var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
 
-    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    var video_constraints = {
+        mandatory: { },
+        optional: []
+    };
+
+    function getUserMedia(_constraints, onsuccess, onerror) {
+        var n = navigator,
+            constraints = _constraints || {
+                audio: true,
+                video: video_constraints
+            };
+
+        n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
+        n.getMedia(constraints, onsuccess, onerror || function(e) {
+            console.error(e);
+        });
+    }
+
     window.URL = window.webkitURL || window.URL;
 
     var isFirefox = !!navigator.mozGetUserMedia;
