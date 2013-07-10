@@ -164,7 +164,6 @@
         }
 
         function captureUserMedia(callback, _session) {
-            var constraints, video_constraints;
             var session = _session || self.session;
 
             log(JSON.stringify(session, null, '\t'));
@@ -173,88 +172,81 @@
                 return callback();
 
             if (isData(session) || (!self.isInitiator && session.oneway)) {
-                self.attachStream = null;
+                self.attachStreams = [];
                 return callback();
             }
 
-            if (session.audio && !session.video) {
-                constraints = {
-                    audio: true,
-                    video: false
+            var constraints = {
+                audio: !!session.audio,
+                video: !!session.video
+            },
+                screen_constraints = {
+                    audio: false,
+                    video: {
+                        mandatory: {
+                            chromeMediaSource: 'screen'
+                        },
+                        optional: []
+                    }
                 };
-            } else if (session.screen) {
-                video_constraints = {
-                    mandatory: {
-                        chromeMediaSource: 'screen'
+
+            if (session.screen)
+                _captureUserMedia(screen_constraints, function() {
+                    _captureUserMedia(constraints, callback);
+                });
+            else _captureUserMedia(constraints, callback);
+
+            function _captureUserMedia(forcedConstraints, forcedCallback) {
+                var mediaElement = document.createElement(session.audio && !session.video ? 'audio' : 'video');
+                var mediaConfig = {
+                    video: mediaElement,
+                    onsuccess: function(stream) {
+                        stream.onended = function() {
+                            if (self.onstreamended)
+                                self.onstreamended(streamedObject);
+                        };
+
+                        self.attachStreams.push(stream);
+                        var streamid = self.token();
+
+                        var streamedObject = {
+                            stream: stream,
+                            streamid: streamid,
+                            mediaElement: mediaElement,
+                            blobURL: mediaElement.mozSrcObject || mediaElement.src,
+                            type: 'local'
+                        };
+
+                        self.onstream(streamedObject);
+
+                        self.streams[streamid] = self._getStream({
+                            stream: stream,
+                            userid: self.userid
+                        });
+
+                        if (forcedCallback) forcedCallback(stream);
+
+                        mediaElement.autoplay = true;
+                        mediaElement.controls = true;
+                        mediaElement.muted = true;
                     },
-                    optional: []
+                    onerror: function() {
+                        if (session.audio && !session.video)
+                            throw 'Microphone access is denied.';
+                        else if (session.screen) {
+                            if (location.protocol === 'http:')
+                                throw '<https> is mandatory to capture screen.';
+                            else
+                                throw 'Multi-capturing of screen is not allowed. Capturing process is denied. Are you enabled flag: "Enable screen capture support in getUserMedia"?';
+                        } else
+                            throw 'Webcam access is denied.';
+                    }
                 };
-                constraints = {
-                    audio: false,
-                    video: video_constraints
-                };
-            } else if (session.video && !session.audio) {
-                video_constraints = {
-                    mandatory: { },
-                    optional: []
-                };
-                constraints = {
-                    audio: false,
-                    video: video_constraints
-                };
+
+                mediaConfig.constraints = forcedConstraints || constraints;
+                console.log(JSON.stringify(mediaConfig.constraints, null, '\t'));
+                getUserMedia(mediaConfig);
             }
-            var mediaElement = document.createElement(session.audio && !session.video ? 'audio' : 'video');
-            var mediaConfig = {
-                video: mediaElement,
-                onsuccess: function(stream) {
-
-                    stream.onended = function() {
-                        if (self.onstreamended)
-                            self.onstreamended(streamedObject);
-                    };
-
-                    self.attachStream = stream;
-                    var streamid = self.token();
-
-                    var streamedObject = {
-                        stream: stream,
-                        streamid: streamid,
-                        mediaElement: mediaElement,
-                        blobURL: mediaElement.mozSrcObject || mediaElement.src,
-                        type: 'local'
-                    };
-
-                    self.onstream(streamedObject);
-
-                    self.streams[streamid] = self._getStream({
-                        stream: stream,
-                        userid: self.userid
-                    });
-
-                    if (callback)
-                        callback(stream);
-
-                    mediaElement.autoplay = true;
-                    mediaElement.controls = true;
-                    mediaElement.muted = true;
-                },
-                onerror: function() {
-                    if (session.audio && !session.video)
-                        throw 'Microphone access is denied.';
-                    else if (session.screen) {
-                        if (location.protocol === 'http:')
-                            throw '<https> is mandatory to capture screen.';
-                        else
-                            throw 'Multi-capturing of screen is not allowed. Capturing process is denied. Are you enabled flag: "Enable screen capture support in getUserMedia"?';
-                    } else
-                        throw 'Webcam access is denied.';
-                }
-            };
-
-            if (constraints)
-                mediaConfig.constraints = constraints;
-
-            return getUserMedia(mediaConfig);
         }
 
         this.captureUserMedia = captureUserMedia;
@@ -370,7 +362,7 @@
                     root.onerror(e);
                 },
 
-                attachStream: root.attachStream,
+                attachStreams: root.attachStreams,
                 iceServers: root.iceServers,
                 bandwidth: root.bandwidth
             };
@@ -1103,13 +1095,18 @@
                 options.onICE(event.candidate);
         };
 
-        if (options.attachStream)
-            peer.addStream(options.attachStream);
+        if (options.attachStreams && options.attachStreams.length) {
+            var streams = options.attachStreams;
+            for (var i = 0; i < streams.length; i++) {
+                peer.addStream(streams[i]);
+            }
+        }
+
         peer.onaddstream = function(event) {
             log('on:add:stream', event.stream);
 
-            if (!event || !options.onstream)
-                return;
+            if (!event || !options.onstream) return;
+
             options.onstream(event.stream);
             options.renegotiate = false;
         };
@@ -1228,7 +1225,7 @@
 
             _openOffererChannel();
 
-            if (moz && !options.attachStream) {
+            if (moz) {
                 navigator.mozGetUserMedia({
                         audio: true,
                         fake: true
@@ -1268,7 +1265,7 @@
                 setChannelEvents();
             };
 
-            if (moz && !options.attachStream) {
+            if (moz) {
                 navigator.mozGetUserMedia({
                         audio: true,
                         fake: true
@@ -1452,6 +1449,8 @@
             video: 256,
             data: 1638400
         };
+
+        self.attachStreams = [];
 
         self.maxParticipantsAllowed = 10;
 

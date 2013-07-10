@@ -140,6 +140,7 @@
 | **All-in-One test** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4-Demos/All-in-One.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/All-in-One.html) |
 | **Renegotiation & Mute/UnMute/Stop** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4-Demos/Renegotiation.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/Renegotiation.html) |
 | **Video-Conferencing** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) |
+| **Multi-streams attachment** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) |
 
 =
 
