@@ -11,6 +11,7 @@
 | Library Name        | Short Description           | Documentation | Demos |
 | ------------- |-------------|-------------|-------------|
 | `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://webrtc-experiment.appspot.com/RecordRTC/) |
+| `AudioVideoRecorder.js` | Audio+video recording using MediaRecorder API | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/AudioVideoRecorder) | [Demos](https://webrtc-experiment.appspot.com/AudioVideoRecorder/) |
 | `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) | [Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection) |
 | `DataChannel.js` | An ultimate wrapper library for `RTCDataChannel APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) | [Demos](https://webrtc-experiment.appspot.com/#DataChannel) |
 | `RTCall.js` | A library for voice (i.e. audio-only) calls | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) | [Demos](https://webrtc-experiment.appspot.com/RTCall/) |
@@ -193,7 +194,9 @@ var connection = new RTCMultiConnection();
 // session is included in v1.3 and higher releases
 connection.session = {
     audio: true,
-    video: true
+    video: true,
+    screen: true,
+    oneway: true
 };
 
 // bandwidth is included in v1.3 and higher releases
@@ -218,10 +221,12 @@ connection.onstream = function (e) {
 connection.connect('session-id');
 
 // to create/open a new session
-connection.open('session-id');
+[init-button].onclick = function() {
+    connection.open('session-id');
+};
 
 // runtime/dynamic streams insertion i.e. renegotiation
-connection.users['user-id'].addStream({
+connection.peers['user-id'].addStream({
     audio: true,
     video: true
 });
@@ -247,7 +252,42 @@ call.oncustomer = function(customer) {
 
 =
 
+##### signaling for RTCMultiConnection-v1.4 and earlier releases
+
+```javascript
+var SIGNALING_SERVER = 'http://domain.com:8888/';
+connection.openSignalingChannel = function(config) {   
+   var channel = config.channel || this.channel || 'one-to-one-video-chat';
+   var sender = Math.round(Math.random() * 60535) + 5000;
+   
+   io.connect(SIGNALING_SERVER).emit('new-channel', {
+      channel: channel,
+      sender : sender
+   });
+   
+   var socket = io.connect(SIGNALING_SERVER + channel);
+   socket.channel = channel;
+   
+   socket.on('connect', function () {
+      if (config.callback) config.callback(socket);
+   });
+   
+   socket.send = function (message) {
+        socket.emit('message', {
+            sender: sender,
+            data  : message
+        });
+    };
+   
+   socket.on('message', config.onmessage);
+};
+```
+
+=
+
 ##### signaling using socket.io over node.js
+
+Signaling for all latest experiments and newer releases.
 
 Your server-side node.js code looks like this:
 
@@ -338,6 +378,41 @@ recorder.stopAudio(function(recordedFileURL) {
 =
 
 [RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
+
+=
+
+##### How to record audio using [AudioVideoRecorder](https://webrtc-experiment.appspot.com/AudioVideoRecorder/)?
+
+```javascript
+AudioVideoRecorder({
+
+    // MediaStream object
+    stream: MediaStream,
+
+    // mime-type of the output blob
+    mimeType: 'audio/ogg',
+
+    // set time-interval to get the blob
+    interval: 5000,
+
+    // get access to the recorded blob
+    onRecordedMedia: function (blob) {
+        // POST/PUT blob using FormData/XMLHttpRequest
+
+        // or readAsDataURL
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            hyperlink.href = e.target.result;
+        };
+        reader.readAsDataURL(blob);
+    }
+
+});
+```
+
+=
+
+[AudioVideoRecorder Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/AudioVideoRecorder)
 
 =
 

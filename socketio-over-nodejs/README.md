@@ -28,7 +28,7 @@ In `ui.js` files you can find `openSocket` method; or in all libraries; you can 
 
 ```javascript
 var SIGNALING_SERVER = 'http://domain.com:8888/';
-openSignalingChannel: function(config) {   
+connection.openSignalingChannel = function(config) {   
    var channel = config.channel || this.channel || 'one-to-one-video-chat';
    var sender = Math.round(Math.random() * 60535) + 5000;
    
@@ -52,7 +52,7 @@ openSignalingChannel: function(config) {
     };
    
    socket.on('message', config.onmessage);
-}
+};
 ```
 
 `io.connect(URL).emit('new-channel')` starts a new namespace that is used privately or publicly to transmit appropriate stuff e.g. room-details, participation-requests, SDP, ICE, etc.

@@ -2,9 +2,11 @@
 
 [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC.js) allows you record audio and/or video streams.
 
-----
+Note: For Mozilla Firefox; you can try [AudioVideoRecorder.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/AudioVideoRecorder).
 
-#### Features
+=
+
+##### Features
 
 1. You can record audio in WAV format
 2. You can record video in WebM format
@@ -15,7 +17,7 @@ Other features are:
 1. Writes recorded file on disk and returns file URL
 2. It is your choice to get file URL, DataURL, or a real `Blob` object
 
-----
+=
 
 ##### How to use RecordRTC?
 
@@ -23,9 +25,9 @@ Other features are:
 <script src="https://webrtc-experiment.appspot.com/RecordRTC.js"></script>
 ```
 
-----
+=
 
-#### How to record video?
+##### How to record video?
 
 ```javascript
 var recorder = RecordRTC({
@@ -41,9 +43,9 @@ recorder.stopVideo(function(videoURL) {
 });
 ```
 
-----
+=
 
-#### How to record animated GIF image?
+##### How to record animated GIF image?
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/gif-recorder.js"></script>
@@ -75,7 +77,7 @@ recorder.stopGIF(function(gifURL) {
 });
 ```
 
-----
+=
 
 ##### How to record audio?
 
@@ -98,25 +100,25 @@ recorder.stopAudio(function(audioURL) {
 });
 ```
 
-----
+=
 
-#### Get Data URL
+##### Get Data URL
 
 ```javascript
 window.open( recorder.getDataURL() );
 ```
 
-----
+=
 
-#### Get Blob object
+##### Get Blob object
 
 ```javascript
 blob = recorder.getBlob();
 ```
 
-----
+=
 
-#### POST on server
+##### POST on server
 
 ```javascript
 blob = recorder.getBlob();
@@ -127,17 +129,17 @@ formData.append('key', blob);
 xhr.send(formData);
 ```
 
-----
+=
 
-#### Get File URL
+##### Get File URL
 
 ```javascript
 window.open( recorder.toURL() );
 ```
 
-----
+=
 
-#### Save to Disk
+##### Save to Disk
 
 ```javascript
 recorder.save();
@@ -169,28 +171,28 @@ recorder.stopGIF();
 recorder.stopAudio();
 ```
 
-----
+=
 
-#### Make sure that:
+##### Make sure that:
 
 1. You're using Chrome [Canary](https://www.google.com/intl/en/chrome/browser/canary.html), beta or dev
 2. You enabled flag `Web Audio Input` via `chrome://flags`
 
-----
+=
 
-#### WinXP?
+##### WinXP?
 
 No WinXP support. Try to use Vista, Windows 7 or Windows 8.
 
-----
+=
 
-#### Stereo or Mono?
+##### Stereo or Mono?
 
 Audio recording fails for `mono` audio. So, try `stereo` audio only.
 
-----
+=
 
-#### Possible issues/failures:
+##### Possible issues/failures:
 
 Do you know "RecordRTC" fails recording audio because following conditions fails:
 
@@ -201,9 +203,9 @@ Do you know "RecordRTC" fails recording audio because following conditions fails
 
 If you see this error message: `Uncaught Error: SecurityError: DOM Exception 18`; it means that you're using `HTTP`; whilst your webpage is loading worker file (i.e. `audio-recorder.js`) from `HTTPS`. Both files's (i.e. `RecordRTC.js` and `audio-recorder.js`) scheme MUST be same!
 
-----
+=
 
-#### Saving to disk failures:
+##### Saving to disk failures:
 
 1. You're using chrome `incognito` mode
 2. **RecordRTC** created **duplicate** temporary file
@@ -212,17 +214,17 @@ If you see this error message: `Uncaught Error: SecurityError: DOM Exception 18`
 
 Click **Save to Disk** button; new tab will open; **right-click** over video and choose **Save video as...** option from context menu.
 
-----
+=
 
-#### Web Audio APIs requirements
+##### Web Audio APIs requirements
 
 1. If you're on Windows, you have to be running Windows Vista or better (will not work on Windows XP).
 2. On Windows, audio input hardware must be set to the same sample rate as audio output hardware.
 3. On Mac and Windows, the audio input device must be at least stereo (i.e. a mono/single-channel USB microphone WILL NOT work).
 
-----
+=
 
-#### Why stereo?
+##### Why stereo?
 
 If you explorer chromium code; you'll see that some APIs can only be successfully called for `WAV` files with `stereo` audio.
 
@@ -230,9 +232,9 @@ Stereo audio is only supported for WAV files.
 
 ...still investigating the actual issue of failure with `mono` audio.
 
-----
+=
 
-#### Browser Support
+##### Browser Support
 
 [RecordRTC Demo](https://webrtc-experiment.appspot.com/RecordRTC/) works fine on following web-browsers:
 
@@ -240,21 +242,21 @@ Stereo audio is only supported for WAV files.
 | ------------- |-------------|
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 
-----
+=
 
-#### Credits
+##### Credits
 
 1. [Recorderjs](https://github.com/mattdiamond/Recorderjs) for audio recording
 2. [whammy](https://github.com/antimatter15/whammy) for video recording
 
-----
+=
 
-#### Spec & Reference
+##### Spec & Reference
 
 1. [Web Audio API](https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html)
 
-----
+=
 
-#### License
+##### License
 
 [RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
