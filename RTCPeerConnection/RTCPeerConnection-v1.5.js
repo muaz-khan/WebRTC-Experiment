@@ -11,16 +11,16 @@ var RTCPeerConnection = function (options) {
         SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
         IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
-    STUN = {
+    var STUN = {
         url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
     };
 
-    TURN = {
+    var TURN = {
         url: 'turn:homeo@turn.bistri.com:80',
         credential: 'homeo'
     };
 
-    iceServers = {
+    var iceServers = {
         iceServers: options.iceServers || [STUN]
     };
 
@@ -32,7 +32,6 @@ var RTCPeerConnection = function (options) {
                 username: 'homeo'
             };
 
-        // No STUN to make sure it works all the time!
         iceServers.iceServers = [STUN, TURN];
     }
 

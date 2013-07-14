@@ -1,10 +1,10 @@
-#### [DataChannel.js](https://webrtc-experiment.appspot.com/DataChannel.js) : A JavaScript wrapper library for RTCDataChannel APIs / [Demos](https://webrtc-experiment.appspot.com/#DataChannel)
+##### [DataChannel.js](https://webrtc-experiment.appspot.com/DataChannel.js) : A JavaScript wrapper library for RTCDataChannel APIs / [Demos](https://webrtc-experiment.appspot.com/#DataChannel)
 
 DataChannel.js is a JavaScript library useful to write many-to-many i.e. group file/data sharing or text chat applications. Its syntax is easier to use and understand. It highly simplifies complex tasks like any or all user rejection/ejection; direct messages delivery; and more.
 
-----
+=
 
-#### Features
+##### Features
 
 1. Direct messages — to any user using his `user-id`
 2. Eject/Reject any user — using his `user-id`
@@ -14,34 +14,42 @@ DataChannel.js is a JavaScript library useful to write many-to-many i.e. group f
 6. Size of data is also limitless!
 7. Fallback to firebase/socket.io/websockets/etc.
 8. Users' presence detection using `onleave`
+9. Latency detection
+10. Multi-longest strings/files concurrent 
 
-----
+=
 
-#### First Step: Link the library
+##### First Step: Link the library
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/DataChannel.js"></script>
 ```
 
-#### Last Step: Start using it!
+=
+
+##### Last Step: Start using it!
 
 ```javascript
 var channel = new DataChannel('channel-name');
 channel.send(file || data || 'text-message');
 ```
 
-#### `onopen` and `onmessage`
+=
+
+##### `onopen` and `onmessage`
 
 If you're familiar with WebSockets; these two methods works in the exact same way:
 
 ```javascript
 channel.onopen = function(userid) { }
-channel.onmessage = function(message, userid) { }
+channel.onmessage = function(message, userid, latency) { }
 ```
 
 `user-ids` can be used to send **direct messages** or to **eject/leave** any user:
 
-#### Use custom user-ids
+=
+
+##### Use custom user-ids
 
 ```javascript
 channel.userid = 'predefined-userid';
@@ -54,31 +62,41 @@ new DataChannel('channel-name', {
 
 Remeber; custom defined `user-id` must be unique username.
 
-#### Direct messages
+=
+
+##### Direct messages
 
 ```javascript
 channel.channels[userid].send(file || data || 'text message');
 ```
 
-#### Eject/Reject users using their `user-ids`
+=
+
+##### Eject/Reject users using their `user-ids`
 
 ```javascript
 channel.eject(userid);  // throw a user out of your room!
 ```
 
-#### Close/Leave the entire room
+=
+
+##### Close/Leave the entire room
 
 ```javascript
 channel.leave();        // close your own entire data session
 ```
 
-#### Detect users' presence
+=
+
+##### Detect users' presence
 
 ```javascript
 channel.onleave = function(userid) { };
 ```
 
-#### Auto Close Entire Session
+=
+
+##### Auto Close Entire Session
 
 When room initiator leaves; you can enforce auto-closing of the entire session. By default: it is `false`:
 
@@ -100,17 +118,18 @@ channel.autoCloseEntireSession = true;
 channel.leave(); // closing entire session
 ```
 
-----
+=
 
-#### To Share files
+##### To Share files
 
 ```javascript
 // show progress bar!
-channel.onFileProgress = function (packets) {
+channel.onFileProgress = function (packets, uuid) {
     // packets.remaining
     // packets.sent      (for sender)
     // packets.received  (for receiver)
     // packets.length
+    // uuid:	file unique identifier
 };
 
 // on file successfully sent
@@ -123,9 +142,35 @@ channel.onFileSent = function (file) {
 channel.onFileReceived = function (fileName) {};
 ```
 
-----
+=
 
-#### Errors Handling
+##### Latency Detection
+
+```javascript
+channel.onmessage = function(message, userid, latency) {
+    console.log('latency:', latency, 'milliseconds');
+};
+```
+
+=
+
+##### Concurrent Transmission
+
+You can send multiple files concurrently; or multiple longer text messages:
+
+```javascript
+channel.send(fileNumber1);
+channel.send(fileNumber2);
+channel.send(fileNumber3);
+
+channel.send('longer string-1');
+channel.send('longer string-2');
+channel.send('longer string-3');
+```
+
+=
+
+##### Errors Handling
 
 ```javascript
 // error to open data ports
@@ -135,9 +180,9 @@ channel.onerror = function(event) {}
 channel.onclose = function(event) {}
 ```
 
-----
+=
 
-#### Data session direction
+##### Data session direction
 
 Default direction is `many-to-many`.
 
@@ -147,9 +192,9 @@ channel.direction = 'one-to-many';
 channel.direction = 'many-to-many';
 ```
 
-----
+=
 
-#### Use [your own socket.io for signaling](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs)
+##### Use [your own socket.io for signaling](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs)
 
 ```javascript
 var channel = new DataChannel('default-channel');
@@ -181,9 +226,9 @@ channel.openSignalingChannel = function(config) {
 };
 ```
 
-----
+=
 
-#### `transmitRoomOnce`
+##### `transmitRoomOnce`
 
 `transmitRoomOnce` is preferred when using Firebase for signaling. It saves bandwidth and asks DataChannel.js library to not repeatedly transmit room details.
 
@@ -217,9 +262,9 @@ var channel = new DataChannel('default-channel', {
 });
 ```
 
-----
+=
 
-#### For auto-created data sessions
+##### For auto-created data sessions
 
 You can pass `direction` or other parts like this:
 
@@ -230,9 +275,9 @@ var channel = new DataChannel('channel-name', {
 });
 ```
 
-----
+=
 
-#### Manually open/connect data sessions
+##### Manually open/connect data sessions
 
 ```javascript
 // to create/open a new channel
@@ -242,16 +287,16 @@ channel.open('channel-name');
 channel.connect('channel-name');
 ```
 
-----
+=
 
-#### [Demos using DataChannel.js](https://webrtc-experiment.appspot.com/#DataChannel)
+##### [Demos using DataChannel.js](https://webrtc-experiment.appspot.com/#DataChannel)
 
 1. [DataChannel basic demo](https://webrtc-experiment.appspot.com/DataChannel/)
 2. [Auto Session Establishment and Users presence detection](https://webrtc-experiment.appspot.com/DataChannel/auto-session-establishment/)
 
-----
+=
 
-#### Browser Support
+##### Browser Support
 
 [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) works fine on following browsers:
 
@@ -261,8 +306,8 @@ channel.connect('channel-name');
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-----
+=
 
-#### License
+##### License
 
 [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

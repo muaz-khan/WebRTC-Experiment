@@ -241,8 +241,10 @@
 
     channel.firebase = 'webrtc-experiment';
 
-    channel.onmessage = function (data) {
+    channel.onmessage = function (data, userid, latency) {
+        console.debug(userid, 'posted', data);
         appendDIV(data);
+        console.log('latency:', latency, 'ms');
     };
 
     channel.onopen = function () {
@@ -252,10 +254,12 @@
         if (document.getElementById('init-RTCMultiConnection')) document.getElementById('init-RTCMultiConnection').disabled = true;
     };
 
-    channel.onFileProgress = function (packets) {
-        appendDIV(packets.remaining + ' packets remaining.', fileProgress);
-        if (packets.sent) appendDIV(packets.sent + ' packets sent.', fileProgress);
-        if (packets.received) appendDIV(packets.received + ' packets received.', fileProgress);
+    channel.onFileProgress = function (packets, uuid) {
+        appendDIV(uuid + ': ' + (
+				packets.sent 
+				? (packets.sent + ' sent') 
+				: (packets.received + ' received')
+			) + ' / ' + packets.remaining + ' remaining', fileProgress);
     };
 
     channel.onFileSent = function (file) {
@@ -306,6 +310,13 @@
         channel.send(this.value);
         this.value = '';
         this.focus();
+    };
+	
+	/* users presence detection */
+    channel.onleave = function (userid) {
+		var message = 'A user whose id is '+ userid + ' left you!';
+        appendDIV(message);
+        console.warn(message);
     };
 </script>
 <br/>

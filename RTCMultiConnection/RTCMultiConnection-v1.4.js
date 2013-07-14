@@ -444,7 +444,7 @@
                     }
                 };
 
-                onSessionOpened();
+                if(isData(session)) onSessionOpened();
             }
 
             function updateSocket() {
@@ -466,10 +466,6 @@
             }
 
             function onSessionOpened() {
-                // user-id in <socket> object
-                if (socket.userid == _config.userid)
-                    return;
-
                 // original conferencing infrastructure!
                 if (!session.oneway && !session.broadcast && isbroadcaster && getLength(participants) > 1 && getLength(participants) <= root.maxParticipantsAllowed) {
                     defaultSocket.send({
@@ -529,6 +525,8 @@
 
                         socket = null;
                     }
+					
+                    if(participants[response.userid]) delete participants[response.userid];
 
                     root.onleave({
                         userid: response.userid,

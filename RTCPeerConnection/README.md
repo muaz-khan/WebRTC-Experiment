@@ -1,10 +1,12 @@
-#### RTCPeerConnection Documentation
+##### RTCPeerConnection Documentation
 
 **RTCPeerConnection.js** is a JavaScript wrapper library for **RTCWeb PeerConnection APIs**.
 
 It not only simplifies coding but also handles complex cross browser implementations.
 
-#### Getting started with RTCPeerConnection library
+=
+
+##### Getting started with RTCPeerConnection library
 
 First of all; library to be linked!
 
@@ -29,11 +31,15 @@ var peer = RTCPeerConnection({
 });
 ```
 
-#### Exploring RTCPeerConnection object
+=
+
+##### Exploring RTCPeerConnection object
 
 You're passing a configuration object that contains a few methods and objects.
 
-#### `attachStream`
+=
+
+##### `attachStream`
 
 This object must contain `LocalMediaStream` object that will be attached to share your audio/video stream. You can skip it if you want to implement one-way streaming.
 
@@ -43,7 +49,9 @@ Behind the scene, **RTCPeerConnection** is calling `addStream` method:
 peerConnection.addStream(attachStream);
 ```
 
-#### `offerSDP`
+=
+
+##### `offerSDP`
 
 In one-to-one media session; this object will be used by **answerer** as soon as he will get **offer sdp** sent from **offerer**. Actually you're adding **offer sdp** here:
 
@@ -54,7 +62,9 @@ offerSDP = {
 }
 ```
 
-#### `onRemmoteSteam`
+=
+
+##### `onRemmoteSteam`
 
 This method is invoked as soon as **remote media stream** is added in peer connection object.
 
@@ -67,7 +77,9 @@ onRemmoteSteam: function (remoteMediaStream) {
 }
 ```
 
-#### `onOfferSDP`
+=
+
+##### `onOfferSDP`
 
 Use this method on the **offerer**'s side to get access to the **offer-sdp** generated using `peerConnection.createOffer` method:
 
@@ -78,7 +90,9 @@ onOfferSDP: function (offerSDP) {
 }
 ```
 
-#### `onAnswerSDP`
+=
+
+##### `onAnswerSDP`
 
 As soon as offerer sends you **offer-sdp** using his preferred signaling method; you should initiate peer connection for **answerer**. That peer connection object will create **answer-sdp** accordingly. To get access to that **answer-sdp**, use `onAnswerSDP` method:
 
@@ -91,7 +105,9 @@ onAnswerSDP: function (answerSDP) {
 
 **RTCPeerConnection** library also allows you establish data connection between peers.
 
-#### `onChannelMessage`
+=
+
+##### `onChannelMessage`
 
 Use this method to get access to all text messages or data transferred over WebRTC data channels.
 
@@ -102,7 +118,9 @@ onChannelMessage: function (event) {
 }
 ```
 
-#### `onChannelOpened`
+=
+
+##### `onChannelOpened`
 
 Use this method if you want to be alerted when data ports get open.
 
@@ -112,7 +130,9 @@ onChannelOpened: function (channel) {
 }
 ```
 
-#### Public instance methods
+=
+
+##### Public instance methods
 
 **RTCPeerConnection** library has a few instance methods to be called later at appropriate time.
 
@@ -125,7 +145,9 @@ var peer = RTCPeerConnection(configuration);
 peer.addAnswerSDP(...);
 ```
 
-#### `addAnswerSDP`
+=
+
+##### `addAnswerSDP`
 
 Use `addAnswerSDP` instance method to add **answer-sdp** sent by answerer. This method should only be used in offerer's side.
 
@@ -139,7 +161,9 @@ peer.addAnswerSDP(answerSDP);
 }
 ```
 
-#### How to send data over WebRTC Data Channels?
+=
+
+##### How to send data over WebRTC Data Channels?
 
 `peer` object has another instance method named `sendData` that allows you send only text-messages on chrome and blobs, buffers, and objects on firefox.
 
@@ -164,7 +188,9 @@ peer.channel.send(stringified);
 peer.sendData(file);
 ```
 
-#### `onChannelClosed`
+=
+
+##### `onChannelClosed`
 
 Use this method to be alerted when data ports get close.
 
@@ -172,7 +198,9 @@ Use this method to be alerted when data ports get close.
 onChannelClosed: function (event) { }
 ```
 
-#### `onChannelError`
+=
+
+##### `onChannelError`
 
 Use this method to catch errors expected to be occur in data channels.
 
@@ -180,7 +208,9 @@ Use this method to catch errors expected to be occur in data channels.
 onChannelError: function (event) { }
 ```
 
-#### `getUserMedia`
+=
+
+##### `getUserMedia`
 
 Use cross-browser `getUserMedia` function to get access to camera/microphone.
 
@@ -211,15 +241,20 @@ getUserMedia({
 });
 ```
 
-#### History
+=
 
-1. [RTCPeerConnection-v1.5.js](https://bit.ly/RTCPeerConnection-v1-5)
-2. [RTCPeerConnection-v1.4.js](https://bit.ly/RTCPeerConnection-v1-4)
-3. [RTCPeerConnection-v1.3.js](https://bit.ly/RTCPeerConnection-v1-3)
-4. [RTCPeerConnection-v1.2.js](https://bit.ly/RTCPeerConnection-v1-2)
-5. [RTCPeerConnection-v1.1.js](https://bit.ly/RTCPeerConnection-v1-1)
-6. [RTCPeerConnection.js](https://bit.ly/RTCPeerConnection)
+##### History
 
-#### License
+1. [RTCPeerConnection-v1.6.js](https://webrtc-experiment.appspot.com/RTCPeerConnection-v1.6.js)
+2. [RTCPeerConnection-v1.5.js](https://webrtc-experiment.appspot.com/RTCPeerConnection-v1.5.js)
+3. [RTCPeerConnection-v1.4.js](https://webrtc-experiment.appspot.com/lib/RTCPeerConnection-v1.4.js)
+4. [RTCPeerConnection-v1.3.js](https://webrtc-experiment.appspot.com/lib/RTCPeerConnection-v1.3.js)
+5. [RTCPeerConnection-v1.2.js](https://webrtc-experiment.appspot.com/lib/RTCPeerConnection-v1.2.js)
+6. [RTCPeerConnection-v1.1.js](https://webrtc-experiment.appspot.com/lib/RTCPeerConnection-v1.1.js)
+7. [RTCPeerConnection.js](https://webrtc-experiment.appspot.com/RTCPeerConnection.js)
+
+=
+
+##### License
 
 **RTCPeerConnection.js** is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

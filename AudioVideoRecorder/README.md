@@ -1,20 +1,20 @@
-#### Audio+Video Recording using MediaRecorder / [Demo](https://webrtc-experiment.appspot.com/AudioVideoRecorder/)
+##### Audio+Video Recording using MediaRecorder / [Demo](https://webrtc-experiment.appspot.com/AudioVideoRecorder/)
 
 Only audio-relevant parts are supported in the moment. Audio+Video recording coming soon.
 
 Support? Current/Latest Firefox Nightly (ONLY). Understood? Download from: http://nightly.mozilla.org/
 
-----
+=
 
-##### How to use RecordRTC?
+##### How to use AudioVideoRecorder?
 
 ```html
 <script src="https://webrtc-experiment.appspot.com/AudioVideoRecorder.js"></script>
 ```
 
-----
+=
 
-#### How to record audio?
+##### How to record audio?
 
 ```javascript
 AudioVideoRecorder({
@@ -43,9 +43,9 @@ AudioVideoRecorder({
 });
 ```
 
-----
+=
 
-#### Browser Support
+##### Browser Support
 
 [AudioVideoRecorder.js](https://webrtc-experiment.appspot.com/AudioVideoRecorder/) works fine on following web-browsers:
 
@@ -53,8 +53,8 @@ AudioVideoRecorder({
 | ------------- |-------------|
 | Firefox | [Nightly](http://nightly.mozilla.org/) |
 
-----
+=
 
-#### License
+##### License
 
 [AudioVideoRecorder.js](https://webrtc-experiment.appspot.com/AudioVideoRecorder/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
