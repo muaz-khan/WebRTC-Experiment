@@ -1,36 +1,38 @@
-/*  MIT License: https://webrtc-experiment.appspot.com/licence/ 
- 2013, Muaz Khan<muazkh>--[github.com/muaz-khan]
+/*
+     2013, @muazkh - github.com/muaz-khan
+     MIT License - https://webrtc-experiment.appspot.com/licence/
+     Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
+*/
 
- Demo & Documentation: http://bit.ly/RTCPeerConnection-Documentation */
-
-window.moz = !!navigator.mozGetUserMedia;
+window.moz = !! navigator.mozGetUserMedia;
 var RTCPeerConnection = function (options) {
     var w = window,
         PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
         SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
         IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
-    STUN = {
+    var STUN = {
         url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
     };
 
-    TURN1 = {
-        url: 'turn:73922577-1368147610@108.59.80.54',
-        credential: 'b3f7d809d443a34b715945977907f80a'
+    var TURN = {
+        url: 'turn:homeo@turn.bistri.com:80',
+        credential: 'homeo'
     };
 
-    TURN2 = {
-        url: 'turn:webrtc%40live.com@numb.viagenie.ca',
-        credential: 'muazkh'
-    };
-
-    iceServers = {
+    var iceServers = {
         iceServers: options.iceServers || [STUN]
     };
 
     if (!moz && !options.iceServers) {
-        iceServers.iceServers[1] = TURN1;
-        iceServers.iceServers[2] = TURN2;
+        if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
+            TURN = {
+                url: 'turn:turn.bistri.com:80',
+                credential: 'homeo',
+                username: 'homeo'
+            };
+
+        iceServers.iceServers = [STUN, TURN];
     }
 
     var optional = {
@@ -97,7 +99,9 @@ var RTCPeerConnection = function (options) {
         var inline = getChars() + '\r\n' + (extractedChars = '');
         sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
             'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
-                'c=IN') : sdp;
+            'c=IN') : sdp;
+
+        sdp = setBandwidth(sdp);
 
         if (options.offerSDP) {
             info('\n--------offer sdp provided by offerer\n');
@@ -109,8 +113,6 @@ var RTCPeerConnection = function (options) {
 
         return sdp;
     }
-
-    if (moz && !options.onChannelMessage) constraints.mandatory.MozDontOfferDataChannel = true;
 
     function createOffer() {
         if (!options.onOfferSDP) return;
@@ -133,6 +135,20 @@ var RTCPeerConnection = function (options) {
             peerConnection.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
         }, null, constraints);
+    }
+
+    function setBandwidth(sdp) {
+        // Firefox has no support of "b=AS"
+        if (moz) return sdp;
+
+        // remove existing bandwidth lines
+        sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
+
+        sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:50\r\n');
+        sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:256\r\n');
+        sdp = sdp.replace(/a=mid:data\r\n/g, 'a=mid:data\r\nb=AS:1638400\r\n');
+
+        return sdp;
     }
 
     if ((options.onChannelMessage && !moz) || !options.onChannelMessage) {
@@ -179,6 +195,8 @@ var RTCPeerConnection = function (options) {
         };
         channel.onclose = function (event) {
             if (options.onChannelClosed) options.onChannelClosed(event);
+
+            console.warn('WebRTC DataChannel closed', event);
         };
         channel.onerror = function (event) {
             console.error(event);
@@ -206,8 +224,7 @@ var RTCPeerConnection = function (options) {
         }
     }
 
-    function useless() {
-    }
+    function useless() {}
 
     function info(information) {
         console.log(information);
@@ -243,7 +260,8 @@ var video_constraints = {
 };
 
 function getUserMedia(options) {
-    var n = navigator, media;
+    var n = navigator,
+        media;
     n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
     n.getMedia(options.constraints || {
         audio: true,

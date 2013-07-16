@@ -6,7 +6,9 @@ This experiment is using **WebSocket over Node.js** for signaling. Follow these 
 2. Extract and then copy `folder-location` of the`signaler.js` file
 3. Open **Node.js command prompt**
 4. Type command `cd folder-location` where `folder-location` can be `C:\websocket-over-nodejs`
-5. Type `node signaler`
+5. Type `npm install express`
+6. Type `npm install ws`
+7. Type `node signaler`
 
 `http://localhost:9999/` will be auto-opened.
 

@@ -219,7 +219,7 @@
 </script>
 
 <script src="https://webrtc-experiment.appspot.com/firebase.js"></script>
-<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.1.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js"></script>
 </head>
 
 <body>
@@ -243,11 +243,7 @@
     </section>
 
     <section>
-        <h2>Join a session:</h2>
-
-        <button id="join-session">Join</button>
-
-        <h2>or open new session:</h2>
+        <h2>Open new session:</h2>
         <button id="open-session">Open Session</button>
     </section>
 
@@ -269,11 +265,15 @@
     </table>
     <script>
         var connection = new RTCMultiConnection();
-        connection.direction = 'one-way';
-        connection.onstream = function (stream) {
-            if (stream.type === 'remote') {
-                var mediaElement = stream.mediaElement;
-                if (stream.direction !== Direction.OneWay) {
+        connection.session = {
+			audio: true,
+			video: true,
+			oneway: true
+		};
+        connection.onstream = function (e) {
+            if (e.type === 'remote') {
+                var mediaElement = e.mediaElement;
+                if (!e.session.oneway) {
                     var remoteMediaStreams = document.getElementById('remote-media-streams');
                     remoteMediaStreams.insertBefore(mediaElement, remoteMediaStreams.firstChild);
                 }
@@ -281,8 +281,8 @@
                 mediaElement.controls = true;
             }
 
-            if (stream.type === 'local') {
-                mediaElement = stream.mediaElement;
+            if (e.type === 'local') {
+                mediaElement = e.mediaElement;
                 document.getElementById('local-media-stream').appendChild(mediaElement);
                 mediaElement.controls = true;
             }
@@ -292,25 +292,12 @@
 
         document.getElementById('open-session').onclick = function () {
             connection.open(sessionid);
-            disableButtons();
+            this.disabled = true;
 
-            var hash = location.hash.replace('#', '');
-            this.parentNode.innerHTML = '<h2>Share with friends: <a href="?join=' + hash + '" target="_blank">?join=' + hash + '</a></h2>';
+            this.parentNode.innerHTML = '<h2>Share with friends: <a href="' + location.href + '" target="_blank">#' + location.hash.replace('#', '') + '</a></h2>';
         };
 
-        document.getElementById('join-session').onclick = joinRTCSession;
-
-        function joinRTCSession() {
-            connection.connect(sessionid);
-            disableButtons();
-        }
-
-        function disableButtons() {
-            if (document.getElementById('join-session')) document.getElementById('join-session').disabled = true;
-            if (document.getElementById('open-session')) document.getElementById('open-session').disabled = true;
-        }
-
-        if (window.params.join) joinRTCSession();
+        connection.connect(sessionid);
     </script>
     <br/>
     <br/>
@@ -318,15 +305,12 @@
     <h2>Getting started with <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection"
                                 target="_blank">RTCMultiConnection</a></h2>
             <pre>
-&lt;script src="<a href="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.1.js" target="_blank">https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.1.js</a>"&gt;&lt;/script&gt;
+&lt;script src="<a href="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js" target="_blank">https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js</a>"&gt;&lt;/script&gt;
 &lt;script&gt;
     var connection = new <strong>RTCMultiConnection</strong>();
 
     // for Video Broadcasting; set direction = 'one-way'
-    connection.<strong>direction</strong> = 'one-way';
-	
-    // and set session = 'audio + video'
-    connection.<strong>session</strong> = 'audio and video';
+    connection.<strong>section</strong> = {audio:true, video:true, oneway:true}
 	
     // to create/open a new session
     connection.<strong>open</strong>('session-id');

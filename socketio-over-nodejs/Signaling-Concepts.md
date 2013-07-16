@@ -38,7 +38,7 @@ Node.js must catch messages passed from client-side and broadcast/transmit that 
 Node.js server:
 
 ```javascript
-var port = 8888; // use port:80 for non-localhost tests
+var port = 8888;
 
 var app = require('express')(),
     server = require('http').createServer(app),
@@ -72,7 +72,7 @@ Client side:
 
 ```javascript
 connection.openSignalingChannel = function(config) {
-   var SIGNALING_SERVER = 'http://domain.com:8888/';
+   var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
    var channel = config.channel || this.channel || 'default-channel';
    var sender = Math.round(Math.random() * 60535) + 5000;
    

@@ -123,23 +123,15 @@
                         e.data = JSON.parse(e.data);
 
                     if (e.data.type === 'text')
-                        textReceiver.receive({
-                            data: e.data,
-                            connection: self
-                        });
+                        textReceiver.receive(e.data, self.onmessage, e.userid, e.extra);
 
                     else if (e.data.size || e.data.type === 'file')
-                        fileReceiver.receive({
-                            data: e.data,
-                            connection: self
-                        });
+                        fileReceiver.receive(e.data, self);
                     else
                         self.onmessage(e);
                 }
             };
             rtcSession = new RTCMultiSession(self);
-
-            // bug: these two must be fixed. Must be able to receive many files concurrently.
             fileReceiver = new FileReceiver();
             textReceiver = new TextReceiver();
 
@@ -166,8 +158,6 @@
         function captureUserMedia(callback, _session) {
             var session = _session || self.session;
 
-            log(JSON.stringify(session, null, '\t'));
-
             if (self.dontAttachStream)
                 return callback();
 
@@ -179,28 +169,35 @@
             var constraints = {
                 audio: !!session.audio,
                 video: !!session.video
-            },
-                screen_constraints = {
-                    audio: false,
-                    video: {
-                        mandatory: {
-                            chromeMediaSource: 'screen'
-                        },
-                        optional: []
-                    }
-                };
+            };
+            var screen_constraints = {
+                audio: false,
+                video: {
+                    mandatory: {
+                        chromeMediaSource: 'screen'
+                    },
+                    optional: []
+                }
+            };
 
             if (session.screen)
                 _captureUserMedia(screen_constraints, function() {
                     _captureUserMedia(constraints, callback);
                 });
-            else _captureUserMedia(constraints, callback);
+            else _captureUserMedia(constraints, callback, session.audio && !session.video);
 
-            function _captureUserMedia(forcedConstraints, forcedCallback) {
-                var mediaElement = document.createElement(session.audio && !session.video ? 'audio' : 'video');
+            function _captureUserMedia(forcedConstraints, forcedCallback, isRemoveVideoTracks) {
                 var mediaConfig = {
-                    video: mediaElement,
-                    onsuccess: function(stream) {
+                    onsuccess: function(stream, returnBack) {
+                        if (returnBack) return forcedCallback && forcedCallback(stream);
+
+                        if (isRemoveVideoTracks && !moz) {
+                            stream = new webkitMediaStream(stream.getAudioTracks());
+                        }
+
+                        var mediaElement = getMediaElement(stream, session);
+                        mediaElement.muted = true;
+
                         stream.onended = function() {
                             if (self.onstreamended)
                                 self.onstreamended(streamedObject);
@@ -225,10 +222,6 @@
                         });
 
                         if (forcedCallback) forcedCallback(stream);
-
-                        mediaElement.autoplay = true;
-                        mediaElement.controls = true;
-                        mediaElement.muted = true;
                     },
                     onerror: function() {
                         if (session.audio && !session.video)
@@ -240,11 +233,11 @@
                                 throw 'Multi-capturing of screen is not allowed. Capturing process is denied. Are you enabled flag: "Enable screen capture support in getUserMedia"?';
                         } else
                             throw 'Webcam access is denied.';
-                    }
+                    },
+                    mediaConstraints: self.mediaConstraints || { }
                 };
 
                 mediaConfig.constraints = forcedConstraints || constraints;
-                console.log(JSON.stringify(mediaConfig.constraints, null, '\t'));
                 getUserMedia(mediaConfig);
             }
         }
@@ -309,9 +302,7 @@
             };
 
             var socket = root.openSignalingChannel(socketConfig),
-                isofferer = _config.isofferer,
-                peer,
-                mediaElement;
+                isofferer = _config.isofferer, peer;
 
             var peerConfig = {
                 onopen: onChannelOpened,
@@ -332,23 +323,19 @@
                     });
                 },
                 onstream: function(stream) {
-                    mediaElement = document.createElement(session.audio && !session.video ? 'audio' : 'video');
-                    mediaElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
-                    mediaElement.autoplay = true;
-                    mediaElement.controls = true;
-                    mediaElement.play();
+                    var mediaElement = getMediaElement(stream, session);
 
                     _config.stream = stream;
-                    if (session.audio && !session.video)
+                    if (mediaElement.tagName.toLowerCase() == 'audio')
                         mediaElement.addEventListener('play', function() {
                             setTimeout(function() {
                                 mediaElement.muted = false;
                                 mediaElement.volume = 1;
-                                afterRemoteStreamStartedFlowing();
+                                afterRemoteStreamStartedFlowing(mediaElement);
                             }, 3000);
                         }, false);
                     else
-                        afterRemoteStreamStartedFlowing();
+                        afterRemoteStreamStartedFlowing(mediaElement);
                 },
 
                 onclose: function(e) {
@@ -364,7 +351,8 @@
 
                 attachStreams: root.attachStreams,
                 iceServers: root.iceServers,
-                bandwidth: root.bandwidth
+                bandwidth: root.bandwidth,
+                sdpConstraints: root.sdpConstraints || { }
             };
 
             function initPeer(offerSDP) {
@@ -391,7 +379,7 @@
                 peer = new RTCPeerConnection(peerConfig);
             }
 
-            function afterRemoteStreamStartedFlowing() {
+            function afterRemoteStreamStartedFlowing(mediaElement) {
                 _config.stream.onended = function() {
                     root.onstreamended(streamedObject);
                 };
@@ -444,7 +432,7 @@
                     }
                 };
 
-                if(isData(session)) onSessionOpened();
+                if (isData(session)) onSessionOpened();
             }
 
             function updateSocket() {
@@ -525,8 +513,8 @@
 
                         socket = null;
                     }
-					
-                    if(participants[response.userid]) delete participants[response.userid];
+
+                    if (participants[response.userid]) delete participants[response.userid];
 
                     root.onleave({
                         userid: response.userid,
@@ -790,7 +778,8 @@
             clearSession(userid);
 
             if (!userid) {
-                self.joinedARoom = isbroadcaster = false;
+                self.userid = root.userid = root.token();
+                root.joinedARoom = self.joinedARoom = isbroadcaster = false;
                 isAcceptNewSession = true;
             }
         };
@@ -836,29 +825,30 @@
         };
     }
 
+    function getRandomString() {
+        return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+    }
+
     var FileSender = {
         send: function(config) {
-            var channel = config.channel;
-            var file = config.file;
-            var _channel = config._channel;
+            var channel = config.channel,
+                _channel = config._channel,
+                file = config.file;
 
+            /* if firefox nightly: share file blob directly */
             if (moz) {
+                /* used on the receiver side to set received file name */
                 channel.send({
                     fileName: file.name,
                     type: 'file'
                 }, _channel);
 
+                /* sending entire file at once */
                 channel.send({
                     file: file
                 }, _channel);
 
-                config.onFileSent(file);
-            }
-
-            if (!moz) {
-                var reader = new window.FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = onReadAsDataURL;
+                if (config.onFileSent) config.onFileSent(file);
             }
 
             var packetSize = 1000,
@@ -866,9 +856,20 @@
                 numberOfPackets = 0,
                 packets = 0;
 
+            // uuid is used to uniquely identify sending instance
+            var uuid = getRandomString();
+
+            /* if chrome */
+            if (!moz) {
+                var reader = new window.FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = onReadAsDataURL;
+            }
+
             function onReadAsDataURL(event, text) {
                 var data = {
-                    type: 'file'
+                    type: 'file',
+                    uuid: uuid
                 };
 
                 if (event) {
@@ -876,20 +877,20 @@
                     numberOfPackets = packets = data.packets = parseInt(text.length / packetSize);
                 }
 
-                config.onFileProgress({
-                    remaining: packets--,
-                    length: numberOfPackets,
-                    sent: numberOfPackets - packets
-                });
+                if (config.onFileProgress)
+                    config.onFileProgress({
+                        remaining: packets--,
+                        length: numberOfPackets,
+                        sent: numberOfPackets - packets
+                    }, uuid);
 
-                if (text.length > packetSize)
-                    data.message = text.slice(0, packetSize);
+                if (text.length > packetSize) data.message = text.slice(0, packetSize);
                 else {
                     data.message = text;
                     data.last = true;
                     data.name = file.name;
 
-                    config.onFileSent(file);
+                    if (config.onFileSent) config.onFileSent(file);
                 }
 
                 channel.send(data, _channel);
@@ -905,76 +906,97 @@
     };
 
     function FileReceiver() {
-        var content = [],
+        var content = { },
             fileName = '',
-            packets = 0,
-            numberOfPackets = 0;
+            packets = { },
+            numberOfPackets = { };
 
-        this.receive = function(e) {
-            var data = e.data;
-            var connection = e.connection;
+        function receive(data, config) {
+            // uuid is used to uniquely identify sending instance
+            var uuid = data.uuid;
 
+            /* if firefox nightly & file blob shared */
             if (moz) {
-                if (data.fileName)
-                    fileName = data.fileName;
-
+                if (data.fileName) fileName = data.fileName;
                 if (data.size) {
                     var reader = new window.FileReader();
                     reader.readAsDataURL(data);
                     reader.onload = function(event) {
-                        FileSaver.SaveToDisk({
-                            fileURL: event.target.result,
-                            fileName: fileName
-                        });
-                        connection.onFileReceived(fileName);
+                        FileSaver.SaveToDisk(event.target.result, fileName);
+                        if (config.onFileReceived) config.onFileReceived(fileName);
                     };
                 }
             }
 
             if (!moz) {
-                if (data.packets)
-                    numberOfPackets = packets = parseInt(data.packets);
+                if (data.packets) numberOfPackets[uuid] = packets[uuid] = parseInt(data.packets);
 
-                if (connection.onFileProgress)
-                    connection.onFileProgress({
-                        remaining: packets--,
-                        length: numberOfPackets,
-                        received: numberOfPackets - packets
-                    });
+                if (config.onFileProgress)
+                    config.onFileProgress({
+                        remaining: packets[uuid]--,
+                        length: numberOfPackets[uuid],
+                        received: numberOfPackets[uuid] - packets[uuid]
+                    }, uuid);
 
-                content.push(data.message);
+                if (!content[uuid]) content[uuid] = [];
+
+                content[uuid].push(data.message);
 
                 if (data.last) {
-                    FileSaver.SaveToDisk({
-                        fileURL: content.join(''),
-                        fileName: data.name
-                    });
-                    connection.onFileReceived(data.name);
-                    content = [];
+                    FileSaver.SaveToDisk(content[uuid].join(''), data.name);
+                    if (config.onFileReceived) config.onFileReceived(data.name);
+                    delete content[uuid];
                 }
             }
+        }
+
+        return {
+            receive: receive
         };
     }
+
+    var FileSaver = {
+        SaveToDisk: function(fileUrl, fileName) {
+            var save = document.createElement('a');
+            save.href = fileUrl;
+            save.target = '_blank';
+            save.download = fileName || fileUrl;
+
+            var evt = document.createEvent('MouseEvents');
+            evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+
+            save.dispatchEvent(evt);
+
+            (window.URL || window.webkitURL).revokeObjectURL(save.href);
+        }
+    };
 
     var TextSender = {
         send: function(config) {
             var channel = config.channel,
+                _channel = config._channel,
                 initialText = config.text,
-                packetSize = 1000,
+                packetSize = 1000 /* chars */,
                 textToTransfer = '',
-                _channel = config._channel;
+                isobject = false;
 
-            if (typeof initialText !== 'string')
+            if (typeof initialText !== 'string') {
+                isobject = true;
                 initialText = JSON.stringify(initialText);
+            }
 
-            if (moz || initialText.length <= packetSize)
-                channel.send(config.text, _channel);
-            else
-                sendText(initialText);
+            // uuid is used to uniquely identify sending instance
+            var uuid = getRandomString();
+            var sendingTime = new Date().getTime();
+
+            if (moz) channel.send(config.text, _channel);
+            else sendText(initialText);
 
             function sendText(textMessage, text) {
                 var data = {
-                    type: 'text'
+                    type: 'text',
+                    uuid: uuid,
+                    sendingTime: sendingTime
                 };
 
                 if (textMessage) {
@@ -987,6 +1009,7 @@
                 else {
                     data.message = text;
                     data.last = true;
+                    data.isobject = isobject;
                 }
 
                 channel.send(data, _channel);
@@ -1002,16 +1025,31 @@
     };
 
     function TextReceiver() {
-        var content = [];
+        var content = { };
 
-        function receive(e) {
-            data = e.data;
-            connection = e.connection;
+        function receive(data, onmessage, userid, extra) {
+            // uuid is used to uniquely identify sending instance
+            var uuid = data.uuid;
+            if (!content[uuid]) content[uuid] = [];
 
-            content.push(data.message);
+            content[uuid].push(data.message);
             if (data.last) {
-                connection.onmessage(content.join(''));
-                content = [];
+                var message = content[uuid].join('');
+                if (data.isobject) message = JSON.parse(message);
+
+                // latency detection
+                var receivingTime = new Date().getTime();
+                var latency = receivingTime - data.sendingTime;
+
+                if (onmessage)
+                    onmessage({
+                        data: message,
+                        userid: userid,
+                        extra: extra,
+                        latency: latency
+                    });
+
+                delete content[uuid];
             }
         }
 
@@ -1019,21 +1057,6 @@
             receive: receive
         };
     }
-
-    var FileSaver = {
-        SaveToDisk: function(e) {
-            var save = document.createElement('a');
-            save.href = e.fileURL;
-            save.target = '_blank';
-            save.download = e.fileName || e.fileURL;
-
-            var evt = document.createEvent('MouseEvents');
-            evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-
-            save.dispatchEvent(evt);
-            (window.URL || window.webkitURL).revokeObjectURL(save.href);
-        }
-    };
 
     window.MediaStream = window.MediaStream || window.webkitMediaStream;
 
@@ -1065,7 +1088,6 @@
                     username: 'homeo'
                 };
 
-            // No STUN to make sure it works all the time!
             iceServers.iceServers = [STUN, TURN];
         }
 
@@ -1113,6 +1135,8 @@
 
         function setConstraints() {
             var session = options.session;
+
+            var sdpConstraints = options.sdpConstraints;
             constraints = options.constraints || {
                 optional: [],
                 mandatory: {
@@ -1120,6 +1144,12 @@
                     OfferToReceiveVideo: !!session.video || !!session.screen
                 }
             };
+
+            if (sdpConstraints.mandatory)
+                constraints.mandatory = merge(constraints.mandatory, sdpConstraints.mandatory);
+
+            if (sdpConstraints.optional)
+                constraints.optional[0] = merge({ }, sdpConstraints.optional);
         }
 
         setConstraints();
@@ -1328,32 +1358,51 @@
             return;
         }
         currentUserMediaRequest.mutex = true;
+
+        // http://tools.ietf.org/html/draft-alvestrand-constraints-resolution-00
+        var mediaConstraints = options.mediaConstraints || { };
         var n = navigator,
             resourcesNeeded = options.constraints || {
                 audio: true,
                 video: video_constraints
             };
 
+        if (resourcesNeeded.video == true) resourcesNeeded.video = video_constraints;
+
+        // connection.mediaConstraints.audio = false;
+        if (typeof mediaConstraints.audio != 'undefined')
+            resourcesNeeded.audio = mediaConstraints.audio;
+
+        // connection.mediaConstraints.mandatory = {minFrameRate:10};
+        if (mediaConstraints.mandatory)
+            resourcesNeeded.video.mandatory = merge(resourcesNeeded.video.mandatory, mediaConstraints.mandatory);
+
+        // mediaConstraints.optional.bandwidth = 10000;
+        if (mediaConstraints.optional)
+            resourcesNeeded.video.optional[0] = merge({ }, mediaConstraints.optional);
+
+        log('resources-needed:', JSON.stringify(resourcesNeeded, null, '\t'));
+
         // easy way to match 
         var idInstance = JSON.stringify(resourcesNeeded);
 
-        function streaming(stream) {
+        function streaming(stream, returnBack) {
             var video = options.video;
             if (video) {
                 video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
                 video.play();
             }
 
-            options.onsuccess(stream);
+            options.onsuccess(stream, returnBack);
             currentUserMediaRequest.streams[idInstance] = stream;
             currentUserMediaRequest.mutex = false;
             if (currentUserMediaRequest.queueRequests.length)
                 getUserMedia(currentUserMediaRequest.queueRequests.shift());
         }
 
-        if (currentUserMediaRequest.streams[idInstance])
-            streaming(currentUserMediaRequest.streams[idInstance]);
-        else {
+        if (currentUserMediaRequest.streams[idInstance]) {
+            streaming(currentUserMediaRequest.streams[idInstance], true);
+        } else {
             n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
             n.getMedia(resourcesNeeded, streaming, options.onerror || function(e) {
                 console.error(e);
@@ -1448,6 +1497,9 @@
             data: 1638400
         };
 
+        self.mediaConstraints = { };
+        self.sdpConstraints = { };
+
         self.attachStreams = [];
 
         self.maxParticipantsAllowed = 10;
@@ -1511,5 +1563,28 @@
         var length = 0;
         for (var o in obj) length++;
         return length;
+    }
+
+    // Get HTMLAudioElement/HTMLVideoElement accordingly
+
+    function getMediaElement(stream, session) {
+        var isAudio = session.audio && !session.video && !session.screen;
+        if (!moz && stream.getAudioTracks && stream.getVideoTracks) {
+            isAudio = stream.getAudioTracks().length && !stream.getVideoTracks().length;
+        }
+
+        var mediaElement = document.createElement(isAudio ? 'audio' : 'video');
+        mediaElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
+        mediaElement.autoplay = true;
+        mediaElement.controls = true;
+        mediaElement.play();
+        return mediaElement;
+    }
+
+    function merge(mergein, mergeto) {
+        for (var item in mergeto) {
+            mergein[item] = mergeto[item];
+        }
+        return mergein;
     }
 })();

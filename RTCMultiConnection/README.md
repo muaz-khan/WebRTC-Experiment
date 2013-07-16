@@ -1,37 +1,151 @@
-##### [RTCMultiConnection-v1.4](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js) Documentation
+# [RTCMultiConnection-v1.4](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js) Documentation
 
-Supports features like
+##### Features
 
-1. audio/video/screen/data conferences (oneway/broadcast/many-to-many)
-2. multiple streams renegotiation and removal of individual streams
-3. mute/unmute of individual streams
-4. users ejection/rejection and presence detection
-5. multi as well as manual session establishment
-6. sessions will be LIVE all the time; even if initiator leaves!
+1. Multi-streams attachment e.g. audio+video+data+screen
+2. Multi-streams renegotiation e.g. audio+video+data+screen
+3. Advance streams management e.g. mute/unmute/stop/onstreamended
+4. One-to-One / One-to-Many / Many-to-Many / One-Way / Broadcasting
+5. Users ejection/rejection and presence detection
+6. Multi-session establishment (e.g. one or conferencing and other for broadcasting)
+7. Keeps session active/LIVE all the time; even if session initiator leaves
+8. Advance data/file/text sharing (concurrently|longest|largest)
+8. Session re-initiation
 
-and much more.
+and much more!
+
+= 
+
+##### A Quick Demo using Firebase for Signaling
+
+```html
+<script src="https://webrtc-experiment.appspot.com/firebase.js"> </script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js"> </script>
+
+<style>
+    video {
+        vertical-align: top;
+        width: 48%;
+    }
+</style>
+<button id="init">Open New Connection</button>
+<br /><br />
+
+<script>
+    var connection = new RTCMultiConnection();
+
+    connection.session = {
+        audio: true,
+        video: true
+    };
+
+    connection.onstream = function(e) {
+        document.body.appendChild(e.mediaElement);
+    };
+
+    connection.onstreamended = function(e) {
+        if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
+    };
+
+    var session_unique_idetifier = 'Session Unique Identifier';
+
+    connection.connect(session_unique_idetifier);
+
+    document.getElementById('init').onclick = function() {
+        this.disabled = true;
+        connection.open(session_unique_idetifier);
+    };
+</script>
+```
 
 =
 
-##### Documentations History
+##### A Quick Demo using socket.io for Signaling
 
-1. [`RTCMultiConnection-v1.4`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection)
-2. [`RTCMultiConnection-v1.3`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.3.md)
-3. [`RTCMultiConnection-v1.2 and earlier`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.2-and-earlier.md)
-4. [`RTCMultiConnection-v1.5 --- experimental`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-experimental.md)
+```html
+<script src="https://webrtc-experiment.appspot.com/socket.io.js"> </script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js"> </script>
+
+<style>
+    video {
+        vertical-align: top;
+        width: 48%;
+    }
+</style>
+<button id="init">Open New Connection</button>
+<br /><br />
+
+<script>
+    var connection = new RTCMultiConnection();
+
+    connection.session = {
+        audio: true,
+        video: true
+    };
+
+    connection.openSignalingChannel = function(config) {
+        var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/',
+            defaultChannel = 'default-channel';
+
+        window.username = Math.random() * 9999 << 9999;
+
+        var channel = config.channel || defaultChannel;
+        var sender = Math.round(Math.random() * 60535) + 5000;
+
+        io.connect(SIGNALING_SERVER).emit('new-channel', {
+            channel: channel,
+            sender: sender
+        });
+
+        var socket = io.connect(SIGNALING_SERVER + channel);
+        socket.channel = channel;
+        socket.on('connect', function() {
+            if (config.callback) config.callback(socket);
+        });
+
+        socket.send = function(message) {
+            socket.emit('message', {
+                sender: sender,
+                data: message
+            });
+        };
+
+        socket.on('message', config.onmessage);
+    };
+
+    connection.onstream = function(e) {
+        document.body.appendChild(e.mediaElement);
+    };
+
+    connection.onstreamended = function(e) {
+        if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
+    };
+
+    var session_unique_idetifier = 'Session Unique Identifier';
+
+    connection.connect(session_unique_idetifier);
+
+    document.getElementById('init').onclick = function() {
+        this.disabled = true;
+        connection.open(session_unique_idetifier);
+    };
+</script>
+```
 
 =
+
+
 
 ##### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js"></script>
+<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4.js"></script>
 ```
 
 ##### Second Step: Start using it!
 
 ```javascript
-connection = new RTCMultiConnection();
+var connection = new RTCMultiConnection();
 connection.userid = 'muazkh'; // username or user-id!
 connection.session = {
     audio: true,
@@ -44,7 +158,7 @@ connection.onstream = function (e) {
     if (e.type === 'remote') document.body.appendChild(e.mediaElement);
 }
 
-// searching/connecting pre-created session
+// searching/connecting pre-created sessions
 connection.connect('session-id');
 
 // to create/open a new session
@@ -88,7 +202,7 @@ connection.onstream = function (e) {
 
 ```javascript
 connection.onstreamended = function(e) {
-    e.mediaElement.parentNode.removeChild(e.mediaElement);
+    if(e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
 };
 ```
 
@@ -205,6 +319,16 @@ connection.close(); // close entire session
 
 =
 
+##### Latency Detection
+
+```javascript
+connection.onmessage = function(e) {
+    console.log('latency:', e.latency, 'milliseconds');
+};
+```
+
+=
+
 ##### Are you want to share files/text or data?
 
 ```javascript
@@ -231,6 +355,22 @@ connection.onmessage = function (e) {
 
 =
 
+##### Concurrent Transmission
+
+You can send multiple files simultaneously; you can send largest string messages too!
+
+```javascript
+connection.send(fileNumber1);
+connection.send(fileNumber2);
+connection.send(fileNumber3);
+
+connection.send('longer string-1');
+connection.send('longer string-2');
+connection.send('longer string-3');
+```
+
+=
+
 ##### Direct Messages
 
 You can share data directly between two unique users using their user-ids:
@@ -245,11 +385,13 @@ connection.channels['user-id'].send(file || data || 'text');
 
 ```javascript
 // show progress bar!
-connection.onFileProgress = function (packets) {
+connection.onFileProgress = function (packets, uuid) {
     // packets.remaining
     // packets.sent
     // packets.received
     // packets.length
+	
+    // uuid:    file unique identifier
 };
 
 // on file successfully sent
@@ -387,7 +529,7 @@ connection.firebase = 'chat';
 // if you want to attach external stream
 // this feature is useful in multi-sessions initiations
 connection.dontAttachStream = true; // it means that don't try to attach NEW stream
-connection.attachStream = MediaStream;
+connection.attachStreams[0] = MediaStream;
 ```
 
 =
@@ -473,22 +615,51 @@ connection.maxParticipantsAllowed = 1; // for one-to-one
 
 =
 
+##### Media Constraints
+
+```javascript
+connection.mediaConstraints.mandatory = {
+    minWidth: 1280,
+    maxWidth: 1280,
+    minHeight: 720,
+    maxHeight: 720,
+    minFrameRate: 30
+};
+
+connection.mediaConstraints.audio = false;
+```
+
+=
+
+##### SDP Constraints
+
+```javascript
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: false,
+    OfferToReceiveVideo: false,
+    VoiceActivityDetection: false,
+    IceRestart = true
+};
+```
+
+=
+
 ##### Custom Signaling
 
 Use your own [socket.io over node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) for signaling:
 
 ```javascript
 connection.openSignalingChannel = function(config) {
-   URL = 'http://domain.com:8888/';
-   channel = config.channel || this.channel || 'Default-Socket';
-   sender = Math.round(Math.random() * 60535) + 5000;
+   var URL = 'http://domain.com:8888/';
+   var channel = config.channel || this.channel || 'Default-Socket';
+   var sender = Math.round(Math.random() * 60535) + 5000;
 
    io.connect(URL).emit('new-channel', {
       channel: channel,
       sender : sender
    });
 
-   socket = io.connect(URL + channel);
+   var socket = io.connect(URL + channel);
    socket.channel = channel;
 
    socket.on('connect', function () {
@@ -572,6 +743,16 @@ io.sockets.on('connection', function (socket) {
 | **All-in-One test** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4-Demos/All-in-One.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/All-in-One.html) |
 | **Renegotiation & Mute/UnMute/Stop** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4-Demos/Renegotiation.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/Renegotiation.html) |
 | **Video-Conferencing** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) |
+| **Multi-streams attachment** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) |
+
+=
+
+##### Documentations History
+
+1. [`RTCMultiConnection-v1.4`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection)
+2. [`RTCMultiConnection-v1.3`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.3.md)
+3. [`RTCMultiConnection-v1.2 and earlier`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.2-and-earlier.md)
+4. [`RTCMultiConnection-v1.5 --- experimental`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-experimental.md)
 
 =
 

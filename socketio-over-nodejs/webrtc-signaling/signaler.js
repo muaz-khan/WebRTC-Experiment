@@ -1,18 +1,14 @@
-/*
-     2013, @muazkh » github.com/muaz-khan
-     MIT License » https://webrtc-experiment.appspot.com/licence/
-     Documentation » https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
-     Demo » http://webrtc-signaling.jit.su/
-*/
+// 2013, @muazkh » github.com/muaz-khan
+// MIT License » https://webrtc-experiment.appspot.com/licence/
+// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
+// Demo » http://webrtc-signaling.jit.su/
 
-var port = 8888; // use port:80 for non-localhost (i.e. real) web servers
+var port = 8888;
 var app = require('express')(),
-server = require('http').createServer(app),
-io = require('socket.io').listen(server);
+    server = require('http').createServer(app),
+    io = require('socket.io').listen(server);
 
 server.listen(port);
-
-/* -------------- for presence detection! -------------- */
 
 var channels = {};
 
@@ -29,7 +25,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('presence', function (channel) {
-        var isChannelPresent = !!channels[channel];
+        var isChannelPresent = !! channels[channel];
         socket.emit('presence', isChannelPresent);
         if (!isChannelPresent)
             initiatorChannel = channel;
@@ -76,12 +72,9 @@ app.get('/conference-ui.js', function (req, res) {
     res.sendfile(__dirname + '/static/video-conferencing/conference-ui.js');
 });
 
-/* -------------- text chat -------------- */
 app.get('/chat', function (req, res) {
     res.sendfile(__dirname + '/static/text-chat.html');
 });
-
-/* -------------- RTCMultiConnection demos -------------- */
 
 app.get('/RTCMultiConnection', function (req, res) {
     res.sendfile(__dirname + '/static/RTCMultiConnection/index.html');
@@ -93,17 +86,21 @@ app.get('/RTCMultiConnection-v1.2.js', function (req, res) {
 });
 
 app.get('/socketio.js', function (req, res) {
-	res.setHeader('Content-Type', 'application/javascript');
+    res.setHeader('Content-Type', 'application/javascript');
     res.sendfile(__dirname + '/static/socket.io.js');
+});
+
+app.get('/RTCMultiConnection-v1.4', function (req, res) {
+    res.sendfile(__dirname + '/static/RTCMultiConnection-v1.4/index.html');
 });
 
 // following lines aimed to auto-open the browser instance
 // you can remove them if causing failure
 var childProcess = require('child_process'),
-openURL = 'http://localhost:' + port + '/';
+    openURL = 'http://localhost:' + port + '/';
 
 var chromeURL = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-firefoxURL = 'c:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe';
+    firefoxURL = 'c:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe';
 
 childProcess.spawn(chromeURL, ['-incognito', openURL]);
 //childProcess.spawn(firefoxURL, ['-new-tab', openURL]);

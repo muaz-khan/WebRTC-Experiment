@@ -11,7 +11,7 @@ It listens/publishes/creates `dynamic namespaces`.
 Here is `signaler.js`'s socket.io part:
 
 ```javascript
-var port = 8888; // use port:80 for non-localhost tests
+var port = 8888;
 
 var app = require('express')(),
     server = require('http').createServer(app),

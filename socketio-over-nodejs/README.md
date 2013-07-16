@@ -6,7 +6,9 @@ This experiment is using **socket.io over node.js** for signaling. Follow these 
 2. Extract and then copy `folder-location` of the`signaler.js` file
 3. Open **Node.js command prompt**
 4. Type command `cd folder-location` where `folder-location` can be `C:\webrtc-signaling`
-5. Type `node signaler`
+5. Type `npm install express`
+6. Type `npm install socket.io`
+7. Type `node signaler`
 
 `http://localhost:8888/` will be auto-opened.
 
@@ -27,7 +29,7 @@ and you're done!
 In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
 
 ```javascript
-var SIGNALING_SERVER = 'http://domain.com:8888/';
+var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
 connection.openSignalingChannel = function(config) {   
    var channel = config.channel || this.channel || 'one-to-one-video-chat';
    var sender = Math.round(Math.random() * 60535) + 5000;
@@ -64,7 +66,7 @@ connection.openSignalingChannel = function(config) {
 You can detect presence of a room like this:
 
 ```javascript
-var SIGNALING_SERVER = 'http://localhost:8888/';
+var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
 function testChannelPresence(channel) {
     var socket = io.connect(SIGNALING_SERVER);
     socket.on('presence', function (isChannelPresent) {

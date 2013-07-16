@@ -314,10 +314,13 @@ Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Recor
     function initAudioRecorder(audioWorkerPath) {
         var WORKER_PATH = audioWorkerPath || 'https://webrtc-experiment.appspot.com/audio-recorder.js';
 
-        var Recorder = function(source, cfg) {
-            var config = cfg || { };
+        var Recorder = function(source, config) {
+            config = config || { };
+			
             var bufferLen = config.bufferLen || 4096;
             this.context = source.context;
+			
+			// createJavaScriptNode(bufferSize, numberOfInputChannels, numberOfOutputChannels)
             this.node = this.context.createJavaScriptNode(bufferLen, 2, 2);
 
             var worker = new Worker(config.workerPath || WORKER_PATH);
@@ -337,6 +340,11 @@ Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Recor
                     e.inputBuffer.getChannelData(0),
                     e.inputBuffer.getChannelData(1)
                 ];
+				
+				if(buffer[0] && buffer[0][1] == 0) {
+					console.log('Unable to capture audio.');
+					// return;
+				}
 
                 worker.postMessage({
                     command: 'record',
