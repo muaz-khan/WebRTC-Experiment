@@ -292,7 +292,7 @@ channel.connect('channel-name');
 ##### [Demos using DataChannel.js](https://www.webrtc-experiment.com/#DataChannel)
 
 1. [DataChannel basic demo](https://www.webrtc-experiment.com/DataChannel/)
-2. [Auto Session Establishment and Users presence detection](https://www.webrtc-experiment.com/DataChannel/auto-session-establishment/)
+2. [Auto Session Establishment and Users presence detection](https://www.webrtc-experiment.com/DataChannel/auto-session-establishment.html)
 
 =
 

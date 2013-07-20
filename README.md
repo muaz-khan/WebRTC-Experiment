@@ -25,7 +25,7 @@
 | ------------- |-------------|-------------|-------------|
 | `Pre-recorded Media Streaming` | Stream video files in realtime; same like webcam streaming! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pre-recorded-Media-Streaming) | [Demo](https://www.webrtc-experiment.com/Pre-recorded-Media-Streaming/) |
 | `Part of Screen Sharing` | Share a region of the screen; not the entire screen! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing) | [Demo](https://www.webrtc-experiment.com/part-of-screen-sharing/) |
-| `Plugin-free Screen Sharing` | Share the entire screen | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharinghttps://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) | [Demo](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/) |
+| `Plugin-free Screen Sharing` | Share the entire screen | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) | [Demo](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/) |
 | `One-Way Broadcasting` | Same like radio stations; transmit audio/video/screen streams in one-way direction. Though, it is browser-to-browser streaming! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-broadcasting) | [Demo](https://www.webrtc-experiment.com/webrtc-broadcasting/) |
 | `Audio-only Calls` | Realtime, plugin-free, voice-only calls | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls) | [Demo](https://www.webrtc-experiment.com/calls/) |
 
@@ -97,7 +97,7 @@
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
 | **DataChannel basic demo** | [Demo](https://www.webrtc-experiment.com/DataChannel/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/DataChannel/index.html) |
-| **Auto Session Establishment** | [Demo](https://www.webrtc-experiment.com/DataChannel/auto-session-establishment/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/DataChannel/auto-session-establishment.html) |
+| **Auto Session Establishment** | [Demo](https://www.webrtc-experiment.com/DataChannel/auto-session-establishment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/DataChannel/auto-session-establishment.html) |
 | Share part-of-screen **using DataChannel.js** | [Demo](https://www.webrtc-experiment.com/part-of-screen-sharing/webrtc-data-channel/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/webrtc-and-part-of-screen-sharing) |
 | **Private Chat** | [Demo](https://muazkh.appspot.com/privatechat/) | ---- |
 
@@ -107,8 +107,8 @@
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
-| **Attaching Remote Media Streams** | [Demo](https://www.webrtc-experiment.com/remote-media-stream-attachment/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/remote-media-stream-attachment) |
-| **mozCaptureStreamUntilEnded for pre-recorded media streaming** | [Demo](https://www.webrtc-experiment.com/mozCaptureStreamUntilEnded/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/mozCaptureStreamUntilEnded) |
+| **Attaching Remote Media Streams** | [Demo](https://www.webrtc-experiment.com/experimental/remote-media-stream-attachment/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/remote-media-stream-attachment) |
+| **mozCaptureStreamUntilEnded for pre-recorded media streaming** | [Demo](https://www.webrtc-experiment.com/experimental/mozCaptureStreamUntilEnded/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/mozCaptureStreamUntilEnded) |
 | **Remote audio stream recording** | [Demo](https://www.webrtc-experiment.com/demos/remote-stream-recording.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/remote-stream-recording.html) |
 
 =
@@ -122,12 +122,12 @@
 | **Multi-Session Establishment** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/multi-session-establishment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/multi-session-establishment.html) |
 | **RTCMultiConnection-v1.3 testing demo** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/RTCMultiConnection-v1.3-demo.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/RTCMultiConnection-v1.3-demo.html) |
 | **Video Broadcasting** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/video-broadcasting.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/video-broadcasting.html) |
-| **File Sharing + Text Chat** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/group-file-sharing-plus-text-chat/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/group-file-sharing-plus-text-chat.html) |
+| **File Sharing + Text Chat** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/group-file-sharing-plus-text-chat.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/group-file-sharing-plus-text-chat.html) |
 | **Audio Conferencing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/audioconferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/audioconferencing.html) |
 | **Join with/without camera** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/join-with-or-without-camera.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/join-with-or-without-camera.html) |
 | **Screen Sharing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/screen-sharing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/screen-sharing.html) |
 | **One-to-One file sharing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/one-to-one-filesharing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/one-to-one-filesharing.html) |
-| **Manual session establishment + extra data transmission** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission.htmlhttps://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission.html) |
+| **Manual session establishment + extra data transmission** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission.html](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission.html) |
 | **Manual session establishment + extra data transmission + video conferencing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html) |
 | **Customizing Bandwidth** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/bandwidth.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/bandwidth.html) |
 | **Users ejection and presence detection** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/users-ejection.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/users-ejection.html) |
