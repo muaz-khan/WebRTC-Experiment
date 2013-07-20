@@ -1,4 +1,4 @@
-#### [RTCMultiConnection-v1.2](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.3.js) Documentation
+#### [RTCMultiConnection-v1.2](https://www.webrtc-experiment.com/RTCMultiConnection-v1.3.js) Documentation
 
 RTCMultiConnection.js a javascript library supports features like audio/video conferencing; (one-way and one-to-many) broadcasting; screen sharing; data/text/file sharing (of any size); multi-and-manual sessions establishment; users ejection, rejection and presence detection; and more. It automatically keeps session "active" all the time; even if initiator leaves.
 
@@ -25,7 +25,7 @@ RTCMultiConnection.js a javascript library supports features like audio/video co
 #### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.2.js"></script>
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.2.js"></script>
 ```
 
 #### Second Step: Start using it!
@@ -573,20 +573,25 @@ There are **many other** use-cases of multi-sessions.
 
 ----
 
-#### [RTCMultiConnection Demos](https://webrtc-experiment.appspot.com/#RTCMultiConnection)
+#### [RTCMultiConnection Demos](https://www.webrtc-experiment.com/#RTCMultiConnection)
 
-1. [Multi-Session Establishment](https://webrtc-experiment.appspot.com/RTCMultiConnection/multi-session-establishment/)
-2. [File Sharing + Text Chat](https://webrtc-experiment.appspot.com/RTCMultiConnection/group-file-sharing-plus-text-chat/)
-3. [All-in-One test](https://webrtc-experiment.appspot.com/RTCMultiConnection/)
-4. [Video Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-conferencing/)
-5. [Video Broadcasting](https://webrtc-experiment.appspot.com/RTCMultiConnection/video-broadcasting/)
-6. [Audio Conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/audio-conferencing/)
-7. [Join with/without camera](https://webrtc-experiment.appspot.com/RTCMultiConnection/join-with-or-without-camera/)
-8. [Screen Sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/screen-sharing/)
-9. [One-to-One file sharing](https://webrtc-experiment.appspot.com/RTCMultiConnection/one-to-one-filesharing/)
-10. [Manual session establishment + extra data transmission](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission/)
-11. [Manual session establishment + extra data transmission + video conferencing](https://webrtc-experiment.appspot.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing/)
-12. [Users ejection and presence detection](https://webrtc-experiment.appspot.com/RTCMultiConnection/users-ejection/)
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| **All-in-One test** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/all-in-one.html) |
+| **Video Conferencing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/videoconferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/videoconferencing.html) |
+| **Multi-Session Establishment** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/multi-session-establishment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/multi-session-establishment.html) |
+| **RTCMultiConnection-v1.3 testing demo** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/RTCMultiConnection-v1.3-demo.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/RTCMultiConnection-v1.3-demo.html) |
+| **Video Broadcasting** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/video-broadcasting.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/video-broadcasting.html) |
+| **File Sharing + Text Chat** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/group-file-sharing-plus-text-chat/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/group-file-sharing-plus-text-chat.html) |
+| **Audio Conferencing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/audioconferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/audioconferencing.html) |
+| **Join with/without camera** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/join-with-or-without-camera.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/join-with-or-without-camera.html) |
+| **Screen Sharing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/screen-sharing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/screen-sharing.html) |
+| **One-to-One file sharing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/one-to-one-filesharing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/one-to-one-filesharing.html) |
+| **Manual session establishment + extra data transmission** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission.htmlhttps://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission.html) |
+| **Manual session establishment + extra data transmission + video conferencing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html) |
+| **Customizing Bandwidth** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/bandwidth.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/bandwidth.html) |
+| **Users ejection and presence detection** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/users-ejection.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/users-ejection.html) |
+| **RTCMultiConnection-v1.3 and socket.io** | ---- | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-Demos/RTCMultiConnection-v1.3-and-socket.io.html) |
 
 ----
 
@@ -606,4 +611,4 @@ if(stream.direction === RTCDirection.OneWay) {}
 
 #### License
 
-[RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

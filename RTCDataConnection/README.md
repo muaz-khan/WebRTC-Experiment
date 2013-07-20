@@ -37,14 +37,19 @@ rtcDataConnection.initDataConnection();
 rtcDataConnection.send( file || data || 'text' );
 ```
 
+=
+
 #### Features
 
 1. Share files of any size — directly
 2. Share text messages of any length
 3. Share any kind of data — directly
 
+=
+
 #### Read [RTCDataConnection Documentation](http://bit.ly/RTCDataConnection)
 
+=
 
 #### Browser Support
 [RTCDataConnection](http://bit.ly/RTCDataConnection) works fine on following web-browsers:
@@ -53,9 +58,9 @@ rtcDataConnection.send( file || data || 'text' );
 | ------------- |:-------------:|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 
+=
 
 #### License
 
-[RTCDataConnection](http://bit.ly/RTCDataConnection) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RTCDataConnection](http://bit.ly/RTCDataConnection) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

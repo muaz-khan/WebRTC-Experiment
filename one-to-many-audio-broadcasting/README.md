@@ -1,11 +1,11 @@
-#### WebRTC One-to-Many audio-broadcasting / [Demo](https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/)
+#### WebRTC One-to-Many audio-broadcasting / [Demo](https://www.webrtc-experiment.com/one-to-many-audio-broadcasting/)
 
 If 10 users join your broadcasted room, **20 RTP ports** will be opened on your browser:
 
 1. 10 RTP ports for **outgoing** audio streams
 2. 10 RTP ports for **incoming** audio streams
 
-----
+=
 
 #### Difference between one-way broadcasting and one-to-many broadcasting
 
@@ -15,15 +15,15 @@ On each participant's side; only one **incoming** RTP port will be opened.
 
 Unlike one-way broadcasting; one-to-many broadcasting experiment opens both outgoing as well as incoming RTP ports for each participant.
 
-----
+=
 
 #### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/meeting.js"></script>
+<script src="https://www.webrtc-experiment.com/one-to-many-audio-broadcasting/meeting.js"></script>
 ```
 
-----
+=
 
 #### Last Step: Start using it!
 
@@ -47,7 +47,7 @@ document.getElementById('setup-new-meeting').onclick = function() {
 };
 ```
 
-----
+=
 
 #### Custom user-ids?
 
@@ -55,7 +55,7 @@ document.getElementById('setup-new-meeting').onclick = function() {
 meeting.userid = 'username';
 ```
 
-----
+=
 
 #### Custom signaling channel?
 
@@ -92,7 +92,7 @@ Want to use `Firebase` for signaling?
 meeting.firebase = 'chat';
 ```
 
-----
+=
 
 #### Want to manually join rooms?
 
@@ -113,7 +113,7 @@ meeting.onmeeting = function(room) {
 
 `onmeeting` is called for each new meeting; and `meet` method allows you manually join a meeting room.
 
-----
+=
 
 #### If someone leaves...
 
@@ -127,8 +127,7 @@ meeting.onuserleft = function(userid) {
 };
 ```
 
-----
-
+=
 #### `onaddstream`
 
 It is called both for `local` and `remote` media streams. It returns:
@@ -146,11 +145,11 @@ meeting.onaddstream = function(e) {
 };
 ```
 
-----
+=
 
 #### Browser Support
 
-This [WebRTC One-to-Many audio-broadcasting](https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/) experiment works fine on following web-browsers:
+This [WebRTC One-to-Many audio-broadcasting](https://www.webrtc-experiment.com/one-to-many-audio-broadcasting/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -158,8 +157,8 @@ This [WebRTC One-to-Many audio-broadcasting](https://webrtc-experiment.appspot.c
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-----
+=
 
 #### License
 
-[WebRTC One-to-Many audio-broadcasting](https://webrtc-experiment.appspot.com/one-to-many-audio-broadcasting/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC One-to-Many audio-broadcasting](https://www.webrtc-experiment.com/one-to-many-audio-broadcasting/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

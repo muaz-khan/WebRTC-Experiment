@@ -12,7 +12,7 @@ This experiment is using **WebSocket over Node.js** for signaling. Follow these 
 
 `http://localhost:9999/` will be auto-opened.
 
-----
+=
 
 #### If you want to deploy your application
 
@@ -22,7 +22,7 @@ This experiment is using **WebSocket over Node.js** for signaling. Follow these 
 
 and you're done!
 
-----
+=
 
 #### How to use?
 
@@ -55,7 +55,7 @@ openSignalingChannel: function(config) {
 }
 ```
 
-----
+=
 
 #### Presence Detection
 
@@ -83,7 +83,7 @@ function testChannelPresence(channel) {
 testChannelPresence('default-channel');
 ```
 
-----
+=
 
 #### Ports
 
@@ -110,7 +110,7 @@ var SIGNALING_SERVER = 'ws://' + document.domain + ':8888/';
 var websocket = new WebSocket(SIGNALING_SERVER);
 ```
 
-----
+=
 
 #### if fails to run....
 
@@ -131,19 +131,19 @@ childProcess.spawn(chromeURL, ['-incognito', openURL]);
 
 Actually, these lines are auto-opening chrome/firefox instances.
 
-----
+=
 
 #### What is `cd folder-location`?
 
 Using this command; you can open project's directory (i.e. folder) in a command prompt window.
 
-----
+=
 
 #### What is `node signaler`?
 
 This command runs the `signaler.js` file as a Node.js instance. That file handles `WebSocket over Node.js` server side stuff.
 
-----
+=
 
 #### What is `jitsu deploy`?
 
@@ -155,7 +155,7 @@ http://username.jit.su/
 
 See the demo URL: http://websocket-over-nodejs.jit.su/
 
-----
+=
 
 #### Are you beginner or totally novice?
 
@@ -164,13 +164,13 @@ See the demo URL: http://websocket-over-nodejs.jit.su/
 3. You can use same command prompt to run any `node.js` file; also you can write `nodejitsu` commands in the same place e.g. `jitsu deploy` or `jitsu login` etc.
 4. Default port `9999` is used for this experiment. You can manually open this URL: `http://localhost:9999/`
 
-----
+=
 
 #### Signaling Concepts
 
 Interested to understand WebRTC Signaling Concepts? Read [this document](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/Signaling-Concepts.md).
 
-----
+=
 
 #### License
 

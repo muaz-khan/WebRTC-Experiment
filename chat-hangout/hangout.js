@@ -1,6 +1,8 @@
-﻿/* MIT License: https://webrtc-experiment.appspot.com/licence/  */
+﻿// 2013, @muazkh » github.com/muaz-khan
+// MIT License » https://webrtc-experiment.appspot.com/licence/
+// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/chat-hangout
 
-var hangout = function (config) {
+var hangout = function(config) {
     var self = {
         userToken: uniqueToken(),
         userName: 'Anonymous'
@@ -9,15 +11,15 @@ var hangout = function (config) {
         isbroadcaster,
         isGetNewRoom = true,
         sockets = [],
-        defaultSocket = {}, RTCDataChannels = [];
+        defaultSocket = { }, RTCDataChannels = [];
 
     function openDefaultSocket() {
         defaultSocket = config.openSocket({
-                onmessage: onDefaultSocketResponse,
-                callback: function (socket) {
-                    defaultSocket = socket;
-                }
-            });
+            onmessage: onDefaultSocketResponse,
+            callback: function(socket) {
+                defaultSocket = socket;
+            }
+        });
     }
 
     function onDefaultSocketResponse(response) {
@@ -30,10 +32,10 @@ var hangout = function (config) {
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
             openSubSocket({
-                    isofferer: true,
-                    channel: response.channel || response.userToken,
-                    closeSocket: true
-                });
+                isofferer: true,
+                channel: response.channel || response.userToken,
+                closeSocket: true
+            });
         }
     }
 
@@ -42,13 +44,13 @@ var hangout = function (config) {
         var socketConfig = {
             channel: _config.channel,
             onmessage: socketResponse,
-            onopen: function () {
+            onopen: function() {
                 if (isofferer && !peer) initPeer();
                 sockets[sockets.length] = socket;
             }
         };
 
-        socketConfig.callback = function (_socket) {
+        socketConfig.callback = function(_socket) {
             socket = _socket;
             this.onopen();
         };
@@ -56,21 +58,21 @@ var hangout = function (config) {
         var socket = config.openSocket(socketConfig),
             isofferer = _config.isofferer,
             gotstream,
-            inner = {},
+            inner = { },
             peer;
 
         var peerConfig = {
-            onICE: function (candidate) {
+            onICE: function(candidate) {
                 socket.send({
-                        userToken: self.userToken,
-                        candidate: {
-                            sdpMLineIndex: candidate.sdpMLineIndex,
-                            candidate: JSON.stringify(candidate.candidate)
-                        }
-                    });
+                    userToken: self.userToken,
+                    candidate: {
+                        sdpMLineIndex: candidate.sdpMLineIndex,
+                        candidate: JSON.stringify(candidate.candidate)
+                    }
+                });
             },
             onChannelOpened: onChannelOpened,
-            onChannelMessage: function (event) {
+            onChannelMessage: function(event) {
                 config.onChannelMessage(JSON.parse(event.data));
             }
         };
@@ -89,76 +91,43 @@ var hangout = function (config) {
         function onChannelOpened(channel) {
             RTCDataChannels[RTCDataChannels.length] = channel;
             channel.send(JSON.stringify({
-                        message: 'Hi, I\'m <strong>' + self.userName + '</strong>!',
-                        sender: self.userName
-                    }));
+                message: 'Hi, I\'m <strong>' + self.userName + '</strong>!',
+                sender: self.userName
+            }));
 
             if (config.onChannelOpened) config.onChannelOpened(channel);
 
             if (isbroadcaster && channels.split('--').length > 3) {
                 /* broadcasting newly connected participant for video-conferencing! */
                 defaultSocket.send({
-                        newParticipant: socket.channel,
-                        userToken: self.userToken
-                    });
+                    newParticipant: socket.channel,
+                    userToken: self.userToken
+                });
             }
 
             gotstream = true;
         }
 
         function sendsdp(sdp) {
-            sdp = JSON.stringify(sdp);
-            var part = parseInt(sdp.length / 3);
-
-            var firstPart = sdp.slice(0, part),
-                secondPart = sdp.slice(part, sdp.length - 1),
-                thirdPart = '';
-
-            if (sdp.length > part + part) {
-                secondPart = sdp.slice(part, part + part);
-                thirdPart = sdp.slice(part + part, sdp.length);
-            }
-
             socket.send({
-                    userToken: self.userToken,
-                    firstPart: firstPart
-                });
-
-            socket.send({
-                    userToken: self.userToken,
-                    secondPart: secondPart
-                });
-
-            socket.send({
-                    userToken: self.userToken,
-                    thirdPart: thirdPart
-                });
+                userToken: self.userToken,
+                sdp: JSON.stringify(sdp)
+            });
         }
 
         function socketResponse(response) {
             if (response.userToken == self.userToken) return;
 
-            if (response.firstPart || response.secondPart || response.thirdPart) {
-                if (response.firstPart) {
-                    inner.firstPart = response.firstPart;
-                    if (inner.secondPart && inner.thirdPart) selfInvoker();
-                }
-                if (response.secondPart) {
-                    inner.secondPart = response.secondPart;
-                    if (inner.firstPart && inner.thirdPart) selfInvoker();
-                }
-
-                if (response.thirdPart) {
-                    inner.thirdPart = response.thirdPart;
-                    if (inner.firstPart && inner.secondPart) selfInvoker();
-                }
+            if (response.sdp) {
+                inner.sdp = JSON.parse(response.sdp);
+                selfInvoker();
             }
 
             if (response.candidate && !gotstream) {
                 peer && peer.addICE({
-                        sdpMLineIndex: response.candidate.sdpMLineIndex,
-                        candidate: JSON.parse(response.candidate.candidate)
-                    });
+                    sdpMLineIndex: response.candidate.sdpMLineIndex,
+                    candidate: JSON.parse(response.candidate.candidate)
+                });
             }
 
             if (response.left) {
@@ -176,53 +145,39 @@ var hangout = function (config) {
 
             invokedOnce = true;
 
-            inner.sdp = JSON.parse(inner.firstPart + inner.secondPart + inner.thirdPart);
-
             if (isofferer) peer.addAnswerSDP(inner.sdp);
             else initPeer(inner.sdp);
         }
     }
 
     function leave() {
-        length = sockets.length;
+        var length = sockets.length;
         for (var i = 0; i < length; i++) {
-            socket = sockets[i];
+            var socket = sockets[i];
             if (socket) {
                 socket.send({
-                        left: true,
-                        userToken: self.userToken
-                    });
+                    left: true,
+                    userToken: self.userToken
+                });
                 delete sockets[i];
             }
         }
     }
 
-    window.onunload = function () {
+    window.onbeforeunload = function() {
         leave();
     };
 
-    window.onkeyup = function (e) {
+    window.onkeyup = function(e) {
         if (e.keyCode == 116) leave();
     };
 
-    (function () {
-            var anchors = document.querySelectorAll('a'),
-                length = anchors.length;
-            for (var i = 0; i < length; i++) {
-                a = anchors[i];
-                if (a.href.indexOf('#') !== 0 && a.getAttribute('target') != '_blank')
-                    a.onclick = function () {
-                        leave();
-                };
-            }
-        })();
-
     function startBroadcasting() {
         defaultSocket && defaultSocket.send({
-                roomToken: self.roomToken,
-                roomName: self.roomName,
-                broadcaster: self.userToken
-            });
+            roomToken: self.roomToken,
+            roomName: self.roomName,
+            broadcaster: self.userToken
+        });
         setTimeout(startBroadcasting, 3000);
     }
 
@@ -232,20 +187,20 @@ var hangout = function (config) {
 
         var new_channel = uniqueToken();
         openSubSocket({
-                channel: new_channel,
-                closeSocket: true
-            });
+            channel: new_channel,
+            closeSocket: true
+        });
 
         defaultSocket.send({
-                participant: true,
-                userToken: self.userToken,
-                joinUser: channel,
-                channel: new_channel
-            });
+            participant: true,
+            userToken: self.userToken,
+            joinUser: channel,
+            channel: new_channel
+        });
     }
 
     function uniqueToken() {
-        var s4 = function () {
+        var s4 = function() {
             return Math.floor(Math.random() * 0x10000).toString(16);
         };
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
@@ -253,7 +208,7 @@ var hangout = function (config) {
 
     openDefaultSocket();
     return {
-        createRoom: function (_config) {
+        createRoom: function(_config) {
             self.roomName = _config.roomName || 'Anonymous';
             self.roomToken = uniqueToken();
             if (_config.userName) self.userName = _config.userName;
@@ -262,31 +217,33 @@ var hangout = function (config) {
             isGetNewRoom = false;
             startBroadcasting();
         },
-        joinRoom: function (_config) {
+        joinRoom: function(_config) {
             self.roomToken = _config.roomToken;
             if (_config.userName) self.userName = _config.userName;
             isGetNewRoom = false;
 
             openSubSocket({
-                    channel: self.userToken
-                });
+                channel: self.userToken
+            });
 
             defaultSocket.send({
-                    participant: true,
-                    userToken: self.userToken,
-                    joinUser: _config.joinUser
-                });
+                participant: true,
+                userToken: self.userToken,
+                joinUser: _config.joinUser
+            });
         },
-        send: function (message) {
-            console.log('list of data channels', RTCDataChannels);
+        send: function(message) {
             var length = RTCDataChannels.length,
                 data = JSON.stringify({
-                        message: message,
-                        sender: self.userName
-                    });
+                    message: message,
+                    sender: self.userName
+                });
             if (!length) return;
             for (var i = 0; i < length; i++) {
-                RTCDataChannels[i].send(data);
+                try {
+                    RTCDataChannels[i].send(data);
+                } catch(e) {
+                }
             }
         }
     };

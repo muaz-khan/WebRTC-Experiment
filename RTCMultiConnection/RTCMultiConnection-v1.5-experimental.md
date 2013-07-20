@@ -1,4 +1,4 @@
-##### [RTCMultiConnection-v1.5.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5.js) Documentation (Experimental Release)
+##### [RTCMultiConnection-v1.5.js](https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.js) Documentation (Experimental Release)
 
 Supports features like
 
@@ -25,7 +25,7 @@ and much more.
 ##### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5.js"></script>
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.js"></script>
 ```
 
 ##### Second Step: Start using it!
@@ -566,19 +566,19 @@ io.sockets.on('connection', function (socket) {
 
 =
 
-##### Demos using [RTCMultiConnection-v1.5](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5.js) library
+##### Demos using [RTCMultiConnection-v1.5](https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.js) library
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
-| **All-in-One test** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5-Demos/All-in-One.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-Demos/All-in-One.html) |
-| **Renegotiation & Mute/UnMute/Stop** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5-Demos/Renegotiation.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-Demos/Renegotiation.html) |
-| **Video-Conferencing** | [Demo](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5-Demos/Video-Conferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-Demos/Video-Conferencing.html) |
+| **All-in-One test** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.5-Demos/All-in-One.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-Demos/All-in-One.html) |
+| **Renegotiation & Mute/UnMute/Stop** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.5-Demos/Renegotiation.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-Demos/Renegotiation.html) |
+| **Video-Conferencing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.5-Demos/Video-Conferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-Demos/Video-Conferencing.html) |
 
 =
 
 ##### Browser Support
 
-[RTCMultiConnection-v1.5.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5.js) supports following browsers:
+[RTCMultiConnection-v1.5.js](https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.js) supports following browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------|
@@ -590,4 +590,4 @@ io.sockets.on('connection', function (socket) {
 
 ##### License
 
-[RTCMultiConnection-v1.5.js](https://webrtc-experiment.appspot.com/RTCMultiConnection-v1.5.js) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RTCMultiConnection-v1.5.js](https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.js) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

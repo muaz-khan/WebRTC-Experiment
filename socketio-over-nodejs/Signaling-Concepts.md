@@ -1,6 +1,8 @@
 #### WebRTC Experiments Signaling Concepts
 
-This document explains inner-parts of the signaling methods used in [WebRTC Experiments](https://webrtc-experiment.appspot.com/).
+This document explains inner-parts of the signaling methods used in [WebRTC Experiments](https://www.webrtc-experiment.com/).
+
+=
 
 #### Dynamic Channels
 
@@ -12,6 +14,8 @@ Signaling method must have following features:
 2. Dynamic channels or namespaces
 
 Out of `multiplexing` requirement; simple WebSocket implementation can't be used as signaling method in any WebRTC Experiment.
+
+=
 
 #### A sample socket.io implementation
 
@@ -32,6 +36,8 @@ Node.js server is expected to fire two events:
 2. `message` which is used to get transmitted messages
 
 Node.js must catch messages passed from client-side and broadcast/transmit that message over all other connected sockets.
+
+=
 
 #### A full-fledge socket.io implementation / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs)
 
@@ -68,6 +74,8 @@ function onNewNamespace(channel, sender) {
 }
 ```
 
+=
+
 Client side:
 
 ```javascript
@@ -103,25 +111,33 @@ All WebRTC Experiments separated signaling portion; so you can define a single m
 
 `openSignalingChannel` or `openSocket` are kind of those "custom" reusable methods.
 
+=
+
 #### What about Firebase?
 
 Firebase is an io-based service stores data in JSON format; considered most suitable solution for WebRTC signaling. Its APIs are easier to use and understand.
+
+=
 
 #### What about PubNub or Pusher?
 
 PubNub or Pusher provides APIs for realtime connection. PubNub uses wider methods and techniques.
 
+=
+
 #### Expectations
 
 All WebRTC Experiments expects that signaling channels must be able to send and receive messages over unique channels.
+
+=
 
 #### Links
 
 1. Demo: http://webrtc-signaling.jit.su/
 2. Source code: https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
 
-----
+=
 
 #### License
 
-[WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

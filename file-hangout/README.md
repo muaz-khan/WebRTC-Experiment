@@ -1,4 +1,4 @@
-#### WebRTC P2P Group File Sharing / [Demo](https://webrtc-experiment.appspot.com/file-hangout/)
+#### WebRTC P2P Group File Sharing / [Demo](https://www.webrtc-experiment.com/file-hangout/)
 
 This WebRTC Experiment allows you share file of any size among group of people.
 
@@ -15,7 +15,7 @@ So, `20` RTP data ports will be opened in `10` users data session. **Embarrassin
 
 On Firefox, by default 16 SCTP data ports will be opened for single peer. So, about 160 SCTP data ports will be opened in 10 users data session. Too awkward!
 
-----
+=
 
 #### Multiple peer connections.....is it a solution?
 
@@ -23,7 +23,7 @@ No, not at all. It is just a **temporary** workaround.
 
 You're strongly suggested to use **peer-to-server** model instead of opening multi-peers.
 
-----
+=
 
 #### How peer-to-server model works?
 
@@ -35,7 +35,7 @@ Remember, WebRTC peer object will send **DTLS/SRTP** packets maybe as **ByteStre
 
 Server can manipulate messages or data coming from 10 or more unique data ports and transfer over single data port!
 
-----
+=
 
 #### ideas!!!
 
@@ -77,11 +77,11 @@ So, we maybe able to send data/text and files over majority of mobile devices.
 
 Though, it seems not possible! Because their infrastructure is different.
 
-----
+=
 
 #### Browser Support
 
-WebRTC [Group File Sharing](https://webrtc-experiment.appspot.com/file-hangout/) experiment works fine on following web-browsers:
+WebRTC [Group File Sharing](https://www.webrtc-experiment.com/file-hangout/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -89,8 +89,8 @@ WebRTC [Group File Sharing](https://webrtc-experiment.appspot.com/file-hangout/)
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-----
+=
 
 #### License
 
-WebRTC [Group File Sharing](https://webrtc-experiment.appspot.com/file-hangout/) experiment is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+WebRTC [Group File Sharing](https://www.webrtc-experiment.com/file-hangout/) experiment is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

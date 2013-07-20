@@ -2,7 +2,7 @@
 
 This directory contains only one file: [signaler.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/webrtc-signaling/signaler.js) / socket.io main script
 
-----
+=
 
 #### [signaler.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/webrtc-signaling/signaler.js)
 
@@ -41,8 +41,8 @@ function onNewNamespace(channel, sender) {
 }
 ```
 
-----
+=
 
 #### License
 
-[WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

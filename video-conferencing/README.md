@@ -1,6 +1,6 @@
-#### WebRTC Group video sharing / [Demo](https://webrtc-experiment.appspot.com/video-conferencing/)
+#### WebRTC Group video sharing / [Demo](https://www.webrtc-experiment.com/video-conferencing/)
 
-----
+=
 
 #### How `video conferencing` Works?
 
@@ -11,6 +11,8 @@ For 10 people sharing videos in a group:
 1. Creating 10 `unique` peer connections
 2. Opening 10 unique `sockets` to exchange SDP/ICE
 
+=
+
 For your information; in One-to-One video session; 4 RTP streams/ports get open:
 
 1. One RTP port for **outgoing video**
@@ -18,11 +20,15 @@ For your information; in One-to-One video session; 4 RTP streams/ports get open:
 3. One RTP port for **incoming video**
 4. One RTP port for **incoming audio**
 
+=
+
 So, for 10 peers sharing video in a group; `40 RTP` ports get open. Which causes:
 
 1. Blurry video experience
 2. Unclear voice
 3. Bandwidth issues / slow streaming
+
+=
 
 The best solution is to use a **middle media server** like **asterisk** or **kamailio** to broadcast your camera stream. 
 
@@ -53,11 +59,11 @@ Media server should mix all video streams; and stream it over single RTP port.
 
 If 10 room participants are sending video streams; server should mix them to generate a single media stream; then send that stream over single **incoming** RTP port opened between server and **room initiator**.
 
-----
+=
 
 #### Browser Support
 
-This [WebRTC Video Conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) experiment works fine on following web-browsers:
+This [WebRTC Video Conferencing](https://www.webrtc-experiment.com/video-conferencing/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -65,8 +71,8 @@ This [WebRTC Video Conferencing](https://webrtc-experiment.appspot.com/video-con
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-----
+=
 
 #### License
 
-[WebRTC Video Conferencing](https://webrtc-experiment.appspot.com/video-conferencing/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Video Conferencing](https://www.webrtc-experiment.com/video-conferencing/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

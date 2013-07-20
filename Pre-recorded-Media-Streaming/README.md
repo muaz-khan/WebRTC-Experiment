@@ -1,19 +1,23 @@
-#### Pre-recorded media streaming / [Demo](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/)
+#### Pre-recorded media streaming / [Demo](https://www.webrtc-experiment.com/Pre-recorded-Media-Streaming/)
 
 1. Streaming pre-recorded video (media file)
 2. Currently, using `Firebase` for streaming chunks of data because `MediaSource APIs` are only supported on chrome canary which has unreliable RTP (RTCDataChannel) streams.
 3. Streaming `WebM` files only (in the moment!)
 4. WebM file's size must be less than `1000KB`; otherwise it will fail. It is a bug will be fixed soon.
 
+=
+
 #### How to stream your own video?
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/streamer.js"> </script>
+<script src="https://www.webrtc-experiment.com/streamer.js"> </script>
 ```
 
 ```javascript
 var streamer = new Streamer();
 ```
+
+=
 
 #### /* pre-recorded media sender */
 
@@ -27,6 +31,8 @@ document.querySelector('input[type=file]').onchange = function () {
 };
 ```
 
+=
+
 #### /* pre-recorded media receiver */
 
 ```javascript
@@ -39,6 +45,8 @@ function onData(data) {
 }
 ```
 
+=
+
 #### /* socket.io/websocket to push chunks */
 
 ```javascript
@@ -49,6 +57,8 @@ socket.onmessage = onData;
 socket.on('message', onData);
 ```
 
+=
+
 #### It is an early release!
 
 This experiment is an early release. In future, RTCDataChannel APIs will be used to stream pre-recorded media in realtime!
@@ -56,6 +66,8 @@ This experiment is an early release. In future, RTCDataChannel APIs will be used
 `MediaSource` APIs are not made for streaming pre-recorded medias, though!
 
 We are waiting `video.captureStream` implementation that is proposed for pre-recorded media streaming, unfortunately still in draft!
+
+=
 
 #### In future, to stream pre-recorded medias
 
@@ -76,6 +88,8 @@ partial interface HTMLMediaElement {
 // peer.addStream ( preRecordedStream );
 ```
 
+=
+
 #### How this experiment works?
 
 1. Getting access to `WebM` video file using `File API`
@@ -83,6 +97,8 @@ partial interface HTMLMediaElement {
 3. Splitting buffers in predefined small chunks; and posting/transmitting those chunks in a loop using `Firebase`.
 4. As soon as other party receives first chunk; `MediaSource API` will start playing video without waiting for all chunks to be download!
 5. You can save/store/record those chunks in any database; because it is a typed array [Uint8Array] in text form.
+
+=
 
 #### Let's say you want to:
 
@@ -94,19 +110,25 @@ You can do all such things today!
 
 In simple words; you can stream part of video from first WebM file; part of video from second WebM file and so on, in realtime!
 
+=
+
 #### Spec Reference
 
 1. http://www.w3.org/TR/streamproc/
 2. https://dvcs.w3.org/hg/html-media/raw-file/tip/media-source/media-source.html
 
+=
+
 #### Browser Support
 
-[Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/) experiment works fine on following web-browsers:
+[Pre-recorded media streaming](https://www.webrtc-experiment.com/Pre-recorded-Media-Streaming/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------:|
 | Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
 
+=
+
 ##### License
 
-[Pre-recorded media streaming](https://webrtc-experiment.appspot.com/Pre-recorded-Media-Streaming/) experiment is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[Pre-recorded media streaming](https://www.webrtc-experiment.com/Pre-recorded-Media-Streaming/) experiment is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

@@ -1,4 +1,4 @@
-##### Browser-to-Browser audio-only calls / [Demo](https://webrtc-experiment.appspot.com/calls/)
+##### Browser-to-Browser audio-only calls / [Demo](https://www.webrtc-experiment.com/calls/)
 
 It is one-to-one audio-sharing experiment. You'll be asked to allow access to microphone or audio input device to establish voice-only call between you and your friend.
 
@@ -12,7 +12,7 @@ Features:
 
 ##### Browser Support
 
-[Audio-Only calling experiment](https://webrtc-experiment.appspot.com/calls/) works fine on following web-browsers:
+[Audio-Only calling experiment](https://www.webrtc-experiment.com/calls/) works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -24,4 +24,4 @@ Features:
 
 #### License
 
-[Audio-Only calling experiment](https://webrtc-experiment.appspot.com/calls/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[Audio-Only calling experiment](https://www.webrtc-experiment.com/calls/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

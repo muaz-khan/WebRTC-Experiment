@@ -1,6 +1,6 @@
-#### RecordRTC: WebRTC audio/video recording / [Demo](https://webrtc-experiment.appspot.com/RecordRTC/)
+#### RecordRTC: WebRTC audio/video recording / [Demo](https://www.webrtc-experiment.com/RecordRTC/)
 
-[RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC.js) allows you record audio and/or video streams.
+[RecordRTC](https://www.webrtc-experiment.com/RecordRTC.js) allows you record audio and/or video streams.
 
 Note: For Mozilla Firefox; you can try [AudioVideoRecorder.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/AudioVideoRecorder).
 
@@ -22,7 +22,7 @@ Other features are:
 ##### How to use RecordRTC?
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RecordRTC.js"></script>
+<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
 ```
 
 =
@@ -48,7 +48,7 @@ recorder.stopVideo(function(videoURL) {
 ##### How to record animated GIF image?
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/gif-recorder.js"></script>
+<script src="https://www.webrtc-experiment.com/gif-recorder.js"></script>
 ```
 
 ```javascript
@@ -82,7 +82,7 @@ recorder.stopGIF(function(gifURL) {
 ##### How to record audio?
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/audio-recorder.js"></script>
+<script src="https://www.webrtc-experiment.com/audio-recorder.js"></script>
 ```
 
 ```javascript
@@ -236,7 +236,7 @@ Stereo audio is only supported for WAV files.
 
 ##### Browser Support
 
-[RecordRTC Demo](https://webrtc-experiment.appspot.com/RecordRTC/) works fine on following web-browsers:
+[RecordRTC Demo](https://www.webrtc-experiment.com/RecordRTC/) works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -259,4 +259,4 @@ Stereo audio is only supported for WAV files.
 
 ##### License
 
-[RecordRTC](https://webrtc-experiment.appspot.com/RecordRTC/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

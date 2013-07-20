@@ -1,25 +1,36 @@
-﻿/*
- 2013, @muazkh » github.com/muaz-khan
- MIT License » https://webrtc-experiment.appspot.com/licence/
- Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
-*/
+﻿// 2013, @muazkh » github.com/muaz-khan
+// MIT License » https://webrtc-experiment.appspot.com/licence/
+// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
 
 var config = {
-    openSocket: function (config) {
-        var channel = config.channel || location.hash.replace('#', '') || 'file-hangout';
-        var socket = new Firebase('https://rtcweb.firebaseIO.com/' + channel);
-        socket.channel = channel;
-        socket.on('child_added', function (data) {
-            config.onmessage(data.val());
+    openSocket: function(config) {
+        var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8553/',
+            defaultChannel = location.hash.substr(1) || 'group-file-sharing-hangout';
+
+        var channel = config.channel || defaultChannel;
+        var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+        io.connect(SIGNALING_SERVER).emit('new-channel', {
+            channel: channel,
+            sender: sender
         });
-        socket.send = function (data) {
-            this.push(data);
-        }
-        config.onopen && setTimeout(config.onopen, 1);
-        socket.onDisconnect().remove();
-        return socket;
+
+        var socket = io.connect(SIGNALING_SERVER + channel);
+        socket.channel = channel;
+        socket.on('connect', function() {
+            if (config.callback) config.callback(socket);
+        });
+
+        socket.send = function(message) {
+            socket.emit('message', {
+                sender: sender,
+                data: message
+            });
+        };
+
+        socket.on('message', config.onmessage);
     },
-    onRoomFound: function (room) {
+    onRoomFound: function(room) {
         var alreadyExist = document.getElementById(room.broadcaster);
         if (alreadyExist) return;
 
@@ -33,7 +44,7 @@ var config = {
 
         roomsList.insertBefore(tr, roomsList.firstChild);
 
-        tr.onclick = function () {
+        tr.onclick = function() {
             var tr = this;
             hangoutUI.joinRoom({
                 roomToken: tr.querySelector('.join').id,
@@ -43,24 +54,23 @@ var config = {
             hideUnnecessaryStuff();
         };
     },
-    onChannelOpened: function (/* channel */) {
+    onChannelOpened: function(/* channel */) {
         unnecessaryStuffVisible && hideUnnecessaryStuff();
         if (fileElement) fileElement.removeAttribute('disabled');
     },
-    onChannelMessage: function (data) {
+    onChannelMessage: function(data) {
         if (data.sender && participants) {
             var tr = document.createElement('tr');
             tr.innerHTML = '<td>' + data.sender + ' is ready to receive files!</td>';
             participants.insertBefore(tr, participants.firstChild);
-        }
-        else onMessageCallback(data);
+        } else onMessageCallback(data);
     }
 };
 
 function createButtonClickHandler() {
     hangoutUI.createRoom({
         userName: prompt('Enter your name', 'Anonymous'),
-        roomName: ((document.getElementById('conference-name') || {}).value || 'Anonymous') + ' // shared via ' + (navigator.vendor ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
+        roomName: ((document.getElementById('conference-name') || { }).value || 'Anonymous') + ' // shared via ' + (!!navigator.webkitGetUserMedia ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
     });
     hideUnnecessaryStuff();
 }
@@ -78,6 +88,7 @@ var roomsList = document.getElementById('rooms-list');
 var chatOutput = document.getElementById('chat-output');
 
 var unnecessaryStuffVisible = true;
+
 function hideUnnecessaryStuff() {
     var visibleElements = document.getElementsByClassName('visible'),
         length = visibleElements.length;
@@ -91,7 +102,7 @@ function hideUnnecessaryStuff() {
 
 var chatMessage = document.getElementById('chat-message');
 if (chatMessage)
-    chatMessage.onchange = function () {
+    chatMessage.onchange = function() {
         hangoutUI.send(chatMessage.value);
         chatMessage.value = '';
     };
@@ -111,7 +122,7 @@ function onMessageCallback(data) {
     if (data.size && moz) {
         var reader = new window.FileReader();
         reader.readAsDataURL(data);
-        reader.onload = function (event) {
+        reader.onload = function(event) {
             saveToDisk(event.target.result, lastFileName);
             quickOutput(lastFileName, 'received successfully!');
             disable(false);
@@ -149,7 +160,7 @@ function onMessageCallback(data) {
 
 // getting file from user's system
 var file, fileElement = document.getElementById('file');
-fileElement.onchange = function () {
+fileElement.onchange = function() {
     file = fileElement.files[0];
     if (!file) return false;
 
@@ -157,7 +168,7 @@ fileElement.onchange = function () {
     if (moz) {
         hangoutUI.send(JSON.stringify({ lastFileName: file.name }));
         quickOutput(file.name, 'shared successfully!');
-        setTimeout(function () {
+        setTimeout(function() {
             if (fileElement) fileElement.value = '';
         }, 0);
         return hangoutUI.send(file);
@@ -170,8 +181,9 @@ fileElement.onchange = function () {
 };
 
 var packetSize = 1000, textToTransfer = '', packets = 0;
+
 function onReadAsDataURL(evt, text) {
-    var data = {};
+    var data = { };
 
     if (evt) {
         text = evt.target.result;
@@ -190,7 +202,7 @@ function onReadAsDataURL(evt, text) {
         quickOutput(file.name, 'shared successfully!');
 
         disable(false);
-        setTimeout(function () {
+        setTimeout(function() {
             if (fileElement) fileElement.value = '';
         }, 0);
     }
@@ -199,7 +211,7 @@ function onReadAsDataURL(evt, text) {
     textToTransfer = text.slice(data.message.length);
 
     if (textToTransfer.length)
-        setTimeout(function () {
+        setTimeout(function() {
             onReadAsDataURL(null, textToTransfer);
         }, 500);
 }
@@ -220,6 +232,7 @@ function saveToDisk(fileUrl, fileName) {
 
 // UI
 var outputPanel = document.getElementById('output-panel');
+
 function quickOutput(message, message2) {
     if (!outputPanel) return;
     if (message2) message = '<strong>' + message + '</strong> ' + message2;
@@ -230,16 +243,18 @@ function quickOutput(message, message2) {
 }
 
 var statusDiv = document.getElementById('status');
+
 function updateStatus() {
     packets--;
     if (statusDiv) statusDiv.innerHTML = packets + ' items remaining.';
     if (packets <= 0) statusDiv.innerHTML = '';
 }
 
-(function () {
+(function() {
     var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
-    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
+    if (uniqueToken)
+        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
+        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
 })();
 
 function disable(_disable) {

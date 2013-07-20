@@ -1,4 +1,4 @@
-#### [RTCall.js](https://webrtc-experiment.appspot.com/RTCall/) — A library for Browser-to-Browser audio-only calling
+#### [RTCall.js](https://www.webrtc-experiment.com/RTCall/) — A library for Browser-to-Browser audio-only calling
 
 Why RTCall.js?
 
@@ -7,13 +7,15 @@ Why RTCall.js?
 
 The entire process is browser to browser.
 
-----
+=
 
 #### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/RTCall.js"></script>
+<script src="https://www.webrtc-experiment.com/RTCall.js"></script>
 ```
+
+=
 
 #### Second Step: Start using it!
 
@@ -22,6 +24,8 @@ Remember: All lines are optional!
 ```javascript
 call = new RTCall();
 ```
+
+=
 
 #### `onincomingcall`
 
@@ -33,6 +37,8 @@ call.onincomingcall = function(caller) {
 };
 ```
 
+=
+
 #### `oncustomer`
 
 `oncustomer` is fired only for `admin`:
@@ -42,6 +48,8 @@ call.oncustomer = function(customer) {
    call.call(customer.callerid);
 };
 ```
+
+=
 
 #### `onstream`
 
@@ -58,6 +66,8 @@ call.onstream = function(e) {
 };
 ```
 
+=
+
 #### `init`
 
 initializing `RTCall` object:
@@ -65,6 +75,8 @@ initializing `RTCall` object:
 ```javascript
 call.init();
 ```
+
+=
 
 #### call
 
@@ -82,6 +94,8 @@ Customers can call the admin too; using admin's `caller-id`:
 call.call('admin-caller-id');
 ```
 
+=
+
 #### `receive`
 
 `receiver-id` is always passed over `onincomingcall`:
@@ -92,6 +106,8 @@ call.onincomingcall = function(caller) {
 };
 ```
 
+=
+
 #### `admin`
 
 By default: `admin` is `false`:
@@ -100,27 +116,26 @@ By default: `admin` is `false`:
 call.admin = true;
 ```
 
-----
+=
 
 #### Demo
 
-1. https://webrtc-experiment.appspot.com/RTCall/
+1. https://www.webrtc-experiment.com/RTCall/
 
-----
+=
 
 #### Browser Support
 
-[RTCall.js](https://webrtc-experiment.appspot.com/RTCall/) supports following browsers:
+[RTCall.js](https://www.webrtc-experiment.com/RTCall/) supports following browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-----
+=
 
 #### License
 
-[RTCall.js](https://webrtc-experiment.appspot.com/RTCall/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RTCall.js](https://www.webrtc-experiment.com/RTCall/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

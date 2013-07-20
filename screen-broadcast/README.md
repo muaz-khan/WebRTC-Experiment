@@ -2,9 +2,13 @@
 
 Sharing tab using chrome **experimental tabCapture APIs**; broadcasting over many peers.
 
-#### [You can view broadcasted tabs here](https://webrtc-experiment.appspot.com/screen-broadcast/)
+=
+
+#### [You can view broadcasted tabs here](https://www.webrtc-experiment.com/screen-broadcast/)
 
 You can also view broadcasted tab using Firefox nightly, aurora, and 18+stable! It is cross-browser!
+
+=
 
 #### How to capture stream using tabCapture APIs?
 
@@ -26,12 +30,16 @@ chrome.tabs.getSelected(null, function (tab) {
 });
 ```
 
+=
+
 #### How to use your own socket.io implementation?
 
 This tab sharing experiment is using socket.io implementation of pubnub.
 
 1. broadcast.js — see in [tabCapture extension](http://code.google.com/p/muazkh/downloads/list)
-2. screen-viewer.js — see in [screen-broadcast](https://webrtc-experiment.appspot.com/screen-broadcast/)
+2. screen-viewer.js — see in [screen-broadcast](https://www.webrtc-experiment.com/screen-broadcast/)
+
+=
 
 ##### broadcast.js — Line 181
 
@@ -51,6 +59,8 @@ openSocket: function(config) {
 }
 ```
 
+=
+
 ##### screen-viewer.js — Line 185
 
 At line `185`, you can see **same** `openSocket` method:
@@ -68,6 +78,8 @@ openSocket: function(config) {
     return socket;
 }
 ```
+
+=
 
 ##### To use your own socket.io implementation...
 
@@ -90,9 +102,13 @@ openSocket: function (config) {
 
 Now, **your own socket.io will be used for signaling!**
 
+=
+
 ##### Keep in mind....
 
 Keep in mind that you **must** link appropriate `socket.io.js` file.
+
+=
 
 #### Is it possible to share full screen using tabCapture APIs?
 
@@ -127,6 +143,8 @@ chrome.tabCapture.capture(constraints, function (stream) {
 
 Well, it is suggested to try **fullscreen mode** yourself. Maybe it work!
 
+=
+
 #### Browser support of tabCapture APIs
 
 From April, 2013:
@@ -136,6 +154,8 @@ From April, 2013:
 | Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
 | Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 
+=
+
 #### List of browsers that can view broadcasted tab
 
 | Browser        | Support           |
@@ -144,10 +164,14 @@ From April, 2013:
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 
+=
+
 #### Plugin-free screen sharing
 
 There is a plugin-free screen sharing experiment too! [Try it Now!](https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html)
 
+=
+
 #### License
 
-[TabCapture Extension](http://code.google.com/p/muazkh/downloads/list) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[TabCapture Extension](http://code.google.com/p/muazkh/downloads/list) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

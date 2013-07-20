@@ -1,14 +1,16 @@
-#### WebRTC [Part of Screen Sharing Demos](https://webrtc-experiment.appspot.com/#part-of-screen-sharing)
+#### WebRTC [Part of Screen Sharing Demos](https://www.webrtc-experiment.com/#part-of-screen-sharing)
 
-1. [Using RTCDataChannel](https://webrtc-experiment.appspot.com/part-of-screen-sharing/webrtc-data-channel/)
-2. [Using Firebase](https://webrtc-experiment.appspot.com/part-of-screen-sharing/)
+1. [Using RTCDataChannel](https://www.webrtc-experiment.com/part-of-screen-sharing/webrtc-data-channel/)
+2. [Using Firebase](https://www.webrtc-experiment.com/part-of-screen-sharing/)
 3. [A realtime chat using RTCDataChannel](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/)
 4. [A realtime chat using Firebase](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html)
+
+=
 
 #### How to use in your own site?
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/screenshot.js"></script>
+<script src="https://www.webrtc-experiment.com/screenshot.js"></script>
 ```
 
 ```javascript
@@ -37,6 +39,8 @@ html2canvas(divToShare, {
  */
 ```
 
+=
+
 #### How.....why.....what.....?
 
 1. Used `html2canvas` library to take screenshot of the entire webpage or part of webpage.
@@ -50,7 +54,7 @@ html2canvas(divToShare, {
 
 ....and that's all you need to do!
 
-**Just copy HTML/JS code in your site and that's all you need to do. Nothing to install! No requirements!**
+=
 
 #### Browser Support
 
@@ -63,6 +67,8 @@ These WebRTC **Part of Screen Sharing** experiments works fine on following web-
 | Firefox | [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
 
+=
+
 #### License
 
-These WebRTC **Part of Screen Sharing** experiments are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+These WebRTC **Part of Screen Sharing** experiments are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

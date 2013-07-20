@@ -1,8 +1,8 @@
-#### WebRTC One-to-One video sharing using WebSockets / [Demo](https://webrtc-experiment.appspot.com/websocket/)
+#### WebRTC One-to-One video sharing using WebSockets / [Demo](https://www.webrtc-experiment.com/websocket/)
 
 This `WebRTC Experiment` is using `WebSockets` for signalig.
 
-----
+=
 
 #### How to use your own WebSocket implementation?
 
@@ -37,11 +37,11 @@ openSignalingChannel: function(config) {
 
 In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
 
-----
+=
 
 #### Browser Support
 
-This [One-to-one WebRTC video chat using WebSocket](https://webrtc-experiment.appspot.com/websocket/) experiment works fine on following web-browsers:
+This [One-to-one WebRTC video chat using WebSocket](https://www.webrtc-experiment.com/websocket/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -49,8 +49,8 @@ This [One-to-one WebRTC video chat using WebSocket](https://webrtc-experiment.ap
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-----
+=
 
 #### License
 
-[WebRTC One-to-One video sharing using WebSockets](https://webrtc-experiment.appspot.com/websocket/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC One-to-One video sharing using WebSockets](https://www.webrtc-experiment.com/websocket/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

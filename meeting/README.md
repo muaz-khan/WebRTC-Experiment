@@ -1,4 +1,4 @@
-#### WebRTC Meeting i.e. Video-Conferencing / [Demo](https://webrtc-experiment.appspot.com/meeting/)
+#### WebRTC Meeting i.e. Video-Conferencing / [Demo](https://www.webrtc-experiment.com/meeting/)
 
 1. Multiple peer-connections are opened to bring multi-users connectivity experience.
 2. Maximum peers limit on chrome is temporarily 10.
@@ -21,15 +21,15 @@ Possible issues:
 
 Solution? Obviously a media server. To overcome burden and to deliver HD stream over thousands of peers; we need a media server that should broadcast stream over number of peers.
 
-----
+=
 
 #### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/meeting/meeting.js"></script>
+<script src="https://www.webrtc-experiment.com/meeting/meeting.js"></script>
 ```
 
-----
+=
 
 #### Last Step: Start using it!
 
@@ -53,7 +53,7 @@ document.getElementById('setup-new-meeting').onclick = function() {
 };
 ```
 
-----
+=
 
 #### Custom user-ids?
 
@@ -61,7 +61,7 @@ document.getElementById('setup-new-meeting').onclick = function() {
 meeting.userid = 'username';
 ```
 
-----
+=
 
 #### Custom signaling channel?
 
@@ -98,7 +98,7 @@ Want to use `Firebase` for signaling?
 meeting.firebase = 'chat';
 ```
 
-----
+=
 
 #### Want to manually join rooms?
 
@@ -119,7 +119,7 @@ meeting.onmeeting = function(room) {
 
 `onmeeting` is called for each new meeting; and `meet` method allows you manually join a meeting room.
 
-----
+=
 
 #### If someone leaves...
 
@@ -133,7 +133,7 @@ meeting.onuserleft = function(userid) {
 };
 ```
 
-----
+=
 
 #### `onaddstream`
 
@@ -152,11 +152,11 @@ meeting.onaddstream = function(e) {
 };
 ```
 
-----
+=
 
 #### Browser Support
 
-This [WebRTC Meeting](https://webrtc-experiment.appspot.com/meeting/) experiment works fine on following web-browsers:
+This [WebRTC Meeting](https://www.webrtc-experiment.com/meeting/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -164,8 +164,8 @@ This [WebRTC Meeting](https://webrtc-experiment.appspot.com/meeting/) experiment
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-----
+=
 
 #### License
 
-[WebRTC Meeting](https://webrtc-experiment.appspot.com/meeting/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Meeting](https://www.webrtc-experiment.com/meeting/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

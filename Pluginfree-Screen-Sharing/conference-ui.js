@@ -1,17 +1,34 @@
-﻿var config = {
+﻿// 2013, @muazkh » github.com/muaz-khan
+// MIT License » https://webrtc-experiment.appspot.com/licence/
+// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing
+
+var config = {
     openSocket: function (config) {
-        var channel = config.channel || location.hash.replace('#', '') || 'pluginfree-screen-sharing';
-        var socket = new Firebase('https://rtcweb.firebaseIO.com/' + channel);
-        socket.channel = channel;
-        socket.on('child_added', function (data) {
-            config.onmessage && config.onmessage(data.val());
+        var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8553/',
+            defaultChannel = location.hash.substr(1) || 'Pluginfree-Screen-Sharing';
+
+        var channel = config.channel || defaultChannel;
+        var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+        io.connect(SIGNALING_SERVER).emit('new-channel', {
+            channel: channel,
+            sender: sender
         });
-        socket.send = function (data) {
-            this.push(data);
+
+        var socket = io.connect(SIGNALING_SERVER + channel);
+        socket.channel = channel;
+        socket.on('connect', function() {
+            if (config.callback) config.callback(socket);
+        });
+
+        socket.send = function(message) {
+            socket.emit('message', {
+                sender: sender,
+                data: message
+            });
         };
-        config.onopen && setTimeout(config.onopen, 1);
-        socket.onDisconnect().remove();
-        return socket;
+
+        socket.on('message', config.onmessage);
     },
     onRemoteStream: function (media) {
         var video = media.video;

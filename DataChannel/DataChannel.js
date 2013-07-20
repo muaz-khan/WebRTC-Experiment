@@ -235,7 +235,7 @@
         var self = { };
         var that = this;
 
-        self.userToken = root.userid || uniqueToken();
+        self.userToken = root.userid = root.userid || uniqueToken();
         self.sockets = [];
         self.socketObjects = { };
 
@@ -819,9 +819,10 @@
                 var message = content[uuid].join('');
                 if (data.isobject) message = JSON.parse(message);
 
-                // latency detection
+                // bug: latency detection must be fixed
+                // https://github.com/muaz-khan/WebRTC-Experiment/issues/63#issuecomment-21083575
                 var receivingTime = new Date().getTime();
-                var latency = receivingTime - data.sendingTime;
+                var latency = Math.abs(receivingTime - data.sendingTime);
 
                 if (onmessage) onmessage(message, userid, latency);
 
@@ -861,7 +862,7 @@
             credential: 'homeo'
         };
 
-        iceServers = {
+        var iceServers = {
             iceServers: options.iceServers || [STUN]
         };
 

@@ -1,4 +1,4 @@
-#### WebRTC Text Chat i.e. Data Sharing / [Demo](https://webrtc-experiment.appspot.com/text-chat/)
+#### WebRTC Text Chat i.e. Data Sharing / [Demo](https://www.webrtc-experiment.com/text-chat/)
 
 `DataConnection.js` library lets you:
 
@@ -6,15 +6,15 @@
 2. Share text message of any length
 3. Text data regardless of the size and type
 
-----
+=
 
 #### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/data-connection.js"></script>
+<script src="https://www.webrtc-experiment.com/data-connection.js"></script>
 ```
 
-----
+=
 
 #### Last Step: Start using it!
 
@@ -29,7 +29,7 @@ document.getElementById('setup-new-connection').onclick = function() {
 };
 ```
 
-----
+=
 
 #### Text Chat i.e. Text Sharing
 
@@ -43,7 +43,7 @@ You may want to share direct messages:
 connection.channels['user-id'].send('longest possible text message');
 ```
 
-----
+=
 
 #### Errors Handling
 
@@ -55,7 +55,7 @@ connection.onerror = function(event, userid) {}
 connection.onclose = function(event, userid) {}
 ```
 
-----
+=
 
 #### Custom user-ids?
 
@@ -63,7 +63,7 @@ connection.onclose = function(event, userid) {}
 connection.userid = 'username';
 ```
 
-----
+=
 
 #### Custom signaling channel?
 
@@ -102,7 +102,7 @@ connection.firebase = 'chat';
 
 Want to use XHR, WebSockets, SIP, XMPP, etc. for signaling? Read [this post](https://github.com/muaz-khan/WebRTC-Experiment/issues/56#issuecomment-20090650).
 
-----
+=
 
 #### Want to manually join rooms?
 
@@ -117,7 +117,7 @@ connection.onconnection = function(room) {
 
 `onconnection` is called for each new data connection; and `join` method allows you manually join previously created connections.
 
-----
+=
 
 #### If someone leaves...
 
@@ -129,11 +129,11 @@ connection.onuserleft = function(userid) {
 };
 ```
 
-----
+=
 
 #### Browser Support
 
-This [DataConnection.js](https://webrtc-experiment.appspot.com/data-connection.js) library is compatible to following web-browsers:
+This [DataConnection.js](https://www.webrtc-experiment.com/data-connection.js) library is compatible to following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -141,8 +141,8 @@ This [DataConnection.js](https://webrtc-experiment.appspot.com/data-connection.j
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-----
+=
 
 #### License
 
-[DataConnection.js](https://webrtc-experiment.appspot.com/data-connection.js) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[DataConnection.js](https://www.webrtc-experiment.com/data-connection.js) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

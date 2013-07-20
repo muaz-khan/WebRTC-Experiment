@@ -2,6 +2,8 @@
 
 Plug & play type of WebRTC Experiments. Nothing to install. No requirements. Just copy JavaScript code in your site and that's all you need to do!
 
+=
+
 #### Chrome-to-Chrome WebRTC Data Connection
 
 It is a single-page demo. Copy/paste code in the console tab and you're done!
@@ -84,6 +86,8 @@ After RTP data ports get open; you can send text messages like this:
 offererDataChannel.send('text message');
 answererDataChannel.send('text message');
 ```
+
+=
 
 #### Firefox-to-Firefox WebRTC Data Connection
 
@@ -258,9 +262,11 @@ function setChannelEvents(channel, channelNameForConsoleOutput) {
 function useless() { }
 ```
 
+=
+
 #### Browser Support
 
-[WebRTC Experiments & Demos](https://webrtc-experiment.appspot.com) works fine on following web-browsers:
+[WebRTC Experiments & Demos](https://www.webrtc-experiment.com) works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -268,13 +274,15 @@ function useless() { }
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
 
-| [WebRTC One-Page Demos](https://webrtc-experiment.appspot.com)        |
+| [WebRTC One-Page Demos](https://www.webrtc-experiment.com)        |
 | ------------- |
-| [One-Page text chat using RTCDataChannel APIs](https://webrtc-experiment.appspot.com/demos/client-side-datachannel.html) |
-| [One-Page direct video chat](https://webrtc-experiment.appspot.com/demos/client-side.html) |
-| [One-Page video chat using socket.io for signaling](https://webrtc-experiment.appspot.com/demos/client-side-socket-io.html) |
-| [One-Page video chat using WebSockets for signaling](https://webrtc-experiment.appspot.com/demos/client-side-websocket.html) |
+| [One-Page text chat using RTCDataChannel APIs](https://www.webrtc-experiment.com/demos/client-side-datachannel.html) |
+| [One-Page direct video chat](https://www.webrtc-experiment.com/demos/client-side.html) |
+| [One-Page video chat using socket.io for signaling](https://www.webrtc-experiment.com/demos/client-side-socket-io.html) |
+| [One-Page video chat using WebSockets for signaling](https://www.webrtc-experiment.com/demos/client-side-websocket.html) |
+
+=
 
 #### License
 
-[WebRTC Experiments & Demos](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Experiments & Demos](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

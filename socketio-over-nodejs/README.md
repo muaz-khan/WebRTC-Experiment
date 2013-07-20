@@ -12,7 +12,7 @@ This experiment is using **socket.io over node.js** for signaling. Follow these 
 
 `http://localhost:8888/` will be auto-opened.
 
-----
+=
 
 #### If you want to deploy your application
 
@@ -22,7 +22,7 @@ This experiment is using **socket.io over node.js** for signaling. Follow these 
 
 and you're done!
 
-----
+=
 
 #### How to use?
 
@@ -59,7 +59,7 @@ connection.openSignalingChannel = function(config) {
 
 `io.connect(URL).emit('new-channel')` starts a new namespace that is used privately or publicly to transmit appropriate stuff e.g. room-details, participation-requests, SDP, ICE, etc.
 
-----
+=
 
 #### Presence Detection
 
@@ -81,7 +81,7 @@ testChannelPresence('default-channel');
 ```
 
 
-----
+=
 
 #### if fails to run....
 
@@ -102,19 +102,19 @@ childProcess.spawn(chromeURL, ['-incognito', openURL]);
 
 Actually, these lines are auto-opening chrome/firefox instances.
 
-----
+=
 
 #### What is `cd folder-location`?
 
 Using this command; you can open project's directory (i.e. folder).
 
-----
+=
 
 #### What is `node signaler`?
 
 This command runs the `signaler.js` file. That file handles socket.io server side stuff.
 
-----
+=
 
 #### What is `jitsu deploy`?
 
@@ -126,7 +126,7 @@ http://username.jit.su/
 
 See the demo URL: http://webrtc-signaling.jit.su/
 
-----
+=
 
 #### Note
 
@@ -144,7 +144,7 @@ It is strongly recommended to use absolute URL including port number:
 var SIGNALING_SERVER = 'http://domain.com:8888/';
 ```
 
-----
+=
 
 #### Are you beginner or totally novice?
 
@@ -153,14 +153,20 @@ var SIGNALING_SERVER = 'http://domain.com:8888/';
 3. You can use same command prompt to run any `node.js` file; also you can write `nodejitsu` commands in the same place e.g. `jitsu deploy` or `jitsu login` etc.
 4. Default port `8888` is used for this experiment. You can manually open this URL: `http://localhost:8888/`
 
-----
+=
 
 #### Signaling Concepts
 
 Interested to understand WebRTC Signaling Concepts? Read [this document](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/Signaling-Concepts.md).
 
-----
+=
+
+#### SSL/TLS/HTTPS/Socket.io/Node.js ??
+
+https://github.com/muaz-khan/WebRTC-Experiment/issues/62
+
+=
 
 #### License
 
-[Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

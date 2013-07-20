@@ -1,6 +1,8 @@
-#### WebRTC Screen-Sharing / [Demo](https://webrtc-experiment.appspot.com/screen-sharing/)
+#### WebRTC Screen-Sharing / [Demo](https://www.webrtc-experiment.com/screen-sharing/)
 
 Ad-ons free; plugin-free; extension free; direct browser-to-browser screen sharing.
+
+=
 
 #### Enable screen capture support in getUserMedia()
 
@@ -19,7 +21,7 @@ navigator.webkitGetUserMedia({
 }, onsuccess, onfailure);
 ```
 
-----
+=
 
 #### Desktop Sharing?
 
@@ -27,7 +29,7 @@ Obviously, it is one of the most requested features; however not supported yet. 
 
 These screen sharing APIs (i.e. `{ chromeMediaSource: 'screen' }`) allows only state-less (non-interactive) screen sharing.
 
-----
+=
 
 #### To use code in your own site, you must understand following limitations:
 
@@ -38,23 +40,23 @@ Chrome canary denies **screen capturing** request automatically if:
 3. You've not installed SSL certificate (i.e. testing on non-HTTPS domain)
 4. **screen capturing** is requested multiple times per tab. Maximum one request is permitted per page!
 
-----
+=
 
 #### Why recursive cascade images or blurred screen?
 
 Remember, recursive cascade images or blurred screen is chrome's implementation issue. It will be solved soon.
 
-`mandatory: {chromeMediaSource: 'tab'}` can only be useful in chrome extensions. See [Tab sharing using tabCapture APIs](https://webrtc-experiment.appspot.com/screen-broadcast/).
+`mandatory: {chromeMediaSource: 'tab'}` can only be useful in chrome extensions. See [Tab sharing using tabCapture APIs](https://www.webrtc-experiment.com/screen-broadcast/).
 
-----
+=
 
 #### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/screen-sharing/screen.js"></script>
+<script src="https://www.webrtc-experiment.com/screen-sharing/screen.js"></script>
 ```
 
-----
+=
 
 #### Last Step: Start using it!
 
@@ -76,7 +78,7 @@ document.getElementById('share-screen').onclick = function() {
 };
 ```
 
-----
+=
 
 #### Custom user-ids?
 
@@ -84,7 +86,7 @@ document.getElementById('share-screen').onclick = function() {
 screen.userid = 'username';
 ```
 
-----
+=
 
 #### Custom signaling channel?
 
@@ -121,7 +123,7 @@ Want to use `Firebase` for signaling?
 screen.firebase = 'chat';
 ```
 
-----
+=
 
 #### Want to manually join rooms?
 
@@ -142,7 +144,7 @@ screen.onscreen = function(_screen) {
 
 `onscreen` is called for each new screen; and `view` method allows you manually view shared screens.
 
-----
+=
 
 #### If someone leaves...
 
@@ -156,7 +158,7 @@ screen.onuserleft = function(userid) {
 };
 ```
 
-----
+=
 
 #### `onaddstream`
 
@@ -173,11 +175,11 @@ screen.onaddstream = function(e) {
 };
 ```
 
-----
+=
 
 #### Browser Support
 
-This [WebRTC Screen Sharing](https://webrtc-experiment.appspot.com/screen-sharing/) experiment works fine on following web-browsers:
+This [WebRTC Screen Sharing](https://www.webrtc-experiment.com/screen-sharing/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -185,8 +187,8 @@ This [WebRTC Screen Sharing](https://webrtc-experiment.appspot.com/screen-sharin
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-----
+=
 
 #### License
 
-[WebRTC Screen Sharing](https://webrtc-experiment.appspot.com/screen-sharing/) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Screen Sharing](https://www.webrtc-experiment.com/screen-sharing/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

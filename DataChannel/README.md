@@ -1,4 +1,4 @@
-##### [DataChannel.js](https://webrtc-experiment.appspot.com/DataChannel.js) : A JavaScript wrapper library for RTCDataChannel APIs / [Demos](https://webrtc-experiment.appspot.com/#DataChannel)
+##### [DataChannel.js](https://www.webrtc-experiment.com/DataChannel.js) : A JavaScript wrapper library for RTCDataChannel APIs / [Demos](https://www.webrtc-experiment.com/#DataChannel)
 
 DataChannel.js is a JavaScript library useful to write many-to-many i.e. group file/data sharing or text chat applications. Its syntax is easier to use and understand. It highly simplifies complex tasks like any or all user rejection/ejection; direct messages delivery; and more.
 
@@ -22,7 +22,7 @@ DataChannel.js is a JavaScript library useful to write many-to-many i.e. group f
 ##### First Step: Link the library
 
 ```html
-<script src="https://webrtc-experiment.appspot.com/DataChannel.js"></script>
+<script src="https://www.webrtc-experiment.com/DataChannel.js"></script>
 ```
 
 =
@@ -289,10 +289,10 @@ channel.connect('channel-name');
 
 =
 
-##### [Demos using DataChannel.js](https://webrtc-experiment.appspot.com/#DataChannel)
+##### [Demos using DataChannel.js](https://www.webrtc-experiment.com/#DataChannel)
 
-1. [DataChannel basic demo](https://webrtc-experiment.appspot.com/DataChannel/)
-2. [Auto Session Establishment and Users presence detection](https://webrtc-experiment.appspot.com/DataChannel/auto-session-establishment/)
+1. [DataChannel basic demo](https://www.webrtc-experiment.com/DataChannel/)
+2. [Auto Session Establishment and Users presence detection](https://www.webrtc-experiment.com/DataChannel/auto-session-establishment/)
 
 =
 
@@ -310,4 +310,4 @@ channel.connect('channel-name');
 
 ##### License
 
-[DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
