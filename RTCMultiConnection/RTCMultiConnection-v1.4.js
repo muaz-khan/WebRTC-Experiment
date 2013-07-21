@@ -11,7 +11,7 @@
             if (_channel)
                 self.channel = _channel;
 
-            if (self.socket)
+            if (self.socket && self.socket.onDisconnect)
                 self.socket.onDisconnect().remove();
 
             self.isInitiator = true;
@@ -218,7 +218,8 @@
 
                         self.streams[streamid] = self._getStream({
                             stream: stream,
-                            userid: self.userid
+                            userid: self.userid,
+                            type: 'local'
                         });
 
                         if (forcedCallback) forcedCallback(stream);
@@ -279,8 +280,7 @@
 
         var participants = { },
             isbroadcaster,
-            isAcceptNewSession = true,
-            RTCDataChannels = [];
+            isAcceptNewSession = true;
 
         function newPrivateSocket(_config) {
             var socketConfig = {
@@ -342,6 +342,10 @@
                     e.extra = _config.extra;
                     e.userid = _config.userid;
                     root.onclose(e);
+
+                    // suggested in #71 by "efaj"
+                    if (root.channels[e.userid])
+                        delete root.channels[e.userid];
                 },
                 onerror: function(e) {
                     e.extra = _config.extra;
@@ -410,19 +414,15 @@
                 root.streams[streamid] = root._getStream({
                     stream: _config.stream,
                     userid: _config.userid,
-                    socket: socket
+                    socket: socket,
+                    type: 'remote'
                 });
 
                 onSessionOpened();
             }
 
             function onChannelOpened(channel) {
-                RTCDataChannels[RTCDataChannels.length] = _config.channel = channel;
-
-                root.onopen({
-                    extra: _config.extra,
-                    userid: _config.userid
-                });
+                _config.channel = channel;
 
                 // connection.channels['user-id'].send(data);				
                 root.channels[_config.userid] = {
@@ -431,6 +431,11 @@
                         root.send(data, this.channel);
                     }
                 };
+				
+                root.onopen({
+                    extra: _config.extra,
+                    userid: _config.userid
+                });
 
                 if (isData(session)) onSessionOpened();
             }
@@ -713,7 +718,7 @@
 
         this.initSession = function() {
             isbroadcaster = true;
-            isAcceptNewSession = false;
+            this.isOwnerLeaving = isAcceptNewSession = false;
             (function transmit() {
                 if (getLength(participants) < root.maxParticipantsAllowed) {
                     defaultSocket && defaultSocket.send({
@@ -724,7 +729,7 @@
                     });
                 }
 
-                if (!root.transmitRoomOnce && !that.leaving)
+                if (!root.transmitRoomOnce && !that.isOwnerLeaving)
                     setTimeout(transmit, root.interval || 3000);
             })();
         };
@@ -757,10 +762,7 @@
         };
 
         this.send = function(message, _channel) {
-            var _channels = RTCDataChannels,
-                data, length = _channels.length;
-            if (!length)
-                return;
+            var data;
 
             if (moz && message.file)
                 data = message.file;
@@ -770,8 +772,8 @@
             if (_channel)
                 _channel.send(data);
             else
-                for (var i = 0; i < length; i++)
-                    _channels[i].send(data);
+                for (_channel in root.channels)
+                    root.channels[_channel].channel.send(data);
         };
 
         this.leave = function(userid) {
@@ -781,6 +783,11 @@
                 self.userid = root.userid = root.token();
                 root.joinedARoom = self.joinedARoom = isbroadcaster = false;
                 isAcceptNewSession = true;
+            }
+
+            if (isbroadcaster) {
+                this.isOwnerLeaving = true;
+                root.isInitiator = false;
             }
         };
 
@@ -1481,7 +1488,29 @@
         };
 
         self.peers = { };
-        self.streams = { };
+
+        self.streams = {
+            mute: function(session) {
+                this._private(session, true);
+            },
+            unmute: function(session) {
+                this._private(session, false);
+            },
+            _private: function(session, enabled) {
+                // implementation from #68
+                for (var stream in this) {
+                    if (stream != 'mute' && stream != 'unmute' && stream != '_private') {
+                        var root = this[stream];
+                        muteOrUnmute({
+                            root: root,
+                            session: session,
+                            stream: root.stream,
+                            enabled: enabled
+                        });
+                    }
+                }
+            }
+        };
         self.channels = { };
         self.extra = { };
 
@@ -1509,6 +1538,7 @@
                 stream: e.stream,
                 userid: e.userid,
                 socket: e.socket,
+                type: e.type,
                 stop: function() {
                     var stream = this.stream;
                     if (stream && stream.stop)
@@ -1521,35 +1551,12 @@
                     this._private(session, false);
                 },
                 _private: function(session, enabled) {
-                    var stream = this.stream;
-
-                    if (e.socket)
-                        e.socket.send({
-                            userid: this.userid,
-                            mute: !!enabled,
-                            unmute: !enabled
-                        });
-
-                        // for local streams only
-                    else
-                        log('No socket to send mute/unmute notification message.');
-
-                    session = session || {
-                        audio: true,
-                        video: true
-                    };
-
-                    if (session.audio) {
-                        var audioTracks = stream.getAudioTracks()[0];
-                        if (audioTracks)
-                            audioTracks.enabled = !enabled;
-                    }
-
-                    if (session.video) {
-                        var videoTracks = stream.getVideoTracks()[0];
-                        if (videoTracks)
-                            videoTracks.enabled = !enabled;
-                    }
+                    muteOrUnmute({
+                        root: this,
+                        session: session,
+                        enabled: enabled,
+                        stream: this.stream
+                    });
                 }
             };
         };
@@ -1557,6 +1564,50 @@
         self.token = function() {
             return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
         };
+    }
+
+    function muteOrUnmute(e) {
+        var stream = e.stream,
+            root = e.root,
+            session = e.session || { },
+            enabled = e.enabled;
+
+        if (!session.audio && !session.video) {
+            session = merge(session, {
+                audio: true,
+                video: true
+            });
+        }
+
+        // implementation from #68
+        if (session.type) {
+            if (session.type == 'remote' && root.type != 'remote') return;
+            if (session.type == 'local' && root.type != 'local') return;
+        }
+
+        console.log('session', JSON.stringify(session, null, '\t'));
+
+        // enable/disable audio/video tracks
+
+        if (session.audio) {
+            var audioTracks = stream.getAudioTracks()[0];
+            if (audioTracks)
+                audioTracks.enabled = !enabled;
+        }
+
+        if (session.video) {
+            var videoTracks = stream.getVideoTracks()[0];
+            if (videoTracks)
+                videoTracks.enabled = !enabled;
+        }
+
+        // socket message to change media element look
+        if (root.socket)
+            root.socket.send({
+                userid: root.userid,
+                mute: !!enabled,
+                unmute: !enabled
+            });
     }
 
     function getLength(obj) {
