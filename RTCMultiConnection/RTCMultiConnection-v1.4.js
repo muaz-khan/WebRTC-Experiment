@@ -245,8 +245,17 @@
 
         this.captureUserMedia = captureUserMedia;
 
-        this.leave = this.eject = function(userid) {
+        this.eject = function(userid) {
             rtcSession.leave(userid);
+        };
+
+        this.leave = function() {
+            rtcSession.leave();
+            var streams = self.attachStreams;
+            for (var i = 0; i < streams.length; i++) {
+                streams[i].stop();
+            }
+            currentUserMediaRequest.streams = [];
         };
 
         this.close = function() {
