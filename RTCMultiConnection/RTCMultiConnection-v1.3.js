@@ -253,6 +253,9 @@
 
         this.leave = this.eject = function(userid) {
             rtcSession.leave(userid);
+
+            self.attachStream.stop();
+            currentUserMediaRequest.streams = [];
         };
 
         this.close = function() {
