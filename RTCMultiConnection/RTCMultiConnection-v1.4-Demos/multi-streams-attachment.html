@@ -1,31 +1,59 @@
-﻿<h1>Multi-streams attachment using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection">RTCMultiConnection</a> / <a href="https://www.webrtc-experiment.com/">Home</a></h1>
-<style>video {width: 48%;vertical-align: top;}</style>
-<script src="https://www.webrtc-experiment.com/firebase.js"> </script>
+﻿<h1>
+    Multi-streams attachment using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection">
+                                       RTCMultiConnection</a> / <a href="https://www.webrtc-experiment.com/">Home</a></h1>
+<style>
+    video {
+        vertical-align: top;
+        width: 48%;
+    }
+</style>
 <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
-
-<button id="init">Open New Connection</button>
-<br /><br />
-
+<button id="init">
+    Open New Connection</button>
+<br />
+<br />
 <script>
     var connection = new RTCMultiConnection('2dlksjfaKJLFLKJDKJFKJDjfdsklfew');
+    connection.openSignalingChannel = function(config) {
+        config.channel = config.channel || this.channel || location.hash.substr(1) || 'multi-streams-attachment';
+        var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+        websocket.channel = config.channel;
+        websocket.onopen = function() {
+            websocket.push(JSON.stringify({
+                open: true,
+                channel: config.channel
+            }));
+            if (config.callback) config.callback(websocket);
+        };
+        websocket.onmessage = function(event) {
+            config.onmessage(JSON.parse(event.data));
+        };
+        websocket.push = websocket.send;
+        websocket.send = function(data) {
+            websocket.push(JSON.stringify({
+                data: data,
+                channel: config.channel
+            }));
+        };
+    };
     connection.session = {
         audio: true,
         video: true,
         screen: true,
         oneway: true
     };
-    connection.onstream = function (e) {
+    connection.onstream = function(e) {
         document.body.appendChild(e.mediaElement);
     };
 
     connection.connect('fsafsdafsfds');
 
-    document.getElementById('init').onclick = function () {
+    document.getElementById('init').onclick = function() {
         this.disabled = true;
         connection.open('fsafsdafsfds');
     };
 
-    connection.onstreamended = function (e) {
+    connection.onstreamended = function(e) {
         var mediaElement = e.mediaElement;
         if (mediaElement.parentNode) mediaElement.parentNode.removeChild(mediaElement);
     };

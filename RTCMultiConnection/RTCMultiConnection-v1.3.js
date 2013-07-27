@@ -1,5 +1,5 @@
-// 2013, @muazkh - github.com/muaz-khan
-// MIT License - https://webrtc-experiment.appspot.com/licence/
+// 2013, @muazkh - https://github.com/muaz-khan
+// MIT License   - https://webrtc-experiment.appspot.com/licence/
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.3.md
 
 // RTCMultiConnection-v1.3
@@ -140,6 +140,7 @@
             rtcSession = new RTCMultiSession(self);
 
             // bug: these two must be fixed. Must be able to receive many files concurrently.
+            // Note: this bug is fixed in v1.4
             fileReceiver = new FileReceiver();
             textReceiver = new TextReceiver();
 
@@ -253,6 +254,9 @@
 
         this.leave = this.eject = function(userid) {
             rtcSession.leave(userid);
+
+            self.attachStream.stop();
+            currentUserMediaRequest.streams = [];
         };
 
         this.close = function() {
@@ -438,7 +442,7 @@
                     }
                 };
 
-                onSessionOpened();
+                if (isData(session)) onSessionOpened();
             }
 
             function updateSocket() {
@@ -460,10 +464,6 @@
             }
 
             function onSessionOpened() {
-                // user-id in <socket> object
-                if (socket.userid == _config.userid)
-                    return;
-
                 // original conferencing infrastructure!
                 if (!session.oneway && !session.broadcast && isbroadcaster && channels.split('--').length > 3)
                     defaultSocket.send({
@@ -700,7 +700,7 @@
                         session = root.session = response.session;
                         config.onNewSession(response);
                     }
-                        
+
                     if (response.newParticipant && self.joinedARoom && self.broadcasterid === response.userid)
                         onNewParticipant(response.newParticipant, response.extra);
                     if (response.userid && response.targetUser == self.userid && response.participant && channels.indexOf(response.userid) == -1) {
@@ -1117,7 +1117,7 @@
                 return;
 
             peer.createOffer(function(sessionDescription) {
-                //sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
+                sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
                 options.onOfferSDP(sessionDescription);
             }, null, constraints);
@@ -1131,7 +1131,7 @@
             peer.setRemoteDescription(options.offerSDP);
 
             peer.createAnswer(function(sessionDescription) {
-                //sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
+                sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
                 options.onAnswerSDP(sessionDescription);
             }, null, constraints);

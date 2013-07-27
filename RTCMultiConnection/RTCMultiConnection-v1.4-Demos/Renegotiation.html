@@ -15,7 +15,7 @@
                 location.reload();
             }
         </script>
-		<style>
+        <style>
             * {
                 -webkit-user-select: none;
                 font-family: 'Segoe UI Light';
@@ -50,7 +50,7 @@
             .video-container {
                 background: white;
                 display: inline-block;
-                overflow:hidden;
+                overflow: hidden;
                 vertical-align: top;
             }
 
@@ -122,7 +122,6 @@
                 padding: .4em .8em;
             }
         </style>
-        <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
         <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
     </head>
     <body>
@@ -160,13 +159,37 @@
         <p>
             Remeber, it is a testing demo for <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4.js"
                                                  target="_blank">RTCMultiConnection-v1.4.js</a> library. Documentation <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection"
-                                                                                                                           target="_blank">available here</a>.</p>
+                                                                                                                          target="_blank">available here</a>.</p>
         <!--
             begins -->
         <script>
             var sessionid = location.hash.substr(1) || 'ABCZXYCBA';
 
             var connection = new RTCMultiConnection(sessionid);
+
+            connection.openSignalingChannel = function(config) {
+                config.channel = config.channel || this.channel || location.hash.substr(1) || sessionid;
+                var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+                websocket.channel = config.channel;
+                websocket.onopen = function() {
+                    websocket.push(JSON.stringify({
+                        open: true,
+                        channel: config.channel
+                    }));
+                    if (config.callback) config.callback(websocket);
+                };
+                websocket.onmessage = function(event) {
+                    config.onmessage(JSON.parse(event.data));
+                };
+                websocket.push = websocket.send;
+                websocket.send = function(data) {
+                    websocket.push(JSON.stringify({
+                        data: data,
+                        channel: config.channel
+                    }));
+                };
+            };
+
             connection.session = {
                 data: true
             };
@@ -242,10 +265,10 @@
                     }, 200);
                 };
                 div.appendChild(button);
-				
-				var button2 = document.createElement('button');
+
+                var button2 = document.createElement('button');
                 button2.innerHTML = 'Stop';
-				button.style.marginTop = '2.5em';
+                button.style.marginTop = '2.5em';
                 button2.id = e.streamid;
                 button2.onclick = function() {
                     button2 = this;
@@ -262,7 +285,7 @@
                 div.appendChild(h2);
                 return div;
             }
-        </script>        
+        </script>
         <footer>
             <div id="messages"></div>
             <input type="text" id="input-message" disabled>

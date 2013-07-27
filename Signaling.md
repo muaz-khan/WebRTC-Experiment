@@ -59,13 +59,6 @@ connection.openSignalingChannel = function(callback) {
 
 Want to use XHR, WebSockets, SIP, XMPP, etc. for signaling? Read [this post](https://github.com/muaz-khan/WebRTC-Experiment/issues/56#issuecomment-20090650).
 
-=
-
-##### How to use [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/)?
-
-```html
-<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
-```
 
 =
 

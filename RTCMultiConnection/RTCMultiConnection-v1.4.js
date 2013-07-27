@@ -1,5 +1,5 @@
-// 2013, @muazkh - github.com/muaz-khan
-// MIT License - https://www.webrtc-experiment.com/licence/
+// 2013, @muazkh - https://github.com/muaz-khan
+// MIT License   - https://www.webrtc-experiment.com/licence/
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
 
 // RTCMultiConnection-v1.4
@@ -8,6 +8,8 @@
         this.channel = channel;
 
         this.open = function(_channel) {
+            self.joinedARoom = true;
+			
             if (_channel)
                 self.channel = _channel;
 
@@ -247,6 +249,14 @@
 
         this.leave = this.eject = function(userid) {
             rtcSession.leave(userid);
+
+            if (!userid) {
+                var streams = self.attachStreams;
+                for (var i = 0; i < streams.length; i++) {
+                    streams[i].stop();
+                }
+                currentUserMediaRequest.streams = [];
+            }
         };
 
         this.close = function() {

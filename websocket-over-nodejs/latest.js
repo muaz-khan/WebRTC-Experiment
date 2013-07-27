@@ -3,7 +3,7 @@
 // Documentation » https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs
 // Demo          » https://www.webrtc-experiment.com/websocket/
 
-// Open          » http://localhost:1337/
+// Open          » https://localhost:1337/
 
 var WebSocketServer = require('websocket').server;
 var https = require('https');

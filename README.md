@@ -331,6 +331,10 @@ sdp = serializer.deserialize();
 
 ##### How to record video using [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/)?
 
+```html
+<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
+```
+
 ```javascript
 var recorder = RecordRTC({
 	video: HTMLVideoElement

@@ -207,8 +207,6 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
-        
-		<script src="https://www.webrtc-experiment.com/firebase.js"> </script>
         <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
     </head>
     <body>
@@ -230,14 +228,14 @@
                 <h2>Open New Session:</h2>
 
                 <select id="session" title="Session">
-					<option>audio+video+data+screen</option>
+                    <option>audio+video+data+screen</option>
                     <option>audio+video+data</option>
-					<option>audio+data+screen</option>
-					<option>audio+video+screen</option>
+                    <option>audio+data+screen</option>
+                    <option>audio+video+screen</option>
                     <option>audio+video</option>
-					<option>audio+screen</option>
-					<option>video+screen</option>
-					<option>data+screen</option>
+                    <option>audio+screen</option>
+                    <option>video+screen</option>
+                    <option>data+screen</option>
                     <option>audio+data</option>
                     <option>video+data</option>
                     <option>audio</option>
@@ -251,7 +249,8 @@
                     <option>one-to-many</option>
                     <option>one-way</option>
                 </select>
-                <button id="open-session" disabled>Open NEW Session</button>
+                <button id="open-session">Open NEW Session</button>
+                <button id="join">Join</button>
             </section>
             <table style="border-left: 1px solid black; width: 100%;">
                 <tr>
@@ -283,7 +282,29 @@
                 function initConnection(config) {
                     window.connection = new RTCMultiConnection(config.sessionid);
 
-                    connection.firebase = 'signaling';
+                    connection.openSignalingChannel = function(config) {
+                        config.channel = config.channel || this.channel || location.hash.substr(1) || 'RTCMultiConnection-v1.4-Demos';
+                        var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+                        websocket.channel = config.channel;
+                        websocket.onopen = function() {
+                            websocket.push(JSON.stringify({
+                                open: true,
+                                channel: config.channel
+                            }));
+                            if (config.callback) config.callback(websocket);
+                        };
+                        websocket.onmessage = function(event) {
+                            config.onmessage(JSON.parse(event.data));
+                        };
+                        websocket.push = websocket.send;
+                        websocket.send = function(data) {
+                            websocket.push(JSON.stringify({
+                                data: data,
+                                channel: config.channel
+                            }));
+                        };
+                    };
+
                     connection.session = config.session;
 
                     connection.maxParticipantsAllowed = config.maxParticipantsAllowed;
@@ -409,19 +430,12 @@
                     return div;
                 }
 
-                console.debug('about to check presence of a room');
-                new window.Firebase('https://signaling.firebaseIO.com/' + hash).once('value', function(data) {
-                    var isRoomPresent = data.val() != null;
-                    if (isRoomPresent) {
-                        initConnection({
-                            sessionid: hash
-                        });
-                        document.getElementById('open-session').disabled = true;
-                        window.isRoomInitiator = false;
-                    } else document.getElementById('open-session').disabled = false;
-
-                    console.debug('room is present? ', isRoomPresent);
-                });
+                document.getElementById('join').onclick = function() {
+                    this.disabled = true;
+                    initConnection({
+                        sessionid: location.hash.substr(1)
+                    });
+                };
             </script>
             <br />
             <br />
