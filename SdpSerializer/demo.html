@@ -1,0 +1,37 @@
+<h1>SdpSerializer.js Demo / See Console Logs / <a href="https://github.com/muaz-khan/SdpSerializer">Source Code</a></h1>
+<script src="https://www.webrtc-experiment.com/SdpSerializer.js"></script>
+<script>
+navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+var RTCPeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+navigator.getUserMedia({
+        audio: true,
+        video: true
+    }, function(stream) {
+        var peer = new RTCPeerConnection(null, null);
+        peer.addStream(stream);
+        peer.createOffer(function(sdp) {
+            var serializer = new SdpSerializer(sdp.sdp);
+
+            // serializer.video.payload(117).order(0);
+            // serializer.video.payload(117).newLine('a=ptime:10');
+            // serializer.audio.remove();
+            // serializer.video.payload(100).remove();
+            serializer.video.payload(100).newLine('a=fmtp:100 x-google-min-bitrate=10');
+            serializer.video.crypto().newLine('a=crypto:0 AES_CM_128_HMAC_SHA1_80 inline:AAAAAAAAAAAAAAAAAAAAAAAAA');
+            // serializer.video.direction.set('sendonly');
+            //serializer.video.crypto(80).remove();
+
+            // serializer.video.track(0).remove();
+
+            // console.debug('is video m-line rejected?', serializer.video.isRejected());
+
+            console.info(serializer.deserialize());
+        }, null, {
+            optional: [],
+            mandatory: {
+                OfferToReceiveAudio: true,
+                OfferToReceiveVideo: true
+            }
+        });
+    }, function(e) { console.error(e); });
+</script>

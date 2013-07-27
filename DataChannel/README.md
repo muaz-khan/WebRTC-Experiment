@@ -19,6 +19,46 @@ DataChannel.js is a JavaScript library useful to write many-to-many i.e. group f
 
 =
 
+##### Try a Quick Demo (Text Chat)
+
+```html
+<script src="https://www.webrtc-experiment.com/DataChannel.js"> </script>
+
+<input type="text" id="chat-input" disabled style="font-size: 2em; width: 98%;"><br />
+<div id="chat-output"></div>
+
+<script>
+    var chatOutput = document.getElementById('chat-output');
+    var chatInput = document.getElementById('chat-input');
+    chatInput.onkeypress = function(e) {
+        if (e.keyCode != 13) return;
+        channel.send(this.value);
+        chatOutput.innerHTML = 'Me: ' + this.value + '<hr />' + chatOutput.innerHTML;
+        this.value = '';
+    };
+</script>
+
+<script>
+    var channel = new DataChannel('Session Unique Identifier');
+
+    channel.onopen = function(userid) {
+        chatInput.disabled = false;
+        chatInput.value = 'Hi, ' + userid;
+        chatInput.focus();
+    };
+
+    channel.onmessage = function(message, userid) {
+        chatOutput.innerHTML = userid + ': ' + message + '<hr />' + chatOutput.innerHTML;
+    };
+
+    channel.onleave = function(userid) {
+        chatOutput.innerHTML = userid + ' Left.<hr />' + chatOutput.innerHTML;
+    };
+</script>
+```
+
+=
+
 ##### First Step: Link the library
 
 ```html

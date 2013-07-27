@@ -10,10 +10,12 @@
 
 | Library Name        | Short Description           | Documentation | Demos |
 | ------------- |-------------|-------------|-------------|
-| `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
-| `AudioVideoRecorder.js` | Audio+video recording using MediaRecorder API | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/AudioVideoRecorder) | [Demos](https://www.webrtc-experiment.com/AudioVideoRecorder/) |
 | `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) | [Demos](https://www.webrtc-experiment.com/#RTCMultiConnection) |
 | `DataChannel.js` | An ultimate wrapper library for `RTCDataChannel APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) | [Demos](https://www.webrtc-experiment.com/#DataChannel) |
+| `MediaStreamRecorder.js` | MediaStreamRecorder | [Documentation](https://github.com/streamproc/MediaStreamRecorder) | [Demos](https://www.webrtc-experiment.com/MediaStreamRecorder/) |
+| `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
+| `AudioVideoRecorder.js` | Audio+video recording using MediaRecorder API | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/AudioVideoRecorder) | [Demos](https://www.webrtc-experiment.com/AudioVideoRecorder/) |
+| `SdpSerializer.js` | An easiest way to modify SDP | [Documentation](https://github.com/muaz-khan/SdpSerializer) | [Demos](https://www.webrtc-experiment.com/SdpSerializer/demo.html) |
 | `RTCall.js` | A library for voice (i.e. audio-only) calls | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) | [Demos](https://www.webrtc-experiment.com/RTCall/) |
 | `meeting.js` | A library for audio/video conferencing | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) | [Demos](https://www.webrtc-experiment.com/meeting/) |
 
@@ -63,6 +65,7 @@
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
+| **Switch streams from screen-sharing to audio+video. (Renegotiation)** | [Demo](https://www.webrtc-experiment.com/demos/switch-streams.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/switch-streams.html) |
 | **Share screen and audio/video from single peer connection!** | [Demo](https://www.webrtc-experiment.com/demos/screen-and-video-from-single-peer.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/screen-and-video-from-single-peer.html) |
 | **Text chat using RTCDataChannel APIs** | [Demo](https://www.webrtc-experiment.com/demos/client-side-datachannel.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/) |client-side-datachannel.html
 | **Simple video chat** | [Demo](https://www.webrtc-experiment.com/demos/client-side.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side.html) |
@@ -92,13 +95,22 @@
 
 =
 
+##### Demos using [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) library
+
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| **Audio Recording** | [Demo](https://www.webrtc-experiment.com/MediaStreamRecorder/demos/audio-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/blob/master/demos/audio-recorder.html) |
+| **Video/Gif Recording** | [Demo](https://www.webrtc-experiment.com/MediaStreamRecorder/demos/video-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/blob/master/demos/video-recorder.html) |
+
+=
+
 ##### Demos using [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) library
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
 | **DataChannel basic demo** | [Demo](https://www.webrtc-experiment.com/DataChannel/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/DataChannel/index.html) |
 | **Auto Session Establishment** | [Demo](https://www.webrtc-experiment.com/DataChannel/auto-session-establishment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/DataChannel/auto-session-establishment.html) |
-| Share part-of-screen **using DataChannel.js** | [Demo](https://www.webrtc-experiment.com/part-of-screen-sharing/webrtc-data-channel/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/webrtc-and-part-of-screen-sharing) |
+| **Share part-of-screen using DataChannel.js** | [Demo](https://www.webrtc-experiment.com/part-of-screen-sharing/webrtc-data-channel/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/webrtc-and-part-of-screen-sharing) |
 | **Private Chat** | [Demo](https://muazkh.appspot.com/privatechat/) | ---- |
 
 =
@@ -164,21 +176,39 @@
 ##### [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) / A library for RTCDataChannel APIs
 
 ```html
-<script src="https://www.webrtc-experiment.com/DataChannel.js"></script>
-```
+<script src="https://www.webrtc-experiment.com/DataChannel.js"> </script>
 
-```javascript
-var channel = new DataChannel('channel-name');
+<input type="text" id="chat-input" disabled style="font-size: 2em; width: 98%;"><br />
+<div id="chat-output"></div>
 
-channel.onopen = function(e) {};
-channel.onmessage = function(e) {};
+<script>
+    var chatOutput = document.getElementById('chat-output');
+    var chatInput = document.getElementById('chat-input');
+    chatInput.onkeypress = function(e) {
+        if (e.keyCode != 13) return;
+        channel.send(this.value);
+        chatOutput.innerHTML = 'Me: ' + this.value + '<hr />' + chatOutput.innerHTML;
+        this.value = '';
+    };
+</script>
 
-// share with all participants
-channel.send(file || data || 'text');
+<script>
+    var channel = new DataChannel('Session Unique Identifier');
 
-// Direct messages using user-ids
-channel.userid = 'muazkh';
-channel.channels['muazkh'].send(file || data || 'text');
+    channel.onopen = function(userid) {
+        chatInput.disabled = false;
+        chatInput.value = 'Hi, ' + userid;
+        chatInput.focus();
+    };
+
+    channel.onmessage = function(message, userid) {
+        chatOutput.innerHTML = userid + ': ' + message + '<hr />' + chatOutput.innerHTML;
+    };
+
+    channel.onleave = function(userid) {
+        chatOutput.innerHTML = userid + ' Left.<hr />' + chatOutput.innerHTML;
+    };
+</script>
 ```
 
 =
@@ -186,11 +216,8 @@ channel.channels['muazkh'].send(file || data || 'text');
 ##### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) / A library for all WebRTC APIs
 
 ```html
-<script src="https://www.webrtc-experiment.com/firebase.js"> </script>
 <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
-
 <button id="init">Open New Connection</button><br />
-
 <script>
     var connection = new RTCMultiConnection();
 
@@ -220,87 +247,84 @@ channel.channels['muazkh'].send(file || data || 'text');
 
 =
 
-##### [RTCall.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) / A library for audio-only calling
+##### [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) / Cross-Browser Library to record MediaStream
 
 ```html
-<script src="https://www.webrtc-experiment.com/RTCall.js"></script>
+<script src="https://www.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 ```
 
 ```javascript
-var call = new RTCall();
-call.onincomingcall = function(caller) {
-   call.receive(caller.receiverid);
+var mediaConstraints = {
+    audio: true
 };
-call.oncustomer = function(customer) {
-   call.call(customer.callerid);
-};
-```
 
-=
+navigator.mozGetUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
 
-##### signaling for RTCMultiConnection-v1.4 and earlier releases
+function onMediaSuccess(stream) {
+    var mediaRecorder = new MediaStreamRecorder(stream);
+    mediaRecorder.mimeType = 'audio/ogg';
+    mediaRecorder.ondataavailable = function (blob) {
+        // POST/PUT "Blob" using FormData/XHR2
 
-```javascript
-var SIGNALING_SERVER = 'http://domain.com:8888/';
-connection.openSignalingChannel = function(config) {   
-   var channel = config.channel || this.channel || 'one-to-one-video-chat';
-   var sender = Math.round(Math.random() * 60535) + 5000;
-   
-   io.connect(SIGNALING_SERVER).emit('new-channel', {
-      channel: channel,
-      sender : sender
-   });
-   
-   var socket = io.connect(SIGNALING_SERVER + channel);
-   socket.channel = channel;
-   
-   socket.on('connect', function () {
-      if (config.callback) config.callback(socket);
-   });
-   
-   socket.send = function (message) {
-        socket.emit('message', {
-            sender: sender,
-            data  : message
-        });
+        // or read as DataURL
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            var dataURL = e.target.result;
+            window.open(dataURL);
+        };
+        reader.readAsDataURL(blob);
     };
-   
-   socket.on('message', config.onmessage);
-};
+    mediaRecorder.start(3000);
+}
+
+function onMediaError(e) {
+    console.error('media error', e);
+}
 ```
 
 =
 
-##### signaling using socket.io over node.js
-
-Signaling for all latest experiments and newer releases.
-
-Your server-side node.js code looks like this:
-
-```javascript
-io.sockets.on('connection', function (socket) {
-    socket.on('message', function (data) {
-        socket.broadcast.emit('message', data);
-    });
-});
-```
-
-And to override `openSignalingChannel` on the client side:
-
-```javascript
-connection.openSignalingChannel = function(callback) {
-    return io.connect().on('message', callback);
-};
-```
-
-Want to use XHR, WebSockets, SIP, XMPP, etc. for signaling? Read [this post](https://github.com/muaz-khan/WebRTC-Experiment/issues/56#issuecomment-20090650).
-
-=
-
-##### How to use [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/)?
+##### [SdpSerializer.js](https://github.com/muaz-khan/SdpSerializer) / An easiest way to modify SDP
 
 ```html
-<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://www.webrtc-experiment.com/SdpSerializer.js"></script>
+```
+
+```javascript
+var serializer = new SdpSerializer(sdp);
+
+// remove entire audio m-line
+serializer.audio.remove();
+
+// change order of a payload type in video m-line
+serializer.video.payload(117).order(0);
+
+// inject new-line after a specific payload type; under video m-line
+serializer.video.payload(117).newLine('a=ptime:10');
+
+// remove a specific payload type; under video m-line
+serializer.video.payload(100).remove();
+
+// want to add/replace a crypto line?
+serializer.video.crypto().newLine('a=crypto:0 AES_CM_128_HMAC_SHA1_80 inline:AAAAA');
+
+// want to remove a crypto line?
+serializer.video.crypto(80).remove();
+
+// want to set direction?
+serializer.video.direction.set('sendonly');
+
+// want to get direction?
+serializer.video.direction.get();
+
+// want to remove entire audio or video track?
+// usually, in video m-line:
+// 0-track is always "video" stream
+// 1-track will be screen sharing stream (if attached)
+serializer.video.track(0).remove()
+
+// get serialized sdp
+sdp = serializer.deserialize();
 ```
 
 =
@@ -320,48 +344,6 @@ recorder.stopVideo(function(recordedFileURL) {
    window.open(recordedFileURL);
 });
 ```
-
-=
-
-##### How to record GIF using [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/)?
-
-```html
-<script src="https://www.webrtc-experiment.com/gif-recorder.js"></script>
-```
-
-```javascript
-var recorder = RecordRTC({
-	video: HTMLVideoElement
-});
-
-/* start recording gif */
-recorder.recordGIF();
-
-/* stop recording gif and save recorded file to disk */
-recorder.stopGIF(function(gifURL) {
-   window.open(gifURL);
-});
-```
-
-=
-
-##### How to record audio using [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/)?
-
-```javascript
-var recorder = RecordRTC({
-	stream: MediaStream || LocalMediaStream
-});
-
-/* start recording audio */
-recorder.recordAudio();
-
-/* stop recording audio and save recorded file to disk */
-recorder.stopAudio(function(recordedFileURL) {
-   window.open(recordedFileURL);
-});
-```
-
-=
 
 [RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
 
@@ -411,6 +393,13 @@ AudioVideoRecorder({
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
+
+=
+
+| [Signaling.md](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)        |
+| ------------- |
+| [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) / [Demo](http://webrtc-signaling.jit.su/) |
+| [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs) / [Demo](https://www.webrtc-experiment.com/websocket/) |
 
 =
 

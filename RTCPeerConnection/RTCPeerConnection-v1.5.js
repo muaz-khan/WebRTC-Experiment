@@ -1,5 +1,5 @@
 // 2013, @muazkh - github.com/muaz-khan
-// MIT License - https://webrtc-experiment.appspot.com/licence/
+// MIT License - https://www.webrtc-experiment.com/licence/
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
 
 window.moz = !!navigator.mozGetUserMedia;
@@ -149,10 +149,13 @@ function RTCPeerConnection(options) {
             return extractedChars;
         }
 
-        // for audio-only streaming: multiple-crypto lines are not allowed
+        // usually audio-only streaming failure occurs out of audio-specific crypto line
+        // a=crypto:1 AES_CM_128_HMAC_SHA1_32 --------- kAttributeCryptoVoice
         if (options.onAnswerSDP)
             sdp = sdp.replace( /(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g , '');
 
+        // video-specific crypto line i.e. SHA1_80
+        // a=crypto:1 AES_CM_128_HMAC_SHA1_80 --------- kAttributeCryptoVideo
         var inline = getChars() + '\r\n' + (extractedChars = '');
         sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace( /c=IN/g ,
             'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +

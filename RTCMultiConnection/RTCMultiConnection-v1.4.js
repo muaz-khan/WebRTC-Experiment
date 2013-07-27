@@ -1,5 +1,5 @@
 // 2013, @muazkh - github.com/muaz-khan
-// MIT License - https://webrtc-experiment.appspot.com/licence/
+// MIT License - https://www.webrtc-experiment.com/licence/
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
 
 // RTCMultiConnection-v1.4
@@ -192,7 +192,7 @@
                         if (returnBack) return forcedCallback && forcedCallback(stream);
 
                         if (isRemoveVideoTracks && !moz) {
-                            stream = new webkitMediaStream(stream.getAudioTracks());
+                            stream = new window.webkitMediaStream(stream.getAudioTracks());
                         }
 
                         var mediaElement = getMediaElement(stream, session);
@@ -431,7 +431,7 @@
                         root.send(data, this.channel);
                     }
                 };
-				
+
                 root.onopen({
                     extra: _config.extra,
                     userid: _config.userid
@@ -527,6 +527,7 @@
                     });
                 }
 
+                // keeping session active even if initiator leaves
                 if (response.playRoleOfBroadcaster)
                     setTimeout(function() {
                         root.dontAttachStream = true;
@@ -538,6 +539,7 @@
                         root.dontAttachStream = false;
                     }, 600);
 
+                // if renegotiation process initiated by answerer
                 if (response.suggestRenegotiation) {
                     renegotiate = response.renegotiate;
                     if (isData(renegotiate))
@@ -596,6 +598,8 @@
             }
         }
 
+        // for PHP-based socket.io; split SDP in parts here
+
         function sendsdp(e) {
             e.socket.send({
                 userid: self.userid,
@@ -604,6 +608,8 @@
                 renegotiate: e.renegotiate ? e.renegotiate : false
             });
         }
+
+        // sharing new user with existing participants
 
         function onNewParticipant(channel, extra) {
             if (!channel || !!participants[channel] || channel == self.userid)
@@ -626,6 +632,8 @@
                 extra: root.extra
             });
         }
+
+        // if a user leaves
 
         function clearSession(channel) {
             var alert = {
@@ -680,16 +688,6 @@
                 clearSession();
         };
 
-        var anchors = document.querySelectorAll('a'),
-            length = anchors.length;
-        for (var i = 0; i < length; i++) {
-            var a = anchors[i];
-            if (a.href.indexOf('#') !== 0 && a.getAttribute('target') != '_blank')
-                a.onclick = function() {
-                    clearSession();
-                };
-        }
-
         var that = this,
             defaultSocket = root.openSignalingChannel({
                 onmessage: function(response) {
@@ -716,6 +714,7 @@
                 }
             });
 
+        // open new session
         this.initSession = function() {
             isbroadcaster = true;
             this.isOwnerLeaving = isAcceptNewSession = false;
@@ -734,6 +733,7 @@
             })();
         };
 
+        // join existing session
         this.joinSession = function(_config) {
             _config = _config || { };
 
@@ -761,21 +761,18 @@
             self.broadcasterid = _config.userid;
         };
 
+        // send file/data or text message
         this.send = function(message, _channel) {
-            var data;
-
-            if (moz && message.file)
-                data = message.file;
-            else
-                data = JSON.stringify(message);
+            message = JSON.stringify(message);
 
             if (_channel)
-                _channel.send(data);
+                _channel.send(message);
             else
                 for (_channel in root.channels)
-                    root.channels[_channel].channel.send(data);
+                    root.channels[_channel].channel.send(message);
         };
 
+        // leave session
         this.leave = function(userid) {
             clearSession(userid);
 
@@ -791,6 +788,7 @@
             }
         };
 
+        // renegotiate new stream
         this.addStream = function(e) {
             session = e.renegotiate;
 
@@ -842,22 +840,6 @@
                 _channel = config._channel,
                 file = config.file;
 
-            /* if firefox nightly: share file blob directly */
-            if (moz) {
-                /* used on the receiver side to set received file name */
-                channel.send({
-                    fileName: file.name,
-                    type: 'file'
-                }, _channel);
-
-                /* sending entire file at once */
-                channel.send({
-                    file: file
-                }, _channel);
-
-                if (config.onFileSent) config.onFileSent(file);
-            }
-
             var packetSize = 1000,
                 textToTransfer = '',
                 numberOfPackets = 0,
@@ -866,12 +848,9 @@
             // uuid is used to uniquely identify sending instance
             var uuid = getRandomString();
 
-            /* if chrome */
-            if (!moz) {
-                var reader = new window.FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = onReadAsDataURL;
-            }
+            var reader = new window.FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = onReadAsDataURL;
 
             function onReadAsDataURL(event, text) {
                 var data = {
@@ -914,7 +893,6 @@
 
     function FileReceiver() {
         var content = { },
-            fileName = '',
             packets = { },
             numberOfPackets = { };
 
@@ -922,38 +900,23 @@
             // uuid is used to uniquely identify sending instance
             var uuid = data.uuid;
 
-            /* if firefox nightly & file blob shared */
-            if (moz) {
-                if (data.fileName) fileName = data.fileName;
-                if (data.size) {
-                    var reader = new window.FileReader();
-                    reader.readAsDataURL(data);
-                    reader.onload = function(event) {
-                        FileSaver.SaveToDisk(event.target.result, fileName);
-                        if (config.onFileReceived) config.onFileReceived(fileName);
-                    };
-                }
-            }
+            if (data.packets) numberOfPackets[uuid] = packets[uuid] = parseInt(data.packets);
 
-            if (!moz) {
-                if (data.packets) numberOfPackets[uuid] = packets[uuid] = parseInt(data.packets);
+            if (config.onFileProgress)
+                config.onFileProgress({
+                    remaining: packets[uuid]--,
+                    length: numberOfPackets[uuid],
+                    received: numberOfPackets[uuid] - packets[uuid]
+                }, uuid);
 
-                if (config.onFileProgress)
-                    config.onFileProgress({
-                        remaining: packets[uuid]--,
-                        length: numberOfPackets[uuid],
-                        received: numberOfPackets[uuid] - packets[uuid]
-                    }, uuid);
+            if (!content[uuid]) content[uuid] = [];
 
-                if (!content[uuid]) content[uuid] = [];
+            content[uuid].push(data.message);
 
-                content[uuid].push(data.message);
-
-                if (data.last) {
-                    FileSaver.SaveToDisk(content[uuid].join(''), data.name);
-                    if (config.onFileReceived) config.onFileReceived(data.name);
-                    delete content[uuid];
-                }
+            if (data.last) {
+                FileSaver.SaveToDisk(content[uuid].join(''), data.name);
+                if (config.onFileReceived) config.onFileReceived(data.name);
+                delete content[uuid];
             }
         }
 
@@ -996,8 +959,7 @@
             var uuid = getRandomString();
             var sendingTime = new Date().getTime();
 
-            if (moz) channel.send(config.text, _channel);
-            else sendText(initialText);
+            sendText(initialText);
 
             function sendText(textMessage, text) {
                 var data = {
@@ -1073,6 +1035,8 @@
             PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
             SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
             IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
+
+        if (moz) console.warn('Should we use "stun.services.mozilla.com"?');
 
         var STUN = {
             url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
@@ -1249,6 +1213,13 @@
             sdp = setFramerate(sdp);
             sdp = setBitrate(sdp);
             sdp = getInteropSDP(sdp);
+            // var serializer = new SdpSerializer(sdp);
+            // serializer.video.payload(100).newLine('a=fmtp:100 x-google-min-bitrate=' + (bitrate.min || 10));
+            // serializer.audio.payload(111).newLine('a=fmtp:111 minptime=' + (framerate.minptime || 10));
+            // serializer.audio.payload(111).newLine('a=maxptime:' + (framerate.maxptime || 10));
+            // serializer.video.crypto().newLine('a=crypto:0 AES_CM_128_HMAC_SHA1_32 inline:XXXXXXXXXXXXXXXXXX');
+            // serializer.video.crypto(80).remove();
+            // sdp = serializer.deserialize();
             return sdp;
         }
 
@@ -1290,7 +1261,7 @@
             channel.onerror = options.onerror;
         }
 
-        if (options.onAnswerSDP && moz)
+        if (options.onAnswerSDP && options.onmessage && moz)
             openAnswererChannel();
 
         function openAnswererChannel() {
@@ -1312,6 +1283,7 @@
         }
 
         function useless() {
+            log('error in fake:true');
         }
 
         return {
@@ -1380,11 +1352,11 @@
         if (typeof mediaConstraints.audio != 'undefined')
             resourcesNeeded.audio = mediaConstraints.audio;
 
-        // connection.mediaConstraints.mandatory = {minFrameRate:10};
+        // connection.mediaConstraints.mandatory = {minFrameRate:10}
         if (mediaConstraints.mandatory)
             resourcesNeeded.video.mandatory = merge(resourcesNeeded.video.mandatory, mediaConstraints.mandatory);
 
-        // mediaConstraints.optional.bandwidth = 10000;
+        // mediaConstraints.optional.bandwidth = 1638400;
         if (mediaConstraints.optional)
             resourcesNeeded.video.optional[0] = merge({ }, mediaConstraints.optional);
 
@@ -1562,7 +1534,7 @@
         };
 
         self.token = function() {
-            return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+            return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
         };
     }
 
@@ -1612,7 +1584,7 @@
 
     function getLength(obj) {
         var length = 0;
-        for (var o in obj) length++;
+        for (var o in obj) if (o) length++;
         return length;
     }
 

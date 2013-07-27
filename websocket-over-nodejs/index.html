@@ -1,0 +1,119 @@
+﻿<script>
+    // webkitRTCPeerConnection && RTCDataChannel specific code goes here
+    var iceServers = {
+        iceServers: [{
+            url: 'stun:stun.l.google.com:19302'
+        }]
+    };
+
+    var optionalRtpDataChannels = {
+        optional: [{
+            RtpDataChannels: true
+        }]
+    };
+
+    var mediaConstraints = {
+        optional: [],
+        mandatory: {
+            OfferToReceiveAudio: false, // Hmm!!
+            OfferToReceiveVideo: false // Hmm!!
+        }
+    };
+
+    var offerer, answerer, answererDataChannel, offererDataChannel;
+
+    function createOffer() {
+        offerer = new webkitRTCPeerConnection(iceServers, optionalRtpDataChannels);
+
+        offererDataChannel = offerer.createDataChannel('RTCDataChannel', {
+            reliable: false
+        });
+
+        setChannelEvents(offererDataChannel, 'offerer');
+
+        offerer.onicecandidate = function (event) {
+            if (!event.candidate) returnSDP();
+        };
+
+        offerer.ongatheringchange = function (event) {
+            if (event.currentTarget && event.currentTarget.iceGatheringState === 'complete') returnSDP();
+        };
+
+        function returnSDP() {
+            socket.send({
+                sender: 'offerer',
+                sdp: offerer.localDescription
+            });
+        }
+
+        offerer.createOffer(function (sessionDescription) {
+            offerer.setLocalDescription(sessionDescription);
+        }, null, mediaConstraints);
+    }
+
+
+    function createAnswer(offerSDP) {
+        answerer = new webkitRTCPeerConnection(iceServers, optionalRtpDataChannels);
+        answererDataChannel = answerer.createDataChannel('RTCDataChannel', {
+            reliable: false
+        });
+
+        setChannelEvents(answererDataChannel, 'answerer');
+
+        answerer.onicecandidate = function (event) {
+            if (!event.candidate) returnSDP();
+        };
+
+        answerer.ongatheringchange = function (event) {
+            if (event.currentTarget && event.currentTarget.iceGatheringState === 'complete') returnSDP();
+        };
+
+        function returnSDP() {
+            socket.send({
+                sender: 'answerer',
+                sdp: answerer.localDescription
+            });
+        }
+
+        answerer.setRemoteDescription(new RTCSessionDescription(offerSDP));
+        answerer.createAnswer(function (sessionDescription) {
+            answerer.setLocalDescription(sessionDescription);
+        }, null, mediaConstraints);
+    }
+
+    function setChannelEvents(channel, channelNameForConsoleOutput) {
+        channel.onmessage = function (event) {
+            console.debug(channelNameForConsoleOutput, 'received a message:', event.data);
+        };
+
+        channel.onopen = function () {
+            channel.send('first text message over RTP data ports');
+        };
+    }
+
+    // WebSocket specific code goes here
+    var socket = new WebSocket('ws://localhost:1337');
+    socket.onmessage = function (e) {
+        var data = JSON.parse(e.data);
+        console.log(data);
+        if (data.sdp) {
+            if (data.sender == 'offerer') createAnswer(data.sdp);
+            else offerer.setRemoteDescription(new RTCSessionDescription(data.sdp));
+        }
+    };
+
+    socket.push = socket.send;
+    socket.send = function (data) {
+        socket.push(JSON.stringify(data));
+    };
+</script>
+
+<button id="create-offer">Create Offer</button>
+<script>
+    document.getElementById('create-offer').onclick = function () {
+        this.disabled = true;
+        createOffer();
+    };
+</script>
+
+<!--https://github.com/muaz-khan/WebRTC-Experiment/tree/master/demos#chrome-to-chrome-webrtc-data-connection-->
