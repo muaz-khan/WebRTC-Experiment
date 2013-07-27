@@ -253,6 +253,9 @@
 
         this.leave = this.eject = function(userid) {
             rtcSession.leave(userid);
+
+            self.attachStream.stop();
+            currentUserMediaRequest.streams = [];
         };
 
         this.close = function() {
@@ -461,8 +464,8 @@
 
             function onSessionOpened() {
                 // user-id in <socket> object
-                if (socket.userid == _config.userid)
-                    return;
+                /*if (socket.userid == _config.userid)
+                    return;*/
 
                 // original conferencing infrastructure!
                 if (!session.oneway && !session.broadcast && isbroadcaster && channels.split('--').length > 3)
