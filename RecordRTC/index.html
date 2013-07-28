@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+> =================================================================
+> For cross-browser audio/video recording; try: https://github.com/streamproc/MediaStreamRecorder
+-->
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <title>RecordRTC: WebRTC audio/video recording ® Muaz Khan</title>
@@ -45,16 +52,7 @@
                 padding: .3em;
                 text-align: center;
             }
-
-            :-moz-any-link:focus {
-                border: 0;
-                color: #000;
-            }
-
-            ::selection { background: #ccc; }
-
-            ::-moz-selection { background: #ccc; }
-
+            
             button {
                 -moz-border-radius: 3px;
                 -moz-transition: none;
@@ -128,47 +126,41 @@
     </head>
     <body>
         <h1>
-            <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">
-                RecordRTC</a>: <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC</a>
-            audio/video recording / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC"
-                                       target="_blank">Source Code</a>
+            <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a>: 
+            <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC</a>audio/video recording / 
+            <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">Source Code</a>
         </h1>
         <p>
-            Copyright © 2013 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>&lt;<a
-                                                                                                         href="http://twitter.com/muazkh" target="_blank">@muazkh</a>&gt;.</p>
+            Copyright © 2013 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>&lt;<a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>&gt;. 
+            <span style="color: red;">Want cross-browser audio/video recording? Try 
+                <a href="https://github.com/streamproc/MediaStreamRecorder" target="_blank">MediaStreamRecorder.js</a>
+            </span>
+        </p>
+
         <section class="plusone-gplus">
             <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
         </section>
+
         <div>
-            <h2>
-                Record your voice!</h2>
-            <button id="record-audio">
-                Record Audio</button>
-            <button id="stop-recording-audio" disabled>
-                Stop Recording Audio</button>
-            <h2 id="audio-url-preview">
-            </h2>
+            <h2>Record your voice!</h2>
+            <button id="record-audio">Record Audio</button>
+            <button id="stop-recording-audio" disabled>Stop Recording Audio</button>
+            <h2 id="audio-url-preview"></h2>
         </div>
         <br />
         <br />
         <div>
             <video id="client-video" autoplay loop controls muted></video>
-			<input type="checkbox" id="record-screen">
-			<label for="record-screen">Record Screen</label>
-            <button id="record-video">
-                Record Video</button>
-            <button id="stop-recording-video" disabled>
-                Stop Recording Video</button>
-            <h2 id="video-url-preview">
-            </h2>
+            <input type="checkbox" id="record-screen">
+            <label for="record-screen">Record Screen</label>
+            <button id="record-video">Record Video</button>
+            <button id="stop-recording-video" disabled>Stop Recording Video</button>
+            <h2 id="video-url-preview"></h2>
             <br />
             <br />
-            <h2>
-                Record video as animated GIF image:</h2>
-            <button id="record-gif">
-                Record GIF</button>
-            <button id="stop-recording-gif" disabled>
-                Stop Recording GIF</button>
+            <h2>Record video as animated GIF image:</h2>
+            <button id="record-gif">Record GIF</button>
+            <button id="stop-recording-gif" disabled>Stop Recording GIF</button>
         </div>
         <script>
             video = document.getElementById('client-video');
@@ -206,7 +198,10 @@
                         stream = new webkitMediaStream(stream.getAudioTracks());
                         audioStream = stream;
                         recorder = RecordRTC({
-                            stream: stream
+                            stream: stream,
+                            
+                            // it is mandatory
+                            audioWorkerPath: '/audio-recorder.js'
                         });
                         recorder.recordAudio();
                     });
@@ -218,23 +213,24 @@
                 stopRecordingAudio.disabled = false;
             };
 
-			function isCaptureScreen() {
-				if(document.getElementById('record-screen').checked)
-				{
-					screen_constraints = {
-						mandatory: { chromeMediaSource: 'screen' },
-						optional: []
-					};
-					videoConstraints.video = screen_constraints;
-				}
-			}
+            var screen_constraints;
+            function isCaptureScreen() {
+                if (document.getElementById('record-screen').checked) {
+                    screen_constraints = {
+                        mandatory: { chromeMediaSource: 'screen' },
+                        optional: []
+                    };
+                    videoConstraints.video = screen_constraints;
+                }
+            }
+
             recordVideo.onclick = function() {
-				isCaptureScreen();
+                isCaptureScreen();
                 recordVideoOrGIF(true);
             };
 
             recordGIF.onclick = function() {
-				isCaptureScreen();
+                isCaptureScreen();
                 recordVideoOrGIF(false);
             };
 
@@ -250,14 +246,14 @@
                         if (isRecordVideo) recorder.recordVideo();
                         else recorder.recordGIF();
                     }, function() {
-						if (document.getElementById('record-screen').checked) {
-							if (location.protocol === 'http:')
-								alert('<https> is mandatory to capture screen.');
-							else
-								alert('Multi-capturing of screen is not allowed. Capturing process is denied. Are you enabled flag: "Enable screen capture support in getUserMedia"?');
-						} else
-							alert('Webcam access is denied.');
-					});
+                        if (document.getElementById('record-screen').checked) {
+                            if (location.protocol === 'http:')
+                                alert('<https> is mandatory to capture screen.');
+                            else
+                                alert('Multi-capturing of screen is not allowed. Capturing process is denied. Are you enabled flag: "Enable screen capture support in getUserMedia"?');
+                        } else
+                            alert('Webcam access is denied.');
+                    });
                 else {
                     video.src = window.webkitURL.createObjectURL(videoStream);
 
@@ -308,6 +304,13 @@
         <p>
             You can record audio in WAV file format; and video in either WebM format or as animated
             GIF image.</p>
+        <br />
+        <br />
+        <h2><a href="https://github.com/streamproc/MediaStreamRecorder" target="_blank">MediaStreamRecorder.js</a> Demos:</h2>
+        <ol>
+            <li><a href="https://www.webrtc-experiment.com/MediaStreamRecorder/demos/audio-recorder.html" target="_blank">Cross-Browser Audio Recorder</a></li>
+            <li><a href="https://www.webrtc-experiment.com/MediaStreamRecorder/demos/video-recorder.html" target="_blank">Cross-Browser Video Recorder</a></li>
+        </ol>
         <h2>
             How to use RecordRTC?</h2>
         <pre>
@@ -333,7 +336,10 @@ recorder.stopVideo(function(videoURL) {
         <pre>
 &lt;script src="https://www.webrtc-experiment.com/audio-recorder.js"&gt;&lt;/script&gt;
 var recorder = RecordRTC({
-   stream: MediaStream || LocalMediaStream
+   stream: MediaStream || LocalMediaStream,
+   
+   // it is mandatory
+   audioWorkerPath: '/audio-recorder.js'
 });
 
 /* start recording audio */
@@ -360,8 +366,7 @@ recorder.stopGIF(function(gifURL) {
    window.open(gifURL);
 });
 </pre>
-        <br />
-        <br />
+        <br /><br />
         <h2>
             Possible <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">
                          issues</a>/<a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">failures</a>:
@@ -406,7 +411,6 @@ recorder.stopGIF(function(gifURL) {
             </div>
             <button id="send-message" style="font-size: 1em;">Send Message</button>
         </section>
-
         <footer>
             <p> <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> © <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span> 2013 </span> » <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
                 <a
@@ -414,6 +418,6 @@ recorder.stopGIF(function(gifURL) {
 
             </p>
         </footer>
-       <script src="https://www.webrtc-experiment.com/common.js"> </script>
+        <script src="https://www.webrtc-experiment.com/common.js"> </script>
     </body>
 </html>

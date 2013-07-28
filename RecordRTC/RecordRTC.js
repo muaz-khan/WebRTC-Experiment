@@ -1,8 +1,9 @@
-/*
-2013, @muazkh - github.com/muaz-khan
-MIT License - https://webrtc-experiment.appspot.com/licence/
-Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
-*/
+// 2013, @muazkh - github.com/muaz-khan
+// MIT License - https://webrtc-experiment.appspot.com/licence/
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+
+// Note: MediaStreamRecorder.js is a new version of RecordRTC:
+// https://github.com/streamproc/MediaStreamRecorder
 
 (function() {
     window.RecordRTC = function(config) {
@@ -17,18 +18,16 @@ Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Recor
             blob, dataURL, fileType,
             AudioContext = win.webkitAudioContext,
             mediaStreamSource, recorder, audioContext,
-            fileSystemURL, gifEncoder;
+            virtualURL, gifEncoder;
 
         function recordVideo() {
-            if (!video) throw 'Now video element found.';
-
+            if (!video) throw 'No video element found.';
             console.log('started recording video frames');
 
             video.width = canvas.width = 320;
             video.height = canvas.height = 240;
 
             var height = 240, width = 320;
-
             frames = [];
 
             function drawVideoFrame() {
@@ -45,14 +44,16 @@ Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Recor
             cancelAnimationFrame(requestedAnimationFrame);
 
             blob = Whammy.fromImageArray(frames, 1000 / 60);
-            fileType = 'webm';
-            setBlob(blob, callback);
+            
+            virtualURL = URL.createObjectURL(blob);
+            if (callback) callback(virtualURL);
+
             frames = [];
         }
 
         function recordGIF() {
             if (!window.GIFEncoder) throw 'You must link https://webrtc-experiment.appspot.com/gif-recorder.js';
-            if (!video) throw 'Now video element found.';
+            if (!video) throw 'No video element found.';
 
             console.log('started recording GIF frames');
 
@@ -100,28 +101,15 @@ Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Recor
 
         function stopGIFRecording(callback) {
             if (!gifEncoder) throw 'Seems that GIF encoder is not initialized yet. Too Bad!';
-
             console.warn('stopped recording GIF frames');
             cancelAnimationFrame(requestedAnimationFrame);
 
-            dataURL = blob = 'data:image/gif;base64,' + encode64(gifEncoder.stream().getData());
-
-            var writer = RecordRTCFileWriter({
-                blob: new Uint8Array(gifEncoder.stream().bin),
-                type: 'image/gif',
-                fileName: (Math.round(Math.random() * 60535) + 5000) + '.gif',
-                size: blob.length,
-                onsuccess: function(fileEntry) {
-                    fileSystemURL = fileEntry.toURL();
-                    if (callback) callback(fileSystemURL);
-                },
-                onerror: function(errorMessage) {
-                    console.debug('Unabled to write temporary recorded file using FileWriter APIs.', errorMessage);
-                    if (callback) callback(dataURL);
-                    var url = writer.toURL();
-                    if (url) return window.open(url);
-                }
+            blob = new Blob([new Uint8Array(gifEncoder.stream().bin)], {
+                type: 'image/gif'
             });
+
+            virtualURL = URL.createObjectURL(blob);
+            if (callback) callback(virtualURL);
         }
 
         function recordAudio() {
@@ -140,33 +128,15 @@ Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Recor
             if (!recorder) return;
             console.warn('stopped recording audio frames');
             recorder.stop();
-            recorder.exportWAV(function(blob) {
-                fileType = 'wav';
-                setBlob(blob, callback);
+            recorder.exportWAV(function(audioBlob) {
+                blob = audioBlob;
+                virtualURL = URL.createObjectURL(audioBlob);
+                if (callback) callback(virtualURL);
             });
             recorder.clear();
         }
 
-        function setBlob(_blob, callback) {
-            blob = _blob;
-
-            var writer = RecordRTCFileWriter({
-                blob: blob,
-                type: fileType === 'webm' ? 'video/webm' : 'audio/wav',
-                fileName: (Math.round(Math.random() * 60535) + 5000) + '.' + fileType,
-                size: blob.length,
-                onsuccess: function(fileEntry) {
-                    fileSystemURL = fileEntry.toURL();
-                    if (callback) callback(fileSystemURL);
-                },
-                onerror: function(errorMessage) {
-                    console.debug('Unabled to write temporary recorded file using FileWriter APIs.', errorMessage);
-                    if (callback) callback(dataURL);
-                    var url = writer.toURL();
-                    if (url) return window.open(url);
-                }
-            });
-
+        function setDataURL() {
             var reader = new win.FileReader();
             reader.readAsDataURL(blob);
             reader.onload = function(event) {
@@ -175,13 +145,14 @@ Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Recor
         }
 
         function saveToDisk() {
-            if (fileSystemURL) return window.open(fileSystemURL);
+            if (virtualURL) return window.open(virtualURL);
+            if (!dataURL) setDataURL();
 
             console.log('saving recorded stream to disk!');
             var save = document.createElement('a');
             save.href = dataURL;
             save.target = '_blank';
-            save.download = (Math.random() * 1000 << 1000) + '.' + fileType;
+            save.download = (Math.round(Math.random() * 9999999999) + 888888888) + '.' + fileType;
 
             var event = document.createEvent('Event');
             event.initEvent('click', true, true);
@@ -204,123 +175,29 @@ Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Recor
                 return blob;
             },
             getDataURL: function() {
+                if (!dataURL) setDataURL();
                 return dataURL;
             },
             toURL: function() {
-                return fileSystemURL || dataURL;
+                return virtualURL;
             }
         };
     };
-
-    // longer DataURLs causes crash i.e. "Aww, Snap!" messages.
-    // so, writing a temporary file is capable to handle longer DataURl without any crash!
-
-    function RecordRTCFileWriter(config) {
-        window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-        var file;
-
-        var size = config.size,
-            fileName = config.fileName,
-            blob = config.blob,
-            type = config.type;
-
-        window.requestFileSystem(window.TEMPORARY, size, onsuccess, onerror);
-
-        function onsuccess(fileSystem) {
-            fileSystem.root.getFile(fileName, {
-                create: true,
-                exclusive: false
-            }, onsuccess, onerror);
-
-            function onsuccess(fileEntry) {
-                fileEntry.createWriter(onsuccess, onerror);
-
-                function onsuccess(fileWriter) {
-                    fileWriter.onwriteend = function() {
-                        console.log(fileEntry.toURL());
-                        file = fileEntry;
-                        if (config.onsuccess) config.onsuccess(fileEntry);
-                    };
-
-                    fileWriter.onerror = function(e) {
-                        error('fileWriter error', e);
-                    };
-
-                    blob = new Blob([blob], {
-                        type: type
-                    });
-
-                    fileWriter.write(blob);
-                }
-
-                function onerror(e) {
-                    error('fileEntry error', e);
-                }
-            }
-
-            function onerror(e) {
-                error('fileSystem error', e);
-            }
-        }
-
-        function onerror(e) {
-            error('requestFileSystem error', e);
-        }
-
-        var errorMessage;
-
-        function error(level, e) {
-            var msg = '';
-
-            switch (e.code) {
-            case FileError.QUOTA_EXCEEDED_ERR:
-                msg = 'QUOTA_EXCEEDED_ERR';
-                break;
-            case FileError.NOT_FOUND_ERR:
-                msg = 'NOT_FOUND_ERR';
-                break;
-            case FileError.SECURITY_ERR:
-                msg = 'SECURITY_ERR';
-                break;
-            case FileError.INVALID_MODIFICATION_ERR:
-                msg = 'INVALID_MODIFICATION_ERR';
-                break;
-            case FileError.INVALID_STATE_ERR:
-                msg = 'INVALID_STATE_ERR';
-                break;
-            default:
-                msg = 'Unknown Error';
-                break;
-            }
-
-            errorMessage = msg;
-            if (config.onerror) config.onerror(errorMessage);
-            if (errorMessage === 'SECURITY_ERR')
-                errorMessage = 'SECURITY_ERR: Are you using chrome incognito mode? It seems that access to "requestFileSystem" API is denied.';
-
-            console.error(level + ':\n' + errorMessage);
-        }
-
-        return {
-            toURL: function() {
-                return errorMessage ? false : file.toURL();
-            }
-        };
-    }
 
     // external library to record audio
     // https://github.com/mattdiamond/Recorderjs
 
     function initAudioRecorder(audioWorkerPath) {
-        var WORKER_PATH = audioWorkerPath || 'https://webrtc-experiment.appspot.com/audio-recorder.js';
+        if (!audioWorkerPath) console.warn('Kindly link the audio-worker file using same origin.');
+        var WORKER_PATH = audioWorkerPath || 'https://www.webrtc-experiment.com/audio-recorder.js';
 
         var Recorder = function(source, config) {
             config = config || { };
-			
+
             var bufferLen = config.bufferLen || 4096;
             this.context = source.context;
-			
-			// createJavaScriptNode(bufferSize, numberOfInputChannels, numberOfOutputChannels)
+
+            // createJavaScriptNode(bufferSize, numberOfInputChannels, numberOfOutputChannels)
             this.node = this.context.createJavaScriptNode(bufferLen, 2, 2);
 
             var worker = new Worker(config.workerPath || WORKER_PATH);
@@ -340,11 +217,11 @@ Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Recor
                     e.inputBuffer.getChannelData(0),
                     e.inputBuffer.getChannelData(1)
                 ];
-				
-				if(buffer[0] && buffer[0][1] == 0) {
-					console.log('Unable to capture audio.');
-					// return;
-				}
+
+                if (buffer[0] && buffer[0][1] == 0) {
+                    console.log('Unable to capture audio.');
+                    // return;
+                }
 
                 worker.postMessage({
                     command: 'record',

@@ -2,7 +2,9 @@
 
 [RecordRTC](https://www.webrtc-experiment.com/RecordRTC.js) allows you record audio and/or video streams.
 
-Note: For Mozilla Firefox; you can try [AudioVideoRecorder.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/AudioVideoRecorder).
+=
+
+**For cross-browser audio/video recording; try:** [https://github.com/streamproc/MediaStreamRecorder](MediaStreamRecorder.js)
 
 =
 
