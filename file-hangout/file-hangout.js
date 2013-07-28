@@ -1,0 +1,871 @@
+﻿// 2013, @muazkh » https://github.com/muaz-khan
+// MIT License   » https://www.webrtc-experiment.com/licence/
+// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
+// ----------
+// hanogut-ui.js
+
+(function selfInvoker() {
+    setTimeout(function() {
+        if (typeof window.RTCPeerConnection != 'undefined') setUserInterface();
+        else selfInvoker();
+    }, 1000);
+})();
+
+function setUserInterface() {
+    hangoutUI = hangout(config);
+
+    startConferencing = document.getElementById('start-conferencing');
+    if (startConferencing)
+        startConferencing.onclick = function() {
+            hangoutUI.createRoom({
+                userName: prompt('Enter your name', 'Anonymous'),
+                roomName: ((document.getElementById('conference-name') || { }).value || 'Anonymous') + ' // shared via ' + (!!navigator.webkitGetUserMedia ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
+            });
+            hideUnnecessaryStuff();
+        };
+    participants = document.getElementById('participants');
+    roomsList = document.getElementById('rooms-list');
+
+    chatOutput = document.getElementById('chat-output');
+
+    fileElement = document.getElementById('file');
+    fileElement.onchange = function() {
+        var file = fileElement.files[0];
+
+        FileSender.send({
+            channel: hangoutUI,
+            file: file,
+            onFileSent: function(file) {
+                quickOutput(file.name, 'sent successfully!');
+                disable(false);
+                statusDiv.innerHTML = '';
+            },
+            onFileProgress: function(e) {
+                statusDiv.innerHTML = e.sent + ' packets sent. Remaining:' + e.remaining;
+            }
+        });
+
+        return disable(true);
+    };
+
+    outputPanel = document.getElementById('output-panel');
+    statusDiv = document.getElementById('status');
+    unnecessaryStuffVisible = true;
+
+    var uniqueToken = document.getElementById('unique-token');
+    if (uniqueToken)
+        if (location.hash.length > 2)
+            uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this Link!</a></h2>';
+        else
+            uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.round(Math.random() * 999999999) + 999999999);
+}
+
+var config = {
+    openSocket: function(config) {
+        var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8553/',
+            defaultChannel = location.hash.substr(1) || 'group-file-sharing-hangout';
+
+        var channel = config.channel || defaultChannel;
+        var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+        io.connect(SIGNALING_SERVER).emit('new-channel', {
+            channel: channel,
+            sender: sender
+        });
+
+        var socket = io.connect(SIGNALING_SERVER + channel);
+        socket.channel = channel;
+        socket.on('connect', function() {
+            if (config.callback) config.callback(socket);
+        });
+
+        socket.send = function(message) {
+            socket.emit('message', {
+                sender: sender,
+                data: message
+            });
+        };
+
+        socket.on('message', config.onmessage);
+    },
+    onRoomFound: function(room) {
+        var alreadyExist = document.getElementById(room.broadcaster);
+        if (alreadyExist) return;
+
+        if (typeof roomsList === 'undefined') roomsList = document.body;
+
+        var tr = document.createElement('tr');
+        tr.setAttribute('id', room.broadcaster);
+        tr.style.fontSize = '.8em';
+        tr.innerHTML = '<td>' + room.roomName + '</td>' +
+            '<td><button class="join" id="' + room.roomToken + '">Join</button></td>';
+
+        roomsList.insertBefore(tr, roomsList.firstChild);
+
+        tr.onclick = function() {
+            var tr = this;
+            hangoutUI.joinRoom({
+                roomToken: tr.querySelector('.join').id,
+                joinUser: tr.id,
+                userName: prompt('Enter your name', 'Anonymous')
+            });
+            hideUnnecessaryStuff();
+        };
+    },
+    onChannelOpened: function() {
+        unnecessaryStuffVisible && hideUnnecessaryStuff();
+        if (fileElement) fileElement.removeAttribute('disabled');
+    },
+    onChannelMessage: function(data) {
+        if (data.sender && participants) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + data.sender + ' is ready to receive files!</td>';
+            participants.insertBefore(tr, participants.firstChild);
+        } else onMessageCallback(data);
+    }
+};
+
+var fileReceiver = new FileReceiver();
+
+function onMessageCallback(data) {
+    if (data.connected) {
+        quickOutput('Your friend is connected.');
+        return;
+    }
+
+    disable(true);
+
+    // receive file packets
+    fileReceiver.receive(data, {
+        onFileReceived: function(fileName) {
+            quickOutput(fileName, 'received successfully!');
+            disable(false);
+            statusDiv.innerHTML = '';
+        },
+        onFileProgress: function(e) {
+            statusDiv.innerHTML = e.received + ' packets received. Remaining:' + e.remaining;
+        }
+    });
+}
+
+// -------------------------
+
+function getRandomString() {
+    return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+}
+
+var FileSender = {
+    send: function(config) {
+        var channel = config.channel,
+            file = config.file;
+
+        var packetSize = 1000,
+            textToTransfer = '',
+            numberOfPackets = 0,
+            packets = 0;
+
+        // uuid is used to uniquely identify sending instance
+        var uuid = getRandomString();
+
+        var reader = new window.FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = onReadAsDataURL;
+
+        function onReadAsDataURL(event, text) {
+            var data = {
+                type: 'file',
+                uuid: uuid
+            };
+
+            if (event) {
+                text = event.target.result;
+                numberOfPackets = packets = data.packets = parseInt(text.length / packetSize);
+            }
+
+            if (config.onFileProgress)
+                config.onFileProgress({
+                    remaining: packets--,
+                    length: numberOfPackets,
+                    sent: numberOfPackets - packets
+                }, uuid);
+
+            if (text.length > packetSize) data.message = text.slice(0, packetSize);
+            else {
+                data.message = text;
+                data.last = true;
+                data.name = file.name;
+
+                if (config.onFileSent) config.onFileSent(file);
+            }
+
+            channel.send(JSON.stringify(data));
+
+            textToTransfer = text.slice(data.message.length);
+
+            if (textToTransfer.length)
+                setTimeout(function() {
+                    onReadAsDataURL(null, textToTransfer);
+                }, moz ? 1 : 500);
+        }
+    }
+};
+
+function FileReceiver() {
+    var content = { },
+        packets = { },
+        numberOfPackets = { };
+
+    function receive(data, config) {
+        // uuid is used to uniquely identify sending instance
+        var uuid = data.uuid;
+
+        if (data.packets) numberOfPackets[uuid] = packets[uuid] = parseInt(data.packets);
+
+        if (config.onFileProgress)
+            config.onFileProgress({
+                remaining: packets[uuid]--,
+                length: numberOfPackets[uuid],
+                received: numberOfPackets[uuid] - packets[uuid]
+            }, uuid);
+
+        if (!content[uuid]) content[uuid] = [];
+
+        content[uuid].push(data.message);
+
+        if (data.last) {
+            FileSaver.SaveToDisk(content[uuid].join(''), data.name);
+            if (config.onFileReceived) config.onFileReceived(data.name);
+            delete content[uuid];
+        }
+    }
+
+    return {
+        receive: receive
+    };
+}
+
+var FileSaver = {
+    SaveToDisk: function(fileUrl, fileName) {
+        var save = document.createElement('a');
+        save.href = fileUrl;
+        save.target = '_blank';
+        save.download = fileName || fileUrl;
+
+        var evt = document.createEvent('MouseEvents');
+        evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+
+        save.dispatchEvent(evt);
+
+        (window.URL || window.webkitURL).revokeObjectURL(save.href);
+    }
+};
+
+function hideUnnecessaryStuff() {
+    var visibleElements = document.getElementsByClassName('visible'),
+        length = visibleElements.length;
+
+    for (var i = 0; i < length; i++) {
+        visibleElements[i].style.display = 'none';
+    }
+    unnecessaryStuffVisible = false;
+    if (startConferencing) startConferencing.style.display = 'none';
+}
+
+function quickOutput(message, message2) {
+    if (!outputPanel) return;
+    if (message2) message = '<strong>' + message + '</strong> ' + message2;
+
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td style="width:80%;">' + message + '</td>';
+    outputPanel.insertBefore(tr, outputPanel.firstChild);
+}
+
+function disable(_disable) {
+    if (!fileElement) return;
+    if (!_disable) fileElement.removeAttribute('disabled');
+    else fileElement.setAttribute('disabled', true);
+}
+
+// 2013, @muazkh » https://github.com/muaz-khan
+// MIT License   » https://www.webrtc-experiment.com/licence/
+// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
+// ----------
+// hanogut.js
+
+function hangout(config) {
+    var self = {
+        userToken: uniqueToken(),
+        userName: 'Anonymous'
+    },
+        channels = '--',
+        isbroadcaster,
+        sockets = [],
+        isGetNewRoom = true;
+
+    var defaultSocket = { }, RTCDataChannels = [];
+
+    function openDefaultSocket() {
+        defaultSocket = config.openSocket({
+            onmessage: onDefaultSocketResponse,
+            callback: function(socket) {
+                defaultSocket = socket;
+            }
+        });
+    }
+
+    function onDefaultSocketResponse(response) {
+        if (response.userToken == self.userToken) return;
+
+        if (isGetNewRoom && response.roomToken && response.broadcaster) config.onRoomFound(response);
+
+        if (response.newParticipant) onNewParticipant(response.newParticipant);
+
+        if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
+            channels += response.userToken + '--';
+            openSubSocket({
+                isofferer: true,
+                channel: response.channel || response.userToken,
+                closeSocket: true
+            });
+        }
+    }
+
+    function openSubSocket(_config) {
+        if (!_config.channel) return;
+        var socketConfig = {
+            channel: _config.channel,
+            onmessage: socketResponse,
+            onopen: function() {
+                if (isofferer && !peer) initPeer();
+                sockets[sockets.length] = socket;
+            }
+        };
+
+        socketConfig.callback = function(_socket) {
+            socket = _socket;
+            this.onopen();
+        };
+
+        var socket = config.openSocket(socketConfig),
+            isofferer = _config.isofferer,
+            gotstream,
+            inner = { },
+            peer;
+
+        var peerConfig = {
+            onICE: function(candidate) {
+                socket.send({
+                    userToken: self.userToken,
+                    candidate: {
+                        sdpMLineIndex: candidate.sdpMLineIndex,
+                        candidate: JSON.stringify(candidate.candidate)
+                    }
+                });
+            },
+            onChannelOpened: onChannelOpened,
+            onChannelMessage: function(event) {
+                config.onChannelMessage(event.data.size ? event.data : JSON.parse(event.data));
+            }
+        };
+
+        function initPeer(offerSDP) {
+            if (!offerSDP) {
+                peerConfig.onOfferSDP = sendsdp;
+            } else {
+                peerConfig.offerSDP = offerSDP;
+                peerConfig.onAnswerSDP = sendsdp;
+            }
+
+            peer = RTCPeerConnection(peerConfig);
+        }
+
+        function onChannelOpened(channel) {
+            RTCDataChannels[RTCDataChannels.length] = channel;
+            channel.send(JSON.stringify({
+                sender: self.userName
+            }));
+
+            if (config.onChannelOpened) config.onChannelOpened(channel);
+
+            if (isbroadcaster && channels.split('--').length > 3) {
+                /* broadcasting newly connected participant for video-conferencing! */
+                defaultSocket.send({
+                    newParticipant: socket.channel,
+                    userToken: self.userToken
+                });
+            }
+
+            /* closing subsocket here on the offerer side */
+            if (_config.closeSocket) socket = null;
+
+            gotstream = true;
+        }
+
+        function sendsdp(sdp) {
+            sdp = JSON.stringify(sdp);
+            var part = parseInt(sdp.length / 3);
+
+            var firstPart = sdp.slice(0, part),
+                secondPart = sdp.slice(part, sdp.length - 1),
+                thirdPart = '';
+
+            if (sdp.length > part + part) {
+                secondPart = sdp.slice(part, part + part);
+                thirdPart = sdp.slice(part + part, sdp.length);
+            }
+
+            socket.send({
+                userToken: self.userToken,
+                firstPart: firstPart
+            });
+
+            socket.send({
+                userToken: self.userToken,
+                secondPart: secondPart
+            });
+
+            socket.send({
+                userToken: self.userToken,
+                thirdPart: thirdPart
+            });
+        }
+
+        function socketResponse(response) {
+            if (response.userToken == self.userToken) return;
+
+            if (response.firstPart || response.secondPart || response.thirdPart) {
+                if (response.firstPart) {
+                    inner.firstPart = response.firstPart;
+                    if (inner.secondPart && inner.thirdPart) selfInvoker();
+                }
+                if (response.secondPart) {
+                    inner.secondPart = response.secondPart;
+                    if (inner.firstPart && inner.thirdPart) selfInvoker();
+                }
+
+                if (response.thirdPart) {
+                    inner.thirdPart = response.thirdPart;
+                    if (inner.firstPart && inner.secondPart) selfInvoker();
+                }
+            }
+
+            if (response.candidate && !gotstream) {
+                peer && peer.addICE({
+                    sdpMLineIndex: response.candidate.sdpMLineIndex,
+                    candidate: JSON.parse(response.candidate.candidate)
+                });
+            }
+
+            if (response.left) {
+                if (peer && peer.peer) {
+                    peer.peer.close();
+                    peer.peer = null;
+                }
+            }
+        }
+
+        var invokedOnce = false;
+
+        function selfInvoker() {
+            if (invokedOnce) return;
+
+            invokedOnce = true;
+
+            inner.sdp = JSON.parse(inner.firstPart + inner.secondPart + inner.thirdPart);
+
+            if (isofferer) peer.addAnswerSDP(inner.sdp);
+            else initPeer(inner.sdp);
+        }
+    }
+
+    function leave() {
+        var length = sockets.length;
+        for (var i = 0; i < length; i++) {
+            var socket = sockets[i];
+            if (socket) {
+                socket.send({
+                    left: true,
+                    userToken: self.userToken
+                });
+                delete sockets[i];
+            }
+        }
+    }
+
+    window.onunload = function() {
+        leave();
+    };
+
+    window.onkeyup = function(e) {
+        if (e.keyCode == 116) leave();
+    };
+
+    function startBroadcasting() {
+        defaultSocket && defaultSocket.send({
+            roomToken: self.roomToken,
+            roomName: self.roomName,
+            broadcaster: self.userToken
+        });
+        setTimeout(startBroadcasting, 3000);
+    }
+
+    function onNewParticipant(channel) {
+        if (!channel || channels.indexOf(channel) != -1 || channel == self.userToken) return;
+        channels += channel + '--';
+
+        var new_channel = uniqueToken();
+        openSubSocket({
+            channel: new_channel,
+            closeSocket: true
+        });
+
+        defaultSocket.send({
+            participant: true,
+            userToken: self.userToken,
+            joinUser: channel,
+            channel: new_channel
+        });
+    }
+
+    function uniqueToken() {
+        var s4 = function() {
+            return Math.floor(Math.random() * 0x10000).toString(16);
+        };
+        return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
+    }
+
+    openDefaultSocket();
+    return {
+        createRoom: function(_config) {
+            self.roomName = _config.roomName || 'Anonymous';
+            self.roomToken = uniqueToken();
+            if (_config.userName) self.userName = _config.userName;
+
+            isbroadcaster = true;
+            isGetNewRoom = false;
+            startBroadcasting();
+        },
+        joinRoom: function(_config) {
+            self.roomToken = _config.roomToken;
+            if (_config.userName) self.userName = _config.userName;
+            isGetNewRoom = false;
+
+            openSubSocket({
+                channel: self.userToken
+            });
+
+            defaultSocket.send({
+                participant: true,
+                userToken: self.userToken,
+                joinUser: _config.joinUser
+            });
+        },
+        send: function(data) {
+            var length = RTCDataChannels.length;
+            if (!length) return;
+            for (var i = 0; i < length; i++) {
+                try {
+                    RTCDataChannels[i].send(data);
+                } catch(e) {
+                }
+            }
+        }
+    };
+}
+
+
+// 2013, @muazkh » https://github.com/muaz-khan
+// MIT License   » https://www.webrtc-experiment.com/licence/
+// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
+// -------------------------
+// RTCPeerConnection-v1.5.js
+
+window.moz = !!navigator.mozGetUserMedia;
+
+function RTCPeerConnection(options) {
+    var w = window,
+        PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
+        SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
+        IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
+
+    var STUN = {
+        url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
+    };
+
+    var TURN = {
+        url: 'turn:homeo@turn.bistri.com:80',
+        credential: 'homeo'
+    };
+
+    var iceServers = {
+        iceServers: options.iceServers || [STUN]
+    };
+
+    if (!moz && !options.iceServers) {
+        if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
+            TURN = {
+                url: 'turn:turn.bistri.com:80',
+                credential: 'homeo',
+                username: 'homeo'
+            };
+
+        iceServers.iceServers = [STUN, TURN];
+    }
+
+    var optional = {
+        optional: []
+    };
+
+    if (!moz) {
+        optional.optional = [{
+            DtlsSrtpKeyAgreement: true
+        }];
+
+        if (options.onChannelMessage)
+            optional.optional = [{
+                RtpDataChannels: true
+            }];
+    }
+
+    var peer = new PeerConnection(iceServers, optional);
+
+    openOffererChannel();
+
+    peer.onicecandidate = function(event) {
+        if (event.candidate)
+            options.onICE(event.candidate);
+    };
+
+    // attachStream = MediaStream;
+    if (options.attachStream) peer.addStream(options.attachStream);
+
+    // attachStreams[0] = audio-stream;
+    // attachStreams[1] = video-stream;
+    // attachStreams[2] = screen-capturing-stream;
+    if (options.attachStreams && options.attachStream.length) {
+        var streams = options.attachStreams;
+        for (var i = 0; i < streams.length; i++) {
+            peer.addStream(streams[i]);
+        }
+    }
+
+    peer.onaddstream = function(event) {
+        var remoteMediaStream = event.stream;
+
+        // onRemoteStreamEnded(MediaStream)
+        remoteMediaStream.onended = function() {
+            if (options.onRemoteStreamEnded) options.onRemoteStreamEnded(remoteMediaStream);
+        };
+
+        // onRemoteStream(MediaStream)
+        if (options.onRemoteStream) options.onRemoteStream(remoteMediaStream);
+
+        console.debug('on:add:stream', remoteMediaStream);
+    };
+
+    var constraints = options.constraints || {
+        optional: [],
+        mandatory: {
+            OfferToReceiveAudio: true,
+            OfferToReceiveVideo: true
+        }
+    };
+
+    // onOfferSDP(RTCSessionDescription)
+
+    function createOffer() {
+        if (!options.onOfferSDP) return;
+
+        peer.createOffer(function(sessionDescription) {
+            sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
+            peer.setLocalDescription(sessionDescription);
+            options.onOfferSDP(sessionDescription);
+        }, null, constraints);
+    }
+
+    // onAnswerSDP(RTCSessionDescription)
+
+    function createAnswer() {
+        if (!options.onAnswerSDP) return;
+
+        peer.setRemoteDescription(new SessionDescription(options.offerSDP));
+        peer.createAnswer(function(sessionDescription) {
+            sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
+            peer.setLocalDescription(sessionDescription);
+            options.onAnswerSDP(sessionDescription);
+        }, null, constraints);
+    }
+
+    // if Mozilla Firefox & DataChannel; offer/answer will be created later
+    if ((options.onChannelMessage && !moz) || !options.onChannelMessage) {
+        createOffer();
+        createAnswer();
+    }
+
+
+    // DataChannel Bandwidth
+
+    function setBandwidth(sdp) {
+        // remove existing bandwidth lines
+        sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
+        sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:1638400\r\n');
+
+        return sdp;
+    }
+
+    // old: FF<>Chrome interoperability management
+
+    function getInteropSDP(sdp) {
+        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+            extractedChars = '';
+
+        function getChars() {
+            extractedChars += chars[parseInt(Math.random() * 40)] || '';
+            if (extractedChars.length < 40)
+                getChars();
+
+            return extractedChars;
+        }
+
+        // usually audio-only streaming failure occurs out of audio-specific crypto line
+        // a=crypto:1 AES_CM_128_HMAC_SHA1_32 --------- kAttributeCryptoVoice
+        if (options.onAnswerSDP)
+            sdp = sdp.replace( /(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g , '');
+
+        // video-specific crypto line i.e. SHA1_80
+        // a=crypto:1 AES_CM_128_HMAC_SHA1_80 --------- kAttributeCryptoVideo
+        var inline = getChars() + '\r\n' + (extractedChars = '');
+        sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace( /c=IN/g ,
+            'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
+                'c=IN') : sdp;
+
+        return sdp;
+    }
+
+    function serializeSdp(sdp) {
+        if (!moz) sdp = setBandwidth(sdp);
+        sdp = getInteropSDP(sdp);
+        console.debug(sdp);
+        return sdp;
+    }
+
+    // DataChannel management
+    var channel;
+
+    function openOffererChannel() {
+        if (!options.onChannelMessage || (moz && !options.onOfferSDP))
+            return;
+
+        _openOffererChannel();
+
+        if (moz) {
+            navigator.mozGetUserMedia({
+                    audio: true,
+                    fake: true
+                }, function(stream) {
+                    peer.addStream(stream);
+                    createOffer();
+                }, useless);
+        }
+    }
+
+    function _openOffererChannel() {
+        channel = peer.createDataChannel(options.channel || 'RTCDataChannel', moz ? { } : {
+            reliable: false
+        });
+
+        if (moz)
+            channel.binaryType = 'blob';
+        setChannelEvents();
+    }
+
+    function setChannelEvents() {
+        channel.onmessage = function(event) {
+            if (options.onChannelMessage) options.onChannelMessage(event);
+        };
+
+        channel.onopen = function() {
+            if (options.onChannelOpened) options.onChannelOpened(channel);
+        };
+        channel.onclose = function(event) {
+            if (options.onChannelClosed) options.onChannelClosed(event);
+
+            console.warn('WebRTC DataChannel closed', event);
+        };
+        channel.onerror = function(event) {
+            if (options.onChannelError) options.onChannelError(event);
+        };
+    }
+
+    if (options.onAnswerSDP && moz && options.onChannelMessage)
+        openAnswererChannel();
+
+    function openAnswererChannel() {
+        peer.ondatachannel = function(event) {
+            channel = event.channel;
+            channel.binaryType = 'blob';
+            setChannelEvents();
+        };
+
+        if (moz) {
+            navigator.mozGetUserMedia({
+                    audio: true,
+                    fake: true
+                }, function(stream) {
+                    peer.addStream(stream);
+                    createAnswer();
+                }, useless);
+        }
+    }
+
+    function useless() {
+    }
+
+    return {
+        addAnswerSDP: function(sdp) {
+            peer.setRemoteDescription(new SessionDescription(sdp));
+        },
+        addICE: function(candidate) {
+            peer.addIceCandidate(new IceCandidate({
+                sdpMLineIndex: candidate.sdpMLineIndex,
+                candidate: candidate.candidate
+            }));
+        },
+
+        peer: peer,
+        channel: channel,
+        sendData: function(message) {
+            channel && channel.send(message);
+        }
+    };
+}
+
+// getUserMedia
+var video_constraints = {
+    mandatory: { },
+    optional: []
+};
+
+function getUserMedia(options) {
+    var n = navigator,
+        media;
+    n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
+    n.getMedia(options.constraints || {
+            audio: true,
+            video: video_constraints
+        }, streaming, options.onerror || function(e) {
+            console.error(e);
+        });
+
+    function streaming(stream) {
+        var video = options.video;
+        if (video) {
+            video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
+            video.play();
+        }
+        options.onsuccess && options.onsuccess(stream);
+        media = stream;
+    }
+
+    return media;
+}
