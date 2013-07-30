@@ -1,23 +1,14 @@
 #### RecordRTC: WebRTC audio/video recording / [Demo](https://www.webrtc-experiment.com/RecordRTC/)
 
-[RecordRTC](https://www.webrtc-experiment.com/RecordRTC.js) allows you record audio and/or video streams.
-
-=
-
-**For cross-browser audio/video recording; try:** [https://github.com/streamproc/MediaStreamRecorder](MediaStreamRecorder.js)
+**RecordRTC** is a library for cross-browser audio/video recording.
 
 =
 
 ##### Features
 
-1. You can record audio in WAV format
+1. You can record audio in WAV/OGG format
 2. You can record video in WebM format
 3. You can record video as animated GIF image
-
-Other features are:
-
-1. Writes recorded file on disk and returns file URL
-2. It is your choice to get file URL, DataURL, or a real `Blob` object
 
 =
 
@@ -29,76 +20,64 @@ Other features are:
 
 =
 
+##### How to record audio?
+
+```javascript
+var recorder = RecordRTC(mediaStream);
+
+// start recording audio
+recorder.startRecording();
+
+// stop recording audio
+recorder.stopRecording(function(audioURL) {
+   window.open(audioURL);
+});
+```
+
+=
+
 ##### How to record video?
 
 ```javascript
-var recorder = RecordRTC({
-	video: HTMLVideoElement
+var recorder = RecordRTC(mediaStream, {
+   type: 'video',
+   width: 320,
+   height: 240
 });
 
-/* start recording video */
-recorder.recordVideo();
+// start recording video
+recorder.startRecording();
 
-/* stop recording video and save recorded file to disk */
-recorder.stopVideo(function(videoURL) {
+// stop recording video
+recorder.stopRecording(function(videoURL) {
    window.open(videoURL);
 });
+
+// force saving recorded stream to disk
+recorder.save();
 ```
 
 =
 
 ##### How to record animated GIF image?
 
-```html
-<script src="https://www.webrtc-experiment.com/gif-recorder.js"></script>
-```
-
 ```javascript
-var recorder = RecordRTC({
-	video: HTMLVideoElement,
-	
-	// Number: frame per second
-	// Default value of "frameRate" is 200
-	frameRate: 200,
-	
-	// Sets quality of color quantization (conversion of images to the 
-	// maximum 256 colors allowed by the GIF specification). 
-	// -----
-	// Default value of "quality" is 10
-	// Lower values (minimum = 1) produce better colors
-	// Values greater than 20 do not yield significant improvements in speed.
-	quality: 10
+var recorder = RecordRTC(mediaStream, {
+   type: 'gif',
+   
+   width: 320,
+   height: 240,
+   
+   frameRate: 200,
+   quality: 10
 });
 
-/* start recording gif */
-recorder.recordGIF();
+// start recording gif
+recorder.startRecording();
 
-/* stop recording gif and save recorded file to disk */
-recorder.stopGIF(function(gifURL) {
+// stop recording gif
+recorder.stopRecording(function(gifURL) {
    window.open(gifURL);
-});
-```
-
-=
-
-##### How to record audio?
-
-```html
-<script src="https://www.webrtc-experiment.com/audio-recorder.js"></script>
-```
-
-```javascript
-var recorder = RecordRTC({
-	stream: MediaStream || LocalMediaStream,
-	audioWorkerPath: '/audio-recorder.js'
-});
-
-/* start recording audio */
-recorder.recordAudio();
-
-/* stop recording audio and save recorded file to disk */
-recorder.stopAudio(function(audioURL) {
-   window.open(audioURL);
 });
 ```
 
@@ -126,14 +105,14 @@ blob = recorder.getBlob();
 blob = recorder.getBlob();
 
 formData = new FormData();
-formData.append('key', blob);
+formData.append('file-name', blob);
 
 xhr.send(formData);
 ```
 
 =
 
-##### Get File URL
+##### Get Virtual URL
 
 ```javascript
 window.open( recorder.toURL() );
@@ -146,39 +125,6 @@ window.open( recorder.toURL() );
 ```javascript
 recorder.save();
 ```
-
-It is recommended to use `stopAudio`, `stopGIF` and `stopVideo` **callback parameter** to get recorded file URL or recorded Blob.
-
-```javascript
-recorder.stopVideo(function(videoURL) {
-   window.open(videoURL);
-});
-
-recorder.stopGIF(function(gifURL) {
-   window.open(gifURL);
-});
-
-recorder.stopAudio(function(audioURL) {
-   window.open(audioURL);
-});
-```
-
-This method is reliable and works all the time without any failure. However, it fails on `incognito` mode.
-
-You can use like this too:
-
-```javascript
-recorder.stopVideo();
-recorder.stopGIF();
-recorder.stopAudio();
-```
-
-=
-
-##### Make sure that:
-
-1. You're using Chrome [Canary](https://www.google.com/intl/en/chrome/browser/canary.html), beta or dev
-2. You enabled flag `Web Audio Input` via `chrome://flags`
 
 =
 
@@ -243,6 +189,7 @@ Stereo audio is only supported for WAV files.
 | Browser        | Support           |
 | ------------- |-------------|
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
+| Firefox | [Nightly](http://nightly.mozilla.org/) |
 
 =
 
@@ -250,12 +197,17 @@ Stereo audio is only supported for WAV files.
 
 1. [Recorderjs](https://github.com/mattdiamond/Recorderjs) for audio recording
 2. [whammy](https://github.com/antimatter15/whammy) for video recording
+3. [jsGif](https://github.com/antimatter15/jsgif) for video recording
 
 =
 
 ##### Spec & Reference
 
 1. [Web Audio API](https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html)
+2. [MediaRecorder](https://wiki.mozilla.org/Gecko:MediaRecorder)
+3. [Canvas2D](http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/)
+4. [MediaStream Recording](https://dvcs.w3.org/hg/dap/raw-file/tip/media-stream-capture/MediaRecorder.html)
+5. [Media Capture and Streams](http://www.w3.org/TR/mediacapture-streams/)
 
 =
 

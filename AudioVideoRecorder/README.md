@@ -6,9 +6,9 @@ Support? Current/Latest Firefox Nightly (ONLY). Understood? Download from: http:
 
 =
 
-##### Note
+##### RecordRTC
 
-There is another relevant project: https://github.com/streamproc/MediaStreamRecorder
+Try [RecordRTC](https://www.webrtc-experiment.com/RecordRTC) which is preferred.
 
 =
 

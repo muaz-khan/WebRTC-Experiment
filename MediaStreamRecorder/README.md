@@ -4,6 +4,10 @@ A cross-browser implementation to record audio/video streams.
 
 =
 
+Try [RecordRTC](https://www.webrtc-experiment.com/RecordRTC) which is preferred.
+
+=
+
 #### Record audio using MediaStreamRecorder.js
 
 ```html

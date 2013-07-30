@@ -10,14 +10,11 @@
 
 | Library Name        | Short Description           | Documentation | Demos |
 | ------------- |-------------|-------------|-------------|
+| `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
 | `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) | [Demos](https://www.webrtc-experiment.com/#RTCMultiConnection) |
 | `DataChannel.js` | An ultimate wrapper library for `RTCDataChannel APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) | [Demos](https://www.webrtc-experiment.com/#DataChannel) |
-| `MediaStreamRecorder.js` | MediaStreamRecorder | [Documentation](https://github.com/streamproc/MediaStreamRecorder) | [Demos](https://www.webrtc-experiment.com/MediaStreamRecorder/) |
-| `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
-| `AudioVideoRecorder.js` | Audio+video recording using MediaRecorder API | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/AudioVideoRecorder) | [Demos](https://www.webrtc-experiment.com/AudioVideoRecorder/) |
 | `SdpSerializer.js` | An easiest way to modify SDP | [Documentation](https://github.com/muaz-khan/SdpSerializer) | [Demos](https://www.webrtc-experiment.com/SdpSerializer/demo.html) |
 | `RTCall.js` | A library for voice (i.e. audio-only) calls | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) | [Demos](https://www.webrtc-experiment.com/RTCall/) |
-| `meeting.js` | A library for audio/video conferencing | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) | [Demos](https://www.webrtc-experiment.com/meeting/) |
 
 =
 
@@ -247,88 +244,6 @@
 
 =
 
-##### [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) / Cross-Browser Library to record MediaStream
-
-```html
-<script src="https://www.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
-```
-
-```javascript
-var mediaConstraints = {
-    audio: true
-};
-
-navigator.mozGetUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
-
-function onMediaSuccess(stream) {
-    var mediaRecorder = new MediaStreamRecorder(stream);
-    mediaRecorder.mimeType = 'audio/ogg';
-    mediaRecorder.ondataavailable = function (blob) {
-        // POST/PUT "Blob" using FormData/XHR2
-
-        // or read as DataURL
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            var dataURL = e.target.result;
-            window.open(dataURL);
-        };
-        reader.readAsDataURL(blob);
-    };
-    mediaRecorder.start(3000);
-}
-
-function onMediaError(e) {
-    console.error('media error', e);
-}
-```
-
-=
-
-##### [SdpSerializer.js](https://github.com/muaz-khan/SdpSerializer) / An easiest way to modify SDP
-
-```html
-<script src="https://www.webrtc-experiment.com/SdpSerializer.js"></script>
-```
-
-```javascript
-var serializer = new SdpSerializer(sdp);
-
-// remove entire audio m-line
-serializer.audio.remove();
-
-// change order of a payload type in video m-line
-serializer.video.payload(117).order(0);
-
-// inject new-line after a specific payload type; under video m-line
-serializer.video.payload(117).newLine('a=ptime:10');
-
-// remove a specific payload type; under video m-line
-serializer.video.payload(100).remove();
-
-// want to add/replace a crypto line?
-serializer.video.crypto().newLine('a=crypto:0 AES_CM_128_HMAC_SHA1_80 inline:AAAAA');
-
-// want to remove a crypto line?
-serializer.video.crypto(80).remove();
-
-// want to set direction?
-serializer.video.direction.set('sendonly');
-
-// want to get direction?
-serializer.video.direction.get();
-
-// want to remove entire audio or video track?
-// usually, in video m-line:
-// 0-track is always "video" stream
-// 1-track will be screen sharing stream (if attached)
-serializer.video.track(0).remove()
-
-// get serialized sdp
-sdp = serializer.deserialize();
-```
-
-=
-
 ##### How to record video using [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/)?
 
 ```html
@@ -336,55 +251,31 @@ sdp = serializer.deserialize();
 ```
 
 ```javascript
-var recorder = RecordRTC({
-	video: HTMLVideoElement
+var recorder = RecordRTC(mediaStream, {
+   type: 'video',
+   width: 320,
+   height: 240
 });
 
-/* start recording video */
-recorder.recordVideo();
-
-/* stop recording video and save recorded file to disk */
-recorder.stopVideo(function(recordedFileURL) {
-   window.open(recordedFileURL);
+recorder.startRecording();
+recorder.stopRecording(function(videoURL) {
+   window.open(videoURL);
 });
+
+// force saving recorded stream to disk
+recorder.save();
+
+// get Blob object
+var blob = recorder.getBlob();
+
+// get DataURL
+recorder.getDataURL(function(dataURL) { });
+
+// get virtual file URL
+var virtualURL = recorder.toURL();
 ```
 
 [RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
-
-=
-
-##### How to record audio using [AudioVideoRecorder](https://www.webrtc-experiment.com/AudioVideoRecorder/)?
-
-```javascript
-AudioVideoRecorder({
-
-    // MediaStream object
-    stream: MediaStream,
-
-    // mime-type of the output blob
-    mimeType: 'audio/ogg',
-
-    // set time-interval to get the blob
-    interval: 5000,
-
-    // get access to the recorded blob
-    onRecordedMedia: function (blob) {
-        // POST/PUT blob using FormData/XMLHttpRequest
-
-        // or readAsDataURL
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            hyperlink.href = e.target.result;
-        };
-        reader.readAsDataURL(blob);
-    }
-
-});
-```
-
-=
-
-[AudioVideoRecorder Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/AudioVideoRecorder)
 
 =
 
