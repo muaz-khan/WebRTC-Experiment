@@ -168,7 +168,7 @@
     <article>
     <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
 
-    <h1>How to use RTCPeerConnection.js? (v1.1)
+    <h1>How to use RTCPeerConnection.js? (v1.5)
         </h1>
         <p>
             <span>Copyright © 2013</span>
@@ -181,7 +181,7 @@
 
         <table style="width: 100%;">
             <tr>
-                <td>If you're newcomer, newbie or beginner; you're suggested to try <a href="http://bit.ly/RTCMultiConnection-Documentation" target="_blank">RTCMultiConnection.js</a> or <a href="http://bit.ly/DataChannel-Documentation" target="_blank">DataChannel.js</a> libraries.
+                <td>If you're newcomer, newbie or beginner; you're suggested to try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> or <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a> libraries.
                 </td>
             </tr>
             <tr>
@@ -196,7 +196,7 @@
                     <blockquote>
                         First of all; you need to reference RTCPeerConnection.js library:
                     </blockquote>
-                    <code>&lt;script src="<strong>http://bit.ly/RTCPeerConnection-v1-5</strong>"&gt;&lt;/script&gt;
+                    <code>&lt;script src="<strong>https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js</strong>"&gt;&lt;/script&gt;
                     </code>
                 </td>
             </tr>
@@ -222,6 +222,13 @@ var peer = <strong>RTCPeerConnection</strong>({
                     <ol>
                         <li>
                             <strong>attachStream</strong>: client stream that you need to share with other peer!
+							<p style="font-size: .8em;color: rgb(194, 193, 193);border: 1px solid rgb(219, 218, 218);padding: 1em 2em;border-radius: 5px;background: rgb(247, 247, 247);">
+							A few days later; you may want to attach multiple streams; e.g. one audio+video stream; and one screen sharing stream; in such case, you can use <strong>attachStreams</strong> object to attach multiple streams:
+							<br />
+							<code style="font-size:1.2em;">
+							attachStreams = [MediaStream1, MediaStream2, MediaStream3]
+							</code>
+							<p>
                         </li>
 
                         <li>
@@ -332,10 +339,10 @@ peer.<strong>addICE</strong>({
                 <td>
                     <h2 id="socket-io">How to write a realtime WebRTC app using socket.io?</h2>
                     <blockquote id="socket-io-reference">
-                        First of all; you need to reference <a href="/dependencies/socket.io.js">socket.io.js</a>:
+                        First of all; you need to reference <strong>socket.io.js</strong>:
                     </blockquote>
                     <pre>
-&lt;script src="<strong>https://bit.ly/socket-io</strong>"&gt;&lt;/script&gt;
+&lt;script src="<strong>https://www.webrtc-experiment.com/dependencies/socket.io.js</strong>"&gt;&lt;/script&gt;
 </pre>
                     <br />
                     <blockquote>

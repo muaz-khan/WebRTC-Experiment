@@ -3,32 +3,46 @@
 // Documentation » https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs
 // Demo          » https://www.webrtc-experiment.com/websocket/
 
-// Open          » https://localhost:1337/
+// Non-SSL URL   » ws ://localhost:1338/
+// SSL URL       » wss://localhost:1337/
 
 var WebSocketServer = require('websocket').server;
-var https = require('https');
 var fs = require('fs');
 
-var privateKey = fs.readFileSync('fakekeys/privatekey.pem').toString(),
-    certificate = fs.readFileSync('fakekeys/certificate.pem').toString();
-	
+// Non-SSL stuff
+var http = require('http');
+
+var simple_server = http.createServer();
+
+simple_server.listen(1338);
+
+new WebSocketServer({
+    httpServer: simple_server,
+    autoAcceptConnections: false
+}).on('request', onRequest);
+
+// SSL stuff
+var https = require('https');
 var SSL_Credentials = {
-	    key: privateKey,
-	    cert: certificate
+	    key: fs.readFileSync('fakekeys/privatekey.pem').toString(),
+	    cert: fs.readFileSync('fakekeys/certificate.pem').toString()
 	};
 
-var server = https.createServer(SSL_Credentials, function() {});
-server.listen(1337);
+var ssl_server = https.createServer(SSL_Credentials, function() {});
 
-wsServer = new WebSocketServer({
-    httpServer: server,
+ssl_server.listen(1337);
+
+new WebSocketServer({
+    httpServer: ssl_server,
     autoAcceptConnections: false
-});
+}).on('request', onRequest);
+
+// shared stuff
 
 var CHANNELS = { };
 
-wsServer.on('request', function(socket) {
-    var origin = socket.origin + socket.resource;
+function onRequest(socket) {
+	var origin = socket.origin + socket.resource;
 
     var websocket = socket.accept(null, origin);
 
@@ -41,10 +55,9 @@ wsServer.on('request', function(socket) {
     websocket.on('close', function() {
         truncateChannels(websocket);
     });
-});
+}
 
 function onMessage(message, websocket) {
-    console.log(message);
     if (message.checkPresence)
         checkPresence(message, websocket);
     else if (message.open)

@@ -2,7 +2,7 @@
 
 var config = {
     openSocket: function (config) {
-        var channel = config.channel || location.hash.replace('#', '') || 'audio-only-calls';
+        var channel = config.channel || location.hash.substr(1) || 'audio-only-calls';
         var socket = new Firebase('https://webrtc-experiment.firebaseIO.com/' + channel);
         socket.channel = channel;
         socket.on('child_added', function (data) {
@@ -27,14 +27,13 @@ var config = {
 
         if (saveRecordedStreams) saveRecordedStreams.style.display = '';
 
-        /* recording remote stream using RecordRTC */
+        /* recording remote stream using RecordRTC
         if (typeof remoteStreamRecorder === 'undefined') window.remoteStreamRecorder = null;
-        remoteStreamRecorder = RecordRTC({
-            stream: media.stream
-        });
-        remoteStreamRecorder.recordAudio();
+        remoteStreamRecorder = RecordRTC(stream);
+        remoteStreamRecorder.startRecording();
 
         if (saveRemoteStream) saveRemoteStream.style.display = '';
+		*/
     },
     onRoomFound: function (room) {
         var alreadyExist = document.getElementById(room.broadcaster);
@@ -90,10 +89,8 @@ function captureUserMedia(callback) {
 
             // recording local stream using RecordRTC
             if (typeof localStreamRecorder === 'undefined') window.localStreamRecorder = null;
-            localStreamRecorder = RecordRTC({
-                stream: stream
-            });
-            localStreamRecorder.recordAudio();
+            localStreamRecorder = RecordRTC(stream);
+            localStreamRecorder.startRecording();
             if (saveLocalStream) saveLocalStream.style.display = '';
 
             callback && callback();
@@ -121,12 +118,12 @@ var saveRemoteStream = document.getElementById('save-remote-stream'),
     saveLocalStream = document.getElementById('save-local-stream');
 
 if (saveRemoteStream) saveRemoteStream.onclick = function () {
-    if (remoteStreamRecorder) remoteStreamRecorder.stopAudio(insertRecordedFileURL);
+    if (remoteStreamRecorder) remoteStreamRecorder.stopRecording(insertRecordedFileURL);
     this.parentNode.removeChild(this);
 };
 
 if (saveLocalStream) saveLocalStream.onclick = function () {
-    if (localStreamRecorder) localStreamRecorder.stopAudio(insertRecordedFileURL);
+    if (localStreamRecorder) localStreamRecorder.stopRecording(insertRecordedFileURL);
     this.parentNode.removeChild(this);
 };
 

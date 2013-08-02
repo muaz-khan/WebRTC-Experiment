@@ -184,7 +184,7 @@
 
         <table style="width: 100%;">
             <tr>
-                <td>If you're newcomer, newbie or beginner; you're suggested to try <a href="http://bit.ly/RTCMultiConnection-Documentation" target="_blank">RTCMultiConnection.js</a> or <a href="http://bit.ly/DataChannel-Documentation" target="_blank">DataChannel.js</a> libraries.
+                <td>If you're newcomer, newbie or beginner; you're suggested to try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> or <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a> libraries.
                 </td>
             </tr>
         </table>
@@ -237,21 +237,34 @@
             </tr>
             <tr>
                 <td>
-                    For simple WebRTC apps; not at all!
+                    (Unfortunately) A signaling gateway. ICE server lies in that gateway.
                 </td>
             </tr>
             <tr>
                 <td>
-                    For large scale applications:
+                    A media server for large scale applications:
 
                     <ol>
                         <li>to store recorded media streams (audio/video/files/text/etc.) or data</li>
-                        <li>to make SIP calls to PSTN networks</li>
+                        <li>to make SIP calls to PSTN (legacy) networks</li>
                         <li>
-                            to transcode streams
+                            to transcode/mix/merge streams
                         </li>
                     </ol>
                     obviously you need a media server and many installations!
+                </td>
+            </tr>
+			
+			<tr>
+                <td>
+                    So there are three kinds of concrete servers:
+
+                    <ol>
+                        <li>Signalling Server (SIP,XMPP,WebSocket,Socket.io,XHR,etc.)</li>
+                        <li>ICE Servers (STUN,TURN)</li>
+                        <li>Media Servers (Asterisk, etc.)</li>
+                    </ol>
+                    First two are mandatory for each application.
                 </td>
             </tr>
 

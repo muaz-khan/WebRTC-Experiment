@@ -78,10 +78,10 @@ function SdpSerializer(sdp) {
 
             // if next line is data m-line
             line = splitted[i + 1];
-            if (line && line.indexOf('m=data') == 0) {
+            if (line && line.indexOf('m=application') == 0) {
                 isMidLine = isVideoMLine = false;
             }
-        } else if (isDataMLine || line.indexOf('m=data') == 0) {
+        } else if (isDataMLine || line.indexOf('m=application') == 0) {
             isDataMLine = true;
 
             _serialize('data');
@@ -103,10 +103,12 @@ function SdpSerializer(sdp) {
             };
 
             // get all available payload types in current m-line
-            var payloads = line.split('RTP/SAVPF ')[1].split(' ');
-            for (var p = 0; p < payloads.length; p++) {
-                mLines[mLine].payload[payloads[p]] = '';
-            }
+			if(line.indexOf('RTP/SAVPF')!=-1) {
+				var payloads = line.split('RTP/SAVPF ')[1].split(' ');
+				for (var p = 0; p < payloads.length; p++) {
+					mLines[mLine].payload[payloads[p]] = '';
+				}
+			}
         } else {
             if (line == 'a=mid:' + mLine) {
                 var prevLine = splitted[i - 1];
@@ -204,6 +206,8 @@ function SdpSerializer(sdp) {
 
         if (mLines[mLine].payload[payload]) delete mLines[mLine].payload[payload];
 
+		if(mLines[mLine].line.indexOf('RTP/SAVPF') ==-1) return;
+		
         var payloads = mLines[mLine].line.split('RTP/SAVPF ')[1].split(' ');
 
         for (var i = 0; i < payloads.length; i++) {
@@ -219,6 +223,8 @@ function SdpSerializer(sdp) {
         // if invalid payload type
         if (!mLines[mLine] || mLines[mLine].line.indexOf(payload) == -1) return;
 
+		if(mLines[mLine].line.indexOf('RTP/SAVPF')==-1) return;
+		
         var payloads = mLines[mLine].line.split('RTP/SAVPF ')[1].split(' ');
         var arr = [];
         for (var i = 0; i < payloads.length; i++) {
@@ -239,14 +245,6 @@ function SdpSerializer(sdp) {
         arr = swap(arr);
 
         mLines[mLine].line = mLines[mLine].line.split('RTP/SAVPF ')[0] + 'RTP/SAVPF ' + arr.join(' ');
-    }
-
-    function swap(arr) {
-        var swapped = [];
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i]) swapped[swapped.length] = arr[i];
-        }
-        return swapped;
     }
 
     // deserializing the sdp
@@ -288,12 +286,14 @@ function SdpSerializer(sdp) {
         }
 
         // order payload types accordingly
-        var payloads = mLines[mLine].line.split('RTP/SAVPF ')[1].split(' ');
-        for (var p = 0; p < payloads.length; p++) {
-            var payload = payloads[p];
-            if (payload)
-                sdp += 'a=rtpmap:' + payload + ' ' + mLines[mLine].payload[payload] + '\r\n';
-        }
+		if(mLines[mLine].line.indexOf('RTP/SAVPF') != -1) {
+			var payloads = mLines[mLine].line.split('RTP/SAVPF ')[1].split(' ');
+			for (var p = 0; p < payloads.length; p++) {
+				var payload = payloads[p];
+				if (payload)
+					sdp += 'a=rtpmap:' + payload + ' ' + mLines[mLine].payload[payload] + '\r\n';
+			}
+		}
 
         // media lines
         for (var s = 0; s < mLines[mLine].ssrc.length; s++) {
@@ -442,3 +442,11 @@ SdpSerializer.RTPOverTCP = function(sdp) {
 // a=mid:video
 // a=rtpmap:120 VP8/90000
 // a=fmtp:120 x-google-min-bitrate=10
+
+function swap(arr) {
+        var swapped = [];
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i]) swapped[swapped.length] = arr[i];
+        }
+        return swapped;
+    }

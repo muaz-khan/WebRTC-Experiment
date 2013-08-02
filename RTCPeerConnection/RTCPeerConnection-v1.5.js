@@ -102,7 +102,7 @@ function RTCPeerConnection(options) {
             sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onOfferSDP(sessionDescription);
-        }, null, constraints);
+        }, onSdpError, constraints);
     }
 
     // onAnswerSDP(RTCSessionDescription)
@@ -115,7 +115,7 @@ function RTCPeerConnection(options) {
             sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
-        }, null, constraints);
+        }, onSdpError, constraints);
     }
 
     // if Mozilla Firefox & DataChannel; offer/answer will be created later
@@ -240,7 +240,10 @@ function RTCPeerConnection(options) {
         }
     }
 
-    function useless() {
+    function useless() {}
+	
+    function onSdpError(e) {
+        console.error('sdp error:', e.name, e.message);
     }
 
     return {

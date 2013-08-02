@@ -1,8 +1,8 @@
-## Realtime/Working [WebRTC Experiments](https://www.webrtc-experiment.com/) & Signaling
+##### Realtime/Working [WebRTC Experiments](https://www.webrtc-experiment.com/) & Signaling
 
 =
 
-##### signaling for RTCMultiConnection-v1.4 and earlier releases
+##### Signaling for RTCMultiConnection-v1.4 and earlier releases
 
 ```javascript
 var SIGNALING_SERVER = 'http://domain.com:8888/';
@@ -35,9 +35,7 @@ connection.openSignalingChannel = function(config) {
 
 =
 
-##### signaling using socket.io over node.js
-
-Signaling for all latest experiments and newer releases.
+##### Signaling for all latest experiments and newer releases.
 
 Your server-side node.js code looks like this:
 

@@ -115,6 +115,7 @@ function MediaStreamRecorder(mediaStream) {
     var self = this;
 
     this.record = function() {
+        // http://dxr.mozilla.org/mozilla-central/source/content/media/MediaRecorder.cpp
         mediaRecorder = new window.MediaRecorder(mediaStream);
         mediaRecorder.ondataavailable = function(e) {
             self.recordedBlob = new window.Blob([self.recordedBlob, e.data], { type: 'audio/ogg' });

@@ -128,18 +128,17 @@ For stereo; we need:
         answerer.onaddstream = function (event) {
             console.debug('remote stream', event.stream);
 			
-			var recorder = new RecordRTC({
-				stream: event.stream
-			});
-			recorder.recordAudio();
+			var recorder = new RecordRTC(event.stream);
+			recorder.startRecording();
 			setTimeout(function() {
-				recorder.stopAudio(function() {
-					var dataURL = recorder.getDataURL();
-					if(dataURL.indexOf('AAAAAAAAAAAA') != -1) {
-						document.querySelector('h2').innerHTML = 'Unable to record remote audio stream.<br /><br />' +
-																  dataURL.substr(0, 150) + '...';
-					}
-					console.log(dataURL);
+				recorder.stopRecording(function() {
+					recorder.getDataURL(function(dataURL) {
+						if(dataURL.indexOf('AAAAAAAAAAAA') != -1) {
+							document.querySelector('h2').innerHTML = 'Unable to record remote audio stream.<br /><br />' +
+																	  dataURL.substr(0, 150) + '...';
+						}
+						console.log(dataURL);
+					});
 				});
 			}, 5000);
         };

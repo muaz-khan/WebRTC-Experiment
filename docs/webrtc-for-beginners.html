@@ -181,7 +181,7 @@
 
         <table style="width: 100%;">
             <tr>
-                <td>If you're newcomer, newbie or beginner; you're suggested to try <a href="http://bit.ly/RTCMultiConnection-Documentation" target="_blank">RTCMultiConnection.js</a> or <a href="http://bit.ly/DataChannel-Documentation" target="_blank">DataChannel.js</a> libraries.
+                <td>If you're newcomer, newbie or beginner; you're suggested to try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> or <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a> libraries.
                 </td>
             </tr>
         </table>
@@ -225,7 +225,7 @@ navigator.<strong id="mozGetUserMedia" title="This API allows us access to your 
     video.mozSrcObject = stream;
     video.play();
     <a id="A1" href="#addStream">streamToAttach</a> = stream;
-});
+}, function(error) {throw error;});
 </pre>
                 </td>
             </tr>
@@ -282,6 +282,7 @@ var <span id="peerConnection">peerConnection</span> = new <strong id="Strong1" t
                             </li>
                         </ol>
                     </blockquote>
+					For Firefox, you can use this STUN server: <br />{ "<strong title="ICE servers for NAT traversing">iceServers</strong>": [{ "url": "<strong title="Using STUN as ICE server for NAT traversing">stun</strong>:stun.services.mozilla.com" }] }
                 </td>
             </tr>
             <tr>

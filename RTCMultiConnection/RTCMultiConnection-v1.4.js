@@ -896,7 +896,7 @@
                 if (textToTransfer.length)
                     setTimeout(function() {
                         onReadAsDataURL(null, textToTransfer);
-                    }, 500);
+                    }, moz ? 1 : 500);
             }
         }
     };
@@ -998,7 +998,7 @@
                 if (textToTransfer.length)
                     setTimeout(function() {
                         sendText(null, textToTransfer);
-                    }, 500);
+                    }, moz ? 1 : 500);
             }
         }
     };

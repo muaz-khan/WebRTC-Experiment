@@ -2,14 +2,16 @@
 
 This experiment is using **WebSocket over Node.js** for signaling. Follow these steps:
 
-1. Download **ZIP file** of this repository 
-2. Extract and then copy `folder-location` of the`signaler.js` file
-3. Open **Node.js command prompt**
-4. Type command `cd folder-location` where `folder-location` can be `C:\websocket-over-nodejs`
-5. Type `npm install websocket`
-6. Type `node multisockets` or type `node latest`
+1. Download and extract **ZIP file** of this repository then copy `folder-location` of the`signaler.js` file
+2. Open **Node.js command prompt**
+3. Type command `cd folder-location` where `folder-location` can be `C:\websocket-over-nodejs`
+4. Type `npm install websocket` to install the dependency
+5. Type `node multisockets` or type `node latest` to run the node.js server
 
-And the open URL: `http://localhost:1337/`
+OK, now you can use following URLs: 
+
+1. `wss://localhost:1337/`
+2. `ws://localhost:1338/`
 
 =
 
@@ -21,6 +23,8 @@ And the open URL: `http://localhost:1337/`
 
 and you're done!
 
+**Remember:** `jitsu deploy` command will deploy the entire directory containing all all files including `node_modules` (i.e. dependencies).
+
 =
 
 #### How to use?
@@ -28,9 +32,9 @@ and you're done!
 In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
 
 ```javascript
-var SIGNALING_SERVER = 'ws://' + document.domain + ':1337/';
-openSignalingChannel: function(config) {
-    config.channel = config.channel || 'default-channel';
+var SIGNALING_SERVER = 'ws://' + document.domain + ':1338/';
+connection.openSignalingChannel = function(config) {
+    config.channel = config.channel || this.channel || 'default-channel';
     var websocket = new WebSocket(SIGNALING_SERVER);
     websocket.channel = config.channel;
     websocket.onopen = function() {
