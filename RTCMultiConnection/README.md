@@ -1,4 +1,4 @@
-# [RTCMultiConnection-v1.4](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js) Documentation
+### [RTCMultiConnection-v1.4](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js) Documentation
 
 ##### Features
 
@@ -10,7 +10,8 @@
 6. Multi-session establishment (e.g. one or conferencing and other for broadcasting)
 7. Keeps session active/LIVE all the time; even if session initiator leaves
 8. Advance data/file/text sharing (concurrently|longest|largest)
-8. Session re-initiation
+9. Session re-initiation
+10. Admin/Guest calling features
 
 and much more!
 
@@ -134,7 +135,11 @@ and much more!
 
 =
 
+##### Admin/Guest audio/video calling
 
+Just copy [this html file](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/admin-guest.html); and enjoy admin/guest audio/video calling!
+
+=
 
 ##### First Step: Link the library
 
@@ -644,6 +649,76 @@ connection.sdpConstraints.mandatory = {
 
 =
 
+##### Admin/Guest Calling Features
+
+```javascript
+// if you want to set "admin"
+connection.userType = 'admin';
+
+// if you want to set "guest"
+connection.userType = 'guest';
+
+// Assuming that admin's userid is "admin-007"; lets call him!
+connection.request("admin-0007");
+
+// Assuming that guest's userid is "guest-007"; lets receive his call
+connection.accept("guest-007");
+```
+
+####### `onAdmin`
+
+To alert guests if an admin gets free; or becomes available:
+
+```javascript
+connection.onAdmin = function (admin) {
+    // Lets call admin using his userid
+    connection.request(admin.userid);
+};
+```
+
+####### `onGuest`
+
+Alert admin for each new guest; if and only if, admin is not "busy"!
+
+```javascript
+connection.onGuest = function (guest) {
+    // Lets call guest using his userid
+    connection.request(guest.userid);
+};
+```
+
+####### `onRequest`
+
+It is fired if admin or guest makes a request using `connection.request` method:
+
+```javascript
+connection.onRequest = function (userid, extra) {
+    // Lets accept request; "extra" is optional
+    connection.accept(userid, extra);
+};
+```
+
+####### `onstats`
+
+Stats of the caller or callee:
+
+```javascript
+connection.onstats = function (stats, userinfo) {
+    // callee is busy
+    if (stats == 'busy') {}
+
+    // callee accepted caller's request
+    if (stats == 'accepted') {}
+};
+```
+
+####### Remember
+
+1. One-way streaming is not supported for Admin/Guest feature; however you can ejoy all other features (listed at the top of this file)
+2. Admin/Guest relationship is one-to-one
+
+=
+
 ##### Custom Signaling
 
 Use your own [socket.io over node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) for signaling:
@@ -744,6 +819,7 @@ io.sockets.on('connection', function (socket) {
 | **Renegotiation & Mute/UnMute/Stop** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/Renegotiation.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/Renegotiation.html) |
 | **Video-Conferencing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) |
 | **Multi-streams attachment** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) |
+| **Admin/Guest audio/video calling** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/admin-guest.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/admin-guest.html) |
 
 =
 

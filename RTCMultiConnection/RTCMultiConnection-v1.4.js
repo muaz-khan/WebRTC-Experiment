@@ -1,15 +1,14 @@
 // 2013, @muazkh - https://github.com/muaz-khan
 // MIT License   - https://www.webrtc-experiment.com/licence/
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
-
 // RTCMultiConnection-v1.4
-(function() {
-    window.RTCMultiConnection = function(channel) {
-        this.channel = channel;
+(function () {
+    window.RTCMultiConnection = function (channel) {
+        this.channel = channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
-        this.open = function(_channel) {
+        this.open = function (_channel) {
             self.joinedARoom = true;
-			
+
             if (_channel)
                 self.channel = _channel;
 
@@ -18,13 +17,13 @@
 
             self.isInitiator = true;
 
-            prepareInit(function() {
+            prepareInit(function () {
                 init();
                 captureUserMedia(rtcSession.initSession);
             });
         };
 
-        this.connect = function(_channel) {
+        this.connect = function (_channel) {
             if (_channel)
                 self.channel = _channel;
 
@@ -33,7 +32,7 @@
 
         this.join = joinSession;
 
-        this.send = function(data, _channel) {
+        this.send = function (data, _channel) {
             if (!data)
                 throw 'No file, data or text message to share.';
 
@@ -62,15 +61,15 @@
                     self.transmitRoomOnce = true;
 
                 // for custom socket.io over node.js implementation - visit - https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
-                self.openSignalingChannel = function(config) {
+                self.openSignalingChannel = function (config) {
                     var channel = config.channel || self.channel || 'default-channel';
                     var firebase = new window.Firebase('https://' + (self.firebase || 'chat') + '.firebaseIO.com/' + channel);
                     firebase.channel = channel;
-                    firebase.on('child_added', function(data) {
+                    firebase.on('child_added', function (data) {
                         config.onmessage(data.val());
                     });
 
-                    firebase.send = function(data) {
+                    firebase.send = function (data) {
                         this.push(data);
                     };
 
@@ -102,7 +101,7 @@
                 return;
 
             self.config = {
-                onNewSession: function(session) {
+                onNewSession: function (session) {
                     if (self.channel !== session.sessionid)
                         return false;
 
@@ -120,7 +119,7 @@
 
                     return joinSession(session);
                 },
-                onmessage: function(e) {
+                onmessage: function (e) {
                     if (!e.data.size)
                         e.data = JSON.parse(e.data);
 
@@ -147,12 +146,12 @@
 
             self.session = session.session;
 
-            extra = self.extra || session.extra || { };
+            extra = self.extra || session.extra || {};
 
             if (session.oneway || session.data)
                 rtcSession.joinSession(session, extra);
             else
-                captureUserMedia(function() {
+                captureUserMedia(function () {
                     rtcSession.joinSession(session, extra);
                 });
         }
@@ -169,8 +168,8 @@
             }
 
             var constraints = {
-                audio: !!session.audio,
-                video: !!session.video
+                audio: !! session.audio,
+                video: !! session.video
             };
             var screen_constraints = {
                 audio: false,
@@ -183,14 +182,14 @@
             };
 
             if (session.screen)
-                _captureUserMedia(screen_constraints, function() {
+                _captureUserMedia(screen_constraints, function () {
                     _captureUserMedia(constraints, callback);
                 });
             else _captureUserMedia(constraints, callback, session.audio && !session.video);
 
             function _captureUserMedia(forcedConstraints, forcedCallback, isRemoveVideoTracks) {
                 var mediaConfig = {
-                    onsuccess: function(stream, returnBack) {
+                    onsuccess: function (stream, returnBack) {
                         if (returnBack) return forcedCallback && forcedCallback(stream);
 
                         if (isRemoveVideoTracks && !moz) {
@@ -200,7 +199,7 @@
                         var mediaElement = getMediaElement(stream, session);
                         mediaElement.muted = true;
 
-                        stream.onended = function() {
+                        stream.onended = function () {
                             if (self.onstreamended)
                                 self.onstreamended(streamedObject);
                         };
@@ -226,7 +225,7 @@
 
                         if (forcedCallback) forcedCallback(stream);
                     },
-                    onerror: function() {
+                    onerror: function () {
                         if (session.audio && !session.video)
                             throw 'Microphone access is denied.';
                         else if (session.screen) {
@@ -237,7 +236,7 @@
                         } else
                             throw 'Webcam access is denied.';
                     },
-                    mediaConstraints: self.mediaConstraints || { }
+                    mediaConstraints: self.mediaConstraints || {}
                 };
 
                 mediaConfig.constraints = forcedConstraints || constraints;
@@ -247,7 +246,7 @@
 
         this.captureUserMedia = captureUserMedia;
 
-        this.leave = this.eject = function(userid) {
+        this.leave = this.eject = function (userid) {
             rtcSession.leave(userid);
 
             if (!userid) {
@@ -256,16 +255,17 @@
                     streams[i].stop();
                 }
                 currentUserMediaRequest.streams = [];
+                self.attachStreams = [];
             }
         };
 
-        this.close = function() {
+        this.close = function () {
             self.autoCloseEntireSession = true;
             rtcSession.leave();
         };
 
-        this.addStream = function(session, socket) {
-            captureUserMedia(function(stream) {
+        this.addStream = function (session, socket) {
+            captureUserMedia(function (stream) {
                 rtcSession.addStream({
                     stream: stream,
                     renegotiate: session,
@@ -274,21 +274,21 @@
             }, session);
         };
 
-        Defaulter(self);
+        DefaultSettings(self);
     };
 
     function RTCMultiSession(root) {
         var config = root.config;
         var session = root.session;
 
-        var self = { };
-        var socketObjects = { };
+        var self = {};
+        var socketObjects = {};
         var sockets = [];
 
         self.userid = root.userid = root.userid || root.token();
         self.sessionid = root.channel;
 
-        var participants = { },
+        var participants = {},
             isbroadcaster,
             isAcceptNewSession = true;
 
@@ -296,7 +296,7 @@
             var socketConfig = {
                 channel: _config.channel,
                 onmessage: socketResponse,
-                onopen: function() {
+                onopen: function () {
                     if (isofferer && !peer)
                         initPeer();
 
@@ -306,17 +306,18 @@
                 }
             };
 
-            socketConfig.callback = function(_socket) {
+            socketConfig.callback = function (_socket) {
                 socket = _socket;
                 socketConfig.onopen();
             };
 
             var socket = root.openSignalingChannel(socketConfig),
-                isofferer = _config.isofferer, peer;
+                isofferer = _config.isofferer,
+                peer;
 
             var peerConfig = {
                 onopen: onChannelOpened,
-                onICE: function(candidate) {
+                onICE: function (candidate) {
                     socket && socket.send({
                         userid: self.userid,
                         candidate: {
@@ -325,20 +326,20 @@
                         }
                     });
                 },
-                onmessage: function(event) {
+                onmessage: function (event) {
                     config.onmessage({
                         data: event.data,
                         userid: _config.userid,
                         extra: _config.extra
                     });
                 },
-                onstream: function(stream) {
+                onstream: function (stream) {
                     var mediaElement = getMediaElement(stream, session);
 
                     _config.stream = stream;
                     if (mediaElement.tagName.toLowerCase() == 'audio')
-                        mediaElement.addEventListener('play', function() {
-                            setTimeout(function() {
+                        mediaElement.addEventListener('play', function () {
+                            setTimeout(function () {
                                 mediaElement.muted = false;
                                 mediaElement.volume = 1;
                                 afterRemoteStreamStartedFlowing(mediaElement);
@@ -348,7 +349,7 @@
                         afterRemoteStreamStartedFlowing(mediaElement);
                 },
 
-                onclose: function(e) {
+                onclose: function (e) {
                     e.extra = _config.extra;
                     e.userid = _config.userid;
                     root.onclose(e);
@@ -357,7 +358,7 @@
                     if (root.channels[e.userid])
                         delete root.channels[e.userid];
                 },
-                onerror: function(e) {
+                onerror: function (e) {
                     e.extra = _config.extra;
                     e.userid = _config.userid;
                     root.onerror(e);
@@ -366,12 +367,12 @@
                 attachStreams: root.attachStreams,
                 iceServers: root.iceServers,
                 bandwidth: root.bandwidth,
-                sdpConstraints: root.sdpConstraints || { }
+                sdpConstraints: root.sdpConstraints || {}
             };
 
             function initPeer(offerSDP) {
                 if (!offerSDP)
-                    peerConfig.onOfferSDP = function(sdp) {
+                    peerConfig.onOfferSDP = function (sdp) {
                         sendsdp({
                             sdp: sdp,
                             socket: socket
@@ -379,7 +380,7 @@
                     };
                 else {
                     peerConfig.offerSDP = offerSDP;
-                    peerConfig.onAnswerSDP = function(sdp) {
+                    peerConfig.onAnswerSDP = function (sdp) {
                         sendsdp({
                             sdp: sdp,
                             socket: socket
@@ -394,13 +395,13 @@
             }
 
             function afterRemoteStreamStartedFlowing(mediaElement) {
-                _config.stream.onended = function() {
+                _config.stream.onended = function () {
                     root.onstreamended(streamedObject);
                 };
 
                 var streamid = root.token();
 
-                _config.stream.onended = function() {
+                _config.stream.onended = function () {
                     if (root.onstreamended)
                         root.onstreamended(streamedObject);
                 };
@@ -437,7 +438,7 @@
                 // connection.channels['user-id'].send(data);				
                 root.channels[_config.userid] = {
                     channel: _config.channel,
-                    send: function(data) {
+                    send: function (data) {
                         root.send(data, this.channel);
                     }
                 };
@@ -462,19 +463,22 @@
                     socket: socket,
                     peer: peer,
                     userid: _config.userid,
-                    addStream: function(session) {
+                    addStream: function (session) {
                         root.addStream(session, this.socket);
                     }
                 };
             }
 
             function onSessionOpened() {
+                // admin/guest is one-to-one relationship
+                if (root.userType) return;
+
                 // original conferencing infrastructure!
                 if (!session.oneway && !session.broadcast && isbroadcaster && getLength(participants) > 1 && getLength(participants) <= root.maxParticipantsAllowed) {
                     defaultSocket.send({
                         newParticipant: socket.channel,
                         userid: self.userid,
-                        extra: _config.extra || { }
+                        extra: _config.extra || {}
                     });
                 }
             }
@@ -535,11 +539,13 @@
                         userid: response.userid,
                         extra: response.extra
                     });
+
+                    if (root.userType) root.busy = false;
                 }
 
                 // keeping session active even if initiator leaves
                 if (response.playRoleOfBroadcaster)
-                    setTimeout(function() {
+                    setTimeout(function () {
                         root.dontAttachStream = true;
                         self.userid = response.userid;
                         root.open({
@@ -555,13 +561,13 @@
                     if (isData(renegotiate))
                         createOffer();
                     else
-                        root.captureUserMedia(function(stream) {
+                        root.captureUserMedia(function (stream) {
                             peer.connection.addStream(stream);
                             createOffer();
                         }, renegotiate);
 
                     function createOffer() {
-                        peer.recreateOffer(renegotiate, function(sdp) {
+                        peer.recreateOffer(renegotiate, function (sdp) {
                             sendsdp({
                                 sdp: sdp,
                                 socket: socket,
@@ -588,7 +594,7 @@
                         return;
                     _config.capturing = true;
 
-                    root.captureUserMedia(function(stream) {
+                    root.captureUserMedia(function (stream) {
                         _config.capturing = false;
                         peer.connection.addStream(stream);
                         createAnswer();
@@ -598,7 +604,7 @@
                 delete _config.renegotiate;
 
                 function createAnswer() {
-                    peer.recreateAnswer(sdp, session, function(_sdp) {
+                    peer.recreateAnswer(sdp, session, function (_sdp) {
                         sendsdp({
                             sdp: _sdp,
                             socket: socket
@@ -622,7 +628,7 @@
         // sharing new user with existing participants
 
         function onNewParticipant(channel, extra) {
-            if (!channel || !!participants[channel] || channel == self.userid)
+            if (!channel || !! participants[channel] || channel == self.userid)
                 return;
 
             participants[channel] = channel;
@@ -630,8 +636,7 @@
             var new_channel = root.token();
             newPrivateSocket({
                 channel: new_channel,
-                closeSocket: true,
-                extra: extra || { }
+                extra: extra || {}
             });
 
             defaultSocket.send({
@@ -653,13 +658,14 @@
             };
 
             if (isbroadcaster) {
-                if (root.autoCloseEntireSession)
+                if (root.autoCloseEntireSession) {
                     alert.closeEntireSession = true;
-                else
-                    sockets[0] && sockets[0].send({
+                } else if (sockets[0]) {
+                    sockets[0].send({
                         playRoleOfBroadcaster: true,
                         userid: self.userid
                     });
+                }
             }
 
             if (!channel) {
@@ -689,18 +695,18 @@
             sockets = sockets.swap();
         }
 
-        window.onbeforeunload = function() {
+        window.onbeforeunload = function () {
             clearSession();
         };
 
-        window.onkeyup = function(e) {
+        window.onkeyup = function (e) {
             if (e.keyCode == 116)
                 clearSession();
         };
 
         var that = this,
             defaultSocket = root.openSignalingChannel({
-                onmessage: function(response) {
+                onmessage: function (response) {
                     if (response.userid == self.userid)
                         return;
                     if (isAcceptNewSession && response.sessionid && response.userid) {
@@ -709,23 +715,57 @@
                     }
                     if (response.newParticipant && self.joinedARoom && self.broadcasterid === response.userid)
                         onNewParticipant(response.newParticipant, response.extra);
+
                     if (getLength(participants) < root.maxParticipantsAllowed && response.userid && response.targetUser == self.userid && response.participant && !participants[response.userid]) {
-                        participants[response.userid] = response.userid;
-                        newPrivateSocket({
-                            isofferer: true,
-                            channel: response.channel || response.userid,
-                            closeSocket: true,
-                            extra: response.extra
-                        });
+                        acceptRequest(response.channel || response.userid, response.extra);
+                    }
+
+                    if (response.userType && response.userType != root.userType) {
+                        if (!root.busy) {
+                            if (response.userType == 'admin') {
+                                if (root.onAdmin) root.onAdmin(response);
+                                else root.accept(response.userid);
+                            }
+                            if (response.userType == 'guest') {
+                                if (root.onGuest) root.onGuest(response);
+                                else root.accept(response.userid);
+                            }
+                        } else {
+                            if (response.userType != root.userType) {
+                                defaultSocket.send({
+                                    rejectedRequestOf: response.userid,
+                                    userid: self.userid,
+                                    extra: root.extra || {}
+                                });
+                            }
+                        }
+                    }
+
+                    if (response.acceptedRequestOf == self.userid) {
+                        if (root.onstats) root.onstats('accepted', response);
+                    }
+
+                    if (response.rejectedRequestOf == self.userid) {
+                        if (root.onstats) root.onstats('busy', response);
+                        sendRequest();
                     }
                 },
-                callback: function(socket) {
+                callback: function (socket) {
                     defaultSocket = socket;
+                    if (root.userType) sendRequest();
                 }
             });
 
+        function sendRequest() {
+            defaultSocket.send({
+                userType: root.userType,
+                userid: root.userid,
+                extra: root.extra || {}
+            });
+        }
+
         // open new session
-        this.initSession = function() {
+        this.initSession = function () {
             isbroadcaster = true;
             this.isOwnerLeaving = isAcceptNewSession = false;
             (function transmit() {
@@ -744,8 +784,8 @@
         };
 
         // join existing session
-        this.joinSession = function(_config) {
-            _config = _config || { };
+        this.joinSession = function (_config) {
+            _config = _config || {};
 
             session = _config.session;
 
@@ -772,18 +812,26 @@
         };
 
         // send file/data or text message
-        this.send = function(message, _channel) {
+        this.send = function (message, _channel) {
             message = JSON.stringify(message);
 
-            if (_channel)
-                _channel.send(message);
-            else
-                for (_channel in root.channels)
-                    root.channels[_channel].channel.send(message);
+            if (_channel) {
+                if (_channel.readyState == 'open') {
+                    _channel.send(message)
+                }
+                return;
+            }
+
+            for (var dataChannel in root.channels) {
+                var channel = root.channels[dataChannel].channel;
+                if (channel.readyState == 'open') {
+                    channel.send(message);
+                }
+            }
         };
 
         // leave session
-        this.leave = function(userid) {
+        this.leave = function (userid) {
             clearSession(userid);
 
             if (!userid) {
@@ -796,10 +844,12 @@
                 this.isOwnerLeaving = true;
                 root.isInitiator = false;
             }
+
+            root.busy = false;
         };
 
         // renegotiate new stream
-        this.addStream = function(e) {
+        this.addStream = function (e) {
             session = e.renegotiate;
 
             if (e.socket)
@@ -821,7 +871,7 @@
                     if (session.audio || session.video)
                         peer.connection.addStream(e.stream);
 
-                    peer.recreateOffer(session, function(sdp) {
+                    peer.recreateOffer(session, function (sdp) {
                         sendsdp({
                             sdp: sdp,
                             socket: socket,
@@ -838,14 +888,67 @@
                 }
             }
         };
+
+        root.request = function (userid) {
+            root.busy = true;
+
+            root.captureUserMedia(function () {
+                // open private socket that will be used to receive offer-sdp
+                newPrivateSocket({
+                    channel: self.userid,
+                    extra: root.extra || {}
+                });
+
+                // ask other user to create offer-sdp
+                defaultSocket.send({
+                    participant: true,
+                    userid: self.userid,
+                    extra: root.extra || {},
+                    targetUser: userid
+                });
+            });
+        };
+
+        function acceptRequest(userid, extra) {
+            if (root.userType && !root.busy) {
+                if (root.onRequest) root.onRequest(userid, extra);
+                else _accept(userid, extra);
+            }
+
+            if (!root.userType) _accept(userid, extra);
+        }
+
+        function _accept(userid, extra) {
+            if (root.userType) {
+                root.busy = true;
+                defaultSocket.send({
+                    acceptedRequestOf: userid,
+                    userid: self.userid,
+                    extra: root.extra || {}
+                });
+            }
+
+            participants[userid] = userid;
+            newPrivateSocket({
+                isofferer: true,
+                channel: userid,
+                extra: extra || {}
+            });
+        }
+
+        root.accept = function (userid, extra) {
+            root.captureUserMedia(function () {
+                _accept(userid, extra);
+            });
+        };
     }
 
     function getRandomString() {
-        return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+        return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
     }
 
     var FileSender = {
-        send: function(config) {
+        send: function (config) {
             var channel = config.channel,
                 _channel = config._channel,
                 file = config.file;
@@ -890,11 +993,9 @@
                 }
 
                 channel.send(data, _channel);
-
                 textToTransfer = text.slice(data.message.length);
-
                 if (textToTransfer.length)
-                    setTimeout(function() {
+                    setTimeout(function () {
                         onReadAsDataURL(null, textToTransfer);
                     }, moz ? 1 : 500);
             }
@@ -902,9 +1003,9 @@
     };
 
     function FileReceiver() {
-        var content = { },
-            packets = { },
-            numberOfPackets = { };
+        var content = {},
+            packets = {},
+            numberOfPackets = {};
 
         function receive(data, config) {
             // uuid is used to uniquely identify sending instance
@@ -936,7 +1037,7 @@
     }
 
     var FileSaver = {
-        SaveToDisk: function(fileUrl, fileName) {
+        SaveToDisk: function (fileUrl, fileName) {
             var save = document.createElement('a');
             save.href = fileUrl;
             save.target = '_blank';
@@ -952,11 +1053,11 @@
     };
 
     var TextSender = {
-        send: function(config) {
+        send: function (config) {
             var channel = config.channel,
                 _channel = config._channel,
                 initialText = config.text,
-                packetSize = 1000 /* chars */,
+                packetSize = 1000 /* chars */ ,
                 textToTransfer = '',
                 isobject = false;
 
@@ -996,7 +1097,7 @@
                 textToTransfer = text.slice(data.message.length);
 
                 if (textToTransfer.length)
-                    setTimeout(function() {
+                    setTimeout(function () {
                         sendText(null, textToTransfer);
                     }, moz ? 1 : 500);
             }
@@ -1004,7 +1105,7 @@
     };
 
     function TextReceiver() {
-        var content = { };
+        var content = {};
 
         function receive(data, onmessage, userid, extra) {
             // uuid is used to uniquely identify sending instance
@@ -1039,8 +1140,8 @@
 
     window.MediaStream = window.MediaStream || window.webkitMediaStream;
 
-    window.moz = !!navigator.mozGetUserMedia;
-    var RTCPeerConnection = function(options) {
+    window.moz = !! navigator.mozGetUserMedia;
+    var RTCPeerConnection = function (options) {
         var w = window,
             PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
             SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
@@ -1062,14 +1163,14 @@
         };
 
         if (!moz && !options.iceServers) {
-            if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
+            if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
                 TURN = {
                     url: 'turn:turn.bistri.com:80',
                     credential: 'homeo',
                     username: 'homeo'
                 };
 
-            iceServers.iceServers = [STUN, TURN];
+            iceServers.iceServers = [TURN, STUN];
         }
 
         var optional = {
@@ -1087,12 +1188,17 @@
                 }];
         }
 
+        if (!navigator.onLine) {
+            iceServers = null;
+            console.warn('No internet connection detected. No STUN/TURN server is used to make sure local/host candidates are used for peers connection.');
+        }
+
         var peer = new PeerConnection(iceServers, optional);
 
         openOffererChannel();
 
-        peer.onicecandidate = function(event) {
-            if (event && event.candidate && !options.renegotiate)
+        peer.onicecandidate = function (event) {
+            if (event.candidate && !options.renegotiate)
                 options.onICE(event.candidate);
         };
 
@@ -1103,7 +1209,7 @@
             }
         }
 
-        peer.onaddstream = function(event) {
+        peer.onaddstream = function (event) {
             log('on:add:stream', event.stream);
 
             if (!event || !options.onstream) return;
@@ -1121,8 +1227,8 @@
             constraints = options.constraints || {
                 optional: [],
                 mandatory: {
-                    OfferToReceiveAudio: !!session.audio,
-                    OfferToReceiveVideo: !!session.video || !!session.screen
+                    OfferToReceiveAudio: !! session.audio,
+                    OfferToReceiveVideo: !! session.video || !! session.screen
                 }
             };
 
@@ -1130,7 +1236,7 @@
                 constraints.mandatory = merge(constraints.mandatory, sdpConstraints.mandatory);
 
             if (sdpConstraints.optional)
-                constraints.optional[0] = merge({ }, sdpConstraints.optional);
+                constraints.optional[0] = merge({}, sdpConstraints.optional);
         }
 
         setConstraints();
@@ -1139,7 +1245,7 @@
             if (!options.onOfferSDP)
                 return;
 
-            peer.createOffer(function(sessionDescription) {
+            peer.createOffer(function (sessionDescription) {
                 sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
                 options.onOfferSDP(sessionDescription);
@@ -1153,7 +1259,7 @@
             options.offerSDP = new SessionDescription(options.offerSDP);
             peer.setRemoteDescription(options.offerSDP);
 
-            peer.createAnswer(function(sessionDescription) {
+            peer.createAnswer(function (sessionDescription) {
                 sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
                 options.onAnswerSDP(sessionDescription);
@@ -1165,15 +1271,15 @@
             createAnswer();
         }
 
-        var bandwidth = options.bandwidth || { };
+        var bandwidth = options.bandwidth || {};
 
         function setBandwidth(sdp) {
             // remove existing bandwidth lines
-            sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
+            sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
 
-            sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:' + (bandwidth.audio || 50) + '\r\n');
-            sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + (bandwidth.video || 256) + '\r\n');
-            sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:' + (bandwidth.data || 1638400) + '\r\n');
+            sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:' + (bandwidth.audio || 50) + '\r\n');
+            sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + (bandwidth.video || 256) + '\r\n');
+            sdp = sdp.replace(/a=mid:data\r\n/g, 'a=mid:data\r\nb=AS:' + (bandwidth.data || 1638400) + '\r\n');
 
             return sdp;
         }
@@ -1185,7 +1291,7 @@
             return sdp;
         }
 
-        var framerate = options.framerate || { };
+        var framerate = options.framerate || {};
 
         function setFramerate(sdp) {
             sdp = sdp.replace('a=fmtp:111 minptime=10', 'a=fmtp:111 minptime=' + (framerate.minptime || 10));
@@ -1207,12 +1313,12 @@
 
             // for audio-only streaming: multiple-crypto lines are not allowed
             if (options.onAnswerSDP)
-                sdp = sdp.replace( /(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g , '');
+                sdp = sdp.replace(/(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g, '');
 
             var inline = getChars() + '\r\n' + (extractedChars = '');
-            sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace( /c=IN/g ,
+            sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
                 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
-                    'c=IN') : sdp;
+                'c=IN') : sdp;
 
             return sdp;
         }
@@ -1243,28 +1349,28 @@
 
             if (moz) {
                 navigator.mozGetUserMedia({
-                        audio: true,
-                        fake: true
-                    }, function(stream) {
-                        peer.addStream(stream);
-                        createOffer();
-                    }, useless);
+                    audio: true,
+                    fake: true
+                }, function (stream) {
+                    peer.addStream(stream);
+                    createOffer();
+                }, useless);
             }
         }
 
         function _openOffererChannel() {
-            channel = peer.createDataChannel(options.channel || 'RTCDataChannel', moz ? { } : {
+            channel = peer.createDataChannel(options.channel || 'RTCDataChannel', moz ? {} : {
                 reliable: false
             });
 
-            if (moz)
-                channel.binaryType = 'blob';
+            if (moz) channel.binaryType = 'blob';
+
             setChannelEvents();
         }
 
         function setChannelEvents() {
             channel.onmessage = options.onmessage;
-            channel.onopen = function() {
+            channel.onopen = function () {
                 options.onopen(channel);
             };
             channel.onclose = options.onclose;
@@ -1275,21 +1381,19 @@
             openAnswererChannel();
 
         function openAnswererChannel() {
-            peer.ondatachannel = function(event) {
+            peer.ondatachannel = function (event) {
                 channel = event.channel;
                 channel.binaryType = 'blob';
                 setChannelEvents();
             };
 
-            if (moz) {
-                navigator.mozGetUserMedia({
-                        audio: true,
-                        fake: true
-                    }, function(stream) {
-                        peer.addStream(stream);
-                        createAnswer();
-                    }, useless);
-            }
+            navigator.mozGetUserMedia({
+                audio: true,
+                fake: true
+            }, function (stream) {
+                peer.addStream(stream);
+                createAnswer();
+            }, useless);
         }
 
         function useless() {
@@ -1298,16 +1402,16 @@
 
         return {
             connection: peer,
-            addAnswerSDP: function(sdp) {
+            addAnswerSDP: function (sdp) {
                 peer.setRemoteDescription(new SessionDescription(sdp));
             },
-            addICE: function(candidate) {
+            addICE: function (candidate) {
                 peer.addIceCandidate(new IceCandidate({
                     sdpMLineIndex: candidate.sdpMLineIndex,
                     candidate: candidate.candidate
                 }));
             },
-            recreateAnswer: function(sdp, session, callback) {
+            recreateAnswer: function (sdp, session, callback) {
                 options.renegotiate = true;
 
                 options.session = session;
@@ -1317,7 +1421,7 @@
                 options.offerSDP = sdp;
                 createAnswer();
             },
-            recreateOffer: function(session, callback) {
+            recreateOffer: function (session, callback) {
                 options.renegotiate = true;
 
                 options.session = session;
@@ -1330,7 +1434,7 @@
     };
 
     var video_constraints = {
-        mandatory: { },
+        mandatory: {},
         optional: []
     };
 
@@ -1349,7 +1453,7 @@
         currentUserMediaRequest.mutex = true;
 
         // http://tools.ietf.org/html/draft-alvestrand-constraints-resolution-00
-        var mediaConstraints = options.mediaConstraints || { };
+        var mediaConstraints = options.mediaConstraints || {};
         var n = navigator,
             resourcesNeeded = options.constraints || {
                 audio: true,
@@ -1368,7 +1472,7 @@
 
         // mediaConstraints.optional.bandwidth = 1638400;
         if (mediaConstraints.optional)
-            resourcesNeeded.video.optional[0] = merge({ }, mediaConstraints.optional);
+            resourcesNeeded.video.optional[0] = merge({}, mediaConstraints.optional);
 
         log('resources-needed:', JSON.stringify(resourcesNeeded, null, '\t'));
 
@@ -1393,7 +1497,7 @@
             streaming(currentUserMediaRequest.streams[idInstance], true);
         } else {
             n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
-            n.getMedia(resourcesNeeded, streaming, options.onerror || function(e) {
+            n.getMedia(resourcesNeeded, streaming, options.onerror || function (e) {
                 console.error(e);
             });
         }
@@ -1403,7 +1507,7 @@
         return !session.audio && !session.video && !session.screen && session.data;
     }
 
-    Array.prototype.swap = function() {
+    Array.prototype.swap = function () {
         var swapped = [],
             arr = this,
             length = arr.length;
@@ -1428,57 +1532,57 @@
             console.log(a);
     }
 
-    function Defaulter(self) {
-        self.onmessage = function(e) {
+    function DefaultSettings(self) {
+        self.onmessage = function (e) {
             log(e.userid, 'posted', e.data);
         };
 
-        self.onopen = function(e) {
+        self.onopen = function (e) {
             log('Data connection is opened between you and', e.userid);
         };
 
-        self.onerror = function(e) {
+        self.onerror = function (e) {
             console.error('Error in data connection between you and', e.userid, e);
         };
 
-        self.onclose = function(e) {
+        self.onclose = function (e) {
             console.warn('Data connection between you and', e.userid, 'is closed.', e);
         };
 
-        self.onFileReceived = function(fileName) {
+        self.onFileReceived = function (fileName) {
             log('File <', fileName, '> received successfully.');
         };
 
-        self.onFileSent = function(file) {
+        self.onFileSent = function (file) {
             log('File <', file.name, '> sent successfully.');
         };
 
-        self.onFileProgress = function(packets) {
+        self.onFileProgress = function (packets) {
             log('<', packets.remaining, '> items remaining.');
         };
 
-        self.onstream = function(stream) {
-            log('stream:', stream);
+        self.onstream = function (e) {
+            log(e.type, e.stream);
         };
 
-        self.onleave = function(e) {
+        self.onleave = function (e) {
             log(e.userid, 'left!');
         };
 
-        self.onstreamended = function(e) {
-            log('onstreamended', e);
+        self.onstreamended = function (e) {
+            log(e.type, e.stream);
         };
 
-        self.peers = { };
+        self.peers = {};
 
         self.streams = {
-            mute: function(session) {
+            mute: function (session) {
                 this._private(session, true);
             },
-            unmute: function(session) {
+            unmute: function (session) {
                 this._private(session, false);
             },
-            _private: function(session, enabled) {
+            _private: function (session, enabled) {
                 // implementation from #68
                 for (var stream in this) {
                     if (stream != 'mute' && stream != 'unmute' && stream != '_private') {
@@ -1493,8 +1597,8 @@
                 }
             }
         };
-        self.channels = { };
-        self.extra = { };
+        self.channels = {};
+        self.extra = {};
 
         self.session = {
             audio: true,
@@ -1508,31 +1612,31 @@
             data: 1638400
         };
 
-        self.mediaConstraints = { };
-        self.sdpConstraints = { };
+        self.mediaConstraints = {};
+        self.sdpConstraints = {};
 
         self.attachStreams = [];
 
         self.maxParticipantsAllowed = 10;
 
-        self._getStream = function(e) {
+        self._getStream = function (e) {
             return {
                 stream: e.stream,
                 userid: e.userid,
                 socket: e.socket,
                 type: e.type,
-                stop: function() {
+                stop: function () {
                     var stream = this.stream;
                     if (stream && stream.stop)
                         stream.stop();
                 },
-                mute: function(session) {
+                mute: function (session) {
                     this._private(session, true);
                 },
-                unmute: function(session) {
+                unmute: function (session) {
                     this._private(session, false);
                 },
-                _private: function(session, enabled) {
+                _private: function (session, enabled) {
                     muteOrUnmute({
                         root: this,
                         session: session,
@@ -1543,15 +1647,15 @@
             };
         };
 
-        self.token = function() {
-            return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
+        self.token = function () {
+            return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
         };
     }
 
     function muteOrUnmute(e) {
         var stream = e.stream,
             root = e.root,
-            session = e.session || { },
+            session = e.session || {},
             enabled = e.enabled;
 
         if (!session.audio && !session.video) {
@@ -1587,14 +1691,15 @@
         if (root.socket)
             root.socket.send({
                 userid: root.userid,
-                mute: !!enabled,
+                mute: !! enabled,
                 unmute: !enabled
             });
     }
 
     function getLength(obj) {
         var length = 0;
-        for (var o in obj) if (o) length++;
+        for (var o in obj)
+            if (o) length++;
         return length;
     }
 

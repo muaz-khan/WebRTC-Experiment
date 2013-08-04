@@ -1,13 +1,17 @@
-/*  <MIT License>:<https://webrtc-experiment.appspot.com/licence/>
-    2013, Muaz Khan<muazkh>-<github.com/muaz-khan>
-*/
+// 2013, Muaz Khan - https://github.com/muaz-khan
+// MIT License     - https://www.webrtc-experiment.com/licence/
+// Documentation   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pre-recorded-Media-Streaming
+
+requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;
 
 function Streamer() {
+	var prefix = !!navigator.webkitGetUserMedia ? 'webkit' : 'moz';
     var self = this;
+	
     self.stream = streamPreRecordedMedia;
 
     window.MediaSource = window.MediaSource || window.WebKitMediaSource;
-    if (!window.MediaSource) throw '<chrome canary> is mandatory to test this experiment.';
+    if (!window.MediaSource) throw 'Chrome >=M28 (or Firefox with flag "media.mediasource.enabled=true") is mandatory to test this experiment.';
 
     function streamPreRecordedMedia(file) {
         if (!self.push) throw '<push> method is mandatory.';
@@ -19,12 +23,12 @@ function Streamer() {
         };
 
         var sourceBuffer, mediaSource = new MediaSource();
-        mediaSource.addEventListener('webkitsourceopen', function () {
+        mediaSource.addEventListener(prefix +'sourceopen', function () {
             sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vorbis,vp8"');
             console.debug('MediaSource readyState: <', this.readyState, '>');
         }, false);
 
-        mediaSource.addEventListener('webkitsourceended', function () {
+        mediaSource.addEventListener(prefix+'sourceended', function () {
             console.debug('MediaSource readyState: <', this.readyState, '>');
         }, false);
 
@@ -42,7 +46,7 @@ function Streamer() {
                         self.push(new window.Uint8Array(e.target.result));
 
                         startIndex += plus;
-                        if (startIndex <= size) window.webkitRequestAnimationFrame(inner_streamer);
+                        if (startIndex <= size) window.requestAnimationFrame(inner_streamer);
                         else
                             self.push({
                                 end: true
@@ -62,15 +66,15 @@ function Streamer() {
         var sourceBuffer, mediaSource = new MediaSource();
 
         self.video.src = window.URL.createObjectURL(mediaSource);
-        mediaSource.addEventListener('webkitsourceopen', function () {
+        mediaSource.addEventListener(prefix+'sourceopen', function () {
             self.receiver = mediaSource.addSourceBuffer('video/webm; codecs="vorbis,vp8"');
             self.mediaSource = mediaSource;
 
             console.debug('MediaSource readyState: <', this.readyState, '>');
         }, false);
 
-        mediaSource.addEventListener('webkitsourceended', function () {
-            console.debug('MediaSource readyState: <', this.readyState, '>');
+        mediaSource.addEventListener(prefix+'sourceended', function () {
+            console.warn('MediaSource readyState: <', this.readyState, '>');
         }, false);
     }
 

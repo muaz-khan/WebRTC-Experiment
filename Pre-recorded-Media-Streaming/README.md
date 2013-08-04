@@ -90,6 +90,12 @@ partial interface HTMLMediaElement {
 
 =
 
+#### `mozCaptureStreamUntilEnded`
+
+[`mozCaptureStreamUntilEnded` for pre-recorded media streaming](https://www.webrtc-experiment.com/experimental/mozCaptureStreamUntilEnded/)
+
+=
+
 #### How this experiment works?
 
 1. Getting access to `WebM` video file using `File API`
@@ -124,8 +130,9 @@ In simple words; you can stream part of video from first WebM file; part of vide
 [Pre-recorded media streaming](https://www.webrtc-experiment.com/Pre-recorded-Media-Streaming/) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
-| ------------- |:-------------:|
-| Google Chrome | [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) |
+| ------------- |-------------|
+| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
+| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 
 =
 

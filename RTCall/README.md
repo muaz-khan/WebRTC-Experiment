@@ -1,5 +1,7 @@
 #### [RTCall.js](https://www.webrtc-experiment.com/RTCall/) — A library for Browser-to-Browser audio-only calling
 
+Now, **RTCMultiConnection-v1.4** and upper releases supports admin/guest features; so [`RTCMultiConnection.js`](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) is preferred.
+
 Why RTCall.js?
 
 1. In your own site; as an admin; you may want to be auto-alerted for each new visitor i.e. customer.

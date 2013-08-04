@@ -124,8 +124,13 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
-        <script src="https://www.webrtc-experiment.com/firebase.js"></script>
+        <!--
+		<script src="https://www.webrtc-experiment.com/firebase.js"></script>
         <script src="https://www.webrtc-experiment.com/streamer.js"> </script>
+		-->
+		
+		<script src="/firebase.js"></script>
+        <script src="/streamer.js"> </script>
     </head>
     
     <body>
@@ -133,7 +138,8 @@
             <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
 
             <h1>
-                Pre-recorded media streaming
+                Pre-recorded media streaming /
+				<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pre-recorded-Media-Streaming" title="Source code of this experiment on Github">Source code on Github</a>
             </h1>
 
             <p>
@@ -194,7 +200,7 @@
 &lt;script src="https://www.webrtc-experiment.com/streamer.js"&gt; &lt;/script&gt;
 &lt;script&gt; var streamer = new Streamer(); &lt;/script&gt;
 
-<h2>/* pre-recorded media sender */</h2>
+<h2>// pre-recorded media sender instance</h2>
 
 &lt;script&gt;
     streamer.push = function (chunk) {
@@ -206,7 +212,7 @@
     };
 &lt;/script&gt;
 
-<h2>/* pre-recorded media receiver */</h2>
+<h2>// pre-recorded media receiver instance</h2>
 
 &lt;script&gt;
     streamer.video = document.querySelector('video');
@@ -218,8 +224,9 @@
     }
 &lt;/script&gt;
 
+<h2>// socket.io/websocket to push chunks</h2>
+
 &lt;script&gt;
-    /* socket.io/websocket to push chunks */
     socket.onmessage = onData;
 
     // or
@@ -227,7 +234,7 @@
 &lt;/script&gt;
             </pre>
             <br />
-            <h2>Chrome <a href="https://www.google.com/intl/en/chrome/browser/canary.html" target="_blank">canary</a> is mandatory to test this experiment.</h2>
+            <h2>Chrome &gt;=M28 (or Firefox with flag "media.mediasource.enabled=true") is mandatory to test this experiment.</h2>
 
             <ol>
                 <li>Streaming pre-recorded video (media file)</li>
@@ -238,11 +245,10 @@
             <h2>It is an early release!</h2>
 
             <ol>
-                <li>This experiment is an early release. In future, RTCDataChannel APIs will be used to stream pre-recorded media in realtime! (until "<strong>video.captureStream</strong>" gets implemented)</li>
+                <li>This experiment is an early release. In future, RTCDataChannel APIs will be used to stream pre-recorded media in realtime! (until "<strong>video.captureStream</strong>" gets implemented. Note: Firefox implemented a prefixed version of captureStream API i.e. <code><strong>mozCaptureStreamUntilEnded</strong></code>)</li>
                 <li>Media Stream APIs are not made for streaming pre-recorded Medias, though!</li>
                 <li>Waiting for "<strong>video.captureStream</strong>" implementation that is proposed for pre-recorded media streaming, unfortunately still in draft!</li>
             </ol>
-            <h2><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pre-recorded-Media-Streaming" title="Source code of this experiment on Github">Source code on Github</a></h2>
 
             <p>In
                 <a href="http://www.w3.org/TR/streamproc/" target="_blank" title="Unfortunately, we've to wait!">future</a>:</p>	<pre>
@@ -296,7 +302,7 @@ partial interface HTMLMediaElement {
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
             </p>
         </footer>
-        <script src="https://www.webrtc-experiment.com/common.js"> </script>
+		<script src="https://www.webrtc-experiment.com/common.js"> </script>
     </body>
 
 </html>

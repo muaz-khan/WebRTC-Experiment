@@ -152,6 +152,7 @@
 | **Renegotiation & Mute/UnMute/Stop** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/Renegotiation.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/Renegotiation.html) |
 | **Video-Conferencing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) |
 | **Multi-streams attachment** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) |
+| **Admin/Guest audio/video calling** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/admin-guest.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/admin-guest.html) |
 
 =
 
@@ -167,6 +168,64 @@
 | [How to use RTCDataChannel?](https://www.webrtc-experiment.com/docs/how-to-use-rtcdatachannel.html) - single code for both canary and nightly |
 | [WebRTC for Beginners: A getting stared guide!](https://www.webrtc-experiment.com/docs/webrtc-for-beginners.html) |
 | [WebRTC for Newbies ](https://www.webrtc-experiment.com/docs/webrtc-for-newbies.html) |
+| [How to switch streams?](https://www.webrtc-experiment.com/docs/how-to-switch-streams.html) |
+| [How to echo cancellation? / Noise management?](https://www.webrtc-experiment.com/docs/echo-cancellation.html) |
+| [STUN or TURN? Which one to prefer; and why?](https://www.webrtc-experiment.com/docs/STUN-or-TURN.html) |
+| [WebRTC RTP Usage](https://www.webrtc-experiment.com/docs/RTP-usage.html) |
+
+=
+
+##### How to record audio using [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/)?
+
+```html
+<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
+```
+
+```javascript
+var recorder = RecordRTC(mediaStream);
+
+recorder.startRecording();
+recorder.stopRecording(function(audioURL) {
+   window.open(audioURL);
+});
+```
+
+[RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
+
+=
+
+##### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) / A library for all WebRTC APIs
+
+```html
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<button id="init">Open New Connection</button><br />
+<script>
+    var connection = new RTCMultiConnection();
+
+    connection.session = {
+        audio: true,    // attach audio stream too!
+        video: true,    // attach video stream too!
+        data: true,     // open data connection too!
+        screen: true,   // attach screen sharing stream too!
+        oneway: true    // all streams must flow in one-way direction!
+    };
+    
+    connection.onstream = function(e) {
+        document.body.appendChild(e.mediaElement);
+    };
+
+    connection.onstreamended = function(e) {
+        if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
+    };
+
+    connection.connect(); // search for existing connections
+
+    document.getElementById('init').onclick = function() {
+        this.disabled = true;
+        connection.open(); // open new connection
+    };
+</script>
+```
 
 =
 
@@ -190,7 +249,7 @@
 </script>
 
 <script>
-    var channel = new DataChannel('Session Unique Identifier');
+    var channel = new DataChannel('channel-name');
 
     channel.onopen = function(userid) {
         chatInput.disabled = false;
@@ -210,75 +269,6 @@
 
 =
 
-##### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) / A library for all WebRTC APIs
-
-```html
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
-<button id="init">Open New Connection</button><br />
-<script>
-    var connection = new RTCMultiConnection();
-
-    connection.session = {
-        audio: true,
-        video: true
-    };
-
-    connection.onstream = function(e) {
-        document.body.appendChild(e.mediaElement);
-    };
-
-    connection.onstreamended = function(e) {
-        if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
-    };
-
-    var session_unique_idetifier = 'Session Unique Identifier';
-
-    connection.connect(session_unique_idetifier);
-
-    document.getElementById('init').onclick = function() {
-        this.disabled = true;
-        connection.open(session_unique_idetifier);
-    };
-</script>
-```
-
-=
-
-##### How to record video using [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/)?
-
-```html
-<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
-```
-
-```javascript
-var recorder = RecordRTC(mediaStream, {
-   type: 'video',
-   width: 320,
-   height: 240
-});
-
-recorder.startRecording();
-recorder.stopRecording(function(videoURL) {
-   window.open(videoURL);
-});
-
-// force saving recorded stream to disk
-recorder.save();
-
-// get Blob object
-var blob = recorder.getBlob();
-
-// get DataURL
-recorder.getDataURL(function(dataURL) { });
-
-// get virtual file URL
-var virtualURL = recorder.toURL();
-```
-
-[RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
-
-=
-
 ##### Browser Support
 
 [WebRTC Experiments](https://www.webrtc-experiment.com/) works fine on following web-browsers:
@@ -291,10 +281,10 @@ var virtualURL = recorder.toURL();
 
 =
 
-| [Signaling.md](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)        |
-| ------------- |
-| [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) / [Demo](http://webrtc-signaling.jit.su/) |
-| [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs) / [Demo](https://www.webrtc-experiment.com/websocket/) |
+##### [Signaling.md](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)
+
+1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) / [Demo](http://webrtc-signaling.jit.su/)
+2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs) / [Demo](https://www.webrtc-experiment.com/websocket/)
 
 =
 

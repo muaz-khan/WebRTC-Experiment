@@ -1,0 +1,182 @@
+﻿<!-- Demo: https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/admin-guest.html -->
+
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<script>
+var session_id = location.hash.substr(1) || 'XKJFLKDJFLKDLKJDF';
+
+function initAdminOrGuest(userType) {
+    var connection = new RTCMultiConnection();
+
+    connection.userType = userType;
+    if (userType == 'guest') connection.onAdmin = onGuestOrUser;
+    if (userType == 'admin') connection.onGuest = onGuestOrUser;
+
+    function onGuestOrUser(user) {
+        promptBar.style.display = 'block';
+        promptBar.querySelector('#ok').disabled = false;
+
+        promptBar.querySelector('#header').innerHTML = userType + ' is online';
+        promptBar.querySelector('#body').innerHTML = 'Are you want to do audio/video call with ' + userType + '?';
+        var ok = promptBar.querySelector('#ok');
+        ok.innerHTML = 'Audio/Video Call';
+        ok.onclick = function () {
+            connection.request(user.userid);
+            this.disabled = true;
+        };
+
+        promptBar.querySelector('#cancel').onclick = function () {
+            promptBar.style.display = 'none';
+        };
+    }
+    connection.onRequest = function (userid, extra) {
+        promptBar.style.display = 'block';
+        promptBar.querySelector('#ok').disabled = false;
+
+        promptBar.querySelector('#header').innerHTML = 'New Request';
+        promptBar.querySelector('#body').innerHTML = userid + ' requested you to receive his audio/video call. Are you want to accept his call?';
+        var ok = promptBar.querySelector('#ok');
+        ok.innerHTML = 'Receive Audio/Video Call';
+        ok.onclick = function () {
+            connection.accept(userid, extra);
+            this.disabled = true;
+        };
+
+        promptBar.querySelector('#cancel').onclick = function () {
+            promptBar.style.display = 'none';
+            this.disabled = true;
+        };
+    };
+    connection.onstats = function (stats, userinfo) {
+        resetPromptBar();
+
+        if (stats == 'busy') {
+            promptBar.querySelector('#header').innerHTML = userType + ' is Busy';
+            promptBar.querySelector('#body').innerHTML = userinfo.userid + ' is busy. Please wait..';
+        }
+        if (stats == 'accepted') {
+            promptBar.querySelector('#header').innerHTML = 'Receiving';
+            promptBar.querySelector('#body').innerHTML = userinfo.userid + ' is receiving your call..';
+        }
+    };
+
+    // audio+video streaming
+    connection.session = {
+        audio: true,
+        video: true
+    };
+
+    // using WebSockets for signaling
+    connection.openSignalingChannel = openSignalingChannel;
+
+    connection.onstream = function (e) {
+        videoContainer.appendChild(e.mediaElement);
+        if (e.type == 'remote') {
+            resetPromptBar();
+            promptBar.style.display = 'none';
+        }
+    };
+
+    connection.connect(session_id);
+
+    connection.onstreamended = function (e) {
+        if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
+    };
+}
+
+function openSignalingChannel(config) {
+    config.channel = config.channel || this.channel || location.hash.substr(1) || session_id;
+    var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+    websocket.channel = config.channel;
+    websocket.onopen = function () {
+        websocket.push(JSON.stringify({
+            open: true,
+            channel: config.channel
+        }));
+        if (config.callback) config.callback(websocket);
+    };
+    websocket.onmessage = function (event) {
+        config.onmessage(JSON.parse(event.data));
+    };
+    websocket.push = websocket.send;
+    websocket.send = function (data) {
+        websocket.push(JSON.stringify({
+            data: data,
+            channel: config.channel
+        }));
+    };
+}
+</script>
+<div id="videos-container" style="text-align:center;"></div>
+<div style="text-align:center;">
+   <button id="init-admin">I'm Admin</button>
+   <button id="init-guest">I'm Guest</button>
+</div>
+<div class="prompt-bar">
+   <h2 id="header">...</h2>
+   <p id="body">...</p>
+   <div id="controls">
+      <button id="ok">...</button>
+      <button id="cancel">x</button>
+   </div>
+</div>
+
+<script>
+document.getElementById('init-admin').onclick = function () {
+    this.disabled = true;
+    initAdminOrGuest('admin');
+};
+
+document.getElementById('init-guest').onclick = function () {
+    this.disabled = true;
+    initAdminOrGuest('guest');
+};
+
+var promptBar = document.querySelector('.prompt-bar');
+
+function resetPromptBar() {
+    promptBar.style.display = 'block';
+    promptBar.querySelector('#ok').disabled = true;
+
+    promptBar.querySelector('#ok').innerHTML = '...';
+    promptBar.querySelector('#header').innerHTML = '...';
+    promptBar.querySelector('#body').innerHTML = '...';
+}
+
+var videoContainer = document.getElementById('videos-container');
+</script>
+
+<style>
+.prompt-bar {
+    border: 9px solid rgb(216, 216, 216);
+    border-radius: 5px;
+    background: rgb(255, 255, 255);
+    position: fixed;
+    z-index: 100;
+    box-shadow: 0 0 5px, inset 0 0 2px;
+    width: 30%;
+    right: 0;
+    bottom: 0;
+    display: none;
+}
+
+.prompt-bar #header {
+    border-bottom: 1px solid rgb(213, 211, 211);
+    padding: .1em .6em;
+    display: block;
+}
+
+.prompt-bar #body {
+    padding: .2em .6em;
+}
+
+.prompt-bar #controls {
+    text-align: center;
+    background: rgb(175, 174, 174);
+    border: 1px solid gray;
+}
+
+video {
+    width: 48%;
+    vertical-align: top;
+}
+</style>
