@@ -1,6 +1,6 @@
-﻿// 2013, @muazkh » github.com/muaz-khan
-// MIT License » https://webrtc-experiment.appspot.com/licence/
-// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/chat-hangout
+﻿// 2013, Muaz Khan - https://github.com/muaz-khan
+// MIT License     - https://webrtc-experiment.appspot.com/licence/
+// Documentation   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/chat-hangout
 
 var config = {
     openSocket: function(config) {

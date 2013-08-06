@@ -1,6 +1,6 @@
-﻿// 2013, @muazkh » github.com/muaz-khan
-// MIT License » https://webrtc-experiment.appspot.com/licence/
-// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/chat-hangout
+﻿// 2013, Muaz Khan - https://github.com/muaz-khan
+// MIT License     - https://www.webrtc-experiment.com/licence/
+// Documentation   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/chat-hangout
 
 var hangout = function(config) {
     var self = {
@@ -27,7 +27,7 @@ var hangout = function(config) {
 
         if (isGetNewRoom && response.roomToken && response.broadcaster) config.onRoomFound(response);
 
-        if (response.newParticipant) onNewParticipant(response.newParticipant);
+        if (response.newParticipant && self.joinedARoom && self.broadcasterid == response.userToken) onNewParticipant(response.newParticipant);
 
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
@@ -222,6 +222,9 @@ var hangout = function(config) {
             if (_config.userName) self.userName = _config.userName;
             isGetNewRoom = false;
 
+            self.joinedARoom = true;
+            self.broadcasterid = _config.joinUser;
+
             openSubSocket({
                 channel: self.userToken
             });
@@ -240,9 +243,8 @@ var hangout = function(config) {
                 });
             if (!length) return;
             for (var i = 0; i < length; i++) {
-                try {
+                if (RTCDataChannels[i].readyState == 'open') {
                     RTCDataChannels[i].send(data);
-                } catch(e) {
                 }
             }
         }
