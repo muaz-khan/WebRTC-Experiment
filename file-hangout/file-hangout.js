@@ -1,6 +1,6 @@
-﻿// 2013, @muazkh » https://github.com/muaz-khan
-// MIT License   » https://www.webrtc-experiment.com/licence/
-// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
+﻿// 2013, Muaz Khan - https://github.com/muaz-khan
+// MIT License     - https://www.webrtc-experiment.com/licence/
+// Documentation   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
 // ----------
 // hanogut-ui.js
 
@@ -41,7 +41,7 @@ function setUserInterface() {
                 statusDiv.innerHTML = '';
             },
             onFileProgress: function(e) {
-                statusDiv.innerHTML = e.sent + ' packets sent. Remaining:' + e.remaining;
+                statusDiv.innerHTML = e.sent + ' packets sent. ' + e.remaining + ' packets remaining.';
             }
         });
 
@@ -143,7 +143,7 @@ function onMessageCallback(data) {
             statusDiv.innerHTML = '';
         },
         onFileProgress: function(e) {
-            statusDiv.innerHTML = e.received + ' packets received. Remaining:' + e.remaining;
+            statusDiv.innerHTML = e.received + ' packets received. ' + e.remaining + ' packets remaining.';
         }
     });
 }
@@ -205,7 +205,7 @@ var FileSender = {
             if (textToTransfer.length)
                 setTimeout(function() {
                     onReadAsDataURL(null, textToTransfer);
-                }, moz ? 1 : 500);
+                }, moz ? 1 : 500); // bug: should we use "interval=1" for chrome too?
         }
     }
 };
@@ -251,8 +251,11 @@ var FileSaver = {
         save.target = '_blank';
         save.download = fileName || fileUrl;
 
-        var evt = document.createEvent('MouseEvents');
-        evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+        var evt = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+        });
 
         save.dispatchEvent(evt);
 
@@ -286,9 +289,7 @@ function disable(_disable) {
     else fileElement.setAttribute('disabled', true);
 }
 
-// 2013, @muazkh » https://github.com/muaz-khan
-// MIT License   » https://www.webrtc-experiment.com/licence/
-// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
 // ----------
 // hanogut.js
 
@@ -318,7 +319,7 @@ function hangout(config) {
 
         if (isGetNewRoom && response.roomToken && response.broadcaster) config.onRoomFound(response);
 
-        if (response.newParticipant) onNewParticipant(response.newParticipant);
+        if (response.newParticipant && self.joinedARoom && self.broadcasterid == response.userToken) onNewParticipant(response.newParticipant);
 
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
@@ -550,6 +551,9 @@ function hangout(config) {
             if (_config.userName) self.userName = _config.userName;
             isGetNewRoom = false;
 
+            self.joinedARoom = true;
+            self.broadcasterid = _config.joinUser;
+
             openSubSocket({
                 channel: self.userToken
             });
@@ -564,19 +568,15 @@ function hangout(config) {
             var length = RTCDataChannels.length;
             if (!length) return;
             for (var i = 0; i < length; i++) {
-                try {
+                if (RTCDataChannels[i].readyState == 'open') {
                     RTCDataChannels[i].send(data);
-                } catch(e) {
                 }
             }
         }
     };
 }
 
-
-// 2013, @muazkh » https://github.com/muaz-khan
-// MIT License   » https://www.webrtc-experiment.com/licence/
-// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
 // -------------------------
 // RTCPeerConnection-v1.5.js
 
@@ -609,7 +609,7 @@ function RTCPeerConnection(options) {
                 username: 'homeo'
             };
 
-        iceServers.iceServers = [STUN, TURN];
+        iceServers.iceServers = [TURN, STUN];
     }
 
     var optional = {
