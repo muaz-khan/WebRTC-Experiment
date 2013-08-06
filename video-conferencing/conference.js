@@ -26,7 +26,7 @@ var conference = function(config) {
 
         if (isGetNewRoom && response.roomToken && response.broadcaster) config.onRoomFound(response);
 
-        if (response.newParticipant) onNewParticipant(response.newParticipant);
+        if (response.newParticipant && self.joinedARoom && self.broadcasterid == response.userToken) onNewParticipant(response.newParticipant);
 
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
@@ -229,6 +229,9 @@ var conference = function(config) {
         joinRoom: function(_config) {
             self.roomToken = _config.roomToken;
             isGetNewRoom = false;
+			
+			self.joinedARoom = true;
+			self.broadcasterid = _config.joinUser;
 
             openSubSocket({
                 channel: self.userToken
