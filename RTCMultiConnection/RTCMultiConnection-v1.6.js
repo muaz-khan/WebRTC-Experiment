@@ -1,8 +1,8 @@
 // 2013, @muazkh - github.com/muaz-khan
 // MIT License - https://webrtc-experiment.appspot.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-experimental.md
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.6.md
 
-// RTCMultiConnection-v1.5 (it is experimental release)
+// RTCMultiConnection-v1.6 (it is experimental release)
 // any signaling channel other than firebase is preferred
 (function() {
 

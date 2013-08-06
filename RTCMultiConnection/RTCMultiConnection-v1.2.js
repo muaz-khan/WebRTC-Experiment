@@ -563,7 +563,7 @@
             };
         }
 
-        if (options.onAnswerSDP && moz)
+        if (options.onAnswerSDP && moz && options.onChannelMessage)
             openAnswererChannel();
 
         function openAnswererChannel() {

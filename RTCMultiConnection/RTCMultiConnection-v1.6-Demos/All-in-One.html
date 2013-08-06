@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html id="home" lang="en">
     <head>
-        <title>RTCMultiConnection-v1.4 All-in-One Test ® Muaz Khan</title>
+        <title>RTCMultiConnection-v1.6 All-in-One Test ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -207,13 +207,14 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
-        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+        <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
+        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.6.js"> </script>
     </head>
     <body>
         <article> <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ WEBRTC EXPERIMENTS</a>
 
             <h1>
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection-v1.4</a>
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection-v1.6</a>
                 all-in-one test
             </h1>
 
@@ -228,20 +229,15 @@
                 <h2>Open New Session:</h2>
 
                 <select id="session" title="Session">
-                    <option>audio+video+data+screen</option>
                     <option>audio+video+data</option>
-                    <option>audio+data+screen</option>
-                    <option>audio+video+screen</option>
                     <option>audio+video</option>
-                    <option>audio+screen</option>
-                    <option>video+screen</option>
-                    <option>data+screen</option>
                     <option>audio+data</option>
-                    <option>video+data</option>
+                    <option>video+data</option>                    
                     <option>audio</option>
                     <option>video</option>
                     <option>data</option>
                     <option>screen</option>
+                    <option>screen+data</option>
                 </select>
                 <select id="direction" title="Direction">
                     <option>many-to-many</option>
@@ -249,8 +245,7 @@
                     <option>one-to-many</option>
                     <option>one-way</option>
                 </select>
-                <button id="open-session">Open NEW Session</button>
-                <button id="join">Join</button>
+                <button id="open-session" disabled>Open NEW Session</button>
             </section>
             <table style="border-left: 1px solid black; width: 100%;">
                 <tr>
@@ -282,29 +277,7 @@
                 function initConnection(config) {
                     window.connection = new RTCMultiConnection(config.sessionid);
 
-                    connection.openSignalingChannel = function(config) {
-                        config.channel = config.channel || this.channel || location.hash.substr(1) || 'RTCMultiConnection-v1.4-Demos';
-                        var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-                        websocket.channel = config.channel;
-                        websocket.onopen = function() {
-                            websocket.push(JSON.stringify({
-                                open: true,
-                                channel: config.channel
-                            }));
-                            if (config.callback) config.callback(websocket);
-                        };
-                        websocket.onmessage = function(event) {
-                            config.onmessage(JSON.parse(event.data));
-                        };
-                        websocket.push = websocket.send;
-                        websocket.send = function(data) {
-                            websocket.push(JSON.stringify({
-                                data: data,
-                                channel: config.channel
-                            }));
-                        };
-                    };
-
+                    connection.firebase = 'signaling';
                     connection.session = config.session;
 
                     connection.maxParticipantsAllowed = config.maxParticipantsAllowed;
@@ -331,18 +304,20 @@
                         e.mediaElement.width = innerWidth / 3.4;
                     };
 
-                    connection.onFileProgress = function(packets) {
+                    connection.onFileProgress = function(e) {
+                        var packets = e.packets;
+
                         appendDIV(packets.remaining + ' packets remaining.');
                         if (packets.sent) appendDIV(packets.sent + ' packets sent.');
                         if (packets.received) appendDIV(packets.received + ' packets received.');
                     };
 
-                    connection.onFileReceived = function(fileName) {
-                        appendDIV(fileName + ' received.');
+                    connection.onFileReceived = function(e) {
+                        appendDIV(e.fileName + ' received.');
                     };
 
-                    connection.onFileSent = function(file) {
-                        appendDIV(file.name + ' sent.');
+                    connection.onFileSent = function(e) {
+                        appendDIV(e.file.name + ' sent.');
                     };
 
                     connection.onstreamended = function(e) {
@@ -430,12 +405,19 @@
                     return div;
                 }
 
-                document.getElementById('join').onclick = function() {
-                    this.disabled = true;
-                    initConnection({
-                        sessionid: location.hash.substr(1)
-                    });
-                };
+                console.debug('about to check presence of a room');
+                new window.Firebase('https://signaling.firebaseIO.com/' + hash).once('value', function(data) {
+                    var isRoomPresent = data.val() != null;
+                    if (isRoomPresent) {
+                        initConnection({
+                            sessionid: hash
+                        });
+                        document.getElementById('open-session').disabled = true;
+                        window.isRoomInitiator = false;
+                    } else document.getElementById('open-session').disabled = false;
+
+                    console.debug('room is present? ', isRoomPresent);
+                });
             </script>
             <br />
             <br />

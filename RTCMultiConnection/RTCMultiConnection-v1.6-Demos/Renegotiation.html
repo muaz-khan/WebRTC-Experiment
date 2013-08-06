@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Renegotiation using RTCMultiConnection-v1.5 ® Muaz Khan</title>
+        <title>Renegotiation using RTCMultiConnection-v1.6 ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -15,7 +15,7 @@
                 location.reload();
             }
         </script>
-        <style>
+		<style>
             * {
                 -webkit-user-select: none;
                 font-family: 'Segoe UI Light';
@@ -50,7 +50,7 @@
             .video-container {
                 background: white;
                 display: inline-block;
-                overflow: hidden;
+                overflow:hidden;
                 vertical-align: top;
             }
 
@@ -122,7 +122,8 @@
                 padding: .4em .8em;
             }
         </style>
-        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.js"> </script>
+        <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
+        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.6.js"> </script>
     </head>
     <body>
         <button id="new-session">
@@ -157,39 +158,15 @@
         <br />
         <br />
         <p>
-            Remeber, it is a testing demo for <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5.js"
-                                                 target="_blank">RTCMultiConnection-v1.5.js</a> library. Documentation <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection"
-                                                                                                                          target="_blank">available here</a>.</p>
+            Remeber, it is a testing demo for <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.6.js"
+                                                 target="_blank">RTCMultiConnection-v1.6.js</a> library. Documentation <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection"
+                                                                                                                           target="_blank">available here</a>.</p>
         <!--
             begins -->
         <script>
             var sessionid = location.hash.substr(1) || 'ABCZXYCBA';
 
             var connection = new RTCMultiConnection(sessionid);
-
-            connection.openSignalingChannel = function(config) {
-                config.channel = config.channel || this.channel || location.hash.substr(1) || sessionid;
-                var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-                websocket.channel = config.channel;
-                websocket.onopen = function() {
-                    websocket.push(JSON.stringify({
-                        open: true,
-                        channel: config.channel
-                    }));
-                    if (config.callback) config.callback(websocket);
-                };
-                websocket.onmessage = function(event) {
-                    config.onmessage(JSON.parse(event.data));
-                };
-                websocket.push = websocket.send;
-                websocket.send = function(data) {
-                    websocket.push(JSON.stringify({
-                        data: data,
-                        channel: config.channel
-                    }));
-                };
-            };
-
             connection.session = {
                 data: true
             };
@@ -203,7 +180,7 @@
 
                 // only session initiator can add streams for renegotiation
                 if (isInitiator)
-                    connection.addStream({
+                    connection.users[e.userid].addStream({
                         audio: !!document.getElementById('audio-renegotiation').checked,
                         video: !!document.getElementById('video-renegotiation').checked,
                         screen: !!document.getElementById('screen-renegotiation').checked,
@@ -265,10 +242,10 @@
                     }, 200);
                 };
                 div.appendChild(button);
-
-                var button2 = document.createElement('button');
+				
+				var button2 = document.createElement('button');
                 button2.innerHTML = 'Stop';
-                button.style.marginTop = '2.5em';
+				button.style.marginTop = '2.5em';
                 button2.id = e.streamid;
                 button2.onclick = function() {
                     button2 = this;
@@ -285,7 +262,7 @@
                 div.appendChild(h2);
                 return div;
             }
-        </script>
+        </script>        
         <footer>
             <div id="messages"></div>
             <input type="text" id="input-message" disabled>

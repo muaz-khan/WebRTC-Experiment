@@ -659,13 +659,13 @@ connection.userType = 'admin';
 connection.userType = 'guest';
 
 // Assuming that admin's userid is "admin-007"; lets call him!
-connection.request("admin-0007");
+connection.request("admin-007");
 
 // Assuming that guest's userid is "guest-007"; lets receive his call
 connection.accept("guest-007");
 ```
 
-####### `onAdmin`
+###### `onAdmin`
 
 To alert guests if an admin gets free; or becomes available:
 
@@ -676,7 +676,7 @@ connection.onAdmin = function (admin) {
 };
 ```
 
-####### `onGuest`
+###### `onGuest`
 
 Alert admin for each new guest; if and only if, admin is not "busy"!
 
@@ -687,7 +687,7 @@ connection.onGuest = function (guest) {
 };
 ```
 
-####### `onRequest`
+###### `onRequest`
 
 It is fired if admin or guest makes a request using `connection.request` method:
 
@@ -698,7 +698,7 @@ connection.onRequest = function (userid, extra) {
 };
 ```
 
-####### `onstats`
+###### `onstats`
 
 Stats of the caller or callee:
 
@@ -712,10 +712,38 @@ connection.onstats = function (stats, userinfo) {
 };
 ```
 
-####### Remember
+###### Remember
 
 1. One-way streaming is not supported for Admin/Guest feature; however you can ejoy all other features (listed at the top of this file)
 2. Admin/Guest relationship is one-to-one
+
+###### Use Cases
+
+You want to be an administrator; and you want to manage users; you may want to invite users to your room; you many want to eject one or more users; etc.
+
+```javascript
+// be an administrator!!
+connection.userType = 'admin';
+
+// invite a user to your room
+connection.userid = 'target-userid';
+connection.request('target-userid');
+
+// eject a user
+connection.eject('target-userid');
+```
+
+If a user whose userid is `target-userid` is online; he will be alerted for invitation; he can accept your invitation or skip it!
+
+Remember, admin/guest feature is one-to-one; you can force `many-to-many` like this:
+
+```javascript
+connection.session = {
+    audio: true,
+    video: true,
+    'many-to-many': true  // --- see this line
+};
+```
 
 =
 
@@ -825,10 +853,10 @@ io.sockets.on('connection', function (socket) {
 
 ##### Documentations History
 
-1. [`RTCMultiConnection-v1.4`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection)
-2. [`RTCMultiConnection-v1.3`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.3.md)
-3. [`RTCMultiConnection-v1.2 and earlier`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.2-and-earlier.md)
-4. [`RTCMultiConnection-v1.5 --- experimental`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.5-experimental.md)
+1. [`RTCMultiConnection-v1.4 and v1.5`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection)
+2. [`RTCMultiConnection-v1.6`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.6.md)
+3. [`RTCMultiConnection-v1.3`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.3.md)
+4. [`RTCMultiConnection-v1.2 and earlier`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.2-and-earlier.md)
 
 =
 

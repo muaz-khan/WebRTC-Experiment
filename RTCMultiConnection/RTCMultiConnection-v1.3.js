@@ -1058,8 +1058,7 @@
                     username: 'homeo'
                 };
 
-            // No STUN to make sure it works all the time!
-            iceServers.iceServers = [STUN, TURN];
+            iceServers.iceServers = [TURN, STUN];
         }
 
         var optional = {
@@ -1196,7 +1195,7 @@
             channel.onerror = options.onerror;
         }
 
-        if (options.onAnswerSDP && moz)
+        if (options.onAnswerSDP && moz && options.onmessage)
             openAnswererChannel();
 
         function openAnswererChannel() {
