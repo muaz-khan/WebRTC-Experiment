@@ -2,7 +2,7 @@
 
 This experiment is using **WebSocket over Node.js** for signaling. Follow these steps:
 
-1. Download and extract **ZIP file** of this repository then copy `folder-location` of the`signaler.js` file
+1. Download and extract **ZIP file** of this repository then copy `folder-location` of the`multisockets.js` file
 2. Open **Node.js command prompt**
 3. Type command `cd folder-location` where `folder-location` can be `C:\websocket-over-nodejs`
 4. Type `npm install websocket` to install the dependency

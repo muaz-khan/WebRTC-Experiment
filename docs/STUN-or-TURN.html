@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>How to share files using RTCDataChannel APIs? ® Muaz Khan</title>
+    <title>STUN or TURN? Which one to prefer; and why?  ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -14,12 +14,6 @@
         html {
             background: #eee;
         }
-		
-		pre {
-                border-left: 2px solid red;
-                margin-left: 2em;
-                padding-left: 1em;
-            }
 
         body {
             font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
@@ -146,6 +140,23 @@
             font-family: inherit;
             font-weight: normal;
         }
+		
+		code {
+			border: 1px solid rgb(209, 25, 25);
+			padding: .2em .8em;
+			background: rgb(252, 232, 232);
+			line-height:3;
+			color:rgb(209, 25, 25);
+		}
+		pre {
+                border-left: 2px solid red;
+                margin-left: 2em;
+                padding-left: 1em;
+            }
+		strong {
+			border-bottom: 1px dotted;
+			padding-bottom: 1px;
+		}
     </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -158,178 +169,89 @@
     <article>
         <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
 
-        <h1>How to <a href="https://www.webrtc-experiment.com/file-hangout/" target="_blank">share files</a> using <a href="https://www.webrtc-experiment.com/docs/rtc-datachannel-for-beginners.html" target="_blank">RTCDataChannel API</a>s?
-        </h1>
+        <h1>STUN or TURN? Which one to prefer; and why? </h1>
         <p>
-            <span>Copyright © 2013</span>
-            <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
-        </p>
+                <span>Copyright © 2013</span>
+                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
+                »
+				<a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
+                »
+				<a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
+                »
+            <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
+            </p>
 
         <section class="plusone-gplus">
             <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
         </section>
 
-        <h2>Getting started — You'll</h2>
-        <ol>
-            <li>Get access to file using input—type=file</li>
-            <li>Read file as Data-URL using FileReader API</li>
-            <li>Define chunk length i.e. 1000 chars — to make sure it should work on chrome</li>
-            <li>Get first chunk accordingly; transmit and continue...</li>
-        </ol>
-
-        <br />
-        <br />
-
-        <h2>First step: Getting access to file using INPUT-File element</h2>
-        <pre>
-document.querySelector('input[type=file]').onchange = function() {
-    var file = this.files[0];
-};</pre>
-
-        <br />
-        <br />
-
-        <h2>Second step: Reading file as Data-URL using FileReader API</h2>
-        <pre>
-var reader = new window.FileReader();
-reader.readAsDataURL(file);
-reader.onload = onReadAsDataURL;</pre>
-
-        <br />
-        <br />
-
-        <h2>Third step: Defining chunk length</h2>
-
-        <pre>
-var chunkLength = 1000;</pre>
-
-        <br />
-        <br />
-
-        <h2>Fourth step: Getting chunk and transmitting...</h2>
-
-        <pre>
-function onReadAsDataURL(event, text) {
-    var data = {}; // data object to transmit over data channel
-
-    if (event) text = event.target.result; // on first invocation
-
-    if (text.length > chunkLength) {
-        data.message = text.slice(0, chunkLength); // getting chunk using predefined chunk length
-    } else {
-        data.message = text;
-        data.last = true;
-    }
-
-    dataChannel.send(data); // use JSON.stringify for chrome!
-
-    var remainingDataURL = text.slice(data.message.length);
-    if (remainingDataURL.length) setTimeout(function () {
-        onReadAsDataURL(null, remainingDataURL); // continue transmitting
-    }, 500)
-}</pre>
-
-        <br />
-        <br />
-
-        <h2>Fifth step: Receive chunks; store in array and...</h2>
-
-        <pre>
-var arrayToStoreChunks = [];
-dataChannel.onmessage = function (event) {
-    var data = JSON.parse(event.data);
-
-    arrayToStoreChunks.push(data.message); // pushing chunks in array
-
-    if (data.last) {
-        saveToDisk(arrayToStoreChunks.join(''), 'fake fileName');
-        arrayToStoreChunks = []; // resetting array
-    }
-};</pre>
-
-        <br />
-        <br />
-
-        <h2>Sending/Receving files using Firefox</h2>
-
-        <pre>
-document.querySelector('input[type=file]').onchange = function () {
-    var file = this.files[0];
-    dataChannel.send(file);
+        <p>
+			The key difference between these two types of solutions though is that media will travel directly between both endpoints if <strong>STUN</strong> is used, whereas media will be proxied through the server if <strong>TURN</strong> is utilized. 
+		</p>
+		
+		<p>
+			TURN is preferred because it is capable to traverse symmetric NATs too. However, STUN is useful to speedup the connection out of getting immediate candidates when users are sitting behind same NAT e.g. LAN.
+		</p>
+		
+		<p>
+			A media relay server or ICE server is utilized to setup the media session and provide the list of potential candidates to both parties in a call regardless of which media delivery option is selected for each end of the call. 
+		</p>
+		
+		<p>
+			Also understand that the media stream may not always use the same solution on both ends as STUN may be possible for one endpoint but not for the other endpoint.
+		</p>
+		
+		<p>
+			When we use <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCPeerConnection/RTCPeerConnection-v1.5.js#L34" target="_blank">both</a> STUN and TURN servers; <strong>STUN is always attempted first</strong>; TURN is used as fallback option depending on client locations and network topologies.
+		</p>
+		
+		<pre>
+var iceServers = {
+     iceServers: [STUN, TURN]
 };
-
-dataChannel.onmessage = function (event) {
-    var blob = event.data; // Firefox allows us send blobs directly
-
-    var reader = new window.FileReader();
-    reader.readAsDataURL(blob);
-    reader.onload = function (event) {
-        var fileDataURL = event.target.result; // it is Data URL...can be saved to disk
-        SaveToDisk(fileDataURL, 'fake fileName');
-    };
-};</pre>
-
-        <br />
-        <br />
-
-        <h2>SaveToDisk function — old syntax</h2>
-
-        <pre>
-function saveToDisk(fileUrl, fileName) {
-    var save = document.createElement('a');
-    save.href = fileUrl;
-    save.target = '_blank';
-    save.download = fileName || fileUrl;
-
-    var evt = document.createEvent('MouseEvents');
-    evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-
-    save.dispatchEvent(evt);
-
-    (window.URL || window.webkitURL).revokeObjectURL(save.href);
-}</pre>
-
-        <br />
-        <br />
-
-        <h2>SaveToDisk function — new syntax</h2>
-
-        <pre>
-function saveToDisk(fileUrl, fileName) {
-    var save = document.createElement('a');
-    save.href = fileUrl;
-    save.target = '_blank';
-    save.download = fileName || fileUrl;
-
-    var event = document.createEvent('Event');
-    event.initEvent('click', true, true);
-
-    save.dispatchEvent(event);
-    (window.URL || window.webkitURL).revokeObjectURL(save.href);
-}</pre>
-
-        <br />
-        <br />
-
-        <h2>Links</h2>
-
-        <ol>
-            <li>
-                <a href="https://www.webrtc-experiment.com/file-hangout/" target="_blank">Share Files / Demo</a>
-            </li>
-
-            <li>
-                <a href="https://www.webrtc-experiment.com/docs/rtc-datachannel-for-beginners.html" target="_blank">RTCDataChannel APIs for Beginners</a>
-            </li>
-
-            <li>
-                <a href="http://bit.ly/DataChannel-Documentation" target="_blank">DataChannel.js</a> — A library for RTCDataChannels
-            </li>
-
-            <li>
-                <a href="http://bit.ly/RTCMultiConnection-Documentation" target="_blank">RTCMultiConnection.js</a> — A library for everything!
-            </li>
-        </ol>
+</pre>
+		
+		<p>
+			TURN protocol runs top of STUN to setup a relay service. A well written TURN server will also function as STUN; so you can skip a "separate STUN server" option in such case.
+		</p>
+		
+		<p>
+			TURN is developed to cover holes haven't (or may not) punched by the STUN; e.g. SNATs i.e. Symmetric NATs.
+		</p>
+		
+		<p>
+			A critical disadvantage of a TURN server is its cost; and huge bandwidth usage in case when HD video stream is delivered.
+		</p>
+		
+		<p>
+			If you wanna install your own TURN server; there is a BSD-licensed open source TURN/STUN server (in C language) with all the latest RFCs here: http://code.google.com/p/rfc5766-turn-server/
+		</p>
+		
+		<p>
+			The acronym STUN may also be seen referred to as <strong>Simple Traversal of UDP through NAT</strong> which was the protocol’s original name (as defined in now obsolete <a href="http://www.packetizer.com/rfc/rfc3489/?format=txt" target=_"blank">RFC 3489</a>).  
+		</p>
+		
+		<p>
+			When the protocol was updated to include support for TCP the name was changed to Session Traversal Utilities for NAT to reflect that it was no longer limited to UDP traffic.
+		</p>
+		
+		<p>
+			Although media leveraging STUN is not a direct host-to-host session it is the next best option as the media path is still sent directly between the two client’s own firewalls, over the Internet.  
+		</p>
+		
+		<p>
+			This keeps the media session as short as possible and does not burden the corporate network with handling the media relay processing or bandwidth.
+		</p>
+		
+		<p>
+			There are three types of candidates:
+		</p>
+		
+		<ol>
+			<li><code>Local (or Host candidates)</code> — the actual IP address bound directly to the remote client’s host operating system. It is "highest preferred" candidate option; and attempted first.</li>
+			<li><code>Reflexive (STUN)</code> — the public IP address assigned to the client’s immediate firewall perform network address translation. It is "next preferred" candidate option.</li>
+			<li><code>Relay (TURN)</code> — the publically accessible IP address assigned to the media relay server which is allocated to the client. If STUN fails; the final option is "relay candidates".</li>
+		</ol>
 
         <br />
         <br />

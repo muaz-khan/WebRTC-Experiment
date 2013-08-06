@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>How to switch streams? ® Muaz Khan</title>
+    <title>WebRTC RTP Usage ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -153,6 +153,20 @@
                 margin-left: 2em;
                 padding-left: 1em;
             }
+			
+		strong {
+            color:rgb(209, 25, 25);
+			border-bottom: 1px dotted;
+			padding-bottom: 1px;
+        }
+		
+		table {
+			width:100%;
+		}
+		td {
+			border: 1px dotted;
+			padding: .6em .8em;
+		}
     </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -165,7 +179,7 @@
     <article>
         <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
 
-        <h1>How to switch streams? / <a href="https://www.webrtc-experiment.com/demos/switch-streams.html" target="_blank">Demo</a></h1>
+        <h1>WebRTC RTP Usage</h1>
         <p>
                 <span>Copyright © 2013</span>
                 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
@@ -180,88 +194,169 @@
         <section class="plusone-gplus">
             <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
         </section>
-
-        <h2>Renegotiate to switch streams</h2>
+		
+		<h2>Simple Scenario: One-to-One audio/video sharing</h2>
+		
 		<p>
-			Renegotiation is a process allows you modify pre-created peer connections when you want to:
+			In this scenario; maximum <strong>4 RTP ports</strong> are opened for each peer:
 		</p>
 		
 		<ol>
-			<li>append additional streams</li>
-			<li>remove existing streams</li>
-			<li>modify SDP for peers direction or something else</li>
+			<li>One RTP port for <strong>outgoing video</strong></li>
+			<li>One RTP port for <strong>outgoing audio</strong></li>
+			<li>One RTP port for <strong>incoming video</strong></li>
+			<li>One RTP port for <strong>incoming audio</strong></li>
 		</ol>
 		
 		<p>
-			Renegotiation means re-exchanging offer/answer SDP among peers.
+			Each RTP port is using <strong>1 MB</strong> bandwidth. It means that <strong>4 MB</strong> bandwidth is acquired by each peer.
 		</p>
 		
 		<p>
-			On chrome, out of a known bug, when renegotiating; either:
+			Remember, you can use '<strong>b=AS</strong>' to increase/decrease bandwidth usage for each stream; which will be divided according to number of RTP ports for each stream.
+		</p>
+		
+		<h2>One-Way audio/video sharing Scenario</h2>
+		
+		<p>
+			There are two kinds of users in this scenario:
 		</p>
 		
 		<ol>
-			<li>don't exchange ICE, or</li>
-			<li>don't use <code>DtlsSrtpKeyAgreement</code></li>
+			<li>Broadcaster or Session-initiator</li>
+			<li>Participant or Roommate</li>
 		</ol>
 		
-		<pre>
-// 1st solution
-peer.onicecandidate = function() {
-    if(renegotiating) return;
-    // ----
-};
-
-// or 2nd solution
-var peerConnection = new RTCPeerConnection(IceServers, null);
-</pre>
-
+		<h2>Broadcaster in One-Way Scenario</h2>
+		
 		<p>
-			Remember, renegotiation means: use existing peer connections to negotiate session descriptions.
+			<strong>2 RTP ports</strong> are opened for broadcasting peer:
 		</p>
 		
-		<h2>Example:</h2>
+		<ol>
+			<li>One RTP port for <strong>outgoing video</strong></li>
+			<li>One RTP port for <strong>outgoing audio</strong></li>
+		</ol>
+		
 		<p>
-			Assuming that you've an existing peer connection between two users. To switch stream from audio to video; and renegotiate from offerer's side:
+			There is no <strong>incoming</strong> RTP ports.
 		</p>
+		
+		<p>
+			<strong>2 MB</strong> audio/video bandwidth is required and used by the broadcasting peer. Because there are two outgoing RTP ports.
+		</p>
+		
+		<h2>Participant in One-Way Scenario</h2>
+		
+		<p>
+			<strong>2 RTP ports</strong> are opened for participating peer:
+		</p>
+		
+		<ol>
+			<li>One RTP port for <strong>incoming video</strong></li>
+			<li>One RTP port for <strong>incoming audio</strong></li>
+		</ol>
+		
+		<p>
+			There is no <strong>outgoing</strong> RTP ports.
+		</p>
+		
+		<p>
+			<strong>2 MB</strong> audio/video bandwidth is required and used by the participating peer. Because there are two incoming RTP ports.
+		</p>
+		
+		
+		<h2>Video-Conferencing i.e. Many-to-Many Scenario</h2>
+		
+		<p>
+			In this scenario; number of RTP ports depends upon number of peer connections multiplied by 4.
+		</p>
+		
+		<h2>10-users video-conferencing</h2>
+		
+		<p>
+			<strong>40 RTP ports</strong> are opened for each user; i.e. <strong>40 MB</strong> bandwidth is used by each user.
+		</p>
+		
+		<ol>
+			<li>10 RTP port for <strong>outgoing</strong> video / <strong>10 MB</strong> bandwidth usage</li>
+			<li>10 RTP port for <strong>outgoing</strong> audio / <strong>10 MB</strong> bandwidth usage</li>
+			<li>10 RTP port for <strong>incoming</strong> video / <strong>10 MB</strong> bandwidth usage</li>
+			<li>10 RTP port for <strong>incoming</strong> audio / <strong>10 MB</strong> bandwidth usage</li>
+		</ol>
+		
+		<h2>How to use <strong>b=AS</strong>?</h2>
 		<pre>
-offerer.removeStream(audioStream);
-offerer.addStream(videoStream);
+// remove existing bandwidth lines
+sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
 
-offerer.createOffer(function(offerSDP) {
-    socket.send({
-        targetUser: 'B',
-        sdp: offerSDP
-    })
-}, failureCallback, sdpConstraints);
+// audio bandwidth 50 kilobits per second
+sdp = sdp.replace( /a=mid:<strong>audio</strong>\r\n/g , 'a=mid:audio\r\n<strong>b=AS:50</strong>\r\n');
+
+// video bandwidth 256 kilobits per second
+sdp = sdp.replace( /a=mid:<strong>video</strong>\r\n/g , 'a=mid:video\r\n<strong>b=AS:256</strong>\r\n');
+
+// data bandwidth 1638400 kilobits per second
+sdp = sdp.replace( /a=mid:<strong>data</strong>\r\n/g , 'a=mid:data\r\n<strong>b=AS:1638400</strong>\r\n');
 </pre>
 		<p>
-			Renegotiate from answerer's side; and switch from audio to video:
+			Above snippet is setting bandwidth for first track in each m-line. You need to set application specific bandwidth attribute for each track if you attached multiple streams.
 		</p>
-		<pre>
-answerer.removeStream(audioStream);
-answerer.addStream(videoStream);
-
-answerer.setRemoteDescription(new RTCSessionDescription(socket.offerSDP));
-answerer.createAnswer(function(answerSDP) {
-    socket.send({
-        targetUser: 'A',
-        sdp: answerSDP
-    })
-}, failureCallback, sdpConstraints);
-</pre>
+		
+		<h2>One-to-One and Multiple Streams Scenario</h2>
+		
 		<p>
-			For a reusable function; a simple trick could be:
+			Assume that you attached following streams per single peer:
 		</p>
-		<pre>
-var peerConnection;
-
-if(renegotiate == false) {
-   peerConnection = new RTCPeerConnection(IceServers, null);
-}
-</pre>
+		
+		<ol>
+			<li>Audio+Video Stream</li>
+			<li>Screen Sharing Stream</li>
+			<li>Only Video stream coming from a second webcam</li>
+		</ol>
+		
 		<p>
-			Try a <a href="https://www.webrtc-experiment.com/demos/switch-streams.html" target="_blank">demo</a>.
+			In this scenario; <strong>8 RTP ports</strong> will be opened for each peer:
+		</p>
+		
+		<ol>
+			<li><strong>4 RTP port</strong> for outgoing/incoming <strong>audio+video</strong> streams</li>
+			<li><strong>2 RTP port</strong> for outgoing/incoming <strong>screen sharing</strong> streams</li>
+			<li><strong>10 RTP port</strong> for outgoing/incoming <strong>video-only</strong> streams</li>
+		</ol>
+		
+		<p>
+			In such scenario; default bandwidth acquired by each peer is <strong>8 MB</strong>.
+		</p>
+		
+		<h2>For Your Information...</h2>		
+
+        <p>
+			By default, 5 simultaneous calls need 20M bandwidth, as 2M each. You can also try to limit each stream by adding 'b=AS' according to your available bandwidth.
+		</p>
+		
+		<table>
+			<tr>
+				<td>Maximum video bitrate</td>
+				<td>2</td>
+				<td>Mbps</td>
+			</tr>
+			
+			<tr>
+				<td>Minimum video bitrate</td>
+				<td>.05</td>
+				<td>Mbps</td>
+			</tr>
+			
+			<tr>
+				<td>Starting video bitrate</td>
+				<td>.3</td>
+				<td>Mbps</td>
+			</tr>
+		</table>
+		
+		<p>
+			<a href="https://code.google.com/p/chromium/codesearch#chromium/src/third_party/libjingle/source/talk/media/webrtc/webrtcvideoengine.cc&q=webrtcvideoen&sq=package:chromium&l=92" target="_blank">Reference</a>.
 		</p>
 
         <br />

@@ -14,8 +14,8 @@ var channels = {};
 
 io.sockets.on('connection', function (socket) {
     var initiatorChannel = '';
-    if (!io.connected)
-        io.connected = true;
+    if (!io.isConnected)
+        io.isConnected = true;
 
     socket.on('new-channel', function (data) {
         channels[data.channel] = data.channel;

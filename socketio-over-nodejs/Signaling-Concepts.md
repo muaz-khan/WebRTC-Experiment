@@ -6,14 +6,14 @@ This document explains inner-parts of the signaling methods used in [WebRTC Expe
 
 #### Dynamic Channels
 
-Each and every WebRTC Experiment demands dynamic channels/namespaces.
+All "old" WebRTC Experiments require dynamic channels i.e. namespaces.
 
-Signaling method must have following features:
+For those experiments, signaling gateway must have following features:
 
 1. Multiplexing i.e. more than one sockets connectivity
 2. Dynamic channels or namespaces
 
-Out of `multiplexing` requirement; simple WebSocket implementation can't be used as signaling method in any WebRTC Experiment.
+Out of `multiplexing` requirement; simple WebSocket implementation can't be used as signaling method in "old" WebRTC Experiments.
 
 =
 
@@ -113,9 +113,35 @@ All WebRTC Experiments separated signaling portion; so you can define a single m
 
 =
 
+#### What about latest WebRTC experiments and libraries?
+
+**All latest WebRTC experiments and libraries are capable to work with each and every gateway exists in the world!**
+
+Taking node.js for instance; your server code looks like this:
+
+```javascript
+io.sockets.on('connection', function (socket) {
+    socket.on('message', function (data) {
+        socket.broadcast.emit('message', data);
+    });
+});
+```
+
+And web-browser side code looks like this:
+
+```javascript
+connection.openSignalingChannel = function(callback) {
+    return io.connect().on('message', callback);
+};
+```
+
+Want to use XHR, WebSockets, SIP, XMPP, etc. for signaling? Read [this post](https://github.com/muaz-khan/WebRTC-Experiment/issues/56#issuecomment-20090650).
+
+=
+
 #### What about Firebase?
 
-Firebase is an io-based service stores data in JSON format; considered most suitable solution for WebRTC signaling. Its APIs are easier to use and understand.
+Firebase is an io-based service stores data in JSON format; considered most suitable solution for WebRTC signaling. Its APIs are easier to use and understand. Firebase supports dynamic channels too!
 
 =
 
@@ -127,14 +153,16 @@ PubNub or Pusher provides APIs for realtime connection. PubNub uses wider method
 
 #### Expectations
 
-All WebRTC Experiments expects that signaling channels must be able to send and receive messages over unique channels.
+All "old" WebRTC experiments expects that signaling channels must be able to send and receive messages over unique channels.
+
+All "new" WebRTC experiments can work in any circumstance!
 
 =
 
 #### Links
 
-1. Demo: http://webrtc-signaling.jit.su/
-2. Source code: https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
+1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs)
+2. [WebSockets over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs)
 
 =
 

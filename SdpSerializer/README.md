@@ -51,14 +51,15 @@ sdp = serializer.deserialize();
 
 ##### Browser Support
 
-[SdpSerializer.js](https://github.com/muaz-khan/SdpSerializer) works fine on following web-browsers:
+[SdpSerializer.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/SdpSerializer) works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
+| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 
 =
 
 ##### License
 
-[SdpSerializer.js](https://github.com/muaz-khan/SdpSerializer) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[SdpSerializer.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/SdpSerializer) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

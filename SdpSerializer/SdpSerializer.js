@@ -1,7 +1,7 @@
 // 2013, Muaz Khan - https://github.com/muaz-khan
 // MIT License     - https://www.webrtc-experiment.com/licence/
 // Experiments     - https://github.com/muaz-khan/WebRTC-Experiment
-// Repository      - https://github.com/muaz-khan/SdpSerializer
+// Repository      - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/SdpSerializer
 // -----------------------------------
 // The purpose of this library is to explain possible customization
 // of session description (sdp).

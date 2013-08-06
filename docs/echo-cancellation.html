@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>How to share files using RTCDataChannel APIs? ® Muaz Khan</title>
+    <title>How to echo cancellation / noise management / in WebRTC? ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -14,12 +14,6 @@
         html {
             background: #eee;
         }
-		
-		pre {
-                border-left: 2px solid red;
-                margin-left: 2em;
-                padding-left: 1em;
-            }
 
         body {
             font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
@@ -146,6 +140,19 @@
             font-family: inherit;
             font-weight: normal;
         }
+		
+		code {
+			border: 1px solid rgb(209, 25, 25);
+			padding: .2em .8em;
+			background: rgb(252, 232, 232);
+			line-height:3;
+			color:rgb(209, 25, 25);
+		}
+		pre {
+                border-left: 2px solid red;
+                margin-left: 2em;
+                padding-left: 1em;
+            }
     </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -158,178 +165,56 @@
     <article>
         <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
 
-        <h1>How to <a href="https://www.webrtc-experiment.com/file-hangout/" target="_blank">share files</a> using <a href="https://www.webrtc-experiment.com/docs/rtc-datachannel-for-beginners.html" target="_blank">RTCDataChannel API</a>s?
-        </h1>
+        <h1>How to echo cancellation? / Noise management?</h1>
         <p>
-            <span>Copyright © 2013</span>
-            <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
-        </p>
+                <span>Copyright © 2013</span>
+                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
+                »
+				<a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
+                »
+				<a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
+                »
+            <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
+            </p>
 
         <section class="plusone-gplus">
             <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
         </section>
 
-        <h2>Getting started — You'll</h2>
-        <ol>
-            <li>Get access to file using input—type=file</li>
-            <li>Read file as Data-URL using FileReader API</li>
-            <li>Define chunk length i.e. 1000 chars — to make sure it should work on chrome</li>
-            <li>Get first chunk accordingly; transmit and continue...</li>
-        </ol>
+        <p>
+			High volume can produce sound noise on some audio devices.  The value may not be significant if audio device volume is controlled externally.
+		</p>
+		
+		<pre>
+HTMLAudioElement.volume = 0.9;
+HTMLAudioElement.play();
+</pre>
+		
+		<p>
+			The <code>GainNode</code> is a simple element that lets us control the volume of the audio that’s coming into to it.
+		</p>
+		<pre>
+var context = new webkitAudioContext(),
+var sineWave = context.createOscillator();
 
-        <br />
-        <br />
+// Declare gain node
+var gainNode = context.createGainNode();
 
-        <h2>First step: Getting access to file using INPUT-File element</h2>
-        <pre>
-document.querySelector('input[type=file]').onchange = function() {
-    var file = this.files[0];
-};</pre>
+// Connect sine wave to gain node
+sineWave.connect(gainNode);
 
-        <br />
-        <br />
+// Connect gain node to speakers
+gainNode.connect(context.destination);
 
-        <h2>Second step: Reading file as Data-URL using FileReader API</h2>
-        <pre>
-var reader = new window.FileReader();
-reader.readAsDataURL(file);
-reader.onload = onReadAsDataURL;</pre>
+// Play sine wave
+sineWave.noteOn(0);
 
-        <br />
-        <br />
-
-        <h2>Third step: Defining chunk length</h2>
-
-        <pre>
-var chunkLength = 1000;</pre>
-
-        <br />
-        <br />
-
-        <h2>Fourth step: Getting chunk and transmitting...</h2>
-
-        <pre>
-function onReadAsDataURL(event, text) {
-    var data = {}; // data object to transmit over data channel
-
-    if (event) text = event.target.result; // on first invocation
-
-    if (text.length > chunkLength) {
-        data.message = text.slice(0, chunkLength); // getting chunk using predefined chunk length
-    } else {
-        data.message = text;
-        data.last = true;
-    }
-
-    dataChannel.send(data); // use JSON.stringify for chrome!
-
-    var remainingDataURL = text.slice(data.message.length);
-    if (remainingDataURL.length) setTimeout(function () {
-        onReadAsDataURL(null, remainingDataURL); // continue transmitting
-    }, 500)
-}</pre>
-
-        <br />
-        <br />
-
-        <h2>Fifth step: Receive chunks; store in array and...</h2>
-
-        <pre>
-var arrayToStoreChunks = [];
-dataChannel.onmessage = function (event) {
-    var data = JSON.parse(event.data);
-
-    arrayToStoreChunks.push(data.message); // pushing chunks in array
-
-    if (data.last) {
-        saveToDisk(arrayToStoreChunks.join(''), 'fake fileName');
-        arrayToStoreChunks = []; // resetting array
-    }
-};</pre>
-
-        <br />
-        <br />
-
-        <h2>Sending/Receving files using Firefox</h2>
-
-        <pre>
-document.querySelector('input[type=file]').onchange = function () {
-    var file = this.files[0];
-    dataChannel.send(file);
-};
-
-dataChannel.onmessage = function (event) {
-    var blob = event.data; // Firefox allows us send blobs directly
-
-    var reader = new window.FileReader();
-    reader.readAsDataURL(blob);
-    reader.onload = function (event) {
-        var fileDataURL = event.target.result; // it is Data URL...can be saved to disk
-        SaveToDisk(fileDataURL, 'fake fileName');
-    };
-};</pre>
-
-        <br />
-        <br />
-
-        <h2>SaveToDisk function — old syntax</h2>
-
-        <pre>
-function saveToDisk(fileUrl, fileName) {
-    var save = document.createElement('a');
-    save.href = fileUrl;
-    save.target = '_blank';
-    save.download = fileName || fileUrl;
-
-    var evt = document.createEvent('MouseEvents');
-    evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-
-    save.dispatchEvent(evt);
-
-    (window.URL || window.webkitURL).revokeObjectURL(save.href);
-}</pre>
-
-        <br />
-        <br />
-
-        <h2>SaveToDisk function — new syntax</h2>
-
-        <pre>
-function saveToDisk(fileUrl, fileName) {
-    var save = document.createElement('a');
-    save.href = fileUrl;
-    save.target = '_blank';
-    save.download = fileName || fileUrl;
-
-    var event = document.createEvent('Event');
-    event.initEvent('click', true, true);
-
-    save.dispatchEvent(event);
-    (window.URL || window.webkitURL).revokeObjectURL(save.href);
-}</pre>
-
-        <br />
-        <br />
-
-        <h2>Links</h2>
-
-        <ol>
-            <li>
-                <a href="https://www.webrtc-experiment.com/file-hangout/" target="_blank">Share Files / Demo</a>
-            </li>
-
-            <li>
-                <a href="https://www.webrtc-experiment.com/docs/rtc-datachannel-for-beginners.html" target="_blank">RTCDataChannel APIs for Beginners</a>
-            </li>
-
-            <li>
-                <a href="http://bit.ly/DataChannel-Documentation" target="_blank">DataChannel.js</a> — A library for RTCDataChannels
-            </li>
-
-            <li>
-                <a href="http://bit.ly/RTCMultiConnection-Documentation" target="_blank">RTCMultiConnection.js</a> — A library for everything!
-            </li>
-        </ol>
+gainNode.gain.value = 0.9;
+</pre>
+		
+		<p>
+			Try <a href="http://webaudioapi.com/samples/volume/" target="_blank">demo</a> locally to control volume using GainNode.
+		</p>
 
         <br />
         <br />
