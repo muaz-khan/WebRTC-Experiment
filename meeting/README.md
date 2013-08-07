@@ -1,26 +1,5 @@
 #### WebRTC Meeting i.e. Video-Conferencing / [Demo](https://www.webrtc-experiment.com/meeting/)
 
-1. Multiple peer-connections are opened to bring multi-users connectivity experience.
-2. Maximum peers limit on chrome is temporarily 10.
-3. Huge bandwidth and CPU-usage out of multi-peers and number of RTP-ports
-
-To understand 3rd option better; assume that 10 users are sharing video in a group. 40 RTP-ports i.e. streams will be created for each user. All streams are expected to be flowing concurrently; which causes blur video experience and audio lose/noise issues.
-
-For each user:
-
-1. 10 RTP ports are opened to send video upward i.e. for outgoing video streams
-2. 10 RTP ports are opened to send audio upward i.e. for outgoing audio streams
-3. 10 RTP ports are opened to receive video i.e. for incoming video streams
-4. 10 RTP ports are opened to receive audio i.e. for incoming audio streams
-
-Possible issues:
-
-1. Blurry video experience
-2. Unclear voice and audio lost
-3. Bandwidth issues / slow streaming / CPU overwhelming
-
-Solution? Obviously a media server. To overcome burden and to deliver HD stream over thousands of peers; we need a media server that should broadcast stream over number of peers.
-
 =
 
 #### First Step: Link the library
@@ -121,6 +100,14 @@ meeting.onmeeting = function(room) {
 
 =
 
+#### Leave a meeting room
+
+```javascript
+meeting.leave();
+```
+
+=
+
 #### If someone leaves...
 
 Participants' presence can be detected using `onuserleft`:
@@ -163,6 +150,29 @@ This [WebRTC Meeting](https://www.webrtc-experiment.com/meeting/) experiment wor
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
+
+=
+
+1. Multiple peer-connections are opened to bring multi-users connectivity experience.
+2. Maximum peers limit on chrome is temporarily 10.
+3. Huge bandwidth and CPU-usage out of multi-peers and number of RTP-ports
+
+To understand 3rd option better; assume that 10 users are sharing video in a group. 40 RTP-ports i.e. streams will be created for each user. All streams are expected to be flowing concurrently; which causes blur video experience and audio lose/noise issues.
+
+For each user:
+
+1. 10 RTP ports are opened to send video upward i.e. for outgoing video streams
+2. 10 RTP ports are opened to send audio upward i.e. for outgoing audio streams
+3. 10 RTP ports are opened to receive video i.e. for incoming video streams
+4. 10 RTP ports are opened to receive audio i.e. for incoming audio streams
+
+Possible issues:
+
+1. Blurry video experience
+2. Unclear voice and audio lost
+3. Bandwidth issues / slow streaming / CPU overwhelming
+
+Solution? Obviously a media server. To overcome burden and to deliver HD stream over thousands of peers; we need a media server that should broadcast stream over number of peers.
 
 =
 

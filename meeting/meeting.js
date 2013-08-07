@@ -1,13 +1,13 @@
-// 2013, @muazkh - github.com/muaz-khan
-// MIT License - https://webrtc-experiment.appspot.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
+// 2013, Muaz Khan - https://github.com/muaz-khan
+// MIT License     - https://www.webrtc-experiment.com/licence/
+// Documentation   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting
 
 (function() {
 
     // a middle-agent between public API and the Signaler object
     window.Meeting = function(channel) {
         var signaler, self = this;
-        this.channel = channel;
+        this.channel = channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
 
         // get alerted for each new meeting
         this.onmeeting = function(room) {
@@ -30,8 +30,11 @@
             navigator.getUserMedia(constraints, onstream, onerror);
 
             function onstream(stream) {
+                stream.onended = function() {
+                    if (self.onuserleft) self.onuserleft('self');
+                };
+
                 self.stream = stream;
-                callback(stream);
 
                 var video = document.createElement('video');
                 video.id = 'self';
@@ -46,6 +49,8 @@
                     userid: 'self',
                     type: 'local'
                 });
+
+                callback(stream);
             }
 
             function onerror(e) {
@@ -221,6 +226,10 @@
             onaddstream: function(stream, _userid) {
                 console.debug('onaddstream', '>>>>>>', stream);
 
+                stream.onended = function() {
+                    if (root.onuserleft) root.onuserleft(_userid);
+                };
+
                 var video = document.createElement('video');
                 video.id = _userid;
                 video[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
@@ -266,7 +275,8 @@
                     broadcasting: true
                 });
 
-                !root.transmitOnce && setTimeout(transmit, 3000);
+                if (!signaler.stopBroadcasting && !root.transmitOnce)
+                    setTimeout(transmit, 3000);
             })();
 
             // if broadcaster leaves; clear all JSON files from Firebase servers
@@ -283,7 +293,33 @@
             signaler.sentParticipationRequest = true;
         };
 
-        unloadHandler(userid, signaler);
+        window.onbeforeunload = function() {
+            leaveRoom();
+            // return 'You\'re leaving the session.';
+        };
+
+        window.onkeyup = function(e) {
+            if (e.keyCode == 116)
+                leaveRoom();
+        };
+
+        function leaveRoom() {
+            signaler.signal({
+                leaving: true
+            });
+
+            // stop broadcasting room
+            if (signaler.isbroadcaster) signaler.stopBroadcasting = true;
+
+            // leave user media resources
+            if (root.stream) root.stream.stop();
+
+            // if firebase; remove data from their servers
+            if (window.Firebase) socket.remove();
+        }
+        root.leave = leaveRoom;
+
+        var socket;
 
         // signaling implementation
         // if no custom signaling channel is provided; use Firebase
@@ -292,13 +328,12 @@
 
             // Firebase is capable to store data in JSON format
             // root.transmitOnce = true;
-            var socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + root.channel);
+            socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + root.channel);
             socket.on('child_added', function(snap) {
                 var data = snap.val();
 
                 if (data.userid != userid) {
-                    if (data.leaving) root.onuserleft && root.onuserleft(data.userid);
-                    else signaler.onmessage(data);
+                    if (!data.leaving) signaler.onmessage(data);
                 }
 
                 // we want socket.io behavior; 
@@ -316,11 +351,10 @@
         } else {
             // custom signaling implementations
             // e.g. WebSocket, Socket.io, SignalR, WebSycn, XMLHttpRequest, Long-Polling etc.
-            var socket = root.openSignalingChannel(function(message) {
+            socket = root.openSignalingChannel(function(message) {
                 message = JSON.parse(message);
                 if (message.userid != userid) {
-                    if (message.leaving) root.onuserleft && root.onuserleft(message.userid);
-                    else signaler.onmessage(message);
+                    if (!message.leaving) signaler.onmessage(message);
                 }
             });
 
@@ -348,8 +382,8 @@
     };
 
     var TURN = {
-        url: 'turn:webrtc%40live.com@numb.viagenie.ca',
-        credential: 'muazkh'
+        url: 'turn:homeo@turn.bistri.com:80',
+        credential: 'homeo'
     };
 
     var iceServers = {
@@ -359,13 +393,12 @@
     if (isChrome) {
         if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
             TURN = {
-                url: 'turn:numb.viagenie.ca',
-                credential: 'muazkh',
-                username: 'webrtc@live.com'
+                url: 'turn:turn.bistri.com:80',
+                credential: 'homeo',
+                username: 'homeo'
             };
 
-        // No STUN to make sure it works all the time!
-        iceServers.iceServers = [TURN];
+        iceServers.iceServers = [STUN, TURN];
     }
 
     var optionalArgument = {
@@ -383,14 +416,12 @@
     };
 
     function getToken() {
-        return Math.round(Math.random() * 60535) + 5000;
+        return Math.round(Math.random() * 9999999999) + 9999999999;
     }
 
-    /*
-    var offer = Offer.createOffer(config);
-    offer.setRemoteDescription(sdp);
-    offer.addIceCandidate(candidate);
-    */
+    // var offer = Offer.createOffer(config);
+    // offer.setRemoteDescription(sdp);
+    // offer.addIceCandidate(candidate);
     var Offer = {
         createOffer: function(config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
@@ -433,11 +464,9 @@
         }
     };
 
-    /*
-    var answer = Answer.createAnswer(config);
-    answer.setRemoteDescription(sdp);
-    answer.addIceCandidate(candidate);
-    */
+    // var answer = Answer.createAnswer(config);
+    // answer.setRemoteDescription(sdp);
+    // answer.addIceCandidate(candidate);
     var Answer = {
         createAnswer: function(config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
@@ -479,33 +508,5 @@
             if (arr[i] && arr[i] !== true)
                 swapped[swapped.length] = arr[i];
         return swapped;
-    }
-
-    function unloadHandler(userid, signaler) {
-        window.onbeforeunload = function() {
-            leaveRoom();
-            // return 'You\'re leaving the session.';
-        };
-
-        window.onkeyup = function(e) {
-            if (e.keyCode == 116)
-                leaveRoom();
-        };
-
-        var anchors = document.querySelectorAll('a'),
-            length = anchors.length;
-        for (var i = 0; i < length; i++) {
-            var a = anchors[i];
-            if (a.href.indexOf('#') !== 0 && a.getAttribute('target') != '_blank')
-                a.onclick = function() {
-                    leaveRoom();
-                };
-        }
-
-        function leaveRoom() {
-            signaler.signal({
-                leaving: true
-            });
-        }
     }
 })();
