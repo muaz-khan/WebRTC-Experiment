@@ -6,8 +6,9 @@
 
 function RecordRTC(mediaStream, config) {
     if (!mediaStream) throw 'MediaStream is mandatory.';
-    config = config || { };
     if (!config.type) config.type = 'audio';
+
+    config = config || { };
 
     function startRecording() {
         console.debug('started recording stream.');
@@ -70,11 +71,15 @@ function RecordRTC(mediaStream, config) {
                 hyperlink.target = '_blank';
                 hyperlink.download = (Math.round(Math.random() * 9999999999) + 888888888) + '.' + mediaRecorder.recordedBlob.type.split('/')[1];
 
-                var event = document.createEvent('Event');
-                event.initEvent('click', true, true);
+                var evt = new window.MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true
+                });
 
-                hyperlink.dispatchEvent(event);
-                URL.revokeObjectURL(hyperlink.href);
+                hyperlink.dispatchEvent(evt);
+
+                (window.URL || window.webkitURL).revokeObjectURL(hyperlink.href);
             });
         }
     };
@@ -111,32 +116,25 @@ function mergeProps(mergein, mergeto) {
 // Muaz Khan - https://github.com/muaz-khan 
 // ======================================== MediaStreamRecorder.js
 
+// encoder only support 48k/16k mono audio channel
+
 function MediaStreamRecorder(mediaStream) {
     var self = this;
 
     this.record = function() {
         // http://dxr.mozilla.org/mozilla-central/source/content/media/MediaRecorder.cpp
+        // https://wiki.mozilla.org/Gecko:MediaRecorder
         mediaRecorder = new window.MediaRecorder(mediaStream);
         mediaRecorder.ondataavailable = function(e) {
             self.recordedBlob = new window.Blob([self.recordedBlob, e.data], { type: 'audio/ogg' });
         };
 
-        mediaRecorder.onstop = function() {
-            if (mediaRecorder.state == 'inactive') {
-                // bug: it is a temporary workaround; it must be fixed.
-                self.record();
-            }
-        };
-
-        mediaRecorder.start(1000);
-
-        setTimeout(function() {
-            self.stop();
-        }, 1000);
+        mediaRecorder.start(0);
     };
 
     this.stop = function() {
         if (mediaRecorder.state == 'recording') {
+            mediaRecorder.requestData();
             mediaRecorder.stop();
         }
     };
@@ -221,7 +219,7 @@ function StereoAudioRecorder(mediaStream) {
         // write the PCM samples
         var lng = interleaved.length;
         var index = 44;
-        var volume = 1;
+        volume = 1;
         for (var i = 0; i < lng; i++) {
             view.setInt16(index, interleaved[i] * (0x7FFF * volume), true);
             index += 2;
@@ -245,8 +243,8 @@ function StereoAudioRecorder(mediaStream) {
         return result;
     }
 
-    function mergeBuffers(channelBuffer, recordingLength) {
-        var result = new window.Float32Array(recordingLength);
+    function mergeBuffers(channelBuffer, rLength) {
+        var result = new window.Float32Array(rLength);
         var offset = 0;
         var lng = channelBuffer.length;
         for (var i = 0; i < lng; i++) {

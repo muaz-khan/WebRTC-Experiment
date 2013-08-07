@@ -1,6 +1,6 @@
-// 2013, @muazkh - github.com/muaz-khan
-// MIT License - https://webrtc-experiment.appspot.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/blob/master/AudioVideoRecorder
+// 2013, Muaz Khan  - https://github.com/muaz-khan
+// MIT License      - https://www.webrtc-experiment.com/licence/
+// Documentation    - https://github.com/muaz-khan/WebRTC-Experiment/blob/master/AudioVideoRecorder
 
 if (!window.MediaRecorder) {
     var throwError = 'Support? Current/Latest Firefox Nightly (ONLY). Understood? Download from: http://nightly.mozilla.org/';
@@ -9,6 +9,7 @@ if (!window.MediaRecorder) {
 }
 
 console.log('<MediaRecorder> current sate:-', 'Only audio-relevant parts are supported in the moment.', 'i.e. No video recording.');
+console.info('It is recommended to try RecordRTC!');
 
 function AudioVideoRecorder(config) {
     var stream = config.stream;
@@ -26,21 +27,21 @@ function AudioVideoRecorder(config) {
 
             if (callback) callback(blob);
 
-            mediaRecorder.stop();
+            setTimeout(function() {
+                mediaRecorder.requestData();
+            }, interval);
         }
     };
 
-    try {
-        // void start(optional long timeSlice)
-        mediaRecorder.start(interval);
-    } catch(e) {
-        console.error(e);
-    }
+
+    mediaRecorder.start(0);
+    setTimeout(function() {
+        mediaRecorder.requestData();
+    }, interval);
 
     mediaRecorder.onstop = function() {
-        if (mediaRecorder.state == 'inactive') {
-            mediaRecorder.start(interval);
-            AudioVideoRecorder(config);
-        }
+    };
+    mediaRecorder.onerror = function(e) {
+        console.error(e);
     };
 }
