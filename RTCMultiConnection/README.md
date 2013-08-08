@@ -1,4 +1,4 @@
-### [RTCMultiConnection-v1.4](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js) Documentation
+### [RTCMultiConnection](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection) Documentation / [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/changes-log.md)
 
 ##### Features
 
@@ -13,7 +13,7 @@
 9. Session re-initiation
 10. Admin/Guest calling features
 
-and much more!
+and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/changes-log.md)
 
 = 
 
@@ -61,7 +61,7 @@ and much more!
 
 =
 
-##### A Quick Demo using socket.io for Signaling
+##### A Quick Demo using [Socket.io](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) for Signaling
 
 ```html
 <script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
@@ -143,6 +143,8 @@ Just copy [this html file](https://github.com/muaz-khan/WebRTC-Experiment/blob/m
 
 ##### First Step: Link the library
 
+v1.4 is latest stable release. v1.5 is in beta stage.
+
 ```html
 <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"></script>
 ```
@@ -151,31 +153,42 @@ Just copy [this html file](https://github.com/muaz-khan/WebRTC-Experiment/blob/m
 
 ```javascript
 var connection = new RTCMultiConnection();
-connection.userid = 'muazkh'; // username or user-id!
+
+// customize username/user-id!
+connection.userid = 'muazkh';
+
+// audio / video / data / screen / oneway / broadcast
 connection.session = {
     audio: true,
     video: true
 };
 
-// get access to local or remote streams
+// get access to local or remote media streams
 connection.onstream = function (e) {
     if (e.type === 'local') mainVideo.src = e.blobURL;
     if (e.type === 'remote') document.body.appendChild(e.mediaElement);
 }
 
+// remove media element when a user leaves the session
+connection.onstreamended = function(e) {
+    if(e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
+};
+
 // searching/connecting pre-created sessions
-connection.connect('session-id');
+connection.connect();
 
 // to create/open a new session
 // it should be called "only-once" by the session-initiator
 [button-init-session].onclick = function() {
-    connection.open('session-id');
+    connection.open();
 };
 ```
 
 =
 
 ##### `onstream`
+
+`onstream` is fired for both local and remote media streams.
 
 ```javascript
 connection.onstream = function (e) {
@@ -203,7 +216,7 @@ connection.onstream = function (e) {
 
 ##### `onstreamended`
 
-`onstreamended` will be fired if media streams stopped flowing between two peers. It is preferred to use `onstreamended` to remove media elements instead of using `onleave`.
+`onstreamended` is fired when a user leaves the session.
 
 ```javascript
 connection.onstreamended = function(e) {
@@ -215,14 +228,7 @@ connection.onstreamended = function(e) {
 
 ##### Renegotiation
 
-Cases:
-
-1. You're sharing files in a group; or doing text chat; and suddenly want to share audio/video or screen among a few users or the entire group.
-2. In video-conferencing room; you want to sharing screen.
-3. In audio-conferencing room; you want to share video or screen or data.
-4. In screen sharing room; you want to share audio/video or data.
-
-You want to use same peer-connection to append dynamic streams at runtime.
+Renegotiation means you want to use same peer-connections to append dynamic streams at runtime.
 
 ```javascript
 // runtime sharing of audio/video among all users
@@ -239,7 +245,7 @@ connection.peers['user-id'].addStream({
 });
 ```
 
-Possible renegotiation pairs
+Common renegotiation pairs:
 
 1. `{audio: true, video: true}`
 2. `{audio: true, video: true, data: true}`
@@ -252,7 +258,7 @@ and many others.
 
 ##### `session`
 
-Possible values for the `session` object:
+This object lets you set the session. Possible values are:
 
 ```javascript
 audio: true
@@ -260,13 +266,21 @@ video: true
 data: true
 screen: true
 
+// directions
 oneway: true
 broadcast: true
+
+// in admin/guest scenario; force many-to-many
+'many-to-many': true
 ```
+
+v1.4 and upper releases supports multi-streams attachment feature; so you can request audio and/or video along with screen too!
 
 =
 
 ##### Mute/UnMute/Stop
+
+You can mute/unmute/stop a single track; or both audio/video tracks.
 
 ```javascript
 // mute
@@ -282,6 +296,22 @@ connection.streams['stream-id'].unmute({
 
 // stop a stream
 connection.streams['stream-id'].stop();
+```
+
+You can mute all streams too:
+
+```javascript
+connection.streams.mute();
+```
+
+You can mute all "remote" or "local" media streams too:
+
+```javascript
+connection.streams.mute({
+    audio: true,
+    video: true,
+    type: 'remote'
+});
 ```
 
 =
@@ -314,7 +344,7 @@ When room initiator leaves; you can enforce auto-closing of the entire session. 
 connection.autoCloseEntireSession = true;
 ```
 
-It means that session will be `LIVE` all the time; even if initiator leaves the session.
+It means that session will be `active` all the time; even if initiator leaves the session.
 
 You can call `close` method to enforce closing of the entire session:
 
@@ -326,6 +356,8 @@ connection.close(); // close entire session
 
 ##### Latency Detection
 
+"Date" object is used to track latency; that's why it is not reliable yet.
+
 ```javascript
 connection.onmessage = function(e) {
     console.log('latency:', e.latency, 'milliseconds');
@@ -336,21 +368,38 @@ connection.onmessage = function(e) {
 
 ##### Are you want to share files/text or data?
 
+"send" method allows you send:
+
+1. File of any format and any size (multiple files concurrently)
+2. Any javascript object regardless of its length, size and type
+3. Text message of any length (multiple text messages can be sent concurrently)
+
 ```javascript
-// to send text/data or file of any size
-connection.send(file || data || 'text');
+// send file
+connection.send(file);
+
+// send data
+connection.send({
+    x: 10,
+    y: 20,
+    dimensions: [100,200],
+    descriptions: 'rectangle'
+});
+
+// send text message
+connection.send('text message');
 ```
 
-Same like WebSockets; `onopen` and `onmessage` methods:
+Same like WebSockets; `onopen` and `onmessage` methods are used:
 
 ```javascript
-// to be alerted on data ports get open
+// it is fired each time when data connection gets open
 connection.onopen = function (e) {
     // e.userid
     // e.extra
 }
 
-// to be alerted on data ports get new message
+// it is fired each time for incoming data over SCTP/RTP data ports
 connection.onmessage = function (e) {
     // e.data
     // e.userid
@@ -396,7 +445,7 @@ connection.onFileProgress = function (packets, uuid) {
     // packets.received
     // packets.length
 	
-    // uuid:    file unique identifier
+    // uuid: file unique identifier
 };
 
 // on file successfully sent
@@ -445,7 +494,7 @@ Your `extra-data` will be passed over `onNewSession`, `onmessage`, `onopen`, `on
 
 ```javascript
 connection.onmessage = function(e){
-    // userData = e.extra
+    // var userData = e.extra
     // userData.username
     // userData.fullname
     // userData.email
@@ -470,10 +519,10 @@ connection.onopen = function(e){
 
 ##### Custom user-id
 
-You can use custom `user-names` as user-id:
+You can set custom `user-names` as user-id:
 
 ```javascript
-connection.userid = 'custom-user-id';
+connection.userid = 'username';
 ```
 
 See how user-id is used:
@@ -504,25 +553,25 @@ connection.onmessage = function(e) {
 
 ##### `onNewSession`
 
-`onNewSession` is fired for each new session.
+`onNewSession` is fired for each new session. To better understand it, consider it as `onNewRoom` because "session" is actualy a virtual room.
 
 ```javascript
 connection.onNewSession = function(session) {
-    // session.extra -- extra data you passed or empty object {}
+    // session.extra     -- extra data you passed or empty object {}
     // session.sessionid -- it is session's unique identifier
-    // session.userid -- it is room owner's id
-    // session.session e.g. {audio:true, video:true}
+    // session.userid    -- it is room owner's id
+    // session.session   -- {audio:true, video:true}
 };
 ```
 
-`onNewSession` is useful to show a `join` button that allows end-users to manually join any preferred session.
+`onNewSession` is useful to show a `join` button that allows end-users to **manually join any preferred session**.
 
 =
 
 ##### Other features
 
 ```javascript
-// It is room transmission interval; useful for socket.io implementations only.
+// session-details transmission interval
 connection.interval = 1000;
 
 // It is useful only for Firebase signaling gateway!
@@ -533,6 +582,7 @@ connection.firebase = 'chat';
 
 // if you want to attach external stream
 // this feature is useful in multi-sessions initiations
+// it is used in experiments like "join with/without camera"
 connection.dontAttachStream = true; // it means that don't try to attach NEW stream
 connection.attachStreams[0] = MediaStream;
 ```
@@ -541,11 +591,11 @@ connection.attachStreams[0] = MediaStream;
 
 ##### Broadcasting/Conferencing/etc.
 
-Three possible scenarios are supported:
+"session" object supports three possible directions:
 
-1. One-to-Many `one-way` broadcasting
-2. One-to-Many `two-way` broadcasting
-3. Many-to-Many `video-conferencing`
+1. One-to-Many **one-way** broadcasting
+2. One-to-Many **two-way** broadcasting
+3. Many-to-Many **video-conferencing**
 
 For one-way broadcasting
 
@@ -572,6 +622,12 @@ connection.stream = {
     audio: true,
     video: true
 };
+```
+
+For one-to-one session; use `maxParticipantsAllowed` object:
+
+```javascript
+connection.maxParticipantsAllowed = 1;
 ```
 
 =
@@ -612,15 +668,18 @@ connection.framerate = {
 
 ##### `maxParticipantsAllowed`
 
-A customizable way to set direction e.g. `one-to-one` etc. Its default value is `10`.
+To manage number of participants in a session:
 
 ```javascript
-connection.maxParticipantsAllowed = 1; // for one-to-one
+// 9 participants + 1 session initiator === 10
+connection.maxParticipantsAllowed = 9;
 ```
 
 =
 
 ##### Media Constraints
+
+You can force constraints that should be used each time when getUserMedia API is invoked:
 
 ```javascript
 connection.mediaConstraints.mandatory = {
@@ -631,12 +690,15 @@ connection.mediaConstraints.mandatory = {
     minFrameRate: 30
 };
 
+// it is same like "connection.session={audio:false}"
 connection.mediaConstraints.audio = false;
 ```
 
 =
 
 ##### SDP Constraints
+
+You can force constraints that should be used each time when createOffer/createAnswer API are invoked.
 
 ```javascript
 connection.sdpConstraints.mandatory = {
@@ -651,6 +713,11 @@ connection.sdpConstraints.mandatory = {
 
 ##### Admin/Guest Calling Features
 
+Scenarios: 
+
+1. You want to set multiple admins; you want to allow your website visitors (i.e. customers) to call you directly; you want to track customers presence too. Etc.
+2. You want to be an admin; and want to be able to invite any user in chatting room via his user-id (username). Etc.
+
 ```javascript
 // if you want to set "admin"
 connection.userType = 'admin';
@@ -658,16 +725,16 @@ connection.userType = 'admin';
 // if you want to set "guest"
 connection.userType = 'guest';
 
-// Assuming that admin's userid is "admin-007"; lets call him!
+// Assuming that admin's userid is "admin-007"; lets call/invite him!
 connection.request("admin-007");
 
-// Assuming that guest's userid is "guest-007"; lets receive his call
+// Assuming that guest's userid is "guest-007"; lets receive/accept his call
 connection.accept("guest-007");
 ```
 
 ###### `onAdmin`
 
-To alert guests if an admin gets free; or becomes available:
+It is fired when an admin gets available; using it, you can allow customers to call him.
 
 ```javascript
 connection.onAdmin = function (admin) {
@@ -678,7 +745,7 @@ connection.onAdmin = function (admin) {
 
 ###### `onGuest`
 
-Alert admin for each new guest; if and only if, admin is not "busy"!
+It is fired for each new customer; using it, you can detect presence of your customers; also you can call them too:
 
 ```javascript
 connection.onGuest = function (guest) {
@@ -715,7 +782,7 @@ connection.onstats = function (stats, userinfo) {
 ###### Remember
 
 1. One-way streaming is not supported for Admin/Guest feature; however you can ejoy all other features (listed at the top of this file)
-2. Admin/Guest relationship is one-to-one
+2. Admin/Guest relationship is one-to-one; however you can force "many-to-many" too; see below section
 
 ###### Use Cases
 
@@ -726,7 +793,6 @@ You want to be an administrator; and you want to manage users; you may want to i
 connection.userType = 'admin';
 
 // invite a user to your room
-connection.userid = 'target-userid';
 connection.request('target-userid');
 
 // eject a user
@@ -747,7 +813,7 @@ connection.session = {
 
 =
 
-##### Custom Signaling
+##### Custom Signaling (v1.4 and earlier)
 
 Use your own [socket.io over node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) for signaling:
 
@@ -784,7 +850,31 @@ For a `ready-made` socket.io over node.js implementation; [visit this link](http
 
 =
 
-##### Custom Handlers on the Server
+##### Custom Signaling (v1.5 and upper)
+
+Your server-side node.js code looks like this:
+
+```javascript
+io.sockets.on('connection', function (socket) {
+    socket.on('message', function (data) {
+        socket.broadcast.emit('message', data);
+    });
+});
+```
+
+And to override `openSignalingChannel` on the client side:
+
+```javascript
+connection.openSignalingChannel = function(callback) {
+    return io.connect().on('message', callback);
+};
+```
+
+Want to use XHR, WebSockets, SIP, XMPP, etc. for signaling? Read [this post](https://github.com/muaz-khan/WebRTC-Experiment/issues/56#issuecomment-20090650).
+
+=
+
+##### Custom Handlers for server
 
 `RTCMultiConnection` allows you set custom handlers on your server too. Set `transmitRoomOnce` to `true`:
 
@@ -851,7 +941,7 @@ io.sockets.on('connection', function (socket) {
 
 =
 
-##### Documentations History
+##### Documentations History / [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/changes-log.md)
 
 1. [`RTCMultiConnection-v1.4 and v1.5`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection)
 2. [`RTCMultiConnection-v1.6`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.6.md)
@@ -862,7 +952,7 @@ io.sockets.on('connection', function (socket) {
 
 ##### Browser Support
 
-[RTCMultiConnection-v1.4.js](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js) supports following browsers:
+[RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection) supports following browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------|
@@ -874,4 +964,4 @@ io.sockets.on('connection', function (socket) {
 
 ##### License
 
-[RTCMultiConnection-v1.4.js](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
