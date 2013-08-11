@@ -256,6 +256,116 @@ and many others.
 
 =
 
+##### Remove existing media streams
+
+When renegotiating; a common scenario is to remove existing media streams; and renegotiate new ones.
+
+```javascript
+// remove a media-stream by id
+connection.removeStream('stream-id');
+
+// it is mandatory because renegotiation process fails
+// if DTLS/SRTP is enabled on chrome (a known bug)
+// https://www.webrtc-experiment.com/docs/how-to-switch-streams.html
+// Remember, when we disable DTLS/SRTP; Chrome/Firefox interoperability fails
+connection.disableDtlsSrtp = true;
+
+// renegotiate a new media-stream
+connection.addStream({
+    audio: true,
+    video: true
+});
+```
+
+**Demo:**
+
+```html
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+
+<style>video {width: 48%;vertical-align: top;}</style>
+<button id="init">Open New Connection</button>
+<button id="renegotiate">Renegotiate</button>
+<br /><br />
+
+<script>	
+var connection = new RTCMultiConnection();
+connection.disableDtlsSrtp = true;
+connection.session = {
+    audio: true,
+    video: true
+};
+
+connection.openSignalingChannel = function (config) {
+    config.channel = config.channel || this.channel || 'jfdkjfujdisafjlsdjerifjsdl';
+    var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+    websocket.channel = config.channel;
+    websocket.onopen = function () {
+        websocket.push(JSON.stringify({
+            open: true,
+            channel: config.channel
+        }));
+        if (config.callback) config.callback(websocket);
+    };
+    websocket.onmessage = function (event) {
+        config.onmessage(JSON.parse(event.data));
+    };
+    websocket.push = websocket.send;
+    websocket.send = function (data) {
+        websocket.push(JSON.stringify({
+            data: data,
+            channel: config.channel
+        }));
+    };
+};
+
+// detaching only first two media streams:
+// 1. first local media stream
+// 2. first remote media stream
+connection.onstream = function (e) {
+    document.body.appendChild(e.mediaElement);
+    if (loop) this.detachStreams.push(e.streamid);
+    loop--;
+};
+var loop = 2;
+
+connection.connect('session-id');
+
+document.getElementById('init').onclick = function () {
+    this.disabled = true;
+    connection.open('session-id');
+};
+
+document.getElementById('renegotiate').onclick = function () {
+    this.disabled = true;
+
+    // connection.removeStream(1st-local-stream-streamid);
+    // connection.removeStream(1st-remote-stream-streamid);
+	
+    // renegotiating new media-stream in one-way direction
+    connection.addStream({
+        video: true,
+        oneway: true
+    });
+};
+
+connection.onstreamended = function (e) {
+    if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
+};
+</script>
+```
+
+`detachStreams` is a publicly accessible array; allows you inject multiple stream-ids; all relevant streams will be removed on renegotiation.
+
+=
+
+##### `disableDtlsSrtp`
+
+It is mandatory because renegotiation process fails if DTLS/SRTP is enabled on chrome (out of a known bug).
+
+Remember, when we disable DTLS/SRTP; Chrome/Firefox interoperability fails.
+
+=
+
 ##### `session`
 
 This object lets you set the session. Possible values are:
@@ -449,13 +559,36 @@ connection.onFileProgress = function (packets, uuid) {
 };
 
 // on file successfully sent
-connection.onFileSent = function (file) {
+connection.onFileSent = function (file, uuid) {
     // file.name
     // file.size
 };
 
 // on file successfully received
-connection.onFileReceived = function (fileName) { };
+connection.onFileReceived = function (fileName, file) {
+    // file.blob
+    // file.dataURL
+    // file.url
+    // file.uuid
+};
+```
+
+=
+
+##### Auto-Save file to Disk
+
+By default; `autoSaveToDisk` is set to `true`. When it is `true`; it will save file to disk as soon as it is received. To prevent auto-saving feature; just set it `false`:
+
+```javascript
+connection.autoSaveToDisk = false; // prevent auto-saving!
+connection.onFileReceived = function (fileName, file) {
+    // file.blob
+    // file.dataURL
+    // file.url
+    // file.uuid
+	
+    hyperlink.href = file.url;
+};
 ```
 
 =

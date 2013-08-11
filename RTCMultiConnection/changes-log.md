@@ -9,11 +9,13 @@ This document explains RTCMultiConnection versions log.
 1. [RTCMultiConnection](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) is upgraded from [RTCDataConnection](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCDataConnection) at March 25, 2013
 2. The main idea behind RTCMultiConnection was to support all RTCWeb API features in one place
 
-**v1.6** will be removed when **v1.5** gets stable. That's why **v1.5 is preferred comparing v1.6**.
+**v1.6** will be removed when **v1.5** gets stable. That's why **v1.5 is preferred comparing v1.6**. However, currently **v1.4 is the only stable release**.
 
 =
 
 ##### v1.5 / released in August 06, 2013
+
+**It is recommended to try v1.4 instead.**
 
 1. Supports any signaling gateway exists out there; i.e. "multi-sockets" are no-more required
 2. Out of a tinny bug; "many-to-many" feature is temporariy disabled. For many-to-many connection, try v1.4 instead
@@ -31,6 +33,10 @@ This document explains RTCMultiConnection versions log.
 7. maxParticipantsAllowed added
 8. media/sdp constraints / [see commit](https://github.com/muaz-khan/WebRTC-Experiment/commit/8d76c0cb5be4d8df17c6603220c091b8ea2ff0f6#RTCMultiConnection)
 9. Session re-initiation / [see commit](https://github.com/muaz-khan/WebRTC-Experiment/commit/a0f9b72654b3ba7c5232968d9850e35fb770bbbb#RTCMultiConnection)
+10. removeStream added to allow removal of existing media streams
+11. disableDtlsSrtp added to fix renegotiation process which fails on chrome when DTLS/SRTP enabled
+12. autoSaveToDisk added to allow customization of file-sharing
+13. file-sharing extended and fixed; no crash for large files anymore!
 
 =
 

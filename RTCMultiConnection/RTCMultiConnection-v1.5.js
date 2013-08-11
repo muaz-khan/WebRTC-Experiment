@@ -205,7 +205,9 @@
                             streamid: streamid,
                             mediaElement: mediaElement,
                             blobURL: mediaElement.mozSrcObject || mediaElement.src,
-                            type: 'local'
+                            type: 'local',
+                            userid: self.userid || 'self',
+                            extra: self.extra
                         };
 
                         self.onstream(streamedObject);
@@ -803,7 +805,7 @@
 
             privateHandler({
                 channel: root.userid,
-                extra: config.extra,
+                extra: root.extra,
                 targetUser: config.userid
             });
 

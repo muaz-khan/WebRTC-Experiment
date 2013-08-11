@@ -287,7 +287,7 @@ var RTCPeerConnection = function (options) {
         iceServers: [STUN]
     };
 
-    if (isChrome) {
+    if (!moz) {
         // in chrome M29 and higher
         if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
             TURN = {
