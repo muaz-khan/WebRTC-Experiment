@@ -188,6 +188,12 @@ recorder.startRecording();
 recorder.stopRecording(function(audioURL) {
    window.open(audioURL);
 });
+
+// get blob
+formData.append( 'blob', recorder.getBlob() );
+
+// get DataURL
+window.open( recorder.getDataURL() );
 ```
 
 [RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)

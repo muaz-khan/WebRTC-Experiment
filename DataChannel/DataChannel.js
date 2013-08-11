@@ -1,6 +1,8 @@
-// 2013, @muazkh » github.com/muaz-khan
-// MIT License » https://webrtc-experiment.appspot.com/licence/
-// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
+// Muaz Khan     - https://github.com/muaz-khan
+// MIT License   - https://www.webrtc-experiment.com/licence/
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
+// ==============
+// DataChannel.js
 
 (function() {
     window.DataChannel = function(channel, extras) {
@@ -29,6 +31,8 @@
             console.error('data channel error:', event);
         };
 
+        // by default; received file will be auto-saved to disk
+        this.autoSaveToDisk = true;
         this.onFileReceived = function(fileName) {
             console.debug('File <', fileName, '> received successfully.');
         };
@@ -297,7 +301,7 @@
 
             function onChannelOpened(channel) {
                 channel.peer = peer.peer;
-                RTCDataChannels[RTCDataChannels.length] = channel;
+                RTCDataChannels.push(channel);
 
                 config.onopen(_config.userid, channel);
 
@@ -393,7 +397,7 @@
                     setTimeout(function() {
                         self.roomToken = response.roomToken;
                         root.open(self.roomToken);
-                        self.sockets = self.sockets.swap();
+                        self.sockets = swap(self.sockets);
                     }, 600);
             }
 
@@ -484,7 +488,7 @@
                     delete self.socketObjects[channel];
                 }
             }
-            self.sockets = self.sockets.swap();
+            self.sockets = swap(self.sockets);
         }
 
         window.onbeforeunload = function() {
@@ -617,22 +621,6 @@
                 _channel = config._channel,
                 file = config.file;
 
-            /* if firefox nightly: share file blob directly */
-            if (moz && IsDataChannelSupported) {
-                /* used on the receiver side to set received file name */
-                channel.send({
-                    fileName: file.name,
-                    type: 'file'
-                }, _channel);
-
-                /* sending entire file at once */
-                channel.send({
-                    file: file
-                }, _channel);
-
-                if (config.onFileSent) config.onFileSent(file);
-            }
-
             var packetSize = 1000,
                 textToTransfer = '',
                 numberOfPackets = 0,
@@ -641,12 +629,9 @@
             // uuid is used to uniquely identify sending instance
             var uuid = getRandomString();
 
-            /* if chrome */
-            if (!IsDataChannelSupported || !moz) {
-                var reader = new window.FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = onReadAsDataURL;
-            }
+            var reader = new window.FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = onReadAsDataURL;
 
             function onReadAsDataURL(event, text) {
                 var data = {
@@ -672,63 +657,70 @@
                     data.last = true;
                     data.name = file.name;
 
-                    if (config.onFileSent) config.onFileSent(file);
+                    if (config.onFileSent) config.onFileSent(file, uuid);
                 }
 
+                // WebRTC-DataChannels.send(data, privateDataChannel)
                 channel.send(data, _channel);
 
                 textToTransfer = text.slice(data.message.length);
 
-                if (textToTransfer.length)
+                if (textToTransfer.length) {
                     setTimeout(function() {
                         onReadAsDataURL(null, textToTransfer);
-                    }, 500);
+                    }, moz ? 1 : 500);
+                    // bug: what's the best method to speedup data transferring on chrome?
+                }
             }
         }
     };
 
     function FileReceiver() {
         var content = { },
-            fileName = '',
             packets = { },
             numberOfPackets = { };
 
-        function receive(data, config) {
+        // "root" is RTCMultiConnection object
+        // "data" is object passed using WebRTC DataChannels
+
+        function receive(data, root) {
             // uuid is used to uniquely identify sending instance
             var uuid = data.uuid;
 
-            /* if firefox nightly & file blob shared */
-            if (moz) {
-                if (data.fileName) fileName = data.fileName;
-                if (data.size) {
-                    var reader = new window.FileReader();
-                    reader.readAsDataURL(data);
-                    reader.onload = function(event) {
-                        FileSaver.SaveToDisk(event.target.result, fileName);
-                        if (config.onFileReceived) config.onFileReceived(fileName);
-                    };
-                }
-            }
+            if (data.packets) numberOfPackets[uuid] = packets[uuid] = parseInt(data.packets);
 
-            if (!moz) {
-                if (data.packets) numberOfPackets[uuid] = packets[uuid] = parseInt(data.packets);
+            if (root.onFileProgress)
+                root.onFileProgress({
+                    remaining: packets[uuid]--,
+                    length: numberOfPackets[uuid],
+                    received: numberOfPackets[uuid] - packets[uuid]
+                }, uuid);
 
-                if (config.onFileProgress)
-                    config.onFileProgress({
-                        remaining: packets[uuid]--,
-                        length: numberOfPackets[uuid],
-                        received: numberOfPackets[uuid] - packets[uuid]
-                    }, uuid);
+            if (!content[uuid]) content[uuid] = [];
 
-                if (!content[uuid]) content[uuid] = [];
+            content[uuid].push(data.message);
 
-                content[uuid].push(data.message);
+            // if it is last packet
+            if (data.last) {
+                var dataURL = content[uuid].join('');
+                var blob = FileConverter.DataUrlToBlob(dataURL);
+                var virtualURL = (window.URL || window.webkitURL).createObjectURL(blob);
 
-                if (data.last) {
-                    FileSaver.SaveToDisk(content[uuid].join(''), data.name);
-                    if (config.onFileReceived) config.onFileReceived(data.name);
-                    delete content[uuid];
-                }
+                // if you don't want to auto-save to disk:
+                // channel.autoSaveToDisk=false;
+                if (root.autoSaveToDisk)
+                    FileSaver.SaveToDisk(virtualURL, data.name);
+
+                // channel.onFileReceived = function(fileName, file) {}
+                // file.blob || file.dataURL || file.url || file.uuid
+                if (root.onFileReceived)
+                    root.onFileReceived(data.name, {
+                        blob: blob,
+                        dataURL: dataURL,
+                        url: virtualURL,
+                        uuid: uuid
+                    });
+                delete content[uuid];
             }
         }
 
@@ -739,17 +731,39 @@
 
     var FileSaver = {
         SaveToDisk: function(fileUrl, fileName) {
-            var save = document.createElement('a');
-            save.href = fileUrl;
-            save.target = '_blank';
-            save.download = fileName || fileUrl;
+            var hyperlink = document.createElement('a');
+            hyperlink.href = fileUrl;
+            hyperlink.target = '_blank';
+            hyperlink.download = fileName || fileUrl;
 
-            var evt = document.createEvent('MouseEvents');
-            evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+            var mouseEvent = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true
+            });
 
-            save.dispatchEvent(evt);
+            hyperlink.dispatchEvent(mouseEvent);
+            (window.URL || window.webkitURL).revokeObjectURL(hyperlink.href);
+        }
+    };
 
-            (window.URL || window.webkitURL).revokeObjectURL(save.href);
+    var FileConverter = {
+        DataUrlToBlob: function(dataURL) {
+            var binary = atob(dataURL.substr(dataURL.indexOf(',') + 1));
+            var array = [];
+            for (var i = 0; i < binary.length; i++) {
+                array.push(binary.charCodeAt(i));
+            }
+
+            var type;
+
+            try {
+                type = dataURL.substr(dataURL.indexOf(':') + 1).split(';')[0];
+            } catch(e) {
+                type = 'text/plain';
+            }
+
+            return new Blob([new Uint8Array(array)], { type: type });
         }
     };
 
@@ -771,8 +785,7 @@
             var uuid = getRandomString();
             var sendingTime = new Date().getTime();
 
-            if (IsDataChannelSupported && moz) channel.send(config.text, _channel);
-            else sendText(initialText);
+            sendText(initialText);
 
             function sendText(textMessage, text) {
                 var data = {
@@ -801,7 +814,7 @@
                 if (textToTransfer.length)
                     setTimeout(function() {
                         sendText(null, textToTransfer);
-                    }, 500);
+                    }, moz ? 1 : 500);
             }
         }
     };
@@ -835,14 +848,13 @@
         };
     }
 
-    Array.prototype.swap = function() {
+    function swap(arr) {
         var swapped = [],
-            arr = this,
             length = arr.length;
         for (var i = 0; i < length; i++)
-            if (arr[i]) swapped[swapped.length] = arr[i];
+            if (arr[i]) swapped.push(arr[i]);
         return swapped;
-    };
+    }
 
     window.moz = !!navigator.mozGetUserMedia;
     window.IsDataChannelSupported = !((moz && !navigator.mozGetUserMedia) || (!moz && !navigator.webkitGetUserMedia));
@@ -884,6 +896,11 @@
             optional.optional = [{
                 RtpDataChannels: true
             }];
+        }
+
+        if (!navigator.onLine) {
+            iceServers = null;
+            console.warn('No internet connection detected. No STUN/TURN server is used to make sure local/host candidates are used for peers connection.');
         }
 
         var peerConnection = new PeerConnection(iceServers, optional);
@@ -933,7 +950,6 @@
 
             // remove existing bandwidth lines
             sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
-
             sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:1638400\r\n');
 
             return sdp;
@@ -980,7 +996,7 @@
             channel.onerror = options.onerror;
         }
 
-        if (options.onAnswerSDP && moz) openAnswererChannel();
+        if (options.onAnswerSDP && moz && options.onmessage) openAnswererChannel();
 
         function openAnswererChannel() {
             peerConnection.ondatachannel = function(event) {

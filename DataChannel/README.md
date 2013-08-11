@@ -173,13 +173,31 @@ channel.onFileProgress = function (packets, uuid) {
 };
 
 // on file successfully sent
-channel.onFileSent = function (file) {
+channel.onFileSent = function (file, uuid) {
     // file.name
     // file.size
 };
 
 // on file successfully received
-channel.onFileReceived = function (fileName) {};
+channel.onFileReceived = function (fileName, file) {};
+```
+
+=
+
+##### Auto-Save file to Disk
+
+By default; `autoSaveToDisk` is set to `true`. When it is `true`; it will save file to disk as soon as it is received. To prevent auto-saving feature; just set it `false`:
+
+```javascript
+channel.autoSaveToDisk = false; // prevent auto-saving!
+channel.onFileReceived = function (fileName, file) {
+    // file.blob
+    // file.dataURL
+    // file.url
+    // file.uuid
+	
+    hyperlink.href = file.url;
+};
 ```
 
 =

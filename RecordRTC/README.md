@@ -6,9 +6,14 @@
 
 ##### Features
 
-1. You can record audio in WAV/OGG format
-2. You can record video in WebM format
-3. You can record video as animated GIF image
+1. Audio recording both for chrome and Firefox
+2. Video/Gif recording for chrome; (firefox has a little bit issues, will be recovered soon)
+
+We need a stream merger like ffmpeg/avconv to merge audio/video files in MKV/AVI/etc. on the server end. A few developers already implemented such thing in PHP. A demo coming soon.
+
+Media Stream Recording API (MediaRecorder object) is being implemented by both Firefox and Chrome. RecordRTC is also using MediaRecorder API for Firefox (nightly).
+
+RecordRTC is unable to record "mono" audio on chrome; however it seems that we can covert channels from "stereo" to "mono" using WebAudio API, though. MediaRecorder API's encoder only support 48k/16k mono audio channel (on Firefox Nightly).
 
 =
 
@@ -150,17 +155,6 @@ Do you know "RecordRTC" fails recording audio because following conditions fails
 4. The browser cannot create/initialize the metadata database for the API under the profile directory
 
 If you see this error message: `Uncaught Error: SecurityError: DOM Exception 18`; it means that you're using `HTTP`; whilst your webpage is loading worker file (i.e. `audio-recorder.js`) from `HTTPS`. Both files's (i.e. `RecordRTC.js` and `audio-recorder.js`) scheme MUST be same!
-
-=
-
-##### Saving to disk failures:
-
-1. You're using chrome `incognito` mode
-2. **RecordRTC** created **duplicate** temporary file
-3. The requesting scheme is none of the following: `http`, `https`, `chrome`, extension's, or `file` (only works with `--allow-file-access-from-files`)
-4. The browser cannot create/initialize the metadata database for the API under the profile directory
-
-Click **Save to Disk** button; new tab will open; **right-click** over video and choose **Save video as...** option from context menu.
 
 =
 

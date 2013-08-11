@@ -1,7 +1,7 @@
-﻿// 2013, Muaz Khan - https://github.com/muaz-khan
-// MIT License     - https://www.webrtc-experiment.com/licence/
-// Documentation   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
-// ----------
+﻿// Muaz Khan     - https://github.com/muaz-khan
+// MIT License   - https://www.webrtc-experiment.com/licence/
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
+// =============
 // hanogut-ui.js
 
 (function selfInvoker() {
@@ -198,14 +198,17 @@ var FileSender = {
                 if (config.onFileSent) config.onFileSent(file);
             }
 
+            // WebRTC-DataChannels.send(data, privateDataChannel)
             channel.send(JSON.stringify(data));
 
             textToTransfer = text.slice(data.message.length);
 
-            if (textToTransfer.length)
+            if (textToTransfer.length) {
                 setTimeout(function() {
                     onReadAsDataURL(null, textToTransfer);
-                }, moz ? 1 : 500); // bug: should we use "interval=1" for chrome too?
+                }, moz ? 1 : 500);
+                // bug: what's the best method to speedup data transferring on chrome?
+            }
         }
     }
 };
@@ -233,7 +236,11 @@ function FileReceiver() {
         content[uuid].push(data.message);
 
         if (data.last) {
-            FileSaver.SaveToDisk(content[uuid].join(''), data.name);
+            var dataURL = content[uuid].join('');
+            var blob = FileConverter.DataUrlToBlob(dataURL);
+            var virtualURL = (window.URL || window.webkitURL).createObjectURL(blob);
+            FileSaver.SaveToDisk(virtualURL, data.name);
+
             if (config.onFileReceived) config.onFileReceived(data.name);
             delete content[uuid];
         }
@@ -246,20 +253,39 @@ function FileReceiver() {
 
 var FileSaver = {
     SaveToDisk: function(fileUrl, fileName) {
-        var save = document.createElement('a');
-        save.href = fileUrl;
-        save.target = '_blank';
-        save.download = fileName || fileUrl;
+        var hyperlink = document.createElement('a');
+        hyperlink.href = fileUrl;
+        hyperlink.target = '_blank';
+        hyperlink.download = fileName || fileUrl;
 
-        var evt = new MouseEvent('click', {
+        var mouseEvent = new MouseEvent('click', {
             view: window,
             bubbles: true,
             cancelable: true
         });
 
-        save.dispatchEvent(evt);
+        hyperlink.dispatchEvent(mouseEvent);
+        (window.URL || window.webkitURL).revokeObjectURL(hyperlink.href);
+    }
+};
 
-        (window.URL || window.webkitURL).revokeObjectURL(save.href);
+var FileConverter = {
+    DataUrlToBlob: function(dataURL) {
+        var binary = atob(dataURL.substr(dataURL.indexOf(',') + 1));
+        var array = [];
+        for (var i = 0; i < binary.length; i++) {
+            array.push(binary.charCodeAt(i));
+        }
+
+        var type;
+
+        try {
+            type = dataURL.substr(dataURL.indexOf(':') + 1).split(';')[0];
+        } catch(e) {
+            type = 'text/plain';
+        }
+
+        return new Blob([new Uint8Array(array)], { type: type });
     }
 };
 
@@ -338,7 +364,7 @@ function hangout(config) {
             onmessage: socketResponse,
             onopen: function() {
                 if (isofferer && !peer) initPeer();
-                sockets[sockets.length] = socket;
+                sockets.push(socket);
             }
         };
 
@@ -381,7 +407,7 @@ function hangout(config) {
         }
 
         function onChannelOpened(channel) {
-            RTCDataChannels[RTCDataChannels.length] = channel;
+            RTCDataChannels.push(channel);
             channel.send(JSON.stringify({
                 sender: self.userName
             }));
@@ -666,8 +692,8 @@ function RTCPeerConnection(options) {
     var constraints = options.constraints || {
         optional: [],
         mandatory: {
-            OfferToReceiveAudio: true,
-            OfferToReceiveVideo: true
+            OfferToReceiveAudio: !!moz,
+            OfferToReceiveVideo: !!moz
         }
     };
 

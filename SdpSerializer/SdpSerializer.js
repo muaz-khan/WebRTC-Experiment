@@ -1,7 +1,6 @@
-// 2013, Muaz Khan - https://github.com/muaz-khan
-// MIT License     - https://www.webrtc-experiment.com/licence/
-// Experiments     - https://github.com/muaz-khan/WebRTC-Experiment
-// Repository      - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/SdpSerializer
+// Muaz Khan     - https://github.com/muaz-khan
+// MIT License   - https://www.webrtc-experiment.com/licence/
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/SdpSerializer
 // -----------------------------------
 // The purpose of this library is to explain possible customization
 // of session description (sdp).
@@ -10,42 +9,41 @@
 // -----------------------------------
 // Serializes the passed in SessionDescription string.
 
-/* How to use?
-var serializer = new SdpSerializer(sdp);
+// How to use?
+// var serializer = new SdpSerializer(sdp);
 
 // remove entire audio m-line
-serializer.audio.remove();
+// serializer.audio.remove();
 
 // change order of a payload type in video m-line
-serializer.video.payload(117).order(0);
+// serializer.video.payload(117).order(0);
 
 // inject new-line after a specific payload type; under video m-line
-serializer.video.payload(117).newLine('a=ptime:10');
+// serializer.video.payload(117).newLine('a=ptime:10');
 
 // remove a specific payload type; under video m-line
-serializer.video.payload(100).remove();
+// serializer.video.payload(100).remove();
    
 // want to add/replace a crypto line?
-serializer.video.crypto().newLine('a=crypto:0 AES_CM_128_HMAC_SHA1_80 inline:AAAAAAAAAAAAAAAAAAAAAAAAA');
+// serializer.video.crypto().newLine('a=crypto:0 AES_CM_128_HMAC_SHA1_80 inline:AAAAAAAAAAAAAAAAAAAAAAAAA');
    
 // want to remove a crypto line?
-serializer.video.crypto(80).remove();
+// serializer.video.crypto(80).remove();
    
 // want to set direction?
-serializer.video.direction.set('sendonly');
+// serializer.video.direction.set('sendonly');
    
 // want to get direction?
-serializer.video.direction.get();
+// serializer.video.direction.get();
    
 // want to remove entire audio or video track?
 // usually, in video m-line:
 // 0-track is always "video" stream
 // 1-track will be screen sharing stream (if attached)
-serializer.video.track(0).remove()
+// serializer.video.track(0).remove()
    
 // get serialized sdp
-sdp = serializer.deserialize();
-*/
+// sdp = serializer.deserialize();
 
 function SdpSerializer(sdp) {
     var mLines = { };
@@ -86,7 +84,7 @@ function SdpSerializer(sdp) {
 
             _serialize('data');
         } else {
-            topLines[topLines.length] = line;
+			topLines.push(line);
         }
     }
 
@@ -116,8 +114,7 @@ function SdpSerializer(sdp) {
                     mLines[mLine].direction = prevLine.split('a=')[1];
 
                     // remove "direction" attribute
-                    delete mLines[mLine].attributes[mLines[mLine].attributes.length - 1];
-                    mLines[mLine].attributes = swap(mLines[mLine].attributes);
+					mLines[mLine].attributes.pop(1);
                 }
 
                 isMidLine = true;
@@ -142,7 +139,7 @@ function SdpSerializer(sdp) {
 
                             // media-lines
                             if (line.indexOf('a=ssrc') != -1) {
-                                mLines[mLine].ssrc[mLines[mLine].ssrc.length] = line;
+                                mLines[mLine].ssrc.push(line);
                             }
 
                             i++;
@@ -150,10 +147,10 @@ function SdpSerializer(sdp) {
                         }
                     })();
                 } else {
-                    mLines[mLine]['a=mid:' + mLine].attributes[mLines[mLine]['a=mid:' + mLine].attributes.length] = line;
+                    mLines[mLine]['a=mid:' + mLine].attributes.push(line);
                 }
             } else {
-                mLines[mLine].attributes[mLines[mLine].attributes.length] = line;
+                mLines[mLine].attributes.push(line);
             }
         }
     }
@@ -174,9 +171,9 @@ function SdpSerializer(sdp) {
             var ssrcLine = mLines[mLine].ssrc[s];
 
             if (ssrcLine.indexOf('cname:') != -1) {
-                formattedSSRC[formattedSSRC.length] = [];
+                formattedSSRC.push([]);
             }
-            formattedSSRC[formattedSSRC.length - 1][formattedSSRC[formattedSSRC.length - 1].length] = ssrcLine;
+            formattedSSRC[formattedSSRC.length - 1].push(ssrcLine);
         }
         mLines[mLine].ssrc = formattedSSRC;
     }
@@ -383,8 +380,16 @@ function SdpSerializer(sdp) {
     this._inner = mLines;
 
     // formatted output
-    console.debug('Serialized SDP', this._inner);
+    console.debug('Serialized SDP', JSON.stringify(this._inner, null, '\t'));
 }
+
+function swap(arr) {
+        var swapped = [];
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i]) swapped.push(arr[i]);
+        }
+        return swapped;
+    }
 
 // kApplicationSpecificMaximum="AS"=50/256/1638400
 // SdpSerializer.SerializeASBandwidth(sdp, {audio,video,data});
@@ -442,11 +447,3 @@ SdpSerializer.RTPOverTCP = function(sdp) {
 // a=mid:video
 // a=rtpmap:120 VP8/90000
 // a=fmtp:120 x-google-min-bitrate=10
-
-function swap(arr) {
-        var swapped = [];
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i]) swapped[swapped.length] = arr[i];
-        }
-        return swapped;
-    }

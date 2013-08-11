@@ -271,7 +271,7 @@
 				packets.sent 
 				? (packets.sent + ' sent') 
 				: (packets.received + ' received')
-			) + ' / ' + packets.remaining + ' remaining', fileProgress);
+			) + ' / ' + packets.remaining + ' remaining', 'file', fileProgress);
     };
 
     channel.onFileSent = function (file) {
