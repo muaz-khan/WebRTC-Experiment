@@ -447,3 +447,49 @@ SdpSerializer.RTPOverTCP = function(sdp) {
 // a=mid:video
 // a=rtpmap:120 VP8/90000
 // a=fmtp:120 x-google-min-bitrate=10
+
+// ----------------------- maxaveragebitrate 
+/*
+Chrome currently only support the 48 kHz mode of Opus 
+on the send side in WebRTC. However, there are ways to reduce the send 
+bitrate anyway.
+
+opus/8000 is not a valid option according to the Opus RTP payload spec, 
+found here: http://tools.ietf.org/html/draft-ietf-payload-rtp-opus-01#page-13. 
+It says in the spec that "The RTP clock rate in "a=rtpmap" MUST be 48000 
+and the number of channels MUST be 2.".
+
+There is a good reason for this restriction. As you noted codec negotiation 
+will fail if one side says it supports 8000/1 while the other don't. 
+The reason for always signaling 48000/2 is to avoid codec negotiation 
+failure. Opus is a very flexible codec, and the decoder will (almost) 
+always be able to decode what you send. Further explained in the spec:
+"Opus supports several clock rates. For signaling purposes only the highest, 
+i.e. 48000, is used. The actual clock rate of the corresponding media 
+is signaled inside the payload and is not subject to this payload format 
+description. The decoder MUST be capable to decode every received clock rate."
+
+There are a set of optional SDP parameters and the following apply to 
+the clock rate, but is currently not supported in WebRTC:
+maxplaybackrate - "The "maxplaybackrate" parameter is a unidirectional 
+receive-only parameter that reflects limitations of the local receiver.  
+The sender of the other side SHOULD NOT send with an audio bandwidth higher
+than "maxplaybackrate" as this would lead to inefficient use of network 
+resources.  The "maxplaybackrate" parameter does not affect interoperability.  
+Also, this parameter SHOULD NOT be used to adjust the audio bandwidth as a 
+function of the bitrates, as this is the responsibility of the Opus encoder 
+implementation."
+
+So, back to the bit rate. There is an optional SDP parameter that WebRTC 
+support that you can use. Here is the description from the spec:
+maxaveragebitrate - The "maxaveragebitrate" parameter is a unidirectional 
+receive-only parameter that reflects limitations of the local receiver.  
+The sender of the other side MUST NOT send with an average bitrate higher 
+than "maxaveragebitrate" as it might overload the network and/or receiver.  
+The "maxaveragebitrate" parameter typically will not compromise 
+interoperability; however, dependent on the set value of the parameter 
+the performance of the application may suffer and should be set with care."
+
+// ---- inject "maxaveragebitrate" line for OPUS payload
+// serializer.video.payload(111).newLine('a=fmtp:111 minptime=10 maxaveragebitrate:8000');
+*/

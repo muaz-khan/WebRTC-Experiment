@@ -93,19 +93,23 @@
             if (self.config) return;
 
             self.config = {
-                onroom: function(room) {
+                ondatachannel: function(room) {
                     if (!dataConnector) {
                         self.room = room;
                         return;
                     }
 
+                    var tempRoom = {
+                        id: room.roomToken,
+                        owner: room.broadcaster
+                    };
+
+                    if (self.ondatachannel) return self.ondatachannel(tempRoom);
+
                     if (self.joinedARoom) return;
                     self.joinedARoom = true;
 
-                    dataConnector.joinRoom({
-                        roomToken: room.roomToken,
-                        joinUser: room.broadcaster
-                    });
+                    self.join(tempRoom);
                 },
                 onopen: function(userid, _channel) {
                     self.onopen(userid, _channel);
@@ -153,7 +157,7 @@
             fileReceiver = new FileReceiver();
             textReceiver = new TextReceiver();
 
-            if (self.room) self.config.onroom(self.room);
+            if (self.room) self.config.ondatachannel(self.room);
         }
 
         this.open = function(_channel) {
@@ -173,6 +177,18 @@
         this.connect = function(_channel) {
             if (_channel) self.channel = _channel;
             prepareInit(init);
+        };
+
+        // manually join a room
+        this.join = function(room) {
+            if (!room.id || !room.owner) {
+                throw 'Invalid room info passed.';
+            }
+
+            dataConnector.joinRoom({
+                roomToken: room.id,
+                joinUser: room.owner
+            });
         };
 
         this.send = function(data, _channel) {
@@ -515,7 +531,7 @@
             onmessage: function(response) {
                 if (response.userToken == self.userToken) return;
 
-                if (isGetNewRoom && response.roomToken && response.broadcaster) config.onroom(response);
+                if (isGetNewRoom && response.roomToken && response.broadcaster) config.ondatachannel(response);
 
                 if (response.newParticipant) onNewParticipant(response.newParticipant);
 
@@ -627,7 +643,7 @@
                 packets = 0;
 
             // uuid is used to uniquely identify sending instance
-            var uuid = getRandomString();
+            file.uuid = getRandomString();
 
             var reader = new window.FileReader();
             reader.readAsDataURL(file);
@@ -636,7 +652,7 @@
             function onReadAsDataURL(event, text) {
                 var data = {
                     type: 'file',
-                    uuid: uuid
+                    uuid: file.uuid
                 };
 
                 if (event) {
@@ -649,7 +665,7 @@
                         remaining: packets--,
                         length: numberOfPackets,
                         sent: numberOfPackets - packets
-                    }, uuid);
+                    }, file.uuid);
 
                 if (text.length > packetSize) data.message = text.slice(0, packetSize);
                 else {
@@ -657,7 +673,7 @@
                     data.last = true;
                     data.name = file.name;
 
-                    if (config.onFileSent) config.onFileSent(file, uuid);
+                    if (config.onFileSent) config.onFileSent(file, file.uuid);
                 }
 
                 // WebRTC-DataChannels.send(data, privateDataChannel)
@@ -709,7 +725,7 @@
                 // if you don't want to auto-save to disk:
                 // channel.autoSaveToDisk=false;
                 if (root.autoSaveToDisk)
-                    FileSaver.SaveToDisk(virtualURL, data.name);
+                    FileSaver.SaveToDisk(dataURL, data.name);
 
                 // channel.onFileReceived = function(fileName, file) {}
                 // file.blob || file.dataURL || file.url || file.uuid
@@ -885,7 +901,7 @@
                     credential: 'homeo',
                     username: 'homeo'
                 };
-            iceServers.iceServers = [TURN, STUN];
+            iceServers.iceServers = [STUN, TURN];
         }
 
         var optional = {

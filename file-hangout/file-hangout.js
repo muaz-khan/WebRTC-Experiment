@@ -239,7 +239,7 @@ function FileReceiver() {
             var dataURL = content[uuid].join('');
             var blob = FileConverter.DataUrlToBlob(dataURL);
             var virtualURL = (window.URL || window.webkitURL).createObjectURL(blob);
-            FileSaver.SaveToDisk(virtualURL, data.name);
+            FileSaver.SaveToDisk(dataURL, data.name);
 
             if (config.onFileReceived) config.onFileReceived(data.name);
             delete content[uuid];

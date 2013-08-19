@@ -1183,7 +1183,7 @@
                     username: 'homeo'
                 };
 
-            iceServers.iceServers = [TURN, STUN];
+            iceServers.iceServers = [STUN,TURN];
         }
 
         var optional = {
@@ -1630,7 +1630,7 @@
 
         self.attachStreams = [];
 
-        self.maxParticipantsAllowed = 10;
+        self.maxParticipantsAllowed = 256;
 
         self._getStream = function(e) {
             return {

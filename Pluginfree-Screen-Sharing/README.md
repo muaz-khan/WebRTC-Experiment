@@ -31,7 +31,8 @@ There is another experiment: [WebRTC Tab Sharing using experimental tabCapture A
 
 It is a big wish to share desktop using RTCWeb peer connection APIs but unfortunately currently it is not possible.
 
-Current experiment is using chrome screen sharing APIs which is allows end-users just **view the screen**....nothing else!
+Current experiment is using chrome screen sharing APIs (media/constraints) which allows end-users to **view the screen**....nothing else!
+
 =
 
 #### Browser Support

@@ -41,7 +41,8 @@
             if (!data)
                 throw 'No file, data or text message to share.';
 
-            if (data.size)
+            if (data.size) {
+                // console.log(file.uuid);
                 FileSender.send({
                     file: data,
                     channel: rtcSession,
@@ -49,6 +50,7 @@
                     onFileProgress: self.onFileProgress,
                     _channel: _channel
                 });
+            }
             else
                 TextSender.send({
                     text: data,
@@ -192,10 +194,11 @@
                 }
             };
 
-            if (session.screen)
-                _captureUserMedia(screen_constraints, function() {
+            if (session.screen) {
+                _captureUserMedia(screen_constraints, constraints.audio || constraints.video ? function() {
                     _captureUserMedia(constraints, callback);
-                });
+                } : callback);
+            }
             else _captureUserMedia(constraints, callback, session.audio && !session.video);
 
             function _captureUserMedia(forcedConstraints, forcedCallback, isRemoveVideoTracks) {
@@ -368,7 +371,6 @@
                         mediaElement.addEventListener('play', function() {
                             setTimeout(function() {
                                 mediaElement.muted = false;
-                                mediaElement.volume = 1;
                                 afterRemoteStreamStartedFlowing(mediaElement);
                             }, 3000);
                         }, false);
@@ -423,6 +425,10 @@
             }
 
             function afterRemoteStreamStartedFlowing(mediaElement) {
+				setTimeout(function() {
+					mediaElement.volume=1;
+				}, 3000);
+								
                 var stream = _config.stream;
                 stream.onended = function() {
                     root.onstreamended(streamedObject);
@@ -653,13 +659,11 @@
         }
 
         function detachMediaStream(labels, peer) {
-            console.log(labels);
             for (var i = 0; i < labels.length; i++) {
                 var label = labels[i];
                 if (root.streams[label]) {
                     var stream = root.streams[label].stream;
                     stream.stop();
-                    console.log('removing stream', stream);
                     peer.removeStream(stream);
                 }
             }
@@ -819,6 +823,7 @@
         // open new session
         this.initSession = function() {
             isbroadcaster = true;
+            session = root.session;
             this.isOwnerLeaving = isAcceptNewSession = false;
             (function transmit() {
                 if (getLength(participants) < root.maxParticipantsAllowed) {
@@ -1015,8 +1020,8 @@
                 numberOfPackets = 0,
                 packets = 0;
 
-            // uuid is used to uniquely identify sending instance
-            var uuid = getRandomString();
+            // uuid to uniquely identify sending instance
+            file.uuid = getRandomString();
 
             var reader = new window.FileReader();
             reader.readAsDataURL(file);
@@ -1025,7 +1030,7 @@
             function onReadAsDataURL(event, text) {
                 var data = {
                     type: 'file',
-                    uuid: uuid
+                    uuid: file.uuid
                 };
 
                 if (event) {
@@ -1038,7 +1043,7 @@
                         remaining: packets--,
                         length: numberOfPackets,
                         sent: numberOfPackets - packets
-                    }, uuid);
+                    }, file.uuid);
 
                 if (text.length > packetSize) data.message = text.slice(0, packetSize);
                 else {
@@ -1046,7 +1051,7 @@
                     data.last = true;
                     data.name = file.name;
 
-                    if (config.onFileSent) config.onFileSent(file, uuid);
+                    if (config.onFileSent) config.onFileSent(file, file.uuid);
                 }
 
                 // WebRTC-DataChannels.send(data, privateDataChannel)
@@ -1097,7 +1102,7 @@
                 // if you don't want to auto-save to disk:
                 // connection.autoSaveToDisk=false;
                 if (root.autoSaveToDisk)
-                    FileSaver.SaveToDisk(virtualURL, data.name);
+                    FileSaver.SaveToDisk(dataURL, data.name);
 
                 // connection.onFileReceived = function(fileName, file) {}
                 // file.blob || file.dataURL || file.url || file.uuid
@@ -1161,7 +1166,7 @@
             var channel = config.channel,
                 _channel = config._channel,
                 initialText = config.text,
-                packetSize = 1000 /* chars */,
+                packetSize = 1000,
                 textToTransfer = '',
                 isobject = false;
 
@@ -1301,6 +1306,7 @@
             iceServers = null;
             console.warn('No internet connection detected. No STUN/TURN server is used to make sure local/host candidates are used for peers connection.');
         }
+		else log('iceServers', JSON.stringify(iceServers, null, '\t'));
 
         var peer = new PeerConnection(iceServers, optional);
 
@@ -1347,7 +1353,7 @@
             if (sdpConstraints.optional)
                 constraints.optional[0] = merge({ }, sdpConstraints.optional);
 
-            console.debug('sdp constraints', JSON.stringify(constraints, null, '\t'));
+            log('sdp constraints', JSON.stringify(constraints, null, '\t'));
         }
 
         setConstraints();
@@ -1440,14 +1446,6 @@
             sdp = setFramerate(sdp);
             sdp = setBitrate(sdp);
             sdp = getInteropSDP(sdp);
-            // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/SdpSerializer
-            // var serializer = new SdpSerializer(sdp);
-            // serializer.video.payload(100).newLine('a=fmtp:100 x-google-min-bitrate=' + (bitrate.min || 10));
-            // serializer.audio.payload(111).newLine('a=fmtp:111 minptime=' + (framerate.minptime || 10));
-            // serializer.audio.payload(111).newLine('a=maxptime:' + (framerate.maxptime || 10));
-            // serializer.video.crypto().newLine('a=crypto:0 AES_CM_128_HMAC_SHA1_32 inline:XXXXXXXXXXXXXXXXXX');
-            // serializer.video.crypto(80).remove();
-            // sdp = serializer.deserialize();
             return sdp;
         }
 
@@ -1508,6 +1506,7 @@
                 }, useless);
         }
 
+        // fake:true is also available on chrome under a flag!
         function useless() {
             log('error in fake:true');
         }
@@ -1586,7 +1585,7 @@
         if (mediaConstraints.optional)
             resourcesNeeded.video.optional[0] = merge({ }, mediaConstraints.optional);
 
-        log('resources-needed:', JSON.stringify(resourcesNeeded, null, '\t'));
+        log('get-user-media:', JSON.stringify(resourcesNeeded, null, '\t'));
 
         // easy way to match 
         var idInstance = JSON.stringify(resourcesNeeded);
@@ -1629,6 +1628,7 @@
     }
 
     function log(a, b, c, d, e, f) {
+        if(window.skipRTCMultiConnectionLogs) return;
         if (f)
             console.log(a, b, c, d, e, f);
         else if (e)
@@ -1675,7 +1675,7 @@
         };
 
         this.onstream = function(e) {
-            log(e.type, e.stream);
+            log('on:add:stream', e.stream);
         };
 
         this.onleave = function(e) {
@@ -1683,7 +1683,7 @@
         };
 
         this.onstreamended = function(e) {
-            log(e.type, e.stream);
+            log('on:stream:ended', e.stream);
         };
 
         this.peers = { };
@@ -1731,7 +1731,7 @@
         this.attachStreams = [];
         this.detachStreams = [];
 
-        this.maxParticipantsAllowed = 10;
+        this.maxParticipantsAllowed = 256;
         this.autoSaveToDisk = true;
 
         this._getStream = function(e) {
@@ -1786,7 +1786,7 @@
             if (session.type == 'local' && root.type != 'local') return;
         }
 
-        console.log('session', JSON.stringify(session, null, '\t'));
+        log('session', JSON.stringify(session, null, '\t'));
 
         // enable/disable audio/video tracks
 
@@ -1830,6 +1830,7 @@
         mediaElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
         mediaElement.autoplay = true;
         mediaElement.controls = true;
+		mediaElement.volume=0;
         mediaElement.play();
         return mediaElement;
     }

@@ -1,63 +1,160 @@
 #### WebRTC Group video sharing / [Demo](https://www.webrtc-experiment.com/video-conferencing/)
 
+1. Mesh networking model is implemented to open multiple interconnected peer connections
+2. Maximum peer connections limit is 256 (on chrome)
+
 =
 
 #### How `video conferencing` Works?
 
-In simple words, `multi-peers` and `sockets` are opened to make it work!
+Huge bandwidth and CPU-usage out of multiple peers interconnection:
 
-For 10 people sharing videos in a group:
-
-1. Creating 10 `unique` peer connections
-2. Opening 10 unique `sockets` to exchange SDP/ICE
+To understand it better; assume that 10 users are sharing video in a group. 40 RTP-ports (i.e. streams) will be created for each user. All streams are expected to be flowing concurrently; which causes blur video experience and audio lose/noise (echo) issues
 
 =
 
-For your information; in One-to-One video session; 4 RTP streams/ports get open:
+#### For each user:
 
-1. One RTP port for **outgoing video**
-2. One RTP port for **outgoing audio**
-3. One RTP port for **incoming video**
-4. One RTP port for **incoming audio**
+1. 10 RTP ports are opened to send video upward i.e. for outgoing video streams
+2. 10 RTP ports are opened to send audio upward i.e. for outgoing audio streams
+3. 10 RTP ports are opened to receive video i.e. for incoming video streams
+4. 10 RTP ports are opened to receive audio i.e. for incoming audio streams
 
 =
 
-So, for 10 peers sharing video in a group; `40 RTP` ports get open. Which causes:
+Maximum bandwidth used by each video RTP port (media-track) is about 1MB; which can be controlled using "b=AS" session description parameter values. In two-way video-only session; 2MB bandwidth is used by each peer; otherwise; a low-quality blurred video will be delivered.
+
+```javascript
+// removing existing bandwidth lines
+sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
+
+// setting "outgoing" audio RTP port's bandwidth to "50kbit/s"
+sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:50\r\n');
+
+// setting "outgoing" video RTP port's bandwidth to "256kbit/s"
+sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
+```
+
+=
+
+#### Possible issues:
 
 1. Blurry video experience
-2. Unclear voice
-3. Bandwidth issues / slow streaming
+2. Unclear voice and audio lost
+3. Bandwidth issues / slow streaming / CPU overwhelming
+
+Solution? Obviously a media server!
 
 =
 
-The best solution is to use a **middle media server** like **asterisk** or **kamailio** to broadcast your camera stream. 
+#### Want to use video-conferencing in your own webpage?
 
-To overcome burden and to deliver HD stream over thousands of peers; we need a media server that should **broadcast** stream coming from room owner's side.
+```html
+<script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
+<script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
+<script src="https://www.webrtc-experiment.com/video-conferencing/conference.js"> </script>
 
-Process should be like this:
+<button id="setup-new-room">Setup New Conference</button>
+<table style="width: 100%;" id="rooms-list"></table>
+<div id="videos-container"></div>
+        
+<script>
+    var config = {
+        openSocket: function(config) {
+            var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/',
+                defaultChannel = location.hash.substr(1) || 'video-conferencing-hangout';
 
-1. Conferencing **initiator** opens **peer-to-server** connection
-2. On successful handshake; media server starts broadcasting **remote stream** over all other thousands of peers.
+            var channel = config.channel || defaultChannel;
+            var sender = Math.round(Math.random() * 999999999) + 999999999;
 
-It means that those peers are not connected directly with **room initiator**.
+            io.connect(SIGNALING_SERVER).emit('new-channel', {
+                channel: channel,
+                sender: sender
+            });
 
-But, this is **video broadcasting**; it is not **video conferencing**.
+            var socket = io.connect(SIGNALING_SERVER + channel);
+            socket.channel = channel;
+            socket.on('connect', function() {
+                if (config.callback) config.callback(socket);
+            });
 
-In video-conferencing, each peer connects directly with all others.
+            socket.send = function(message) {
+                socket.emit('message', {
+                    sender: sender,
+                    data: message
+                });
+            };
 
-To make a **media server** work with video-conferencing also to just open only-one peer connection for each user; I've following assumptions:
+            socket.on('message', config.onmessage);
+        },
+        onRemoteStream: function(media) {
+            var video = media.video;
+            video.setAttribute('controls', true);
+            video.setAttribute('id', media.stream.id);
+            videosContainer.insertBefore(video, videosContainer.firstChild);
+            video.play();
+        },
+        onRemoteStreamEnded: function(stream) {
+            var video = document.getElementById(stream.id);
+            if (video) video.parentNode.removeChild(video);
+        },
+        onRoomFound: function(room) {
+            var alreadyExist = document.querySelector('button[data-broadcaster="' + room.broadcaster + '"]');
+            if (alreadyExist) return;
 
-1. Room initiator opens **peer-to-server** connection
-2. Server gets **remote stream** from room initiator
-3. A participant opens **peer-to-server** connect
-4. Server gets **remote stream** from that participant
-5. Server sends **remote stream** coming from participant toward **room iniator**
-6. Server also sends **remote stream** coming from room-initiator toward **participant**
-7. Another participant opens **peer-to-server** connection...and process continues.
+            var tr = document.createElement('tr');
+            tr.innerHTML = '<td><strong>' + room.roomName + '</strong> shared a conferencing room with you!</td>' +
+                           '<td><button class="join">Join</button></td>';
+            roomsList.insertBefore(tr, roomsList.firstChild);
 
-Media server should mix all video streams; and stream it over single RTP port.
+            var joinRoomButton = tr.querySelector('.join');
+            joinRoomButton.setAttribute('data-broadcaster', room.broadcaster);
+            joinRoomButton.setAttribute('data-roomToken', room.broadcaster);
+            joinRoomButton.onclick = function() {
+                this.disabled = true;
 
-If 10 room participants are sending video streams; server should mix them to generate a single media stream; then send that stream over single **incoming** RTP port opened between server and **room initiator**.
+                var broadcaster = this.getAttribute('data-broadcaster');
+                var roomToken = this.getAttribute('data-roomToken');
+                captureUserMedia(function() {
+                    conferenceUI.joinRoom({
+                        roomToken: roomToken,
+                        joinUser: broadcaster
+                    });
+                });
+            };
+        }
+    };
+
+    var conferenceUI = conference(config);
+    var videosContainer = document.getElementById('videos-container') || document.body;
+    var roomsList = document.getElementById('rooms-list');
+
+    document.getElementById('setup-new-room').onclick = function () {
+        this.disabled = true;
+        captureUserMedia(function () {
+            conferenceUI.createRoom({
+                roomName: 'Anonymous'
+            });
+        });
+    };
+
+    function captureUserMedia(callback) {
+        var video = document.createElement('video');
+        video.setAttribute('autoplay', true);
+        video.setAttribute('controls', true);
+        videosContainer.insertBefore(video, videosContainer.firstChild);
+
+        getUserMedia({
+            video: video,
+            onsuccess: function (stream) {
+                config.attachStream = stream;
+                video.setAttribute('muted', true);
+                callback();
+            }
+        });
+    }
+</script>
+```
 
 =
 

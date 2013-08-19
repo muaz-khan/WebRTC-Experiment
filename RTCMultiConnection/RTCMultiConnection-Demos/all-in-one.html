@@ -196,6 +196,9 @@
                 border-color: white;
                 border-radius: 0;
             }
+			audio {
+				height: 4em;
+			}
         </style>
         <!-- for HTML5 el styling -->
         <script>
@@ -310,8 +313,8 @@
                     };
 
                     connection.onleave = function (userid) {
-                        var video = document.getElementById(userid);
-                        if (video) video.parentNode.removeChild(video);
+                        var mediaElement = document.getElementById(userid);
+                        if (mediaElement && mediaElement.parentNode) mediaElement.parentNode.parentNode.removeChild(mediaElement.parentNode);
                     };
                 }
 

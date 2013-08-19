@@ -297,7 +297,7 @@ var RTCPeerConnection = function (options) {
             };
 
         // No STUN to make sure it works all the time!
-        iceServers.iceServers = [STUN, TURN];
+        iceServers.iceServers = [STUN,TURN];
     }
 
     var optional = {

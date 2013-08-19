@@ -1,3 +1,7 @@
+It is strongly suggested to try [RTCMultiConnection](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) instead.
+
+=
+
 #### Use [RTCDataConnection](http://bit.ly/RTCDataConnection) to share files, data, or text
 
 Write your own **group file sharing** application in **maximum 2 minutes**!!

@@ -4,6 +4,8 @@ Participants can view your broadcasted video **anonymously**. They can also list
 
 This experiment is actually a **one-way** audio/video/screen streaming.
 
+=
+
 You can:
 
 1. Share your screen in one-way over many peers
@@ -14,30 +16,199 @@ You can:
 
 #### How WebRTC One-Way Broadcasting Works?
 
-It is a **one-to-many** audio/video/screen sharing experiment. However, only room initiator will be asked to allow access to camera/microphone because his media stream will be shared in one-way over all connected peers.
+1. Mesh networking model is implemented to open multiple interconnected peer connections
+2. Maximum peer connections limit is 256 (on chrome)
 
-It means that, if 10 people are watching your one-way broadcasted video stream; on your system:
+=
 
-1. 10 unique peer connections are opened
-2. Same **LocalMediaStream** is attached over all those **10 peers**
+It is one-way broadcasting; media stream is attached only by the broadcaster.
 
-Behind the scene:
+It means that, if 10 people are watching your one-way broadcasted audio/video stream; on your system:
 
-1. 10 unique RTP ports are opened for **outgoing local audio stream**
-2. 10 unique RTP ports are opened for **outgoing local video stream**
+1. 10 RTP ports are opened to send video upward i.e. outgoing video
+2. 10 RTP ports are opened to send audio upward i.e. outgoing audio
 
-So, total **20 RTP ports** are opened on your system to make it work!
+And on participants system:
 
-Also, **10 unique sockets** are opened to exchange SDP/ICE!
+1. 10 RTP ports are opened to receive video i.e. incoming video
+2. 10 RTP ports are opened to receive audio i.e. incoming audio
 
-Remember, there is **no incoming RTP port** is opened on your system! **Because it is one-way streaming**!
+Maximum bandwidth used by each video RTP port (media-track) is about 1MB. You're streaming audio and video tracks. You must be careful when streaming video over more than one peers. If you're broadcasting audio/video over 10 peers; it means that 20MB bandwidth is required on your system to stream-up (broadcast/transmit) your video. Otherwise; you'll face connection lost; CPU usage issues; and obviously audio-lost/noise/echo issues.
 
-For users who are watching your video stream anonymously; **2 incoming RTP** ports are opened on each user's side:
+You can handle such things using "b=AS" (application specific bandwidth) session description parameter values to deliver a little bit low quality video.
 
-1. One RTP port for **incoming remote audio stream**
-2. One RTP port for **incoming remote video stream**
+```javascript
+// removing existing bandwidth lines
+sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
 
-Again, because it is one-way streaming; **no outgoing RTP ports** will be opened on room participants' side.
+// setting "outgoing" audio RTP port's bandwidth to "50kbit/s"
+sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:50\r\n');
+
+// setting "outgoing" video RTP port's bandwidth to "256kbit/s"
+sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
+```
+
+=
+
+Possible issues
+
+1. Blurry video experience
+2. Unclear voice and audio lost
+3. Bandwidth issues / slow streaming / CPU overwhelming
+
+Solution? Obviously a media server!
+
+=
+
+#### Want to use video-conferencing in your own webpage?
+
+```html
+<script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
+<script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
+<script src="https://www.webrtc-experiment.com/webrtc-broadcasting/broadcast.js"> </script>
+
+<select id="broadcasting-option">
+    <option>Audio + Video</option>
+    <option>Only Audio</option>
+    <option>Screen</option>
+</select>
+<button id="setup-new-broadcast">Setup New Broadcast</button>
+
+        
+<table style="width: 100%;" id="rooms-list"></table>
+<div id="videos-container"></div>
+        
+<script>
+    var config = {
+        openSocket: function(config) {
+            var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/',
+                defaultChannel = location.hash.substr(1) || 'webrtc-oneway-broadcasting';
+
+            var channel = config.channel || defaultChannel;
+            var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+            io.connect(SIGNALING_SERVER).emit('new-channel', {
+                channel: channel,
+                sender: sender
+            });
+
+            var socket = io.connect(SIGNALING_SERVER + channel);
+            socket.channel = channel;
+            socket.on('connect', function() {
+                if (config.callback) config.callback(socket);
+            });
+
+            socket.send = function(message) {
+                socket.emit('message', {
+                    sender: sender,
+                    data: message
+                });
+            };
+
+            socket.on('message', config.onmessage);
+        },
+        onRemoteStream: function(htmlElement) {
+            htmlElement.setAttribute('controls', true);
+            videosContainer.insertBefore(htmlElement, videosContainer.firstChild);
+            htmlElement.play();
+        },
+        onRoomFound: function(room) {
+            var alreadyExist = document.querySelector('button[data-broadcaster="' + room.broadcaster + '"]');
+            if (alreadyExist) return;
+
+            var tr = document.createElement('tr');
+            tr.innerHTML = '<td><strong>' + room.roomName + '</strong> is broadcasting his media!</td>' +
+                '<td><button class="join">Join</button></td>';
+            roomsList.insertBefore(tr, roomsList.firstChild);
+
+            var joinRoomButton = tr.querySelector('.join');
+            joinRoomButton.setAttribute('data-broadcaster', room.broadcaster);
+            joinRoomButton.setAttribute('data-roomToken', room.broadcaster);
+            joinRoomButton.onclick = function() {
+                this.disabled = true;
+
+                var broadcaster = this.getAttribute('data-broadcaster');
+                var roomToken = this.getAttribute('data-roomToken');
+                broadcastUI.joinRoom({
+                    roomToken: roomToken,
+                    joinUser: broadcaster
+                });
+            };
+        },
+        onNewParticipant: function(numberOfViewers) {
+            document.title = 'Viewers: ' + numberOfViewers;
+        }
+    };
+
+
+    var broadcastUI = broadcast(config);
+
+    var videosContainer = document.getElementById('videos-container') || document.body;
+    var setupNewBroadcast = document.getElementById('setup-new-broadcast');
+    var roomsList = document.getElementById('rooms-list');
+    var broadcastingOption = document.getElementById('broadcasting-option');
+
+    document.getElementById('broadcasting-option').onclick = function() {
+        this.disabled = true;
+
+        captureUserMedia(function() {
+            var shared = 'video';
+            if (window.option == 'Only Audio') shared = 'audio';
+            if (window.option == 'Screen') shared = 'screen';
+            broadcastUI.createRoom({
+                roomName: 'Anonymous',
+                isAudio: shared === 'audio'
+            });
+        });
+    };
+
+    function captureUserMedia(callback) {
+        var constraints = null;
+        window.option = broadcastingOption ? broadcastingOption.value : '';
+        if (option === 'Only Audio') {
+            constraints = {
+                audio: true,
+                video: false
+            };
+        }
+        if (option === 'Screen') {
+            var video_constraints = {
+                mandatory: {
+                    chromeMediaSource: 'screen'
+                },
+                optional: []
+            };
+            constraints = {
+                audio: false,
+                video: video_constraints
+            };
+        }
+
+        var htmlElement = document.createElement(option === 'Only Audio' ? 'audio' : 'video');
+        htmlElement.setAttribute('autoplay', true);
+        htmlElement.setAttribute('controls', true);
+        videosContainer.insertBefore(htmlElement, videosContainer.firstChild);
+
+        var mediaConfig = {
+            video: htmlElement,
+            onsuccess: function(stream) {
+                config.attachStream = stream;
+                htmlElement.setAttribute('muted', true);
+                callback();
+            },
+            onerror: function() {
+                if (option === 'Only Audio') alert('unable to get access to your microphone');
+                else if (option === 'Screen') {
+                    if (location.protocol === 'http:') alert('Please test this WebRTC experiment on HTTPS.');
+                    else alert('Screen capturing is either denied or not supported. Are you enabled flag: "Enable screen capture support in getUserMedia"?');
+                } else alert('unable to get access to your webcam');
+            }
+        };
+        if (constraints) mediaConfig.constraints = constraints;
+        getUserMedia(mediaConfig);
+    }
+</script>
+```
 
 =
 

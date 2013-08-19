@@ -230,32 +230,34 @@
             };
 
             TURN = {
-                url: 'turn:webrtc%40live.com@numb.viagenie.ca',
-                credential: 'muazkh'
-            };
+				url: 'turn:homeo@turn.bistri.com:80',
+				credential: 'homeo'
+			};
 
             iceServers = {
                 iceServers: options.iceServers || [STUN]
             };
 
             if (!moz && !options.iceServers) {
-                if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
-                    TURN = {
-                        url: 'turn:numb.viagenie.ca',
-                        credential: 'muazkh',
-                        username: 'webrtc@live.com'
-                };
-                iceServers.iceServers = [TURN, STUN];
+                if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
+					TURN = {
+						url: 'turn:turn.bistri.com:80',
+						credential: 'homeo',
+						username: 'homeo'
+					};
+
+				iceServers.iceServers = [STUN, TURN];
             }
 
             optional = {
                 optional: []
             };
 
-            if (!moz) optional.optional = [{
+            if (!moz) {
+					optional.optional = [{
                         DtlsSrtpKeyAgreement: true
-                    }
-                ];
+                    }];
+			}
 
             var peerConnection = new PeerConnection(iceServers, optional);
 
@@ -278,8 +280,6 @@
                     OfferToReceiveVideo: false
                 }
             };
-
-            if (moz) constraints.mandatory.MozDontOfferDataChannel = true;
 
             function createOffer() {
                 if (!options.onOfferSDP) return;

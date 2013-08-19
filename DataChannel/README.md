@@ -89,6 +89,27 @@ channel.onmessage = function(message, userid, latency) { }
 
 =
 
+##### `ondatachannel`
+
+Allows you show list of all available data channels to the user; and let him choose which one to join:
+
+```javascript
+channel.ondatachannel = function(data_channel) {
+    channel.join(data_channel);
+	
+    // or
+    channel.join({
+        id:    data_channel.id,
+        owner: data_channel.owner
+    });
+	
+    // id:    unique identifier for the session
+    // owner: unique identifier for the session initiator
+};
+```
+
+=
+
 ##### Use custom user-ids
 
 ```javascript
@@ -156,6 +177,17 @@ You can set `autoCloseEntireSession` before calling `leave` method; which will e
 ```javascript
 channel.autoCloseEntireSession = true;
 channel.leave(); // closing entire session
+```
+
+=
+
+##### `uuid` for files
+
+You can get `uuid` for each file (being sent) like this:
+
+```javascript
+channel.send(file);
+var uuid = file.uuid; // "file"-Dot-uuid
 ```
 
 =

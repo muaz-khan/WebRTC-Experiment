@@ -1,11 +1,11 @@
 ﻿// 2013, @muazkh » github.com/muaz-khan
 // MIT License » https://webrtc-experiment.appspot.com/licence/
-// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
+// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing
 
 var config = {
-    openSocket: function(config) {
+    openSocket: function (config) {
         var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8553/',
-            defaultChannel = location.hash.substr(1) || 'video-conferencing-hangout';
+            defaultChannel = location.hash.substr(1) || 'Pluginfree-Screen-Sharing';
 
         var channel = config.channel || defaultChannel;
         var sender = Math.round(Math.random() * 999999999) + 999999999;
@@ -30,22 +30,14 @@ var config = {
 
         socket.on('message', config.onmessage);
     },
-    onRemoteStream: function(media) {
+    onRemoteStream: function (media) {
         var video = media.video;
-
         video.setAttribute('controls', true);
-        video.setAttribute('id', media.stream.id);
-
         participants.insertBefore(video, participants.firstChild);
-
         video.play();
         rotateVideo(video);
     },
-    onRemoteStreamEnded: function(stream) {
-        var video = document.getElementById(stream.id);
-        if (video) video.parentNode.removeChild(video);
-    },
-    onRoomFound: function(room) {
+    onRoomFound: function (room) {
         var alreadyExist = document.getElementById(room.broadcaster);
         if (alreadyExist) return;
 
@@ -54,26 +46,29 @@ var config = {
         var tr = document.createElement('tr');
         tr.setAttribute('id', room.broadcaster);
         tr.innerHTML = '<td>' + room.roomName + '</td>' +
-            '<td><button class="join" id="' + room.roomToken + '">Join Conference</button></td>';
+            '<td><button class="join" id="' + room.roomToken + '">Open Screen</button></td>';
         roomsList.insertBefore(tr, roomsList.firstChild);
 
-        tr.onclick = function() {
+        tr.onclick = function () {
             var tr = this;
-            captureUserMedia(function() {
-                conferenceUI.joinRoom({
-                    roomToken: tr.querySelector('.join').id,
-                    joinUser: tr.id
-                });
+            conferenceUI.joinRoom({
+                roomToken: tr.querySelector('.join').id,
+                joinUser: tr.id
             });
             hideUnnecessaryStuff();
         };
+    },
+    onNewParticipant: function (participants) {
+        var numberOfParticipants = document.getElementById('number-of-participants');
+        if (!numberOfParticipants) return;
+        numberOfParticipants.innerHTML = participants + ' room participants';
     }
 };
 
 function createButtonClickHandler() {
-    captureUserMedia(function() {
+    captureUserMedia(function () {
         conferenceUI.createRoom({
-            roomName: (document.getElementById('conference-name') || { }).value || 'Anonymous'
+            roomName: ((document.getElementById('conference-name') || {}).value || 'Anonymous') + ' shared screen with you'
         });
     });
     hideUnnecessaryStuff();
@@ -85,23 +80,37 @@ function captureUserMedia(callback) {
     video.setAttribute('controls', true);
     participants.insertBefore(video, participants.firstChild);
 
+    var screen_constraints = {
+        mandatory: {
+            chromeMediaSource: 'screen'
+        },
+        optional: []
+    };
+    var constraints = {
+        audio: false,
+        video: screen_constraints
+    };
     getUserMedia({
         video: video,
-        onsuccess: function(stream) {
+        constraints: constraints,
+        onsuccess: function (stream) {
             config.attachStream = stream;
             callback && callback();
 
             video.setAttribute('muted', true);
             rotateVideo(video);
         },
-        onerror: function() {
-            alert('unable to get access to your webcam');
-            callback && callback();
+        onerror: function () {
+            if (location.protocol === 'http:') {
+                alert('Please test this WebRTC experiment on HTTPS.');
+            } else {
+                alert('Screen capturing is either denied or not supported. Are you enabled flag: "Enable screen capture support in getUserMedia"?');
+            }
         }
     });
 }
 
-// You can use! window.onload = function() {}
+/* on page load: get public rooms */
 var conferenceUI = conference(config);
 
 /* UI specific */
@@ -121,14 +130,13 @@ function hideUnnecessaryStuff() {
 
 function rotateVideo(video) {
     video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
-    setTimeout(function() {
+    setTimeout(function () {
         video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
     }, 1000);
 }
 
-(function() {
+(function () {
     var uniqueToken = document.getElementById('unique-token');
-    if (uniqueToken)
-        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
-        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+    if (uniqueToken) if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
+    else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
 })();

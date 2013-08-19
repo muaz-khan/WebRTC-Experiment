@@ -5,10 +5,10 @@
 // RecordRTC.js
 
 function RecordRTC(mediaStream, config) {
+    config = config || { };
+
     if (!mediaStream) throw 'MediaStream is mandatory.';
     if (!config.type) config.type = 'audio';
-
-    config = config || { };
 
     function startRecording() {
         console.debug('started recording stream.');

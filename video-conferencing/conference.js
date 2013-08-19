@@ -1,16 +1,15 @@
-﻿// 2013, @muazkh » github.com/muaz-khan
-// MIT License » https://webrtc-experiment.appspot.com/licence/
-// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
+﻿// Muaz Khan     - https://github.com/muaz-khan
+// MIT License   - https://www.webrtc-experiment.com/licence/
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
 
 var conference = function(config) {
     var self = {
         userToken: uniqueToken()
     };
-    var channels = '--',
-        isbroadcaster,
-        isGetNewRoom = true,
-        sockets = [],
-        defaultSocket = { };
+    var channels = '--', isbroadcaster;
+    var isGetNewRoom = true;
+    var sockets = [];
+    var defaultSocket = { };
 
     function openDefaultSocket() {
         defaultSocket = config.openSocket({
@@ -229,9 +228,9 @@ var conference = function(config) {
         joinRoom: function(_config) {
             self.roomToken = _config.roomToken;
             isGetNewRoom = false;
-			
-			self.joinedARoom = true;
-			self.broadcasterid = _config.joinUser;
+
+            self.joinedARoom = true;
+            self.broadcasterid = _config.joinUser;
 
             openSubSocket({
                 channel: self.userToken

@@ -796,7 +796,7 @@
             }
         }
 
-        if (!root.maxParticipantsAllowed) root.maxParticipantsAllowed = 10;
+        if (!root.maxParticipantsAllowed) root.maxParticipantsAllowed = 256;
 
         // signaling implementation
         // if no custom signaling channel is provided; use Firebase
@@ -918,7 +918,14 @@
                 peer.createOffer(function(sdp) {
                     sdp = serializeSdp(sdp, config);
                     peer.setLocalDescription(sdp);
-                    if (renegotiating) sdpCallback();
+                    if (renegotiating || isFirefox) {
+						config.onsdp({
+							sdp: sdp,
+							userid: config.to,
+							extra: config.extra,
+							renegotiated: !! config.renegotiated
+						});
+					}
                 }, null, offerAnswerConstraints);
 
             } else if (isFirefox && session.data) {
@@ -1165,7 +1172,7 @@
             };
 
         // No STUN to make sure it works all the time!
-        iceServers.iceServers = [STUN, TURN];
+        iceServers.iceServers = [STUN,TURN];
     }
 
     var optionalArgument = {

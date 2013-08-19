@@ -1,0 +1,53 @@
+﻿<script src="https://www.webrtc-experiment.com/firebase.js"> </script>
+<script src="https://www.webrtc-experiment.com/meeting/meeting.js"> </script>
+<button id="setup-new-meeting">Setup New Meeting</button>
+        
+<table style="border-left: 1px solid black; width: 100%;">
+    <tr>
+        <td>
+            <h2 style="display: block; text-align: center;">
+                Local Media Stream</h2>
+            <section id="local-media-stream"></section>
+        </td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid black;">
+            <h2 style="display: block; text-align: center;">
+                Remote Media Streams</h2>
+            <section id="remote-media-streams"></section>
+        </td>
+    </tr>
+</table>
+
+<script>
+    var meeting = new Meeting();
+
+    var remoteMediaStreams = document.getElementById('remote-media-streams');
+    var localMediaStream = document.getElementById('local-media-stream');
+
+    // on getting media stream
+    meeting.onaddstream = function(e) {
+        if (e.type == 'local') localMediaStream.appendChild(e.video);
+        if (e.type == 'remote') remoteMediaStreams.insertBefore(e.video, remoteMediaStreams.firstChild);
+    };
+
+    // using firebase for signaling
+    meeting.firebase = 'signaling';
+
+    // if someone leaves; just remove his video
+    meeting.onuserleft = function(userid) {
+        var video = document.getElementById(userid);
+        if (video) video.parentNode.removeChild(video);
+    };
+
+    // check pre-created meeting rooms
+    meeting.check();
+
+    document.getElementById('setup-new-meeting').onclick = function() {
+        // setup new meeting room
+        meeting.setup('meeting-name');
+        this.disabled = true;
+
+        this.parentNode.innerHTML = '<h2><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
+    };
+</script>

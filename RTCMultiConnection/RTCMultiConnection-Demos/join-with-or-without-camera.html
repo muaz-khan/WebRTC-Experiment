@@ -173,12 +173,8 @@
         text-align: left;
     }
 
-    #remote-media-streams video {
-        width: 10em;
-    }
-
     #local-media-stream video {
-        width: 34em;
+        width: 40%;
     }
 
     td {
@@ -219,7 +215,7 @@
 </script>
 
 <script src="https://www.webrtc-experiment.com/firebase.js"></script>
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.1.js"></script>
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"></script>
 </head>
 
 <body>
@@ -265,43 +261,33 @@
                 <section id="local-media-stream"></section>
             </td>
         </tr>
-        <tr>
-            <td>
-                <h2 style="display: block; text-align: center;">Remote Media Streams</h2>
-
-                <section id="remote-media-streams"></section>
-            </td>
-        </tr>
     </table>
     <script>
         var connection = new RTCMultiConnection();
-        connection.onstream = function (stream) {
-            if (stream.type === 'remote') {
-                var mediaElement = stream.mediaElement;
-                if (stream.direction !== Direction.OneWay && !connection.dontAttachStream) {
-                    var remoteMediaStreams = document.getElementById('remote-media-streams');
-                    remoteMediaStreams.insertBefore(mediaElement, remoteMediaStreams.firstChild);
-                }
-                else document.getElementById('local-media-stream').appendChild(mediaElement);
-                mediaElement.controls = true;
-            }
-
-            if (stream.type === 'local') {
-                mediaElement = stream.mediaElement;
-                document.getElementById('local-media-stream').appendChild(mediaElement);
-                mediaElement.controls = true;
-            }
+		connection.session = {
+			audio: true,
+			video: true
+		};
+        connection.onstream = function (e) {
+			var mediaElement = e.mediaElement;
+            if (e.type === 'remote') document.getElementById('local-media-stream').appendChild(mediaElement);
+			if (e.type === 'local') document.getElementById('local-media-stream').appendChild(mediaElement);
         };
 
-        var sessionid = window.params.join || location.hash.replace('#', '');
+        var sessionid = location.hash.substr(1);
 
         document.getElementById('open-session').onclick = function () {
             connection.open(sessionid);
             disableButtons();
 
-            var hash = location.hash.replace('#', '');
-            this.parentNode.innerHTML = '<h2>Share with friends: <a href="?join=' + hash + '" target="_blank">?join=' + hash + '</a></h2>';
+            this.parentNode.innerHTML = '<h2>Share with friends: <a href="' + location.href + '" target="_blank">Share this link!</a></h2>';
         };
+		
+		connection.onstreamended = function(e) {
+			if(e.mediaElement.parentNode) {
+				e.mediaElement.parentNode.removeChild(e.mediaElement);
+			}
+		};
 
         document.getElementById('join-session').onclick = joinRTCSession;
 
@@ -315,8 +301,6 @@
             if (document.getElementById('join-session')) document.getElementById('join-session').disabled = true;
             if (document.getElementById('open-session')) document.getElementById('open-session').disabled = true;
         }
-
-        if (window.params.join) joinRTCSession();
     </script>
     <br/>
     <br/>
@@ -324,7 +308,7 @@
     <h2>Getting started with <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection"
                                 target="_blank">RTCMultiConnection</a></h2>
             <pre>
-&lt;script src="<a href="https://www.webrtc-experiment.com/RTCMultiConnection-v1.1.js" target="_blank">https://www.webrtc-experiment.com/RTCMultiConnection-v1.1.js</a>"&gt;&lt;/script&gt;
+&lt;script src="<a href="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js" target="_blank">https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js</a>"&gt;&lt;/script&gt;
 &lt;script&gt;
     var connection = new <strong>RTCMultiConnection</strong>();
 

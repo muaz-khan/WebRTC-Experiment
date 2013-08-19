@@ -1,218 +1,361 @@
-﻿<!DOCTYPE html>
-<html id="home" lang="en">
-    
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-broadcasting
+-->
+<!DOCTYPE html>
+<html lang="en">
     <head>
-        <title>WebRTC One-Way Audio, Video or Screen Sharing/Broadcasting ® Muaz Khan</title>
+        <title>WebRTC Broadcasting ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta charset=utf-8>
+        <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        
         <style>
-            @import url(https://fonts.googleapis.com/css?family=Inconsolata);
-            html {
-                background: #eee;
+            audio, video {
+                vertical-align: top;
+                width: 100%;
+                
+                -webkit-transition: all 1s ease;
+                -moz-transition: all 1s ease;
+                -o-transition: all 1s ease;
+                -ms-transition: all 1s ease;
+                transition: all 1s ease;
             }
-            body {
-                margin: 0;
-                font-family:"Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
-                font-size: 1.2em;
-                line-height: 1.2em;
+
+            input {
+                font-size: 2em;
+                margin: .2em;
+                width: 30%;
+                border-radius: 1px;
+                border: 1px solid #d9d9d9;
             }
-            article, footer {
-                display: block;
-                min-width: 360px;
-                max-width: 900px;
-                width: 80%;
+            
+            select {
+                width: 18%;
+                border-radius: 1px;
+                border: 1px solid #d9d9d9;
+                vertical-align: 6px;
+                margin-right: -12px;
+                height: 50px;
+                padding: 1.1em;
+                margin-left:1em;
             }
-            article {
-                margin: 2.5em auto 0 auto;
-                border: 1px solid;
-                border-color: #ddd #aaa #aaa #ddd;
-                padding: 2em;
-                background: #fff;
+
+            .setup {
+                border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
+                font-size: 102%;
+                height: 47px;
+                margin-left: -9px;
+                margin-top: 8px;
+                position: absolute;
             }
-            h1 {
-                margin-top: 0;
-            }
-            article p:first-of-type {
-                margin-top: 1.6em;
-            }
-            article p:last-child {
-                margin-bottom: 0;
-            }
-            footer {
-                margin: 0em auto 2em auto;
-                text-align: center;
-            }
-            footer a {
-                color: #666;
-                text-shadow: 0 1px 1px #fff;
-                text-decoration:none;
-                font-size:inherit;
-                padding: 1em;
-            }
-            footer a:hover, footer a:focus {
-                color: #111;
-            }
-            h1, h2 {
-                font-weight:normal;
-                display:inline;
-                border-bottom:1px solid black;
-                padding:0 0 3px 0;
-                line-height: 36px;
-            }
-            a {
-                color:#2844FA;
-                text-decoration:none;
-            }
-            a:hover, a:focus {
-                color:#1B29A4;
-            }
-            a:active {
-                color:#000;
-            }
-            :-moz-any-link:focus {
-                color:#000;
-                border:0;
-            }
-            ::selection {
-                background:#ccc;
-            }
-            ::-moz-selection {
-                background:#ccc;
-            }
-            button {
-                -moz-border-radius: 3px;
-                -moz-transition: none;
-                -webkit-transition: none;
-                background: #0370ea;
-                background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
-                background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
-                border: 1px solid #076bd2;
-                border-radius: 3px;
-                color: #fff;
-                display: inline-block;
-                font-size: .8em;
-                line-height: 1.3;
-                padding: 5px 12px;
-                text-align: center;
-                text-shadow: 1px 1px 1px #076bd2;
-                font-family:inherit;
-            }
-            button:hover {
-                background: rgb(9, 147, 240);
-            }
-            button:active {
-                background: rgb(10, 118, 190);
-            }
-            button[disabled] {
-                background: none;
-                border: 1px solid rgb(187, 181, 181);
-                color: gray;
-                text-shadow: none;
-            }
-            strong {
-                color: rgb(204, 14, 14);
-                font-family:inherit;
-                font-weight:normal;
-            }
-			#participants video {width: 100%;}
+
+            p { padding: 1em; }
         </style>
-        <!-- for HTML5 el styling -->
         <script>
             document.createElement('article');
             document.createElement('footer');
         </script>
+        
+        <!-- scripts used for broadcasting -->
+        <script src="https://www.webrtc-experiment.com/socket.io.js"></script>
+        <script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"></script>
+        <script src="https://www.webrtc-experiment.com/webrtc-broadcasting/broadcast.js"></script>
     </head>
-    
+
     <body>
         <article>
-            <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
+            <header style="text-align: center;">
+                <h1>
+                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> 
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-broadcasting" target="_blank">Broadcasting</a>
+                    ® 
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+                </h1>            
+                <p>
+                    <span>Copyright © 2013</span>
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
+                    »
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
+                    »
+                    <a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
+                    »
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
+                </p>
+            </header>
 
-            <h1>
-				WebRTC one-way audio, video and screen sharing
-			</h1>
+            <div class="github-stargazers"></div>
 
-            <p>
-				Copyright © 2013 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>&lt;<a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>&gt;.
-			</p>
-			
-			<section class="plusone-gplus">
+            <section class="plusone-gplus">
                 <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
             </section>
-			
-            <table class="visible">
-                <tr>
-                    <td style="text-align: right;">
-                        <input type="text" id="conference-name" placeholder="Broadcast Name">
-                    </td>
-                    <td>
-                        <select id="broadcasting-option">
+        
+            <!-- just copy this <section> and next script -->
+            <section class="experiment">                
+                <section>
+                    <select id="broadcasting-option">
                             <option>Audio + Video</option>
                             <option>Only Audio</option>
                             <option>Screen</option>
-                        </select>
-                    </td>
-                    <td>
-                        <button id="start-conferencing">Start Broadcasting</button>
-                    </td>
-                </tr>
-            </table>
-            <table id="rooms-list" class="visible"></table>
-            <table class="visible">
-                <tr>
-                    <td style="text-align: center;"> <strong>Private broadcast</strong> ??
-                        <h2>
-                            <a href="https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/webrtc-broadcasting/" target="_blank" title="Open this link in new tab. Then your broadcasting room will be private!"><code>/webrtc-broadcasting/<strong id="unique-token">#123456789</strong></code></a>
-                        </h2>
-                    </td>
-                </tr>
-            </table>
-            <div id="participants"></div>
-            <script src="https://www.webrtc-experiment.com/socket.io.js"></script>
-			<script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"></script>
-            <script src="https://www.webrtc-experiment.com/webrtc-broadcasting/broadcast.js"></script>
-            <script src="https://www.webrtc-experiment.com/webrtc-broadcasting/broadcast-ui.js"></script>
+                    </select>
+                    <input type="text" id="broadcast-name">
+                    <button id="setup-new-broadcast" class="setup">Setup New Broadcast</button>
+                </section>
+                
+                <!-- list of all available broadcasting rooms -->
+                <table style="width: 100%;" id="rooms-list"></table>
+                
+                <!-- local/remote videos container -->
+                <div id="videos-container"></div>
+            </section>
+        
+            <script>
+                // Muaz Khan     - https://github.com/muaz-khan
+                // MIT License   - https://www.webrtc-experiment.com/licence/
+                // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-broadcasting
+
+                var config = {
+                    openSocket: function (config) {
+                        var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8553/',
+                            defaultChannel = location.hash.substr(1) || 'webrtc-oneway-broadcasting';
+
+                        var channel = config.channel || defaultChannel;
+                        var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+                        io.connect(SIGNALING_SERVER).emit('new-channel', {
+                            channel: channel,
+                            sender: sender
+                        });
+
+                        var socket = io.connect(SIGNALING_SERVER + channel);
+                        socket.channel = channel;
+                        socket.on('connect', function() {
+                            if (config.callback) config.callback(socket);
+                        });
+
+                        socket.send = function(message) {
+                            socket.emit('message', {
+                                sender: sender,
+                                data: message
+                            });
+                        };
+
+                        socket.on('message', config.onmessage);
+                    },
+                    onRemoteStream: function (htmlElement) {
+                        htmlElement.setAttribute('controls', true);
+                        videosContainer.insertBefore(htmlElement, videosContainer.firstChild);
+                        htmlElement.play();
+                        rotateInCircle(htmlElement);
+                    },
+                    onRoomFound: function (room) {
+                        var alreadyExist = document.querySelector('button[data-broadcaster="' + room.broadcaster + '"]');
+                        if (alreadyExist) return;
+
+                        if (typeof roomsList === 'undefined') roomsList = document.body;
+
+                        var tr = document.createElement('tr');
+                        tr.innerHTML = '<td><strong>' + room.roomName + '</strong> is broadcasting his media!</td>' +
+                                        '<td><button class="join">Join</button></td>';
+                        roomsList.insertBefore(tr, roomsList.firstChild);
+
+                        var joinRoomButton = tr.querySelector('.join');
+                        joinRoomButton.setAttribute('data-broadcaster', room.broadcaster);
+                        joinRoomButton.setAttribute('data-roomToken', room.broadcaster);
+                        joinRoomButton.onclick = function () {
+                            this.disabled = true;
+                            
+                            var broadcaster = this.getAttribute('data-broadcaster');
+                            var roomToken = this.getAttribute('data-roomToken');
+                            broadcastUI.joinRoom({
+                                roomToken: roomToken,
+                                joinUser: broadcaster
+                            });
+                            hideUnnecessaryStuff();
+                        };
+                    },
+                    onNewParticipant: function (numberOfViewers) {
+                        document.title = 'Viewers: ' + numberOfViewers;
+                    }
+                };
+
+                function setupNewBroadcastButtonClickHandler() {
+                    document.getElementById('broadcast-name').disabled=true;
+                    document.getElementById('setup-new-broadcast').disabled=true;
+                    
+                    captureUserMedia(function () {
+                        var shared = 'video';
+                        if (window.option == 'Only Audio') shared = 'audio';
+                        if (window.option == 'Screen') shared = 'screen';
+                        broadcastUI.createRoom({
+                            roomName: (document.getElementById('broadcast-name') || {}).value || 'Anonymous',
+                            isAudio: shared === 'audio'
+                        });
+                    });
+                    hideUnnecessaryStuff();
+                }
+
+                function captureUserMedia(callback) {
+                    var constraints = null;
+                    window.option = broadcastingOption ? broadcastingOption.value : '';
+                    if (option === 'Only Audio') {
+                        constraints = {
+                            audio: true,
+                            video: false
+                        };
+                    }
+                    if (option === 'Screen') {        
+                        var video_constraints = {
+                            mandatory: {
+                                chromeMediaSource: 'screen'
+                            },
+                            optional: []
+                        };
+                        constraints = {
+                            audio: false,
+                            video: video_constraints
+                        };
+                    }
+
+                    var htmlElement = document.createElement(option === 'Only Audio' ? 'audio' : 'video');
+                    htmlElement.setAttribute('autoplay', true);
+                    htmlElement.setAttribute('controls', true);
+                    videosContainer.insertBefore(htmlElement, videosContainer.firstChild);
+
+                    var mediaConfig = {
+                        video: htmlElement,
+                        onsuccess: function (stream) {
+                            config.attachStream = stream;
+                            callback && callback();
+
+                            htmlElement.setAttribute('muted', true);
+                            rotateInCircle(htmlElement);
+                        },
+                        onerror: function () {
+                            if (option === 'Only Audio') alert('unable to get access to your microphone');
+                            else if(option === 'Screen') {
+                                if(location.protocol === 'http:') alert('Please test this WebRTC experiment on HTTPS.');
+                                else alert('Screen capturing is either denied or not supported. Are you enabled flag: "Enable screen capture support in getUserMedia"?');
+                            }
+                            else alert('unable to get access to your webcam');
+                        }
+                    };
+                    if (constraints) mediaConfig.constraints = constraints;
+                    getUserMedia(mediaConfig);
+                }
+
+                var broadcastUI = broadcast(config);
+
+                /* UI specific */
+                var videosContainer = document.getElementById('videos-container') || document.body;
+                var setupNewBroadcast = document.getElementById('setup-new-broadcast');
+                var roomsList = document.getElementById('rooms-list');
+
+                var broadcastingOption = document.getElementById('broadcasting-option');
+
+                if (setupNewBroadcast) setupNewBroadcast.onclick = setupNewBroadcastButtonClickHandler;
+
+                function hideUnnecessaryStuff() {
+                    var visibleElements = document.getElementsByClassName('visible'),
+                        length = visibleElements.length;
+                    for (var i = 0; i < length; i++) {
+                        visibleElements[i].style.display = 'none';
+                    }
+                }
+
+                function rotateInCircle(video) {
+                    video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
+                    setTimeout(function () {
+                        video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
+                    }, 1000);
+                }
+
+            </script>
             
-            <ol>
-                <li>Share your screen in one-way over many peers</li>
-                <li>Share you camera in one-way over many peers</li>
-                <li>Share/transmit your voice in one-way over many peers</li>
-            </ol>
-
-            <br />
-
-            All users will be able to listen your voice or see your video anonymously; i.e. users who've no camera/microphone attached/installed are still be able to see your broadcasted stream.
-
-            <br /><br />
-
-             <h2>
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/webrtc-broadcasting">Source code on Github!</a>
-            </h2>
-
-            <br /><br />
-            You can use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> for audio/video/screen sharing (i.e. conferencing/broadcasting); it supports multi-sessions establishment on the same page, group text chat and file sharing, auto user presence detection and many other features.
-		    <br /><br />
-            <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+            <section class="experiment">
+                <ol>
+                    <li>Mesh networking model is implemented to open multiple interconnected peer connections</li>
+                    <li>Maximum peer connections limit is <strong>256</strong> (on chrome)</li>
+                </ol>
+            </section>
+        
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
                 <div>
-                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
                 </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">How it works?</h2>
+                <p>
+                    It is one-way broadcasting; media stream is attached only by the broadcaster.
+                </p>
+                <p>
+                    It means that, if 10 people are watching your one-way broadcasted audio/video stream; on your system:
+                </p>
+                <ol>
+                    <li>10 RTP ports are opened to send video upward i.e. outgoing video</li>
+                    <li>10 RTP ports are opened to send audio upward i.e. outgoing audio</li>
+                </ol>
+                <p>
+                    And on participants system:
+                </p>
+                <ol>
+                    <li>10 RTP ports are opened to receive video i.e. incoming video</li>
+                    <li>10 RTP ports are opened to receive audio i.e. incoming audio</li>
+                </ol>
+                <p>
+                    Maximum bandwidth used by each video RTP port (media-track) is about 1MB. You're streaming audio and video tracks. You must be careful when streaming video over more than one peers. If you're broadcasting audio/video over 10 peers; it means that 20MB bandwidth is required on your system to stream-up (broadcast/transmit) your video. Otherwise; you'll face connection lost; CPU usage issues; and obviously audio-lost/noise/echo issues.
+                </p>
+                <p>
+                    You can handle such things using "b=AS" (application specific bandwidth) session description parameter values to deliver a little bit low quality video.
+                </p>
+                <pre>
+// removing existing bandwidth lines
+sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
+
+// setting "outgoing" audio RTP port's bandwidth to "50kbit/s"
+sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:50\r\n');
+
+// setting "outgoing" video RTP port's bandwidth to "256kbit/s"
+sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
+</pre>
+                <p>
+                    Possible issues:</p>
+                <ol>
+                    <li>Blurry video experience</li>
+                    <li>Unclear voice and audio lost</li>
+                    <li>Bandwidth issues / slow streaming / CPU overwhelming</li>
+                </ol>
+                <p>Solution? Obviously a media server!</p>
             </section>
         </article>
         <footer>
             <p>
-                <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a>©
-                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span> 2013 </span> »
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                ©
+                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
                 <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
                 <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
             </p>
         </footer>
-        <script src="https://www.webrtc-experiment.com/common.js"></script>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
-
 </html>

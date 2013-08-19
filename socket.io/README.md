@@ -11,7 +11,7 @@ There is a built-in [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC
 ```javascript
 // openSignalingChannel or openSocket!
 openSignalingChannel: function(config) {
-   var SIGNALING_SERVER = 'http://domain.com:8888/';
+   var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
    var channel = config.channel || this.channel || 'default-channel';
    var sender = Math.round(Math.random() * 60535) + 5000;
    

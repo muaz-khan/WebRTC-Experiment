@@ -135,9 +135,7 @@ and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/
 
 =
 
-##### Admin/Guest audio/video calling
-
-Just copy [this html file](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/admin-guest.html); and enjoy admin/guest audio/video calling!
+##### Admin/Guest audio/video calling / Try this [demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/admin-guest.html)
 
 =
 
@@ -545,6 +543,17 @@ connection.channels['user-id'].send(file || data || 'text');
 
 =
 
+##### `uuid` for files
+
+You can get `uuid` for each file (being sent) like this:
+
+```javascript
+connection.send(file);
+var uuid = file.uuid; // "file"-Dot-uuid
+```
+
+=
+
 ##### Progress helpers when sharing files
 
 ```javascript
@@ -698,6 +707,18 @@ connection.onNewSession = function(session) {
 ```
 
 `onNewSession` is useful to show a `join` button that allows end-users to **manually join any preferred session**.
+
+=
+
+##### `join`
+
+Allows you manually join a session. You may want to show list of all available sessions to user and let him choose which session to join:
+
+```javascript
+connection.onNewSession = function(session) {
+    connection.join(session);
+};
+```
 
 =
 
@@ -942,6 +963,55 @@ connection.session = {
     video: true,
     'many-to-many': true  // --- see this line
 };
+```
+
+=
+
+##### How to invite users?
+
+First of all; set `onAdmin`/`onGuest` to prevent defaults execution:
+
+```javascript
+connection.onAdmin = connection.onGuest = function() {};
+```
+
+Now, define `onRequest` to catch each invitation request:
+
+```javascript
+connection.onRequest = function (userid) {
+    // accept invitation using "userid" of the 
+    // the person inviting you
+    connection.accept(userid);
+};
+```
+
+He'll invite you using `request` method:
+
+```javascript
+// he'll use your user-id to invite you
+connection.request('userid');
+```
+
+**Simplest Demo:**
+
+```javascript
+var you = new RTCMultiConnection();
+var he = new RTCMultiConnection();
+
+you.onRequest = function (his_id) {
+    // you're "quickly" accepting his invitation
+    // you can show a dialog-box too; to allow 
+    // user accept/reject invitation
+    you.accept(his_id);
+};
+
+// he is inviting you
+he.request(your_id);
+
+// following lines are necessary because we need to 
+// set signaling gateways
+you.connect();
+he.connect();
 ```
 
 =

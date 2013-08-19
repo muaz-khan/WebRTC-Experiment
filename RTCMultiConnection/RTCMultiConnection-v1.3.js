@@ -1058,7 +1058,7 @@
                     username: 'homeo'
                 };
 
-            iceServers.iceServers = [TURN, STUN];
+            iceServers.iceServers = [STUN,TURN];
         }
 
         var optional = {

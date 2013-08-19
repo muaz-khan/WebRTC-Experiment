@@ -35,7 +35,7 @@ Chrome uses two modes for opus....
 <li>"audio" which is used if stereo audio stream is provided by  the sender</li>
 </ol>
 <blockquote>
-There is no parameter in sdp allows us control voip/audio mode for outgoing/incoming audio streams. This job can be done by sender ( I don't know how, well, still experimenting ).
+There is no parameter in sdp allows us control voip/audio mode for outgoing/incoming audio streams. This job can be done by sender.
 </blockquote>
 
 <blockquote>
@@ -131,14 +131,16 @@ For stereo; we need:
 			var recorder = new RecordRTC(event.stream);
 			recorder.startRecording();
 			setTimeout(function() {
-				recorder.stopRecording(function() {
+				recorder.stopRecording(function(url) {
 					recorder.getDataURL(function(dataURL) {
 						if(dataURL.indexOf('AAAAAAAAAAAA') != -1) {
 							document.querySelector('h2').innerHTML = 'Unable to record remote audio stream.<br /><br />' +
 																	  dataURL.substr(0, 150) + '...';
 						}
-						console.log(dataURL);
+						console.log('data-url', dataURL);
 					});
+					console.log('blob', recorder.getBlob());
+					console.log('virtual url', url);
 				});
 			}, 5000);
         };

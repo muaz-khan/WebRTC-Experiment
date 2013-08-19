@@ -443,6 +443,7 @@
 
             peer.createOffer(function(sdp) {
                 peer.setLocalDescription(sdp);
+                if(isFirefox) config.onsdp(sdp, config.to);
             }, null, offerAnswerConstraints);
 
             function sdpCallback() {
