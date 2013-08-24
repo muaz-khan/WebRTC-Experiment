@@ -37,6 +37,11 @@ This document explains RTCMultiConnection versions log.
 11. disableDtlsSrtp added to fix renegotiation process which fails on chrome when DTLS/SRTP enabled
 12. autoSaveToDisk added to allow customization of file-sharing
 13. file-sharing extended and fixed; no crash for large files anymore!
+14. renegotiation for chrome M29 and upper
+15. sctp/reliable data channels support for chrome (unreliable is still default)
+16. enable/disable ice candidates (host/relfexive/relay)
+17. enable/disable bandwidth sdp parameters (by default, enabled)
+18. noise/echo stepped down; a simple/lazy workaround
 
 =
 

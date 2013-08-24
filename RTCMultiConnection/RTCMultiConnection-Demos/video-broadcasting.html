@@ -1,367 +1,325 @@
-﻿<!DOCTYPE html>
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
+-->
+<!DOCTYPE html>
 <html lang="en">
-
-<head>
-<title>Video Broadcasting using RTCMultiConnection ® Muaz Khan</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
-<meta name="author" content="Muaz Khan">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<script>
-    /* function to get URL parameter values */
-    (function () {
-        var params = {},
-                r = /([^&=]+)=?([^&]*)/g;
-
-        function d(s) {
-            return decodeURIComponent(s.replace(/\+/g, ' '));
-        }
-
-        var match, search = window.location.search.toLowerCase();
-        while (match = r.exec(search.substring(1)))
-            params[d(match[1])] = d(match[2]);
-
-        window.params = params;
-    })();
-
-    var hash = window.location.hash.replace('#', '');
-    if (!hash.length && !window.params.join) location.href = location.href + '#' + ((Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-'));
-</script>
-<style>
-    @import url(https://fonts.googleapis.com/css?family=Inconsolata);
-
-    html {
-        background: #eee;
-    }
-
-    body {
-        margin: 0;
-        font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
-        font-size: 1.2em;
-        line-height: 1.2em;
-    }
-
-    article, footer {
-        display: block;
-        min-width: 360px;
-        max-width: 900px;
-        width: 80%;
-    }
-
-    article {
-        margin: 2.5em auto 0 auto;
-        border: 1px solid;
-        border-color: #ddd #aaa #aaa #ddd;
-        padding: 2em;
-        background: #fff;
-    }
-
-    h1 {
-        margin-top: 0;
-    }
-
-    article p:first-of-type {
-        margin-top: 1.6em;
-    }
-
-    article p:last-child {
-        margin-bottom: 0;
-    }
-
-    footer {
-        margin: 0em auto 2em auto;
-        text-align: center;
-    }
-
-    footer a {
-        color: #666;
-        text-shadow: 0 1px 1px #fff;
-        text-decoration: none;
-        font-size: inherit;
-        padding: 1em;
-    }
-
-    footer a:hover, footer a:focus {
-        color: #111;
-    }
-
-    h1, h2 {
-        font-weight: normal;
-        display: inline;
-        border-bottom: 1px solid black;
-        padding: 0 0 3px 0;
-        line-height: 36px;
-    }
-
-    a {
-        color: #2844FA;
-        text-decoration: none;
-    }
-
-    a:hover, a:focus {
-        color: #1B29A4;
-    }
-
-    a:active {
-        color: #000;
-    }
-
-    :-moz-any-link:focus {
-        color: #000;
-        border: 0;
-    }
-
-    ::selection {
-        background: #ccc;
-    }
-
-    ::-moz-selection {
-        background: #ccc;
-    }
-
-    button, select {
-        -moz-border-radius: 3px;
-        -moz-transition: none;
-        -webkit-transition: none;
-        background: #0370ea;
-        background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
-        background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
-        border: 1px solid #076bd2;
-        border-radius: 3px;
-        color: #fff;
-        display: inline-block;
-        font-size: .8em;
-        line-height: 1.3;
-        padding: 5px 12px;
-        text-align: center;
-        text-shadow: 1px 1px 1px #076bd2;
-        font-family: inherit;
-    }
-
-    button:hover {
-        background: rgb(9, 147, 240);
-    }
-
-    button:active {
-        background: rgb(10, 118, 190);
-    }
-
-    button[disabled] {
-        background: none;
-        border: 1px solid rgb(187, 181, 181);
-        color: gray;
-        text-shadow: none;
-    }
-
-    strong {
-        color: rgb(204, 14, 14);
-        font-family: inherit;
-        font-weight: normal;
-    }
-
-    #result div {
-        padding: .8em 1.5em;
-        border: 1px solid Gray;
-        border-bottom: 0;
-    }
-
-    select {
-        color: black;
-        text-shadow: none;
-        text-align: left;
-    }
-
-    #remote-media-streams video {
-        width: 10em;
-    }
-
-    #local-media-stream video {
-        width: 34em;
-    }
-
-    td {
-        vertical-align: top;
-    }
-
-    #chat-output div {
-        border: 1px solid black;
-        border-bottom: 0;
-        padding: .1em .4em;
-    }
-
-    input {
-        border: 1px solid black;
-        outline: none;
-        margin: .1em .3em;
-        font-family: inherit;
-        padding: .1em .2em;
-        width: 93%;
-    }
-
-    #chat-output {
-        max-height: 12em;
-        overflow: auto;
-        margin: 0 0 0 .4em;
-    }
-
-    pre {
-        border-left: 2px solid red;
-        margin-left: 2em;
-        padding-left: 1em;
-    }
-</style>
-<!-- for HTML5 el styling -->
-<script>
-    document.createElement('article');
-    document.createElement('footer');
-</script>
-
-<script src="https://www.webrtc-experiment.com/firebase.js"></script>
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"></script>
-</head>
-
-<body>
-<article>
-    <a href="https://www.webrtc-experiment.com/"
-       style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑
-        WEBRTC EXPERIMENTS</a>
-
-
-    <h1>
-        Video Broadcasting using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection"
-                                    target="_blank">RTCMultiConnection</a>
-    </h1>
-
-    <p>
-        <span>Copyright © 2013</span> <a href="https://github.com/muaz-khan" target="_blank">Muaz
-        Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
-    </p>
-    <section class="plusone-gplus">
-        <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
-    </section>
-
-    <section>
-        <h2>Open new session:</h2>
-        <button id="open-session">Open Session</button>
-    </section>
-
-    <table style="width: 100%; border-left: 1px solid black;">
-        <tr>
-            <td>
-                <h2 style="display: block; text-align: center;">Local Media Stream</h2>
-
-                <section id="local-media-stream"></section>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <h2 style="display: block; text-align: center;">Remote Media Streams</h2>
-
-                <section id="remote-media-streams"></section>
-            </td>
-        </tr>
-    </table>
-    <script>
-        var connection = new RTCMultiConnection();
-        connection.session = {
-			audio: true,
-			video: true,
-			oneway: true
-		};
-        connection.onstream = function (e) {
-            if (e.type === 'remote') {
-                var mediaElement = e.mediaElement;
-                if (!e.session.oneway) {
-                    var remoteMediaStreams = document.getElementById('remote-media-streams');
-                    remoteMediaStreams.insertBefore(mediaElement, remoteMediaStreams.firstChild);
-                }
-                else document.getElementById('local-media-stream').appendChild(mediaElement);
-                mediaElement.controls = true;
+    <head>
+        <title>WebRTC Broadcasting using RTCMultiConnection ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        
+        <style>
+            audio, video {
+                -moz-transition: all 1s ease;
+                -ms-transition: all 1s ease;
+                
+                -o-transition: all 1s ease;
+                -webkit-transition: all 1s ease;
+                transition: all 1s ease;
+                vertical-align: top;
+                width: 100%;
             }
 
-            if (e.type === 'local') {
-                mediaElement = e.mediaElement;
-                document.getElementById('local-media-stream').appendChild(mediaElement);
-                mediaElement.controls = true;
+            input {
+                border: 1px solid #d9d9d9;
+                border-radius: 1px;
+                font-size: 2em;
+                margin: .2em;
+                width: 30%;
             }
-        };
 
-        var sessionid = window.params.join || location.hash.replace('#', '');
+            .setup {
+                border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
+                font-size: 102%;
+                height: 47px;
+                margin-left: -9px;
+                margin-top: 8px;
+                position: absolute;
+            }
 
-        document.getElementById('open-session').onclick = function () {
-            connection.open(sessionid);
-            this.disabled = true;
+            p { padding: 1em; }
 
-            this.parentNode.innerHTML = '<h2>Share with friends: <a href="' + location.href + '" target="_blank">#' + location.hash.replace('#', '') + '</a></h2>';
-        };
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+        </style>
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+        
+        <!-- scripts used for broadcasting -->
+        <script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
+        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+    </head>
 
-        connection.connect(sessionid);
-    </script>
-    <br/>
-    <br/>
+    <body>
+        <article>
+            <header style="text-align: center;">
+                <h1>
+                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> Broadcasting using 
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection</a>
+                </h1>            
+                <p>
+                    <span>© 2013</span>
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
+                    »
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
+                    »
+                    <a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
+                    »
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
+                </p>
+            </header>
 
-    <h2>Getting started with <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection"
-                                target="_blank">RTCMultiConnection</a></h2>
-            <pre>
-&lt;script src="<a href="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js" target="_blank">https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js</a>"&gt;&lt;/script&gt;
-&lt;script&gt;
-    var connection = new <strong>RTCMultiConnection</strong>();
+            <div class="github-stargazers"></div>
 
-    // for Video Broadcasting; set direction = 'one-way'
-    connection.<strong>section</strong> = {audio:true, video:true, oneway:true}
-	
-    // to create/open a new session
-    connection.<strong>open</strong>('session-id');
-	
-    // if someone already created a session; to join it: use "connect" method
-    connection.<strong>connect</strong>('session-id');
-&lt;/script&gt;
+            <section class="plusone-gplus">
+                <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
+            </section>
+        
+            <!-- just copy this <section> and next script -->
+            <section class="experiment">                
+                <section>
+                    <span>
+                        Private ?? <a href="" target="_blank" title="Open this link in new tab. Then your room will be private!"><code><strong id="unique-token">#123456789</strong></code></a>
+                    </span>
+					
+                    <input type="text" id="broadcast-name">
+                    <button id="setup-new-broadcast" class="setup">Setup New Broadcast</button>
+                </section>
+                
+                <!-- list of all available broadcasting rooms -->
+                <table style="width: 100%;" id="rooms-list"></table>
+                
+                <!-- local/remote videos container -->
+                <div id="videos-container"></div>
+            </section>
+        
+            <script>
+                // Muaz Khan     - https://github.com/muaz-khan
+                // MIT License   - https://www.webrtc-experiment.com/licence/
+                // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
+
+                var connection = new RTCMultiConnection();
+                connection.session = {
+                    audio: true,
+                    video: true,
+                    oneway: true
+                };
+
+                // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
+                connection.openSignalingChannel = function(config) {
+                    var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:2015/';
+                    var channel = config.channel || this.channel || location.hash.substr(1);
+                    var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+                    io.connect(SIGNALING_SERVER).emit('new-channel', {
+                        channel: channel,
+                        sender: sender
+                    });
+
+                    var socket = io.connect(SIGNALING_SERVER + channel);
+                    socket.channel = channel;
+                    socket.on('connect', function() {
+                        if (config.callback) config.callback(socket);
+                    });
+
+                    socket.send = function(message) {
+                        socket.emit('message', {
+                            sender: sender,
+                            data: message
+                        });
+                    };
+
+                    socket.on('message', config.onmessage);
+                };
+
+                connection.onstream = function(e) {
+                    videosContainer.insertBefore(e.mediaElement, videosContainer.firstChild);
+
+                    // rotate 360deg
+                    e.mediaElement.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
+                    setTimeout(function() {
+                        e.mediaElement.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
+                    }, 1000);
+                };
+
+                var sessions = { };
+                connection.onNewSession = function(session) {
+                    if (sessions[session.sessionid]) return;
+                    sessions[session.sessionid] = session;
+
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td><strong>' + session.extra['session-name'] + '</strong> is broadcasting his media!</td>' +
+                        '<td><button class="join">Join</button></td>';
+                    roomsList.insertBefore(tr, roomsList.firstChild);
+
+                    var joinRoomButton = tr.querySelector('.join');
+                    joinRoomButton.setAttribute('data-sessionid', session.sessionid);
+                    joinRoomButton.onclick = function() {
+                        this.disabled = true;
+
+                        var sessionid = this.getAttribute('data-sessionid');
+                        session = sessions[sessionid];
+
+                        if (!session) throw 'No such session exists.';
+
+                        connection.join(session);
+                    };
+                };
+
+                var videosContainer = document.getElementById('videos-container') || document.body;
+                var roomsList = document.getElementById('rooms-list');
+
+                document.getElementById('setup-new-broadcast').onclick = function() {
+                    this.disabled = true;
+                    connection.extra = {
+                        'session-name': document.getElementById('broadcast-name').value || 'Anonymous'
+                    };
+                    connection.open();
+                };
+
+                // setup signaling to search existing sessions
+                connection.connect();
+
+                (function() {
+                    var uniqueToken = document.getElementById('unique-token');
+                    if (uniqueToken)
+                        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
+                        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+                })();
+            </script>
+            
+            <section class="experiment">
+                <ol>
+                    <li>Mesh networking model is implemented to open multiple interconnected peer connections</li>
+                    <li>Maximum peer connections limit is <strong>256</strong> (on chrome)</li>
+                </ol>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
+            <section class="experiment">
+                <p>
+                    It is one-way broadcasting; media stream is attached only by the broadcaster.
+                </p>
+            </section>
+            <section class="experiment">
+                <p>
+                    It means that, if 10 people are watching your one-way broadcasted audio/video stream; on your system:
+                </p>
+                <ol>
+                    <li>10 RTP ports are opened to send video upward i.e. outgoing video</li>
+                    <li>10 RTP ports are opened to send audio upward i.e. outgoing audio</li>
+                </ol>
+            </section>
+            <section class="experiment">
+                <p>
+                    And on participants system:
+                </p>
+                <ol>
+                    <li>10 RTP ports are opened to receive video i.e. incoming video</li>
+                    <li>10 RTP ports are opened to receive audio i.e. incoming audio</li>
+                </ol>
+            </section>
+            <section class="experiment">
+                <p>
+                    Maximum bandwidth used by each video RTP port (media-track) is about 1MB. You're streaming audio and video tracks. You must be careful when streaming video over more than one peers. If you're broadcasting audio/video over 10 peers; it means that 20MB bandwidth is required on your system to stream-up (broadcast/transmit) your video. Otherwise; you'll face connection lost; CPU usage issues; and obviously audio-lost/noise/echo issues.
+                </p>
+            </section>
+            <section class="experiment">
+                <p>
+                    You can handle such things using "b=AS" (application specific bandwidth) session description parameter values to deliver a little bit low quality video.
+                </p>
+                <pre>
+// removing existing bandwidth lines
+sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
+
+// setting "outgoing" audio RTP port's bandwidth to "50kbit/s"
+sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:50\r\n');
+
+// setting "outgoing" video RTP port's bandwidth to "256kbit/s"
+sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
 </pre>
-    <br/>
-    <br/>
+            </section>
+            <section class="experiment">
+                <p>
+                    Possible issues:</p>
+                <ol>
+                    <li>Blurry video experience</li>
+                    <li>Unclear voice and audio lost</li>
+                    <li>Bandwidth issues / slow streaming / CPU overwhelming</li>
+                </ol>
+                <p>Solution? Obviously a media server!</p>
+            </section>
+			
+            <section class="experiment">
+                <h2 class="header">How to broadcast video?</h2>
+                <ol>
+                    <li>session.audio=true</li>
+                    <li>session.video=true</li>
+                    <li>session.oneway=true</li>
+                </ol>
+                <pre>
+// https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js
 
-    <h2><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection</a>
-        features:</h2>
-    <ol>
-        <li>You can open multi-sessions and multi-connections — in the same page</li>
-        <li>You can share files of any size — directly</li>
-        <li>You can share text messages of any length</li>
-        <li>You can share one-stream in many unique ways — in the same page</li>
-    </ol>
+var connection = new RTCMultiConnection();
 
-    <br/>
-    <br/>
+// setup session; along with "direction" to "oneway"
+connection.session = {
+    audio: true,
+    video: true,
+    oneway: true
+};
 
-    <h2>
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">Source
-            code and Documentation on Github!</a>
-    </h2>
+// on local/remote media stream
+connection.onstream = function(e) {}
 
-    <br/>
-    <br/>
-    <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-        <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+// setup signaling to search for existing sessions
+connection.connect();
 
-        <div>
-            <textarea id="message"
-                      style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;"
-                      placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-        </div>
-        <button id="send-message" style="font-size: 1em;">Send Message</button>
-    </section>
-</article>
-<footer>
-    <p>
-        <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a>©
-        <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>,
-        <span>2013 </span>»
-        <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
-        <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
-        <a href="https://github.com/muaz-khan" target="_blank">Github</a>
-    </p>
-</footer>
-<script src="https://www.webrtc-experiment.com/common.js"></script>
-</body>
+// setup new session
+document.getElementById('initiator').onclick = function() {
+    connection.open();
+};
+</pre>
+            </section>
+			
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        </article>
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                ©
+                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
+                <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
+                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
+                <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+            </p>
+        </footer>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+    </body>
 </html>

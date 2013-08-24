@@ -10,7 +10,7 @@
 6. Multi-session establishment (e.g. one or conferencing and other for broadcasting)
 7. Keeps session active/LIVE all the time; even if session initiator leaves
 8. Advance data/file/text sharing (concurrently|longest|largest)
-9. Session re-initiation
+9. Session re-initiation (Close/Leave/Rejoin)
 10. Admin/Guest calling features
 
 and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/changes-log.md)
@@ -48,13 +48,11 @@ and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/
         if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
     };
 
-    var session_unique_idetifier = 'Session Unique Identifier';
-
-    connection.connect(session_unique_idetifier);
+    connection.connect();
 
     document.getElementById('init').onclick = function() {
         this.disabled = true;
-        connection.open(session_unique_idetifier);
+        connection.open();
     };
 </script>
 ```
@@ -85,12 +83,8 @@ and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/
     };
 
     connection.openSignalingChannel = function(config) {
-        var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/',
-            defaultChannel = 'default-channel';
-
-        window.username = Math.random() * 9999 << 9999;
-
-        var channel = config.channel || defaultChannel;
+        var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
+        var channel = config.channel || this.channel;
         var sender = Math.round(Math.random() * 60535) + 5000;
 
         io.connect(SIGNALING_SERVER).emit('new-channel', {
@@ -122,13 +116,11 @@ and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/
         if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
     };
 
-    var session_unique_idetifier = 'Session Unique Identifier';
-
-    connection.connect(session_unique_idetifier);
+    connection.connect();
 
     document.getElementById('init').onclick = function() {
         this.disabled = true;
-        connection.open(session_unique_idetifier);
+        connection.open();
     };
 </script>
 ```
@@ -141,7 +133,7 @@ and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/
 
 ##### First Step: Link the library
 
-v1.4 is latest stable release. v1.5 is in beta stage.
+v1.4 is latest stable release.
 
 ```html
 <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"></script>
@@ -229,6 +221,9 @@ connection.onstreamended = function(e) {
 Renegotiation means you want to use same peer-connections to append dynamic streams at runtime.
 
 ```javascript
+// DTLS/SRTP must be false for renegotiation on chrome
+connection.disableDtlsSrtp = true;
+
 // runtime sharing of audio/video among all users
 connection.addStream({
     audio: true,
@@ -294,13 +289,12 @@ connection.session = {
 };
 
 connection.openSignalingChannel = function (config) {
-    config.channel = config.channel || this.channel || 'jfdkjfujdisafjlsdjerifjsdl';
     var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-    websocket.channel = config.channel;
+    websocket.channel = config.channel || this.channel;
     websocket.onopen = function () {
         websocket.push(JSON.stringify({
             open: true,
-            channel: config.channel
+            channel: websocket.channel
         }));
         if (config.callback) config.callback(websocket);
     };
@@ -311,7 +305,7 @@ connection.openSignalingChannel = function (config) {
     websocket.send = function (data) {
         websocket.push(JSON.stringify({
             data: data,
-            channel: config.channel
+            channel: websocket.channel
         }));
     };
 };
@@ -800,10 +794,18 @@ connection.bandwidth = {
 // or change them individually
 connection.bandwidth.audio = 50;
 connection.bandwidth.video = 256;
-connection.bandwidth.data = 1638400;
+connection.bandwidth.data  = 1638400;
 ```
 
 Default audio bandwidth is `50` and default video bandwidth is `256`.
+
+You can easily disable bandwidth for any track:
+
+```javascript
+connection.bandwidth.audio = false;
+connection.bandwidth.video = false;
+connection.bandwidth.data  = false;
+```
 
 =
 
@@ -863,6 +865,76 @@ connection.sdpConstraints.mandatory = {
 };
 ```
 
+=
+
+##### STUN/TURN or host candidates
+
+You've three options:
+
+1. You can disable "host" (i.e. local) candidates
+2. You can disable "reflexive" (i.e. STUN) candidates
+3. You can disable "relay" (i.e. TURN) candidates
+
+```javascript
+connection.candidates.host = false;
+connection.candidates.reflexive = false;
+connection.candidates.relay = false;
+```
+
+At least one option must be true.
+
+=
+
+##### Reliable Data Channels
+
+SCTP data channels has been landed on chrome; under a flag. RTCMultiConnection will use "unreliable" channels until SCTP lands in stable releases:
+
+```javascript
+// to prefer SCTP data channels
+connection.reliable = true;
+```
+
+=
+
+##### Session Re-initiation
+
+v1.4 supports re-initiation feature; it means that you can leave/close/join any room; without reload the page. You can open/close unlimitted rooms unlimitted times. However, the only limitation is each room must have "unique" name.
+
+```javascript
+// close the entire session
+connection.close();
+
+// open another session
+connection.open('unique-name');
+
+// leave a session
+connection.leave();
+
+// join another session
+connection.connect('unique-name');
+```
+
+Remember, you MUST override `onNewSession` to make sure RTCMultiConnection doesn't auto-join first available session:
+
+```javascript
+var sessions = {};
+connection.onNewSession = function(session) {
+    if(sessions[session.sessionid]) return;
+    sessions[session.sessionid] = session;
+	
+    // display list item or join button
+    // button.setAttribute('data-sessionid', session.sessionid);
+};
+```
+
+When you try to override `onNewSession`; you must use `join` method to manually join appropriate session:
+
+```javascript
+var sessionid = button.getAttribute('data-sessionid');
+var session   = sessions[sessionid];
+
+connection.join(session);
+```
 =
 
 ##### Admin/Guest Calling Features

@@ -1,0 +1,102 @@
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<h1>Session Re-initiation Test / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection-v1.4</a></h1>
+
+<input type=text id="session-name">
+<button id="open">Open New Session</button>
+<button id="close" disabled>Leave Session</button>
+<a id="link-to-share" href="" target="_blank"></a>
+<hr /><ol></ol><hr />
+<script>
+    var connection = new RTCMultiConnection();
+    connection.session = {
+        audio: true,
+        video: true
+    };
+
+    var ol = document.querySelector('ol');
+
+    var sessions = { };
+
+    // "onNewSession" to prevent "auto-join" feature
+    connection.onNewSession = function(session) {
+        if (sessions[session.sessionid]) return;
+        sessions[session.sessionid] = session;
+
+        var li = document.createElement('li');
+        li.innerHTML = 'session-id: <strong><u>' + session.sessionid + '</u></strong>. wanna join it? ';
+        ol.appendChild(li);
+
+        var button = document.createElement('button');
+        button.innerHTML = 'join';
+        button.id = session.sessionid;
+        button.onclick = function() {
+            connection.join(sessions[this.id]);
+            this.disabled = true;
+        };
+        li.appendChild(button);
+    };
+
+    // media streams
+    connection.onstream = function(e) {
+        document.body.appendChild(e.mediaElement);
+        if (e.type == 'remote') {
+            document.getElementById('close').disabled = false;
+        }
+    };
+
+    // on leaving; remove old media streams
+    connection.onstreamended = function(e) {
+        if (e.mediaElement.parentNode) {
+            e.mediaElement.parentNode.removeChild(e.mediaElement);
+        }
+    };
+
+    // setup/open new session
+    document.getElementById('open').onclick = function() {
+        this.disabled = true;
+        connection.open(document.getElementById('session-name').value);
+
+        if (document.getElementById('session-name').value) {
+            document.getElementById('link-to-share').href = location.href.replace(location.search, '') + '#' + document.getElementById('session-name').value;
+        }
+        document.getElementById('link-to-share').innerHTML = 'Share this link or open in new tab';
+    };
+
+    // close/leave existing session
+    document.getElementById('close').onclick = function() {
+        this.disabled = true;
+        document.getElementById('open').disabled = false;
+		
+        connection.close();
+    };
+
+    // using WebSockets for signaling
+    connection.openSignalingChannel = openSignalingChannel;
+
+    // search for existing sessions;
+    // and display all of them on <ol>
+    connection.connect(location.hash.substr(1));
+
+    function openSignalingChannel(config) {
+        var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+        websocket.channel = config.channel || connection.channel;
+        websocket.onopen = function() {
+            websocket.push(JSON.stringify({
+                open: true,
+                channel: websocket.channel
+            }));
+            if (config.callback) config.callback(websocket);
+        };
+        websocket.onmessage = function(event) {
+            var data = JSON.parse(event.data);
+            config.onmessage(data);
+        };
+        websocket.push = websocket.send;
+        websocket.send = function(data) {
+            websocket.push(JSON.stringify({
+                data: data,
+                channel: websocket.channel
+            }));
+        };
+    }
+</script>

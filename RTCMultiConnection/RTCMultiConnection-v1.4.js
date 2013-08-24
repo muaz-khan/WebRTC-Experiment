@@ -42,7 +42,6 @@
                 throw 'No file, data or text message to share.';
 
             if (data.size) {
-                // console.log(file.uuid);
                 FileSender.send({
                     file: data,
                     channel: rtcSession,
@@ -50,8 +49,7 @@
                     onFileProgress: self.onFileProgress,
                     _channel: _channel
                 });
-            }
-            else
+            } else
                 TextSender.send({
                     text: data,
                     channel: rtcSession,
@@ -198,8 +196,7 @@
                 _captureUserMedia(screen_constraints, constraints.audio || constraints.video ? function() {
                     _captureUserMedia(constraints, callback);
                 } : callback);
-            }
-            else _captureUserMedia(constraints, callback, session.audio && !session.video);
+            } else _captureUserMedia(constraints, callback, session.audio && !session.video);
 
             function _captureUserMedia(forcedConstraints, forcedCallback, isRemoveVideoTracks) {
                 var mediaConfig = {
@@ -348,6 +345,12 @@
             var peerConfig = {
                 onopen: onChannelOpened,
                 onICE: function(candidate) {
+                    if (!root.candidates) throw 'ICE candidates are mandatory.';
+                    if (!root.candidates.host && candidate.candidate.indexOf('typ host') != -1) return;
+                    if (!root.candidates.relay && candidate.candidate.indexOf('relay') != -1) return;
+                    if (!root.candidates.reflexive && candidate.candidate.indexOf('srflx') != -1) return;
+
+                    log(candidate.candidate);
                     socket && socket.send({
                         userid: self.userid,
                         candidate: {
@@ -397,7 +400,8 @@
                 iceServers: root.iceServers,
                 bandwidth: root.bandwidth,
                 sdpConstraints: root.sdpConstraints || { },
-                disableDtlsSrtp: root.disableDtlsSrtp
+                disableDtlsSrtp: root.disableDtlsSrtp,
+                reliable: !!root.reliable
             };
 
             function initPeer(offerSDP) {
@@ -418,17 +422,18 @@
                     };
                 }
 
-                if (!session.data)
-                    peerConfig.onmessage = null;
+                if (!session.data) peerConfig.onmessage = null;
                 peerConfig.session = session;
                 peer = new RTCPeerConnection(peerConfig);
             }
 
             function afterRemoteStreamStartedFlowing(mediaElement) {
-				setTimeout(function() {
-					mediaElement.volume=1;
-				}, 3000);
-								
+                (function setVolume() {
+                    mediaElement.volume += .1;
+                    if (mediaElement.volume < .9) setTimeout(setVolume, 600);
+                    else mediaElement.volume = 1;
+                })();
+
                 var stream = _config.stream;
                 stream.onended = function() {
                     root.onstreamended(streamedObject);
@@ -760,7 +765,7 @@
                 clearSession();
         };
 
-        var that = this,
+        function initDefaultSocket(callback) {
             defaultSocket = root.openSignalingChannel({
                 onmessage: function(response) {
                     if (response.userid == self.userid)
@@ -809,8 +814,14 @@
                 callback: function(socket) {
                     defaultSocket = socket;
                     if (root.userType) sendRequest();
+                    if (callback) callback();
                 }
             });
+        }
+
+        var that = this, defaultSocket;
+
+        initDefaultSocket();
 
         function sendRequest() {
             defaultSocket.send({
@@ -823,13 +834,19 @@
         // open new session
         this.initSession = function() {
             isbroadcaster = true;
+
             session = root.session;
+            self.sessionid = root.channel;
+            participants = { };
+
             this.isOwnerLeaving = isAcceptNewSession = false;
+
+            initDefaultSocket();
             (function transmit() {
                 if (getLength(participants) < root.maxParticipantsAllowed) {
                     defaultSocket && defaultSocket.send({
                         sessionid: self.sessionid,
-                        userid: self.userid,
+                        userid: root.userid,
                         session: session,
                         extra: root.extra
                     });
@@ -858,11 +875,13 @@
                 extra: root.extra
             });
 
-            defaultSocket.send({
-                participant: true,
-                userid: self.userid,
-                targetUser: _config.userid,
-                extra: root.extra
+            initDefaultSocket(function() {
+                defaultSocket.send({
+                    participant: true,
+                    userid: self.userid,
+                    targetUser: _config.userid,
+                    extra: root.extra
+                });
             });
 
             self.broadcasterid = _config.userid;
@@ -892,7 +911,7 @@
             clearSession(userid);
 
             if (!userid) {
-                self.userid = root.userid = root.token();
+                // self.userid = root.userid = root.token();
                 root.joinedARoom = self.joinedARoom = isbroadcaster = false;
                 isAcceptNewSession = true;
             }
@@ -1062,7 +1081,9 @@
                     setTimeout(function() {
                         onReadAsDataURL(null, textToTransfer);
                     }, moz ? 1 : 500);
-                    // bug: what's the best method to speedup data transferring on chrome?
+                    // bug:
+                    // what's the best method to speedup data transferring on chrome?
+                    // what if SCTP data channels flag enabled?
                 }
             }
         }
@@ -1305,15 +1326,14 @@
         if (!navigator.onLine) {
             iceServers = null;
             console.warn('No internet connection detected. No STUN/TURN server is used to make sure local/host candidates are used for peers connection.');
-        }
-		else log('iceServers', JSON.stringify(iceServers, null, '\t'));
+        } else log('iceServers', JSON.stringify(iceServers, null, '\t'));
 
         var peer = new PeerConnection(iceServers, optional);
 
         openOffererChannel();
 
         peer.onicecandidate = function(event) {
-            if (event.candidate && !options.renegotiate)
+            if (event.candidate)
                 options.onICE(event.candidate);
         };
 
@@ -1388,15 +1408,24 @@
             createAnswer();
         }
 
-        var bandwidth = options.bandwidth || { };
-
+        var bandwidth = options.bandwidth;
         function setBandwidth(sdp) {
+            if (!bandwidth) return;
+
             // remove existing bandwidth lines
             sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
 
-            sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:' + (bandwidth.audio || 50) + '\r\n');
-            sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + (bandwidth.video || 256) + '\r\n');
-            sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:' + (bandwidth.data || 102400) + '\r\n'); // 100 Mbps
+            if (bandwidth.audio) {
+                sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:' + bandwidth.audio + '\r\n');
+            }
+
+            if (bandwidth.video) {
+                sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + bandwidth.video + '\r\n');
+            }
+
+            if (bandwidth.data) {
+                sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:' + bandwidth.data + '\r\n');
+            }
 
             return sdp;
         }
@@ -1469,11 +1498,15 @@
         }
 
         function _openOffererChannel() {
-            channel = peer.createDataChannel(options.channel || 'RTCDataChannel', moz ? { } : {
+            var reliable = {
                 reliable: false
-            });
+            };
+            if (moz || options.reliable) reliable = { };
+            channel = peer.createDataChannel(options.channel || 'RTCDataChannel', reliable);
 
             if (moz) channel.binaryType = 'blob';
+            if (options.binaryType)
+                channel.binaryType = options.binaryType;
 
             setChannelEvents();
         }
@@ -1494,6 +1527,8 @@
             peer.ondatachannel = function(event) {
                 channel = event.channel;
                 channel.binaryType = 'blob';
+                if (options.binaryType)
+                    channel.binaryType = options.binaryType;
                 setChannelEvents();
             };
 
@@ -1507,6 +1542,7 @@
         }
 
         // fake:true is also available on chrome under a flag!
+
         function useless() {
             log('error in fake:true');
         }
@@ -1628,7 +1664,7 @@
     }
 
     function log(a, b, c, d, e, f) {
-        if(window.skipRTCMultiConnectionLogs) return;
+        if (window.skipRTCMultiConnectionLogs) return;
         if (f)
             console.log(a, b, c, d, e, f);
         else if (e)
@@ -1723,6 +1759,12 @@
             audio: 50,
             video: 256,
             data: 1638400
+        };
+
+        this.candidates = {
+            host: true,
+            relay: true,
+            reflexive: true
         };
 
         this.mediaConstraints = { };
@@ -1830,7 +1872,7 @@
         mediaElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
         mediaElement.autoplay = true;
         mediaElement.controls = true;
-		mediaElement.volume=0;
+        mediaElement.volume = .1;
         mediaElement.play();
         return mediaElement;
     }
