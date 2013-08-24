@@ -17,8 +17,8 @@
             self.view(screen);
         };
 
-        function initSignaler() {
-            signaler = new Signaler(self);
+        function initSignaler(roomid) {
+            signaler = new Signaler(self, roomid || self.channel);
         }
 
         function captureUserMedia(callback) {
@@ -72,7 +72,7 @@
         // share new screen
         this.share = function(roomid) {
             captureUserMedia(function() {
-                !signaler && initSignaler();
+                !signaler && initSignaler(roomid);
                 signaler.broadcast({
                     roomid: roomid || self.channel
                 });
@@ -94,7 +94,7 @@
 
     // it is a backbone object
 
-    function Signaler(root) {
+    function Signaler(root, roomid) {
         var socket;
 
         // unique identifier for the current user
@@ -112,7 +112,7 @@
         // it is called when your signaling implementation fires "onmessage"
         this.onmessage = function(message) {
             // if new room detected
-            if (message.roomid && message.broadcasting && !signaler.sentParticipationRequest)
+            if (message.roomid == roomid && message.broadcasting && !signaler.sentParticipationRequest)
                 root.onscreen(message);
 
             else

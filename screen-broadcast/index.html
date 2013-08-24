@@ -153,13 +153,15 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
+        
+        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
     </head>
 
     <body>
         <article>
             <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
 
-            <h1>WebRTC Tab Sharing / Broadcasting</h1>
+            <h1>WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/tabCapture" target="_blank">Tab Sharing</a> / Broadcasting</h1>
             <p>
                 <span>Copyright © 2013</span>
                 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
@@ -169,7 +171,7 @@
                 <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
             </section>
 		
-            <table id="rooms-list" class="visible">
+            <table id="rooms-list">
                 <tr>
                     <td>
                         Broadcasted tabs will be visible here
@@ -182,9 +184,73 @@
 
             <div id="participants"></div>
 
-            <script src="https://www.webrtc-experiment.com/dependencies/socket.io.js"></script>
-            <script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
-            <script src="https://www.webrtc-experiment.com/screen-broadcast/screen-viewer.js"> </script>
+            <script>
+                var connection = new RTCMultiConnection('webrtc-tab-sharing');
+
+                // chrome extension API fails if b=AS in the sdp
+                connection.bandwidth.video = false;
+
+                // overriding for websockets
+                connection.openSignalingChannel = openSignalingChannel;
+
+                // on successfully getting shared tab
+                var participants = document.getElementById('participants');
+                connection.onstream = function (e) {
+                    participants.appendChild(e.mediaElement);
+                };
+
+                // if tab sharing is closed
+                connection.onstreamended = function (e) {
+                    if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
+                };
+
+                var roomsList = document.getElementById('rooms-list'), sessions = {};
+                connection.onNewSession = function (session) {
+                    if (sessions[session.sessionid]) return;
+                    sessions[session.sessionid] = session;
+
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td><strong>' + session.sessionid + '</strong> is sharing tab via a chrome extension.</td>' +
+                        '<td><button class="join">View Broadcasted Tab</button></td>';
+                    roomsList.insertBefore(tr, roomsList.firstChild);
+
+                    tr.querySelector('.join').setAttribute('data-sessionid', session.sessionid);
+                    tr.querySelector('.join').onclick = function () {
+                        this.disabled = true;
+
+                        session = sessions[this.getAttribute('data-sessionid')];
+                        if (!session) alert('No room to join.');
+
+                        connection.join(session);
+                    };
+                };
+
+                // searching for shared tabs
+                connection.connect();
+
+                // using websockets for signaling
+                function openSignalingChannel(config) {
+                    config.channel = config.channel || this.channel;
+                    var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+                    websocket.onopen = function () {
+                        websocket.push(JSON.stringify({
+                            open: true,
+                            channel: config.channel
+                        }));
+                        if (config.callback) config.callback(websocket);
+                    };
+                    websocket.onmessage = function (event) {
+                        config.onmessage(JSON.parse(event.data));
+                    };
+                    websocket.push = websocket.send;
+                    websocket.send = function (data) {
+                        websocket.push(JSON.stringify({
+                            data: data,
+                            channel: config.channel
+                        }));
+                    };
+                }
+            </script>
 
             <br />
             <br />
@@ -195,7 +261,7 @@
             <br />
 		
             <blockquote>
-                You need to <a href="https://muazkh.googlecode.com/files/tab-sharing-using-tabCapture-APIs.zip">download extension</a> (in ZIP format) if you want to broadcast your own tab. To join any broadcasted tab; you don't need to download ZIP file.
+                You need to <a href="http://code.google.com/p/muazkh/downloads/list">download extension</a> (in ZIP format) if you want to broadcast your own tab. To join any broadcasted tab; you don't need to download ZIP file.
             </blockquote>
             <blockquote>
                 <ol>
@@ -212,24 +278,21 @@
                 You can also view broadcasted tab using Firefox nightly, aurora, and 18+stable!
             </blockquote>
 
-		
-            <br /><br />
-
-            It is preferred to use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> for one-place to try all RTCWeb APIs!!
-			
             <br />
             <br />
             
             <blockquote>
-                There is a plugin-free screen sharing experiment too! <a href="https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/" target="_blank">Try it Now!</a>
+                There is a plugin-free (extension-less / fullscreen) screen sharing experiment too! <a href="https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/" target="_blank">Try it Now!</a>
             </blockquote>
 
             <br />
             <br />
             
             <h2 style="display:block;text-align:center;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-broadcast">Source Code on Github</a> / <a href="https://muazkh.googlecode.com/files/tab-sharing-using-tabCapture-APIs.zip" target="_blank">Download tabCapture extension</a></h2>
+            
             <br />
             <br />
+
             <h2>How to capture tab using tabCapture APIs?</h2>
             <blockquote style="padding:0 .2em;">
                 <img src="/images/capture-tab-using-tabCapture-APIs.png" />

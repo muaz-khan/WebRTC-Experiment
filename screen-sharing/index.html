@@ -172,7 +172,7 @@
             screen.check();
 
             document.getElementById('share-screen').onclick = function() {
-                screen.share('new-screen');
+                screen.share();
                 this.disabled = true;
 
                 this.parentNode.innerHTML = '<h2><a href="' + location.href + '" target="_blank">Share this link</a></h2>';

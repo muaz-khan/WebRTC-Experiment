@@ -1,212 +1,125 @@
-﻿<!DOCTYPE html>
-<html id="home" lang="en">
-
-<head>
-    <title>How to use RTCPeerConnection.js? (v1.5) ® Muaz Khan</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
-    <meta name="author" content="Muaz Khan">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
-    <style>
-        html {
-            background: #eee;
-        }
-
-        body {
-            font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
-            font-size: 1.2em;
-            line-height: 1.2em;
-            margin: 0;
-        }
-
-        article, footer {
-            display: block;
-            max-width: 900px;
-            min-width: 360px;
-            width: 80%;
-        }
-
-        article {
-            background: #fff;
-            border: 1px solid;
-            border-color: #ddd #aaa #aaa #ddd;
-            margin: 2.5em auto 0 auto;
-            padding: 2em;
-        }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        article p:first-of-type {
-            margin-top: 1.6em;
-        }
-
-        article p:last-child {
-            margin-bottom: 0;
-        }
-
-        footer {
-            margin: 0 auto 2em auto;
-            text-align: center;
-        }
-
-            footer a {
-                color: #666;
-                font-size: inherit;
-                padding: 1em;
-                text-decoration: none;
-                text-shadow: 0 1px 1px #fff;
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
+-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>How to use RTCPeerConnection.js? (v1.5) ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        
+        <style>
+            p {
+                padding: .8em;
+                padding-bottom: 0;
             }
 
-                footer a:hover, footer a:focus {
-                    color: #111;
-                }
-
-        h1, h2 {
-            border-bottom: 1px solid black;
-            display: inline;
-            font-weight: normal;
-            line-height: 36px;
-            padding: 0 0 3px 0;
-        }
-
-        a {
-            color: #2844FA;
-            text-decoration: none;
-        }
-
-            a:hover, a:focus {
-                color: #1B29A4;
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
             }
 
-            a:active {
-                color: #000;
+            code {
+                color: red;
+                font-family: inherit;
             }
 
-        :-moz-any-link:focus {
-            border: 0;
-            color: #000;
-        }
+            table { background: white; }
 
-        ::selection {
-            background: #ccc;
-        }
-
-        ::-moz-selection {
-            background: #ccc;
-        }
-
-        button, input[type=button] {
-            -moz-border-radius: 3px;
-            -moz-transition: none;
-            -webkit-transition: none;
-            background: #0370ea;
-            background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
-            background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
-            border: 1px solid #076bd2;
-            border-radius: 3px;
-            color: #fff;
-            display: inline-block;
-            font-family: inherit;
-            font-size: .8em;
-            line-height: 1.3;
-            padding: 5px 12px;
-            text-align: center;
-            text-shadow: 1px 1px 1px #076bd2;
-            font-size: 1.5em;
-        }
-
-            button:hover, input[type=button]:hover {
-                background: rgb(9, 147, 240);
+            td {
+                border: 0;
+                padding: 0;
             }
+        </style>
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+    </head>
 
-            button:active, input[type=button]:active {
-                background: rgb(10, 118, 190);
-            }
+    <body>
+        <article>
+            <header style="text-align: center;">
+                <h1>
+                    How to use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection" target="_blank">RTCPeerConnection.js? (v1.5)</a> ® 
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+                </h1>            
+                <p>
+                    <span>© 2013</span>
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
+                    »
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
+                    »
+                    <a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
+                    »
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
+                </p>
+            </header>
 
-            button[disabled], input[type=button][disabled] {
-                background: none;
-                border: 1px solid rgb(187, 181, 181);
-                color: gray;
-                text-shadow: none;
-            }
+            <div class="github-stargazers"></div>
 
-        strong {
-            color: rgb(204, 14, 14);
-            font-family: inherit;
-            font-weight: normal;
-        }
+            <section class="plusone-gplus">
+                <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">Explains how to</h2>
+                <ol>
+                    <li>use WebRTC peer connection API (<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection" target="_blank">RTCPeerConnection.js</a>)</li>
+                    <li>write one-to-one video sharing application</li>
+                    <li>use socket.io or websockets for signaling</li>
+                </ol>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">Suggestions</h2>
+                <ol>
+                    <li>
+                        If you're newcomer, newbie or beginner; you're suggested to try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> or <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a> libraries.
+                    </li>
+					
+                    <li>
+                        Remember: <code>RTCPeerConnection.js</code> is <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection">documented here</a>.
+                    </li>
+					
+                    <li>
+                        Another recommended tutorial is: <a href="https://www.webrtc-experiment.com/docs/WebRTC-PeerConnection.html" target="_blank">How to use WebRTC PeerConnection?</a>
+                    </li>
+                </ol>
+		
+            </section>
+		
+            <section class="experiment">
+                <h2 class="header">Start here..</h2>
 
-        tr, td, th {
-            vertical-align: top;
-            padding: .7em 1.4em;
-            border-top: 1px dotted #BBA9A9;
-            border-right: 1px dotted #BBA9A9;
-        }
+                <table style="border-right: 1px solid rgb(189, 189, 189);">
+                    <tr>
+                        <td>
+                            <p>
+                                First of all; you need to reference RTCPeerConnection.js library:
+                            </p>
+                            <pre>
+&lt;script src="<strong>https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js</strong>"&gt;&lt;/script&gt;
+</pre>
+                        </td>
+                    </tr>
 
-        table {
-            width: 100%;
-        }
-
-        blockquote {
-            margin: 1em 0;
-        }
-    </style>
-    <!-- for HTML5 el styling -->
-    <script>
-        document.createElement('article');
-        document.createElement('footer');
-    </script>
-</head>
-
-<body>
-    <article>
-    <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
-
-    <h1>How to use RTCPeerConnection.js? (v1.5)
-        </h1>
-        <p>
-            <span>Copyright © 2013</span>
-            <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
-        </p>
-
-        <section class="plusone-gplus">
-            <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
-        </section>
-
-        <table style="width: 100%;">
-            <tr>
-                <td>If you're newcomer, newbie or beginner; you're suggested to try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> or <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a> libraries.
-                </td>
-            </tr>
-            <tr>
-                <td>Remember: <code>RTCPeerConnection.js</code> is <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection">documented here</a>.
-                </td>
-            </tr>
-        </table>
-
-        <table>
-            <tr>
-                <td>
-                    <blockquote>
-                        First of all; you need to reference RTCPeerConnection.js library:
-                    </blockquote>
-                    <code>&lt;script src="<strong>https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js</strong>"&gt;&lt;/script&gt;
-                    </code>
-                </td>
-            </tr>
-
-            <tr>
-                <td>
-                    <h2>Offerer</h2>
-                    <blockquote>
-                        Now assume that you are creating "<strong>offer</strong>"...you need to use this code to create <strong>offer sdp</strong>:
-                    </blockquote>
-                    <pre>
+                    <tr>
+                        <td>
+                            <h2>Offerer</h2>
+                            <p>
+                                Now assume that you are creating "<strong>offer</strong>"...you need to use this code to create <strong>offer sdp</strong>:
+                            </p>
+                            <pre>
 var peer = <strong>RTCPeerConnection</strong>({
     <strong title="required">attachStream</strong>	: clientStream,
     <strong title="required">onICE</strong>     		: function (candidate) {},
@@ -215,74 +128,74 @@ var peer = <strong>RTCPeerConnection</strong>({
 });
 </pre>
 
-                    <blockquote>
-                        Here is the short explanation of above code ↑
-                    </blockquote>
-                    <ol>
-                        <li>
-                            <strong>attachStream</strong>: client stream that you need to share with other peer!
-							<p style="font-size: .8em;color: rgb(194, 193, 193);border: 1px solid rgb(219, 218, 218);padding: 1em 2em;border-radius: 5px;background: rgb(247, 247, 247);">
-							A few days later; you may want to attach multiple streams; e.g. one audio+video stream; and one screen sharing stream; in such case, you can use <strong>attachStreams</strong> object to attach multiple streams:
-							<br />
-							<code style="font-size:1.2em;">
-							attachStreams = [MediaStream1, MediaStream2, MediaStream3]
-							</code>
-							<p>
-                        </li>
+                            <p>
+                                Here is the short explanation of above code ↑
+                            </p>
+                            <ol>
+                                <li>
+                                    <strong>attachStream</strong>: client stream that you need to share with other peer!
+                                    <p style="background: rgb(247, 247, 247); border: 1px solid rgb(219, 218, 218); border-radius: 5px; color: rgb(194, 193, 193); font-size: .8em; padding: 1em 2em;">
+                                    A few days later; you may want to attach multiple streams; e.g. one audio+video stream; and one screen sharing stream; in such case, you can use <strong>attachStreams</strong> object to attach multiple streams:
+                                    <br />
+                                    <code style="font-size: 1.2em;">
+                                        attachStreams = [MediaStream1, MediaStream2, MediaStream3]
+                                    </code>
+                                    <p>
+                                </li>
 
-                        <li>
-                            <blockquote>
-                                <strong>onICE</strong>: it returns locally gathered <strong>ICE</strong> so you can share them with other end.
-                            </blockquote>
-                            <blockquote>
-                                <strong>candidate</strong> object contains two properties:
-                        <ol>
-                            <li>candidate.<code><strong>sdpMLineIndex</strong></code>
-                            </li>
-                            <li>candidate.<code><strong>candidate</strong></code>
-                            </li>
-                        </ol>
-                            </blockquote>
-                        </li>
-                        <li>
-                            <strong>onRemoteStream</strong>: returns <strong>remote stream</strong> attached by other peer.
-                        </li>
-                        <li>
-                            <strong>onOfferSDP</strong>: returns <strong>offer sdp</strong>; so you can send it to other peer to get <strong>answer sdp</strong>.
-                        </li>
-                    </ol>
+                                <li>
+                                    <p>
+                                        <strong>onICE</strong>: it returns locally gathered <strong>ICE</strong> so you can share them with other end.
+                                    </p>
+                                    <p>
+                                        <strong>candidate</strong> object contains two properties:
+                                        <ol>
+                                            <li>candidate.<code><strong>sdpMLineIndex</strong></code>
+                                            </li>
+                                            <li>candidate.<code><strong>candidate</strong></code>
+                                            </li>
+                                        </ol>
+                                    </p>
+                                </li>
+                                <li>
+                                    <strong>onRemoteStream</strong>: returns <strong>remote stream</strong> attached by other peer.
+                                </li>
+                                <li>
+                                    <strong>onOfferSDP</strong>: returns <strong>offer sdp</strong>; so you can send it to other peer to get <strong>answer sdp</strong>.
+                                </li>
+                            </ol>
 
-                    <br />
+                            <br />
 
-                    <blockquote>
-                        Now assume that other peer generated <strong>answer sdp</strong> and sent to you; you can pass that sdp to this function:
-                    </blockquote>
-                    <blockquote>
-                        <code>peer.<strong>addAnswerSDP</strong>( <strong>answer_sdp</strong> );
-                        </code>
-                    </blockquote>
+                            <p>
+                                Now assume that other peer generated <strong>answer sdp</strong> and sent to you; you can pass that sdp to this function:
+                            </p>
+                            <p>
+                                <code>peer.<strong>addAnswerSDP</strong>( <strong>answer_sdp</strong> );
+                                </code>
+                            </p>
 
-                    <blockquote>
-                        Now assume that other peer gathered <strong>ICE</strong> and sent to you; you can pass that ICE to this function:
-                    </blockquote>
-                    <blockquote>
-                        <pre>
+                            <p>
+                                Now assume that other peer gathered <strong>ICE</strong> and sent to you; you can pass that ICE to this function:
+                            </p>
+                            <p>
+                                <pre>
 peer.<strong>addICE</strong>({
     <strong>sdpMLineIndex</strong> 	: candidate.<strong>sdpMLineIndex</strong>,
     <strong>candidate</strong> 		: candidate.<strong>candidate</strong>
 });
 </pre>
-                    </blockquote>
-                </td>
-            </tr>
+                            </p>
+                        </td>
+                    </tr>
 
-            <tr>
-                <td>
-                    <h2>Answerer</h2>
-                    <blockquote>
-                        99% process is the same for peer who "<strong>creates answer sdp</strong>"; the only difference is: for that peer you don't need "<code><strong>onOfferSDP</strong></code>" and also you don't need to call "<code><strong>peer.addAnswerSDP( answer_sdp );</strong></code>". What extra you need to do is here:
-                    </blockquote>
-                    <pre>
+                    <tr>
+                        <td>
+                            <h2>Answerer</h2>
+                            <p>
+                                99% process is the same for peer who "<strong>creates answer sdp</strong>"; the only difference is: for that peer you don't need "<code><strong>onOfferSDP</strong></code>" and also you don't need to call "<code><strong>peer.addAnswerSDP( answer_sdp );</strong></code>". What extra you need to do is here:
+                            </p>
+                            <pre>
 var peer = <strong>RTCPeerConnection</strong>({
     <strong>attachStream</strong>     	: clientStream,
 
@@ -294,60 +207,60 @@ var peer = <strong>RTCPeerConnection</strong>({
     <strong>onAnswerSDP</strong>   	: function(sdp) {}
 });
 </pre>
-                    <br />
-                    <blockquote>
-                        Let me elaborate:
-                    </blockquote>
-                    <ol>
-                        <li>
-                            <strong>offerSDP</strong>: you need to pass <strong>offer sdp</strong> sent by other peer.
-                        </li>
-                        <li>
-                            <strong>onAnswerSDP</strong>: returns <strong>answer sdp</strong> so you can send it to other end.
-                        </li>
-                    </ol>
-                    <br />
-                    <blockquote>
-                        For <strong>ICE</strong> sent by other peer; you need to do same thing:
-                    </blockquote>
-                    <blockquote>
-                        <pre>
+                            <br />
+                            <p>
+                                Let me elaborate:
+                            </p>
+                            <ol>
+                                <li>
+                                    <strong>offerSDP</strong>: you need to pass <strong>offer sdp</strong> sent by other peer.
+                                </li>
+                                <li>
+                                    <strong>onAnswerSDP</strong>: returns <strong>answer sdp</strong> so you can send it to other end.
+                                </li>
+                            </ol>
+                            <br />
+                            <p>
+                                For <strong>ICE</strong> sent by other peer; you need to do same thing:
+                            </p>
+                            <p>
+                                <pre>
 peer.<strong>addICE</strong>({
     <strong>sdpMLineIndex</strong> 	: candidate.<strong>sdpMLineIndex</strong>,
     <strong>candidate</strong> 		: candidate.<strong>candidate</strong>
 });
 </pre>
-                    </blockquote>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h2>Some quick tips:</h2>
-                    <br />
-                    <ol>
-                        <li>You MUST get client stream before opening sockets or XHR requests.
-                        </li>
-                        <li>Offerer can create offer sdp any time; but other peer should start creating answer sdp only when it has <code><strong>offer sdp</strong></code>.
-                        </li>
-                        <li>Before creating answer; you MUST not add any ICE sent by other peer.
-                        </li>
-                    </ol>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h2 id="socket-io">How to write a realtime WebRTC app using socket.io?</h2>
-                    <blockquote id="socket-io-reference">
-                        First of all; you need to reference <strong>socket.io.js</strong>:
-                    </blockquote>
-                    <pre>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h2>Some quick tips:</h2>
+                            <br />
+                            <ol>
+                                <li>You MUST get client stream before opening sockets or XHR requests.
+                                </li>
+                                <li>Offerer can create offer sdp any time; but other peer should start creating answer sdp only when it has <code><strong>offer sdp</strong></code>.
+                                </li>
+                                <li>Before creating answer; you MUST not add any ICE sent by other peer.
+                                </li>
+                            </ol>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h2 id="socket-io">How to write a realtime WebRTC app using socket.io?</h2>
+                            <p id="socket-io-reference">
+                                First of all; you need to reference <strong>socket.io.js</strong>:
+                            </p>
+                            <pre>
 &lt;script src="<strong>https://www.webrtc-experiment.com/dependencies/socket.io.js</strong>"&gt;&lt;/script&gt;
 </pre>
-                    <br />
-                    <blockquote>
-                        Now, open socket and transmit your request (e.g. room) until a participant found:
-                    </blockquote>
-                    <pre>
+                            <br />
+                            <p>
+                                Now, open socket and transmit your request (e.g. room) until a participant found:
+                            </p>
+                            <pre>
 var socket = io.connect('http://pubsub.pubnub.com/webrtc-app', {
     <strong>publish_key</strong>		: 'demo',
     <strong>subscribe_key</strong>	: 'demo',
@@ -364,18 +277,18 @@ function onconnect() {}
 <span class="comment">/* got response */</span>
 function oncallback(response) {}
 </pre>
-                    <br />
-                    <blockquote>
-                        Above code is same for both: <strong>offerer</strong> and <strong>answerer</strong>.
-                    </blockquote>
-                    <h2 id="offerer">Offerer</h2>
-                    <blockquote>
-                        Now, assume that it is "<strong>offerer</strong>" who transmits request for participant to join him. He will not create "<strong>offer sdp</strong>" until he receive "<strong>join request</strong>" from his participant.
-                    </blockquote>
-                    <blockquote>
-                        Following code is for <strong>offerer</strong> (95% part of this code can be used for <a href="#answerer">Answerer</a>):
-                    </blockquote>
-                    <pre>
+                            <br />
+                            <p>
+                                Above code is same for both: <strong>offerer</strong> and <strong>answerer</strong>.
+                            </p>
+                            <h2 id="offerer">Offerer</h2>
+                            <p>
+                                Now, assume that it is "<strong>offerer</strong>" who transmits request for participant to join him. He will not create "<strong>offer sdp</strong>" until he receive "<strong>join request</strong>" from his participant.
+                            </p>
+                            <p>
+                                Following code is for <strong>offerer</strong> (95% part of this code can be used for <a href="#answerer">Answerer</a>):
+                            </p>
+                            <pre>
 function <a href="#onconnect">onconnect</a>()
 {
     <a href="#transmitRequest">transmitRequest();</a>
@@ -486,26 +399,26 @@ function <strong id="processAnswerSDP">processAnswerSDP</strong>(response)
     }
 }
 </pre>
-                    <blockquote>
-                        That was all you need to do for <strong>offerer</strong> side.
-                    </blockquote>
-                    <h2 id="answerer">Answerer</h2>
-                    <blockquote>
-                        For <strong>answerer</strong>: you write <strong>95%</strong> same code like offerer; there is just a little bit difference.
-                    </blockquote>
-                    <ol>
-                        <li>For answerer, you don't use "<a href="#onoffer">onOfferSDP</a>" instead you use "<a href="#onanswer">onAnswerSDP</a>"
-                        </li>
-                        <li>For answerer, you've to pass "<a href="#offer">offerSDP</a>" object containing "<a href="#offer">offer sdp</a>" sent by offerer
-                        </li>
-                        <li>For answerer, you don't need to call "<a href="#peer-onanswer">peer.addAnswerSDP</a>" because this function is for "<a href="#offerer">offerer</a>" only.
-                        </li>
-                    </ol>
-                    <br />
-                    <blockquote>
-                        On the "<a href="#answerer">Answerer</a>" side; when user click "<strong>join</strong>" button; send a message to <a href="#offerer">Offerer</a> to tell him that you're ready to get "<strong>offer sdp</strong>" from him.
-                    </blockquote>
-                    <pre>
+                            <p>
+                                That was all you need to do for <strong>offerer</strong> side.
+                            </p>
+                            <h2 id="answerer">Answerer</h2>
+                            <p>
+                                For <strong>answerer</strong>: you write <strong>95%</strong> same code like offerer; there is just a little bit difference.
+                            </p>
+                            <ol>
+                                <li>For answerer, you don't use "<a href="#onoffer">onOfferSDP</a>" instead you use "<a href="#onanswer">onAnswerSDP</a>"
+                                </li>
+                                <li>For answerer, you've to pass "<a href="#offer">offerSDP</a>" object containing "<a href="#offer">offer sdp</a>" sent by offerer
+                                </li>
+                                <li>For answerer, you don't need to call "<a href="#peer-onanswer">peer.addAnswerSDP</a>" because this function is for "<a href="#offerer">offerer</a>" only.
+                                </li>
+                            </ol>
+                            <br />
+                            <p>
+                                On the "<a href="#answerer">Answerer</a>" side; when user click "<strong>join</strong>" button; send a message to <a href="#offerer">Offerer</a> to tell him that you're ready to get "<strong>offer sdp</strong>" from him.
+                            </p>
+                            <pre>
 var <a href="#userID" id="userID2">userID</a> = '<strong>answerer</strong>';
 
 socket && socket.<span id="participant-request">send</span>({
@@ -513,11 +426,11 @@ socket && socket.<span id="participant-request">send</span>({
     <a href="#userID2">userID</a>: userID
 });
 </pre>
-                    <br />
-                    <blockquote>
-                        Here is the function that creates "<strong>answer sdp</strong>":
-                    </blockquote>
-                    <pre>
+                            <br />
+                            <p>
+                                Here is the function that creates "<strong>answer sdp</strong>":
+                            </p>
+                            <pre>
 function <strong id="createAnswer">createAnswer</strong>(<strong>offer_sdp</strong>)
 {
     peer = <strong>RTCPeerConnection</strong>({
@@ -530,11 +443,11 @@ function <strong id="createAnswer">createAnswer</strong>(<strong>offer_sdp</stro
     });
 }
 </pre>
-                    <blockquote>
-                        For <strong>answerer</strong>: socket "<strong>callback</strong>" function will be like this:
-                    </blockquote>
+                            <p>
+                                For <strong>answerer</strong>: socket "<strong>callback</strong>" function will be like this:
+                            </p>
 
-                    <pre>
+                            <pre>
 function <a href="#oncallback">oncallback</a>(response) 
 {
     if(response.userID == <a href="#userID2">userID</a>) return;
@@ -550,38 +463,38 @@ function <a href="#oncallback">oncallback</a>(response)
 }
 </pre>
 
-                    <blockquote>
-                        <strong>Remember:</strong> you don't need to call "<a href="#peer-onanswer">peer.addAnswerSDP(fullSDP)</a>" in <a href="#processAnswerSDP">processAnswerSDP</a> function; instead call <a href="#createAnswer">createAnswer</a> like this:
-                    </blockquote>
+                            <p>
+                                <strong>Remember:</strong> you don't need to call "<a href="#peer-onanswer">peer.addAnswerSDP(fullSDP)</a>" in <a href="#processAnswerSDP">processAnswerSDP</a> function; instead call <a href="#createAnswer">createAnswer</a> like this:
+                            </p>
 
-                    <pre>
+                            <pre>
 <a href="#createAnswer">createAnswer(fullSDP);</a>
 </pre>
-                    <br />
-                    <blockquote>
-                        You MUST get <a href="#clientStream">client stream</a> before creating <a href="#createOffer">offer</a> or <a href="#createAnswer">answer</a>.
-                    </blockquote>
+                            <br />
+                            <p>
+                                You MUST get <a href="#clientStream">client stream</a> before creating <a href="#createOffer">offer</a> or <a href="#createAnswer">answer</a>.
+                            </p>
 
-                </td>
-            </tr>
+                        </td>
+                    </tr>
 
-            <tr>
-                <td>
-                    <h2>How to write <a href="#socket-io">same app</a> in WebSocket?
-                    </h2>
-                    <blockquote>
-                        For WebSocket, you need to reference websocket.js instead of <a href="#socket-io-reference">referencing</a> socket.io.js
-                    </blockquote>
+                    <tr>
+                        <td>
+                            <h2>How to write <a href="#socket-io">same app</a> in WebSocket?
+                            </h2>
+                            <p>
+                                For WebSocket, you need to reference websocket.js instead of <a href="#socket-io-reference">referencing</a> socket.io.js
+                            </p>
 
-                    <pre>
+                            <pre>
 &lt;script src="<strong>https://www.webrtc-experiment.com/dependencies/websocket.js</strong>"&gt;&lt;/script&gt;
 </pre>
-                    <br />
-                    <blockquote>
-                        You need to create socket like this:
-                    </blockquote>
+                            <br />
+                            <p>
+                                You need to create socket like this:
+                            </p>
 
-                    <pre>
+                            <pre>
 <strong>"use strict"</strong>
 
 var socket = new <strong>WebSocket</strong>('<strong>wss://pubsub.pubnub.com/demo/demo/webrtc-app</strong>');
@@ -591,34 +504,44 @@ socket.<strong>onopen</strong> = function(event)
     <a href="#oncallback">oncallback</a>(event.<strong>data</strong>);
 };
 </pre>
-                    <br />
-                    <blockquote>
-                        All other things are 100% same like <a href="#socket-io">above code</a>.
-                    </blockquote>
-                    <blockquote>
-                        You may also like this guide: <a href="/docs/webrtc-for-beginners.html">WebRTC for Beginners: A getting stared guide!</a>
-                    </blockquote>
-                </td>
-            </tr>
-        </table>
-
-        <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
-                <div>
-                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button>
+                            <br />
+                            <p>
+                                All other things are 100% same like <a href="#socket-io">above code</a>.
+                            </p>
+                            <p>
+                                You may also like this guide: <a href="/docs/webrtc-for-beginners.html">WebRTC for Beginners: A getting stared guide!</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>				
             </section>
-    </article>
-    <footer>
-        <p>
-            <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a>©
+        
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
+        </article>
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                ©
                 <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
                 <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
                 <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
-        </p>
-    </footer>
-    <script src="https://www.webrtc-experiment.com/common.js"> </script>
-</body>
+            </p>
+        </footer>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+    </body>
 </html>

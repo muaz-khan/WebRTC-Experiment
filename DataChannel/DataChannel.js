@@ -7,7 +7,7 @@
 (function() {
     window.DataChannel = function(channel, extras) {
         if (channel) this.automatic = true;
-        this.channel = channel;
+        this.channel = channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
 
         extras = extras || { };
 

@@ -77,7 +77,7 @@
 | Experiment Name        | Previous Demos           | New Demos |
 | ------------- |-------------|-------------|
 | **Plugin-free screen sharing** / share the entire screen | [Demo](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) | [Demo](https://www.webrtc-experiment.com/screen-sharing/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing) |
-| **Tab sharing** / using `tabCapture` APIs | [Demo](https://www.webrtc-experiment.com/screen-broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-broadcast) | ---- |
+| **Tab sharing** / using `tabCapture` APIs | [Demo](https://www.webrtc-experiment.com/screen-broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-broadcast) | [tabCapture](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/tabCapture) |
 
 =
 
@@ -172,6 +172,7 @@
 | [How to echo cancellation? / Noise management?](https://www.webrtc-experiment.com/docs/echo-cancellation.html) |
 | [STUN or TURN? Which one to prefer; and why?](https://www.webrtc-experiment.com/docs/STUN-or-TURN.html) |
 | [WebRTC RTP Usage](https://www.webrtc-experiment.com/docs/RTP-usage.html) |
+| [webrtcpedia!](https://www.webrtc-experiment.com/webrtcpedia/) |
 
 =
 
@@ -182,18 +183,18 @@
 ```
 
 ```javascript
-var recorder = RecordRTC(mediaStream);
+var recordRTC = RecordRTC(mediaStream);
 
-recorder.startRecording();
-recorder.stopRecording(function(audioURL) {
+recordRTC.startRecording();
+recordRTC.stopRecording(function(audioURL) {
    window.open(audioURL);
 });
 
 // get blob
-formData.append( 'blob', recorder.getBlob() );
+formData.append( 'blob', recordRTC.getBlob() );
 
 // get DataURL
-window.open( recorder.getDataURL() );
+window.open( recordRTC.getDataURL() );
 ```
 
 [RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
@@ -226,12 +227,13 @@ window.open( recorder.getDataURL() );
 
     connection.connect(); // search for existing connections
 
-    document.getElementById('init').onclick = function() {
-        this.disabled = true;
+    document.getElementById('new-connection').onclick = function() {
         connection.open(); // open new connection
     };
 </script>
 ```
+
+[RTCMultiConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
 
 =
 
@@ -239,39 +241,21 @@ window.open( recorder.getDataURL() );
 
 ```html
 <script src="https://www.webrtc-experiment.com/DataChannel.js"> </script>
-
-<input type="text" id="chat-input" disabled style="font-size: 2em; width: 98%;"><br />
-<div id="chat-output"></div>
-
 <script>
-    var chatOutput = document.getElementById('chat-output');
-    var chatInput = document.getElementById('chat-input');
-    chatInput.onkeypress = function(e) {
-        if (e.keyCode != 13) return;
-        channel.send(this.value);
-        chatOutput.innerHTML = 'Me: ' + this.value + '<hr />' + chatOutput.innerHTML;
-        this.value = '';
-    };
-</script>
+    var channel = new DataChannel();
+    channel.onopen = function(userid) {};
+    channel.onmessage = function(message) {};
+	
+    // search for existing channels
+    channel.connect();
 
-<script>
-    var channel = new DataChannel('channel-name');
-
-    channel.onopen = function(userid) {
-        chatInput.disabled = false;
-        chatInput.value = 'Hi, ' + userid;
-        chatInput.focus();
-    };
-
-    channel.onmessage = function(message, userid) {
-        chatOutput.innerHTML = userid + ': ' + message + '<hr />' + chatOutput.innerHTML;
-    };
-
-    channel.onleave = function(userid) {
-        chatOutput.innerHTML = userid + ' Left.<hr />' + chatOutput.innerHTML;
+    document.getElementById('new-channel').onclick = function() {
+        channel.open(); // setup new channel
     };
 </script>
 ```
+
+[DataChannel Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
 
 =
 
@@ -291,6 +275,13 @@ window.open( recorder.getDataURL() );
 
 1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) / [Demo](http://webrtc-signaling.jit.su/)
 2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs) / [Demo](https://www.webrtc-experiment.com/websocket/)
+
+=
+
+1. Email: muazkh@gmail.com
+2. Twitter: [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb)
+3. Google+: https://plus.google.com/100325991024054712503
+4. Github: https://github.com/muaz-khan
 
 =
 

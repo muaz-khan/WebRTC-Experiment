@@ -1,0 +1,605 @@
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
+-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>WebRTC PeerConnection » Tutorial ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        
+        <style>
+            p {
+                padding: .8em;
+                padding-bottom: 0;
+            }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+        </style>
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+    </head>
+
+    <body>
+        <article>
+            <header style="text-align: center;">
+                <h1>
+                    WebRTC PeerConnection » Tutorial ® 
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+                </h1>            
+                <p>
+                    <span>© 2013</span>
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
+                    »
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
+                    »
+                    <a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
+                    »
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
+                </p>
+            </header>
+
+            <div class="github-stargazers"></div>
+
+            <section class="plusone-gplus">
+                <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">Explains how to</h2>
+                <ol>
+                    <li>use WebRTC peer connection API</li>
+                    <li>write one-to-one video sharing application</li>
+                    <li>use socket.io or websockets for signaling</li>
+                </ol>
+            </section>
+			
+            <section class="experiment">
+                <h2 class="header">Suggestions</h2>
+                <ol>
+                    <li>
+                        If you're newcomer, newbie or beginner; you're suggested to try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> or <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a> libraries.
+                    </li>
+					
+                    <li>
+                        Another recommended tutorial is: <a href="https://www.webrtc-experiment.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html" target="_blank">How to use RTCPeerConnection.js? (v1.5)</a>
+                    </li>
+                </ol>
+		
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">WebRTC PeerConnection API</h2>
+                <ol>
+                    <li>getUserMedia API to attach local media stream (webcam/microphone)</li>
+                    <li>Offer/Answer model to establish connection between two users</li>
+                    <li>ICE Server (STUN/TURN) to pass firewalls and NATs</li>
+                    <li>Signaling server to share offer/answer messages; or ice candidates among users</li>
+                </ol>
+                <p>
+                    An PeerConnection object can be initialized like this:
+                </p>
+                <pre>
+var connection = new [webkit|moz]RTCPeerConnection(
+    'ice-servers', 
+    'optional-arguments'
+);
+</pre>
+                <ol>
+                    <li>You can suggest one ore more ICE servers using 1st parameter. It is an array of ICE servers.</li>
+                    <li>You can suggest for stuff like "open data connection" or "prefer DTLS/SRTP" using 2nd parameter</li>
+                </ol>
+
+                <p>
+                    Here is a simple example to create offer: 
+                </p>
+                
+                <pre>
+var connection = new [webkit|moz]RTCPeerConnection(
+    'ice-servers', 
+    'optional-arguments'
+);
+
+connection.createOffer(getOfferSDP);
+function getOfferSDP(offerSDP) {
+    connection.setLocalDescription(offerSDP);
+    
+    console.log('offer sdp', offerSDP.sdp);
+    console.log('type',      offerSDP.type);
+};
+</pre>
+
+                <p>
+                    Here is a simple example to create answer: 
+                </p>
+                
+                <pre>
+var connection = new [webkit|moz]RTCPeerConnection(
+    'ice-servers', 
+    'optional-arguments'
+);
+
+// "setRemoteDescription" is quickly called for answerer
+var remoteSessionDescription = new RTCSessionDescription(offerSDP);
+connection.setRemoteDescription(remoteSessionDescription);
+
+connection.createAnswer(getAnswerSDP);
+function getAnswerSDP(answerSDP) {
+    connection.setLocalDescription(answerSDP);
+    
+    console.log('answer sdp', answerSDP.sdp);
+    console.log('type',       answerSDP.type);
+};
+</pre>
+
+                <p>
+                    You created both offer and answer; not complete the handshake:
+                </p>
+                
+                <pre>
+// "setRemoteDescription" is called "later" for offerer
+// it will complete the offer/answer handshake
+
+var remoteSessionDescription = new RTCSessionDescription(answerSDP);
+connection.setRemoteDescription(remoteSessionDescription);
+</pre>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">A working example with WebSockets</h2>
+                <ol>
+                    <li>A websocket connection will be opened for both users</li>
+                    <li>1st user will create offer; and share with 2nd user via websocket connection</li>
+                    <li>2nd user will create answer; and share with 1st user via websocket connection</li>
+                    <li>Both users will share ICE candidates too; with each other; accordingly</li>
+                </ol>
+                <p>
+                    So, 1st step is to open websocket connection:
+                </p>
+                <pre>
+var socket       = new WebSocket('ws://domain.com:80/');
+socket.onopen    = function() {};
+socket.onmessage = function() {};
+</pre>
+                <p>
+                    Assuming that there is a "Start Peer Connection" button; when offerer will click it; we will create offer on his side; and share with other user:
+                </p>
+                
+                <pre>
+&lt;button id="start-peer-connection"&gt;Start Peer Connection&lt;/button&gt;
+
+// javascript code
+var button = document.getElementById('start-peer-connection');
+button.onclick = function() {
+    this.disabled = true;
+
+    var peer = new [webkit|moz]RTCPeerConnection(iceServers, optional);    
+    peer.createOffer(function(offerSDP) {
+        peer.setLocalDescription(offerSDP);
+        socket.send({
+            targetUser: 'target-user-id',
+            offerSDP: offerSDP
+        });
+    });
+};
+</pre>
+
+                <p>
+                    Defining "iceServers" and "optional" variables:
+                </p>
+                
+                <pre>
+var isChrome = !!navigator.webkitGetUserMedia;
+
+var STUN = {
+    url: isChrome 
+       ? 'stun:stun.l.google.com:19302' 
+       : 'stun:23.21.150.121'
+};
+
+var TURN = {
+    url: 'turn:homeo@turn.bistri.com:80',
+    credential: 'homeo'
+};
+
+var iceServers = {
+   iceServers: [STUN, TURN]
+};
+
+// DTLS/SRTP is preferred on chrome
+// to interop with Firefox
+// which supports them by default
+
+var DtlsSrtpKeyAgreement = {
+   DtlsSrtpKeyAgreement: true
+};
+
+var optional = {
+   optional: [DtlsSrtpKeyAgreement]
+};
+</pre>
+
+                <p>
+                    Here is a list of events and methods can be used with RTCPeerConnection object:
+                </p>
+                
+                <ol>
+                    <li>onicecandidate</li>
+                    <li>onaddstream</li>
+                    <li>oniceconnectionstatechange</li>
+                    <li>onsignalingstatechange</li>
+                    <li>onremovestream</li>
+                    <li>addStream</li>
+                    <li>removeStream</li>
+                    <li>close</li>
+                    <li>+ many others</li>
+                </ol>
+                
+                <p>
+                    Each method and event has its own importance; however, for the sake of simplicity, we will try only "onicecandidate" and "onaddstream":
+                </p>
+                
+                <ol>
+                    <li>PeerConnection on chrome performs ICE trickling process to track list of all available ICE candidates for current user; a browsers usually make UDP requests to ICE server (i.e. STUN or TURN) to gather ICE candidates will be used to traverse the NAT of current user. "onicecandidate" event is fired for each trickled ICE candidate.</li>
+                    <li>"onaddstream" is fired to return remote media stream attached by the other user.</li>
+                </ol>
+                
+                <p>
+                    ICE trackling is not necessary; even it is not part of WebRTC specification. Alternatives will be explained later in this document.
+                </p>
+                
+                <pre>
+peer.onaddstream = function(mediaStream) {
+    video.src = webkitURL.createObjectURL(mediaStream);
+};
+
+peer.onicecandidate = function(event) {
+    var candidate = event.candidate;
+    if(candidate) {
+        socket.send({
+            targetUser: 'target-user-id',
+            candidate: candidate
+        });
+    }
+};
+</pre>
+
+                <p>
+                    A media-stream can be attached using "addStream" method:
+                </p>
+                
+                <pre>
+navigator.webkitGetUserMedia(MediaConstraints, OnMediaSuccess, OnMediaError);
+var MediaConstraints = {
+    audio: true,
+    video: true
+};
+
+function OnMediaError(error) {
+    console.error(error);
+}
+
+function OnMediaSuccess(mediaStream) {
+    peer.addStream(mediaStream);
+}
+</pre>
+
+                <p>
+                    Remeber, chrome now supports attachment of multiple media streams:
+                </p>
+                
+                <pre>
+peer.addStream(audioStream);
+peer.addStream(videoStream);
+peer.addStream(screenCapturingStream);
+</pre>
+
+                <p>
+                    It will fire "onaddstream" multiple times according to number of media streams attached. Duplicate streams attachment is not allowed.
+                </p>
+                
+                <p>
+                    Putting above all together:
+                </p>
+                
+                <pre>
+&lt;button id="start-peer-connection"&gt;Start Peer Connection&lt;/button&gt;
+
+// javascript code
+var button = document.getElementById('start-peer-connection');
+button.onclick = function() {
+    this.disabled = true;
+    
+    navigator.webkitGetUserMedia(MediaConstraints, OnMediaSuccess, OnMediaError);
+    var MediaConstraints = {
+        audio: true,
+        video: true
+    };
+
+    function OnMediaError(error) {
+        console.error(error);
+    }
+
+    function OnMediaSuccess(mediaStream) {
+        var peer = new [webkit|moz]RTCPeerConnection(iceServers, optional);
+        
+        peer.addStream(mediaStream);
+        
+        peer.onaddstream = function(mediaStream) {
+            video.src = webkitURL.createObjectURL(mediaStream);
+        };
+
+        peer.onicecandidate = function(event) {
+            var candidate = event.candidate;
+            if(candidate) {
+                socket.send({
+                    targetUser: 'target-user-id',
+                    candidate: candidate
+                });
+            }
+        };
+        
+        peer.createOffer(function(offerSDP) {
+            peer.setLocalDescription(offerSDP);
+            socket.send({
+                targetUser: 'target-user-id',
+                offerSDP: offerSDP
+            });
+        });
+    }
+};
+
+var isChrome = !!navigator.webkitGetUserMedia;
+
+var STUN = {
+    url: isChrome 
+       ? 'stun:stun.l.google.com:19302' 
+       : 'stun:23.21.150.121'
+};
+
+var TURN = {
+    url: 'turn:homeo@turn.bistri.com:80',
+    credential: 'homeo'
+};
+
+var iceServers = {
+   iceServers: [STUN, TURN]
+};
+
+// DTLS/SRTP is preferred on chrome
+// to interop with Firefox
+// which supports them by default
+
+var DtlsSrtpKeyAgreement = {
+   DtlsSrtpKeyAgreement: true
+};
+
+var optional = {
+   optional: [DtlsSrtpKeyAgreement]
+};
+</pre>
+
+                <p>
+                    OK. Offer is completed. Now, it is time to create answer.
+                </p>
+				
+                <ol>
+                    <li>Create answer only when you've offer</li>
+                    <li>"setRemoteDescription" should be called earlier before creating answer</li>
+                </ol>
+				
+                <pre>
+socket.onmessage =  function(e) {
+    var data = e.data;
+    if(data.targetUser !== self && data.offerSDP) {
+        createAnswer(offerSDP);
+    }
+};
+function createAnswer(offerSDP) {
+    navigator.webkitGetUserMedia(MediaConstraints, OnMediaSuccess, OnMediaError);
+    var MediaConstraints = {
+        audio: true,
+        video: true
+    };
+
+    function OnMediaError(error) {
+        console.error(error);
+    }
+
+    function OnMediaSuccess(mediaStream) {
+        var peer = new [webkit|moz]RTCPeerConnection(iceServers, optional);
+        
+        peer.addStream(mediaStream);
+        
+        peer.onaddstream = function(mediaStream) {
+            video.src = webkitURL.createObjectURL(mediaStream);
+        };
+
+        peer.onicecandidate = function(event) {
+            var candidate = event.candidate;
+            if(candidate) {
+                socket.send({
+                    targetUser: 'target-user-id',
+                    candidate: candidate
+                });
+            }
+        };
+        
+        // remote-descriptions should be set earlier
+        // using offer-sdp provided by the offerer
+        var remoteDescription = new RTCSessionDescription(offerSDP);
+        peer.setRemoteDescription(remoteDescription);
+		
+        peer.createAnswer(function(answerSDP) {
+            peer.setLocalDescription(answerSDP);
+            socket.send({
+                targetUser: 'target-user-id',
+                answerSDP: answerSDP
+            });
+        });
+    }
+};
+</pre>
+
+                <p>
+                    Answer is also completed. Now, second last step is to set remote descriptions for offerer; same as we did for answerer:
+                </p>
+				
+                <pre>
+socket.onmessage =  function(e) {
+    var data = e.data;
+    if(data.targetUser !== self && data.answerSDP) {
+        // completing the handshake; this code is for offerer
+        var remoteDescription = new RTCSessionDescription(answerSDP);
+        peer.setRemoteDescription(remoteDescription);
+    }
+};
+</pre>
+
+                <p>
+                    Now, last step is to "add ICE candidate" for each peer. It works like this:
+                </p>
+				
+                <ol>
+                    <li>Offerer gathers ICE candidates using ICE trickling process</li>
+                    <li>Offerer sends those candidates to answerer</li>
+                    <li>Answerer adds those candidates using "addIceCandidate" method</li>
+                    <li>Answerer also gathers its own ICE candidates using same ICE trickling process</li>
+                    <li>Answerer also sends his candidates to offerer</li>
+                    <li>Offerer also adds those candidates using "addIceCandidate" method</li>
+                </ol>
+				
+                <p>
+                    Again, ICE trickling is not "officially" included in WebRTC specification; so, it is chrome-only feature. Firefox merges all ice candidates in session descriptions. You can merge candidates in offerer/answer sdp on chrome too; see next section.
+                </p>
+				
+                <pre>
+socket.onmessage =  function(e) {
+    var data = e.data;
+    if(data.targetUser !== self && data.candidate) {
+        var candidate     = data.candidate.candidate;
+        var sdpMLineIndex = data.candidate.sdpMLineIndex;
+		
+        peer.addIceCandidate(new [moz]RTCIceCandidate({
+            sdpMLineIndex: sdpMLineIndex,
+            candidate    : candidate
+        }));
+    }
+};
+</pre>
+				
+            </section>
+			
+            <section class="experiment">
+                <h2 class="header">How to merge ice candidates?</h2>
+                <ol>
+                    <li>Detect "null" candidate in "onicecandidate" event</li>
+                    <li>Detect "iceGatheringState == 'complete'" in "ongatheringchange"</li>
+                </ol>
+				
+                <pre>
+peer.onicecandidate =  function(e) {
+    var candidate = e.candidate;
+    // typeof candidate == 'undefined'
+    // !candidate -or- !!candidate == false
+	
+    if(typeof candidate == 'undefined') {
+        send_SDP();
+    }
+};
+
+peer.ongatheringchange =  function(e) {
+    if (e.currentTarget &&
+        e.currentTarget.iceGatheringState === 'complete') {
+        send_SDP();
+    }
+};
+
+function send_SDP() {
+    socket.send({
+        targetUser: 'target-user-id',
+        sdp       :  peer.localDescription
+    });
+}
+</pre>
+            </section>
+			
+            <section class="experiment">
+                <h2 class="header">How to use socket.io for signaling?</h2>
+				
+                <pre>
+var socket = io.connect('http://domain.com:80/');
+socket.on('message', function(data) {
+    if(data.offerSDP)  {}
+    if(data.answerSDP) {}
+    if(data.candidate) {}
+});
+</pre>
+
+                <p>
+                    You can use either "send" or "emit" method to send the data. However, it is recommended to override "send" method like this:
+                </p>
+				
+                <pre>
+socket.send = function(data) {
+    socket.emit('message', data);
+});
+
+// Now you can send "any-kind" of data like this:
+socket.send('string');
+socket.send([array]);
+socket.send({
+    targetUser: 'target-user-id',
+    sdp       : 'offerSDP || answerSDP'
+});
+</pre>
+            </section>
+			
+            <section class="experiment">
+                <h2 class="header">Demos? Examples?</h2>
+                <br /><br />Realtime demos with signaling solution, coming soon.
+            </section>
+        
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
+        </article>
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                ©
+                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
+                <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
+                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
+                <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+            </p>
+        </footer>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+    </body>
+</html>

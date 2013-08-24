@@ -2,11 +2,9 @@
 
 Sharing tab using chrome **experimental tabCapture APIs**; broadcasting over many peers.
 
-https://github.com/muaz-khan/WebRTC-Experiment/tree/master/tabCapture
-
 =
 
-#### [You can view broadcasted tabs here](https://www.webrtc-experiment.com/screen-broadcast/)
+#### [You can view broadcasted tabs here](https://webrtc-experiment.appspot.com/screen-broadcast/)
 
 You can also view broadcasted tab using Firefox nightly, aurora, and 18+stable! It is cross-browser!
 
@@ -57,10 +55,10 @@ From April, 2013:
 
 #### Plugin-free screen sharing
 
-There is a plugin-free screen sharing experiment too! [Try it Now!](https://googledrive.com/host/0B6GWd_dUUTT8WHpWSzZ5S0RqeUk/Pluginfree-Screen-Sharing.html)
+There is a plugin-free screen sharing experiment too! [Try it Now!](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/)
 
 =
 
 #### License
 
-[TabCapture Extension](http://code.google.com/p/muazkh/downloads/list) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[TabCapture Extension](http://code.google.com/p/muazkh/downloads/list) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

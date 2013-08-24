@@ -34,6 +34,11 @@ var conference = function(config) {
                 channel: response.channel || response.userToken
             });
         }
+
+        // to make sure room is unlisted if owner leaves		
+        if(response.left && config.onRoomClosed) {
+            config.onRoomClosed(response);
+        }
     }
 
     function openSubSocket(_config) {
@@ -171,6 +176,15 @@ var conference = function(config) {
                 });
                 delete sockets[i];
             }
+        }
+		
+        // if owner leaves; try to remove his room from all other users side
+        if(isbroadcaster) {
+            defaultSocket.send({
+                left: true,
+                userToken: self.userToken,
+                roomToken: self.roomToken
+            });
         }
     }
 

@@ -1,0 +1,27 @@
+{
+	"name" : "Tab Sharing using TabCapture APIs",
+	"version" : "2.0",
+	"manifest_version" : 2,
+	"description" : "WebRTC Tab Sharing using experimental tabCapture APIs — https://www.webrtc-experiment.com/ — Muaz Khan",
+	"background": {
+		"scripts": ["RTCMultiConnection-v1.4.js", "tab-capturing.js"],
+		"persistent": false
+	},
+	"browser_action" : {
+		"default_icon" : "images/tabCapture22.png",
+		"default_title" : "Share this tab!"
+	},
+	"icons" : {
+		"16" : "images/tabCapture16.png",
+		"22" : "images/tabCapture22.png",
+		"32" : "images/tabCapture32.png",
+		"48" : "images/tabCapture48.png",
+		"128": "images/tabCapture128.png"
+	},
+	"permissions": [
+		"tabCapture", "activeTab", "contextMenus"
+	],
+	"web_accessible_resources": [
+		"images/tabCapture48.png"
+	]
+}
