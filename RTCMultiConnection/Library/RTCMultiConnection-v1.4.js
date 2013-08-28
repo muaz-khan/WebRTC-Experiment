@@ -67,6 +67,8 @@
                 if (typeof self.transmitRoomOnce == 'undefined')
                     self.transmitRoomOnce = true;
 
+                self.isFirebase = true;
+				
                 // for custom socket.io over node.js implementation - visit - https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
                 self.openSignalingChannel = function(config) {
                     var channel = config.channel || self.channel || 'default-channel';
@@ -841,7 +843,7 @@
 
             this.isOwnerLeaving = isAcceptNewSession = false;
 
-            initDefaultSocket();
+			if(!root.isFirebase) initDefaultSocket();
             (function transmit() {
                 if (getLength(participants) < root.maxParticipantsAllowed) {
                     defaultSocket && defaultSocket.send({
@@ -875,7 +877,7 @@
                 extra: root.extra
             });
 
-            initDefaultSocket(function() {
+            if(!root.isFirebase) initDefaultSocket(function() {
                 defaultSocket.send({
                     participant: true,
                     userid: self.userid,
@@ -883,6 +885,12 @@
                     extra: root.extra
                 });
             });
+			else defaultSocket.send({
+                    participant: true,
+                    userid: self.userid,
+                    targetUser: _config.userid,
+                    extra: root.extra
+                }); 
 
             self.broadcasterid = _config.userid;
         };

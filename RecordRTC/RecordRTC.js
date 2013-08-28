@@ -65,6 +65,7 @@ function RecordRTC(mediaStream, config) {
         save: function() {
             if (!mediaRecorder) return console.warn('RecordRTC is idle.');
             console.log('saving recorded stream to disk!');
+            // bug: should we use "getBlob" instead; to handle aww-snaps!
             this.getDataURL(function(dataURL) {
                 var hyperlink = document.createElement('a');
                 hyperlink.href = dataURL;
@@ -275,10 +276,11 @@ function StereoAudioRecorder(mediaStream) {
     // connect the stream to the gain node
     audioInput.connect(volume);
 
-    /* From the spec: This value controls how frequently the audioprocess event is 
-    dispatched and how many sample-frames need to be processed each call. 
-    Lower values for buffer size will result in a lower (better) latency. 
-    Higher values will be necessary to avoid audio breakup and glitches */
+    // From the spec: This value controls how frequently the audioprocess event is 
+    // dispatched and how many sample-frames need to be processed each call. 
+    // Lower values for buffer size will result in a lower (better) latency. 
+    // Higher values will be necessary to avoid audio breakup and glitches
+    // bug: how to minimize wav size?
     var bufferSize = 2048;
     recorder = context.createJavaScriptNode(bufferSize, 2, 2);
 
@@ -303,11 +305,28 @@ function StereoAudioRecorder(mediaStream) {
 
 function WhammyRecorder(mediaStream) {
     this.record = function() {
-        var imageWidth = this.width || 320;
-        var imageHeight = this.height || 240;
+        if (!this.width) this.width = video.offsetWidth || 320;
+        if (!this.height) this.height = video.offsetHeight || 240;
 
-        canvas.width = video.width = imageWidth;
-        canvas.height = video.height = imageHeight;
+        if (!this.video) {
+            this.video = {
+                width: this.width,
+                height: this.height
+            };
+        }
+
+        if (!this.canvas) {
+            this.canvas = {
+                width: this.width,
+                height: this.height
+            };
+        }
+
+        canvas.width = this.canvas.width;
+        canvas.height = this.canvas.height;
+
+        video.width = this.video.width;
+        video.height = this.video.height;
 
         startTime = Date.now();
 
@@ -321,7 +340,7 @@ function WhammyRecorder(mediaStream) {
             // ~10 fps
             if (time - lastFrameTime < 90) return;
 
-            context.drawImage(video, 0, 0, imageWidth, imageHeight);
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             // whammy.add(canvas, time - lastFrameTime);
             whammy.add(canvas);
@@ -353,6 +372,7 @@ function WhammyRecorder(mediaStream) {
 
     var video = document.createElement('video');
     video.muted = true;
+    video.volume = 0;
     video.autoplay = true;
     video.src = URL.createObjectURL(mediaStream);
     video.play();
@@ -368,11 +388,28 @@ function WhammyRecorder(mediaStream) {
 
 function GifRecorder(mediaStream) {
     this.record = function() {
-        var imageWidth = this.width || 320;
-        var imageHeight = this.height || 240;
+        if (!this.width) this.width = video.offsetWidth || 320;
+        if (!this.height) this.height = video.offsetHeight || 240;
 
-        canvas.width = video.width = imageWidth;
-        canvas.height = video.height = imageHeight;
+        if (!this.video) {
+            this.video = {
+                width: this.width,
+                height: this.height
+            };
+        }
+
+        if (!this.canvas) {
+            this.canvas = {
+                width: this.width,
+                height: this.height
+            };
+        }
+
+        canvas.width = this.canvas.width;
+        canvas.height = this.canvas.height;
+
+        video.width = this.video.width;
+        video.height = this.video.height;
 
         // external library to record as GIF images
         gifEncoder = new window.GIFEncoder();
@@ -413,7 +450,7 @@ function GifRecorder(mediaStream) {
             // ~10 fps
             if (time - lastFrameTime < 90) return;
 
-            context.drawImage(video, 0, 0, imageWidth, imageHeight);
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
             gifEncoder.addFrame(context);
 

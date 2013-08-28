@@ -1,0 +1,112 @@
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+-->
+<title>RecordRTC-to-PHP ® Muaz Khan</title>
+<h1 style="border-bottom: 1px solid rgb(15, 158, 238);">
+<a style="text-decoration: none;color:rgb(15, 158, 238);" href="https://www.webrtc-experiment.com/RecordRTC/" target="_blank">RecordRTC</a>-<a style="text-decoration: none;color:rgb(15, 158, 238);" href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">to</a>-PHP ® <a href="https://github.com/muaz-khan" target="_blank" style="color:rgb(15, 158, 238);text-decoration: none;">Muaz Khan</a>
+</h1>
+
+<script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
+<video id="preview" controls style="width:320;height:240;"></video> <hr />
+<button id="record">Record</button>
+<button id="stop" disabled>Stop</button>
+<script>
+    function PostBlob(blob, fileType, fileName) {
+        // FormData
+        var formData = new FormData();
+        formData.append(fileType + '-filename', fileName);
+        formData.append(fileType + '-blob', blob);
+
+        // progress-bar
+        var hr = document.createElement('hr');
+        document.body.appendChild(hr);
+        var strong = document.createElement('strong');
+        strong.innerHTML = fileType + ' upload progress: ';
+        document.body.appendChild(strong);
+        var progress = document.createElement('progress');
+        document.body.appendChild(progress);
+
+        // POST the Blob
+        xhr('save.php', formData, progress, function(fileURL) {
+            document.body.appendChild(document.createElement('hr'));
+            var mediaElement = document.createElement(fileType);
+            mediaElement.src = fileURL;
+            mediaElement.controls = true;
+            document.body.appendChild(mediaElement);
+            mediaElement.play();
+            
+            progress.parentNode.removeChild(progress);
+            strong.parentNode.removeChild(strong);
+            hr.parentNode.removeChild(hr);
+        });
+    }
+
+    var record = document.getElementById('record');
+    var stop = document.getElementById('stop');
+    var audio = document.querySelector('audio');
+
+    var recordVideo = document.getElementById('record-video');
+    var preview = document.getElementById('preview');
+
+    var recordAudio, recordVideo;
+    record.onclick = function() {
+        record.disabled = true;
+        var video_constraints = {
+            mandatory: { },
+            optional: []
+        };
+        navigator.webkitGetUserMedia({
+                audio: true,
+                video: video_constraints
+            }, function(stream) {
+                preview.src = (window.webkitURL || window.URL).createObjectURL(stream);
+                preview.play();
+                
+                recordAudio = RecordRTC(stream);
+                recordVideo = RecordRTC(stream, {
+                    type: 'video'
+                });
+
+                recordAudio.startRecording();
+                recordVideo.startRecording();
+                
+                stop.disabled = false;
+            });
+    };
+
+    stop.onclick = function() {
+        record.disabled = false;
+        stop.disabled = true;
+
+        var fileName = Math.round(Math.random() * 99999999) + 99999999;
+
+        recordAudio.stopRecording();
+        PostBlob(recordAudio.getBlob(), 'audio', fileName + '.wav');
+
+        recordVideo.stopRecording();
+        PostBlob(recordVideo.getBlob(), 'video', fileName + '.webm');
+        
+        preview.src = '';
+    };
+
+    function xhr(url, data, progress, callback) {
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+            if (request.readyState == 4 && request.status == 200) {
+                callback(location.href + request.responseText);
+            }
+        };
+
+        request.onprogress = function(e) {
+            progress.value = e.loaded;
+        };
+        request.open('POST', url);
+        request.send(data);
+    }
+
+</script>
+
+<link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+<meta name="author" content="Muaz Khan">

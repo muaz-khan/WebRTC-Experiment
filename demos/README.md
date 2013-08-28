@@ -4,6 +4,19 @@ Plug & play type of WebRTC Experiments. Nothing to install. No requirements. Jus
 
 =
 
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| **Switch streams from screen-sharing to audio+video. (Renegotiation)** | [Demo](https://www.webrtc-experiment.com/demos/switch-streams.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/switch-streams.html) |
+| **Share screen and audio/video from single peer connection!** | [Demo](https://www.webrtc-experiment.com/demos/screen-and-video-from-single-peer.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/screen-and-video-from-single-peer.html) |
+| **Text chat using RTCDataChannel APIs** | [Demo](https://www.webrtc-experiment.com/demos/client-side-datachannel.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/) |client-side-datachannel.html
+| **Simple video chat** | [Demo](https://www.webrtc-experiment.com/demos/client-side.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side.html) |
+| **Sharing video - using socket.io for signaling** |[Demo](https://www.webrtc-experiment.com/demos/client-side-socket-io.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-socket-io.html) |
+| **Sharing video - using WebSockets for signaling** | [Demo](https://www.webrtc-experiment.com/demos/client-side-websocket.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-websocket.html) |
+| **Audio Only Streaming** | [Demo](https://www.webrtc-experiment.com/demos/audio-only-streaming.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/audio-only-streaming.html) |
+| **MediaStreamTrack.getSources** | [Demo](https://www.webrtc-experiment.com/demos/MediaStreamTrack.getSources.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/MediaStreamTrack.getSources.html) |
+
+=
+
 #### Chrome-to-Chrome WebRTC Data Connection
 
 It is a single-page demo. Copy/paste code in the console tab and you're done!
@@ -273,18 +286,6 @@ function useless() { }
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
-
-=
-
-| Experiment Name        | Demo           | Source Code |
-| ------------- |-------------|-------------|
-| **Switch streams from screen-sharing to audio+video. (Renegotiation)** | [Demo](https://www.webrtc-experiment.com/demos/switch-streams.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/switch-streams.html) |
-| **Share screen and audio/video from single peer connection!** | [Demo](https://www.webrtc-experiment.com/demos/screen-and-video-from-single-peer.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/screen-and-video-from-single-peer.html) |
-| **Text chat using RTCDataChannel APIs** | [Demo](https://www.webrtc-experiment.com/demos/client-side-datachannel.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/) |client-side-datachannel.html
-| **Simple video chat** | [Demo](https://www.webrtc-experiment.com/demos/client-side.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side.html) |
-| **Sharing video - using socket.io for signaling** |[Demo](https://www.webrtc-experiment.com/demos/client-side-socket-io.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-socket-io.html) |
-| **Sharing video - using WebSockets for signaling** | [Demo](https://www.webrtc-experiment.com/demos/client-side-websocket.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-websocket.html) |
-| **Audio Only Streaming** | ---- | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/audio-only-streaming.html) |
 
 =
 

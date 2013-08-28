@@ -390,13 +390,12 @@ You just need to exchange offer and answer between them using your preferable si
 
 ##### History
 
-1. [RTCPeerConnection-v1.6.js](https://www.webrtc-experiment.com/RTCPeerConnection-v1.6.js)
-2. [RTCPeerConnection-v1.5.js](https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js)
-3. [RTCPeerConnection-v1.4.js](https://www.webrtc-experiment.com/lib/RTCPeerConnection-v1.4.js)
-4. [RTCPeerConnection-v1.3.js](https://www.webrtc-experiment.com/lib/RTCPeerConnection-v1.3.js)
-5. [RTCPeerConnection-v1.2.js](https://www.webrtc-experiment.com/lib/RTCPeerConnection-v1.2.js)
-6. [RTCPeerConnection-v1.1.js](https://www.webrtc-experiment.com/lib/RTCPeerConnection-v1.1.js)
-7. [RTCPeerConnection.js](https://www.webrtc-experiment.com/RTCPeerConnection.js)
+1. [RTCPeerConnection-v1.5.js](https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js)
+2. [RTCPeerConnection-v1.4.js](https://www.webrtc-experiment.com/lib/RTCPeerConnection-v1.4.js)
+3. [RTCPeerConnection-v1.3.js](https://www.webrtc-experiment.com/lib/RTCPeerConnection-v1.3.js)
+4. [RTCPeerConnection-v1.2.js](https://www.webrtc-experiment.com/lib/RTCPeerConnection-v1.2.js)
+5. [RTCPeerConnection-v1.1.js](https://www.webrtc-experiment.com/lib/RTCPeerConnection-v1.1.js)
+6. [RTCPeerConnection.js](https://www.webrtc-experiment.com/RTCPeerConnection.js)
 
 =
 

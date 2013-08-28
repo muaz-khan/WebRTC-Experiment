@@ -4,6 +4,10 @@
 
 =
 
+Try [RecordRTC-to-PHP](https://www.webrtc-experiment.com/RecordRTC/PHP/).
+
+=
+
 ##### Features
 
 1. Audio recording both for chrome and Firefox
@@ -28,13 +32,9 @@ RecordRTC is unable to record "mono" audio on chrome; however it seems that we c
 ##### How to record audio?
 
 ```javascript
-var recorder = RecordRTC(mediaStream);
-
-// start recording audio
-recorder.startRecording();
-
-// stop recording audio
-recorder.stopRecording(function(audioURL) {
+var recordRTC = RecordRTC(mediaStream);
+recordRTC.startRecording();
+recordRTC.stopRecording(function(audioURL) {
    window.open(audioURL);
 });
 ```
@@ -44,22 +44,22 @@ recorder.stopRecording(function(audioURL) {
 ##### How to record video?
 
 ```javascript
-var recorder = RecordRTC(mediaStream, {
+var options = {
    type: 'video',
-   width: 320,
-   height: 240
-});
-
-// start recording video
-recorder.startRecording();
-
-// stop recording video
-recorder.stopRecording(function(videoURL) {
+   video: {
+      width: 320,
+      height: 240
+   },
+   canvas: {
+      width: 320,
+      height: 240
+   }
+};
+var recordRTC = RecordRTC(mediaStream, options);
+recordRTC.startRecording();
+recordRTC.stopRecording(function(videoURL) {
    window.open(videoURL);
 });
-
-// force saving recorded stream to disk
-recorder.save();
 ```
 
 =
@@ -67,21 +67,22 @@ recorder.save();
 ##### How to record animated GIF image?
 
 ```javascript
-var recorder = RecordRTC(mediaStream, {
+var options = {
    type: 'gif',
-   
-   width: 320,
-   height: 240,
-   
+   video: {
+      width: 320,
+      height: 240
+   },
+   canvas: {
+      width: 320,
+      height: 240
+   },
    frameRate: 200,
    quality: 10
-});
-
-// start recording gif
-recorder.startRecording();
-
-// stop recording gif
-recorder.stopRecording(function(gifURL) {
+};
+var recordRTC = RecordRTC(mediaStream, options);
+recordRTC.startRecording();
+recordRTC.stopRecording(function(gifURL) {
    window.open(gifURL);
 });
 ```

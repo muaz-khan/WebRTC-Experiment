@@ -9,17 +9,6 @@ This document explains RTCMultiConnection versions log.
 1. [RTCMultiConnection](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) is upgraded from [RTCDataConnection](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCDataConnection) at March 25, 2013
 2. The main idea behind RTCMultiConnection was to support all RTCWeb API features in one place
 
-**v1.6** will be removed when **v1.5** gets stable. That's why **v1.5 is preferred comparing v1.6**. However, currently **v1.4 is the only stable release**.
-
-=
-
-##### v1.5 / released in August 06, 2013
-
-**It is recommended to try v1.4 instead.**
-
-1. Supports any signaling gateway exists out there; i.e. "multi-sockets" are no-more required
-2. Out of a tinny bug; "many-to-many" feature is temporariy disabled. For many-to-many connection, try v1.4 instead
-
 =
 
 ##### v1.4 / released in July 06, 2013
