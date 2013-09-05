@@ -1,17 +1,15 @@
-﻿// 2013, @muazkh » github.com/muaz-khan
-// MIT License » https://webrtc-experiment.appspot.com/licence/
-// Documentation » https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
+﻿// Muaz Khan     - https://github.com/muaz-khan
+// MIT License   - https://www.webrtc-experiment.com/licence/
+// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io
 
 var RTCLib = function(config) {
     var self = {
         userToken: uniqueToken()
     };
-
-    var isbroadcaster,
-        isGetNewRoom = true,
-        sockets = [],
-        isGotRemoteStream = false,
-        defaultSocket = { };
+    var channels = '--', isbroadcaster;
+    var isGetNewRoom = true;
+    var sockets = [];
+    var defaultSocket = { };
 
     function openDefaultSocket() {
         defaultSocket = config.openSocket({
@@ -27,13 +25,17 @@ var RTCLib = function(config) {
 
         if (isGetNewRoom && response.roomToken && response.broadcaster) config.onRoomFound(response);
 
-        if (response.newParticipant) onNewParticipant(response.newParticipant);
-
-        if (response.userToken && response.joinUser == self.userToken && response.participant) {
+        if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
+            channels += response.userToken + '--';
             openSubSocket({
                 isofferer: true,
                 channel: response.channel || response.userToken
             });
+        }
+
+        // to make sure room is unlisted if owner leaves		
+        if(response.left && config.onRoomClosed) {
+            config.onRoomClosed(response);
         }
     }
 
@@ -55,6 +57,7 @@ var RTCLib = function(config) {
 
         var socket = config.openSocket(socketConfig),
             isofferer = _config.isofferer,
+            gotstream,
             video = document.createElement('video'),
             inner = { },
             peer;
@@ -82,8 +85,6 @@ var RTCLib = function(config) {
             onRemoteStreamEnded: function(stream) {
                 if (config.onRemoteStreamEnded)
                     config.onRemoteStreamEnded(stream);
-
-                isGotRemoteStream = false;
             }
         };
 
@@ -100,13 +101,14 @@ var RTCLib = function(config) {
 
         function onRemoteStreamStartsFlowing() {
             if (!(video.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || video.paused || video.currentTime <= 0)) {
-                isGotRemoteStream = true;
+                gotstream = true;
 
                 if (config.onRemoteStream)
                     config.onRemoteStream({
                         video: video,
                         stream: _config.stream
                     });
+
             } else setTimeout(onRemoteStreamStartsFlowing, 50);
         }
 
@@ -124,7 +126,7 @@ var RTCLib = function(config) {
                 selfInvoker();
             }
 
-            if (response.candidate && !isGotRemoteStream) {
+            if (response.candidate && !gotstream) {
                 if (!peer) console.error('missed an ice', response.candidate);
                 else
                     peer.addICE({
@@ -165,6 +167,17 @@ var RTCLib = function(config) {
                 delete sockets[i];
             }
         }
+		
+        // if owner leaves; try to remove his room from all other users side
+        if(isbroadcaster) {
+            defaultSocket.send({
+                left: true,
+                userToken: self.userToken,
+                roomToken: self.roomToken
+            });
+        }
+		
+        if(config.attachStream) config.attachStream.stop();
     }
 
     window.onbeforeunload = function() {
@@ -176,13 +189,11 @@ var RTCLib = function(config) {
     };
 
     function startBroadcasting() {
-        if (!isGotRemoteStream && defaultSocket) {
-            defaultSocket.send({
-                roomToken: self.roomToken,
-                roomName: self.roomName,
-                broadcaster: self.userToken
-            });
-        }
+        defaultSocket && defaultSocket.send({
+            roomToken: self.roomToken,
+            roomName: self.roomName,
+            broadcaster: self.userToken
+        });
         setTimeout(startBroadcasting, 3000);
     }
 
@@ -207,6 +218,9 @@ var RTCLib = function(config) {
             self.roomToken = _config.roomToken;
             isGetNewRoom = false;
 
+            self.joinedARoom = true;
+            self.broadcasterid = _config.joinUser;
+
             openSubSocket({
                 channel: self.userToken
             });
@@ -216,6 +230,7 @@ var RTCLib = function(config) {
                 userToken: self.userToken,
                 joinUser: _config.joinUser
             });
-        }
+        },
+		leaveRoom: leave
     };
 };

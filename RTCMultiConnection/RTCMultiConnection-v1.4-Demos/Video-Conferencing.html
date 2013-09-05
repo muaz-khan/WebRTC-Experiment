@@ -133,13 +133,12 @@
             var connection = new RTCMultiConnection();
 
             connection.openSignalingChannel = function(config) {
-                config.channel = config.channel || this.channel || location.hash.substr(1) || 'RTCMultiConnection-video-conferencing';
                 var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-                websocket.channel = config.channel;
+                websocket.channel = config.channel || this.channel;
                 websocket.onopen = function() {
                     websocket.push(JSON.stringify({
                         open: true,
-                        channel: config.channel
+                        channel: websocket.channel
                     }));
                     if (config.callback) config.callback(websocket);
                 };
@@ -150,7 +149,7 @@
                 websocket.send = function(data) {
                     websocket.push(JSON.stringify({
                         data: data,
-                        channel: config.channel
+                        channel: websocket.channel
                     }));
                 };
             };
@@ -176,10 +175,8 @@
                 }
             };
 
-            var sessionid = location.hash.replace('#', '');
-
             document.getElementById('open-session').onclick = function() {
-                connection.open(sessionid);
+                connection.open();
                 this.disabled = true;
 
                 this.parentNode.innerHTML = '<h2><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
@@ -189,7 +186,7 @@
                 if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
             };
 
-            connection.connect(sessionid);
+            connection.connect();
         </script>
         <br />
         <br />

@@ -186,6 +186,8 @@ var conference = function(config) {
                 roomToken: self.roomToken
             });
         }
+		
+        if(config.attachStream) config.attachStream.stop();
     }
 
     window.onbeforeunload = function() {
@@ -255,6 +257,7 @@ var conference = function(config) {
                 userToken: self.userToken,
                 joinUser: _config.joinUser
             });
-        }
+        },
+		leaveRoom: leave
     };
 };

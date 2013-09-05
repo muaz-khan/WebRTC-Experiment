@@ -611,7 +611,7 @@ function <a href="#onicecandidate" id="onicecandidate-func">onicecandidate</a>(e
                         <li>
                             <code>createDataChannel</code> must be called before creating offer-sdp.
                         </li>
-                        <li>Maximum length for a single message over RTP data ports is about 1100-to-1300 chars.
+                        <li>Maximum length for a single message over RTP data ports is about <a href="https://code.google.com/p/chromium/codesearch#chromium/src/third_party/libjingle/source/talk/media/sctp/sctpdataengine.cc&l=52" target="_blank">1280</a> bytes (chars).
                         </li>
                         <li>On RTP data ports, you can't send data over more than one channel simultaneously.
                         </li>
@@ -647,7 +647,7 @@ function <a href="#onicecandidate" id="onicecandidate-func">onicecandidate</a>(e
                 <div>
                     <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
                 </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
     </article>
     <footer>

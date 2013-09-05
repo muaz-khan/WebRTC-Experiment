@@ -824,9 +824,10 @@ connection.framerate = {
 
 ##### `maxParticipantsAllowed`
 
-To manage number of participants in a session:
+Default limit is 256. To manage number of participants in a session:
 
 ```javascript
+// to allow maximum 9 participants
 // 9 participants + 1 session initiator === 10
 connection.maxParticipantsAllowed = 9;
 ```
@@ -836,6 +837,27 @@ connection.maxParticipantsAllowed = 9;
 ##### Media Constraints
 
 You can force constraints that should be used each time when getUserMedia API is invoked:
+
+```javascript
+// Enjoy full-hd video streaming
+connection.media.min(1920,1080);
+connection.media.max(1920,1080);
+
+// Enjoy hd video streaming
+connection.media.min(1280,720);
+connection.media.max(1280,720);
+
+// other possible values
+connection.media.min(960,720);
+connection.media.min(640,360); // -------- it is default
+connection.media.min(640,480);
+connection.media.min(320,240);
+connection.media.min(320,180);
+
+connection.media.minAspectRatio = 1.77;
+```
+
+If above methods causes confusion; try "mandatory" constraints directly!
 
 ```javascript
 connection.mediaConstraints.mandatory = {
@@ -867,6 +889,28 @@ connection.sdpConstraints.mandatory = {
 
 =
 
+##### `skipRTCMultiConnectionLogs`
+
+You can disable all logs by setting `window.skipRTCMultiConnectionLogs` to `true`.
+
+```javascript
+// remember, it is "window" level object
+window.skipRTCMultiConnectionLogs = true;
+```
+
+=
+
+##### `enableSessionReinitiation`
+
+Session re-initiation feature causes failure of signaling on "firebase" type of servers. You need to disable "session re-initiation":
+
+```javascript
+// it is for signaling providers like "firebase"
+connection.enableSessionReinitiation = false;
+```
+
+=
+
 ##### STUN/TURN or host candidates
 
 You've three options:
@@ -882,17 +926,6 @@ connection.candidates.relay = false;
 ```
 
 At least one option must be true.
-
-=
-
-##### Reliable Data Channels
-
-SCTP data channels has been landed on chrome; under a flag. RTCMultiConnection will use "unreliable" channels until SCTP lands in stable releases:
-
-```javascript
-// to prefer SCTP data channels
-connection.reliable = true;
-```
 
 =
 
@@ -1125,27 +1158,96 @@ For a `ready-made` socket.io over node.js implementation; [visit this link](http
 
 =
 
-##### Custom Signaling (v1.5 and upper)
-
-Your server-side node.js code looks like this:
+##### Custom Signaling for one-page demos
 
 ```javascript
-io.sockets.on('connection', function (socket) {
-    socket.on('message', function (data) {
-        socket.broadcast.emit('message', data);
-    });
-});
+var channels = { };
+
+function openSignalingChannel(config) {
+    var channel = config.channel || this.channel;
+    var socket = {
+        send: function(data) {
+            channels[channel].send(data);
+        },
+        onmessage: function(data) {
+            config.onmessage(data);
+        }
+    };
+    if (!channels[channel])
+        channels[channel] = {
+            send: function(data) {
+                for (var i = 0; i < this.onmessages.length; i++) {
+                    var onmessage = this.onmessages[i];
+                    onmessage(data);
+                }
+            },
+            onmessages: [socket.onmessage]
+        };
+    else channels[channel].onmessages.push(socket.onmessage);
+
+    if (config.onopen) setTimeout(config.onopen, 1);
+    return socket;
+}
+
+// use above method as custom signaling gateway!
+connection.openSignalingChannel = openSignalingChannel;
 ```
 
-And to override `openSignalingChannel` on the client side:
+Try [one-page demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/one-page-demo.html).
+
+=
+
+##### Room screenshots / snapshots
+
+You can easily share snapshots/screenshots as extra-data:
 
 ```javascript
-connection.openSignalingChannel = function(callback) {
-    return io.connect().on('message', callback);
+document.getElementById('setup-connection').onclick = function () {
+    connection.extra = {
+        screenshot: 'screenshot.png'
+    };
+    connection.open();
+};
+
+connection.onNewSession = function(session) {
+    image.src = session.extra.screenshot;
 };
 ```
 
-Want to use XHR, WebSockets, SIP, XMPP, etc. for signaling? Read [this post](https://github.com/muaz-khan/WebRTC-Experiment/issues/56#issuecomment-20090650).
+Try [room-screenshots demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/rooms-screenshots.html).
+
+=
+
+##### `connection.sessionid`
+
+You may want to open multiple rooms in a single session:
+
+```javascript
+connection.sessionid = (Math.random() * 100000).toString().replace('.', '');
+connection.open();
+```
+
+Now, `onNewSession` will be fired for each room. Try [this demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/rooms-screenshots.html).
+
+**Note:**
+
+1. Each RTCMultiConnection instance has session-id (i.e. channel) that uniquely identifies each session. This identifier is usually passed using constructor or open/connect methods.
+2. "connection.sessionid" is not "channel"; it is actually "room-id". Multiple rooms can be opened in a single session; i.e. multiple nested sessions.
+
+"connection.sessionid" is useful to allow **multiple-nested-sessions**.
+
+```javascript
+// following are unique session identifier (global-level)
+new RTCMultiConnection('session-id');
+connection.open('session-id');
+connection.connect('session-id');
+
+// however, following are unique identifiers for nested sessions i.e. rooms
+connection.sessionid = 'room-number-1';
+connection.sessionid = 'room-number-2';
+connection.sessionid = 'room-number-3';
+connection.sessionid = 'room-number-4';
+```
 
 =
 

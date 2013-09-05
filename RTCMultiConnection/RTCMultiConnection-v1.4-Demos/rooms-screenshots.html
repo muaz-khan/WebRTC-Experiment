@@ -1,0 +1,147 @@
+<title>RTCMultiConnection and Room-Screenshots</title>
+<style>
+@import url(https://fonts.googleapis.com/css?family=Ubuntu:300);
+
+body {
+    font-family: "Ubuntu", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+    font-size: 1.2em;
+    line-height: 1.5em;
+    margin: 2em 10%;
+}
+#images img {
+    border: 1px solid red;
+    padding: 4px;
+    margin: 0 4px;
+    border-radius: 3px;
+    
+    -moz-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -webkit-transition: all 1s ease;
+    transition: all 1s ease;
+    vertical-align: top;
+}
+#images img:hover {
+    background: rgb(240, 5, 5);
+}
+video {
+    width: 15em;
+    vertical-align:top;
+}
+pre {
+    border-left: 2px solid red;
+    margin-left: 2em;
+    padding-left: 1em;
+}
+strong {
+    color:red;
+    border-bottom: 1px solid red;
+    padding-bottom: 3px;
+    font-weight:normal;
+    font-family:inherit;
+}
+</style>
+
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+
+<h1>Preview Screenshot of the room using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection">RTCMultiConnection.js</a></h2>
+
+<input type="text" placeholder="screenshot" id="screenshot" style="width:50%;" title="Screenshot image URL">
+<button id="setup-connection">Setup Peer Connection</button>
+<hr />
+<section id="images"></section>
+<hr />
+Posters, screenshots/snapshots (, or whatever else you want) can be passed as <strong>extra data</strong>!
+<pre>
+connection.extra = {
+    <strong>screenshot</strong>: document.getElementById('screenshot').value
+};
+connection.open();
+</pre>
+and "onNewSession":
+<pre>
+connection.onNewSession = function(session) {
+    image.src = session.<strong>extra.screenshot</strong>;
+};
+</pre>
+<hr />
+<script>
+var images = [
+    'https://t2.gstatic.com/images?q=tbn:ANd9GcSppaMVFP96hiUOWKMTmyxAJCrOe8ZTVcCan2oVIwNtpYEvQm4Icg',
+    'https://si0.twimg.com/profile_images/2921933231/770e739390405fdff86ebc7a4a1d8d3d_bigger.png'
+];
+
+var connection = new RTCMultiConnection();
+connection.sessionid = (Math.random() * 100000).toString().replace('.', '');
+document.getElementById('screenshot').value = images[+connection.sessionid % 2 == 0 ? 0 : 1];
+connection.session = {
+    audio: true,
+    video: true
+};
+
+var images = document.getElementById('images');
+var sessions = {};
+connection.onNewSession = function(session) {
+    if(sessions[session.sessionid]) return;
+    sessions[session.sessionid] = session;
+    
+    var image = new Image();
+    image.src = session.extra.screenshot;
+    var coords = '200px';
+    image.style.width = coords;
+    image.style.height = coords;
+    images.appendChild(image);
+    image.title = 'Click to join the room.';
+    image.id = session.sessionid;
+    image.onclick = function() {
+        this.style.opacity = 0;
+        session = sessions[this.id];
+        if(session) connection.join(session);
+        setTimeout(function() {
+           images.innerHTML = '';
+        }, 700);
+    };
+};
+
+connection.onstream = function (e) {
+    document.body.appendChild(e.mediaElement);
+};
+
+connection.onstreamended = function (e) {
+    if(e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
+};
+
+document.getElementById('setup-connection').onclick = function () {
+    if(!document.getElementById('screenshot').value) return alert('You must enter URL of the snapshot.');
+    this.disabled = true;
+    connection.extra = {
+        screenshot: document.getElementById('screenshot').value
+    };
+    connection.open();
+};
+
+connection.openSignalingChannel = openSignalingChannel;
+connection.connect();
+
+function openSignalingChannel(config) {
+    var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+    websocket.channel = config.channel;
+    websocket.onopen = function () {
+        websocket.push(JSON.stringify({
+            open: true,
+            channel: websocket.channel
+        }));
+        if (config.callback) config.callback(websocket);
+    };
+    websocket.onmessage = function (event) {
+        config.onmessage(JSON.parse(event.data));
+    };
+    websocket.push = websocket.send;
+    websocket.send = function (data) {
+        websocket.push(JSON.stringify({
+            data: data,
+            channel: websocket.channel
+        }));
+    };
+}
+</script>

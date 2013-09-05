@@ -57,7 +57,7 @@
         connection.open(document.getElementById('session-name').value);
 
         if (document.getElementById('session-name').value) {
-            document.getElementById('link-to-share').href = location.href.replace(location.search, '') + '#' + document.getElementById('session-name').value;
+            document.getElementById('link-to-share').href = location.href.replace(location.hash, '') + '#' + document.getElementById('session-name').value;
         }
         document.getElementById('link-to-share').innerHTML = 'Share this link or open in new tab';
     };

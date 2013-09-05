@@ -9,7 +9,7 @@ foreach(array('video', 'audio') as $type) {
         $uploadDirectory = "uploads/$fileName";
         
         if (!move_uploaded_file($_FILES["${type}-blob"]["tmp_name"], $uploadDirectory)) {
-            echo("problem moving uploaded file");
+            echo(" problem moving uploaded file");
         }
 		
 		echo($uploadDirectory);

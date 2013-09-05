@@ -182,10 +182,10 @@
                     audio: true,
                     video: true
                 };
-
+                connection.enableSessionReinitiation = false;
                 connection.openSignalingChannel = function(config) {
-                    var channel = config.channel || this.channel || location.hash.substr(1) || 'RTCMultiConnection-v1.4-Demos';
-                    var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:2014/';
+                    var channel = config.channel || this.channel;
+                    var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:2013/';
                     var sender = Math.round(Math.random() * 999999999) + 999999999;
 
                     io.connect(SIGNALING_SERVER).emit('new-channel', {
@@ -244,11 +244,9 @@
                 };
 
                 var setupNewSession = document.getElementById('setup-new-session');
-                var newSessionInputBox = document.getElementById('session-name');
 
                 setupNewSession.onclick = function() {
                     setupNewSession.disabled = true;
-                    newSessionInputBox.disabled = true;
 
                     var direction = document.getElementById('direction').value;
                     var _session = document.getElementById('session').value;
@@ -272,7 +270,7 @@
 
                     connection.session = session;
                     connection.maxParticipantsAllowed = maxParticipantsAllowed;
-                    connection.open(newSessionInputBox.value);
+                    connection.open();
                 };
 
                 function rotateInCircle(video) {

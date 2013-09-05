@@ -3,26 +3,23 @@
 > MIT License   - https://www.webrtc-experiment.com/licence/
 > Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/demos
 -->
-<title>MediaStreamTrack.getSources ® Muaz Khan</title>
-<h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/demos" target="_blank">MediaStreamTrack.getSources</a> ® <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a></h1>
+<title>MediaStreamTrack.getSources / getAllUserMedias ® Muaz Khan</title>
+<h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/demos" target="_blank">MediaStreamTrack.getSources</a> / getAllUserMedias ® <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a></h1>
 
 <script>
     if (!MediaStreamTrack) document.body.innerHTML = '<h1>Incompatible Browser Detected. Try <strong style="color:red;">Chrome Canary</strong> instead.</h1>';
 
-    var audioSources = [];
-    var videoSources = [];
-
     MediaStreamTrack.getSources(function (media_sources) {
+		var sources = [];
         for (var i = 0; i < media_sources.length; i++) {
-            audioSources.push(media_sources[i]);
+            sources.push(media_sources[i]);
         }
 
-        getMediaSource(audioSources);
-        getMediaSource(videoSources);
+        getAllUserMedias(sources);
     });
 
     var index = 0;
-    function getMediaSource(media_sources) {
+    function getAllUserMedias(media_sources) {
         var media_source = media_sources[index];
         if (!media_source) return;
         var constraints = {};
@@ -68,19 +65,19 @@
         });
 
         index++;
-        getMediaSource(media_sources);
+        getAllUserMedias(media_sources);
     }
 </script>
 
 <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
 <meta name="author" content="Muaz Khan">
-<pre style="border-left:2px solid red;margin-left:2em;padding-left:1em;">
-var audioSources = [];
-var videoSources = [];
 
+<pre style="border-left:2px solid red;margin-left:2em;padding-left:1em;">
 MediaStreamTrack.getSources(function(media_sources) {
+    var sources = [];
     for (var i = 0; i < media_sources.length; i++) {
-        audioSources.push(media_sources[i]);
+        sources.push(media_sources[i]);
     }
+    getAllUserMedias(sources);
 });
 </pre>

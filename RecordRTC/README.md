@@ -1,10 +1,6 @@
 #### RecordRTC: WebRTC audio/video recording / [Demo](https://www.webrtc-experiment.com/RecordRTC/)
 
-**RecordRTC** is a library for cross-browser audio/video recording.
-
-=
-
-Try [RecordRTC-to-PHP](https://www.webrtc-experiment.com/RecordRTC/PHP/).
+**RecordRTC** is a library for cross-browser audio/video recording. Try [RecordRTC-to-PHP](https://www.webrtc-experiment.com/RecordRTC/PHP/).
 
 =
 
@@ -130,6 +126,52 @@ window.open( recorder.toURL() );
 
 ```javascript
 recorder.save();
+```
+
+=
+
+##### Customize Buffer-Size
+
+```javascript
+var options = {
+   bufferSize: 16384
+};
+var recordRTC = RecordRTC(audioStream, options);
+```
+
+Following values are allowed for buffer-size:
+
+```javascript
+// Legal values are (256, 512, 1024, 2048, 4096, 8192, 16384)
+```
+
+You can write like this:
+
+```javascript
+var options = {
+   'buffer-size': 16384
+};
+```
+
+=
+
+##### Customize Sample-Rate
+
+```javascript
+var options = {
+   sampleRate: 96000
+};
+var recordRTC = RecordRTC(audioStream, options);
+```
+
+Values for sample-rate must be greater than or equal to 22050 and less than or equal to 96000.
+
+You can write like this:
+
+```javascript
+var options = {
+   'sample-rate': 16384
+};
 ```
 
 =

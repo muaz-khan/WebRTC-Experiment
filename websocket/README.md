@@ -1,47 +1,155 @@
 #### WebRTC One-to-One video sharing using WebSockets / [Demo](https://www.webrtc-experiment.com/websocket/)
 
-This `WebRTC Experiment` is using `WebSockets` for signalig.
+It supports any WebSockets signaling gateway.
 
 =
 
-#### How to use your own WebSocket implementation?
+#### How to use it in your own website?
 
-There is a built-in [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) implementation that you can use in each and every WebRTC Experiment.
+First of all; link following library:
 
 ```javascript
-var SIGNALING_SERVER = 'ws://' + document.domain + ':8888/';
-openSignalingChannel: function(config) {
-    config.channel = config.channel || 'default-channel';
-    var websocket = new WebSocket(SIGNALING_SERVER);
-    websocket.channel = config.channel;
-    websocket.onopen = function() {
-        websocket.push(JSON.stringify({
-            open: true,
-            channel: config.channel
-        }));
-        if (config.callback)
-            config.callback(websocket);
-    };
-    websocket.onmessage = function(event) {
-        config.onmessage(JSON.parse(event.data));
-    };
-    websocket.push = websocket.send;
-    websocket.send = function(data) {
-        websocket.push(JSON.stringify({
-            data: data,
-            channel: config.channel
-        }));
-    };
-}
+http://www.webrtc-experiment.com/websocket/PeerConnection.js
 ```
 
-In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
+=
+
+#### Simplest Demo
+
+```javascript
+var offerer = new PeerConnection('ws://domain:port', 'offerer');
+offerer.onStreamAdded = function(e) {
+   document.body.appendChild(e.mediaElement);
+};
+var answerer = new PeerConnection('ws://domain:port', 'answerer');
+answerer.onStreamAdded = function(e) {
+   document.body.appendChild(e.mediaElement);
+};
+answerer.sendParticipationRequest('offerer');
+```
+
+=
+
+#### Explanation
+
+Constructor takes two arguments. Last argument is optional.
+
+```javascript
+var peer = new PeerConnection('websocket-url', 'user-id');
+
+// you can write like this:
+var peer = new PeerConnection('websocket-url');
+```
+
+1. **websocket-url:** it is mandatory
+2. **user-id:** by default, it is auto generated
+
+There are two ways to connect peers:
+
+1. The easiest method of "manual" peers connection is call "sendParticipationRequest" and pass user-id of the target user.
+2. otherwise, call "startBroadcasting" (behind the scene) this function will be invoked recursively until a participant found.
+
+```javascript
+peer.sendParticipationRequest(userid);
+
+// or
+peer.startBroadcasting();
+```
+
+By default peers are auto-connected; however, you can override this behavior and be alerted if a user transmitted himself using "startBroadcasting":
+
+```javascript
+// "onUserFound" allows you connect multiple peers i.e. one-to-many
+peer.onUserFound = function(userid) {
+   peer.sendParticipationRequest(userid);
+};
+```
+
+You can access local or remote media streams using "onStreamAdded":
+
+```javascript
+offerer.onStreamAdded = function(e) {
+   // e.mediaElement --- HTMLVideoElement
+   // e.stream       --- MediaStream
+   // e.type         --- "local" or "remote"
+};
+```
+
+You may want to remove HTML video elements if a peers leaves:
+
+```javascript
+offerer.onStreamEnded = function(e) {
+   // e.mediaElement --- HTMLVideoElement
+   // e.stream       --- MediaStream
+   // e.type         --- "local" or "remote"
+
+   if(e.mediaElement.parentNode)
+      e.mediaElement.parentNode.removeChild(e.mediaElement);
+};
+```
+
+You can override user-id any time:
+
+```javascript
+peer.userid = '123';
+
+setTimeout(function() {
+   peer.userid = '890
+}, 5000);
+```
+
+You can manually leave/close the room:
+
+```javascript
+peer.close();
+```
+
+You can access target user's id too:
+
+```javascript
+console.log('target user-id is', peer.participant);
+```
+
+You may want to be alerted for each participantion request; and manually allow/reject them:
+
+```javascript
+peer.onParticipationRequest = function(userid) {
+   peer.acceptRequest(userid);
+};
+```
+
+1. override "onParticipationRequest" to prevent auto-accept of requests
+2. use "acceptRequest" method to manually allow requests
+
+You may want to list number of users connected with you:
+
+```javascript
+var numberOfUsers = 0;
+for(var user in peer.peers) {
+   console.log(user, 'is connected with you.');
+   numberOfUsers++;
+}
+console.log('total users connected with you:', numberOfUsers);
+```
+
+You can access media stream like this:
+
+```javascript
+console.log('local media stream:', peer.MediaStream);
+
+// you can stop media strema too:
+peer.MediaStream.stop();
+
+// however, instead of "stopping" media-stream manually
+// you "close" method instead:
+peer.close();
+```
 
 =
 
 #### Browser Support
 
-This [One-to-one WebRTC video chat using WebSocket](https://www.webrtc-experiment.com/websocket/) experiment works fine on following web-browsers:
+This [PeerConnection.js](https://www.webrtc-experiment.com/websocket/PeerConnection.js) supports following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -53,4 +161,4 @@ This [One-to-one WebRTC video chat using WebSocket](https://www.webrtc-experimen
 
 #### License
 
-[WebRTC One-to-One video sharing using WebSockets](https://www.webrtc-experiment.com/websocket/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[PeerConnection.js](https://www.webrtc-experiment.com/websocket/PeerConnection.js) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
