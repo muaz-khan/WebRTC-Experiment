@@ -178,6 +178,7 @@
                     }));
                     if (config.callback) config.callback(websocket);
                 };
+				
                 websocket.onmessage = function(event) {
                     config.onmessage(JSON.parse(event.data));
                 };

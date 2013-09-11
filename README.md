@@ -154,6 +154,8 @@
 | **Video-Conferencing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) |
 | **Multi-streams attachment** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) |
 | **Admin/Guest audio/video calling** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/admin-guest.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/admin-guest.html) |
+| **Session-Reinitiation** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/session-reinitiation.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/session-reinitiation.html) |
+| **Audio/Video Recording** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/RecordRTC-and-RTCMultiConnection.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/RecordRTC-and-RTCMultiConnection.html) |
 
 =
 
@@ -187,15 +189,13 @@
 var recordRTC = RecordRTC(mediaStream);
 
 recordRTC.startRecording();
-recordRTC.stopRecording(function(audioURL) {
-   window.open(audioURL);
-});
+recordRTC.stopRecording();
 
-// get blob
-formData.append( 'blob', recordRTC.getBlob() );
+var blob = recordRTC.getBlob();
+var dataURL = recordRTC.getDataURL();
+var url = recordRTC.toURL();
 
-// get DataURL
-window.open( recordRTC.getDataURL() );
+recordRTC.save(); // force saving to disk
 ```
 
 [RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
@@ -215,8 +215,9 @@ window.open( recordRTC.getDataURL() );
         video: true,    // attach video stream too!
         data: true,     // open data connection too!
         screen: true,   // attach screen sharing stream too!
-        oneway: true    // all streams must flow in one-way direction!
     };
+	
+    connection.direction = 'many-to-many';
     
     connection.onstream = function(e) {
         document.body.appendChild(e.mediaElement);
@@ -279,13 +280,12 @@ window.open( recordRTC.getDataURL() );
 
 =
 
-1. Email: muazkh@gmail.com
-2. Twitter: [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb)
-3. Google+: https://plus.google.com/100325991024054712503
-4. Github: https://github.com/muaz-khan
+# [Muaz Khan](http://www.muazkhan.com)
+
+Email: muazkh@gmail.com / [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb) / [Google+](https://plus.google.com/100325991024054712503) / [Github](https://github.com/muaz-khan)
 
 =
 
-##### License
+# License
 
 [WebRTC Experiments](https://www.webrtc-experiment.com/) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

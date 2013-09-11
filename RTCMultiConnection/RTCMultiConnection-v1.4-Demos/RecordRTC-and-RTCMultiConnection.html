@@ -1,12 +1,13 @@
 ﻿<!--
-> Muaz Khan     - https://github.com/muaz-khan 
-> MIT License   - https://www.webrtc-experiment.com/licence/
-> Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
+> Muaz Khan          - https://github.com/muaz-khan 
+> MIT License        - https://www.webrtc-experiment.com/licence/
+> RecordRTC          - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+> RTCMultiConnection - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
 -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>WebRTC Session-Reinitiation using RTCMultiConnection ® Muaz Khan</title>
+        <title>RecordRTC & RTCMultiConnection ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -50,6 +51,30 @@
                 border-left: 1px solid rgb(189, 189, 189);
                 padding: .5em;
             }
+
+            .video-container {
+                background: white;
+                border: 2px solid black;
+                border-radius: 0.2em;
+                display: inline-block;
+                margin: 2em .2em;
+                padding: .1em;
+                vertical-align: top;
+            }
+
+            .video-container h2 {
+                border: 0;
+                border-top: 1px solid black;
+                display: block;
+                margin: 0;
+                text-align: center;
+            }
+
+            .video-container button {
+                font-size: .8em;
+                position: absolute;
+                z-index: 1;
+            }
         </style>
         <script>
             document.createElement('article');
@@ -59,14 +84,16 @@
         <!-- scripts used for broadcasting -->
         <script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
         <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+        <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
     </head>
 
     <body>
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> Session-Reinitiation using 
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a> &
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection</a>
+                    ® <a href="http://www.muazkhan.com/" target="_blank">Muaz Khan</a>
                 </h1>            
                 <p>
                     <span>© 2013</span>
@@ -106,9 +133,10 @@
             </section>
         
             <script>
-                // Muaz Khan     - https://github.com/muaz-khan
-                // MIT License   - https://www.webrtc-experiment.com/licence/
-                // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
+                // Muaz Khan          - https://github.com/muaz-khan
+                // MIT License        - https://www.webrtc-experiment.com/licence/
+                // RecordRTC          - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+                // RTCMultiConnection - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
 
                 var connection = new RTCMultiConnection();
 
@@ -145,13 +173,50 @@
                 };
 
                 connection.onstream = function(e) {
-                    e.mediaElement.width = 600;
-                    videosContainer.insertBefore(e.mediaElement, videosContainer.firstChild);
-                    rotateVideo(e.mediaElement);
+                    appendVideo(e.mediaElement, e.streamid);
+                };
+
+                function appendVideo(video, streamid) {
+                    video.width = 600;
+                    video = getVideo(video, streamid);
+                    videosContainer.insertBefore(video, videosContainer.firstChild);
+                    rotateVideo(video);
                     scaleVideos();
 
                     document.getElementById('leave-conference').disabled = false;
-                };
+                }
+
+                function getVideo(video, streamid) {
+                    var div = document.createElement('div');
+                    div.className = 'video-container';
+
+                    var button = document.createElement('button');
+                    button.id = streamid;
+                    button.innerHTML = 'Start Recording';
+                    button.onclick = function() {
+                        this.disabled = true;
+                        if (this.innerHTML == 'Start Recording') {
+                            this.innerHTML = 'Stop Recording';
+                            connection.streams[this.id].startRecording({
+                                audio: true,
+                                video: true
+                            });
+                        } else {
+                            this.innerHTML = 'Start Recording';
+                            connection.streams[this.id].stopRecording(function(blob) {
+                                var h2 = document.createElement('h2');
+                                h2.innerHTML = '<a href="' + URL.createObjectURL(blob) + '" target="_blank">Open recorded ' + blob.recordingType + '</a>';
+                                div.appendChild(h2);
+                            });
+                        }
+                        setTimeout(function() {
+                            button.disabled = false;
+                        }, 3000);
+                    };
+                    div.appendChild(button);
+                    div.appendChild(video);
+                    return div;
+                }
 
                 function rotateVideo(mediaElement) {
                     mediaElement.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
@@ -161,11 +226,12 @@
                 }
 
                 connection.onstreamended = function(e) {
-                    e.mediaElement.style.opacity = 0;
-                    rotateVideo(e.mediaElement);
+                    var div = e.mediaElement.parentNode;
+                    div.style.opacity = 0;
+                    rotateVideo(div);
                     setTimeout(function() {
-                        if (e.mediaElement.parentNode) {
-                            e.mediaElement.parentNode.removeChild(e.mediaElement);
+                        if (div.parentNode) {
+                            div.parentNode.removeChild(div);
                         }
                         scaleVideos();
                     }, 1000);
@@ -257,16 +323,80 @@
 			
             <section class="experiment">
                 <ol>
-                    <li>Join a conference; leave; and rejoin same or other conferences!</li>
-                    <li>Open a conference; close; reopen a conference; close again!</li>
-                    <li>Its all about session re-initiation!</li>
+                    <li>You can record video from both local and remote media streams (only one chrome, though!)</li>
+                    <li>You can record audio from local stream both on chrome and firefox</li>
+                    <li>Many streams can be added; renegotiated; and recorded (simultaneously)!</li>
+                </ol>
+            </section>
+            <section class="experiment">
+                <h2 class="header">You can invoke audio recorder like this:</h2>
+				
+                <pre>
+connection.streams['stream-id'].startRecording({
+    audio: true,
+    video: true
+});
+</pre>
+            </section>
+            <section class="experiment">
+                <h2 class="header">You can skip argument:</h2>
+                <pre>
+// to record both audio and video
+connection.streams['stream-id'].startRecording();
+</pre>
+            </section>
+            <section class="experiment">
+                <h2 class="header">Stop recording and get blob.</h2>
+                <ol>					
+                    <li>
+                        "recordingType" can be either "audio" or "video".
+                    </li>
+					
+                    <li>
+                        A real "Blob" object is returned.
+                    </li>
                 </ol>
 				
                 <pre>
-// currently you need to set unique values for "sessionid"
-// ..before calling "open" method
-connection.<strong>sessionid</strong> = (Math.random() * 999).toString().replace('.', '');
-connection.<strong>open</strong>();
+connection.streams['stream-id'].stopRecording(function (blob) {
+    var mediaElement = document.createElement(blob.recordingType);
+    mediaElement.src = URL.createObjectURL(blob);
+    document.documentElement.appendChild(h2);
+});
+</pre>
+            </section>
+            <section class="experiment">	
+                <h2 class="header">You can force to stop a specific stream:</h2>
+				
+                <pre>
+connection.streams['stream-id'].stopRecording(onBlob, {
+    audio: true // stop audio recorder and get audio blob
+});
+</pre>
+            </section>
+            <section class="experiment">	
+                <h2 class="header">A simple working example:</h2>
+				
+                <pre>
+connection.onstream = function (e) {
+    // e.type == 'remote' || 'local'
+	
+    connection.streams[e.streamid].startRecording({
+        audio: true,
+        video: true
+    });
+
+    // record 10 sec audio/video
+    var recordingInterval = 10 * 10000;
+
+    setTimeout(function () {
+        connection.streams[e.streamid].stopRecording(function (blob) {
+            var mediaElement = document.createElement(blob.recordingType);
+            mediaElement.src = URL.createObjectURL(blob);
+            document.documentElement.appendChild(h2);
+        });
+    }, recordingInterval)
+}
 </pre>
             </section>
         
@@ -276,90 +406,6 @@ connection.<strong>open</strong>();
                     <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
                 </div>
                 <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
-            </section>
-			
-            <section class="experiment">
-                <ol>
-                    <li>Mesh networking model is implemented to open multiple interconnected peer connections</li>
-                    <li>Maximum peer connections limit is <strong>256</strong> (on chrome)</li>
-                </ol>
-            </section>
-            
-            <section class="experiment">
-                <p><strong>
-                       Huge bandwidth and CPU-usage out of multiple peers interconnection:
-                   </strong>
-                </p>
-                <p>
-                    To understand it better; assume that 10 users are sharing video in a group.
-                    <strong>40</strong> RTP-ports (i.e. streams) will be created for each user. All streams are expected
-                    to be flowing concurrently; which causes blur video experience and audio lose/noise (echo)
-                    issues.</p>
-                <p>
-                    For each user:</p>
-                <ol>
-                    <li>10 RTP ports are opened to send video upward i.e. for outgoing video streams</li>
-                    <li>10 RTP ports are opened to send audio upward i.e. for outgoing audio streams</li>
-                    <li>10 RTP ports are opened to receive video i.e. for incoming video streams</li>
-                    <li>10 RTP ports are opened to receive audio i.e. for incoming audio streams</li>
-                </ol>
-            </section>
-            <section class="experiment">
-                <p>
-                    Maximum bandwidth used by each video RTP port (media-track) is about 1MB; which can be controlled using "b=AS" session description parameter values. In two-way video-only session; 2MB bandwidth is used by each peer; otherwise; a low-quality blurred video will be delivered.
-                </p>
-            </section>
-            <section class="experiment">
-                <pre>
-// removing existing bandwidth lines
-sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
-
-// setting "outgoing" audio RTP port's bandwidth to "50kbit/s"
-sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:50\r\n');
-
-// setting "outgoing" video RTP port's bandwidth to "256kbit/s"
-sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
-</pre>
-            </section>
-            <section class="experiment">
-                <p>
-                    Possible issues:</p>
-                <ol>
-                    <li>Blurry video experience</li>
-                    <li>Unclear voice and audio lost</li>
-                    <li>Bandwidth issues / slow streaming / CPU overwhelming</li>
-                </ol>
-                <p>Solution? Obviously a media server!</p>
-            </section>
-			
-            <section class="experiment">
-                <h2 class="header">How to write video-conference?</h2>
-                <ol>
-                    <li>session.audio=true</li>
-                    <li>session.video=true</li>
-                </ol>
-                <pre>
-// https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js
-
-var connection = new RTCMultiConnection();
-
-connection.session = {
-    audio: true,
-    video: true
-};
-
-// on local/remote media stream
-connection.onstream      = function(e) {}
-connection.onstreamended = function(e) {}
-
-// setup signaling to search for existing sessions
-connection.connect();
-
-// setup new session
-document.getElementById('initiator').onclick = function() {
-    connection.open();
-};
-</pre>
             </section>
 			
             <section class="experiment own-widgets latest-commits">

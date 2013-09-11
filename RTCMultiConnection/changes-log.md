@@ -31,6 +31,8 @@ This document explains RTCMultiConnection versions log.
 16. enable/disable ice candidates (host/relfexive/relay)
 17. enable/disable bandwidth sdp parameters (by default, enabled)
 18. noise/echo stepped down; a simple/lazy workaround
+19. audio/video recording added / using [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
+20. directions simplified
 
 =
 

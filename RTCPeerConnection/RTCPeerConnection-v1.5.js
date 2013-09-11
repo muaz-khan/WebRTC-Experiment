@@ -110,7 +110,8 @@ function RTCPeerConnection(options) {
     function createAnswer() {
         if (!options.onAnswerSDP) return;
 
-        peer.setRemoteDescription(new SessionDescription(options.offerSDP));
+        //options.offerSDP.sdp = addStereo(options.offerSDP.sdp);
+        peer.setRemoteDescription(new SessionDescription(options.offerSDP), onSdpSuccess, onSdpError);
         peer.createAnswer(function(sessionDescription) {
             sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
@@ -180,15 +181,14 @@ function RTCPeerConnection(options) {
 
         _openOffererChannel();
 
-        if (moz) {
-            navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function(stream) {
-                    peer.addStream(stream);
-                    createOffer();
-                }, useless);
-        }
+        if (!moz) return;
+        navigator.mozGetUserMedia({
+                audio: true,
+                fake: true
+            }, function(stream) {
+                peer.addStream(stream);
+                createOffer();
+            }, useless);
     }
 
     function _openOffererChannel() {
@@ -196,8 +196,8 @@ function RTCPeerConnection(options) {
             reliable: false
         });
 
-        if (moz)
-            channel.binaryType = 'blob';
+        if (moz) channel.binaryType = 'blob';
+
         setChannelEvents();
     }
 
@@ -216,6 +216,8 @@ function RTCPeerConnection(options) {
         };
         channel.onerror = function(event) {
             if (options.onChannelError) options.onChannelError(event);
+
+            console.error('WebRTC DataChannel error', event);
         };
     }
 
@@ -229,26 +231,32 @@ function RTCPeerConnection(options) {
             setChannelEvents();
         };
 
-        if (moz) {
-            navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function(stream) {
-                    peer.addStream(stream);
-                    createAnswer();
-                }, useless);
-        }
+        if (!moz) return;
+        navigator.mozGetUserMedia({
+                audio: true,
+                fake: true
+            }, function(stream) {
+                peer.addStream(stream);
+                createAnswer();
+            }, useless);
     }
 
-    function useless() {}
-	
+    // fake:true is also available on chrome under a flag!
+
+    function useless() {
+        log('Error in fake:true');
+    }
+
+    function onSdpSuccess() {
+    }
+
     function onSdpError(e) {
         console.error('sdp error:', e.name, e.message);
     }
 
     return {
         addAnswerSDP: function(sdp) {
-            peer.setRemoteDescription(new SessionDescription(sdp));
+            peer.setRemoteDescription(new SessionDescription(sdp), onSdpSuccess, onSdpError);
         },
         addICE: function(candidate) {
             peer.addIceCandidate(new IceCandidate({

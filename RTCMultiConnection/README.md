@@ -1,6 +1,10 @@
-### [RTCMultiConnection](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection) Documentation / [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/changes-log.md)
+## [RTCMultiConnection](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection) Documentation / [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/changes-log.md)
 
-##### Features
+A library for cross-browser media streaming; screen sharing; data/file sharing; renegotiation; and much more. **An all-in-one solution for RTCWeb API!**
+
+=
+
+## Features
 
 1. Multi-streams attachment e.g. audio+video+data+screen
 2. Multi-streams renegotiation e.g. audio+video+data+screen
@@ -12,6 +16,7 @@
 8. Advance data/file/text sharing (concurrently|longest|largest)
 9. Session re-initiation (Close/Leave/Rejoin)
 10. Admin/Guest calling features
+11. Audio/Video Recording using [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
 
 and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/changes-log.md)
 
@@ -133,8 +138,6 @@ and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/
 
 ##### First Step: Link the library
 
-v1.4 is latest stable release.
-
 ```html
 <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"></script>
 ```
@@ -152,6 +155,9 @@ connection.session = {
     audio: true,
     video: true
 };
+
+// set direction / 'many-to-many' / 'one-to-many' / 'one-to-one' / 'one-way'
+connection.direction = 'many-to-many';
 
 // get access to local or remote media streams
 connection.onstream = function (e) {
@@ -380,6 +386,19 @@ v1.4 and upper releases supports multi-streams attachment feature; so you can re
 
 =
 
+##### `direction`
+
+Now, you can easily set directions like this:
+
+```javascript
+connection.direction = 'many-to-many';
+connection.direction = 'one-to-many';
+connection.direction = 'one-to-one';
+connection.direction = 'one-way';
+```
+
+=
+
 ##### Mute/UnMute/Stop
 
 You can mute/unmute/stop a single track; or both audio/video tracks.
@@ -415,6 +434,85 @@ connection.streams.mute({
     type: 'remote'
 });
 ```
+
+=
+
+##### RecordRTC
+
+You can record individual streams too:
+
+```javascript
+connection.streams['stream-id'].startRecording({
+    audio: true,
+    video: true
+});
+```
+
+To stop recording:
+
+```javascript
+connection.streams['stream-id'].stopRecording(function (blob) {
+    // POST "Blob" to PHP/other server using FormData/XHR2
+});
+```
+
+A simple example:
+
+```javascript
+connection.onstream = function (e) {
+    // e.type == 'remote' || 'local'
+	
+    connection.streams[e.streamid].startRecording({
+        audio: true,
+        video: true
+    });
+
+    // record 10 sec audio/video
+    var recordingInterval = 10 * 10000;
+
+    setTimeout(function () {
+        connection.streams[e.streamid].stopRecording(function (blob) {
+            var mediaElement = document.createElement(blob.recordingType);
+            mediaElement.src = URL.createObjectURL(blob);
+            document.documentElement.appendChild(h2);
+        });
+    }, recordingInterval)
+}
+```
+
+You can skip arguments:
+
+```javascript
+connection.streams['stream-id'].startRecording();
+connection.streams['stream-id'].stopRecording(onBlob);
+```
+
+You can [customize buffer-size and sample-rates](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC#customize-buffer-size) too:
+
+```javascript
+connection.streams['stream-id'].startRecording({
+    audio: true,
+    bufferSize: 16384,
+    sampleRate: 96000
+});
+```
+
+You can set video width/height; and canvas width/height too:
+
+```javascript
+connection.streams['stream-id'].startRecording({
+   video: {
+      width: 320,
+      height: 240
+   },
+   canvas: {
+      width: 320,
+      height: 240
+   }
+});
+```
+
+Check [RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC).
 
 =
 
@@ -1326,7 +1424,7 @@ io.sockets.on('connection', function (socket) {
 
 =
 
-##### Browser Support
+### Browser Support
 
 [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection) supports following browsers:
 
@@ -1338,6 +1436,6 @@ io.sockets.on('connection', function (socket) {
 
 =
 
-##### License
+## License
 
 [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
