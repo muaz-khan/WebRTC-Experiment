@@ -1,23 +1,17 @@
-#### RecordRTC: WebRTC audio/video recording / [Demo](https://www.webrtc-experiment.com/RecordRTC/)
+## RecordRTC: WebRTC audio/video recording / [Demo](https://www.webrtc-experiment.com/RecordRTC/)
 
-**RecordRTC** is a library for cross-browser audio/video recording. Try [RecordRTC-to-PHP](https://www.webrtc-experiment.com/RecordRTC/PHP/).
-
-=
-
-##### Features
-
-1. Audio recording both for chrome and Firefox
-2. Video/Gif recording for chrome; (firefox has a little bit issues, will be recovered soon)
-
-We need a stream merger like ffmpeg/avconv to merge audio/video files in MKV/AVI/etc. on the server end. A few developers already implemented such thing in PHP. A demo coming soon.
-
-Media Stream Recording API (MediaRecorder object) is being implemented by both Firefox and Chrome. RecordRTC is also using MediaRecorder API for Firefox (nightly).
-
-RecordRTC is unable to record "mono" audio on chrome; however it seems that we can covert channels from "stereo" to "mono" using WebAudio API, though. MediaRecorder API's encoder only support 48k/16k mono audio channel (on Firefox Nightly).
+**RecordRTC** is a javascript-only (entire client-side) **library** for **cross-browser** audio/video recording.
 
 =
 
-##### How to use RecordRTC?
+## Features
+
+1. **Audio recording** (both for chrome and Firefox)
+2. **Video/Gif recording** (for chrome only)
+
+=
+
+## How to use RecordRTC?
 
 ```html
 <script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
@@ -25,7 +19,7 @@ RecordRTC is unable to record "mono" audio on chrome; however it seems that we c
 
 =
 
-##### How to record audio?
+#### How to record audio?
 
 ```javascript
 var recordRTC = RecordRTC(mediaStream);
@@ -37,7 +31,9 @@ recordRTC.stopRecording(function(audioURL) {
 
 =
 
-##### How to record video?
+#### How to record video?
+
+Everything is optional except `type:'video'`:
 
 ```javascript
 var options = {
@@ -58,9 +54,23 @@ recordRTC.stopRecording(function(videoURL) {
 });
 ```
 
+You can write same thing like this:
+
+```javascript
+var options = {
+   type: 'video'
+};
+var recordRTC = RecordRTC(mediaStream, options);
+recordRTC.startRecording();
+recordRTC.stopRecording();
+var blob = recordRTC.getBlob();
+```
+
 =
 
 ##### How to record animated GIF image?
+
+Everything is optional except `type:'gif'`:
 
 ```javascript
 var options = {
@@ -103,13 +113,48 @@ blob = recorder.getBlob();
 
 ##### POST on server
 
+Try [RecordRTC-to-PHP](https://www.webrtc-experiment.com/RecordRTC/PHP/), a demo to POST recorded audio/video files to PHP server.
+
+```php
+<?php
+foreach(array('video', 'audio') as $type) {
+    if (isset($_FILES["${type}-blob"])) {
+
+        $fileName = $_POST["${type}-filename"];
+        $uploadDirectory = "uploads/$fileName";
+
+        if (!move_uploaded_file($_FILES["${type}-blob"]["tmp_name"], $uploadDirectory)) {
+            echo("problem moving uploaded file");
+        }
+
+        echo($uploadDirectory);
+    }
+}
+?>
+```
+
 ```javascript
-blob = recorder.getBlob();
+var fileType = 'video'; // or "audio"
+var fileName = 'ABCDEF.webm';  // or "wav"
 
-formData = new FormData();
-formData.append('file-name', blob);
+var formData = new FormData();
+formData.append(fileType + '-filename', fileName);
+formData.append(fileType + '-blob', blob);
 
-xhr.send(formData);
+xhr('save.php', formData, function (fileURL) {
+    window.open(fileURL);
+});
+
+function xhr(url, data, callback) {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (request.readyState == 4 && request.status == 200) {
+            callback(location.href + request.responseText);
+        }
+    };
+    request.open('POST', url);
+    request.send(data);
+}
 ```
 
 =
@@ -219,6 +264,14 @@ Stereo audio is only supported for WAV files.
 
 =
 
+We need a stream merger like ffmpeg/avconv to merge audio/video files in MKV/AVI/etc. on the server end. A few developers already implemented such thing in PHP. A demo coming soon.
+
+Media Stream Recording API (MediaRecorder object) is being implemented by both Firefox and Chrome. RecordRTC is also using MediaRecorder API for Firefox (nightly).
+
+RecordRTC is unable to record "mono" audio on chrome; however it seems that we can covert channels from "stereo" to "mono" using WebAudio API, though. MediaRecorder API's encoder only support 48k/16k mono audio channel (on Firefox Nightly).
+
+=
+
 ##### Browser Support
 
 [RecordRTC Demo](https://www.webrtc-experiment.com/RecordRTC/) works fine on following web-browsers:
@@ -248,6 +301,14 @@ Stereo audio is only supported for WAV files.
 
 =
 
-##### License
+#### Apps/Libraries using RecordRTC
 
-[RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+1. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection#recordrtc)
+2. [Realtime Plugin-free Calls](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls)
+3. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
+
+=
+
+## License
+
+[RecordRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
