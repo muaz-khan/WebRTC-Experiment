@@ -13,6 +13,11 @@
 */
 
 function RecordRTC(mediaStream, config) {
+    
+    // In Chrome, when the javascript node is out of scope, the onaudioprocess callback stops firing.
+    // this leads to audio being significantly shorter than the generated video.
+    var __stereoAudioRecorderJavacriptNode;
+
     config = config || { };
 
     if (!mediaStream) throw 'MediaStream is mandatory.';
@@ -192,7 +197,6 @@ function StereoAudioRecorder(mediaStream, root) {
     // variables
     var leftchannel = [];
     var rightchannel = [];
-    var recorder;
     var recording = false;
     var recordingLength = 0;
     var volume;
@@ -337,9 +341,9 @@ function StereoAudioRecorder(mediaStream, root) {
     console.log('sample-rate', sampleRate);
     console.log('buffer-size', bufferSize);
 
-    recorder = context.createJavaScriptNode(bufferSize, 2, 2);
+    __stereoAudioRecorderJavacriptNode = context.createJavaScriptNode(bufferSize, 2, 2);
 
-    recorder.onaudioprocess = function(e) {
+    __stereoAudioRecorderJavacriptNode.onaudioprocess = function(e) {
         if (!recording) return;
         var left = e.inputBuffer.getChannelData(0);
         var right = e.inputBuffer.getChannelData(1);
@@ -350,8 +354,8 @@ function StereoAudioRecorder(mediaStream, root) {
     };
 
     // we connect the recorder
-    volume.connect(recorder);
-    recorder.connect(context.destination);
+    volume.connect(__stereoAudioRecorderJavacriptNode);
+    __stereoAudioRecorderJavacriptNode.connect(context.destination);
 }
 
 // _________________
