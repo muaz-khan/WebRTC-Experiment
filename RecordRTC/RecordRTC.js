@@ -148,7 +148,13 @@ function MediaStreamRecorder(mediaStream) {
         // https://wiki.mozilla.org/Gecko:MediaRecorder
         mediaRecorder = new MediaRecorder(mediaStream);
         mediaRecorder.ondataavailable = function(e) {
-            self.recordedBlob = new Blob([self.recordedBlob, e.data], { type: 'audio/ogg' });
+			   if(self.recordedBlob) {
+					dataSource = [self.recordedBlob,e.data];
+				}
+				else {
+					dataSource = [e.data]
+				}
+            self.recordedBlob = new Blob(dataSource, { type: 'audio/ogg' });
         };
 
         mediaRecorder.start(0);
