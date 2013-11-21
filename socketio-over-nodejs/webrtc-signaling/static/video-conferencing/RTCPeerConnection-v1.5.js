@@ -99,7 +99,6 @@ function RTCPeerConnection(options) {
         if (!options.onOfferSDP) return;
 
         peer.createOffer(function(sessionDescription) {
-            sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onOfferSDP(sessionDescription);
         }, onSdpError, constraints);
@@ -110,9 +109,9 @@ function RTCPeerConnection(options) {
     function createAnswer() {
         if (!options.onAnswerSDP) return;
 
-        peer.setRemoteDescription(new SessionDescription(options.offerSDP));
+        //options.offerSDP.sdp = addStereo(options.offerSDP.sdp);
+        peer.setRemoteDescription(new SessionDescription(options.offerSDP), onSdpSuccess, onSdpError);
         peer.createAnswer(function(sessionDescription) {
-            sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
         }, onSdpError, constraints);
@@ -124,53 +123,6 @@ function RTCPeerConnection(options) {
         createAnswer();
     }
 
-
-    // DataChannel Bandwidth
-
-    function setBandwidth(sdp) {
-        // remove existing bandwidth lines
-        sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
-        sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:1638400\r\n');
-
-        return sdp;
-    }
-
-    // old: FF<>Chrome interoperability management
-
-    function getInteropSDP(sdp) {
-        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-            extractedChars = '';
-
-        function getChars() {
-            extractedChars += chars[parseInt(Math.random() * 40)] || '';
-            if (extractedChars.length < 40)
-                getChars();
-
-            return extractedChars;
-        }
-
-        // usually audio-only streaming failure occurs out of audio-specific crypto line
-        // a=crypto:1 AES_CM_128_HMAC_SHA1_32 --------- kAttributeCryptoVoice
-        if (options.onAnswerSDP)
-            sdp = sdp.replace( /(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g , '');
-
-        // video-specific crypto line i.e. SHA1_80
-        // a=crypto:1 AES_CM_128_HMAC_SHA1_80 --------- kAttributeCryptoVideo
-        var inline = getChars() + '\r\n' + (extractedChars = '');
-        sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace( /c=IN/g ,
-            'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
-                'c=IN') : sdp;
-
-        return sdp;
-    }
-
-    function serializeSdp(sdp) {
-        if (!moz) sdp = setBandwidth(sdp);
-        sdp = getInteropSDP(sdp);
-        console.debug(sdp);
-        return sdp;
-    }
-
     // DataChannel management
     var channel;
 
@@ -180,15 +132,14 @@ function RTCPeerConnection(options) {
 
         _openOffererChannel();
 
-        if (moz) {
-            navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function(stream) {
-                    peer.addStream(stream);
-                    createOffer();
-                }, useless);
-        }
+        if (!moz) return;
+        navigator.mozGetUserMedia({
+                audio: true,
+                fake: true
+            }, function(stream) {
+                peer.addStream(stream);
+                createOffer();
+            }, useless);
     }
 
     function _openOffererChannel() {
@@ -196,8 +147,8 @@ function RTCPeerConnection(options) {
             reliable: false
         });
 
-        if (moz)
-            channel.binaryType = 'blob';
+        if (moz) channel.binaryType = 'blob';
+
         setChannelEvents();
     }
 
@@ -216,6 +167,8 @@ function RTCPeerConnection(options) {
         };
         channel.onerror = function(event) {
             if (options.onChannelError) options.onChannelError(event);
+
+            console.error('WebRTC DataChannel error', event);
         };
     }
 
@@ -229,26 +182,32 @@ function RTCPeerConnection(options) {
             setChannelEvents();
         };
 
-        if (moz) {
-            navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function(stream) {
-                    peer.addStream(stream);
-                    createAnswer();
-                }, useless);
-        }
+        if (!moz) return;
+        navigator.mozGetUserMedia({
+                audio: true,
+                fake: true
+            }, function(stream) {
+                peer.addStream(stream);
+                createAnswer();
+            }, useless);
     }
 
-    function useless() {}
-	
+    // fake:true is also available on chrome under a flag!
+
+    function useless() {
+        log('Error in fake:true');
+    }
+
+    function onSdpSuccess() {
+    }
+
     function onSdpError(e) {
         console.error('sdp error:', e.name, e.message);
     }
 
     return {
         addAnswerSDP: function(sdp) {
-            peer.setRemoteDescription(new SessionDescription(sdp));
+            peer.setRemoteDescription(new SessionDescription(sdp), onSdpSuccess, onSdpError);
         },
         addICE: function(candidate) {
             peer.addIceCandidate(new IceCandidate({

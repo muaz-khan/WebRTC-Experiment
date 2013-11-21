@@ -158,6 +158,50 @@ Solution? Obviously a media server!
 
 =
 
+#### Want to use [Firebase](https://www.firebase.com/) for signaling?
+
+```javascript
+var config = {
+    openSocket: function (config) {
+        var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+        socket.channel = channel;
+        socket.on('child_added', function (data) {
+            config.onmessage(data.val());
+        });
+        socket.send = function (data) {
+            this.push(data);
+        }
+        config.onopen && setTimeout(config.onopen, 1);
+        socket.onDisconnect().remove();
+        return socket;
+    }
+}
+```
+
+=
+
+#### Want to use [PubNub](http://www.pubnub.com/) for signaling?
+
+```javascript
+var config = {
+    openSocket: function (config) {
+        var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+        var socket = io.connect('https://pubsub.pubnub.com/' + channel, {
+            publish_key: 'demo',
+            subscribe_key: 'demo',
+            channel: config.channel || channel,
+            ssl: true
+        });
+        if (config.onopen) socket.on('connect', config.onopen);
+        socket.on('message', config.onmessage);
+        return socket;
+    }
+}
+```
+
+=
+
 #### Browser Support
 
 This [WebRTC Video Conferencing](https://www.webrtc-experiment.com/video-conferencing/) experiment works fine on following web-browsers:

@@ -1,5 +1,5 @@
-// 2013, @muazkh - github.com/muaz-khan
-// MIT License - https://webrtc-experiment.appspot.com/licence/
+// 2013, @muazkh - https://github.com/muaz-khan
+// MIT License   - https://www.webrtc-experiment.com/licence/
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/audio-broadcast
 
 (function() {
@@ -84,8 +84,8 @@
         // unique session-id
         var channel = root.channel;
 
-        // signaling implementation
-        // if no custom signaling channel is provided; use Firebase
+        // signalling implementation
+        // if no custom signalling channel is provided; use Firebase
         if (!root.openSignalingChannel) {
             if (!window.Firebase) throw 'You must link <https://cdn.firebase.com/v0/firebase.js> file.';
 
@@ -112,7 +112,7 @@
                 socket.push(data);
             };
         } else {
-            // custom signaling implementations
+            // custom signalling implementations
             // e.g. WebSocket, Socket.io, SignalR, WebSycn, XMLHttpRequest, Long-Polling etc.
             var socket = root.openSignalingChannel(function(message) {
                 message = JSON.parse(message);
@@ -141,7 +141,7 @@
         // object to store ICE candidates for answerer
         var candidates = { };
 
-        // it is called when your signaling implementation fires "onmessage"
+        // it is called when your signalling implementation fires "onmessage"
         this.onmessage = function(message) {
             // if new room detected
             if (message.roomid && message.broadcasting && !signaler.sentParticipationRequest)
@@ -317,14 +317,12 @@
                 username: 'webrtc@live.com'
             };
 
-        // No STUN to make sure it works all the time!
-        iceServers.iceServers = [TURN];
+        iceServers.iceServers = [STUN, TURN];
     }
 
     var optionalArgument = {
         optional: [{
             DtlsSrtpKeyAgreement: true
-        // RtpDataChannels: true
         }]
     };
 
@@ -337,14 +335,19 @@
     };
 
     function getToken() {
-        return Math.round(Math.random() * 60535) + 5000;
+        return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
+    }
+	
+	function onSdpSuccess() {}
+
+    function onSdpError(e) {
+        console.error('sdp error:', e.name, e.message);
     }
 
-    /*
-    var offer = Offer.createOffer(config);
-    offer.setRemoteDescription(sdp);
-    offer.addIceCandidate(candidate);
-    */
+    // var offer = Offer.createOffer(config);
+    // offer.setRemoteDescription(sdp);
+    // offer.addIceCandidate(candidate);
+    
     var Offer = {
         createOffer: function(config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
@@ -362,14 +365,14 @@
             peer.createOffer(function(sdp) {
                 peer.setLocalDescription(sdp);
                 if (config.onsdp) config.onsdp(sdp, config.to);
-            }, null, offerAnswerConstraints);
+            }, onSdpError, offerAnswerConstraints);
 
             this.peer = peer;
 
             return this;
         },
         setRemoteDescription: function(sdp) {
-            this.peer.setRemoteDescription(new RTCSessionDescription(sdp));
+            this.peer.setRemoteDescription(new RTCSessionDescription(sdp), onSdpSuccess, onSdpError);
         },
         addIceCandidate: function(candidate) {
             this.peer.addIceCandidate(new RTCIceCandidate({
@@ -379,11 +382,10 @@
         }
     };
 
-    /*
-    var answer = Answer.createAnswer(config);
-    answer.setRemoteDescription(sdp);
-    answer.addIceCandidate(candidate);
-    */
+    // var answer = Answer.createAnswer(config);
+    // answer.setRemoteDescription(sdp);
+    //answer.addIceCandidate(candidate);
+    
     var Answer = {
         createAnswer: function(config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
@@ -398,11 +400,11 @@
                     if (event.candidate) config.onicecandidate(event.candidate, config.to);
                 };
 
-            peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
+            peer.setRemoteDescription(new RTCSessionDescription(config.sdp), onSdpSuccess, onSdpError);
             peer.createAnswer(function(sdp) {
                 peer.setLocalDescription(sdp);
                 if (config.onsdp) config.onsdp(sdp, config.to);
-            }, null, offerAnswerConstraints);
+            }, onSdpError, offerAnswerConstraints);
 
             this.peer = peer;
 

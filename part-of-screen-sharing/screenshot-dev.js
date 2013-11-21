@@ -1945,6 +1945,7 @@ _html2canvas.Parse = function (images, options) {
     if (isElementVisible(el)) {
       stack = renderElement(el, stack, pseudoElement) || stack;
       if (!ignoreElementsRegExp.test(el.nodeName)) {
+		if(el.tagName == 'IFRAME') el = el.contentDocument;
         _html2canvas.Util.Children(el).forEach(function(node) {
           if (node.nodeType === 1) {
             parseElement(node, stack, pseudoElement);

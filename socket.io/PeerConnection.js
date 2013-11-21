@@ -11,16 +11,19 @@
         if (!socketURL) throw 'Socket-URL is mandatory.';
         if (!socketEvent) socketEvent = 'message';
 
-        var root = this;
-        captureUserMedia(function() {
-            new Signaler(root, socketURL, socketEvent);
-        }, root);
+        new Signaler(this, socketURL, socketEvent);
+		
+		this.addStream = function(stream) {	
+			this.MediaStream = stream;
+		};
     };
 
     function Signaler(root, socketURL, socketEvent) {
         var self = this;
 
         root.startBroadcasting = function() {
+			if(!root.MediaStream) throw 'Offerer must have media stream.';
+			
             (function transmit() {
                 socket.send({
                     userid: root.userid,
@@ -108,8 +111,7 @@
                 var streamObject = {
                     mediaElement: mediaElement,
                     stream: stream,
-                    userid: root.participant,
-                    type: 'remote'
+                    participantid: root.participant
                 };
 
                 function afterRemoteStreamStartedFlowing() {
@@ -149,9 +151,8 @@
                 root.close();
         };
 
-        var socket = io.connect(socketURL);
-        socket.on(socketEvent, function(message) {
-            if (message.userid == root.userid) return;
+		function onmessage(message) {
+			if (message.userid == root.userid) return;
             root.participant = message.userid;
 
             // for pretty logging
@@ -189,11 +190,17 @@
             if (message.userLeft && message.to == root.userid) {
                 closePeerConnections();
             }
-        });
-
-        socket.send = function(data) {
-            socket.emit(socketEvent, data);
-        };
+		}
+		
+		var socket = socketURL;
+		if(typeof socketURL == 'string') {
+			var socket = io.connect(socketURL);
+			socket.send = function(data) {
+				socket.emit(socketEvent, data);
+			};
+		}
+        
+        socket.on(socketEvent, onmessage);
     }
 
     var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
@@ -320,45 +327,6 @@
         }
     };
 
-    function captureUserMedia(callback, root) {
-        var constraints = {
-            audio: true,
-            video: true
-        };
-
-        navigator.getUserMedia(constraints, onstream, onerror);
-
-        function onstream(stream) {
-            callback();
-
-            stream.onended = function() {
-                if (root.onStreamEnded) root.onStreamEnded(streamObject);
-            };
-
-            root.MediaStream = stream;
-
-            var mediaElement = document.createElement('video');
-            mediaElement.id = 'self';
-            mediaElement[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
-            mediaElement.autoplay = true;
-            mediaElement.controls = true;
-            mediaElement.muted = true;
-            mediaElement.play();
-
-            var streamObject = {
-                mediaElement: mediaElement,
-                stream: stream,
-                userid: 'self',
-                type: 'local'
-            };
-            root.onStreamAdded(streamObject);
-        }
-
-        function onerror(e) {
-            console.error(e);
-        }
-    }
-
     function merge(mergein, mergeto) {
         for (var t in mergeto) {
             mergein[t] = mergeto[t];
@@ -366,4 +334,21 @@
         return mergein;
     }
 
+	window.URL = window.webkitURL || window.URL;
+	navigator.getMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+	navigator.getUserMedia = function(hints, onsuccess, onfailure) {
+		if(!hints) hints = {audio:true,video:true};
+		if(!onsuccess) throw 'Second argument is mandatory. navigator.getUserMedia(hints,onsuccess,onfailure)';
+		
+		navigator.getMedia(hints, _onsuccess, _onfailure);
+		
+		function _onsuccess(stream) {
+			onsuccess(stream);
+		}
+		
+		function _onfailure(e) {
+			if(onfailure) onfailure(e);
+			else throw Error('getUserMedia failed: ' + JSON.stringify(e, null, '\t'));
+		}
+	};
 })();

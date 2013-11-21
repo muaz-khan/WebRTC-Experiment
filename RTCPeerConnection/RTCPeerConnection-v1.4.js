@@ -93,35 +93,12 @@ var RTCPeerConnection = function (options) {
         return extractedChars;
     }
 
-    function getInteropSDP(sdp) {
-        // for audio-only streaming: multiple-crypto lines are not allowed
-        if (options.onAnswerSDP)
-            sdp = sdp.replace(/(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g, '');
-
-
-        var inline = getChars() + '\r\n' + (extractedChars = '');
-        sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
-            'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
-                'c=IN') : sdp;
-
-        if (options.offerSDP) {
-            info('\n--------offer sdp provided by offerer\n');
-            info(options.offerSDP.sdp);
-        }
-
-        info(options.onOfferSDP ? '\n--------offer\n' : '\n--------answer\n');
-        info('sdp: ' + sdp);
-
-        return sdp;
-    }
-
     if (moz && !options.onChannelMessage) constraints.mandatory.MozDontOfferDataChannel = true;
 
     function createOffer() {
         if (!options.onOfferSDP) return;
 
         peerConnection.createOffer(function (sessionDescription) {
-            sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
             options.onOfferSDP(sessionDescription);
         }, null, constraints);
@@ -134,7 +111,6 @@ var RTCPeerConnection = function (options) {
         peerConnection.setRemoteDescription(options.offerSDP);
 
         peerConnection.createAnswer(function (sessionDescription) {
-            sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
             peerConnection.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
 
@@ -195,7 +171,7 @@ var RTCPeerConnection = function (options) {
         };
     }
 
-    if (options.onAnswerSDP && moz) openAnswererChannel();
+    if (options.onAnswerSDP && moz && options.onChannelMessage) openAnswererChannel();
 
     function openAnswererChannel() {
         peerConnection.ondatachannel = function (_channel) {

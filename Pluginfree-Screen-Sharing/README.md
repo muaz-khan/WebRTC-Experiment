@@ -35,6 +35,40 @@ Current experiment is using chrome screen sharing APIs (media/constraints) which
 
 =
 
+Test it on HTTPS. Because, screen capturing (currently) only works on SSL domains.
+
+Chrome denies request automatically in the following cases:
+
+1. Screen capturing is not enabled via command line switch.
+mandatory: {chromeMediaSource: 'screen'} must be there
+
+2. Audio stream was requested (it's not supported yet).
+
+```javascript
+navigator.webkitGetUserMedia({
+	audio: false	/* MUST be false because audio capturer not works with screen capturer */
+});
+```
+
+3. Request from a page that was not loaded from a secure origin.
+
+Here is their C++ code that denies screen capturing:
+
+```c
+if (!screen_capture_enabled ||
+	request.audio_type != content::MEDIA_NO_SERVICE ||
+	!request.security_origin.SchemeIsSecure()) {
+		callback.Run(content::MediaStreamDevices());
+		return;
+	}
+```
+
+Personally I don’t know why they deny non-SSL requests. Maybe they’re using iframes in sandbox mode or something else that runs only on HTTPS.
+
+Browsers who don't understand {chromeMediaSource: 'screen'} constraint will simply get video like chrome stable or Firefox.
+
+=
+
 #### Browser Support
 
 [WebRTC plugin free screen sharing](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/) experiment works fine on following web-browsers:

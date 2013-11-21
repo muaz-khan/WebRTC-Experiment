@@ -6,14 +6,13 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Meeting.js » A WebRTC Library Media Streaming ® Muaz Khan</title>
+        <title>Meeting.js » A WebRTC Library for Media Streaming ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
         <style>
             audio,video {
@@ -34,7 +33,6 @@
 		
         <!-- Meeting.js library -->
         <script src="https://www.webrtc-experiment.com/meeting/meeting.js"> </script>
-        <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
     </head>
 
     <body>
@@ -42,7 +40,7 @@
             <header style="text-align: center;">
                 <h1>
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting" target="_blank">Meeting.js </a>
-                    » A WebRTC Library Media Streaming
+                    » A WebRTC Library for Media Streaming
                 </h1>            
                 <p>
                     <span>Copyright © 2013</span>
@@ -119,9 +117,37 @@
                     if (e.type == 'local') localMediaStream.appendChild(e.video);
                     if (e.type == 'remote') remoteMediaStreams.insertBefore(e.video, remoteMediaStreams.firstChild);
                 };
+				
+				meeting.openSignalingChannel = function(onmessage) {
+					var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+					var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+					websocket.onopen = function () {
+						websocket.push(JSON.stringify({
+							open: true,
+							channel: channel
+						}));
+					};
+					websocket.push = websocket.send;
+					websocket.send = function (data) {
+						if(websocket.readyState != 1) {
+							return setTimeout(function() {
+								websocket.send(data);
+							}, 300);
+						}
+						
+						websocket.push(JSON.stringify({
+							data: data,
+							channel: channel
+						}));
+					};
+					websocket.onmessage = function(e) {
+						onmessage(JSON.parse(e.data));
+					};
+					return websocket;
+				};
 
                 // using firebase for signaling
-                meeting.firebase = 'muazkh';
+                // meeting.firebase = 'muazkh';
 
                 // if someone leaves; just remove his video
                 meeting.onuserleft = function (userid) {
@@ -207,10 +233,11 @@ meeting.leave();
             </section>
 			
             <section class="experiment">
-                <h2 class="header">How it works?</h2><br /><br />
-                <strong>
+                <h2 class="header">How it works?</h2>
+                <p><strong>
                     Huge bandwidth and CPU-usage out of multi-peers and number of RTP-ports
                 </strong>
+				</p>
                 <p>
                     To understand it better; assume that 10 users are sharing video in a group.
                     40 RTP-ports i.e. streams will be created for each user. All streams are expected

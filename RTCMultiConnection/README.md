@@ -998,17 +998,6 @@ window.skipRTCMultiConnectionLogs = true;
 
 =
 
-##### `enableSessionReinitiation`
-
-Session re-initiation feature causes failure of signaling on "firebase" type of servers. You need to disable "session re-initiation":
-
-```javascript
-// it is for signaling providers like "firebase"
-connection.enableSessionReinitiation = false;
-```
-
-=
-
 ##### STUN/TURN or host candidates
 
 You've three options:
@@ -1433,6 +1422,14 @@ io.sockets.on('connection', function (socket) {
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
+
+=
+
+#### Apps/Libraries using RTCMultiConnection
+
+1. `http://imomin.aws.af.cm/`
+
+If you're using RTCMultiConnection; please send your webpage link at muazkh@gmail.com.
 
 =
 

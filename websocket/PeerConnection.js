@@ -10,16 +10,19 @@
 
         if (!socketURL) throw 'Socket-URL is mandatory.';
 
-        var root = this;
-        captureUserMedia(function () {
-            new Signaler(root, socketURL);
-        }, root);
+        new Signaler(this, socketURL);
+		
+		this.addStream = function(stream) {	
+			this.MediaStream = stream;
+		};
     };
 
     function Signaler(root, socketURL) {
         var self = this;
 
         root.startBroadcasting = function () {
+			if(!root.MediaStream) throw 'Offerer must have media stream.';
+			
             (function transmit() {
                 socket.send({
                     userid: root.userid,
@@ -147,10 +150,9 @@
             if (e.keyCode == 116)
                 root.close();
         };
-
-        var socket = new WebSocket(socketURL);
-        socket.onmessage = function (e) {
-            var message = JSON.parse(e.data);
+		
+		function onmessage(e) {
+			var message = JSON.parse(e.data);
 
             if (message.userid == root.userid) return;
             root.participant = message.userid;
@@ -190,27 +192,21 @@
             if (message.userLeft && message.to == root.userid) {
                 closePeerConnections();
             }
-        };
+		}
 
-        socket.push = socket.send;
-        socket.send = function (data) {
-            socket.push(JSON.stringify(data));
-        };
+		var socket = socketURL;
+		if(typeof socketURL == 'string') {
+			socket = new WebSocket(socketURL);
+			socket.push = socket.send;
+			socket.send = function (data) {
+				socket.push(JSON.stringify(data));
+			};
 
-        socket.onerror = function (e) {
-            console.error('websocket error', e);
-            
-            // email <muazkh@gmail.com>:
-            if (window.messenger) {
-                window.messenger.deliver('WebSocket Error: ' + JSON.stringify(e), function () {
-                    console.error('An automatic email has been sent to muazkh@gmail.com');
-                });
-            }
-        };
-
-        socket.onopen = function () {
-            console.log('websocket connection opened.');
-        };
+			socket.onopen = function () {
+				console.log('websocket connection opened.');
+			};
+		}
+		socket.onmessage = onmessage;
     }
 
     var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
@@ -337,50 +333,29 @@
         }
     };
 
-    function captureUserMedia(callback, root) {
-        var constraints = {
-            audio: true,
-            video: true
-        };
-
-        navigator.getUserMedia(constraints, onstream, onerror);
-
-        function onstream(stream) {
-            callback();
-
-            stream.onended = function () {
-                if (root.onStreamEnded) root.onStreamEnded(streamObject);
-            };
-
-            root.MediaStream = stream;
-
-            var mediaElement = document.createElement('video');
-            mediaElement.id = 'self';
-            mediaElement[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
-            mediaElement.autoplay = true;
-            mediaElement.controls = true;
-            mediaElement.muted = true;
-            mediaElement.play();
-
-            var streamObject = {
-                mediaElement: mediaElement,
-                stream: stream,
-                userid: 'self',
-                type: 'local'
-            };
-            root.onStreamAdded(streamObject);
-        }
-
-        function onerror(e) {
-            console.error(e);
-        }
-    }
-
     function merge(mergein, mergeto) {
         for (var t in mergeto) {
             mergein[t] = mergeto[t];
         }
         return mergein;
     }
-
+	
+	window.URL = window.webkitURL || window.URL;
+	navigator.getMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+	navigator.getUserMedia = function(hints, onsuccess, onfailure) {
+		if(!hints) hints = {audio:true,video:true};
+		if(!onsuccess) throw 'Second argument is mandatory. navigator.getUserMedia(hints,onsuccess,onfailure)';
+		
+		navigator.getMedia(hints, _onsuccess, _onfailure);
+		
+		function _onsuccess(stream) {
+			onsuccess(stream);
+		}
+		
+		function _onfailure(e) {
+			if(onfailure) onfailure(e);
+			else throw Error('getUserMedia failed: ' + JSON.stringify(e, null, '\t'));
+		}
+	};
+	
 })();

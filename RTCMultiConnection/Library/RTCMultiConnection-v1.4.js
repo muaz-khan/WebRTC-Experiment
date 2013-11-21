@@ -4,30 +4,6 @@
 // =======================
 // RTCMultiConnection-v1.4
 
-/*
-    Updates needed:
-    1. Mute a user from all other users side: connection.users[userid].mute();
-    2. Data connection + audio-only streaming must be fixed.
-    3. Renegotiation of existing stream must be fixed.
-  
-    Additionally, Stats for:
-    1. Number of active conferences (many-to-many)
-    2. Number of one-way broadcasts
-    3. Number of users in a specific session
-    4. Number of users in all sessions
-    5. Number of broadcast viewers
-
-    sdp constraints: (need to add all)
-    VoiceActivityDetection / true / false
-    IceTransports / none / relay / all  ??
-    IceRestart / true / false
-    RequestIdentity / yes / no / ifconfigured ---- setIdentityProvider ??
-
-    onidentityresult & setIdentityProvider 
-	
-	DTMF ?? is that useful in "in-browser" case?
-*/
-
 (function() {
     window.RTCMultiConnection = function(channel) {
         this.channel = channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
@@ -249,7 +225,8 @@
                         self.streams[stream.label] = self._getStream({
                             stream: stream,
                             userid: self.userid,
-                            type: 'local'
+                            type: 'local',
+							streamObject: streamedObject
                         });
 
                         self.onstream(streamedObject);
@@ -494,7 +471,8 @@
                     stream: stream,
                     userid: _config.userid,
                     socket: socket,
-                    type: 'remote'
+                    type: 'remote',
+					streamObject: streamedObject
                 });
 
                 root.onstream(streamedObject);
@@ -502,7 +480,7 @@
                 onSessionOpened();
 
                 // mic/speaker activity detection
-                voiceActivityDetection(peer.connection);
+                // voiceActivityDetection(peer.connection);
             }
 
             function onChannelOpened(channel) {
@@ -585,8 +563,21 @@
 
                 if (response.left) {
                     if (peer && peer.connection) {
-                        peer.connection.close();
+						peer.connection.close();
                         peer.connection = null;
+						
+						// firefox is unable to stop remote streams
+						// firefox doesn't auto stop streams when peer.close() is called.
+						if(moz) {
+							var userLeft = response.userid;
+							for(var stream in root.streams) {
+								stream = root.streams[stream];
+								if(stream.userid == userLeft) {
+									stream.stop();
+									stream.stream.onended(stream.streamObject);
+								}
+							}
+						}
                     }
 
                     if (response.closeEntireSession)
@@ -994,7 +985,7 @@
                     // detaching old streams
                     detachMediaStream(root.detachStreams, peer.connection);
 
-                    if (session.audio || session.video)
+                    if (session.audio || session.video || session.screen)
                         peer.connection.addStream(e.stream);
 
                     peer.recreateOffer(session, function(sdp) {
@@ -1381,7 +1372,7 @@
                 }];
         }
 
-        // (only) local/host candidates can be used for peers connection
+        // local/host candidates can also be used for peer connection
         if (!navigator.onLine) {
             iceServers = null;
             console.warn('No internet connection detected. No STUN/TURN server is used to make sure local/host candidates are used for peers connection.');
@@ -1468,7 +1459,7 @@
                 return;
 
             peer.createOffer(function(sessionDescription) {
-                sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
+                sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
                 options.onOfferSDP(sessionDescription);
             }, onSdpError, constraints);
@@ -1478,12 +1469,11 @@
             if (!options.onAnswerSDP)
                 return;
 
-            //options.offerSDP.sdp = addStereo(options.offerSDP.sdp);
             options.offerSDP = new SessionDescription(options.offerSDP, onSdpSuccess, onSdpError);
             peer.setRemoteDescription(options.offerSDP);
 
             peer.createAnswer(function(sessionDescription) {
-                sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
+                sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
                 options.onAnswerSDP(sessionDescription);
             }, onSdpError, constraints);
@@ -1510,58 +1500,6 @@
                 sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + bandwidth.video + '\r\n');
             }
 
-            if (bandwidth.data) {
-                sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:' + bandwidth.data + '\r\n');
-            }
-
-            return sdp;
-        }
-
-        // var bitrate = options.bitrate || {};
-
-        function setBitrate(sdp) {
-            // sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\na=rtpmap:120 VP8/90000\r\na=fmtp:120 x-google-min-bitrate=' + (bitrate || 10) + '\r\n');
-            return sdp;
-        }
-
-        var framerate = options.framerate || { };
-
-        function setFramerate(sdp) {
-            sdp = sdp.replace('a=fmtp:111 minptime=10', 'a=fmtp:111 minptime=' + (framerate.minptime || 10));
-            sdp = sdp.replace('a=maxptime:60', 'a=maxptime:' + (framerate.maxptime || 60));
-            return sdp;
-        }
-
-        function getInteropSDP(sdp) {
-            var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-                extractedChars = '';
-
-            function getChars() {
-                extractedChars += chars[parseInt(Math.random() * 40)] || '';
-                if (extractedChars.length < 40)
-                    getChars();
-
-                return extractedChars;
-            }
-
-            // for audio-only streaming: multiple-crypto lines are not allowed
-            if (options.onAnswerSDP)
-                sdp = sdp.replace( /(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g , '');
-
-            var inline = getChars() + '\r\n' + (extractedChars = '');
-            sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace( /c=IN/g ,
-                'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
-                    'c=IN') : sdp;
-
-            return sdp;
-        }
-
-        function serializeSdp(sdp) {
-            if (moz) return sdp;
-            sdp = setBandwidth(sdp);
-            sdp = setFramerate(sdp);
-            sdp = setBitrate(sdp);
-            sdp = getInteropSDP(sdp);
             return sdp;
         }
 
@@ -1573,7 +1511,7 @@
 
             _openOffererChannel();
 
-            if (moz) {
+            if (!moz) return;
                 navigator.mozGetUserMedia({
                         audio: true,
                         fake: true
@@ -1581,7 +1519,6 @@
                         peer.addStream(stream);
                         createOffer();
                     }, useless);
-            }
         }
 
         function _openOffererChannel() {
@@ -1638,8 +1575,7 @@
             log('Error in fake:true');
         }
 
-        function onSdpSuccess() {
-        }
+        function onSdpSuccess() {}
 
         function onSdpError(e) {
             console.error('sdp error:', e.name, e.message);
@@ -1714,31 +1650,33 @@
         // connection.media.min(320,180);
         // connection.media.max(1920,1080);
         var media = options.media;
-        var mandatory = {
-            minWidth: media.minWidth,
-            minHeight: media.minHeight,
-            maxWidth: media.maxWidth,
-            maxHeight: media.maxHeight,
-            minAspectRatio: media.minAspectRatio
-        };
+		if(!moz) {
+			var mandatory = {
+				minWidth: media.minWidth,
+				minHeight: media.minHeight,
+				maxWidth: media.maxWidth,
+				maxHeight: media.maxHeight,
+				minAspectRatio: media.minAspectRatio
+			};
 
-        // https://code.google.com/p/chromium/issues/detail?id=143631#c9
-        var allowed = ['1920:1080', '1280:720', '960:720', '640:360', '640:480', '320:240', '320:180'];
+			// https://code.google.com/p/chromium/issues/detail?id=143631#c9
+			var allowed = ['1920:1080', '1280:720', '960:720', '640:360', '640:480', '320:240', '320:180'];
 
-        if (allowed.indexOf(mandatory.minWidth + ':' + mandatory.minHeight) == -1 ||
-            allowed.indexOf(mandatory.maxWidth + ':' + mandatory.maxHeight) == -1) {
-            console.error('The min/max width/height constraints you passed "seems" NOT supported.', toStr(mandatory));
-        }
+			if (allowed.indexOf(mandatory.minWidth + ':' + mandatory.minHeight) == -1 ||
+				allowed.indexOf(mandatory.maxWidth + ':' + mandatory.maxHeight) == -1) {
+				console.error('The min/max width/height constraints you passed "seems" NOT supported.', toStr(mandatory));
+			}
 
-        if (mandatory.minWidth > mandatory.maxWidth || mandatory.minHeight > mandatory.maxHeight) {
-            console.error('Minimum value must not exceed maximum value.', toStr(mandatory));
-        }
+			if (mandatory.minWidth > mandatory.maxWidth || mandatory.minHeight > mandatory.maxHeight) {
+				console.error('Minimum value must not exceed maximum value.', toStr(mandatory));
+			}
 
-        if (mandatory.minWidth >= 1280 && mandatory.minHeight >= 720) {
-            console.info('Enjoy HD video! min/' + mandatory.minWidth + ':' + mandatory.minHeight + ', max/' + mandatory.maxWidth + ':' + mandatory.maxHeight);
-        }
+			if (mandatory.minWidth >= 1280 && mandatory.minHeight >= 720) {
+				console.info('Enjoy HD video! min/' + mandatory.minWidth + ':' + mandatory.minHeight + ', max/' + mandatory.maxWidth + ':' + mandatory.maxHeight);
+			}
 
-        hints.video.mandatory = merge(hints.video.mandatory, mandatory);
+			hints.video.mandatory = merge(hints.video.mandatory, mandatory);
+		}
 
         if (mediaConstraints.mandatory)
             hints.video.mandatory = merge(hints.video.mandatory, mediaConstraints.mandatory);

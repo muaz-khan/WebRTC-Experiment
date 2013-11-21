@@ -377,6 +377,12 @@
     function getToken() {
         return Math.round(Math.random() * 9999999999) + 9999999999;
     }
+	
+	function onSdpSuccess() {}
+
+    function onSdpError(e) {
+        console.error('sdp error:', e.name, e.message);
+    }
 
     // var offer = Offer.createOffer(config);
     // offer.setRemoteDescription(sdp);
@@ -398,14 +404,14 @@
             peer.createOffer(function(sdp) {
                 peer.setLocalDescription(sdp);
                 if (config.onsdp) config.onsdp(sdp, config.to);
-            }, null, offerAnswerConstraints);
+            }, onSdpError, offerAnswerConstraints);
 
             this.peer = peer;
 
             return this;
         },
         setRemoteDescription: function(sdp) {
-            this.peer.setRemoteDescription(new RTCSessionDescription(sdp));
+            this.peer.setRemoteDescription(new RTCSessionDescription(sdp), onSdpSuccess, onSdpError);
         },
         addIceCandidate: function(candidate) {
             this.peer.addIceCandidate(new RTCIceCandidate({
@@ -432,11 +438,11 @@
                     if (event.candidate) config.onicecandidate(event.candidate, config.to);
                 };
 
-            peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
+            peer.setRemoteDescription(new RTCSessionDescription(config.sdp), onSdpSuccess, onSdpError);
             peer.createAnswer(function(sdp) {
                 peer.setLocalDescription(sdp);
                 if (config.onsdp) config.onsdp(sdp, config.to);
-            }, null, offerAnswerConstraints);
+            }, onSdpError, offerAnswerConstraints);
 
             this.peer = peer;
 

@@ -1,7 +1,6 @@
-// 2013, @muazkh - github.com/muaz-khan
-// MIT License - https://webrtc-experiment.appspot.com/licence/
-// Documentation (file sharing) - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-sharing
-// Documentation (text chat)    - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/text-chat
+// 2013, Muaz Khan - www.muazkhan.com
+// MIT License     - www.webrtc-experiment.com/licence/
+// Documentation   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-sharing
 
 (function() {
 
@@ -576,7 +575,7 @@
                 peer.createOffer(function(sdp) {
                     sdp = serializeSdp(sdp, config);
                     peer.setLocalDescription(sdp);
-                }, null, offerAnswerConstraints);
+                }, onSdpError, offerAnswerConstraints);
 
             } else if (isFirefox) {
                 navigator.mozGetUserMedia({
@@ -590,7 +589,7 @@
                                 sdp: sdp,
                                 userid: config.to
                             });
-                        }, null, offerAnswerConstraints);
+                        }, onSdpError, offerAnswerConstraints);
 
                     }, mediaError);
             }
@@ -600,7 +599,7 @@
             return this;
         },
         setRemoteDescription: function(sdp) {
-            this.peer.setRemoteDescription(new RTCSessionDescription(sdp));
+            this.peer.setRemoteDescription(new RTCSessionDescription(sdp), onSdpSuccess, onSdpError);
         },
         addIceCandidate: function(candidate) {
             this.peer.addIceCandidate(new RTCIceCandidate({
@@ -609,6 +608,12 @@
             }));
         }
     };
+	
+	function onSdpSuccess() {}
+
+        function onSdpError(e) {
+            console.error('sdp error:', e.name, e.message);
+        }
 
     // var answer = Answer.createAnswer(config);
     // answer.setRemoteDescription(sdp);
@@ -633,14 +638,14 @@
                     }, function(stream) {
 
                         peer.addStream(stream);
-                        peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
+                        peer.setRemoteDescription(new RTCSessionDescription(config.sdp), onSdpSuccess, onSdpError);
                         peer.createAnswer(function(sdp) {
                             peer.setLocalDescription(sdp);
                             config.onsdp({
                                 sdp: sdp,
                                 userid: config.to
                             });
-                        }, null, offerAnswerConstraints);
+                        }, onSdpError, offerAnswerConstraints);
 
                     }, mediaError);
             }
@@ -665,7 +670,7 @@
             };
 
             if (isChrome) {
-                peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
+                peer.setRemoteDescription(new RTCSessionDescription(config.sdp), onSdpSuccess, onSdpError);
                 peer.createAnswer(function(sdp) {
                     sdp = serializeSdp(sdp, config);
                     peer.setLocalDescription(sdp);
@@ -674,7 +679,7 @@
                         sdp: sdp,
                         userid: config.to
                     });
-                }, null, offerAnswerConstraints);
+                }, onSdpError, offerAnswerConstraints);
             }
 
             this.peer = peer;

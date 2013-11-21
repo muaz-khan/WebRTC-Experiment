@@ -452,30 +452,14 @@
             return extractedChars;
         }
 
-        function getInteropSDP(sdp) {
-            // for audio-only streaming: multiple-crypto lines are not allowed
-            if (options.onAnswerSDP)
-                sdp = sdp.replace(/(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g, '');
-
-            var inline = getChars() + '\r\n' + (extractedChars = '');
-            sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g,
-                'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
-                'c=IN') : sdp;
-
-            sdp = setBandwidth(sdp);
-
-            return sdp;
-        }
-
         function createOffer() {
             if (!options.onOfferSDP)
                 return;
 
             peerConnection.createOffer(function (sessionDescription) {
-                sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
                 peerConnection.setLocalDescription(sessionDescription);
                 options.onOfferSDP(sessionDescription);
-            }, null, constraints);
+            }, onSdpError, constraints);
         }
 
         function createAnswer() {
@@ -483,27 +467,12 @@
                 return;
 
             options.offerSDP = new SessionDescription(options.offerSDP);
-            peerConnection.setRemoteDescription(options.offerSDP);
+            peerConnection.setRemoteDescription(options.offerSDP, onSdpSuccess, onSdpError);
 
             peerConnection.createAnswer(function (sessionDescription) {
-                sessionDescription.sdp = getInteropSDP(sessionDescription.sdp);
                 peerConnection.setLocalDescription(sessionDescription);
                 options.onAnswerSDP(sessionDescription);
-            }, null, constraints);
-        }
-
-        function setBandwidth(sdp) {
-            // Firefox has no support of "b=AS"
-            if (moz) return sdp;
-
-            // remove existing bandwidth lines
-            sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
-
-            sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:50\r\n');
-            sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:256\r\n');
-            sdp = sdp.replace(/a=mid:data\r\n/g, 'a=mid:data\r\nb=AS:1638400\r\n');
-
-            return sdp;
+            }, onSdpError, constraints);
         }
 
         if ((options.onChannelMessage && !moz) || !options.onChannelMessage) {
@@ -585,11 +554,17 @@
         }
 
         function useless() {}
+		
+		function onSdpSuccess() {}
+
+        function onSdpError(e) {
+            console.error('sdp error:', e.name, e.message);
+        }
 
         return {
             addAnswerSDP: function (sdp) {
                 sdp = new SessionDescription(sdp);
-                peerConnection.setRemoteDescription(sdp);
+                peerConnection.setRemoteDescription(sdp, onSdpSuccess, onSdpError);
             },
             addICE: function (candidate) {
                 peerConnection.addIceCandidate(new IceCandidate({

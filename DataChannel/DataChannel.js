@@ -936,6 +936,12 @@
                 OfferToReceiveVideo: !!moz
             }
         };
+		
+		function onSdpError(e) {
+            console.error('sdp error:', e.name, e.message);
+        }
+		
+		function onSdpSuccess() {}
 
         function createOffer() {
             if (!options.onOfferSDP) return;
@@ -944,20 +950,20 @@
                 sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peerConnection.setLocalDescription(sessionDescription);
                 options.onOfferSDP(sessionDescription);
-            }, null, constraints);
+            }, onSdpError, constraints);
         }
 
         function createAnswer() {
             if (!options.onAnswerSDP) return;
 
             options.offerSDP = new SessionDescription(options.offerSDP);
-            peerConnection.setRemoteDescription(options.offerSDP);
+            peerConnection.setRemoteDescription(options.offerSDP, onSdpSuccess, onSdpError);
 
             peerConnection.createAnswer(function(sessionDescription) {
                 sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peerConnection.setLocalDescription(sessionDescription);
                 options.onAnswerSDP(sessionDescription);
-            }, null, constraints);
+            }, onSdpError, constraints);
         }
 
         function setBandwidth(sdp) {
@@ -1032,13 +1038,12 @@
             }
         }
 
-        function useless() {
-        }
+        function useless() {}
 
         return {
             addAnswerSDP: function(sdp) {
                 sdp = new SessionDescription(sdp);
-                peerConnection.setRemoteDescription(sdp);
+                peerConnection.setRemoteDescription(sdp, onSdpSuccess, onSdpError);
             },
             addICE: function(candidate) {
                 peerConnection.addIceCandidate(new IceCandidate({

@@ -242,7 +242,7 @@
                     username: 'homeo'
                 };
 
-            iceServers.iceServers = [TURN];
+            iceServers.iceServers = [STUN, TURN];
         }
 
         optional = {

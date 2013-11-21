@@ -100,7 +100,7 @@ var RTCPeerConnection = function (options) {
         };
     }
 
-    if (options.onAnswerSDP && moz) openAnswererChannel();
+    if (options.onAnswerSDP && moz && options.onChannelMessage) openAnswererChannel();
 
     function openAnswererChannel() {
         peerConnection.ondatachannel = function (_channel) {

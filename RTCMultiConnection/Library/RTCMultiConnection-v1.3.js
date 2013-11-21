@@ -1119,7 +1119,7 @@
                 sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
                 options.onOfferSDP(sessionDescription);
-            }, null, constraints);
+            }, onSdpError, constraints);
         }
 
         function createAnswer() {
@@ -1127,13 +1127,13 @@
                 return;
 
             options.offerSDP = new SessionDescription(options.offerSDP);
-            peer.setRemoteDescription(options.offerSDP);
+            peer.setRemoteDescription(options.offerSDP, onSdpSuccess, onSdpError);
 
             peer.createAnswer(function(sessionDescription) {
                 sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
                 options.onAnswerSDP(sessionDescription);
-            }, null, constraints);
+            }, onSdpError, constraints);
         }
 
         if ((options.onmessage && !moz) || !options.onmessage) {
@@ -1218,11 +1218,17 @@
 
         function useless() {
         }
+		
+		function onSdpSuccess() {}
+
+        function onSdpError(e) {
+            console.error('sdp error:', e.name, e.message);
+        }
 
         return {
             connection: peer,
             addAnswerSDP: function(sdp) {
-                peer.setRemoteDescription(new SessionDescription(sdp));
+                peer.setRemoteDescription(new SessionDescription(sdp), onSdpSuccess, onSdpError);
             },
             addICE: function(candidate) {
                 peer.addIceCandidate(new IceCandidate({

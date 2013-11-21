@@ -31,7 +31,7 @@
                 border-radius: 1px;
                 font-size: 2em;
                 margin: .2em;
-                width: 40%;
+                width: 30%;
             }
 
             .setup {
@@ -95,8 +95,11 @@
             <!-- just copy this <section> and next script -->
             <section class="experiment">                
                 <section>
+					<span>
+                        Private ?? <a href="/socket.io/" target="_blank" title="Setup Private Room!"><code><strong id="unique-token">#123456789</strong></code></a>
+                    </span>
                     <input type="text" id="your-name" placeholder="your-name">
-                    <button id="start-broadcasting" class="setup" disabled>Start Transmitting Yourself!</button>
+                    <button id="start-broadcasting" class="setup">Start Transmitting Yourself!</button>
                 </section>
                 
                 <!-- list of all available conferencing rooms -->
@@ -111,7 +114,29 @@
                 // MIT License   - https://www.webrtc-experiment.com/licence/
                 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io
 
-                var peer = new PeerConnection('http://socketio-signaling.jit.su:80');
+				var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+				var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+				var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:2013/';
+				io.connect(SIGNALING_SERVER).emit('new-channel', {
+					channel: channel,
+					sender: sender
+				});
+
+				var socket = io.connect(SIGNALING_SERVER + channel);
+				socket.on('connect', function () {
+					// setup peer connection & pass socket object over the constructor!
+				});
+
+				socket.send = function (message) {
+					socket.emit('message', {
+						sender: sender,
+						data: message
+					});
+				};
+
+				// var peer = new PeerConnection('http://socketio-signaling.jit.su:80');
+                var peer = new PeerConnection(socket);
                 peer.onUserFound = function(userid) {
                     if (document.getElementById(userid)) return;
                     var tr = document.createElement('tr');
@@ -126,8 +151,12 @@
                     button.id = userid;
                     button.style.float = 'right';
                     button.onclick = function() {
-                        this.disabled = true;
-                        peer.sendParticipationRequest(this.id);
+                        button = this;
+						getUserMedia(function(stream) {
+							peer.addStream(stream);
+							peer.sendParticipationRequest(button.id);
+						});
+						button.disabled = true;
                     };
                     td2.appendChild(button);
 
@@ -137,12 +166,8 @@
                 };
 
                 peer.onStreamAdded = function(e) {
-                    if (e.type == 'local') document.querySelector('#start-broadcasting').disabled = false;
                     var video = e.mediaElement;
-
                     video.setAttribute('width', 600);
-                    video.setAttribute('controls', true);
-
                     videosContainer.insertBefore(video, videosContainer.firstChild);
 
                     video.play();
@@ -164,7 +189,10 @@
 
                 document.querySelector('#start-broadcasting').onclick = function() {
                     this.disabled = true;
-                    peer.startBroadcasting();
+					getUserMedia(function(stream) {
+						peer.addStream(stream);
+						peer.startBroadcasting();
+					});
                 };
 
                 document.querySelector('#your-name').onchange = function() {
@@ -215,6 +243,41 @@
                 }
 
                 window.onresize = scaleVideos;
+				
+				// you need to capture getUserMedia yourself!
+				function getUserMedia(callback) {
+					var hints = {audio:true,video:{
+						optional: [],
+						mandatory: {
+							minWidth: 1280,
+							minHeight: 720,
+							maxWidth: 1920,
+							maxHeight: 1080,
+							minAspectRatio: 1.77
+						}
+					}};
+					navigator.getUserMedia(hints,function(stream) {
+						var video = document.createElement('video');
+						video.src = URL.createObjectURL(stream);
+						video.controls = true;
+						video.muted = true;
+						
+						peer.onStreamAdded({
+							mediaElement: video,
+							userid: 'self',
+							stream: stream
+						});
+						
+						callback(stream);
+					});
+				}
+				
+				(function() {
+                    var uniqueToken = document.getElementById('unique-token');
+                    if (uniqueToken)
+                        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
+                        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+                })();
 
             </script>
             
@@ -282,6 +345,81 @@ answerer.<strong title="local or remote stream">onStreamAdded</strong> = functio
 answerer.<strong title="Ask other user to establish peer connection with you!">sendParticipationRequest</strong>(<strong class="highlight" title="user-id of the offerer">'offerer'</strong>);
 </pre>
             </section>
+			
+			<section class="experiment">
+                <h2 class="header" id="signaling">getUserMedia is "in-your-own-hands"!</h2>
+				<p>
+					It is upto you to decide when to capture the stream; how to capture; and the quality of the stream.
+				</p>
+				<pre>
+function getUserMedia(callback) {
+    var hints = {
+        audio: true,
+        video: {
+            optional: [],
+			
+            // capture super-hd stream!
+            mandatory: {
+                minWidth: 1280,
+                minHeight: 720,
+                maxWidth: 1920,
+                maxHeight: 1080,
+                minAspectRatio: 1.77
+            }
+        }
+    };
+	
+    navigator.getUserMedia(hints, function (stream) {
+        //    you can use "peer.addStream" to attach stream
+        //    peer.addStream(stream);
+        // or peer.MediaStream = stream;
+	
+        callback(stream);
+	
+        // preview local video
+        var video = document.createElement('video');
+        video.src = URL.createObjectURL(stream);
+        video.controls = true;
+        video.muted = true;
+
+        peer.onStreamAdded({
+            mediaElement: video,
+            userid: 'self',
+            stream: stream
+        });
+    });
+}
+</pre>
+			</section>
+			
+			<section class="experiment">
+                <h2 class="header" id="signaling">Want to use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs" target="_blank">Socket.io over Node.js</a>?</h2>
+				<pre>
+var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
+io.connect(SIGNALING_SERVER).emit('new-channel', {
+    channel: channel,
+    sender: sender
+});
+
+var socket = io.connect(SIGNALING_SERVER + channel);
+socket.send = function (message) {
+    socket.emit('message', {
+        sender: sender,
+        data: message
+    });
+};
+
+// pass "socket" object over the constructor instead of URL
+var peer = new PeerConnection(socket);
+</pre>
+
+			<p>
+				Check <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md" target="_blank">other signaling examples</a>.
+			</p>
+			</section>
         </article>
         <footer>
             <p>

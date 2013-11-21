@@ -1,0 +1,37 @@
+﻿<script src="/screenshot-dev.js"></script>
+<script src="/firebase.js"></script>
+
+<div id="contenteditable" contenteditable>
+	<iframe src="otherpage.html" style="width:90%;height:50%;"></iframe>
+</div>
+<img src="">
+<hr />
+<button>Share DIV</button>
+<script>
+var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+var firebase = new Firebase('https://chat.firebaseIO.com/' + channel);
+
+var image = document.querySelector('img');
+firebase.on("child_added", function (data) {
+    var screenshot = data.val();
+    image.src = screenshot;
+});
+
+firebase.onDisconnect().remove();
+
+var elementToShare = document.getElementById('contenteditable');
+
+function shareHTMLElement() {
+    html2canvas(elementToShare, {
+        onrendered: function (canvas) {
+            firebase.push(canvas.toDataURL('image/webp', 1));
+            setTimeout(shareHTMLElement, 500);
+        },
+        ignoreElements: 'OBJECT|PARAM'
+    });
+}
+document.querySelector('button').onclick = function () {
+    this.disabled = true;
+    shareHTMLElement();
+};
+</script>
