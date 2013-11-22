@@ -1,0 +1,54 @@
+<p>This page is capable to view all shared desktops; that are shared using desktopCapture API. <a href="https://muazkh.googlecode.com/files/desktopCapture.zip">Download Chrome Extension | ZIP</a></p>
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<script>
+// this page is using desktopCapture API to capture and share desktop
+// http://developer.chrome.com/extensions/desktopCapture.html
+// Availability:	Beta and dev channels only.
+
+var connection = new RTCMultiConnection('webrtc-desktop-sharing');
+
+// chrome extension API fails if b=AS in the sdp
+connection.bandwidth.video = false;
+
+// overriding for websockets
+connection.openSignalingChannel = openSignalingChannel;
+
+// optional
+connection.dontAttachStream = true;
+
+// on successfully getting shared tab
+connection.onstream = function (e) {
+    document.body.appendChild(e.mediaElement);
+};
+
+// if tab sharing is closed
+connection.onstreamended = function (e) {
+    if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
+};
+
+// searching for shared tabs
+connection.connect();
+
+// using websockets for signaling
+function openSignalingChannel(config) {
+    config.channel = config.channel || this.channel;
+    var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+    websocket.onopen = function () {
+        websocket.push(JSON.stringify({
+            open: true,
+            channel: config.channel
+        }));
+        if (config.callback) config.callback(websocket);
+    };
+    websocket.onmessage = function (event) {
+        config.onmessage(JSON.parse(event.data));
+    };
+    websocket.push = websocket.send;
+    websocket.send = function (data) {
+        websocket.push(JSON.stringify({
+            data: data,
+            channel: config.channel
+        }));
+    };
+}
+</script>

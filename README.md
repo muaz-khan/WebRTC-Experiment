@@ -73,12 +73,13 @@
 
 =
 
-##### Experiments to share tab/screen
+##### Experiments to share tab/screen/desktop
 
 | Experiment Name        | Previous Demos           | New Demos |
 | ------------- |-------------|-------------|
 | **Plugin-free screen sharing** / share the entire screen | [Demo](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) | [Demo](https://www.webrtc-experiment.com/screen-sharing/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing) |
-| **Tab sharing** / using `tabCapture` APIs | [Demo](https://www.webrtc-experiment.com/screen-broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-broadcast) | [tabCapture](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/tabCapture) |
+| **Desktop sharing** / using `desktopCapture` APIs | [Demo](https://www.webrtc-experiment.com/desktop-sharing/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing) | -- |
+| **Tab sharing** / using `tabCapture` APIs | [Demo](https://www.webrtc-experiment.com/screen-broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/tabCapture) | -- |
 
 =
 
@@ -280,12 +281,10 @@ recordRTC.save(); // force saving to disk
 
 =
 
-# [Muaz Khan](http://www.muazkhan.com)
-
-Email: muazkh@gmail.com / [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb) / [Google+](https://plus.google.com/100325991024054712503) / [Github](https://github.com/muaz-khan)
+##### Muaz Khan - www.muazkhan.com - [Email Me!](mailto:muazkh@gmail.com) - [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb)
 
 =
 
-# License
+##### License
 
-[WebRTC Experiments](https://www.webrtc-experiment.com/) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Experiments](https://www.webrtc-experiment.com/) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/+MuazKhan).

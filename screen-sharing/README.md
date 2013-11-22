@@ -15,7 +15,7 @@ Ad-ons free; plugin-free; extension free; direct browser-to-browser screen shari
 #### Last Step: Start using it!
 
 ```javascript
-var screen = new Screen('screen-unique-id');
+var screen = new Screen('screen-unique-id'); // argument is optional
 
 // on getting local or remote streams
 screen.onaddstream = function(e) {
@@ -28,7 +28,7 @@ screen.onaddstream = function(e) {
 screen.check();
 
 document.getElementById('share-screen').onclick = function() {
-    screen.share('screen-name');
+    screen.share();
 };
 ```
 

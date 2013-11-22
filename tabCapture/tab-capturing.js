@@ -1,7 +1,7 @@
 ﻿// Muaz Khan          - https://github.com/muaz-khan
 // MIT License        - https://www.WebRTC-Experiment.com/licence/
 // ==============================================================
-// webrtc-extension   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-extension
+// webrtc-extension   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/tabCapture
 
 window.isStopBroadcasting = false;
 chrome.browserAction.onClicked.addListener(toggle);

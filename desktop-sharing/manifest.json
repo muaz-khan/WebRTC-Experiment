@@ -1,0 +1,27 @@
+{
+	"name" : "Desktop Sharing using desktopCapture APIs",
+	"version" : "1.0",
+	"manifest_version" : 2,
+	"description" : "WebRTC Desktop Sharing using experimental desktopCapture APIs — https://www.webrtc-experiment.com/ — Muaz Khan",
+	"background": {
+		"scripts": ["RTCMultiConnection-v1.4.js", "desktop-capturing.js"],
+		"persistent": false
+	},
+	"browser_action" : {
+		"default_icon" : "images/desktopCapture22.png",
+		"default_title" : "Share this Desktop!"
+	},
+	"icons" : {
+		"16" : "images/desktopCapture16.png",
+		"22" : "images/desktopCapture22.png",
+		"32" : "images/desktopCapture32.png",
+		"48" : "images/desktopCapture48.png",
+		"128": "images/desktopCapture128.png"
+	},
+	"permissions": [
+		"desktopCapture", "activeTab", "contextMenus"
+	],
+	"web_accessible_resources": [
+		"images/desktopCapture48.png"
+	]
+}
