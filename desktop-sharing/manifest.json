@@ -9,7 +9,7 @@
 	},
 	"browser_action" : {
 		"default_icon" : "images/desktopCapture22.png",
-		"default_title" : "Share this Desktop!"
+		"default_title" : "Share Desktop!"
 	},
 	"icons" : {
 		"16" : "images/desktopCapture16.png",

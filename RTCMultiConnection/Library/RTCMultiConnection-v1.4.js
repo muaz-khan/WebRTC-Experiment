@@ -861,8 +861,8 @@
             if (root.direction == 'one-to-one') root.maxParticipantsAllowed = 1;
             if (root.direction == 'one-to-many') root.session.broadcast = true;
             if (root.direction == 'many-to-many') {
-                root.session.oneway = false;
-                root.session.broadcast = false;
+                // root.session.oneway = false;
+                // root.session.broadcast = false;
                 root.maxParticipantsAllowed = 256;
             }
         }
@@ -1947,8 +1947,7 @@
 
         this.session = {
             audio: true,
-            video: true,
-            data: true
+            video: true
         };
 
         this.bandwidth = {

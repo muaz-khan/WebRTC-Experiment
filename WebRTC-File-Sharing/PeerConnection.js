@@ -1,7 +1,8 @@
-// Muaz Khan     - https://github.com/muaz-khan
-// MIT License   - https://www.webrtc-experiment.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket
-
+// Muaz Khan      - www.MuazKhan.com
+// MIT License    - https://www.webrtc-experiment.com/licence/
+// Documentation  - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/WebRTC-File-Sharing
+// _______
+// PeerConnection.js
 (function () {
 
     window.PeerConnection = function (socketURL, userid) {
@@ -10,27 +11,36 @@
 
         if (!socketURL) throw 'Socket-URL is mandatory.';
 
-        new Signaler(this, socketURL);
-		
-		this.addStream = function(stream) {	
-			this.MediaStream = stream;
-		};
+        var signaler = new Signaler(this, socketURL);
+
+        var that = this;
+        this.send = function (data) {
+            var channel = answererDataChannel || offererDataChannel;
+
+            if (channel.readyState != 'open') return setTimeout(function () {
+                that.send(data);
+            }, 1000);
+            channel.send(data);
+        };
+
+        signaler.ondata = function (data) {
+            if (that.ondata) that.ondata(data);
+        };
+
+        this.onopen = function () {};
     };
 
     function Signaler(root, socketURL) {
         var self = this;
 
         root.startBroadcasting = function () {
-			if(!root.MediaStream) throw 'Offerer must have media stream.';
-			
             (function transmit() {
                 socket.send({
                     userid: root.userid,
                     broadcasting: true
                 });
-                !self.participantFound &&
-                    !self.stopBroadcasting &&
-                        setTimeout(transmit, 3000);
+                !self.participantFound && !self.stopBroadcasting &&
+                    setTimeout(transmit, 3000);
             })();
         };
 
@@ -48,7 +58,6 @@
 
             if (sdp.type == 'offer') {
                 root.peers[message.userid] = Answer.createAnswer(merge(options, {
-                    MediaStream: root.MediaStream,
                     sdp: sdp
                 }));
             }
@@ -59,9 +68,7 @@
         };
 
         root.acceptRequest = function (userid) {
-            root.peers[userid] = Offer.createOffer(merge(options, {
-                MediaStream: root.MediaStream
-            }));
+            root.peers[userid] = Offer.createOffer(options);
         };
 
         var candidates = [];
@@ -93,39 +100,22 @@
                     to: root.participant
                 });
             },
-            onStreamAdded: function (stream) {
-                console.debug('onStreamAdded', '>>>>>>', stream);
-
-                stream.onended = function () {
-                    if (root.onStreamEnded) root.onStreamEnded(streamObject);
-                };
-
-                var mediaElement = document.createElement('video');
-                mediaElement.id = root.participant;
-                mediaElement[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
-                mediaElement.autoplay = true;
-                mediaElement.controls = true;
-                mediaElement.play();
-
-                var streamObject = {
-                    mediaElement: mediaElement,
-                    stream: stream,
-                    userid: root.participant,
-                    type: 'remote'
-                };
-
-                function afterRemoteStreamStartedFlowing() {
-                    if (!root.onStreamAdded) return;
-                    root.onStreamAdded(streamObject);
-                }
-
-                afterRemoteStreamStartedFlowing();
+            ondata: function (data) {
+                self.ondata(data);
+            },
+            onopen: function () {
+                root.onopen();
+            },
+            onclose: function (e) {
+                if (root.onclose) root.onclose(e);
+            },
+            onerror: function (e) {
+                if (root.onerror) root.onerror(e);
             }
         };
 
         function closePeerConnections() {
             self.stopBroadcasting = true;
-            if (root.MediaStream) root.MediaStream.stop();
 
             for (var userid in root.peers) {
                 root.peers[userid].peer.close();
@@ -150,19 +140,19 @@
             if (e.keyCode == 116)
                 root.close();
         };
-		
-		function onmessage(e) {
-			var message = JSON.parse(e.data);
+
+        // users who broadcasts themselves
+        var invokers = {};
+
+        function onmessage(e) {
+            var message = JSON.parse(e.data);
 
             if (message.userid == root.userid) return;
             root.participant = message.userid;
 
             // for pretty logging
-            console.debug(JSON.stringify(message, function (key, value) {
-                if (value && value.sdp) {
-                    console.log(value.sdp.type, '---', value.sdp.sdp);
-                    return '';
-                } else return value;
+            message.sdp && console.debug(JSON.stringify(message, function (key, value) {
+                console.log(value.sdp.type, '---', value.sdp.sdp);
             }, '---'));
 
             // if someone shared SDP
@@ -185,39 +175,48 @@
             }
 
             // if someone is broadcasting himself!
-            if (message.broadcasting && root.onUserFound) {
-                root.onUserFound(message.userid);
+            if (message.broadcasting) {
+                if (!invokers[message.userid]) {
+                    invokers[message.userid] = message;
+                    if (root.onuserfound)
+                        root.onuserfound(message.userid);
+                    else
+                        root.sendParticipationRequest(message.userid);
+                }
             }
 
             if (message.userLeft && message.to == root.userid) {
                 closePeerConnections();
             }
-		}
+        }
 
-		var socket = socketURL;
-		if(typeof socketURL == 'string') {
-			socket = new WebSocket(socketURL);
-			socket.push = socket.send;
-			socket.send = function (data) {
-				socket.push(JSON.stringify(data));
-			};
+        var socket = socketURL;
+        if (typeof socketURL == 'string') {
+            socket = new WebSocket(socketURL);
+            socket.push = socket.send;
+            socket.send = function (data) {
+                if (socket.readyState != 1) return setTimeout(function () {
+                    socket.send(data);
+                }, 1000);
 
-			socket.onopen = function () {
-				console.log('websocket connection opened.');
-			};
-		}
-		socket.onmessage = onmessage;
+                socket.push(JSON.stringify(data));
+            };
+
+            socket.onopen = function () {
+                console.log('websocket connection opened.');
+            };
+        }
+        socket.onmessage = onmessage;
     }
 
     var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
     var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
     var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
 
-    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
     window.URL = window.webkitURL || window.URL;
 
-    var isFirefox = !!navigator.mozGetUserMedia;
-    var isChrome = !!navigator.webkitGetUserMedia;
+    var isFirefox = !! navigator.mozGetUserMedia;
+    var isChrome = !! navigator.webkitGetUserMedia;
 
     var STUN = {
         url: isChrome ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
@@ -252,28 +251,63 @@
     var offerAnswerConstraints = {
         optional: [],
         mandatory: {
-            OfferToReceiveAudio: true,
-            OfferToReceiveVideo: true
+            OfferToReceiveAudio: !! isFirefox,
+            OfferToReceiveVideo: !! isFirefox
         }
     };
 
     function getToken() {
         return Math.round(Math.random() * 9999999999) + 9999999999;
     }
-	
-	function onSdpError() {}
 
-    // var offer = Offer.createOffer(config);
-    // offer.setRemoteDescription(sdp);
-    // offer.addIceCandidate(candidate);
+    function setChannelEvents(channel, config) {
+        channel.onmessage = function (event) {
+            var data = JSON.parse(event.data);
+            config.ondata(data);
+        };
+        channel.onopen = function () {
+            config.onopen();
+
+            channel.push = channel.send;
+            channel.send = function (data) {
+                channel.push(JSON.stringify(data));
+            };
+        };
+
+        channel.onerror = function (e) {
+            console.error('channel.onerror', JSON.stringify(e, null, '\t'));
+            config.onerror(e);
+        };
+
+        channel.onclose = function (e) {
+            console.warn('channel.onclose', JSON.stringify(e, null, '\t'));
+            config.onclose(e);
+        };
+    }
+
+    var dataChannelDict = {
+        //protocol: 'text/chat',
+        //preset: true,
+        //stream: 16
+    };
+
+    var offererDataChannel;
+
     var Offer = {
         createOffer: function (config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
 
-            if (config.MediaStream) peer.addStream(config.MediaStream);
-            peer.onaddstream = function (event) {
-                config.onStreamAdded(event.stream);
-            };
+            if (isFirefox) {
+                navigator.mozGetUserMedia({
+                    audio: true,
+                    fake: true
+                }, function (stream) {
+                    peer.addStream(stream);
+                }, useless);
+            }
+
+            offererDataChannel = peer.createDataChannel('channel', dataChannelDict);
+            setChannelEvents(offererDataChannel, config);
 
             peer.onicecandidate = function (event) {
                 if (event.candidate)
@@ -300,22 +334,29 @@
         }
     };
 
-    // var answer = Answer.createAnswer(config);
-    // answer.setRemoteDescription(sdp);
-    // answer.addIceCandidate(candidate);
+    var answererDataChannel;
+
     var Answer = {
         createAnswer: function (config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
-
-            if (config.MediaStream) peer.addStream(config.MediaStream);
-            peer.onaddstream = function (event) {
-                config.onStreamAdded(event.stream);
+            peer.ondatachannel = function (event) {
+                answererDataChannel = event.channel;
+                setChannelEvents(answererDataChannel, config);
             };
 
             peer.onicecandidate = function (event) {
                 if (event.candidate)
                     config.onicecandidate(event.candidate);
             };
+
+            if (isFirefox) {
+                navigator.mozGetUserMedia({
+                    audio: true,
+                    fake: true
+                }, function (stream) {
+                    peer.addStream(stream);
+                }, useless);
+            }
 
             peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
             peer.createAnswer(function (sdp) {
@@ -341,23 +382,8 @@
         }
         return mergein;
     }
-	
-	window.URL = window.webkitURL || window.URL;
-	navigator.getMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-	navigator.getUserMedia = function(hints, onsuccess, onfailure) {
-		if(!hints) hints = {audio:true,video:true};
-		if(!onsuccess) throw 'Second argument is mandatory. navigator.getUserMedia(hints,onsuccess,onfailure)';
-		
-		navigator.getMedia(hints, _onsuccess, _onfailure);
-		
-		function _onsuccess(stream) {
-			onsuccess(stream);
-		}
-		
-		function _onfailure(e) {
-			if(onfailure) onfailure(e);
-			else throw Error('getUserMedia failed: ' + JSON.stringify(e, null, '\t'));
-		}
-	};
-	
+
+    function useless() {}
+
+    function onSdpError() {}
 })();

@@ -81,7 +81,7 @@ function onAccessApproved(desktop_id) {
 }
 
 chrome.contextMenus.create({
-    title: 'Share this Desktop!',
+    title: 'Share Desktop!',
     id: '1234567890'
 });
 chrome.contextMenus.onClicked.addListener(toggle);

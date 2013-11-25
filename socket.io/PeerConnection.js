@@ -254,6 +254,8 @@
     function getToken() {
         return Math.round(Math.random() * 9999999999) + 9999999999;
     }
+	
+	function onSdpError() {}
 
     // var offer = Offer.createOffer(config);
     // offer.setRemoteDescription(sdp);
@@ -275,7 +277,7 @@
             peer.createOffer(function(sdp) {
                 peer.setLocalDescription(sdp);
                 config.onsdp(sdp);
-            }, null, offerAnswerConstraints);
+            }, onSdpError, offerAnswerConstraints);
 
             this.peer = peer;
 
@@ -313,7 +315,7 @@
             peer.createAnswer(function(sdp) {
                 peer.setLocalDescription(sdp);
                 config.onsdp(sdp);
-            }, null, offerAnswerConstraints);
+            }, onSdpError, offerAnswerConstraints);
 
             this.peer = peer;
 
