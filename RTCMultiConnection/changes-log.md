@@ -34,6 +34,7 @@ This document explains RTCMultiConnection versions log.
 19. audio/video recording added / using [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
 20. directions simplified
 21. SCTP data channels are preferred / [`preferSCTP`](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection#prefersctp)
+22. onmute/onunmute added. [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/mute-unmute.html)
 
 =
 

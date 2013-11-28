@@ -158,6 +158,8 @@
 | **Admin/Guest audio/video calling** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/admin-guest.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/admin-guest.html) |
 | **Session-Reinitiation** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/session-reinitiation.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/session-reinitiation.html) |
 | **Audio/Video Recording** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/RecordRTC-and-RTCMultiConnection.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/RecordRTC-and-RTCMultiConnection.html) |
+| **Mute/UnMute** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/mute-unmute.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/mute-unmute.html) |
+| **Password Protected Rooms** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/password-protect-rooms.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/password-protect-rooms.html) |
 
 =
 

@@ -1,6 +1,6 @@
-// Muaz Khan     - https://github.com/muaz-khan
-// MIT License   - https://www.WebRTC-Experiment.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence/
+// Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
 // =======================
 // RTCMultiConnection-v1.4
 
@@ -63,9 +63,6 @@
 
         function prepareInit(callback) {
             if (!self.openSignalingChannel) {
-                if (typeof self.transmitRoomOnce == 'undefined')
-                    self.transmitRoomOnce = true;
-
                 // https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
                 // https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs
                 self.openSignalingChannel = function(config) {
@@ -85,6 +82,11 @@
                     };
                     websocket.push = websocket.send;
                     websocket.send = function(data) {
+                        if (websocket.readyState != 1)
+                            return setTimeout(function() {
+                                websocket.send(data);
+                            }, 500);
+
                         websocket.push(JSON.stringify({
                             data: data,
                             channel: config.channel
@@ -207,9 +209,9 @@
                         stream.onended = function() {
                             if (self.onstreamended)
                                 self.onstreamended(streamedObject);
+                            else if (mediaElement.parentNode)
+                                mediaElement.parentNode.removeChild(mediaElement);
                         };
-
-                        self.attachStreams.push(stream);
 
                         var streamedObject = {
                             stream: stream,
@@ -221,12 +223,18 @@
                             extra: self.extra
                         };
 
-                        self.streams[stream.label] = self._getStream({
+                        var sObject = {
                             stream: stream,
                             userid: self.userid,
                             type: 'local',
-                            streamObject: streamedObject
-                        });
+                            streamObject: streamedObject,
+                            mediaElement: mediaElement
+                        };
+
+                        self.attachStreams.push(stream);
+                        self.__attachStreams.push(sObject);
+
+                        self.streams[stream.label] = self._getStream(sObject);
 
                         self.onstream(streamedObject);
                         if (forcedCallback) forcedCallback(stream);
@@ -294,6 +302,8 @@
 
         // set RTCMultiConnection defaults on constructor invocation
         this.setDefaults();
+
+        this.__attachStreams = [];
     };
 
     function RTCMultiSession(root) {
@@ -322,6 +332,12 @@
                     _config.socketIndex = socket.index = sockets.length;
                     socketObjects[socketConfig.channel] = socket;
                     sockets[_config.socketIndex] = socket;
+
+                    for (var i = 0; i < root.__attachStreams.length; i++) {
+                        var label = root.__attachStreams[i].stream.label;
+                        if (root.streams[label]) root.streams[label].socket = socket;
+                    }
+                    root.__attachStreams = [];
                 }
             };
 
@@ -438,12 +454,10 @@
 
                 var stream = _config.stream;
                 stream.onended = function() {
-                    root.onstreamended(streamedObject);
-                };
-
-                stream.onended = function() {
                     if (root.onstreamended)
                         root.onstreamended(streamedObject);
+                    else if (mediaElement.parentNode)
+                        mediaElement.parentNode.removeChild(mediaElement);
                 };
 
                 var streamedObject = {
@@ -466,7 +480,8 @@
                     userid: _config.userid,
                     socket: socket,
                     type: 'remote',
-                    streamObject: streamedObject
+                    streamObject: streamedObject,
+                    mediaElement: mediaElement
                 });
 
                 root.onstream(streamedObject);
@@ -552,7 +567,10 @@
                 }
 
                 if (response.mute || response.unmute) {
-                    log(response);
+                    response.mediaElement = root.streams[response.streamid].mediaElement;
+
+                    if (response.mute && root.onmute) root.onmute(response);
+                    if (response.unmute && root.onunmute) root.onunmute(response);
                 }
 
                 if (response.left) {
@@ -1321,8 +1339,6 @@
             SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
             IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
-        if (moz) console.warn('Should we use "stun:stun.services.mozilla.com"?');
-
         var STUN = {
             url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
         };
@@ -1523,39 +1539,30 @@
         function _openOffererChannel() {
             if (!options.preferSCTP) dataChannelDict.reliable = false;
 
-            channel = peer.createDataChannel(options.channel || 'RTCDataChannel', dataChannelDict);
+            channel = peer.createDataChannel(options.channel || 'data-channel', dataChannelDict);
             setChannelEvents();
         }
 
         var dataChannelDict = {
             
-
-        //protocol: 'text/chat',
-        //preset: true,
-        //stream: 16
+        // protocol: 'text/chat',
+        // preset: true,
+        // stream: 16
         };
 
         function setChannelEvents() {
             channel.onmessage = function(event) {
-                var data = JSON.parse(event.data);
-                options.onmessage(data);
+                options.onmessage(event.data);
             };
             channel.onopen = function() {
                 options.onopen(channel);
-
-                channel.push = channel.send;
-                channel.send = function(data) {
-                    channel.push(JSON.stringify(data));
-                };
             };
 
             channel.onerror = function(e) {
-                console.error('channel.onerror', JSON.stringify(e, null, '\t'));
                 options.onerror(e);
             };
 
             channel.onclose = function(e) {
-                console.warn('channel.onclose', JSON.stringify(e, null, '\t'));
                 options.onclose(e);
             };
         }
@@ -1574,8 +1581,6 @@
                     peer.addStream(stream);
                 }, useless);
         }
-
-        // fake:true is also available on chrome under a flag!
 
         function useless() {
             log('Error in fake:true');
@@ -1626,7 +1631,7 @@
         optional: []
     };
 
-/* by @FreCap pull request #41 */
+    /* by @FreCap pull request #41 */
     var currentUserMediaRequest = {
         streams: [],
         mutex: false,
@@ -1766,7 +1771,7 @@
         return length;
     }
 
-// Get HTMLAudioElement/HTMLVideoElement accordingly
+    // Get HTMLAudioElement/HTMLVideoElement accordingly
 
     function getMediaElement(stream, session) {
         var isAudio = session.audio && !session.video && !session.screen;
@@ -1877,6 +1882,7 @@
         if (root.socket)
             root.socket.send({
                 userid: root.userid,
+                streamid: stream.label,
                 mute: !!enabled,
                 unmute: !enabled
             });
@@ -1921,10 +1927,6 @@
             log(e.userid, 'left!');
         };
 
-        this.onstreamended = function(e) {
-            log('on:stream:ended', e.stream);
-        };
-
         this.peers = { };
 
         this.streams = {
@@ -1959,13 +1961,11 @@
 
         this.sessions = { };
 
-        // audio: 50,
-        // video: 256,
         this.bandwidth = {
             data: 1638400
         };
 
-        // preferring SCTP Data Channels over RTP!
+        // preferring SCTP data channels!
         this.preferSCTP = true;
 
         this.media = {
@@ -2010,6 +2010,7 @@
                 userid: e.userid,
                 socket: e.socket,
                 type: e.type,
+                mediaElement: e.mediaElement,
                 stop: function() {
                     var stream = this.stream;
                     if (stream && stream.stop)

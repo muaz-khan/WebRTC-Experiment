@@ -437,6 +437,22 @@ connection.streams.mute({
 
 =
 
+##### `onmute` and `onunmute` / [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/mute-unmute.html)
+
+```javascript
+// if local or remote stream is muted
+connection.onmute = function(e) {
+   e.mediaElement.setAttribute('poster', 'https://lh5.googleusercontent.com/-zFJrEARb57w/AAAAAAAAAAI/AAAAAAAABLA/UeFbuDjvVvg/s200-c/photo.jpg');
+};
+
+// if local or remote stream is unmuted
+connection.onunmute = function(e) {
+   e.mediaElement.removeAttribute('poster');
+};
+```
+
+=
+
 ##### RecordRTC
 
 You can record individual streams too:
@@ -1380,6 +1396,32 @@ io.sockets.on('connection', function (socket) {
 
 =
 
+##### Want password protected rooms? [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/password-protect-rooms.html)
+
+```javascript
+document.querySelector('#setup').onclick = function () {
+    // room password has been set before calling "open" method
+    connection.extra.password = prompt('Setup password for your room!');
+    connection.open();
+};
+
+connection.onNewSession = function (session) {
+    // set password for person who is trying to join the room
+    connection.extra.password = prompt('Enter password to join this room.');
+    connection.join(session);
+};
+
+connection.onRequest = function (userid, extra) {
+    // validating password in "onRequest"
+    if (extra.password != connection.extra.password)
+        return alert('password: ' + extra.password + ' !== ' + connection.extra.password);
+
+    connection.accept(userid, extra);
+};
+```
+
+=
+
 ##### [RTCMultiConnection Demos](https://www.webrtc-experiment.com/#RTCMultiConnection)
 
 | Experiment Name        | Demo           | Source Code |
@@ -1411,6 +1453,10 @@ io.sockets.on('connection', function (socket) {
 | **Video-Conferencing** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/Video-Conferencing.html) |
 | **Multi-streams attachment** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/multi-streams-attachment.html) |
 | **Admin/Guest audio/video calling** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/admin-guest.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/admin-guest.html) |
+| **Session-Reinitiation** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/session-reinitiation.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/session-reinitiation.html) |
+| **Audio/Video Recording** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/RecordRTC-and-RTCMultiConnection.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/RecordRTC-and-RTCMultiConnection.html) |
+| **Mute/UnMute** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/mute-unmute.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/mute-unmute.html) |
+| **Password Protected Rooms** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/password-protect-rooms.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.4-Demos/password-protect-rooms.html) |
 
 =
 

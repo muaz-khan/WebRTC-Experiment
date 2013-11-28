@@ -1,6 +1,6 @@
 #### RecordRTC to ASP.NET MVC / [Demo](https://www.webrtc-experiment.com/RecordRTC/RecordRTC-to-ASPNETMVC/)
 
-`RecordRTCController.cs` writes recorded audio/video blos to disk.
+`RecordRTCController.cs` writes recorded audio/video blobs to disk.
 
 =
 

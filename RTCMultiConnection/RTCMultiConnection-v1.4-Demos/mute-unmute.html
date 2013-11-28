@@ -1,0 +1,57 @@
+﻿<h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection">RTCMultiConnection</a> & Mute/UnMute</h1>
+<button id="setup">Setup RTC-Multi-Connection</button><button id="mute">Mute</button><hr />
+
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"></script>
+<script>
+document.querySelector('#setup').onclick = function () {
+    connection.open();
+    this.disabled = true;
+};
+
+document.querySelector('#mute').onclick = function () {
+	if(this.innerHTML == 'Mute') {
+		this.innerHTML = 'UnMute';
+		connection.streams.mute({
+			video: true,
+			type: 'local'
+		});
+	}
+	else {
+		this.innerHTML = 'Mute';
+		connection.streams.unmute({
+			video: true,
+			type: 'local'
+		});
+	}
+};
+
+var connection = new RTCMultiConnection();
+connection.onstream = function (e) {
+    document.body.appendChild(e.mediaElement);
+};
+
+// if local or remote stream is muted
+connection.onmute = function(e) {
+	e.mediaElement.setAttribute('poster', 'https://lh5.googleusercontent.com/-zFJrEARb57w/AAAAAAAAAAI/AAAAAAAABLA/UeFbuDjvVvg/s200-c/photo.jpg');
+};
+
+// if local or remote stream is unmuted
+connection.onunmute = function(e) {
+	e.mediaElement.removeAttribute('poster');
+};
+
+connection.connect();
+</script>
+<pre>
+// if local or remote stream is muted
+connection.onmute = function(e) {
+   e.mediaElement.setAttribute('poster', 'https://lh5.googleusercontent.com/-zFJrEARb57w/AAAAAAAAAAI/AAAAAAAABLA/UeFbuDjvVvg/s200-c/photo.jpg');
+};
+
+// if local or remote stream is unmuted
+connection.onunmute = function(e) {
+   e.mediaElement.removeAttribute('poster');
+};
+</pre>
+<hr />
+<style>html {background: rgb(255, 252, 239);}audio,video {width:40%;vertical-align:top;}</style>
