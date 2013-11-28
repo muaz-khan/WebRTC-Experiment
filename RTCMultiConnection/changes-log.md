@@ -33,6 +33,7 @@ This document explains RTCMultiConnection versions log.
 18. noise/echo stepped down; a simple/lazy workaround
 19. audio/video recording added / using [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
 20. directions simplified
+21. SCTP data channels are preferred / [`preferSCTP`](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection#prefersctp)
 
 =
 

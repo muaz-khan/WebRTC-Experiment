@@ -691,6 +691,15 @@ connection.onFileReceived = function (fileName, file) {
     hyperlink.href = file.url;
 };
 ```
+=
+
+##### `preferSCTP`
+
+By default, SCTP data channels are preferred. You can disable SCTP like this (it will use RTP data channels instead):
+
+```javascript
+connection.preferSCTP = false;
+```
 
 =
 
