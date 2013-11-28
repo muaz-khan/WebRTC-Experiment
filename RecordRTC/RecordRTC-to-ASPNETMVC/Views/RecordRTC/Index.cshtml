@@ -1,4 +1,9 @@
-﻿<!--
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = null;
+}
+
+<!--
 > Muaz Khan     - https://github.com/muaz-khan 
 > MIT License   - https://www.webrtc-experiment.com/licence/
 > Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
@@ -6,7 +11,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>RecordRTC to PHP ® Muaz Khan</title>
+        <title>RecordRTC to ASP.NET MVC ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -14,7 +19,6 @@
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
-        
         <style>
             audio {
                 vertical-align: bottom;
@@ -57,14 +61,14 @@
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a> to <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP" target="_blank">PHP</a> ® 
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a> to <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC" target="_blank">ASP.NET MVC</a> ® 
                     <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
                 </h1>            
                 <p>
                     <span>Copyright © 2013</span>
-                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@@muazkh</a><span>&gt;</span>
                     »
-                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@@WebRTC Experiments</a>
                     »
                     <a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
                     »
@@ -94,148 +98,148 @@
 			
             <script>
                 function PostBlob(blob, fileType, fileName) {
-				// FormData
-				var formData = new FormData();
-				formData.append(fileType + '-filename', fileName);
-				formData.append(fileType + '-blob', blob);
+                    // FormData
+                    var formData = new FormData();
+                    formData.append(fileType + '-filename', fileName);
+                    formData.append(fileType + '-blob', blob);
 
-				// progress-bar
-				var hr = document.createElement('hr');
-				container.appendChild(hr);
-				var strong = document.createElement('strong');
-				strong.innerHTML = fileType + ' upload progress: ';
-				container.appendChild(strong);
-				var progress = document.createElement('progress');
-				container.appendChild(progress);
+                    // progress-bar
+                    var hr = document.createElement('hr');
+                    container.appendChild(hr);
+                    var strong = document.createElement('strong');
+                    strong.innerHTML = fileType + ' upload progress: ';
+                    container.appendChild(strong);
+                    var progress = document.createElement('progress');
+                    container.appendChild(progress);
 
-				// POST the Blob
-				xhr('save.php', formData, progress, function(fileURL) {
-					container.appendChild(document.createElement('hr'));
-					var mediaElement = document.createElement(fileType);
-					
-					var source = document.createElement('source');
-					source.src = location.href + fileURL;
-					
-					if(fileType == 'video') source.type = 'video/webm; codecs="vp8, vorbis"';
-					if(fileType == 'audio') source.type = 'audio/wav';
-					
-					mediaElement.appendChild(source);
-					
-					mediaElement.controls = true;
-					container.appendChild(mediaElement);
-					mediaElement.play();
+                    // POST the Blob
+                    xhr('/RecordRTC/PostRecordedAudioVideo', formData, progress, function (fName) {
+                        container.appendChild(document.createElement('hr'));
+                        var mediaElement = document.createElement(fileType);
 
-					progress.parentNode.removeChild(progress);
-					strong.parentNode.removeChild(strong);
-					hr.parentNode.removeChild(hr);
-				});
-			}
+                        var source = document.createElement('source');
+                        source.src = location.href + 'uploads/' + fName.replace(/"/g, '');
 
-			var record = document.getElementById('record');
-			var stop = document.getElementById('stop');
-			var deleteFiles = document.getElementById('delete');
+                        if (fileType == 'video') source.type = 'video/webm; codecs="vp8, vorbis"';
+                        if (fileType == 'audio') source.type = 'audio/wav';
 
-			var audio = document.querySelector('audio');
+                        mediaElement.appendChild(source);
 
-			var recordVideo = document.getElementById('record-video');
-			var preview = document.getElementById('preview');
+                        mediaElement.controls = true;
+                        container.appendChild(mediaElement);
+                        mediaElement.play();
 
-			var container = document.getElementById('container');
+                        progress.parentNode.removeChild(progress);
+                        strong.parentNode.removeChild(strong);
+                        hr.parentNode.removeChild(hr);
+                    });
+                }
 
-			var recordAudio, recordVideo;
-			record.onclick = function() {
-				record.disabled = true;
-				var video_constraints = {
-					mandatory: { },
-					optional: []
-				};
-				navigator.getUserMedia({
-						audio: true,
-						video: video_constraints
-					}, function(stream) {
-						preview.src = window.URL.createObjectURL(stream);
-						preview.play();
+                var record = document.getElementById('record');
+                var stop = document.getElementById('stop');
+                var deleteFiles = document.getElementById('delete');
 
-						// var legalBufferValues = [256, 512, 1024, 2048, 4096, 8192, 16384];
-						// sample-rates in at least the range 22050 to 96000.
-						recordAudio = RecordRTC(stream, {
-							//bufferSize: 16384,
-							//sampleRate: 45000
-						});
-						
-						recordVideo = RecordRTC(stream, {
-							type: 'video'
-						});
+                var audio = document.querySelector('audio');
 
-						recordAudio.startRecording();
-						recordVideo.startRecording();
+                var recordVideo = document.getElementById('record-video');
+                var preview = document.getElementById('preview');
 
-						stop.disabled = false;
-					});
-			};
+                var container = document.getElementById('container');
 
-			var fileName;
-			stop.onclick = function() {
-				record.disabled = false;
-				stop.disabled = true;
+                var recordAudio, recordVideo;
+                record.onclick = function () {
+                    record.disabled = true;
+                    var video_constraints = {
+                        mandatory: {},
+                        optional: []
+                    };
+                    navigator.getUserMedia({
+                        audio: true,
+                        video: video_constraints
+                    }, function (stream) {
+                        preview.src = window.URL.createObjectURL(stream);
+                        preview.play();
 
-				fileName = Math.round(Math.random() * 99999999) + 99999999;
+                        // var legalBufferValues = [256, 512, 1024, 2048, 4096, 8192, 16384];
+                        // sample-rates in at least the range 22050 to 96000.
+                        recordAudio = RecordRTC(stream, {
+                        // bufferSize: 16384,
+                        // sampleRate: 45000
+                        });
 
-				recordAudio.stopRecording();
-				PostBlob(recordAudio.getBlob(), 'audio', fileName + '.wav');
+                    recordVideo = RecordRTC(stream, {
+                        type: 'video'
+                    });
 
-				recordVideo.stopRecording();
-				PostBlob(recordVideo.getBlob(), 'video', fileName + '.webm');
+                    recordAudio.startRecording();
+                    recordVideo.startRecording();
 
-				preview.src = '';
-				deleteFiles.disabled = false;
-			};
+                    stop.disabled = false;
+                });
+            };
 
-			deleteFiles.onclick = function() {
-				deleteAudioVideoFiles();
-			};
+            var fileName;
+            stop.onclick = function () {
+                record.disabled = false;
+                stop.disabled = true;
 
-			function deleteAudioVideoFiles() {
-				deleteFiles.disabled = true;
-				if (!fileName) return;
-				var formData = new FormData();
-				formData.append('delete-file', fileName);
-				xhr('delete.php', formData, null, function(response) {
-					console.log(response);
-				});
-				fileName = null;
-				container.innerHTML = '';
-			}
+                fileName = Math.round(Math.random() * 99999999) + 99999999;
 
-			function xhr(url, data, progress, callback) {
-				var request = new XMLHttpRequest();
-				request.onreadystatechange = function() {
-					if (request.readyState == 4 && request.status == 200) {
-						callback(request.responseText);
-					}
-				};
+                recordAudio.stopRecording();
+                PostBlob(recordAudio.getBlob(), 'audio', fileName + '.wav');
 
-				request.onprogress = function(e) {
-					if(!progress) return;
-					if (e.lengthComputable) {
-						progress.value = (e.loaded / e.total) * 100;
-						progress.textContent = progress.value; // Fallback for unsupported browsers.
-					}
+                recordVideo.stopRecording();
+                PostBlob(recordVideo.getBlob(), 'video', fileName + '.webm');
 
-					if(progress.value == 100){
-						progress.value = 0;
-					}
-				};
-				request.open('POST', url);
-				request.send(data);
-			}
+                preview.src = '';
+                deleteFiles.disabled = false;
+            };
 
-			window.onbeforeunload = function() {
-				if (!!fileName) {
-					deleteAudioVideoFiles();
-					return 'It seems that you\'ve not deleted audio/video files from the server.';
-				}
-			};
+            deleteFiles.onclick = function () {
+                deleteAudioVideoFiles();
+            };
+
+            function deleteAudioVideoFiles() {
+                deleteFiles.disabled = true;
+                if (!fileName) return;
+                var formData = new FormData();
+                formData.append('delete-file', fileName);
+                xhr('/RecordRTC/DeleteFile', formData, null, function (response) {
+                    console.log(response);
+                });
+                fileName = null;
+                container.innerHTML = '';
+            }
+
+            function xhr(url, data, progress, callback) {
+                var request = new XMLHttpRequest();
+                request.onreadystatechange = function () {
+                    if (request.readyState == 4 && request.status == 200) {
+                        callback(request.responseText);
+                    }
+                };
+
+                request.onprogress = function (e) {
+                    if (!progress) return;
+                    if (e.lengthComputable) {
+                        progress.value = (e.loaded / e.total) * 100;
+                        progress.textContent = progress.value; // Fallback for unsupported browsers.
+                    }
+
+                    if (progress.value == 100) {
+                        progress.value = 0;
+                    }
+                };
+                request.open('POST', url);
+                request.send(data);
+            }
+
+            window.onbeforeunload = function () {
+                if (!!fileName) {
+                    deleteAudioVideoFiles();
+                    return 'It seems that you\'ve not deleted audio/video files from the server.';
+                }
+            };
             </script>
 			
 			<section class="experiment">
@@ -255,36 +259,34 @@
 			
 			<section class="experiment">
 				<h2>
-					How to save recorded wav/webm file to PHP server?</h2>
+					How to save recorded wav/webm file to IIS server?</h2>
 				<ol>
-					<li>Write a PHP file to write recrded blob on disk</li>
+					<li>Write a csharp class (*.cs) to write recrded blob on disk</li>
 					<li>Write Javascript to POST recorded blobs to server using XHR2/FormdData</li>
 				</ol>
 			</section>
 			
             <section class="experiment">
-        <h2>PHP Code</h2>
+        <h2>ASP.NET MVC (CSharp) Code</h2>
         <pre>
-&lt;?php
-foreach(array('video', 'audio') as $type) {
-    if (isset($_FILES["${type}-blob"])) {
+[HttpPost]
+public ActionResult PostRecordedAudioVideo()
+{
+     foreach (string upload in Request.Files)
+     {
+          var path = AppDomain.CurrentDomain.BaseDirectory + "uploads/";
+          var file = Request.Files[upload];
+          if (file == null) continue;
 
-        $fileName = $_POST["${type}-filename"];
-        $uploadDirectory = "uploads/$fileName";
-
-        if (!move_uploaded_file($_FILES["${type}-blob"]["tmp_name"], $uploadDirectory)) {
-            echo("problem moving uploaded file");
-        }
-
-        echo($uploadDirectory);
-    }
+          file.SaveAs(Path.Combine(path, Request.Form[0]));
+     }
+     return Json(Request.Form[0]);
 }
-?&gt;
 </pre>
             </section>
-			<section class="experiment">
-			<h2>Javascript Code</h2>
-			<pre>
+            <section class="experiment">
+                <h2>Javascript Code</h2>
+                <pre>
 var fileType = 'video'; // or "audio"
 var fileName = 'ABCDEF.webm';  // or "wav"
 
@@ -292,8 +294,8 @@ var formData = new FormData();
 formData.append(fileType + '-filename', fileName);
 formData.append(fileType + '-blob', blob);
 
-xhr('save.php', formData, function (fName) {
-    window.open(location.href + fName);
+xhr('/RecordRTC/PostRecordedAudioVideo', formData, function (fName) {
+    window.open(location.href + 'uploads/' + fName);
 });
 
 function xhr(url, data, callback) {
@@ -305,6 +307,20 @@ function xhr(url, data, callback) {
     };
     request.open('POST', url);
     request.send(data);
+}
+</pre></section>
+
+<section class="experiment">
+			<h2>To Delete File</h2>
+			<pre>
+[HttpPost]
+public ActionResult DeleteFile()
+{
+    var fileUrl = AppDomain.CurrentDomain.BaseDirectory + "uploads/" 
+                + Request.Form["delete-file"];
+    new FileInfo(fileUrl + ".wav").Delete();
+    new FileInfo(fileUrl + ".webm").Delete();
+    return Json(true);
 }
 </pre></section>
             <section class="experiment">
@@ -414,12 +430,22 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
                 ©
                 <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
                 <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
-                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
+                <a href="http://twitter.com/muazkh" target="_blank">@@muazkh</a>»
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
             </p>
         </footer>
     
         <!-- commits.js is useless for you! -->
         <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+        
+        <!-- Below lines are used to hide somee.com Ads! -->
+        <style>
+            center, .last-div, .last-div ~ * {
+	            display: none !important
+	        }
+        </style>
+        <div class="last-div"></div>
     </body>
 </html>
+
+

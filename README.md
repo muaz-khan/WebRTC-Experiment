@@ -200,7 +200,9 @@ var url = recordRTC.toURL();
 recordRTC.save(); // force saving to disk
 ```
 
-[RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
+1. [RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
+2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
+3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
 
 =
 
@@ -219,7 +221,7 @@ recordRTC.save(); // force saving to disk
         screen: true,   // attach screen sharing stream too!
     };
 	
-    connection.direction = 'many-to-many';
+    // connection.direction = 'many-to-many';
     
     connection.onstream = function(e) {
         document.body.appendChild(e.mediaElement);

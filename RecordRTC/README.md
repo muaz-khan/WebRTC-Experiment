@@ -113,7 +113,8 @@ blob = recorder.getBlob();
 
 ##### POST on server
 
-Try [RecordRTC-to-PHP](https://www.webrtc-experiment.com/RecordRTC/PHP/), a demo to POST recorded audio/video files to PHP server.
+1. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
+2. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
 
 ```php
 <?php
@@ -141,8 +142,8 @@ var formData = new FormData();
 formData.append(fileType + '-filename', fileName);
 formData.append(fileType + '-blob', blob);
 
-xhr('save.php', formData, function (fileURL) {
-    window.open(fileURL);
+xhr('save.php', formData, function (fName) {
+    window.open(location.href + fName);
 });
 
 function xhr(url, data, callback) {

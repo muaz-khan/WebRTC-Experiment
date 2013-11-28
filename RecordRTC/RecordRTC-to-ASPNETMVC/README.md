@@ -1,27 +1,25 @@
-#### RecordRTC to PHP / [Demo](https://www.webrtc-experiment.com/RecordRTC/PHP/)
+#### RecordRTC to ASP.NET MVC / [Demo](https://www.webrtc-experiment.com/RecordRTC/RecordRTC-to-ASPNETMVC/)
 
-This documentation explains how to POST recorded audio/video files to PHP server. It captures `Blob` and POST them using XHR2/FormData.
+This documentation explains how to POST recorded audio/video files to ASP.NET MVC (IIS) server. It captures `Blob` and POST them using XHR2/FormData.
 
 =
 
-##### PHP code
+##### ASP.NET MVC (CSharp) code
 
-```php
-<?php
-foreach(array('video', 'audio') as $type) {
-    if (isset($_FILES["${type}-blob"])) {
-        
-		$fileName = $_POST["${type}-filename"];
-        $uploadDirectory = DIR.'/uploads/'.$fileName;
-        
-        if (!move_uploaded_file($_FILES["${type}-blob"]["tmp_name"], $uploadDirectory)) {
-            echo(" problem moving uploaded file");
-        }
-		
-		echo($uploadDirectory);
-    }
+```csharp
+[HttpPost]
+public ActionResult PostRecordedAudioVideo()
+{
+     foreach (string upload in Request.Files)
+     {
+          var path = AppDomain.CurrentDomain.BaseDirectory + "uploads/";
+          var file = Request.Files[upload];
+          if (file == null) continue;
+
+          file.SaveAs(Path.Combine(path, Request.Form[0]));
+     }
+     return Json(Request.Form[0]);
 }
-?>
 ```
 
 =
@@ -36,8 +34,8 @@ var formData = new FormData();
 formData.append(fileType + '-filename', fileName);
 formData.append(fileType + '-blob', blob);
 
-xhr('save.php', formData, function (fName) {
-    window.open(location.href + fName);
+xhr('/RecordRTC/PostRecordedAudioVideo', formData, function (fName) {
+    window.open(location.href + 'uploads/' + fName);
 });
 
 function xhr(url, data, callback) {
