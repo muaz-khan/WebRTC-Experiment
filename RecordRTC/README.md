@@ -1,20 +1,17 @@
 ## RecordRTC: WebRTC audio/video recording / [Demo](https://www.webrtc-experiment.com/RecordRTC/)
 
-**RecordRTC** is a javascript-only (entire client-side) **library** for **cross-browser** audio/video recording.
+[RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is a server-less (entire client-side) JavaScript library can be used to record WebRTC audio/video media streams. It supports cross-browser audio/video recording.
 
 =
 
-## Features
-
-1. **Audio recording** (both for chrome and Firefox)
-2. **Video/Gif recording** (for chrome only)
+1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
+2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
+3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
 
 =
-
-## How to use RecordRTC?
 
 ```html
-<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 ```
 
 =
@@ -25,7 +22,7 @@
 var recordRTC = RecordRTC(mediaStream);
 recordRTC.startRecording();
 recordRTC.stopRecording(function(audioURL) {
-   window.open(audioURL);
+   mediaElement.src = audioURL;
 });
 ```
 
@@ -34,6 +31,40 @@ recordRTC.stopRecording(function(audioURL) {
 #### How to record video?
 
 Everything is optional except `type:'video'`:
+
+```javascript
+var options = {
+   type: 'video'
+};
+var recordRTC = RecordRTC(mediaStream, options);
+recordRTC.startRecording();
+recordRTC.stopRecording(function(videoURL) {
+   mediaElement.src = videoURL;
+});
+```
+
+=
+
+##### How to record animated GIF image?
+
+Everything is optional except `type:'gif'`:
+
+```javascript
+var options = {
+   type: 'gif',
+   frameRate: 200,
+   quality: 10
+};
+var recordRTC = RecordRTC(mediaStream, options);
+recordRTC.startRecording();
+recordRTC.stopRecording(function(gifURL) {
+   mediaElement.src = gifURL;
+});
+```
+
+=
+
+##### How to set video width/height?
 
 ```javascript
 var options = {
@@ -47,136 +78,45 @@ var options = {
       height: 240
    }
 };
-var recordRTC = RecordRTC(mediaStream, options);
-recordRTC.startRecording();
-recordRTC.stopRecording(function(videoURL) {
-   window.open(videoURL);
-});
-```
-
-You can write same thing like this:
-
-```javascript
-var options = {
-   type: 'video'
-};
-var recordRTC = RecordRTC(mediaStream, options);
-recordRTC.startRecording();
-recordRTC.stopRecording();
-var blob = recordRTC.getBlob();
 ```
 
 =
 
-##### How to record animated GIF image?
-
-Everything is optional except `type:'gif'`:
+##### How to get DataURL?
 
 ```javascript
-var options = {
-   type: 'gif',
-   video: {
-      width: 320,
-      height: 240
-   },
-   canvas: {
-      width: 320,
-      height: 240
-   },
-   frameRate: 200,
-   quality: 10
-};
-var recordRTC = RecordRTC(mediaStream, options);
-recordRTC.startRecording();
-recordRTC.stopRecording(function(gifURL) {
-   window.open(gifURL);
+recordRTC.getDataURL(function(dataURL) {
+   mediaElement.src = dataURL;
 });
 ```
 
 =
 
-##### Get Data URL
+##### How to get `Blob` object?
 
 ```javascript
-window.open( recorder.getDataURL() );
+blob = recordRTC.getBlob();
 ```
 
 =
 
-##### Get Blob object
+##### How to get Virtual-URL?
 
 ```javascript
-blob = recorder.getBlob();
+window.open( recordRTC.toURL() );
 ```
 
 =
 
-##### POST on server
-
-1. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
-2. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
-
-```php
-<?php
-foreach(array('video', 'audio') as $type) {
-    if (isset($_FILES["${type}-blob"])) {
-
-        $fileName = $_POST["${type}-filename"];
-        $uploadDirectory = "uploads/$fileName";
-
-        if (!move_uploaded_file($_FILES["${type}-blob"]["tmp_name"], $uploadDirectory)) {
-            echo("problem moving uploaded file");
-        }
-
-        echo($uploadDirectory);
-    }
-}
-?>
-```
+##### How to invoke save-to-disk dialog?
 
 ```javascript
-var fileType = 'video'; // or "audio"
-var fileName = 'ABCDEF.webm';  // or "wav"
-
-var formData = new FormData();
-formData.append(fileType + '-filename', fileName);
-formData.append(fileType + '-blob', blob);
-
-xhr('save.php', formData, function (fName) {
-    window.open(location.href + fName);
-});
-
-function xhr(url, data, callback) {
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if (request.readyState == 4 && request.status == 200) {
-            callback(location.href + request.responseText);
-        }
-    };
-    request.open('POST', url);
-    request.send(data);
-}
+recordRTC.save();
 ```
 
 =
 
-##### Get Virtual URL
-
-```javascript
-window.open( recorder.toURL() );
-```
-
-=
-
-##### Save to Disk
-
-```javascript
-recorder.save();
-```
-
-=
-
-##### Customize Buffer-Size
+##### How to customize Buffer-Size for audio recording?
 
 ```javascript
 var options = {
@@ -201,7 +141,7 @@ var options = {
 
 =
 
-##### Customize Sample-Rate
+##### How to customize Sample-Rate for audio recording?
 
 ```javascript
 var options = {
@@ -222,9 +162,15 @@ var options = {
 
 =
 
-##### WinXP?
+##### Is WinXP supported?
 
-No WinXP support. Try to use Vista, Windows 7 or Windows 8.
+No WinXP SP2 support. However, RecordRTC works on WinXP Service Pack 3.
+
+=
+
+##### Is Chrome on Android supported?
+
+RecordRTC uses WebAudio API for stereo-audio recording. AFAIK, WebAudio is not supported on android chrome releases, yet.
 
 =
 
@@ -249,7 +195,7 @@ If you see this error message: `Uncaught Error: SecurityError: DOM Exception 18`
 
 ##### Web Audio APIs requirements
 
-1. If you're on Windows, you have to be running Windows Vista or better (will not work on Windows XP).
+1. If you're on Windows, you have to be running WinXP SP3, Windows Vista or better (will not work on Windows XP SP2 or earlier).
 2. On Windows, audio input hardware must be set to the same sample rate as audio output hardware.
 3. On Mac and Windows, the audio input device must be at least stereo (i.e. a mono/single-channel USB microphone WILL NOT work).
 
@@ -264,8 +210,6 @@ Stereo audio is only supported for WAV files.
 ...still investigating the actual issue of failure with `mono` audio.
 
 =
-
-We need a stream merger like ffmpeg/avconv to merge audio/video files in MKV/AVI/etc. on the server end. A few developers already implemented such thing in PHP. A demo coming soon.
 
 Media Stream Recording API (MediaRecorder object) is being implemented by both Firefox and Chrome. RecordRTC is also using MediaRecorder API for Firefox (nightly).
 
@@ -288,7 +232,7 @@ RecordRTC is unable to record "mono" audio on chrome; however it seems that we c
 
 1. [Recorderjs](https://github.com/mattdiamond/Recorderjs) for audio recording
 2. [whammy](https://github.com/antimatter15/whammy) for video recording
-3. [jsGif](https://github.com/antimatter15/jsgif) for video recording
+3. [jsGif](https://github.com/antimatter15/jsgif) for gif recording
 
 =
 
@@ -304,12 +248,13 @@ RecordRTC is unable to record "mono" audio on chrome; however it seems that we c
 
 #### Apps/Libraries using RecordRTC
 
-1. [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection#recordrtc)
+1. [RTCMultiConnection.js](http://RTCMultiConnection.org/#recordrtc)
 2. [Realtime Plugin-free Calls](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls)
-3. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
+
+You can find many on Github!
 
 =
 
 ## License
 
-[RecordRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RecordRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/+MuazKhan).

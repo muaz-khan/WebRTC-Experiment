@@ -1,7 +1,7 @@
 ## Realtime/Working [WebRTC Experiments](https://www.webrtc-experiment.com/)
 
 1. It is a repository of uniquely experimented WebRTC demos; written by <a href="https://github.com/muaz-khan">Muaz Khan</a>!
-2. No special requirement! Just Chrome (for desktop and android) or Firefox!
+2. No special requirement! Just WebRTC supported browser (e.g. chrome/firefox on desktop/android)
 3. These demos/experiments are entirely client-side; i.e. no server installation needed!
 
 =
@@ -183,7 +183,7 @@
 
 =
 
-##### How to record audio using [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/)?
+##### How to record audio using [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)?
 
 ```html
 <script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
@@ -196,22 +196,21 @@ recordRTC.startRecording();
 recordRTC.stopRecording();
 
 var blob = recordRTC.getBlob();
-var dataURL = recordRTC.getDataURL();
-var url = recordRTC.toURL();
+var blobURL = recordRTC.toURL();
 
-recordRTC.save(); // force saving to disk
+recordRTC.getDataURL(function(dataURL) {});
 ```
 
-1. [RecordRTC Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
+1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
 2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
 3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
 
 =
 
-##### [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) / A library for all WebRTC APIs
+##### [RTCMultiConnection.js](http://www.RTCMultiConnection.org) / A library for all WebRTC APIs
 
 ```html
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<script src="http://www.RTCMultiConnection.org/latest.js"> </script>
 <button id="init">Open New Connection</button><br />
 <script>
     var connection = new RTCMultiConnection();
@@ -222,15 +221,9 @@ recordRTC.save(); // force saving to disk
         data: true,     // open data connection too!
         screen: true,   // attach screen sharing stream too!
     };
-	
-    // connection.direction = 'many-to-many';
     
     connection.onstream = function(e) {
         document.body.appendChild(e.mediaElement);
-    };
-
-    connection.onstreamended = function(e) {
-        if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
     };
 
     connection.connect(); // search for existing connections
@@ -241,7 +234,7 @@ recordRTC.save(); // force saving to disk
 </script>
 ```
 
-[RTCMultiConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection)
+[RTCMultiConnection Documentation](http://www.RTCMultiConnection.org)
 
 =
 
@@ -275,7 +268,7 @@ recordRTC.save(); // force saving to disk
 | ------------- |-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
+| Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) |
 
 =
 
@@ -286,7 +279,7 @@ recordRTC.save(); // force saving to disk
 
 =
 
-##### Muaz Khan - www.muazkhan.com - [Email Me!](mailto:muazkh@gmail.com) - [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb)
+##### Muaz Khan - www.MuazKhan.com - [Email Me!](mailto:muazkh@gmail.com) - [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb)
 
 =
 
