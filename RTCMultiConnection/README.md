@@ -1,4 +1,4 @@
-## [RTCMultiConnection](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection) Documentation / [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/changes-log.md)
+## [RTCMultiConnection](http://www.RTCMultiConnection.org/) Documentation / [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/changes-log.md)
 
 A library for cross-browser media streaming; screen sharing; data/file sharing; renegotiation; and much more. **An all-in-one solution for RTCWeb API!**
 
@@ -22,20 +22,11 @@ and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/
 
 = 
 
-##### A Quick Demo using Firebase for Signaling
+##### A Quick Demo
 
 ```html
-<script src="https://www.webrtc-experiment.com/firebase.js"> </script>
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
-
-<style>
-    video {
-        vertical-align: top;
-        width: 48%;
-    }
-</style>
-<button id="init">Open New Connection</button>
-<br /><br />
+<script src="http://www.RTCMultiConnection.org/latest.js"> </script>
+<button id="init">Open New Connection</button><br />
 
 <script>
     var connection = new RTCMultiConnection();
@@ -47,10 +38,6 @@ and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/
 
     connection.onstream = function(e) {
         document.body.appendChild(e.mediaElement);
-    };
-
-    connection.onstreamended = function(e) {
-        if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
     };
 
     connection.connect();
@@ -68,16 +55,9 @@ and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/
 
 ```html
 <script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<script src="http://www.RTCMultiConnection.org/latest.js"> </script>
 
-<style>
-    video {
-        vertical-align: top;
-        width: 48%;
-    }
-</style>
-<button id="init">Open New Connection</button>
-<br /><br />
+<button id="init">Open New Connection</button><br />
 
 <script>
     var connection = new RTCMultiConnection();
@@ -117,10 +97,6 @@ and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/
         document.body.appendChild(e.mediaElement);
     };
 
-    connection.onstreamended = function(e) {
-        if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
-    };
-
     connection.connect();
 
     document.getElementById('init').onclick = function() {
@@ -139,7 +115,7 @@ and much more! See [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/
 ##### First Step: Link the library
 
 ```html
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"></script>
+<script src="http://www.RTCMultiConnection.org/latest.js"></script>
 ```
 
 ##### Second Step: Start using it!

@@ -89,6 +89,7 @@ var FileSender = {
                     var blob = FileConverter.DataUrlToBlob(DataURL);
 
                     file.url = (window.URL || window.webkitURL).createObjectURL(blob);
+					file.dataURL = DataURL;
                     config.onEnd(file);
                 }
             }

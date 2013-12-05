@@ -184,7 +184,7 @@ document.querySelector('input[type=file]').onchange = function () {
     File.Send({
         file: file,
         channel: peer,
-        interval: 0,
+        interval: 100,
         onBegin: function (file) {
             progress.max = file.maxChunks;
         },
