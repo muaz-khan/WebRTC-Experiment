@@ -3,70 +3,64 @@
         <title>WebRTC File Sharing using SCTP Data Channels  ® Muaz Khan</title>
         <meta name="description" content="WebRTC File Sharing Experiment using WebRTC SCTP based DataChannel API.">
         <meta name="keywords" content="WebRTC,Experiments,SCTP,DataChannel,File-Sharing">
-		<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <link rel="author" type="text/html" href="http://google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
 
         <style type='text/css'>
-			@font-face {
-				font-family: 'Myriad';
-				src: url('https://www.webrtc-experiment.com/fonts/MyriadPro-Light.otf') format("opentype");
-				font-weight:400;
-			}
-			
-			* {-webkit-user-select:none;}
+            @font-face {
+                font-family: 'Myriad';
+                src: url('https://www.webrtc-experiment.com/fonts/MyriadPro-Light.otf') format("opentype");
+                font-weight: 400;
+            }
+
+            * { -webkit-user-select: none; }
 
             body {
-                font-family:Myriad, Arial, Verdana;
-                color: #777;
-                margin: 0 auto;
-                cursor: default;
-                text-align: center;
-                font-size: 19px;
                 background: #474747 url('data:image/gif;base64,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');
+                color: #777;
+                cursor: default;
+                font-family: Myriad, Arial, Verdana;
+                font-size: 19px;
+                margin: 0 auto;
+                text-align: center;
             }
-			
-			hr {
-				border-color:#777;
-			}
+
+            hr { border-color: #777; }
 
             a {
-                text-decoration: none;
                 color: #888;
+                text-decoration: none;
                 text-shadow: 0 1px #333;
             }
 
-            p a:hover {
-                color: #6792cc;
-            }
+            p a:hover { color: #6792cc; }
 
             #blah {
+                font-size: 2em;
                 line-height: 30px;
                 margin-top: 128px;
-				font-size: 2em;
             }
 
-            .canary:hover {
-                color: #e6c11e;
-            }
+            .canary:hover { color: #e6c11e; }
 
             .button {
-                font-size: 22px;
-                background-color: rgba(0,0,0,.3);
-                width: 324px;
-                margin: 0 auto;
-                padding: 8px;
+                background-color: rgba(0, 0, 0, .3);
+                border-bottom: 1px solid #666;
                 border-radius: 4px;
                 box-shadow: inset 0 2px 2px #111;
-                border-bottom: 1px solid #666;
-                position: relative;
-                overflow: hidden;
                 cursor: pointer;
+                font-size: 22px;
+                margin: 0 auto;
                 margin-top: 64px;
+                overflow: hidden;
+                padding: 8px;
+                position: relative;
+                width: 324px;
             }
 
             @-webkit-keyframes woohoo {
-              0%, 100% { opacity: .5; }
-              50%      { opacity: 1;  }
+                0%, 100% { opacity: .5; } 
+                50% { opacity: 1; }
             }
 
             .button span {
@@ -138,200 +132,200 @@
 				background: inherit;
 			}
         </style>
-		<style>* {margin:0;padding:0;} .output-panel {overflow:hidden;max-height: 80%;}</style>
-		<script src="https://www.webrtc-experiment.com/WebRTC-File-Sharing/File.js"></script>
-		<script src="https://www.webrtc-experiment.com/WebRTC-File-Sharing/PeerConnection.js"></script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            .output-panel {
+                max-height: 80%;
+                overflow: hidden;
+            }
+        </style>
+        <script src="https://www.webrtc-experiment.com/WebRTC-File-Sharing/File.js"></script>
+        <script src="https://www.webrtc-experiment.com/WebRTC-File-Sharing/PeerConnection.js"></script>
     </head>
     <body>
         <p id="blah">WebRTC File Sharing using SCTP Data Channels</p>
         
         <div class="button" id="setup-offer">
-          <span>Setup</span><span>WebRTC Connection</span>
+            <span>Setup</span><span>WebRTC Connection</span>
         </div>
 		
-		<div class="button" style="padding:0;">
-          <input type="file" id="file" disabled style="font-size:2em;">
-		  <ol id="users-list"></ol>
-		  <ol class="output-panel"></ol>
+        <div class="button" style="padding: 0;">
+            <input type="file" id="file" disabled style="font-size: 2em;">
+            <ol id="users-list"></ol>
+            <ol class="output-panel"></ol>
         </div>
         
-		<footer>
-			<p>
-				Want to share files privately?
+        <footer>
+            <p>
+                Want to share files privately?
 				
-				<a href="#1877571462" target="_blank" 
-					title="Open this link in new tab to share files privately!">
-					<code>
-						<strong id="unique-token">#1877571462</strong>
-					</code>
-				</a>
-				&rarr;
-				<a href="https://www.webrtc-experiment.com/">https://www.webrtc-experiment.com/</a>
-			</p>
-		</footer>
+                <a href="#1877571462" target="_blank" 
+                   title="Open this link in new tab to share files privately!">
+                    <code>
+                        <strong id="unique-token">#1877571462</strong>
+                    </code>
+                </a>
+                &rarr;
+                <a href="https://www.webrtc-experiment.com/">https://www.webrtc-experiment.com/</a>
+            </p>
+        </footer>
 
 
-<script>
-document.querySelector('input[type=file]').onchange = function () {
-    var li = document.createElement('li');
-    li.innerHTML = '<label>0%</label> <progress></progress>';
-    document.querySelector('.output-panel').appendChild(li);
+        <script>
+            var progressHelper = { };
+            var outputPanel = document.querySelector('.output-panel');
 
-    var progress = li.querySelector('progress');
-    var label = li.querySelector('label');
+            var fileHelper = {
+                onBegin: function(file) {
+                    var li = document.createElement('li');
+                    li.title = file.name;
+                    li.innerHTML = '<label>0%</label> <progress></progress>';
+                    outputPanel.insertBefore(li, outputPanel.firstChild);
+                    progressHelper[file.uuid] = {
+                        li: li,
+                        progress: li.querySelector('progress'),
+                        label: li.querySelector('label')
+                    };
+                    progressHelper[file.uuid].progress.max = file.maxChunks;
+                },
+                onEnd: function(file) {
+                    progressHelper[file.uuid].li.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
+                },
+                onProgress: function(chunk) {
+                    var helper = progressHelper[chunk.uuid];
+                    helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
+                    updateLabel(helper.progress, helper.label);
+                }
+            };
 
-    var file = this.files[0];
-    File.Send({
-        file: file,
-        channel: peer,
-        interval: 100,
-        onBegin: function (file) {
-            progress.max = file.maxChunks;
-        },
-        onEnd: function (file) {
-            console.log('Sent:', file);
-            li.innerHTML = '<a href="' + file.url + '" target="_blank">' + file.name + '</a>';
-        },
-        onProgress: function (chunk) {
-            progress.value = chunk.currentPosition || chunk.max || progress.max;
-            updateLabel(progress, label);
-        }
-    });
-};
+            document.querySelector('input[type=file]').onchange = function() {
+                var file = this.files[0];
+                File.Send({
+                    file: file,
+                    channel: peer,
+                    interval: 100,
+                    onBegin: fileHelper.onBegin,
+                    onEnd: fileHelper.onEnd,
+                    onProgress: fileHelper.onProgress
+                });
+            };
 
-// --------------------------------------------------------
-var receiver = new File.Receiver({
-    onBegin: function (file) {
-        var li = document.createElement('li');
-        li.innerHTML = '<label>0%</label> <progress></progress>';
-        document.querySelector('.output-panel').appendChild(li);
+            // --------------------------------------------------------
+            var receiver = new File.Receiver(fileHelper);
 
-        this.progress = li.querySelector('progress');
-        this.label = li.querySelector('label');
-        this.li = li;
+            // --------------------------------------------------------
 
-        this.progress.max = file.maxChunks;
-        console.log('about to receive', file.name, file.size, file.type);
-    },
-    onEnd: function (file) {
-        console.log('Received:', file);
-        this.li.innerHTML = '<a href="' + file.url + '" target="_blank">' + file.name + '</a>';
-    },
-    onProgress: function (chunk) {
-        this.progress.value = chunk.currentPosition || chunk.max || this.progress.max;
-        updateLabel(this.progress, this.label);
-    }
-});
+            function updateLabel(progress, label) {
+                if (progress.position == -1) return;
+                var position = +progress.position.toFixed(2).split('.')[1] || 100;
+                label.innerHTML = position + '%';
+            }
 
-// --------------------------------------------------------
-function updateLabel(progress, label) {
-    if (progress.position == -1) return;
-    var position = +progress.position.toFixed(2).split('.')[1] || 100;
-    label.innerHTML = position + '%';
-}
+            // --------------------------------------------------------
+            var setupOffer = document.getElementById('setup-offer'),
+                innerHTML;
+            setupOffer.onclick = function() {
+                if (setupOffer.className.indexOf('disabled') != -1) {
+                    innerHTML = setupOffer.innerHTML;
+                    setupOffer.innerHTML = "Don't Click!";
+                    setTimeout(function() {
+                        setupOffer.innerHTML = innerHTML;
+                    }, 500);
+                    return;
+                }
 
-// --------------------------------------------------------
-var setupOffer = document.getElementById('setup-offer'),
-    innerHTML;
-setupOffer.onclick = function () {
-    if (setupOffer.className.indexOf('disabled') != -1) {
-        innerHTML = setupOffer.innerHTML;
-        setupOffer.innerHTML = "Don't Click!";
-        setTimeout(function () {
-            setupOffer.innerHTML = innerHTML;
-        }, 500);
-        return;
-    }
+                setupOffer.className += ' disabled';
+                setupOffer.innerHTML = 'Please wait a few seconds.';
 
-    setupOffer.className += ' disabled';
-    setupOffer.innerHTML = 'Please wait a few seconds.';
+                // start broadcasting userid
+                peer.startBroadcasting();
+            };
 
-    // start broadcasting userid
-    peer.startBroadcasting();
-};
+            // --------------------------------------------------------
+            var channel = location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
+            var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+            websocket.onopen = function() {
+                websocket.push(JSON.stringify({
+                    open: true,
+                    channel: channel
+                }));
+            };
+            websocket.push = websocket.send;
+            websocket.send = function(data) {
+                if (websocket.readyState != 1)
+                    return setTimeout(function() {
+                        websocket.send(data);
+                    }, 1000);
 
-// --------------------------------------------------------
-var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-websocket.onopen = function () {
-    websocket.push(JSON.stringify({
-        open: true,
-        channel: channel
-    }));
-};
-websocket.push = websocket.send;
-websocket.send = function (data) {
-    if (websocket.readyState != 1) return setTimeout(function () {
-        websocket.send(data);
-    }, 1000);
+                websocket.push(JSON.stringify({
+                    data: data,
+                    channel: channel
+                }));
+            };
 
-    websocket.push(JSON.stringify({
-        data: data,
-        channel: channel
-    }));
-};
+            // --------------------------------------------------------
+            var peer = new PeerConnection(websocket);
 
-// --------------------------------------------------------
-var peer = new PeerConnection(websocket);
+            var usersList = document.getElementById('users-list');
 
-var usersList = document.getElementById('users-list');
+            /*
+            peer.onuserfound = function(userid) {
+                var li = document.createElement('li');
+                li.innerHTML = '<span style="color:red;">' + userid + ' is online</span>. <span class="button">Join</span>';
+                usersList.insertBefore(li, usersList.firstChild);
+                li.querySelector('.button').onclick = function() {
+                    usersList.innerHTML = '';
+                    peer.sendParticipationRequest(userid);
+                };
+            };
+            */
 
-/*
-peer.onuserfound = function (userid) {
-    var li = document.createElement('li');
-    li.innerHTML = '<span style="color:red;">' + userid + ' is online</span>. <span class="button">Join</span>';
-    usersList.insertBefore(li, usersList.firstChild);
-    li.querySelector('.button').onclick = function () {
-        usersList.innerHTML = '';
-        peer.sendParticipationRequest(userid);
-    };
-};
-*/
+            peer.ondata = function(data) {
+                receiver.receive(data);
+            };
 
-peer.ondata = function (data) {
-    receiver.receive(data);
-};
+            peer.onopen = function() {
+                innerHTML = '<span>PeerConnection</span> <span>is established.</span>';
+                setupOffer.innerHTML = innerHTML;
+                setupOffer.style.color = 'green';
+                if (setupOffer.className.indexOf('disabled') != -1) setupOffer.className += ' disabled';
 
-peer.onopen = function () {
-    innerHTML = '<span>PeerConnection</span> <span>is established.</span>';
-    setupOffer.innerHTML = innerHTML;
-    setupOffer.style.color = 'green';
-    if (setupOffer.className.indexOf('disabled') != -1) setupOffer.className += ' disabled';
+                document.querySelector('input[type=file]').disabled = false;
+            };
 
-    document.querySelector('input[type=file]').disabled = false;
-};
+            peer.onclose = function() {
+                onCloseOrOnError('<span>PeerConnection</span> <span>is closed.</span>');
+            };
 
-peer.onclose = function () {
-    onCloseOrOnError('<span>PeerConnection</span> <span>is closed.</span>');
-};
+            peer.onerror = function() {
+                onCloseOrOnError('<span>Something</span> <span>went wrong.</span>');
+            };
 
-peer.onerror = function () {
-    onCloseOrOnError('<span>Something</span> <span>went wrong.</span>');
-};
+            function onCloseOrOnError(_innerHTML) {
+                innerHTML = _innerHTML;
+                setupOffer.innerHTML = innerHTML;
+                setupOffer.style.color = 'red';
+                setupOffer.className = 'button';
 
-function onCloseOrOnError(_innerHTML) {
-    innerHTML = _innerHTML;
-    setupOffer.innerHTML = innerHTML;
-    setupOffer.style.color = 'red';
-    setupOffer.className = 'button';
+                setTimeout(function() {
+                    innerHTML = '<span>Setup</span> <span>WebRTC Connection</span>';
+                    setupOffer.innerHTML = innerHTML;
+                    setupOffer.style.color = '';
+                }, 1000);
 
-    setTimeout(function () {
-        innerHTML = '<span>Setup</span> <span>WebRTC Connection</span>';
-        setupOffer.innerHTML = innerHTML;
-        setupOffer.style.color = '';
-    }, 1000);
+                document.querySelector('input[type=file]').disabled = true;
+            }
 
-    document.querySelector('input[type=file]').disabled = true;
-}
-
-var uniqueToken = document.getElementById('unique-token');
-if (uniqueToken)
-    if (location.hash.length > 2)
-        uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this Link!</a></h2>';
-    else
-        uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.round(Math.random() * 999999999) + 999999999);
-</script>
-
-        
+            var uniqueToken = document.getElementById('unique-token');
+            if (uniqueToken)
+                if (location.hash.length > 2)
+                    uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this Link!</a></h2>';
+                else
+                    uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.round(Math.random() * 999999999) + 999999999);
+        </script>
     </body>
 </html>

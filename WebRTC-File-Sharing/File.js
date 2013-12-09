@@ -1,176 +1,163 @@
 // Muaz Khan      - www.MuazKhan.com
-// MIT License    - https://www.webrtc-experiment.com/licence/
-// Documentation  - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/WebRTC-File-Sharing
+// MIT License    - www.WebRTC-Experiment.com/licence
+// Documentation  - github.com/muaz-khan/WebRTC-Experiment/tree/master/WebRTC-File-Sharing
+
 // _______
 // File.js
+
 var File = {
-    Send: function (config) {
-        FileSender.send(config);
-    },
-    Receiver: function (config) {
-        var fileReceiver = new FileReceiver(config);
-        return {
-            receive: function (data) {
-                fileReceiver.receive(data);
+    Send: function(config) {
+        var file = config.file;
+        var socket = config.channel;
+
+        var chunkSize = 40 * 1000; // 64k max sctp limit (AFAIK!)
+        var sliceId = 0;
+        var cacheSize = chunkSize;
+
+        var chunksPerSlice = Math.floor(Math.min(100000000, cacheSize) / chunkSize);
+        var sliceSize = chunksPerSlice * chunkSize;
+        var maxChunks = Math.ceil(file.size / chunkSize);
+
+        // uuid is used to uniquely identify sending instance
+        var uuid = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
+
+        socket.send({
+            uuid: uuid,
+            maxChunks: maxChunks,
+            size: file.size,
+            name: file.name,
+            lastModifiedDate: file.lastModifiedDate,
+            type: file.type,
+            start: true
+        }, config.extra);
+
+        file.maxChunks = maxChunks;
+        file.uuid = uuid;
+        if (config.onBegin) config.onBegin(file);
+
+        var blob, reader = new FileReader();
+        reader.onloadend = function(evt) {
+            if (evt.target.readyState == FileReader.DONE) {
+                addChunks(file.name, evt.target.result, function() {
+                    sliceId++;
+                    if ((sliceId + 1) * sliceSize < file.size) {
+                        blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
+                        reader.readAsArrayBuffer(blob);
+                    } else if (sliceId * sliceSize < file.size) {
+                        blob = file.slice(sliceId * sliceSize, file.size);
+                        reader.readAsArrayBuffer(blob);
+                    } else {
+                        socket.send({
+                            uuid: uuid,
+                            maxChunks: maxChunks,
+                            size: file.size,
+                            name: file.name,
+                            lastModifiedDate: file.lastModifiedDate,
+                            type: file.type,
+                            end: true
+                        }, config.extra);
+
+                        file.url = URL.createObjectURL(file);
+                        if (config.onEnd) config.onEnd(file);
+                    }
+                });
             }
         };
-    },
-    SaveToDisk: function (fileUrl, fileName) {
-        FileSaver.SaveToDisk(fileUrl, fileName);
-    }
-};
 
-// _____________
-// FileSender.js
-var FileSender = {
-    send: function (config) {
-        var channel = config.channel,
-            file = config.file;
+        blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
+        reader.readAsArrayBuffer(blob);
 
-        var packetSize = 1000, // 16k max limit
-            textToTransfer = '',
-            numberOfPackets = 0,
-            packets = 0,
-            DataURL;
+        var numOfChunksInSlice;
+        var currentPosition = 0;
+        var hasEntireFile;
+        var chunks = [];
 
-        // uuid to uniquely identify sending instance
-        file.uuid = getRandomString();
+        function addChunks(fileName, binarySlice, callback) {
+            numOfChunksInSlice = Math.ceil(binarySlice.byteLength / chunkSize);
+            for (var i = 0; i < numOfChunksInSlice; i++) {
+                var start = i * chunkSize;
+                chunks[currentPosition] = binarySlice.slice(start, Math.min(start + chunkSize, binarySlice.byteLength));
 
-        var reader = new window.FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = onReadAsDataURL;
-
-        function onReadAsDataURL(event, text) {
-            var data = {
-                type: 'file',
-                uuid: file.uuid
-            };
-
-            if (event) {
-                DataURL = text = event.target.result;
-                numberOfPackets = packets = data.packets = parseInt(text.length / packetSize);
-
-				file.maxChunks = numberOfPackets;
-                channel.send({
-                    start: true,
-                    file: {
-						name: file.name,
-						size: file.size,
-						type: file.type,
-						maxChunks: numberOfPackets
-					}
+                FileConverter.ArrayBufferToDataURL(chunks[currentPosition], function(str) {
+                    socket.send({
+                        uuid: uuid,
+                        value: str,
+                        currentPosition: currentPosition,
+                        maxChunks: maxChunks
+                    }, config.extra);
                 });
 
-                if (config.onBegin) config.onBegin(file);
+                currentPosition++;
             }
 
             if (config.onProgress) {
                 config.onProgress({
-                    currentPosition: numberOfPackets - packets,
-                    max: numberOfPackets,
-                    remaining: packets--,
-                    uuid: file.uuid
+                    currentPosition: currentPosition,
+                    maxChunks: maxChunks,
+                    uuid: uuid
                 });
             }
 
-            if (text.length > packetSize) data.message = text.slice(0, packetSize);
-            else {
-                data.message = text;
-                data.last = true;
-                data.name = file.name;
-                data.file = {
-					name: file.name,
-					size: file.size,
-					type: file.type,
-					maxChunks: numberOfPackets
-				};
+            if (currentPosition == maxChunks) {
+                hasEntireFile = true;
+            }
 
-                if (config.onEnd) {
-                    var blob = FileConverter.DataUrlToBlob(DataURL);
+            if (config.interval == 0 || typeof config.interval == 'undefined')
+                callback();
+            else
+                setTimeout(callback, config.interval);
+        }
+    },
 
-                    file.url = (window.URL || window.webkitURL).createObjectURL(blob);
-					file.dataURL = DataURL;
-                    config.onEnd(file);
+    Receiver: function(config) {
+        var packets = { };
+
+        function merge(mergein, mergeto) {
+            for (var item in mergeto) {
+                if (!mergein[item])
+                    mergein[item] = mergeto[item];
+            }
+            return mergein;
+        }
+
+        function receive(chunk) {
+            if (chunk.start && !packets[chunk.uuid]) {
+                packets[chunk.uuid] = [];
+                if (config.onBegin) config.onBegin(chunk);
+            }
+
+            if (!chunk.end && chunk.value) packets[chunk.uuid].push(chunk.value);
+
+            if (chunk.end) {
+                var _packets = packets[chunk.uuid];
+                var finalArray = [], length = _packets.length;
+
+                for (var i = 0; i < length; i++) {
+                    if (!!_packets[i]) {
+                        FileConverter.DataURLToBlob(_packets[i], function(buffer) {
+                            finalArray.push(buffer);
+                        });
+                    }
                 }
+
+                var blob = new Blob(finalArray, { type: chunk.type });
+                blob = merge(blob, chunk);
+                blob.url = URL.createObjectURL(blob);
+                blob.uuid = chunk.uuid;
+
+                if (!blob.size) console.error('Something went wrong. Blob Size is 0.');
+
+                if (config.onEnd) config.onEnd(blob);
             }
 
-            channel.send(data);
-
-            textToTransfer = text.slice(data.message.length);
-            if (textToTransfer.length) {
-                if (config.interval == 0 || typeof config.interval == 'undefined')
-                    onReadAsDataURL(null, textToTransfer);
-                else
-                    setTimeout(function () {
-                        onReadAsDataURL(null, textToTransfer);
-                    }, config.interval);
-            }
-        }
-    }
-};
-
-// _______________
-// FileReceiver.js
-function FileReceiver(config) {
-    var content = {},
-        packets = {},
-        numberOfPackets = {};
-
-    function receive(data) {
-        if (data.start) {
-            return config.onBegin(data.file);
+            if (config.onProgress) config.onProgress(chunk);
         }
 
-        // uuid is used to uniquely identify sending instance
-        var uuid = data.uuid;
-
-        if (data.packets) numberOfPackets[uuid] = packets[uuid] = parseInt(data.packets);
-
-        if (config.onProgress) {
-            config.onProgress({
-                currentPosition: numberOfPackets[uuid] - packets[uuid],
-                max: numberOfPackets[uuid],
-                remaining: packets[uuid]--,
-                uuid: uuid
-            });
-        }
-
-        if (!content[uuid]) content[uuid] = [];
-
-        content[uuid].push(data.message);
-
-        // if it is last packet
-        if (data.last) {
-            var dataURL = content[uuid].join('');
-            var blob = FileConverter.DataUrlToBlob(dataURL);
-            var virtualURL = (window.URL || window.webkitURL).createObjectURL(blob);
-
-            if (config.autoSaveToDisk)
-                FileSaver.SaveToDisk(dataURL, data.name);
-
-            if (config.onEnd) {
-                var file = data.file;
-
-                file.url = virtualURL;
-                file.dataURL = dataURL;
-                file.blob = blob;
-
-                config.onEnd(file);
-            }
-
-            delete content[uuid];
-        }
-    }
-
-    return {
-        receive: receive
-    };
-}
-
-// ____________
-// FileSaver.js
-var FileSaver = {
-    SaveToDisk: function (fileUrl, fileName) {
+        return {
+            receive: receive
+        };
+    },
+    SaveToDisk: function(fileUrl, fileName) {
         var hyperlink = document.createElement('a');
         hyperlink.href = fileUrl;
         hyperlink.target = '_blank';
@@ -190,29 +177,28 @@ var FileSaver = {
 // ________________
 // FileConverter.js
 var FileConverter = {
-    DataUrlToBlob: function (dataURL) {
-        var binary = atob(dataURL.substr(dataURL.indexOf(',') + 1));
-        var array = [];
-        for (var i = 0; i < binary.length; i++) {
-            array.push(binary.charCodeAt(i));
+    ArrayBufferToDataURL: function(buffer, callback) {
+        window.BlobBuilder = window.MozBlobBuilder || window.WebKitBlobBuilder || window.BlobBuilder;
+
+        // getting blob from array-buffer
+        var blob = new Blob([buffer]);
+
+        // reading file as binary-string
+        var fileReader = new FileReader();
+        fileReader.onload = function(e) {
+            callback(e.target.result);
+        };
+        fileReader.readAsDataURL(blob);
+    },
+    DataURLToBlob: function(dataURL, callback) {
+        var binary = atob(dataURL.substr(dataURL.indexOf(',') + 1)),
+            i = binary.length,
+            view = new Uint8Array(i);
+
+        while (i--) {
+            view[i] = binary.charCodeAt(i);
         }
 
-        var type;
-
-        try {
-            type = dataURL.substr(dataURL.indexOf(':') + 1).split(';')[0];
-        } catch (e) {
-            type = 'text/plain';
-        }
-
-        var uint8Array = new Uint8Array(array);
-        // bug: must recheck FileConverter
-        return new Blob([new DataView(uint8Array.buffer)], {
-            type: type
-        });
+        callback(new Blob([view]));
     }
 };
-
-function getRandomString() {
-    return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
-}

@@ -1,39 +1,42 @@
 // Muaz Khan      - www.MuazKhan.com
-// MIT License    - https://www.webrtc-experiment.com/licence/
-// Documentation  - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/WebRTC-File-Sharing
+// MIT License    - www.WebRTC-Experiment.com/licence
+// Documentation  - github.com/muaz-khan/WebRTC-Experiment/tree/master/WebRTC-File-Sharing
+
 // _______
 // PeerConnection.js
-(function () {
+(function() {
 
-    window.PeerConnection = function (socketURL, userid) {
+    window.PeerConnection = function(socketURL, userid) {
         this.userid = userid || getToken();
-        this.peers = {};
+        this.peers = { };
 
         if (!socketURL) throw 'Socket-URL is mandatory.';
 
         var signaler = new Signaler(this, socketURL);
 
         var that = this;
-        this.send = function (data) {
+        this.send = function(data) {
             var channel = answererDataChannel || offererDataChannel;
 
-            if (channel.readyState != 'open') return setTimeout(function () {
-                that.send(data);
-            }, 1000);
+            if (channel.readyState != 'open')
+                return setTimeout(function() {
+                    that.send(data);
+                }, 1000);
             channel.send(data);
         };
 
-        signaler.ondata = function (data) {
+        signaler.ondata = function(data) {
             if (that.ondata) that.ondata(data);
         };
 
-        this.onopen = function () {};
+        this.onopen = function() {
+        };
     };
 
     function Signaler(root, socketURL) {
         var self = this;
 
-        root.startBroadcasting = function () {
+        root.startBroadcasting = function() {
             (function transmit() {
                 socket.send({
                     userid: root.userid,
@@ -44,7 +47,7 @@
             })();
         };
 
-        root.sendParticipationRequest = function (userid) {
+        root.sendParticipationRequest = function(userid) {
             socket.send({
                 participationRequest: true,
                 userid: root.userid,
@@ -53,7 +56,7 @@
         };
 
         // if someone shared SDP
-        this.onsdp = function (message) {
+        this.onsdp = function(message) {
             var sdp = message.sdp;
 
             if (sdp.type == 'offer') {
@@ -67,13 +70,13 @@
             }
         };
 
-        root.acceptRequest = function (userid) {
+        root.acceptRequest = function(userid) {
             root.peers[userid] = Offer.createOffer(options);
         };
 
         var candidates = [];
         // if someone shared ICE
-        this.onice = function (message) {
+        this.onice = function(message) {
             var peer = root.peers[message.userid];
             if (peer) {
                 peer.addIceCandidate(message.candidate);
@@ -86,30 +89,30 @@
 
         // it is passed over Offer/Answer objects for reusability
         var options = {
-            onsdp: function (sdp) {
+            onsdp: function(sdp) {
                 socket.send({
                     userid: root.userid,
                     sdp: sdp,
                     to: root.participant
                 });
             },
-            onicecandidate: function (candidate) {
+            onicecandidate: function(candidate) {
                 socket.send({
                     userid: root.userid,
                     candidate: candidate,
                     to: root.participant
                 });
             },
-            ondata: function (data) {
+            ondata: function(data) {
                 self.ondata(data);
             },
-            onopen: function () {
+            onopen: function() {
                 root.onopen();
             },
-            onclose: function (e) {
+            onclose: function(e) {
                 if (root.onclose) root.onclose(e);
             },
-            onerror: function (e) {
+            onerror: function(e) {
                 if (root.onerror) root.onerror(e);
             }
         };
@@ -120,10 +123,10 @@
             for (var userid in root.peers) {
                 root.peers[userid].peer.close();
             }
-            root.peers = {};
+            root.peers = { };
         }
 
-        root.close = function () {
+        root.close = function() {
             socket.send({
                 userLeft: true,
                 userid: root.userid,
@@ -132,17 +135,17 @@
             closePeerConnections();
         };
 
-        window.onbeforeunload = function () {
+        window.onbeforeunload = function() {
             root.close();
         };
 
-        window.onkeyup = function (e) {
+        window.onkeyup = function(e) {
             if (e.keyCode == 116)
                 root.close();
         };
 
         // users who broadcasts themselves
-        var invokers = {};
+        var invokers = { };
 
         function onmessage(e) {
             var message = JSON.parse(e.data);
@@ -151,7 +154,7 @@
             root.participant = message.userid;
 
             // for pretty logging
-            message.sdp && console.debug(JSON.stringify(message, function (key, value) {
+            message.sdp && console.debug(JSON.stringify(message, function(key, value) {
                 console.log(value.sdp.type, '---', value.sdp.sdp);
             }, '---'));
 
@@ -194,15 +197,16 @@
         if (typeof socketURL == 'string') {
             socket = new WebSocket(socketURL);
             socket.push = socket.send;
-            socket.send = function (data) {
-                if (socket.readyState != 1) return setTimeout(function () {
-                    socket.send(data);
-                }, 1000);
+            socket.send = function(data) {
+                if (socket.readyState != 1)
+                    return setTimeout(function() {
+                        socket.send(data);
+                    }, 1000);
 
                 socket.push(JSON.stringify(data));
             };
 
-            socket.onopen = function () {
+            socket.onopen = function() {
                 console.log('websocket connection opened.');
             };
         }
@@ -215,8 +219,8 @@
 
     window.URL = window.webkitURL || window.URL;
 
-    var isFirefox = !! navigator.mozGetUserMedia;
-    var isChrome = !! navigator.webkitGetUserMedia;
+    var isFirefox = !!navigator.mozGetUserMedia;
+    var isChrome = !!navigator.webkitGetUserMedia;
 
     var STUN = {
         url: isChrome ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
@@ -232,7 +236,7 @@
     };
 
     if (isChrome) {
-        if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
+        if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
             TURN = {
                 url: 'turn:turn.bistri.com:80',
                 credential: 'homeo',
@@ -251,8 +255,8 @@
     var offerAnswerConstraints = {
         optional: [],
         mandatory: {
-            OfferToReceiveAudio: !! isFirefox,
-            OfferToReceiveVideo: !! isFirefox
+            OfferToReceiveAudio: !!isFirefox,
+            OfferToReceiveVideo: !!isFirefox
         }
     };
 
@@ -261,60 +265,61 @@
     }
 
     function setChannelEvents(channel, config) {
-        channel.onmessage = function (event) {
+        channel.onmessage = function(event) {
             var data = JSON.parse(event.data);
             config.ondata(data);
         };
-        channel.onopen = function () {
+        channel.onopen = function() {
             config.onopen();
 
             channel.push = channel.send;
-            channel.send = function (data) {
+            channel.send = function(data) {
                 channel.push(JSON.stringify(data));
             };
         };
 
-        channel.onerror = function (e) {
+        channel.onerror = function(e) {
             console.error('channel.onerror', JSON.stringify(e, null, '\t'));
             config.onerror(e);
         };
 
-        channel.onclose = function (e) {
+        channel.onclose = function(e) {
             console.warn('channel.onclose', JSON.stringify(e, null, '\t'));
             config.onclose(e);
         };
     }
 
     var dataChannelDict = {
-        //protocol: 'text/chat',
-        //preset: true,
-        //stream: 16
+        
+    //protocol: 'text/chat',
+    //preset: true,
+    //stream: 16
     };
 
     var offererDataChannel;
 
     var Offer = {
-        createOffer: function (config) {
+        createOffer: function(config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
 
             if (isFirefox) {
                 navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function (stream) {
-                    peer.addStream(stream);
-                }, useless);
+                        audio: true,
+                        fake: true
+                    }, function(stream) {
+                        peer.addStream(stream);
+                    }, useless);
             }
 
             offererDataChannel = peer.createDataChannel('channel', dataChannelDict);
             setChannelEvents(offererDataChannel, config);
 
-            peer.onicecandidate = function (event) {
+            peer.onicecandidate = function(event) {
                 if (event.candidate)
                     config.onicecandidate(event.candidate);
             };
 
-            peer.createOffer(function (sdp) {
+            peer.createOffer(function(sdp) {
                 peer.setLocalDescription(sdp);
                 config.onsdp(sdp);
             }, onSdpError, offerAnswerConstraints);
@@ -323,10 +328,10 @@
 
             return this;
         },
-        setRemoteDescription: function (sdp) {
+        setRemoteDescription: function(sdp) {
             this.peer.setRemoteDescription(new RTCSessionDescription(sdp));
         },
-        addIceCandidate: function (candidate) {
+        addIceCandidate: function(candidate) {
             this.peer.addIceCandidate(new RTCIceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
@@ -337,29 +342,29 @@
     var answererDataChannel;
 
     var Answer = {
-        createAnswer: function (config) {
+        createAnswer: function(config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
-            peer.ondatachannel = function (event) {
+            peer.ondatachannel = function(event) {
                 answererDataChannel = event.channel;
                 setChannelEvents(answererDataChannel, config);
             };
 
-            peer.onicecandidate = function (event) {
+            peer.onicecandidate = function(event) {
                 if (event.candidate)
                     config.onicecandidate(event.candidate);
             };
 
             if (isFirefox) {
                 navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function (stream) {
-                    peer.addStream(stream);
-                }, useless);
+                        audio: true,
+                        fake: true
+                    }, function(stream) {
+                        peer.addStream(stream);
+                    }, useless);
             }
 
             peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
-            peer.createAnswer(function (sdp) {
+            peer.createAnswer(function(sdp) {
                 peer.setLocalDescription(sdp);
                 config.onsdp(sdp);
             }, onSdpError, offerAnswerConstraints);
@@ -368,7 +373,7 @@
 
             return this;
         },
-        addIceCandidate: function (candidate) {
+        addIceCandidate: function(candidate) {
             this.peer.addIceCandidate(new RTCIceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
