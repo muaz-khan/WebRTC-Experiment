@@ -35,6 +35,7 @@ This document explains RTCMultiConnection versions log.
 20. directions simplified
 21. SCTP data channels are preferred / [`preferSCTP`](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection#prefersctp)
 22. onmute/onunmute added. [Demo](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/mute-unmute.html)
+23. File queue support added. Previously shared files will be auto transmitted to each new peer.
 
 =
 

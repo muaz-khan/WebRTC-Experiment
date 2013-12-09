@@ -610,6 +610,9 @@ connection.send(fileNumber1);
 connection.send(fileNumber2);
 connection.send(fileNumber3);
 
+// or as an array
+channel.send([fileNumber1, fileNumber2, fileNumber3]);
+
 connection.send('longer string-1');
 connection.send('longer string-2');
 connection.send('longer string-3');
@@ -641,29 +644,43 @@ var uuid = file.uuid; // "file"-Dot-uuid
 ##### Progress helpers when sharing files
 
 ```javascript
-// show progress bar!
-connection.onFileProgress = function (packets, uuid) {
-    // packets.remaining
-    // packets.sent
-    // packets.received
-    // packets.length
-	
-    // uuid: file unique identifier
+var progressHelper = {};
+
+// to make sure file-saver dialog is not invoked.
+connection.autoSaveToDisk = false;
+
+connection.onFileProgress = function (chunk, uuid) {
+    var helper = progressHelper[chunk.uuid];
+    helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
+    updateLabel(helper.progress, helper.label);
 };
 
-// on file successfully sent
-connection.onFileSent = function (file, uuid) {
-    // file.name
-    // file.size
+connection.onFileStart = function (file) {
+    var div = document.createElement('div');
+    div.title = file.name;
+    div.innerHTML = '<label>0%</label> <progress></progress>';
+    appendDIV(div, fileProgress);
+    progressHelper[file.uuid] = {
+        div: div,
+        progress: div.querySelector('progress'),
+        label: div.querySelector('label')
+    };
+    progressHelper[file.uuid].progress.max = file.maxChunks;
 };
 
-// on file successfully received
+connection.onFileSent = function (file) {
+    progressHelper[file.uuid].div.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
+};
+
 connection.onFileReceived = function (fileName, file) {
-    // file.blob
-    // file.dataURL
-    // file.url
-    // file.uuid
+    progressHelper[file.uuid].div.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
 };
+
+function updateLabel(progress, label) {
+    if (progress.position == -1) return;
+    var position = +progress.position.toFixed(2).split('.')[1] || 100;
+    label.innerHTML = position + '%';
+}
 ```
 
 =
@@ -675,8 +692,6 @@ By default; `autoSaveToDisk` is set to `true`. When it is `true`; it will save f
 ```javascript
 connection.autoSaveToDisk = false; // prevent auto-saving!
 connection.onFileReceived = function (fileName, file) {
-    // file.blob
-    // file.dataURL
     // file.url
     // file.uuid
 	
