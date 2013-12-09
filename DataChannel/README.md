@@ -16,6 +16,7 @@ DataChannel.js is a JavaScript library useful to write many-to-many i.e. group f
 8. Users' presence detection using `onleave`
 9. Latency detection
 10. Multi-longest strings/files concurrent 
+11. File queue support added. Previously shared files will be auto transmitted to each new peer.
 
 =
 
@@ -23,37 +24,43 @@ DataChannel.js is a JavaScript library useful to write many-to-many i.e. group f
 
 ```html
 <script src="https://www.webrtc-experiment.com/DataChannel.js"> </script>
-
-<input type="text" id="chat-input" disabled style="font-size: 2em; width: 98%;"><br />
+<button id="setup-datachannel" style="width:30%;">Open NEW DataChannel</button>
+<input type="text" id="chat-input" disabled style="font-size: 2em; width: 65%;"><br />
 <div id="chat-output"></div>
 
 <script>
-    var chatOutput = document.getElementById('chat-output');
-    var chatInput = document.getElementById('chat-input');
-    chatInput.onkeypress = function(e) {
-        if (e.keyCode != 13) return;
-        channel.send(this.value);
-        chatOutput.innerHTML = 'Me: ' + this.value + '<hr />' + chatOutput.innerHTML;
-        this.value = '';
-    };
-</script>
+var chatOutput = document.getElementById('chat-output');
+var chatInput = document.getElementById('chat-input');
+chatInput.onkeypress = function (e) {
+    if (e.keyCode != 13) return;
+    channel.send(this.value);
+    chatOutput.innerHTML = 'Me: ' + this.value + '<hr />' + chatOutput.innerHTML;
+    this.value = '';
+};
 
-<script>
-    var channel = new DataChannel('Session Unique Identifier');
+var channel = new DataChannel();
 
-    channel.onopen = function(userid) {
-        chatInput.disabled = false;
-        chatInput.value = 'Hi, ' + userid;
-        chatInput.focus();
-    };
+channel.onopen = function (userid) {
+    chatInput.disabled = false;
+    chatInput.value = 'Hi, ' + userid;
+    chatInput.focus();
+};
 
-    channel.onmessage = function(message, userid) {
-        chatOutput.innerHTML = userid + ': ' + message + '<hr />' + chatOutput.innerHTML;
-    };
+channel.onmessage = function (message, userid) {
+    chatOutput.innerHTML = userid + ': ' + message + '<hr />' + chatOutput.innerHTML;
+};
 
-    channel.onleave = function(userid) {
-        chatOutput.innerHTML = userid + ' Left.<hr />' + chatOutput.innerHTML;
-    };
+channel.onleave = function (userid) {
+    chatOutput.innerHTML = userid + ' Left.<hr />' + chatOutput.innerHTML;
+};
+
+// search for existing data channels
+channel.connect();
+
+document.querySelector('button#setup-datachannel').onclick = function () {
+    // setup new data channel
+    channel.open();
+};
 </script>
 ```
 
@@ -70,8 +77,20 @@ DataChannel.js is a JavaScript library useful to write many-to-many i.e. group f
 ##### Last Step: Start using it!
 
 ```javascript
-var channel = new DataChannel('channel-name');
+var channel = new DataChannel('[optional] channel-name');
 channel.send(file || data || 'text-message');
+```
+
+=
+
+##### open/connect data channels
+
+```javascript
+// to create/open a new channel
+channel.open('channel-name');
+
+// if soemone already created a channel; to join it: use "connect" method
+channel.connect('channel-name');
 ```
 
 =
@@ -114,11 +133,6 @@ channel.ondatachannel = function(data_channel) {
 
 ```javascript
 channel.userid = 'predefined-userid';
-
-// or for auto-initiated data connections
-new DataChannel('channel-name', {
-    userid: 'predefined-userid'
-});
 ```
 
 Remeber; custom defined `user-id` must be unique username.
@@ -163,11 +177,6 @@ When room initiator leaves; you can enforce auto-closing of the entire session. 
 
 ```javascript
 channel.autoCloseEntireSession = true;
-
-// or 
-new DataChannel('channel-name', {
-    autoCloseEntireSession: true
-});
 ```
 
 It means that session will be kept active all the time; even if initiator leaves the session.
@@ -195,23 +204,54 @@ var uuid = file.uuid; // "file"-Dot-uuid
 ##### To Share files
 
 ```javascript
-// show progress bar!
-channel.onFileProgress = function (packets, uuid) {
-    // packets.remaining
-    // packets.sent      (for sender)
-    // packets.received  (for receiver)
-    // packets.length
-    // uuid:	file unique identifier
+var progressHelper = {};
+
+// to make sure file-saver dialog is not invoked.
+channel.autoSaveToDisk = false;
+
+channel.onFileProgress = function (chunk, uuid) {
+    var helper = progressHelper[chunk.uuid];
+    helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
+    updateLabel(helper.progress, helper.label);
 };
 
-// on file successfully sent
-channel.onFileSent = function (file, uuid) {
-    // file.name
-    // file.size
+channel.onFileStart = function (file) {
+    var div = document.createElement('div');
+    div.title = file.name;
+    div.innerHTML = '<label>0%</label> <progress></progress>';
+    appendDIV(div, fileProgress);
+    progressHelper[file.uuid] = {
+        div: div,
+        progress: div.querySelector('progress'),
+        label: div.querySelector('label')
+    };
+    progressHelper[file.uuid].progress.max = file.maxChunks;
 };
 
-// on file successfully received
-channel.onFileReceived = function (fileName, file) {};
+channel.onFileSent = function (file) {
+    progressHelper[file.uuid].div.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
+};
+
+channel.onFileReceived = function (fileName, file) {
+    progressHelper[file.uuid].div.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
+};
+
+function updateLabel(progress, label) {
+    if (progress.position == -1) return;
+    var position = +progress.position.toFixed(2).split('.')[1] || 100;
+    label.innerHTML = position + '%';
+}
+```
+=
+
+##### File Queue
+
+File Queue support added to make sure newly connected users gets all previously shared files.
+
+You can see list of previously shared files:
+
+```javascript
+console.log( channel.fileQueue );
 ```
 
 =
@@ -223,8 +263,6 @@ By default; `autoSaveToDisk` is set to `true`. When it is `true`; it will save f
 ```javascript
 channel.autoSaveToDisk = false; // prevent auto-saving!
 channel.onFileReceived = function (fileName, file) {
-    // file.blob
-    // file.dataURL
     // file.url
     // file.uuid
 	
@@ -249,9 +287,13 @@ channel.onmessage = function(message, userid, latency) {
 You can send multiple files concurrently; or multiple longer text messages:
 
 ```javascript
+// individually
 channel.send(fileNumber1);
 channel.send(fileNumber2);
 channel.send(fileNumber3);
+
+// or as an array
+channel.send([fileNumber1, fileNumber2, fileNumber3]);
 
 channel.send('longer string-1');
 channel.send('longer string-2');
@@ -287,7 +329,6 @@ channel.direction = 'many-to-many';
 ##### Use [your own socket.io for signaling](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs)
 
 ```javascript
-var channel = new DataChannel('default-channel');
 channel.openSignalingChannel = function(config) {
    var URL = '/';
    var channel = config.channel || this.channel || 'default-channel';
@@ -316,6 +357,33 @@ channel.openSignalingChannel = function(config) {
 };
 ```
 
+##### Use firebase for signaling
+
+```javascript
+// firebase stores data on their servers
+// that's why transmitting room once
+// unlike other signalling gateways; that
+// doesn't stores data on servers.
+channel.transmitRoomOnce = true;
+
+channel.openSignalingChannel = function (config) {
+    channel = config.channel || this.channel || 'default-channel';
+    var socket = new window.Firebase('https://chat.firebaseIO.com/' + channel);
+    socket.channel = channel;
+    socket.on('child_added', function (data) {
+        var value = data.val();
+        if (value == 'joking') config.onopen && config.onopen();
+        else config.onmessage(value);
+    });
+    socket.send = function (data) {
+        this.push(data);
+    };
+    socket.push('joking');
+    this.socket = socket;
+    return socket;
+};
+```
+
 =
 
 ##### `transmitRoomOnce`
@@ -323,58 +391,7 @@ channel.openSignalingChannel = function(config) {
 `transmitRoomOnce` is preferred when using Firebase for signaling. It saves bandwidth and asks DataChannel.js library to not repeatedly transmit room details.
 
 ```javascript
-var channel = new DataChannel('channel-name', {
-    transmitRoomOnce: true
-});
-```
-
-If you want to use Firebase for signaling; you must use it like this:
-
-```javascript
-var channel = new DataChannel('default-channel', {
-    openSignalingChannel: function (config) {
-        config = config || {};
-        channel = config.channel || self.channel || 'default-channel';
-        var socket = new window.Firebase('https://chat.firebaseIO.com/' + channel);
-        socket.channel = channel;
-        socket.on('child_added', function (data) {
-            var value = data.val();
-            if (value == 'joking') config.onopen && config.onopen();
-            else config.onmessage(value);
-        });
-        socket.send = function (data) {
-            this.push(data);
-        };
-        socket.push('joking');
-        self.socket = socket;
-        return socket;
-    }
-});
-```
-
-=
-
-##### For auto-created data sessions
-
-You can pass `direction` or other parts like this:
-
-```javascript
-var channel = new DataChannel('channel-name', {
-    transmitRoomOnce: true,
-    direction: 'one-to-many',
-});
-```
-
-=
-
-##### Manually open/connect data sessions
-
-```javascript
-// to create/open a new channel
-channel.open('channel-name');
-
-// if soemone already created a channel; to join it: use "connect" method
-channel.connect('channel-name');
+channel.transmitRoomOnce = true;
 ```
 
 =
