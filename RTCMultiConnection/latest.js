@@ -117,10 +117,6 @@
                         return;
                     }
 
-                    // don't call "onNewSession" multiple times for same session
-                    if (self.sessions[session.sessionid]) return;
-                    self.sessions[session.sessionid] = session;
-
                     if (self.onNewSession)
                         return self.onNewSession(session);
 
@@ -609,9 +605,7 @@
 
                     if (response.closeEntireSession) {
                         root.leave();
-
-                        if (root.sessions[response.sessionid])
-                            delete root.sessions[response.sessionid];
+							
                     } else if (socket) {
                         socket.send({
                             left: true,
@@ -729,8 +723,6 @@
                 }
             }
         }
-
-        // for PHP-based socket.io; split SDP in parts here
 
         function sendsdp(e) {
             e.socket.send({
@@ -1118,7 +1110,7 @@
             var file = config.file;
             var socket = config.channel;
 
-            var chunkSize = 40 * 1000; // 64k max sctp limit (AFAIK!)
+            var chunkSize = config.chunkSize || 40 * 1000; // 64k max sctp limit (AFAIK!)
             var sliceId = 0;
             var cacheSize = chunkSize;
 
@@ -1318,6 +1310,7 @@
                 extra: config._channel,
                 file: config.file,
                 interval: interval,
+				chunkSize: config.preferSCTP ? 40 * 1000 : 1000, // 64k max sctp limit (AFAIK!)
                 onProgress: function(file) {
                     if (root.onFileProgress) {
                         root.onFileProgress({
@@ -1645,11 +1638,11 @@
             }, onSdpError, constraints);
         }
 
-        if (options.preferSCTP || (options.onAnswerSDP && options.onmessage && moz))
-            openAnswererChannel();
-
         createOffer();
         createAnswer();
+		
+		if (options.preferSCTP || (options.onAnswerSDP && options.onmessage && moz))
+            openAnswererChannel();
 
         var bandwidth = options.bandwidth;
 
@@ -2118,14 +2111,12 @@
             video: true
         };
 
-        this.sessions = { };
-
         this.bandwidth = {
             data: 1638400
         };
 
         // preferring SCTP data channels!
-        this.preferSCTP = true;
+        this.preferSCTP = false;
 
         // file queue: to store previous file objects in memory;
         // and stream over newly connected peers

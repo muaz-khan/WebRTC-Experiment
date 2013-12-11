@@ -659,7 +659,7 @@ connection.onFileStart = function (file) {
     var div = document.createElement('div');
     div.title = file.name;
     div.innerHTML = '<label>0%</label> <progress></progress>';
-    appendDIV(div, fileProgress);
+    document.body.appendChild(div);
     progressHelper[file.uuid] = {
         div: div,
         progress: div.querySelector('progress'),

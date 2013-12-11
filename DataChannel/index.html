@@ -1,42 +1,43 @@
 ﻿<!--
-// Muaz Khan     - www.MuazKhan.com
-// MIT License   - www.WebRTC-Experiment.com/licence
-// Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
 -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="utf-8">
         <title>DataChannel.js » A WebRTC Library for Data Sharing ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <link rel="author" type="text/html" href="http://google.com/+MuazKhan">
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
         <style>
-            #chat-output div, #file-progress div {
-                border: 1px solid black;
-                border-bottom: 0;
-                padding: .1em .4em;
-            }
+			#chat-output div, #file-progress div {
+				border: 1px solid black;
+				border-bottom: 0;
+				padding: .1em .4em;
+			}
 
-            input {
-                border: 1px solid black;
-                font-family: inherit;
-                font-size: 1em;
-                margin: .1em .3em;
-                outline: none;
-                padding: .1em .2em;
-                width: 97%;
-            }
+			input {
+				border: 1px solid black;
+				font-family: inherit;
+				font-size: 1em;
+				margin: .1em .3em;
+				outline: none;
+				padding: .1em .2em;
+				width: 97%;
+			}
 
-            #chat-output, #file-progress {
-                margin: 0 0 0 .4em;
-                max-height: 12em;
-                overflow: auto;
-            }
-        </style>
+			#chat-output, #file-progress {
+				margin: 0 0 0 .4em;
+				max-height: 12em;
+				overflow: auto;
+			}
+		</style>
         <script>
             document.createElement('article');
             document.createElement('footer');
@@ -98,10 +99,9 @@
             </section>
 		
             <script>
-                var channel = new DataChannel();
-// DataChannel.js
+                var channel = new DataChannel(); // DataChannel.js
 
-// "ondatachannel" is fired for each new data channel
+                // "ondatachannel" is fired for each new data channel
                 channel.ondatachannel = function(channel00) {
                     var alreadyExist = document.getElementById(channel00.id);
                     if (alreadyExist) return;
@@ -113,21 +113,44 @@
 
                     channelsList.insertBefore(tr, channelsList.firstChild);
 
-                    var button = tr.querySelector('button');
                     // when someone clicks table-row; joining the relevant data channel
-                    button.onclick = function() {
-
+                    tr.onclick = function () {
+                        
                         // manually joining a data channel
                         channel.join({
-                            id: button.id,
-                            owner: button.parentNode.parentNode.id
+                            id: this.querySelector('.join').id,
+                            owner: this.id
                         });
-
-                        button.disabled = true;
+                        
+                        channelsList.style.display = 'none';
                     };
                 };
 
-                // a text message or data
+                // overriding "openSignalingChannel" to use WebSockets as signaling gateway!
+                channel.openSignalingChannel = function(config) {
+                    config.channel = config.channel || this.channel || location.hash.substr(1) || 'DataChanneljs-library-for-data-sharing';
+                    var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+                    websocket.channel = config.channel;
+                    websocket.onopen = function() {
+                        websocket.push(JSON.stringify({
+                            open: true,
+                            channel: config.channel
+                        }));
+                        if (config.callback) config.callback(websocket);
+                    };
+                    websocket.onmessage = function(event) {
+                        config.onmessage(JSON.parse(event.data));
+                    };
+                    websocket.push = websocket.send;
+                    websocket.send = function(data) {
+                        websocket.push(JSON.stringify({
+                            data: data,
+                            channel: config.channel
+                        }));
+                    };
+                };
+
+		        // a text message or data
                 channel.onmessage = function(data, userid, latency) {
                     appendDIV(data);
 
@@ -135,48 +158,26 @@
                     console.log('latency:', latency, 'ms');
                 };
 
-                // on data connection gets open
+		        // on data connection gets open
                 channel.onopen = function() {
                     if (document.getElementById('chat-input')) document.getElementById('chat-input').disabled = false;
                     if (document.getElementById('file')) document.getElementById('file').disabled = false;
                     if (document.getElementById('open-channel')) document.getElementById('open-channel').disabled = true;
                 };
 
-                var progressHelper = { };
-
-                channel.autoSaveToDisk = false;
-                channel.onFileProgress = function(chunk) {
-                    var helper = progressHelper[chunk.uuid];
-                    helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
-                    updateLabel(helper.progress, helper.label);
-                };
-
-                channel.onFileStart = function(file) {
-                    var div = document.createElement('div');
-                    div.title = file.name;
-                    div.innerHTML = '<label>0%</label> <progress></progress>';
-                    appendDIV(div, fileProgress);
-                    progressHelper[file.uuid] = {
-                        div: div,
-                        progress: div.querySelector('progress'),
-                        label: div.querySelector('label')
-                    };
-                    progressHelper[file.uuid].progress.max = file.maxChunks;
+                // sending/receiving file(s)
+                // channel.autoSaveToDisk = false;
+                channel.onFileProgress = function(packets, uuid) {
+                    appendDIV(uuid + ': ' + packets.remaining + '..', 'file', fileProgress);
                 };
 
                 channel.onFileSent = function(file) {
-                    progressHelper[file.uuid].div.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
+                    appendDIV(file.name + ' sent.', fileProgress);
                 };
 
-                channel.onFileReceived = function(fileName, file) {
-                    progressHelper[file.uuid].div.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
+                channel.onFileReceived = function(fileName) {
+                    appendDIV(fileName + ' received.', fileProgress);
                 };
-
-                function updateLabel(progress, label) {
-                    if (progress.position == -1) return;
-                    var position = +progress.position.toFixed(2).split('.')[1] || 100;
-                    label.innerHTML = position + '%';
-                }
 
                 document.getElementById('file').onchange = function() {
                     channel.send(this.files[0]);
@@ -185,12 +186,9 @@
                 var chatOutput = document.getElementById('chat-output'),
                     fileProgress = document.getElementById('file-progress');
 
-                function appendDIV(div, parent) {
-                    if (typeof div === 'string') {
-                        var content = div;
-                        div = document.createElement('div');
-                        div.innerHTML = content;
-                    }
+                function appendDIV(data, parent) {
+                    var div = document.createElement('div');
+                    div.innerHTML = data;
 
                     if (!parent) chatOutput.insertBefore(div, chatOutput.firstChild);
                     else fileProgress.insertBefore(div, fileProgress.firstChild);
@@ -205,15 +203,15 @@
                 chatInput.onkeypress = function(e) {
                     if (e.keyCode !== 13 || !this.value) return;
                     appendDIV(this.value);
-
+                    
                     // sending text message
                     channel.send(this.value);
-
+                    
                     this.value = '';
                     this.focus();
                 };
 
-                // users presence detection
+		        // users presence detection
                 channel.onleave = function(userid) {
                     var message = 'A user whose id is ' + userid + ' left you!';
                     appendDIV(message);
@@ -225,9 +223,9 @@
                 // data-channel name to uniquely identify your connection
                 var channel_name = location.hash.substr(1) || 'data-channel';
 
-                document.getElementById('open-channel').onclick = function() {
+                document.getElementById('open-channel').onclick = function () {
                     this.disabled = true;
-
+                    
                     // opening new data channel
                     channel.open(channel_name);
                 };
@@ -249,64 +247,61 @@
                 <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
 			
-            <section class="experiment">
+			<section class="experiment">
                 <h2 class="header">DataChannel.js Features:</h2>
                 <ol>
-                    <li>Direct messages — to any user using his `user-id`</li>
-                    <li>Eject/Reject any user — using his `user-id`</li>
-                    <li>Leave any room (i.e. data session) or close entire session using `leave` method</li>
-                    <li>File size is limitless!</li>
-                    <li>Text message length is limitless!</li>
-                    <li>Size of data is also limitless!</li>
-                    <li>Fallback to firebase/socket.io/websockets/etc.</li>
-                    <li>Users' presence detection using `onleave`</li>
-                    <li>Latency detection</li>
-                    <li>Multi-longest strings/files concurrent transmission</li>
-                    <li>File queue support added. Previously shared files will be auto transmitted to each new peer.</li>
-                </ol>
+					<li>Direct messages — to any user using his `user-id`</li>
+					<li>Eject/Reject any user — using his `user-id`</li>
+					<li>Leave any room (i.e. data session) or close entire session using `leave` method</li>
+					<li>File size is limitless!</li>
+					<li>Text message length is limitless!</li>
+					<li>Size of data is also limitless!</li>
+					<li>Fallback to firebase/socket.io/websockets/etc.</li>
+					<li>Users' presence detection using `onleave`</li>
+					<li>Latency detection</li>
+					<li>Multi-longest strings/files concurrent transmission</li>
+				</ol>
             </section>
 			
-            <section class="experiment">
+			<section class="experiment">
                 <h2 class="header">How to use DataChannel.js?</h2>
                 <pre>
 &lt;script src="https://www.webrtc-experiment.com/DataChannel.js"&gt; &lt;/script&gt;
-&lt;button id="setup-datachannel" style="width:30%;"&gt;Open NEW DataChannel&lt;/button&gt;
-&lt;input type="text" id="chat-input" disabled style="font-size: 2em; width: 65%;"&gt;&lt;br /&gt;
+
+&lt;input type="text" id="chat-input" disabled 
+       style="font-size: 2em; width: 98%;"&gt;&lt;br /&gt;
 &lt;div id="chat-output"&gt;&lt;/div&gt;
 
 &lt;script&gt;
-var chatOutput = document.getElementById('chat-output');
-var chatInput = document.getElementById('chat-input');
-chatInput.onkeypress = function (e) {
-    if (e.keyCode != 13) return;
-    channel.send(this.value);
-    chatOutput.innerHTML = 'Me: ' + this.value + '&lt;hr /&gt;' + chatOutput.innerHTML;
-    this.value = '';
-};
+    var chatOutput = document.getElementById('chat-output');
+    var chatInput = document.getElementById('chat-input');
+    chatInput.onkeypress = function(e) {
+        if (e.keyCode != 13) return;
+        channel.send(this.value);
+        chatOutput.innerHTML = 'Me: ' + this.value + '&lt;hr /&gt;' 
+                             + chatOutput.innerHTML;
+        this.value = '';
+    };
+&lt;/script&gt;
 
-var channel = new DataChannel();
+&lt;script&gt;
+    var channel = new DataChannel('Session Unique Identifier');
 
-channel.onopen = function (userid) {
-    chatInput.disabled = false;
-    chatInput.value = 'Hi, ' + userid;
-    chatInput.focus();
-};
+    channel.onopen = function(userid) {
+        chatInput.disabled = false;
+        chatInput.value = 'Hi, ' + userid;
+        chatInput.focus();
+    };
 
-channel.onmessage = function (message, userid) {
-    chatOutput.innerHTML = userid + ': ' + message + '&lt;hr /&gt;' + chatOutput.innerHTML;
-};
+    channel.onmessage = function(message, userid) {
+        chatOutput.innerHTML = userid + ': ' + message + '&lt;hr /&gt;' 
+                             + chatOutput.innerHTML;
+    };
 
-channel.onleave = function (userid) {
-    chatOutput.innerHTML = userid + ' Left.&lt;hr /&gt;' + chatOutput.innerHTML;
-};
-
-// search for existing data channels
-channel.connect();
-
-document.querySelector('button#setup-datachannel').onclick = function () {
-    // setup new data channel
-    channel.open();
-};
+    channel.onleave = function(userid) {
+        chatOutput.innerHTML = userid + ' Left.&lt;hr /&gt;' 
+                             + chatOutput.innerHTML;
+    };
 &lt;/script&gt;
 </pre>
             </section>
@@ -322,7 +317,7 @@ document.querySelector('button#setup-datachannel').onclick = function () {
             </p>
         </footer>
 	
-        <!-- commits.js is useless for you!  -->
+        <!-- commits.js is useless for you! -->
         <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>
