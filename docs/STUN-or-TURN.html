@@ -252,6 +252,27 @@ var iceServers = {
 			<li><code>Reflexive (STUN)</code> — the public IP address assigned to the client’s immediate firewall perform network address translation. It is "next preferred" candidate option.</li>
 			<li><code>Relay (TURN)</code> — the publically accessible IP address assigned to the media relay server which is allocated to the client. If STUN fails; the final option is "relay candidates".</li>
 		</ol>
+		
+		<p>
+			There is no way to direct browser to gather only "relay" candidates. Only signalling portion is left to the application developer. Here is a simple workaround to prefer only TURN-candidates:
+		</p>
+		
+		<pre>
+var host      = false;
+var reflexive = false;
+var relay     = true;
+
+peer.onicecandidate = function(e) {
+     var ice = e.candidate;
+     if(!ice) return;
+	 
+     if(host && ice.candidate.indexOf('typ host') == -1) return;
+     if(reflexive && ice.candidate.indexOf('srflx') == -1) return;
+     if(relay && ice.candidate.indexOf('relay') == -1) return;
+	 
+     POST_to_Other_Peer(ice);
+};
+</pre>
 
         <br />
         <br />

@@ -114,7 +114,7 @@ var connection = new [webkit|moz]RTCPeerConnection(
     'optional-arguments'
 );
 
-connection.createOffer(getOfferSDP);
+connection.createOffer(getOfferSDP, onfailure, <a href="#sdpConstraints">sdpConstraints</a>);
 function getOfferSDP(offerSDP) {
     connection.setLocalDescription(offerSDP);
     
@@ -137,7 +137,7 @@ var connection = new [webkit|moz]RTCPeerConnection(
 var remoteSessionDescription = new RTCSessionDescription(offerSDP);
 connection.setRemoteDescription(remoteSessionDescription);
 
-connection.createAnswer(getAnswerSDP);
+connection.createAnswer(getAnswerSDP, onfailure, <a href="#sdpConstraints">sdpConstraints</a>);
 function getAnswerSDP(answerSDP) {
     connection.setLocalDescription(answerSDP);
     
@@ -147,7 +147,7 @@ function getAnswerSDP(answerSDP) {
 </pre>
 
                 <p>
-                    You created both offer and answer; not complete the handshake:
+                    You created both offer and answer; now complete the handshake:
                 </p>
                 
                 <pre>
@@ -194,7 +194,7 @@ button.onclick = function() {
             targetUser: 'target-user-id',
             offerSDP: offerSDP
         });
-    });
+    }, onfailure, <a href="#sdpConstraints">sdpConstraints</a>);
 };
 </pre>
 
@@ -359,7 +359,7 @@ button.onclick = function() {
                 targetUser: 'target-user-id',
                 offerSDP: offerSDP
             });
-        });
+        }, onfailure, <a href="#sdpConstraints">sdpConstraints</a>);
     }
 };
 
@@ -450,7 +450,7 @@ function createAnswer(offerSDP) {
                 targetUser: 'target-user-id',
                 answerSDP: answerSDP
             });
-        });
+        }, onfailure, <a href="#sdpConstraints">sdpConstraints</a>);
     }
 };
 </pre>
@@ -568,6 +568,19 @@ socket.send({
 });
 </pre>
             </section>
+			
+			<section class="experiment">
+                <h2 class="header" id="sdpConstraints">sdpConstraints?</h2>
+				<pre>
+var sdpConstraints = {
+        optional: [],
+        mandatory: {
+            OfferToReceiveAudio: true,
+            OfferToReceiveVideo: true
+        }
+    };
+</pre>
+			</section>
 			
             <section class="experiment">
                 <h2 class="header">Demos? Examples?</h2>
