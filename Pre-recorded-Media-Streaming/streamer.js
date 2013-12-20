@@ -1,11 +1,11 @@
-// 2013, Muaz Khan - https://github.com/muaz-khan
-// MIT License     - https://www.webrtc-experiment.com/licence/
-// Documentation   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pre-recorded-Media-Streaming
+// 2013, Muaz Khan - www.MuazKhan.com
+// MIT License     - www.WebRTC-Experiment.com/licence
+// Documentation   - github.com/muaz-khan/WebRTC-Experiment/tree/master/Pre-recorded-Media-Streaming
 
 requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;
 
 function Streamer() {
-	var prefix = !!navigator.webkitGetUserMedia ? 'webkit' : 'moz';
+	var prefix = !!navigator.webkitGetUserMedia ? '' : 'moz';
     var self = this;
 	
     self.stream = streamPreRecordedMedia;
@@ -72,6 +72,7 @@ function Streamer() {
 
             console.debug('MediaSource readyState: <', this.readyState, '>');
         }, false);
+		
 
         mediaSource.addEventListener(prefix+'sourceended', function () {
             console.warn('MediaSource readyState: <', this.readyState, '>');
@@ -80,7 +81,7 @@ function Streamer() {
 
     this.append = function (data) {
 		var uint8array = new window.Uint8Array(data);
-        self.receiver.append(uint8array);
+        self.receiver.appendBuffer(uint8array);
     };
 
     this.end = function (data) {
