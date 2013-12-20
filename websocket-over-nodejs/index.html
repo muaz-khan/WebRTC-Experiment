@@ -92,7 +92,8 @@
     }
 
     // WebSocket specific code goes here
-    var socket = new WebSocket('ws://localhost:1337');
+    // var socket = new WebSocket('ws://localhost:8888');
+    var socket = new WebSocket('ws://wsnodejs.jit.su:80');
     socket.onmessage = function (e) {
         var data = JSON.parse(e.data);
         console.log(data);

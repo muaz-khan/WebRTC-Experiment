@@ -68,7 +68,7 @@ var config = {
 function createButtonClickHandler() {
     captureUserMedia(function() {
         rtcLib.createRoom({
-            roomName: (document.getElementById('conference-name') || { }).value || 'Anonymous'
+            roomName: (document.getElementById('room-name') || { }).value || 'Anonymous'
         });
     });
     hideUnnecessaryStuff();

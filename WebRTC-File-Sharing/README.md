@@ -7,44 +7,57 @@ This [WebRTC Experiment](https://www.webrtc-experiment.com/) is using SCTP-based
 A reusable "standalone" library that can be used in any WebRTC or non-WebRTC application to share files.
 
 ```javascript
-// https://www.webrtc-experiment.com/WebRTC-File-Sharing/File.js
+// https://www.webrtc-experiment.com/File.js
 
-// To send a file
+var progressHelper = {};
+var outputPanel = document.body;
+
+var fileHelper = {
+    onBegin: function (file) {
+        var div = document.createElement('div');
+        div.title = file.name;
+        div.innerHTML = '&lt;label&gt;0%&lt;/label&gt; &lt;progress&gt;&lt;/progress&gt;';
+        outputPanel.insertBefore(div, outputPanel.firstChild);
+        progressHelper[file.uuid] = {
+            div: div,
+            progress: div.querySelector('progress'),
+            label: div.querySelector('label')
+        };
+        progressHelper[file.uuid].progress.max = file.maxChunks;
+    },
+    onEnd: function (file) {
+        progressHelper[file.uuid].div.innerHTML = '&lt;a href="' + file.url + '" target="_blank" download="' + file.name + '"&lt;' + file.name + '&lt;/a&gt;';
+    },
+    onProgress: function (chunk) {
+        var helper = progressHelper[chunk.uuid];
+        helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
+        updateLabel(helper.progress, helper.label);
+    }
+};
+
+function updateLabel(progress, label) {
+    if (progress.position == -1) return;
+    var position = +progress.position.toFixed(2).split('.')[1] || 100;
+    label.innerHTML = position + '%';
+}
+
+// To Send a File
 File.Send({
     file: file,
-    channel: socket_or_datachannel,
-    interval: 0,
-    onBegin: function (file) {
-        // progress.max = file.maxChunks;
-        console.log(file.name, ' is about to be shared.');
-    },
-    onEnd: function (file) {
-        console.log('Sent:', file);
-        li.innerHTML = '<a href="' + file.url + '" target="_blank">' + file.name + '</a>';
-    },
-    onProgress: function (chunk) {
-        // progress.value = chunk.currentPosition || chunk.max || progress.max;
-    }
+    channel: peer,
+    interval: 100,
+    chunkSize: 1000, // 1000 for RTP; or 16k for SCTP
+                     // chrome's sending limit is 64k; firefox' receiving limit is 16k!
+	
+    onBegin: fileHelper.onBegin,
+    onEnd: fileHelper.onEnd,
+    onProgress: fileHelper.onProgress
 });
 
-// To receive files
-var fileReceiver = new File.Receiver({
-    onBegin: function (file) {
-        // progress.max = file.maxChunks;
-        console.log('about to receive', file.name, file.size, file.type);
-    },
-    onEnd: function (file) {
-        console.log('Received:', file);
-        this.li.innerHTML = '<a href="' + file.url + '" target="_blank">' + file.name + '</a>';
-    },
-    onProgress: function (chunk) {
-        // progress.value = chunk.currentPosition || chunk.max || this.progress.max;
-    }
-});
-
-// in the socket.on('message') or peer.onmessage
+// To Receive a File
+var fleReceiver = new File.Receiver(fileHelper);
 peer.onmessage = function (data) {
-    fileReceiver.receive(data);
+    fleReceiver.receive(data);
 };
 ```
 

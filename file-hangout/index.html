@@ -1,5 +1,10 @@
-﻿<!DOCTYPE html>
-<html id="home" lang="en">
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Experiments   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
+-->
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <title>WebRTC Group File Sharing using RTCDataChannel APIs! ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -8,237 +13,141 @@
         <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        
         <style>
-            @import url(https://fonts.googleapis.com/css?family=Inconsolata);
+            p { padding: .8em; }
 
-            html { background: #eee; }
-
-            body {
-                font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
-                font-size: 1.2em;
-                line-height: 1.2em;
-                margin: 0;
+            input {
+                border: 1px solid #d9d9d9;
+                border-radius: 1px;
+                font-size: 2em;
+                margin: .2em;
             }
 
-            article, footer {
-                display: block;
-                max-width: 900px;
-                min-width: 360px;
-                width: 80%;
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
             }
 
-            article {
-                background: #fff;
-                border: 1px solid;
-                border-color: #ddd #aaa #aaa #ddd;
-                margin: 2.5em auto 0 auto;
-                padding: 2em;
-            }
-
-            h1 { margin-top: 0; }
-
-            article p:first-of-type { margin-top: 1.6em; }
-
-            article p:last-child { margin-bottom: 0; }
-
-            footer {
-                margin: 0 auto 2em auto;
-                text-align: center;
-            }
-
-            footer a {
-                color: #666;
-                font-size: inherit;
-                padding: 1em;
-                text-decoration: none;
-                text-shadow: 0 1px 1px #fff;
-            }
-
-            footer a:hover, footer a:focus { color: #111; }
-
-            h1, h2 {
-                border-bottom: 1px solid black;
-                display: inline;
-                font-weight: normal;
-                line-height: 36px;
-                padding: 0 0 3px 0;
-            }
-
-            a {
-                color: #2844FA;
-                text-decoration: none;
-            }
-
-            a:hover, a:focus { color: #1B29A4; }
-
-            a:active { color: #000; }
-
-            :-moz-any-link:focus {
-                border: 0;
-                color: #000;
-            }
-
-            ::selection { background: #ccc; }
-
-            ::-moz-selection { background: #ccc; }
-
-            button, input[type=button] {
-                -moz-border-radius: 3px;
-                -moz-transition: none;
-                -webkit-transition: none;
-                background: #0370ea;
-                background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
-                background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
-                border: 1px solid #076bd2;
-                border-radius: 3px;
-                color: #fff;
-                display: inline-block;
+            code {
+                color: red;
                 font-family: inherit;
-                font-size: .8em;
-                font-size: 1.5em;
-                line-height: 1.3;
-                padding: 5px 12px;
-                text-align: center;
-                text-shadow: 1px 1px 1px #076bd2;
-            }
-
-            button:hover, input[type=button]:hover { background: rgb(9, 147, 240); }
-
-            button:active, input[type=button]:active { background: rgb(10, 118, 190); }
-
-            button[disabled], input[type=button][disabled] {
-                background: none;
-                border: 1px solid rgb(187, 181, 181);
-                color: gray;
-                text-shadow: none;
-            }
-
-            strong {
-                color: rgb(204, 14, 14);
-                font-family: inherit;
-                font-weight: normal;
-            }
-
-            tr, td, th {
-                border-right: 1px dotted #BBA9A9;
-                border-top: 1px dotted #BBA9A9;
-                padding: .7em 1.4em;
-                vertical-align: top;
-            }
-
-            table { width: 100%; }
-
-            input { font-size: 2em; }
-
-            #chat-table blockquote {
-                border: 1px dotted gray;
-                margin: 1em 5em;
-                padding: 1em 2em;
-            }
-
-            #chat-table blockquote hr {
-                border: 0;
-                border-top: 1px dotted #BBA9A9;
-                margin: 1em -2em;
             }
         </style>
-        <!-- for HTML5 el styling -->
         <script>
             document.createElement('article');
             document.createElement('footer');
         </script>
     </head>
+
     <body>
         <article>
-            <a href="https://www.webrtc-experiment.com/"
-               style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑
-                WEBRTC EXPERIMENTS</a>
+            <header style="text-align: center;">
+                <h1>
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout" target="_blank">WebRTC Group File Sharing</a> using RTCDataChannel APIs!
+                </h1>            
+                <p>
+                    <span>© 2013</span>
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
+                    »
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
+                    »
+                    <a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
+                    »
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
+                </p>
+            </header>
 
-            <h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout">WebRTC Group File Sharing using RTCDataChannel APIs!</a></h1>
-
-            <p>
-                <span>Copyright © 2013</span>
-                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a
-                                                                                                         href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
-            </p>
+            <div class="github-stargazers"></div>
 
             <section class="plusone-gplus">
                 <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
             </section>
+			
+            <section class="experiment">
+                <p>
+                    A file-hangout experiment where all participants can share files in a group!
+                </p>
+                <table style="width: 100%;">
+                    <tr>
+                        <td>
+                            <input type="button" value="Start sharing files in Group!" id="start-conferencing">
+                            <input type="file" id="file" disabled>
 
-            <!-- <HTML code for you> ::: just copy this section! -->
-            <table style="width: 100%;">
-                <tr>
-                    <td>
-                        <input type="button" value="Start sharing files in group!" id="start-conferencing">
-                        <input type="file" id="file" disabled>
-
-                        <div id="status" style="color: red; font-size: 1em;"></div>
-                        <table id="participants"></table>
-                        <table id="rooms-list" class="visible"></table>
-                    </td>
-                    <td>
-                        <table id="output-panel"></table>
-                    </td>
-                </tr>
-            </table>
-            <!-- </HTML code for you> ::: end copy this section! 
-                 Also, copy <socket.io.js> and <file-hangout.js> links from bottom of the file -->
-            <table class="visible">
-                <tr>
-                    <td style="text-align: center;">
-                        <strong>Private file-hangout</strong> ?? <a href="https://www.webrtc-experiment.com/file-hangout/" target="_blank" title="Open this link in new tab. Then your file-hangout will be private!"><code>/file-hangout/<strong id="unique-token">#123456789</strong></code></a>
-                    </td>
-                </tr>
-            </table>
-
-            <br/>
-            <br/>
-
-            A file-hangout experiment where all participants can share files like a group!
-
-        </article>
-        <article>
-            <h2>How it works?</h2>
-            <ol>
-                <li>Multi-peers for group data connectivity</li>
-                <li>Multip-sockets for group offer/answer exchange</li>
-                <li>Multi SCTP/RTP data ports on single chrome/firefox instance</li>
-                <li>Custom file sharing implementation for chrome</li>
-                <li>in reality, it is peer-to-peer-to-peers....</li>
-            </ol>
-
-            <p>Interested to learn <a href="https://www.webrtc-experiment.com/docs/how-file-broadcast-works.html"
-                                      target="_blank">how to share files using RTCDataChannel APIs?</a></p>
-        </article>
-        <article>
-            <p>You can use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> for audio/video/screen sharing (i.e. conferencing/broadcasting); it supports multi-sessions establishment on the same page, group text chat and file sharing, auto user presence detection and many other features. You can try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a> too!</p>
-
-            <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
-                <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>
-
-                <div>
-                    <textarea id="message"
-                              style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;"
-                              placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button>
+                            <div id="status" style="color: red; font-size: 1em;"></div>
+                            <table id="participants"></table>
+                            <table id="rooms-list" class="visible"></table>
+                        </td>
+                        <td>
+                            <table id="output-panel"></table>
+                        </td>
+                    </tr>
+                </table>
+			
+                <table class="visible">
+                    <tr>
+                        <td style="text-align: center;">
+                            <strong>Private file-hangout</strong> ?? <a href="https://www.webrtc-experiment.com/file-hangout/" target="_blank" title="Open this link in new tab. Then your file-hangout will be private!"><code>/file-hangout/<strong id="unique-token">#123456789</strong></code></a>
+                        </td>
+                    </tr>
+                </table>
             </section>
+			
+            <section class="experiment">
+                <h2 class="header">How <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout" target="_blank">file-sharing</a> experiment works?</h2>
+                <ol>
+                    <li>Multi-peers for group data connectivity</li>
+                    <li>Multip-sockets for group offer/answer exchange</li>
+                    <li>Multi SCTP/RTP data ports on single chrome/firefox instance</li>
+                    <li>Custom file sharing implementation for chrome</li>
+                    <li>In reality, it is peer-to-peer-to-peers....</li>
+                </ol>
+
+                <p>Interested to learn <a href="https://www.webrtc-experiment.com/docs/how-file-broadcast-works.html"
+                                          target="_blank">how to share files using RTCDataChannel APIs?</a></p>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">Suggestions</h2>
+                <ol>
+                    <li>
+                        If you're newcomer, newbie or beginner; you're suggested to try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> or <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a> libraries.
+                    </li>
+                </ol>
+            </section>
+        
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
         </article>
         <footer>
             <p>
-                <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a>©
-                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>,
-                <span>2013 </span>»
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                ©
+                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
                 <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
                 <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
             </p>
         </footer>
-        <script src="https://www.webrtc-experiment.com/socket.io.js"></script>
-        <script src="https://www.webrtc-experiment.com/file-hangout/file-hangout.js" async></script>
 		
-        <!-- common.js is useless for you! -->
-        <script src="https://www.webrtc-experiment.com/common.js" async></script>
+        <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
+        <script src="https://www.webrtc-experiment.com/file-hangout/file-hangout.js" async> </script>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

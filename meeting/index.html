@@ -120,7 +120,7 @@
 				
 				meeting.openSignalingChannel = function(onmessage) {
 					var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-					var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+					var websocket = new WebSocket('ws://wsnodejs.jit.su:80');
 					websocket.onopen = function () {
 						websocket.push(JSON.stringify({
 							open: true,

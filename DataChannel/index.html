@@ -45,6 +45,7 @@
 		
         <!-- DataChannel.js library -->
         <script src="https://www.webrtc-experiment.com/DataChannel.js"> </script>
+        <script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
     </head>
 
     <body>
@@ -128,26 +129,30 @@
 
                 // overriding "openSignalingChannel" to use WebSockets as signaling gateway!
                 channel.openSignalingChannel = function(config) {
-                    config.channel = config.channel || this.channel || location.hash.substr(1) || 'DataChanneljs-library-for-data-sharing';
-                    var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-                    websocket.channel = config.channel;
-                    websocket.onopen = function() {
-                        websocket.push(JSON.stringify({
-                            open: true,
-                            channel: config.channel
-                        }));
-                        if (config.callback) config.callback(websocket);
+                    var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
+                    var channel = config.channel || this.channel || 'default-namespace';
+                   var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+
+                   io.connect(SIGNALING_SERVER).emit('new-channel', {
+                      channel: channel,
+                      sender : sender
+                   });
+
+                   var socket = io.connect(SIGNALING_SERVER + channel);
+                   socket.channel = channel;
+
+                   socket.on('connect', function () {
+                      if (config.callback) config.callback(socket);
+                   });
+
+                   socket.send = function (message) {
+                        socket.emit('message', {
+                            sender: sender,
+                            data  : message
+                        });
                     };
-                    websocket.onmessage = function(event) {
-                        config.onmessage(JSON.parse(event.data));
-                    };
-                    websocket.push = websocket.send;
-                    websocket.send = function(data) {
-                        websocket.push(JSON.stringify({
-                            data: data,
-                            channel: config.channel
-                        }));
-                    };
+
+                   socket.on('message', config.onmessage);
                 };
 
 		        // a text message or data

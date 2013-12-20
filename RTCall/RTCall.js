@@ -1,6 +1,6 @@
-// Muaz Khan     - https://github.com/muaz-khan
-// MIT License   - https://www.webrtc-experiment.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall
+// Muaz Khan     - wwww.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall
 
 (function() {
     window.RTCall = function(channel) {
@@ -44,26 +44,31 @@
         };
 
         function setupSignalingChannel() {
+            var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
             self.openSignalingChannel = function(config) {
-                var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-                websocket.channel = config.channel || self.channel;
-                websocket.onopen = function() {
-                    websocket.push(JSON.stringify({
-                        open: true,
-                        channel: websocket.channel
-                    }));
-                    if (config.callback) config.callback(websocket);
+                var channel = config.channel || this.channel || 'default-namespace';
+                var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+
+                io.connect(SIGNALING_SERVER).emit('new-channel', {
+                    channel: channel,
+                    sender: sender
+                });
+
+                var socket = io.connect(SIGNALING_SERVER + channel);
+                socket.channel = channel;
+
+                socket.on('connect', function() {
+                    if (config.callback) config.callback(socket);
+                });
+
+                socket.send = function(message) {
+                    socket.emit('message', {
+                        sender: sender,
+                        data: message
+                    });
                 };
-                websocket.onmessage = function(event) {
-                    config.onmessage(JSON.parse(event.data));
-                };
-                websocket.push = websocket.send;
-                websocket.send = function(data) {
-                    websocket.push(JSON.stringify({
-                        data: data,
-                        channel: websocket.channel
-                    }));
-                };
+
+                socket.on('message', config.onmessage);
             };
         }
     };

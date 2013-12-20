@@ -1,34 +1,24 @@
-﻿// 2013, Muaz Khan - https://github.com/muaz-khan
-// MIT License     - https://webrtc-experiment.appspot.com/licence/
-// Documentation   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/chat-hangout
+﻿// 2013, Muaz Khan - wwww.MuazKhan.com
+// MIT License     - www.WebRTC-Experiment.com/licence
+// Documentation   - github.com/muaz-khan/WebRTC-Experiment/tree/master/chat-hangout
 
 var config = {
     openSocket: function(config) {
-        var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8553/',
-            defaultChannel = location.hash.substr(1) || 'group-text-chat-hangout';
-
-        var channel = config.channel || defaultChannel;
-        var sender = Math.round(Math.random() * 999999999) + 999999999;
-
-        io.connect(SIGNALING_SERVER).emit('new-channel', {
-            channel: channel,
-            sender: sender
-        });
-
-        var socket = io.connect(SIGNALING_SERVER + channel);
+        var channel = config.channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
+        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+        
         socket.channel = channel;
-        socket.on('connect', function() {
-            if (config.callback) config.callback(socket);
+        socket.on("child_added", function(data) {
+            config.onmessage && config.onmessage(data.val());
         });
-
-        socket.send = function(message) {
-            socket.emit('message', {
-                sender: sender,
-                data: message
-            });
+        
+        socket.send = function(data) {
+            this.push(data);
         };
-
-        socket.on('message', config.onmessage);
+        
+        config.onopen && setTimeout(config.onopen, 1);
+        socket.onDisconnect().remove();
+        return socket;
     },
     onRoomFound: function(room) {
         var alreadyExist = document.getElementById(room.broadcaster);
@@ -44,7 +34,7 @@ var config = {
         roomsList.insertBefore(tr, roomsList.firstChild);
 
         tr.onclick = function() {
-            var tr = this;
+            tr = this;
             hangoutUI.joinRoom({
                 roomToken: tr.querySelector('.join').id,
                 joinUser: tr.id,

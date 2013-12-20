@@ -1,3 +1,8 @@
+<!--
+> Muaz Khan     - wwww.MuazKhan.com
+> MIT License   - www.WebRTC-Experiment.com/licence
+> Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/WebRTC-File-Sharing
+-->
 <html>
     <head>
         <title>WebRTC File Sharing using SCTP Data Channels  ® Muaz Khan</title>
@@ -59,8 +64,13 @@
             }
 
             @-webkit-keyframes woohoo {
-                0%, 100% { opacity: .5; } 
-                50% { opacity: 1; }
+            0%,
+
+            100% { opacity: .5; } 
+            50%
+
+             { opacity: 1; }
+
             }
 
             .button span {
@@ -143,8 +153,8 @@
                 overflow: hidden;
             }
         </style>
-        <script src="https://www.webrtc-experiment.com/WebRTC-File-Sharing/File.js"></script>
-        <script src="https://www.webrtc-experiment.com/WebRTC-File-Sharing/PeerConnection.js"></script>
+        <script src="https://www.webrtc-experiment.com/WebRTC-File-Sharing/File.js"> </script>
+        <script src="https://www.webrtc-experiment.com/WebRTC-File-Sharing/PeerConnection.js"> </script>
     </head>
     <body>
         <p id="blah">WebRTC File Sharing using SCTP Data Channels</p>
@@ -206,7 +216,7 @@
                 var file = this.files[0];
                 File.Send({
                     file: file,
-                    channel: peer,
+                    channel: peerConnection,
                     interval: 100,
                     onBegin: fileHelper.onBegin,
                     onEnd: fileHelper.onEnd,
@@ -242,13 +252,14 @@
                 setupOffer.innerHTML = 'Please wait a few seconds.';
 
                 // start broadcasting userid
-                peer.startBroadcasting();
+                peerConnection.startBroadcasting();
             };
 
             // --------------------------------------------------------
             var channel = location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
-            var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+            var websocket = new WebSocket('ws://wsnodejs.jit.su:80');
             websocket.onopen = function() {
+                console.log('websocket connection opened!');
                 websocket.push(JSON.stringify({
                     open: true,
                     channel: channel
@@ -256,10 +267,12 @@
             };
             websocket.push = websocket.send;
             websocket.send = function(data) {
-                if (websocket.readyState != 1)
+                if (websocket.readyState != 1) {
+                    console.warn('websocket connection is not opened yet.');
                     return setTimeout(function() {
                         websocket.send(data);
                     }, 1000);
+                }
 
                 websocket.push(JSON.stringify({
                     data: data,
@@ -268,27 +281,27 @@
             };
 
             // --------------------------------------------------------
-            var peer = new PeerConnection(websocket);
+            var peerConnection = new PeerConnection(websocket);
 
             var usersList = document.getElementById('users-list');
 
             /*
-            peer.onuserfound = function(userid) {
-                var li = document.createElement('li');
-                li.innerHTML = '<span style="color:red;">' + userid + ' is online</span>. <span class="button">Join</span>';
-                usersList.insertBefore(li, usersList.firstChild);
-                li.querySelector('.button').onclick = function() {
-                    usersList.innerHTML = '';
-                    peer.sendParticipationRequest(userid);
-                };
+            peerConnection.onuserfound = function(userid) {
+            var li = document.createElement('li');
+            li.innerHTML = '<span style="color:red;">' + userid + ' is online</span>. <span class="button">Join</span>';
+            usersList.insertBefore(li, usersList.firstChild);
+            li.querySelector('.button').onclick = function() {
+            usersList.innerHTML = '';
+            peerConnection.sendParticipationRequest(userid);
+            };
             };
             */
 
-            peer.ondata = function(data) {
+            peerConnection.ondata = function(data) {
                 receiver.receive(data);
             };
 
-            peer.onopen = function() {
+            peerConnection.onopen = function() {
                 innerHTML = '<span>PeerConnection</span> <span>is established.</span>';
                 setupOffer.innerHTML = innerHTML;
                 setupOffer.style.color = 'green';
@@ -297,11 +310,11 @@
                 document.querySelector('input[type=file]').disabled = false;
             };
 
-            peer.onclose = function() {
+            peerConnection.onclose = function() {
                 onCloseOrOnError('<span>PeerConnection</span> <span>is closed.</span>');
             };
 
-            peer.onerror = function() {
+            peerConnection.onerror = function() {
                 onCloseOrOnError('<span>Something</span> <span>went wrong.</span>');
             };
 

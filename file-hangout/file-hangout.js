@@ -1,8 +1,8 @@
-﻿// Muaz Khan     - https://github.com/muaz-khan
-// MIT License   - https://www.webrtc-experiment.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
+﻿// 2013, Muaz Khan - wwww.MuazKhan.com
+// MIT License     - www.WebRTC-Experiment.com/licence
+// Documentation   - github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
 // =============
-// hanogut-ui.js
+// file-hangout.js
 
 (function selfInvoker() {
     setTimeout(function() {
@@ -62,31 +62,18 @@ function setUserInterface() {
 
 var config = {
     openSocket: function(config) {
-        var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8553/',
-            defaultChannel = location.hash.substr(1) || 'group-file-sharing-hangout';
-
-        var channel = config.channel || defaultChannel;
-        var sender = Math.round(Math.random() * 999999999) + 999999999;
-
-        io.connect(SIGNALING_SERVER).emit('new-channel', {
-            channel: channel,
-            sender: sender
-        });
-
-        var socket = io.connect(SIGNALING_SERVER + channel);
+        var channel = config.channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
+        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
         socket.channel = channel;
-        socket.on('connect', function() {
-            if (config.callback) config.callback(socket);
+        socket.on("child_added", function(data) {
+            config.onmessage && config.onmessage(data.val());
         });
-
-        socket.send = function(message) {
-            socket.emit('message', {
-                sender: sender,
-                data: message
-            });
+        socket.send = function(data) {
+            this.push(data);
         };
-
-        socket.on('message', config.onmessage);
+        config.onopen && setTimeout(config.onopen, 1);
+        socket.onDisconnect().remove();
+        return socket;
     },
     onRoomFound: function(room) {
         var alreadyExist = document.getElementById(room.broadcaster);
@@ -706,7 +693,7 @@ function RTCPeerConnection(options) {
             sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onOfferSDP(sessionDescription);
-        }, null, constraints);
+        }, onSdpError, constraints);
     }
 
     // onAnswerSDP(RTCSessionDescription)
@@ -714,12 +701,12 @@ function RTCPeerConnection(options) {
     function createAnswer() {
         if (!options.onAnswerSDP) return;
 
-        peer.setRemoteDescription(new SessionDescription(options.offerSDP));
+        peer.setRemoteDescription(new SessionDescription(options.offerSDP), onSdpSuccess, onSdpError);
         peer.createAnswer(function(sessionDescription) {
             sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
-        }, null, constraints);
+        }, onSdpError, constraints);
     }
 
     // if Mozilla Firefox & DataChannel; offer/answer will be created later
@@ -769,6 +756,7 @@ function RTCPeerConnection(options) {
     }
 
     function serializeSdp(sdp) {
+        return sdp;
         if (!moz) sdp = setBandwidth(sdp);
         sdp = getInteropSDP(sdp);
         console.debug(sdp);
@@ -847,9 +835,16 @@ function RTCPeerConnection(options) {
     function useless() {
     }
 
+    function onSdpSuccess() {
+    }
+
+    function onSdpError(e) {
+        console.error('sdp error:', e.name, e.message);
+    }
+
     return {
         addAnswerSDP: function(sdp) {
-            peer.setRemoteDescription(new SessionDescription(sdp));
+            peer.setRemoteDescription(new SessionDescription(sdp), onSdpSuccess, onSdpError);
         },
         addICE: function(candidate) {
             peer.addIceCandidate(new IceCandidate({

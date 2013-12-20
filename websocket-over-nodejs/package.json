@@ -1,0 +1,14 @@
+{
+  "name": "websocket-over-nodejs",
+  "subdomain": "wsnodejs",
+  "scripts": {
+    "start": "signaler.js"
+  },
+  "version": "0.0.0",
+  "engines": {
+    "node": "0.10.x"
+  },
+  "dependencies": {
+    "websocket": "1.0.x"
+  }
+}

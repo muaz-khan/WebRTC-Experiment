@@ -10,7 +10,7 @@ var File = {
         var file = config.file;
         var socket = config.channel;
 
-        var chunkSize = 40 * 1000; // 64k max sctp limit (AFAIK!)
+        var chunkSize = config.chunkSize || 40 * 1000; // 64k max sctp limit (AFAIK!)
         var sliceId = 0;
         var cacheSize = chunkSize;
 
@@ -112,14 +112,6 @@ var File = {
     Receiver: function(config) {
         var packets = { };
 
-        function merge(mergein, mergeto) {
-            for (var item in mergeto) {
-                if (!mergein[item])
-                    mergein[item] = mergeto[item];
-            }
-            return mergein;
-        }
-
         function receive(chunk) {
             if (chunk.start && !packets[chunk.uuid]) {
                 packets[chunk.uuid] = [];
@@ -150,7 +142,7 @@ var File = {
                 if (config.onEnd) config.onEnd(blob);
             }
 
-            if (config.onProgress) config.onProgress(chunk);
+            if (chunk.value && config.onProgress) config.onProgress(chunk);
         }
 
         return {
@@ -202,3 +194,13 @@ var FileConverter = {
         callback(new Blob([view]));
     }
 };
+
+function merge(mergein, mergeto) {
+    if (!mergein) mergein = { };
+    if (!mergeto) return mergein;
+
+    for (var item in mergeto) {
+        mergein[item] = mergeto[item];
+    }
+    return mergein;
+}

@@ -82,7 +82,9 @@ function captureUserMedia(callback) {
 
     var screen_constraints = {
         mandatory: {
-            chromeMediaSource: 'screen'
+            chromeMediaSource: 'screen',
+			maxWidth: 1280,
+			maxHeight: 720
         },
         optional: []
     };
