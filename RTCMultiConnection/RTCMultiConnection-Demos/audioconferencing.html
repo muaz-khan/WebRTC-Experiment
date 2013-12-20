@@ -118,7 +118,7 @@
 
                 // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
                 connection.openSignalingChannel = function(config) {
-                    var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:2015/';
+                    var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
                     var channel = config.channel || this.channel || location.hash.substr(1);
                     var sender = Math.round(Math.random() * 999999999) + 999999999;
 

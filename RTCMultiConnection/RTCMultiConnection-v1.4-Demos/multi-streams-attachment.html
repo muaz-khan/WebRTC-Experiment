@@ -8,35 +8,13 @@
     }
 </style>
 <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<script src="https://www.webrtc-experiment.com/firebase.js"> </script>
 <button id="init">
     Open New Connection</button>
 <br />
 <br />
 <script>
-    var connection = new RTCMultiConnection('2dlksjfaKJLFLKJDKJFKJDjfdsklfew');
-    connection.openSignalingChannel = function(config) {
-        config.channel = config.channel || this.channel || location.hash.substr(1) || 'multi-streams-attachment';
-        var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-        websocket.channel = config.channel;
-        websocket.onopen = function() {
-            websocket.push(JSON.stringify({
-                open: true,
-                channel: config.channel
-            }));
-            if (config.callback) config.callback(websocket);
-        };
-		
-        websocket.onmessage = function(event) {
-            config.onmessage(JSON.parse(event.data));
-        };
-        websocket.push = websocket.send;
-        websocket.send = function(data) {
-            websocket.push(JSON.stringify({
-                data: data,
-                channel: config.channel
-            }));
-        };
-    };
+    var connection = new RTCMultiConnection();
     connection.session = {
         audio: true,
         video: true,

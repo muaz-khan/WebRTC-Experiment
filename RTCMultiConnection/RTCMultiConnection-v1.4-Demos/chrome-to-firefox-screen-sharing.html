@@ -5,6 +5,7 @@
 <hr />
 <style>video {width:80%;}</style>
 <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<script src="https://www.webrtc-experiment.com/firebase.js"> </script>
 <script>
 var session = 'AAAAABFDKJFDKFDd9fdjif';
 
@@ -26,30 +27,6 @@ connection.sdpConstraints = {
 
 connection.onstream = function (e) {
     document.body.appendChild(e.mediaElement);
-};
-
-connection.openSignalingChannel = function (config) {
-    config.channel = config.channel || this.channel;
-    var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-    websocket.channel = config.channel;
-    websocket.onopen = function () {
-        websocket.push(JSON.stringify({
-            open: true,
-            channel: config.channel
-        }));
-        if (config.callback) config.callback(websocket);
-    };
-	
-    websocket.onmessage = function (event) {
-        config.onmessage(JSON.parse(event.data));
-    };
-    websocket.push = websocket.send;
-    websocket.send = function (data) {
-        websocket.push(JSON.stringify({
-            data: data,
-            channel: config.channel
-        }));
-    };
 };
 
 // searching for pre-shared screens

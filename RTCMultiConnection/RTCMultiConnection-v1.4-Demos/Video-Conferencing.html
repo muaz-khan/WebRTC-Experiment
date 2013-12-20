@@ -96,6 +96,7 @@
             footer { text-align: center; }
         </style>
         <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+        <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
     </head>
     <body>
         <h1>
@@ -131,28 +132,6 @@
         </table>
         <script>
             var connection = new RTCMultiConnection();
-
-            connection.openSignalingChannel = function(config) {
-                var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-                websocket.channel = config.channel || this.channel;
-                websocket.onopen = function() {
-                    websocket.push(JSON.stringify({
-                        open: true,
-                        channel: websocket.channel
-                    }));
-                    if (config.callback) config.callback(websocket);
-                };
-                websocket.onmessage = function(event) {
-                    config.onmessage(JSON.parse(event.data));
-                };
-                websocket.push = websocket.send;
-                websocket.send = function(data) {
-                    websocket.push(JSON.stringify({
-                        data: data,
-                        channel: websocket.channel
-                    }));
-                };
-            };
 
             connection.session = {
                 audio: true,
