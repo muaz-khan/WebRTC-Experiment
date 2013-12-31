@@ -3,6 +3,7 @@
 > MIT License   - https://www.webrtc-experiment.com/licence/
 > Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
 -->
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -16,28 +17,28 @@
         <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
         <style>
-			#chat-output div, #file-progress div {
-				border: 1px solid black;
-				border-bottom: 0;
-				padding: .1em .4em;
-			}
+            #chat-output div, #file-progress div {
+                border: 1px solid black;
+                border-bottom: 0;
+                padding: .1em .4em;
+            }
 
-			input {
-				border: 1px solid black;
-				font-family: inherit;
-				font-size: 1em;
-				margin: .1em .3em;
-				outline: none;
-				padding: .1em .2em;
-				width: 97%;
-			}
+            input {
+                border: 1px solid black;
+                font-family: inherit;
+                font-size: 1em;
+                margin: .1em .3em;
+                outline: none;
+                padding: .1em .2em;
+                width: 97%;
+            }
 
-			#chat-output, #file-progress {
-				margin: 0 0 0 .4em;
-				max-height: 12em;
-				overflow: auto;
-			}
-		</style>
+            #chat-output, #file-progress {
+                margin: 0 0 0 .4em;
+                max-height: 12em;
+                overflow: auto;
+            }
+        </style>
         <script>
             document.createElement('article');
             document.createElement('footer');
@@ -100,9 +101,10 @@
             </section>
 		
             <script>
-                var channel = new DataChannel(); // DataChannel.js
+                var channel = new DataChannel();
+// DataChannel.js
 
-                // "ondatachannel" is fired for each new data channel
+// "ondatachannel" is fired for each new data channel
                 channel.ondatachannel = function(channel00) {
                     var alreadyExist = document.getElementById(channel00.id);
                     if (alreadyExist) return;
@@ -115,47 +117,47 @@
                     channelsList.insertBefore(tr, channelsList.firstChild);
 
                     // when someone clicks table-row; joining the relevant data channel
-                    tr.onclick = function () {
-                        
+                    tr.onclick = function() {
+
                         // manually joining a data channel
                         channel.join({
                             id: this.querySelector('.join').id,
                             owner: this.id
                         });
-                        
+
                         channelsList.style.display = 'none';
                     };
                 };
 
                 // overriding "openSignalingChannel" to use WebSockets as signaling gateway!
                 channel.openSignalingChannel = function(config) {
-                    var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
+                    var SIGNALING_SERVER = 'http://socketio-over-nodejs.jit.su:80/';
                     var channel = config.channel || this.channel || 'default-namespace';
-                   var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+                    var sender = Math.round(Math.random() * 9999999999) + 9999999999;
 
-                   io.connect(SIGNALING_SERVER).emit('new-channel', {
-                      channel: channel,
-                      sender : sender
-                   });
+                    io.connect(SIGNALING_SERVER).emit('new-channel', {
+                        channel: channel,
+                        sender: sender
+                    });
 
-                   var socket = io.connect(SIGNALING_SERVER + channel);
-                   socket.channel = channel;
+                    var socket = io.connect(SIGNALING_SERVER + channel);
+                    socket.channel = channel;
 
-                   socket.on('connect', function () {
-                      if (config.callback) config.callback(socket);
-                   });
+                    socket.on('connect', function() {
+                        if (config.callback) config.callback(socket);
+                    });
 
-                   socket.send = function (message) {
+                    socket.send = function(message) {
                         socket.emit('message', {
                             sender: sender,
-                            data  : message
+                            data: message
                         });
                     };
 
-                   socket.on('message', config.onmessage);
+                    socket.on('message', config.onmessage);
                 };
 
-		        // a text message or data
+                // a text message or data
                 channel.onmessage = function(data, userid, latency) {
                     appendDIV(data);
 
@@ -163,7 +165,7 @@
                     console.log('latency:', latency, 'ms');
                 };
 
-		        // on data connection gets open
+                // on data connection gets open
                 channel.onopen = function() {
                     if (document.getElementById('chat-input')) document.getElementById('chat-input').disabled = false;
                     if (document.getElementById('file')) document.getElementById('file').disabled = false;
@@ -208,15 +210,15 @@
                 chatInput.onkeypress = function(e) {
                     if (e.keyCode !== 13 || !this.value) return;
                     appendDIV(this.value);
-                    
+
                     // sending text message
                     channel.send(this.value);
-                    
+
                     this.value = '';
                     this.focus();
                 };
 
-		        // users presence detection
+                // users presence detection
                 channel.onleave = function(userid) {
                     var message = 'A user whose id is ' + userid + ' left you!';
                     appendDIV(message);
@@ -228,9 +230,9 @@
                 // data-channel name to uniquely identify your connection
                 var channel_name = location.hash.substr(1) || 'data-channel';
 
-                document.getElementById('open-channel').onclick = function () {
+                document.getElementById('open-channel').onclick = function() {
                     this.disabled = true;
-                    
+
                     // opening new data channel
                     channel.open(channel_name);
                 };
@@ -252,23 +254,23 @@
                 <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
 			
-			<section class="experiment">
+            <section class="experiment">
                 <h2 class="header">DataChannel.js Features:</h2>
                 <ol>
-					<li>Direct messages — to any user using his `user-id`</li>
-					<li>Eject/Reject any user — using his `user-id`</li>
-					<li>Leave any room (i.e. data session) or close entire session using `leave` method</li>
-					<li>File size is limitless!</li>
-					<li>Text message length is limitless!</li>
-					<li>Size of data is also limitless!</li>
-					<li>Fallback to firebase/socket.io/websockets/etc.</li>
-					<li>Users' presence detection using `onleave`</li>
-					<li>Latency detection</li>
-					<li>Multi-longest strings/files concurrent transmission</li>
-				</ol>
+                    <li>Direct messages — to any user using his `user-id`</li>
+                    <li>Eject/Reject any user — using his `user-id`</li>
+                    <li>Leave any room (i.e. data session) or close entire session using `leave` method</li>
+                    <li>File size is limitless!</li>
+                    <li>Text message length is limitless!</li>
+                    <li>Size of data is also limitless!</li>
+                    <li>Fallback to firebase/socket.io/websockets/etc.</li>
+                    <li>Users' presence detection using `onleave`</li>
+                    <li>Latency detection</li>
+                    <li>Multi-longest strings/files concurrent transmission</li>
+                </ol>
             </section>
 			
-			<section class="experiment">
+            <section class="experiment">
                 <h2 class="header">How to use DataChannel.js?</h2>
                 <pre>
 &lt;script src="https://www.webrtc-experiment.com/DataChannel.js"&gt; &lt;/script&gt;

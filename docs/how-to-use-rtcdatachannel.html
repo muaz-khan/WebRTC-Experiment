@@ -31,9 +31,15 @@
             document.createElement('article');
             document.createElement('footer');
         </script>>
+    
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"></script>
+		<link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
+		
     </head>
 
-    <body>
+    <body onload="sh_highlightDocument();">
         <article>
             <header style="text-align: center;">
                 <h1>
@@ -90,7 +96,7 @@
                 
                 <section class="experiment">
                     <h2 class="header">Global variables:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var iceServers = {
     iceServers: [{
         url: 'stun:stun.l.google.com:19302'
@@ -106,7 +112,7 @@ var offererDataChannel, answererDataChannel;
                 
                 <section class="experiment">
                     <h2 class="header">Object for offerer:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var Offerer = {
     createOffer: function () {
         var peer = new webkitRTCPeerConnection(iceServers);
@@ -143,7 +149,7 @@ var Offerer = {
                 
                 <section class="experiment">
                     <h2 class="header">Object for answerer:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var Answerer = {
     createAnswer: function (offerSDP) {
         var peer = new RTCPeerConnection(iceServers);
@@ -179,7 +185,7 @@ var Answerer = {
                 
                 <section class="experiment">
                     <h2 class="header">setChannelEvents function:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 function setChannelEvents(channel) {
     channel.onmessage = function (event) {
         var data = JSON.parse(event.data);
@@ -209,21 +215,21 @@ function setChannelEvents(channel) {
                 
                 <section class="experiment">
                     <h2 class="header">If a user is offerer:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var offerer = Offerer.createOffer();
 </pre>
                 </section>
             
                 <section class="experiment">
                     <h2 class="header">If a user is answerer:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var answerer = Answerer.createAnswer(offerSDP);
 </pre>
                 </section>
             
                 <section class="experiment">
                     <h2 class="header">A simple example:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var websocket = new WebSocket('ws://localhost:8888/');
 
 websocket.onmessage = function (e) {
@@ -284,7 +290,7 @@ websocket.send = function (data) {
                 
                 <section class="experiment">
                     <h2 class="header">Global variables:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var iceServers = {
     iceServers: [{
         url: 'stun:23.21.150.121'
@@ -309,7 +315,7 @@ var offererDataChannel, answererDataChannel;
                 
                 <section class="experiment">
                     <h2 class="header">Object for offerer:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var Offerer = {
     createOffer: function () {
         var peer = new mozRTCPeerConnection(iceServers);
@@ -363,7 +369,7 @@ var Offerer = {
                 
                 <section class="experiment">
                     <h2 class="header">Object for answerer:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var Answerer = {
     createAnswer: function (offerSDP) {
         var peer = new mozRTCPeerConnection(iceServers);
@@ -408,7 +414,7 @@ var Answerer = {
                 
                 <section class="experiment">
                     <h2 class="header">setChannelEvents function:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 function setChannelEvents(channel) {
     channel.onmessage = function (event) {
         var data = JSON.parse(event.data);
@@ -438,21 +444,21 @@ function setChannelEvents(channel) {
                 
                 <section class="experiment">
                     <h2 class="header">If a user is offerer:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var offerer = Offerer.createOffer();
 </pre>
                 </section>
             
                 <section class="experiment">
                     <h2 class="header">If a user is answerer:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var answerer = Answerer.createAnswer(offerSDP);
 </pre>
                 </section>
             
                 <section class="experiment">
                     <h2 class="header">A simple example:</h2>
-                    <pre>
+                    <pre class="sh_javascript">
 var websocket = new WebSocket('ws://localhost:8888/');
 
 websocket.onmessage = function (e) {
@@ -514,7 +520,7 @@ websocket.send = function (data) {
 			
             <section class="experiment">
                 <h2 class="header" id="rtp-chrome">RTP data-connection and Chrome!</h2>
-                <pre>
+                <pre class="sh_javascript">
 var iceServers = {
     iceServers: [{
         url: 'stun:stun.l.google.com:19302'
@@ -592,7 +598,7 @@ function setChannelEvents(channel, channelNameForConsoleOutput) {
 </pre>
 
                 <p>After executing above code in the console; try to send messages over RTP data ports like this: </p>
-                <pre>
+                <pre class="sh_javascript">
 offererDataChannel.send('message from offerer');
 answererDataChannel.send('message from answerer');
 </pre>

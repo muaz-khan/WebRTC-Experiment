@@ -1,41 +1,41 @@
-﻿<h1>Chrome-to-Firefox Screen Sharing Demo / using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection">RTCMultiConnection</a></h1>
+﻿<h1>Chrome-to-Firefox Screen Sharing Demo / using <a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a></h1>
 
 <hr />
 <button id="share-screen">Share Screen</button>
 <hr />
-<style>video {width:80%;}</style>
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<style>video { width: 80%; }</style>
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.min.js"> </script>
 <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
 <script>
-var session = 'AAAAABFDKJFDKFDd9fdjif';
+    var session = 'AAAAABFDKJFDKFDd9fdjif';
 
-var connection = new RTCMultiConnection();
-connection.session = {
-    screen: true,
-    oneway: true
-};
+    var connection = new RTCMultiConnection();
+    connection.session = {
+        screen: true,
+        oneway: true
+    };
 
-// forcing STUN; no TURN will be used!
-connection.iceServers = [{
-    url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-}];
+    // forcing STUN; no TURN will be used!
+    connection.iceServers = [{
+        url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
+    }];
 
-// forcing "OfferToReceiveAudio:false"
-connection.sdpConstraints = {
-    OfferToReceiveAudio: false
-};
+    // forcing "OfferToReceiveAudio:false"
+    connection.sdpConstraints = {
+        OfferToReceiveAudio: false
+    };
 
-connection.onstream = function (e) {
-    document.body.appendChild(e.mediaElement);
-};
+    connection.onstream = function(e) {
+        document.body.appendChild(e.mediaElement);
+    };
 
-// searching for pre-shared screens
-connection.connect(session);
+    // searching for pre-shared screens
+    connection.connect(session);
 
-document.getElementById('share-screen').onclick = function () {
-    this.disabled = true;
-	
-    // sharing you screen!
-    connection.open(session);
-};
+    document.getElementById('share-screen').onclick = function() {
+        this.disabled = true;
+
+        // sharing you screen!
+        connection.open(session);
+    };
 </script>

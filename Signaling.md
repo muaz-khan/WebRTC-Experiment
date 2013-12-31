@@ -1,3 +1,10 @@
+1. https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html
+2. http://www.RTCMultiConnection.org/FAQ/
+3. http://www.RTCMultiConnection.org/docs/sessionid/
+4. http://www.RTCMultiConnection.org/docs/channel-id/
+
+=
+
 ##### Realtime/Working [WebRTC Experiments](https://www.webrtc-experiment.com/) & Signaling
 
 =
@@ -5,7 +12,7 @@
 ##### Signaling for RTCMultiConnection-v1.4 and earlier releases
 
 ```javascript
-var SIGNALING_SERVER = 'http://domain.com:8888/';
+var SIGNALING_SERVER = 'http://socketio-over-nodejs.hp.af.cm';
 connection.openSignalingChannel = function(config) {   
    var channel = config.channel || this.channel || 'one-to-one-video-chat';
    var sender = Math.round(Math.random() * 60535) + 5000;
@@ -62,22 +69,25 @@ Want to use XHR, WebSockets, SIP, XMPP, etc. for signaling? Read [this post](htt
 #### Want to use [Firebase](https://www.firebase.com/) for signaling?
 
 ```javascript
-var config = {
-    openSocket: function (config) {
-        var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
-        socket.channel = channel;
-        socket.on('child_added', function (data) {
-            config.onmessage(data.val());
-        });
-        socket.send = function (data) {
-            this.push(data);
-        }
-        config.onopen && setTimeout(config.onopen, 1);
-        socket.onDisconnect().remove();
-        return socket;
-    }
-}
+connection.openSignalingChannel = function (config) {
+    var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+    
+    var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+    socket.channel = channel;
+    
+    socket.on('child_added', function (data) {
+        config.onmessage(data.val());
+    });
+    
+    socket.send = function(data) {
+        this.push(data);
+    };
+    
+    config.onopen && setTimeout(config.onopen, 1);
+    socket.onDisconnect().remove();
+    return socket;
+};
+
 ```
 
 =
@@ -85,20 +95,19 @@ var config = {
 #### Want to use [PubNub](http://www.pubnub.com/) for signaling?
 
 ```javascript
-var config = {
-    openSocket: function (config) {
-        var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-        var socket = io.connect('https://pubsub.pubnub.com/' + channel, {
-            publish_key: 'demo',
-            subscribe_key: 'demo',
-            channel: config.channel || channel,
-            ssl: true
-        });
-        if (config.onopen) socket.on('connect', config.onopen);
-        socket.on('message', config.onmessage);
-        return socket;
-    }
-}
+connection.openSignalingChannel = function (config) {
+    var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+    var socket = io.connect('https://pubsub.pubnub.com/' + channel, {
+        publish_key: 'demo',
+        subscribe_key: 'demo',
+        channel: config.channel || channel,
+        ssl: true
+    });
+    socket.channel = channel;
+    if (config.onopen) socket.on('connect', config.onopen);
+    socket.on('message', config.onmessage);
+    return socket;
+};
 ```
 
 =

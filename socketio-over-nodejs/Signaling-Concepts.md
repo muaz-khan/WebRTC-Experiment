@@ -1,3 +1,10 @@
+1. https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html
+2. http://www.RTCMultiConnection.org/FAQ/
+3. http://www.RTCMultiConnection.org/docs/sessionid/
+4. http://www.RTCMultiConnection.org/docs/channel-id/
+
+=
+
 #### WebRTC Experiments Signaling Concepts
 
 This document explains inner-parts of the signaling methods used in [WebRTC Experiments](https://www.webrtc-experiment.com/).
@@ -80,7 +87,7 @@ Client side:
 
 ```javascript
 connection.openSignalingChannel = function(config) {
-   var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
+   var SIGNALING_SERVER = 'http://socketio-over-nodejs.hp.af.cm';
    var channel = config.channel || this.channel || 'default-channel';
    var sender = Math.round(Math.random() * 60535) + 5000;
    

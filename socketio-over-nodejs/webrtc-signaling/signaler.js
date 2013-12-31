@@ -12,6 +12,9 @@ server.listen(8888);
 
 var channels = {};
 
+// sometimes it helps!
+io.set('transports', ['xhr-polling']);
+
 io.sockets.on('connection', function (socket) {
     var initiatorChannel = '';
     if (!io.isConnected)

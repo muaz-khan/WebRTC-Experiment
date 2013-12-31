@@ -41,9 +41,17 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
+    
+
+
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"></script>
+		<link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
+		
     </head>
 
-    <body>
+    <body onload="sh_highlightDocument();">
         <article>
             <header style="text-align: center;">
                 <h1>
@@ -83,7 +91,7 @@
                 <p>
                     First of all: you need to get access to microphone and camera if you want to build a video streaming app.
                 </p>
-                <pre>
+                <pre class="sh_javascript">
 var <a href="#addStream" title="To allow your friend hear your voice and see you: we will share your microphone and camera.">streamToAttach</a>;
 navigator.<strong id="webkitGetUserMedia" title="This API allows us access to your microphone and camera.">webkitGetUserMedia</strong>({ audio: <strong title="Allowing access to microphone.">true</strong>, video: <strong title="Allowing access to camera.">true</strong> }, function (stream) {
     video.src = webkitURL.<strong>createObjectURL</strong>(stream);
@@ -94,7 +102,7 @@ navigator.<strong id="webkitGetUserMedia" title="This API allows us access to yo
 			
             <section class="experiment">
                 <h2 class="header">Getting USER MEDIA using Firefox media capture APIs</h2>
-                <pre>
+                <pre class="sh_javascript">
 var <a href="#addStream" title="To allow your friend hear your voice and see you: we will share your microphone and camera.">streamToAttach</a>;
 navigator.<strong id="mozGetUserMedia" title="This API allows us access to your microphone and camera.">mozGetUserMedia</strong>({ audio: <strong title="Allowing access to microphone.">true</strong>, video: <strong title="Allowing access to camera.">true</strong> }, function (stream) {
     video.mozSrcObject = stream;
@@ -133,7 +141,7 @@ navigator.<strong id="mozGetUserMedia" title="This API allows us access to your 
                     First of all: we need to open a peer connection:
                 </p>
 					
-                <pre>
+                <pre class="sh_javascript">
 var <span id="peerConnection">peerConnection</span> = new <strong id="Strong1" title="Initializing RTCPeerConnection object. You'll do this both for offerer and answerer.">webkitRTCPeerConnection</strong>(
     { "<strong title="ICE servers for NAT traversing">iceServers</strong>": [{ "url": "<strong title="Using STUN as ICE server for NAT traversing">stun</strong>:stun.l.google.com:19302" }] }
 );
@@ -157,7 +165,7 @@ var <span id="peerConnection">peerConnection</span> = new <strong id="Strong1" t
                     Setting event handlers for <a href="#peerConnection">peer connection</a> object:
                 </p>
 					
-                <pre>
+                <pre class="sh_javascript">
 <a href="#peerConnection">peerConnection</a>.<strong title="On getting locally generated ICE candidates: You'll post these locally generated ICE to other peer; so he can add them and ask peer connection object to recognize suitable ICE candidate and complete the handshake.">onicecandidate</strong> = <a href="#onicecandidate-func" id="onicecandidate">onicecandidate</a>;
 <a href="#peerConnection">peerConnection</a>.<strong title="This event fires on getting first clue of remote stream. You should wait until remote stream starts flowing.">onaddstream</strong> = <a href="#onaddstream-func" id="onaddstream">onaddstream</a>;
 <a href="#peerConnection">peerConnection</a>.<strong id="addStream" title="Attaching your local stream (your microphone and camera)">addStream</strong> (<a href="#streamToAttach">streamToAttach</a>);
@@ -179,7 +187,7 @@ var <span id="peerConnection">peerConnection</span> = new <strong id="Strong1" t
             <section class="experiment">
                 <h2 class="header">Creating Offer SDP</h2>
 				
-                <pre>
+                <pre class="sh_javascript">
 <a href="#peerConnection">peerConnection</a>.<strong id="offerer">createOffer</strong>(function (sessionDescription) {
     <a href="#peerConnection">peerConnection</a>.<strong>setLocalDescription</strong>(sessionDescription);
 
@@ -198,14 +206,14 @@ var <span id="peerConnection">peerConnection</span> = new <strong id="Strong1" t
 			
             <section class="experiment">
                 <h2 class="header">setRemoteDescription!</h2>
-                <pre>
+                <pre class="sh_javascript">
 <a href="#peerConnection">peerConnection</a>.<strong>setRemoteDescription</strong>(new <strong>RTCSessionDescription</strong>(<a href="#offer-sdp">offerSDP</a>));
 </pre>
             </section>
 			
             <section class="experiment">
                 <h2 class="header">And to createAnswer...</h2>
-                <pre>
+                <pre class="sh_javascript">
 <a href="#peerConnection">peerConnection</a>.<strong id="answerer">createAnswer</strong>(function (sessionDescription) {
     <a href="#peerConnection">peerConnection</a>.<strong>setLocalDescription</strong>(sessionDescription);
     
@@ -219,7 +227,7 @@ var <span id="peerConnection">peerConnection</span> = new <strong id="Strong1" t
 			
             <section class="experiment">
                 <h2 class="header">setRemoteDescription!</h2>
-                <pre>
+                <pre class="sh_javascript">
 <a href="#peerConnection">peerConnection</a>.<strong>setRemoteDescription</strong>(new <strong>RTCSessionDescription</strong>(<a href="#answer-sdp">answerSDP</a>));
 </pre>
             </section>
@@ -232,7 +240,7 @@ var <span id="peerConnection">peerConnection</span> = new <strong id="Strong1" t
 			
             <section class="experiment">
                 <h2 class="header">On getting locally generated ICE</h2>
-                <pre>
+                <pre class="sh_javascript">
 function <a href="#onicecandidate" id="onicecandidate-func">onicecandidate</a>(event) {
     if (!<a href="#peerConnection">peerConnection</a> || !event || !event.candidate) return;
     var candidate = event.<strong>candidate</strong>;
@@ -243,7 +251,7 @@ function <a href="#onicecandidate" id="onicecandidate-func">onicecandidate</a>(e
 			
             <section class="experiment">
                 <h2 class="header">On getting ICE sent by other peer</h2>
-                <pre>
+                <pre class="sh_javascript">
 <a href="#peerConnection">peerConnection</a>.<strong id="addIceCandidate">addIceCandidate</strong>(new <strong>RTCIceCandidate</strong>({
     <strong>sdpMLineIndex</strong>: candidate.<strong>sdpMLineIndex</strong>,
     <strong>candidate</strong>: candidate.<strong>candidate</strong>
@@ -253,7 +261,7 @@ function <a href="#onicecandidate" id="onicecandidate-func">onicecandidate</a>(e
 			
             <section class="experiment">
                 <h2 class="header"><a href="#onaddstream">onaddstream</a> event handling</h2>
-                <pre>
+                <pre class="sh_javascript">
 function <a href="#onaddstream" id="onaddstream-func">onaddstream</a>(event) {
     if (!event) return;
     remote_video.src = webkitURL.<strong>createObjectURL</strong>(event.<strong>stream</strong>);
@@ -264,7 +272,7 @@ function <a href="#onaddstream" id="onaddstream-func">onaddstream</a>(event) {
 			
             <section class="experiment">
                 <h2 class="header">Wait until <a href="#onaddstream">remote stream</a> starts flowing</h2>
-                <pre>
+                <pre class="sh_javascript">
 function <a href="#onaddstream" id="A2">onaddstream</a>(event) {
     if (!event) return;
     remote_video.src = webkitURL.<strong>createObjectURL</strong>(event.<strong>stream</strong>);
@@ -276,7 +284,7 @@ function <a href="#onaddstream" id="A2">onaddstream</a>(event) {
             </section>
 			
             <section class="experiment">
-                <pre>
+                <pre class="sh_javascript">
 function <strong id="waitUntilRemoteStreamStartsFlowing">waitUntilRemoteStreamStartsFlowing</strong>()
 {
     if (!(remote_video.<strong>readyState</strong> &lt;= HTMLMediaElement.<strong>HAVE_CURRENT_DATA</strong> 
@@ -290,7 +298,7 @@ function <strong id="waitUntilRemoteStreamStartsFlowing">waitUntilRemoteStreamSt
             </section>
 			
             <section class="experiment">
-                <pre>
+                <pre class="sh_javascript">
 Are you interested in a "more" simple full-fledged guide? Read <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">this document</a>.
 </pre>
             </section>

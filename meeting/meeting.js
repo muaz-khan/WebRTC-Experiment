@@ -334,6 +334,7 @@
 
                 if (data.userid != userid) {
                     if (!data.leaving) signaler.onmessage(data);
+                    else if(root.onuserleft) root.onuserleft(data.userid);
                 }
 
                 // we want socket.io behavior; 
@@ -355,6 +356,7 @@
                 message = JSON.parse(message);
                 if (message.userid != userid) {
                     if (!message.leaving) signaler.onmessage(message);
+                    else if(root.onuserleft) root.onuserleft(message.userid);
                 }
             });
 

@@ -1,6 +1,6 @@
-// Muaz Khan     - https://github.com/muaz-khan
-// MIT License   - https://www.webrtc-experiment.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel
 // ==============
 // DataChannel.js
 
@@ -881,28 +881,24 @@
             SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
             IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
-        var STUN = {
-            url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-        };
+        var iceServers = [];
 
-        var TURN = {
-            url: 'turn:homeo@turn.bistri.com:80',
-            credential: 'homeo'
-        };
-
-        var iceServers = {
-            iceServers: options.iceServers || [STUN]
-        };
-
-        if (!moz && !options.iceServers) {
-            if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
-                TURN = {
-                    url: 'turn:turn.bistri.com:80',
-                    credential: 'homeo',
-                    username: 'homeo'
-                };
-            iceServers.iceServers = [STUN, TURN];
+        if (!moz && parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28) {
+            iceServers.push({
+                url: 'turn:turn.bistri.com:80',
+                credential: 'homeo',
+                username: 'homeo'
+            });
         }
+
+        iceServers.push({ url: 'stun:23.21.150.121:3478' }, { url: 'stun:216.93.246.18:3478' }, { url: 'stun:66.228.45.110:3478' }, { url: 'stun:173.194.78.127:19302' });
+        iceServers.push({ url: 'stun:74.125.142.127:19302' }, { url: 'stun:provserver.televolution.net' }, { url: 'stun:sip1.lakedestiny.cordiaip.com' }, { url: 'stun:stun1.voiceeclipse.net' }, { url: 'stun:stun01.sipphone.com' }, { url: 'stun:stun.callwithus.com' }, { url: 'stun:stun.counterpath.net' }, { url: 'stun:stun.endigovoip.com' });
+
+        if (options.iceServers) iceServers = options.iceServers;
+
+        iceServers = {
+            iceServers: iceServers
+        };
 
         var optional = {
             optional: []
@@ -936,12 +932,19 @@
                 OfferToReceiveVideo: !!moz
             }
         };
-		
-		function onSdpError(e) {
-            console.error('sdp error:', e.name, e.message);
+
+        function onSdpError(e) {
+            var message = JSON.stringify(e, null, '\t');
+
+            if (message.indexOf('RTP/SAVPF Expects at least 4 fields') != -1) {
+                message = 'It seems that you are trying to interop RTP-datachannels with SCTP. It is not supported!';
+            }
+
+            console.error('onSdpError:', message);
         }
-		
-		function onSdpSuccess() {}
+
+        function onSdpSuccess() {
+        }
 
         function createOffer() {
             if (!options.onOfferSDP) return;
@@ -1038,7 +1041,8 @@
             }
         }
 
-        function useless() {}
+        function useless() {
+        }
 
         return {
             addAnswerSDP: function(sdp) {

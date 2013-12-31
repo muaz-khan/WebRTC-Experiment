@@ -44,9 +44,15 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
+    
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"></script>
+		<link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
+		
     </head>
 
-    <body>
+    <body onload="sh_highlightDocument();">
         <article>
             <header style="text-align: center;">
                 <h1>
@@ -107,7 +113,7 @@
                             <p>
                                 First of all; you need to reference RTCPeerConnection.js library:
                             </p>
-                            <pre>
+                            <pre class="sh_javascript">
 &lt;script src="<strong>https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js</strong>"&gt;&lt;/script&gt;
 </pre>
                         </td>
@@ -119,7 +125,7 @@
                             <p>
                                 Now assume that you are creating "<strong>offer</strong>"...you need to use this code to create <strong>offer sdp</strong>:
                             </p>
-                            <pre>
+                            <pre class="sh_javascript">
 var peer = <strong>RTCPeerConnection</strong>({
     <strong title="required">attachStream</strong>	: clientStream,
     <strong title="required">onICE</strong>     		: function (candidate) {},
@@ -179,7 +185,7 @@ var peer = <strong>RTCPeerConnection</strong>({
                                 Now assume that other peer gathered <strong>ICE</strong> and sent to you; you can pass that ICE to this function:
                             </p>
                             <p>
-                                <pre>
+                                <pre class="sh_javascript">
 peer.<strong>addICE</strong>({
     <strong>sdpMLineIndex</strong> 	: candidate.<strong>sdpMLineIndex</strong>,
     <strong>candidate</strong> 		: candidate.<strong>candidate</strong>
@@ -195,7 +201,7 @@ peer.<strong>addICE</strong>({
                             <p>
                                 99% process is the same for peer who "<strong>creates answer sdp</strong>"; the only difference is: for that peer you don't need "<code><strong>onOfferSDP</strong></code>" and also you don't need to call "<code><strong>peer.addAnswerSDP( answer_sdp );</strong></code>". What extra you need to do is here:
                             </p>
-                            <pre>
+                            <pre class="sh_javascript">
 var peer = <strong>RTCPeerConnection</strong>({
     <strong>attachStream</strong>     	: clientStream,
 
@@ -224,7 +230,7 @@ var peer = <strong>RTCPeerConnection</strong>({
                                 For <strong>ICE</strong> sent by other peer; you need to do same thing:
                             </p>
                             <p>
-                                <pre>
+                                <pre class="sh_javascript">
 peer.<strong>addICE</strong>({
     <strong>sdpMLineIndex</strong> 	: candidate.<strong>sdpMLineIndex</strong>,
     <strong>candidate</strong> 		: candidate.<strong>candidate</strong>
@@ -253,14 +259,14 @@ peer.<strong>addICE</strong>({
                             <p id="socket-io-reference">
                                 First of all; you need to reference <strong>socket.io.js</strong>:
                             </p>
-                            <pre>
+                            <pre class="sh_javascript">
 &lt;script src="<strong>https://www.webrtc-experiment.com/dependencies/socket.io.js</strong>"&gt;&lt;/script&gt;
 </pre>
                             <br />
                             <p>
                                 Now, open socket and transmit your request (e.g. room) until a participant found:
                             </p>
-                            <pre>
+                            <pre class="sh_javascript">
 var socket = io.connect('http://pubsub.pubnub.com/webrtc-app', {
     <strong>publish_key</strong>		: 'demo',
     <strong>subscribe_key</strong>	: 'demo',
@@ -288,7 +294,7 @@ function oncallback(response) {}
                             <p>
                                 Following code is for <strong>offerer</strong> (95% part of this code can be used for <a href="#answerer">Answerer</a>):
                             </p>
-                            <pre>
+                            <pre class="sh_javascript">
 function <a href="#onconnect">onconnect</a>()
 {
     <a href="#transmitRequest">transmitRequest();</a>
@@ -418,7 +424,7 @@ function <strong id="processAnswerSDP">processAnswerSDP</strong>(response)
                             <p>
                                 On the "<a href="#answerer">Answerer</a>" side; when user click "<strong>join</strong>" button; send a message to <a href="#offerer">Offerer</a> to tell him that you're ready to get "<strong>offer sdp</strong>" from him.
                             </p>
-                            <pre>
+                            <pre class="sh_javascript">
 var <a href="#userID" id="userID2">userID</a> = '<strong>answerer</strong>';
 
 socket && socket.<span id="participant-request">send</span>({
@@ -430,7 +436,7 @@ socket && socket.<span id="participant-request">send</span>({
                             <p>
                                 Here is the function that creates "<strong>answer sdp</strong>":
                             </p>
-                            <pre>
+                            <pre class="sh_javascript">
 function <strong id="createAnswer">createAnswer</strong>(<strong>offer_sdp</strong>)
 {
     peer = <strong>RTCPeerConnection</strong>({
@@ -447,7 +453,7 @@ function <strong id="createAnswer">createAnswer</strong>(<strong>offer_sdp</stro
                                 For <strong>answerer</strong>: socket "<strong>callback</strong>" function will be like this:
                             </p>
 
-                            <pre>
+                            <pre class="sh_javascript">
 function <a href="#oncallback">oncallback</a>(response) 
 {
     if(response.userID == <a href="#userID2">userID</a>) return;
@@ -467,7 +473,7 @@ function <a href="#oncallback">oncallback</a>(response)
                                 <strong>Remember:</strong> you don't need to call "<a href="#peer-onanswer">peer.addAnswerSDP(fullSDP)</a>" in <a href="#processAnswerSDP">processAnswerSDP</a> function; instead call <a href="#createAnswer">createAnswer</a> like this:
                             </p>
 
-                            <pre>
+                            <pre class="sh_javascript">
 <a href="#createAnswer">createAnswer(fullSDP);</a>
 </pre>
                             <br />
@@ -486,7 +492,7 @@ function <a href="#oncallback">oncallback</a>(response)
                                 For WebSocket, you need to reference websocket.js instead of <a href="#socket-io-reference">referencing</a> socket.io.js
                             </p>
 
-                            <pre>
+                            <pre class="sh_javascript">
 &lt;script src="<strong>https://www.webrtc-experiment.com/dependencies/websocket.js</strong>"&gt;&lt;/script&gt;
 </pre>
                             <br />
@@ -494,7 +500,7 @@ function <a href="#oncallback">oncallback</a>(response)
                                 You need to create socket like this:
                             </p>
 
-                            <pre>
+                            <pre class="sh_javascript">
 <strong>"use strict"</strong>
 
 var socket = new <strong>WebSocket</strong>('<strong>wss://pubsub.pubnub.com/demo/demo/webrtc-app</strong>');

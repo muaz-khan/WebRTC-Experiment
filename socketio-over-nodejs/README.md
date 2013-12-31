@@ -30,7 +30,11 @@ and you're done!
 In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
 
 ```javascript
-var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
+// http://socketio-over-nodejs.hp.af.cm/
+// http://socketio-over-nodejs.jit.su:80/
+// http://webrtc-signaling.jit.su:80/
+
+var SIGNALING_SERVER = 'http://socketio-over-nodejs.hp.af.cm';
 connection.openSignalingChannel = function(config) {   
    var channel = config.channel || this.channel || 'default-namespace';
    var sender = Math.round(Math.random() * 9999999999) + 9999999999;
@@ -67,6 +71,10 @@ connection.openSignalingChannel = function(config) {
 You can detect presence of a room like this:
 
 ```javascript
+// http://socketio-over-nodejs.hp.af.cm/
+// http://socketio-over-nodejs.jit.su:80/
+// http://webrtc-signaling.jit.su:80/
+
 var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
 function testChannelPresence(channel) {
     var socket = io.connect(SIGNALING_SERVER);

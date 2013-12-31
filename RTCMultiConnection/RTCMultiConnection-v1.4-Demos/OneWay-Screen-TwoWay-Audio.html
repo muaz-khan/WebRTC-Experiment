@@ -1,51 +1,58 @@
 ﻿<title>OneWay Screen & Two-Way Audio using RTCMultiConnection</title>
 
 <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
-<style>video{width:60%;vertical-align:top;}audio{float: right;}</style>
+<style>
+    video {
+        vertical-align: top;
+        width: 60%;
+    }
+
+    audio { float: right; }
+</style>
 
 <h1>OneWay Screen & Two-Way Audio using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection</a></h1><br /><br />
 <button id="share-screen-and-audio">Share Screen + Audio</button><hr />
 <div id="container"></div>
 
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"></script>
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.min.js"> </script>
 <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
 <script>
-var connection = new RTCMultiConnection();
-connection.session = {
-    audio: true,
-    screen: true,
-    oneway: true
-};
+    var connection = new RTCMultiConnection();
+    connection.session = {
+        audio: true,
+        screen: true,
+        oneway: true
+    };
 
-var sessions = {};
-connection.onNewSession = function (session) {
-    // if room is not transmitted once;
-    // "onNewSession" will be called multiple times for same session;
-    // we need to store session-id in an object.
-    if (sessions[session.sessionid]) return;
-    sessions[session.sessionid] = session;
-    
-    // you can call "captureUserMedia" to attach a custom stream even if session is oneway!
-    connection.captureUserMedia(function () {
-        // it is mandatory; otherwise; RTCMultiConnection will remove audio stream
-        connection.dontAttachStream = true;
-    
-        // "join" method must be invoked in the stream-callback
-        connection.join(session);
-    }, { audio: true });
-};
+    var sessions = { };
+    connection.onNewSession = function(session) {
+        // if room is not transmitted once;
+        // "onNewSession" will be called multiple times for same session;
+        // we need to store session-id in an object.
+        if (sessions[session.sessionid]) return;
+        sessions[session.sessionid] = session;
 
-connection.onstream = function (e) {
-    document.querySelector('div#container').appendChild(e.mediaElement);
-}
-connection.connect();
+        // you can call "captureUserMedia" to attach a custom stream even if session is oneway!
+        connection.captureUserMedia(function() {
+            // it is mandatory; otherwise; RTCMultiConnection will remove audio stream
+            connection.dontAttachStream = true;
 
-document.querySelector('#share-screen-and-audio').onclick = function () {
-    this.disabled = true;
-    connection.open();
-}
+            // "join" method must be invoked in the stream-callback
+            connection.join(session);
+        }, { audio: true });
+    };
+
+    connection.onstream = function(e) {
+        document.querySelector('div#container').appendChild(e.mediaElement);
+    };
+    connection.connect();
+
+    document.querySelector('#share-screen-and-audio').onclick = function() {
+        this.disabled = true;
+        connection.open();
+    };
 </script>
-<p>This demo uses <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection">RTCMultiConnection.js</a> to:</p>
+<p>This demo uses <a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection.js</a> to:</p>
 <ol>
     <li>Share screen in one-way.</li>
     <li>Share audio in two-way; among all users.</li>

@@ -32,9 +32,14 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
+		
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"></script>
+		<link type="text/css" rel="stylesheet" href="http://www.rtcmulticonnection.org/syntax/sh_style.css">
     </head>
 
-    <body>
+    <body onload="sh_highlightDocument();">
         <article>
             <header style="text-align: center;">
                 <h1>
@@ -93,7 +98,7 @@
                 <p>
                     An PeerConnection object can be initialized like this:
                 </p>
-                <pre>
+                <pre class="sh_javascript">
 var connection = new [webkit|moz]RTCPeerConnection(
     'ice-servers', 
     'optional-arguments'
@@ -108,7 +113,7 @@ var connection = new [webkit|moz]RTCPeerConnection(
                     Here is a simple example to create offer: 
                 </p>
                 
-                <pre>
+                <pre class="sh_javascript">
 var connection = new [webkit|moz]RTCPeerConnection(
     'ice-servers', 
     'optional-arguments'
@@ -127,7 +132,7 @@ function getOfferSDP(offerSDP) {
                     Here is a simple example to create answer: 
                 </p>
                 
-                <pre>
+                <pre class="sh_javascript">
 var connection = new [webkit|moz]RTCPeerConnection(
     'ice-servers', 
     'optional-arguments'
@@ -150,7 +155,7 @@ function getAnswerSDP(answerSDP) {
                     You created both offer and answer; now complete the handshake:
                 </p>
                 
-                <pre>
+                <pre class="sh_javascript">
 // "setRemoteDescription" is called "later" for offerer
 // it will complete the offer/answer handshake
 
@@ -170,7 +175,7 @@ connection.setRemoteDescription(remoteSessionDescription);
                 <p>
                     So, 1st step is to open websocket connection:
                 </p>
-                <pre>
+                <pre class="sh_javascript">
 var socket       = new WebSocket('ws://domain.com:80/');
 socket.onopen    = function() {};
 socket.onmessage = function() {};
@@ -179,7 +184,7 @@ socket.onmessage = function() {};
                     Assuming that there is a "Start Peer Connection" button; when offerer will click it; we will create offer on his side; and share with other user:
                 </p>
                 
-                <pre>
+                <pre class="sh_javascript">
 &lt;button id="start-peer-connection"&gt;Start Peer Connection&lt;/button&gt;
 
 // javascript code
@@ -202,7 +207,7 @@ button.onclick = function() {
                     Defining "iceServers" and "optional" variables:
                 </p>
                 
-                <pre>
+                <pre class="sh_javascript">
 var isChrome = !!navigator.webkitGetUserMedia;
 
 var STUN = {
@@ -262,7 +267,7 @@ var optional = {
                     ICE trackling is not necessary; even it is not part of WebRTC specification. Alternatives will be explained later in this document.
                 </p>
                 
-                <pre>
+                <pre class="sh_javascript">
 peer.onaddstream = function(mediaStream) {
     video.src = webkitURL.createObjectURL(mediaStream);
 };
@@ -282,7 +287,7 @@ peer.onicecandidate = function(event) {
                     A media-stream can be attached using "addStream" method:
                 </p>
                 
-                <pre>
+                <pre class="sh_javascript">
 navigator.webkitGetUserMedia(MediaConstraints, OnMediaSuccess, OnMediaError);
 var MediaConstraints = {
     audio: true,
@@ -302,7 +307,7 @@ function OnMediaSuccess(mediaStream) {
                     Remeber, chrome now supports attachment of multiple media streams:
                 </p>
                 
-                <pre>
+                <pre class="sh_javascript">
 peer.addStream(audioStream);
 peer.addStream(videoStream);
 peer.addStream(screenCapturingStream);
@@ -316,7 +321,7 @@ peer.addStream(screenCapturingStream);
                     Putting above all together:
                 </p>
                 
-                <pre>
+                <pre class="sh_javascript">
 &lt;button id="start-peer-connection"&gt;Start Peer Connection&lt;/button&gt;
 
 // javascript code
@@ -402,7 +407,7 @@ var optional = {
                     <li>"setRemoteDescription" should be called earlier before creating answer</li>
                 </ol>
 				
-                <pre>
+                <pre class="sh_javascript">
 socket.onmessage =  function(e) {
     var data = e.data;
     if(data.targetUser !== self && data.offerSDP) {
@@ -459,7 +464,7 @@ function createAnswer(offerSDP) {
                     Answer is also completed. Now, second last step is to set remote descriptions for offerer; same as we did for answerer:
                 </p>
 				
-                <pre>
+                <pre class="sh_javascript">
 socket.onmessage =  function(e) {
     var data = e.data;
     if(data.targetUser !== self && data.answerSDP) {
@@ -487,7 +492,7 @@ socket.onmessage =  function(e) {
                     Again, ICE trickling is not "officially" included in WebRTC specification; so, it is chrome-only feature. Firefox merges all ice candidates in session descriptions. You can merge candidates in offerer/answer sdp on chrome too; see next section.
                 </p>
 				
-                <pre>
+                <pre class="sh_javascript">
 socket.onmessage =  function(e) {
     var data = e.data;
     if(data.targetUser !== self && data.candidate) {
@@ -511,7 +516,7 @@ socket.onmessage =  function(e) {
                     <li>Detect "iceGatheringState == 'complete'" in "ongatheringchange"</li>
                 </ol>
 				
-                <pre>
+                <pre class="sh_javascript">
 peer.onicecandidate =  function(e) {
     var candidate = e.candidate;
     // typeof candidate == 'undefined'
@@ -541,7 +546,7 @@ function send_SDP() {
             <section class="experiment">
                 <h2 class="header">How to use socket.io for signaling?</h2>
 				
-                <pre>
+                <pre class="sh_javascript">
 var socket = io.connect('http://domain.com:80/');
 socket.on('message', function(data) {
     if(data.offerSDP)  {}
@@ -554,7 +559,7 @@ socket.on('message', function(data) {
                     You can use either "send" or "emit" method to send the data. However, it is recommended to override "send" method like this:
                 </p>
 				
-                <pre>
+                <pre class="sh_javascript">
 socket.send = function(data) {
     socket.emit('message', data);
 });
@@ -571,7 +576,7 @@ socket.send({
 			
 			<section class="experiment">
                 <h2 class="header" id="sdpConstraints">sdpConstraints?</h2>
-				<pre>
+				<pre class="sh_javascript">
 var sdpConstraints = {
         optional: [],
         mandatory: {
@@ -591,7 +596,7 @@ var sdpConstraints = {
 			
             <section class="experiment">
                 <h2 class="header">Simplest Demo using socket.io</h2>
-                <pre>
+                <pre class="sh_javascript">
 // http://www.webrtc-experiment.com/socket.io/PeerConnection.js
 
 var offerer = new <strong title="Constructor takes three arguments.
@@ -603,7 +608,7 @@ offerer.<strong title="local or remote stream">onStreamAdded</strong> = function
 };
 </pre>
 
-                <pre>
+                <pre class="sh_javascript">
 var answerer = new <strong title="Constructor takes three arguments.
 1) websocket url
 2) socket event and

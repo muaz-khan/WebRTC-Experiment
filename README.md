@@ -11,10 +11,12 @@
 | Library Name        | Short Description           | Documentation | Demos |
 | ------------- |-------------|-------------|-------------|
 | `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
-| `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) | [Demos](https://www.webrtc-experiment.com/#RTCMultiConnection) |
+| `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](http://www.RTCMultiConnection.org/docs/) | [Demos](https://www.webrtc-experiment.com/#RTCMultiConnection) |
 | `DataChannel.js` | An ultimate wrapper library for `RTCDataChannel APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) | [Demos](https://www.webrtc-experiment.com/#DataChannel) |
 | `SdpSerializer.js` | An easiest way to modify SDP | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/SdpSerializer) | [Demos](https://www.webrtc-experiment.com/SdpSerializer/demo.html) |
 | `RTCall.js` | A library for voice (i.e. audio-only) calls | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) | [Demos](https://www.webrtc-experiment.com/RTCall/) |
+| `Meeting.js` | A library for audio/video conferencing | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) | [Demos](https://www.webrtc-experiment.com/meeting/) |
+| `File.js` | A standalone library for file sharing functionalities | [Documentation](https://www.webrtc-experiment.com/docs/Share-Files-using-Filejs.html) | [Demos](https://www.webrtc-experiment.com/WebRTC-File-Sharing/) |
 
 =
 
@@ -125,7 +127,7 @@
 
 =
 
-##### Demos using [RTCMultiConnection.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) library
+##### Demos using [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/) library
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
@@ -147,7 +149,7 @@
 
 =
 
-##### Demos using [RTCMultiConnection-v1.4](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) library
+##### Demos using [RTCMultiConnection](http://www.RTCMultiConnection.org/docs/) v1.4/v1.5
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
@@ -163,7 +165,7 @@
 
 =
 
-##### Documents for newcomers/newbies/beginners
+##### [Documents for newcomers/newbies/beginners](https://www.webrtc-experiment.com/docs/)
 
 | A few documents for newbies and beginners        |
 | ------------- |
@@ -180,6 +182,7 @@
 | [STUN or TURN? Which one to prefer; and why?](https://www.webrtc-experiment.com/docs/STUN-or-TURN.html) |
 | [WebRTC RTP Usage](https://www.webrtc-experiment.com/docs/RTP-usage.html) |
 | [webrtcpedia!](https://www.webrtc-experiment.com/webrtcpedia/) |
+| [Are you want to learn WebRTC?](http://muaz-khan.blogspot.com/2013/12/i-want-to-learn-webrtc.html) |
 
 =
 
@@ -207,34 +210,21 @@ recordRTC.getDataURL(function(dataURL) {});
 
 =
 
-##### [RTCMultiConnection.js](http://www.RTCMultiConnection.org) / A library for all WebRTC APIs
+##### [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/) / A library for all WebRTC APIs
 
 ```html
+<button id="openNewSessionButton">open New Session Button</button><br />
+
 <script src="http://www.RTCMultiConnection.org/latest.js"> </script>
-<button id="init">Open New Connection</button><br />
 <script>
-    var connection = new RTCMultiConnection();
-
-    connection.session = {
-        audio: true,    // attach audio stream too!
-        video: true,    // attach video stream too!
-        data: true,     // open data connection too!
-        screen: true,   // attach screen sharing stream too!
-    };
-    
-    connection.onstream = function(e) {
-        document.body.appendChild(e.mediaElement);
-    };
-
-    connection.connect(); // search for existing connections
-
-    document.getElementById('new-connection').onclick = function() {
-        connection.open(); // open new connection
-    };
+var connection = new RTCMultiConnection().connect();
+document.getElementById('openNewSessionButton').onclick = function() {
+    connection.open();
+};
 </script>
 ```
 
-[RTCMultiConnection Documentation](http://www.RTCMultiConnection.org)
+[RTCMultiConnection Documentation](http://www.RTCMultiConnection.org/docs/)
 
 =
 
@@ -272,14 +262,21 @@ recordRTC.getDataURL(function(dataURL) {});
 
 =
 
-##### [Signaling.md](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)
+##### Signaling Concepts
 
 1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) / [Demo](http://webrtc-signaling.jit.su/)
 2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs) / [Demo](https://www.webrtc-experiment.com/websocket/)
+3. [Signaling.md](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)
+4. https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html
+5. http://www.RTCMultiConnection.org/FAQ/
+6. http://www.RTCMultiConnection.org/docs/sessionid/
+7. http://www.RTCMultiConnection.org/docs/channel-id/
 
 =
 
-##### Muaz Khan - www.MuazKhan.com - [Email Me!](mailto:muazkh@gmail.com) - [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb)
+##### Muaz Khan (muazkh@gmail.com) - [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb)
+
+<a href="http://www.MuazKhan.com"><img src="https://www.webrtc-experiment.com/images/Muaz-Khan.gif" /></a>
 
 =
 

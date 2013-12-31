@@ -1,9 +1,12 @@
-// Muaz Khan     - www.MuazKhan.com
-// MIT License   - www.WebRTC-Experiment.com/licence
-// Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+// Muaz Khan         - www.MuazKhan.com
+// MIT License       - www.WebRTC-Experiment.com/licence
+// Documentation     - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+
+// Work in Progress  - trello.com/b/lLsjl9s3/RecordRTC
 
 // ____________
 // RecordRTC.js
+
 function RecordRTC(mediaStream, config) {
     config = config || { };
 

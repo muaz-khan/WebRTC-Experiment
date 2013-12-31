@@ -1,0 +1,853 @@
+﻿<!DOCTYPE html>
+<html id="home" lang="en">
+
+<head>
+    <title>RTCMultiConnection Docs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+	
+    <style>
+            p { padding: .8em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+			
+			.image-container {
+				text-align:center;
+				margin: 2em 0;
+			}
+			
+			.image-parent {
+				margin: 0 2em;
+				border: 2px solid black;
+				border-radius: 5px;
+			}
+			
+			.image-parent img {
+				width: 100%;
+			}
+            
+            li pre {
+                margin-top: 0;
+            }
+        </style>
+    <!-- for HTML5 el styling -->
+    <script>
+        document.createElement('article');
+        document.createElement('footer');
+    </script>
+	
+	<script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_javascript.min.js"></script>
+    <script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_html.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="http://www.rtcmulticonnection.org/syntax/sh_style.css">
+</head>
+
+<body onload="sh_highlightDocument();">
+    <article>
+        <a href="http://www.RTCMultiConnection.org/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ www.RTCMultiConnection.org</a>
+
+        <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> Docs ----/ <a href="http://www.RTCMultiConnection.org/changes-log/">Changes Log</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a></h1>
+		
+		<ol>
+			<li><a href="http://www.RTCMultiConnection.org/docs/getting-started/">Getting Started Guide</a></li>
+			<li>
+				<h2>API Reference</h2>
+				<ol>
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/constructor/">constructor</a>
+						<pre class="sh_javascript">
+new RTCMultiConnection('channel-id');
+</pre>
+					</li>
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>
+						<pre class="sh_javascript">
+connection.session = {
+     audio:  true,
+     video:  true,
+     screen: true,
+     data:   true
+};
+</pre>
+					</li>
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>
+						<pre class="sh_javascript">
+connection.open('room-id');
+</pre>
+					</li>
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>
+						<pre class="sh_javascript">
+connection.connect('room-id');
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>
+						<pre class="sh_javascript">
+participant.onNewSession = function(session) {
+    // found a conferencing room; join it!
+    participant.join(session);
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/channel-id/">channel-id</a>
+						<pre class="sh_javascript">
+// via constructor
+var connect = new RTCMultiConnection('channel-id');
+
+// via open/connect methods
+connection.open('channel-id');
+
+connection.connect('channel-id');
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/sessionid/">sessionid</a>
+						<pre class="sh_javascript">
+connection.sessionid = 'unique-room-id';
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a>
+						<pre class="sh_javascript">
+connection.userid = 'custom-user-id';
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/send/">send</a>
+						<pre class="sh_javascript">
+connection.send(file || data || 'logest-text-message');
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/captureUserMedia/">captureUserMedia</a>
+						<pre class="sh_javascript">
+var session = {
+    audio: true
+};
+
+connection.captureUserMedia(function (mediaStream) { }, session);
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/direction/">direction</a>
+						<pre class="sh_javascript">
+connection.direction = 'one-to-one';
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/getDevices/">getDevices</a>
+						<pre class="sh_javascript">
+connection.getDevices(function(devices){
+    for (var device in devices) {
+        device = devices[device];
+        
+        // device.kind == 'audio' || 'video'
+        console.log(device.id, device.label);
+    }
+});
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/selectDevices/">selectDevices</a>
+						<pre class="sh_javascript">
+connection.selectDevices(firstDeviceID, secondDeviceID);
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/interval/">interval</a>
+						<pre class="sh_javascript">
+connection.interval = 3000;
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/transmitRoomOnce/">transmitRoomOnce</a>
+						<pre class="sh_javascript">
+connection.transmitRoomOnce = false;
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/maxParticipantsAllowed/">maxParticipantsAllowed</a>
+						<pre class="sh_javascript">
+connection.maxParticipantsAllowed = 256;
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onspeaking/">onspeaking</a>
+						<pre class="sh_javascript">
+connection.onspeaking = function (e) {
+    // e.streamid, e.userid, e.stream, etc.
+    e.mediaElement.style.border = '1px solid red';
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onsilence/">onsilence</a>
+						<pre class="sh_javascript">
+
+connection.onsilence = function (e) {
+    // e.streamid, e.userid, e.stream, etc.
+    e.mediaElement.style.border = '';
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/openSignalingChannel/">openSignalingChannel</a>
+						<pre class="sh_javascript">
+connection.openSignalingChannel = function(config) {};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/session-initiator/">session-initiator</a>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/session-participant/">session-participant</a>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/renegotiation/">renegotiation</a>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/disableDtlsSrtp/">disableDtlsSrtp</a>
+						<pre class="sh_javascript">
+connection.disableDtlsSrtp = false;
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/addStream/">addStream</a>
+						<pre class="sh_javascript">
+connection.addStream({
+    audio: true,
+    video: true
+});
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/removeStream/">removeStream</a>
+						<pre class="sh_javascript">
+connection.removeStream('stream-id');
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/attachStreams/">attachStreams</a>
+						<pre class="sh_javascript">
+connection.attachStreams.push(mediaStream1, mediaStream2);
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/startRecording/">startRecording</a>
+						<pre class="sh_javascript">
+connection.streams['stream-id'].startRecording({
+    audio: true,
+    video: true
+});
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>
+						<pre class="sh_javascript">
+connection.streams['stream-id'].stopRecording(function (blob) {
+    // POST "Blob" to PHP/other server using FormData/XHR2
+});
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/detachStreams/">detachStreams</a>
+						<pre class="sh_javascript">
+connection.detachStreams.push(streamid1, streamid2);
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/dontAttachStream/">dontAttachStream</a>
+						<pre class="sh_javascript">
+connection.dontAttachStream = false;
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/autoCloseEntireSession/">autoCloseEntireSession</a>
+						<pre class="sh_javascript">
+connection.autoCloseEntireSession = false;
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/autoSaveToDisk/">autoSaveToDisk</a>
+						<pre class="sh_javascript">
+connection.autoSaveToDisk = false;
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/bandwidth/">bandwidth</a>
+						<pre class="sh_javascript">
+connection.bandwidth = {
+    audio: 50,
+    video: 256,
+    data: 1638400
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/body/">body</a>
+						<pre class="sh_javascript">
+&lt;div class="container"&gt;&lt;/div&gt;
+connection.body = document.querySelector('.container');
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/candidates/">candidates</a>
+						<pre class="sh_javascript">
+connection.candidates = {
+     relay:     true,
+     reflexive: false,
+     host:      false
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/channels/">channels</a>
+						<pre class="sh_javascript">
+connection.channels['user-id'].send(file || data || 'text');
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/close/">close</a>
+						<pre class="sh_javascript">
+connection.close();
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/leave/">leave</a>
+						<pre class="sh_javascript">
+connection.leave();
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/eject/">eject</a>
+						<pre class="sh_javascript">
+connection.eject(userid);
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onleave/">onleave</a>
+						<pre class="sh_javascript">
+connection.onleave = function(e) {
+    // e.userid
+    // e.extra
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onstream/">onstream</a>
+						<pre class="sh_javascript">
+connection.onstream = function(e) {
+    // e.mediaElement
+    // e.stream
+    // e.streamid
+    // e.session
+    // e.blobURL
+    // e.type
+    // e.extra
+    // e.userid
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onstreamended/">onstreamended</a>
+						<pre class="sh_javascript">
+connection.onstreamended = function(e) {
+    // e.mediaElement
+    // e.stream
+    // e.streamid
+    // e.session
+    // e.blobURL
+    // e.type
+    // e.extra
+    // e.userid
+};
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/onMediaError/">onMediaError</a>
+						<pre class="sh_javascript">
+connection.onMediaError = function (error) {
+    console.error(error);
+}
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/devices/">devices</a>
+						<pre class="sh_javascript">
+for (var device in connection.devices) {
+    device = connection.devices[device];
+
+    // device.kind == 'audio' || 'video'
+    console.log(device.id, device.label);
+}
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/extra/">extra</a>
+						<pre class="sh_javascript">
+connection.extra = {
+    username: 'muazkh',
+    fullname: 'Muaz Khan',
+    email: 'muazkh@gmail.com'
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/fileQueue/">fileQueue</a>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/media/">media</a>
+						<pre class="sh_javascript">
+// Enjoy full-hd video streaming
+connection.media.min(1920,1080);
+connection.media.max(1920,1080);
+
+// Enjoy hd video streaming
+connection.media.min(1280,720);
+connection.media.max(1280,720);
+
+// other possible values
+connection.media.min(960,720);
+connection.media.min(640,360); // -------- it is default
+connection.media.min(640,480);
+connection.media.min(320,240);
+connection.media.min(320,180);
+
+connection.media.minAspectRatio = 1.77;
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/mediaConstraints/">mediaConstraints</a>
+						<pre class="sh_javascript">
+connection.mediaConstraints.mandatory = {
+    minWidth: 1280,
+    maxWidth: 1280,
+    minHeight: 720,
+    maxHeight: 720,
+    minFrameRate: 30
+};
+
+// it is same like "connection.session={audio:false}"
+connection.mediaConstraints.audio = false;
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/sdpConstraints/">sdpConstraints</a>
+						<pre class="sh_javascript">
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: false,
+    OfferToReceiveVideo: false,
+    VoiceActivityDetection: false,
+    IceRestart = true
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/mute/">mute</a>
+						<pre class="sh_javascript">
+connection.streams['stream-id'].mute({
+    audio: true,
+    video: true
+});
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/unmute/">unmute</a>
+						<pre class="sh_javascript">
+connection.streams['stream-id'].unmute({
+    audio: true,
+    video: true
+});
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/stop/">stop</a>
+						<pre class="sh_javascript">
+// stop all local media streams
+connection.streams.stop('local');
+
+// stop all remote media streams
+connection.streams.stop('remote');
+
+// stop all media streams
+connection.streams.stop();
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onmute/">onmute</a>
+						<pre class="sh_javascript">
+connection.onmute = function(e) {
+   e.mediaElement.setAttribute('poster', 'photo.jpg');
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onunmute/">onunmute</a>
+						<pre class="sh_javascript">
+connection.onunmute = function(e) {
+   e.mediaElement.removeAttribute('poster');
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onmessage/">onmessage</a>
+						<pre class="sh_javascript">
+connection.onmessage = function(e) {
+   // e.data
+   // e.userid
+   // e.extra
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onopen/">onopen</a>
+						<pre class="sh_javascript">
+connection.onopen = function(e) {
+   // e.userid
+   // e.extra
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onclose/">onclose</a>
+						<pre class="sh_javascript">
+connection.onclose = function(e) {
+   // e.userid
+   // e.extra
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onerror/">onerror</a>
+						<pre class="sh_javascript">
+connection.onerror = function(e) {
+   // e.userid
+   // e.extra
+};
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onFileStart/">onFileStart</a>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onFileEnd/">onFileEnd</a>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onFileProgress/">onFileProgress</a>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>
+						<pre class="sh_javascript">
+connection.peers['user-id'].addStream({
+    screen: true,
+    oneway: true
+});
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/preferSCTP/">preferSCTP</a>
+						<pre class="sh_javascript">
+connection.preferSCTP = false;
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/streams/">streams</a>
+						<pre class="sh_javascript">
+connection.streams.mute();
+connection.streams.unmute();
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/skipRTCMultiConnectionLogs/">skipRTCMultiConnectionLogs</a>
+						<pre class="sh_javascript">
+// You can disable all logs by setting "window.skipRTCMultiConnectionLogs" to true.
+window.skipRTCMultiConnectionLogs = true;
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/firebase/">firebase</a>
+						<pre class="sh_javascript">
+connection.firebase = 'chat';
+</pre>
+					</li>
+                    
+                     <li>
+						<a href="http://www.RTCMultiConnection.org/docs/admin-guest/">Admin/Guest Scenarios</a>
+						<pre class="sh_javascript">
+var you = new RTCMultiConnection();
+var he = new RTCMultiConnection();
+
+you.onRequest = function (his_id) {
+    // you're "quickly" accepting his invitation
+    // you can show a dialog-box too; to allow 
+    // user accept/reject invitation
+    you.accept(his_id);
+};
+
+// he is inviting you
+he.request(your_id);
+
+// following lines are necessary because we need to 
+// set signaling gateways
+you.connect();
+he.connect();
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/onRequest/">onRequest</a>
+						<pre class="sh_javascript">
+connection.onRequest = function (request) {
+    // 2nd parameter "extra" is optional
+    connection.<a href="http://www.RTCMultiConnection.org/docs/accept/">accept</a>(request);
+};
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/request/">request</a>
+						<pre class="sh_javascript">
+// use "user-id" to invite a user
+connection.request('userid');
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/accept/">accept</a>
+						<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onRequest/">onRequest</a> = function (request) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/accept/">accept</a>(request);
+};
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/reject/">reject</a>
+						<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onRequest/">onRequest</a> = function (request) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/reject/">reject</a>(request);
+};
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/onstats/">onstats</a>
+						<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onstats/">onstats</a> = function (stats, callee) {
+    // callee is busy
+    if (stats == 'busy') {}
+    
+    // callee rejected the request
+    if (stats == 'rejected') {}
+
+    // callee accepted caller's request
+    if (stats == 'accepted') {}
+    
+    // callee.userid || callee.extra
+};
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/userType/">userType</a>
+						<pre class="sh_javascript">
+// if you want to set "admin"
+connection.userType = 'admin';
+
+// if you want to set "guest"
+connection.userType = 'guest';
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/onAdmin/">onAdmin</a>
+						<pre class="sh_javascript">
+connection.onAdmin = function (admin) {
+    // Lets call admin using his userid
+    connection.request(admin.userid);
+};
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/onGuest/">onGuest</a>
+						<pre class="sh_javascript">
+connection.onGuest = function (guest) {
+    // Lets call guest using his userid
+    connection.request(guest.userid);
+};
+</pre>
+					</li>
+
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/takeSnapshot/">takeSnapshot</a>
+						<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/takeSnapshot/">takeSnapshot</a>('userid', function(snapshot) {
+    image.src = snapshot;
+});
+</pre>
+					</li> 
+
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/snapshots/">snapshots</a>
+						<pre class="sh_javascript">
+// iterate over all snapshots/
+for(var snapshot in connection.<a href="http://www.RTCMultiConnection.org/docs/snapshots/">snapshots</a>) {
+    snapshot = connection.snapshots[snapshot];
+}
+
+// or, to access individual snapshot later
+image.src = connection.<a href="http://www.RTCMultiConnection.org/docs/snapshots/">snapshots</a>['userid'];
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/getStats/">getStats</a>
+						<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/getStats/">getStats</a>(function(stat) {
+    // stat.numberOfConnectedUsers
+});
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/stats/">stats</a>
+						<pre class="sh_javascript">
+for(var stat in connection.<a href="http://www.RTCMultiConnection.org/docs/stats/">stats</a>) {
+    console.log(stat, connection.<a href="http://www.RTCMultiConnection.org/docs/stats/">stats</a>[stat]);
+}
+
+// you can directly access "numberOfConnectedUsers" later like this:
+console.log(connection.<a href="http://www.RTCMultiConnection.org/docs/stats/">stats</a>.numberOfConnectedUsers);
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>
+						<pre class="sh_javascript">
+// to check whether it is WebRTC compatible browser
+var isWebRTC_Compatible = connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.RTCPeerConnection;
+</pre>
+					</li>
+                    
+                    <li>
+						<a href="http://www.RTCMultiConnection.org/docs/iceServers/">iceServers</a>
+						<pre class="sh_javascript">
+var iceServers = [];
+
+// STUN server
+iceServers.push({
+    url: 'stun:23.21.150.121:3478'
+});
+
+// TURN server
+iceServers.push({
+    url: 'turn:turn.bistri.com:80',
+    credential: 'homeo',
+    username: 'homeo'
+});
+
+connection.<a href="http://www.RTCMultiConnection.org/docs/iceServers/">iceServers</a> = iceServers;
+</pre>
+					</li>
+                   
+				</ol>
+			</li>
+		</ol>
+
+        <br />
+        <br />
+        <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
+                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Want to ask a Question?</h2>
+                <div>
+                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Feel free to ask any question regarding RTCMultiConnection.js!"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your email for private conversation!</small>
+            </section>
+    </article>
+    <footer>
+        <p>
+            <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a>©
+                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
+                <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
+                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
+                <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+        </p>
+    </footer>
+    <script src="https://www.webrtc-experiment.com/common.js"> </script>
+</body>
+</html>

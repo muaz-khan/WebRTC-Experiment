@@ -114,7 +114,8 @@
 					var mediaElement = document.createElement(fileType);
 					
 					var source = document.createElement('source');
-					source.src = location.href + fileURL;
+                    var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+					source.src = href + fileURL;
 					
 					if(fileType == 'video') source.type = 'video/webm; codecs="vp8, vorbis"';
 					if(fileType == 'audio') source.type = 'audio/wav';

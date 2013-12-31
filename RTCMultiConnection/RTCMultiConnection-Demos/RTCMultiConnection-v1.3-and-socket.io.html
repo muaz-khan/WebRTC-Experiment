@@ -1,5 +1,5 @@
-﻿<script src="https://www.webrtc-experiment.com/socket.io.js"></script>
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.3.js"></script>
+﻿<script src="https://www.webrtc-experiment.com/firebase.js"></script>
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.min.js"></script>
 
 <button id="init">Open NEW Session</button>
 
@@ -15,36 +15,9 @@
 </table>
 
 <script>
-    var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/', defaultChannel = location.hash.substr(1) || 'default-channel';
-
     window.username = Math.random() * 9999 << 9999;
 
-    var connection = new RTCMultiConnection(defaultChannel);
-
-    connection.openSignalingChannel = function(config) {
-        var channel = config.channel || defaultChannel;
-        var sender = Math.round(Math.random() * 60535) + 5000;
-
-        io.connect(SIGNALING_SERVER).emit('new-channel', {
-            channel: channel,
-            sender: sender
-        });
-
-        var socket = io.connect(SIGNALING_SERVER + channel);
-        socket.channel = channel;
-        socket.on('connect', function() {
-            if (config.callback) config.callback(socket);
-        });
-
-        socket.send = function(message) {
-            socket.emit('message', {
-                sender: sender,
-                data: message
-            });
-        };
-
-        socket.on('message', config.onmessage);
-    };
+    var connection = new RTCMultiConnection();
 
     connection.onstream = function(e) {
         if (e.type === 'local') {
@@ -102,6 +75,7 @@
     document.getElementById('init').onclick = function() {
         connection.interval = 1000;
         connection.open();
+        this.disabled = true;
     };
 
     connection.extra = {
@@ -110,3 +84,30 @@
 
     connection.connect();
 </script>
+
+<style>
+html {
+    background: rgb(255, 252, 239);
+}
+
+.video-container {
+    background: white;
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+}
+
+.video-container h2 {
+    border: 0;
+    border-top: 1px solid black;
+    display: block;
+    margin: 0;
+    text-align: center;
+}
+
+.video-container button {
+    margin: .2em;
+    position: absolute;
+    z-index: 200;
+}
+</style>

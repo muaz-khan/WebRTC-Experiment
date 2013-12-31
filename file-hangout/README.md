@@ -31,9 +31,32 @@ In this model, server plays a role of another peer. Server receives **offer-sdp*
 
 Server must be intelligent enough to generate right **answer-sdp**.
 
-Remember, WebRTC peer object will send **DTLS/SRTP** packets maybe as **ByteStream**. Target media server must be able to capture/understand those packets.
+Remember, WebRTC peer object will send **DTLS/SRTP** (RTP/RTCP) packets maybe as **ByteStream**. Target media server must be able to capture/understand those packets.
 
 Server can manipulate messages or data coming from 10 or more unique data ports and transfer over single data port!
+
+=
+
+A few 3rd party media servers:
+
+1. Telepresence (MCU)
+2. BigBlueButton
+3. WebRTC2Sip
+4. Asterisk
+5. FreeSwitch
+6. NGVX
+
+You can search and find hundred of RTP/DTLS-capable third party media servers on the Web!
+
+To install a media server:
+
+1. You need to buy VPS hosting
+2. You can ask for CentOS6-x64 installation; or otherwise, Ubuntu/etc.
+3. You need to install all dependencies (extrnal modules) using command prompt (PuTTy on windows)
+
+You can find media servers intallation documents/tutorials here: 
+
+https://www.webrtc-experiment.com/docs/
 
 =
 

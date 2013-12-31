@@ -1,5 +1,5 @@
 ﻿<h1>
-    Multi-streams attachment using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection">
+    Multi-streams attachment using <a href="http://www.RTCMultiConnection.org/docs/">
                                        RTCMultiConnection</a> / <a href="https://www.webrtc-experiment.com/">Home</a></h1>
 <style>
     video {
@@ -7,7 +7,7 @@
         width: 48%;
     }
 </style>
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.min.js"> </script>
 <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
 <button id="init">
     Open New Connection</button>
@@ -25,11 +25,11 @@
         document.body.appendChild(e.mediaElement);
     };
 
-    connection.connect('fsafsdafsfds');
+    connection.connect();
 
     document.getElementById('init').onclick = function() {
         this.disabled = true;
-        connection.open('fsafsdafsfds');
+        connection.open();
     };
 
     connection.onstreamended = function(e) {

@@ -1,4 +1,13 @@
-#### WebRTC One-to-Many audio sharing/broadcasting / [Demo](https://www.webrtc-experiment.com/audio-broadcast/)
+#### WebRTC One-to-Many audio sharing/broadcasting [Demo](https://www.webrtc-experiment.com/audio-broadcast/)
+
+=
+
+1. This [WebRTC](https://www.webrtc-experiment.com/) experiment is aimed to transmit audio stream in one-to-many style.
+2. It setups multiple peer connections to support multi-user connectivity feature. Rememebr, [WebRTC](https://www.webrtc-experiment.com/) doesn't supports 3-way handshake!
+3. Out of multi-peers establishment; many RTP-ports are opened according to number of media streamas referenced to each peer connection.
+4. Multi-ports establishment will cause huge [CPU and bandwidth usage](https://www.webrtc-experiment.com/docs/RTP-usage.html)!
+
+=
 
 If 10 users join your broadcasted room, **20 RTP ports** will be opened on your browser:
 

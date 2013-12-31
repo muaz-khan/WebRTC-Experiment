@@ -1,30 +1,35 @@
-/*
-     2013, @muazkh - github.com/muaz-khan
-     MIT License - https://webrtc-experiment.appspot.com/licence/
-     Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
-*/
+// Muaz Khan         - www.MuazKhan.com
+// MIT License       - www.WebRTC-Experiment.com/licence
+// Documentation     - www.RTCMultiConnection.org/docs/
+
+// FAQ               - www.RTCMultiConnection.org/FAQ/
+// Development News  - trello.com/b/8bhi1G6n/RTCMultiConnection
+
+// v1.1 changes log  - www.RTCMultiConnection.org/changes-log/#v1.1
+// _______________________
+// RTCMultiConnection-v1.1
 
 function RTCMultiConnection(channel) {
     this.channel = channel;
     var self = this,
         rtcSession, fileReceiver, textReceiver;
 
-    self.onmessage = function (message) {
+    self.onmessage = function(message) {
         console.debug('DataChannel message:', message);
     };
 
-    self.onopen = function (_channel) {
+    self.onopen = function(_channel) {
         _channel.send('First text message!');
     };
 
-    self.onFileReceived = function (fileName) {
+    self.onFileReceived = function(fileName) {
         console.debug('File <', fileName, '> received successfully.');
     };
 
-    self.onFileSent = function (file) {
+    self.onFileSent = function(file) {
         console.debug('File <', file.name, '> sent successfully.');
     };
-    self.onFileProgress = function (packets) {
+    self.onFileProgress = function(packets) {
         console.debug('<', packets.remaining, '> items remaining.');
     };
     self.session = Session.AudioVideo;
@@ -32,15 +37,15 @@ function RTCMultiConnection(channel) {
 
     function prepareInit(callback) {
         if (!self.openSignalingChannel) {
-            self.openSignalingChannel = function (config) {
-                config = config || {};
+            self.openSignalingChannel = function(config) {
+                config = config || { };
                 channel = config.channel || self.channel || 'default-channel';
                 var socket = new window.Firebase('https://chat.firebaseIO.com/' + channel);
                 socket.channel = channel;
-                socket.on('child_added', function (data) {
+                socket.on('child_added', function(data) {
                     config.onmessage && config.onmessage(data.val());
                 });
-                socket.send = function (data) {
+                socket.send = function(data) {
                     this.push(data);
                 };
                 config.onopen && setTimeout(config.onopen, 1);
@@ -66,10 +71,10 @@ function RTCMultiConnection(channel) {
         self.session = self.session.lowercase();
 
         self.config = {
-            openSignalingChannel: function (config) {
+            openSignalingChannel: function(config) {
                 return self.openSignalingChannel(config);
             },
-            onNewSession: function (session) {
+            onNewSession: function(session) {
                 if (self.channel !== session.sessionid) return;
 
                 if (self.joinedARoom) return;
@@ -81,14 +86,14 @@ function RTCMultiConnection(channel) {
                 if (session.direction === Direction.OneWay || session.session === Session.Data)
                     joinSession(session);
                 else
-                    captureUserMedia(function () {
+                    captureUserMedia(function() {
                         joinSession(session);
                     });
             },
-            onChannelOpened: function () {
+            onChannelOpened: function() {
                 self.onopen(self);
             },
-            onChannelMessage: function (data) {
+            onChannelMessage: function(data) {
                 if (!data.size) data = JSON.parse(data);
 
                 if (data.type === 'text')
@@ -122,24 +127,24 @@ function RTCMultiConnection(channel) {
         rtcSession.joinSession(session);
     }
 
-    self.open = function (_channel) {
+    self.open = function(_channel) {
         if (self.socket) self.socket.onDisconnect().remove();
         else self.isInitiator = true;
 
         if (_channel) self.channel = _channel;
-        prepareInit(function () {
+        prepareInit(function() {
             init();
             captureUserMedia(rtcSession.initSession);
         });
     };
-    self.connect = function (_channel) {
+    self.connect = function(_channel) {
         if (_channel) self.channel = _channel;
         prepareInit(init);
     };
-    self.onstream = function (stream) {
+    self.onstream = function(stream) {
         console.debug('stream:', stream);
     };
-    self.send = function (data) {
+    self.send = function(data) {
         if (!data) throw 'No file, data or text message to share.';
         if (data.size)
             FileSender.send({
@@ -187,7 +192,7 @@ function RTCMultiConnection(channel) {
 
         if (session === Session.Video || session === Session.VideoData) {
             var video_constraints = {
-                mandatory: {},
+                mandatory: { },
                 optional: []
             };
             constraints = {
@@ -198,7 +203,7 @@ function RTCMultiConnection(channel) {
         var mediaElement = document.createElement(session.isAudio() ? 'audio' : 'video');
         var mediaConfig = {
             video: mediaElement,
-            onsuccess: function (stream) {
+            onsuccess: function(stream) {
                 self.config.attachStream = stream;
                 callback && callback();
 
@@ -211,7 +216,7 @@ function RTCMultiConnection(channel) {
                     type: 'local'
                 });
             },
-            onerror: function () {
+            onerror: function() {
                 if (session.isAudio())
                     throw 'unable to get access to your microphone';
                 else if (session.isScreen()) {
@@ -251,25 +256,25 @@ var Direction = {
     ManyToMany: 'manytomany'
 };
 
-String.prototype.isAudio = function () {
+String.prototype.isAudio = function() {
     var session = this + '';
     return session === Session.Audio || session === Session.AudioData;
 };
 
-String.prototype.isScreen = function () {
+String.prototype.isScreen = function() {
     var session = this + '';
     return session === Session.Screen || session === Session.ScreenData;
 };
 
-String.prototype.lowercase = function () {
+String.prototype.lowercase = function() {
     var str = this + '';
-    return str.toLowerCase().replace(/-|( )|\+|only|and/g, '');
+    return str.toLowerCase().replace( /-|( )|\+|only|and/g , '');
 };
 
 window.MediaStream = window.MediaStream || window.webkitMediaStream;
 
-window.moz = !! navigator.mozGetUserMedia;
-var RTCPeerConnection = function (options) {
+window.moz = !!navigator.mozGetUserMedia;
+var RTCPeerConnection = function(options) {
     var w = window,
         PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
         SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
@@ -297,7 +302,7 @@ var RTCPeerConnection = function (options) {
             };
 
         // No STUN to make sure it works all the time!
-        iceServers.iceServers = [STUN,TURN];
+        iceServers.iceServers = [STUN, TURN];
     }
 
     var optional = {
@@ -362,7 +367,7 @@ var RTCPeerConnection = function (options) {
         if (!options.onOfferSDP)
             return;
 
-        peerConnection.createOffer(function (sessionDescription) {
+        peerConnection.createOffer(function(sessionDescription) {
             peerConnection.setLocalDescription(sessionDescription);
             options.onOfferSDP(sessionDescription);
         }, onSdpError, constraints);
@@ -375,7 +380,7 @@ var RTCPeerConnection = function (options) {
         options.offerSDP = new SessionDescription(options.offerSDP);
         peerConnection.setRemoteDescription(options.offerSDP, onSdpSuccess, onSdpError);
 
-        peerConnection.createAnswer(function (sessionDescription) {
+        peerConnection.createAnswer(function(sessionDescription) {
             peerConnection.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
         }, onSdpError, constraints);
@@ -396,19 +401,19 @@ var RTCPeerConnection = function (options) {
 
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function (stream) {
-                peerConnection.addStream(stream);
-                createOffer();
-            }, useless);
+                    audio: true,
+                    fake: true
+                }, function(stream) {
+                    peerConnection.addStream(stream);
+                    createOffer();
+                }, useless);
         }
     }
 
     function _openOffererChannel() {
         channel = peerConnection.createDataChannel(
             options.channel || 'RTCDataChannel',
-            moz ? {} : {
+            moz ? { } : {
                 reliable: false
             });
 
@@ -417,21 +422,21 @@ var RTCPeerConnection = function (options) {
     }
 
     function setChannelEvents() {
-        channel.onmessage = function (event) {
+        channel.onmessage = function(event) {
             if (options.onChannelMessage)
                 options.onChannelMessage(event);
         };
 
-        channel.onopen = function () {
+        channel.onopen = function() {
             if (options.onChannelOpened)
                 options.onChannelOpened(channel);
         };
-        channel.onclose = function (event) {
+        channel.onclose = function(event) {
             if (options.onChannelClosed)
                 options.onChannelClosed(event);
             console.warn('WebRTC Data Channel closed.', event);
         };
-        channel.onerror = function (event) {
+        channel.onerror = function(event) {
             if (options.onChannelError)
                 options.onChannelError(event);
             console.error('WebRTC Data Channel error:', event);
@@ -442,7 +447,7 @@ var RTCPeerConnection = function (options) {
         openAnswererChannel();
 
     function openAnswererChannel() {
-        peerConnection.ondatachannel = function (event) {
+        peerConnection.ondatachannel = function(event) {
             channel = event.channel;
             channel.binaryType = 'blob';
             setChannelEvents();
@@ -450,29 +455,31 @@ var RTCPeerConnection = function (options) {
 
         if (moz && !options.attachStream) {
             navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function (stream) {
-                peerConnection.addStream(stream);
-                createAnswer();
-            }, useless);
+                    audio: true,
+                    fake: true
+                }, function(stream) {
+                    peerConnection.addStream(stream);
+                    createAnswer();
+                }, useless);
         }
     }
 
-    function useless() {}
-	
-	function onSdpSuccess() {}
+    function useless() {
+    }
 
-        function onSdpError(e) {
-            console.error('sdp error:', e.name, e.message);
-        }
+    function onSdpSuccess() {
+    }
+
+    function onSdpError(e) {
+        console.error('sdp error:', e.name, e.message);
+    }
 
     return {
-        addAnswerSDP: function (sdp) {
+        addAnswerSDP: function(sdp) {
             sdp = new SessionDescription(sdp);
             peerConnection.setRemoteDescription(sdp, onSdpSuccess, onSdpError);
         },
-        addICE: function (candidate) {
+        addICE: function(candidate) {
             peerConnection.addIceCandidate(new IceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
@@ -481,14 +488,14 @@ var RTCPeerConnection = function (options) {
 
         peer: peerConnection,
         channel: channel,
-        sendData: function (message) {
+        sendData: function(message) {
             channel && channel.send(message);
         }
     };
 };
 
 var video_constraints = {
-    mandatory: {},
+    mandatory: { },
     optional: []
 };
 
@@ -497,11 +504,11 @@ function getUserMedia(options) {
         media;
     n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
     n.getMedia(options.constraints || {
-        audio: true,
-        video: video_constraints
-    }, streaming, options.onerror || function (e) {
-        console.error(e);
-    });
+            audio: true,
+            video: video_constraints
+        }, streaming, options.onerror || function(e) {
+            console.error(e);
+        });
 
     function streaming(stream) {
         var video = options.video;
@@ -526,7 +533,7 @@ function RTCMultiSession(config) {
         channels = '--',
         isbroadcaster,
         isAcceptNewSession = true,
-        defaultSocket = {}, RTCDataChannels = [];
+        defaultSocket = { }, RTCDataChannels = [];
 
     function openDefaultSocket() {
         defaultSocket = config.openSignalingChannel({
@@ -561,7 +568,7 @@ function RTCMultiSession(config) {
         var socketConfig = {
             channel: _config.channel,
             onmessage: socketResponse,
-            onopen: function () {
+            onopen: function() {
                 if (isofferer && !peer)
                     initPeer();
             }
@@ -570,12 +577,12 @@ function RTCMultiSession(config) {
         var socket = config.openSignalingChannel(socketConfig),
             isofferer = _config.isofferer,
             isGotRemoteStream,
-            inner = {},
+            inner = { },
             mediaElement = document.createElement(session.isAudio() ? 'audio' : 'video'),
             peer;
 
         var peerConfig = {
-            onICE: function (candidate) {
+            onICE: function(candidate) {
                 socket.send({
                     id: self.id,
                     candidate: {
@@ -585,12 +592,12 @@ function RTCMultiSession(config) {
                 });
             },
             onChannelOpened: onChannelOpened,
-            onChannelMessage: function (event) {
+            onChannelMessage: function(event) {
                 if (config.onChannelMessage)
                     config.onChannelMessage(event.data);
             },
             attachStream: config.attachStream,
-            onRemoteStream: function (stream) {
+            onRemoteStream: function(stream) {
                 mediaElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
                 mediaElement.autoplay = true;
                 mediaElement.controls = true;
@@ -598,8 +605,8 @@ function RTCMultiSession(config) {
 
                 _config.stream = stream;
                 if (session.isAudio()) {
-                    mediaElement.addEventListener('play', function () {
-                        setTimeout(function () {
+                    mediaElement.addEventListener('play', function() {
+                        setTimeout(function() {
                             mediaElement.muted = false;
                             mediaElement.volume = 1;
                             window.audio = mediaElement;
@@ -789,7 +796,7 @@ function RTCMultiSession(config) {
     }
 
     function uniqueToken() {
-        var s4 = function () {
+        var s4 = function() {
             return Math.floor(Math.random() * 0x10000).toString(16);
         };
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
@@ -797,13 +804,13 @@ function RTCMultiSession(config) {
 
     openDefaultSocket();
     return {
-        initSession: function () {
+        initSession: function() {
             isbroadcaster = true;
             isAcceptNewSession = false;
             startBroadcasting();
         },
-        joinSession: function (_config) {
-            _config = _config || {};
+        joinSession: function(_config) {
+            _config = _config || { };
 
             session = _config.session;
             direction = _config.direction;
@@ -821,7 +828,7 @@ function RTCMultiSession(config) {
                 targetUser: _config.userid
             });
         },
-        send: function (message) {
+        send: function(message) {
             var _channels = RTCDataChannels,
                 data, length = _channels.length;
             if (!length) return;
@@ -832,7 +839,7 @@ function RTCMultiSession(config) {
             for (var i = 0; i < length; i++)
                 _channels[i].send(data);
         },
-        getSession: function () {
+        getSession: function() {
             return {
                 userid: self.id,
                 sessionid: self.sessionid,
@@ -844,7 +851,7 @@ function RTCMultiSession(config) {
 }
 
 var FileSender = {
-    send: function (config) {
+    send: function(config) {
         var channel = config.channel,
             file = config.file;
 
@@ -872,7 +879,7 @@ var FileSender = {
             reader.onload = onReadAsDataURL;
         }
 
-        var packetSize = 1000 /* chars */ ,
+        var packetSize = 1000 /* chars */,
             textToTransfer = '',
             numberOfPackets = 0,
             packets = 0;
@@ -910,7 +917,7 @@ var FileSender = {
             textToTransfer = text.slice(data.message.length);
 
             if (textToTransfer.length)
-                setTimeout(function () {
+                setTimeout(function() {
                     onReadAsDataURL(null, textToTransfer);
                 }, 500);
         }
@@ -931,7 +938,7 @@ function FileReceiver() {
             if (data.size) {
                 var reader = new window.FileReader();
                 reader.readAsDataURL(data);
-                reader.onload = function (event) {
+                reader.onload = function(event) {
                     FileSaver.SaveToDisk(event.target.result, fileName);
                     if (config.onFileReceived)
                         config.onFileReceived(fileName);
@@ -967,10 +974,10 @@ function FileReceiver() {
 }
 
 var TextSender = {
-    send: function (config) {
+    send: function(config) {
         var channel = config.channel,
             initialText = config.text,
-            packetSize = 1000 /* chars */ ,
+            packetSize = 1000 /* chars */,
             textToTransfer = '';
 
         if (typeof initialText !== 'string') initialText = JSON.stringify(initialText);
@@ -1000,7 +1007,7 @@ var TextSender = {
             textToTransfer = text.slice(data.message.length);
 
             if (textToTransfer.length)
-                setTimeout(function () {
+                setTimeout(function() {
                     sendText(null, textToTransfer);
                 }, 500);
         }
@@ -1025,7 +1032,7 @@ function TextReceiver() {
 
 
 var FileSaver = {
-    SaveToDisk: function (fileUrl, fileName) {
+    SaveToDisk: function(fileUrl, fileName) {
         var save = document.createElement('a');
         save.href = fileUrl;
         save.target = '_blank';

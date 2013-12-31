@@ -1,7 +1,7 @@
 ﻿<title>RTCMultiConnection Features Demo</title>
-<h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection">RTCMultiConnection</a> Features Demo / <a href="https://www.webrtc-experiment.com/">Goto Homepage</a></h1>
+<h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Features Demo / <a href="https://www.webrtc-experiment.com/">Goto Homepage</a></h1>
 <style>
-video {max-width: 45%;}
+    video { max-width: 45%; }
 </style>
 <hr />
 <button id="prepare-connection">Prepare Connection</button>
@@ -9,116 +9,123 @@ video {max-width: 45%;}
 <button id="setup-room" disabled>Setup Room</button>
 
 <select id="resolutions">
-	<option>320:180</option>
-	<option>320:240</option>
-	<option>640:480</option>
-	<option>640:360</option>
-	<option>960:720</option>
-	<option>1280:720</option>
-	<option>1920:1080</option>
+    <option>320:180</option>
+    <option>320:240</option>
+    <option>640:480</option>
+    <option>640:360</option>
+    <option>960:720</option>
+    <option>1280:720</option>
+    <option>1920:1080</option>
 </select>
-<!--
-{host:"dev01.addlive.com", port:13108, uname:"addliveuser", passwd:"h12whw3fg8vd"}
-stun:173.194.78.127:19302
--->
 <select id="ice-servers">
-	<option>url: turn:webrtc%40live.com@numb.viagenie.ca, credential: muazkh</option>
-	<option>url: turn:homeo@turn.bistri.com:80, credential: homeo</option>
-	<option>url: stun:stun.l.google.com:19302</option>
+    <option>url: turn:webrtc%40live.com@numb.viagenie.ca, credential: muazkh</option>
+    <option>url: turn:homeo@turn.bistri.com:80, credential: homeo</option>
+    <option>url: stun:stun.l.google.com:19302</option>
+    <option>url: 23.21.150.121:3478</option>
+    <option>url: 216.93.246.18:3478</option>
+    <option>url: 66.228.45.110:3478</option>
+    <option>url: 173.194.78.127:19302</option>
+    <option>url: 74.125.142.127:19302</option>
+    <option>url: provserver.televolution.net</option>
+    <option>url: sip1.lakedestiny.cordiaip.com</option>
+    <option>url: stun1.voiceeclipse.net</option>
+    <option>url: stun01.sipphone.com</option>
+    <option>url: stun.callwithus.com</option>
+    <option>url: stun.counterpath.net</option>
+    <option>url: stun.endigovoip.com</option>
 </select>
 
 <select id="ice-candidates">
-	<option>relay</option>
-	<option>reflexive</option>
-	<option>relay+reflexive</option>
-	<option>host</option>
-	<option>all</option>
+    <option>relay</option>
+    <option>reflexive</option>
+    <option>relay+reflexive</option>
+    <option>host</option>
+    <option>all</option>
 </select>
 <hr />
 
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.min.js"> </script>
 <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
 <script>
-var connection;
-function setupConnection() {
-	connection = new RTCMultiConnection();
-	connection.session = {
-		audio: true,
-		video: true
-	};
+    var connection;
 
-	var properties = document.querySelector('#ice-servers').value.split(', ');
-	var iceServer = {};
-	properties.forEach(function(property) {
-		var tup = property.split(': ');
-		iceServer[tup[0]] = tup[1];
-	});
-	
-	console.log(iceServer);
-	connection.iceServers = [iceServer];
+    function setupConnection() {
+        connection = new RTCMultiConnection();
+        connection.session = {
+            audio: true,
+            video: true
+        };
 
-	var select = document.querySelector('#resolutions');
-	var coords = select.value.split(':');
-	
-	var width = coords[0];
-	var height = coords[1];
-	
-	console.log(width,':',height);
-	connection.media.min(width, height);
-	connection.media.max(width, height);
+        var properties = document.querySelector('#ice-servers').value.split(', ');
+        var iceServer = { };
+        properties.forEach(function(property) {
+            var tup = property.split(': ');
+            iceServer[tup[0]] = tup[1];
+        });
 
-	// connection.media.minAspectRatio = 0;
-	
-	var iceCandidates = document.querySelector('#ice-candidates').value;
-	
-	connection.candidates.host = iceCandidates.indexOf('host') != -1;
-	connection.candidates.reflexive = iceCandidates.indexOf('reflexive') != -1;
-	connection.candidates.relay = iceCandidates.indexOf('relay') != -1;
+        console.log(iceServer);
+        connection.iceServers = [iceServer];
 
-	connection.onstream = function (e) {
-		document.body.appendChild(e.mediaElement);
-	};
+        var select = document.querySelector('#resolutions');
+        var coords = select.value.split(':');
 
-	// searching for pre-shared screens
-	connection.connect();
-}
+        var width = coords[0];
+        var height = coords[1];
 
-document.getElementById('prepare-connection').onclick = function () {
-	if(isValidOption() == false) return;
-    this.disabled = true;
-	setupConnection();
-	
-	document.getElementById('setup-room').disabled = false;
-};
+        console.log(width, ':', height);
+        connection.media.min(width, height);
+        connection.media.max(width, height);
 
-document.getElementById('setup-room').onclick = function () {
-	if(isValidOption() == false) return;
-    this.disabled = true;
-	
-    // sharing you screen!
-    connection.open();
-};
+        var iceCandidates = document.querySelector('#ice-candidates').value;
 
-function isValidOption() {
-	var properties = document.querySelector('#ice-servers').value.split(', ');
-	var iceServer = {};
-	properties.forEach(function(property) {
-		var tup = property.split(': ');
-		iceServer[tup[0]] = tup[1];
-	});
-	
-	var iceCandidates = document.querySelector('#ice-candidates').value;
-	
-	if(iceServer.url.indexOf('turn') != -1 && iceCandidates.indexOf('relay') == -1) {
-		alert('It seems that you have not selected TURN server. Select "relay" to proceeed.');
-		return false;
-	}
-	
-	if(iceServer.url.indexOf('stun') != -1 && iceCandidates.indexOf('reflexive') == -1) {
-		alert('It seems that you have not selected STUN server. Select "reflexive" to proceeed.');
-		return false;
-	}
-	
-	return true;
-}
+        connection.candidates.host = iceCandidates.indexOf('host') != -1;
+        connection.candidates.reflexive = iceCandidates.indexOf('reflexive') != -1;
+        connection.candidates.relay = iceCandidates.indexOf('relay') != -1;
+
+        connection.onstream = function(e) {
+            document.body.appendChild(e.mediaElement);
+        };
+
+        // searching for existing sessions
+        connection.connect();
+    }
+
+    document.getElementById('prepare-connection').onclick = function() {
+        if (isValidOption() == false) return;
+        this.disabled = true;
+        setupConnection();
+
+        document.getElementById('setup-room').disabled = false;
+    };
+
+    document.getElementById('setup-room').onclick = function() {
+        if (isValidOption() == false) return;
+        this.disabled = true;
+
+        // sharing you screen!
+        connection.open();
+    };
+
+    function isValidOption() {
+        var properties = document.querySelector('#ice-servers').value.split(', ');
+        var iceServer = { };
+        properties.forEach(function(property) {
+            var tup = property.split(': ');
+            iceServer[tup[0]] = tup[1];
+        });
+
+        var iceCandidates = document.querySelector('#ice-candidates').value;
+
+        if (iceServer.url.indexOf('turn') != -1 && iceCandidates.indexOf('relay') == -1) {
+            alert('It seems that you have not selected TURN server. Select "relay" to proceeed.');
+            return false;
+        }
+
+        if (iceServer.url.indexOf('stun') != -1 && iceCandidates.indexOf('reflexive') == -1) {
+            alert('It seems that you have not selected STUN server. Select "reflexive" to proceeed.');
+            return false;
+        }
+
+        return true;
+    }
 </script>

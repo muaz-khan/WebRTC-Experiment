@@ -1,3 +1,9 @@
+<a href="http://www.rtcmulticonnection.org/docs/">
+    <img src="http://www.rtcmulticonnection.org/img/documentation.png" />
+</a>
+
+=
+
 #### [RTCMultiConnection-v1.3](https://www.webrtc-experiment.com/RTCMultiConnection-v1.3.js) Documentation
 
 Supports features like

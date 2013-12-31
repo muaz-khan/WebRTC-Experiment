@@ -112,7 +112,8 @@ stopRecording.onclick = function() {
             cameraPreview.poster = 'ajax-loader.gif';
 
             xhr('/upload', JSON.stringify(files), function(fileName) {
-                cameraPreview.src = location.href + 'uploads/' + fileName;
+                var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+                cameraPreview.src = href + 'uploads/' + fileName;
                 cameraPreview.play();
             });
         });

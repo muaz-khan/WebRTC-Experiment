@@ -58,7 +58,9 @@ var websocket = new WebSocket('ws://subdomain.jit.su:80');
 In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
 
 ```javascript
-// var SIGNALING_SERVER = 'ws://wsnodejs.jit.su:80';
+// ws://wsnodejs.jit.su:80
+// wss://www.webrtc-experiment.com:8563
+
 var SIGNALING_SERVER = 'ws://' + document.domain + ':1338/';
 connection.openSignalingChannel = function(config) {
     config.channel = config.channel || this.channel || 'default-channel';

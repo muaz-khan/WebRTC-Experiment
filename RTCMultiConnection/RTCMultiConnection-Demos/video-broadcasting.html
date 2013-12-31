@@ -25,7 +25,6 @@
                 -webkit-transition: all 1s ease;
                 transition: all 1s ease;
                 vertical-align: top;
-                width: 100%;
             }
 
             input {
@@ -60,7 +59,7 @@
         </script>
         
         <!-- scripts used for broadcasting -->
-        <script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
+        <script src="https://www.webrtc-experiment.com/firebase.js"></script>
         <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
     </head>
 
@@ -68,7 +67,7 @@
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> Broadcasting using 
+                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> Video Broadcasting using 
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection</a>
                 </h1>            
                 <p>
@@ -119,40 +118,28 @@
                     oneway: true
                 };
 
-                // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-                connection.openSignalingChannel = function(config) {
-                    var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
-                    var channel = config.channel || this.channel || location.hash.substr(1);
-                    var sender = Math.round(Math.random() * 999999999) + 999999999;
-
-                    io.connect(SIGNALING_SERVER).emit('new-channel', {
-                        channel: channel,
-                        sender: sender
-                    });
-
-                    var socket = io.connect(SIGNALING_SERVER + channel);
-                    socket.channel = channel;
-                    socket.on('connect', function() {
-                        if (config.callback) config.callback(socket);
-                    });
-
-                    socket.send = function(message) {
-                        socket.emit('message', {
-                            sender: sender,
-                            data: message
-                        });
-                    };
-
-                    socket.on('message', config.onmessage);
+                connection.onstream = function(e) {
+                    e.mediaElement.width = 600;
+                    videosContainer.insertBefore(e.mediaElement, videosContainer.firstChild);
+                    rotateVideo(e.mediaElement);
+                    scaleVideos();
                 };
 
-                connection.onstream = function(e) {
-                    videosContainer.insertBefore(e.mediaElement, videosContainer.firstChild);
-
-                    // rotate 360deg
-                    e.mediaElement.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
+                function rotateVideo(mediaElement) {
+                    mediaElement.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
                     setTimeout(function() {
-                        e.mediaElement.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
+                        mediaElement.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
+                    }, 1000);
+                }
+
+                connection.onstreamended = function(e) {
+                    e.mediaElement.style.opacity = 0;
+                    rotateVideo(e.mediaElement);
+                    setTimeout(function() {
+                        if (e.mediaElement.parentNode) {
+                            e.mediaElement.parentNode.removeChild(e.mediaElement);
+                        }
+                        scaleVideos();
                     }, 1000);
                 };
 
@@ -162,7 +149,7 @@
                     sessions[session.sessionid] = session;
 
                     var tr = document.createElement('tr');
-                    tr.innerHTML = '<td><strong>' + session.extra['session-name'] + '</strong> is broadcasting his media!</td>' +
+                    tr.innerHTML = '<td><strong>' + session.extra['session-name'] + '</strong> is running a conference!</td>' +
                         '<td><button class="join">Join</button></td>';
                     roomsList.insertBefore(tr, roomsList.firstChild);
 
@@ -200,6 +187,38 @@
                         if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
                         else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
                 })();
+
+                function scaleVideos() {
+                    var videos = document.querySelectorAll('video'),
+                        length = videos.length, video;
+
+                    var minus = 130;
+                    var windowHeight = 700;
+                    var windowWidth = 600;
+                    var windowAspectRatio = windowWidth / windowHeight;
+                    var videoAspectRatio = 4 / 3;
+                    var blockAspectRatio;
+                    var tempVideoWidth = 0;
+                    var maxVideoWidth = 0;
+
+                    for (var i = length; i > 0; i--) {
+                        blockAspectRatio = i * videoAspectRatio / Math.ceil(length / i);
+                        if (blockAspectRatio <= windowAspectRatio) {
+                            tempVideoWidth = videoAspectRatio * windowHeight / Math.ceil(length / i);
+                        } else {
+                            tempVideoWidth = windowWidth / i;
+                        }
+                        if (tempVideoWidth > maxVideoWidth)
+                            maxVideoWidth = tempVideoWidth;
+                    }
+                    for (var i = 0; i < length; i++) {
+                        video = videos[i];
+                        if (video)
+                            video.width = maxVideoWidth - minus;
+                    }
+                }
+
+                window.onresize = scaleVideos;
             </script>
             
             <section class="experiment">

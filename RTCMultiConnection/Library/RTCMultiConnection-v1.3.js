@@ -1,8 +1,14 @@
-// 2013, @muazkh - https://github.com/muaz-khan
-// MIT License   - https://webrtc-experiment.appspot.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/RTCMultiConnection-v1.3.md
+// Muaz Khan         - www.MuazKhan.com
+// MIT License       - www.WebRTC-Experiment.com/licence
+// Documentation     - www.RTCMultiConnection.org/docs/
 
+// FAQ               - www.RTCMultiConnection.org/FAQ/
+// Development News  - trello.com/b/8bhi1G6n/RTCMultiConnection
+
+// v1.3 changes log  - www.RTCMultiConnection.org/changes-log/#v1.3
+// _______________________
 // RTCMultiConnection-v1.3
+
 (function() {
     window.RTCMultiConnection = function(channel) {
         this.channel = channel;
@@ -1058,7 +1064,7 @@
                     username: 'homeo'
                 };
 
-            iceServers.iceServers = [STUN,TURN];
+            iceServers.iceServers = [STUN, TURN];
         }
 
         var optional = {
@@ -1218,8 +1224,9 @@
 
         function useless() {
         }
-		
-		function onSdpSuccess() {}
+
+        function onSdpSuccess() {
+        }
 
         function onSdpError(e) {
             console.error('sdp error:', e.name, e.message);

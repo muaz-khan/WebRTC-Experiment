@@ -1,3 +1,9 @@
+<a href="http://www.rtcmulticonnection.org/docs/">
+    <img src="http://www.rtcmulticonnection.org/img/documentation.png" />
+</a>
+
+=
+
 #### [RTCMultiConnection-v1.2](https://www.webrtc-experiment.com/RTCMultiConnection-v1.3.js) Documentation
 
 RTCMultiConnection.js a javascript library supports features like audio/video conferencing; (one-way and one-to-many) broadcasting; screen sharing; data/text/file sharing (of any size); multi-and-manual sessions establishment; users ejection, rejection and presence detection; and more. It automatically keeps session "active" all the time; even if initiator leaves.

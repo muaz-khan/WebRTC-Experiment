@@ -4,7 +4,7 @@
 
 var config = {
     openSocket: function(config) {
-        var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8553/',
+        var SIGNALING_SERVER = 'http://socketio-over-nodejs.jit.su:80/',
             defaultChannel = location.hash.substr(1) || 'socketio-one-to-one-chat';
 
         var channel = config.channel || defaultChannel;

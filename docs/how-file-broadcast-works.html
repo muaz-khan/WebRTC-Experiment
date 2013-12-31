@@ -9,152 +9,34 @@
     <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
-    <style>
-        html {
-            background: #eee;
-        }
-		
-		pre {
-                border-left: 2px solid red;
-                margin-left: 2em;
-                padding-left: 1em;
+	<link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+		<style>
+            p { padding: .8em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
             }
-
-        body {
-            font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
-            font-size: 1.2em;
-            line-height: 1.2em;
-            margin: 0;
-        }
-
-        article, footer {
-            display: block;
-            max-width: 900px;
-            min-width: 360px;
-            width: 80%;
-        }
-
-        article {
-            background: #fff;
-            border: 1px solid;
-            border-color: #ddd #aaa #aaa #ddd;
-            margin: 2.5em auto 0 auto;
-            padding: 2em;
-        }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        article p:first-of-type {
-            margin-top: 1.6em;
-        }
-
-        article p:last-child {
-            margin-bottom: 0;
-        }
-
-        footer {
-            margin: 0 auto 2em auto;
-            text-align: center;
-        }
-
-            footer a {
-                color: #666;
-                font-size: inherit;
-                padding: 1em;
-                text-decoration: none;
-                text-shadow: 0 1px 1px #fff;
+			
+			td {
+                border: 0;
+                padding: 0;
             }
-
-                footer a:hover, footer a:focus {
-                    color: #111;
-                }
-
-        h1, h2 {
-            border-bottom: 1px solid black;
-            display: inline;
-            font-weight: normal;
-            line-height: 36px;
-            padding: 0 0 3px 0;
-        }
-
-        a {
-            color: #2844FA;
-            text-decoration: none;
-        }
-
-            a:hover, a:focus {
-                color: #1B29A4;
-            }
-
-            a:active {
-                color: #000;
-            }
-
-        :-moz-any-link:focus {
-            border: 0;
-            color: #000;
-        }
-
-        ::selection {
-            background: #ccc;
-        }
-
-        ::-moz-selection {
-            background: #ccc;
-        }
-
-        button, input[type=button] {
-            -moz-border-radius: 3px;
-            -moz-transition: none;
-            -webkit-transition: none;
-            background: #0370ea;
-            background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
-            background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
-            border: 1px solid #076bd2;
-            border-radius: 3px;
-            color: #fff;
-            display: inline-block;
-            font-family: inherit;
-            font-size: .8em;
-            line-height: 1.3;
-            padding: 5px 12px;
-            text-align: center;
-            text-shadow: 1px 1px 1px #076bd2;
-            font-size: 1.5em;
-        }
-
-            button:hover, input[type=button]:hover {
-                background: rgb(9, 147, 240);
-            }
-
-            button:active, input[type=button]:active {
-                background: rgb(10, 118, 190);
-            }
-
-            button[disabled], input[type=button][disabled] {
-                background: none;
-                border: 1px solid rgb(187, 181, 181);
-                color: gray;
-                text-shadow: none;
-            }
-
-        strong {
-            color: rgb(204, 14, 14);
-            font-family: inherit;
-            font-weight: normal;
-        }
-    </style>
+        </style>
     <!-- for HTML5 el styling -->
     <script>
         document.createElement('article');
         document.createElement('footer');
     </script>
-</head>
 
-<body>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"></script>
+		<link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
+    </head>
+
+    <body onload="sh_highlightDocument();">
     <article>
         <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
 
@@ -181,7 +63,7 @@
         <br />
 
         <h2>First step: Getting access to file using INPUT-File element</h2>
-        <pre>
+        <pre class="sh_javascript">
 document.querySelector('input[type=file]').onchange = function() {
     var file = this.files[0];
 };</pre>
@@ -190,7 +72,7 @@ document.querySelector('input[type=file]').onchange = function() {
         <br />
 
         <h2>Second step: Reading file as Data-URL using FileReader API</h2>
-        <pre>
+        <pre class="sh_javascript">
 var reader = new window.FileReader();
 reader.readAsDataURL(file);
 reader.onload = onReadAsDataURL;</pre>
@@ -200,7 +82,7 @@ reader.onload = onReadAsDataURL;</pre>
 
         <h2>Third step: Defining chunk length</h2>
 
-        <pre>
+        <pre class="sh_javascript">
 var chunkLength = 1000;</pre>
 
         <br />
@@ -208,7 +90,7 @@ var chunkLength = 1000;</pre>
 
         <h2>Fourth step: Getting chunk and transmitting...</h2>
 
-        <pre>
+        <pre class="sh_javascript">
 function onReadAsDataURL(event, text) {
     var data = {}; // data object to transmit over data channel
 
@@ -234,7 +116,7 @@ function onReadAsDataURL(event, text) {
 
         <h2>Fifth step: Receive chunks; store in array and...</h2>
 
-        <pre>
+        <pre class="sh_javascript">
 var arrayToStoreChunks = [];
 dataChannel.onmessage = function (event) {
     var data = JSON.parse(event.data);
@@ -252,7 +134,7 @@ dataChannel.onmessage = function (event) {
 
         <h2>Sending/Receving files using Firefox</h2>
 
-        <pre>
+        <pre class="sh_javascript">
 document.querySelector('input[type=file]').onchange = function () {
     var file = this.files[0];
     dataChannel.send(file);
@@ -274,7 +156,7 @@ dataChannel.onmessage = function (event) {
 
         <h2>SaveToDisk function — old syntax</h2>
 
-        <pre>
+        <pre class="sh_javascript">
 function saveToDisk(fileUrl, fileName) {
     var save = document.createElement('a');
     save.href = fileUrl;
@@ -294,7 +176,7 @@ function saveToDisk(fileUrl, fileName) {
 
         <h2>SaveToDisk function — new syntax</h2>
 
-        <pre>
+        <pre class="sh_javascript">
 function saveToDisk(fileUrl, fileName) {
     var save = document.createElement('a');
     save.href = fileUrl;

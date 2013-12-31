@@ -29,12 +29,17 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
+    
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"></script>
+		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"></script>
+		<link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
     </head>
 
-    <body>
+    <body onload="sh_highlightDocument();">
         <article>
             <header style="text-align: center;">
-                <h1>How to echo cancellation? / Noise management?</h1>  
+                <h1>How to echo cancellation? / Noise management in <a href="https://www.webrtc-experiment.com/">WebRTC</a>?</h1>  
                 <p>
                     <span>© 2013</span>
                     <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
@@ -74,7 +79,7 @@
                     High volume can produce sound noise on some audio devices.  The value may not be significant if audio device volume is controlled externally.
                 </p>
 		
-                <pre>
+                <pre class="sh_javascript">
 HTMLAudioElement.volume = 0.9;
 HTMLAudioElement.play();
 </pre>
@@ -82,7 +87,7 @@ HTMLAudioElement.play();
                 <p>
                     The <code>GainNode</code> is a simple element that lets us control the volume of the audio that’s coming into to it.
                 </p>
-                <pre>
+                <pre class="sh_javascript">
 var context = new webkitAudioContext(),
 var sineWave = context.createOscillator();
 

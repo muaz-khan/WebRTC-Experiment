@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>RTCMultiConnection-v1.4 All-in-One Test ® Muaz Khan</title>
+        <title>RTCMultiConnection All-in-One Test ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -85,14 +85,14 @@
         
         <!-- webrtc library used for streaming -->
         <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
-        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.min.js"> </script>
     </head>
 
     <body>
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection-v1.4</a> 
+                    <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection</a> 
                     All-in-One test
                     ® 
                     <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
@@ -301,7 +301,7 @@
                 };
 
                 var progressHelper = { };
-				
+
                 connection.autoSaveToDisk = false;
 
                 connection.onFileProgress = function(chunk) {
@@ -322,11 +322,7 @@
                     progressHelper[file.uuid].progress.max = file.maxChunks;
                 };
 
-                connection.onFileSent = function(file) {
-                    progressHelper[file.uuid].div.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
-                };
-
-                connection.onFileReceived = function(fileName, file) {
+                connection.onFileEnd = function(file) {
                     progressHelper[file.uuid].div.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
                 };
 
@@ -395,10 +391,10 @@
             </section>
             
             <section class="experiment">
-                <h2 class="header">How to use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection</a>?</h2>
+                <h2 class="header">How to use <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection</a>?</h2>
                 
                 <pre>
-// https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js
+// www.RTCMultiConnection.org/latest.js
 
 var connection = new RTCMultiConnection();
 

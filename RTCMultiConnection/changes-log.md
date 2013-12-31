@@ -1,3 +1,21 @@
+<a href="http://www.rtcmulticonnection.org/changes-log/">
+    <img src="http://www.rtcmulticonnection.org/img/whats-new.png" />
+</a>
+
+=
+
+## http://www.rtcmulticonnection.org/docs/
+## http://www.rtcmulticonnection.org/changes-log/
+## http://www.rtcmulticonnection.org/FAQ/
+
+[RTCMultiConnection Getting Started Guide](http://www.rtcmulticonnection.org/docs/getting-started/)
+
+=
+
+# Below changes-log is old. Follow above links.
+
+=
+
 ### [RTCMultiConnection](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection) Changes Log
 
 This document explains RTCMultiConnection versions log.
