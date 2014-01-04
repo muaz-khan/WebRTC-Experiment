@@ -38,6 +38,11 @@ http://www.wikihow.com/Install-FFmpeg-on-Windows
 
 =
 
+##### How to install ffmpeg on mac osx?
+
+1. make sure you have homebrew installed
+2. run `brew install ffmpeg --with-libvpx --with-theora --whit-libogg --with-libvorbis`
+
 ##### How to test?
 
 In the node.js command prompt window; type `node index`; then open `http://localhost:8000/`.
