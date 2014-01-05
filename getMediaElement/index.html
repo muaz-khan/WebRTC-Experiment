@@ -1,0 +1,388 @@
+﻿<html>
+    <head>
+		<title>getMediaElement.js ® Muaz Khan</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+		<meta name="author" content="Muaz Khan">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<script>
+			document.createElement('aside');
+			document.createElement('section');
+			document.createElement('footer');
+		</script>
+        <script src="https://www.WebRTC-Experiment.com/getMediaElement.min.js"> </script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            .preview {
+                background-color: #FF7D9D;
+                background-image:
+                                linear-gradient(335deg, #C90032 23px, transparent 23px),
+                                linear-gradient(155deg, #C90032 23px, transparent 23px),
+                                linear-gradient(335deg, #C90032 23px, transparent 23px),
+                                linear-gradient(155deg, #C90032 23px, transparent 23px),
+
+                                linear-gradient(335deg, #C90032 10px, transparent 10px),
+                                linear-gradient(155deg, #C90032 10px, transparent 10px),
+                                linear-gradient(335deg, #C90032 10px, transparent 10px),
+                                linear-gradient(155deg, #C90032 10px, transparent 10px);
+                background-position: 0px 2px, 4px 35px, 29px 31px, 33px 6px,
+                                     0px 36px, 4px 2px, 29px 6px, 33px 30px;
+                background-size: 58px 58px;
+                border-right: 2px solid black;
+            
+                float: left;
+                height: 80%;
+                padding: 5px;
+                width: 40%;
+            }
+
+            hr {
+                border: 0;
+                height: 5px;
+            }
+
+            .right-section, footer, hr {
+                background-color: hsl(2, 57%, 40%);
+                background-image: repeating-linear-gradient(transparent, transparent 50px, rgba(0, 0, 0, .4) 50px, rgba(0, 0, 0, .4) 53px, transparent 53px, transparent 63px, rgba(0, 0, 0, .4) 63px, rgba(0, 0, 0, .4) 66px, transparent 66px, transparent 116px, rgba(0, 0, 0, .5) 116px, rgba(0, 0, 0, .5) 166px, rgba(255, 255, 255, .2) 166px, rgba(255, 255, 255, .2) 169px, rgba(0, 0, 0, .5) 169px, rgba(0, 0, 0, .5) 179px, rgba(255, 255, 255, .2) 179px, rgba(255, 255, 255, .2) 182px, rgba(0, 0, 0, .5) 182px, rgba(0, 0, 0, .5) 232px, transparent 232px),
+                                  repeating-linear-gradient(270deg, transparent, transparent 50px, rgba(0, 0, 0, .4) 50px, rgba(0, 0, 0, .4) 53px, transparent 53px, transparent 63px, rgba(0, 0, 0, .4) 63px, rgba(0, 0, 0, .4) 66px, transparent 66px, transparent 116px, rgba(0, 0, 0, .5) 116px, rgba(0, 0, 0, .5) 166px, rgba(255, 255, 255, .2) 166px, rgba(255, 255, 255, .2) 169px, rgba(0, 0, 0, .5) 169px, rgba(0, 0, 0, .5) 179px, rgba(255, 255, 255, .2) 179px, rgba(255, 255, 255, .2) 182px, rgba(0, 0, 0, .5) 182px, rgba(0, 0, 0, .5) 232px, transparent 232px),
+                                  repeating-linear-gradient(125deg, transparent, transparent 2px, rgba(0, 0, 0, .2) 2px, rgba(0, 0, 0, .2) 3px, transparent 3px, transparent 5px, rgba(0, 0, 0, .2) 5px);
+            }
+
+            .right-section { height: 80%; }
+
+            .right-section {
+                border-bottom: 1px solid gray;
+                padding: 20px 0;
+                text-align: center;
+            }
+
+            .right-section section {
+                background-color: silver;
+                background-image: linear-gradient(335deg, #b00 23px, transparent 23px),
+                                  linear-gradient(155deg, #d00 23px, transparent 23px),
+                                  linear-gradient(335deg, #b00 23px, transparent 23px),
+                                  linear-gradient(155deg, #d00 23px, transparent 23px);
+                background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
+                background-size: 58px 58px;
+                border: 1px solid gray;
+                border-radius: 5px;
+                box-shadow: 0 1px 4px
+                            rgba(0, 0, 0, 0.3), 0 0 40px
+                            rgba(0, 0, 0, 0.1) inset;
+        
+                display: inline-block;
+                height: 100px;
+                margin-top: 5px;
+                min-width: 180px;
+                overflow: hidden;
+                text-align: center;
+            }
+
+            input[type=checkbox] { visibility: hidden; }
+
+            .check-box {
+                -moz-border-radius: 50px;
+                -moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
+                -webkit-border-radius: 50px;
+
+                -webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
+                background: #fcfff4;
+                background:
+                          radial-gradient(hsl(0, 100%, 27%) 4%, hsl(0, 100%, 18%) 9%, hsla(0, 100%, 20%, 0) 9%) 0 0,
+                          radial-gradient(hsl(0, 100%, 27%) 4%, hsl(0, 100%, 18%) 8%, hsla(0, 100%, 20%, 0) 10%) 50px 50px,
+                          radial-gradient(hsla(0, 100%, 30%, 0.8) 20%, hsla(0, 100%, 20%, 0)) 50px 0,
+                          radial-gradient(hsla(0, 100%, 30%, 0.8) 20%, hsla(0, 100%, 20%, 0)) 0 50px,
+                          radial-gradient(hsla(0, 100%, 20%, 1) 35%, hsla(0, 100%, 20%, 0) 60%) 50px 0,
+                          radial-gradient(hsla(0, 100%, 20%, 1) 35%, hsla(0, 100%, 20%, 0) 60%) 100px 50px,
+                          radial-gradient(hsla(0, 100%, 15%, 0.7), hsla(0, 100%, 20%, 0)) 0 0,
+                          radial-gradient(hsla(0, 100%, 15%, 0.7), hsla(0, 100%, 20%, 0)) 50px 50px,
+                          linear-gradient(45deg, hsla(0, 100%, 20%, 0) 49%, hsla(0, 100%, 0%, 1) 50%, hsla(0, 100%, 20%, 0) 70%) 0 0,
+                          linear-gradient(-45deg, hsla(0, 100%, 20%, 0) 49%, hsla(0, 100%, 0%, 1) 50%, hsla(0, 100%, 20%, 0) 70%) 0 0;
+                background-color: #300;
+
+                background-size: 100px 100px;
+                border-radius: 50px;
+                box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
+
+                height: 28px;
+                margin: 20px auto;
+                position: relative;
+                width: 28px;
+            }
+
+            .check-box label {
+                -moz-border-radius: 50px;
+                -moz-box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5), 0px 1px 0px rgba(255, 255, 255, 1);
+                -webkit-border-radius: 50px;
+                -webkit-box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5), 0px 1px 0px rgba(255, 255, 255, 1);
+
+                background: -webkit-linear-gradient(top, #222 0%, #45484d 100%);
+                background: -moz-linear-gradient(top, #222 0%, #45484d 100%);
+                background: -o-linear-gradient(top, #222 0%, #45484d 100%);
+                background: -ms-linear-gradient(top, #222 0%, #45484d 100%);
+                background: linear-gradient(top, #222 0%, #45484d 100%);
+
+                border-radius: 50px;
+                box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5), 0px 1px 0px rgba(255, 255, 255, 1);
+                cursor: pointer;
+
+                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#222', endColorstr='#45484d', GradientType=0);
+                height: 20px;
+                left: 4px;
+                position: absolute;
+                top: 4px;
+                width: 20px;
+            }
+
+            .check-box span {
+                background: rgba(0, 0, 0, 0.84);
+                color: white;
+                display: inline-block;
+                font-size: 1.2em;
+                margin-left: -77px;
+                margin-top: 42px;
+                width: 186px;
+            }
+
+            .check-box label:after {
+                -moz-border-radius: 50px;
+                -moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
+                -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+                -webkit-border-radius: 50px;
+                -webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
+                -webkit-transform: rotate(-45deg);
+                background: #00bf00;
+                background: -webkit-linear-gradient(top, #00bf00 0%, #009400 100%);
+			
+                background: #00bf00;
+
+                background: -webkit-linear-gradient(top, #00bf00 0%, #009400 100%);
+                background: -moz-linear-gradient(top, #00bf00 0%, #009400 100%);
+                background: -o-linear-gradient(top, #00bf00 0%, #009400 100%);
+                border-radius: 50px;
+                box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
+
+                content: '';
+                filter: alpha(opacity=0);
+                height: 16px;
+                left: 2px;
+                opacity: 0;
+
+                position: absolute;
+                top: 2px;
+                width: 16px;
+            }
+
+            .check-box label:hover::after {
+                -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+                filter: alpha(opacity=30);
+                opacity: 0.3;
+            }
+
+            .check-box input[type=checkbox]:checked + label:after {
+                -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+                filter: alpha(opacity=100);
+                opacity: 1;
+            }
+
+            textarea {
+                background-color: #fff;
+                background-image:
+                                linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
+                                linear-gradient(#eee .1em, transparent .1em);
+                background-size: 100% 1.2em;
+                border: 0;
+                height: 100%;
+                outline: none;
+            
+                padding: .4em .8em;
+                padding-left: 7%;
+                width: 100%;
+            }
+
+            footer {
+                bottom: 0;
+                height: 20%;
+                left: 0;
+                padding-top: 5px;
+                position: fixed;
+                right: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <aside class="preview"></aside>
+        <aside class="right-section">
+            <section>  
+                <div class="check-box">
+                    <span>mute-audio</span>
+                    <input type="checkbox" value="None" id="mute-audio" checked />
+                    <label for="mute-audio"></label>
+                </div>
+            </section>
+        
+            <section>  
+                <div class="check-box">
+                    <span>mute-video</span>
+                    <input type="checkbox" value="None" id="mute-video" checked />
+                    <label for="mute-video"></label>
+                </div>
+            </section>
+        
+            <section>  
+                <div class="check-box">
+                    <span>record-audio</span>
+                    <input type="checkbox" value="None" id="record-audio" checked />
+                    <label for="record-audio"></label>
+                </div>
+            </section>
+        
+            <section>  
+                <div class="check-box">
+                    <span>record-video</span>
+                    <input type="checkbox" value="None" id="record-video" checked />
+                    <label for="record-video"></label>
+                </div>
+            </section>
+        
+            <hr />
+        
+            <section>  
+                <div class="check-box">
+                    <span>full-screen</span>
+                    <input type="checkbox" value="None" id="full-screen" checked />
+                    <label for="full-screen"></label>
+                </div>
+            </section>
+        
+            <section>  
+                <div class="check-box">
+                    <span>volume-slider</span>
+                    <input type="checkbox" value="None" id="volume-slider" checked />
+                    <label for="volume-slider"></label>
+                </div>
+            </section>
+        
+            <section>  
+                <div class="check-box">
+                    <span>stop</span>
+                    <input type="checkbox" value="None" id="stop" checked />
+                    <label for="stop"></label>
+                </div>
+            </section>
+        
+            <hr />
+        
+            <section>  
+                <div class="check-box">
+                    <span>enableTooltip</span>
+                    <input type="checkbox" value="None" id="enableTooltip" checked />
+                    <label for="enableTooltip"></label>
+                </div>
+            </section>
+        
+            <section>  
+                <div class="check-box">
+                    <span>showOnMouseEnter</span>
+                    <input type="checkbox" value="None" id="showOnMouseEnter" checked />
+                    <label for="showOnMouseEnter"></label>
+                </div>
+            </section>
+        </aside>
+    
+        <footer>
+            <textarea></textarea>
+        </footer>
+
+        <script>
+            var mediaStream;
+
+            function getAndUpdateMediaElement() {
+                if (!mediaStream)
+                    navigator.webkitGetUserMedia({ video: true }, function(stream) {
+                        mediaStream = stream;
+                        _getMediaElement();
+                    });
+                else _getMediaElement();
+
+                function _getMediaElement() {
+                    var video = document.createElement('video');
+                    video.src = URL.createObjectURL(mediaStream);
+                    video.autoplay = true;
+
+                    var buttons = [];
+                    var button_values = "";
+
+                    var possibleValues = ['mute-audio', 'mute-video', 'full-screen', 'volume-slider', 'stop', 'record-audio', 'record-video'];
+
+                    var checkboxes = document.querySelectorAll('input[type=checkbox]');
+                    for (var i = 0; i < checkboxes.length; i++) {
+                        if (possibleValues.indexOf(checkboxes[i].id) !== -1) {
+                            if (checkboxes[i].checked) {
+                                buttons.push(checkboxes[i].id);
+
+                                button_values += "'" + checkboxes[i].id + "', ";
+                            }
+                        }
+                        if (i == checkboxes.length - 2) button_values = button_values.substr(0, button_values.length - 2);
+                    }
+
+                    document.querySelector('.preview').innerHTML = '';
+                    document.querySelector('.preview').appendChild(getMediaElement(video, {
+                        width: document.querySelector('.preview').clientWidth - 20,
+                        buttons: buttons,
+                        enableTooltip: !!document.querySelector('#enableTooltip').checked,
+                        showOnMouseEnter: !!document.querySelector('#showOnMouseEnter').checked,
+                        onMuted: function(type) {
+                            document.querySelector('textarea').value = 'onMuted: type=' + type;
+                        },
+                        onUnMuted: function(type) {
+                            document.querySelector('textarea').value = 'onUnMuted: type=' + type;
+                        },
+                        onRecordingStarted: function(type) {
+                            document.querySelector('textarea').value = 'onRecordingStarted: type=' + type;
+                        },
+                        onRecordingStopped: function(type) {
+                            document.querySelector('textarea').value = 'onRecordingStopped: type=' + type;
+                        },
+                        onZoomin: function() {
+                            document.querySelector('textarea').value = 'onZoomin';
+                        },
+                        onZoomout: function() {
+                            document.querySelector('textarea').value = 'onZoomout';
+                        },
+                        onStopped: function() {
+                            document.querySelector('textarea').value = 'onStopped';
+                        }
+                    }));
+
+                    var text = 'getMediaElement(HTMLVideoElement, {\n';
+                    text += '  width: ' + document.querySelector('.preview').clientWidth + ',\n';
+                    text += '  showOnMouseEnter: ' + !!document.querySelector('#enableTooltip').checked + ',\n';
+                    text += '  enableTooltip: ' + !!document.querySelector('#showOnMouseEnter').checked + ',\n';
+                    text += '  buttons: [';
+
+                    text += button_values;
+
+                    text += ']\n';
+                    text += '};';
+                    document.querySelector('textarea').value = text;
+                }
+            }
+
+            var checkboxes = document.querySelectorAll('input[type=checkbox]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].onchange = function() {
+                    getAndUpdateMediaElement();
+                };
+            }
+            getAndUpdateMediaElement();
+        </script>
+    </body>
+</html>
