@@ -61,6 +61,7 @@
         <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
         <script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
         <script src="https://www.webrtc-experiment.com/video-conferencing/conference.js"> </script>
+        <script src="https://www.webrtc-experiment.com/getMediaElement.min.js"> </script>
     </head>
 
     <body>
@@ -130,32 +131,16 @@
                         return socket;
                     },
                     onRemoteStream: function(media) {
-                        var video = media.video;
-
-                        video.setAttribute('width', 600);
-                        video.setAttribute('controls', true);
-                        video.setAttribute('id', media.stream.id);
-
-                        videosContainer.insertBefore(video, videosContainer.firstChild);
-
-                        video.play();
-                        rotateVideo(video);
-
-                        setTimeout(function() {
-                            // unmute audio stream for echo-cancellation
-                            // config.attachStream.getAudioTracks()[0].enabled = true;
-                        }, 2000);
-                        scaleVideos();
+                        var mediaElement = getMediaElement(media.video, {
+                            width: (videosContainer.clientWidth / 2) - 50,
+                            buttons: ['mute-audio', 'mute-video', 'full-screen', 'volume-slider']
+                        });
+                        mediaElement.id = media.streamid;
+                        videosContainer.insertBefore(mediaElement, videosContainer.firstChild);
                     },
-                    onRemoteStreamEnded: function(stream) {
-                        var video = document.getElementById(stream.id);
-                        if (video) {
-                            video.style.opacity = 0;
-                            rotateVideo(video);
-                            setTimeout(function() {
-                                video.parentNode.removeChild(video);
-                                scaleVideos();
-                            }, 1000);
+                    onRemoteStreamEnded: function(stream, video) {
+                        if (video.parentNode && video.parentNode.parentNode && video.parentNode.parentNode.parentNode) {
+                            video.parentNode.parentNode.parentNode.removeChild(video.parentNode.parentNode);
                         }
                     },
                     onRoomFound: function(room) {
@@ -209,10 +194,6 @@
 
                 function captureUserMedia(callback) {
                     var video = document.createElement('video');
-                    video.setAttribute('width', 300);
-                    video.setAttribute('autoplay', true);
-                    video.setAttribute('controls', true);
-                    videosContainer.insertBefore(video, videosContainer.firstChild);
 
                     getUserMedia({
                         video: video,
@@ -221,8 +202,13 @@
                             callback && callback();
 
                             video.setAttribute('muted', true);
-                            rotateVideo(video);
-                            scaleVideos();
+                            
+                            var mediaElement = getMediaElement(video, {
+                                width: (videosContainer.clientWidth / 2) - 50,
+                                buttons: ['mute-audio', 'mute-video', 'full-screen', 'volume-slider']
+                            });
+                            mediaElement.toggle('mute-audio');
+                            videosContainer.insertBefore(mediaElement, videosContainer.firstChild);
                         },
                         onerror: function() {
                             alert('unable to get access to your webcam');

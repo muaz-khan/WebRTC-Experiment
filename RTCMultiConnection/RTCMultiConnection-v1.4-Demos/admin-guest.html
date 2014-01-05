@@ -158,6 +158,7 @@
             }
         </style>
         <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.5.min.js"> </script>
+        <script src="https://www.webrtc-experiment.com/getMediaElement.min.js"> </script>
         <script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
     </head>
     <body>
@@ -255,20 +256,72 @@
                 };
 
                 connection.openSignalingChannel = openSignalingChannel;
-
+                
                 connection.onstream = function(e) {
-                    videoContainer.appendChild(e.mediaElement);
+                    var mediaElement = getMediaElement(e.mediaElement, {
+                        width: (videosContainer.clientWidth / 2) - 50,
+                        buttons: ['mute-audio', 'mute-video', 'record-audio', 'record-video', 'full-screen', 'volume-slider', 'stop'],
+                        onMuted: function(type) {
+                            connection.streams[e.streamid].mute({
+                                audio: type == 'audio',
+                                video: type == 'video'
+                            });
+                        },
+                        onUnMuted: function(type) {
+                            connection.streams[e.streamid].unmute({
+                                audio: type == 'audio',
+                                video: type == 'video'
+                            });
+                        },
+                        onRecordingStarted: function(type) {
+                            connection.streams[e.streamid].startRecording({
+                                audio: type == 'audio',
+                                video: type == 'video'
+                            });
+                        },
+                        onRecordingStopped: function(type) {
+                            connection.streams[e.streamid].stopRecording(function(blob) {
+                                var _mediaElement = document.createElement(type);
+                                
+                                _mediaElement.src = URL.createObjectURL(blob);
+                                _mediaElement = getMediaElement(_mediaElement, {
+                                    buttons: ['mute-audio', 'mute-video', 'stop']
+                                });
+                                
+                                _mediaElement.toggle(['mute-audio', 'mute-video']);
+                                
+                                videosContainer.insertBefore(_mediaElement, videosContainer.firstChild);
+                            }, type);
+                        },
+                        onZoomin: function() {
+                            console.log('onZoomin');
+                        },
+                        onZoomout: function() {
+                            console.log('onZoomout');
+                        },
+                        onStopped: function() {
+                            connection.drop();
+                        }
+                    });
+
+                    if(e.type == 'local') {
+                        mediaElement.toggle(['mute-audio']);
+                    }
+                    videosContainer.insertBefore(mediaElement, videosContainer.firstChild);
+                    
                     if (e.type == 'remote') {
                         resetPromptBar();
                         promptBar.style.display = 'none';
                     }
                 };
 
-                connection.connect();
-
                 connection.onstreamended = function(e) {
-                    if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
+                    if (e.mediaElement.parentNode && e.mediaElement.parentNode.parentNode && e.mediaElement.parentNode.parentNode.parentNode) {
+                        e.mediaElement.parentNode.parentNode.parentNode.removeChild(e.mediaElement.parentNode.parentNode);
+                    }
                 };
+
+                connection.connect();
             }
 
             function openSignalingChannel(config) {
@@ -320,7 +373,7 @@
                 promptBar.querySelector('#body').innerHTML = '...';
             }
 
-            var videoContainer = document.getElementById('videos-container');
+            var videosContainer = document.getElementById('videos-container');
         </script>
         <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
             <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>

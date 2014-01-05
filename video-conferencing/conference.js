@@ -86,7 +86,7 @@ var conference = function(config) {
             },
             onRemoteStreamEnded: function(stream) {
                 if (config.onRemoteStreamEnded)
-                    config.onRemoteStreamEnded(stream);
+                    config.onRemoteStreamEnded(stream,video);
             }
         };
 

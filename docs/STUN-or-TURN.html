@@ -9,255 +9,123 @@
     <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+	
     <style>
-        html {
-            background: #eee;
-        }
+            p { padding: .8em; }
 
-        body {
-            font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
-            font-size: 1.2em;
-            line-height: 1.2em;
-            margin: 0;
-        }
-
-        article, footer {
-            display: block;
-            max-width: 900px;
-            min-width: 360px;
-            width: 80%;
-        }
-
-        article {
-            background: #fff;
-            border: 1px solid;
-            border-color: #ddd #aaa #aaa #ddd;
-            margin: 2.5em auto 0 auto;
-            padding: 2em;
-        }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        article p:first-of-type {
-            margin-top: 1.6em;
-        }
-
-        article p:last-child {
-            margin-bottom: 0;
-        }
-
-        footer {
-            margin: 0 auto 2em auto;
-            text-align: center;
-        }
-
-            footer a {
-                color: #666;
-                font-size: inherit;
-                padding: 1em;
-                text-decoration: none;
-                text-shadow: 0 1px 1px #fff;
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
             }
-
-                footer a:hover, footer a:focus {
-                    color: #111;
-                }
-
-        h1, h2 {
-            border-bottom: 1px solid black;
-            display: inline;
-            font-weight: normal;
-            line-height: 36px;
-            padding: 0 0 3px 0;
-        }
-
-        a {
-            color: #2844FA;
-            text-decoration: none;
-        }
-
-            a:hover, a:focus {
-                color: #1B29A4;
-            }
-
-            a:active {
-                color: #000;
-            }
-
-        :-moz-any-link:focus {
-            border: 0;
-            color: #000;
-        }
-
-        ::selection {
-            background: #ccc;
-        }
-
-        ::-moz-selection {
-            background: #ccc;
-        }
-
-        button, input[type=button] {
-            -moz-border-radius: 3px;
-            -moz-transition: none;
-            -webkit-transition: none;
-            background: #0370ea;
-            background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
-            background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
-            border: 1px solid #076bd2;
-            border-radius: 3px;
-            color: #fff;
-            display: inline-block;
-            font-family: inherit;
-            font-size: .8em;
-            line-height: 1.3;
-            padding: 5px 12px;
-            text-align: center;
-            text-shadow: 1px 1px 1px #076bd2;
-            font-size: 1.5em;
-        }
-
-            button:hover, input[type=button]:hover {
-                background: rgb(9, 147, 240);
-            }
-
-            button:active, input[type=button]:active {
-                background: rgb(10, 118, 190);
-            }
-
-            button[disabled], input[type=button][disabled] {
-                background: none;
-                border: 1px solid rgb(187, 181, 181);
-                color: gray;
-                text-shadow: none;
-            }
-
-        strong {
-            color: rgb(204, 14, 14);
-            font-family: inherit;
-            font-weight: normal;
-        }
-		
-		code {
-			border: 1px solid rgb(209, 25, 25);
-			padding: .2em .8em;
-			background: rgb(252, 232, 232);
-			line-height:3;
-			color:rgb(209, 25, 25);
-		}
-		pre {
-                border-left: 2px solid red;
-                margin-left: 2em;
-                padding-left: 1em;
-            }
-		strong {
-			border-bottom: 1px dotted;
-			padding-bottom: 1px;
-		}
-    </style>
+			
+			.image-container {
+				text-align:center;
+				margin: 2em 0;
+			}
+			
+			.image-parent {
+				margin: 0 2em;
+				border: 2px solid black;
+				border-radius: 5px;
+			}
+			
+			.image-parent img {
+				width: 100%;
+			}
+        </style>
     <!-- for HTML5 el styling -->
     <script>
         document.createElement('article');
         document.createElement('footer');
     </script>
+	
+	<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"></script>
+    <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
 </head>
 
-<body>
+<body onload="sh_highlightDocument();">
     <article>
-        <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
+        <a href="https://www.webrtc-experiment.com/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">www.webrtc-experiment.com</a>
 
-        <h1>STUN or TURN? Which one to prefer; and why? </h1>
-        <p>
-                <span>Copyright © 2013</span>
-                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
-                »
-				<a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
-                »
-				<a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
-                »
-            <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
-            </p>
-
-        <section class="plusone-gplus">
-            <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
-        </section>
-
-        <p>
-			The key difference between these two types of solutions though is that media will travel directly between both endpoints if <strong>STUN</strong> is used, whereas media will be proxied through the server if <strong>TURN</strong> is utilized. 
-		</p>
-		
-		<p>
-			TURN is preferred because it is capable to traverse symmetric NATs too. However, STUN is useful to speedup the connection out of getting immediate candidates when users are sitting behind same NAT e.g. LAN.
-		</p>
-		
-		<p>
-			A media relay server or ICE server is utilized to setup the media session and provide the list of potential candidates to both parties in a call regardless of which media delivery option is selected for each end of the call. 
-		</p>
-		
-		<p>
-			Also understand that the media stream may not always use the same solution on both ends as STUN may be possible for one endpoint but not for the other endpoint.
-		</p>
-		
-		<p>
-			When we use <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCPeerConnection/RTCPeerConnection-v1.5.js#L34" target="_blank">both</a> STUN and TURN servers; <strong>STUN is always attempted first</strong>; TURN is used as fallback option depending on client locations and network topologies.
-		</p>
-		
-		<pre>
+        <h1>STUN or TURN? Which one to prefer; and why? ® <a href="http://www.MuazKhan.com/">Muaz Khan</a></h1>
+				
+		<ol>
+			<li>
+				The key difference between these two types of solutions though is that media will travel directly between both endpoints if <strong>STUN</strong> is used, whereas media will be proxied through the server if <strong>TURN</strong> is utilized. 
+			</li>
+            
+            <li>
+				TURN is preferred because it is capable to traverse symmetric NATs too. However, STUN is useful to speedup the connection out of getting immediate candidates when users are sitting behind same NAT e.g. LAN.
+			</li>
+            
+            <li>
+				A media relay server or ICE server is utilized to setup the media session and provide the list of potential candidates to both parties in a call regardless of which media delivery option is selected for each end of the call. 
+			</li>
+            
+            <li>
+				Also understand that the media stream may not always use the same solution on both ends as STUN may be possible for one endpoint but not for the other endpoint.
+			</li>
+            
+            <li>
+				When we use <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCPeerConnection/RTCPeerConnection-v1.5.js#L34" target="_blank">both</a> STUN and TURN servers; <strong>STUN is always attempted first</strong> <span style="background: rgb(253, 215, 218);padding: .2em .4em;border: 1px dotted red;" title="It seems that TURN is attempted first on chrome!">(!!!!!...not-on-chrome...!!!!!)</span>; TURN is used as fallback option depending on client locations and network topologies.
+			</li>
+            
+            <li>
+				<pre class="sh_javascript">
 var iceServers = {
      iceServers: [STUN, TURN]
 };
 </pre>
-		
-		<p>
-			TURN protocol runs top of STUN to setup a relay service. A well written TURN server will also function as STUN; so you can skip a "separate STUN server" option in such case.
-		</p>
-		
-		<p>
-			TURN is developed to cover holes haven't (or may not) punched by the STUN; e.g. SNATs i.e. Symmetric NATs.
-		</p>
-		
-		<p>
-			A critical disadvantage of a TURN server is its cost; and huge bandwidth usage in case when HD video stream is delivered.
-		</p>
-		
-		<p>
-			If you wanna install your own TURN server; there is a BSD-licensed open source TURN/STUN server (in C language) with all the latest RFCs here: http://code.google.com/p/rfc5766-turn-server/
-		</p>
-		
-		<p>
-			The acronym STUN may also be seen referred to as <strong>Simple Traversal of UDP through NAT</strong> which was the protocol’s original name (as defined in now obsolete <a href="http://www.packetizer.com/rfc/rfc3489/?format=txt" target=_"blank">RFC 3489</a>).  
-		</p>
-		
-		<p>
-			When the protocol was updated to include support for TCP the name was changed to Session Traversal Utilities for NAT to reflect that it was no longer limited to UDP traffic.
-		</p>
-		
-		<p>
-			Although media leveraging STUN is not a direct host-to-host session it is the next best option as the media path is still sent directly between the two client’s own firewalls, over the Internet.  
-		</p>
-		
-		<p>
-			This keeps the media session as short as possible and does not burden the corporate network with handling the media relay processing or bandwidth.
-		</p>
-		
-		<p>
-			There are three types of candidates:
-		</p>
-		
-		<ol>
-			<li><code>Local (or Host candidates)</code> — the actual IP address bound directly to the remote client’s host operating system. It is "highest preferred" candidate option; and attempted first.</li>
-			<li><code>Reflexive (STUN)</code> — the public IP address assigned to the client’s immediate firewall perform network address translation. It is "next preferred" candidate option.</li>
-			<li><code>Relay (TURN)</code> — the publically accessible IP address assigned to the media relay server which is allocated to the client. If STUN fails; the final option is "relay candidates".</li>
-		</ol>
-		
-		<p>
-			There is no way to direct browser to gather only "relay" candidates. Only signalling portion is left to the application developer. Here is a simple workaround to prefer only TURN-candidates:
-		</p>
-		
-		<pre>
+			</li>
+            
+            <li>
+				TURN protocol runs top of STUN to setup a relay service. A well written TURN server will also function as STUN; so you can skip a "separate STUN server" option in such case.
+			</li>
+            
+            <li>
+				TURN is developed to cover holes haven't (or may not) punched by the STUN; e.g. SNATs i.e. Symmetric NATs.
+			</li>
+            
+            <li>
+				A critical disadvantage of a TURN server is its cost; and huge bandwidth usage in case when HD video stream is delivered.
+			</li>
+            
+            <li>
+				The acronym STUN may also be seen referred to as <strong>Simple Traversal of UDP through NAT</strong> which was the protocol’s original name (as defined in now obsolete <a href="http://www.packetizer.com/rfc/rfc3489/?format=txt" target=_"blank">RFC 3489</a>).  
+			</li>
+            
+            <li>
+				When the protocol was updated to include support for TCP the name was changed to Session Traversal Utilities for NAT to reflect that it was no longer limited to UDP traffic.
+			</li>
+            
+            <li>
+				Although media leveraging STUN is not a direct host-to-host session it is the next best option as the media path is still sent directly between the two client’s own firewalls, over the Internet.  
+			</li>
+            
+            <li>
+				This keeps the media session as short as possible and does not burden the corporate network with handling the media relay processing or bandwidth.
+			</li>
+            
+            <li>
+				There are three types of candidates:
+                
+                <ol>
+                    <li><code>Local (or Host candidates)</code> — the actual IP address bound directly to the remote client’s host operating system. It is "highest preferred" candidate option; and attempted first.</li>
+                    <li><code>Reflexive (STUN)</code> — the public IP address assigned to the client’s immediate firewall perform network address translation. It is "next preferred" candidate option.</li>
+                    <li><code>Relay (TURN)</code> — the publically accessible IP address assigned to the media relay server which is allocated to the client. If STUN fails; the final option is "relay candidates".</li>
+                </ol>
+			</li>
+            
+            <li>
+				There is no way to direct browser to gather only "relay" candidates. Only signalling portion is left to the application developer. Here is a simple workaround to prefer only TURN-candidates:
+			</li>
+            
+            <li>
+				<pre class="sh_javascript">
 var host      = false;
 var reflexive = false;
 var relay     = true;
@@ -273,15 +141,20 @@ peer.onicecandidate = function(e) {
      POST_to_Other_Peer(ice);
 };
 </pre>
+			</li>
+            
+            <li>
+				What to install TURN server on your own VPS? Read <a href="/docs/TURN-server-installation-guide.html">TURN server installation Guide</a>
+			</li>
+		</ol>
 
         <br />
-        <br />
         <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Want to ask a Question?</h2>
                 <div>
-                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Feel free to ask any question regarding WebRTC!"></textarea>
                 </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
+                <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your email for private conversation!</small>
             </section>
     </article>
     <footer>

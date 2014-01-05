@@ -11,12 +11,13 @@
 | Library Name        | Short Description           | Documentation | Demos |
 | ------------- |-------------|-------------|-------------|
 | `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
-| `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](http://www.RTCMultiConnection.org/docs/) | [Demos](https://www.webrtc-experiment.com/#RTCMultiConnection) |
+| `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](http://www.RTCMultiConnection.org/docs/) | [Demos](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/) |
 | `DataChannel.js` | An ultimate wrapper library for `RTCDataChannel APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) | [Demos](https://www.webrtc-experiment.com/#DataChannel) |
 | `SdpSerializer.js` | An easiest way to modify SDP | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/SdpSerializer) | [Demos](https://www.webrtc-experiment.com/SdpSerializer/demo.html) |
 | `RTCall.js` | A library for voice (i.e. audio-only) calls | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) | [Demos](https://www.webrtc-experiment.com/RTCall/) |
 | `Meeting.js` | A library for audio/video conferencing | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) | [Demos](https://www.webrtc-experiment.com/meeting/) |
 | `File.js` | A standalone library for file sharing functionalities | [Documentation](https://www.webrtc-experiment.com/docs/Share-Files-using-Filejs.html) | [Demos](https://www.webrtc-experiment.com/WebRTC-File-Sharing/) |
+| `getMediaElement.js` | A library for audio/video media elements' layout | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getMediaElement) | [Demos](https://www.webrtc-experiment.com/getMediaElement/) |
 
 =
 
@@ -258,6 +259,7 @@ document.getElementById('openNewSessionButton').onclick = function() {
 | ------------- |-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
+| Opera | [Stable](http://www.opera.com/) / [NEXT](http://www.opera.com/computer/next)  |
 | Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) |
 
 =

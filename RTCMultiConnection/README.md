@@ -18,9 +18,9 @@ document.getElementById('openNewSessionButton').onclick = function() {
 
 =
 
-## http://www.rtcmulticonnection.org/docs/
-## http://www.rtcmulticonnection.org/changes-log/
-## http://www.rtcmulticonnection.org/FAQ/
+1. http://www.rtcmulticonnection.org/docs/
+2. http://www.rtcmulticonnection.org/changes-log/
+3. http://www.rtcmulticonnection.org/FAQ/
 
 [RTCMultiConnection Getting Started Guide](http://www.rtcmulticonnection.org/docs/getting-started/)
 

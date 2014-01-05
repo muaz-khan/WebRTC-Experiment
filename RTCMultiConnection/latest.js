@@ -9,6 +9,18 @@
 // _______________________
 // RTCMultiConnection-v1.5
 
+/*
+"onspeaking" and "onsilence" fires too often!
+
+bandwidth:{"audio":80,"video":2048},
+framerate:{"minptime":10,"maxptime":60},
+
+1. Connection Timeout & ReDial
+2. removeTrack() and addTracks() instead of "stop"
+
+session-duration
+*/
+
 (function() {
 
     // www.RTCMultiConnection.org/docs/
@@ -142,8 +154,7 @@
                     return joinSession(session);
                 },
                 onmessage: function(e) {
-                    if (!e.data.size)
-                        e.data = JSON.parse(e.data);
+                    e.data = JSON.parse(e.data);
 
                     if (e.data.type === 'text')
                         textReceiver.receive(e.data, self.onmessage, e.userid, e.extra);
@@ -251,7 +262,7 @@
                             var _stream = self.streams[streamid];
                             if (_stream && _stream.socket) {
                                 _stream.socket.send({
-                                    userid: _stream.userid,
+                                    userid: self.userid,
                                     streamid: _stream.streamid,
                                     stopped: true
                                 });
@@ -295,7 +306,7 @@
                         self.onstream(streamedObject);
                         if (forcedCallback) forcedCallback(stream);
 
-                        if (self.onspeaking && !moz) {
+                        if (self.onspeaking) {
                             var soundMeter = new SoundMeter({
                                 context: self._audioContext,
                                 root: self,
@@ -414,11 +425,21 @@
             isbroadcaster,
             isAcceptNewSession = true;
 
+        function updateSocketForLocalStreams(socket) {
+            for (var i = 0; i < root.__attachStreams.length; i++) {
+                var streamid = root.__attachStreams[i].streamid;
+                if (root.streams[streamid]) root.streams[streamid].socket = socket;
+            }
+            root.__attachStreams = [];
+        }
+
         function newPrivateSocket(_config) {
             var socketConfig = {
                 channel: _config.channel,
                 onmessage: socketResponse,
-                onopen: function() {
+                onopen: function(_socket) {
+                    if (_socket) socket = _socket;
+
                     if (isofferer && !peer)
                         initPeer();
 
@@ -426,11 +447,7 @@
                     socketObjects[socketConfig.channel] = socket;
                     sockets[_config.socketIndex] = socket;
 
-                    for (var i = 0; i < root.__attachStreams.length; i++) {
-                        var streamid = root.__attachStreams[i].streamid;
-                        if (root.streams[streamid]) root.streams[streamid].socket = socket;
-                    }
-                    root.__attachStreams = [];
+                    updateSocketForLocalStreams(socket);
                 }
             };
 
@@ -589,7 +606,7 @@
 
                 onSessionOpened();
 
-                if (root.onspeaking && !moz) {
+                if (root.onspeaking) {
                     var soundMeter = new SoundMeter({
                         context: root._audioContext,
                         root: root,
@@ -681,8 +698,8 @@
 
                 if (response.mute || response.unmute) {
                     if (response.promptMuteUnmute) {
-                        if (response.mute) root.streams[response.streamid].mute();
-                        if (response.unmute) root.streams[response.streamid].unmute();
+                        if (response.mute) root.streams[response.streamid].mute(response.session);
+                        if (response.unmute) root.streams[response.streamid].unmute(response.session);
                     } else {
                         if (root.streams[response.streamid])
                             response.mediaElement = root.streams[response.streamid].mediaElement;
@@ -706,7 +723,7 @@
                 if (response.promptStreamStop && !root.isInitiator) {
                     /*
                     if (root.streams[response.streamid]) {
-                        root.streams[response.streamid].stop();
+                    root.streams[response.streamid].stop();
                     }
                     */
                 }
@@ -995,6 +1012,14 @@
                         if (root.onstats) root.onstats(root.userType ? 'busy' : 'rejected', response);
                         sendRequest();
                     }
+
+                    if (response.customMessage) {
+                        if (response.message.drop) {
+                            root.ondrop();
+                            root.streams.stop('local');
+                        } else if (root.onCustomMessage)
+                            root.onCustomMessage(response.message);
+                    }
                 },
                 callback: function(socket) {
                     if (socket) defaultSocket = socket;
@@ -1156,6 +1181,8 @@
                     addStream(sockets[i]);
 
             function addStream(socket) {
+                updateSocketForLocalStreams(socket);
+
                 peer = root.peers[socket.userid];
 
                 if (!peer)
@@ -1247,6 +1274,21 @@
 
             // bug: What if someone accepts request like accept(userid, extra) where "channel" is null.'
         }
+
+        // www.RTCMultiConnection.org/docs/sendMessage/
+        root.sendCustomMessage = function(message) {
+            if (!defaultSocket) {
+                return setTimeout(function() {
+                    root.sendMessage(message);
+                }, 1000);
+            }
+
+            defaultSocket.send({
+                userid: root.userid,
+                customMessage: true,
+                message: message
+            });
+        };
 
         // www.RTCMultiConnection.org/docs/accept/
         root.accept = function(e) {
@@ -1484,7 +1526,7 @@
                             maxChunks: file.maxChunks,
                             currentPosition: file.currentPosition,
                             uuid: file.uuid,
-                            
+
                             // for backward compatibility
                             remaining: file.maxChunks - file.currentPosition,
                             length: file.maxChunks,
@@ -1516,7 +1558,7 @@
                         maxChunks: file.maxChunks,
                         currentPosition: file.currentPosition,
                         uuid: file.uuid,
-                        
+
                         // for backward compatibility
                         remaining: file.maxChunks - file.currentPosition,
                         length: file.maxChunks,
@@ -1662,6 +1704,7 @@
             });
         }
 
+        iceServers.push({ url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun.sipgate.net' }, { url: 'stun:217.10.68.152' }, { url: 'stun:stun.sipgate.net:10000' }, { url: 'stun:217.10.68.152:10000' });
         iceServers.push({ url: 'stun:23.21.150.121:3478' }, { url: 'stun:216.93.246.18:3478' }, { url: 'stun:66.228.45.110:3478' }, { url: 'stun:173.194.78.127:19302' });
         iceServers.push({ url: 'stun:74.125.142.127:19302' }, { url: 'stun:provserver.televolution.net' }, { url: 'stun:sip1.lakedestiny.cordiaip.com' }, { url: 'stun:stun1.voiceeclipse.net' }, { url: 'stun:stun01.sipphone.com' }, { url: 'stun:stun.callwithus.com' }, { url: 'stun:stun.counterpath.net' }, { url: 'stun:stun.endigovoip.com' });
 
@@ -2176,7 +2219,8 @@
                     userid: root.rtcMultiConnection.userid,
                     streamid: root.streamid,
                     mute: !!enabled,
-                    unmute: !enabled
+                    unmute: !enabled,
+                    session: session
                 });
 
             if (root.type == 'remote')
@@ -2185,11 +2229,13 @@
                     promptMuteUnmute: true,
                     streamid: root.streamid,
                     mute: !!enabled,
-                    unmute: !enabled
+                    unmute: !enabled,
+                    session: session
                 });
         }
 
         // According to issue #135, onmute/onumute must be fired for self
+        root.streamObject.session = session;
         if (!!enabled) {
             root.rtcMultiConnection.onmute(root.streamObject);
         }
@@ -2243,8 +2289,11 @@
         this.volume = 0.0;
         this.slow_volume = 0.0;
         this.clip = 0.0;
-        this.script = context.createScriptProcessor(2048, 1, 1);
+
+        // Legal values are (256, 512, 1024, 2048, 4096, 8192, 16384)
+        this.script = context.createScriptProcessor(256, 1, 1);
         that = this;
+
         this.script.onaudioprocess = function(event) {
             var input = event.inputBuffer.getChannelData(0);
             var i;
@@ -2260,10 +2309,13 @@
 
             var volume = that.volume.toFixed(2);
 
-            if (volume > .1)
+            if (volume >= .1 && root.onspeaking) {
                 root.onspeaking(config.event);
-            else if (root.onsilence)
+            }
+
+            if (volume < .1 && root.onsilence) {
                 root.onsilence(config.event);
+            }
         };
     }
 
@@ -2355,12 +2407,14 @@
 
         // www.RTCMultiConnection.org/docs/onmute/
         connection.onmute = function(e) {
-            e.mediaElement.setAttribute('poster', 'https://www.webrtc-experiment.com/images/muted.png');
+            if (e.session.video)
+                e.mediaElement.setAttribute('poster', 'https://www.webrtc-experiment.com/images/muted.png');
         };
 
         // www.RTCMultiConnection.org/docs/onunmute/
         connection.onunmute = function(e) {
-            e.mediaElement.removeAttribute('poster');
+            if (e.session.video)
+                e.mediaElement.removeAttribute('poster');
         };
 
         // www.RTCMultiConnection.org/docs/onleave/
@@ -2547,11 +2601,12 @@
                 },
                 stopRecording: function(onBlob, session) {
                     if (!session) session = { audio: true, video: true };
-                    else
+                    else if (typeof session == 'string') {
                         session = {
                             audio: session == 'audio',
                             video: session == 'video'
                         };
+                    }
 
                     if (session.audio && this.recordAudio) {
                         this.recordAudio.stopRecording();
@@ -2616,10 +2671,10 @@
         };
 
         // www.RTCMultiConnection.org/docs/snapshots/
-        connection.snapshots = {};
+        connection.snapshots = { };
 
         // www.RTCMultiConnection.org/docs/takeSnapshot/
-        connection.takeSnapshot = function (userid, callback) {
+        connection.takeSnapshot = function(userid, callback) {
             for (var stream in connection.streams) {
                 stream = connection.streams[stream];
                 if (stream.userid == userid) {
@@ -2681,6 +2736,26 @@
                     getAllUserMedias(media_sources);
                 }
             }
+        };
+
+        // www.RTCMultiConnection.org/docs/onCustomMessage/
+        connection.onCustomMessage = function(message) {
+            log('Custom message', message);
+        };
+
+        // www.RTCMultiConnection.org/docs/ondrop/
+        connection.ondrop = function() {
+            log('Connection is dropped!');
+        };
+
+        // www.RTCMultiConnection.org/docs/drop/
+        connection.drop = function() {
+            connection.streams.stop('local');
+
+            // www.RTCMultiConnection.org/docs/sendCustomMessage/
+            connection.sendCustomMessage({
+                drop: true
+            });
         };
 
         // used for SoundMeter

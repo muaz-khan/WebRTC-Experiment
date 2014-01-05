@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>RTCMultiConnection Getting Started Guide</title>
+    <title>RTCMultiConnection API Reference / "onCustomMessage" event</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -34,6 +34,10 @@
 			.image-parent img {
 				width: 100%;
 			}
+			
+			li pre {
+				margin: 0;
+			}
         </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -51,75 +55,48 @@
     <article>
         <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">RTCMultiConnection Docs</a>
 
-        <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Getting Started Guide / <a href="http://www.rtcmulticonnection.org/changes-log/">Changes Log</a> | <a href="http://www.rtcmulticonnection.org/docs/">Docs</a> | <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a></h1>
-		
+        <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/onCustomMessage/">onCustomMessage</a>" method</h1>
+				
 		<ol>
 			<li>
-				<pre class="sh_html">&lt;script src="http://www.rtcmulticonnection.org/latest.js"&gt;&lt;/script&gt;</pre>
+				Custom messages can be received using <a href="http://www.RTCMultiConnection.org/docs/onCustomMessage/">onCustomMessage</a> event.
 			</li>
 			
 			<li>
-				<h2>Setup Video Conference using Simplest Syntax EVER!</h2>
-		<pre class="sh_javascript">
-var connection = new RTCMultiConnection().connect();
-openNewSessionButton.onclick = function() {
-    connection.open();
-};
+				<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onCustomMessage/">onCustomMessage</a> = function(message) { };
 </pre>
 			</li>
 			
 			<li>
-				<h2>Setup Video Conference using full syntax!</h2>
-		<pre class="sh_javascript">
-var connection = new RTCMultiConnection();
-
-// easiest way to customize what you need!
-connection.session = {
-    audio: true,
-    video: true
-};
-
-// on getting local or remote media stream
-connection.onstream = function(e) {
-    document.body.appendChild(e.mediaElement);
-};
-
-// check existing sessions
-connection.connect();
-
-// open new session
-openNewSessionButton.onclick = function() {
-    connection.open();
-};
-</pre>
+				Using <a href="http://www.RTCMultiConnection.org/docs/sendCustomMessage/">sendCustomMessage</a> method; you can share public messages over the default socket. E.g.
+				
+				<ol>
+					<li>
+						State of the <a href="http://www.RTCMultiConnection.org/docs/session-participant/">session-participant</a> or <a href="http://www.RTCMultiConnection.org/docs/session-initiator/">session-initiator</a>; whether he is going to leave; or going to share a media stream.
+					</li>
+					
+					<li>
+						Ask a <a href="http://www.RTCMultiConnection.org/docs/session-participant/">session-participant</a> to broadcast screen or video in one-way <a href="http://www.RTCMultiConnection.org/docs/direction/">direction</a>.
+					</li>
+					
+					<li>
+						Ask <a href="http://www.RTCMultiConnection.org/docs/session-participant/">session-participants</a> to attach audio stream; even if it is oneway stream coming from <a href="http://www.RTCMultiConnection.org/docs/session-initiator/">session-initiator</a>.
+					</li>
+					
+					<li>
+						There are unlimited scenarios; that can be accomplished using <a href="http://www.RTCMultiConnection.org/docs/sendCustomMessage/">sendCustomMessage</a> method; just imagine and go ahead and use it!
+					</li>
+				</ol>
 			</li>
 			
 			<li>
-				<h2>Setup Multi-user file sharing along with advance progress-bars!</h2>
-		<pre class="sh_html">&lt;input type=file&gt;</pre>
-		<pre class="sh_javascript">
-var connection = new RTCMultiConnection();
-
-connection.session = {
-    data: true
-};
-
-connection.connect();
-
-// open new session
-openNewSessionButton.onclick = function() {
-    connection.open();
-};
-
-// send single file or multiple files concurrently!
-document.querySelector('input[type=file]').onchange = function() {
-    connection.send(this.files[0]);
-};
+				<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/sendCustomMessage/">sendCustomMessage</a>(any_kind_of_data |or| string_message);
 </pre>
 			</li>
 		</ol>
 
-        <br />
         <br />
         <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
                 <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Want to ask a Question?</h2>

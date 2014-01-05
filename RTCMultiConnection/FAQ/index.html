@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html id="home" lang="en">
+
+<head>
+    <title>RTCMultiConnection FAQ</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+	
+    <style>
+            p { padding: .8em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+			
+			.image-container {
+				text-align:center;
+				margin: 2em 0;
+			}
+			
+			.image-parent {
+				margin: 0 2em;
+				border: 2px solid black;
+				border-radius: 5px;
+			}
+			
+			.image-parent img {
+				width: 100%;
+			}
+			
+			li pre {
+				margin: 0;
+			}
+        </style>
+    <!-- for HTML5 el styling -->
+    <script>
+        document.createElement('article');
+        document.createElement('footer');
+    </script>
+	
+	<script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_javascript.min.js"></script>
+    <script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_html.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="http://www.rtcmulticonnection.org/syntax/sh_style.css">
+</head>
+
+<body onload="sh_highlightDocument();">
+    <article>
+        <a href="http://www.RTCMultiConnection.org/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">www.RTCMultiConnection.org</a>
+
+        <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> FAQ / <a href="http://www.rtcmulticonnection.org/docs/">Documentation</a></h1>
+		
+		<ol>
+			<li>
+				<a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a>'s signaling portion heavily relies on "<strong>channels</strong>"; A channel is a simple partitioning process for the connected clients.
+			</li>
+			
+			<li>
+				A channel is a signaling room contains two or more connected clients; data travels privately inside the room; which gives us flexibility in transmission and simplicity in management.
+			</li>
+			
+			<li>
+				You may hear about a similar concept known as "<strong>namespaces</strong>" used in socket.io for rooms partitioning.
+			</li>
+			
+			<li>
+				Namespaces are usually known as "<strong>socket.io rooms</strong>".
+			</li>
+			
+			<li>
+				<div class="image-container">
+					<div class="image-parent"><img src="http://www.rtcmulticonnection.org/FAQ/rtcmulticonnection-session.png"></div>
+				</div>
+			</li>
+			
+			<li>
+				<h2>What is a "session-id"?</h2>
+				
+				<ol>
+					<li>
+						As you can see in the diagram, "<strong>session-id</strong>" is a reference to the "<strong>actual session</strong>" that exists on socket.io server.
+					</li>
+					
+					<li>
+						Sessions are accessed and used using unique identifiers known as "<strong>session-id</strong>".
+					</li>
+					
+					<li>
+						Two or more users must have <strong>identical</strong> "session-id" otherwise it will not possible to get clue of those users. Remember, peer detection is one of the most important factor in <a href="https://www.webrtc-experiment.com/">WebRTC</a>; otherwise, all subsequent processes will fail.
+					</li>
+					
+					<li>
+						We need to detect peers; send participation requests; exchange data like SDP/ICE; and update states; all such things need a gateway or a signaling service to exchange data between two or more users. "<strong>session-id</strong>" is a clue of the signaling service to connect the relevant session to exchange data privately and reliably among users.
+					</li>
+					
+					<li>
+						<pre class="sh_javascript">
+var userA = new RTCMultiConnection('sessionid-007');
+var userB = new RTCMultiConnection('sessionid-007');
+var userC = new RTCMultiConnection('sessionid-007');
+</pre>
+					</li>
+					
+					<li>
+						As you can see; <strong>userA</strong>, <strong>userB</strong> and <strong>userC</strong> used <strong>same session-id</strong> i.e. "<strong>sessionid-007</strong>".
+					</li>
+					
+					<li>
+						<pre class="sh_javascript">
+// Parameters are optional
+userA.connect('sessionid-007');
+userB.connect('sessionid-007');
+userC.connect('sessionid-007');
+</pre>
+					</li>
+					
+					<li>
+						"<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>" method allows you get a reference to the "actual signaling session" that exists on signaling server.
+					</li>
+					
+					<li>
+						It means that userA says, "<strong>I'm also part of this session. All messages transmitted over this session must be passed to me as well.</strong>"
+					</li>
+					
+					<li>
+						Now, userA can send participation requests to <strong>session-initiator</strong>. He can update statuses like mute/unmute, or start/stop or available/busy etc.
+					</li>
+					
+					<li>
+						UserA can connect existing session participations if allowed by the session-initiator.
+					</li>
+				</ol>
+			</li>
+			
+			<li>
+				<h2>Who is "<strong>session-initiator</strong>"?</h2>
+				<ol>
+					<li>
+						The person who <strong>setups/starts/opens</strong> the session is known as "<strong>session-initiator</strong>". 
+					</li>
+					
+					<li>
+						<pre class="sh_javascript">
+var initiator = new RTCMultiConnection();
+initiator.open('new-session-007');
+</pre>
+					</li>
+					
+					<li>
+						"<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>" method allows you <strong>allocate initiator</strong> and setup new session on the signaling server.
+					</li>
+					
+					<li>
+						Other users will use "<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>" method to join same session.
+					</li>
+					
+					<li>
+						<pre class="sh_javascript">
+var participant = new RTCMultiConnection();
+participant.connect('new-session-007');
+</pre>
+					</li>
+					
+					<li>
+						In RTCMultiConnection sessions; "<strong>initiator</strong>" plays role of a <strong>bridge</strong> for conferencing participants.
+					</li>
+					
+					<li>
+						RTCMultiConnection supports feature like "keepAlive" which means that "<strong>keep session active even if initiator leaves</strong>".
+					</li>
+				</ol>
+			</li>
+			
+			<li>
+				<h2>Some identical questions:</h2>
+				
+				<ol>
+					<li>Should all users be part of a namespace/channel/session?</li>
+					<li>Session unique identifier should be same for all users?</li>
+					<li>Should each user have a unique session-id for his session?</li>
+				</ol>
+				
+				<h2>Answer:</h2>
+				
+				<ol>
+					<li>
+						A channel is always mandatory whether you call users by using their <strong>user-ids</strong>; or ask them join an existing rooms using <strong>room-ids</strong>.
+					</li>
+					
+					<li>
+						As explained earlier; <strong>a channel is actually a reference to the signaling server</strong>. Signaling server <strong>MUST be identical</strong> between two users to detect and exchange data.
+					</li>
+					
+					<li>
+						A channel can be a PHP file URL to POST/GET data.
+					</li>
+					
+					<li>
+						A "<strong>session-id</strong>" allows us setup multiple unique channels on the server which is helpful to open multiple concurrent rooms.
+					</li>
+					
+					<li>
+						Again, a "<strong>session-id</strong>" will always be a reference to the unique channel/session on the signaling server.
+					</li>
+				</ol>
+			</li>
+			
+			<li>
+				<h2>Differentiate "<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>" and "<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>" methods:</h2>
+				
+				<ol>
+					<li>
+						<pre class="sh_javascript">
+var initiator = new RTCMultiConnection();
+initiator.open('new-session-007');
+		
+var participant1 = new RTCMultiConnection();
+participant1.connect('new-session-007');
+
+var participant2 = new RTCMultiConnection();
+participant2.connect('new-session-007');
+
+var participant3 = new RTCMultiConnection();
+participant3.connect('new-session-007');
+
+var participant4 = new RTCMultiConnection();
+participant4.connect('new-session-007');
+</pre>
+					</li>
+					
+					<li>
+						As you can see; there is <strong>only one initiator</strong>; however there are <strong>4 session participant/connectors</strong>.
+					</li>
+					
+					<li>
+						"<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>" method is used merely once for the session-initiator to setup a new channel/session on the signaling server.
+					</li>
+					
+					<li>
+						"<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>" method is called by multiple users to join an existing session on the signaling server.
+					</li>
+					
+					<li>
+						"<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>" doesn't means that you're part of a conference.
+					</li>
+					
+					<li>
+						You can join a conferencing room using "<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>" method; which is automatically called if you've not overridden "<strong>onNewSession</strong>" event.
+					</li>
+				</ol>
+			</li>
+			
+			<li>
+				<h2>Differentiate "<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>" and "<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>" methods:</h2>
+				<ol>
+					<li>
+						<pre class="sh_javascript">
+var participant = new RTCMultiConnection();
+
+participant.onNewSession = function(session) {
+    // found a conferencing room; join it!
+    participant.join(session);
+};
+
+// connecting to the signaling channel
+participant.connect('new-session-007');
+</pre>
+					</li>
+					
+					<li>
+						When you call "<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>" method; you're actually setting up signaling channel. You're not part of conferencing room yet.
+					</li>
+					
+					<li>
+						"<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>" method can be used only when you already connected with a signaling channel. "<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>" method allows you join conferencing room.
+					</li>
+				</ol>
+			</li>
+			
+			<li>
+				<h2>How do I get a session to join?</h2>
+				
+				<ol>
+					<li>
+						You can override "<strong>onNewSession</strong>" event to be alerted for each new session.
+					</li>
+					
+					<li>
+						<pre class="sh_javascript">
+participant.onNewSession = function(session) {
+    // found a conferencing room; joining it!
+    participant.join(session);
+};
+</pre>
+					</li>
+				</ol>
+			</li>
+			
+			<li>
+				<h2>Why are there two (2) "<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>" statements with different <strong>session-ids</strong>?</h2>
+				
+				<ol>
+					<li>
+						<pre class="sh_javascript">
+io.connect(SIGNALING_SERVER).emit('new-channel', {
+    channel: channel,
+    sender: sender
+});
+
+var socket = io.connect(SIGNALING_SERVER + channel);
+</pre>
+					</li>
+					
+					<li>
+						This thing is better explained in another document: "<a href="https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html" target="_blank">WebRTC Signaling Concepts</a>".
+					</li>
+					
+					<li>
+						<strong>Dynamic namespaces</strong> in socket.io is always been a tough task. It is not possible to connect to a random/dynamic namespace directly in the browser.
+					</li>
+					
+					<li>
+						"<strong>new-channel</strong>" event is listened on the nodejs server to setup dynamic socket.io namespace.
+					</li>
+					
+					<li>
+						<pre class="sh_javascript">
+// it is socketio-over-nodejs
+socket.on('new-channel', function (data) {
+    channels[data.channel] = data.channel;
+    onNewNamespace(data.channel, data.sender);
+});
+</pre>
+					</li>
+					
+					<li>
+						It is suggested to setup a global socket object that can be used to open dynamic namespace.
+					</li>
+					
+					<li>
+						<pre class="sh_javascript">
+// it is browser-side code
+var globalSocketObject = io.connect(SIGNALING_SERVER);
+
+connection.openSignalingChannel = function(config) {
+    globalSocketObject.emit('new-channel', {
+        channel: channel,
+        sender: sender
+    });
+
+    var socketWithDynamicNamespace = io.connect(SIGNALING_SERVER + channel);
+};
+</pre>
+					</li>
+				</ol>
+			</li>
+			
+			<li>
+				<h2>How to handle "<strong>onNewSession</strong>" event?</h2>
+				<pre class="sh_javascript">
+// onNewSession can be fired multiple times for same session
+// to handle such issues; storing session-ids in an object
+var listOfSessions = {};
+
+// "onNewSession" is called as soon as signaling channel transmits session details
+participant.onNewSession = function (session) {
+    // if session is already passed over "onNewSession" event
+    if (listOfSessions[session.sessionid]) return;
+
+    // storing session in a global object
+    listOfSessions[session.sessionid] = session;
+
+    // show "join session" button
+    btnJoinSession.setAttribute('data-sessionid', session.sessionid);
+    btnJoinSession.onclick = function () {
+        
+        // getting session from global object using session-id
+        session = listOfSessions[this.getAttribute('data-sessionid')];
+        if (session) {
+            // if session exists; join it.
+            // you're going to join a conferencing room.
+            participant.join(session);
+        }
+    };
+};
+</pre>
+			</li>
+		</ol>
+		
+		<h2>Useful Links:</h2>
+		<ol>
+			<li><a href="https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html" target="_blank">https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html</a></li>
+			<li><a href="https://github.com/LearnBoost/socket.io/wiki/Rooms" target="_blank">https://github.com/LearnBoost/socket.io/wiki/Rooms</a></li>
+		</ol>
+
+        <br />
+        <br />
+        <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
+                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Want to ask a Question?</h2>
+                <div>
+                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="If your question is not listed in the above FAQ; feel free to ask!"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your Email as well; which will be kept private!</small>
+            </section>
+    </article>
+    <footer>
+        <p>
+            <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a>©
+                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
+                <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
+                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
+                <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+        </p>
+    </footer>
+    <script src="https://www.webrtc-experiment.com/common.js"> </script>
+</body>
+</html>

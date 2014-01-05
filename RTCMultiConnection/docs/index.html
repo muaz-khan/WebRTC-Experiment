@@ -824,6 +824,35 @@ iceServers.push({
 connection.<a href="http://www.RTCMultiConnection.org/docs/iceServers/">iceServers</a> = iceServers;
 </pre>
 					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/drop/">drop</a>
+						<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/drop/">drop</a>();
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/ondrop/">ondrop</a>
+						<pre class="sh_javascript">
+// "ondrop" is fired; if media-connection is droppped by other user
+connection.<a href="http://www.RTCMultiConnection.org/docs/ondrop/">ondrop</a> = function() { };
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/sendCustomMessage/">sendCustomMessage</a>
+						<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/sendCustomMessage/">sendCustomMessage</a>(any_kind_of_data |or| string_message);
+</pre>
+					</li>
+					
+					<li>
+						<a href="http://www.RTCMultiConnection.org/docs/onCustomMessage/">onCustomMessage</a>
+						<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onCustomMessage/">onCustomMessage</a> = function(message) { };
+</pre>
+					</li>
                    
 				</ol>
 			</li>
