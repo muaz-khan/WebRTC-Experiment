@@ -48,6 +48,8 @@ function merge(response, files) {
               console.log(error.stack);
               console.log('Error code: ' + error.code);
               console.log('Signal received: ' + error.signal);
+              response.statusCode = 404;
+              response.end();
           } else {
               response.statusCode = 200;
               response.writeHead(200, { 'Content-Type': 'application/json' });
@@ -68,17 +70,41 @@ function merge(response, files) {
       var videoFile = __dirname + '/uploads/' + files.video.name;
       var mergedFile = __dirname + '/uploads/' + files.audio.name.split('.')[0] + '-merged.webm';
       var util = require('util'),
-        child_process = require('child_process');
+        exec = require('child_process').exec;
+        //child_process = require('child_process');
+        
+        var command = "ffmpeg -i " + videoFile + " -i " + audioFile + " -map 0:0 -map 1:0 " + mergedFile;
+        
+        var child = exec(cmd, function(error, stdout, stderr){
+            
+            stdout ? util.print('stdout: ' + stdout) : null;
+            stderr ? util.print('stderr: ' + stderr) : null;
+            
+            if (error) {
+                
+                console.log('exec error: ' + error);
+                response.statusCode = 404;
+                response.end();
+                
+            } else {
+                
+              response.statusCode = 200;
+              response.writeHead(200, { 'Content-Type': 'application/json' });
+              response.end(files.audio.name.split('.')[0] + '-merged.webm');
 
-      var exec = child_process.exec;
+              // removing audio/video files
+              fs.unlink(audioFile);
+              fs.unlink(videoFile);
+              
+              // auto delete file after 1-minute
+              setTimeout(function() {
+                  fs.unlink(mergedFile);
+              }, 60 * 1000);
+              
+            }
 
-      function puts(error, stdout, stderr) {
-        stdout ? util.print('stdout: ' + stdout) : null;
-        stderr ? util.print('stderr: ' + stderr) : null;
-        error ? console.log('exec error: ' + error) : null;
-      }
-
-      exec("ffmpeg -i " + videoFile + " -i " + audioFile + " -map 0:0 -map 1:0 " + mergedFile, puts);
+        });
+      
     }
 }
 
