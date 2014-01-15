@@ -72,22 +72,22 @@ function merge(response, files) {
       var util = require('util'),
         exec = require('child_process').exec;
         //child_process = require('child_process');
-        
+
         var command = "ffmpeg -i " + videoFile + " -i " + audioFile + " -map 0:0 -map 1:0 " + mergedFile;
-        
-        var child = exec(cmd, function(error, stdout, stderr){
-            
+
+        var child = exec(command, function(error, stdout, stderr){
+
             stdout ? util.print('stdout: ' + stdout) : null;
             stderr ? util.print('stderr: ' + stderr) : null;
-            
+
             if (error) {
-                
+
                 console.log('exec error: ' + error);
                 response.statusCode = 404;
                 response.end();
-                
+
             } else {
-                
+
               response.statusCode = 200;
               response.writeHead(200, { 'Content-Type': 'application/json' });
               response.end(files.audio.name.split('.')[0] + '-merged.webm');
@@ -95,16 +95,16 @@ function merge(response, files) {
               // removing audio/video files
               fs.unlink(audioFile);
               fs.unlink(videoFile);
-              
+
               // auto delete file after 1-minute
               setTimeout(function() {
                   fs.unlink(mergedFile);
               }, 60 * 1000);
-              
+
             }
 
         });
-      
+
     }
 }
 
