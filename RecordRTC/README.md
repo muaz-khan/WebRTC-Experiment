@@ -7,11 +7,13 @@
 1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
 2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
 3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
+4. [RecordRTC & HTML-2-Canvas](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/Canvas-Recording)
+5. [MRecordRTC i.e. Multi-RecordRTC!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC)
 
 =
 
 ```html
-<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="//www.WebRTC-Experiment.com/RecordRTC.js"></script>
 ```
 
 =
@@ -24,6 +26,18 @@ recordRTC.startRecording();
 recordRTC.stopRecording(function(audioURL) {
    mediaElement.src = audioURL;
 });
+```
+
+Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
+
+```javascript
+var recorder = new MRecordRTC();
+recorder.addStream(MediaStream);
+recorder.mediaType = {
+   audio: true
+};
+recorder.startRecording();
+recorder.stopRecording();
 ```
 
 =
@@ -41,6 +55,18 @@ recordRTC.startRecording();
 recordRTC.stopRecording(function(videoURL) {
    mediaElement.src = videoURL;
 });
+```
+
+Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
+
+```javascript
+var recorder = new MRecordRTC();
+recorder.addStream(MediaStream);
+recorder.mediaType = {
+   video: true
+};
+recorder.startRecording();
+recorder.stopRecording();
 ```
 
 =
@@ -62,6 +88,42 @@ recordRTC.stopRecording(function(gifURL) {
 });
 ```
 
+Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
+
+```javascript
+var recorder = new MRecordRTC();
+recorder.addStream(MediaStream);
+recorder.mediaType = {
+   gif: true
+};
+recorder.startRecording();
+recorder.stopRecording();
+```
+
+=
+
+##### How to record HTML2Canvas?
+
+You can say it: "HTML/Canvas Recording using RecordRTC"!
+
+```html
+<script src="//www.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="//www.webrtc-experiment.com/screenshot.js"></script>
+<div id="elementToShare" style="width:100%;height:100%;background:green;"></div>
+<script>
+var elementToShare = document.getElementById('elementToShare');
+var recordRTC = RecordRTC(elementToShare, {
+    type: 'canvas'
+});
+recordRTC.startRecording();
+recordRTC.stopRecording(function(url) {
+    window.open(url);
+});
+</script>
+```
+
+See a demo: https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/
+
 =
 
 ##### How to set video width/height?
@@ -77,6 +139,16 @@ var options = {
       width: 320,
       height: 240
    }
+};
+```
+
+Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
+
+```javascript
+var recorder = new MRecordRTC();
+recorder.video = recorder.canvas = {
+    width: innerWidth,
+    height: innerHeight
 };
 ```
 
@@ -96,6 +168,16 @@ recordRTC.getDataURL(function(dataURL) {
 
 ```javascript
 blob = recordRTC.getBlob();
+```
+
+Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
+
+```javascript
+recorder.getBlob(function(blobs) {
+   blobs.audio --- audio blob
+   blobs.video --- video blob
+   blobs.gif   --- gif blob
+});
 ```
 
 =
@@ -159,6 +241,63 @@ var options = {
    'sample-rate': 16384
 };
 ```
+
+=
+
+##### `writeToDisk`
+
+You can write recorded blob to disk using `writeToDisk` method:
+
+```javascript
+recordRTC.stopRecording();
+recordRTC.writeToDisk();
+```
+
+Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
+
+```javascript
+mRecordRTC.stopRecording();
+mRecordRTC.writeToDisk()
+```
+
+=
+
+##### `getFromDisk`
+
+You can get recorded blob from disk using `getFromDisk` method:
+
+```javascript
+// get all blobs from disk
+RecordRTC.getFromDisk('all', function(dataURL, type) {
+   type == 'audio'
+   type == 'video'
+   type == 'gif'
+});
+
+// or get just single blob
+RecordRTC.getFromDisk('audio', function(dataURL) {
+   // only audio blob is returned from disk!
+});
+```
+
+For [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC); you can use word `MRecordRTC` instead of `RecordRTC`!
+
+Another possible situation!
+
+```javascript
+var recordRTC = RecordRTC(mediaStream);
+recordRTC.startRecording();
+recordRTC.stopRecording(function(audioURL) {
+   mediaElement.src = audioURL;
+});
+
+// "recordRTC" instance object to invoke "getFromDisk" method!
+recordRTC.getFromDisk(function(dataURL) {
+   // audio blob is automaticlaly returned from disk!
+});
+```
+
+In the above example; you can see that `recordRTC` instance object is used instead of global `RecordRTC` object.
 
 =
 

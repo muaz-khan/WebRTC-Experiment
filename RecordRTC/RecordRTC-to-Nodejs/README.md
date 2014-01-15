@@ -1,4 +1,11 @@
-#### RecordRTC to Node.js
+#### [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
+
+```
+npm install recordrtc
+
+// to run!
+node node_modules/recordrtc/index.js
+```
 
 This experiment:
 

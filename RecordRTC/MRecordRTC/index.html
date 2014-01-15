@@ -1,0 +1,127 @@
+﻿<title>MRecordRTC i.e. Multi-RecordRTC!</title>
+
+<h1>
+    MRecordRTC i.e. Multi-<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a>!
+</h1>
+
+<button id="start">Start</button>
+<button id="stop">Stop</button>
+<button id="get">Get</button>
+<hr />
+
+<audio id="audio" muted loop></audio>
+
+<script src="//www.webrtc-experiment.com/RecordRTC.js"> </script>
+<script src="//www.webrtc-experiment.com/getMediaElement.js"> </script>
+<script>
+    var recordRTC = new MRecordRTC();
+    recordRTC.mediaType = {
+        audio: true,
+        video: true,
+        gif: true
+    };
+    recordRTC.bufferSize = 16384;
+
+    document.querySelector('#start').onclick = function() {
+        this.disabled = true;
+
+        navigator.webkitGetUserMedia({ audio: true, video: true }, function(stream) {
+            var video = document.createElement('video');
+            video.src = URL.createObjectURL(stream);
+            video.play();
+            var mediaElement = getMediaElement(video, {
+                buttons: [],
+                showOnMouseEnter: false,
+                enableTooltip: false,
+                onMuted: function() {
+                    document.querySelector('#audio').muted = true;
+                },
+                onUnMuted: function() {
+                    document.querySelector('#audio').muted = false;
+                    document.querySelector('#audio').play();
+                }
+            });
+            document.body.appendChild(mediaElement);
+
+            recordRTC.addStream(stream);
+            recordRTC.startRecording();
+        });
+    };
+
+    document.querySelector('#stop').onclick = function() {
+        this.disabled = true;
+
+        recordRTC.stopRecording();
+        recordRTC.writeToDisk();
+    };
+
+    document.querySelector('#get').onclick = function() {
+        this.disabled = true;
+
+        MRecordRTC.getFromDisk('all', function(dataURL, type) {
+            if (!dataURL) return;
+
+            if (type == 'audio') {
+                document.querySelector('#audio').src = dataURL;
+            }
+            if (type == 'video') {
+                var video = document.createElement('video');
+                video.src = dataURL;
+                video.loop = true;
+                var mediaElement = getMediaElement(video, {
+                    buttons: ['mute-video'],
+                    showOnMouseEnter: false,
+                    enableTooltip: false,
+                    onMuted: function() {
+                        document.querySelector('#audio').muted = true;
+                    },
+                    onUnMuted: function() {
+                        document.querySelector('#audio').muted = false;
+                        document.querySelector('#audio').play();
+                    }
+                });
+                mediaElement.toggle('mute-video');
+                document.body.appendChild(mediaElement);
+            }
+
+            if (type == 'gif') {
+                var gifImage = document.createElement('img');
+                gifImage.src = dataURL;
+                document.body.appendChild(gifImage);
+            }
+        });
+    };
+</script>
+
+<pre>
+var recorder = new MRecordRTC();
+recorder.addStream(MediaStream);
+recorder.mediaType = {
+   audio: true,
+   video: true,
+   gif: true
+};
+recorder.startRecording();
+recorder.stopRecording();
+
+recorder.getBlob(function(blobs) {
+   blobs.audio --- audio blob
+   blobs.video --- video blob
+   blobs.gif   --- gif blob
+});
+
+recorder.writeToDisk();
+
+// get all blobs from disk
+MRecordRTC.getFromDisk('all', function(dataURL, type) {
+   type == 'audio'
+   type == 'video'
+   type == 'gif'
+});
+
+// or get just single blob
+MRecordRTC.getFromDisk('audio', function(dataURL) {
+   // only audio blob is returned from disk!
+});
+</pre>
+<hr />

@@ -109,7 +109,7 @@ stopRecording.onclick = function() {
             };
 
             cameraPreview.src = '';
-            cameraPreview.poster = 'ajax-loader.gif';
+            cameraPreview.poster = 'https://www.webrtc-experiment.com/images/ajax-loader.gif';
 
             xhr('/upload', JSON.stringify(files), function(fileName) {
                 var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
