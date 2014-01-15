@@ -24,6 +24,26 @@
                 border-left: 1px solid rgb(189, 189, 189);
                 padding: .5em;
             }
+            
+            img {
+                width: 13em;
+                height: 80%;
+            }
+			
+			.image-container {
+				text-align:center;
+				margin: 2em 0;
+			}
+			
+			.image-parent {
+				margin: 0 2em;
+				border: 2px solid black;
+				border-radius: 5px;
+			}
+			
+			.image-parent img {
+				width: 100%;
+			}
         </style>
         <script>
             document.createElement('article');
@@ -59,7 +79,26 @@
             </section>
             
             <section class="experiment">
+                <h2 class="header">Useful Links!</h2>
+                
+                <ol>
+                    <li>
+                        <a href="http://www.slideshare.net/MuazKhan/echo-in-webrtc-why">Slides for what is the role of echo in WebRTC; and solutions!</a>
+                    </li>
+                    
+                    <li>
+                        <a href="https://www.webrtc-experiment.com/pdf/Echo-in-WebRTC-Why.pdf">Download PDF for What is Echo?</a>
+                    </li>
+                </ol>
+                
+                <div class="image-container">
+                   <div class="image-parent"><img src="https://www.webrtc-experiment.com/images/Echo-in-WebRTC-Why.gif"></div>
+                </div>
+            </section>
+            
+            <section class="experiment">
                 <h2 class="header">Echo Scenarios:</h2>
+                
                 <ol>
                     <li><strong>44.1 kHz</strong> and <strong>non-44.1 kHz</strong> sample rate <strong>mismatches</strong> cause echo</li>
                     <li>The <strong>"ambient noise reduction"</strong> which can be enabled on the built-in mic on Mac appears to cause a very small amount of echo</li>

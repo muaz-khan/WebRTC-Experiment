@@ -64,10 +64,25 @@
 			
 			<li>
 				<pre class="sh_javascript">
-// to check whether it is WebRTC compatible browser
-var isWebRTC_Compatible = connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.RTCPeerConnection;
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.RTCPeerConnection );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.getUserMedia );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.AudioContext );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.ScreenSharing );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.RtpDataChannels );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.SctpDataChannels );
 
-// other properties coming soon in v1.5!
+
+connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.checkIfScreenSharingFlagEnabled(function (isFlagEnabled, warning) {
+    if (isFlagEnabled) {
+        console.error('Multi-capturing of screen is not allowed. Capturing process is denied. Try chrome >= M31.');
+    }
+
+    if (warning) console.error(warning);
+
+    else if (!isFlagEnabled) {
+        console.error('It seems that "Enable screen capture support in getUserMedia" flag is not enabled.');
+    }
+});
 </pre>
 			</li>
 		</ol>

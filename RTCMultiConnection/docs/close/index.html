@@ -64,10 +64,23 @@ connection.close();
 </pre>
 			</li>
 			
-			<li>Using "<a href="http://www.RTCMultiConnection.org/docs/close/">close</a>" method; you can allow <a href="http://www.RTCMultiConnection.org/docs/session-initiator/">session-initiator</a> to close entire <a href="http://www.RTCMultiConnection.org/docs/sessionid/">session</a>.</li>
+			<li>Using "<a href="http://www.RTCMultiConnection.org/docs/close/">close</a>" method; you can allow <a href="http://www.RTCMultiConnection.org/docs/session-initiator/">session-initiator</a> to close <a href="http://www.RTCMultiConnection.org/docs/autoCloseEntireSession/">entire session</a>.</li>
 			
 			<li>
 				By default; <a href="http://www.RTCMultiConnection.org/docs/autoCloseEntireSession/">autoCloseEntireSession</a> is "false". However, <a href="http://www.RTCMultiConnection.org/docs/close/">close</a> method sets it "true".
+			</li>
+            
+            <li>
+                You can capture "<a href="http://www.RTCMultiConnection.org/docs/onclose/">onclose</a>" event to know whether the entire session is dropped or not:
+            </li>
+            
+            <li>
+				<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onclose/">onclose</a> = function (e) {
+    // e.userid
+    // e.extra
+}
+</pre>
 			</li>
 			
 			<li>

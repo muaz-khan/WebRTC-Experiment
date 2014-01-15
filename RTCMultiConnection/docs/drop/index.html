@@ -59,7 +59,7 @@
 				
 		<ol>
 			<li>
-				Using <a href="http://www.RTCMultiConnection.org/docs/drop/">drop</a> method; you can drop the call, same like skype! This method will close media streams from both sides.
+				Using <a href="http://www.RTCMultiConnection.org/docs/drop/">drop</a> method; you can drop the call, same like skype! This method will detach all "local" media streams from both sides.
 			</li>
 			
 			<li>
@@ -71,6 +71,10 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/ondrop/">ondrop</a> =
 };
 </pre>
 			</li>
+            
+            <li>
+                Remember, "<a href="http://www.RTCMultiConnection.org/docs/drop/">drop</a>" method doesn't drop peer connection; it just removes all attached media streams and renegotiates the peer connection. You need to use "<a href="http://www.RTCMultiConnection.org/docs/close/">close</a>" or "<a href="http://www.RTCMultiConnection.org/docs/leave/">leave</a>" methods to fully drop peer connection(s).
+            </li>
 		</ol>
 
         <br />

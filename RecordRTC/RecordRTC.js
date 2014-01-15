@@ -1,3 +1,5 @@
+// Last time updated at Tuesday, 15 January 2014, 06:46:23
+
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
 // Documentation     - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
@@ -14,7 +16,7 @@ function RecordRTC(mediaStream, config) {
     if (!config.type) config.type = 'audio';
 
     function startRecording() {
-        console.debug('started recording stream.');
+        console.debug('started recording ' + config.type + ' stream.');
 
         // Media Stream Recording API has not been implemented in chrome yet;
         // That's why using WebAudio API to record stereo audio in WAV format
@@ -26,24 +28,49 @@ function RecordRTC(mediaStream, config) {
         // video recorder (in Gif format)
         if (config.type == 'gif') Recorder = window.GifRecorder;
 
+        // html2canvas recording!
+        if (config.type == 'canvas') Recorder = window.CanvasRecorder;
+
         mediaRecorder = new Recorder(mediaStream);
 
         // Merge all data-types except "function"
         mediaRecorder = mergeProps(mediaRecorder, config);
 
         mediaRecorder.record();
+
+        return this;
     }
 
     function stopRecording(callback) {
-        console.warn('stopped recording stream.');
+        if (!mediaRecorder) return console.warn(WARNING);
+
+        console.warn('stopped recording ' + config.type + ' stream.');
         mediaRecorder.stop();
         if (callback && mediaRecorder) {
             var url = URL.createObjectURL(mediaRecorder.recordedBlob);
             callback(url);
         }
+
+        if (config.autoWriteToDisk) {
+            getDataURL(function(dataURL) {
+                var parameter = { };
+                parameter[config.type + 'Blob'] = dataURL;
+                DiskStorage.Store(parameter);
+            });
+        }
     }
 
-    var WARNING = 'It seems that "startRecording" is not invoked.';
+    function getDataURL(callback, _mediaRecorder) {
+        if (!callback) throw 'Pass a callback function over getDataURL.';
+
+        var reader = new FileReader();
+        reader.readAsDataURL(_mediaRecorder ? _mediaRecorder.recordedBlob : mediaRecorder.recordedBlob);
+        reader.onload = function(event) {
+            callback(event.target.result);
+        };
+    }
+
+    var WARNING = 'It seems that "startRecording" is not invoked for ' + config.type + ' recorder.';
 
     var mediaRecorder;
 
@@ -54,23 +81,14 @@ function RecordRTC(mediaStream, config) {
             if (!mediaRecorder) return console.warn(WARNING);
             return mediaRecorder.recordedBlob;
         },
-        getDataURL: function(callback) {
-            if (!mediaRecorder) return console.warn(WARNING);
-            if (!callback) throw 'Pass a callback function over getDataURL.';
-
-            var reader = new FileReader();
-            reader.readAsDataURL(mediaRecorder.recordedBlob);
-            reader.onload = function(event) {
-                callback(event.target.result);
-            };
-        },
+        getDataURL: getDataURL,
         toURL: function() {
             if (!mediaRecorder) return console.warn(WARNING);
             return URL.createObjectURL(mediaRecorder.recordedBlob);
         },
         save: function() {
             if (!mediaRecorder) return console.warn(WARNING);
-            console.log('saving recorded stream to disk!');
+            console.log('saving recorded ' + config.type + ' stream to disk!');
 
             // bug: should we use "getBlob" instead; to handle aww-snaps!
             this.getDataURL(function(dataURL) {
@@ -89,9 +107,91 @@ function RecordRTC(mediaStream, config) {
 
                 (window.URL || window.webkitURL).revokeObjectURL(hyperlink.href);
             });
+        },
+        getFromDisk: function(callback) {
+            if (!mediaRecorder) return console.warn(WARNING);
+            RecordRTC.getFromDisk(config.type, callback);
         }
     };
 }
+
+RecordRTC.getFromDisk = function(type, callback) {
+    if (!callback) throw 'callback is mandatory.';
+
+    console.log('Getting recorded ' + (type == 'all' ? 'blobs' : type + ' blob ') + ' from disk!');
+    DiskStorage.Fetch(function(dataURL, _type) {
+        if (type != 'all' && _type == type + 'Blob') {
+            if (callback) callback(dataURL);
+        }
+
+        if (type == 'all') {
+            if (callback) callback(dataURL, _type.replace('Blob', ''));
+        }
+    });
+};
+
+RecordRTC.writeToDisk = function(options) {
+    console.log('Writing recorded blob(s) to disk!');
+    options = options || { };
+    if (options.audio && options.video && options.gif) {
+        options.audio.getDataURL(function(audioDataURL) {
+            options.video.getDataURL(function(videoDataURL) {
+                options.gif.getDataURL(function(gifDataURL) {
+                    DiskStorage.Store({
+                        audioBlob: audioDataURL,
+                        videoBlob: videoDataURL,
+                        gifBlob: gifDataURL
+                    });
+                });
+            });
+        });
+    } else if (options.audio && options.video) {
+        options.audio.getDataURL(function(audioDataURL) {
+            options.video.getDataURL(function(videoDataURL) {
+                DiskStorage.Store({
+                    audioBlob: audioDataURL,
+                    videoBlob: videoDataURL
+                });
+            });
+        });
+    } else if (options.audio && options.gif) {
+        options.audio.getDataURL(function(audioDataURL) {
+            options.gif.getDataURL(function(gifDataURL) {
+                DiskStorage.Store({
+                    audioBlob: audioDataURL,
+                    gifBlob: gifDataURL
+                });
+            });
+        });
+    } else if (options.video && options.gif) {
+        options.video.getDataURL(function(videoDataURL) {
+            options.gif.getDataURL(function(gifDataURL) {
+                DiskStorage.Store({
+                    videoBlob: videoDataURL,
+                    gifBlob: gifDataURL
+                });
+            });
+        });
+    } else if (options.audio) {
+        options.audio.getDataURL(function(audioDataURL) {
+            DiskStorage.Store({
+                audioBlob: audioDataURL
+            });
+        });
+    } else if (options.video) {
+        options.video.getDataURL(function(videoDataURL) {
+            DiskStorage.Store({
+                videoBlob: videoDataURL
+            });
+        });
+    } else if (options.gif) {
+        options.gif.getDataURL(function(gifDataURL) {
+            DiskStorage.Store({
+                gifBlob: gifDataURL
+            });
+        });
+    }
+};
 
 // __________________________
 // Cross-Browser Declarations
@@ -360,7 +460,13 @@ function StereoAudioRecorder(mediaStream, root) {
     console.log('sample-rate', sampleRate);
     console.log('buffer-size', bufferSize);
 
-    __stereoAudioRecorderJavacriptNode = context.createJavaScriptNode(bufferSize, 2, 2);
+    if (context.createJavaScriptNode) {
+        __stereoAudioRecorderJavacriptNode = context.createJavaScriptNode(bufferSize, 2, 2);
+    } else if (context.createScriptProcessor) {
+        __stereoAudioRecorderJavacriptNode = context.createScriptProcessor(bufferSize, 2, 2);
+    } else {
+        throw 'WebAudio API has no support on this browser.';
+    }
 
     __stereoAudioRecorderJavacriptNode.onaudioprocess = function(e) {
         if (!recording) return;
@@ -380,10 +486,34 @@ function StereoAudioRecorder(mediaStream, root) {
     __stereoAudioRecorderJavacriptNode.connect(context.destination);
 }
 
+// _______________________
+// WebP presence detection
+
+var isWebPSupported;
+(function(callback) {
+    var img = new Image();
+
+    img.addEventListener('load', function() {
+        if (this.width === 2 && this.height === 1) {
+            callback(true);
+        } else callback(false);
+    });
+
+    img.addEventListener('error', function() {
+        callback(false);
+    });
+
+    img.src = 'data:image/webp;base64,UklGRjIAAABXRUJQVlA4ICYAAACyAgCdASoCAAEALmk0mk0iIiIiIgBoSygABc6zbAAA/v56QAAAAA==';
+})(function(_isWebPSupported) {
+    isWebPSupported = _isWebPSupported;
+});
+
 // _________________
 // WhammyRecorder.js
 
 function WhammyRecorder(mediaStream) {
+    if (!isWebPSupported) console.error('It seems that webp images are not supported in this browser. Please try chrome.');
+
     this.record = function() {
         if (!this.width) this.width = video.offsetWidth || 320;
         if (!this.height) this.height = video.offsetHeight || 240;
@@ -452,6 +582,36 @@ function WhammyRecorder(mediaStream) {
 
     var lastAnimationFrame = null;
     var startTime, endTime, lastFrameTime;
+
+    var whammy = new Whammy.Video();
+}
+
+// _________________
+// CanvasRecorder.js
+
+function CanvasRecorder(htmlElement) {
+    if (!window.html2canvas) throw 'Please link: //www.webrtc-experiment.com/screenshot.js';
+
+    var isRecording;
+    this.record = function() {
+        isRecording = true;
+        drawCanvasFrame();
+    };
+
+    this.stop = function() {
+        isRecording = false;
+        this.recordedBlob = whammy.compile();
+        whammy.frames = [];
+    };
+
+    function drawCanvasFrame() {
+        html2canvas(htmlElement, {
+            onrendered: function(canvas) {
+                whammy.add(canvas);
+                if (isRecording) requestAnimationFrame(drawCanvasFrame);
+            }
+        });
+    }
 
     var whammy = new Whammy.Video();
 }
@@ -742,9 +902,9 @@ var Whammy = (function() {
             height = frames[0].height,
             duration = frames[0].duration;
         for (var i = 1; i < frames.length; i++) {
-            if (frames[i].width != width) throw "Frame " + (i + 1) + " has a different width";
-            if (frames[i].height != height) throw "Frame " + (i + 1) + " has a different height";
-            if (frames[i].duration < 0 || frames[i].duration > 0x7fff) throw "Frame " + (i + 1) + " has a weird duration (must be between 0 and 32767)";
+            //if (frames[i].width != width) throw "Frame " + (i + 1) + " has a different width";
+            //if (frames[i].height != height) throw "Frame " + (i + 1) + " has a different height";
+            //if (frames[i].duration < 0 || frames[i].duration > 0x7fff) throw "Frame " + (i + 1) + " has a weird duration (must be between 0 and 32767)";
             duration += frames[i].duration;
         }
         return {
@@ -944,6 +1104,175 @@ var Whammy = (function() {
         toWebM: toWebM
     };
 })();
+
+// ______________ (indexed-db)
+// DiskStorage.js
+
+var DiskStorage = {
+    init: function() {
+        var self = this;
+        var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
+        var dbVersion = 1;
+        var dbName = location.href.replace( /\/|:|#|%|\.|\[|\]/g , ''), db;
+        var request = indexedDB.open(dbName, dbVersion);
+
+        function createObjectStore(dataBase) {
+            dataBase.createObjectStore(self.dataStoreName);
+        }
+
+        function putInDB() {
+            var transaction = db.transaction([self.dataStoreName], 'readwrite');
+
+            if (self.videoBlob) {
+                transaction.objectStore(self.dataStoreName).put(self.videoBlob, 'videoBlob');
+            }
+
+            if (self.gifBlob) {
+                transaction.objectStore(self.dataStoreName).put(self.gifBlob, 'gifBlob');
+            }
+
+            if (self.audioBlob) {
+                transaction.objectStore(self.dataStoreName).put(self.audioBlob, 'audioBlob');
+            }
+
+            function getFromStore(portionName) {
+                transaction.objectStore(self.dataStoreName).get(portionName).onsuccess = function(event) {
+                    if (self.callback) self.callback(event.target.result, portionName);
+                };
+            }
+
+            getFromStore('audioBlob');
+            getFromStore('videoBlob');
+            getFromStore('gifBlob');
+        }
+
+        request.onerror = self.onError;
+
+        request.onsuccess = function() {
+            db = request.result;
+            db.onerror = self.onError;
+
+            if (db.setVersion) {
+                if (db.version != dbVersion) {
+                    var setVersion = db.setVersion(dbVersion);
+                    setVersion.onsuccess = function() {
+                        createObjectStore(db);
+                        putInDB();
+                    };
+                } else {
+                    putInDB();
+                }
+            } else {
+                putInDB();
+            }
+        };
+        request.onupgradeneeded = function(event) {
+            createObjectStore(event.target.result);
+        };
+    },
+    Fetch: function(callback) {
+        this.callback = callback;
+        this.init();
+
+        return this;
+    },
+    Store: function(config) {
+        this.audioBlob = config.audioBlob;
+        this.videoBlob = config.videoBlob;
+        this.gifBlob = config.gifBlob;
+
+        this.init();
+
+        return this;
+    },
+    onError: function(error) {
+        console.error(JSON.stringify(error, null, '\t'));
+    },
+    dataStoreName: 'recordRTC'
+};
+
+// _____________
+// MRecordRTC.js
+
+function MRecordRTC(mediaStream) {
+    this.addStream = function(_mediaStream) {
+        if (_mediaStream) mediaStream = _mediaStream;
+    };
+
+    this.mediaType = {
+        audio: true,
+        video: true
+    };
+
+    this.startRecording = function() {
+        if (this.mediaType.audio) {
+            this.audioRecorder = RecordRTC(mediaStream, this).startRecording();
+        }
+
+        if (this.mediaType.video) {
+            this.videoRecorder = RecordRTC(mediaStream, mergeProps(this, {
+                type: 'video'
+            })).startRecording();
+        }
+
+        if (this.mediaType.gif) {
+            this.gifRecorder = RecordRTC(mediaStream, mergeProps(this, {
+                type: 'gif'
+            })).startRecording();
+        }
+    };
+
+    this.stopRecording = function(callback) {
+        callback = callback || function() {
+        };
+
+        if (this.audioRecorder) {
+            this.audioRecorder.stopRecording(function(blobURL) {
+                callback(blobURL, 'audio');
+            });
+        }
+
+        if (this.videoRecorder) {
+            this.videoRecorder.stopRecording(function(blobURL) {
+                callback(blobURL, 'video');
+            });
+        }
+
+        if (this.gifRecorder) {
+            this.gifRecorder.stopRecording(function(blobURL) {
+                callback(blobURL, 'gif');
+            });
+        }
+    };
+
+    this.getBlob = function(callback) {
+        var output = { };
+
+        if (this.audioRecorder) {
+            output.audio = this.audioRecorder.getBlob();
+        }
+
+        if (this.videoRecorder) {
+            output.video = this.videoRecorder.getBlob();
+        }
+
+        if (this.gifRecorder) {
+            output.gif = this.gifRecorder.getBlob();
+        }
+        if (callback) callback(output);
+    };
+
+    this.writeToDisk = function() {
+        RecordRTC.writeToDisk({
+            audio: this.audioRecorder,
+            video: this.videoRecorder,
+            gif: this.gifRecorder
+        });
+    };
+}
+
+MRecordRTC.getFromDisk = RecordRTC.getFromDisk;
+MRecordRTC.writeToDisk = RecordRTC.writeToDisk;
 
 // _____________
 // gifEncoder.js

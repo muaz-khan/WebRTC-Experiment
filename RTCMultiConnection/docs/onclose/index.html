@@ -59,12 +59,22 @@
 				
 		<ol>
 			<li>
-				"<a href="http://www.RTCMultiConnection.org/docs/onclose/">onclose</a>" event is fired when data ports suddenly drop:
-			</li>
+                "<a href="http://www.RTCMultiConnection.org/docs/onclose/">onclose</a>" event is fired in two situations:
+                
+                <ol>
+                    <li>
+                        When data ports suddenly dropped.
+                    </li>
+                    
+                    <li>
+                        When <a href="http://www.RTCMultiConnection.org/docs/session-initiator/">session-initiator</a> closed the <a href="http://www.RTCMultiConnection.org/docs/autoCloseEntireSession/">entire session</a> using "<a href="http://www.RTCMultiConnection.org/docs/close/">close</a>" method.
+                    </li>
+                </ol>
+            </li>
 			
 			<li>
 				<pre class="sh_javascript">
-connection.onclose = function (e) {
+connection.<a href="http://www.RTCMultiConnection.org/docs/onclose/">onclose</a> = function (e) {
     // e.userid
     // e.extra
 }

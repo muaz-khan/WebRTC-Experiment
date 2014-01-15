@@ -1,17 +1,24 @@
-﻿<html>
+﻿<!--
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/getMediaElement
+
+// Demo          - www.WebRTC-Experiment.com/getMediaElement
+-->
+<html>
     <head>
-		<title>getMediaElement.js ® Muaz Khan</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-		<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-		<meta name="author" content="Muaz Khan">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<script>
-			document.createElement('aside');
-			document.createElement('section');
-			document.createElement('footer');
-		</script>
+        <title>getMediaElement.js ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <script>
+            document.createElement('aside');
+            document.createElement('section');
+            document.createElement('footer');
+        </script>
         <script src="https://www.WebRTC-Experiment.com/getMediaElement.min.js"> </script>
         <style>
             * {
@@ -362,7 +369,7 @@
                         }
                     }));
 
-                    var text = 'getMediaElement(HTMLVideoElement, {\n';
+                    var text = '//www.webrtc-experiment.com/getMediaElement.min.js\n\ngetMediaElement(MediaStream, {\n';
                     text += '  width: ' + document.querySelector('.preview').clientWidth + ',\n';
                     text += '  showOnMouseEnter: ' + !!document.querySelector('#enableTooltip').checked + ',\n';
                     text += '  enableTooltip: ' + !!document.querySelector('#showOnMouseEnter').checked + ',\n';
@@ -370,7 +377,8 @@
 
                     text += button_values;
 
-                    text += ']\n';
+                    text += '],\n';
+                    text += '  type: "video"\n';
                     text += '};';
                     document.querySelector('textarea').value = text;
                 }

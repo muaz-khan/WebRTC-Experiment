@@ -2,6 +2,26 @@
     <img src="http://www.rtcmulticonnection.org/img/documentation.png" />
 </a>
 
+<a href="http://www.rtcmulticonnection.org/">
+    <img src="http://www.rtcmulticonnection.org/img/browser-support.png" />
+</a>
+
+=
+
+### Browser Support
+
+<a href="http://www.rtcmulticonnection.org/docs/">
+	<img src="http://www.rtcmulticonnection.org/img/browser-support.png" />
+</a>
+
+=
+
+### What is RTCMultiConnection?
+
+<a href="http://www.rtcmulticonnection.org/docs/">
+	<img src="http://www.rtcmulticonnection.org/What-is-RTCMultiConnection.gif" />
+</a>
+
 =
 
 ```html
@@ -26,11 +46,11 @@ document.getElementById('openNewSessionButton').onclick = function() {
 
 =
 
-# Below documentation is old. Follow above links.
+##### Below documentation is old. Follow above links.
 
 =
 
-## [RTCMultiConnection](http://www.RTCMultiConnection.org/) Documentation / [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/changes-log.md)
+##### [RTCMultiConnection](http://www.RTCMultiConnection.org/) Documentation / [Changes Log](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/changes-log.md)
 
 A library for cross-browser media streaming; screen sharing; data/file sharing; renegotiation; and much more. **An all-in-one solution for RTCWeb API!**
 

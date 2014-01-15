@@ -208,15 +208,32 @@ console.log(connection.<a href="http://www.RTCMultiConnection.org/docs/stats/">s
             <li>
                 <a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a> added.
                 <pre class="sh_javascript">
-// to check whether it is WebRTC compatible browser
-var isWebRTC_Compatible = connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.RTCPeerConnection;
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.RTCPeerConnection );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.getUserMedia );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.AudioContext );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.ScreenSharing );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.RtpDataChannels );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.SctpDataChannels );
+
+
+connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.checkIfScreenSharingFlagEnabled(function (isFlagEnabled, warning) {
+    if (isFlagEnabled) {
+        console.error('Multi-capturing of screen is not allowed. Capturing process is denied. Try chrome >= M31.');
+    }
+
+    if (warning) console.error(warning);
+
+    else if (!isFlagEnabled) {
+        console.error('It seems that "Enable screen capture support in getUserMedia" flag is not enabled.');
+    }
+});
 </pre>
             </li>
             
             
 					
 					<li>
-						"<a href="http://www.RTCMultiConnection.org/docs/drop/">drop</a>" added. Using <a href="http://www.RTCMultiConnection.org/docs/drop/">drop</a> method; you can drop the call, same like skype! This method will close media streams from both sides.
+						"<a href="http://www.RTCMultiConnection.org/docs/drop/">drop</a>" added. Using <a href="http://www.RTCMultiConnection.org/docs/drop/">drop</a> method; you can drop the call, same like skype! This method will detach all "local" media streams from both sides.
 						<pre class="sh_javascript">
 connection.<a href="http://www.RTCMultiConnection.org/docs/drop/">drop</a>();
 </pre>
@@ -264,6 +281,31 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/sendCustomMessage/">s
 connection.<a href="http://www.RTCMultiConnection.org/docs/onCustomMessage/">onCustomMessage</a> = function(message) { };
 </pre>
 					</li>
+                    
+            <li>
+                Echo issue; i.e. self-sound playback fixed.
+            </li>
+            
+            <li>
+                "<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>" now returns both audio/video blobs in the single "callback"!
+                
+                <pre class="sh_javascript">
+// stop single audio stream
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (blob) {
+    // POST "Blob" to PHP/other server using FormData/XHR2
+}, {audio:true});
+
+// stop single video stream
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (blob) {
+    // POST "Blob" to PHP/other server using FormData/XHR2
+}, {video:true});
+
+// stop both audio/video streams
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (audioBlob, videoBlob) {
+    // POST both audio/video "Blobs" to PHP/other server using single FormData/XHR2
+}, {audio:true, video:true} );
+</pre>
+            </li>
 		</ol>
 		
 		<h2 id="v1.4">v1.4 / released in July 06, 2013</h2>

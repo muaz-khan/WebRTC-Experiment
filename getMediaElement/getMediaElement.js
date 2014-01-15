@@ -7,15 +7,22 @@
 // __________________
 // getMediaElement.js
 
-document.write('<link rel="stylesheet" href="https://www.WebRTC-Experiment.com/getMediaElement.css">');
+document.write('<link rel="stylesheet" href="//www.webrtc-experiment.com/getMediaElement.css">');
 
 function getMediaElement(mediaElement, config) {
-    config = config || { };
-	
+    config = config || {};
+
+    if (!mediaElement.nodeName || (mediaElement.nodeName.toLowerCase() != 'audio' && mediaElement.nodeName.toLowerCase() != 'video')) {
+        if (!config.type) config.type = 'video';
+        var mediaStream = mediaElement;
+        mediaElement = document.createElement(config.type);
+        mediaElement[!!navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = !!navigator.mozGetUserMedia ? mediaStream : window.webkitURL.createObjectURL(mediaStream);
+    }
+
     mediaElement.controls = mediaElement.nodeName.toLowerCase() == 'video' ? false : true;
 
     var buttons = config.buttons || ['mute-audio', 'mute-video', 'full-screen', 'volume-slider', 'stop'];
-    buttons.has = function(element) {
+    buttons.has = function (element) {
         return buttons.indexOf(element) !== -1;
     };
 
@@ -32,7 +39,7 @@ function getMediaElement(mediaElement, config) {
         muteAudio.className = 'control mute-audio';
         mediaControls.appendChild(muteAudio);
 
-        muteAudio.onclick = function() {
+        muteAudio.onclick = function () {
             if (muteAudio.className.indexOf('unmute-audio') != -1) {
                 muteAudio.className = muteAudio.className.replace('unmute-audio selected', 'mute-audio');
                 muteAudio.innerHTML = '<span>Mute Audio</span>';
@@ -53,7 +60,7 @@ function getMediaElement(mediaElement, config) {
         muteVideo.className = 'control mute-video';
         mediaControls.appendChild(muteVideo);
 
-        muteVideo.onclick = function() {
+        muteVideo.onclick = function () {
             if (muteVideo.className.indexOf('unmute-video') != -1) {
                 muteVideo.className = muteVideo.className.replace('unmute-video selected', 'mute-video');
                 muteVideo.innerHTML = '<span>Mute Video</span>';
@@ -74,7 +81,7 @@ function getMediaElement(mediaElement, config) {
         recordAudio.className = 'control record-audio';
         mediaControls.appendChild(recordAudio);
 
-        recordAudio.onclick = function() {
+        recordAudio.onclick = function () {
             if (recordAudio.className.indexOf('stop-recording-audio') != -1) {
                 recordAudio.className = recordAudio.className.replace('stop-recording-audio selected', 'record-audio');
                 recordAudio.innerHTML = '<span>Record Audio</span>';
@@ -93,7 +100,7 @@ function getMediaElement(mediaElement, config) {
         recordVideo.className = 'control record-video';
         mediaControls.appendChild(recordVideo);
 
-        recordVideo.onclick = function() {
+        recordVideo.onclick = function () {
             if (recordVideo.className.indexOf('stop-recording-video') != -1) {
                 recordVideo.className = recordVideo.className.replace('stop-recording-video selected', 'record-video');
                 recordVideo.innerHTML = '<span>Record Video</span>';
@@ -112,9 +119,9 @@ function getMediaElement(mediaElement, config) {
         stop.className = 'control stop';
         mediaControls.appendChild(stop);
 
-        stop.onclick = function() {
+        stop.onclick = function () {
             mediaElementContainer.style.opacity = 0;
-            setTimeout(function() {
+            setTimeout(function () {
                 if (mediaElementContainer.parentNode) {
                     mediaElementContainer.parentNode.removeChild(mediaElementContainer);
                 }
@@ -131,7 +138,7 @@ function getMediaElement(mediaElement, config) {
         volumeDown.className = 'control volume-down';
         volumeControl.appendChild(volumeDown);
 
-        volumeDown.onclick = function() {
+        volumeDown.onclick = function () {
             var value = parseInt(slider.value);
             if (value > 0)
                 slider.value = value - 10;
@@ -148,7 +155,7 @@ function getMediaElement(mediaElement, config) {
         slider.min = 0;
         slider.max = 100;
         slider.value = 100;
-        slider.onchange = function() {
+        slider.onchange = function () {
             mediaElement.volume = '.' + slider.value.toString().substr(0, 1);
         };
         volumeSlider.appendChild(slider);
@@ -157,7 +164,7 @@ function getMediaElement(mediaElement, config) {
         volumeUp.className = 'control volume-up';
         volumeControl.appendChild(volumeUp);
 
-        volumeUp.onclick = function() {
+        volumeUp.onclick = function () {
             var value = parseInt(slider.value);
             if (value < 100)
                 slider.value = value + 10;
@@ -171,15 +178,13 @@ function getMediaElement(mediaElement, config) {
         zoom.className = 'control zoom-in';
         volumeControl.appendChild(zoom);
 
-        zoom.onclick = function() {
+        zoom.onclick = function () {
             if (zoom.className.indexOf('zoom-out') != -1) {
                 zoom.className = zoom.className.replace('zoom-out selected', 'zoom-in');
                 exitFullScreen();
-                if (config.onZoomout) config.onZoomout();
             } else {
                 zoom.className = zoom.className.replace('zoom-in', 'zoom-out selected');
                 launchFullscreen(mediaElementContainer);
-                if (config.onZoomin) config.onZoomin();
             }
         };
 
@@ -218,6 +223,9 @@ function getMediaElement(mediaElement, config) {
             if (config.height) {
                 mediaElementContainer.style.height = (isFullScreeMode ? (window.innerHeight - 20) : config.height) + 'px';
             }
+
+            if (!isFullScreeMode && config.onZoomout) config.onZoomout();
+            if (isFullScreeMode && config.onZoomin) config.onZoomin();
 
             if (!isFullScreeMode && zoom.className.indexOf('zoom-out') != -1) {
                 zoom.className = zoom.className.replace('zoom-out selected', 'zoom-in');
@@ -266,20 +274,20 @@ function getMediaElement(mediaElement, config) {
     }
 
     if (config.showOnMouseEnter || typeof config.showOnMouseEnter === 'undefined') {
-        mediaElementContainer.onmouseenter = function() {
+        mediaElementContainer.onmouseenter = function () {
             adjustControls();
             mediaControls.style.opacity = 1;
             volumeControl.style.opacity = 1;
         };
 
-        mediaElementContainer.onmouseleave = function() {
+        mediaElementContainer.onmouseleave = function () {
             mediaControls.style.opacity = 0;
             volumeControl.style.opacity = 0;
         };
     } else {
-        setTimeout(function() {
+        setTimeout(function () {
             adjustControls();
-            setTimeout(function() {
+            setTimeout(function () {
                 mediaControls.style.opacity = 1;
                 volumeControl.style.opacity = 1;
             }, 300);
@@ -291,24 +299,24 @@ function getMediaElement(mediaElement, config) {
     if (config.enableTooltip || typeof config.enableTooltip === 'undefined') {
         var controls = mediaElementContainer.querySelectorAll('.control');
         for (var i = 0; i < controls.length; i++) {
-            controls[i].onmouseenter = function() {
+            controls[i].onmouseenter = function () {
                 if (!this.querySelector('span')) return;
                 this.querySelector('span').style.opacity = 1;
             };
 
-            controls[i].addEventListener('click', function() {
+            controls[i].addEventListener('click', function () {
                 if (!this.querySelector('span')) return;
                 this.querySelector('span').style.opacity = 1;
             });
 
-            controls[i].onmouseleave = function() {
+            controls[i].onmouseleave = function () {
                 if (!this.querySelector('span')) return;
                 this.querySelector('span').style.opacity = 0;
             };
         }
     }
 
-    mediaElementContainer.toggle = function(clasName) {
+    mediaElementContainer.toggle = function (clasName) {
         if (typeof clasName != 'string') {
             for (i = 0; i < clasName.length; i++) {
                 mediaElementContainer.toggle(clasName[i]);

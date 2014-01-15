@@ -270,7 +270,7 @@ connection.attachStreams.push(mediaStream1, mediaStream2);
 					<li>
 						<a href="http://www.RTCMultiConnection.org/docs/startRecording/">startRecording</a>
 						<pre class="sh_javascript">
-connection.streams['stream-id'].startRecording({
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/startRecording/">startRecording</a>({
     audio: true,
     video: true
 });
@@ -280,9 +280,20 @@ connection.streams['stream-id'].startRecording({
 					<li>
 						<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>
 						<pre class="sh_javascript">
-connection.streams['stream-id'].stopRecording(function (blob) {
+// stop single audio stream
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (blob) {
     // POST "Blob" to PHP/other server using FormData/XHR2
-});
+}, {audio:true});
+
+// stop single video stream
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (blob) {
+    // POST "Blob" to PHP/other server using FormData/XHR2
+}, {video:true});
+
+// stop both audio/video streams
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (audioBlob, videoBlob) {
+    // POST both audio/video "Blobs" to PHP/other server using single FormData/XHR2
+}, {audio:true, video:true} );
 </pre>
 					</li>
 					
@@ -799,8 +810,25 @@ console.log(connection.<a href="http://www.RTCMultiConnection.org/docs/stats/">s
                     <li>
 						<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>
 						<pre class="sh_javascript">
-// to check whether it is WebRTC compatible browser
-var isWebRTC_Compatible = connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.RTCPeerConnection;
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.RTCPeerConnection );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.getUserMedia );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.AudioContext );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.ScreenSharing );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.RtpDataChannels );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.SctpDataChannels );
+
+
+connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.checkIfScreenSharingFlagEnabled(function (isFlagEnabled, warning) {
+    if (isFlagEnabled) {
+        console.error('Multi-capturing of screen is not allowed. Capturing process is denied. Try chrome >= M31.');
+    }
+
+    if (warning) console.error(warning);
+
+    else if (!isFlagEnabled) {
+        console.error('It seems that "Enable screen capture support in getUserMedia" flag is not enabled.');
+    }
+});
 </pre>
 					</li>
                     

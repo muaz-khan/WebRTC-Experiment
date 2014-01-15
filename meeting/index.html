@@ -215,7 +215,7 @@ meeting.openSignalingChannel = function(callback) {
 // check pre-created meeting rooms
 // it is useful to auto-join
 // or search pre-created sessions
-meeting.check();
+meeting.check('meeting room name');
 
 document.getElementById('setup-new-meeting').onclick = function() {
     meeting.setup('meeting room name');

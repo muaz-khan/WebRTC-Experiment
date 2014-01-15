@@ -225,29 +225,29 @@
     var isFirefox = !!navigator.mozGetUserMedia;
     var isChrome = !!navigator.webkitGetUserMedia;
 
-    var STUN = {
-        url: isChrome ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-    };
+    var iceServers = [];
 
-    var TURN = {
-        url: 'turn:homeo@turn.bistri.com:80',
-        credential: 'homeo'
-    };
-
-    var iceServers = {
-        iceServers: [STUN]
-    };
-
-    if (isChrome) {
-        if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
-            TURN = {
+        if (isChrome && parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28) {
+            iceServers.push({
                 url: 'turn:turn.bistri.com:80',
                 credential: 'homeo',
                 username: 'homeo'
-            };
+            });
+            
+            iceServers.push({
+                url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+                credential: 'webrtc',
+                username: 'webrtc'
+            });
+        }
 
-        iceServers.iceServers = [STUN, TURN];
-    }
+        iceServers.push({ url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun.sipgate.net' }, { url: 'stun:217.10.68.152' }, { url: 'stun:stun.sipgate.net:10000' }, { url: 'stun:217.10.68.152:10000' });
+        iceServers.push({ url: 'stun:23.21.150.121:3478' }, { url: 'stun:216.93.246.18:3478' }, { url: 'stun:66.228.45.110:3478' }, { url: 'stun:173.194.78.127:19302' });
+        iceServers.push({ url: 'stun:74.125.142.127:19302' }, { url: 'stun:provserver.televolution.net' }, { url: 'stun:sip1.lakedestiny.cordiaip.com' }, { url: 'stun:stun1.voiceeclipse.net' }, { url: 'stun:stun01.sipphone.com' }, { url: 'stun:stun.callwithus.com' }, { url: 'stun:stun.counterpath.net' }, { url: 'stun:stun.endigovoip.com' });
+
+        iceServers = {
+            iceServers: iceServers
+        };
 
     var optionalArgument = {
         optional: [{
@@ -328,13 +328,13 @@
             };
 
             peer.onsignalingstatechange = function () {
-                console.log('onsignalingstatechange:', JSOn.stringify({
+                console.log('onsignalingstatechange:', JSON.stringify({
                     iceGatheringState: peer.iceGatheringState,
                     signalingState: peer.signalingState
                 }));
             };
             peer.oniceconnectionstatechange = function () {
-                console.log('oniceconnectionstatechange:', JSOn.stringify({
+                console.log('oniceconnectionstatechange:', JSON.stringify({
                     iceGatheringState: peer.iceGatheringState,
                     signalingState: peer.signalingState
                 }));

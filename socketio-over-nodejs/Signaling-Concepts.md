@@ -2,6 +2,7 @@
 2. http://www.RTCMultiConnection.org/FAQ/
 3. http://www.RTCMultiConnection.org/docs/sessionid/
 4. http://www.RTCMultiConnection.org/docs/channel-id/
+5. http://www.rtcmulticonnection.org/docs/openSignalingChannel/
 
 =
 

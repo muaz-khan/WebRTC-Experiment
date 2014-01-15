@@ -59,11 +59,11 @@
 				
 		<ol>
             <li>
-                Using <a href="http://www.RTCMultiConnection.org/docs/streams/">streams</a> object; you can <a href="http://www.RTCMultiConnection.org/docs/mute/">mute</a>, <a href="http://www.RTCMultiConnection.org/docs/unmute/">unmute</a> and <a href="http://www.RTCMultiConnection.org/docs/stop/">stop</a> one or more media streams. You can <a href="http://www.RTCMultiConnection.org/docs/startRecording/">record</a> audio/video streams as well.
+                You can use "<a href="http://www.RTCMultiConnection.org/docs/startRecording/">startRecording</a>" method to start audio and/or video recording.
             </li>
 			<li>
 				<pre class="sh_javascript">
-connection.streams['stream-id'].startRecording({
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/startRecording/">startRecording</a>({
     audio: true,
     video: true
 });
@@ -71,16 +71,32 @@ connection.streams['stream-id'].startRecording({
 			</li>
 			
 			<li>
-				To stop recording:
-			</li>
-			
-			<li>
-				<pre class="sh_javascript">
-connection.streams['stream-id'].stopRecording(function (blob) {
+                You can use "<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>" method to stop audio/video recording. It returns:
+                
+                <ol>
+                    <li>
+                        Single blob if you're recording JUST audio or video.
+                        <pre class="sh_javascript">
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (blob) {
     // POST "Blob" to PHP/other server using FormData/XHR2
-});
+}, {audio:true});
+
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (blob) {
+    // POST "Blob" to PHP/other server using FormData/XHR2
+}, {video:true});
 </pre>
-			</li>
+                    </li>
+                    
+                    <li>
+                        Multiple blobs on the same "callback" if you're recording both audio and video.
+                        <pre class="sh_javascript">
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (audioBlob, videoBlob) {
+    // POST both audio/video "Blobs" to PHP/other server using single FormData/XHR2
+}, {audio:true, video:true} );
+</pre>
+                    </li>
+                </ol>
+            </li>
 			
 			<li>
 				Remember; <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a> is used for audio/video recording.

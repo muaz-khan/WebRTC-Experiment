@@ -2,6 +2,34 @@
 
 This library generates HTMLVideoElement with rich user-interface and advance media controls. It gives you full control over each control button; and its functionality!
 
+<a href="https://www.webrtc-experiment.com/getMediaElement/">
+	<img src="https://www.webrtc-experiment.com/images/getMediaElement.js.gif" />
+</a>
+
+```javascript
+document.body.appendChild( getMediaElement(MediaStream, {
+   type: 'video'
+}) );
+
+// or
+document.body.appendChild( getMediaElement(HTMLVideoElement) );
+```
+
+=
+
+##### Features
+
+1. You can capture `onMuted` event; and disable audio/video tracks accordingly!
+2. You can capture `onUnMuted` event; and enable audio/video tracks accordingly!
+3. You can capture `onRecordingStarted` and use RecordRTC to record audio/video streams.
+4. You can capture `onRecordingStopped` and invoke `stopRecording` method of RecordRTC to stop audio/video recording. You can write recorded audio/video blobs to indexed-db using RecordRTC's newly introduced `writeToDisk` and `getFromDisk` methods.
+5. You can capture `onZoomin` to understand that video is NOW in full-screen mode.
+6. You can capture `onZoomout` to understand that video is NOW in normal mode.
+7. You can disable tool-tips using `enableTooltip:false`.
+8. You can prefer dispalying media-control buttons all the time by setting `showOnMouseEnter:true`.
+9. You can control `buttons` array to control which button should be displayed on media element.
+10. You can use `toggle` method to change buttons' state at runtime!
+
 =
 
 ##### Structure of getMediaElement.js
@@ -91,4 +119,4 @@ mediaElement.toggle('stop');
 
 ##### License
 
-[RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[getMediaElement](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getMediaElement) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
