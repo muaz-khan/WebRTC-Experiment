@@ -10,7 +10,7 @@
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
-	
+    
     <style>
             p { padding: .8em; }
 
@@ -19,33 +19,33 @@
                 border-left: 1px solid rgb(189, 189, 189);
                 padding: .5em;
             }
-			
-			.image-container {
-				text-align:center;
-				margin: 2em 0;
-			}
-			
-			.image-parent {
-				margin: 0 2em;
-				border: 2px solid black;
-				border-radius: 5px;
-			}
-			
-			.image-parent img {
-				width: 100%;
-			}
-			
-			li pre {
-				margin: 0;
-			}
+            
+            .image-container {
+                text-align:center;
+                margin: 2em 0;
+            }
+            
+            .image-parent {
+                margin: 0 2em;
+                border: 2px solid black;
+                border-radius: 5px;
+            }
+            
+            .image-parent img {
+                width: 100%;
+            }
+            
+            li pre {
+                margin: 0;
+            }
         </style>
     <!-- for HTML5 el styling -->
     <script>
         document.createElement('article');
         document.createElement('footer');
     </script>
-	
-	<script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_main.min.js"></script>
+    
+    <script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_main.min.js"></script>
     <script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_javascript.min.js"></script>
     <script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_html.min.js"></script>
     <link type="text/css" rel="stylesheet" href="http://www.rtcmulticonnection.org/syntax/sh_style.css">
@@ -56,62 +56,55 @@
         <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">RTCMultiConnection Docs</a>
 
         <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/openSignalingChannel/">openSignalingChannel</a>"</h1>
-		
-		<ol>
-			<li>
-				In RTCMultiConnection, the entire signaling portion is encapsulated in single method; named as <a href="http://www.RTCMultiConnection.org/docs/openSignalingChannel/">openSignalingChannel</a>.
-			</li>
-			
-			<li>
-				You can override <a href="http://www.RTCMultiConnection.org/docs/openSignalingChannel/">openSignalingChannel</a> method to force custom signaling gateways e.g. WebSockets, Socket.io, XMPP etc.
-			</li>
-			
-			<li>
-				<h2>Using Firebase for Signaling</h2>
-				<pre class="sh_javascript">
-connection.openSignalingChannel = function (config) {
-    var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+        
+        <ol>
+            <li>
+                In RTCMultiConnection, the entire signaling portion is encapsulated in single method; named as <a href="http://www.RTCMultiConnection.org/docs/openSignalingChannel/">openSignalingChannel</a>.
+            </li>
+            
+            <li>
+                You can override <a href="http://www.RTCMultiConnection.org/docs/openSignalingChannel/">openSignalingChannel</a> method to force custom signaling gateways e.g. WebSockets, Socket.io, XMPP etc.
+            </li>
+            
+            <li>
+                <h2>Using <span style="color:red;">"Any Socket.io Server"</span> for Signaling</h2>
+                <pre class="sh_javascript">
+// global stuff
+var channels = {};
+var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
+var socketio = io.connect('http://localhost:8888/');
+
+socketio.on('message', function(data) {
+    if(data.sender == currentUserUUID) return;
     
-    var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
-    socket.channel = channel;
-    
-    socket.on('child_added', function (data) {
-        config.onmessage(data.val());
-    });
-    
-    socket.send = function(data) {
-        this.push(data);
+    if (channels[data.channel] && channels[data.channel].onmessage) {
+        channels[data.channel].onmessage(data.message);
     };
-    
-    config.onopen && setTimeout(config.onopen, 1);
-    socket.onDisconnect().remove();
-    return socket;
-};
-</pre>
-			</li>
-			
-			<li>
-				<h2>Using PubNub for Signaling</h2>
-				<pre class="sh_javascript">
+});
+
+// overriding "openSignalingChannel" method
 connection.openSignalingChannel = function (config) {
-    var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-    var socket = io.connect('https://pubsub.pubnub.com/' + channel, {
-        publish_key: 'demo',
-        subscribe_key: 'demo',
-        channel: config.channel || channel,
-        ssl: true
-    });
-    socket.channel = channel;
-    if (config.onopen) socket.on('connect', config.onopen);
-    socket.on('message', config.onmessage);
-    return socket;
+    var channel = config.channel || this.channel;
+    channels[channel] = config;
+
+    if (config.onopen) setTimeout(config.onopen, 1000);
+    return {
+        send: function (message) {
+            socketio.emit('message', {
+                sender: currentUserUUID,
+                channel: channel,
+                message: message
+            });
+        },
+        channel: channel
+    };
 };
 </pre>
-			</li>
-			
-			<li>
-				<h2>Using Socket.io for Signaling</h2>
-				<pre class="sh_javascript">
+            </li>
+            
+            <li>
+                <h2>Using "<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs">Custom</a> Socket.io Server" for Signaling</h2>
+                <pre class="sh_javascript">
 var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
 connection.openSignalingChannel = function(config) {   
    var channel = config.channel || this.channel || 'default-namespace';
@@ -139,11 +132,49 @@ connection.openSignalingChannel = function(config) {
    socket.on('message', config.onmessage);
 };
 </pre>
-			</li>
-			
-			<li>
-				<h2>Using WebSockets for Signaling</h2>
-				<pre class="sh_javascript">
+            </li>
+            
+            <li>
+                <h2>Using <span style="color:red;">"Any WebSocket Server"</span> for Signaling</h2>
+                <pre class="sh_javascript">
+// global stuff
+var channels = {};
+var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
+var websocket = new WebSocket('ws://localhost:8888/');
+
+websocket.onmessage =  function(e) {
+    data = JSON.parse(e.data);
+    
+    if(data.sender == currentUserUUID) return;
+    
+    if (channels[data.channel] && channels[data.channel].onmessage) {
+        channels[data.channel].onmessage(data.message);
+    };
+};
+
+// overriding "openSignalingChannel" method
+connection.openSignalingChannel = function (config) {
+    var channel = config.channel || this.channel;
+    channels[channel] = config;
+
+    if (config.onopen) setTimeout(config.onopen, 1000);
+    return {
+        send: function (message) {
+            websocket.send(JSON.stringify({
+                sender: currentUserUUID,
+                channel: channel,
+                message: message
+            }));
+        },
+        channel: channel
+    };
+};
+</pre>
+            </li>
+            
+            <li>
+                <h2>Using "<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs">Custom</a> WebSocket Server" for Signaling</h2>
+                <pre class="sh_javascript">
 // var SIGNALING_SERVER = 'ws://wsnodejs.jit.su:80';
 var SIGNALING_SERVER = 'ws://' + document.domain + ':1338/';
 connection.openSignalingChannel = function(config) {
@@ -170,24 +201,107 @@ connection.openSignalingChannel = function(config) {
     };
 }
 </pre>
-			</li>
-		</ol>
-		
-		<h2>A few useful resources</h2>
-		
-		<ol>
-			<li>
-				<a href="https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html">WebRTC Signaling Concepts</a>
-			</li>
-			
-			<li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs">Socket.io over Node.js</a></li>
-			
-			<li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs">WebSocket over Node.js</a></li>
-			
-			<li><a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/Signaling-Concepts.md">WebRTC Experiments Signaling Concepts</a></li>
+            </li>
+            
+            <li>
+                <h2>Using Firebase for Signaling (Technique No. 1)</h2>
+                <pre class="sh_javascript">
+// global stuff
+var channels = {};
+var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
+var firebase = new Firebase('//chat.firebaseio.com/something-unique');
 
-			<li><a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md">Realtime/Working WebRTC Experiments & Signaling</a></li>
-		</ol>
+firebase.on('child_added', function(snap) {
+    var data = snap.val();
+    
+    if(data.sender == currentUserUUID) return;
+    
+    if (channels[data.channel] && channels[data.channel].onmessage) {
+        channels[data.channel].onmessage(data.message);
+    };
+    
+    snap.ref().remove();
+});
+
+// overriding "openSignalingChannel" method
+connection.openSignalingChannel = function (config) {
+    var channel = config.channel || this.channel;
+    channels[channel] = config;
+
+    if (config.onopen) setTimeout(config.onopen, 1000);
+    return {
+        send: function (message) {
+            firebase.push({
+                sender: currentUserUUID,
+                channel: channel,
+                message: message
+            });
+        },
+        channel: channel
+    };
+};
+</pre>
+            </li>
+            
+            <li>
+                <h2>Using Firebase for Signaling (Technique No. 2)</h2>
+                <pre class="sh_javascript">
+connection.openSignalingChannel = function (config) {
+    var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+    
+    var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+    socket.channel = channel;
+    
+    socket.on('child_added', function (data) {
+        config.onmessage(data.val());
+    });
+    
+    socket.send = function(data) {
+        this.push(data);
+    };
+    
+    config.onopen && setTimeout(config.onopen, 1);
+    socket.onDisconnect().remove();
+    return socket;
+};
+</pre>
+            </li>
+            
+            <li>
+                <h2>Using PubNub for Signaling</h2>
+                <pre class="sh_javascript">
+connection.openSignalingChannel = function (config) {
+    var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+    var socket = io.connect('https://pubsub.pubnub.com/' + channel, {
+        publish_key: 'demo',
+        subscribe_key: 'demo',
+        channel: config.channel || channel,
+        ssl: true
+    });
+    socket.channel = channel;
+    if (config.onopen) socket.on('connect', config.onopen);
+    socket.on('message', config.onmessage);
+    return socket;
+};
+</pre>
+            </li>
+        </ol>
+        
+        <h2>A few useful resources</h2>
+        
+        <ol>
+            <li>
+                <a href="https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html">WebRTC Signaling Concepts</a>
+            </li>
+            
+            <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs">Socket.io over Node.js</a></li>
+            
+            <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs">WebSocket over Node.js</a></li>
+            
+            <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/Signaling-Concepts.md">WebRTC Experiments Signaling Concepts</a></li>
+
+            <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md">Realtime/Working WebRTC Experiments & Signaling</a></li>
+        </ol>
 
         <br />
         <br />

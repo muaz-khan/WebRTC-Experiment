@@ -9,18 +9,22 @@
 <button id="get">Get</button>
 <hr />
 
+<div id="videos-container"></div>
+
 <audio id="audio" muted loop></audio>
 
 <script src="//www.webrtc-experiment.com/RecordRTC.js"> </script>
 <script src="//www.webrtc-experiment.com/getMediaElement.js"> </script>
 <script>
+    var videosContainer = document.getElementById('videos-container');
+    
     var recordRTC = new MRecordRTC();
     recordRTC.mediaType = {
         audio: true,
         video: true,
         gif: true
     };
-    recordRTC.bufferSize = 16384;
+    //recordRTC.bufferSize = 16384;
 
     document.querySelector('#start').onclick = function() {
         this.disabled = true;
@@ -41,7 +45,7 @@
                     document.querySelector('#audio').play();
                 }
             });
-            document.body.appendChild(mediaElement);
+            videosContainer.appendChild(mediaElement);
 
             recordRTC.addStream(stream);
             recordRTC.startRecording();
@@ -81,13 +85,13 @@
                     }
                 });
                 mediaElement.toggle('mute-video');
-                document.body.appendChild(mediaElement);
+                videosContainer.appendChild(mediaElement);
             }
 
             if (type == 'gif') {
                 var gifImage = document.createElement('img');
                 gifImage.src = dataURL;
-                document.body.appendChild(gifImage);
+                videosContainer.appendChild(gifImage);
             }
         });
     };

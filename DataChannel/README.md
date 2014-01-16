@@ -326,6 +326,14 @@ channel.direction = 'many-to-many';
 
 =
 
+For signaling; please check following page:
+
+https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
+
+Remember, you can use any signaling implementation exists out there without modifying any single line! Just skip below code and open [above link](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)!
+
+=
+
 ##### Use [your own socket.io for signaling](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs)
 
 ```javascript

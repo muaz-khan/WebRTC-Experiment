@@ -2,10 +2,6 @@
     <img src="http://www.rtcmulticonnection.org/img/documentation.png" />
 </a>
 
-<a href="http://www.rtcmulticonnection.org/">
-    <img src="http://www.rtcmulticonnection.org/img/browser-support.png" />
-</a>
-
 =
 
 ### Browser Support
@@ -43,6 +39,12 @@ document.getElementById('openNewSessionButton').onclick = function() {
 3. http://www.rtcmulticonnection.org/FAQ/
 
 [RTCMultiConnection Getting Started Guide](http://www.rtcmulticonnection.org/docs/getting-started/)
+
+=
+
+For signaling; please check following page:
+
+https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
 =
 

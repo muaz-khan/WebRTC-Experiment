@@ -7,7 +7,7 @@
 1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
 2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
 3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
-4. [RecordRTC & HTML-2-Canvas](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/Canvas-Recording)
+4. [RecordRTC & HTML-2-Canvas i.e. Canvas/HTML Recording!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/Canvas-Recording)
 5. [MRecordRTC i.e. Multi-RecordRTC!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC)
 
 =
@@ -28,16 +28,26 @@ recordRTC.stopRecording(function(audioURL) {
 });
 ```
 
-Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
+Remember, you need to invoke `navigator.getUserMedia` method yourself; it is too easy to use!
 
 ```javascript
-var recorder = new MRecordRTC();
-recorder.addStream(MediaStream);
-recorder.mediaType = {
-   audio: true
+navigator.getUserMedia({audio: true}, function(mediaStream) {
+   window.recordRTC = RecordRTC(MediaStream);
+   recordRTC.startRecording();
+});
+
+btnStopRecording.onclick = function() {
+   recordRTC.stopRecording(function(audioURL) {
+      window.opne(audioURL);
+   });
 };
-recorder.startRecording();
-recorder.stopRecording();
+```
+
+Also, you don't need to use prefixed versions of `getUserMedia` and `URL` objects. RecordRTC auto handles such things for you! Just use non-prefixed version:
+
+```javascript
+navigator.getUserMedia(media_constraints, onsuccess, onfailure);
+URL.createObjectURL(MediaStream);
 ```
 
 =
@@ -57,18 +67,6 @@ recordRTC.stopRecording(function(videoURL) {
 });
 ```
 
-Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
-
-```javascript
-var recorder = new MRecordRTC();
-recorder.addStream(MediaStream);
-recorder.mediaType = {
-   video: true
-};
-recorder.startRecording();
-recorder.stopRecording();
-```
-
 =
 
 ##### How to record animated GIF image?
@@ -86,18 +84,6 @@ recordRTC.startRecording();
 recordRTC.stopRecording(function(gifURL) {
    mediaElement.src = gifURL;
 });
-```
-
-Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
-
-```javascript
-var recorder = new MRecordRTC();
-recorder.addStream(MediaStream);
-recorder.mediaType = {
-   gif: true
-};
-recorder.startRecording();
-recorder.stopRecording();
 ```
 
 =
@@ -126,6 +112,70 @@ See a demo: https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/
 
 =
 
+##### `autoWriteToDisk`
+
+Using `autoWriteToDisk`; you can suggest RecordRTC to auto-write to indexed-db as soon as you call `stopRecording` method.
+
+```javascript
+var recordRTC = RecordRTC(MediaStream, {
+    autoWriteToDisk: true
+});
+```
+
+`autoWriteToDisk` is helpful for single stream recording and writing to disk; however for `MRecordRTC`; `writeToDisk` is preferred one.
+
+=
+
+##### `writeToDisk`
+
+You can write recorded blob to disk using `writeToDisk` method:
+
+```javascript
+recordRTC.stopRecording();
+recordRTC.writeToDisk();
+```
+
+=
+
+##### `getFromDisk`
+
+You can get recorded blob from disk using `getFromDisk` method:
+
+```javascript
+// get all blobs from disk
+RecordRTC.getFromDisk('all', function(dataURL, type) {
+   type == 'audio'
+   type == 'video'
+   type == 'gif'
+});
+
+// or get just single blob
+RecordRTC.getFromDisk('audio', function(dataURL) {
+   // only audio blob is returned from disk!
+});
+```
+
+For [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC); you can use word `MRecordRTC` instead of `RecordRTC`!
+
+Another possible situation!
+
+```javascript
+var recordRTC = RecordRTC(mediaStream);
+recordRTC.startRecording();
+recordRTC.stopRecording(function(audioURL) {
+   mediaElement.src = audioURL;
+});
+
+// "recordRTC" instance object to invoke "getFromDisk" method!
+recordRTC.getFromDisk(function(dataURL) {
+   // audio blob is automaticlaly returned from disk!
+});
+```
+
+In the above example; you can see that `recordRTC` instance object is used instead of global `RecordRTC` object.
+
+=
+
 ##### How to set video width/height?
 
 ```javascript
@@ -139,16 +189,6 @@ var options = {
       width: 320,
       height: 240
    }
-};
-```
-
-Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
-
-```javascript
-var recorder = new MRecordRTC();
-recorder.video = recorder.canvas = {
-    width: innerWidth,
-    height: innerHeight
 };
 ```
 
@@ -168,16 +208,6 @@ recordRTC.getDataURL(function(dataURL) {
 
 ```javascript
 blob = recordRTC.getBlob();
-```
-
-Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
-
-```javascript
-recorder.getBlob(function(blobs) {
-   blobs.audio --- audio blob
-   blobs.video --- video blob
-   blobs.gif   --- gif blob
-});
 ```
 
 =
@@ -241,63 +271,6 @@ var options = {
    'sample-rate': 16384
 };
 ```
-
-=
-
-##### `writeToDisk`
-
-You can write recorded blob to disk using `writeToDisk` method:
-
-```javascript
-recordRTC.stopRecording();
-recordRTC.writeToDisk();
-```
-
-Or by using [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC):
-
-```javascript
-mRecordRTC.stopRecording();
-mRecordRTC.writeToDisk()
-```
-
-=
-
-##### `getFromDisk`
-
-You can get recorded blob from disk using `getFromDisk` method:
-
-```javascript
-// get all blobs from disk
-RecordRTC.getFromDisk('all', function(dataURL, type) {
-   type == 'audio'
-   type == 'video'
-   type == 'gif'
-});
-
-// or get just single blob
-RecordRTC.getFromDisk('audio', function(dataURL) {
-   // only audio blob is returned from disk!
-});
-```
-
-For [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC); you can use word `MRecordRTC` instead of `RecordRTC`!
-
-Another possible situation!
-
-```javascript
-var recordRTC = RecordRTC(mediaStream);
-recordRTC.startRecording();
-recordRTC.stopRecording(function(audioURL) {
-   mediaElement.src = audioURL;
-});
-
-// "recordRTC" instance object to invoke "getFromDisk" method!
-recordRTC.getFromDisk(function(dataURL) {
-   // audio blob is automaticlaly returned from disk!
-});
-```
-
-In the above example; you can see that `recordRTC` instance object is used instead of global `RecordRTC` object.
 
 =
 
@@ -388,9 +361,9 @@ RecordRTC is unable to record "mono" audio on chrome; however it seems that we c
 #### Apps/Libraries using RecordRTC
 
 1. [RTCMultiConnection.js](http://RTCMultiConnection.org/#recordrtc)
-2. [Realtime Plugin-free Calls](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls)
+2. [RecordRTC on Ruby!](https://github.com/cbetta/record-rtc-experiment)
 
-You can find many on Github!
+You can find many others on Github by searching word "RecordRTC"!
 
 =
 

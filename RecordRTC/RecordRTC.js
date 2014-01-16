@@ -435,7 +435,7 @@ function StereoAudioRecorder(mediaStream, root) {
     // be processed each time onprocessaudio is called. 
     // Legal values are (256, 512, 1024, 2048, 4096, 8192, 16384). 
     var legalBufferValues = [256, 512, 1024, 2048, 4096, 8192, 16384];
-    var bufferSize = root.bufferSize || 2048;
+    var bufferSize = root.bufferSize || 4096;
 
     if (legalBufferValues.indexOf(bufferSize) == -1) {
         throw 'Legal values for buffer-size are ' + JSON.stringify(legalBufferValues, null, '\t');
@@ -1069,8 +1069,8 @@ var Whammy = (function() {
 
     function WhammyVideo() {
         this.frames = [];
-        this.duration = 90;
-        this.quality = 1;
+        this.duration = 130;
+        this.quality = 0.8;
     }
 
     WhammyVideo.prototype.add = function(frame, duration) {

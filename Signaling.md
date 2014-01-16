@@ -1,50 +1,4 @@
-1. https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html
-2. http://www.RTCMultiConnection.org/FAQ/
-3. http://www.RTCMultiConnection.org/docs/sessionid/
-4. http://www.RTCMultiConnection.org/docs/channel-id/
-
-=
-
-##### Realtime/Working [WebRTC Experiments](https://www.webrtc-experiment.com/) & Signaling
-
-=
-
-##### Signaling for RTCMultiConnection-v1.4 and earlier releases
-
-```javascript
-var SIGNALING_SERVER = 'http://socketio-over-nodejs.hp.af.cm';
-connection.openSignalingChannel = function(config) {   
-   var channel = config.channel || this.channel || 'one-to-one-video-chat';
-   var sender = Math.round(Math.random() * 60535) + 5000;
-   
-   io.connect(SIGNALING_SERVER).emit('new-channel', {
-      channel: channel,
-      sender : sender
-   });
-   
-   var socket = io.connect(SIGNALING_SERVER + channel);
-   socket.channel = channel;
-   
-   socket.on('connect', function () {
-      if (config.callback) config.callback(socket);
-   });
-   
-   socket.send = function (message) {
-        socket.emit('message', {
-            sender: sender,
-            data  : message
-        });
-    };
-   
-   socket.on('message', config.onmessage);
-};
-```
-
-=
-
-##### Signaling for all latest experiments and newer releases.
-
-Your server-side node.js code looks like this:
+##### Nodejs/Socketio Server-Side Code
 
 ```javascript
 io.sockets.on('connection', function (socket) {
@@ -54,67 +8,192 @@ io.sockets.on('connection', function (socket) {
 });
 ```
 
-And to override `openSignalingChannel` on the client side:
-
-```javascript
-connection.openSignalingChannel = function(callback) {
-    return io.connect().on('message', callback);
-};
-```
-
-Want to use XHR, WebSockets, SIP, XMPP, etc. for signaling? Read [this post](https://github.com/muaz-khan/WebRTC-Experiment/issues/56#issuecomment-20090650).
-
 =
 
-#### Want to use [Firebase](https://www.firebase.com/) for signaling?
+##### `openSignalingChannel` for [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/) and [DataChanel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) (Client-Side Code)
 
 ```javascript
-connection.openSignalingChannel = function (config) {
-    var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+var channels = {};
+var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
+var socketio = io.connect('http://localhost:8888/');
+
+socketio.on('message', function(data) {
+    if(data.sender == currentUserUUID) return;
     
-    var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
-    socket.channel = channel;
-    
-    socket.on('child_added', function (data) {
-        config.onmessage(data.val());
-    });
-    
-    socket.send = function(data) {
-        this.push(data);
+    if (channels[data.channel] && channels[data.channel].onmessage) {
+        channels[data.channel].onmessage(data.message);
     };
-    
-    config.onopen && setTimeout(config.onopen, 1);
-    socket.onDisconnect().remove();
-    return socket;
-};
+});
 
+connection.openSignalingChannel = function (config) {
+    var channel = config.channel || this.channel;
+    channels[channel] = config;
+
+    if (config.onopen) setTimeout(config.onopen, 1000);
+    return {
+        send: function (message) {
+            socketio.emit('message', {
+                sender: currentUserUUID,
+                channel: channel,
+                message: message
+            });
+        },
+        channel: channel
+    };
+};
 ```
 
 =
 
-#### Want to use [PubNub](http://www.pubnub.com/) for signaling?
+##### `openSocket` for all standalone WebRC Experiments
+
+```javascript
+var channels = {};
+var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
+var socketio = io.connect('http://localhost:8888/');
+
+socketio.on('message', function(data) {
+    if(data.sender == currentUserUUID) return;
+    
+    if (channels[data.channel] && channels[data.channel].onmessage) {
+        channels[data.channel].onmessage(data.message);
+    };
+});
+
+var config = {
+    openSocket = function (config) {
+        var channel = config.channel || 'main-channel';
+        channels[channel] = config;
+
+        if (config.onopen) setTimeout(config.onopen, 1000);
+        return {
+            send: function (message) {
+                socketio.emit('message', {
+                    sender: currentUserUUID,
+                    channel: channel,
+                    message: message
+                });
+            },
+            channel: channel
+        };
+    }
+};
+```
+
+=
+
+##### "Any WebSocket Server!" for Signaling
+
+```javascript
+// global stuff
+var channels = {};
+var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
+var websocket = new WebSocket('ws://localhost:8888/');
+
+websocket.onmessage =  function(e) {
+    data = JSON.parse(e.data);
+    
+    if(data.sender == currentUserUUID) return;
+    
+    if (channels[data.channel] && channels[data.channel].onmessage) {
+        channels[data.channel].onmessage(data.message);
+    };
+};
+
+// overriding "openSignalingChannel" method
+connection.openSignalingChannel = function (config) {
+    var channel = config.channel || this.channel;
+    channels[channel] = config;
+
+    if (config.onopen) setTimeout(config.onopen, 1000);
+    return {
+        send: function (message) {
+            websocket.send(JSON.stringify({
+                sender: currentUserUUID,
+                channel: channel,
+                message: message
+            }));
+        },
+        channel: channel
+    };
+};
+```
+
+=
+
+##### How to use any signaling server? E.g. SignalR, WebSync, etc.
+
+First step: Define following "two" global variables:
+
+```javascript
+var channels = {};
+var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
+```
+
+Second Step: Initialize Sigaling Server:
+
+```javascript
+var websocket = new WebSocket('ws://localhost:8888/');
+```
+
+Third Step: Receive/Subscribe transmitted messages/data:
+
+```javascript
+websocket.onmessage =  function(e) {
+    data = JSON.parse(e.data);
+    
+    if(data.sender == currentUserUUID) return;
+    
+    if (channels[data.channel] && channels[data.channel].onmessage) {
+        channels[data.channel].onmessage(data.message);
+    };
+};
+```
+
+Fourth and Last Step: Override "openSignalingChannel" or "openSocket" method:
 
 ```javascript
 connection.openSignalingChannel = function (config) {
-    var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-    var socket = io.connect('https://pubsub.pubnub.com/' + channel, {
-        publish_key: 'demo',
-        subscribe_key: 'demo',
-        channel: config.channel || channel,
-        ssl: true
-    });
-    socket.channel = channel;
-    if (config.onopen) socket.on('connect', config.onopen);
-    socket.on('message', config.onmessage);
-    return socket;
+    var channel = config.channel || this.channel;
+    channels[channel] = config;
+
+    if (config.onopen) setTimeout(config.onopen, 1000);
+    return {
+        send: function (message) {
+            websocket.send(JSON.stringify({
+                sender: currentUserUUID,
+                channel: channel,
+                message: message
+            }));
+        },
+        channel: channel
+    };
 };
 ```
 
+A few points to remember:
+
+1. The object returned by overridden `openSignalingChannel` or `openSocket` method MUST return an object with two things:
+   i. `send` method. Used to send data via signaling gateway.
+   ii. `channel` object. Used for video-conferencing. If you skip it; it will make one-to-many instead of many-to-many.
+2. `onmessage` or `on('message', callback)` MUST have same code as you can see a few lines above.
+
+You don't need to do anything else on your signaling server. You'll NEVER be asked to modify your existing signaling implementations! Just use existing stuff and enjoy WebRTC experiments!
+
 =
 
-#### Signaling Concepts
+You can find many other good examples here:
 
-Interested to understand WebRTC Signaling Concepts? Read [this document](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/Signaling-Concepts.md).
+http://www.RTCMultiConnection.org/docs/openSignalingChannel/
+
+=
+
+##### A few other resources:
+
+1. https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html
+2. http://www.RTCMultiConnection.org/FAQ/
+3. http://www.RTCMultiConnection.org/docs/sessionid/
+4. http://www.RTCMultiConnection.org/docs/channel-id/
 
 =
 

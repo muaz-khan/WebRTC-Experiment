@@ -4,6 +4,10 @@ This [WebRTC](https://www.webrtc-experiment.com/) experiment is using [RecordRTC
 
 You can say it: "HTML/Canvas Recording using RecordRTC"!
 
+<a href="https://www.webrtc-experiment.com/getMediaElement/">
+	<img src="https://lh5.googleusercontent.com/-mZGcj67_NTE/UtY2vw9bljI/AAAAAAAAAl0/T6lvI68bfb8/s0-I/RecordRTC-Canvas-Recording.gif" />
+</a>
+
 =
 
 ```html

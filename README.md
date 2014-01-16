@@ -1,7 +1,7 @@
 ## Realtime/Working [WebRTC Experiments](https://www.webrtc-experiment.com/)
 
 1. It is a repository of uniquely experimented WebRTC demos; written by <a href="https://github.com/muaz-khan">Muaz Khan</a>!
-2. No special requirement! Just WebRTC supported browser (e.g. chrome/firefox on desktop/android)
+2. No special requirement! Just WebRTC supported browser (e.g. chrome/firefox/opera on desktop/android)
 3. These demos/experiments are entirely client-side; i.e. no server installation needed!
 
 =
@@ -250,6 +250,53 @@ document.getElementById('openNewSessionButton').onclick = function() {
 ```
 
 [DataChannel Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
+
+=
+
+##### `openSignalingChannel` for [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/) and [DataChanel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) (Client-Side Code)
+
+```javascript
+var channels = {};
+var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
+var socketio = io.connect('http://localhost:8888/');
+
+socketio.on('message', function(data) {
+    if(data.sender == currentUserUUID) return;
+    
+    if (channels[data.channel] && channels[data.channel].onmessage) {
+        channels[data.channel].onmessage(data.message);
+    };
+});
+
+connection.openSignalingChannel = function (config) {
+    var channel = config.channel || this.channel;
+    channels[channel] = config;
+
+    if (config.onopen) setTimeout(config.onopen, 1000);
+    return {
+        send: function (message) {
+            socketio.emit('message', {
+                sender: currentUserUUID,
+                channel: channel,
+                message: message
+            });
+        },
+        channel: channel
+    };
+};
+```
+
+=
+
+##### Nodejs/Socketio Server-Side Code
+
+```javascript
+io.sockets.on('connection', function (socket) {
+    socket.on('message', function (data) {
+        socket.broadcast.emit('message', data);
+    });
+});
+```
 
 =
 

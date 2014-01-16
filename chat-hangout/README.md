@@ -58,6 +58,14 @@ https://www.webrtc-experiment.com/docs/
 
 =
 
+For signaling; please check following page:
+
+https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
+
+Remember, you can use any signaling implementation exists out there without modifying any single line! Just skip below code and open [above link](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)!
+
+=
+
 #### Browser Support
 
 WebRTC [Group Text Chat](https://www.webrtc-experiment.com/chat-hangout/) experiment works fine on following web-browsers:
