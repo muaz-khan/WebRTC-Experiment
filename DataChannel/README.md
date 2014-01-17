@@ -6,8 +6,8 @@ DataChannel.js is a JavaScript library useful to write many-to-many i.e. group f
 
 ##### Features
 
-1. Direct messages — to any user using his `user-id`
-2. Eject/Reject any user — using his `user-id`
+1. Direct messages ï¿½ to any user using his `user-id`
+2. Eject/Reject any user ï¿½ using his `user-id`
 3. Leave any room (i.e. data session) or close entire session using `leave` method
 4. File size is limitless!
 5. Text message length is limitless!
@@ -330,7 +330,7 @@ For signaling; please check following page:
 
 https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
-Remember, you can use any signaling implementation exists out there without modifying any single line! Just skip below code and open [above link](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)!
+Remember, you can use any signaling implementation that exists out there without modifying any single line! Just skip below code and open [above link](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)!
 
 =
 
