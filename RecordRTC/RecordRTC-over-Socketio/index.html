@@ -1,0 +1,146 @@
+<!--
+// Muaz Khan      - www.MuazKhan.com
+// MIT License    - www.WebRTC-Experiment.com/licence
+// Experiments    - github.com/muaz-khan/WebRTC-Experiment
+// RecordRTC      - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+
+// RecordRTC over 
+// Socket.io      - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>RecordRTC over Socket.io</title>
+        <script>
+            if (location.href.indexOf('file:') == 0) {
+                document.write('<h1 style="color:red;">Please load this HTML file on HTTP or HTTPS.</h1>');
+            }
+        </script>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <script src="RecordRTC.js"> </script>
+        <script src="socket.io.js"> </script>
+        <style>
+            html { background-color: #f7f7f7; }
+
+            body {
+                background-color: white;
+                border: 1px solid rgb(15, 158, 238);
+                margin: 1% 35%;
+                text-align: center;
+            }
+
+            hr {
+                border: 0;
+                border-top: 1px solid rgb(15, 158, 238);
+            }
+
+            a {
+                color: #2844FA;
+                text-decoration: none;
+            }
+
+            a:hover, a:focus { color: #1B29A4; }
+
+            a:active { color: #000; }
+        </style>
+    </head>
+    <body>
+        <h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a> <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio">over Socket.io</a></h1>
+        <p>
+            <video id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></video> 
+        </p><hr />
+
+        <div>
+            <button id="start-recording" disabled>Start Recording</button>
+            <button id="stop-recording" disabled>Stop Recording</button>
+        </div>
+		
+        <script>
+            var socketio = io.connect('http://localhost:8888/');
+            
+            socketio.on('connect', function() {
+                startRecording.disabled = false;
+            });
+
+            var startRecording = document.getElementById('start-recording');
+            var stopRecording  = document.getElementById('stop-recording');
+            var cameraPreview  = document.getElementById('camera-preview');
+
+            var recordAudio, recordVideo;
+            startRecording.onclick = function() {
+                startRecording.disabled = true;
+                var video_constraints = {
+                    mandatory: { },
+                    optional: []
+                };
+                navigator.getUserMedia({
+                        audio: true,
+                        video: video_constraints
+                    }, function(stream) {
+                        cameraPreview.src = window.URL.createObjectURL(stream);
+                        cameraPreview.play();
+
+                        mRecordRTC.addStream(stream);
+                        mRecordRTC.startRecording();
+
+
+                        stopRecording.disabled = false;
+                    });
+            };
+
+            stopRecording.onclick = function() {
+                startRecording.disabled = false;
+                stopRecording.disabled = true;
+
+                mRecordRTC.stopRecording();
+
+                var fileName = Math.round(Math.random() * 99999999) + 99999999;
+
+                mRecordRTC.getDataURL(function(dataURL) {
+                    var files = {
+                        audio: {
+                            name: fileName + '.wav',
+                            type: 'audio/wav',
+                            dataURL: dataURL.audio
+                        },
+                        video: {
+                            name: fileName + '.webm',
+                            type: 'video/webm',
+                            dataURL: dataURL.video
+                        }
+                    };
+
+                    socketio.emit('message', files);
+
+                    cameraPreview.src = '';
+                    cameraPreview.poster = 'ajax-loader.gif';
+                });
+            };
+
+            socketio.on('merged', function(fileName) {
+                cameraPreview.src = location.href + '/uploads/' + fileName;
+                cameraPreview.play();
+            });
+
+
+            var mRecordRTC = new MRecordRTC();
+
+            mRecordRTC.mediaType = {
+                audio: true,
+                video: true
+            };
+
+            mRecordRTC.bufferSize = 16384;
+            mRecordRTC.canvas = {
+                width: innerWidth,
+                height: innerHeight
+            };
+
+        </script>
+		
+    </body>
+</html>
