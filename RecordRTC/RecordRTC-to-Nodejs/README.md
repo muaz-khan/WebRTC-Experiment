@@ -1,25 +1,45 @@
 #### [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
 
+<a href="https://nodei.co/npm/recordrtc/">
+    <img src="https://nodei.co/npm/recordrtc.png">
+</a>
+
 ```
 npm install recordrtc
 
-// to run!
-node node_modules/recordrtc/index.js
+// to run it!
+cd ./node_modules/recordrtc/ && node index.js
+```
+
+**Make sure that directory names MUST NOT have spaces; e.g.**
+
+```
+// invalid directory
+C:\Hello Sir\Another\RecordRTC
+
+// valid
+C:\Hello-Sir\Another\RecordRTC
+
+// invalid directory
+C:\First\Second Dir\Third\RecordRTC
+
+// valid
+C:\\First\Second-Dir\Third\RecordRTC
 ```
 
 This experiment:
 
 1. Records audio/video separately as wav/webm
-2. POST them in single HttpPost-Request to Node.js (FormData)
-3. Node.js code saves them into disk
+2. POST both files in single HttpPost-Request to Node.js (FormData)
+3. Node.js code saves both files into disk
 4. Node.js code invokes ffmpeg to merge wav/webm in single "webm" file
-5. The merged webm file is returned and played on the end!
+5. The merged webm file's URL is returned using same HTTP-callback for playback!
 
 =
 
 ##### Windows Batch File (`merger.bat`)
 
-`merger.bat` file is executed to invoke ffmpeg functionalities:
+`merger.bat` file is executed to invoke ffmpeg functionalities on windows:
 
 ```
 @echo off
@@ -27,6 +47,18 @@ This experiment:
 ```
 
 **It is assumed that you already have installed ffmpeg on your system.** Though, EXE file is hard-coded to "C:\ffmpeg\bin\ffmpeg.exe" however you can easily edit it according to your own installations.
+
+=
+
+##### `.sh` file
+
+`merger.sh` file is executed to invoke ffmpeg functionalities on Mac/Linux/etc.
+
+```
+ffmpeg -i video-file.webm -i audio-file.wav -map 0:0 -map 1:0 output-file-name.webm
+```
+
+Using Linux; ffmpeg installation is super-easy! You can install DEVEL packages as well.
 
 =
 
@@ -45,10 +77,13 @@ http://www.wikihow.com/Install-FFmpeg-on-Windows
 
 =
 
-##### How to install ffmpeg on mac osx?
+##### How to install ffmpeg on Mac OSX?
 
-1. make sure you have homebrew installed
-2. run `brew install ffmpeg --with-libvpx --with-theora --whit-libogg --with-libvorbis`
+Make sure you have **homebrew** installed. Then run following command:
+
+```
+brew install ffmpeg --with-libvpx --with-theora --whit-libogg --with-libvorbis
+```
 
 ##### How to test?
 
@@ -56,21 +91,9 @@ In the node.js command prompt window; type `node index`; then open `http://local
 
 =
 
-##### `index.html`
+##### RecordRTC invocation code in `index.html`
 
-```html
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>RecordRTC over Node.js</title>
-		<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"> </script>
-	</head>
-	<body>
-    <video id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></video><hr />
-    <button id="start-recording">Start Recording</button>
-    <button id="stop-recording" disabled="">Stop Recording</button>
-		
-<script>
+```javascript
 var startRecording = document.getElementById('start-recording');
 var stopRecording = document.getElementById('stop-recording');
 var cameraPreview = document.getElementById('camera-preview');
@@ -132,10 +155,11 @@ stopRecording.onclick = function() {
             };
 
             cameraPreview.src = '';
-            cameraPreview.poster = 'ajax-loader.gif';
+            cameraPreview.poster = '//www.webrtc-experiment.com/images/ajax-loader.gif';
 
             xhr('/upload', JSON.stringify(files), function(fileName) {
-                cameraPreview.src = location.href + 'uploads/' + fileName;
+                var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+                cameraPreview.src = href + 'uploads/' + fileName;
                 cameraPreview.play();
             });
         });
@@ -152,9 +176,6 @@ function xhr(url, data, callback) {
     request.open('POST', url);
     request.send(data);
 }
-</script>
-	</body>
-</html>
 ```
 
 =
@@ -240,36 +261,83 @@ function upload(response, postData) {
 // this function merges wav/webm files
 
 function merge(response, files) {
-    // following command tries to merge wav/webm files using ffmpeg
-    var merger = __dirname + '\\merger.bat';
-    var audioFile = __dirname + '\\uploads\\' + files.audio.name;
-    var videoFile = __dirname + '\\uploads\\' + files.video.name;
-    var mergedFile = __dirname + '\\uploads\\' + files.audio.name.split('.')[0] + '-merged.webm';
+    // detect the current operating system
+    var isWin = !!process.platform.match(/^win/);
 
-    // if a "directory" has space in its name; below command will fail
-    // e.g. "c:\\dir name\\uploads" will fail.
-    // it must be like this: "c:\\dir-name\\uploads"
-    var command = merger + ', ' + videoFile + " " + audioFile + " " + mergedFile + '';
-    var cmd = exec(command, function(error, stdout, stderr) {
-        if (error) {
-            console.log(error.stack);
-            console.log('Error code: ' + error.code);
-            console.log('Signal received: ' + error.signal);
-        } else {
-            response.statusCode = 200;
-            response.writeHead(200, { 'Content-Type': 'application/json' });
-            response.end(files.audio.name.split('.')[0] + '-merged.webm');
+    if (isWin) {
+      // following command tries to merge wav/webm files using ffmpeg
+      var merger = __dirname + '\\merger.bat';
+      var audioFile = __dirname + '\\uploads\\' + files.audio.name;
+      var videoFile = __dirname + '\\uploads\\' + files.video.name;
+      var mergedFile = __dirname + '\\uploads\\' + files.audio.name.split('.')[0] + '-merged.webm';
 
-            // removing audio/video files
-            fs.unlink(audioFile);
-            fs.unlink(videoFile);
+      // if a "directory" has space in its name; below command will fail
+      // e.g. "c:\\dir name\\uploads" will fail.
+      // it must be like this: "c:\\dir-name\\uploads"
+      var command = merger + ', ' + videoFile + " " + audioFile + " " + mergedFile + '';
+      var cmd = exec(command, function(error, stdout, stderr) {
+          if (error) {
+              console.log(error.stack);
+              console.log('Error code: ' + error.code);
+              console.log('Signal received: ' + error.signal);
+              response.statusCode = 404;
+              response.end();
+          } else {
+              response.statusCode = 200;
+              response.writeHead(200, { 'Content-Type': 'application/json' });
+              response.end(files.audio.name.split('.')[0] + '-merged.webm');
 
-            // auto delete file after 1-minute
-            setTimeout(function() {
-                fs.unlink(mergedFile);
-            }, 60 * 1000);
-        }
-    });
+              // removing audio/video files
+              fs.unlink(audioFile);
+              fs.unlink(videoFile);
+
+              // auto delete file after 1-minute
+              setTimeout(function() {
+                  fs.unlink(mergedFile);
+              }, 60 * 1000);
+          }
+      });
+    } else { // its probably *nix, assume ffmpeg is available
+      var audioFile = __dirname + '/uploads/' + files.audio.name;
+      var videoFile = __dirname + '/uploads/' + files.video.name;
+      var mergedFile = __dirname + '/uploads/' + files.audio.name.split('.')[0] + '-merged.webm';
+      var util = require('util'),
+        exec = require('child_process').exec;
+        //child_process = require('child_process');
+
+        var command = "ffmpeg -i " + videoFile + " -i " + audioFile + " -map 0:0 -map 1:0 " + mergedFile;
+
+        var child = exec(command, function(error, stdout, stderr){
+
+            stdout ? util.print('stdout: ' + stdout) : null;
+            stderr ? util.print('stderr: ' + stderr) : null;
+
+            if (error) {
+
+                console.log('exec error: ' + error);
+                response.statusCode = 404;
+                response.end();
+
+            } else {
+
+              response.statusCode = 200;
+              response.writeHead(200, { 'Content-Type': 'application/json' });
+              response.end(files.audio.name.split('.')[0] + '-merged.webm');
+
+              // removing audio/video files
+              fs.unlink(audioFile);
+              fs.unlink(videoFile);
+
+              // auto delete file after 1-minute
+              setTimeout(function() {
+                  fs.unlink(mergedFile);
+              }, 60 * 1000);
+
+            }
+
+        });
+
+    }
 }
 
 function _upload(response, file) {
@@ -374,8 +442,16 @@ exports.s3 = {
 exports.s3_enabled = false;
 ```
 
+1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
+2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
+3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
+4. [RecordRTC & HTML-2-Canvas i.e. Canvas/HTML Recording!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/Canvas-Recording)
+5. [MRecordRTC i.e. Multi-RecordRTC!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC)
+6. [RecordRTC on Ruby!](https://github.com/cbetta/record-rtc-experiment)
+7. [RecordRTC over Socket.io](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio)
+
 =
 
 ##### License
 
-[RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/+MuazKhan).
+[RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

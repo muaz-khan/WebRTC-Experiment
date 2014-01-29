@@ -1,6 +1,6 @@
-// 2013, Muaz Khan - www.MuazKhan.com
-// MIT License     - www.WebRTC-Experiment.com/licence
-// Experiments     - github.com/muaz-khan/WebRTC-Experiment
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// Experiments   - github.com/muaz-khan/WebRTC-Experiment
 
 var config = require('./config'),
     fs = require('fs'),
@@ -8,7 +8,9 @@ var config = require('./config'),
     exec = require('child_process').exec;
 
 function home(response, postData) {
-    response.writeHead(200, { 'Content-Type': 'text/html' });
+    response.writeHead(200, {
+        'Content-Type': 'text/html'
+    });
     response.end(fs.readFileSync('./static/index.html'));
 }
 
@@ -30,81 +32,12 @@ function upload(response, postData) {
 
 function merge(response, files) {
     // detect the current operating system
-    var isWin = !!process.platform.match(/^win/);
+    var isWin = !! process.platform.match(/^win/);
 
     if (isWin) {
-      // following command tries to merge wav/webm files using ffmpeg
-      var merger = __dirname + '\\merger.bat';
-      var audioFile = __dirname + '\\uploads\\' + files.audio.name;
-      var videoFile = __dirname + '\\uploads\\' + files.video.name;
-      var mergedFile = __dirname + '\\uploads\\' + files.audio.name.split('.')[0] + '-merged.webm';
-
-      // if a "directory" has space in its name; below command will fail
-      // e.g. "c:\\dir name\\uploads" will fail.
-      // it must be like this: "c:\\dir-name\\uploads"
-      var command = merger + ', ' + videoFile + " " + audioFile + " " + mergedFile + '';
-      var cmd = exec(command, function(error, stdout, stderr) {
-          if (error) {
-              console.log(error.stack);
-              console.log('Error code: ' + error.code);
-              console.log('Signal received: ' + error.signal);
-              response.statusCode = 404;
-              response.end();
-          } else {
-              response.statusCode = 200;
-              response.writeHead(200, { 'Content-Type': 'application/json' });
-              response.end(files.audio.name.split('.')[0] + '-merged.webm');
-
-              // removing audio/video files
-              fs.unlink(audioFile);
-              fs.unlink(videoFile);
-
-              // auto delete file after 1-minute
-              setTimeout(function() {
-                  fs.unlink(mergedFile);
-              }, 60 * 1000);
-          }
-      });
-    } else { // its probably *nix, assume ffmpeg is available
-      var audioFile = __dirname + '/uploads/' + files.audio.name;
-      var videoFile = __dirname + '/uploads/' + files.video.name;
-      var mergedFile = __dirname + '/uploads/' + files.audio.name.split('.')[0] + '-merged.webm';
-      var util = require('util'),
-        exec = require('child_process').exec;
-        //child_process = require('child_process');
-
-        var command = "ffmpeg -i " + videoFile + " -i " + audioFile + " -map 0:0 -map 1:0 " + mergedFile;
-
-        var child = exec(command, function(error, stdout, stderr){
-
-            stdout ? util.print('stdout: ' + stdout) : null;
-            stderr ? util.print('stderr: ' + stderr) : null;
-
-            if (error) {
-
-                console.log('exec error: ' + error);
-                response.statusCode = 404;
-                response.end();
-
-            } else {
-
-              response.statusCode = 200;
-              response.writeHead(200, { 'Content-Type': 'application/json' });
-              response.end(files.audio.name.split('.')[0] + '-merged.webm');
-
-              // removing audio/video files
-              fs.unlink(audioFile);
-              fs.unlink(videoFile);
-
-              // auto delete file after 1-minute
-              setTimeout(function() {
-                  fs.unlink(mergedFile);
-              }, 60 * 1000);
-
-            }
-
-        });
-
+        ifWin(response, files);
+    } else {
+        ifMac(response, files);
     }
 }
 
@@ -130,7 +63,9 @@ function _upload(response, file) {
 
         var knox = require('knox'),
             client = knox.createClient(config.s3),
-            headers = { 'Content-Type': file.type };
+            headers = {
+                'Content-Type': file.type
+            };
 
         client.putBuffer(fileBuffer, fileRootName, headers);
 
@@ -148,11 +83,92 @@ function serveStatic(response, pathname, postData) {
             'gif': 'image/gif'
         };
 
-    response.writeHead(200, { 'Content-Type': extensionTypes[extension] });
+    response.writeHead(200, {
+        'Content-Type': extensionTypes[extension]
+    });
     if (extensionTypes[extension] == 'video/webm')
         response.end(fs.readFileSync('.' + pathname));
     else
         response.end(fs.readFileSync('./static' + pathname));
+}
+
+function ifWin(response, files) {
+    // following command tries to merge wav/webm files using ffmpeg
+    var merger = __dirname + '\\merger.bat';
+    var audioFile = __dirname + '\\uploads\\' + files.audio.name;
+    var videoFile = __dirname + '\\uploads\\' + files.video.name;
+    var mergedFile = __dirname + '\\uploads\\' + files.audio.name.split('.')[0] + '-merged.webm';
+
+    // if a "directory" has space in its name; below command will fail
+    // e.g. "c:\\dir name\\uploads" will fail.
+    // it must be like this: "c:\\dir-name\\uploads"
+    var command = merger + ', ' + videoFile + " " + audioFile + " " + mergedFile + '';
+    var cmd = exec(command, function (error, stdout, stderr) {
+        if (error) {
+            console.log(error.stack);
+            console.log('Error code: ' + error.code);
+            console.log('Signal received: ' + error.signal);
+        } else {
+            response.statusCode = 200;
+            response.writeHead(200, {
+                'Content-Type': 'application/json'
+            });
+            response.end(files.audio.name.split('.')[0] + '-merged.webm');
+
+            // removing audio/video files
+            fs.unlink(audioFile);
+            fs.unlink(videoFile);
+
+            // auto delete file after 1-minute
+            setTimeout(function () {
+                fs.unlink(mergedFile);
+            }, 60 * 1000);
+        }
+    });
+}
+
+function ifMac(response, files) {
+    // its probably *nix, assume ffmpeg is available
+    var audioFile = __dirname + '/uploads/' + files.audio.name;
+    var videoFile = __dirname + '/uploads/' + files.video.name;
+    var mergedFile = __dirname + '/uploads/' + files.audio.name.split('.')[0] + '-merged.webm';
+    var util = require('util'),
+        exec = require('child_process').exec;
+    //child_process = require('child_process');
+
+    var command = "ffmpeg -i " + videoFile + " -i " + audioFile + " -map 0:0 -map 1:0 " + mergedFile;
+
+    var child = exec(command, function (error, stdout, stderr) {
+
+        stdout ? util.print('stdout: ' + stdout) : null;
+        stderr ? util.print('stderr: ' + stderr) : null;
+
+        if (error) {
+
+            console.log('exec error: ' + error);
+            response.statusCode = 404;
+            response.end();
+
+        } else {
+
+            response.statusCode = 200;
+            response.writeHead(200, {
+                'Content-Type': 'application/json'
+            });
+            response.end(files.audio.name.split('.')[0] + '-merged.webm');
+
+            // removing audio/video files
+            fs.unlink(audioFile);
+            fs.unlink(videoFile);
+
+            // auto delete file after 1-minute
+            setTimeout(function () {
+                fs.unlink(mergedFile);
+            }, 60 * 1000);
+
+        }
+
+    });
 }
 
 exports.home = home;

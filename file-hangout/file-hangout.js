@@ -1,4 +1,4 @@
-﻿// 2013, Muaz Khan - wwww.MuazKhan.com
+﻿// Muaz Khan       - wwww.MuazKhan.com
 // MIT License     - www.WebRTC-Experiment.com/licence
 // Documentation   - github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout
 // =============

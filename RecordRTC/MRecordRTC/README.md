@@ -28,6 +28,11 @@ recorder.getBlob(function(blobs) {
    blobs.gif   --- gif blob
 });
 
+mRecordRTC.getDataURL(function (dataURL) {
+    // dataURL.audio
+    // dataURL.video
+});
+
 recorder.writeToDisk();
 
 // get all blobs from disk
@@ -42,6 +47,29 @@ MRecordRTC.getFromDisk('audio', function(dataURL) {
    // only audio blob is returned from disk!
 });
 </script>
+```
+
+=
+
+#### `getDataURL`
+
+```javascript
+mRecordRTC.getDataURL(function (dataURL) {
+    // dataURL.audio
+    // dataURL.video
+});
+```
+
+=
+
+#### `getBlob`
+
+```javascript
+recorder.getBlob(function(blobs) {
+   blobs.audio --- audio blob
+   blobs.video --- video blob
+   blobs.gif   --- gif blob
+});
 ```
 
 =
@@ -116,11 +144,13 @@ recorder.video = recorder.canvas = {
 1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
 2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
 3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
-4. [RecordRTC & HTML-2-Canvas](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/Canvas-Recording)
+4. [RecordRTC & HTML-2-Canvas i.e. Canvas/HTML Recording!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/Canvas-Recording)
 5. [MRecordRTC i.e. Multi-RecordRTC!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC)
+6. [RecordRTC on Ruby!](https://github.com/cbetta/record-rtc-experiment)
+7. [RecordRTC over Socket.io](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio)
 
 =
 
 ## License
 
-[RecordRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/+MuazKhan).
+[RecordRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

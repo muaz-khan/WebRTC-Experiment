@@ -1,14 +1,48 @@
 {
   "name": "websocket-over-nodejs",
-  "subdomain": "wsnodejs",
-  "scripts": {
-    "start": "signaler.js"
+  "preferGlobal": true,
+  "version": "0.0.1",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com"
   },
-  "version": "0.0.0",
+  "description": "WebSocket-over-Nodejs for WebRTC Experiments: https://www.webrtc-experiment.com",
+  "contributors": [
+    {
+      "name": "Muaz Khan",
+      "email": "muazkh@gmail.com"
+    }
+  ],
+  "scripts": {
+    "start": "node signaler"
+  },
+  "main": "./signaler",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/WebRTC-Experiment.git"
+  },
+  "keywords": [
+    "webrtc",
+    "javascript",
+    "websocket-over-nodejs",
+    "websockets",
+    "nodejs",
+    "Node.js",
+    "ffmpeg",
+    "audio/video recording"
+  ],
+  "analyze": false,
+  "license": "MIT",
   "engines": {
-    "node": "0.10.x"
+    "node": ">=0.6"
   },
   "dependencies": {
     "websocket": "1.0.x"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues"
+  },
+  "homepage": "https://github.com/muaz-khan/WebRTC-Experiment",
+  "_id": "websocket-over-nodejs@0.0.1",
+  "_from": "websocket-over-nodejs@"
 }

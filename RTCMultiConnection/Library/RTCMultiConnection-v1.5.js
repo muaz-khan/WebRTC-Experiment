@@ -1,4 +1,4 @@
-// Last time updated at Tuesday, 14 January 2014, 06:46:23
+// Last time updated at Tuesday, 23 January 2014, 06:46:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -10,23 +10,6 @@
 // v1.5 changes log  - www.RTCMultiConnection.org/changes-log/#v1.5
 // _______________________
 // RTCMultiConnection-v1.5
-
-/*
--. JSON parse/stringify options for data transmitted using data-channels; e.g. connection.preferJSON = true; (not-implementated)
--. echo issue; i.e. self-sound playback (fixed)
--. bandwidth:{"audio":80,"video":2048} (implementated)
-1. chrome crashes on "close" (maybe-fixed)
-3. "onNewSession" and "onRequest" on the same page; issues. (not-fixed)
-4. "onleave" isn't fired sometimes! (not-fixed)
-6. "onspeaking" and "onsilence" fires too often! (not-fixed)
-7. Connection Timeout & ReDial (not-implementated)
-8. removeTrack() and addTracks() instead of "stop" (not-implementated)
-9. session-duration & statistics (not-implementated)
-9. speech-to-text
-10. text-to-speech
-11. text-to-language
-12. startRecording && stopRecording MUST be compatible with latest RecordRTC i.e. MRecordRTC & writeToDisk/getFromDisk!
-*/
 
 (function () {
 
@@ -86,8 +69,8 @@
                 FileSender.send({
                     file: data,
                     channel: rtcSession,
-                    _channel: _channel,
-                    root: self
+                    root: self,
+                    _channel: _channel
                 });
             } else
                 TextSender.send({
@@ -102,41 +85,49 @@
             rtcSession, fileReceiver, textReceiver;
 
         function prepareInit(callback) {
-            if (!self.openSignalingChannel) {
-                // www.RTCMultiConnection.org/docs/openSignalingChannel/
-                self.openSignalingChannel = function (config) {
-                    var firebaseChannel = config.channel || self.channel;
-                    var firebase = new Firebase('//' + (self.firebase || 'muazkh') + '.firebaseIO.com/' + firebaseChannel);
-                    firebase.channel = firebaseChannel;
-                    firebase.on('child_added', function (snap) {
-                        config.onmessage(snap.val());
-                        snap.ref().remove();
-                    });
+            if (self.openSignalingChannel) return callback();
 
-                    firebase.send = function (data) {
-                        this.push(data);
-                    };
+            // make sure firebase.js is loaded before using their JavaScript API
+            if (!window.Firebase) {
+                return loadScript('//cdn.firebase.com/v0/firebase.js', function () {
+                    prepareInit(callback);
+                });
+            }
 
-                    if (!self.socket)
-                        self.socket = firebase;
+            // Single socket is a preferred solution!
+            var socketCallbacks = {};
+            var firebase = new Firebase('//' + (self.firebase || 'muazkh') + '.firebaseio.com/' + self.channel);
+            firebase.on('child_added', function (snap) {
+                var data = snap.val();
+                if (data.sender == self.userid) return;
 
-                    if (firebaseChannel != self.channel || (self.isInitiator && firebaseChannel == self.channel))
-                        firebase.onDisconnect().remove();
+                if (socketCallbacks[data.channel] && socketCallbacks[data.channel].onmessage) {
+                    socketCallbacks[data.channel].onmessage(data.message);
+                }
+                
+                snap.ref().remove();
+            });
 
-                    if (config.onopen)
-                        setTimeout(function () {
-                            config.onopen(firebase);
-                        }, 1);
+            self.socket = firebase;
 
-                    return firebase;
+            // www.RTCMultiConnection.org/docs/openSignalingChannel/
+            self.openSignalingChannel = function (config) {
+                var callbackid = config.channel || self.channel;
+                socketCallbacks[callbackid] = config;
+
+                if (config.onopen) setTimeout(config.onopen, 1000);
+                return {
+                    send: function (message) {
+                        firebase.push({
+                            sender: self.userid,
+                            channel: callbackid,
+                            message: message
+                        });
+                    },
+                    channel: channel
                 };
-
-                if (!window.Firebase) {
-                    loadScript('//cdn.firebase.com/v0/firebase.js', callback);
-                } else
-                    callback();
-            } else
-                callback();
+            };
+            callback();
         }
 
         // set config passed over RTCMultiSession
@@ -166,16 +157,17 @@
                     if (!e.data.size)
                         e.data = JSON.parse(e.data);
 
-                    if (e.data.type === 'text')
+                    if (e.data.type === 'text') {
                         textReceiver.receive(e.data, self.onmessage, e.userid, e.extra);
-
-                    else if (e.data.maxChunks)
+                    } else if (e.data.type === 'file') {
                         fileReceiver.receive(e.data);
-                    else
+                    } else {
                         self.onmessage(e);
+                    }
                 }
             };
             rtcSession = new RTCMultiSession(self);
+
             fileReceiver = new FileReceiver(self);
             textReceiver = new TextReceiver();
 
@@ -994,6 +986,53 @@
             sockets = swap(sockets);
         }
 
+        // www.RTCMultiConnection.org/docs/remove/
+        root.remove = function (userid) {
+            if (root.peers[userid]) {
+                root.peers[userid].peer.connection.close();
+                root.peers[userid].peer.connection = null;
+                delete root.peers[userid];
+            }
+            if (participants[userid]) {
+                delete participants[userid];
+            }
+            for (var stream in root.streams) {
+                stream = root.streams[stream];
+                if (stream.userid == userid) {
+                    root.onstreamended(stream.streamObject);
+                    if (stream.stop) stream.stop();
+                    delete root.streams[stream];
+                }
+            }
+            if (socketObjects[userid]) {
+                delete socketObjects[userid];
+            }
+        };
+
+        // www.RTCMultiConnection.org/docs/refresh/
+        root.refresh = function () {
+            participants = [];
+            root.joinedARoom = self.joinedARoom = false;
+            isAcceptNewSession = true;
+            root.busy = false;
+
+            // to stop/remove self streams
+            for (var i = 0; i < root.attachStreams.length; i++) {
+                stopTracks(root.attachStreams[i]);
+            }
+            root.attachStreams = [];
+
+            // to allow capturing of identical streams
+            currentUserMediaRequest = {
+                streams: [],
+                mutex: false,
+                queueRequests: []
+            };
+            that.isOwnerLeaving = true;
+            root.isInitiator = false;
+        };
+
+        // www.RTCMultiConnection.org/docs/reject/
         root.reject = function (userid) {
             if (typeof userid != 'string') userid = userid.userid;
             defaultSocket.send({
@@ -1021,7 +1060,7 @@
                         root.session = session = response.session;
                         config.onNewSession(response);
                     }
-                    
+
                     if (response.newParticipant && self.joinedARoom && self.broadcasterid === response.userid) {
                         onNewParticipant(response.newParticipant, response.extra);
                     }
@@ -1291,13 +1330,16 @@
         };
 
         function acceptRequest(channel, extra, userid) {
-            if (root.busy) return;
+            if (!self.requestsFrom) self.requestsFrom = {};
+            if (root.busy || self.requestsFrom[userid]) return;
 
             var obj = {
                 userid: userid,
                 extra: extra,
                 channel: channel
             };
+
+            self.requestsFrom[userid] = obj;
 
             // www.RTCMultiConnection.org/docs/onRequest/
             if (root.onRequest) {
@@ -1360,153 +1402,159 @@
         return (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
     }
 
-    // _______
-    // File.js
-
-    var File = {
-        Send: function (config) {
+    var FileSender = {
+        send: function (config) {
+            var root = config.root;
+            var channel = config.channel;
+            var privateChannel = config._channel;
             var file = config.file;
-            var socket = config.channel;
 
-            var chunkSize = config.chunkSize || 40 * 1000; // 64k max sctp limit (AFAIK!)
-            var sliceId = 0;
-            var cacheSize = chunkSize;
+            if (!config.file) {
+                console.error('You must attach/select a file.');
+                return;
+            }
 
-            var chunksPerSlice = Math.floor(Math.min(100000000, cacheSize) / chunkSize);
-            var sliceSize = chunksPerSlice * chunkSize;
-            var maxChunks = Math.ceil(file.size / chunkSize);
+            // max chunk sending limit on chrome is 64k
+            // max chunk receiving limit on firefox is 16k
+            var packetSize = (!!navigator.mozGetUserMedia || root.preferSCTP) ? 15 * 1000 : 1 * 1000;
 
-            // uuid is used to uniquely identify sending instance
-            var uuid = (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
+            var textToTransfer = '';
+            var numberOfPackets = 0;
+            var packets = 0;
 
-            socket.send({
-                uuid: uuid,
-                maxChunks: maxChunks,
-                size: file.size,
-                name: file.name,
-                lastModifiedDate: file.lastModifiedDate,
-                type: file.type,
-                start: true
-            }, config.extra);
+            file.uuid = getRandomString();
 
-            file.maxChunks = maxChunks;
-            file.uuid = uuid;
-            if (config.onBegin) config.onBegin(file);
+            function processInWebWorker(_function) {
+                var blob = URL.createObjectURL(new Blob(['',
+                    _function.toString(),
+                    'this.onmessage =  function (e) {readFile(e.data);}'], {
+                        type: 'application/javascript'
+                    }));
 
-            var blob, reader = new FileReader();
-            reader.onloadend = function (evt) {
-                if (evt.target.readyState == FileReader.DONE) {
-                    addChunks(file.name, evt.target.result, function () {
-                        sliceId++;
-                        if ((sliceId + 1) * sliceSize < file.size) {
-                            blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
-                            reader.readAsArrayBuffer(blob);
-                        } else if (sliceId * sliceSize < file.size) {
-                            blob = file.slice(sliceId * sliceSize, file.size);
-                            reader.readAsArrayBuffer(blob);
-                        } else {
-                            socket.send({
-                                uuid: uuid,
-                                maxChunks: maxChunks,
-                                size: file.size,
-                                name: file.name,
-                                lastModifiedDate: file.lastModifiedDate,
-                                type: file.type,
-                                end: true
-                            }, config.extra);
+                var worker = new Worker(blob);
+                URL.revokeObjectURL(blob);
+                return worker;
+            }
 
-                            file.url = URL.createObjectURL(file);
-                            if (config.onEnd) config.onEnd(file);
-                        }
-                    });
-                }
+            var webWorker = processInWebWorker(function readFile(_file) {
+                var reader = new FileReaderSync();
+                postMessage(reader.readAsDataURL(_file));
+            });
+
+            webWorker.onmessage = function (event) {
+                onReadAsDataURL(event.data);
             };
 
-            blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
-            reader.readAsArrayBuffer(blob);
+            webWorker.postMessage(file);
 
-            var numOfChunksInSlice;
-            var currentPosition = 0;
-            var hasEntireFile;
-            var chunks = [];
+            function onReadAsDataURL(dataURL, text) {
+                var data = {
+                    type: 'file',
+                    uuid: file.uuid,
+                    maxChunks: numberOfPackets,
+                    currentPosition: numberOfPackets - packets,
+                    name: file.name,
+                    filType: file.type,
+                    size: file.size
+                };
 
-            function addChunks(fileName, binarySlice, callback) {
-                numOfChunksInSlice = Math.ceil(binarySlice.byteLength / chunkSize);
-                for (var i = 0; i < numOfChunksInSlice; i++) {
-                    var start = i * chunkSize;
-                    chunks[currentPosition] = binarySlice.slice(start, Math.min(start + chunkSize, binarySlice.byteLength));
+                if (dataURL) {
+                    text = dataURL;
+                    numberOfPackets = packets = data.packets = parseInt(text.length / packetSize);
 
-                    FileConverter.ArrayBufferToDataURL(chunks[currentPosition], function (str) {
-                        socket.send({
-                            uuid: uuid,
-                            value: str,
-                            currentPosition: currentPosition,
-                            maxChunks: maxChunks
-                        }, config.extra);
-                    });
+                    file.maxChunks = data.maxChunks = numberOfPackets;
+                    data.currentPosition = numberOfPackets - packets;
 
-                    currentPosition++;
+                    root.onFileStart(file);
                 }
 
-                if (config.onProgress) {
-                    config.onProgress({
-                        currentPosition: currentPosition,
-                        maxChunks: maxChunks,
-                        uuid: uuid
-                    });
+                root.onFileProgress({
+                    remaining: packets--,
+                    length: numberOfPackets,
+                    sent: numberOfPackets - packets,
+
+                    maxChunks: numberOfPackets,
+                    uuid: file.uuid,
+                    currentPosition: numberOfPackets - packets
+                }, file.uuid);
+
+                if (text.length > packetSize) data.message = text.slice(0, packetSize);
+                else {
+                    data.message = text;
+                    data.last = true;
+                    data.name = file.name;
+
+                    file.url = URL.createObjectURL(file);
+                    root.onFileEnd(file);
                 }
 
-                if (currentPosition == maxChunks) {
-                    hasEntireFile = true;
-                }
+                channel.send(data, privateChannel);
 
-                if (config.interval == 0 || typeof config.interval == 'undefined')
-                    callback();
-                else
-                    setTimeout(callback, config.interval);
+                textToTransfer = text.slice(data.message.length);
+                if (textToTransfer.length) {
+                    setTimeout(function () {
+                        onReadAsDataURL(null, textToTransfer);
+                    }, (!!navigator.mozGetUserMedia || root.preferSCTP) ? 100 : 500);
+                }
             }
-        },
+        }
+    };
 
-        Receiver: function (config) {
-            var packets = {};
+    function FileReceiver(root) {
+        var content = {},
+        packets = {},
+        numberOfPackets = {};
 
-            function receive(chunk) {
-                if (chunk.start && !packets[chunk.uuid]) {
-                    packets[chunk.uuid] = [];
-                    if (config.onBegin) config.onBegin(chunk);
-                }
+        function receive(data) {
+            var uuid = data.uuid;
 
-                if (!chunk.end && chunk.value) packets[chunk.uuid].push(chunk.value);
+            if (typeof data.packets !== 'undefined') {
+                numberOfPackets[uuid] = packets[uuid] = parseInt(data.packets);
+                root.onFileStart(data);
+            }
 
-                if (chunk.end) {
-                    var _packets = packets[chunk.uuid];
-                    var finalArray = [], length = _packets.length;
+            root.onFileProgress({
+                remaining: packets[uuid]--,
+                length: numberOfPackets[uuid],
+                received: numberOfPackets[uuid] - packets[uuid],
 
-                    for (var i = 0; i < length; i++) {
-                        if (!!_packets[i]) {
-                            FileConverter.DataURLToBlob(_packets[i], function (buffer) {
-                                finalArray.push(buffer);
-                            });
-                        }
+                maxChunks: numberOfPackets[uuid],
+                uuid: uuid,
+                currentPosition: numberOfPackets[uuid] - packets[uuid]
+            }, uuid);
+
+            if (!content[uuid]) content[uuid] = [];
+
+            content[uuid].push(data.message);
+
+            // if it is last packet
+            if (data.last) {
+                var dataURL = content[uuid].join('');
+
+                FileConverter.DataURLToBlob(dataURL, function (blob) {
+                    blob.uuid = uuid;
+                    blob.name = data.name;
+                    blob.type = data.filType;
+
+                    blob.url = (window.URL || window.webkitURL).createObjectURL(blob);
+
+                    if (root.autoSaveToDisk) {
+                        FileSaver.SaveToDisk(blob.url, data.name);
                     }
 
-                    var blob = new Blob(finalArray, { type: chunk.type });
-                    blob = merge(blob, chunk);
-                    blob.url = URL.createObjectURL(blob);
-                    blob.uuid = chunk.uuid;
+                    root.onFileEnd(blob);
 
-                    if (!blob.size) console.error('Something went wrong. Blob Size is 0.');
-
-                    if (config.onEnd) config.onEnd(blob);
-                }
-
-                if (chunk.value && config.onProgress) config.onProgress(chunk);
+                    delete content[uuid];
+                });
             }
+        }
 
-            return {
-                receive: receive
-            };
-        },
+        return {
+            receive: receive
+        };
+    }
+
+    var FileSaver = {
         SaveToDisk: function (fileUrl, fileName) {
             var hyperlink = document.createElement('a');
             hyperlink.href = fileUrl;
@@ -1524,116 +1572,39 @@
         }
     };
 
-    // ________________
-    // FileConverter.js
     var FileConverter = {
-        ArrayBufferToDataURL: function (buffer, callback) {
-            window.BlobBuilder = window.MozBlobBuilder || window.WebKitBlobBuilder || window.BlobBuilder;
-
-            // getting blob from array-buffer
-            var blob = new Blob([buffer]);
-
-            // reading file as binary-string
-            var fileReader = new FileReader();
-            fileReader.onload = function (e) {
-                callback(e.target.result);
-            };
-            fileReader.readAsDataURL(blob);
-        },
         DataURLToBlob: function (dataURL, callback) {
-            var binary = atob(dataURL.substr(dataURL.indexOf(',') + 1)),
+            function processInWebWorker(_function) {
+                var blob = URL.createObjectURL(new Blob(['',
+                    _function.toString(),
+                    'this.onmessage =  function (e) {getBlob(e.data);}'], {
+                        type: 'application/javascript'
+                    }));
+
+                var worker = new Worker(blob);
+                URL.revokeObjectURL(blob);
+                return worker;
+            }
+
+            var webWorker = processInWebWorker(function getBlob(_dataURL) {
+                var binary = atob(_dataURL.substr(_dataURL.indexOf(',') + 1)),
                 i = binary.length,
                 view = new Uint8Array(i);
 
-            while (i--) {
-                view[i] = binary.charCodeAt(i);
-            }
-
-            callback(new Blob([view]));
-        }
-    };
-
-
-    // _____________
-    // FileSender.js
-    var FileSender = {
-        send: function (config) {
-            var root = config.root;
-
-            var interval = 100;
-            if (!root.preferSCTP && !moz) interval = 500;
-
-            // using File.js to send files
-            File.Send({
-                channel: config.channel,
-                extra: config._channel,
-                file: config.file,
-                interval: interval,
-                chunkSize: config.preferSCTP ? 40 * 1000 : 1000, // 64k max sctp limit (AFAIK!)
-                onProgress: function (file) {
-                    if (root.onFileProgress) {
-                        root.onFileProgress({
-                            maxChunks: file.maxChunks,
-                            currentPosition: file.currentPosition,
-                            uuid: file.uuid,
-
-                            // for backward compatibility
-                            remaining: file.maxChunks - file.currentPosition,
-                            length: file.maxChunks,
-                            sent: file.currentPosition
-                        }, file.uuid);
-                    }
-                },
-                onBegin: root.onFileStart,
-                onEnd: function (file) {
-                    if (root.onFileEnd) {
-                        root.onFileEnd(file);
-                    }
-
-                    if (!root.fileQueue[file.name])
-                        root.fileQueue[file.name] = file;
+                while (i--) {
+                    view[i] = binary.charCodeAt(i);
                 }
+
+                postMessage(new Blob([view]));
             });
+
+            webWorker.onmessage = function (event) {
+                callback(event.data);
+            };
+
+            webWorker.postMessage(dataURL);
         }
-    };
-
-    // _______________
-    // FileReceiver.js
-
-    function FileReceiver(root) {
-        var receiver = new File.Receiver({
-            onProgress: function (file) {
-                if (root.onFileProgress) {
-                    root.onFileProgress({
-                        maxChunks: file.maxChunks,
-                        currentPosition: file.currentPosition,
-                        uuid: file.uuid,
-
-                        // for backward compatibility
-                        remaining: file.maxChunks - file.currentPosition,
-                        length: file.maxChunks,
-                        sent: file.currentPosition
-                    }, file.uuid);
-                }
-            },
-            onBegin: root.onFileStart,
-            onEnd: function (file) {
-                if (root.autoSaveToDisk) {
-                    File.SaveToDisk(file.dataURL, file.name);
-                }
-
-                if (root.onFileEnd) {
-                    root.onFileEnd(file);
-                }
-            }
-        });
-
-        return {
-            receive: function (data) {
-                receiver.receive(data);
-            }
-        };
-    }
+    };    
 
     // _____________
     // TextSender.js
@@ -1747,6 +1718,8 @@
 
         var iceServers = [];
 
+        if (!moz) iceServers.push({ url: 'stun:stun.l.google.com:19302' });
+
         if (!moz && parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28) {
             iceServers.push({
                 url: 'turn:turn.bistri.com:80',
@@ -1761,9 +1734,7 @@
             });
         }
 
-        iceServers.push({ url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun.sipgate.net' }, { url: 'stun:217.10.68.152' }, { url: 'stun:stun.sipgate.net:10000' }, { url: 'stun:217.10.68.152:10000' });
-        iceServers.push({ url: 'stun:23.21.150.121:3478' }, { url: 'stun:216.93.246.18:3478' }, { url: 'stun:66.228.45.110:3478' }, { url: 'stun:173.194.78.127:19302' });
-        iceServers.push({ url: 'stun:74.125.142.127:19302' }, { url: 'stun:provserver.televolution.net' }, { url: 'stun:sip1.lakedestiny.cordiaip.com' }, { url: 'stun:stun1.voiceeclipse.net' }, { url: 'stun:stun01.sipphone.com' }, { url: 'stun:stun.callwithus.com' }, { url: 'stun:stun.counterpath.net' }, { url: 'stun:stun.endigovoip.com' });
+        iceServers.push({ url: 'stun:23.21.150.121:3478' });
 
         if (options.iceServers) iceServers = options.iceServers;
 
@@ -1838,15 +1809,15 @@
         };
 
         peer.onremoveStream = function (event) {
-            warn('on:remove:stream', event.stream);
+            warn('on:remove:stream', toStr(event));
         };
 
         peer.onconnecting = function (event) {
-            log('on:connecting', event);
+            log('on:connecting', toStr(event));
         };
 
         peer.onnegotiationneeded = function (event) {
-            warn('on:negotiation:needed', event);
+            warn('on:negotiation:needed', toStr(event));
         };
 
         var constraints;
@@ -2911,7 +2882,7 @@
                     stream = this.streams[stream];
                     if (stream.type == 'local') {
                         this.detachStreams.push(stream.streamid);
-                    }
+                    } else this.onstreamended(stream.streamObject);
                 }
             }
 

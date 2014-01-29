@@ -1,4 +1,4 @@
-// Last time updated at Tuesday, 15 January 2014, 06:46:23
+// Last time updated at 29 January 2014, 05:46:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -486,7 +486,7 @@ function StereoAudioRecorder(mediaStream, root) {
     __stereoAudioRecorderJavacriptNode.connect(context.destination);
 }
 
-// _______________________
+// _______________________ (webp detection code is taken from another github repo)
 // WebP presence detection
 
 var isWebPSupported;
@@ -540,7 +540,7 @@ function WhammyRecorder(mediaStream) {
 
         startTime = Date.now();
 
-        function drawVideoFrame(time) {
+        (function drawVideoFrame(time) {
             lastAnimationFrame = requestAnimationFrame(drawVideoFrame);
 
             if (typeof lastFrameTime === undefined) {
@@ -548,19 +548,16 @@ function WhammyRecorder(mediaStream) {
             }
 
             // ~10 fps
-            if (time - lastFrameTime < 90) return;
+            // console.log(time, lastFrameTime, time - lastFrameTime, time - lastFrameTime < 90);
+            // if (time - lastFrameTime < 90) return;
 
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // whammy.add(canvas, time - lastFrameTime);
-            whammy.add(canvas);
+            whammy.add(canvas, time - lastFrameTime);
+            // whammy.add(canvas);
 
             lastFrameTime = time;
-        }
-
-        setTimeout(function() {
-            lastAnimationFrame = requestAnimationFrame(drawVideoFrame);
-        }, 500);
+        })();
     };
 
     this.stop = function() {
@@ -902,9 +899,6 @@ var Whammy = (function() {
             height = frames[0].height,
             duration = frames[0].duration;
         for (var i = 1; i < frames.length; i++) {
-            //if (frames[i].width != width) throw "Frame " + (i + 1) + " has a different width";
-            //if (frames[i].height != height) throw "Frame " + (i + 1) + " has a different height";
-            //if (frames[i].duration < 0 || frames[i].duration > 0x7fff) throw "Frame " + (i + 1) + " has a weird duration (must be between 0 and 32767)";
             duration += frames[i].duration;
         }
         return {
@@ -946,10 +940,6 @@ var Whammy = (function() {
             if (typeof data == 'object') data = generateEBML(data);
             if (typeof data == 'number') data = bitsToBuffer(data.toString(2));
             if (typeof data == 'string') data = strToBuffer(data);
-
-            if (data.length) {
-                var z = z;
-            }
 
             var len = data.size || data.byteLength || data.length;
             var zeroes = Math.ceil(Math.ceil(Math.log(len) / Math.log(2)) / 8);
@@ -1010,23 +1000,19 @@ var Whammy = (function() {
         return out;
     }
 
-    // here's something else taken verbatim from weppy, awesome rite?
-
     function parseWebP(riff) {
         var VP8 = riff.RIFF[0].WEBP[0];
 
         var frame_start = VP8.indexOf('\x9d\x01\x2a'); // A VP8 keyframe starts with the 0x9d012a header
         for (var i = 0, c = []; i < 4; i++) c[i] = VP8.charCodeAt(frame_start + 3 + i);
 
-        var width, horizontal_scale, height, vertical_scale, tmp;
+        var width, height, tmp;
 
         //the code below is literally copied verbatim from the bitstream spec
         tmp = (c[1] << 8) | c[0];
         width = tmp & 0x3FFF;
-        horizontal_scale = tmp >> 14;
         tmp = (c[3] << 8) | c[2];
         height = tmp & 0x3FFF;
-        vertical_scale = tmp >> 14;
         return {
             width: width,
             height: height,
@@ -1069,21 +1055,19 @@ var Whammy = (function() {
 
     function WhammyVideo() {
         this.frames = [];
-        this.duration = 130;
-        this.quality = 0.8;
+        this.duration = 1;
+        this.quality = 100;
     }
 
     WhammyVideo.prototype.add = function(frame, duration) {
-        if (typeof duration != 'undefined' && this.duration) throw "you can't pass a duration if the fps is set";
-        if (typeof duration == 'undefined' && !this.duration) throw "if you don't have the fps set, you ned to have durations here.";
         if ('canvas' in frame) { //CanvasRenderingContext2D
             frame = frame.canvas;
         }
+
         if ('toDataURL' in frame) {
             frame = frame.toDataURL('image/webp', this.quality);
-        } else if (typeof frame != "string") {
-            throw "frame must be a a HTMLCanvasElement, a CanvasRenderingContext2D or a DataURI formatted string";
         }
+
         if (!( /^data:image\/webp;base64,/ig ).test(frame)) {
             throw "Input must be formatted properly as a base64 encoded DataURI of type image/webp";
         }
@@ -1210,15 +1194,19 @@ function MRecordRTC(mediaStream) {
         }
 
         if (this.mediaType.video) {
-            this.videoRecorder = RecordRTC(mediaStream, mergeProps(this, {
-                type: 'video'
-            })).startRecording();
+            this.videoRecorder = RecordRTC(mediaStream, {
+                type: 'video',
+                canvas: this.canvas || { },
+                video: this.video || { }
+            }).startRecording();
         }
 
         if (this.mediaType.gif) {
-            this.gifRecorder = RecordRTC(mediaStream, mergeProps(this, {
-                type: 'gif'
-            })).startRecording();
+            this.gifRecorder = RecordRTC(mediaStream, {
+                type: 'gif',
+                frameRate: this.frameRate || 200,
+                quality: this.quality || 10
+            }).startRecording();
         }
     };
 
@@ -1260,6 +1248,44 @@ function MRecordRTC(mediaStream) {
             output.gif = this.gifRecorder.getBlob();
         }
         if (callback) callback(output);
+    };
+
+    this.getDataURL = function(callback) {
+        this.getBlob(function(blob) {
+            getDataURL(blob.audio, function(_audioDataURL) {
+                getDataURL(blob.video, function(_videoDataURL) {
+                    callback({
+                        audio: _audioDataURL,
+                        video: _videoDataURL
+                    });
+                });
+            });
+        });
+
+        function getDataURL(blob, callback00) {
+            if (!!window.Worker) {
+                var webWorker = processInWebWorker(function readFile(_blob) {
+                    postMessage(new FileReaderSync().readAsDataURL(_blob));
+                });
+
+                webWorker.onmessage = function(event) {
+                    callback00(event.data);
+                };
+
+                webWorker.postMessage(blob);
+            }
+        }
+
+        function processInWebWorker(_function) {
+            var blob = URL.createObjectURL(new Blob([_function.toString(),
+                    'this.onmessage =  function (e) {readFile(e.data);}'], {
+                        type: 'application/javascript'
+                    }));
+
+            var worker = new Worker(blob);
+            URL.revokeObjectURL(blob);
+            return worker;
+        }
     };
 
     this.writeToDisk = function() {

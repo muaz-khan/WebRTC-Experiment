@@ -1,7 +1,11 @@
-// Muaz Khan     - www.MuazKhan.com
-// MIT License   - www.WebRTC-Experiment.com/licence
-// Documentation - www.RTCMultiConnection.org
+// Muaz Khan         - www.MuazKhan.com
+// MIT License       - www.WebRTC-Experiment.com/licence
+// Documentation     - www.RTCMultiConnection.org/docs/
 
+// FAQ               - www.RTCMultiConnection.org/FAQ/
+// Development News  - trello.com/b/8bhi1G6n/RTCMultiConnection
+
+// v1.4 changes log  - www.RTCMultiConnection.org/changes-log/#v1.4
 // _______________________
 // RTCMultiConnection-v1.4
 
@@ -14,6 +18,10 @@
 
             if (_channel)
                 self.channel = _channel;
+
+            // if firebase && if session initiator
+            if (self.socket && self.socket.onDisconnect)
+                self.socket.onDisconnect().remove();
 
             self.isInitiator = true;
 
@@ -69,37 +77,38 @@
 
         function prepareInit(callback) {
             if (!self.openSignalingChannel) {
-                // https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
-                // https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs
+                if (typeof self.transmitRoomOnce == 'undefined')
+                    self.transmitRoomOnce = true;
+
+                // for custom socket.io over node.js implementation - visit - https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
                 self.openSignalingChannel = function(config) {
-                    config.channel = config.channel || self.channel || location.hash.substr(1);
-                    var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-                    websocket.channel = config.channel;
-                    websocket.onopen = function() {
-                        websocket.push(JSON.stringify({
-                            open: true,
-                            channel: config.channel
-                        }));
-                        if (config.callback) config.callback(websocket);
+                    var channel = config.channel || self.channel;
+                    var firebase = new Firebase('https://' + (self.firebase || 'chat') + '.firebaseIO.com/' + channel);
+                    firebase.channel = channel;
+                    firebase.on('child_added', function(data) {
+                        config.onmessage(data.val());
+                    });
+
+                    firebase.send = function(data) {
+                        this.push(data);
                     };
 
-                    websocket.onmessage = function(event) {
-                        config.onmessage(JSON.parse(event.data));
-                    };
-                    websocket.push = websocket.send;
-                    websocket.send = function(data) {
-                        if (websocket.readyState != 1)
-                            return setTimeout(function() {
-                                websocket.send(data);
-                            }, 500);
+                    if (!self.socket)
+                        self.socket = firebase;
 
-                        websocket.push(JSON.stringify({
-                            data: data,
-                            channel: config.channel
-                        }));
-                    };
+                    if (channel != self.channel || (self.isInitiator && channel == self.channel))
+                        firebase.onDisconnect().remove();
+
+                    if (config.onopen)
+                        setTimeout(config.onopen, 1);
+
+                    return firebase;
                 };
-                callback();
+
+                if (!window.Firebase) {
+                    loadScript('https://cdn.firebase.com/v0/firebase.js', callback);
+                } else
+                    callback();
             } else
                 callback();
         }
@@ -116,10 +125,6 @@
                         self._session = session;
                         return;
                     }
-
-                    // don't call "onNewSession" multiple times for same session
-                    if (self.sessions[session.sessionid]) return;
-                    self.sessions[session.sessionid] = session;
 
                     if (self.onNewSession)
                         return self.onNewSession(session);
@@ -219,9 +224,13 @@
                                 mediaElement.parentNode.removeChild(mediaElement);
                         };
 
+                        var streamid = getRandomString();
+
+                        stream.streamid = streamid;
+
                         var streamedObject = {
                             stream: stream,
-                            streamid: stream.label,
+                            streamid: streamid,
                             mediaElement: mediaElement,
                             blobURL: mediaElement.mozSrcObject || mediaElement.src,
                             type: 'local',
@@ -231,7 +240,8 @@
 
                         var sObject = {
                             stream: stream,
-                            userid: self.userid,
+                            userid: self.userid || 'self',
+                            streamid: streamid,
                             type: 'local',
                             streamObject: streamedObject,
                             mediaElement: mediaElement
@@ -240,7 +250,7 @@
                         self.attachStreams.push(stream);
                         self.__attachStreams.push(sObject);
 
-                        self.streams[stream.label] = self._getStream(sObject);
+                        self.streams[streamid] = self._getStream(sObject);
 
                         self.onstream(streamedObject);
                         if (forcedCallback) forcedCallback(stream);
@@ -280,10 +290,15 @@
             if (!userid) {
                 var streams = self.attachStreams;
                 for (var i = 0; i < streams.length; i++) {
-                    streams[i].stop();
+                    stopTracks(streams[i]);
                 }
                 currentUserMediaRequest.streams = [];
                 self.attachStreams = [];
+            }
+
+            // if firebase; remove data from firebase servers
+            if (self.isInitiator && !!self.socket && !!self.socket.remove) {
+                self.socket.remove();
             }
         };
 
@@ -344,8 +359,8 @@
                     sockets[_config.socketIndex] = socket;
 
                     for (var i = 0; i < root.__attachStreams.length; i++) {
-                        var label = root.__attachStreams[i].stream.label;
-                        if (root.streams[label]) root.streams[label].socket = socket;
+                        var streamid = root.__attachStreams[i].streamid;
+                        if (root.streams[streamid]) root.streams[streamid].socket = socket;
                     }
                     root.__attachStreams = [];
                 }
@@ -385,6 +400,14 @@
                     });
                 },
                 onstream: function(stream) {
+                    if (_config.streaminfo) {
+                        if (_config.streaminfo[0]) {
+                            stream.streamid = _config.streaminfo[0].streamid;
+                            delete _config.streaminfo[0];
+                            _config.streaminfo = swap(_config.streaminfo);
+                        }
+                    }
+
                     var mediaElement = getMediaElement(stream, session);
 
                     _config.stream = stream;
@@ -424,18 +447,20 @@
 
             function initPeer(offerSDP) {
                 if (!offerSDP)
-                    peerConfig.onOfferSDP = function(sdp) {
+                    peerConfig.onOfferSDP = function(sdp, streaminfo) {
                         sendsdp({
                             sdp: sdp,
-                            socket: socket
+                            socket: socket,
+                            streaminfo: streaminfo
                         });
                     };
                 else {
                     peerConfig.offerSDP = offerSDP;
-                    peerConfig.onAnswerSDP = function(sdp) {
+                    peerConfig.onAnswerSDP = function(sdp, streaminfo) {
                         sendsdp({
                             sdp: sdp,
-                            socket: socket
+                            socket: socket,
+                            streaminfo: streaminfo
                         });
                     };
                 }
@@ -456,12 +481,6 @@
             }
 
             function afterRemoteStreamStartedFlowing(mediaElement) {
-                (function setVolume() {
-                    mediaElement.volume += .1;
-                    if (mediaElement.volume < .9) setTimeout(setVolume, 600);
-                    else mediaElement.volume = 1;
-                })();
-
                 var stream = _config.stream;
                 stream.onended = function() {
                     if (root.onstreamended)
@@ -470,11 +489,12 @@
                         mediaElement.parentNode.removeChild(mediaElement);
                 };
 
+                // var streamid = getRandomString();
                 var streamedObject = {
                     mediaElement: mediaElement,
 
                     stream: stream,
-                    streamid: stream.label,
+                    streamid: stream.streamid,
                     session: session,
 
                     blobURL: mediaElement.mozSrcObject || mediaElement.src,
@@ -485,9 +505,10 @@
                 };
 
                 // connection.streams['stream-id'].mute({audio:true})
-                root.streams[stream.label] = root._getStream({
+                root.streams[stream.streamid] = root._getStream({
                     stream: stream,
                     userid: _config.userid,
+                    streamid: stream.streamid,
                     socket: socket,
                     type: 'remote',
                     streamObject: streamedObject,
@@ -566,12 +587,13 @@
                     _config.userid = response.userid;
                     _config.extra = response.extra;
                     _config.renegotiate = response.renegotiate;
+                    _config.streaminfo = response.streaminfo;
 
                     // to make sure user-id for socket object is set
                     // even if one-way streaming
                     updateSocket();
 
-                    sdpInvoker(response.sdp, response.labels);
+                    sdpInvoker(JSON.parse(response.sdp), response.labels);
                 }
 
                 if (response.candidate) {
@@ -588,6 +610,14 @@
                     if (response.unmute && root.onunmute) root.onunmute(response);
                 }
 
+                if (response.stopped) {
+                    response.mediaElement = root.streams[response.streamid].mediaElement;
+
+                    if (root.onstreamended) root.onstreamended(response);
+                    else if (response.mediaElement.parentNode)
+                        response.mediaElement.parentNode.removeChild(response.mediaElement);
+                }
+
                 if (response.left) {
                     if (peer && peer.connection) {
                         peer.connection.close();
@@ -600,7 +630,7 @@
                             for (var stream in root.streams) {
                                 stream = root.streams[stream];
                                 if (stream.userid == userLeft) {
-                                    stream.stop();
+                                    stopTracks(stream);
                                     stream.stream.onended(stream.streamObject);
                                 }
                             }
@@ -610,8 +640,6 @@
                     if (response.closeEntireSession) {
                         root.leave();
 
-                        if (root.sessions[response.sessionid])
-                            delete root.sessions[response.sessionid];
                     } else if (socket) {
                         socket.send({
                             left: true,
@@ -665,12 +693,13 @@
                         }, renegotiate);
 
                     function createOffer() {
-                        peer.recreateOffer(renegotiate, function(sdp) {
+                        peer.recreateOffer(renegotiate, function(sdp, streaminfo) {
                             sendsdp({
                                 sdp: sdp,
                                 socket: socket,
                                 renegotiate: response.renegotiate,
-                                labels: root.detachStreams
+                                labels: root.detachStreams,
+                                streaminfo: streaminfo
                             });
                             root.detachStreams = [];
                         });
@@ -709,10 +738,11 @@
                 delete _config.renegotiate;
 
                 function createAnswer() {
-                    peer.recreateAnswer(sdp, session, function(_sdp) {
+                    peer.recreateAnswer(sdp, session, function(_sdp, streaminfo) {
                         sendsdp({
                             sdp: _sdp,
-                            socket: socket
+                            socket: socket,
+                            streaminfo: streaminfo
                         });
                     });
                 }
@@ -720,24 +750,24 @@
         }
 
         function detachMediaStream(labels, peer) {
+            if (!labels) return;
             for (var i = 0; i < labels.length; i++) {
                 var label = labels[i];
                 if (root.streams[label]) {
                     var stream = root.streams[label].stream;
-                    stream.stop();
+                    stopTracks(stream);
                     peer.removeStream(stream);
                 }
             }
         }
 
-        // for PHP-based socket.io; split SDP in parts here
-
         function sendsdp(e) {
             e.socket.send({
                 userid: self.userid,
-                sdp: e.sdp,
+                sdp: JSON.stringify(e.sdp),
                 extra: root.extra,
                 renegotiate: e.renegotiate ? e.renegotiate : false,
+                streaminfo: e.streaminfo || [],
                 labels: e.labels || []
             });
         }
@@ -987,7 +1017,7 @@
 
             // to stop/remove self streams
             for (var i = 0; i < root.attachStreams.length; i++) {
-                root.attachStreams[i].stop();
+                stopTracks(root.attachStreams[i]);
             }
             root.attachStreams = [];
 
@@ -1033,12 +1063,13 @@
                     if (session.audio || session.video || session.screen)
                         peer.connection.addStream(e.stream);
 
-                    peer.recreateOffer(session, function(sdp) {
+                    peer.recreateOffer(session, function(sdp, streaminfo) {
                         sendsdp({
                             sdp: sdp,
                             socket: socket,
                             renegotiate: session,
-                            labels: root.detachStreams
+                            labels: root.detachStreams,
+                            streaminfo: streaminfo
                         });
                         root.detachStreams = [];
                     });
@@ -1118,7 +1149,7 @@
             var file = config.file;
             var socket = config.channel;
 
-            var chunkSize = 40 * 1000; // 64k max sctp limit (AFAIK!)
+            var chunkSize = config.chunkSize || 40 * 1000; // 64k max sctp limit (AFAIK!)
             var sliceId = 0;
             var cacheSize = chunkSize;
 
@@ -1250,7 +1281,7 @@
                     if (config.onEnd) config.onEnd(blob);
                 }
 
-                if (config.onProgress) config.onProgress(chunk);
+                if (chunk.value && config.onProgress) config.onProgress(chunk);
             }
 
             return {
@@ -1318,6 +1349,7 @@
                 extra: config._channel,
                 file: config.file,
                 interval: interval,
+                chunkSize: config.preferSCTP ? 40 * 1000 : 1000, // 64k max sctp limit (AFAIK!)
                 onProgress: function(file) {
                     if (root.onFileProgress) {
                         root.onFileProgress({
@@ -1492,7 +1524,7 @@
             IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
         // protocol: 'text/chat', preset: true, stream: 16
-        var dataChannelDict = { };
+        var dataChannelDict = { }, i;
 
         var STUN = {
             url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
@@ -1556,7 +1588,7 @@
         // adding media streams to the PeerConnection
         if (options.attachStreams && options.attachStreams.length) {
             var streams = options.attachStreams;
-            for (var i = 0; i < streams.length; i++) {
+            for (i = 0; i < streams.length; i++) {
                 peer.addStream(streams[i]);
             }
         }
@@ -1620,6 +1652,14 @@
 
         setConstraints();
 
+        var streaminfo = [];
+        for (i = 0; i < options.attachStreams.length; i++) {
+            var stream = options.attachStreams[i];
+            streaminfo.push({
+                streamid: stream.streamid
+            });
+        }
+
         function createOffer() {
             if (!options.onOfferSDP)
                 return;
@@ -1627,7 +1667,8 @@
             peer.createOffer(function(sessionDescription) {
                 sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
-                options.onOfferSDP(sessionDescription);
+
+                options.onOfferSDP(sessionDescription, streaminfo);
             }, onSdpError, constraints);
         }
 
@@ -1641,20 +1682,20 @@
             peer.createAnswer(function(sessionDescription) {
                 sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
                 peer.setLocalDescription(sessionDescription);
-                options.onAnswerSDP(sessionDescription);
+                options.onAnswerSDP(sessionDescription, streaminfo);
             }, onSdpError, constraints);
         }
-
-        if (options.preferSCTP || (options.onAnswerSDP && options.onmessage && moz))
-            openAnswererChannel();
 
         createOffer();
         createAnswer();
 
+        if (options.preferSCTP || (options.onAnswerSDP && options.onmessage && moz))
+            openAnswererChannel();
+
         var bandwidth = options.bandwidth;
 
         function setBandwidth(sdp) {
-            if (!bandwidth) return;
+            if (!bandwidth || moz) return sdp;
 
             // remove existing bandwidth lines
             sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
@@ -1686,8 +1727,8 @@
             navigator.mozGetUserMedia({
                     audio: true,
                     fake: true
-                }, function(stream) {
-                    peer.addStream(stream);
+                }, function(mozStream) {
+                    peer.addStream(mozStream);
                 }, useless);
         }
 
@@ -1736,8 +1777,8 @@
             navigator.mozGetUserMedia({
                     audio: true,
                     fake: true
-                }, function(stream) {
-                    peer.addStream(stream);
+                }, function(mozStream) {
+                    peer.addStream(mozStream);
                 }, useless);
         }
 
@@ -1749,7 +1790,7 @@
         }
 
         function onSdpError(e) {
-            console.error('sdp error:', e.name, e.message);
+            console.error('sdp error:', JSON.stringify(e, null, '\t'));
         }
 
         return {
@@ -1942,7 +1983,7 @@
         mediaElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
         mediaElement.autoplay = true;
         mediaElement.controls = true;
-        mediaElement.volume = .1;
+        mediaElement.volume = 1;
         mediaElement.play();
         return mediaElement;
     }
@@ -2041,7 +2082,7 @@
         if (root.socket)
             root.socket.send({
                 userid: root.userid,
-                streamid: stream.label,
+                streamid: root.streamid,
                 mute: !!enabled,
                 unmute: !enabled
             });
@@ -2118,14 +2159,12 @@
             video: true
         };
 
-        this.sessions = { };
-
         this.bandwidth = {
             data: 1638400
         };
 
         // preferring SCTP data channels!
-        this.preferSCTP = true;
+        this.preferSCTP = false;
 
         // file queue: to store previous file objects in memory;
         // and stream over newly connected peers
@@ -2171,13 +2210,24 @@
             return {
                 stream: e.stream,
                 userid: e.userid,
+                streamid: e.streamid,
                 socket: e.socket,
                 type: e.type,
                 mediaElement: e.mediaElement,
                 stop: function() {
+                    // socket message to change media element look
+                    if (this.socket) {
+                        this.socket.send({
+                            userid: this.userid,
+                            streamid: this.streamid,
+                            stopped: true
+                        });
+                    }
+
                     var stream = this.stream;
-                    if (stream && stream.stop)
-                        stream.stop();
+                    if (stream && stream.stop) {
+                        stopTracks(stream);
+                    }
                 },
                 mute: function(session) {
                     this._private(session, true);
@@ -2246,5 +2296,34 @@
         this.token = function() {
             return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
         };
+    }
+
+    function stopTracks(mediaStream) {
+        var fallback = false, i;
+
+        // MediaStream.stop should be avoided. It still exist and works but 
+        // it is removed from the spec and instead MediaStreamTrack.stop should be used
+        var audioTracks = mediaStream.getAudioTracks();
+        var videoTracks = mediaStream.getVideoTracks();
+
+        for (i = 0; i < audioTracks.length; i++) {
+            if (audioTracks[i].stop)
+                audioTracks[i].stop();
+            else {
+                fallback = true;
+                continue;
+            }
+        }
+
+        for (i = 0; i < videoTracks.length; i++) {
+            if (videoTracks[i].stop)
+                videoTracks[i].stop();
+            else {
+                fallback = true;
+                continue;
+            }
+        }
+
+        if (fallback && mediaStream.stop) mediaStream.stop();
     }
 })();

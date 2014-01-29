@@ -1,26 +1,35 @@
 #### [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) / [Demo](http://webrtc-signaling.jit.su/)
 
-Socket.io-over-Node.js for WebRTC Signaling! It can be used in any WebRTC application!
+**socket.io over node.js** for webrtc-signaling!
+
+<a href="https://nodei.co/npm/socketio-over-nodejs/">
+    <img src="https://nodei.co/npm/socketio-over-nodejs.png">
+</a>
 
 =
 
-Install via `npm`:
-
-> https://npmjs.org/package/socketio-over-nodejs
+#### Install via `npm`
 
 ```
 npm install socketio-over-nodejs
 ```
 
-and run the `signaler.js` file:
+and run the `signaler.js` nodejs file:
 
 ```
-node node_modules/socketio-over-nodejs/signaler.js
+cd node_modules/socketio-over-nodejs/ && node signaler
 ```
 
 =
 
-Otherwise, for installation, you can follow these steps as well:
+1. https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html
+2. http://www.RTCMultiConnection.org/FAQ/
+3. http://www.RTCMultiConnection.org/docs/sessionid/
+4. http://www.RTCMultiConnection.org/docs/channel-id/
+
+=
+
+Otherwise, follow these steps:
 
 1. Download and extract **ZIP file** of this repository then copy `folder-location` of the`signaler.js` file
 2. Open **Node.js command prompt** window
@@ -164,19 +173,7 @@ var SIGNALING_SERVER = 'http://domain.com:8888/';
 
 #### Signaling Concepts
 
-=
-
-For signaling; please check following page:
-
-https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
-
 Interested to understand WebRTC Signaling Concepts? Read [this document](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/Signaling-Concepts.md).
-
-1. https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html
-2. http://www.RTCMultiConnection.org/FAQ/
-3. http://www.RTCMultiConnection.org/docs/sessionid/
-4. http://www.RTCMultiConnection.org/docs/channel-id/
-5. http://www.rtcmulticonnection.org/docs/openSignalingChannel/
 
 =
 

@@ -7,6 +7,8 @@
 // http://developer.chrome.com/extensions/desktopCapture.html
 // Availability:	Beta and dev channels only.
 
+console.log('View your shared screens here: https://www.webrtc-experiment.com/desktop-sharing/');
+
 window.isStopBroadcasting = false;
 chrome.browserAction.onClicked.addListener(toggle);
 
@@ -21,7 +23,11 @@ function toggle() {
         });
         console.log('Desktop sharing started...');
     } else {
-        if (connection) connection.close();
+        if (connection) {
+            // www.RTCMultiConnection.org/docs/close/
+            connection.close();
+        }
+        
         localStorage.removeItem('broadcasting');
         window.isStopBroadcasting = true;
 
@@ -86,19 +92,32 @@ chrome.contextMenus.create({
 });
 chrome.contextMenus.onClicked.addListener(toggle);
 
-// RTCMultiConnection - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
+// RTCMultiConnection - www.RTCMultiConnection.org
 var connection;
 
 function setupRTCMultiConnection(stream) {
+    // www.RTCMultiConnection.org/docs/
     connection = new RTCMultiConnection('webrtc-desktop-sharing');
+    
+    // www.RTCMultiConnection.org/docs/bandwidth/
     connection.bandwidth.video = false;
+    
+    // www.RTCMultiConnection.org/docs/session/
     connection.session = {
         video: true,
         oneway: true
     };
+    
+    // www.RTCMultiConnection.org/docs/openSignalingChannel/
     connection.openSignalingChannel = openSignalingChannel;
+    
+    // www.RTCMultiConnection.org/docs/dontAttachStream/
     connection.dontAttachStream = true;
+    
+    // www.RTCMultiConnection.org/docs/attachStreams/
     connection.attachStreams.push(stream);
+    
+    // www.RTCMultiConnection.org/docs/open/
     connection.open();
 }
 
@@ -113,6 +132,10 @@ function openSignalingChannel(config) {
             channel: config.channel
         }));
         if (config.callback) config.callback(websocket);
+        console.log('WebSocket connection is opened!');
+    };
+    websocket.onerror = function() {
+        console.error('Unable to connect to wss://www.webrtc-experiment.com:8563');
     };
     websocket.onmessage = function (event) {
         config.onmessage(JSON.parse(event.data));

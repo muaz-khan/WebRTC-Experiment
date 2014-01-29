@@ -1,7 +1,7 @@
 <!--
-// 2013, Muaz Khan - www.MuazKhan.com
-// MIT License     - www.WebRTC-Experiment.com/licence
-// Experiments     - github.com/muaz-khan/WebRTC-Experiment
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// Experiments   - github.com/muaz-khan/WebRTC-Experiment
 -->
 
 <!DOCTYPE html>
@@ -9,10 +9,15 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>RecordRTC over Node.js</title>
+        <script>
+            if(location.href.indexOf('file:') == 0) {
+                document.write('<h1 style="color:red;">Please load this HTML file on HTTP or HTTPS.</h1>');
+            }
+        </script>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
 		<meta name="author" content="Muaz Khan">
-		<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"> </script>
+		<script src="/RecordRTC.js"> </script>
 		<style>
 			html { background-color: #f7f7f7; }
 			body {
@@ -37,7 +42,7 @@
 		</style>
 	</head>
 	<body>
-		<h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a> over Node.js</h1>
+		<h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a> <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs">over Node.js</a></h1>
 			<p>
 				<video id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></video> 
 			</p><hr />
@@ -52,7 +57,17 @@ var startRecording = document.getElementById('start-recording');
 var stopRecording = document.getElementById('stop-recording');
 var cameraPreview = document.getElementById('camera-preview');
 
-var audio = document.querySelector('audio');
+var mRecordRTC = new MRecordRTC();
+mRecordRTC.mediaType = {
+	audio: true,
+	video: true
+};
+
+mRecordRTC.bufferSize = 16384;
+mRecordRTC.canvas = {
+	width: innerWidth,
+	height: innerHeight
+};
 
 var recordAudio, recordVideo;
 startRecording.onclick = function() {
@@ -68,16 +83,8 @@ startRecording.onclick = function() {
             cameraPreview.src = window.URL.createObjectURL(stream);
             cameraPreview.play();
 
-            recordAudio = RecordRTC(stream, {
-                bufferSize: 4096
-            });
-
-            recordVideo = RecordRTC(stream, {
-                type: 'video'
-            });
-
-            recordAudio.startRecording();
-            recordVideo.startRecording();
+            mRecordRTC.addStream(stream);
+			mRecordRTC.startRecording();
 
             stopRecording.disabled = false;
         });
@@ -90,33 +97,30 @@ stopRecording.onclick = function() {
 
     fileName = Math.round(Math.random() * 99999999) + 99999999;
 
-    recordAudio.stopRecording();
-    recordVideo.stopRecording();
+    mRecordRTC.stopRecording();
 
-    recordAudio.getDataURL(function(audioDataURL) {
-        recordVideo.getDataURL(function(videoDataURL) {
-            var files = {
+    mRecordRTC.getDataURL(function(dataURL) {
+        var files = {
                 audio: {
                     name: fileName + '.wav',
                     type: 'audio/wav',
-                    contents: audioDataURL
+                    contents: dataURL.audio
                 },
                 video: {
                     name: fileName + '.webm',
                     type: 'video/webm',
-                    contents: videoDataURL
+                    contents: dataURL.video
                 }
             };
 
             cameraPreview.src = '';
-            cameraPreview.poster = 'https://www.webrtc-experiment.com/images/ajax-loader.gif';
+            cameraPreview.poster = '/ajax-loader.gif';
 
             xhr('/upload', JSON.stringify(files), function(fileName) {
                 var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
                 cameraPreview.src = href + 'uploads/' + fileName;
                 cameraPreview.play();
             });
-        });
     });
 };
 
@@ -129,7 +133,8 @@ function xhr(url, data, callback) {
     };
     request.open('POST', url);
     request.send(data);
-}
+}		
+
 </script>
 		<footer style="position:fixed;bottom:0;left:0;right:0;text-align:center;font-size:2em;">
 			<a href="https://www.WebRTC-Experiment.com">www.WebRTC-Experiment.com</a>

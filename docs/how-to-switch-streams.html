@@ -77,8 +77,10 @@
 		
 		<ol>
 			<li>don't exchange ICE, or</li>
-			<li>don't use <code>DtlsSrtpKeyAgreement</code></li>
+			<li>don't use <code>DtlsSrtpKeyAgreement</code> (remember, for chrome 30 and earlier releases only)</li>
 		</ol>
+        
+        Remember, now DTLS/SRTP doesn't need to be disabled for renegotiation. It was just a workaround for chrome older builds.
 		
 		<pre class="sh_javascript">
 // 1st solution

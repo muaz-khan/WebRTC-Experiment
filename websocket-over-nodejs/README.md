@@ -1,18 +1,16 @@
 #### [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) / [Demo](https://www.webrtc-experiment.com/websocket/)
 
-WebSocket over Node.js for WebRTC Signaling! It can be used in any WebRTC application!
+This experiment is using **WebSocket over Node.js** for signaling.
 
 =
 
-Install via `npm`:
-
-> https://npmjs.org/package/websocket-over-nodejs
+#### Install via `npm`
 
 ```
 npm install websocket-over-nodejs
 ```
 
-and run the `signaler.js` file:
+and run the `signaler.js` nodejs file:
 
 ```
 node node_modules/websocket-over-nodejs/signaler.js
@@ -20,7 +18,7 @@ node node_modules/websocket-over-nodejs/signaler.js
 
 =
 
-Otherwise, for installation, you can follow these steps as well:
+Otherwise, follow these steps:
 
 1. Download and extract [**ZIP file**](https://github.com/muaz-khan/WebRTC-Experiment/archive/master.zip) of this repository then copy `folder-location`.
 2. Open **Node.js command prompt**.
