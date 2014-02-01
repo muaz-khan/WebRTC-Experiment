@@ -1,0 +1,15 @@
+﻿<script src="//www.webrtc-experiment.com/getMediaElement.js"> </script>
+<script>
+navigator.webkitGetUserMedia({audio:true}, function(stream) {
+	var audioElement = getAudioElement(stream, {
+		title: 'User Name',
+		buttons: []
+	});
+	
+	document.body.appendChild(audioElement);
+	
+	setTimeout(function() {
+		audioElement.toggle('mute-audio');
+	}, 3000);
+});
+</script>

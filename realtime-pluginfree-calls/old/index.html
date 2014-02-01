@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html id="home" lang="en">
+    
+    <head>
+        <title>WebRTC Calls ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <style>
+            @import url(https://fonts.googleapis.com/css?family=Inconsolata);
+            html {
+                background: #eee;
+            }
+            * {
+                font-family:"Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+            }
+            body {
+                font-size: 1.2em;
+                line-height: 1.2em;
+                margin: 0;
+            }
+            article, footer {
+                display: block;
+                max-width: 900px;
+                min-width: 360px;
+                width: 80%;
+            }
+            article {
+                background: #fff;
+                border: 1px solid;
+                border-color: #ddd #aaa #aaa #ddd;
+                margin: 2.5em auto 0 auto;
+                padding: 2em;
+            }
+            h1 {
+                margin-top: 0;
+            }
+            article p:first-of-type {
+                margin-top: 1.6em;
+            }
+            article p:last-child {
+                margin-bottom: 0;
+            }
+            footer {
+                margin: 0 auto 2em auto;
+                text-align: center;
+            }
+            footer a {
+                color: #666;
+                font-size: inherit;
+                padding: 1em;
+                text-decoration: none;
+                text-shadow: 0 1px 1px #fff;
+            }
+            footer a:hover, footer a:focus {
+                color: #111;
+            }
+            h1, h2 {
+                border-bottom: 1px solid black;
+                display: inline;
+                font-weight: normal;
+                line-height: 36px;
+                padding: 0 0 3px 0;
+            }
+            a {
+                color: #2844FA;
+                text-decoration: none;
+            }
+            a:hover, a:focus {
+                color: #1B29A4;
+            }
+            a:active {
+                color: #000;
+            }
+            :-moz-any-link:focus {
+                border: 0;
+                color: #000;
+            }
+            ::selection {
+                background: #ccc;
+            }
+            ::-moz-selection {
+                background: #ccc;
+            }
+            button, input[type=button] {
+                -moz-border-radius: 3px;
+                -moz-transition: none;
+                -webkit-transition: none;
+                background: #0370ea;
+                background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
+                background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
+                border: 1px solid #076bd2;
+                border-radius: 3px;
+                color: #fff;
+                display: inline-block;
+                font-family: inherit;
+                font-size: .8em;
+                line-height: 1.3;
+                padding: 5px 12px;
+                text-align: center;
+                text-shadow: 1px 1px 1px #076bd2;
+                font-size: 1.5em;
+            }
+            button:hover, input[type=button]:hover {
+                background: rgb(9, 147, 240);
+            }
+            button:active, input[type=button]:active {
+                background: rgb(10, 118, 190);
+            }
+            button[disabled], input[type=button][disabled] {
+                background: none;
+                border: 1px solid rgb(187, 181, 181);
+                color: gray;
+                text-shadow: none;
+            }
+            strong {
+                color: rgb(204, 14, 14);
+                font-family: inherit;
+                font-weight: normal;
+            }
+            tr, td, th {
+                vertical-align: top;
+                padding: .7em 1.4em;
+                border-top: 1px dotted #BBA9A9;
+                border-right: 1px dotted #BBA9A9;
+            }
+            table {
+                width: 100%;
+            }
+            input {
+                font-size: 2em;
+            }
+        </style>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+    </head>
+    
+    <body>
+        <article> <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
+
+             <h1>WebRTC Calls: Realtime & Pluginfree! / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls" target="_blank">Source Code on Github</a></h1>
+
+            <p> <span>Copyright © 2013</span> <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span></p>
+            <section class="plusone-gplus">
+                <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
+            </section>
+            <table class="visible">
+                <tr>
+                    <td style="text-align: right;">
+                        <input type="text" id="caller-name" placeholder="Caller Name">
+                    </td>
+                    <td>
+                        <button id="start-calling">Call</button>
+                    </td>
+                </tr>
+            </table>
+            <div id="save-recorded-streams" style="display:none;">
+                	<h2>Save Recorded Streams:</h2>
+
+                <button id="save-remote-stream" style="text-align: right;">Remote</button>
+                <button id="save-local-stream" style="text-align: right;">Local</button>
+            </div>
+            <table id="rooms-list" class="visible"></table>
+            <table class="visible">
+                <tr>
+                    <td style="text-align: center;">
+                         <h2>
+                        <strong>Private Call</strong> ?? <a href="/calls/" target="_blank" title="Open this link in new tab. Then you can call privately!"><code>/calls/<strong id="unique-token">#123456789</strong></code></a>
+                    </h2>
+
+                    </td>
+                </tr>
+            </table>
+            <div id="participants"></div>
+            <script src='https://www.webrtc-experiment.com/firebase.js'></script>
+            <script src="https://www.webrtc-experiment.com/lib/RTCPeerConnection-v1.4.js"></script>
+            <script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
+            <script src="https://www.webrtc-experiment.com/calls/call-initiator.js"></script>
+            <script src="https://www.webrtc-experiment.com/calls/ui.js"></script>
+        </article>
+		<article>
+             <h2>Features</h2>
+
+            <ol>
+                <li>One-to-One voice-only calls</li>
+                <li>Cross-Browser calling</li>
+                <li>Voice-Recording</li>
+            </ol>
+        </article>
+		<article>
+            <h2>Try <a href="https://www.webrtc-experiment.com/RTCall/" target="_blank">RTCall.js</a> for Browser-to-Browser audio-only calling</h2>
+
+            <ol>
+                <li>In your own site; as an admin; you may want to be auto-alerted for each new visitor i.e. customer.</li>
+                <li>You may want to make voice-only calls between admin and customers</li>
+            </ol>	<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall" target="_blank">RTCall.js Documentation & Source code</a>
+
+        </article>
+		<article>
+            <p>You can use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> for audio/video/screen sharing (i.e. conferencing/broadcasting); it supports multi-sessions establishment on the
+                same page, group text chat and file sharing, auto user presence detection and many other features.</p>
+            
+            <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
+                 <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+
+                <div>
+                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button>
+            </section>
+        </article>
+        <footer>
+            <p> <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a>© <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>» <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
+                <a
+                href="http://twitter.com/muazkh" target="_blank">@muazkh</a>» <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+
+            </p>
+        </footer>
+        <script src="https://www.webrtc-experiment.com/common.js"></script>
+    </body>
+
+</html>

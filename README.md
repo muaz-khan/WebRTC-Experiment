@@ -18,6 +18,7 @@
 | `Meeting.js` | A library for audio/video conferencing | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) | [Demos](https://www.webrtc-experiment.com/meeting/) |
 | `File.js` | A standalone library for file sharing functionalities | [Documentation](https://www.webrtc-experiment.com/docs/Share-Files-using-Filejs.html) | [Demos](https://www.webrtc-experiment.com/WebRTC-File-Sharing/) |
 | `getMediaElement.js` | A library for audio/video media elements' layout | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getMediaElement) | [Demos](https://www.webrtc-experiment.com/getMediaElement/) |
+| `Translator.js` | Voice & Text Translator | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Translator.js) | [Demos](https://www.webrtc-experiment.com/Translator/) |
 
 =
 
@@ -216,7 +217,9 @@ recordRTC.getDataURL(function(dataURL) {});
 
 =
 
-##### [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/) / A library for all WebRTC APIs
+##### [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/)
+
+You can write entire skype-like web-app using RTCMultiConnection! It supports all complex renegotiation scenarios!
 
 ```html
 <button id="openNewSessionButton">open New Session Button</button><br />
@@ -253,6 +256,39 @@ document.getElementById('openNewSessionButton').onclick = function() {
 ```
 
 [DataChannel Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
+
+=
+
+##### [Translator.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Translator.js) / [Demo](https://www.webrtc-experiment.com/Translator/)
+
+Translator.js is a JavaScript library built top on Google Speech-Recognition & Translation API to transcript and translate voice and text. It supports many locales and brings globalization in <a href="https://www.webrtc-experiment.com/">WebRTC</a>!
+
+```html
+<script src="//www.webrtc-experiment.com/Translator.js"> </script>
+```
+
+```javascript
+var translator = new Translator();
+
+translator.voiceToText(function (text) {
+    console.log('Your voice as text!', text);
+}, 'your-language');
+
+translator.translateLanguage(textToConvert, {
+    from: 'language-of-the-text',
+    to: 'convert-into',
+    callback: function (translatedText) {
+        console.log('translated text', translatedText);
+    }
+});
+
+translator.speakTextUsingRobot(textToPlay);
+
+translator.speakTextUsingGoogleSpeaker({
+    textToSpeak: 'text-to-convert',
+    targetLanguage: 'your-language'
+});
+```
 
 =
 
@@ -301,6 +337,8 @@ io.sockets.on('connection', function (socket) {
 });
 ```
 
+Read more [here](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md).
+
 =
 
 ##### Browser Support
@@ -316,18 +354,6 @@ io.sockets.on('connection', function (socket) {
 
 =
 
-##### Signaling Concepts
-
-1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) / [Demo](http://webrtc-signaling.jit.su/)
-2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs) / [Demo](https://www.webrtc-experiment.com/websocket/)
-3. [Signaling.md](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)
-4. https://www.webrtc-experiment.com/docs/WebRTC-Signaling-Concepts.html
-5. http://www.RTCMultiConnection.org/FAQ/
-6. http://www.RTCMultiConnection.org/docs/sessionid/
-7. http://www.RTCMultiConnection.org/docs/channel-id/
-
-=
-
 ##### Muaz Khan (muazkh@gmail.com) - [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb)
 
 <a href="http://www.MuazKhan.com"><img src="https://www.webrtc-experiment.com/images/Muaz-Khan.gif" /></a>
@@ -336,4 +362,4 @@ io.sockets.on('connection', function (socket) {
 
 ##### License
 
-[WebRTC Experiments](https://www.webrtc-experiment.com/) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/+MuazKhan).
+All [WebRTC Experiments](https://www.webrtc-experiment.com/) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

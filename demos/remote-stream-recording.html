@@ -1,5 +1,4 @@
 ﻿<title>Recording Remote Audio Streams / RecordRTC</title>
-<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
 <style>
 html{
 	background: rgb(231, 241, 241);
@@ -22,6 +21,17 @@ pre {
 <h1>Recording Remote Audio Streams / <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a></h2>
 
 <h2>issue: <a href="http://stackoverflow.com/questions/17475038/recording-a-remote-webrtc-stream-with-recordrtc/17475416#17475416" target="_blank">unable to record remote audio streams using RecordRTC.</a></h2>
+
+<ol>
+    <li>
+        <a href="https://code.google.com/p/chromium/issues/detail?id=328034">issue: Support feeding remote WebRTC MediaStreamTrack output to WebAudio</a>
+    </li>
+    
+    <li>
+        <a href="https://code.google.com/p/webrtc/issues/detail?id=861">issue: Connect WebRTC MediaStreamTrack output to Web Audio API</a>
+    </li>
+</ol>
+
 <blockquote>
 "opus" is the default codec on chrome;
 </blockquote>
@@ -77,7 +87,7 @@ For stereo; we need:
 64-128 kb/s .... i.e. FB stereo music
 </pre>
 
-<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="//www.webrtc-experiment.com/RecordRTC.js"></script>
 
 <script>
     var offerer, answerer;
@@ -111,6 +121,8 @@ For stereo; we need:
         };
 
         offerer.createOffer(function (offer) {
+            offer.sdp = offer.sdp.replace('opus/48000/2', 'opus/44100/1');
+            console.log('\n\npeer connection opus codec\'s sample-rate is changed from', 'opus/48000/2', 'to', 'opus/44100/1', '\n\n\n');
             console.debug('offer sdp', offer.sdp);
 
             offerer.setLocalDescription(offer);
@@ -134,13 +146,18 @@ For stereo; we need:
 				recorder.stopRecording(function(url) {
 					recorder.getDataURL(function(dataURL) {
 						if(dataURL.indexOf('AAAAAAAAAAAA') != -1) {
-							document.querySelector('h2').innerHTML = 'Unable to record remote audio stream.<br /><br />' +
-																	  dataURL.substr(0, 150) + '...';
+							document.querySelector('h2').innerHTML = 'Unable to record remote audio stream.<br />It seems that WebAudio APIs are unable to read/process remote audio stream buffers.<br /><textarea style="width:100%;height:100px;">' +dataURL + '</textarea>';
 						}
 						console.log('data-url', dataURL);
 					});
 					console.log('blob', recorder.getBlob());
 					console.log('virtual url', url);
+                    var audio = document.createElement('audio');
+                    audio.controls = true;
+                    audio.src = url;
+                    document.querySelector('h1').appendChild(document.createElement('br'));
+                    document.querySelector('h1').appendChild(audio);
+                    audio.play();
 				});
 			}, 5000);
         };
@@ -152,6 +169,7 @@ For stereo; we need:
 
         answerer.setRemoteDescription(offer);
         answerer.createAnswer(function (answer) {
+            answer.sdp = answer.sdp.replace('opus/48000/2', 'opus/44100/1');
             answerer.setLocalDescription(answer);
             offerer.setRemoteDescription(answer);
         });

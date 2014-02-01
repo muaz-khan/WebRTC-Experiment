@@ -1,0 +1,190 @@
+﻿<title>WebRTC Scenarios when ICE Server gets down! ® Muaz Khan</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+<meta name="author" content="Muaz Khan">
+
+<style>
+* {
+    font-family: Verdana;
+    font-size:1.1em;
+    line-height:1.5;
+    -webkit-user-select:none;
+}
+li {
+    border-left: 2px solid red;
+    padding-left:1em;
+    -webkit-user-select:initial;
+}
+strong{
+    color:red;
+    font-weight:normal;
+    -webkit-user-select:initial;
+}
+</style>
+
+<a href="https://www.webrtc-experiment.com/" style="float:right;">www.webrtc-experiment.com</a>
+
+<h1><a href="https://www.webrtc-experiment.com/">WebRTC</a> Scenarios when any single ICE Server gets down!</h2>
+
+<input type="checkbox" id="include-down-STUN-server" checked>
+<label for="include-down-STUN-server">include-down-STUN-server</label>
+
+<input type="checkbox" id="include-working-STUN-servers" checked>
+<label for="include-working-STUN-servers">include-working-STUN-servers</label><br />
+
+<input type="checkbox" id="include-down-TURN-server">
+<label for="include-down-TURN-server">include-down-TURN-server</label>
+
+<input type="checkbox" id="include-working-TURN-servers">
+<label for="include-working-TURN-servers">include-working-TURN-servers</label>
+
+<br /><br />
+
+<button id="test">test ice lookup</button>
+
+<ol>
+    <li>
+        If any single STUN or TURN server is <strong>down</strong>, <strong>invalid uri/url</strong> is provided or something went wrong; chrome fails to skip that server; and <strong>unable</strong> to use <strong>next available</strong> STUN/TURN server from ice-servers list.
+    </li>
+    
+    <li>
+        If TURN server is also linked; then chrome tries TURN earlier/sooner/quickly for ICE trickling/gathering process i.e. TURN is given high priority comparing STUN!
+    </li>
+    
+    <li>
+        If a STUN server is down; however TURN server works; then WebRTC connection will be, obviously, established (according to TURN server availability and valid candidates generation) because TURN will be prompted first for candidates lookup process.
+    </li>
+    
+    <li>
+        If all STUN servers are working fine; however, any single TURN server is down; then all STUN servers will be skipped and chrome will NEVER try those STUN servers for ICE lookup process!
+    </li>
+</ol>
+
+<script>
+var ol = document.querySelector('ol');
+
+function appendLi(innerHTML) {
+    var li = document.createElement('li');
+    li.innerHTML = innerHTML;
+    ol.insertBefore(li, ol.firstChild);
+}
+</script>
+
+<script>
+var optionalRtpDataChannels = {
+    optional: [{
+        RtpDataChannels: true
+    }]
+};
+
+document.querySelector('#test').onclick = function() {
+    this.disabled = true;
+    
+    var iceServers = [];
+
+    if(document.querySelector('#include-down-STUN-server').checked) {
+        iceServers.push({ url: 'stun:fakedomain.com:19302' });
+    }
+    
+    if(document.querySelector('#include-down-TURN-server').checked) {
+        iceServers.push({
+            url: 'turn:turn.fakedomain.com:80',
+            credential: 'username',
+            username: 'password'
+        });
+    }
+    
+    if(document.querySelector('#include-working-TURN-servers').checked) {
+        iceServers.push({
+            url: 'turn:turn.bistri.com:80',
+            credential: 'homeo',
+            username: 'homeo'
+        });
+    }
+    
+    if(document.querySelector('#include-working-STUN-servers').checked) {
+        iceServers.push({ url: 'stun:23.21.150.121:3478' }, { url: 'stun:216.93.246.18:3478' }, { url: 'stun:66.228.45.110:3478' }, { url: 'stun:173.194.78.127:19302' });
+        iceServers.push({ url: 'stun:74.125.142.127:19302' }, { url: 'stun:provserver.televolution.net' }, { url: 'stun:sip1.lakedestiny.cordiaip.com' }, { url: 'stun:stun1.voiceeclipse.net' }, { url: 'stun:stun01.sipphone.com' }, { url: 'stun:stun.callwithus.com' }, { url: 'stun:stun.counterpath.net' }, { url: 'stun:stun.endigovoip.com' });
+    };
+    
+    for(var i = 0; i < iceServers.length; i++) {
+        appendLi( JSON.stringify(iceServers[i], null, '') );
+    }
+
+    iceServers = {
+        iceServers: iceServers
+    };
+
+    var offerer = new webkitRTCPeerConnection(iceServers, optionalRtpDataChannels),
+        answerer, answererDataChannel;
+        
+    appendLi('Peer connection is initiated.');
+
+    var offererDataChannel = offerer.createDataChannel('RTCDataChannel', {
+        reliable: false
+    });
+    setChannelEvents(offererDataChannel, 'offerer');
+
+    offerer.onicecandidate = function (event) {
+        if (!event || !event.candidate || event.candidate.candidate.indexOf('typ host') != -1) return;
+        answerer && answerer.addIceCandidate(event.candidate);
+        
+        appendLi(event.candidate.candidate);
+    };
+
+    var mediaConstraints = {
+        optional: [],
+        mandatory: {
+            OfferToReceiveAudio: false, // Hmm!!
+            OfferToReceiveVideo: false // Hmm!!
+        }
+    };
+
+    offerer.createOffer(function (sessionDescription) {
+        offerer.setLocalDescription(sessionDescription);
+        createAnswer(sessionDescription);
+    }, null, mediaConstraints);
+
+
+    function createAnswer(offerSDP) {
+        answerer = new webkitRTCPeerConnection(iceServers, optionalRtpDataChannels);
+        answererDataChannel = answerer.createDataChannel('RTCDataChannel', {
+            reliable: false
+        });
+
+        setChannelEvents(answererDataChannel, 'answerer');
+
+        answerer.onicecandidate = function (event) {
+            if (!event || !event.candidate || event.candidate.candidate.indexOf('typ host') != -1) return;
+            offerer && offerer.addIceCandidate(event.candidate);
+            
+            appendLi(event.candidate.candidate);
+        };
+
+        answerer.setRemoteDescription(offerSDP);
+        answerer.createAnswer(function (sessionDescription) {
+            answerer.setLocalDescription(sessionDescription);
+            offerer.setRemoteDescription(sessionDescription);
+        }, null, mediaConstraints);
+    }
+
+    function setChannelEvents(channel, channelNameForConsoleOutput) {
+        channel.onmessage = function (event) {
+            appendLi(channelNameForConsoleOutput + ' received: ' + event.data);
+        };
+
+        channel.onopen = function () {
+            appendLi('RTP-data connection is opened for ' + channelNameForConsoleOutput);
+            channel.send('message from '+ channelNameForConsoleOutput);
+        };
+        channel.onclose = function (e) {
+            console.error(e);
+        };
+        channel.onerror = function (e) {
+            console.error(e);
+        };
+    }
+};
+</script>

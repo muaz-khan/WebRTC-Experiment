@@ -1,5 +1,9 @@
 #### getMediaElement.js: A reusable library for all WebRTC applications! / [Demo](https://www.webrtc-experiment.com/getMediaElement/)
 
+```html
+<script src="//www.webrtc-experiment.com/getMediaElement.js"></script>
+```
+
 This library generates HTMLVideoElement with rich user-interface and advance media controls. It gives you full control over each control button; and its functionality!
 
 <a href="https://www.webrtc-experiment.com/getMediaElement/">
@@ -7,12 +11,44 @@ This library generates HTMLVideoElement with rich user-interface and advance med
 </a>
 
 ```javascript
-document.body.appendChild( getMediaElement(MediaStream, {
-   type: 'video'
-}) );
-
-// or
 document.body.appendChild( getMediaElement(HTMLVideoElement) );
+```
+
+For audio-only element:
+
+```javascript
+document.body.appendChild( getMediaElement(HTMLAudioElement) );
+
+// or simply by using "getAudioElement" instead:
+document.body.appendChild( getAudioElement(HTMLAudioElement, {
+    title: 'User Name',
+    buttons: []        // use this line only if you want to hide audio-recorder button
+}) );
+```
+
+=
+
+##### A working example:
+
+Audio+Video Stream:
+
+```javascript
+navigator.webkitGetUserMedia({audio:true, video: true}, function(audioVideoStream) {
+     document.body.appendChild( getMediaElement(audioVideoStream) );
+});
+```
+
+Audio only stream:
+
+```javascript
+navigator.webkitGetUserMedia({audio:true}, function(audioStream) {
+     document.body.appendChild( getMediaElement(audioStream) );
+});
+
+// or simply by using "getAudioElement" instead:
+navigator.webkitGetUserMedia({audio:true}, function(audioStream) {
+     document.body.appendChild( getAudioElement(audioStream) );
+});
 ```
 
 =

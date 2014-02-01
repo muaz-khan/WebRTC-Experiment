@@ -1,4 +1,4 @@
-// Last time updated at 29 January 2014, 05:46:23
+// Last time updated at 30 January 2014, 05:46:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -12,21 +12,10 @@
 // RTCMultiConnection-v1.6
 
 /*
-
-Uncaught TypeError: Cannot call method 'close' of null RTCMultiConnection-v1.6.js:989
-Uncaught TypeError: Cannot read property 'iceGatheringState' of null RTCMultiConnection-v1.6.js:1484
-Uncaught TypeError: Cannot read property 'iceGatheringState' of null RTCMultiConnection-v1.6.js:1477
-
 -.	"channel" object in the openSignalingChannel shouldn't be mandatory!
 -.	session shouldn't be auto closed if initiator leaves (default behavior)
 
 "hold" and "unhload" using "inactive" attribute.
-
--. Is it possible to <remove> session-initiator concept? So, everyone will be participant; and users don't need to call "open" method!!
--. rtcMultiConnection.connect should:
--. setup connection with signaling server
--. search existing users connected with same channel
--. join those users using "join(their-id)" method
 
 -. JSON parse/stringify options for data transmitted using data-channels; e.g. connection.preferJSON = true; (not-implemented)
 1. chrome crashes on "close" (maybe-fixed)
@@ -149,9 +138,9 @@ Uncaught TypeError: Cannot read property 'iceGatheringState' of null RTCMultiCon
                     channel: channel /* todo: remove this "channel" object */
                 };
             };
-            
+
             firebase.onDisconnect().remove();
-            
+
             callback();
         }
 
@@ -761,11 +750,7 @@ Uncaught TypeError: Cannot read property 'iceGatheringState' of null RTCMultiCon
                 // to stop remote stream
                 if (response.promptStreamStop && !root.isInitiator) {
                     warn('What if initiator invoked stream.stop for remote user?');
-                    /*
-                    if (root.streams[response.streamid]) {
-                    root.streams[response.streamid].stop();
-                    }
-                    */
+                    // if (root.streams[response.streamid]) root.streams[response.streamid].stop();
                 }
 
                 if (response.left) {
@@ -994,8 +979,10 @@ Uncaught TypeError: Cannot read property 'iceGatheringState' of null RTCMultiCon
         // www.RTCMultiConnection.org/docs/remove/
         root.remove = function(userid) {
             if (root.peers[userid]) {
-                root.peers[userid].peer.connection.close();
-                root.peers[userid].peer.connection = null;
+                if (root.peers[userid].peer && root.peers[userid].peer.connection) {
+                    root.peers[userid].peer.connection.close();
+                    root.peers[userid].peer.connection = null;
+                }
                 delete root.peers[userid];
             }
             if (participants[userid]) {
@@ -1481,14 +1468,14 @@ Uncaught TypeError: Cannot read property 'iceGatheringState' of null RTCMultiCon
             };
 
             this.connection.onsignalingstatechange = function() {
-                self.oniceconnectionstatechange({
+                self.connection && self.oniceconnectionstatechange({
                     iceGatheringState: self.connection.iceGatheringState,
                     signalingState: self.connection.signalingState
                 });
             };
 
             this.connection.oniceconnectionstatechange = function() {
-                self.oniceconnectionstatechange({
+                self.connection && self.oniceconnectionstatechange({
                     iceGatheringState: self.connection.iceGatheringState,
                     signalingState: self.connection.signalingState
                 });
@@ -1666,20 +1653,24 @@ Uncaught TypeError: Cannot read property 'iceGatheringState' of null RTCMultiCon
             this.channels.push(channel);
         },
         attachMediaStreams: function() {
-            this.streaminfo = '';
-
             var streams = this.attachStreams;
             for (var i = 0; i < streams.length; i++) {
                 log('attaching', streams[i]);
                 this.connection.addStream(streams[i]);
-
+            }
+            this.attachStreams = [];
+            this.getStreamInfo();
+        },
+        getStreamInfo: function() {
+            this.streaminfo = '';
+            var streams = this.connection.getLocalStreams();
+            for (var i = 0; i < streams.length; i++) {
                 if (i == 0) {
                     this.streaminfo = streams[i].streamid;
                 } else {
                     this.streaminfo += '----' + streams[i].streamid;
                 }
             }
-            this.attachStreams = [];
         },
         recreateOffer: function(renegotiate, callback) {
             log('recreating offer');
@@ -1690,6 +1681,7 @@ Uncaught TypeError: Cannot read property 'iceGatheringState' of null RTCMultiCon
             this.setConstraints();
 
             this.onSessionDescription = callback;
+            this.getStreamInfo();
             this.getLocalDescription('offer');
         },
         recreateAnswer: function(sdp, session, callback) {
@@ -1702,6 +1694,7 @@ Uncaught TypeError: Cannot read property 'iceGatheringState' of null RTCMultiCon
 
             this.onSessionDescription = callback;
             this.offerDescription = sdp;
+            this.getStreamInfo();
             this.getLocalDescription('answer');
         }
     };
@@ -2367,9 +2360,17 @@ Uncaught TypeError: Cannot read property 'iceGatheringState' of null RTCMultiCon
         var videoTracks = mediaStream.getVideoTracks();
 
         for (i = 0; i < audioTracks.length; i++) {
-            if (audioTracks[i].stop)
-                audioTracks[i].stop();
-            else {
+            if (audioTracks[i].stop) {
+                // for chrome canary; which has "stop" method; however not functional yet!
+                try {
+                    audioTracks[i].stop();
+                } catch(e) {
+                    error(toStr(e));
+
+                    fallback = true;
+                    continue;
+                }
+            } else {
                 fallback = true;
                 continue;
             }
@@ -2553,16 +2554,15 @@ Uncaught TypeError: Cannot read property 'iceGatheringState' of null RTCMultiCon
 
         // www.RTCMultiConnection.org/docs/preferSCTP/
         connection.preferSCTP = false; // preferring SCTP data channels!
-        
+
         // todo: remove following if-block if issue is fixed.
-        if(chromeVersion == 32) {
+        if (chromeVersion == 32) {
             connection.preferSCTP = false;
             connection.chunkSize = 200;
             connection.chunkInterval = 500;
-        }
-        else {
+        } else {
             connection.preferSCTP = true;
-            connection.chunkSize = 16*1000;
+            connection.chunkSize = 16 * 1000;
             connection.chunkInterval = 300;
         }
 
