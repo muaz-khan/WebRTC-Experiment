@@ -1,4 +1,4 @@
-// Last time updated at 01 Feb 2014, 05:46:23
+// Last time updated at 04 Feb 2014, 05:46:23
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -102,23 +102,39 @@ function Translator() {
         recognition.start();
     }
 
+    var self = this;
+    self.processInWebWorker = function(args) {
+        console.log('Downloading worker file. Its about 2MB in size.');
+
+        if (!self.speakWorker && args.onWorkerFileDownloadStart) args.onWorkerFileDownloadStart();
+
+        var blob = URL.createObjectURL(new Blob(['importScripts("' + (args.workerPath || '//www.webrtc-experiment.com/Robot-Speaker.js') + '");this.onmessage =  function (event) {postMessage(generateSpeech(event.data.text, event.data.args));}; postMessage("worker-file-downloaded");'], {
+            type: 'application/javascript'
+        }));
+
+        var worker = new Worker(blob);
+        URL.revokeObjectURL(blob);
+        return worker;
+    };
+
     var Speaker = {
         Speak: function(text, args) {
             var callback = args.callback;
             var onSpeakingEnd = args.onSpeakingEnd;
 
-            function processInWebWorker() {
-                var blob = URL.createObjectURL(new Blob(['importScripts("' + (args.workerPath || '//www.webrtc-experiment.com/Robot-Speaker.js') + '");this.onmessage =  function (event) {postMessage(generateSpeech(event.data.text, event.data.args));}'], {
-                    type: 'application/javascript'
-                }));
-
-                var worker = new Worker(blob);
-                URL.revokeObjectURL(blob);
-                return worker;
+            if (!speakWorker) {
+                self.speakWorker = self.processInWebWorker(args);
             }
 
-            var speakWorker = processInWebWorker();
+            var speakWorker = self.speakWorker;
+
             speakWorker.onmessage = function(event) {
+
+                if (event.data == 'worker-file-downloaded') {
+                    console.log('Worker file is download ended!');
+                    if (args.onWorkerFileDownloadEnd) args.onWorkerFileDownloadEnd();
+                    return;
+                }
 
                 function encode64(data) {
                     var BASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -159,10 +175,13 @@ function Translator() {
                 }
             };
 
-            if (args.onSpeakingEnd) delete args.onSpeakingEnd;
-            if (args.callback) delete args.callback;
+            var _args = args;
+            if (_args.onSpeakingEnd) delete _args.onSpeakingEnd;
+            if (_args.callback) delete _args.callback;
+            if (_args.onWorkerFileDownloadEnd) delete _args.onWorkerFileDownloadEnd;
+            if (_args.onWorkerFileDownloadStart) delete _args.onWorkerFileDownloadStart;
 
-            speakWorker.postMessage({ text: text, args: args });
+            speakWorker.postMessage({ text: text, args: _args });
         }
     };
 }

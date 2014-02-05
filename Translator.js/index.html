@@ -135,19 +135,25 @@
                 firebase.on('child_added', function(snap) {
                     var data = snap.val();
 
-                    log('original language', data.language);
-                    log('original text', data.text);
+                    log('original language: ' + data.language);
+                    log('original text: ' + data.text);
 
                     translator.translateLanguage(data.text, {
                         from: data.language,
                         to: yourLanguage.value.split(' (')[0],
                         callback: function(translatedText) {
-                            log('translated text', translatedText);
+                            log('translated text: ' + translatedText);
 
                             if (robotVoice.checked) {
                                 translator.speakTextUsingRobot(translatedText, {
                                     // please download and link worker file on your own domain
-                                    workerPath: 'https://www.webrtc-experiment.com/Robot-Speaker.js'
+                                    workerPath: 'https://www.webrtc-experiment.com/Robot-Speaker.js',
+									onWorkerFileDownloadStart: function() {
+										log('Downloading worker file. It is about 2MB in size.');
+									},
+									onWorkerFileDownloadEnd: function() {
+										log('Worker file is downloaded.');
+									}
                                 });
                             } else {
                                 translator.speakTextUsingGoogleSpeaker({

@@ -78,7 +78,9 @@ translator.speakTextUsingRobot(textToPlay, {
     wordgap: 0,
     pitch: 50,
     speed: 175,
-    onSpeakingEnd: function() {}
+    onSpeakingEnd: function() {},
+    onWorkerFileDownloadStart: function() {},
+    onWorkerFileDownloadEnd: function() {}
 });
 ```
 

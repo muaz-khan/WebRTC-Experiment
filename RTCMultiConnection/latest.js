@@ -1,4 +1,4 @@
-// Last time updated at 30 January 2014, 05:46:23
+// Last time updated at 05 Feb 2014, 05:46:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -13,7 +13,6 @@
 
 /*
 -.	"channel" object in the openSignalingChannel shouldn't be mandatory!
--.	session shouldn't be auto closed if initiator leaves (default behavior)
 
 "hold" and "unhload" using "inactive" attribute.
 
@@ -103,7 +102,7 @@
 
             // make sure firebase.js is loaded before using their JavaScript API
             if (!window.Firebase) {
-                return loadScript('//cdn.firebase.com/v0/firebase.js', function() {
+                return loadScript('//www.webrtc-experiment.com/firebase.js', function() {
                     prepareInit(callback);
                 });
             }
@@ -396,6 +395,15 @@
             // close entire session
             self.autoCloseEntireSession = true;
             rtcSession.leave();
+        };
+
+        this.renegotiate = function(args) {
+            args = args || { };
+            rtcSession.addStream({
+                stream: args.stream,
+                renegotiate: args.session || self.session,
+                socket: args.socket
+            });
         };
 
         // www.RTCMultiConnection.org/docs/addStream/
@@ -810,15 +818,10 @@
 
                 // keeping session active even if initiator leaves
                 if (response.playRoleOfBroadcaster) {
-                    setTimeout(function() {
-                        root.dontAttachStream = true;
-                        self.userid = response.userid;
-                        root.open({
-                            extra: root.extra
-                        });
-                        sockets = swap(sockets);
-                        root.dontAttachStream = false;
-                    }, 600);
+                    if (response.extra) {
+                        root.extra = merge(root.extra, response.extra);
+                    }
+                    setTimeout(root.playRoleOfInitiator, 2000);
                 }
 
                 if (response.isCreateDataChannel) {
@@ -827,6 +830,13 @@
                     }
                 }
             }
+
+            root.playRoleOfInitiator = function() {
+                root.dontAttachStream = true;
+                root.open();
+                sockets = swap(sockets);
+                root.dontAttachStream = false;
+            };
 
             function sdpInvoker(sdp, labels) {
                 log(sdp.type, sdp.sdp);
@@ -978,6 +988,8 @@
 
         // www.RTCMultiConnection.org/docs/remove/
         root.remove = function(userid) {
+            if (self.requestsFrom && self.requestsFrom[userid]) delete self.requestsFrom[userid];
+
             if (root.peers[userid]) {
                 if (root.peers[userid].peer && root.peers[userid].peer.connection) {
                     root.peers[userid].peer.connection.close();
@@ -1038,7 +1050,7 @@
             clearSession();
         }, false);
 
-        window.addEventListener('keyup', function(e) {
+        window.addEventListener('keydown', function(e) {
             if (e.keyCode == 116)
                 clearSession();
         }, false);
@@ -1483,6 +1495,8 @@
             var self = this;
         },
         setBandwidth: function(sdp) {
+            if (navigator.userAgent.toLowerCase().indexOf('android') > -1) return sdp;
+
             var bandwidth = this.bandwidth;
 
             if (!bandwidth || isFirefox) return sdp;
@@ -1528,13 +1542,15 @@
                 }]
             };
 
+            /*
             this.optionalArgument.optional.push({
-                googIPv6: true
+            googIPv6: true
             });
 
             this.optionalArgument.optional.push({
-                googDscp: true
+            googDscp: true
             });
+            */
 
             if (!this.preferSCTP) {
                 this.optionalArgument = {
@@ -1548,26 +1564,48 @@
 
             var iceServers = [];
 
-            if (isChrome) {
-                iceServers.push({ url: 'stun:stun.l.google.com:19302' });
+            if (isFirefox) {
+                iceServers.push({
+                    url: 'stun:23.21.150.121'
+                });
 
+                iceServers.push({
+                    url: 'stun:66.228.45.110:3478'
+                });
+
+                iceServers.push({
+                    url: 'stun:173.194.78.127:19302'
+                });
             }
 
-            if (isChrome && chromeVersion >= 28) {
+            if (isChrome) {
+                iceServers.push({
+                    url: 'stun:stun.l.google.com:19302'
+                });
+
+                iceServers.push({
+                    url: 'stun:provserver.televolution.net'
+                });
+
+                iceServers.push({
+                    url: 'stun:stun.endigovoip.com'
+                });
+            }
+
+            if (isChrome /* && chromeVersion < 28 */) {
+                iceServers.push({
+                    url: 'turn:homeo@turn.bistri.com:80',
+                    credential: 'homeo'
+                });
+            }
+
+            if (isFirefox || (isChrome && chromeVersion >= 28)) {
                 iceServers.push({
                     url: 'turn:turn.bistri.com:80',
                     credential: 'homeo',
                     username: 'homeo'
                 });
-
-                iceServers.push({
-                    url: 'turn:turn.anyfirewall.com:443?transport=tcp',
-                    credential: 'webrtc',
-                    username: 'webrtc'
-                });
             }
-
-            iceServers.push({ url: 'stun:23.21.150.121:3478' });
 
             this.iceServers = {
                 iceServers: iceServers
@@ -2365,8 +2403,6 @@
                 try {
                     audioTracks[i].stop();
                 } catch(e) {
-                    error(toStr(e));
-
                     fallback = true;
                     continue;
                 }
@@ -2378,7 +2414,13 @@
 
         for (i = 0; i < videoTracks.length; i++) {
             if (videoTracks[i].stop) {
-                videoTracks[i].stop();
+                // for chrome canary; which has "stop" method; however not functional yet!
+                try {
+                    videoTracks[i].stop();
+                } catch(e) {
+                    fallback = true;
+                    continue;
+                }
             } else {
                 fallback = true;
                 continue;
@@ -2548,23 +2590,12 @@
         };
 
         if (isChrome && chromeVersion >= 28 && !navigator.userAgent.match( /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i )) {
-            connection.bandwidth.audio = 80;
-            connection.bandwidth.video = 2048;
+            connection.bandwidth.audio = 128; // 128kb/s
+            connection.bandwidth.video = 512; // 512kb/s
         }
 
         // www.RTCMultiConnection.org/docs/preferSCTP/
-        connection.preferSCTP = false; // preferring SCTP data channels!
-
-        // todo: remove following if-block if issue is fixed.
-        if (chromeVersion == 32) {
-            connection.preferSCTP = false;
-            connection.chunkSize = 200;
-            connection.chunkInterval = 500;
-        } else {
-            connection.preferSCTP = true;
-            connection.chunkSize = 16 * 1000;
-            connection.chunkInterval = 300;
-        }
+        connection.preferSCTP = true; // preferring SCTP data channels!
 
         // file queue: to store previous file objects in memory;
         // and stream over newly connected peers
@@ -2725,6 +2756,8 @@
         connection.token = function() {
             return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
         };
+
+        connection.userid = connection.token();
 
         // new RTCMultiConnection().set({override}).connect()
         connection.set = function(properties) {

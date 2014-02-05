@@ -1,3 +1,5 @@
+/* Note: A few CSS3 styles are taken from an open-sourced github repo. Those CSS3 styles' credit goes to relevant author. */
+
 ::-webkit-scrollbar {
     width: 12px;
 }
@@ -388,16 +390,16 @@ a {
 }
 
 .renegotiation-panel {
-    position:fixed;
-    bottom:0;
-    left:0;
+    position: fixed;
+    top: 0;
+    left: 0;
     z-index: 1000;
-    opacity:0;
-    visibility:hidden;
-    text-align:center;
-    border-top: 2px solid black;
-    padding-top:4px;
-    border-top-right-radius:3px;
+    opacity: 0;
+    visibility: hidden;
+    text-align: center;
+    border-bottom: 2px solid black;
+    padding-bottom: 4px;
+    border-bottom-right-radius: 3px;
 }
 
 .renegotiation-panel img {
@@ -405,23 +407,23 @@ a {
 }
 
 .renegotiation-panel button {
-    padding:0;
+    padding: 0;
 }
 
 .share-link {
     background: rgba(186, 236, 27, 0.5);
-    margin-top:4px;
+    margin-top: 4px;
     border: 2px solid black;
-    margin-left:4.5%;
-    
-    bottom:20%;
+    margin-left: 4.5%;
+    bottom: 20%;
     width: 30%;
-    position:fixed;
+    position: fixed;
 }
+
 .share-link img {
     width: 100px;
 }
 
 .share-link a {
-    color:black;
+    color: black;
 }

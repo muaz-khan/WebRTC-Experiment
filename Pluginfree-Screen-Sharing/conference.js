@@ -2,7 +2,7 @@
 // MIT License    - www.WebRTC-Experiment.com/licence
 // Documentation  - github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
 
-var conference = function (config) {
+var conference = function(config) {
     var self = {
         userToken: uniqueToken()
     },
@@ -10,15 +10,15 @@ var conference = function (config) {
         isbroadcaster,
         isGetNewRoom = true,
         participants = 1,
-        defaultSocket = {};
+        defaultSocket = { };
 
     function openDefaultSocket() {
         defaultSocket = config.openSocket({
-                onmessage: defaultSocketResponse,
-                callback: function (socket) {
-                    defaultSocket = socket;
-                }
-            });
+            onmessage: defaultSocketResponse,
+            callback: function(socket) {
+                defaultSocket = socket;
+            }
+        });
     }
 
     function defaultSocketResponse(response) {
@@ -31,10 +31,10 @@ var conference = function (config) {
         if (response.userToken && response.joinUser == self.userToken && response.participant && channels.indexOf(response.userToken) == -1) {
             channels += response.userToken + '--';
             openSubSocket({
-                    isofferer: true,
-                    channel: response.channel || response.userToken,
-                    closeSocket: true
-                });
+                isofferer: true,
+                channel: response.channel || response.userToken,
+                closeSocket: true
+            });
         }
     }
 
@@ -43,12 +43,12 @@ var conference = function (config) {
         var socketConfig = {
             channel: _config.channel,
             onmessage: socketResponse,
-            onopen: function () {
+            onopen: function() {
                 if (isofferer && !peer) initPeer();
             }
         };
 
-        socketConfig.callback = function (_socket) {
+        socketConfig.callback = function(_socket) {
             socket = _socket;
             this.onopen();
         };
@@ -57,21 +57,21 @@ var conference = function (config) {
             isofferer = _config.isofferer,
             gotstream,
             htmlElement = document.createElement('video'),
-            inner = {},
+            inner = { },
             peer;
 
         var peerConfig = {
             attachStream: config.attachStream,
-            onICE: function (candidate) {
+            onICE: function(candidate) {
                 socket && socket.send({
-                        userToken: self.userToken,
-                        candidate: {
-                            sdpMLineIndex: candidate.sdpMLineIndex,
-                            candidate: JSON.stringify(candidate.candidate)
-                        }
-                    });
+                    userToken: self.userToken,
+                    candidate: {
+                        sdpMLineIndex: candidate.sdpMLineIndex,
+                        candidate: JSON.stringify(candidate.candidate)
+                    }
+                });
             },
-            onRemoteStream: function (stream) {
+            onRemoteStream: function(stream) {
                 htmlElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
                 htmlElement.play();
 
@@ -99,15 +99,15 @@ var conference = function (config) {
             gotstream = true;
 
             config.onRemoteStream({
-                    video: htmlElement
-                });
+                video: htmlElement
+            });
 
             if (isbroadcaster && channels.split('--').length > 3) {
                 /* broadcasting newly connected participant for video-conferencing! */
                 defaultSocket && defaultSocket.send({
-                        newParticipant: socket.channel,
-                        userToken: self.userToken
-                    });
+                    newParticipant: socket.channel,
+                    userToken: self.userToken
+                });
             }
 
             /* closing subsocket here on the offerer side */
@@ -128,19 +128,19 @@ var conference = function (config) {
             }
 
             socket && socket.send({
-                    userToken: self.userToken,
-                    firstPart: firstPart
-                });
+                userToken: self.userToken,
+                firstPart: firstPart
+            });
 
             socket && socket.send({
-                    userToken: self.userToken,
-                    secondPart: secondPart
-                });
+                userToken: self.userToken,
+                secondPart: secondPart
+            });
 
             socket && socket.send({
-                    userToken: self.userToken,
-                    thirdPart: thirdPart
-                });
+                userToken: self.userToken,
+                thirdPart: thirdPart
+            });
         }
 
         function socketResponse(response) {
@@ -163,9 +163,9 @@ var conference = function (config) {
 
             if (response.candidate && !gotstream) {
                 peer && peer.addICE({
-                        sdpMLineIndex: response.candidate.sdpMLineIndex,
-                        candidate: JSON.parse(response.candidate.candidate)
-                    });
+                    sdpMLineIndex: response.candidate.sdpMLineIndex,
+                    candidate: JSON.parse(response.candidate.candidate)
+                });
             }
         }
 
@@ -186,10 +186,10 @@ var conference = function (config) {
 
     function startBroadcasting() {
         defaultSocket && defaultSocket.send({
-                roomToken: self.roomToken,
-                roomName: self.roomName,
-                broadcaster: self.userToken
-            });
+            roomToken: self.roomToken,
+            roomName: self.roomName,
+            broadcaster: self.userToken
+        });
         setTimeout(startBroadcasting, 3000);
     }
 
@@ -199,16 +199,16 @@ var conference = function (config) {
 
         var new_channel = uniqueToken();
         openSubSocket({
-                channel: new_channel,
-                closeSocket: true
-            });
+            channel: new_channel,
+            closeSocket: true
+        });
 
         defaultSocket.send({
-                participant: true,
-                userToken: self.userToken,
-                joinUser: channel,
-                channel: new_channel
-            });
+            participant: true,
+            userToken: self.userToken,
+            joinUser: channel,
+            channel: new_channel
+        });
     }
 
     function uniqueToken() {
@@ -217,7 +217,7 @@ var conference = function (config) {
 
     openDefaultSocket();
     return {
-        createRoom: function (_config) {
+        createRoom: function(_config) {
             self.roomName = _config.roomName || 'Anonymous';
             self.roomToken = uniqueToken();
 
@@ -225,19 +225,19 @@ var conference = function (config) {
             isGetNewRoom = false;
             startBroadcasting();
         },
-        joinRoom: function (_config) {
+        joinRoom: function(_config) {
             self.roomToken = _config.roomToken;
             isGetNewRoom = false;
 
             openSubSocket({
-                    channel: self.userToken
-                });
+                channel: self.userToken
+            });
 
             defaultSocket.send({
-                    participant: true,
-                    userToken: self.userToken,
-                    joinUser: _config.joinUser
-                });
+                participant: true,
+                userToken: self.userToken,
+                joinUser: _config.joinUser
+            });
         }
     };
 };
@@ -268,12 +268,13 @@ function RTCPeerConnection(options) {
     };
 
     if (!moz && !options.iceServers) {
-        if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
+        if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28) {
             TURN = {
                 url: 'turn:turn.bistri.com:80',
                 credential: 'homeo',
                 username: 'homeo'
             };
+        }
 
         iceServers.iceServers = [STUN, TURN];
     }
@@ -286,16 +287,9 @@ function RTCPeerConnection(options) {
         optional.optional = [{
             DtlsSrtpKeyAgreement: true
         }];
-
-        if (options.onChannelMessage)
-            optional.optional = [{
-                RtpDataChannels: true
-            }];
     }
 
     var peer = new PeerConnection(iceServers, optional);
-
-    openOffererChannel();
 
     peer.onicecandidate = function(event) {
         if (event.candidate)
@@ -362,112 +356,28 @@ function RTCPeerConnection(options) {
             options.onAnswerSDP(sessionDescription);
         }, onSdpError, constraints);
     }
-    
+
     function setBandwidth(sdp) {
-        if(moz) return sdp;
-        
-        var ua = navigator.userAgent.toLowerCase();
-        var isAndroid = ua.indexOf("android") > -1; //&& ua.indexOf("mobile");
-        if(isAndroid) return sdp;
-    
+        if (moz) return sdp;
+        if (navigator.userAgent.toLowerCase().indexOf('android') > -1) return sdp;
+
         // removing existing bandwidth lines
         sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
 
-        // setting "outgoing" audio RTP port's bandwidth to "50kbit/s"
-        sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:50\r\n');
 
         // "300kbit/s" for screen sharing
         sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:300\r\n');
-        
+
         return sdp;
     }
 
-    // if Mozilla Firefox & DataChannel; offer/answer will be created later
-    if ((options.onChannelMessage && !moz) || !options.onChannelMessage) {
-        createOffer();
-        createAnswer();
-    }
+    createOffer();
+    createAnswer();
 
-    // DataChannel management
-    var channel;
-
-    function openOffererChannel() {
-        if (!options.onChannelMessage || (moz && !options.onOfferSDP))
-            return;
-
-        _openOffererChannel();
-
-        if (!moz) return;
-        navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function(stream) {
-                peer.addStream(stream);
-                createOffer();
-            }, useless);
-    }
-
-    function _openOffererChannel() {
-        channel = peer.createDataChannel(options.channel || 'RTCDataChannel', moz ? { } : {
-            reliable: false
-        });
-
-        if (moz) channel.binaryType = 'blob';
-
-        setChannelEvents();
-    }
-
-    function setChannelEvents() {
-        channel.onmessage = function(event) {
-            if (options.onChannelMessage) options.onChannelMessage(event);
-        };
-
-        channel.onopen = function() {
-            if (options.onChannelOpened) options.onChannelOpened(channel);
-        };
-        channel.onclose = function(event) {
-            if (options.onChannelClosed) options.onChannelClosed(event);
-
-            console.warn('WebRTC DataChannel closed', event);
-        };
-        channel.onerror = function(event) {
-            if (options.onChannelError) options.onChannelError(event);
-
-            console.error('WebRTC DataChannel error', event);
-        };
-    }
-
-    if (options.onAnswerSDP && moz && options.onChannelMessage)
-        openAnswererChannel();
-
-    function openAnswererChannel() {
-        peer.ondatachannel = function(event) {
-            channel = event.channel;
-            channel.binaryType = 'blob';
-            setChannelEvents();
-        };
-
-        if (!moz) return;
-        navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function(stream) {
-                peer.addStream(stream);
-                createAnswer();
-            }, useless);
-    }
-
-    // fake:true is also available on chrome under a flag!
-
-    function useless() {
-        log('Error in fake:true');
-    }
-
-    function onSdpSuccess() {
-    }
+    function onSdpSuccess() { }
 
     function onSdpError(e) {
-        console.error('sdp error:', e.name, e.message);
+        console.error('sdp error:', JSON.stringify(e, null, '\t'));
     }
 
     return {
@@ -481,11 +391,7 @@ function RTCPeerConnection(options) {
             }));
         },
 
-        peer: peer,
-        channel: channel,
-        sendData: function(message) {
-            channel && channel.send(message);
-        }
+        peer: peer
     };
 }
 

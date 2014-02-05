@@ -1,4 +1,4 @@
-// Last time updated at 29 January 2014, 05:46:23
+// Last time updated at 04 Feb 2014, 05:46:23
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -6,27 +6,26 @@
 // RTCMultiConnection
 // Documentation  - www.RTCMultiConnection.org/docs
 
-// MultiRTC     - github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC
+// MultiRTC       - npmjs.org/package/multirtc
 
 var rtcMultiConnection = new RTCMultiConnection();
 
 rtcMultiConnection.session = {
-    audio: true,
-    video: true,
+    audio: false,
+    video: false,
     screen: false,
-    data: false
+    data: true
 };
 
 var channels = {};
-var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
 
-var signaling_url = 'https://www.webrtc-experiment.com:12034';
-//  signaling_url = 'http://localhost:12034';
+// var signaling_url = 'https://www.webrtc-experiment.com:12034';
+var signaling_url = '/';
 
 var socketio = io.connect(signaling_url);
 
 socketio.on('message', function (data) {
-    if (data.sender == currentUserUUID) return;
+    if (data.sender == rtcMultiConnection.userid) return;
 
     if (channels[data.channel] && channels[data.channel].onmessage) {
         channels[data.channel].onmessage(data.message);
@@ -42,7 +41,7 @@ rtcMultiConnection.openSignalingChannel = function (config) {
     return {
         send: function (message) {
             socketio.emit('message', {
-                sender: currentUserUUID,
+                sender: rtcMultiConnection.userid,
                 channel: channel,
                 message: message
             });
@@ -86,6 +85,7 @@ rtcMultiConnection.onstream = function (e) {
         width: rightPanel.clientWidth - 20,
         buttons: ['full-screen'],
         enableTooltip: false,
+        showOnMouseEnter: false,
         onZoomin: function () {
             mediaElement.style.left = 0;
             mediaElement.style.top = 0;
@@ -249,6 +249,7 @@ function appendDIV(value, snapshot) {
     textarea.focus();
 }
 
+/*
 rtcMultiConnection.onspeaking = function (e) {
     var div = e.mediaElement.parentNode.parentNode;
 
@@ -262,6 +263,7 @@ rtcMultiConnection.onspeaking = function (e) {
     resizeVideos(div);
 };
 
+*/
 function resizeVideos(div) {
     var videos = document.querySelectorAll('.media-container');
     var length = videos.length;

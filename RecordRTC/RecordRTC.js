@@ -1,10 +1,8 @@
-// Last time updated at 29 January 2014, 05:46:23
+// Last time updated at 03 Feb 2014, 05:46:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
 // Documentation     - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
-
-// Work in Progress  - trello.com/b/lLsjl9s3/RecordRTC
 
 // ____________
 // RecordRTC.js
@@ -1195,9 +1193,7 @@ function MRecordRTC(mediaStream) {
 
         if (this.mediaType.video) {
             this.videoRecorder = RecordRTC(mediaStream, {
-                type: 'video',
-                canvas: this.canvas || { },
-                video: this.video || { }
+                type: 'video'
             }).startRecording();
         }
 

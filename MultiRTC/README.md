@@ -28,10 +28,10 @@ cd ./node_modules/multirtc/ && node signaler.js
 Now, both socket.io and HTTPs servers are running at port `12034`:
 
 ```
-https://localhost:12034/
+http://localhost:12034/
 
 // or
-var socket = io.connect('https://localhost:12034/');
+var socket = io.connect('http://localhost:12034/');
 ```
 
 =
