@@ -1,4 +1,4 @@
-// Last time updated at 05 Feb 2014, 05:46:23
+// Last time updated at 05 Feb 2014, 19:10:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -12,10 +12,8 @@
 // RTCMultiConnection-v1.6
 
 /*
--.	"channel" object in the openSignalingChannel shouldn't be mandatory!
-
-"hold" and "unhload" using "inactive" attribute.
-
+-. "channel" object in the openSignalingChannel shouldn't be mandatory!
+-. "hold" and "unhload" using "inactive" attribute.
 -. JSON parse/stringify options for data transmitted using data-channels; e.g. connection.preferJSON = true; (not-implemented)
 1. chrome crashes on "close" (maybe-fixed)
 4. "onleave" isn't fired sometimes! (not-fixed)
@@ -23,9 +21,7 @@
 7. Connection Timeout & ReDial (not-implemented)
 8. removeTrack() and addTracks() instead of "stop" (not-implemented)
 9. session-duration & statistics (not-implemented)
-9. speech-to-text
-10. text-to-speech
-11. text-to-language
+9. Translator.js for voice and text translation. (not-implemented)
 12. startRecording && stopRecording MUST be compatible with latest RecordRTC i.e. MRecordRTC & writeToDisk/getFromDisk!
 */
 
@@ -330,32 +326,42 @@
                             soundMeter.connectToSource(stream);
                         }
                     },
-                    onerror: function() {
-                        var _error;
+                    onerror: function(e) {
+                        self.onMediaError(toStr(e));
 
-                        if (session.audio && !session.video) {
-                            _error = 'Microphone access is denied.';
-                        } else if (session.screen) {
+                        if (session.audio) {
+                            self.onMediaError('Maybe microphone access is denied.');
+                        }
+
+                        if (session.video) {
+                            self.onMediaError('Maybe webcam access is denied.');
+                        }
+
+                        if (session.screen) {
                             if (isFirefox) {
-                                _error = 'Firefox has not yet released their screen capturing modules. Still work in progress! Please try chrome for now!';
+                                self.onMediaError('Firefox has not yet released their screen capturing modules. Still work in progress! Please try chrome for now!');
                             } else if (location.protocol !== 'https:') {
-                                _error = '<https> is mandatory to capture screen.';
+                                self.onMediaError('<https> is mandatory to capture screen.');
                             } else {
+                                self.onMediaError('Unable to detect actual issue. Trying to check availability of screen sharing flag.');
+
                                 self.caniuse.checkIfScreenSharingFlagEnabled(function(isFlagEnabled, warning) {
                                     if (isFlagEnabled) {
-                                        _error = 'Multi-capturing of screen is not allowed. Capturing process is denied. Try chrome >= M31.';
+                                        if (chromeVersion < 31) {
+                                            self.onMediaError('Multi-capturing of screen is not allowed. Capturing process is denied. Try chrome >= M31.');
+                                        } else {
+                                            self.onMediaError('Unknown screen capturing error.');
+                                        }
                                     }
 
-                                    if (warning) _error = warning;
-                                    else if (!isFlagEnabled) {
-                                        _error = 'It seems that "Enable screen capture support in getUserMedia" flag is not enabled.';
+                                    if (warning) self.onMediaError(warning);
+
+                                    if (!warning) {
+                                        self.onMediaError('It seems that "chrome://flags/#enable-usermedia-screen-capture" flag is not enabled.');
                                     }
                                 });
                             }
-                        } else
-                            _error = 'Webcam access is denied.';
-
-                        self.onMediaError(_error);
+                        }
                     },
                     mediaConstraints: self.mediaConstraints || { }
                 };
@@ -397,6 +403,7 @@
             rtcSession.leave();
         };
 
+        // connection.renegotiate();
         this.renegotiate = function(args) {
             args = args || { };
             rtcSession.addStream({
@@ -1279,26 +1286,26 @@
                 }
             }
 
-            function addStream(peer) {
-                var socket = peer.socket;
+            function addStream(peer00) {
+                var socket = peer00.socket;
                 if (!socket) throw 'Now such socket exists.';
 
                 updateSocketForLocalStreams(socket);
 
-                if (!peer || !peer.peer) {
+                if (!peer00 || !peer00.peer) {
                     throw 'No peer to renegotiate.';
                 }
 
-                peer = peer.peer;
+                peer00 = peer00.peer;
 
                 // detaching old streams
-                detachMediaStream(root.detachStreams, peer.connection);
+                detachMediaStream(root.detachStreams, peer00.connection);
 
                 if (e.stream && (session.audio || session.video || session.screen)) {
-                    peer.connection.addStream(e.stream);
+                    peer00.connection.addStream(e.stream);
                 }
 
-                peer.recreateOffer(session, function(sdp, streaminfo) {
+                peer00.recreateOffer(session, function(sdp, streaminfo) {
                     sendsdp({
                         sdp: sdp,
                         socket: socket,
@@ -1414,7 +1421,7 @@
             this.init();
             this.attachMediaStreams();
 
-            if (this.session.data && isFirefox) {
+            if (isData(this.session) && isFirefox) {
                 navigator.mozGetUserMedia({
                         audio: true,
                         fake: true
@@ -1433,6 +1440,18 @@
                     }, this.onMediaError);
             }
 
+            if (!isData(this.session) && isFirefox) {
+                if (this.session.data && type == 'offer') {
+                    this.createDataChannel();
+                }
+
+                this.getLocalDescription(type);
+
+                if (this.session.data && type == 'answer') {
+                    this.createDataChannel();
+                }
+            }
+
             isChrome && self.getLocalDescription(type);
             return this;
         },
@@ -1445,10 +1464,7 @@
 
             var self = this;
             this.connection[type == 'offer' ? 'createOffer' : 'createAnswer'](function(sessionDescription) {
-                if (isChrome) {
-                    sessionDescription.sdp = self.setBandwidth(sessionDescription.sdp);
-                }
-
+                sessionDescription.sdp = self.setBandwidth(sessionDescription.sdp);
                 self.connection.setLocalDescription(sessionDescription);
                 self.onSessionDescription(sessionDescription, self.streaminfo);
             }, this.onSdpError, this.constraints);
@@ -1495,11 +1511,9 @@
             var self = this;
         },
         setBandwidth: function(sdp) {
-            if (navigator.userAgent.toLowerCase().indexOf('android') > -1) return sdp;
+            if (isMobileDevice || isFirefox || !this.bandwidth) return sdp;
 
             var bandwidth = this.bandwidth;
-
-            if (!bandwidth || isFirefox) return sdp;
 
             // remove existing bandwidth lines
             sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
@@ -1522,17 +1536,10 @@
             this.constraints = {
                 optional: [],
                 mandatory: {
-                    OfferToReceiveAudio: true, // !!this.session.audio,
-                    OfferToReceiveVideo: true  // !!this.session.video || !!this.session.screen
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: true
                 }
             };
-
-            if (isFirefox && this.session.data) {
-                this.constraints.mandatory = {
-                    OfferToReceiveAudio: true,
-                    OfferToReceiveVideo: false
-                };
-            }
 
             log('sdp-constraints', toStr(this.constraints.mandatory));
 
@@ -1543,13 +1550,8 @@
             };
 
             /*
-            this.optionalArgument.optional.push({
-            googIPv6: true
-            });
-
-            this.optionalArgument.optional.push({
-            googDscp: true
-            });
+            this.optionalArgument.optional.push({ googIPv6: true });
+            this.optionalArgument.optional.push({ googDscp: true });
             */
 
             if (!this.preferSCTP) {
@@ -1592,14 +1594,14 @@
                 });
             }
 
-            if (isChrome /* && chromeVersion < 28 */) {
+            if (isChrome && chromeVersion < 28) {
                 iceServers.push({
                     url: 'turn:homeo@turn.bistri.com:80',
                     credential: 'homeo'
                 });
             }
 
-            if (isFirefox || (isChrome && chromeVersion >= 28)) {
+            if (isChrome && chromeVersion >= 28) {
                 iceServers.push({
                     url: 'turn:turn.bistri.com:80',
                     credential: 'homeo',
@@ -1863,12 +1865,10 @@
 
             file.uuid = getRandomString();
 
-            function processInWebWorker(_function) {
-                var blob = URL.createObjectURL(new Blob(['',
-                        _function.toString(),
-                        'this.onmessage =  function (e) {readFile(e.data);}'], {
-                            type: 'application/javascript'
-                        }));
+            function processInWebWorker() {
+                var blob = URL.createObjectURL(new Blob(['function readFile(_file) {postMessage(new FileReaderSync().readAsDataURL(_file));};this.onmessage =  function (e) {readFile(e.data);}'], {
+                    type: 'application/javascript'
+                }));
 
                 var worker = new Worker(blob);
                 URL.revokeObjectURL(blob);
@@ -1876,9 +1876,7 @@
             }
 
             if (!!window.Worker) {
-                var webWorker = processInWebWorker(function readFile(_file) {
-                    postMessage(new FileReaderSync().readAsDataURL(_file));
-                });
+                var webWorker = processInWebWorker();
 
                 webWorker.onmessage = function(event) {
                     onReadAsDataURL(event.data);
@@ -2022,11 +2020,10 @@
     var FileConverter = {
         DataURLToBlob: function(dataURL, fileType, callback) {
 
-            function processInWebWorker(_function) {
-                var blob = URL.createObjectURL(new Blob([_function.toString(),
-                        'this.onmessage =  function (e) {var data = JSON.parse(e.data); getBlob(data.dataURL, data.fileType);}'], {
-                            type: 'application/javascript'
-                        }));
+            function processInWebWorker() {
+                var blob = URL.createObjectURL(new Blob(['function getBlob(_dataURL, _fileType) {var binary = atob(_dataURL.substr(_dataURL.indexOf(",") + 1)),i = binary.length,view = new Uint8Array(i);while (i--) {view[i] = binary.charCodeAt(i);};postMessage(new Blob([view], {type: _fileType}));};this.onmessage =  function (e) {var data = JSON.parse(e.data); getBlob(data.dataURL, data.fileType);}'], {
+                    type: 'application/javascript'
+                }));
 
                 var worker = new Worker(blob);
                 URL.revokeObjectURL(blob);
@@ -2034,19 +2031,7 @@
             }
 
             if (!!window.Worker) {
-                var webWorker = processInWebWorker(function getBlob(_dataURL, _fileType) {
-                    var binary = atob(_dataURL.substr(_dataURL.indexOf(',') + 1)),
-                        i = binary.length,
-                        view = new Uint8Array(i);
-
-                    while (i--) {
-                        view[i] = binary.charCodeAt(i);
-                    }
-
-                    postMessage(new Blob([view], {
-                        type: _fileType
-                    }));
-                });
+                var webWorker = processInWebWorker();
 
                 webWorker.onmessage = function(event) {
                     callback(event.data);
@@ -2220,6 +2205,7 @@
 
     var isChrome = !!navigator.webkitGetUserMedia;
     var isFirefox = !!navigator.mozGetUserMedia;
+    var isMobileDevice = navigator.userAgent.match( /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i );
 
     window.MediaStream = window.MediaStream || window.webkitMediaStream;
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -2253,6 +2239,7 @@
     }
 
     function warn() {
+        if (window.skipRTCMultiConnectionLogs) return;
         console.warn(Array.prototype.slice.call(arguments).join('\n'));
     }
 
@@ -2586,16 +2573,16 @@
 
         // www.RTCMultiConnection.org/docs/bandwidth/
         connection.bandwidth = {
-            data: 1638400
+            data: 1638400 // for RTP-datachannels
         };
 
-        if (isChrome && chromeVersion >= 28 && !navigator.userAgent.match( /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i )) {
-            connection.bandwidth.audio = 128; // 128kb/s
-            connection.bandwidth.video = 512; // 512kb/s
+        if (isChrome && chromeVersion >= 28 && !isMobileDevice) {
+            connection.bandwidth.audio = 128; // 128kbs
+            connection.bandwidth.video = 512; // 512kbs
         }
 
         // www.RTCMultiConnection.org/docs/preferSCTP/
-        connection.preferSCTP = true; // preferring SCTP data channels!
+        connection.preferSCTP = true;
 
         // file queue: to store previous file objects in memory;
         // and stream over newly connected peers
@@ -2608,16 +2595,17 @@
                 this.minWidth = width;
                 this.minHeight = height;
             },
-            minWidth: 640, //  1920 
-            minHeight: 360, // 1080  
+            minWidth: 320,
+            minHeight: 180,
             max: function(width, height) {
                 this.maxWidth = width;
                 this.maxHeight = height;
             },
-            maxWidth: 1920,
-            maxHeight: 1080,
+            maxWidth: 1280,
+            maxHeight: 720,
             bandwidth: 256,
-            minFrameRate: 32,
+            minFrameRate: 1,
+            maxFrameRate: 30,
             minAspectRatio: 1.77
         };
 
@@ -2704,7 +2692,7 @@
 
                     if (session.audio && session.video) {
                         // to synchronize audio/video
-                        session.bufferSize = 2048;
+                        session.bufferSize = 16384;
                     }
 
                     var stream = this.stream;
@@ -2759,7 +2747,7 @@
 
         connection.userid = connection.token();
 
-        // new RTCMultiConnection().set({override}).connect()
+        // new RTCMultiConnection().set({properties}).connect()
         connection.set = function(properties) {
             for (var property in properties) {
                 this[property] = properties[property];
@@ -2772,7 +2760,7 @@
 
         // www.RTCMultiConnection.org/docs/onMediaError/
         connection.onMediaError = function(_error) {
-            alert(_error);
+            error(_error);
         };
 
         // www.RTCMultiConnection.org/docs/stats/
@@ -2959,7 +2947,8 @@
         if (!!window.AudioContext) {
             connection._audioContext = new AudioContext();
         }
-
-        log('www.RTCMultiConnection.org/docs', 'www.RTCMultiConnection.org/changes-log/#v1.6');
     }
 })();
+
+console.log('www.RTCMultiConnection.org/docs', 'www.RTCMultiConnection.org/changes-log/#v1.6');
+console.log('You can disable RTCMultiConnection logs using: window.skipRTCMultiConnectionLogs=true;');
