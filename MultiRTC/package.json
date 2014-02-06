@@ -1,29 +1,22 @@
 {
   "name": "multirtc",
   "preferGlobal": true,
-  "description": "MultiRTC is an all-in-one demo application using RTCMultiConnection.js library. MultiRTC supports: 1. Multi-File sharing among multiple users! 2. Multi-screen sharing among multiple users; in multi-directions! 3. Audio and/or Video among multiple users; in multi-directions! MultiRTC supports many complex renegotiation scenarios so that you can open text chat, same like skype; then you can add/remove medias (audio/video/screen) any time in any direction!  MultiRTC currently targets maximum 8-users per conferencing room; however, it can setup about 256 connections. Demo app: https://www.webrtc-experiment.com:12034/",
-  "scripts": {
-    "start": "signaler.js"
-  },
   "version": "2.0.0",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com"
   },
-  "engines": {
-    "node": "0.10.x"
-  },
-  "dependencies": {
-    "node-static": "0.7.x",
-    "socket.io": "0.9.x"
-  },
+  "description": "MultiRTC is an all-in-one demo application using RTCMultiConnection.js library. MultiRTC supports: 1. Multi-File sharing among multiple users! 2. Multi-screen sharing among multiple users; in multi-directions! 3. Audio and/or Video among multiple users; in multi-directions! MultiRTC supports many complex renegotiation scenarios so that you can open text chat, same like skype; then you can add/remove medias (audio/video/screen) any time in any direction!  MultiRTC currently targets maximum 8-users per conferencing room; however, it can setup about 256 connections. Demo app: https://www.webrtc-experiment.com:12034/",
   "contributors": [
     {
       "name": "Muaz Khan",
       "email": "muazkh@gmail.com"
     }
   ],
-  "main": "signaler.js",
+  "scripts": {
+    "start": "node index"
+  },
+  "main": "./index",
   "repository": {
     "type": "git",
     "url": "https://github.com/muaz-khan/WebRTC-Experiment.git"
@@ -55,12 +48,19 @@
   ],
   "analyze": false,
   "license": "MIT",
+  "engines": {
+    "node": ">=0.6"
+  },
   "readmeFilename": "README.md",
+  "dependencies": {
+    "socket.io": "0.9.x",
+    "node-static": "0.7.x"
+  },
   "bugs": {
     "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues"
   },
-  "homepage": "http://www.RTCMultiConnection.org/docs/",
+  "homepage": "http://www.RTCMultiConnection.org/",
   "_id": "multirtc@2.0.0",
   "_from": "multirtc@",
-  "subdomain": "multirtc"
+  "readme": "#### [MultiRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC) app built using [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/) / [Demo](https://www.webrtc-experiment.com:12034/)\n\nMultiRTC is an all-in-one demo application using RTCMultiConnection.js library. MultiRTC supports:\n\n1. Multi-File sharing among multiple users!\n2. Multi-screen sharing among multiple users; in multi-directions!\n3. Audio and/or Video among multiple users; in multi-directions!\n\nMultiRTC supports many complex renegotiation scenarios so that you can open text chat, same like skype; then you can add/remove medias (audio/video/screen) any time in any direction! \n\nMultiRTC currently targets maximum 8-users per conferencing room; however, it can setup about 256 connections.\n\n<a href=\"https://nodei.co/npm/multirtc/\">\n    <img src=\"https://nodei.co/npm/multirtc.png\">\n</a>\n\n```\n// Dependencies: \n// 1) socket.io (npm install socket.io)\n// 2) node-static (npm install node-static)\n\nnpm install multirtc\n\n// to run it!\ncd ./node_modules/multirtc/ && node signaler.js\n```\n\nNow, both socket.io and HTTPs servers are running at port `12034`:\n\n```\nhttps://localhost:12034/\n\n// or\nvar socket = io.connect('https://localhost:12034/');\n```\n\n=\n\n##### License\n\n[RTCMultiConnection.js](http://www.RTCMultiConnection.org/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).\n"
 }

@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
     <head>
-        <title>RTCMultiConnection API Reference / "addStream" method</title>
+        <title>RTCMultiConnection API Reference / "renegotiate" method</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -12,6 +12,8 @@
         <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
 	
         <style>
+            code { font-size: 1.2em; }
+
             p { padding: .8em; }
 
             li {
@@ -51,75 +53,27 @@
         <article>
             <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">RTCMultiConnection Docs</a>
 
-            <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/addStream/">addStream</a>" method</h1>
+            <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/renegotiate/">renegotiate</a>" method</h1>
 				
             <ol>
                 <li>
-                    "<a href="http://www.RTCMultiConnection.org/docs/addStream/">addStream</a>" method appends media stream in all peer connections:
-                </li>
-                <li>
-                    <pre class="sh_javascript">
-// runtime sharing of audio/video among all users
-connection.<a href="http://www.RTCMultiConnection.org/docs/addStream/">addStream</a>({
-    audio: true,
-    video: true
-});
-</pre>
-                </li>
-			
-                <li>
-                    You can use "<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>" object to append between two unique users:
+                    "<a href="http://www.RTCMultiConnection.org/docs/renegotiate/">renegotiate</a>" method is useful to retry/renegotiate with or without adding additioanl method streams!
                 </li>
 			
                 <li>
                     <pre class="sh_javascript">
-// runtime sharing of screen among two unique users
-// one is you; and other is person whose id is given below
-connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['user-id'].addStream({
-    screen: true,
-    oneway: true
-});
+connection.renegotiate(optional_Custom_MediaStream);
 </pre>
-
-                </li>
-                <li>
-                    Renegotiation is a process allows you modify pre-created peer connections when you want to:
-				
-                    <ol>
-                        <li>append additional streams</li>
-                        <li>remove existing streams</li>
-                        <li>modify SDP for peers direction or something else</li>
-                    </ol>
                 </li>
 			
                 <li>
-                    Renegotiation means re-exchanging offer/answer SDP among peers.
+                    This method renegotiates among all users in the section. To renegotiate between two unique users; try "<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>" object:
                 </li>
-			
-                <li>
-                    Renegotiation means you want to use same peer-connections to append dynamic streams at runtime.
-                </li>
-			
 			
                 <li>
                     <pre class="sh_javascript">
-// runtime sharing of audio/video among all users
-connection.addStream({
-    audio: true,
-    video: true
-});
-
-// runtime sharing of screen among two unique users
-// one is you; and other is person whose id is given below
-connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['user-id'].addStream({
-    screen: true,
-    oneway: true
-});
+connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['user-id'].renegotiate(optional_Custom_MediaStream);
 </pre>
-                </li>
-			
-                <li>
-                    Remember, renegotiation means: use existing peer connections to negotiate session descriptions.
                 </li>
             </ol>
 		
@@ -154,9 +108,9 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['us
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left: 1em;">You can include your email for private conversation!</small>
             </section>
         </article>
-	
+    
         <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
-	
+    
         <footer>
             <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
             <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©

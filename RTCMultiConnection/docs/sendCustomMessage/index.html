@@ -95,6 +95,20 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/sendCustomMessage/">s
 connection.<a href="http://www.RTCMultiConnection.org/docs/onCustomMessage/">onCustomMessage</a> = function(message) { };
 </pre>
 			</li>
+            
+            <li>
+                For private "custom" messages; try "<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>" object:
+            </li>
+            
+            <li>
+                <pre class="sh_javascript">
+// send private message to target user; privacy is guaranteed!
+connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['user-id'].sendCustomMessage('private-message');
+connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['user-id'].onCustomMessage = function(privateMessage) {
+    console.log('private custom message', privateMessage);
+};
+</pre>
+            </li>
 		</ol>
 
         <br />

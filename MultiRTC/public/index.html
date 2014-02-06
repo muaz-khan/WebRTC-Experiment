@@ -37,7 +37,7 @@
         <script src="/socketio.js"> </script>
 		
 		<!-- RTCMultiConnection-v1.6 is used for WebRTC integration! -->
-		<script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.js"> </script>
+		<script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.min.js"> </script>
 		
 		<!-- getMediaElement.js is used to prettify <audio>/<video> elements -->
         <script src="//www.webrtc-experiment.com/getMediaElement.min.js"> </script>
@@ -79,6 +79,19 @@
             </button>
         </aside>
         
+        <aside class="bandwidth-panel">
+            <label for="set-bandwidth">Set Bandwidth</label><br />
+            <select id="set-bandwidth" style="width: 125px;">
+                <option>128kbs audio, 512kbs video</option>
+                <option>80kbs audio, 256kbs video</option>
+                <option>50kbs audio, 256kbs video</option>
+                <option>50kbs audio, 100kbs video</option>
+                <option>30kbs audio, 80kbs video</option>
+                <option>20kbs audio, 50kbs video</option>
+                <option>20kbs audio, 30kbs video</option>
+            </select>
+        </aside>
+        
         <aside class="right-panel">
             <br />
             <h2>
@@ -87,7 +100,7 @@
             <section>  
                 <div class="check-box">
                     <span>Audio</span>
-                    <input type="checkbox" value="None" id="audio" />
+                    <input type="checkbox" value="None" id="audio" checked />
                     <label for="audio"></label>
                 </div>
             </section>
@@ -95,7 +108,7 @@
             <section>  
                 <div class="check-box">
                     <span>Video</span>
-                    <input type="checkbox" value="None" id="video" />
+                    <input type="checkbox" value="None" id="video" checked />
                     <label for="video"></label>
                 </div>
             </section>
@@ -178,7 +191,7 @@ Supported browsers: Desktop(Chrome, Firefox, Opera), Android(Chrome, Firefox)
         </footer>
 		
         <!-- this file is used to play sound on receiving participation request -->
-        <audio id="IM_sound" src="//www.webrtc-experiment.com/sound/IM_sound.wav"></audio>
+        <audio id="IM_sound" src="//www.webrtc-experiment.com/sound/IM_sound.wav"></audio> 
 
         <!-- User Interface -->
         <script src="/ui.js"> </script>

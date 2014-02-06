@@ -427,3 +427,20 @@ a {
 .share-link a {
     color: black;
 }
+
+.bandwidth-panel {
+    position: fixed;
+    top: 0;
+    left: 20%;
+    z-index: 1000;
+    text-align: center;
+    border: 2px solid rgb(43, 41, 41);
+    padding-bottom: 4px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    background: rgba(213, 213, 213, 0.68);
+    padding: .4em .8em;
+    padding-top: 0;
+    opacity: 0;
+    visibility: hidden;
+}

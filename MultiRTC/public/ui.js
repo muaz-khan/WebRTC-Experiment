@@ -1,4 +1,4 @@
-// Last time updated at 04 Feb 2014, 05:46:23
+// Last time updated at 06 Feb 2014, 05:46:23
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -11,8 +11,8 @@
 var rtcMultiConnection = new RTCMultiConnection();
 
 rtcMultiConnection.session = {
-    audio: false,
-    video: false,
+    audio: true,
+    video: true,
     screen: false,
     data: true
 };
@@ -112,6 +112,11 @@ rtcMultiConnection.onstream = function (e) {
     }, 2000);
 
     resizeVideos();
+    
+    if(e.type == 'remote') {
+        bandWidthPanel.style.visibility = 'visible';
+        bandWidthPanel.style.opacity = 1;
+    }
 };
 
 rtcMultiConnection.onopen = function (e) {
@@ -196,6 +201,19 @@ function init() {
     renegotiationPanel.style.opacity = 1;
 }
 
+var bandWidthPanel = document.querySelector('.bandwidth-panel');
+
+document.querySelector('#set-bandwidth').onchange = function() {
+    var audio = this.value.split(', ')[0].split('kbs')[0];
+    var video = this.value.split(', ')[1].split('kbs')[0];
+    for(var peer in rtcMultiConnection.peers) {
+        rtcMultiConnection.peers[peer].changeBandwidth({
+            audio: audio,
+            video: video
+        });
+    }
+};
+
 rtcMultiConnection.onmessage = function (e) {
     appendDIV(e.data, rtcMultiConnection.snapshots[e.userid] || 'images/user.png');
 };
@@ -249,37 +267,9 @@ function appendDIV(value, snapshot) {
     textarea.focus();
 }
 
-/*
-rtcMultiConnection.onspeaking = function (e) {
-    var div = e.mediaElement.parentNode.parentNode;
-
-    rightPanel.insertBefore(div, rightPanel.firstChild);
-    if (div.querySelector('video')) {
-        div.querySelector('video').play();
-    }
-    if (div.querySelector('audio')) {
-        div.querySelector('audio').play();
-    }
-    resizeVideos(div);
-};
-
-*/
 function resizeVideos(div) {
     var videos = document.querySelectorAll('.media-container');
     var length = videos.length;
-
-    for (var i = 0; i < length; i++) {
-        videos[i].onclick = function () {
-            rightPanel.insertBefore(div, rightPanel.firstChild);
-            if (div.querySelector('video')) {
-                div.querySelector('video').play();
-            }
-            if (div.querySelector('audio')) {
-                div.querySelector('audio').play();
-            }
-            resizeVideos();
-        };
-    }
 
     if (length >= 1) {
         var isData = rtcMultiConnection.session.data;
