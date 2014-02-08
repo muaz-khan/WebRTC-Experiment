@@ -1,22 +1,10 @@
+## [RTCMultiConnection.js](http://www.rtcmulticonnection.org/docs/) Library!
+
 <a href="http://www.rtcmulticonnection.org/docs/">
     <img src="http://www.rtcmulticonnection.org/img/documentation.png" />
 </a>
 
-=
-
-### Browser Support
-
-<a href="http://www.rtcmulticonnection.org/docs/">
-	<img src="http://www.rtcmulticonnection.org/img/browser-support.png" />
-</a>
-
-=
-
-### What is RTCMultiConnection?
-
-<a href="http://www.rtcmulticonnection.org/docs/">
-	<img src="http://www.rtcmulticonnection.org/What-is-RTCMultiConnection.gif" />
-</a>
+http://www.rtcmulticonnection.org/docs/
 
 =
 
@@ -34,9 +22,12 @@ document.getElementById('openNewSessionButton').onclick = function() {
 
 =
 
+## Documentation Links
+
 1. http://www.rtcmulticonnection.org/docs/
 2. http://www.rtcmulticonnection.org/changes-log/
 3. http://www.rtcmulticonnection.org/FAQ/
+4. http://www.rtcmulticonnection.org/peers/
 
 [RTCMultiConnection Getting Started Guide](http://www.rtcmulticonnection.org/docs/getting-started/)
 
@@ -48,7 +39,7 @@ https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
 =
 
-##### Below documentation is old. Follow above links.
+## Below documentation is old.
 
 =
 
