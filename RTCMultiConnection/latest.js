@@ -1,4 +1,4 @@
-// Last time updated at 08 Feb 2014, 19:28:23
+// Last time updated at 09 Feb 2014, 19:28:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -12,6 +12,8 @@
 // RTCMultiConnection-v1.6
 
 /*
+-. "saveToDisk" method added!
+-. Now, MRecordRTC is used for audio/video recording.
 -. Connection Timeout & ReDial (not-implemented)
 
 -. "channel" object in the openSignalingChannel shouldn't be mandatory!
@@ -20,7 +22,6 @@
 8. removeTrack() and addTracks() instead of "stop" (not-implemented)
 9. session-duration & statistics (not-implemented)
 9. Translator.js for voice and text translation. (not-implemented)
-12. startRecording && stopRecording MUST be compatible with latest RecordRTC i.e. MRecordRTC & writeToDisk/getFromDisk!
 */
 
 (function() {
@@ -1275,7 +1276,9 @@
             if (root.direction == 'one-to-one') root.maxParticipantsAllowed = 1;
             if (root.direction == 'one-to-many') root.session.broadcast = true;
             if (root.direction == 'many-to-many') {
-                root.maxParticipantsAllowed = 256;
+                if (!root.maxParticipantsAllowed || root.maxParticipantsAllowed == 1) {
+                    root.maxParticipantsAllowed = 256;
+                }
             }
         }
 
@@ -2703,6 +2706,8 @@
         // www.RTCMultiConnection.org/docs/bandwidth/
         connection.bandwidth = {
             
+
+
         // data: 1638400 // for RTP-datachannels
         };
 
@@ -2820,24 +2825,10 @@
                         });
                     }
 
-                    if (session.audio && session.video) {
-                        // to synchronize audio/video
-                        session.bufferSize = 16384;
-                    }
-
-                    var stream = this.stream;
-                    if (session.audio) {
-                        this.recordAudio = RecordRTC(stream, session);
-                        this.recordAudio.startRecording();
-                    }
-
-                    // webp not supported on firefox; that's why using gif instead!
-                    if (session.video) {
-                        this.recordVideo = RecordRTC(stream, merge(session, {
-                            type: isChrome ? 'video' : 'gif'
-                        }));
-                        this.recordVideo.startRecording();
-                    }
+                    this.recorder = new MRecordRTC();
+                    this.recorder.mediaType = session;
+                    this.recorder.addStream(this.stream);
+                    this.recorder.startRecording();
                 },
                 stopRecording: function(callback, session) {
                     if (!session) session = { audio: true, video: true };
@@ -2848,25 +2839,10 @@
                         };
                     }
 
-                    var audioBlob, videoBlob;
-
-                    if (session.audio && this.recordAudio) {
-                        this.recordAudio.stopRecording();
-
-                        audioBlob = this.recordAudio.getBlob();
-                        audioBlob.recordingType = 'audio';
-                    }
-
-                    if (session.video && this.recordVideo) {
-                        this.recordVideo.stopRecording();
-
-                        videoBlob = this.recordVideo.getBlob();
-                        videoBlob.recordingType = 'video';
-                    }
-
-                    if (session.audio && session.video && callback) {
-                        callback(audioBlob, videoBlob);
-                    } else if (callback) callback(audioBlob || videoBlob);
+                    this.recorder.stopRecording();
+                    this.recorder.getBlob(function(blob) {
+                        callback(blob.audio || blob.video, blob.video);
+                    });
                 }
             };
         };
@@ -2996,6 +2972,11 @@
             }
         };
 
+        connection.saveToDisk = function(blob) {
+            if (blob.size && blob.type) FileSaver.SaveToDisk(URL.createObjectURL(blob));
+            else FileSaver.SaveToDisk(blob);
+        };
+
         // www.WebRTC-Experiment.com/demos/MediaStreamTrack.getSources.html
         connection._mediaSources = { };
 
@@ -3079,6 +3060,3 @@
         }
     }
 })();
-
-console.log('www.RTCMultiConnection.org/docs', 'www.RTCMultiConnection.org/changes-log/#v1.6');
-console.log('You can disable RTCMultiConnection logs using: window.skipRTCMultiConnectionLogs=true;');

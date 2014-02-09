@@ -1,5 +1,5 @@
 ﻿<!--
-// Last time updated at 05 Feb 2014, 05:46:23
+// Last time updated at 08 Feb 2014, 19:46:23
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -58,11 +58,14 @@
         </aside>
         
         <aside class="renegotiation-panel">
-            <select id="renegotiation-direction" style="width: 125px;">
+			<button id="renegotiate" title="Add More Streams!">
+                <img src="/images/renegotiate.png">
+            </button><br />
+            <select id="renegotiation-direction" style="width: 100px;">
                 <option>Two-Way</option>
                 <option>One-Way</option>
             </select><br />
-            <select id="renegotiation-options" style="width: 125px;">
+            <select id="renegotiation-options" style="width: 100px;">
                 <option>Screen</option>
                 <option>Audio</option>
                 <option>Video</option>
@@ -72,18 +75,14 @@
                 <option>Audio+Video+Screen</option>
                 <option>Audio+Data</option>
                 <option>Screen+Data</option>
-            </select><br />
-            
-            <button id="renegotiate" title="Add More Streams!">
-                <img src="/images/renegotiate.png">
-            </button>
+            </select>
         </aside>
         
         <aside class="bandwidth-panel">
-            <label for="set-bandwidth">Set Bandwidth</label><br />
+            <label for="set-bandwidth">Set Bandwidth</label>
             <select id="set-bandwidth" style="width: 125px;">
                 <option>128kbs audio, 512kbs video</option>
-                <option>80kbs audio, 256kbs video</option>
+                <option selected>80kbs audio, 256kbs video</option>
                 <option>50kbs audio, 256kbs video</option>
                 <option>50kbs audio, 100kbs video</option>
                 <option>30kbs audio, 80kbs video</option>
@@ -180,11 +179,9 @@
             </button>
 			
             <textarea readonly>
-Welcome to MultiRTC!
+Welcome to MultiRTC Demo!
 				
-You can share audio/video/screen as well as file/data among multiple users (100% privately and reliably!!).
-
-Users max-limit is 256!
+MultiRTC allows you share audio/video/screen as well as file/data among multiple users (100% privately and reliably!!).
 
 Supported browsers: Desktop(Chrome, Firefox, Opera), Android(Chrome, Firefox)
 </textarea>

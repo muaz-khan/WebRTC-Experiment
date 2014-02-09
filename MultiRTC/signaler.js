@@ -1,4 +1,4 @@
-// Last time updated at 05 Feb 2014, 05:46:23
+// Last time updated at 08 Feb 2014, 19:46:23
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -26,8 +26,18 @@ var app = require('http').createServer(function(request, response) {
 // socket.io implementation
 var io = require('socket.io').listen(app);
 io.sockets.on('connection', function(socket) {
+    var room = socket.handshake.query.room;
+    var userid = socket.handshake.query.userid;
+    
     socket.on('message', function(data) {
         socket.broadcast.emit('message', data);
+    });
+    
+    socket.on('disconnect', function() {
+        socket.broadcast.emit('user-left', {
+            userid: userid,
+            room: room
+        });
     });
 });
 

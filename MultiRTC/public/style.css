@@ -303,9 +303,8 @@ button[disabled] {
     font-size: 1em;
 }
 
-.media-container {
+. {
     position: absolute;
-    left: 21%;
 }
 
 #start-webrtc-session {
@@ -380,19 +379,10 @@ a {
     border-top: 2px solid black;
 }
 
-.media-container {
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 0;
-    height: auto;
-}
-
 .renegotiation-panel {
     position: fixed;
-    top: 0;
-    left: 0;
+    bottom: 6%;
+    right: 0;
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
@@ -430,8 +420,8 @@ a {
 
 .bandwidth-panel {
     position: fixed;
-    top: 0;
-    left: 20%;
+    bottom: 0;
+	right: 15%;
     z-index: 1000;
     text-align: center;
     border: 2px solid rgb(43, 41, 41);
@@ -439,7 +429,6 @@ a {
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
     background: rgba(213, 213, 213, 0.68);
-    padding: .4em .8em;
     padding-top: 0;
     opacity: 0;
     visibility: hidden;

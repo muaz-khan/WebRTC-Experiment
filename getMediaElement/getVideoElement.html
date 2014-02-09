@@ -1,9 +1,9 @@
 ﻿<script src="//www.webrtc-experiment.com/getMediaElement.js"> </script>
 <script>
 navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-navigator.getUserMedia({ audio: true }, function(stream) {
+navigator.getUserMedia({ audio: true, video: true }, function(stream) {
     var audioElement = getMediaElement(stream, {
-        toggle: ['record-audio']
+        toggle: ['mute-audio']
     });
 
     document.body.appendChild(audioElement);

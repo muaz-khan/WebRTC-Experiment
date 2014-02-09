@@ -19,7 +19,7 @@
             document.createElement('section');
             document.createElement('footer');
         </script>
-        <script src="https://www.WebRTC-Experiment.com/getMediaElement.min.js"> </script>
+        <script src="//www.webrtc-experiment.com/getMediaElement.js"> </script>
         <style>
             * {
                 margin: 0;
@@ -258,7 +258,7 @@
                 </div>
             </section>
         
-            <hr />
+            <hr /><br /><br /><br /><br /><br /><hr />
         
             <section>  
                 <div class="check-box">
@@ -283,22 +283,12 @@
                     <label for="stop"></label>
                 </div>
             </section>
-        
-            <hr />
-        
+			
             <section>  
                 <div class="check-box">
-                    <span>enableTooltip</span>
-                    <input type="checkbox" value="None" id="enableTooltip" checked />
-                    <label for="enableTooltip"></label>
-                </div>
-            </section>
-        
-            <section>  
-                <div class="check-box">
-                    <span>showOnMouseEnter</span>
-                    <input type="checkbox" value="None" id="showOnMouseEnter" checked />
-                    <label for="showOnMouseEnter"></label>
+                    <span>take-snapshot</span>
+                    <input type="checkbox" value="None" id="take-snapshot" checked />
+                    <label for="take-snapshot"></label>
                 </div>
             </section>
         </aside>
@@ -310,12 +300,14 @@
         <script>
             var mediaStream;
 
+            navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+
             function getAndUpdateMediaElement() {
                 if (!mediaStream)
-                    navigator.webkitGetUserMedia({ video: true }, function(stream) {
+                    navigator.getUserMedia({ video: true }, function(stream) {
                         mediaStream = stream;
                         _getMediaElement();
-                    });
+                    }, function() { });
                 else _getMediaElement();
 
                 function _getMediaElement() {
@@ -326,7 +318,7 @@
                     var buttons = [];
                     var button_values = "";
 
-                    var possibleValues = ['mute-audio', 'mute-video', 'full-screen', 'volume-slider', 'stop', 'record-audio', 'record-video'];
+                    var possibleValues = ['mute-audio', 'mute-video', 'full-screen', 'volume-slider', 'stop', 'record-audio', 'record-video', 'take-snapshot'];
 
                     var checkboxes = document.querySelectorAll('input[type=checkbox]');
                     for (var i = 0; i < checkboxes.length; i++) {
@@ -344,8 +336,6 @@
                     document.querySelector('.preview').appendChild(getMediaElement(video, {
                         width: document.querySelector('.preview').clientWidth - 20,
                         buttons: buttons,
-                        enableTooltip: !!document.querySelector('#enableTooltip').checked,
-                        showOnMouseEnter: !!document.querySelector('#showOnMouseEnter').checked,
                         onMuted: function(type) {
                             document.querySelector('textarea').value = 'onMuted: type=' + type;
                         },
@@ -366,13 +356,12 @@
                         },
                         onStopped: function() {
                             document.querySelector('textarea').value = 'onStopped';
+                            mediaStream.stop();
                         }
                     }));
 
                     var text = '//www.webrtc-experiment.com/getMediaElement.min.js\n\ngetMediaElement(MediaStream, {\n';
                     text += '  width: ' + document.querySelector('.preview').clientWidth + ',\n';
-                    text += '  showOnMouseEnter: ' + !!document.querySelector('#enableTooltip').checked + ',\n';
-                    text += '  enableTooltip: ' + !!document.querySelector('#showOnMouseEnter').checked + ',\n';
                     text += '  buttons: [';
 
                     text += button_values;
