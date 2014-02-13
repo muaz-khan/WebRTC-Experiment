@@ -1,11 +1,12 @@
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+<script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.4.min.js"> </script>
+<style>video {width: 100%;}</style>
 <script>
     var connection = new RTCMultiConnection('webrtc-tab-sharing');
     
     // chrome extension API fails if b=AS in the sdp
-    connection.bandwidth.video = false;
+    connection.bandwidth = {};
     
-    // overriding for websockets
+    // overriding for web-sockets
     connection.openSignalingChannel = openSignalingChannel;
     
     // on successfully getting shared tab
@@ -21,7 +22,7 @@
     // searching for shared tabs
     connection.connect();
 
-    // using websockets for signaling
+    // using web-sockets for signaling
     function openSignalingChannel(config) {
         config.channel = config.channel || this.channel;
         var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');

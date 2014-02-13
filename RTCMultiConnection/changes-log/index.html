@@ -198,6 +198,38 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/onunhold/">onunhold</
 </pre>
 
 				</li>
+                
+                <li>
+					If you're recording both audio and video; then "<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>" will return both blobs in the single callback; where 1st parameter value will be audio-blob; and 2nd parameter value will be video-blob:
+					
+					<pre class="sh_javascript">
+// stop both audio/video streams
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (audioBlob, videoBlob) {
+    // POST both audio/video "Blobs" to PHP/other server using single FormData/XHR2
+}, {audio:true, video:true} );
+</pre>
+
+				</li>
+                
+                <li>
+					"<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>" method added. You can invoke save-as dialog like this:
+					
+					<pre class="sh_javascript">
+// "fileName" is optional
+connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(fileURL, fileName);
+
+// you can save recorded blob to disk like this:
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (audioBlob, videoBlob) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(audioBlob);
+    connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(videoBlob);
+}, {audio:true, video:true} );
+</pre>
+
+				</li>
+                
+                <li>
+					Now, <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC">MRecordRTC</a> is used for <a href="http://www.RTCMultiConnection.org/docs/startRecordnig/">audio/video recording</a>!
+				</li>
             </ol>
 		
             <h2 id="v1.5">v1.5 / released in Dec 31, 2013</h2>

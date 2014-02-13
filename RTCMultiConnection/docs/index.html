@@ -993,6 +993,20 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/onunhold/">onunhold</
 };
 </pre>
                         </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>
+                            <pre class="sh_javascript">
+// "fileName" is optional
+connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(fileURL, fileName);
+
+// you can save recorded blob to disk like this:
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (audioBlob, videoBlob) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(audioBlob);
+    connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(videoBlob);
+}, {audio:true, video:true} );
+</pre>
+                        </li>
                    
                     </ol>
                 </li>

@@ -1,4 +1,4 @@
-// Last time updated at 09 Feb 2014, 19:28:23
+// Last time updated at 12 Feb 2014, 16:32:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -12,10 +12,7 @@
 // RTCMultiConnection-v1.6
 
 /*
--. "saveToDisk" method added!
--. Now, MRecordRTC is used for audio/video recording.
 -. Connection Timeout & ReDial (not-implemented)
-
 -. "channel" object in the openSignalingChannel shouldn't be mandatory!
 -. JSON parse/stringify options for data transmitted using data-channels; e.g. connection.preferJSON = true; (not-implemented)
 6. "onspeaking" and "onsilence" fires too often! (not-fixed)
@@ -738,9 +735,12 @@
 
                                 if (stream.userid == root.userid && stream.type == 'local') {
                                     this.peer.connection.removeStream(stream.stream);
+                                    root.onstreamended(stream.streamObject);
                                 }
 
-                                root.onstreamended(stream.streamObject);
+                                if (stream.type == 'remote' && stream.userid == this.userid) {
+                                    root.onstreamended(stream.streamObject);
+                                }
                             }
                         }
 
@@ -935,6 +935,8 @@
                     if (!root.peers[response.userid]) throw 'No such peer exists.';
                     root.peers[response.userid].drop(true);
                     root.peers[response.userid].renegotiate();
+
+                    root.ondrop(response.userid);
                 }
 
                 if (response.hold) {
@@ -1220,7 +1222,7 @@
 
                     if (response.customMessage) {
                         if (response.message.drop) {
-                            root.ondrop();
+                            root.ondrop(response.userid);
 
                             root.attachStreams = [];
                             // "drop" should detach all local streams
@@ -1229,6 +1231,7 @@
                                     stream = root.streams[stream];
                                     if (stream.type == 'local') {
                                         root.detachStreams.push(stream.streamid);
+                                        root.onstreamended(stream.streamObject);
                                     } else root.onstreamended(stream.streamObject);
                                 }
                             }
@@ -1402,7 +1405,7 @@
 
             function addStream(peer00) {
                 var socket = peer00.socket;
-                if (!socket) throw 'Now such socket exists.';
+                if (!socket) throw 'No such socket exists.';
 
                 updateSocketForLocalStreams(socket);
 
@@ -1634,6 +1637,8 @@
             var self = this;
         },
         setBandwidth: function(sdp) {
+            // sdp.replace( /a=sendrecv\r\n/g , 'a=sendrecv\r\nb=AS:50\r\n');
+
             if (isMobileDevice || isFirefox || !this.bandwidth) return sdp;
 
             var bandwidth = this.bandwidth;
@@ -1695,6 +1700,10 @@
                 iceServers.push({
                     url: 'stun:23.21.150.121'
                 });
+
+                iceServers.push({
+                    url: 'stun:stun.services.mozilla.com'
+                });
             }
 
             if (isChrome) {
@@ -1719,24 +1728,6 @@
                     url: 'turn:turn.bistri.com:80',
                     credential: 'homeo',
                     username: 'homeo'
-                });
-
-                iceServers.push({
-                    url: 'turn:turn.anyfirewall.com:3478?transport=udp',
-                    credential: 'webrtc',
-                    username: 'webrtc'
-                });
-
-                iceServers.push({
-                    url: 'turn:turn.anyfirewall.com:3478?transport=tcp',
-                    credential: 'webrtc',
-                    username: 'webrtc'
-                });
-
-                iceServers.push({
-                    url: 'turn:turn.anyfirewall.com:443?transport=tcp',
-                    credential: 'webrtc',
-                    username: 'webrtc'
                 });
             }
 
@@ -1779,7 +1770,7 @@
             var dataChannelDict = { };
 
             if (isChrome && !this.preferSCTP) {
-                dataChannelDict.reliable = false;
+                dataChannelDict.reliable = false; // Deprecated!
             }
 
             if (isFirefox) {
@@ -2651,8 +2642,20 @@
             log('onleave', toStr(e));
         };
 
+        connection.token = function() {
+            return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
+        };
+
+        // www.RTCMultiConnection.org/docs/userid/
+        connection.userid = connection.token();
+
         // www.RTCMultiConnection.org/docs/peers/
         connection.peers = { };
+        connection.peers[connection.userid] = {
+            drop: function() {
+                connection.drop();
+            }
+        };
 
         connection._skip = ['stop', 'mute', 'unmute', '_private'];
 
@@ -2708,6 +2711,7 @@
             
 
 
+
         // data: 1638400 // for RTP-datachannels
         };
 
@@ -2730,8 +2734,8 @@
                 this.minWidth = width;
                 this.minHeight = height;
             },
-            minWidth: 320,
-            minHeight: 180,
+            minWidth: 640,
+            minHeight: 360,
             max: function(width, height) {
                 this.maxWidth = width;
                 this.maxHeight = height;
@@ -2830,15 +2834,7 @@
                     this.recorder.addStream(this.stream);
                     this.recorder.startRecording();
                 },
-                stopRecording: function(callback, session) {
-                    if (!session) session = { audio: true, video: true };
-                    else if (typeof session == 'string') {
-                        session = {
-                            audio: session == 'audio',
-                            video: session == 'video'
-                        };
-                    }
-
+                stopRecording: function(callback) {
                     this.recorder.stopRecording();
                     this.recorder.getBlob(function(blob) {
                         callback(blob.audio || blob.video, blob.video);
@@ -2846,12 +2842,6 @@
                 }
             };
         };
-
-        connection.token = function() {
-            return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
-        };
-
-        connection.userid = connection.token();
 
         // new RTCMultiConnection().set({properties}).connect()
         connection.set = function(properties) {
@@ -2972,9 +2962,9 @@
             }
         };
 
-        connection.saveToDisk = function(blob) {
-            if (blob.size && blob.type) FileSaver.SaveToDisk(URL.createObjectURL(blob));
-            else FileSaver.SaveToDisk(blob);
+        connection.saveToDisk = function(blob, fileName) {
+            if (blob.size && blob.type) FileSaver.SaveToDisk(URL.createObjectURL(blob), fileName || blob.name || blob.type.replace('/', '-') + blob.type.split('/')[1]);
+            else FileSaver.SaveToDisk(blob, fileName);
         };
 
         // www.WebRTC-Experiment.com/demos/MediaStreamTrack.getSources.html
@@ -3028,8 +3018,8 @@
         };
 
         // www.RTCMultiConnection.org/docs/ondrop/
-        connection.ondrop = function() {
-            log('Connection is dropped!');
+        connection.ondrop = function(droppedBy) {
+            log('Media connection is dropped by ' + droppedBy);
         };
 
         // www.RTCMultiConnection.org/docs/drop/
@@ -3043,6 +3033,7 @@
                     stream = this.streams[stream];
                     if (stream.type == 'local') {
                         this.detachStreams.push(stream.streamid);
+                        this.onstreamended(stream.streamObject);
                     } else this.onstreamended(stream.streamObject);
                 }
             }

@@ -63,6 +63,7 @@ If your media stream contains video tracks; then it will create HTMLVideoElement
 8. You can control `buttons` array to control which button should be displayed on media element.
 9. You can use `toggle` method to change buttons' state at runtime!
 10. You can manually pass "toggle" object to force default behaviour.
+11. You can use `showOnMouseEnter` to control whether buttons should be displayed on mouse enter.
 
 =
 
@@ -101,7 +102,9 @@ var mediaElement = getMediaElement(HTMLVideoElement || HTMLVideoElement || Media
     onTakeSnapshot: function () { },
 	
     width: 'media-element-width',
-    height: 'media-element-height'
+    height: 'media-element-height',
+	
+    showOnMouseEnter: true
 });
 ```
 

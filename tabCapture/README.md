@@ -1,4 +1,4 @@
-#### Tab Sharing using tabCapture APIs / [Download ZIP](http://code.google.com/p/muazkh/downloads/list)
+#### Tab Sharing using tabCapture APIs / [Download ZIP](//www.webrtc-experiment.com/tabCapture/tabCapture-chrome-extension.zip)
 
 Sharing tab using chrome **experimental tabCapture APIs**; broadcasting over many peers.
 

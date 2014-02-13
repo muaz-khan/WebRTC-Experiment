@@ -1,4 +1,4 @@
-// Last time updated at 09 Feb 2014, 14:46:23
+// Last time updated at 12 Feb 2014, 14:46:23
 
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
@@ -277,13 +277,26 @@ function getMediaElement(mediaElement, config) {
         } else times = 0;
     }
 
-    setTimeout(function() {
-        adjustControls();
-        setTimeout(function() {
+    if (config.showOnMouseEnter || typeof config.showOnMouseEnter === 'undefined') {
+        mediaElementContainer.onmouseenter = mediaElementContainer.onmousedown = function() {
+            adjustControls();
             mediaControls.style.opacity = 1;
             volumeControl.style.opacity = 1;
-        }, 300);
-    }, 700);
+        };
+
+        mediaElementContainer.onmouseleave = function() {
+            mediaControls.style.opacity = 0;
+            volumeControl.style.opacity = 0;
+        };
+    } else {
+        setTimeout(function() {
+            adjustControls();
+            setTimeout(function() {
+                mediaControls.style.opacity = 1;
+                volumeControl.style.opacity = 1;
+            }, 300);
+        }, 700);
+    }
 
     adjustControls();
 
@@ -440,12 +453,23 @@ function getAudioElement(mediaElement, config) {
         } else times = 0;
     }
 
-    setTimeout(function() {
-        adjustControls();
-        setTimeout(function() {
+    if (config.showOnMouseEnter || typeof config.showOnMouseEnter === 'undefined') {
+        mediaElementContainer.onmouseenter = mediaElementContainer.onmousedown = function() {
+            adjustControls();
             mediaControls.style.opacity = 1;
-        }, 300);
-    }, 700);
+        };
+
+        mediaElementContainer.onmouseleave = function() {
+            mediaControls.style.opacity = 0;
+        };
+    } else {
+        setTimeout(function() {
+            adjustControls();
+            setTimeout(function() {
+                mediaControls.style.opacity = 1;
+            }, 300);
+        }, 700);
+    }
 
     adjustControls();
 

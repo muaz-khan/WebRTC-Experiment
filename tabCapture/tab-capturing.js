@@ -3,13 +3,17 @@
 // ==============================================================
 // webrtc-extension   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/tabCapture
 
-window.isStopBroadcasting = false;
+window.isSharingTab = false;
 chrome.browserAction.onClicked.addListener(toggle);
+
+chrome.tabCapture.onStatusChanged.addListener(function(arg) {
+    console.log(JSON.stringify(arg, null, '\t'));
+});
 
 function toggle() {
     if (localStorage['broadcasting'] == undefined) {
         localStorage.setItem('broadcasting', true);
-        window.isStopBroadcasting = false;
+        window.isSharingTab = false;
         captureTab();
 
         chrome.contextMenus.update('000007', {
@@ -17,9 +21,11 @@ function toggle() {
         });
         console.log('Tab sharing started...');
     } else {
+        // http://www.rtcmulticonnection.org/docs/close/
         if(connection) connection.close();
+        
         localStorage.removeItem('broadcasting');
-        window.isStopBroadcasting = true;
+        window.isSharingTab = true;
 
         chrome.browserAction.setIcon({ path: 'images/tabCapture22.png' });
 
@@ -41,7 +47,11 @@ function captureTab() {
             video: true,
             videoConstraints: {
                 mandatory: {
-                    chromeMediaSource: 'tab'
+                    chromeMediaSource: 'tab',
+                    minWidth: 1920,
+                    maxWidth: 1920,
+                    minHeight: 1080,
+                    maxHeight: 1080
                 }
             }
         };
@@ -67,17 +77,30 @@ chrome.contextMenus.create({
 chrome.contextMenus.onClicked.addListener(toggle);
 
 var connection;
-// RTCMultiConnection - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
+// RTCMultiConnection - http://www.rtcmulticonnection.org/docs/
 function setupRTCMultiConnection(stream) {
+    // http://www.rtcmulticonnection.org/docs/constructor/
     connection = new RTCMultiConnection('webrtc-tab-sharing');
-    connection.bandwidth.video = false;
+    
+    // http://www.rtcmulticonnection.org/docs/bandwidth/
+    connection.bandwidth = {};
+    
+    // http://www.rtcmulticonnection.org/docs/session/
     connection.session = {
         video: true,
         oneway: true
     };
+    
+    // http://www.rtcmulticonnection.org/docs/openSignalingChannel/
     connection.openSignalingChannel = openSignalingChannel;
+    
+    // http://www.rtcmulticonnection.org/docs/dontAttachStream/
     connection.dontAttachStream = true;
+    
+    // http://www.rtcmulticonnection.org/docs/attachStreams/
     connection.attachStreams.push(stream);
+    
+    // http://www.rtcmulticonnection.org/docs/open/
     connection.open();
 }
 

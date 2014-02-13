@@ -114,7 +114,7 @@
         
             <!-- just copy this <section> and next script -->
             <section class="experiment">
-                <h2 class="header" id="feedback" style="color:red;">
+                <h2 class="header" id="feedback" style="color:red;display:none;">
                     It is suggested to try <a href="https://www.webrtc-experiment.com:12034/">MultiRTC</a>!
                 </h2>
                 
@@ -178,6 +178,7 @@
                 // Documentation - www.RTCMultiConnection.org
 
                 var connection = new RTCMultiConnection();
+                
                 connection.session = {
                     audio: true,
                     video: true
@@ -209,11 +210,12 @@
                     var buttons = ['mute-audio', 'mute-video', 'record-audio', 'record-video', 'full-screen', 'volume-slider', 'stop'];
                 
                     if(connection.session.audio && !connection.session.video) {
-                        buttons = ['mute-audio', 'record-audio', 'full-screen', 'stop'];
+                        buttons = ['mute-audio', 'full-screen', 'stop'];
                     }
                 
                     var mediaElement = getMediaElement(e.mediaElement, {
                         width: (videosContainer.clientWidth / 2) - 50,
+                        title: e.userid,
                         buttons: buttons,
                         onMuted: function(type) {
                             connection.streams[e.streamid].mute({
@@ -228,31 +230,31 @@
                             });
                         },
                         onRecordingStarted: function(type) {
+                            // www.RTCMultiConnection.org/docs/startRecording/
                             connection.streams[e.streamid].startRecording({
                                 audio: type == 'audio',
                                 video: type == 'video'
                             });
                         },
                         onRecordingStopped: function(type) {
+                            // www.RTCMultiConnection.org/docs/stopRecording/
                             connection.streams[e.streamid].stopRecording(function(blob) {
-                                var _mediaElement = document.createElement(type);
-                                
-                                _mediaElement.src = URL.createObjectURL(blob);
-                                _mediaElement = getMediaElement(_mediaElement, {
-                                    buttons: ['mute-audio', 'mute-video', 'stop']
-                                });
-                                
-                                _mediaElement.toggle(['mute-audio', 'mute-video']);
-                                
-                                videosContainer.insertBefore(_mediaElement, videosContainer.firstChild);
+                                if (blob.audio) connection.saveToDisk(blob.audio);
+                                else if (blob.video) connection.saveToDisk(blob.audio);
+                                else connection.saveToDisk(blob);
                             }, type);
                         },
                         onStopped: function() {
-                            connection.drop();
+                            connection.peers[e.userid].drop();
                         }
                     });
 
                     videosContainer.insertBefore(mediaElement, videosContainer.firstChild);
+                    
+                    if(e.type == 'local') {
+                        mediaElement.media.muted  = true;
+                        mediaElement.media.volume = 0;
+                    }
                 };
 
                 connection.onstreamended = function(e) {

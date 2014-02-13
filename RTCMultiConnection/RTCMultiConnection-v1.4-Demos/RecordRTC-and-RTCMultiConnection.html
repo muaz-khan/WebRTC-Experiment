@@ -176,9 +176,13 @@
                             });
                         } else {
                             this.innerHTML = 'Start Recording';
-                            connection.streams[this.id].stopRecording(function(blob) {
+                            connection.streams[this.id].stopRecording(function(audioBlob, videoBlob) {
                                 var h2 = document.createElement('h2');
-                                h2.innerHTML = '<a href="' + URL.createObjectURL(blob) + '" target="_blank">Open recorded ' + blob.recordingType + '</a>';
+                                h2.innerHTML = '<a href="' + URL.createObjectURL(audioBlob) + '" target="_blank">Open recorded ' + audioBlob.type + '</a>';
+                                div.appendChild(h2);
+                                
+                                h2 = document.createElement('h2');
+                                h2.innerHTML = '<a href="' + URL.createObjectURL(videoBlob) + '" target="_blank">Open recorded ' + videoBlob.type + '</a>';
                                 div.appendChild(h2);
                             });
                         }
