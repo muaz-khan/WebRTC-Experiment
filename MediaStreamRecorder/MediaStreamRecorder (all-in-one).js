@@ -1,6 +1,8 @@
-// Muaz Khan     - https://github.com/muaz-khan
-// MIT License   - https://www.webrtc-experiment.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MediaStreamRecorder
+// Last time updated at 15 Feb 2014, 16:32:23
+
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.webrtc-experiment.com/licence
+// Documentation - github.com/streamproc/MediaStreamRecorder
 // ==========================================================
 // MediaStreamRecorder.js
 
@@ -12,10 +14,12 @@ function MediaStreamRecorder(mediaStream) {
     this.start = function(timeSlice) {
         // Media Stream Recording API has not been implemented in chrome yet;
         // That's why using WebAudio API to record stereo audio in WAV format
-        var Recorder = IsChrome ? window.StereoRecorder : window.MediaRecorder;
+        var Recorder = IsChrome ? window.StereoRecorder : window.MediaRecorderWrapper;
 
         // video recorder (in WebM format)
-        if (this.mimeType === 'video/webm') Recorder = window.WhammyRecorder;
+        if (this.mimeType.indexOf('video') != -1) {
+            Recorder = IsChrome ? window.WhammyRecorder : window.MediaRecorderWrapper;
+        }
 
         // video recorder (in GIF format)
         if (this.mimeType === 'image/gif') Recorder = window.GifRecorder;
@@ -38,8 +42,8 @@ function MediaStreamRecorder(mediaStream) {
         console.log('ondataavailable..', blob);
     };
 
-    this.onstop = function() {
-        console.log('stopped..');
+    this.onstop = function(error) {
+        console.warn('stopped..', error);
     };
 
     // Reference to "MediaRecorder.js"
@@ -48,9 +52,6 @@ function MediaStreamRecorder(mediaStream) {
 
 // ==========================
 // Cross-Browser Declarations
-
-// Media Stream Recording API representer
-MediaRecorderWrapper = window.MediaRecorder;
 
 // animation-frame used in WebM recording
 requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;
@@ -65,6 +66,7 @@ navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMed
 IsChrome = !!navigator.webkitGetUserMedia;
 
 // Merge all other data-types except "function"
+
 function mergeProps(mergein, mergeto) {
     for (var t in mergeto) {
         if (typeof mergeto[t] !== 'function') {
@@ -82,38 +84,86 @@ function mergeProps(mergein, mergeto) {
 // ==========================================================
 // MediaRecorder.js
 
-function MediaRecorder(mediaStream) {
+/**
+* Implementation of https://dvcs.w3.org/hg/dap/raw-file/default/media-stream-capture/MediaRecorder.html
+* The MediaRecorder accepts a mediaStream as input source passed from UA. When recorder starts,
+* a MediaEncoder will be created and accept the mediaStream as input source.
+* Encoder will get the raw data by track data changes, encode it by selected MIME Type, then store the encoded in EncodedBufferCache object.
+* The encoded data will be extracted on every timeslice passed from Start function call or by RequestData function.
+* Thread model:
+* When the recorder starts, it creates a "Media Encoder" thread to read data from MediaEncoder object and store buffer in EncodedBufferCache object.
+* Also extract the encoded data and create blobs on every timeslice passed from start function or RequestData function called by UA.
+*/
+
+function MediaRecorderWrapper(mediaStream) {
     // void start(optional long timeSlice)
     // timestamp to fire "ondataavailable"
-    this.start = function(timeSlice) {
-        timeSlice = timeSlice || 1000;
 
-        mediaRecorder = new MediaRecorderWrapper(mediaStream);
+    // starting a recording session; which will initiate "Reading Thread"
+    // "Reading Thread" are used to prevent main-thread blocking scenarios
+    this.start = function(mTimeSlice) {
+        mTimeSlice = mTimeSlice || 1000;
+
+        mediaRecorder = new MediaRecorder(mediaStream);
         mediaRecorder.ondataavailable = function(e) {
+            console.log('ondataavailable', e.data.type, e.data);
+            // mediaRecorder.state == 'recording' means that media recorder is associated with "session"
+            // mediaRecorder.state == 'stopped' means that media recorder is detached from the "session" ... in this case; "session" will also be deleted.
+
+            if (!e.data.size) {
+                console.warn('Recording of', e.data.type, 'failed.');
+                return;
+            }
+
             if (mediaRecorder.state == 'recording') {
+                // at this stage, Firefox MediaRecorder API doesn't allow to choose the output mimeType format!
                 var blob = new window.Blob([e.data], {
-                    type: self.mimeType || 'audio/ogg'
+                    type: e.data.type || self.mimeType || 'audio/ogg' // It specifies the container format as well as the audio and video capture formats.
                 });
+
+                // Dispatching OnDataAvailable Handler
                 self.ondataavailable(blob);
-                mediaRecorder.stop();
             }
         };
 
-        mediaRecorder.onstop = function() {
-            if (mediaRecorder.state == 'inactive') {
-                // bug: it is a temporary workaround; it must be fixed.
-                mediaRecorder = new MediaRecorder(mediaStream);
-                mediaRecorder.ondataavailable = self.ondataavailable;
-                mediaRecorder.onstop = self.onstop;
-                mediaRecorder.mimeType = self.mimeType;
-                mediaRecorder.start(timeSlice);
-            }
-
-            self.onstop();
+        mediaRecorder.onstop = function(error) {
+            // for video recording on Firefox, it will be fired quickly.
+            // because work on VideoFrameContainer is still in progress
+            // https://wiki.mozilla.org/Gecko:MediaRecorder
+            self.onstop(error);
         };
 
-        // void start(optional long timeSlice)
-        mediaRecorder.start(timeSlice);
+        // http://www.w3.org/TR/2012/WD-dom-20121206/#error-names-table
+        // showBrowserSpecificIndicator: got neither video nor audio access
+        // "VideoFrameContainer" can't be accessed directly; unable to find any wrapper using it.
+        // that's why there is no video recording support on firefox
+
+        // video recording fails because there is no encoder available there
+        // http://dxr.mozilla.org/mozilla-central/source/content/media/MediaRecorder.cpp#317
+
+        // Maybe "Read Thread" doesn't fire video-track read notification;
+        // that's why shutdown notification is received; and "Read Thread" is stopped. 
+
+        // https://dvcs.w3.org/hg/dap/raw-file/default/media-stream-capture/MediaRecorder.html#error-handling
+        mediaRecorder.onerror = function(error) {
+            console.warn(error);
+            self.start(mTimeSlice);
+        };
+
+        mediaRecorder.onwarning = function(warning) {
+            console.warn(warning);
+        };
+
+        // void start(optional long mTimeSlice)
+        // The interval of passing encoded data from EncodedBufferCache to onDataAvailable
+        // handler. "mTimeSlice < 0" means Session object does not push encoded data to
+        // onDataAvailable, instead, it passive wait the client side pull encoded data
+        // by calling requestData API.
+        mediaRecorder.start(mTimeSlice);
+
+        // Start recording. If timeSlice has been provided, mediaRecorder will
+        // raise a dataavailable event containing the Blob of collected data on every timeSlice milliseconds.
+        // If timeSlice isn't provided, UA should call the RequestData to obtain the Blob data, also set the mTimeSlice to zero.
     };
 
     this.stop = function() {
@@ -122,8 +172,10 @@ function MediaRecorder(mediaStream) {
         }
     };
 
-    this.ondataavailable = function() {};
-    this.onstop = function() {};
+    this.ondataavailable = function() {
+    };
+    this.onstop = function() {
+    };
 
     // Reference to itself
     var self = this;
@@ -162,13 +214,15 @@ function StereoRecorder(mediaStream) {
         if (mediaRecorder) mediaRecorder.stop();
     };
 
-    this.ondataavailable = function() {};
+    this.ondataavailable = function() {
+    };
 
     // Reference to "StereoAudioRecorder" object
     var mediaRecorder;
 }
 
 // source code from: http://typedarray.org/wp-content/projects/WebAudioRecorder/script.js
+
 function StereoAudioRecorder(mediaStream, root) {
     // variables
     var leftchannel = [];
@@ -350,8 +404,7 @@ function WhammyRecorder(mediaStream) {
         (function getWebMBlob() {
             setTimeout(function() {
                 endTime = Date.now();
-                console.log('frames captured: ' + whammy.frames.length + ' => ' +
-                    ((endTime - startTime) / 1000) + 's video');
+                console.log('frames captured: ', whammy.frames.length, ' => ', ((endTime - startTime) / 1000), 's video');
 
                 var WebM_Blob = whammy.compile();
                 self.ondataavailable(WebM_Blob);
@@ -367,8 +420,10 @@ function WhammyRecorder(mediaStream) {
             cancelAnimationFrame(lastAnimationFrame);
     };
 
-    this.ondataavailable = function() {};
-    this.onstop = function() {};
+    this.ondataavailable = function() {
+    };
+    this.onstop = function() {
+    };
 
     // Reference to itself
     var self = this;
@@ -479,8 +534,10 @@ function GifRecorder(mediaStream) {
         if (lastAnimationFrame) cancelAnimationFrame(lastAnimationFrame);
     };
 
-    this.ondataavailable = function() {};
-    this.onstop = function() {};
+    this.ondataavailable = function() {
+    };
+    this.onstop = function() {
+    };
 
     // Reference to itself
     var self = this;
@@ -664,6 +721,13 @@ var Whammy = (function() {
     // sums the lengths of all the frames and gets the duration, woo
 
     function checkFrames(frames) {
+        if (!frames[0])
+            return {
+                duration: 0,
+                width: 0,
+                height: 0
+            };
+
         var width = frames[0].width,
             height = frames[0].height,
             duration = frames[0].duration;

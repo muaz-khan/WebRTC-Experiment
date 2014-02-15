@@ -34,7 +34,7 @@ function Translator() {
             textToSpeak = textToSpeak.substr(1, textToSpeak.length - 1);
         }
 
-        var audio_url = '//translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=' + textToSpeak.length + '&tl=' + targetLanguage + '&q=' + textToSpeak;
+        var audio_url = 'https://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=' + textToSpeak.length + '&tl=' + targetLanguage + '&q=' + textToSpeak;
 
         if (args.callback) args.callback(audio_url);
         else {
@@ -62,7 +62,7 @@ function Translator() {
             }
         };
 
-        var source = '//www.googleapis.com/language/translate/v2?key=' + api_key + '&target=' + (config.to || 'en-US') + '&callback=window.' + randomNumber + '&q=' + sourceText;
+        var source = 'https://www.googleapis.com/language/translate/v2?key=' + api_key + '&target=' + (config.to || 'en-US') + '&callback=window.' + randomNumber + '&q=' + sourceText;
         newScript.src = source;
         document.getElementsByTagName('head')[0].appendChild(newScript);
     };

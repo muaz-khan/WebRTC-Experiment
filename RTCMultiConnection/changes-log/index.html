@@ -54,7 +54,7 @@
         <article>
             <a href="http://www.RTCMultiConnection.org/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ www.RTCMultiConnection.org</a>
 
-            <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> Changes Log / <a href="http://www.rtcmulticonnection.org/docs/">Documentation</a></h1>
+            <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Changes Log ----/ <a href="http://www.RTCMultiConnection.org/docs/">Docs</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com:12034/">Demo: MultiRTC!</a></h1>
 		
             <br /><br /><br />
 		
@@ -228,7 +228,46 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
 				</li>
                 
                 <li>
-					Now, <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC">MRecordRTC</a> is used for <a href="http://www.RTCMultiConnection.org/docs/startRecordnig/">audio/video recording</a>!
+					Now, <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC">MRecordRTC</a> is used for <a href="http://www.RTCMultiConnection.org/docs/startRecording/">audio/video recording</a>!
+				</li>
+				
+				<li>
+					<a href="https://github.com/muaz-khan/WebRTC-Experiment/issues/152">Bug #152</a> fixed.
+				</li>
+				
+				<li>
+					"session.join" method added. Remember, it is "<strong>session</strong>.join"; it isn't "<strong>connection</strong>.join"!
+					<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
+    session.join();                           // join session as it is!
+    session.join({audio: true});              // join session while allowing only audio
+    session.join({video: true});              // join session while allowing only video
+    session.join({screen: true});             // join session while allowing only screen
+    session.join({audio: true, video: true}); // join session while allowing both audio and video
+};
+</pre>
+				</li>
+				
+				<li>
+					"<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a>" method added:
+					<pre class="sh_javascript">
+// all incoming text messages will be converted in this language
+// by default, it is "en-US"
+connection.<a href="http://www.RTCMultiConnection.org/docs/language/">language</a> = 'ja'; // prefer Japanese
+
+// it is "false" by default.
+connection.<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a> = true;
+
+// you can use "e.data" and "e.original"
+connection.<a href="http://www.RTCMultiConnection.org/docs/onmessage/">onmessage</a> = function(e) {
+   // e.data     ---- translated text
+   // e.original ---- original text
+};
+
+connection.<a href="http://www.RTCMultiConnection.org/docs/Translator/">Translator</a>.TranslateText(textToConvert, function(convertedText) {
+     console.log(convertedText);
+});
+</pre>
 				</li>
             </ol>
 		

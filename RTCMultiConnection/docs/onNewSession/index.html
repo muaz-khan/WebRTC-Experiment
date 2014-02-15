@@ -60,11 +60,20 @@
 		<ol>
 			<li>
 				<pre class="sh_javascript">
-connection.onNewSession = function(session) {
+connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
      // session.userid
      // session.sessionid
      // session.extra
      // session.session i.e. {audio,video,screen,data}
+};
+
+// or
+connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
+    session.join();                           // join session as it is!
+    session.join({audio: true});              // join session while allowing only audio
+    session.join({video: true});              // join session while allowing only video
+    session.join({screen: true});             // join session while allowing only screen
+    session.join({audio: true, video: true}); // join session while allowing both audio and video
 };
 </pre>
 			</li>

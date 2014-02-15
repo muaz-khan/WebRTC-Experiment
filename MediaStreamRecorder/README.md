@@ -1,17 +1,51 @@
 ## MediaStreamRecorder.js / [Demo](https://www.webrtc-experiment.com/MediaStreamRecorder/)
 
-A cross-browser implementation to record audio/video streams.
+A cross-browser implementation to record audio/video streams:
+
+1. MediaStreamRecorder can record both audio and video in single WebM file on Firefox.
+2. MediaStreamRecorder can record audio as WAV and video as either WebM or animated gif on Chrome.
 
 =
 
-Try [RecordRTC](https://www.webrtc-experiment.com/RecordRTC) which is preferred.
+There is a smiliar project: [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/)!
 
 =
 
-#### Record audio using MediaStreamRecorder.js
+#### Record audio+video on Firefox in single WebM
 
 ```html
-<script src="https://www.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
+<script src="//www.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
+```
+
+```javascript
+var mediaConstraints = {
+    audio: true, // don't forget audio!
+    video: true  // don't forget video!
+};
+
+navigator.mozGetUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
+
+function onMediaSuccess(stream) {
+    var mediaRecorder = new MediaStreamRecorder(stream);
+    mediaRecorder.mimeType = 'video/webm';
+    mediaRecorder.ondataavailable = function (blob) {
+        // POST/PUT "Blob" using FormData/XHR2
+        window.open(URL.createObjectURL(blob));
+    };
+    mediaRecorder.start(3000);
+}
+
+function onMediaError(e) {
+    console.error('media error', e);
+}
+```
+
+=
+
+#### Record only audio on chrome
+
+```html
+<script src="//www.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 ```
 
 ```javascript
@@ -38,10 +72,10 @@ function onMediaError(e) {
 
 =
 
-#### Record video/gif using MediaStreamRecorder.js
+#### Record video/gif on chrome
 
 ```html
-<script src="https://www.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
+<script src="//www.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 ```
 
 ```javascript

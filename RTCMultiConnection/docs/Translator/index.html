@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html id="home" lang="en">
+
+<head>
+    <title>RTCMultiConnection API Reference / "Translator" object</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+	
+    <style>
+            p { padding: .8em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+			
+			.image-container {
+				text-align:center;
+				margin: 2em 0;
+			}
+			
+			.image-parent {
+				margin: 0 2em;
+				border: 2px solid black;
+				border-radius: 5px;
+			}
+			
+			.image-parent img {
+				width: 100%;
+			}
+			
+			li pre {
+				margin: 0;
+			}
+        </style>
+    <!-- for HTML5 el styling -->
+    <script>
+        document.createElement('article');
+        document.createElement('footer');
+    </script>
+	
+	<script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_main.min.js"></script>
+    <script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_javascript.min.js"></script>
+    <script type="text/javascript" src="http://www.rtcmulticonnection.org/syntax/sh_html.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="http://www.rtcmulticonnection.org/syntax/sh_style.css">
+</head>
+
+<body onload="sh_highlightDocument();">
+    <article>
+        <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">RTCMultiConnection Docs</a>
+
+        <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/Translator/">Translator</a>" object</h1>
+				
+		<ol>
+			<li>
+				Currently "<a href="http://www.RTCMultiConnection.org/docs/Translator/">Translator</a>" object allows you pass any text and convert into your <a href="http://www.RTCMultiConnection.org/docs/language/">preferred language</a>.
+			</li>
+			<li>
+				<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/Translator/">Translator</a>.TranslateText(textToConvert, function(convertedText) {
+     console.log(convertedText);
+});
+</pre>
+			</li>
+        </ol>
+        
+        <h2>Relevant Resources</h2>
+        
+        <ol>
+            <li>
+                <a href="http://www.RTCMultiConnection.org/docs/language/">connection.language</a>
+            </li>
+            
+            <li>
+                <a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">connection.autoTranslateText</a>
+            </li>
+        </ol>
+
+        <br />
+        <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
+                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Want to ask a Question?</h2>
+                <div>
+                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Feel free to ask any question regarding RTCMultiConnection.js!"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your email for private conversation!</small>
+            </section>
+    </article>
+    <footer>
+            <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
+            <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
+            <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
+            <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
+        </footer>
+    <script src="//www.webrtc-experiment.com/common.js"> </script>
+</body>
+</html>

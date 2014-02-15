@@ -1,7 +1,8 @@
-// Muaz Khan     - https://github.com/muaz-khan 
-// neizerth      - https://github.com/neizerth
-// MIT License   - https://www.webrtc-experiment.com/licence/
-// Documentation - https://github.com/streamproc/MediaStreamRecorder
+// Last time updated at 15 Feb 2014, 16:32:23
+
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.webrtc-experiment.com/licence
+// Documentation - github.com/streamproc/MediaStreamRecorder
 // ==========================================================
 // MediaStreamRecorder.js
 
@@ -13,10 +14,12 @@ function MediaStreamRecorder(mediaStream) {
     this.start = function(timeSlice) {
         // Media Stream Recording API has not been implemented in chrome yet;
         // That's why using WebAudio API to record stereo audio in WAV format
-        var Recorder = IsChrome ? window.StereoRecorder : window.MediaRecorder;
+        var Recorder = IsChrome ? window.StereoRecorder : window.MediaRecorderWrapper;
 
         // video recorder (in WebM format)
-        if (this.mimeType === 'video/webm') Recorder = window.WhammyRecorder;
+        if (this.mimeType.indexOf('video') != -1) {
+            Recorder = IsChrome ? window.WhammyRecorder : window.MediaRecorderWrapper;
+        }
 
         // video recorder (in GIF format)
         if (this.mimeType === 'image/gif') Recorder = window.GifRecorder;
@@ -39,8 +42,8 @@ function MediaStreamRecorder(mediaStream) {
         console.log('ondataavailable..', blob);
     };
 
-    this.onstop = function() {
-        console.log('stopped..');
+    this.onstop = function(error) {
+        console.warn('stopped..', error);
     };
 
     // Reference to "MediaRecorder.js"
@@ -49,9 +52,6 @@ function MediaStreamRecorder(mediaStream) {
 
 // ==========================
 // Cross-Browser Declarations
-
-// Media Stream Recording API representer
-MediaRecorderWrapper = window.MediaRecorder;
 
 // animation-frame used in WebM recording
 requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;
@@ -66,6 +66,7 @@ navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMed
 IsChrome = !!navigator.webkitGetUserMedia;
 
 // Merge all other data-types except "function"
+
 function mergeProps(mergein, mergeto) {
     for (var t in mergeto) {
         if (typeof mergeto[t] !== 'function') {

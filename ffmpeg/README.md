@@ -33,4 +33,6 @@ Remember: [`ffmpeg-asm.js`](https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2
 
 ## License
 
+`ffmpeg-asm.js` is integrated with [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) by **Gregory McGee**!
+
 [RecordRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

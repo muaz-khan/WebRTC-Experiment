@@ -51,7 +51,7 @@
         <article>
             <a href="http://www.RTCMultiConnection.org/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ www.RTCMultiConnection.org</a>
 
-            <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> Docs ----/ <a href="http://www.RTCMultiConnection.org/changes-log/">Changes Log</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com:12034/">Demo: MultiRTC!</a></h1>
+            <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Docs ----/ <a href="http://www.RTCMultiConnection.org/changes-log/">Changes Log</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com:12034/">Demo: MultiRTC!</a></h1>
 		
             <ol>
                 <li><a href="http://www.RTCMultiConnection.org/docs/getting-started/">Getting Started Guide</a></li>
@@ -94,9 +94,12 @@ connection.connect('room-id');
                         <li>
                             <a href="http://www.RTCMultiConnection.org/docs/join/">join</a>
                             <pre class="sh_javascript">
-participant.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
-    // found a conferencing room; join it!
-    participant.join(session);
+connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
+    session.join();                           // join session as it is!
+    session.join({audio: true});              // join session while allowing only audio
+    session.join({video: true});              // join session while allowing only video
+    session.join({screen: true});             // join session while allowing only screen
+    session.join({audio: true, video: true}); // join session while allowing both audio and video
 };
 </pre>
                         </li>
@@ -1005,6 +1008,29 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
     connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(audioBlob);
     connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(videoBlob);
 }, {audio:true, video:true} );
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/Translator/">Translator</a>
+                            <pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/Translator/">Translator</a>.TranslateText(textToConvert, function(convertedText) {
+     console.log(convertedText);
+});
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a>
+                            <pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a> = true;
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/language/">language</a>
+                            <pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/language/">language</a> = 'ja'; // prefer Japanese
 </pre>
                         </li>
                    

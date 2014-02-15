@@ -9,8 +9,8 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Video Recording using MediaStreamRecorder</title>
-        <script src="https://www.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
+        <title>WebRTC Audio/Video Recording using MediaStreamRecorder</title>
+        <script src="//www.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
         <style>
             select, input {
                 border: 1px solid rgb(46, 189, 235);
@@ -26,12 +26,8 @@
             Video Recording using <a href="https://github.com/streamproc/MediaStreamRecorder"
                                      target="_blank">MediaStreamRecorder</a>
         </h1>
+		
         <div>
-            <label for="options">video options</label>
-            <select id="options">
-                <option>video/webm</option>
-                <option>image/gif</option>
-            </select>
             <label for="video-width">video width</label>
             <input type="text" id="video-width" value="320">
             <label for="video-height">video height</label>
@@ -40,7 +36,7 @@
         <div id="videos-container">
         </div>
         <script>
-            var mediaConstraints = { video: true };
+            var mediaConstraints = { audio: true, video: true };
             navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
 
             function onMediaSuccess(stream) {
@@ -50,6 +46,7 @@
                 var videoHeight = document.getElementById('video-height').value || 240;
 
                 video = mergeProps(video, {
+                    controls: true,
                     width: videoWidth,
                     height: videoHeight,
                     src: URL.createObjectURL(stream)
@@ -60,21 +57,15 @@
                 videosContainer.appendChild(document.createElement('hr'));
 
                 var mediaRecorder = new MediaStreamRecorder(stream);
-                mediaRecorder.mimeType = document.getElementById('options').value;
-                mediaRecorder.videoWidth = videoWidth;
+                mediaRecorder.mimeType = 'video/webm'; // this line is mandatory
+                mediaRecorder.videoWidth  = videoWidth;
                 mediaRecorder.videoHeight = videoHeight;
-                // mediaRecorder.frameRate = 300;
-                // mediaRecorder.quality = 15;
                 mediaRecorder.ondataavailable = function(blob) {
                     var a = document.createElement('a');
                     a.target = '_blank';
                     a.innerHTML = 'Open Recorded Video No. ' + (index++);
 
-                    var reader = new FileReader();
-                    reader.onload = function(e) {
-                        a.href = e.target.result;
-                    };
-                    reader.readAsDataURL(blob);
+                    a.href = URL.createObjectURL(blob);
 
                     videosContainer.appendChild(a);
                     videosContainer.appendChild(document.createElement('hr'));

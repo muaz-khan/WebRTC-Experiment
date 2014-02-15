@@ -1,8 +1,11 @@
+// Last time updated at 15 Feb 2014, 17:32:23
+
 // Muaz Khan     - github.com/muaz-khan
 // MIT License   - www.WebRTC-Experiment.com/licence
 // Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
 
 window.moz = !!navigator.mozGetUserMedia;
+var chromeVersion = !!navigator.mozGetUserMedia ? 0 : parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]);
 
 function RTCPeerConnection(options) {
     var w = window,
@@ -12,16 +15,40 @@ function RTCPeerConnection(options) {
 
     var iceServers = [];
 
-    if (!moz && parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28) {
+    if (moz) {
+        iceServers.push({
+            url: 'stun:23.21.150.121'
+        });
+
+        iceServers.push({
+            url: 'stun:stun.services.mozilla.com'
+        });
+    }
+
+    if (!moz) {
+        iceServers.push({
+            url: 'stun:stun.l.google.com:19302'
+        });
+
+        iceServers.push({
+            url: 'stun:stun.anyfirewall.com:3478'
+        });
+    }
+
+    if (!moz && chromeVersion < 28) {
+        iceServers.push({
+            url: 'turn:homeo@turn.bistri.com:80',
+            credential: 'homeo'
+        });
+    }
+
+    if (!moz && chromeVersion >= 28) {
         iceServers.push({
             url: 'turn:turn.bistri.com:80',
             credential: 'homeo',
             username: 'homeo'
         });
     }
-
-    iceServers.push({ url: 'stun:23.21.150.121:3478' }, { url: 'stun:216.93.246.18:3478' }, { url: 'stun:66.228.45.110:3478' }, { url: 'stun:173.194.78.127:19302' });
-    iceServers.push({ url: 'stun:74.125.142.127:19302' }, { url: 'stun:provserver.televolution.net' }, { url: 'stun:sip1.lakedestiny.cordiaip.com' }, { url: 'stun:stun1.voiceeclipse.net' }, { url: 'stun:stun01.sipphone.com' }, { url: 'stun:stun.callwithus.com' }, { url: 'stun:stun.counterpath.net' }, { url: 'stun:stun.endigovoip.com' });
 
     if (options.iceServers) iceServers = options.iceServers;
 
@@ -96,6 +123,8 @@ function RTCPeerConnection(options) {
         peer.createOffer(function(sessionDescription) {
             peer.setLocalDescription(sessionDescription);
             options.onOfferSDP(sessionDescription);
+
+            console.debug('offer-sdp', sessionDescription.sdp);
         }, onSdpError, constraints);
     }
 
@@ -105,10 +134,12 @@ function RTCPeerConnection(options) {
         if (!options.onAnswerSDP) return;
 
         //options.offerSDP.sdp = addStereo(options.offerSDP.sdp);
+        console.debug('offer-sdp', options.offerSDP.sdp);
         peer.setRemoteDescription(new SessionDescription(options.offerSDP), onSdpSuccess, onSdpError);
         peer.createAnswer(function(sessionDescription) {
             peer.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
+            console.debug('answer-sdp', sessionDescription.sdp);
         }, onSdpError, constraints);
     }
 
@@ -139,7 +170,7 @@ function RTCPeerConnection(options) {
 
     function _openOffererChannel() {
         channel = peer.createDataChannel(options.channel || 'RTCDataChannel', moz ? { } : {
-            reliable: false
+            reliable: false // Deprecated
         });
 
         if (moz) channel.binaryType = 'blob';
@@ -208,6 +239,7 @@ function RTCPeerConnection(options) {
 
     return {
         addAnswerSDP: function(sdp) {
+            console.debug('answer-sdp', sdp.sdp);
             peer.setRemoteDescription(new SessionDescription(sdp), onSdpSuccess, onSdpError);
         },
         addICE: function(candidate) {
@@ -215,6 +247,7 @@ function RTCPeerConnection(options) {
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
             }));
+            console.debug('adding-ice', candidate.candidate);
         },
 
         peer: peer,

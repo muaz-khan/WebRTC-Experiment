@@ -21,7 +21,10 @@
                 width: 10em;
             }
 
-            video { vertical-align: top;max-width: 100%; }
+            video {
+                max-width: 100%;
+                vertical-align: top;
+            }
 
             input {
                 border: 1px solid #d9d9d9;
@@ -80,23 +83,27 @@
             </header>
 
             <div class="github-stargazers"></div>
+			
+            <section class="experiment">  
+                <h2 class="header">Try <a href="https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html">Audio+Video Recording on Firefox</a></h2>
+                <ol>
+                    <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs" target="_blank">RecordRTC-to-Nodejs</a></li>
+                    <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP" target="_blank">RecordRTC-to-PHP</a></li>
+                    <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC" target="_blank">RecordRTC-to-ASP.NET MVC</a></li>
+                    <li><a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/" target="_blank">Canvas Recording!</a></li>
+                    <li><a href="https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/" target="_blank">MRecordRTC and writeToDisk/getFromDisk!</a></li>
+                    <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio" target="_blank">RecordRTC-to-Socket.io</a></li>
+                </ol>
+            </section>
         
             <section class="experiment">  
                 <h2 class="header">Record Audio</h2>
 			
                 <div class="inner" style="height: 5em;">
-					<div style="float: right;margin-top: -54px;">
-						<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs" target="_blank">RecordRTC-to-Nodejs</a><br />
-						<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP" target="_blank">RecordRTC-to-PHP</a><br />
-						<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC" target="_blank">RecordRTC-to-ASP.NET MVC</a><br />
-						<a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/" target="_blank">Canvas Recording!</a><br />
-						<a href="https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/" target="_blank">MRecordRTC and writeToDisk/getFromDisk!</a><br />
-                        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio" target="_blank">RecordRTC-to-Socket.io</a>
-					</div>
                     <audio id="audio" autoplay loop controls></audio>
                     <button id="record-audio">Record</button>
                     <button id="stop-recording-audio" disabled>Stop</button>
-					<h2 id="audio-url-preview"></h2>
+                    <h2 id="audio-url-preview"></h2>
                 </div>
             </section>
 		
@@ -324,47 +331,47 @@
 			
 			
             <section class="experiment">
-				<h2 class="header">Using RecordRTC...</h2>
-                <p style="margin-top:0;">
+                <h2 class="header">Using RecordRTC...</h2>
+                <p style="margin-top: 0;">
                     You can record audio in wav/ogg file format; and video in either webm format or
                     as animated GIF image.</p>
             </section>
 			
-			<section class="experiment">
-				<h2 class="header">Technical Guide</h2>
-				<ol>
-                <li>
-					Chrome allows getUserMedia invocation on majority of non-file protocols e.g. HTTP/HTTPS/ or inside chrome extension pages.
-				</li>
+            <section class="experiment">
+                <h2 class="header">Technical Guide</h2>
+                <ol>
+                    <li>
+                        Chrome allows getUserMedia invocation on majority of non-file protocols e.g. HTTP/HTTPS/ or inside chrome extension pages.
+                    </li>
 				
-				<li>
-					RecordRTC doesn’t support recording of video on Firefox; because webp image format is not implemented in Gecko framework yet.
-				</li>
+                    <li>
+                        RecordRTC doesn’t support recording of video on Firefox; because webp image format is not implemented in Gecko framework yet.
+                    </li>
 				
-				<li>
-					RecordRTC captures video frames via Canvas2D; which is encoded in webp-DataURL; now it is using a library named “weppy” which encodes webp into webm.
-				</li>
+                    <li>
+                        RecordRTC captures video frames via Canvas2D; which is encoded in webp-DataURL; now it is using a library named “weppy” which encodes webp into webm.
+                    </li>
 				
-				<li>
-					RecordRTC is using MediaRecorder API on Firefox; which supports only audio recording (in the moment).
-				</li>
+                    <li>
+                        RecordRTC is using MediaRecorder API on Firefox; which supports only audio recording (in the moment).
+                    </li>
 				
-				<li>
-					RecordRTC is using WebAudio API for audio-recording on chrome. Such API has many issues e.g. unable to capture mono audio in wav format; failure on XP SP2; etc.
-				</li>
+                    <li>
+                        RecordRTC is using WebAudio API for audio-recording on chrome. Such API has many issues e.g. unable to capture mono audio in wav format; failure on XP SP2; etc.
+                    </li>
 				
-				<li>
-					If you’re using notebook’s built-in audio input device for audio recording; then you may get “blank” blob.
-				</li>
+                    <li>
+                        If you’re using notebook’s built-in audio input device for audio recording; then you may get “blank” blob.
+                    </li>
 				
-				<li>
-					RecordRTC is incapable to record audio/video in a single file; however there is ffmpeg merging solution available on Github repository.
-				</li>
+                    <li>
+                        RecordRTC is incapable to record audio/video in a single file; however there is ffmpeg merging solution available on Github repository.
+                    </li>
 				
-				<li>
-					RecordRTC is incapable to record WebRTC remote media streams; because such streams are delivered in mono audio; however, RecordRTC can capture stereo audio only.
-				</li>
-				</ol>
+                    <li>
+                        RecordRTC is incapable to record WebRTC remote media streams; because such streams are delivered in mono audio; however, RecordRTC can capture stereo audio only.
+                    </li>
+                </ol>
             </section>
 			
             <section class="experiment">
@@ -458,15 +465,15 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
                 </p>
             </section>
             <section class="experiment">
-                <p style="margin-top:0;">
+                <p style="margin-top: 0;">
                     RecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">Documentation</a>
                 </p>
             </section>
 			
-			<section class="experiment own-widgets latest-commits">
-				<h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-				<div id="github-commits"></div>
-			</section>  
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>  
         </article>
         
         <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" class="fork-right"></a>
