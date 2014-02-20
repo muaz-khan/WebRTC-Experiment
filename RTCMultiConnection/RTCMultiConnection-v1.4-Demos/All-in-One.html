@@ -114,7 +114,12 @@
         
             <!-- just copy this <section> and next script -->
             <section class="experiment">
-                <h2 class="header" id="feedback" style="color:red;display:none;">
+                <div style="float: right;">
+                    <input type="checkbox" id="fakeDataChannels" style="width: auto;">
+                    <label for="fakeDataChannels" title="You can chat and share files using your preferred signaling gateway instead of using WebRTC data channels!">Setup Fake Data Connection?</label>
+                </div>
+                
+                <h2 class="header" id="feedback">
                     It is suggested to try <a href="https://www.webrtc-experiment.com:12034/">MultiRTC</a>!
                 </h2>
                 
@@ -178,7 +183,7 @@
                 // Documentation - www.RTCMultiConnection.org
 
                 var connection = new RTCMultiConnection();
-                
+
                 connection.session = {
                     audio: true,
                     video: true
@@ -208,11 +213,11 @@
                 var videosContainer = document.getElementById('videos-container') || document.body;
                 connection.onstream = function(e) {
                     var buttons = ['mute-audio', 'mute-video', 'record-audio', 'record-video', 'full-screen', 'volume-slider', 'stop'];
-                
-                    if(connection.session.audio && !connection.session.video) {
+
+                    if (connection.session.audio && !connection.session.video) {
                         buttons = ['mute-audio', 'full-screen', 'stop'];
                     }
-                
+
                     var mediaElement = getMediaElement(e.mediaElement, {
                         width: (videosContainer.clientWidth / 2) - 50,
                         title: e.userid,
@@ -250,9 +255,9 @@
                     });
 
                     videosContainer.insertBefore(mediaElement, videosContainer.firstChild);
-                    
-                    if(e.type == 'local') {
-                        mediaElement.media.muted  = true;
+
+                    if (e.type == 'local') {
+                        mediaElement.media.muted = true;
                         mediaElement.media.volume = 0;
                     }
                 };
@@ -290,54 +295,30 @@
 
                     connection.session = session;
                     connection.maxParticipantsAllowed = maxParticipantsAllowed;
+
+                    if (!!document.querySelector('#fakeDataChannels').checked) {
+                        // http://www.rtcmulticonnection.org/docs/fakeDataChannels/
+                        connection.fakeDataChannels = true;
+                    }
+                    ;
+
+                    connection.sessionid = sessionName || 'Anonymous';
                     connection.open();
                 };
-
-                function rotateInCircle(video) {
-                    video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
-                    setTimeout(function() {
-                        video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
-                    }, 1000);
-                    scaleVideos();
-                }
-
-                function scaleVideos() {
-                    var videos = document.querySelectorAll('.media-container'),
-                        length = videos.length, video;
-
-                    var minus = 130;
-                    var windowHeight = 700;
-                    var windowWidth = 600;
-                    var windowAspectRatio = windowWidth / windowHeight;
-                    var videoAspectRatio = 4 / 3;
-                    var blockAspectRatio;
-                    var tempVideoWidth = 0;
-                    var maxVideoWidth = 0;
-
-                    for (var i = length; i > 0; i--) {
-                        blockAspectRatio = i * videoAspectRatio / Math.ceil(length / i);
-                        if (blockAspectRatio <= windowAspectRatio) {
-                            tempVideoWidth = videoAspectRatio * windowHeight / Math.ceil(length / i);
-                        } else {
-                            tempVideoWidth = windowWidth / i;
-                        }
-                        if (tempVideoWidth > maxVideoWidth)
-                            maxVideoWidth = tempVideoWidth;
-                    }
-                    for (var i = 0; i < length; i++) {
-                        video = videos[i];
-                        if (video)
-                            video.width = maxVideoWidth - minus;
-                    }
-                }
-
-                window.onresize = scaleVideos;
 
                 connection.onmessage = function(e) {
                     appendDIV(e.data);
 
                     console.debug(e.userid, 'posted', e.data);
                     console.log('latency:', e.latency, 'ms');
+                };
+
+                connection.onclose = function(e) {
+                    appendDIV('Data connection is closed between you and ' + e.userid);
+                };
+
+                connection.onleave = function(e) {
+                    appendDIV(e.userid + ' left the session.');
                 };
 
                 // on data connection gets open
@@ -391,8 +372,6 @@
 
                     div.tabIndex = 0;
                     div.focus();
-
-                    chatInput.focus();
                 }
 
                 document.getElementById('file').onchange = function() {
@@ -411,7 +390,6 @@
                     connection.send(this.value);
 
                     this.value = '';
-                    this.focus();
                 };
 
                 connection.connect();

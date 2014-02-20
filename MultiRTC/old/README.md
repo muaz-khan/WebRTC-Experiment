@@ -1,7 +1,5 @@
 #### [MultiRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC) app built using [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/) / [Demo](https://www.webrtc-experiment.com:12034/)
 
-<img src="https://www.webrtc-experiment.com/images/MultiRTC.gif" />
-
 MultiRTC is an all-in-one demo application using RTCMultiConnection.js library. MultiRTC supports:
 
 1. Multi-File sharing among multiple users!
@@ -30,16 +28,11 @@ cd ./node_modules/multirtc/ && node signaler.js
 Now, both socket.io and HTTPs servers are running at port `12034`:
 
 ```
-https://localhost:12034/
+http://localhost:12034/
 
 // or
-var socket = io.connect('https://localhost:12034/');
+var socket = io.connect('http://localhost:12034/');
 ```
-
-=
-
-1. https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC
-2. https://www.webrtc-experiment.com:12034/
 
 =
 

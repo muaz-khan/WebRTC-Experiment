@@ -63,7 +63,7 @@
 			</li>
 			<li>
 				<pre class="sh_javascript">
-connection.extra = {
+connection.<a href="http://www.RTCMultiConnection.org/docs/extra/">extra</a> = {
     username: 'muazkh',
     fullname: 'Muaz Khan',
     email: 'muazkh@gmail.com'
@@ -96,6 +96,40 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/onopen/">onopen</a> =
 };
 </pre>
 			</li>
+            
+            <li>
+                Using <a href="http://www.rtcmulticonnection.org/changes-log/#v1.6">v1.6</a> or upper releases; you can set "extra" object anywhere:
+            </li>
+            
+            <li>
+				<pre class="sh_javascript">
+// you can set "extra" object any time; at runtime
+// regardless of whether you called "connect"/"open" or not!
+connection.<a href="http://www.RTCMultiConnection.org/docs/extra/">extra</a> = {
+    username: 'muazkh',
+    fullname: 'Muaz Khan',
+    email: 'muazkh@gmail.com'
+};
+
+// now, whenever you'll send data; latest "extra" object 
+// will be passed along with your message!
+connection.<a href="http://www.RTCMultiConnection.org/docs/send/">send</a>(file || data || 'longest-text-message');
+
+// access "extra" data in the "onmessage" event!
+connection.<a href="http://www.RTCMultiConnection.org/docs/onmessage/">onmessage</a> = function(e){
+    // var userData = e.extra
+    // userData.username
+    // userData.fullname
+    // userData.email
+
+    // console.debug(userData.username, 'sent you a message', e.data);
+};
+</pre>
+			</li>
+            
+            <li>
+                "extra" object is useful in "text-chat" scenarios; where you can allow "full-name" to be changed any time; or you can pass sending time or detect latency etc.
+            </li>
 		</ol>
 
         <br />

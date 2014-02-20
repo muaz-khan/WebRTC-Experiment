@@ -521,7 +521,7 @@ connection.sdpConstraints.mandatory = {
     OfferToReceiveAudio: false,
     OfferToReceiveVideo: false,
     VoiceActivityDetection: false,
-    IceRestart = true
+    IceRestart: true
 };
 </pre>
                         </li>
@@ -1031,6 +1031,36 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">a
                             <a href="http://www.RTCMultiConnection.org/docs/language/">language</a>
                             <pre class="sh_javascript">
 connection.<a href="http://www.RTCMultiConnection.org/docs/language/">language</a> = 'ja'; // prefer Japanese
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/token/">token</a>
+                            <pre class="sh_javascript">
+var randomString = rtcMultiConnection.<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>();
+rtcMultiConnection.<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a> = rtcMultiConnection.<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>();
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/UA/">UA</a>
+                            <pre class="sh_javascript">
+var isFirefox = connection.<a href="http://www.RTCMultiConnection.org/docs/UA/">UA</a>.Firefox;
+var isChrome = connection.<a href="http://www.RTCMultiConnection.org/docs/UA/">UA</a>.Chrome;
+var isMobileDevice = connection.<a href="http://www.RTCMultiConnection.org/docs/UA/">UA</a>.Mobile;
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/fakeDataChannels/">fakeDataChannels</a>
+                            <pre class="sh_javascript">
+// audio+video and fake data connection
+connection.<a href="http://www.RTCMultiConnection.org/docs/fakeDataChannels/">fakeDataChannels</a> = true;
+connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a> = { audio: true, video: true };
+
+// only fake data connection; no audio; no video; no WebRTC data channel!
+connection.<a href="http://www.RTCMultiConnection.org/docs/fakeDataChannels/">fakeDataChannels</a> = true;
+connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a> = { };
 </pre>
                         </li>
                    

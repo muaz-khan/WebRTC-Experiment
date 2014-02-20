@@ -1,0 +1,196 @@
+﻿<!--
+// Last time updated at 08 Feb 2014, 19:46:23
+
+// Muaz Khan      - www.MuazKhan.com
+// MIT License    - www.WebRTC-Experiment.com/licence
+
+// RTCMultiConnection
+// Documentation  - www.RTCMultiConnection.org/docs
+
+// MultiRTC     - github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC
+// Demo         - https://www.webrtc-experiment.com:12034/
+-->
+<html>
+    <head>
+        <title>MultiRTC! ® Muaz Khan</title>
+        <script>
+            var splitted = location.href.split('/');
+            if (!splitted[splitted.length - 1].length) {
+                location.href = location.href + (Math.round(Math.random() * 60535) + 5000);
+            }
+            if (location.href.indexOf('%20') != -1) {
+                location.href = location.href.replace( /%20/g , '+');
+            }
+        </script>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        
+		<!-- ui-stylesheet -->
+		<link href="/style.css" rel="stylesheet">
+        
+		<!-- linkify text input; and socket.io -->
+        <script src="/linkify.js"> </script>
+        <script src="/socketio.js"> </script>
+		
+		<!-- RTCMultiConnection-v1.6 is used for WebRTC integration! -->
+		<script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.min.js"> </script>
+		
+		<!-- getMediaElement.js is used to prettify <audio>/<video> elements -->
+        <script src="//www.webrtc-experiment.com/getMediaElement.min.js"> </script>
+    </head>
+    <body>
+        <aside class="left-panel">
+            <button id="start-webrtc-session">
+                Start<hr />
+                <img src="/images/start-session.png">
+                <br />
+                WebRTC Session
+            </button>
+            
+            <section class="share-link">
+                <img src="/images/share-link.png"><br />
+                <a href="#" id="link-to-share" target="_blank" title="Right Click to Copy the link; then share with other fellows."></a>
+            </section>
+        </aside>
+        
+        <aside class="renegotiation-panel">
+			<button id="renegotiate" title="Add More Streams!">
+                <img src="/images/renegotiate.png">
+            </button><br />
+            <select id="renegotiation-direction" style="width: 100px;">
+                <option>Two-Way</option>
+                <option>One-Way</option>
+            </select><br />
+            <select id="renegotiation-options" style="width: 100px;">
+                <option>Screen</option>
+                <option>Audio</option>
+                <option>Video</option>
+                <option>Audio+Screen</option>
+                <option selected>Audio+Video</option>
+                <option>Video+Screen</option>
+                <option>Audio+Video+Screen</option>
+                <option>Audio+Data</option>
+                <option>Screen+Data</option>
+            </select>
+        </aside>
+        
+        <aside class="bandwidth-panel">
+            <label for="set-bandwidth">Set Bandwidth</label>
+            <select id="set-bandwidth" style="width: 125px;">
+                <option>128kbs audio, 512kbs video</option>
+                <option selected>80kbs audio, 256kbs video</option>
+                <option>50kbs audio, 256kbs video</option>
+                <option>50kbs audio, 100kbs video</option>
+                <option>30kbs audio, 80kbs video</option>
+                <option>20kbs audio, 50kbs video</option>
+                <option>20kbs audio, 30kbs video</option>
+            </select>
+        </aside>
+        
+        <aside class="right-panel">
+            <br />
+            <h2>
+                Select Media-Type to be shared E.g. Audio, Video, Screen and/or Data+File.
+            </h2>
+            <section>  
+                <div class="check-box">
+                    <span>Audio</span>
+                    <input type="checkbox" value="None" id="audio" checked />
+                    <label for="audio"></label>
+                </div>
+            </section>
+        
+            <section>  
+                <div class="check-box">
+                    <span>Video</span>
+                    <input type="checkbox" value="None" id="video" checked />
+                    <label for="video"></label>
+                </div>
+            </section>
+        
+            <section>  
+                <div class="check-box">
+                    <span>Screen</span>
+                    <input type="checkbox" value="None" id="screen" />
+                    <label for="screen"></label>
+                </div>
+            </section>
+        
+            <section>  
+                <div class="check-box">
+                    <span>Text/File</span>
+                    <input type="checkbox" value="None" id="data" checked />
+                    <label for="data"></label>
+                </div>
+            </section>
+        
+            <br /><br /><hr /><br /><br />
+            
+            <h2>
+                Select direction of the media-streams!
+            </h2>
+        
+            <section>  
+                <div class="check-box">
+                    <span>Many-to-Many</span>
+                    <input type="checkbox" value="None" id="full-screen" checked class="direction" />
+                    <label for="full-screen"></label>
+                </div>
+            </section>
+        
+            <section>  
+                <div class="check-box">
+                    <span>One-Way</span>
+                    <input type="checkbox" value="None" id="volume-slider" class="direction" />
+                    <label for="volume-slider"></label>
+                </div>
+            </section>
+        
+            <section>  
+                <div class="check-box">
+                    <span>One-to-Many</span>
+                    <input type="checkbox" value="None" id="stop" class="direction" />
+                    <label for="stop"></label>
+                </div>
+            </section>
+            
+            <section>  
+                <div class="check-box">
+                    <span>One-to-One</span>
+                    <input type="checkbox" value="None" id="stop2" class="direction" />
+                    <label for="stop2"></label>
+                </div>
+            </section>
+        </aside>
+		
+        <section class="users-panel"></section>
+    
+        <footer>
+            <button id="share-files" disabled style="display: none;">
+                <img src="/images/share-files.png">
+            </button>
+			
+            <button id="users-button">
+                <img id="user-image" src="/images/user.png"> <span id="number-of-users">0</span> users!
+            </button>
+			
+            <textarea readonly>
+Welcome to MultiRTC Demo!
+				
+MultiRTC allows you share audio/video/screen as well as file/data among multiple users (100% privately and reliably!!).
+
+Supported browsers: Desktop(Chrome, Firefox, Opera), Android(Chrome, Firefox)
+</textarea>
+        </footer>
+		
+        <!-- this file is used to play sound on receiving participation request -->
+        <audio id="IM_sound" src="//www.webrtc-experiment.com/sound/IM_sound.wav"></audio> 
+
+        <!-- User Interface -->
+        <script src="/ui.js"> </script>
+    </body>
+</html>

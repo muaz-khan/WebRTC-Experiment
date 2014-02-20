@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>RTCMultiConnection API Reference / "onmessage" event</title>
+    <title>RTCMultiConnection API Reference / "token" method</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -55,41 +55,53 @@
     <article>
         <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">RTCMultiConnection Docs</a>
 
-        <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/onmessage/">onmessage</a>" event</h1>
-				
+        <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>" method</h1>
+		
 		<ol>
 			<li>
-				"<a href="http://www.RTCMultiConnection.org/docs/onmessage/">onmessage</a>" event is fired for each new data message:
+				Using "<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>" method; RTCMultiConnection is setting random user-ids; random session-ids; unique identifiers for file sharing instances etc.
 			</li>
+            
+            <li>
+                You can use "<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>" method to get random string.
+            </li>
 			
 			<li>
 				<pre class="sh_javascript">
-connection.<a href="http://www.RTCMultiConnection.org/docs/onmessage/">onmessage</a> = function(e){
-    // e.data
-    // e.userid
-    // e.extra
+var randomString = rtcMultiConnection.<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>();
+rtcMultiConnection.<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a> = rtcMultiConnection.<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>();
+</pre>
+			</li>
+            
+            <li>
+                It is defined like this:
+				<pre class="sh_javascript">
+rtcMultiConnection.<a href="http://www.RTCMultiConnection.org/docs/token/">token</a> = function () {
+    // suggested from: https://github.com/muaz-khan/WebRTC-Experiment/issues/154
+    if (window.crypto) {
+        var a = window.crypto.getRandomValues(new Uint32Array(3)),
+            token = '';
+        for (var i = 0, l = a.length; i < l; i++) token += a[i].toString(36);
+        return token;
+    } else {
+        return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
+    }
 };
 </pre>
 			</li>
             
-            <li>Since <a href="http://www.rtcmulticonnection.org/changes-log/#v1.6">v1.6</a>, you can use "<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a>" boolean to convert incoming text messages in <a href="http://www.RTCMultiConnection.org/docs/language/">41 languages</a>!</li>
+            <li>
+                Default "<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a>" is generated using "<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>" method:
+            </li>
             
             <li>
 				<pre class="sh_javascript">
-connection.<a href="http://www.RTCMultiConnection.org/docs/language/">language</a> = 'ja'; // prefer Japanese
-connection.<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a> = true;
-
-// you can use "e.data" and "e.original"
-connection.<a href="http://www.RTCMultiConnection.org/docs/onmessage/">onmessage</a> = function(e) {
-   // e.data     ---- translated text
-   // e.original ---- original text
-   // e.userid
-   // e.extra
-};
+rtcMultiConnection.<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a> = rtcMultiConnection.<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>();
 </pre>
 			</li>
 		</ol>
 
+        <br />
         <br />
         <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
                 <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Want to ask a Question?</h2>

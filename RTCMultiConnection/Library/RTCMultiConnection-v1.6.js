@@ -1,42 +1,32 @@
-// Last time updated at 15 Feb 2014, 16:32:23
+// Last time updated at 20 Feb 2014, 15:32:23
+// Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.6.js
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
-// Documentation     - www.RTCMultiConnection.org/docs/
-
-// FAQ               - www.RTCMultiConnection.org/FAQ/
-// Development News  - trello.com/b/8bhi1G6n/RTCMultiConnection
-
+// Documentation     - www.RTCMultiConnection.org/docs
+// FAQ               - www.RTCMultiConnection.org/FAQ
 // v1.6 changes log  - www.RTCMultiConnection.org/changes-log/#v1.6
 // _______________________
 // RTCMultiConnection-v1.6
 
-/*
--. one MUST be able to renegotiate data connection in existing audio/video/screen session.
+/* issues/features need to be fixed & implemented:
 
--. If initiator started audio+video session; participants can't join as audio-only. (MUST be fixed)
-We MUST allow participants to:
-1. Join with only audio (this one doesn't work)
-2. Join with only video (this one doesn't work if initiator started audio-only session)
-3. Join without audio/video (this one works)
-
--. Connection Timeout & ReDial (not-implemented) ----- urgent and MUST be hight priority!
-
+-. hold/unhold of audio or video track instead of "all tracks".
 -. "channel" object in the openSignalingChannel shouldn't be mandatory!
 -. JSON parse/stringify options for data transmitted using data-channels; e.g. connection.preferJSON = true; (not-implemented)
-6. "onspeaking" and "onsilence" fires too often! (not-fixed)
-8. removeTrack() and addTracks() instead of "stop" (not-implemented)
-9. session-duration & statistics (not-implemented)
+-. "onspeaking" and "onsilence" fires too often! (not-fixed)
+-. removeTrack() and addTracks() instead of "stop" (not-implemented)
+-. session-duration & statistics (not-implemented)
 */
 
-(function() {
+(function () {
     // www.RTCMultiConnection.org/docs/
-    window.RTCMultiConnection = function(channel) {
+    window.RTCMultiConnection = function (channel) {
         // www.RTCMultiConnection.org/docs/channel-id/
-        this.channel = channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
+        this.channel = channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
         // www.RTCMultiConnection.org/docs/open/
-        this.open = function(_channel) {
+        this.open = function (_channel) {
             self.joinedARoom = true;
 
             if (_channel)
@@ -49,14 +39,14 @@ We MUST allow participants to:
             // www.RTCMultiConnection.org/docs/session-initiator/
             self.isInitiator = true;
 
-            prepareInit(function() {
+            prepareInit(function () {
                 init();
                 captureUserMedia(rtcSession.initSession);
             });
         };
 
         // www.RTCMultiConnection.org/docs/connect/
-        this.connect = function(_channel) {
+        this.connect = function (_channel) {
             if (_channel)
                 self.channel = _channel;
 
@@ -69,7 +59,7 @@ We MUST allow participants to:
         this.join = joinSession;
 
         // www.RTCMultiConnection.org/docs/send/
-        this.send = function(data, _channel) {
+        this.send = function (data, _channel) {
             // send file/data or /text
             if (!data)
                 throw 'No file, data or text message to share.';
@@ -94,7 +84,7 @@ We MUST allow participants to:
                     text: data,
                     channel: rtcSession,
                     _channel: _channel,
-                    preferSCTP: self.preferSCTP
+                    root: self
                 });
             }
         };
@@ -107,15 +97,15 @@ We MUST allow participants to:
 
             // make sure firebase.js is loaded before using their JavaScript API
             if (!window.Firebase) {
-                return loadScript('//www.webrtc-experiment.com/firebase.js', function() {
+                return loadScript('//www.webrtc-experiment.com/firebase.js', function () {
                     prepareInit(callback);
                 });
             }
 
             // Single socket is a preferred solution!
-            var socketCallbacks = { };
+            var socketCallbacks = {};
             var firebase = new Firebase('//' + self.firebase + '.firebaseio.com/' + self.channel);
-            firebase.on('child_added', function(snap) {
+            firebase.on('child_added', function (snap) {
                 var data = snap.val();
                 if (data.sender == self.userid) return;
 
@@ -126,13 +116,14 @@ We MUST allow participants to:
             });
 
             // www.RTCMultiConnection.org/docs/openSignalingChannel/
-            self.openSignalingChannel = function(args) {
+            // github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
+            self.openSignalingChannel = function (args) {
                 var callbackid = args.channel || self.channel;
                 socketCallbacks[callbackid] = args.onmessage;
 
                 if (args.onopen) setTimeout(args.onopen, 1000);
                 return {
-                    send: function(message) {
+                    send: function (message) {
                         firebase.push({
                             sender: self.userid,
                             channel: callbackid,
@@ -162,12 +153,12 @@ We MUST allow participants to:
 
             self.session = session.session;
 
-            extra = self.extra || session.extra || { };
+            extra = self.extra || session.extra || {};
 
             if (session.oneway || session.data) {
                 rtcSession.joinSession(session, extra);
             } else {
-                captureUserMedia(function() {
+                captureUserMedia(function () {
                     rtcSession.joinSession(session, extra);
                 });
             }
@@ -178,6 +169,12 @@ We MUST allow participants to:
         function captureUserMedia(callback, _session) {
             // capture user's media resources
             var session = _session || self.session;
+
+            if (isEmpty(session)) {
+                if (callback) callback();
+                return;
+            }
+            ;
 
             if (self.dontAttachStream)
                 return callback();
@@ -196,14 +193,18 @@ We MUST allow participants to:
             // if custom audio device is selected
             if (self._mediaSources.audio) {
                 constraints.audio = {
-                    optional: [{ sourceId: self._mediaSources.audio }]
+                    optional: [{
+                        sourceId: self._mediaSources.audio
+                    }]
                 };
             }
 
             // if custom video device is selected
             if (self._mediaSources.video) {
                 constraints.video = {
-                    optional: [{ sourceId: self._mediaSources.video }]
+                    optional: [{
+                        sourceId: self._mediaSources.video
+                    }]
                 };
             }
 
@@ -218,14 +219,14 @@ We MUST allow participants to:
             };
 
             if (session.screen) {
-                _captureUserMedia(screen_constraints, constraints.audio || constraints.video ? function() {
+                _captureUserMedia(screen_constraints, constraints.audio || constraints.video ? function () {
                     _captureUserMedia(constraints, callback);
                 } : callback);
             } else _captureUserMedia(constraints, callback, session.audio && !session.video);
 
             function _captureUserMedia(forcedConstraints, forcedCallback, isRemoveVideoTracks) {
                 var mediaConfig = {
-                    onsuccess: function(stream, returnBack, idInstance) {
+                    onsuccess: function (stream, returnBack, idInstance) {
                         if (returnBack) return forcedCallback && forcedCallback(stream);
 
                         if (isRemoveVideoTracks && isChrome) {
@@ -235,7 +236,7 @@ We MUST allow participants to:
                         var mediaElement = createMediaElement(stream, session);
                         mediaElement.muted = true;
 
-                        stream.onended = function() {
+                        stream.onended = function () {
                             self.onstreamended(streamedObject);
 
                             // if user clicks "stop" button to close screen sharing
@@ -265,7 +266,8 @@ We MUST allow participants to:
                             blobURL: mediaElement.mozSrcObject || mediaElement.src,
                             type: 'local',
                             userid: self.userid || 'self',
-                            extra: self.extra
+                            extra: self.extra,
+                            session: session
                         };
 
                         var sObject = {
@@ -295,7 +297,7 @@ We MUST allow participants to:
                             soundMeter.connectToSource(stream);
                         }
                     },
-                    onerror: function(e) {
+                    onerror: function (e) {
                         self.onMediaError(toStr(e));
 
                         if (session.audio) {
@@ -314,7 +316,7 @@ We MUST allow participants to:
                             } else {
                                 self.onMediaError('Unable to detect actual issue. Trying to check availability of screen sharing flag.');
 
-                                self.caniuse.checkIfScreenSharingFlagEnabled(function(isFlagEnabled, warning) {
+                                self.caniuse.checkIfScreenSharingFlagEnabled(function (isFlagEnabled, warning) {
                                     if (isFlagEnabled) {
                                         if (chromeVersion < 31) {
                                             self.onMediaError('Multi-capturing of screen is not allowed. Capturing process is denied. Try chrome >= M31.');
@@ -332,7 +334,7 @@ We MUST allow participants to:
                             }
                         }
                     },
-                    mediaConstraints: self.mediaConstraints || { }
+                    mediaConstraints: self.mediaConstraints || {}
                 };
 
                 mediaConfig.constraints = forcedConstraints || constraints;
@@ -345,7 +347,7 @@ We MUST allow participants to:
         this.captureUserMedia = captureUserMedia;
 
         // www.RTCMultiConnection.org/docs/leave/
-        this.leave = function(userid) {
+        this.leave = function (userid) {
             // eject a user; or leave the session
             rtcSession.leave(userid);
 
@@ -365,28 +367,32 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/eject/
-        this.eject = function(userid) {
+        this.eject = function (userid) {
             if (!connection.isInitiator) throw 'Only session-initiator can eject a user.';
             this.leave(userid);
         };
 
         // www.RTCMultiConnection.org/docs/close/
-        this.close = function() {
+        this.close = function () {
             // close entire session
             self.autoCloseEntireSession = true;
             rtcSession.leave();
         };
 
         // www.RTCMultiConnection.org/docs/renegotiate/
-        this.renegotiate = function(stream) {
+        this.renegotiate = function (stream) {
             rtcSession.addStream({
-                renegotiate: { oneway: true, audio: true, video: true },
+                renegotiate: {
+                    oneway: true,
+                    audio: true,
+                    video: true
+                },
                 stream: stream
             });
         };
 
         // www.RTCMultiConnection.org/docs/addStream/
-        this.addStream = function(session, socket) {
+        this.addStream = function (session, socket) {
             // www.RTCMultiConnection.org/docs/renegotiation/
 
             // renegotiate new media stream
@@ -397,7 +403,7 @@ We MUST allow participants to:
                     isOneWayStreamFromParticipant = true;
                 }
 
-                captureUserMedia(function(stream) {
+                captureUserMedia(function (stream) {
                     if (isOneWayStreamFromParticipant) {
                         session.oneway = true;
                     }
@@ -415,7 +421,7 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/removeStream/
-        this.removeStream = function(streamid) {
+        this.removeStream = function (streamid) {
             // detach pre-attached streams
             if (!this.streams[streamid]) return warn('No such stream exists. Stream-id:', streamid);
 
@@ -434,8 +440,7 @@ We MUST allow participants to:
         var textReceiver = new TextReceiver(root);
 
         function onDataChannelMessage(e) {
-            if (!e.data.size)
-                e.data = JSON.parse(e.data);
+            e = JSON.parse(e);
 
             if (e.data.type === 'text') {
                 textReceiver.receive(e.data, e.userid, e.extra);
@@ -444,7 +449,7 @@ We MUST allow participants to:
             } else {
                 if (root.autoTranslateText) {
                     e.original = e.data;
-                    root.Translator.TranslateText(e.data, function(translatedText) {
+                    root.Translator.TranslateText(e.data, function (translatedText) {
                         e.data = translatedText;
                         root.onmessage(e);
                     });
@@ -454,14 +459,19 @@ We MUST allow participants to:
 
         function onNewSession(session) {
             if (root.onNewSession) {
-                session.join = function(forceSession) {
+                session.join = function (forceSession) {
                     if (!forceSession) return root.join(session);
+
+                    for (var f in forceSession) {
+                        session.session[f] = forceSession[f];
+                    }
 
                     // keeping previous state
                     var isDontAttachStream = root.dontAttachStream;
 
                     root.dontAttachStream = false;
-                    captureUserMedia(function() {
+                    root.captureUserMedia(function () {
+                        root.dontAttachStream = true;
                         root.join(session);
 
                         // returning back previous state
@@ -479,14 +489,14 @@ We MUST allow participants to:
             root.join(session);
         }
 
-        var self = { };
-        var socketObjects = { };
+        var self = {};
+        var socketObjects = {};
         var sockets = [];
 
         self.userid = root.userid = root.userid || root.token();
         self.sessionid = root.channel;
 
-        var participants = { };
+        var participants = {};
         var isAcceptNewSession = true;
 
         function updateSocketForLocalStreams(socket) {
@@ -501,11 +511,11 @@ We MUST allow participants to:
             var socketConfig = {
                 channel: _config.channel,
                 onmessage: socketResponse,
-                onopen: function(_socket) {
+                onopen: function (_socket) {
                     if (_socket) socket = _socket;
 
                     if (isofferer && !peer) {
-                        peerConfig.session = root.session;
+                        peerConfig.session = _config.session || root.session;
                         if (!peer) peer = new PeerConnection();
                         peer.create('offer', peerConfig);
                     }
@@ -518,7 +528,7 @@ We MUST allow participants to:
                 }
             };
 
-            socketConfig.callback = function(_socket) {
+            socketConfig.callback = function (_socket) {
                 socket = _socket;
                 socketConfig.onopen();
             };
@@ -529,7 +539,7 @@ We MUST allow participants to:
 
             var peerConfig = {
                 onopen: onChannelOpened,
-                onicecandidate: function(candidate) {
+                onicecandidate: function (candidate) {
                     if (!root.candidates) throw 'ICE candidates are mandatory.';
                     if (!root.candidates.host && candidate.candidate.indexOf('typ host') != -1) return;
                     if (!root.candidates.relay && candidate.candidate.indexOf('relay') != -1) return;
@@ -545,14 +555,8 @@ We MUST allow participants to:
                         }
                     });
                 },
-                onmessage: function(data) {
-                    onDataChannelMessage({
-                        data: data,
-                        userid: _config.userid,
-                        extra: _config.extra
-                    });
-                },
-                onaddstream: function(stream) {
+                onmessage: onDataChannelMessage,
+                onaddstream: function (stream) {
                     if (isData(root.session) && isFirefox) return;
 
                     if (_config.streaminfo) {
@@ -564,15 +568,15 @@ We MUST allow participants to:
                         }
                     }
 
-                    var __session = root.session;
+                    var __session = _config.session || root.session;
                     __session.remote = true;
 
                     var mediaElement = createMediaElement(stream, __session);
 
                     _config.stream = stream;
                     if (mediaElement.tagName.toLowerCase() == 'audio')
-                        mediaElement.addEventListener('play', function() {
-                            setTimeout(function() {
+                        mediaElement.addEventListener('play', function () {
+                            setTimeout(function () {
                                 mediaElement.muted = false;
                                 afterRemoteStreamStartedFlowing(mediaElement);
                             }, 3000);
@@ -581,11 +585,11 @@ We MUST allow participants to:
                         waitUntilRemoteStreamStartsFlowing(mediaElement);
                 },
 
-                onremovestream: function(event) {
+                onremovestream: function (event) {
                     warn('onremovestream', event);
                 },
 
-                onclose: function(e) {
+                onclose: function (e) {
                     e.extra = _config.extra;
                     e.userid = _config.userid;
                     root.onclose(e);
@@ -594,28 +598,47 @@ We MUST allow participants to:
                     if (root.channels[e.userid])
                         delete root.channels[e.userid];
                 },
-                onerror: function(e) {
+                onerror: function (e) {
                     e.extra = _config.extra;
                     e.userid = _config.userid;
                     root.onerror(e);
                 },
 
-                oniceconnectionstatechange: function(event) {
-                    log('oniceconnectionstatechange', toStr(event));
+                oniceconnectionstatechange: function (event) {
+                    return log('oniceconnectionstatechange', toStr(event));
+                    
+                    // auto redial feature is temporarily disabled because it affects renegotiation process
+                    // when we renegotiate streams; it fires ice-connection-state == 'disconnected'
+                    // so it is not easy to distinguish between peers failure or renegotiation.
+                    
+                    if(!root.peers[_config.userid]) return;
+                    
+                    if (root.peers[_config.userid].peer.connection.iceConnectionState != 'disconnected') {
+                        self.redialing = false;
+                    }
+
+                    if (root.peers[_config.userid].peer.connection.iceConnectionState == 'disconnected' && !self.redialing) {
+                        self.redialing = true;
+                        
+                        error('Peer connection is closed.', toStr(root.peers[_config.userid].peer.connection));
+                        root.peers[_config.userid].redial();
+                    }
                 },
 
-                onsignalingstatechange: function(event) {
+                onsignalingstatechange: function (event) {
                     log('onsignalingstatechange', toStr(event));
                 },
 
                 attachStreams: root.attachStreams,
                 iceServers: root.iceServers,
                 bandwidth: root.bandwidth,
-                sdpConstraints: root.sdpConstraints || { },
+                sdpConstraints: root.sdpConstraints,
+                optionalArgument: root.optionalArgument,
                 disableDtlsSrtp: root.disableDtlsSrtp,
-                preferSCTP: !!root.preferSCTP,
+                dataChannelDict: root.dataChannelDict,
+                preferSCTP: root.preferSCTP,
 
-                onSessionDescription: function(sessionDescription, streaminfo) {
+                onSessionDescription: function (sessionDescription, streaminfo) {
                     sendsdp({
                         sdp: sessionDescription,
                         socket: socket,
@@ -628,19 +651,42 @@ We MUST allow participants to:
             };
 
             function waitUntilRemoteStreamStartsFlowing(mediaElement) {
-                if (!(mediaElement.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA
-                    || mediaElement.paused || mediaElement.currentTime <= 0)) {
+                if (!(mediaElement.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || mediaElement.paused || mediaElement.currentTime <= 0)) {
                     afterRemoteStreamStartedFlowing(mediaElement);
                 } else
-                    setTimeout(function() {
+                    setTimeout(function () {
                         waitUntilRemoteStreamStartsFlowing(mediaElement);
                     }, 50);
+            }
+
+            function initFakeChannel() {
+                if (!root.fakeDataChannels || root.channels[_config.userid]) return;
+
+                // for non-data connections; allow fake data sender!
+                if (!root.session.data) {
+                    var fakeChannel = {
+                        send: function (data) {
+                            socket.send({
+                                fakeData: data
+                            });
+                        },
+                        readyState: 'open'
+                    };
+                    // connection.channels['user-id'].send(data);
+                    root.channels[_config.userid] = {
+                        channel: fakeChannel,
+                        send: function (data) {
+                            this.channel.send(data);
+                        }
+                    };
+                    peerConfig.onopen(fakeChannel);
+                }
             }
 
             function afterRemoteStreamStartedFlowing(mediaElement) {
                 var stream = _config.stream;
 
-                stream.onended = function() {
+                stream.onended = function () {
                     root.onstreamended(streamedObject);
                 };
 
@@ -690,7 +736,7 @@ We MUST allow participants to:
                 // connection.channels['user-id'].send(data);
                 root.channels[_config.userid] = {
                     channel: _config.channel,
-                    send: function(data) {
+                    send: function (data) {
                         root.send(data, this.channel);
                     }
                 };
@@ -709,6 +755,7 @@ We MUST allow participants to:
             }
 
             function updateSocket() {
+                // todo: need to check following {if-block} MUST not affect "redial" process
                 if (socket.userid == _config.userid)
                     return;
 
@@ -720,13 +767,20 @@ We MUST allow participants to:
                     socket: socket,
                     peer: peer,
                     userid: _config.userid,
-                    addStream: function(session00) {
+                    extra: _config.extra,
+                    addStream: function (session00) {
+                        // connection.peers['user-id'].addStream({audio: true, video: true);
+                        
                         root.addStream(session00, this.socket);
                     },
-                    renegotiate: function(stream) {
+                    renegotiate: function (stream) {
+                        // connection.peers['user-id'].renegotiate();
+                        
                         root.renegotiate(stream);
                     },
-                    changeBandwidth: function(bandwidth) {
+                    changeBandwidth: function (bandwidth) {
+                        // connection.peers['user-id'].changeBandwidth();
+                        
                         if (!bandwidth) throw 'You MUST pass bandwidth object.';
                         if (typeof bandwidth == 'string') throw 'Pass object for bandwidth instead of string; e.g. {audio:10, video:20}';
 
@@ -736,24 +790,28 @@ We MUST allow participants to:
                         // ask remote user to synchronize bandwidth
                         this.socket.send({
                             userid: root.userid,
-                            extra: root.extra || { },
+                            extra: root.extra || {},
                             changeBandwidth: true,
                             bandwidth: bandwidth
                         });
                     },
-                    sendCustomMessage: function(message) {
+                    sendCustomMessage: function (message) {
+                        // connection.peers['user-id'].sendCustomMessage();
+                        
                         this.socket.send({
                             userid: root.userid,
-                            extra: root.extra || { },
+                            extra: root.extra || {},
                             customMessage: true,
                             message: message
                         });
                     },
-                    onCustomMessage: function(message) {
+                    onCustomMessage: function (message) {
                         log('Received "private" message from', this.userid,
                             typeof message == 'string' ? message : toStr(message));
                     },
-                    drop: function(dontSendMessage) {
+                    drop: function (dontSendMessage) {
+                        // connection.peers['user-id'].drop();
+                        
                         for (var stream in root.streams) {
                             if (root._skip.indexOf(stream) == -1) {
                                 stream = root.streams[stream];
@@ -771,27 +829,31 @@ We MUST allow participants to:
 
                         !dontSendMessage && this.socket.send({
                             userid: root.userid,
-                            extra: root.extra || { },
+                            extra: root.extra || {},
                             drop: true
                         });
                     },
-                    hold: function() {
+                    hold: function () {
+                        // connection.peers['user-id'].hold();
+                        
                         this.peer.hold = true;
                         this.socket.send({
                             userid: root.userid,
-                            extra: root.extra || { },
+                            extra: root.extra || {},
                             hold: true
                         });
                     },
-                    unhold: function() {
+                    unhold: function () {
+                        // connection.peers['user-id'].unhold();
+                        
                         this.peer.hold = false;
                         this.socket.send({
                             userid: root.userid,
-                            extra: root.extra || { },
+                            extra: root.extra || {},
                             unhold: true
                         });
                     },
-                    fireHoldUnHoldEvents: function(hold) {
+                    fireHoldUnHoldEvents: function (hold) {
                         for (var stream in root.streams) {
                             if (root._skip.indexOf(stream) == -1) {
                                 stream = root.streams[stream];
@@ -807,6 +869,31 @@ We MUST allow participants to:
                                 if (hold && root.onunhold) root.onunhold(stream.streamObject);
                             }
                         }
+                    },
+                    redial: function () {
+                        // connection.peers['user-id'].redial();
+                        
+                        // 1st of all; remove all relevant remote media streams
+                        for (var stream in root.streams) {
+                            if (root._skip.indexOf(stream) == -1) {
+                                stream = root.streams[stream];
+
+                                if (stream.userid == this.userid && stream.type == 'remote') {
+                                    root.onstreamended(stream.streamObject);
+                                }
+                            }
+                        }
+
+                        log('ReDialing...');
+
+                        socket.send({
+                            userid: root.userid,
+                            extra: root.extra,
+                            recreatePeer: true
+                        });
+
+                        peer = new PeerConnection();
+                        peer.create('offer', peerConfig);
                     }
                 };
             }
@@ -820,7 +907,7 @@ We MUST allow participants to:
                     defaultSocket.send({
                         newParticipant: _config.userid || socket.channel,
                         userid: self.userid,
-                        extra: _config.extra || { }
+                        extra: _config.extra || {}
                     });
                 }
             }
@@ -831,11 +918,22 @@ We MUST allow participants to:
 
                 if (response.sdp) {
                     _config.userid = response.userid;
-                    _config.extra = response.extra || { };
+                    _config.extra = response.extra || {};
                     _config.renegotiate = response.renegotiate;
                     _config.streaminfo = response.streaminfo;
 
-                    sdpInvoker(JSON.parse(response.sdp), response.labels);
+                    var sdp = JSON.parse(response.sdp);
+
+                    if (sdp.type == 'offer') {
+                        // to synchronize SCTP or RTP
+                        peerConfig.preferSCTP = !!response.preferSCTP;
+                        root.fakeDataChannels = !!response.fakeDataChannels;
+                    }
+
+                    // initializing fake channel
+                    initFakeChannel();
+
+                    sdpInvoker(sdp, response.labels);
                 }
 
                 if (response.candidate) {
@@ -972,9 +1070,18 @@ We MUST allow participants to:
                     root.peers[response.userid].peer.hold = false;
                     root.peers[response.userid].renegotiate();
                 }
+
+                // fake data channels!
+                if (response.fakeData) {
+                    peerConfig.onmessage(response.fakeData);
+                }
+
+                if (response.recreatePeer) {
+                    peer = new PeerConnection();
+                }
             }
 
-            root.playRoleOfInitiator = function() {
+            root.playRoleOfInitiator = function () {
                 root.dontAttachStream = true;
                 root.open();
                 sockets = swap(sockets);
@@ -991,7 +1098,7 @@ We MUST allow participants to:
                 }
                 if (!_config.renegotiate && sdp.type == 'offer') {
                     peerConfig.offerDescription = sdp;
-                    peerConfig.session = root.session;
+                    peerConfig.session = _config.session || root.session;
                     if (!peer) peer = new PeerConnection();
                     peer.create('answer', peerConfig);
 
@@ -1011,7 +1118,7 @@ We MUST allow participants to:
 
                     _config.capturing = true;
 
-                    root.captureUserMedia(function(stream) {
+                    root.captureUserMedia(function (stream) {
                         _config.capturing = false;
 
                         peer.connection.addStream(stream);
@@ -1022,7 +1129,7 @@ We MUST allow participants to:
                 delete _config.renegotiate;
 
                 function createAnswer() {
-                    peer.recreateAnswer(sdp, root.session, function(_sdp, streaminfo) {
+                    peer.recreateAnswer(sdp, root.session, function (_sdp, streaminfo) {
                         sendsdp({
                             sdp: _sdp,
                             socket: socket,
@@ -1050,7 +1157,9 @@ We MUST allow participants to:
                 extra: root.extra,
                 renegotiate: !!e.renegotiate ? e.renegotiate : false,
                 streaminfo: e.streaminfo || '',
-                labels: e.labels || []
+                labels: e.labels || [],
+                preferSCTP: !!root.preferSCTP,
+                fakeDataChannels: !!root.fakeDataChannels
             });
         }
 
@@ -1067,7 +1176,7 @@ We MUST allow participants to:
             var new_channel = root.token();
             newPrivateSocket({
                 channel: new_channel,
-                extra: response.extra || { },
+                extra: response.extra || {},
                 userid: response.userid
             });
 
@@ -1134,7 +1243,7 @@ We MUST allow participants to:
         }
 
         // www.RTCMultiConnection.org/docs/remove/
-        root.remove = function(userid) {
+        root.remove = function (userid) {
             if (self.requestsFrom && self.requestsFrom[userid]) delete self.requestsFrom[userid];
 
             if (root.peers[userid]) {
@@ -1161,7 +1270,7 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/refresh/
-        root.refresh = function() {
+        root.refresh = function () {
             participants = [];
             root.joinedARoom = self.joinedARoom = false;
             isAcceptNewSession = true;
@@ -1184,27 +1293,27 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/reject/
-        root.reject = function(userid) {
+        root.reject = function (userid) {
             if (typeof userid != 'string') userid = userid.userid;
             defaultSocket.send({
                 rejectedRequestOf: userid,
                 userid: root.userid,
-                extra: root.extra || { }
+                extra: root.extra || {}
             });
         };
 
-        window.addEventListener('beforeunload', function() {
+        window.addEventListener('beforeunload', function () {
             clearSession();
         }, false);
 
-        window.addEventListener('keydown', function(e) {
+        window.addEventListener('keydown', function (e) {
             if (e.keyCode == 116)
                 clearSession();
         }, false);
 
         function initDefaultSocket() {
             defaultSocket = root.openSignalingChannel({
-                onmessage: function(response) {
+                onmessage: function (response) {
                     if (response.userid == self.userid) return;
 
                     if (isAcceptNewSession && response.sessionid && response.userid) {
@@ -1217,7 +1326,7 @@ We MUST allow participants to:
                     }
 
                     if (getLength(participants) < root.maxParticipantsAllowed && response.userid && response.targetUser == self.userid && response.participant && !participants[response.userid]) {
-                        acceptRequest(response.channel || response.userid, response.extra, response.userid);
+                        acceptRequest(response);
                     }
 
                     if (response.userType && response.userType != root.userType) {
@@ -1271,24 +1380,25 @@ We MUST allow participants to:
                         }
                     }
                 },
-                callback: function(socket) {
+                callback: function (socket) {
                     if (socket) defaultSocket = socket;
                     if (root.userType) sendRequest(socket || defaultSocket);
                 },
-                onopen: function(socket) {
+                onopen: function (socket) {
                     if (socket) defaultSocket = socket;
                     if (root.userType) sendRequest(socket || defaultSocket);
                 }
             });
         }
 
-        var that = this, defaultSocket;
+        var that = this,
+            defaultSocket;
 
         initDefaultSocket();
 
         function sendRequest(socket) {
             if (!socket) {
-                return setTimeout(function() {
+                return setTimeout(function () {
                     sendRequest(defaultSocket);
                 }, 1000);
             }
@@ -1296,7 +1406,7 @@ We MUST allow participants to:
             socket.send({
                 userType: root.userType,
                 userid: root.userid,
-                extra: root.extra || { }
+                extra: root.extra || {}
             });
         }
 
@@ -1312,12 +1422,12 @@ We MUST allow participants to:
         }
 
         // open new session
-        this.initSession = function() {
+        this.initSession = function () {
             that.isOwnerLeaving = false;
             root.isInitiator = true;
 
             setDirections();
-            participants = { };
+            participants = {};
 
             self.sessionid = root.sessionid || root.channel;
 
@@ -1340,10 +1450,10 @@ We MUST allow participants to:
         };
 
         // join existing session
-        this.joinSession = function(_config) {
-            _config = _config || { };
-            participants = { };
-            root.session = _config.session;
+        this.joinSession = function (_config) {
+            _config = _config || {};
+            participants = {};
+            root.session = _config.session || {};
             self.broadcasterid = _config.userid;
 
             if (_config.sessionid)
@@ -1355,7 +1465,7 @@ We MUST allow participants to:
             var channel = getRandomString();
             newPrivateSocket({
                 channel: channel,
-                extra: _config.extra || { },
+                extra: _config.extra || {},
                 userid: _config.userid
             });
 
@@ -1364,13 +1474,18 @@ We MUST allow participants to:
                 userid: self.userid,
                 channel: channel,
                 targetUser: _config.userid,
-                extra: root.extra
+                extra: root.extra,
+                session: root.session
             });
         };
 
         // send file/data or text message
-        this.send = function(message, _channel) {
-            message = JSON.stringify(message);
+        this.send = function (message, _channel) {
+            message = JSON.stringify({
+                extra: root.extra,
+                userid: root.userid,
+                data: message
+            });
 
             if (_channel) {
                 if (_channel.readyState == 'open') {
@@ -1388,7 +1503,7 @@ We MUST allow participants to:
         };
 
         // leave session
-        this.leave = function(userid) {
+        this.leave = function (userid) {
             clearSession(userid);
 
             if (root.isInitiator) {
@@ -1418,7 +1533,7 @@ We MUST allow participants to:
         };
 
         // renegotiate new stream
-        this.addStream = function(e) {
+        this.addStream = function (e) {
             root.session = e.renegotiate;
 
             if (e.socket) {
@@ -1451,7 +1566,7 @@ We MUST allow participants to:
                     peer00.connection.addStream(e.stream);
                 }
 
-                peer00.recreateOffer(root.session, function(sdp, streaminfo) {
+                peer00.recreateOffer(root.session, function (sdp, streaminfo) {
                     sendsdp({
                         sdp: sdp,
                         socket: socket,
@@ -1465,14 +1580,14 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/request/
-        root.request = function(userid, extra) {
+        root.request = function (userid, extra) {
             if (root.direction === 'many-to-many') root.busy = true;
 
-            root.captureUserMedia(function() {
+            root.captureUserMedia(function () {
                 // open private socket that will be used to receive offer-sdp
                 newPrivateSocket({
                     channel: root.userid,
-                    extra: extra || { },
+                    extra: extra || {},
                     userid: userid
                 });
 
@@ -1480,23 +1595,24 @@ We MUST allow participants to:
                 defaultSocket.send({
                     participant: true,
                     userid: root.userid,
-                    extra: root.extra || { },
+                    extra: root.extra || {},
                     targetUser: userid
                 });
             });
         };
 
-        function acceptRequest(channel, extra, userid) {
-            if (!self.requestsFrom) self.requestsFrom = { };
-            if (root.busy || self.requestsFrom[userid]) return;
+        function acceptRequest(response) {
+            if (!self.requestsFrom) self.requestsFrom = {};
+            if (root.busy || self.requestsFrom[response.userid]) return;
 
             var obj = {
-                userid: userid,
-                extra: extra,
-                channel: channel
+                userid: response.userid,
+                extra: response.extra,
+                channel: response.channel || response.userid,
+                session: response.session || root.session
             };
 
-            self.requestsFrom[userid] = obj;
+            self.requestsFrom[response.userid] = obj;
 
             // www.RTCMultiConnection.org/docs/onRequest/
             if (root.onRequest) {
@@ -1510,7 +1626,7 @@ We MUST allow participants to:
                 defaultSocket.send({
                     acceptedRequestOf: e.userid,
                     userid: self.userid,
-                    extra: root.extra || { }
+                    extra: root.extra || {}
                 });
             }
 
@@ -1519,14 +1635,15 @@ We MUST allow participants to:
                 isofferer: true,
                 userid: e.userid,
                 channel: e.channel,
-                extra: e.extra || { }
+                extra: e.extra || {},
+                session: e.session || root.session
             });
         }
 
         // www.RTCMultiConnection.org/docs/sendMessage/
-        root.sendCustomMessage = function(message) {
+        root.sendCustomMessage = function (message) {
             if (!defaultSocket) {
-                return setTimeout(function() {
+                return setTimeout(function () {
                     root.sendMessage(message);
                 }, 1000);
             }
@@ -1539,16 +1656,16 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/accept/
-        root.accept = function(e) {
+        root.accept = function (e) {
             // for backward compatibility
             if (arguments.length > 1 && typeof arguments[0] == 'string') {
-                e = { };
+                e = {};
                 if (arguments[0]) e.userid = arguments[0];
                 if (arguments[1]) e.extra = arguments[1];
                 if (arguments[2]) e.channel = arguments[2];
             }
 
-            root.captureUserMedia(function() {
+            root.captureUserMedia(function () {
                 _accept(e);
             });
         };
@@ -1560,7 +1677,7 @@ We MUST allow participants to:
 
     function PeerConnection() {
         return {
-            create: function(type, options) {
+            create: function (type, options) {
                 merge(this, options);
 
                 var self = this;
@@ -1571,21 +1688,21 @@ We MUST allow participants to:
 
                 if (isData(this.session) && isFirefox) {
                     navigator.mozGetUserMedia({
-                            audio: true,
-                            fake: true
-                        }, function(stream) {
-                            self.connection.addStream(stream);
+                        audio: true,
+                        fake: true
+                    }, function (stream) {
+                        self.connection.addStream(stream);
 
-                            if (type == 'offer') {
-                                self.createDataChannel();
-                            }
+                        if (type == 'offer') {
+                            self.createDataChannel();
+                        }
 
-                            self.getLocalDescription(type);
+                        self.getLocalDescription(type);
 
-                            if (type == 'answer') {
-                                self.createDataChannel();
-                            }
-                        }, this.onMediaError);
+                        if (type == 'answer') {
+                            self.createDataChannel();
+                        }
+                    }, this.onMediaError);
                 }
 
                 if (!isData(this.session) && isFirefox) {
@@ -1603,7 +1720,7 @@ We MUST allow participants to:
                 isChrome && self.getLocalDescription(type);
                 return this;
             },
-            getLocalDescription: function(type) {
+            getLocalDescription: function (type) {
                 log('peer type is', type);
 
                 if (type == 'answer') {
@@ -1611,22 +1728,22 @@ We MUST allow participants to:
                 }
 
                 var self = this;
-                this.connection[type == 'offer' ? 'createOffer' : 'createAnswer'](function(sessionDescription) {
+                this.connection[type == 'offer' ? 'createOffer' : 'createAnswer'](function (sessionDescription) {
                     sessionDescription.sdp = self.serializeSdp(sessionDescription.sdp);
                     self.connection.setLocalDescription(sessionDescription);
                     self.onSessionDescription(sessionDescription, self.streaminfo);
                 }, this.onSdpError, this.constraints);
             },
-            serializeSdp: function(sdp) {
+            serializeSdp: function (sdp) {
                 sdp = this.setBandwidth(sdp);
                 if (this.hold) {
-                    sdp = sdp.replace( /sendonly|recvonly|sendrecv/g , 'inactive');
+                    sdp = sdp.replace(/sendonly|recvonly|sendrecv/g, 'inactive');
                 } else if (this.prevSDP) {
-                    sdp = sdp.replace( /inactive/g , 'sendrecv');
+                    sdp = sdp.replace(/inactive/g, 'sendrecv');
                 }
                 return sdp;
             },
-            init: function() {
+            init: function () {
                 this.setConstraints();
                 this.connection = new RTCPeerConnection(this.iceServers, this.optionalArgument);
 
@@ -1634,30 +1751,30 @@ We MUST allow participants to:
                     this.createDataChannel();
                 }
 
-                this.connection.onicecandidate = function(event) {
+                this.connection.onicecandidate = function (event) {
                     if (event.candidate) {
                         self.onicecandidate(event.candidate);
                     }
                 };
 
-                this.connection.onaddstream = function(e) {
+                this.connection.onaddstream = function (e) {
                     log('onaddstream', e.stream);
 
                     self.onaddstream(e.stream);
                 };
 
-                this.connection.onremovestream = function(e) {
+                this.connection.onremovestream = function (e) {
                     self.onremovestream(e.stream);
                 };
 
-                this.connection.onsignalingstatechange = function() {
+                this.connection.onsignalingstatechange = function () {
                     self.connection && self.oniceconnectionstatechange({
                         iceGatheringState: self.connection.iceGatheringState,
                         signalingState: self.connection.signalingState
                     });
                 };
 
-                this.connection.oniceconnectionstatechange = function() {
+                this.connection.oniceconnectionstatechange = function () {
                     self.connection && self.oniceconnectionstatechange({
                         iceGatheringState: self.connection.iceGatheringState,
                         signalingState: self.connection.signalingState
@@ -1665,108 +1782,83 @@ We MUST allow participants to:
                 };
                 var self = this;
             },
-            setBandwidth: function(sdp) {
+            setBandwidth: function (sdp) {
                 // sdp.replace( /a=sendrecv\r\n/g , 'a=sendrecv\r\nb=AS:50\r\n');
 
                 if (isMobileDevice || isFirefox || !this.bandwidth) return sdp;
 
                 var bandwidth = this.bandwidth;
 
+                // if screen; must use at least 300kbs
+                if (this.session.screen && isEmpty(bandwidth)) {
+                    sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
+                    sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:300\r\n');
+                }
+
                 // remove existing bandwidth lines
                 if (bandwidth.audio || bandwidth.video || bandwidth.data) {
-                    sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
+                    sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
                 }
 
                 if (bandwidth.audio) {
-                    sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:' + bandwidth.audio + '\r\n');
+                    sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:' + bandwidth.audio + '\r\n');
                 }
 
                 if (bandwidth.video) {
-                    sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + (this.session.screen ? '300' : bandwidth.video) + '\r\n');
+                    sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + (this.session.screen ? '300' : bandwidth.video) + '\r\n');
                 }
 
                 if (bandwidth.data && !this.preferSCTP) {
-                    sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:' + bandwidth.data + '\r\n');
+                    sdp = sdp.replace(/a=mid:data\r\n/g, 'a=mid:data\r\nb=AS:' + bandwidth.data + '\r\n');
                 }
 
                 return sdp;
             },
-            setConstraints: function() {
+            setConstraints: function () {
                 this.constraints = {
-                    optional: [],
-                    mandatory: {
+                    optional: this.sdpConstraints.optional || [],
+                    mandatory: this.sdpConstraints.mandatory || {
                         OfferToReceiveAudio: !!this.session.audio,
                         OfferToReceiveVideo: !!this.session.video || !!this.session.screen
                     }
                 };
 
+                // workaround for older firefox
+                if (this.session.data && isFirefox && this.constraints.mandatory) {
+                    this.constraints.mandatory.OfferToReceiveAudio = true;
+                }
+
                 log('sdp-constraints', toStr(this.constraints.mandatory));
 
                 this.optionalArgument = {
-                    optional: [{
+                    optional: this.optionalArgument.optional || [{
                         DtlsSrtpKeyAgreement: true
-                    }]
+                    }],
+                    mandatory: this.optionalArgument.mandatory || {}
                 };
 
                 if (isChrome && chromeVersion >= 32) {
-                    this.optionalArgument.optional.push({ googIPv6: true });
+                    this.optionalArgument.optional.push({
+                        googIPv6: true
+                    });
                     // this.optionalArgument.optional.push({ googDscp: true });
                 }
 
                 if (!this.preferSCTP) {
-                    this.optionalArgument = {
-                        optional: [{
-                            RtpDataChannels: true
-                        }]
-                    };
+                    this.optionalArgument.optional.push({
+                        RtpDataChannels: true
+                    });
                 }
 
                 log('optional-argument', toStr(this.optionalArgument.optional));
 
-                var iceServers = [];
-
-                if (isFirefox) {
-                    iceServers.push({
-                        url: 'stun:23.21.150.121'
-                    });
-
-                    iceServers.push({
-                        url: 'stun:stun.services.mozilla.com'
-                    });
-                }
-
-                if (isChrome) {
-                    iceServers.push({
-                        url: 'stun:stun.l.google.com:19302'
-                    });
-
-                    iceServers.push({
-                        url: 'stun:stun.anyfirewall.com:3478'
-                    });
-                }
-
-                if (isChrome && chromeVersion < 28) {
-                    iceServers.push({
-                        url: 'turn:homeo@turn.bistri.com:80',
-                        credential: 'homeo'
-                    });
-                }
-
-                if (isChrome && chromeVersion >= 28) {
-                    iceServers.push({
-                        url: 'turn:turn.bistri.com:80',
-                        credential: 'homeo',
-                        username: 'homeo'
-                    });
-                }
-
                 this.iceServers = {
-                    iceServers: iceServers
+                    iceServers: this.iceServers
                 };
 
                 log('ice-servers', toStr(this.iceServers.iceServers));
             },
-            onSdpError: function(e) {
+            onSdpError: function (e) {
                 var message = toStr(e);
 
                 if (message && message.indexOf('RTP/SAVPF Expects at least 4 fields') != -1) {
@@ -1774,36 +1866,40 @@ We MUST allow participants to:
                 }
                 error('onSdpError:', message);
             },
-            onMediaError: function(err) {
+            onMediaError: function (err) {
                 error(toStr(err));
             },
-            setRemoteDescription: function(sessionDescription) {
+            setRemoteDescription: function (sessionDescription) {
                 if (!sessionDescription) throw 'Remote session description should NOT be NULL.';
 
-                log('setting remote description', sessionDescription);
+                log('setting remote description', sessionDescription.type, sessionDescription.sdp);
                 this.connection.setRemoteDescription(
                     new RTCSessionDescription(sessionDescription)
                 );
             },
-            addIceCandidate: function(candidate) {
+            addIceCandidate: function (candidate) {
                 this.connection.addIceCandidate(new RTCIceCandidate({
                     sdpMLineIndex: candidate.sdpMLineIndex,
                     candidate: candidate.candidate
                 }));
             },
-            createDataChannel: function(channelIdentifier) {
+            createDataChannel: function (channelIdentifier) {
                 if (!this.channels) this.channels = [];
 
                 // protocol: 'text/chat', preset: true, stream: 16
                 // maxRetransmits:0 && ordered:false
-                var dataChannelDict = { };
+                var dataChannelDict = {};
+
+                if (this.dataChannelDict) dataChannelDict = this.dataChannelDict;
 
                 if (isChrome && !this.preferSCTP) {
                     dataChannelDict.reliable = false; // Deprecated!
                 }
 
+                log('dataChannelDict', toStr(dataChannelDict));
+
                 if (isFirefox) {
-                    this.connection.onconnection = function() {
+                    this.connection.onconnection = function () {
                         self.socket.send({
                             userid: self.selfUserid,
                             isCreateDataChannel: true
@@ -1812,7 +1908,7 @@ We MUST allow participants to:
                 }
 
                 if (this.type == 'answer' || isFirefox) {
-                    this.connection.ondatachannel = function(event) {
+                    this.connection.ondatachannel = function (event) {
                         self.setChannelEvents(event.channel);
                     };
                 }
@@ -1825,24 +1921,24 @@ We MUST allow participants to:
 
                 var self = this;
             },
-            setChannelEvents: function(channel) {
+            setChannelEvents: function (channel) {
                 var self = this;
-                channel.onmessage = function(event) {
+                channel.onmessage = function (event) {
                     self.onmessage(event.data);
                 };
-                channel.onopen = function() {
+                channel.onopen = function () {
                     channel.push = channel.send;
-                    channel.send = function(data) {
+                    channel.send = function (data) {
                         if (channel.readyState != 'open') {
-                            return setTimeout(function() {
+                            return setTimeout(function () {
                                 channel.send(data);
                             }, 1000);
                         }
                         try {
                             channel.push(data);
-                        } catch(e) {
-                            warn('Data transmission failed. Re-transmitting..');
-                            return setTimeout(function() {
+                        } catch (e) {
+                            warn('Data transmission failed. Re-transmitting..', toStr(e));
+                            return setTimeout(function () {
                                 channel.send(data);
                             }, 100);
                         }
@@ -1850,17 +1946,17 @@ We MUST allow participants to:
                     self.onopen(channel);
                 };
 
-                channel.onerror = function(event) {
+                channel.onerror = function (event) {
                     self.onerror(event);
                 };
 
-                channel.onclose = function(event) {
+                channel.onclose = function (event) {
                     self.onclose(event);
                 };
 
                 this.channels.push(channel);
             },
-            attachMediaStreams: function() {
+            attachMediaStreams: function () {
                 var streams = this.attachStreams;
                 for (var i = 0; i < streams.length; i++) {
                     log('attaching stream:', streams[i].streamid);
@@ -1869,7 +1965,7 @@ We MUST allow participants to:
                 this.attachStreams = [];
                 this.getStreamInfo();
             },
-            getStreamInfo: function() {
+            getStreamInfo: function () {
                 this.streaminfo = '';
                 var streams = this.connection.getLocalStreams();
                 for (var i = 0; i < streams.length; i++) {
@@ -1880,7 +1976,7 @@ We MUST allow participants to:
                     }
                 }
             },
-            recreateOffer: function(renegotiate, callback) {
+            recreateOffer: function (renegotiate, callback) {
                 // if(isFirefox) this.create(this.type, this);
 
                 log('recreating offer');
@@ -1892,9 +1988,15 @@ We MUST allow participants to:
 
                 this.onSessionDescription = callback;
                 this.getStreamInfo();
+
+                // one can renegotiate data connection in existing audio/video/screen connection!
+                if (this.session.data && isChrome) {
+                    this.createDataChannel();
+                }
+
                 this.getLocalDescription('offer');
             },
-            recreateAnswer: function(sdp, session, callback) {
+            recreateAnswer: function (sdp, session, callback) {
                 // if(isFirefox) this.create(this.type, this);
 
                 log('recreating answer');
@@ -1907,13 +2009,19 @@ We MUST allow participants to:
                 this.onSessionDescription = callback;
                 this.offerDescription = sdp;
                 this.getStreamInfo();
+
+                // one can renegotiate data connection in existing audio/video/screen connection!
+                if (this.session.data && isChrome) {
+                    this.createDataChannel();
+                }
+
                 this.getLocalDescription('answer');
             }
         };
     }
 
     var video_constraints = {
-        mandatory: { },
+        mandatory: {},
         optional: []
     };
 
@@ -1932,7 +2040,7 @@ We MUST allow participants to:
         currentUserMediaRequest.mutex = true;
 
         // tools.ietf.org/html/draft-alvestrand-constraints-resolution-00
-        var mediaConstraints = options.mediaConstraints || { };
+        var mediaConstraints = options.mediaConstraints || {};
         var n = navigator,
             hints = options.constraints || {
                 audio: true,
@@ -1981,7 +2089,7 @@ We MUST allow participants to:
 
         // mediaConstraints.optional.bandwidth = 1638400;
         if (mediaConstraints.optional)
-            hints.video.optional[0] = merge({ }, mediaConstraints.optional);
+            hints.video.optional[0] = merge({}, mediaConstraints.optional);
 
         log('media hints:', toStr(hints));
 
@@ -2006,14 +2114,14 @@ We MUST allow participants to:
             streaming(currentUserMediaRequest.streams[idInstance], true);
         } else {
             n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
-            n.getMedia(hints, streaming, options.onerror || function(e) {
+            n.getMedia(hints, streaming, options.onerror || function (e) {
                 error(toStr(e));
             });
         }
     }
 
     var FileSender = {
-        send: function(config) {
+        send: function (config) {
             var root = config.root;
             var channel = config.channel;
             var privateChannel = config._channel;
@@ -2051,14 +2159,14 @@ We MUST allow participants to:
             if (!!window.Worker && !isMobileDevice) {
                 var webWorker = processInWebWorker();
 
-                webWorker.onmessage = function(event) {
+                webWorker.onmessage = function (event) {
                     onReadAsDataURL(event.data);
                 };
 
                 webWorker.postMessage(file);
             } else {
                 var reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     onReadAsDataURL(e.target.result);
                 };
                 reader.readAsDataURL(file);
@@ -2100,7 +2208,7 @@ We MUST allow participants to:
                     data.message = text;
                     data.last = true;
                     data.name = file.name;
-                    data.extra = root.extra || { };
+                    data.extra = root.extra || {};
 
                     file.url = URL.createObjectURL(file);
                     root.onFileEnd(file);
@@ -2110,7 +2218,7 @@ We MUST allow participants to:
 
                 textToTransfer = text.slice(data.message.length);
                 if (textToTransfer.length) {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         onReadAsDataURL(null, textToTransfer);
                     }, root.chunkInterval || 100);
                 }
@@ -2119,9 +2227,9 @@ We MUST allow participants to:
     };
 
     function FileReceiver(root) {
-        var content = { },
-            packets = { },
-            numberOfPackets = { };
+        var content = {},
+            packets = {},
+            numberOfPackets = {};
 
         function receive(data) {
             var uuid = data.uuid;
@@ -2148,11 +2256,11 @@ We MUST allow participants to:
             if (data.last) {
                 var dataURL = content[uuid].join('');
 
-                FileConverter.DataURLToBlob(dataURL, data.fileType, function(blob) {
+                FileConverter.DataURLToBlob(dataURL, data.fileType, function (blob) {
                     blob.uuid = uuid;
                     blob.name = data.name;
                     blob.type = data.fileType;
-                    blob.extra = data.extra || { };
+                    blob.extra = data.extra || {};
 
                     blob.url = (window.URL || window.webkitURL).createObjectURL(blob);
 
@@ -2173,7 +2281,7 @@ We MUST allow participants to:
     }
 
     var FileSaver = {
-        SaveToDisk: function(fileUrl, fileName) {
+        SaveToDisk: function (fileUrl, fileName) {
             var hyperlink = document.createElement('a');
             hyperlink.href = fileUrl;
             hyperlink.target = '_blank';
@@ -2191,7 +2299,7 @@ We MUST allow participants to:
     };
 
     var FileConverter = {
-        DataURLToBlob: function(dataURL, fileType, callback) {
+        DataURLToBlob: function (dataURL, fileType, callback) {
 
             function processInWebWorker() {
                 var blob = URL.createObjectURL(new Blob(['function getBlob(_dataURL, _fileType) {var binary = atob(_dataURL.substr(_dataURL.indexOf(",") + 1)),i = binary.length,view = new Uint8Array(i);while (i--) {view[i] = binary.charCodeAt(i);};postMessage(new Blob([view], {type: _fileType}));};this.onmessage =  function (e) {var data = JSON.parse(e.data); getBlob(data.dataURL, data.fileType);}'], {
@@ -2206,7 +2314,7 @@ We MUST allow participants to:
             if (!!window.Worker && !isMobileDevice) {
                 var webWorker = processInWebWorker();
 
-                webWorker.onmessage = function(event) {
+                webWorker.onmessage = function (event) {
                     callback(event.data);
                 };
 
@@ -2229,11 +2337,13 @@ We MUST allow participants to:
     };
 
     var TextSender = {
-        send: function(config) {
+        send: function (config) {
+            var root = config.root;
+
             var channel = config.channel,
                 _channel = config._channel,
                 initialText = config.text,
-                packetSize = 1000,
+                packetSize = root.chunkSize || 1000,
                 textToTransfer = '',
                 isobject = false;
 
@@ -2273,15 +2383,9 @@ We MUST allow participants to:
                 textToTransfer = text.slice(data.message.length);
 
                 if (textToTransfer.length) {
-                    if (config.preferSCTP || isFirefox) {
-                        setTimeout(function() {
-                            sendText(null, textToTransfer);
-                        }, 100);
-                    } else {
-                        setTimeout(function() {
-                            sendText(null, textToTransfer);
-                        }, 500);
-                    }
+                    setTimeout(function () {
+                        sendText(null, textToTransfer);
+                    }, root.chunkInterval || 100);
                 }
             }
         }
@@ -2291,7 +2395,7 @@ We MUST allow participants to:
     // TextReceiver.js
 
     function TextReceiver(root) {
-        var content = { };
+        var content = {};
 
         function receive(data, userid, extra) {
             // uuid is used to uniquely identify sending instance
@@ -2316,7 +2420,7 @@ We MUST allow participants to:
 
                 if (root.autoTranslateText) {
                     e.original = e.data;
-                    root.Translator.TranslateText(e.data, function(translatedText) {
+                    root.Translator.TranslateText(e.data, function (translatedText) {
                         e.data = translatedText;
                         root.onmessage(e);
                     });
@@ -2346,7 +2450,7 @@ We MUST allow participants to:
         this.script = context.createScriptProcessor(256, 1, 1);
         that = this;
 
-        this.script.onaudioprocess = function(event) {
+        this.script.onaudioprocess = function (event) {
             var input = event.inputBuffer.getChannelData(0);
             var i;
             var sum = 0.0;
@@ -2371,13 +2475,13 @@ We MUST allow participants to:
         };
     }
 
-    SoundMeter.prototype.connectToSource = function(stream) {
+    SoundMeter.prototype.connectToSource = function (stream) {
         this.mic = this.context.createMediaStreamSource(stream);
         this.mic.connect(this.script);
         this.script.connect(this.context.destination);
     };
 
-    SoundMeter.prototype.stop = function() {
+    SoundMeter.prototype.stop = function () {
         this.mic.disconnect();
         this.script.disconnect();
     };
@@ -2385,19 +2489,27 @@ We MUST allow participants to:
 
     var isChrome = !!navigator.webkitGetUserMedia;
     var isFirefox = !!navigator.mozGetUserMedia;
-    var isMobileDevice = navigator.userAgent.match( /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i );
+    var isMobileDevice = navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
 
     window.MediaStream = window.MediaStream || window.webkitMediaStream;
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
     function getRandomString() {
-        return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
+        return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
     }
 
-    var chromeVersion = !!navigator.mozGetUserMedia ? 0 : parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]);
+    var chromeVersion = !!navigator.mozGetUserMedia ? 0 : parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]);
 
     function isData(session) {
         return !session.audio && !session.video && !session.screen && session.data;
+    }
+
+    function isEmpty(session) {
+        var length = 0;
+        for (var s in session) {
+            length++;
+        }
+        return length == 0;
     }
 
     function swap(arr) {
@@ -2424,7 +2536,7 @@ We MUST allow participants to:
     }
 
     function toStr(obj) {
-        return JSON.stringify(obj, function(key, value) {
+        return JSON.stringify(obj, function (key, value) {
             if (value && value.sdp) {
                 console.log(value.sdp.type, '\t', value.sdp.sdp);
                 return '';
@@ -2466,7 +2578,7 @@ We MUST allow participants to:
     }
 
     function merge(mergein, mergeto) {
-        if (!mergein) mergein = { };
+        if (!mergein) mergein = {};
         if (!mergeto) return mergein;
 
         for (var item in mergeto) {
@@ -2485,7 +2597,7 @@ We MUST allow participants to:
     function muteOrUnmute(e) {
         var stream = e.stream,
             root = e.root,
-            session = e.session || { },
+            session = e.session || {},
             enabled = e.enabled;
 
         if (!session.audio && !session.video) {
@@ -2557,7 +2669,8 @@ We MUST allow participants to:
             return;
         }
 
-        var fallback = false, i;
+        var fallback = false,
+            i;
 
         // MediaStream.stop should be avoided. It still exist and works but 
         // it is removed from the spec and instead MediaStreamTrack.stop should be used
@@ -2569,7 +2682,7 @@ We MUST allow participants to:
                 // for chrome canary; which has "stop" method; however not functional yet!
                 try {
                     audioTracks[i].stop();
-                } catch(e) {
+                } catch (e) {
                     fallback = true;
                     continue;
                 }
@@ -2584,7 +2697,7 @@ We MUST allow participants to:
                 // for chrome canary; which has "stop" method; however not functional yet!
                 try {
                     videoTracks[i].stop();
-                } catch(e) {
+                } catch (e) {
                     fallback = true;
                     continue;
                 }
@@ -2600,26 +2713,26 @@ We MUST allow participants to:
 
     function setDefaults(connection) {
         // www.RTCMultiConnection.org/docs/onmessage/
-        connection.onmessage = function(e) {
+        connection.onmessage = function (e) {
             log('onmessage', toStr(e));
         };
 
         // www.RTCMultiConnection.org/docs/onopen/
-        connection.onopen = function(e) {
+        connection.onopen = function (e) {
             log('Data connection is opened between you and', e.userid);
         };
 
         // www.RTCMultiConnection.org/docs/onerror/
-        connection.onerror = function(e) {
+        connection.onerror = function (e) {
             error(onerror, toStr(e));
         };
 
         // www.RTCMultiConnection.org/docs/onclose/
-        connection.onclose = function(e) {
+        connection.onclose = function (e) {
             warn('onclose', toStr(e));
         };
 
-        var progressHelper = { };
+        var progressHelper = {};
 
         // www.RTCMultiConnection.org/docs/body/
         connection.body = document.body;
@@ -2629,7 +2742,7 @@ We MUST allow participants to:
         connection.autoSaveToDisk = false;
 
         // www.RTCMultiConnection.org/docs/onFileStart/
-        connection.onFileStart = function(file) {
+        connection.onFileStart = function (file) {
             var div = document.createElement('div');
             div.title = file.name;
             div.innerHTML = '<label>0%</label> <progress></progress>';
@@ -2643,7 +2756,7 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/onFileProgress/
-        connection.onFileProgress = function(chunk) {
+        connection.onFileProgress = function (chunk) {
             var helper = progressHelper[chunk.uuid];
             if (!helper) return;
             helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
@@ -2651,7 +2764,7 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/onFileEnd/
-        connection.onFileEnd = function(file) {
+        connection.onFileEnd = function (file) {
             if (progressHelper[file.uuid]) progressHelper[file.uuid].div.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
 
             // for backward compatibility
@@ -2672,47 +2785,55 @@ We MUST allow participants to:
         connection.dontAttachStream = false;
 
         // www.RTCMultiConnection.org/docs/onstream/
-        connection.onstream = function(e) {
+        connection.onstream = function (e) {
             connection.body.insertBefore(e.mediaElement, connection.body.firstChild);
         };
 
         // www.RTCMultiConnection.org/docs/onstreamended/
-        connection.onstreamended = function(e) {
+        connection.onstreamended = function (e) {
             if (e.mediaElement && e.mediaElement.parentNode) {
                 e.mediaElement.parentNode.removeChild(e.mediaElement);
             }
         };
 
         // www.RTCMultiConnection.org/docs/onmute/
-        connection.onmute = function(e) {
+        connection.onmute = function (e) {
             if (e.session.video) {
                 e.mediaElement.setAttribute('poster', '//www.webrtc-experiment.com/images/muted.png');
             }
         };
 
         // www.RTCMultiConnection.org/docs/onunmute/
-        connection.onunmute = function(e) {
+        connection.onunmute = function (e) {
             if (e.session.video) {
                 e.mediaElement.removeAttribute('poster');
             }
         };
 
         // www.RTCMultiConnection.org/docs/onleave/
-        connection.onleave = function(e) {
+        connection.onleave = function (e) {
             log('onleave', toStr(e));
         };
 
-        connection.token = function() {
-            return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
+        connection.token = function () {
+            // suggested by @rvulpescu from #154
+            if (window.crypto) {
+                var a = window.crypto.getRandomValues(new Uint32Array(3)),
+                    token = '';
+                for (var i = 0, l = a.length; i < l; i++) token += a[i].toString(36);
+                return token;
+            } else {
+                return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
+            }
         };
 
         // www.RTCMultiConnection.org/docs/userid/
         connection.userid = connection.token();
 
         // www.RTCMultiConnection.org/docs/peers/
-        connection.peers = { };
+        connection.peers = {};
         connection.peers[connection.userid] = {
-            drop: function() {
+            drop: function () {
                 connection.drop();
             }
         };
@@ -2721,13 +2842,13 @@ We MUST allow participants to:
 
         // www.RTCMultiConnection.org/docs/streams/
         connection.streams = {
-            mute: function(session) {
+            mute: function (session) {
                 this._private(session, true);
             },
-            unmute: function(session) {
+            unmute: function (session) {
                 this._private(session, false);
             },
-            _private: function(session, enabled) {
+            _private: function (session, enabled) {
                 // implementation from #68
                 for (var stream in this) {
                     if (connection._skip.indexOf(stream) == -1) {
@@ -2735,7 +2856,7 @@ We MUST allow participants to:
                     }
                 }
             },
-            stop: function(type) {
+            stop: function (type) {
                 // connection.streams.stop('local');
                 var _stream;
                 for (var stream in this) {
@@ -2755,10 +2876,10 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/channels/
-        connection.channels = { };
+        connection.channels = {};
 
         // www.RTCMultiConnection.org/docs/extra/
-        connection.extra = { };
+        connection.extra = {};
 
         // www.RTCMultiConnection.org/docs/session/
         connection.session = {
@@ -2767,32 +2888,91 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/bandwidth/
-        connection.bandwidth = {
-            data: 1638400 // for RTP-datachannels
-        };
+        connection.bandwidth = {};
 
-        if (isChrome && chromeVersion >= 28 && !isMobileDevice) {
-            connection.bandwidth.audio = 20; // 20kbs
-            connection.bandwidth.video = 50; // 50kbs
+        connection.sdpConstraints = {};
+        connection.mediaConstraints = {};
+        connection.optionalArgument = {};
+        connection.dataChannelDict = {};
+
+        var iceServers = [];
+
+        if (isFirefox) {
+            iceServers.push({
+                url: 'stun:23.21.150.121'
+            });
+
+            iceServers.push({
+                url: 'stun:stun.services.mozilla.com'
+            });
         }
 
+        if (isChrome) {
+            iceServers.push({
+                url: 'stun:stun.l.google.com:19302'
+            });
+
+            iceServers.push({
+                url: 'stun:stun.anyfirewall.com:3478'
+            });
+        }
+
+        if (isChrome && chromeVersion < 28) {
+            iceServers.push({
+                url: 'turn:homeo@turn.bistri.com:80',
+                credential: 'homeo'
+            });
+        }
+
+        if (isChrome && chromeVersion >= 28) {
+            iceServers.push({
+                url: 'turn:turn.bistri.com:80',
+                credential: 'homeo',
+                username: 'homeo'
+            });
+
+            iceServers.push({
+                url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+                credential: 'webrtc',
+                username: 'webrtc'
+            });
+        }
+        connection.iceServers = iceServers;
+
         // www.RTCMultiConnection.org/docs/preferSCTP/
-        connection.preferSCTP = true;
+        connection.preferSCTP = chromeVersion >= 32 ? true : false;
+        connection.chunkInterval = chromeVersion >= 32 ? 100 : 500; // 500ms for RTP and 100ms for SCTP
+        connection.chunkSize = chromeVersion >= 32 ? 13 * 1000 : 1000; // 1000 chars for RTP and 13000 chars for SCTP
+
+        if (isFirefox) {
+            connection.preferSCTP = true; // FF supports only SCTP!
+        }
+
+        // www.RTCMultiConnection.org/docs/fakeDataChannels/
+        connection.fakeDataChannels = false;
+
+        // www.RTCMultiConnection.org/docs/UA/
+        connection.UA = {
+            Firefox: isFirefox,
+            Chrome: isChrome,
+            Mobile: isMobileDevice,
+            Version: chromeVersion
+        };
 
         // file queue: to store previous file objects in memory;
         // and stream over newly connected peers
         // www.RTCMultiConnection.org/docs/fileQueue/
-        connection.fileQueue = { };
+        connection.fileQueue = {};
 
         // www.RTCMultiConnection.org/docs/media/
         connection.media = {
-            min: function(width, height) {
+            min: function (width, height) {
                 this.minWidth = width;
                 this.minHeight = height;
             },
             minWidth: 640,
             minHeight: 360,
-            max: function(width, height) {
+            max: function (width, height) {
                 this.maxWidth = width;
                 this.maxHeight = height;
             },
@@ -2811,12 +2991,6 @@ We MUST allow participants to:
             reflexive: true
         };
 
-        // www.RTCMultiConnection.org/docs/mediaConstraints/
-        connection.mediaConstraints = { };
-
-        // www.RTCMultiConnection.org/docs/sdpConstraints/
-        connection.sdpConstraints = { };
-
         // www.RTCMultiConnection.org/docs/attachStreams/
         connection.attachStreams = [];
 
@@ -2830,7 +3004,7 @@ We MUST allow participants to:
         // 'many-to-many' / 'one-to-many' / 'one-to-one' / 'one-way'
         connection.direction = 'many-to-many';
 
-        connection._getStream = function(e) {
+        connection._getStream = function (e) {
             return {
                 rtcMultiConnection: e.rtcMultiConnection,
                 streamObject: e.streamObject,
@@ -2840,7 +3014,7 @@ We MUST allow participants to:
                 socket: e.socket,
                 type: e.type,
                 mediaElement: e.mediaElement,
-                stop: function() {
+                stop: function () {
                     if (this.socket) {
                         if (this.type == 'local')
                             this.socket.send({
@@ -2862,13 +3036,13 @@ We MUST allow participants to:
                         stopTracks(stream);
                     }
                 },
-                mute: function(session) {
+                mute: function (session) {
                     this._private(session, true);
                 },
-                unmute: function(session) {
+                unmute: function (session) {
                     this._private(session, false);
                 },
-                _private: function(session, enabled) {
+                _private: function (session, enabled) {
                     muteOrUnmute({
                         root: this,
                         session: session,
@@ -2876,11 +3050,16 @@ We MUST allow participants to:
                         stream: this.stream
                     });
                 },
-                startRecording: function(session) {
-                    if (!session) session = { audio: true, video: true };
+                startRecording: function (session) {
+                    if (!session)
+                        session = {
+                            audio: true,
+                            video: isFirefox ? false : true
+                        };
+
                     if (!window.RecordRTC) {
                         var self = this;
-                        return loadScript('//www.webrtc-experiment.com/RecordRTC.js', function() {
+                        return loadScript('//www.webrtc-experiment.com/RecordRTC.js', function () {
                             self.startRecording(session);
                         });
                     }
@@ -2890,9 +3069,9 @@ We MUST allow participants to:
                     this.recorder.addStream(this.stream);
                     this.recorder.startRecording();
                 },
-                stopRecording: function(callback) {
+                stopRecording: function (callback) {
                     this.recorder.stopRecording();
-                    this.recorder.getBlob(function(blob) {
+                    this.recorder.getBlob(function (blob) {
                         callback(blob.audio || blob.video, blob.video);
                     });
                 }
@@ -2900,7 +3079,7 @@ We MUST allow participants to:
         };
 
         // new RTCMultiConnection().set({properties}).connect()
-        connection.set = function(properties) {
+        connection.set = function (properties) {
             for (var property in properties) {
                 this[property] = properties[property];
             }
@@ -2911,15 +3090,15 @@ We MUST allow participants to:
         connection.firebase = 'rtcweb';
 
         // www.RTCMultiConnection.org/docs/onMediaError/
-        connection.onMediaError = function(_error) {
+        connection.onMediaError = function (_error) {
             error(_error);
         };
 
         // www.RTCMultiConnection.org/docs/stats/
-        connection.stats = { };
+        connection.stats = {};
 
         // www.RTCMultiConnection.org/docs/getStats/
-        connection.getStats = function(callback) {
+        connection.getStats = function (callback) {
             var numberOfConnectedUsers = 0;
             for (var peer in this.peers) {
                 numberOfConnectedUsers++;
@@ -2940,7 +3119,7 @@ We MUST allow participants to:
 
             // there is no way to check whether "getUserMedia" flag is enabled or not!
             ScreenSharing: isChrome && chromeVersion >= 26 && location.protocol == 'https:',
-            checkIfScreenSharingFlagEnabled: function(callback) {
+            checkIfScreenSharingFlagEnabled: function (callback) {
                 var warning;
                 if (isFirefox) {
                     warning = 'Screen sharing is NOT supported on Firefox.';
@@ -2967,7 +3146,8 @@ We MUST allow participants to:
                     }
                 };
 
-                var invocationInterval = 0, stop;
+                var invocationInterval = 0,
+                    stop;
                 (function selfInvoker() {
                     invocationInterval++;
                     if (!stop) setTimeout(selfInvoker, 10);
@@ -2996,10 +3176,10 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/snapshots/
-        connection.snapshots = { };
+        connection.snapshots = {};
 
         // www.RTCMultiConnection.org/docs/takeSnapshot/
-        connection.takeSnapshot = function(userid, callback) {
+        connection.takeSnapshot = function (userid, callback) {
             for (var stream in this.streams) {
                 stream = this.streams[stream];
                 if (stream.userid == userid) {
@@ -3018,16 +3198,16 @@ We MUST allow participants to:
             }
         };
 
-        connection.saveToDisk = function(blob, fileName) {
+        connection.saveToDisk = function (blob, fileName) {
             if (blob.size && blob.type) FileSaver.SaveToDisk(URL.createObjectURL(blob), fileName || blob.name || blob.type.replace('/', '-') + blob.type.split('/')[1]);
             else FileSaver.SaveToDisk(blob, fileName);
         };
 
         // www.WebRTC-Experiment.com/demos/MediaStreamTrack.getSources.html
-        connection._mediaSources = { };
+        connection._mediaSources = {};
 
         // www.RTCMultiConnection.org/docs/selectDevices/
-        connection.selectDevices = function(device1, device2) {
+        connection.selectDevices = function (device1, device2) {
             if (device1) select(this.devices[device1]);
             if (device2) select(this.devices[device2]);
 
@@ -3038,12 +3218,12 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/devices/
-        connection.devices = { };
+        connection.devices = {};
 
         // www.RTCMultiConnection.org/docs/getDevices/
-        connection.getDevices = function(callback) {
+        connection.getDevices = function (callback) {
             if (!!window.MediaStreamTrack && !!MediaStreamTrack.getSources) {
-                MediaStreamTrack.getSources(function(media_sources) {
+                MediaStreamTrack.getSources(function (media_sources) {
                     var sources = [];
                     for (var i = 0; i < media_sources.length; i++) {
                         sources.push(media_sources[i]);
@@ -3069,18 +3249,18 @@ We MUST allow participants to:
         };
 
         // www.RTCMultiConnection.org/docs/onCustomMessage/
-        connection.onCustomMessage = function(message) {
+        connection.onCustomMessage = function (message) {
             log('Custom message', message);
         };
 
         // www.RTCMultiConnection.org/docs/ondrop/
-        connection.ondrop = function(droppedBy) {
+        connection.ondrop = function (droppedBy) {
             log('Media connection is dropped by ' + droppedBy);
         };
 
         // www.RTCMultiConnection.org/docs/drop/
-        connection.drop = function(config) {
-            config = config || { };
+        connection.drop = function (config) {
+            config = config || {};
             this.attachStreams = [];
 
             // "drop" should detach all local streams
@@ -3117,7 +3297,7 @@ We MUST allow participants to:
 
         // www.RTCMultiConnection.org/docs/Translator/
         connection.Translator = {
-            TranslateText: function(text, callback) {
+            TranslateText: function (text, callback) {
                 // if(location.protocol === 'https:') return callback(text);
 
                 var newScript = document.createElement('script');
@@ -3126,7 +3306,7 @@ We MUST allow participants to:
                 var sourceText = encodeURIComponent(text); // escape
 
                 var randomNumber = 'method' + connection.token();
-                window[randomNumber] = function(response) {
+                window[randomNumber] = function (response) {
                     if (response.data && response.data.translations[0] && callback) {
                         callback(response.data.translations[0].translatedText);
                     }

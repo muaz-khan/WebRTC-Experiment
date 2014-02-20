@@ -1,7 +1,7 @@
 {
   "name": "multirtc",
   "preferGlobal": true,
-  "version": "5.5.5",
+  "version": "3.0.0",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com"
@@ -14,9 +14,9 @@
     }
   ],
   "scripts": {
-    "start": "node index"
+    "start": "node signaler"
   },
-  "main": "./index",
+  "main": "./signaler",
   "repository": {
     "type": "git",
     "url": "https://github.com/muaz-khan/WebRTC-Experiment.git"
@@ -60,6 +60,6 @@
     "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues"
   },
   "homepage": "http://www.RTCMultiConnection.org/",
-  "_id": "multirtc@5.5.5",
+  "_id": "multirtc@3.0.0",
   "_from": "multirtc@"
 }

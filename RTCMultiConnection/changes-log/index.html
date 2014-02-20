@@ -58,76 +58,170 @@
 		
             <br /><br /><br />
 		
-            <h2 id="v1.6">v1.6 / released in Jan 29, 2014</h2>
+            <h2 id="v1.6"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.6">v1.6</a> / released in Jan 29, 2014</h2>
 		
             <ol>
                 <li>
-                    All possible "complex" <a href="http://www.RTCMultiConnection.org/docs/renegotiation/">renegotiation</a> scenarios are supported!
+                    Now v1.6 is capable to auto-redial if connection is dropped by any mean.
+                </li>
+                
+                <li>
+                    Now you can join as audio-only, video-only or screen-only stream both on chrome and firefox:
                     <ol>
                         <li>
-                            You can select any participant to broadcast his screen or media stream in oneway direction over all connected users!
+                            <pre class="sh_javascript">
+// original session is "audio-only" stream
+connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a> = { audio: true };
+connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
+    // join with both audio and video!
+    session.join({audio: true, video: true});
+};
+</pre>
                         </li>
-					
+                        
                         <li>
-                            There can be 5 broadcasters; and many viewers/listeners!
-                        </li>
-					
-                        <li>
-                            Each and every skype-like feature is possible using v1.6! You can add/remove streams many times using existing peer connections!
+                            <pre class="sh_javascript">
+// original session is "audio+video" stream
+connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a> = { audio: true, video: true };
+connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
+    // join with audio-only stream!
+    session.join({audio: true});
+};
+</pre>
                         </li>
                     </ol>
+                    
                 </li>
-                <li>File sharing is improved! Chrome/Firefox interoperability support added.</li>
-                <li>"<a href="http://www.RTCMultiConnection.org/docs/preferSCTP/">preferSCTP</a>" is now enabled by default.</li>
+                
                 <li>
-                    "<a href="http://www.RTCMultiConnection.org/docs/chunkSize/">chunkSize</a>" added. You can set 64k chunk-size for chrome-to-chrome SCTP-data streaming!
+                    "<a href="http://www.RTCMultiConnection.org/docs/fakeDataChannels/">fakeDataChannels</a>" added. Using "<a href="http://www.RTCMultiConnection.org/docs/fakeDataChannels/">fakeDataChannels</a>" object you can setup fake data connection while you're sharing audio/video/screen. You can do text-chat; share files; etc. without using WebRTC data channels.
                     <pre class="sh_javascript">
-// for chrome-to-chrome data streaming only!
-connection.<a href="http://www.RTCMultiConnection.org/docs/chunkSize/">chunkSize</a> = 64 * 1000;
+// audio+video and fake data connection
+connection.<a href="http://www.RTCMultiConnection.org/docs/fakeDataChannels/">fakeDataChannels</a> = true;
+connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a> = { audio: true, video: true };
 
-// default value is 15k because Firefox's receiving limit is 16k!
-connection.<a href="http://www.RTCMultiConnection.org/docs/chunkSize/">chunkSize</a> = 15 * 1000;
+// only fake data connection; no audio; no video; no WebRTC data channel!
+connection.<a href="http://www.RTCMultiConnection.org/docs/fakeDataChannels/">fakeDataChannels</a> = true;
+connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a> = { };
 </pre>
                 </li>
+                
                 <li>
-                    "<a href="http://www.RTCMultiConnection.org/docs/remove/">remove</a>" method added.
+                    "<a href="http://www.RTCMultiConnection.org/docs/UA/">UA</a>" object added. It returns whether browser is chrome; firefox or mobile device:
                     <pre class="sh_javascript">
-connection.<a href="http://www.RTCMultiConnection.org/docs/remove/">remove</a>('user-id');
+var isFirefox = connection.<a href="http://www.RTCMultiConnection.org/docs/UA/">UA</a>.Firefox;
+var isChrome = connection.<a href="http://www.RTCMultiConnection.org/docs/UA/">UA</a>.Chrome;
+var isMobileDevice = connection.<a href="http://www.RTCMultiConnection.org/docs/UA/">UA</a>.Mobile;
 </pre>
-                    <p>
-                        Using "<a href="http://www.RTCMultiConnection.org/docs/remove/">remove</a>" method; you can clear all sockets, peers and streams coming from that user; so that he can reconnect to the same <a href="http://www.RTCMultiConnection.org/docs/sessionid/">session</a>!
-                    </p>
                 </li>
-			
+                
+<li>
+					Now you can <a href="http://www.rtcmulticonnection.org/docs/renegotiation/">renegotiate</a> data-connection in your existing audio/video/screen session!
+                    <pre class="sh_javascript">
+connection.<a href="http://www.rtcmulticonnection.org/docs/addStream">addStream</a>({
+    data: true
+});
+</pre>
+				</li>
+                
                 <li>
-                    "<a href="http://www.RTCMultiConnection.org/docs/refresh/">refresh</a>" method added.
+					<a href="https://github.com/muaz-khan/WebRTC-Experiment/issues/152">Pull #152</a> merged for "<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>" method:
                     <pre class="sh_javascript">
-connection.<a href="http://www.RTCMultiConnection.org/docs/refresh/">refresh</a>();
+var randomString = connection.<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>();
+connection.<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a> = connection.<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>();
 </pre>
-                    <p>
-                        Using "<a href="http://www.RTCMultiConnection.org/docs/refresh/">refresh</a>" method; you can refresh/reload the RTCMultiConnection object!
-                    </p>
-                </li>
-			
+				</li>
+                
                 <li>
-                    "<a href="http://www.RTCMultiConnection.org/docs/renegotiate/">renegotiate</a>" method added.
-                    <pre class="sh_javascript">
-// renegotiate with/without media streams!
-connection.<a href="http://www.RTCMultiConnection.org/docs/renegotiate/">renegotiate</a>(Custom_MediaStream);
+					"<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a>" method added:
+					<pre class="sh_javascript">
+// all incoming text messages will be converted in this language
+// by default, it is "en-US"
+connection.<a href="http://www.RTCMultiConnection.org/docs/language/">language</a> = 'ja'; // prefer Japanese
+
+// it is "false" by default.
+connection.<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a> = true;
+
+// you can use "e.data" and "e.original"
+connection.<a href="http://www.RTCMultiConnection.org/docs/onmessage/">onmessage</a> = function(e) {
+   // e.data     ---- translated text
+   // e.original ---- original text
+};
+
+connection.<a href="http://www.RTCMultiConnection.org/docs/Translator/">Translator</a>.TranslateText(textToConvert, function(convertedText) {
+     console.log(convertedText);
+});
 </pre>
-                    <p>
-                        "<a href="http://www.RTCMultiConnection.org/docs/renegotiate/">renegotiate</a>" method works same like "<a href="http://www.RTCMultiConnection.org/docs/addStream/">addStream</a>" however it gives you a little bit more control over renegotiation process!
-                    </p>
-				
-                    <p>
-                        If connection is suddently dropped; or connection has not been established for 5 seconds; then you can use "<a href="http://www.RTCMultiConnection.org/docs/renegotiate/">renegotiate</a>" method to retry/redial.
-                    </p>
-				
-                    <p>
-                        In multi-user connectivity scenarios; it is suggested to try "<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>" object to renegotiate/retry/redial connections. See next section for more details.
-                    </p>
-                </li>
-			
+				</li>
+                
+                <li>
+					"session.join" method added. Remember, it is "<strong>session</strong>.join"; it isn't "<strong>connection</strong>.join"!
+					<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
+    session.join();                           // join session as it is!
+    session.join({audio: true});              // join session while allowing only audio
+    session.join({video: true});              // join session while allowing only video
+    session.join({screen: true});             // join session while allowing only screen
+    session.join({audio: true, video: true}); // join session while allowing both audio and video
+};
+</pre>
+				</li>
+                
+                <li>
+					<a href="https://github.com/muaz-khan/WebRTC-Experiment/issues/152">Bug #152</a> fixed.
+				</li>
+                
+                <li>
+					Now, <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC">MRecordRTC</a> is used for <a href="http://www.RTCMultiConnection.org/docs/startRecording/">audio/video recording</a>!
+				</li>
+                
+                <li>
+					"<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>" method added. You can invoke save-as dialog like this:
+					
+					<pre class="sh_javascript">
+// "fileName" is optional
+connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(fileURL, fileName);
+
+// you can save recorded blob to disk like this:
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (audioBlob, videoBlob) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(audioBlob);
+    connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(videoBlob);
+}, {audio:true, video:true} );
+</pre>
+
+				</li>
+                
+                <li>
+					If you're recording both audio and video; then "<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>" will return both blobs in the single callback; where 1st parameter value will be audio-blob; and 2nd parameter value will be video-blob:
+					
+					<pre class="sh_javascript">
+// stop both audio/video streams
+connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (audioBlob, videoBlob) {
+    // POST both audio/video "Blobs" to PHP/other server using single FormData/XHR2
+}, {audio:true, video:true} );
+</pre>
+
+				</li>
+                
+                <li>
+					"<a href="http://www.RTCMultiConnection.org/docs/onhold/">onhold</a>" and "<a href="http://www.RTCMultiConnection.org/docs/onunhold/">onunhold</a>" events added:
+					
+					<pre class="sh_javascript">
+// to hold call; same like skype!
+connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['user-id'].hold();
+connection.<a href="http://www.RTCMultiConnection.org/docs/onhold/">onhold</a> = function(e) {
+	// e.mediaElement || e.stream || e.userid || e.streamid
+};
+
+// to unhold call; same like skype!
+connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['user-id'].unhold();
+connection.<a href="http://www.RTCMultiConnection.org/docs/onunhold/">onunhold</a> = function(e) {
+	// e.mediaElement || e.stream || e.userid || e.streamid
+};
+</pre>
+
+				</li>
+                
                 <li>
                     Many method has been added in "<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>" object.
 				
@@ -179,99 +273,75 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['us
                         </li>
                     </ol>
                 </li>
-				
-				<li>
-					"<a href="http://www.RTCMultiConnection.org/docs/onhold/">onhold</a>" and "<a href="http://www.RTCMultiConnection.org/docs/onunhold/">onunhold</a>" events added:
-					
-					<pre class="sh_javascript">
-// to hold call; same like skype!
-connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['user-id'].hold();
-connection.<a href="http://www.RTCMultiConnection.org/docs/onhold/">onhold</a> = function(e) {
-	// e.mediaElement || e.stream || e.userid || e.streamid
-};
-
-// to unhold call; same like skype!
-connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['user-id'].unhold();
-connection.<a href="http://www.RTCMultiConnection.org/docs/onunhold/">onunhold</a> = function(e) {
-	// e.mediaElement || e.stream || e.userid || e.streamid
-};
+                
+                 <li>
+                    "<a href="http://www.RTCMultiConnection.org/docs/renegotiate/">renegotiate</a>" method added.
+                    <pre class="sh_javascript">
+// renegotiate with/without media streams!
+connection.<a href="http://www.RTCMultiConnection.org/docs/renegotiate/">renegotiate</a>(Custom_MediaStream);
 </pre>
+                    <p>
+                        "<a href="http://www.RTCMultiConnection.org/docs/renegotiate/">renegotiate</a>" method works same like "<a href="http://www.RTCMultiConnection.org/docs/addStream/">addStream</a>" however it gives you a little bit more control over renegotiation process!
+                    </p>
+				
+                    <p>
+                        If connection is suddently dropped; or connection has not been established for 5 seconds; then you can use "<a href="http://www.RTCMultiConnection.org/docs/renegotiate/">renegotiate</a>" method to retry/redial.
+                    </p>
+				
+                    <p>
+                        In multi-user connectivity scenarios; it is suggested to try "<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>" object to renegotiate/retry/redial connections. See next section for more details.
+                    </p>
+                </li>
+                <li>
+                    "<a href="http://www.RTCMultiConnection.org/docs/refresh/">refresh</a>" method added.
+                    <pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/refresh/">refresh</a>();
+</pre>
+                    <p>
+                        Using "<a href="http://www.RTCMultiConnection.org/docs/refresh/">refresh</a>" method; you can refresh/reload the RTCMultiConnection object!
+                    </p>
+                </li>
+                <li>
+                    "<a href="http://www.RTCMultiConnection.org/docs/remove/">remove</a>" method added.
+                    <pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/remove/">remove</a>('user-id');
+</pre>
+                    <p>
+                        Using "<a href="http://www.RTCMultiConnection.org/docs/remove/">remove</a>" method; you can clear all sockets, peers and streams coming from that user; so that he can reconnect to the same <a href="http://www.RTCMultiConnection.org/docs/sessionid/">session</a>!
+                    </p>
+                </li>
+                <li>File sharing is improved! Chrome/Firefox interoperability support added.</li>
+                <li>"<a href="http://www.RTCMultiConnection.org/docs/preferSCTP/">preferSCTP</a>" is now enabled by default.</li>
+                <li>
+                    "<a href="http://www.RTCMultiConnection.org/docs/chunkSize/">chunkSize</a>" added. You can set 64k chunk-size for chrome-to-chrome SCTP-data streaming!
+                    <pre class="sh_javascript">
+// for chrome-to-chrome data streaming only!
+connection.<a href="http://www.RTCMultiConnection.org/docs/chunkSize/">chunkSize</a> = 64 * 1000;
 
-				</li>
+// default value is 15k because Firefox's receiving limit is 16k!
+connection.<a href="http://www.RTCMultiConnection.org/docs/chunkSize/">chunkSize</a> = 15 * 1000;
+</pre>
+                </li>
                 
                 <li>
-					If you're recording both audio and video; then "<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>" will return both blobs in the single callback; where 1st parameter value will be audio-blob; and 2nd parameter value will be video-blob:
+                    All possible "complex" <a href="http://www.RTCMultiConnection.org/docs/renegotiation/">renegotiation</a> scenarios are supported!
+                    <ol>
+                        <li>
+                            You can select any participant to broadcast his screen or media stream in oneway direction over all connected users!
+                        </li>
 					
-					<pre class="sh_javascript">
-// stop both audio/video streams
-connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (audioBlob, videoBlob) {
-    // POST both audio/video "Blobs" to PHP/other server using single FormData/XHR2
-}, {audio:true, video:true} );
-</pre>
-
-				</li>
-                
-                <li>
-					"<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>" method added. You can invoke save-as dialog like this:
+                        <li>
+                            There can be 5 broadcasters; and many viewers/listeners!
+                        </li>
 					
-					<pre class="sh_javascript">
-// "fileName" is optional
-connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(fileURL, fileName);
-
-// you can save recorded blob to disk like this:
-connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (audioBlob, videoBlob) {
-    connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(audioBlob);
-    connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(videoBlob);
-}, {audio:true, video:true} );
-</pre>
-
-				</li>
-                
-                <li>
-					Now, <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC">MRecordRTC</a> is used for <a href="http://www.RTCMultiConnection.org/docs/startRecording/">audio/video recording</a>!
-				</li>
-				
-				<li>
-					<a href="https://github.com/muaz-khan/WebRTC-Experiment/issues/152">Bug #152</a> fixed.
-				</li>
-				
-				<li>
-					"session.join" method added. Remember, it is "<strong>session</strong>.join"; it isn't "<strong>connection</strong>.join"!
-					<pre class="sh_javascript">
-connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
-    session.join();                           // join session as it is!
-    session.join({audio: true});              // join session while allowing only audio
-    session.join({video: true});              // join session while allowing only video
-    session.join({screen: true});             // join session while allowing only screen
-    session.join({audio: true, video: true}); // join session while allowing both audio and video
-};
-</pre>
-				</li>
-				
-				<li>
-					"<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a>" method added:
-					<pre class="sh_javascript">
-// all incoming text messages will be converted in this language
-// by default, it is "en-US"
-connection.<a href="http://www.RTCMultiConnection.org/docs/language/">language</a> = 'ja'; // prefer Japanese
-
-// it is "false" by default.
-connection.<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a> = true;
-
-// you can use "e.data" and "e.original"
-connection.<a href="http://www.RTCMultiConnection.org/docs/onmessage/">onmessage</a> = function(e) {
-   // e.data     ---- translated text
-   // e.original ---- original text
-};
-
-connection.<a href="http://www.RTCMultiConnection.org/docs/Translator/">Translator</a>.TranslateText(textToConvert, function(convertedText) {
-     console.log(convertedText);
-});
-</pre>
-				</li>
+                        <li>
+                            Each and every skype-like feature is possible using v1.6! You can add/remove streams many times using existing peer connections!
+                        </li>
+                    </ol>
+                </li>
             </ol>
 		
-            <h2 id="v1.5">v1.5 / released in Dec 31, 2013</h2>
+            <h2 id="v1.5"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.5">v1.5</a> / released in Dec 31, 2013</h2>
 		
             <ol>
                 <li>
@@ -519,7 +589,7 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
                 </li>
             </ol>
 		
-            <h2 id="v1.4">v1.4 / released in July 06, 2013</h2>
+            <h2 id="v1.4"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.4">v1.4/a> / released in July 06, 2013</h2>
 		
             <ol>
                 <li>Multiple concurrent files transmission / see <a href="https://github.com/muaz-khan/WebRTC-Experiment/commit/a0f9b72654b3ba7c5232968d9850e35fb770bbbb#RTCMultiConnection" target="_blank">commit</a></li>
@@ -547,7 +617,7 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
                 <li>File queue support added. Previously shared files will be auto transmitted to each new peer.</li>
             </ol>
 		
-            <h2 id="v1.3">v1.3 / released in May 19, 2013</h2>
+            <h2 id="v1.3"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.3">v1.3</a> / released in May 19, 2013</h2>
 		
             <ol>
                 <li>Syntax changed; a few breaking changes comparing v1.2 / <a href="https://github.com/muaz-khan/WebRTC-Experiment/commit/ac368557ce857dad1fbcf70aa58813d50cec6047#RTCMultiConnection" target="_blank">see commit</a></li>
@@ -560,7 +630,7 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
                 <li>Compatible to <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs" target="_blank">socket.io over node.js</a> / see <a href="https://github.com/muaz-khan/WebRTC-Experiment/commit/b2e7789bcb79a4248090081750e26c984a76d0b0#RTCMultiConnection" target="_blank">commit</a></li>
             </ol>
 		
-            <h2 id="v1.2">v1.2 / released in April 20, 2013</h2>
+            <h2 id="v1.2"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.2">v1.2</a> / released in April 20, 2013</h2>
 		
             <ol>
                 <li>Multi-session establishment</li>
@@ -574,7 +644,7 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
                 <li>Custom Handlers for server i.e. <strong>transmitRoomOnce</strong></li>
             </ol>
 		
-            <h2 id="v1.2">v1.1 / released in March 25, 2013</h2>
+            <h2 id="v1.1"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.1">v1.1</a> / released in March 25, 2013</h2>
 		
             <ol>
                 <li>Multiple sessions & directions / <a href="https://github.com/muaz-khan/WebRTC-Experiment/commit/017431280099e892744a6300ea866e7324f5e4c2#RTCMultiConnection" target="_blank">see commit</a></li>

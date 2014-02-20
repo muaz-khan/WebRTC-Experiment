@@ -55,15 +55,23 @@
 		
 		<ol>
 			<li>
-				<pre class="sh_html">&lt;script src="http://www.rtcmulticonnection.org/latest.js"&gt;&lt;/script&gt;</pre>
+				<pre class="sh_html">
+&lt;script src="http://www.rtcmulticonnection.org/latest.js"&gt;&lt;/script&gt;
+
+// or following link supports both HTTP and HTTPs URLs
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.js"&gt;&lt;/script&gt;
+
+// last link has gzipped version as well!
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.min.js"&gt;&lt;/script&gt;
+</pre>
 			</li>
 			
 			<li>
-				<h2>Setup Video Conference using Simplest Syntax EVER!</h2>
+				<h2>Setup Video Conference using Shortest Syntax EVER!</h2>
 		<pre class="sh_javascript">
-var connection = new RTCMultiConnection().connect();
+var connection = <a href="http://www.rtcmulticonnection.org/docs/constructor/">new RTCMultiConnection</a>().<a href="http://www.rtcmulticonnection.org/docs/connect/">connect</a>();
 openNewSessionButton.onclick = function() {
-    connection.open();
+    connection.<a href="http://www.rtcmulticonnection.org/docs/open/">open</a>();
 };
 </pre>
 			</li>
@@ -71,24 +79,30 @@ openNewSessionButton.onclick = function() {
 			<li>
 				<h2>Setup Video Conference using full syntax!</h2>
 		<pre class="sh_javascript">
+// www.RTCMultiConnection.org/docs/constructor
 var connection = new RTCMultiConnection();
 
 // easiest way to customize what you need!
+// www.RTCMultiConnection.org/docs/session
 connection.session = {
     audio: true,
     video: true
 };
 
 // on getting local or remote media stream
+// www.RTCMultiConnection.org/docs/onstream
 connection.onstream = function(e) {
     document.body.appendChild(e.mediaElement);
 };
 
 // check existing sessions
+// on getting local or remote media stream
+// www.RTCMultiConnection.org/docs/connect
 connection.connect();
 
 // open new session
 openNewSessionButton.onclick = function() {
+    // www.RTCMultiConnection.org/docs/open
     connection.open();
 };
 </pre>
@@ -98,16 +112,21 @@ openNewSessionButton.onclick = function() {
 				<h2>Setup Multi-user file sharing along with advance progress-bars!</h2>
 		<pre class="sh_html">&lt;input type=file&gt;</pre>
 		<pre class="sh_javascript">
+// www.RTCMultiConnection.org/docs/constructor
 var connection = new RTCMultiConnection();
 
+// www.RTCMultiConnection.org/docs/session
 connection.session = {
-    data: true
+    data: true  // this line suggests that don't get/use audio/video; 
+                // only setup data connection
 };
 
+// www.RTCMultiConnection.org/docs/connect
 connection.connect();
 
 // open new session
 openNewSessionButton.onclick = function() {
+    // www.RTCMultiConnection.org/docs/open
     connection.open();
 };
 

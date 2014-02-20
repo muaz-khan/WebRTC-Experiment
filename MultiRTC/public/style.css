@@ -1,435 +1,342 @@
-/* Note: A few CSS3 styles are taken from an open-sourced github repo. Those CSS3 styles' credit goes to relevant author. */
-
-::-webkit-scrollbar {
-    width: 12px;
-}
-
-::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    -webkit-border-radius: 10px;
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: black;
-}
-
-::-webkit-scrollbar-thumb:window-inactive {
-    background: rgba(255,0,0,0.4);
-}
+/* https://www.webrtc-experiment.com:12034/ */
 
 @font-face {
     font-family: 'Myriad';
     src: url('//www.webrtc-experiment.com/fonts/MyriadPro-Light.otf') format("opentype");
-    font-weight:400;
+    font-weight: 400;
+}
+
+body, body * {
+    padding: 0;
+    margin: 0;
+    outline: none;
+    -webkit-user-drag: none;
+    font-family: Myriad, Arial, Verdana;
 }
 
 html {
-    background: #eee;
-    overflow: hidden;
+    background: rgb(247, 253, 244);
 }
 
 body {
-    font-family: Myriad, Arial, Verdana;
+    border-right: 2px solid rgb(23, 228, 56);
+    border-left: 2px solid rgb(80, 238, 29);
+    margin: 0 2%;
+    background: white;
     font-size: 1.2em;
     line-height: 1.5em;
-    margin: 0;
-    overflow: hidden;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    -moz-transition: all .5s ease-in-out;
-    -ms-transition: all .5s ease-in-out;
-    -o-transition: all .5s ease-in-out;
-    -webkit-transition: all .5s ease-in-out;
-    transition: all .5s ease-in-out;
-    -webkit-user-select: none;
-    -webkit-user-drag: none;
-    -o-user-select: none;
-    -o-user-drag: none;
-    -moz-user-select: none;
-    -moz-user-drag: none;
-    user-select: none;
-    user-drag: none;
-    outline: none!important;
+body {
+    padding: 30px 30px;
 }
 
-.renegotiation-panel, .left-panel {
-    background-color: #FF7D9D;
-    background-image: linear-gradient(335deg, #C90032 23px, transparent 23px),
-                                linear-gradient(155deg, #C90032 23px, transparent 23px),
-                                linear-gradient(335deg, #C90032 23px, transparent 23px),
-                                linear-gradient(155deg, #C90032 23px, transparent 23px),
-
-                                linear-gradient(335deg, #C90032 10px, transparent 10px),
-                                linear-gradient(155deg, #C90032 10px, transparent 10px),
-                                linear-gradient(335deg, #C90032 10px, transparent 10px),
-                                linear-gradient(155deg, #C90032 10px, transparent 10px);
-    background-position: 0px 2px, 4px 35px, 29px 31px, 33px 6px,
-                                     0px 36px, 4px 2px, 29px 6px, 33px 30px;
-    background-size: 58px 58px;
-    border-right: 2px solid black;
+.main {
+    border: 1px solid black;
+    border-radius: 6px;
 }
 
-.left-panel {
+.new-message {
+    min-height: 7em;
+    border-top: 1px solid black;
+}
+
+.new-message:first-child {
+    border-top: 0;
+}
+
+.user-info {
+    width: 10em;
+    min-height: 7em;
     float: left;
-    height: 80%;
-    width: 40%;
-    color: white;
-    overflow-y: auto;
-    overflow-x: hidden;
+    border-right: 1px solid black;
     text-align: center;
 }
 
-.left-panel div {
-    padding: .2em .8em;
-    border-bottom: 2px solid black;
-    background: rgba(3, 3, 3, 0.67);
-    text-align: left;
+.user-info img, .user-info video {
+    width: 100%;
+    height: 134px;
 }
 
-hr {
-    border: 0;
-    height: 2px;
-    background: black;
-    margin: 0 -20%;
+.user-info audio {
+    width: 100%;
 }
 
-button, .right-panel, footer, .users-panel {
-    background-color: hsl(2, 57%, 40%);
-    background-image: repeating-linear-gradient(transparent, transparent 50px, rgba(0, 0, 0, .4) 50px, rgba(0, 0, 0, .4) 53px, transparent 53px, transparent 63px, rgba(0, 0, 0, .4) 63px, rgba(0, 0, 0, .4) 66px, transparent 66px, transparent 116px, rgba(0, 0, 0, .5) 116px, rgba(0, 0, 0, .5) 166px, rgba(255, 255, 255, .2) 166px, rgba(255, 255, 255, .2) 169px, rgba(0, 0, 0, .5) 169px, rgba(0, 0, 0, .5) 179px, rgba(255, 255, 255, .2) 179px, rgba(255, 255, 255, .2) 182px, rgba(0, 0, 0, .5) 182px, rgba(0, 0, 0, .5) 232px, transparent 232px), repeating-linear-gradient(270deg, transparent, transparent 50px, rgba(0, 0, 0, .4) 50px, rgba(0, 0, 0, .4) 53px, transparent 53px, transparent 63px, rgba(0, 0, 0, .4) 63px, rgba(0, 0, 0, .4) 66px, transparent 66px, transparent 116px, rgba(0, 0, 0, .5) 116px, rgba(0, 0, 0, .5) 166px, rgba(255, 255, 255, .2) 166px, rgba(255, 255, 255, .2) 169px, rgba(0, 0, 0, .5) 169px, rgba(0, 0, 0, .5) 179px, rgba(255, 255, 255, .2) 179px, rgba(255, 255, 255, .2) 182px, rgba(0, 0, 0, .5) 182px, rgba(0, 0, 0, .5) 232px, transparent 232px), repeating-linear-gradient(125deg, transparent, transparent 2px, rgba(0, 0, 0, .2) 2px, rgba(0, 0, 0, .2) 3px, transparent 3px, transparent 5px, rgba(0, 0, 0, .2) 5px);
-}
-
-.right-panel {
-    height: 80%;
-    margin-left: 40%;
-    border-bottom: 1px solid gray;
-    text-align: center;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.right-panel section {
-    background-color: silver;
-    background-image: linear-gradient(335deg, #b00 23px, transparent 23px),
-                                  linear-gradient(155deg, #d00 23px, transparent 23px),
-                                  linear-gradient(335deg, #b00 23px, transparent 23px),
-                                  linear-gradient(155deg, #d00 23px, transparent 23px);
-    background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
-    background-size: 58px 58px;
-    border: 1px solid gray;
-    border-radius: 5px;
-    box-shadow: 0 1px 4px
-                            rgba(0, 0, 0, 0.3), 0 0 40px
-                            rgba(0, 0, 0, 0.1) inset;
-    display: inline-block;
-    height: 100px;
-    margin-top: 5px;
-    min-width: 180px;
-    overflow: hidden;
-    text-align: center;
-}
-
-input[type=checkbox] {
-    visibility: hidden;
-}
-
-.check-box {
-    -moz-border-radius: 50px;
-    -moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
-    -webkit-border-radius: 50px;
-    -webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
-    background: #fcfff4;
-    background: radial-gradient(hsl(0, 100%, 27%) 4%, hsl(0, 100%, 18%) 9%, hsla(0, 100%, 20%, 0) 9%) 0 0,
-                          radial-gradient(hsl(0, 100%, 27%) 4%, hsl(0, 100%, 18%) 8%, hsla(0, 100%, 20%, 0) 10%) 50px 50px,
-                          radial-gradient(hsla(0, 100%, 30%, 0.8) 20%, hsla(0, 100%, 20%, 0)) 50px 0,
-                          radial-gradient(hsla(0, 100%, 30%, 0.8) 20%, hsla(0, 100%, 20%, 0)) 0 50px,
-                          radial-gradient(hsla(0, 100%, 20%, 1) 35%, hsla(0, 100%, 20%, 0) 60%) 50px 0,
-                          radial-gradient(hsla(0, 100%, 20%, 1) 35%, hsla(0, 100%, 20%, 0) 60%) 100px 50px,
-                          radial-gradient(hsla(0, 100%, 15%, 0.7), hsla(0, 100%, 20%, 0)) 0 0,
-                          radial-gradient(hsla(0, 100%, 15%, 0.7), hsla(0, 100%, 20%, 0)) 50px 50px,
-                          linear-gradient(45deg, hsla(0, 100%, 20%, 0) 49%, hsla(0, 100%, 0%, 1) 50%, hsla(0, 100%, 20%, 0) 70%) 0 0,
-                          linear-gradient(-45deg, hsla(0, 100%, 20%, 0) 49%, hsla(0, 100%, 0%, 1) 50%, hsla(0, 100%, 20%, 0) 70%) 0 0;
-    background-color: #300;
-    background-size: 100px 100px;
-    border-radius: 50px;
-    box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
-    height: 28px;
-    margin: 20px auto;
-    position: relative;
-    width: 28px;
-}
-
-.check-box label {
-    -moz-border-radius: 50px;
-    -moz-box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5), 0px 1px 0px rgba(255, 255, 255, 1);
-    -webkit-border-radius: 50px;
-    -webkit-box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5), 0px 1px 0px rgba(255, 255, 255, 1);
-    background: -webkit-linear-gradient(top, #222 0%, #45484d 100%);
-    background: -moz-linear-gradient(top, #222 0%, #45484d 100%);
-    background: -o-linear-gradient(top, #222 0%, #45484d 100%);
-    background: -ms-linear-gradient(top, #222 0%, #45484d 100%);
-    background: linear-gradient(top, #222 0%, #45484d 100%);
-    border-radius: 50px;
-    box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.5), 0px 1px 0px rgba(255, 255, 255, 1);
-    cursor: pointer;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#222', endColorstr='#45484d', GradientType=0);
-    height: 20px;
-    left: 4px;
-    position: absolute;
-    top: 4px;
-    width: 20px;
-}
-
-.check-box span {
-    background: rgba(0, 0, 0, 0.84);
-    color: white;
-    display: inline-block;
-    font-size: 1.2em;
-    margin-left: -77px;
-    margin-top: 42px;
-    width: 186px;
-    line-height: 2;
-}
-
-.check-box label:after {
-    -moz-border-radius: 50px;
-    -moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-    -webkit-border-radius: 50px;
-    -webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
-    -webkit-transform: rotate(-45deg);
-    background: #00bf00;
-    background: -webkit-linear-gradient(top, #00bf00 0%, #009400 100%);
-    background: #00bf00;
-    background: -webkit-linear-gradient(top, #00bf00 0%, #009400 100%);
-    background: -moz-linear-gradient(top, #00bf00 0%, #009400 100%);
-    background: -o-linear-gradient(top, #00bf00 0%, #009400 100%);
-    border-radius: 50px;
-    box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
-    content: '';
-    filter: alpha(opacity=0);
-    height: 16px;
-    left: 2px;
-    opacity: 0;
-    position: absolute;
-    top: 2px;
-    width: 16px;
-}
-
-.check-box label:hover::after {
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
-    filter: alpha(opacity=30);
-    opacity: 0.3;
-}
-
-.check-box input[type=checkbox]:checked + label:after {
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
-    filter: alpha(opacity=100);
-    opacity: 1;
-}
-
-textarea {
-    background-color: #fff;
-    background-image: linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
-                                linear-gradient(#eee .1em, transparent .1em);
-    background-size: 100% 1.2em;
-    border: 0;
-    height: 100%;
-    outline: none;
+.user-activity {
+    margin-left: 10em;
     padding: .4em .8em;
-    padding-left: 7%;
+}
+
+.header {
+}
+
+.message {
+    padding: .6em .8em;
+}
+
+.message img, .message iframe {
+    width: 64%;
+    border: 2px solid black;
+    border-radius: 5px;
+}
+
+.main-input-box {
+    border: 1px solid black;
+    border-bottom: 0;
+    padding-bottom: 1px;
+    text-align: right;
+    margin-left: 193px;
+    margin-right: 125px;
+    padding-right: 21px;
+}
+
+.main-input-box textarea {
+    border: 0;
     width: 100%;
     resize: none;
-    padding-right: 20%;
-    overflow: hidden;
+    padding: .4em .8em;
+    font-size: inherit;
+    font-family: inherit;
+    padding-right: 177px;
+    background: transparent;
 }
 
-footer {
-    bottom: 0;
-    height: 20%;
-    left: 0;
-    padding-top: 5px;
-    position: fixed;
-    right: 0;
-    overflow: hidden;
-}
-
-button {
-    ;
-	border-radius: 2px;
-    border: 1px solid black;
+button, .users-list {
+    -moz-border-radius: 3px;
+    -moz-transition: none;
+    -webkit-transition: none;
+    background-color: #0370ea;
+    background-color: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
+    background-color: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
+    border: 1px solid #076bd2;
+    border-radius: 3px;
     color: #fff;
     display: inline-block;
     font-family: inherit;
     padding: 5px 12px;
     text-align: center;
-    text-shadow: 1px 1px 1px black;
-    font-size: 1.5em;
+    text-shadow: 1px 1px 1px #076bd2;
+    font-size: 15px;
 }
 
-.left-panel button {
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px yellow;
+button:hover, .users-list:hover {
+    background-color: rgb(9, 147, 240);
 }
 
-.left-panel button:hover {
-    -webkit-box-shadow: inset 0 0 6px yellow;
+button:active, .users-list:active {
+    background-color: rgb(10, 118, 190);
 }
 
-.left-panel button:hover {
-    -webkit-box-shadow: inset 0 0 16px yellow;
-}
-
-button:active {
-    opacity: .4;
-}
-
-button[disabled] {
-    background: none;
-    opacity: .5;
+button[disabled], input[type=button][disabled] {
+    background-color: transparent;
     border: 1px solid rgb(187, 181, 181);
     color: gray;
     text-shadow: none;
-    box-shadow: none;
 }
 
-.right-panel h2 {
-    color: white;
-    font-weight: normal;
-    padding: 0 1em;
-    font-size: 1em;
+.icon {
+    width: 50px;
+    height: 50px;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
-. {
-    position: absolute;
+#allow-webcam {
+    background-image: url('images/webcam.png');
 }
 
-#start-webrtc-session {
-    margin-top: 2em;
+#allow-mic {
+    background-image: url('images/microphone.png');
 }
 
-#share-files, #users-button {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    font-size: 1em;
-    z-index: 500;
+#allow-screen {
+    background-image: url('images/screen.png');
 }
 
-#users-button {
-    right: 0;
+#share-files {
+    background-image: url('images/share-files.png');
 }
 
-#share-files img, #users-button img {
+#continue {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    background-repeat: no-repeat;
+    background-position: center right;
+    background-image: url('images/action-needed.png');
+    padding-right: 47px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+a {
+    color: #2844FA;
+    text-decoration: none;
+}
+
+a:hover, a:focus {
+    color: #1B29A4;
+}
+
+a:active {
+    color: #000;
+}
+
+input {
+    border-radius: 1px;
+    border: 1px solid #d9d9d9;
+    font-size: 15px;
+    height: 32px;
+    width: 200px;
+    margin-top: .5em;
+    padding: 0 8px;
+    -moz-user-select: initial;
+    -o-user-select: initial;
+    -webkit-user-select: initial;
+    -ms-user-select: initial;
+    user-select: initial;
+}
+
+input[type=checkbox] {
     width: 30px;
     height: 30px;
+    margin: 0;
+    vertical-align: middle;
+}
+
+h1 {
+    position: absolute;
+    color: rgb(10, 175, 253);
+    text-shadow: 1px 1px rgb(7, 129, 160);
+}
+
+h1 img {
+    width: 160px;
+    height: 60px;
+}
+
+.users-list {
+    position: absolute;
+    right: 63px;
+    padding: 0;
+    color: white;
+    margin-top: 0px;
+    width: 118px;
+    height: 110px;
+    cursor: default;
+    border-radius: 0;
+    border-top-right-radius: 20px;
+}
+
+.users-list.selected {
+    background-color: black;
+}
+
+.users-list img {
+    width: 82%;
+    height: 104px;
+}
+
+.numbers-of-users {
+    position: absolute;
+    font-size: 3em;
+    left: 38%;
+    top: 60px;
+}
+
+.users-container, .settings-panel {
+    margin: 0 0 13px 0;
+    border: 1px solid black;
+    overflow: hidden;
+    overflow-x: auto;
+    height: 180px;
+    border-radius: 5px;
+    display: none;
+}
+
+.users-container video {
+    height: 100%;
+}
+
+.self-url {
+    position: absolute;
+    top: 5px;
+    left: 251px;
+}
+
+.settings {
+    position: absolute;
+    top: 33px;
+    right: 210px;
+}
+
+#settings {
+    background-repeat: no-repeat;
+    background-position: center right;
+    background-image: url('images/settings.png');
+    padding-right: 35px;
+    margin-top: -1px;
+}
+
+#save-settings {
+    background-repeat: no-repeat;
+    background-position: center right;
+    background-image: url('images/accepted.png');
+    padding-right: 53px;
+    background-color: rgb(255, 10, 78);
+    border-color: rgb(133, 21, 21);
+}
+
+.settings-panel {
+    height: auto;
+    overflow: hidden;
+    padding: .4em .8em;
+}
+
+strong {
+    color: rgb(204, 14, 14);
+    font-family: inherit;
+    font-weight: normal;
+}
+
+tr, td, th {
+    vertical-align: top;
+    padding: .7em 1.4em;
+    border-top: 1px dotted #BBA9A9;
+    border-right: 1px dotted #BBA9A9;
+}
+
+table {
+    width: 100%;
+}
+
+h1, h2 {
+    border-bottom: 1px solid rgb(189, 189, 189);
+    display: inline;
+    font-weight: normal;
+    line-height: 36px;
+    padding: 0 0 3px 0;
+}
+
+select {
+    border: 1px solid #d9d9d9;
+    border-radius: 1px;
+    padding: .4em .4em;
+    margin-top: 5px;
+}
+
+label.adjust-width {
+    display: inline-block;
+    width: 30%;
+}
+
+small {
+    display: inline-block;
     vertical-align: middle;
 }
 
 .smiley {
-    width: 30px;
-    height: 30px;
+    width: 20px!important;
+    height: 20px;
+    border: 0!important;
     vertical-align: middle;
-}
-
-.left-panel img {
-    width: 100%;
-}
-
-a {
-    color: yellow;
-}
-
-.users-panel {
-    position: fixed;
-    bottom: 42px;
-    right: 0;
-    z-index: 100;
-    border: 1px solid black;
-    border-radius: 4px;
-    color: white;
-    visibility: hidden;
-    max-height: 0;
-}
-
-.users-panel img, #users-button img {
-    width: 100px;
-    height: 100px;
-    vertical-align: middle;
-    margin-right: 14px;
-    max-height: 90%;
-    overflow: auto;
-    border-right: 2px solid black;
-}
-
-#users-button img {
-    width: 40px;
-    height: 40px;
-}
-
-.users-panel div, #users-button {
-    padding: 0;
-    padding-right: .8em;
-}
-
-.users-panel div {
-    border-top: 2px solid black;
-}
-
-.renegotiation-panel {
-    position: fixed;
-    bottom: 6%;
-    right: 0;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    text-align: center;
-    border-bottom: 2px solid black;
-    padding-bottom: 4px;
-    border-bottom-right-radius: 3px;
-}
-
-.renegotiation-panel img {
-    width: 50px;
-}
-
-.renegotiation-panel button {
-    padding: 0;
-}
-
-.share-link {
-    background: rgba(186, 236, 27, 0.5);
-    margin-top: 4px;
-    border: 2px solid black;
-    margin-left: 4.5%;
-    bottom: 20%;
-    width: 30%;
-    position: fixed;
-}
-
-.share-link img {
-    width: 100px;
-}
-
-.share-link a {
-    color: black;
-}
-
-.bandwidth-panel {
-    position: fixed;
-    bottom: 0;
-	right: 15%;
-    z-index: 1000;
-    text-align: center;
-    border: 2px solid rgb(43, 41, 41);
-    padding-bottom: 4px;
-    border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3px;
-    background: rgba(213, 213, 213, 0.68);
-    padding-top: 0;
-    opacity: 0;
-    visibility: hidden;
 }

@@ -1,4 +1,12 @@
-// https://www.webrtc-experiment.com:12034/
+// Last time updated at 29 January 2014, 05:46:23
+
+// Muaz Khan      - www.MuazKhan.com
+// MIT License    - www.WebRTC-Experiment.com/licence
+
+// RTCMultiConnection
+// Documentation  - www.RTCMultiConnection.org/docs
+
+// MultiRTC     - github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC
 
 window.linkify = (function(){
   var
