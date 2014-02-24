@@ -1,0 +1,145 @@
+﻿<!-- Make sure that you executed "signaler.js" or "ssl.js" instead of "simple.js"!! -->
+
+<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket
+-->
+
+<title>Simple Text-Chat using WebSockets over Node.js ® Muaz Khan</title>
+
+<h1 style="border-bottom: 1px solid #CCCCCC; display: block; font-size: 2em; margin-bottom: 0em; padding: .6em 0; text-align: center;">Simple Text-Chat using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs" target="_blank">WebSockets over Node.js</a></h1>
+
+<style>
+    * {
+        -webkit-user-select: none;
+        font-family: Calibri;
+        font-family: 'Segoe UI Light', 'Segoe UI';
+        font-size: 1.1em;
+        font-weight: normal;
+    }
+
+    html { background: #eee; }
+
+    body {
+        font-size: 1.2em;
+        line-height: 1.2em;
+        margin: 0;
+    }
+
+    input[type=text] {
+        -webkit-user-select: initial;
+        background: none repeat scroll 0 0 #F9F9F9;
+        border: 1px solid #CCCCCC;
+        border-radius: 0 0 5px 5px;
+        border-top: 0;
+        font: 300 18px/40px 'light', inherit;
+        height: 40px;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+        padding: 5px 10px;
+        width: 100%;
+    }
+
+    #output {
+        background: none repeat scroll 0 0 #F9F9F9;
+        border: 1px solid #CCCCCC;
+        border-radius: 5px 5px 0 0;
+        font: 300 18px/40px 'light', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        height: 400px;
+        letter-spacing: 1px;
+        margin-bottom: 0;
+        overflow: scroll;
+        padding: 5px 10px;
+    }
+
+    #output div { border-bottom: 1px solid #CCCCCC; }
+
+    section.name {
+        float: left;
+        overflow: hidden;
+        padding-left: 2em;
+        padding-right: 1em;
+        text-align: right;
+        width: 7em;
+    }
+
+    section.message {
+        border-left: 1px solid #CCCCCC;
+        margin-left: 10em;
+        overflow: hidden;
+        padding-left: 1em;
+    }
+</style>
+<input type="text" disabled>
+<div id="output"></div>
+<script>
+    var channelName = location.href.replace( /\/|:|#|%|\.|\[|\]/g , ''); // using URL as room-name
+    // var websocket = new WebSocket('ws://wsnodejs.jit.su:80');
+    var websocket = new WebSocket('ws://' + document.domain + ':12034');
+    websocket.onopen = function() {
+        websocket.push(JSON.stringify({
+            open: true,
+            channel: channelName
+        }));
+
+        if (!window.username) window.username = prompt('Please enter your full name') || 'Anonymous';
+
+        setTimeout(function() {
+            websocket.send({
+                sender: window.username,
+                message: 'is ready to share text messages with you.'
+            });
+        }, 1000);
+
+        input.disabled = false;
+    };
+    websocket.push = websocket.send;
+    websocket.send = function(data) {
+        websocket.push(JSON.stringify({
+            data: data,
+            channel: channelName
+        }));
+    };
+
+    websocket.onmessage = function(e) {
+        appendDIV(JSON.parse(e.data));
+    };
+</script>
+<script>
+    // uncomment this line to use auto generated usernames!
+    // window.username = (Math.round(Math.random() * 60535) + 5000);
+
+    input = document.querySelector('input[type=text]');
+    input.onkeypress = function(e) {
+        if (e.keyCode !== 13 || !this.value.length) return;
+        websocket.send({
+            sender: window.username,
+            message: this.value
+        });
+
+        /* self preview! */
+        appendDIV({
+            sender: window.username,
+            message: this.value
+        });
+
+        this.value = '';
+    };
+
+    output = document.querySelector('#output');
+
+    function appendDIV(data) {
+        var div = document.createElement('div');
+        div.innerHTML = '<section class="name">' + data.sender + '</section><section class="message">' + data.message + '</section>';
+        output.insertBefore(div, output.firstChild);
+
+        div.tabIndex = 0;
+        div.focus();
+
+        input.focus();
+    }
+</script>
+<footer style="font-size: .8em; text-align: center;"> <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> © <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <a href="mailto:muazkh@gmail.com" target="_blank">Email</a> »
+    <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>» <a href="https://github.com/muaz-khan" target="_blank">Github</a> 
+</footer>

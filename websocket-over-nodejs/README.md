@@ -1,6 +1,23 @@
 #### [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) / [Demo](https://www.webrtc-experiment.com/websocket/)
 
-This experiment is using **WebSocket over Node.js** for signaling.
+This repository has following kinds of browser-based demos:
+
+1. Text Chat using rooms
+2. Text Chat without rooms
+3. WebRTC Peer Connection using rooms
+
+You can see three node.js files:
+
+1. signaler.js - HTTP based websocket signaling along with creating websocket channels i.e. rooms
+2. ssl.js - HTTPs i.e. SSL based websocket signaling along with creating websocket channels i.e. rooms
+3. simple.js - HTTP based websocket signaling however NO-room
+
+=
+
+#### Dependencies
+
+1. WebSocket - for websocket over node.js connection
+2. Node-Static - for serving static resources i.e. HTML/CSS/JS files
 
 =
 
@@ -16,19 +33,94 @@ and run the `signaler.js` nodejs file:
 node node_modules/websocket-over-nodejs/signaler.js
 ```
 
+Now, you can open port "12034" on your ip address/domain; or otherwise on localhost: `http://localhost:12034/`
+
 =
 
-Otherwise, follow these steps:
+#### Install on Linux/Ubuntu/CentOS/Debian/Mac etc.
 
-1. Download and extract [**ZIP file**](https://github.com/muaz-khan/WebRTC-Experiment/archive/master.zip) of this repository then copy `folder-location`.
-2. Open **Node.js command prompt**.
-3. Type command `cd folder-location` where `folder-location` can be `C:\websocket-over-nodejs`.
-4. Type `node signaler` to run the node.js server.
+```
+# create a directory
+mkdir websocket-over-nodejs
 
-OK, now you can listen websocket URL like this:
+# open directory
+cd websocket-over-nodejs
 
-```javascript
-var websocket = new WebSocket('ws://localhost:8888/');
+# get package
+wget http://www.webrtc-experiment.com/packages/websocket-over-nodejs.tar
+
+# extract package
+tar -xf websocket-over-nodejs.tar
+
+# run node.js server
+node signaler.js
+```
+
+Now, you can open port `12034` on your ip address/domain; or otherwise on localhost: `http://localhost:12034/`
+
+It is using port `12034`; you can edit this port using following commands:
+
+```
+vi signaler.js
+
+# now edit port 12034
+# and save changes & quit
+
+# press "insert" key; then press "Esc" key and the type
+:wq
+```
+
+`:wq` command saves changes in the file and exits editing mode. If you don't want to save changes; simply type:
+
+```
+# if you don't want to save changes however want to exit editing mode
+:q
+```
+
+Common Error: `Error: listen EADDRINUSE`. It means that same port is used by another application. You can close all existing processes running on same port:
+
+```
+// list all active processes running on same port
+sudo fuser -v 12034/tcp
+
+// kill all processes running on port "12034"
+sudo fuser -vk 12034/tcp
+
+// list again to verify closing ports
+sudo fuser -v 12034/tcp
+```
+
+You can delete "directory" and re-install:
+
+```
+rm -rf websocket-over-nodejs
+mkdir websocket-over-nodejs
+
+# and following above steps to "wget" and "tar" then "node" to run!
+```
+
+Following error doesn't matter!!! Simply skip it!
+
+```
+Warning: Native modules not compiled.  XOR performance will be degraded.
+Warning: Native modules not compiled.  UTF-8 validation disabled.
+```
+
+=
+
+#### Download ZIP on windows
+
+http://www.webrtc-experiment.com/packages/websocket-over-nodejs.zip
+
+=
+
+#### Test Demos
+
+```
+// replace "localhost" with your domain name!
+http://localhost:12034/index.html
+http://localhost:12034/one-to-one-peerconnection.html
+http://localhost:12034/text-chat-with-simple-websocket.html
 ```
 
 =
@@ -44,6 +136,7 @@ First of all; change **subdomain** in the `package.json` file:
   "scripts": {
     "start": "signaler.js"
   },
+  main: "signaler.js",
   "version": "0.0.0",
   "engines": {
     "node": "0.10.x"
@@ -67,6 +160,47 @@ Now, you can listen your nodejitsu server like this:
 ```javascript
 // Remember, must include port "80"!
 var websocket = new WebSocket('ws://subdomain.jit.su:80');
+
+// or
+var websocket = new WebSocket('ws://subdomain.nodejitsu.com:80');
+
+// or SSL
+var websocket = new WebSocket('wss://subdomain.nodejitsu.com:443');
+```
+
+=
+
+#### Signaler.js or SSL.js
+
+```javascript
+// setting room name
+var channelName = location.href.replace(/\/|:|#|%|\.|\[|\]/g, ''); // using URL as room-name
+
+// setting up websocket connection
+var websocket = new WebSocket('ws://localhost:12034');
+
+// capturing "onopen" event
+websocket.onopen = function () {
+    // suggesting node.js server to open a websocket room i.e. channel!
+    websocket.push(JSON.stringify({
+        open: true,
+        channel: channelName
+    }));
+};
+
+// overriding "send" method to customize default behavior!
+websocket.push = websocket.send;
+websocket.send = function (data) {
+    websocket.push(JSON.stringify({
+        data: data,
+        channel: channelName
+    }));
+};
+
+// capturing "onmessage" event!
+websocket.onmessage = function (e) {
+    console.log(JSON.parse(e.data));
+};
 ```
 
 =
@@ -79,7 +213,7 @@ In `ui.js` files you can find `openSocket` method; or in all libraries; you can 
 // ws://wsnodejs.jit.su:80
 // wss://www.webrtc-experiment.com:8563
 
-var SIGNALING_SERVER = 'ws://' + document.domain + ':1338/';
+var SIGNALING_SERVER = 'ws://' + document.domain + ':12034/';
 connection.openSignalingChannel = function(config) {
     config.channel = config.channel || this.channel || 'default-channel';
     var websocket = new WebSocket(SIGNALING_SERVER);
@@ -107,12 +241,10 @@ connection.openSignalingChannel = function(config) {
 
 =
 
-#### Signaling Concepts
-
-Interested to understand WebRTC Signaling Concepts? Read [this document](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/Signaling-Concepts.md).
+https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
 =
 
 #### License
 
-[WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

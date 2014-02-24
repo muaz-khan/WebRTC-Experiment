@@ -1,26 +1,36 @@
-// 2013, @muazkh » www.MuazKhan.com
-// MIT License   » www.WebRTC-Experiment.com/licence
-// Documentation » github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs
-// Demo          » www.WebRTC-Experiment.com/websocket/
+// https://www.webrtc-experiment.com/
 
-// new WebSocket('wss://localhost:8888/')
+// Dependencies:
+// 1. WebSocket
+// 2. Node-Static
 
-var WebSocketServer = require('websocket').server;
+// Features:
+// 1. WebSocket over Nodejs connection
+// 2. WebSocket channels i.e. rooms
+// 3. SSL websocket connection i.e. wss://localhost:12034/
+
 var fs = require('fs');
 
-// SSL stuff
-var https = require('https');
-var SSL_Credentials = {
-	    key: fs.readFileSync('fakekeys/privatekey.pem').toString(),
-	    cert: fs.readFileSync('fakekeys/certificate.pem').toString()
-	};
+var _static = require('node-static');
+var file = new _static.Server('./public');
 
-var ssl_server = https.createServer(SSL_Credentials, function() {});
+// don't forget to use your own keys!
+var options = {
+    key: fs.readFileSync('fake-keys/privatekey.pem'),
+    cert: fs.readFileSync('fake-keys/certificate.pem')
+};
 
-ssl_server.listen(8888);
+// HTTPs server
+var app = require('https').createServer(options, function(request, response) {
+    request.addListener('end', function() {
+        file.serve(request, response);
+    }).resume();
+});
+
+var WebSocketServer = require('websocket').server;
 
 new WebSocketServer({
-    httpServer: ssl_server,
+    httpServer: app,
     autoAcceptConnections: false
 }).on('request', onRequest);
 
@@ -29,7 +39,7 @@ new WebSocketServer({
 var CHANNELS = { };
 
 function onRequest(socket) {
-	var origin = socket.origin + socket.resource;
+    var origin = socket.origin + socket.resource;
 
     var websocket = socket.accept(null, origin);
 
@@ -108,3 +118,7 @@ function truncateChannels(websocket) {
             delete CHANNELS[channel];
     }
 }
+
+app.listen(12034);
+
+console.log('Please open SSL URL: https://localhost:12034/');

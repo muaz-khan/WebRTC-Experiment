@@ -14,9 +14,9 @@
     }
   ],
   "scripts": {
-    "start": "node index"
+    "start": "node signaler.js"
   },
-  "main": "./index",
+  "main": "signaler.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/muaz-khan/WebRTC-Experiment.git"

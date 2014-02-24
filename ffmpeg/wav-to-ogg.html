@@ -205,7 +205,12 @@
                 function PostBlob(blob) {
                     var audio = document.createElement('audio');
                     audio.controls = true;
-                    audio.src = URL.createObjectURL(blob);
+                    
+                    var source = document.createElement('source');
+                    source.src = URL.createObjectURL(blob);
+                    source.type = 'audio/ogg; codecs=vorbis';
+                    audio.appendChild(source);
+                    
                     audio.download = 'Converted Audio.ogg';
 
                     inner.appendChild(document.createElement('hr'));

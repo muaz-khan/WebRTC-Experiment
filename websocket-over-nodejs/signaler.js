@@ -1,22 +1,29 @@
-// 2013, @muazkh » www.MuazKhan.com
-// MIT License   » www.WebRTC-Experiment.com/licence
-// Documentation » github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs
-// Demo          » www.WebRTC-Experiment.com/websocket/
+// https://www.webrtc-experiment.com/
 
-// new WebSocket('ws://localhost:8888/')
+// Dependencies:
+// 1. WebSocket
+// 2. Node-Static
 
-var WebSocketServer = require('websocket').server;
+// Features:
+// 1. WebSocket over Nodejs connection
+// 2. WebSocket channels i.e. rooms
+
 var fs = require('fs');
 
-// Non-SSL stuff
-var http = require('http');
+var _static = require('node-static');
+var file = new _static.Server('./public');
 
-var simple_server = http.createServer();
+// HTTP server
+var app = require('http').createServer(function(request, response) {
+    request.addListener('end', function() {
+        file.serve(request, response);
+    }).resume();
+});
 
-simple_server.listen(8888);
+var WebSocketServer = require('websocket').server;
 
 new WebSocketServer({
-    httpServer: simple_server,
+    httpServer: app,
     autoAcceptConnections: false
 }).on('request', onRequest);
 
@@ -25,7 +32,7 @@ new WebSocketServer({
 var CHANNELS = { };
 
 function onRequest(socket) {
-	var origin = socket.origin + socket.resource;
+    var origin = socket.origin + socket.resource;
 
     var websocket = socket.accept(null, origin);
 
@@ -104,3 +111,7 @@ function truncateChannels(websocket) {
             delete CHANNELS[channel];
     }
 }
+
+app.listen(12034);
+
+console.log('Please open NON-SSL URL: http://localhost:12034/');
