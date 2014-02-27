@@ -37,6 +37,7 @@ window.linkify = (function(){
   
   return function( txt, options ) {
 	txt = getSmileys(txt);
+	txt = txt.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/ /g, '&nbsp;').replace(/\n/g, '<br />');
 	
     options = options || {};
     

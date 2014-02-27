@@ -6,15 +6,14 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>WebRTC Broadcasting using RTCMultiConnection ® Muaz Khan</title>
+        <title>WebRTC Screen Sharing using RTCMultiConnection ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css" />
-        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
         
         <style>
             audio, video {
@@ -25,6 +24,7 @@
                 -webkit-transition: all 1s ease;
                 transition: all 1s ease;
                 vertical-align: top;
+				width: 100%;
             }
 
             input {
@@ -59,26 +59,33 @@
         </script>
         
         <!-- scripts used for broadcasting -->
-        <script src="https://www.webrtc-experiment.com/firebase.js"></script>
-        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+        <script src="//www.webrtc-experiment.com/firebase.js"></script>
+        <script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.js"> </script>
     </head>
 
     <body>
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> Video Broadcasting using 
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection</a>
+                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> Video Screen Sharing 
+                    <a href="http://www.rtcmulticonnection.org/docs/" target="_blank">RTCMultiConnection</a>
                 </h1>            
                 <p>
-                    <span>© 2013</span>
-                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
-                    »
-                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
-                    »
-                    <a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
-                    »
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
 
@@ -96,7 +103,7 @@
                     </span>
 					
                     <input type="text" id="broadcast-name">
-                    <button id="setup-new-broadcast" class="setup">Setup New Broadcast</button>
+                    <button id="setup-new-broadcast" class="setup">Share Your Screen</button>
                 </section>
                 
                 <!-- list of all available broadcasting rooms -->
@@ -113,8 +120,7 @@
 
                 var connection = new RTCMultiConnection();
                 connection.session = {
-                    audio: true,
-                    video: true,
+                    screen: true,
                     oneway: true
                 };
 
@@ -149,8 +155,8 @@
                     sessions[session.sessionid] = session;
 
                     var tr = document.createElement('tr');
-                    tr.innerHTML = '<td><strong>' + session.extra['session-name'] + '</strong> is running a conference!</td>' +
-                        '<td><button class="join">Join</button></td>';
+                    tr.innerHTML = '<td><strong>' + session.extra['session-name'] + '</strong> is sharing his screen!</td>' +
+                        '<td><button class="join">View His Screen</button></td>';
                     roomsList.insertBefore(tr, roomsList.firstChild);
 
                     var joinRoomButton = tr.querySelector('.join');
@@ -220,125 +226,22 @@
 
                 window.onresize = scaleVideos;
             </script>
-            
-            <section class="experiment">
-                <ol>
-                    <li>Mesh networking model is implemented to open multiple interconnected peer connections</li>
-                    <li>Maximum peer connections limit is <strong>256</strong> (on chrome)</li>
-                </ol>
-            </section>
-        
-            <section class="experiment">
-                <h2 class="header" id="feedback">Feedback</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
-            </section>
-            
-            <section class="experiment">
-                <p>
-                    It is one-way broadcasting; media stream is attached only by the broadcaster.
-                </p>
-            </section>
-            <section class="experiment">
-                <p>
-                    It means that, if 10 people are watching your one-way broadcasted audio/video stream; on your system:
-                </p>
-                <ol>
-                    <li>10 RTP ports are opened to send video upward i.e. outgoing video</li>
-                    <li>10 RTP ports are opened to send audio upward i.e. outgoing audio</li>
-                </ol>
-            </section>
-            <section class="experiment">
-                <p>
-                    And on participants system:
-                </p>
-                <ol>
-                    <li>10 RTP ports are opened to receive video i.e. incoming video</li>
-                    <li>10 RTP ports are opened to receive audio i.e. incoming audio</li>
-                </ol>
-            </section>
-            <section class="experiment">
-                <p>
-                    Maximum bandwidth used by each video RTP port (media-track) is about 1MB. You're streaming audio and video tracks. You must be careful when streaming video over more than one peers. If you're broadcasting audio/video over 10 peers; it means that 20MB bandwidth is required on your system to stream-up (broadcast/transmit) your video. Otherwise; you'll face connection lost; CPU usage issues; and obviously audio-lost/noise/echo issues.
-                </p>
-            </section>
-            <section class="experiment">
-                <p>
-                    You can handle such things using "b=AS" (application specific bandwidth) session description parameter values to deliver a little bit low quality video.
-                </p>
-                <pre>
-// removing existing bandwidth lines
-sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
-
-// setting "outgoing" audio RTP port's bandwidth to "50kbit/s"
-sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:50\r\n');
-
-// setting "outgoing" video RTP port's bandwidth to "256kbit/s"
-sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
-</pre>
-            </section>
-            <section class="experiment">
-                <p>
-                    Possible issues:</p>
-                <ol>
-                    <li>Blurry video experience</li>
-                    <li>Unclear voice and audio lost</li>
-                    <li>Bandwidth issues / slow streaming / CPU overwhelming</li>
-                </ol>
-                <p>Solution? Obviously a media server!</p>
-            </section>
-			
-            <section class="experiment">
-                <h2 class="header">How to broadcast video?</h2>
-                <ol>
-                    <li>session.audio=true</li>
-                    <li>session.video=true</li>
-                    <li>session.oneway=true</li>
-                </ol>
-                <pre>
-// https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js
-
-var connection = new RTCMultiConnection();
-
-// setup session; along with "direction" to "oneway"
-connection.session = {
-    audio: true,
-    video: true,
-    oneway: true
-};
-
-// on local/remote media stream
-connection.onstream = function(e) {}
-
-// setup signaling to search for existing sessions
-connection.connect();
-
-// setup new session
-document.getElementById('initiator').onclick = function() {
-    connection.open();
-};
-</pre>
-            </section>
 			
             <section class="experiment own-widgets latest-commits">
                 <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
                 <div id="github-commits"></div>
             </section>
         </article>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
+	
         <footer>
-            <p>
-                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
-                ©
-                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
-                <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
-                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
-                <a href="https://github.com/muaz-khan" target="_blank">Github</a>
-            </p>
+            <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
+            <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
+            <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
+            <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="//www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

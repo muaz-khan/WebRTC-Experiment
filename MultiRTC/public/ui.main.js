@@ -6,6 +6,15 @@ function getElement(selector) {
 
 var main = getElement('.main');
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.round(Math.random() * 15)];
+    }
+    return color;
+}
+
 function addNewMessage(args) {
     var newMessageDIV = document.createElement('div');
     newMessageDIV.className = 'new-message';
@@ -13,6 +22,8 @@ function addNewMessage(args) {
     var userinfoDIV = document.createElement('div');
     userinfoDIV.className = 'user-info';
     userinfoDIV.innerHTML = args.userinfo || '<img src="images/user.png">';
+	
+	userinfoDIV.style.background = args.color || rtcMultiConnection.extra.color || getRandomColor();
 
     newMessageDIV.appendChild(userinfoDIV);
 
@@ -52,8 +63,9 @@ main.querySelector('button').onclick = function() {
 
     var username = input.value || 'Anonymous';
 
-    rtcMultiConnection.extra = {
-        username: username
+	rtcMultiConnection.extra = {
+        username: username,
+		color: getRandomColor()
     };
 
     var signaling_url = '/?userid=' + rtcMultiConnection.userid + '&room=' + location.href.split('/').pop();
@@ -113,13 +125,34 @@ function getUserinfo(blobURL, imageURL) {
     return blobURL ? '<video src="' + blobURL + '" autoplay></vide>' : '<img src="' + imageURL + '">';
 }
 
+var isShiftKeyPressed = false;
+
+getElement('.main-input-box textarea').onkeydown = function(e) {
+	if(e.keyCode == 16) {
+		isShiftKeyPressed = true;
+	}
+};
+
 getElement('.main-input-box textarea').onkeyup = function(e) {
+	rtcMultiConnection.send({
+		typing: true
+	});
+	
+	if(isShiftKeyPressed) {
+		if(e.keyCode == 16) {
+			isShiftKeyPressed = false;
+		}
+		return;
+	}
+	
+	
     if (e.keyCode != 13) return;
 
     addNewMessage({
         header: rtcMultiConnection.extra.username,
         message: 'Your Message:<br /><br />' + linkify(this.value),
-        userinfo: getUserinfo(rtcMultiConnection.blobURLs[rtcMultiConnection.userid], 'images/chat-message.png')
+        userinfo: getUserinfo(rtcMultiConnection.blobURLs[rtcMultiConnection.userid], 'images/chat-message.png'),
+		color: rtcMultiConnection.extra.color
     });
 
     rtcMultiConnection.send(this.value);
@@ -129,39 +162,51 @@ getElement('.main-input-box textarea').onkeyup = function(e) {
 
 getElement('#allow-webcam').onclick = function() {
     this.disabled = true;
-    rtcMultiConnection.addStream({ audio: true, video: true });
-    /*
-    rtcMultiConnection.captureUserMedia(function() {
-    rtcMultiConnection.sendMessage({
-    hasCamera: true
-    });
-    }, {audio: true, video: true});
-    */
+    
+	var session = {audio: true, video: true};
+    
+    rtcMultiConnection.captureUserMedia(function(stream) {
+		var streamid = rtcMultiConnection.token();
+		rtcMultiConnection.customStreams[streamid] = stream;
+		
+		rtcMultiConnection.sendMessage({
+			hasCamera: true,
+			streamid : streamid,
+			session: session
+		});
+    }, session);
 };
 
 getElement('#allow-mic').onclick = function() {
     this.disabled = true;
-    rtcMultiConnection.addStream({ audio: true });
-
-    /*
+    var session = {audio: true};
+    
     rtcMultiConnection.captureUserMedia(function(stream) {
-    rtcMultiConnection.sendMessage({
-    hasMic: true
-    });
-    }, {audio: true});
-    */
+		var streamid = rtcMultiConnection.token();
+		rtcMultiConnection.customStreams[streamid] = stream;
+		
+		rtcMultiConnection.sendMessage({
+			hasMic: true,
+			streamid : streamid,
+			session: session
+		});
+    }, session);
 };
 
 getElement('#allow-screen').onclick = function() {
     this.disabled = true;
-    rtcMultiConnection.addStream({ screen: true, oneway: true });
-    /*
-    rtcMultiConnection.captureUserMedia(function() {
-    rtcMultiConnection.sendMessage({
-    hasSceen: true
-    });
-    }, {screen: true});
-    */
+    var session = {screen: true};
+    
+    rtcMultiConnection.captureUserMedia(function(stream) {
+		var streamid = rtcMultiConnection.token();
+		rtcMultiConnection.customStreams[streamid] = stream;
+		
+		rtcMultiConnection.sendMessage({
+			hasScreen: true,
+			streamid : streamid,
+			session: session
+		});
+    }, session);
 };
 
 getElement('#share-files').onclick = function() {

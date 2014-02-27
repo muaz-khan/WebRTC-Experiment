@@ -1,4 +1,4 @@
-// Last time updated at 15 Feb 2014, 17:32:23
+// Last time updated at 26 Feb 2014, 08:32:23
 
 // Muaz Khan     - github.com/muaz-khan
 // MIT License   - www.WebRTC-Experiment.com/licence
@@ -48,6 +48,12 @@ function RTCPeerConnection(options) {
             credential: 'homeo',
             username: 'homeo'
         });
+
+        iceServers.push({
+            url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+            credential: 'webrtc',
+            username: 'webrtc'
+        });
     }
 
     if (options.iceServers) iceServers = options.iceServers;
@@ -55,6 +61,8 @@ function RTCPeerConnection(options) {
     iceServers = {
         iceServers: iceServers
     };
+
+    console.debug('ice-servers', JSON.stringify(iceServers.iceServers, null, '\t'));
 
     var optional = {
         optional: []
@@ -70,6 +78,8 @@ function RTCPeerConnection(options) {
                 RtpDataChannels: true
             }];
     }
+
+    console.debug('optional-arguments', JSON.stringify(optional.optional, null, '\t'));
 
     var peer = new PeerConnection(iceServers, optional);
 
@@ -115,12 +125,15 @@ function RTCPeerConnection(options) {
         }
     };
 
+    console.debug('sdp-constraints', JSON.stringify(constraints.mandatory, null, '\t'));
+
     // onOfferSDP(RTCSessionDescription)
 
     function createOffer() {
         if (!options.onOfferSDP) return;
 
         peer.createOffer(function(sessionDescription) {
+            sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onOfferSDP(sessionDescription);
 
@@ -137,6 +150,7 @@ function RTCPeerConnection(options) {
         console.debug('offer-sdp', options.offerSDP.sdp);
         peer.setRemoteDescription(new SessionDescription(options.offerSDP), onSdpSuccess, onSdpError);
         peer.createAnswer(function(sessionDescription) {
+            sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
             console.debug('answer-sdp', sessionDescription.sdp);
@@ -147,6 +161,30 @@ function RTCPeerConnection(options) {
     if ((options.onChannelMessage && !moz) || !options.onChannelMessage) {
         createOffer();
         createAnswer();
+    }
+
+    // options.bandwidth = { audio: 50, video: 256, data: 30 * 1000 * 1000 }
+    var bandwidth = options.bandwidth;
+
+    function setBandwidth(sdp) {
+        if (moz || !bandwidth /* || navigator.userAgent.match( /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i ) */) return sdp;
+
+        // remove existing bandwidth lines
+        sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
+
+        if (bandwidth.audio) {
+            sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:' + bandwidth.audio + '\r\n');
+        }
+
+        if (bandwidth.video) {
+            sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + bandwidth.video + '\r\n');
+        }
+
+        if (bandwidth.data) {
+            sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:' + bandwidth.data + '\r\n');
+        }
+
+        return sdp;
     }
 
     // DataChannel management
@@ -221,7 +259,7 @@ function RTCPeerConnection(options) {
     // fake:true is also available on chrome under a flag!
 
     function useless() {
-        log('Error in fake:true');
+        console.error('Error in fake:true');
     }
 
     function onSdpSuccess() {
@@ -239,7 +277,7 @@ function RTCPeerConnection(options) {
 
     return {
         addAnswerSDP: function(sdp) {
-            console.debug('answer-sdp', sdp.sdp);
+            console.debug('adding answer-sdp', sdp.sdp);
             peer.setRemoteDescription(new SessionDescription(sdp), onSdpSuccess, onSdpError);
         },
         addICE: function(candidate) {
@@ -247,6 +285,7 @@ function RTCPeerConnection(options) {
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
             }));
+
             console.debug('adding-ice', candidate.candidate);
         },
 

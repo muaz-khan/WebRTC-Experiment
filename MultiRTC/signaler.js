@@ -5,6 +5,7 @@ var fs = require('fs');
 var _static = require('node-static');
 var file = new _static.Server('./public');
 
+/*
 // HTTP server
 var app = require('http').createServer(function(request, response) {
     request.addListener('end', function() {
@@ -13,8 +14,7 @@ var app = require('http').createServer(function(request, response) {
         } else file.serve(request, response);
     }).resume();
 });
-
-/*
+*/
 
 var options = {
     key: fs.readFileSync('privatekey.pem'),
@@ -29,7 +29,6 @@ var app = require('https').createServer(options, function(request, response) {
         } else file.serve(request, response);
     }).resume();
 });
-*/
 
 // socket.io implementation
 var io = require('socket.io').listen(app);

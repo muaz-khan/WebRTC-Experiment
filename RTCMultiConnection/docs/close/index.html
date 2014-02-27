@@ -71,12 +71,13 @@ connection.close();
 			</li>
             
             <li>
-                You can capture "<a href="http://www.RTCMultiConnection.org/docs/onclose/">onclose</a>" event to know whether the entire session is dropped or not:
+                You can capture "<a href="http://www.RTCMultiConnection.org/docs/onleave/">onleave</a>" event to know whether the entire session is dropped or not:
             </li>
             
             <li>
 				<pre class="sh_javascript">
-connection.<a href="http://www.RTCMultiConnection.org/docs/onclose/">onclose</a> = function (e) {
+connection.<a href="http://www.RTCMultiConnection.org/docs/onleave/">onleave</a> = function (e) {
+    // e.entireSessionClosed --------- this property can be tested in v1.7 or later
     // e.userid
     // e.extra
 }

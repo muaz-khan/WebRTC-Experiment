@@ -214,7 +214,7 @@
                     }
                 };
 
-                request.onprogress = function (e) {
+                request.upload.onprogress = function (e) {
                     if (!progress) return;
                     if (e.lengthComputable) {
                         progress.value = (e.loaded / e.total) * 100;

@@ -101,30 +101,25 @@ body {
     background: transparent;
 }
 
-button, .users-list {
-    -moz-border-radius: 3px;
-    -moz-transition: none;
-    -webkit-transition: none;
-    background-color: #0370ea;
-    background-color: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
-    background-color: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
-    border: 1px solid #076bd2;
-    border-radius: 3px;
-    color: #fff;
-    display: inline-block;
-    font-family: inherit;
-    padding: 5px 12px;
-    text-align: center;
-    text-shadow: 1px 1px 1px #076bd2;
-    font-size: 15px;
+button, .users-list
+{
+	padding: 5px 10px;
+	cursor: pointer;
+	display:inline-block;
+	color: #FDFDFD;
+	font-size: 20px;
+	color: black;
+	border: 1px solid rgba(231, 72, 50, 0.59);
+	border-radius: 2px;
+	background-color: rgba(204, 60, 25, 0.63);
 }
-
-button:hover, .users-list:hover {
-    background-color: rgb(9, 147, 240);
+button:hover, .users-list:hover
+{
+	 background-color: rgba(204, 60, 25, 0.83);
 }
-
-button:active, .users-list:active {
-    background-color: rgb(10, 118, 190);
+button:active, .users-list:active
+{
+     background-color: rgba(204, 60, 25, 0.9);
 }
 
 button[disabled], input[type=button][disabled] {
@@ -164,8 +159,8 @@ button[disabled], input[type=button][disabled] {
     background-position: center right;
     background-image: url('images/action-needed.png');
     padding-right: 47px;
-    padding-top: 6px;
-    padding-bottom: 6px;
+	padding-top: 1px;
+	padding-bottom: 4px;
 }
 
 a {
@@ -282,7 +277,6 @@ h1 img {
     background-position: center right;
     background-image: url('images/accepted.png');
     padding-right: 53px;
-    background-color: rgb(255, 10, 78);
     border-color: rgb(133, 21, 21);
 }
 
@@ -339,4 +333,11 @@ small {
     height: 20px;
     border: 0!important;
     vertical-align: middle;
+}
+#who-is-typing
+{
+	text-align: left;
+	position: absolute;
+	margin: 0 18px;
+	color: red;
 }

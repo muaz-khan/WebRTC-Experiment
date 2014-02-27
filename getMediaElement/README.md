@@ -1,7 +1,7 @@
 #### getMediaElement.js: A reusable library for all WebRTC applications! / [Demo](https://www.webrtc-experiment.com/getMediaElement/)
 
 ```html
-<script src="//www.webrtc-experiment.com/getMediaElement.js"></script>
+<script src="//www.webrtc-experiment.com/getMediaElement-v1.2.js"></script>
 ```
 
 This library generates HTML Audio/Video element with rich user-interface and advance media controls. It gives you full control over each control button; and its functionality!
@@ -99,12 +99,14 @@ var mediaElement = getMediaElement(HTMLVideoElement || HTMLVideoElement || Media
     onStopped: function () { },
 	
 	// fired when take-snapshot button is clicked
-    onTakeSnapshot: function () { },
+    onTakeSnapshot: function (snapshot) { },
 	
     width: 'media-element-width',
     height: 'media-element-height',
 	
-    showOnMouseEnter: true
+    showOnMouseEnter: true,
+    
+    volume: 100
 });
 ```
 
@@ -126,7 +128,7 @@ Second argument accepts following objects and events:
 7. `onRecordingStopped`; RecordRTC supports `stopRecording` method as well!
 8. `onZoomin`; it is fired when media element is in full-screen mode.
 9. `onZoomout`; it is fired when user leaves full-screen mode either by presssing `ESC` key; or by clicking a button.
-10. `onTakeSnapshot`; it is fired when user clicks to take snapshot.
+10. `onTakeSnapshot`; it is fired when user clicks to take snapshot. Snapshot is passed over callback in PNG format.
 
 =
 

@@ -1,4 +1,4 @@
-// Last time updated at 24 Feb 2014, 11:32:23
+// Last time updated at 27 Feb 2014, 12:26:35
 // Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.6.js
 
 // Muaz Khan         - www.MuazKhan.com
@@ -1425,6 +1425,11 @@ googNoiseReduction: true,
         }
 
         function setDirections() {
+            var userMaxParticipantsAllowed;
+            // if user has set a custom max participant setting, remember it
+            if( root.maxParticipantsAllowed != 256 )
+                userMaxParticipantsAllowed = root.maxParticipantsAllowed;
+
             if (root.direction == 'one-way') root.session.oneway = true;
             if (root.direction == 'one-to-one') root.maxParticipantsAllowed = 1;
             if (root.direction == 'one-to-many') root.session.broadcast = true;
@@ -1433,6 +1438,9 @@ googNoiseReduction: true,
                     root.maxParticipantsAllowed = 256;
                 }
             }
+            // if user has set a custom max participant setting, set it back
+            if( userMaxParticipantsAllowed && root.maxParticipantsAllowed != 1)
+                root.maxParticipantsAllowed= userMaxParticipantsAllowed;
         }
 
         // open new session

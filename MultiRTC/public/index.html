@@ -26,6 +26,7 @@
         <!-- linkify text input; and socket.io -->
         <script src="/socketio.js"> </script>
         <script src="/linkify.js"> </script>
+		
         <script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.js"> </script>
     </head>
     <body>
@@ -49,6 +50,8 @@
 		
         <div class="main-input-box">
             <textarea placeholder="Send a message"></textarea>
+			
+			<p id="who-is-typing"></p>
 			
             <div class="controls">
                 <button id="allow-webcam" class="icon" disabled></button>
@@ -111,10 +114,10 @@
                     <td>
                         <h2>Set Bandwidth</h2><br />
                         <label for="audio-bandwidth" class="adjust-width">Audio bandwidth</label>
-                        <input type="text" id="audio-bandwidth" value="50" title="kbits/sec">
+                        <input type="text" id="audio-bandwidth" value="50" title="kbits/sec"><small>kbps</small>
                         <br />
                         <label for="video-bandwidth" class="adjust-width">Video bandwidth</label>
-                        <input type="text" id="video-bandwidth" value="256" title="kbits/sec">
+                        <input type="text" id="video-bandwidth" value="256" title="kbits/sec"><small>kbps</small>
                     </td>
                     
                     <td>
