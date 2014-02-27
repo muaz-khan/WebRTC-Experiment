@@ -2936,14 +2936,23 @@ googNoiseReduction: true,
 
         if (isChrome && chromeVersion < 28) {
             iceServers.push({
-                url: 'turn:homeo@turn.bistri.com:80',
+                url: 'turn:homeo@turn.bistri.com:80?transport=udp',
+                credential: 'homeo'
+            });
+            iceServers.push({
+                url: 'turn:homeo@turn.bistri.com:80?transport=tcp',
                 credential: 'homeo'
             });
         }
 
         if (isChrome && chromeVersion >= 28) {
             iceServers.push({
-                url: 'turn:turn.bistri.com:80',
+                url: 'turn:turn.bistri.com:80?transport=udp',
+                credential: 'homeo',
+                username: 'homeo'
+            });
+            iceServers.push({
+                url: 'turn:turn.bistri.com:80?transport=tcp',
                 credential: 'homeo',
                 username: 'homeo'
             });
