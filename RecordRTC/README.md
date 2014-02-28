@@ -41,7 +41,7 @@ navigator.getUserMedia({audio: true}, function(mediaStream) {
 
 btnStopRecording.onclick = function() {
    recordRTC.stopRecording(function(audioURL) {
-      window.opne(audioURL);
+      window.open(audioURL);
    });
 };
 ```
