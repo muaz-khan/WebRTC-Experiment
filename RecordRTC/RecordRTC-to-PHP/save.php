@@ -4,6 +4,8 @@
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
 foreach(array('video', 'audio') as $type) {
     if (isset($_FILES["${type}-blob"])) {
+    
+        echo 'uploads/';
         
 		$fileName = $_POST["${type}-filename"];
         $uploadDirectory = 'uploads/'.$fileName;
@@ -12,7 +14,7 @@ foreach(array('video', 'audio') as $type) {
             echo(" problem moving uploaded file");
         }
 		
-		echo($uploadDirectory);
+		echo($fileName);
     }
 }
 ?>
