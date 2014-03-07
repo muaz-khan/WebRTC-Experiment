@@ -182,9 +182,10 @@
 
 ## [ffmpeg-asm.js Demos](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ffmpeg)
 
-1. [Transcoding WAV into Ogg](https://www.webrtc-experiment.com/ffmpeg/wav-to-ogg.html)
-2. [Transcoding WebM into mp4](https://www.webrtc-experiment.com/ffmpeg/wav-to-ogg.html)
-3. [Transcoding WebM into mp4; then merging WAV+mp4 into single mp4](https://www.webrtc-experiment.com/ffmpeg/merging-wav-and-webm-into-mp4.html)
+1. [Transcoding WAV into Ogg](https://www.webrtc-experiment.com/ffmpeg/wav-to-ogg.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/wav-to-ogg.html)
+2. [Transcoding WebM into mp4](https://www.webrtc-experiment.com/ffmpeg/wav-to-ogg.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/webm-to-mp4.html)
+3. [Transcoding WebM into mp4; then merging WAV+mp4 into single mp4](https://www.webrtc-experiment.com/ffmpeg/merging-wav-and-webm-into-mp4.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/merging-wav-and-webm-into-mp4.html)
+4. [Recording Audio+Canvas and merging in single mp4](https://www.webrtc-experiment.com/ffmpeg/audio-plus-canvas-recording.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/audio-plus-canvas-recording.html)
 
 =
 

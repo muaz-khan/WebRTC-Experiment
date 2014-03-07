@@ -107,7 +107,7 @@
 
                 document.querySelector('#record-video').onclick = function() {
                     this.disabled = true;
-                    navigator.webkitGetUserMedia({
+                    navigator.getUserMedia({
                             audio: true,
                             video: true
                         }, function(stream) {
@@ -124,7 +124,7 @@
 
                             recordAudio.startRecording();
                             recordVideo.startRecording();
-                        });
+                        }, function(error) { throw error;});
                     document.querySelector('#stop-recording-video').disabled = false;
                 };
 

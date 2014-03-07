@@ -104,7 +104,7 @@
 
                 document.querySelector('#record-video').onclick = function() {
                     this.disabled = true;
-                    navigator.webkitGetUserMedia({
+                    navigator.getUserMedia({
                             video: true
                         }, function(stream) {
                             videoPreview.src = window.URL.createObjectURL(stream);
@@ -115,7 +115,7 @@
                             });
 
                             recordVideo.startRecording();
-                        });
+                        }, function(error) { throw error;});
                     document.querySelector('#stop-recording-video').disabled = false;
                 };
 

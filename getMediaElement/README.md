@@ -6,9 +6,7 @@
 
 This library generates HTML Audio/Video element with rich user-interface and advance media controls. It gives you full control over each control button; and its functionality!
 
-<a href="https://www.webrtc-experiment.com/getMediaElement/">
-	<img src="https://www.webrtc-experiment.com/images/getMediaElement.js.gif" />
-</a>
+<img src="https://www.webrtc-experiment.com/images/getMediaElement.js.gif" />
 
 ```javascript
 // you can pass HTML Video Element

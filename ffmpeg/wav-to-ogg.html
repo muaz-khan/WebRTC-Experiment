@@ -100,7 +100,7 @@
 
                 document.querySelector('#record-audio').onclick = function() {
                     this.disabled = true;
-                    navigator.webkitGetUserMedia({
+                    navigator.getUserMedia({
                             audio: true
                         }, function(stream) {
                             audioPreview.src = window.URL.createObjectURL(stream);
@@ -111,7 +111,7 @@
                             });
 
                             recordAudio.startRecording();
-                        });
+                        }, function(error) { throw error;});
                     document.querySelector('#stop-recording-audio').disabled = false;
                 };
 
