@@ -1,8 +1,10 @@
-// Last time updated at 15 Feb 2014, 16:32:23
+// Last time updated at 06 March 2014, 16:32:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
 // Documentation     - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+
+// Note: RecordRTC.js is using 3 other libraries; you need to accept their licences as well.
 
 // ____________
 // RecordRTC.js
@@ -352,6 +354,7 @@ var Storage = {
 };
 
 // source code from: http://typedarray.org/wp-content/projects/WebAudioRecorder/script.js
+// https://github.com/mattdiamond/Recorderjs#license-mit
 // ______________________
 // StereoAudioRecorder.js
 
@@ -668,7 +671,7 @@ function CanvasRecorder(htmlElement) {
         });
     }
 
-    var whammy = new Whammy.Video();
+    var whammy = new Whammy.Video(100);
 }
 
 // ______________
@@ -774,6 +777,7 @@ function GifRecorder(mediaStream) {
     var gifEncoder;
 }
 
+// https://github.com/antimatter15/whammy/blob/master/LICENSE
 // _________
 // whammy.js
 
@@ -956,6 +960,7 @@ var Whammy = (function() {
         var width = frames[0].width,
             height = frames[0].height,
             duration = frames[0].duration;
+
         for (var i = 1; i < frames.length; i++) {
             duration += frames[i].duration;
         }
@@ -1111,9 +1116,9 @@ var Whammy = (function() {
 
     // a more abstract-ish API
 
-    function WhammyVideo() {
+    function WhammyVideo(duration) {
         this.frames = [];
-        this.duration = 1;
+        this.duration = duration || 1;
         this.quality = 100;
     }
 
@@ -1267,8 +1272,7 @@ function MRecordRTC(mediaStream) {
     };
 
     this.stopRecording = function(callback) {
-        callback = callback || function() {
-        };
+        callback = callback || function() { };
 
         if (this.audioRecorder) {
             this.audioRecorder.stopRecording(function(blobURL) {

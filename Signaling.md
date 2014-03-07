@@ -316,6 +316,40 @@ connection.openSignalingChannel = function (config) {
 
 =
 
+##### Room Presence Detection
+
+[Using Firebase](https://github.com/muaz-khan/WebRTC-Experiment/issues/38#issuecomment-20527305):
+
+```javascript
+new window.Firebase('https://chat.firebaseIO.com/' + sessionid).once('value', function (data) {
+    var isRoomPresent = data.val() != null;
+    if (!isRoomPresent) connection.open(sessionid);
+    else connection.connect(sessionid);
+
+    console.debug('room is present?', isRoomPresent);
+});
+```
+
+[Using SOcket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/issues/38#issuecomment-18821960):
+
+```javascript
+function testChannelPresence(channel) {
+    var socket = io.connect('/');
+
+    socket.on('presence', function (isChannelPresent) {
+            console.log('is channel present', isChannelPresent);
+            if (!isChannelPresent) playRoleOfSessionInitiator();
+        });
+
+    socket.emit('presence', channel);
+}
+testChannelPresence('default-channel');
+```
+
+Socket.io over Node.js demos can be found [here](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs).
+
+=
+
 You can find many other good examples here:
 
 http://www.RTCMultiConnection.org/docs/openSignalingChannel/

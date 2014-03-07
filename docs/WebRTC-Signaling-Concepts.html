@@ -1,16 +1,22 @@
-﻿<!DOCTYPE html>
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
+-->
+
+<!DOCTYPE html>
 <html id="home" lang="en">
 
-<head>
-    <title>WebRTC Signaling Concepts ® Muaz Khan</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-    <meta name="author" content="Muaz Khan">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
-    <style>
+    <head>
+        <title>WebRTC Signaling Concepts ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <style>
             p { padding: .8em; }
 
             li {
@@ -19,114 +25,110 @@
                 padding: .5em;
             }
         </style>
-    <!-- for HTML5 el styling -->
-    <script>
-        document.createElement('article');
-        document.createElement('footer');
-    </script>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
 	
-	<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"></script>
-		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"></script>
-		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"></script>
-		<link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
-</head>
+        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"> </script>
+        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"> </script>
+        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"> </script>
+        <link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
+    </head>
 
-<body onload="sh_highlightDocument();">
-    <article>
-        <h1><a href="https://www.webrtc-experiment.com/">WebRTC</a> Signaling Concepts ® <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a></h1>
-        <p>
+    <body onload="sh_highlightDocument();">
+        <article>
+            <h1><a href="https://www.webrtc-experiment.com/">WebRTC</a> Signaling Concepts ® <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a></h1>
+            <p>
                 <a href="https://www.webrtc-experiment.com/">HOME</a>
-                    <span> &copy; </span>
-                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                <span> &copy; </span>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
                     
-                    .
-                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
                     
-                    .
-                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
                     
-                    .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
                     
-                    .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
             </p>
-
-        <section class="plusone-gplus">
-            <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
-        </section>
 		
-		<h2>The term "signaling" in <a href="https://www.webrtc-experiment.com/">WebRTC</a>...</h2>
+            <h2>The term "signaling" in <a href="https://www.webrtc-experiment.com/">WebRTC</a>...</h2>
 		
-		<p>
-			Signaling is a process used in <a href="https://www.webrtc-experiment.com/">WebRTC</a> to detect peers; exchange session descriptions to setup media ports; and helps share everything used for initial handshake. 
-		</p>
+            <p>
+                Signaling is a process used in <a href="https://www.webrtc-experiment.com/">WebRTC</a> to detect peers; exchange session descriptions to setup media ports; and helps share everything used for initial handshake. 
+            </p>
 		
-		<p>
-			Signaling is used to coordinate communication and send control messages.
-		</p>
+            <p>
+                Signaling is used to coordinate communication and send control messages.
+            </p>
 		
-		<p>
-			Signaling is used to exchange session control messages known as SDP; network configurations as ICE candidatess; and media capabilities using same session control messages.
-		</p>
+            <p>
+                Signaling is used to exchange session control messages known as SDP; network configurations as ICE candidatess; and media capabilities using same session control messages.
+            </p>
 		
-		<p>
-			Signaling can be done either using copy/paste mechanism; or using a gateway like WebSocket, Socket.io, XMPP or most famous one i.e. session initiation protocol (SIP).
-		</p>
+            <p>
+                Signaling can be done either using copy/paste mechanism; or using a gateway like WebSocket, Socket.io, XMPP or most famous one i.e. session initiation protocol (SIP).
+            </p>
 		
-		<p>
-			You can use the easiest mechanism as well i.e. POST/GET data from a database using XHR.
-		</p>
+            <p>
+                You can use the easiest mechanism as well i.e. POST/GET data from a database using XHR.
+            </p>
 		
-		<p>
-			WebRTC signaling process is based on new standard; JSEP: JavaScript Session Establishment Protocol. JSEP is a collection of interfaces for signaling identification; e.g. to identify negotiation of local and remote addresses.
-		</p>
+            <p>
+                WebRTC signaling process is based on new standard; JSEP: JavaScript Session Establishment Protocol. JSEP is a collection of interfaces for signaling identification; e.g. to identify negotiation of local and remote addresses.
+            </p>
 		
-		<p>
-			Out of JSEP; signaling processs is not left entirely to the application developer. We need to follow the order of the code!
-		</p>
+            <p>
+                Out of JSEP; signaling processs is not left entirely to the application developer. We need to follow the order of the code!
+            </p>
 		
-		<h2>How the term "signaling" is used in <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>?</h2>
+            <h2>How the term "signaling" is used in <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>?</h2>
 		
-		<p>
-			Approximately all <a href="https://www.webrtc-experiment.com/">WebRTC</a> experiments rely on channels. "Channel" is a term used in realtime protocols like WebSocket to make sure data is transmitted privately over (100%) relevant clients.
-		</p>
+            <p>
+                Approximately all <a href="https://www.webrtc-experiment.com/">WebRTC</a> experiments rely on channels. "Channel" is a term used in realtime protocols like WebSocket to make sure data is transmitted privately over (100%) relevant clients.
+            </p>
 		
-		<p>
-			Channels are created dynamically for each peer; to make sure SDP/ICE is exchanged among relevant users. 
-		</p>
+            <p>
+                Channels are created dynamically for each peer; to make sure SDP/ICE is exchanged among relevant users. 
+            </p>
 		
-		<p>
-			Just think about "channels" as a "unique-private-room"; the text messages transmitted over that room is accessible inside the room only. Out siders will NEVER ever be able to access those messages.
-		</p>
+            <p>
+                Just think about "channels" as a "unique-private-room"; the text messages transmitted over that room is accessible inside the room only. Out siders will NEVER ever be able to access those messages.
+            </p>
 		
-		<p>
-			Channels concept is same like "namespaces" concept in socket.io. Namespaces allows you broadcast data over single namespace instead of transmitting publicly.
-		</p>
+            <p>
+                Channels concept is same like "namespaces" concept in socket.io. Namespaces allows you broadcast data over single namespace instead of transmitting publicly.
+            </p>
 		
-		<p>
-			Assume that there are two users; UserA and UserB. <a href="https://www.webrtc-experiment.com/">WebRTC</a> Experiments will setup a new namespace or channel or room; and use it to exchange SDP/ICE/etc. between them. UserA's offer will be shared with UserB using same signaling room; and vice versa.
-		</p>
+            <p>
+                Assume that there are two users; UserA and UserB. <a href="https://www.webrtc-experiment.com/">WebRTC</a> Experiments will setup a new namespace or channel or room; and use it to exchange SDP/ICE/etc. between them. UserA's offer will be shared with UserB using same signaling room; and vice versa.
+            </p>
 		
-		<p>
-			In simplest words; you can consider it "signaling room"; a dynamically opened room used to exchange data between two users. Remember, "Signaling rooms" are unique. So, one can't guess/reach others' signaling rooms, until we manually share room-unique-identifier with him.
-		</p>
+            <p>
+                In simplest words; you can consider it "signaling room"; a dynamically opened room used to exchange data between two users. Remember, "Signaling rooms" are unique. So, one can't guess/reach others' signaling rooms, until we manually share room-unique-identifier with him.
+            </p>
 		
-		<p>
-			 "Room unique identifier" is a randomly generated number which is used as access key for the room.
-		</p>
+            <p>
+                "Room unique identifier" is a randomly generated number which is used as access key for the room.
+            </p>
 		
-		<p>
-			To share UserA's offer over the room; room-id is used to send/transmit data. UserB i.e. "subscriber" will use same room-id to receive that transmitted data.
-		</p>
+            <p>
+                To share UserA's offer over the room; room-id is used to send/transmit data. UserB i.e. "subscriber" will use same room-id to receive that transmitted data.
+            </p>
 		
-		<h2>What about WebSockets which doesn't have concept like "channels"?</h2>
+            <h2>What about WebSockets which doesn't have concept like "channels"?</h2>
 		
-		<p>
-			You just need to use a trick on the server side. Look at this structure:
-		</p>
+            <p>
+                You just need to use a trick on the server side. Look at this structure:
+            </p>
 		
-		<pre class="sh_javascript">
+            <pre class="sh_javascript">
 var global_variable_Channels = {
     'channel-1': [websocket1, websocket2],
     'channel-2': [websocket3, websocket4],
@@ -134,11 +136,11 @@ var global_variable_Channels = {
 };
 </pre>
 		
-		<p>
-			On the server side; capture "transmitted messages" like this:
-		</p>
+            <p>
+                On the server side; capture "transmitted messages" like this:
+            </p>
 		
-		<pre class="sh_javascript">
+            <pre class="sh_javascript">
 var global_variable_Channels = {};
 
 websocket.onmessage = function(e) {
@@ -171,190 +173,190 @@ websocket.onmessage = function(e) {
 };
 </pre>
 		
-		<p>
-			On the client side; open or join a room like this:
-		</p>
+            <p>
+                On the client side; open or join a room like this:
+            </p>
 		
-		<pre class="sh_javascript">
+            <pre class="sh_javascript">
 websocket.send({
     openRoom: true,
     roomid: Math.random() * 1000
 });
 </pre>
 		
-		<p>
-			On the client side; you can transmit data like this:
-		</p>
+            <p>
+                On the client side; you can transmit data like this:
+            </p>
 		
-		<pre class="sh_javascript">
+            <pre class="sh_javascript">
 websocket.send({
     message: 'SDP-or-ICE-etc.',
     roomid: 'room-id'
 });
 </pre>
 
-			<h2 id="xhr">What about XHR i.e. POST/GET? <a href="http://pastebin.com/L4G3p9Bu" target="_blank" rel="nofollow">An Example</a></h2>
+            <h2 id="xhr">What about XHR i.e. POST/GET? <a href="http://pastebin.com/L4G3p9Bu" target="_blank" rel="nofollow">An Example</a></h2>
 		
-		<p>
-			Create a table and name it "RoomTable"; add following columns:
-		</p>
+            <p>
+                Create a table and name it "RoomTable"; add following columns:
+            </p>
 		
-		<ol>
-			<li>Room-id</li>
-			<li>Owner-id</li>
-			<li>Participants-id</li>
-			<li>Message</li>
-		</ol>
+            <ol>
+                <li>Room-id</li>
+                <li>Owner-id</li>
+                <li>Participants-id</li>
+                <li>Message</li>
+            </ol>
 		
-		<p>
-			Create another table and name it "UserTable"; add following columns:
-		</p>
+            <p>
+                Create another table and name it "UserTable"; add following columns:
+            </p>
 		
-		<ol>
-			<li>User-id</li>
-		</ol>
+            <ol>
+                <li>User-id</li>
+            </ol>
 		
-		<p>
-			Now, if someone initiates <a href="https://www.webrtc-experiment.com/">WebRTC</a> session; you should make an XHR request to create a record in the room-table; and set "Owner-id" equals to that user's "user-id".
-		</p>
+            <p>
+                Now, if someone initiates <a href="https://www.webrtc-experiment.com/">WebRTC</a> session; you should make an XHR request to create a record in the room-table; and set "Owner-id" equals to that user's "user-id".
+            </p>
 		
-		<p>
-			Now, if someone else joins the room; you can update above record; and append his "user-id" in the "Participants-id" column.
-		</p>
+            <p>
+                Now, if someone else joins the room; you can update above record; and append his "user-id" in the "Participants-id" column.
+            </p>
 		
-		<h2>What if I don't want to use socket.io "namespaces"?</h2>
+            <h2>What if I don't want to use socket.io "namespaces"?</h2>
 		
-		<p>
-			Follow process explained for "WebSocket", above.
-		</p>
+            <p>
+                Follow process explained for "WebSocket", above.
+            </p>
 		
-		<h2>What if I want to use SIP?</h2>
+            <h2>What if I want to use SIP?</h2>
 		
-		<p>
-			You don't need to worry about "channels" concept; because you already have "sip-uri". SIP unique identifiers can be used to publish/receive messages privately between two users. 
-		</p>
+            <p>
+                You don't need to worry about "channels" concept; because you already have "sip-uri". SIP unique identifiers can be used to publish/receive messages privately between two users. 
+            </p>
 		
-		<h2>Can you compare "channels" with other signaling methods?</h2>
+            <h2>Can you compare "channels" with other signaling methods?</h2>
 		
-		<p>
-			Channels provide us easiest mechanism to transmit data privately over relevant users. It uses less memory comparing other solutions; and this mechanism is capable to setup unlimited channels without any interrupt.
-		</p>
+            <p>
+                Channels provide us easiest mechanism to transmit data privately over relevant users. It uses less memory comparing other solutions; and this mechanism is capable to setup unlimited channels without any interrupt.
+            </p>
 		
-		<p>
-			Non-channels based signaling solutions usually stores rooms in an array; same like we did earlier for WebSocket; where you can face memory dump or stack-over-flow issues.
-		</p>
+            <p>
+                Non-channels based signaling solutions usually stores rooms in an array; same like we did earlier for WebSocket; where you can face memory dump or stack-over-flow issues.
+            </p>
 		
-		<p>
-			Non-channels based signaling is a little bit slower because we need to iterate over the array to find relevant sockets to transmit data.
-		</p>
+            <p>
+                Non-channels based signaling is a little bit slower because we need to iterate over the array to find relevant sockets to transmit data.
+            </p>
 		
-		<p>
-			Some "novice" users try to handle all things in the client side; which is NEVER recommended. Because such users transmit all messages publicly, this is easily vulnerable and there are huge chance of failures out of buffer-size and other issues.
-		</p>
+            <p>
+                Some "novice" users try to handle all things in the client side; which is NEVER recommended. Because such users transmit all messages publicly, this is easily vulnerable and there are huge chance of failures out of buffer-size and other issues.
+            </p>
 		
-		<p>
-			Remember; NEVER send unneeded messages to a user. Be specific; and keep privacy and make things reliable.
-		</p>
+            <p>
+                Remember; NEVER send unneeded messages to a user. Be specific; and keep privacy and make things reliable.
+            </p>
 		
-		<h2>What about server-less signaling?</h2>
+            <h2>What about server-less signaling?</h2>
 		
-		<p>
-			You can use copy/paste mechanism to share one user's offer with other; and vice versa.
-		</p>
+            <p>
+                You can use copy/paste mechanism to share one user's offer with other; and vice versa.
+            </p>
 		
-		<p>
-			Remember, such things causes delay in setting remote session descriptions for answerer; which may cause failure to setup ports.
-		</p>
+            <p>
+                Remember, such things causes delay in setting remote session descriptions for answerer; which may cause failure to setup ports.
+            </p>
 		
-		<p>
-			This mechanism also needs a gateway like Email or IMS to share copied text with other user; who will paste and create answer and so on.
-		</p>
+            <p>
+                This mechanism also needs a gateway like Email or IMS to share copied text with other user; who will paste and create answer and so on.
+            </p>
 		
-		<h2>What about LAN or intranet?</h2>
+            <h2>What about LAN or intranet?</h2>
 		
-		<p>
-			You always need a signaling gateway; whether it installed publicly or privately. A gateway can be a copy/paste mechanism or a realtime protocol.
-		</p>
+            <p>
+                You always need a signaling gateway; whether it installed publicly or privately. A gateway can be a copy/paste mechanism or a realtime protocol.
+            </p>
 		
-		<p>
-			It doesn't matter whether you use custom protocols or topologies for signaling; everything is up to you!
-		</p>
+            <p>
+                It doesn't matter whether you use custom protocols or topologies for signaling; everything is up to you!
+            </p>
 		
-		<p>
-			Just make it done!
-		</p>
+            <p>
+                Just make it done!
+            </p>
 		
-		<h2>What is the difference between ICE server and Signaling server?</h2>
+            <h2>What is the difference between ICE server and Signaling server?</h2>
 		
-		<p>
-			Signaling is used to detect peers; and exchange prerequisites to setup media connections.
-		</p>
+            <p>
+                Signaling is used to detect peers; and exchange prerequisites to setup media connections.
+            </p>
 		
-		<p>
-			ICE which is stands for interactive connectivity establishment is a protocol used to capture public IP addresses of the user. It let us know:
-		</p>
+            <p>
+                ICE which is stands for interactive connectivity establishment is a protocol used to capture public IP addresses of the user. It let us know:
+            </p>
 		
-		<ol>
-			<li>Public IP addresses of the user</li>
-			<li>It is ipv4 or ipv6</li>
-			<li>UDP is blocked or not; otherwise fallback to TCP; otherwise fallback to custom protocol.</li>
-		</ol>
+            <ol>
+                <li>Public IP addresses of the user</li>
+                <li>It is ipv4 or ipv6</li>
+                <li>UDP is blocked or not; otherwise fallback to TCP; otherwise fallback to custom protocol.</li>
+            </ol>
 		
-		<p>
-			Some firewalls allow only ports like 443 and 80. 
-		</p>
+            <p>
+                Some firewalls allow only ports like 443 and 80. 
+            </p>
 		
-		<p>
-			So, ICE connectivity establishment is a process used to capture ports and IP addresses and returns "data" back to the browser.
-		</p>
+            <p>
+                So, ICE connectivity establishment is a process used to capture ports and IP addresses and returns "data" back to the browser.
+            </p>
 		
-		<p>
-			<a href="https://www.webrtc-experiment.com/">WebRTC</a> media engines use those ports and public IP addresses to open ports and stream RTP/RTCP packets.
-		</p>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC</a> media engines use those ports and public IP addresses to open ports and stream RTP/RTCP packets.
+            </p>
 		
-		<p>
-			RTP contains media packets; and RTCP contains info used to control RTP packets. Both run simultaneously over two unique ports.
-		</p>
+            <p>
+                RTP contains media packets; and RTCP contains info used to control RTP packets. Both run simultaneously over two unique ports.
+            </p>
 		
-		<h2>
-			Differentiating signaling and ICE:
-		</h2>
+            <h2>
+                Differentiating signaling and ICE:
+            </h2>
 		
-		<ol>
-			<li>Signaling a process is used to detect peers presence; exchange offer/answer between users; as well as exchange ICE candidates.</li>
-			<li>ICE is a process used to capture public IP addresses and ports of the current user. It NEVER exchanges signaling-data between two users.</li>
-			<li>There are some ICE servers like TURN that  acts as a media gateway in case when Firewall hide public IP addresses of the NAT. RTP/RTCP packets flows from browser to TURN server to other browser.</li>
-			<li>According to third option; TURN can act as media packets exchanger.</li>
-		</ol>
+            <ol>
+                <li>Signaling a process is used to detect peers presence; exchange offer/answer between users; as well as exchange ICE candidates.</li>
+                <li>ICE is a process used to capture public IP addresses and ports of the current user. It NEVER exchanges signaling-data between two users.</li>
+                <li>There are some ICE servers like TURN that  acts as a media gateway in case when Firewall hide public IP addresses of the NAT. RTP/RTCP packets flows from browser to TURN server to other browser.</li>
+                <li>According to third option; TURN can act as media packets exchanger.</li>
+            </ol>
 		
-		<p>
-			A media packet is an RTP packet contains audio/video/data blobs. Media packets are shared over UDP ports; however signaling packets are shared over HTTP and/or TCP protocols. 
-		</p>
+            <p>
+                A media packet is an RTP packet contains audio/video/data blobs. Media packets are shared over UDP ports; however signaling packets are shared over HTTP and/or TCP protocols. 
+            </p>
 		
-		<p>
-			Remember, media packets i.e. RTP-packets can be shared over TCP protocol as well.
-		</p>
+            <p>
+                Remember, media packets i.e. RTP-packets can be shared over TCP protocol as well.
+            </p>
         
-        <h2>Reference: <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md">https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md</a></h2>
+            <h2>Reference: <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md">https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md</a></h2>
         
-        <ol>
-            <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs">Socket.io over Node.js</a></li>
-            <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs">WebSocket over Node.js</a></li>
-        </ol>
+            <ol>
+                <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs">Socket.io over Node.js</a></li>
+                <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs">WebSocket over Node.js</a></li>
+            </ol>
 
-        <br />
-        <br />
-        <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+            <br />
+            <br />
+            <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
+                <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>
                 <div>
-                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
                 </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
-    </article>
-    <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-right"></a>
+        </article>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-right"></a>
     
-    <footer>
+        <footer>
             <p>
                 <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
                 © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
@@ -362,6 +364,6 @@ websocket.send({
             </p>
         </footer>
 	
-    <script src="//www.webrtc-experiment.com/common.js"> </script>
-</body>
+        <script src="//www.webrtc-experiment.com/common.js"> </script>
+    </body>
 </html>

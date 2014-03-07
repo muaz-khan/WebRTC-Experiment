@@ -1,16 +1,22 @@
-﻿<!DOCTYPE html>
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
+-->
+
+<!DOCTYPE html>
 <html id="home" lang="en">
 
-<head>
-    <title>How to switch streams? ® Muaz Khan</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-    <meta name="author" content="Muaz Khan">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
-		<style>
+    <head>
+        <title>How to switch streams? ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <style>
             p { padding: .8em; }
 
             li {
@@ -18,72 +24,72 @@
                 border-left: 1px solid rgb(189, 189, 189);
                 padding: .5em;
             }
-			
-			td {
+
+            td {
                 border: 0;
                 padding: 0;
             }
         </style>
-    <!-- for HTML5 el styling -->
-    <script>
-        document.createElement('article');
-        document.createElement('footer');
-    </script>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
 
-		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"></script>
-		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"></script>
-		<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"></script>
-		<link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
+        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"> </script>
+        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"> </script>
+        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"> </script>
+        <link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
     </head>
 
     <body onload="sh_highlightDocument();">
-    <article>
-        <h1>How to switch streams? / <a href="https://www.webrtc-experiment.com/demos/switch-streams.html" target="_blank">Demo</a></h1>
-        <p>
+        <article>
+            <h1>How to switch streams? / <a href="https://www.webrtc-experiment.com/demos/switch-streams.html" target="_blank">Demo</a></h1>
+            <p>
                 <a href="https://www.webrtc-experiment.com/">HOME</a>
-                    <span> &copy; </span>
-                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                <span> &copy; </span>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
                     
-                    .
-                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
                     
-                    .
-                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
                     
-                    .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
                     
-                    .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
             </p>
 
-        <h2>Renegotiate to switch streams</h2>
-		<p>
-			Renegotiation is a process allows you modify pre-created peer connections when you want to:
-		</p>
+            <h2>Renegotiate to switch streams</h2>
+            <p>
+                Renegotiation is a process allows you modify pre-created peer connections when you want to:
+            </p>
 		
-		<ol>
-			<li>append additional streams</li>
-			<li>remove existing streams</li>
-			<li>modify SDP for peers direction or something else</li>
-		</ol>
+            <ol>
+                <li>append additional streams</li>
+                <li>remove existing streams</li>
+                <li>modify SDP for peers direction or something else</li>
+            </ol>
 		
-		<p>
-			Renegotiation means re-exchanging offer/answer SDP among peers.
-		</p>
+            <p>
+                Renegotiation means re-exchanging offer/answer SDP among peers.
+            </p>
 		
-		<p>
-			On chrome, out of a known bug, when renegotiating; either:
-		</p>
+            <p>
+                On chrome, out of a known bug, when renegotiating; either:
+            </p>
 		
-		<ol>
-			<li>don't exchange ICE, or</li>
-			<li>don't use <code>DtlsSrtpKeyAgreement</code> (remember, for chrome 30 and earlier releases only)</li>
-		</ol>
+            <ol>
+                <li>don't exchange ICE, or</li>
+                <li>don't use <code>DtlsSrtpKeyAgreement</code> (remember, for chrome 30 and earlier releases only)</li>
+            </ol>
         
-        Remember, now DTLS/SRTP doesn't need to be disabled for renegotiation. It was just a workaround for chrome older builds.
+            Remember, now DTLS/SRTP doesn't need to be disabled for renegotiation. It was just a workaround for chrome older builds.
 		
-		<pre class="sh_javascript">
+            <pre class="sh_javascript">
 // 1st solution
 peer.onicecandidate = function() {
     // if you already set OfferToReceiveAudio:true and OfferToReceiveVideo:true
@@ -97,15 +103,15 @@ peer.onicecandidate = function() {
 var peerConnection = new RTCPeerConnection(IceServers, null);
 </pre>
 
-		<p>
-			Remember, renegotiation means: use existing peer connections to negotiate session descriptions.
-		</p>
+            <p>
+                Remember, renegotiation means: use existing peer connections to negotiate session descriptions.
+            </p>
 		
-		<h2>Example:</h2>
-		<p>
-			Assuming that you've an existing peer connection between two users. To switch stream from audio to video; and renegotiate from offerer's side:
-		</p>
-		<pre class="sh_javascript">
+            <h2>Example:</h2>
+            <p>
+                Assuming that you've an existing peer connection between two users. To switch stream from audio to video; and renegotiate from offerer's side:
+            </p>
+            <pre class="sh_javascript">
 offerer.removeStream(audioStream);
 offerer.addStream(videoStream);
 
@@ -116,10 +122,10 @@ offerer.createOffer(function(offerSDP) {
     })
 }, failureCallback, sdpConstraints);
 </pre>
-		<p>
-			Renegotiate from answerer's side; and switch from audio to video:
-		</p>
-		<pre class="sh_javascript">
+            <p>
+                Renegotiate from answerer's side; and switch from audio to video:
+            </p>
+            <pre class="sh_javascript">
 answerer.removeStream(audioStream);
 answerer.addStream(videoStream);
 
@@ -131,33 +137,33 @@ answerer.createAnswer(function(answerSDP) {
     })
 }, failureCallback, sdpConstraints);
 </pre>
-		<p>
-			For a reusable function; a simple trick could be:
-		</p>
-		<pre class="sh_javascript">
+            <p>
+                For a reusable function; a simple trick could be:
+            </p>
+            <pre class="sh_javascript">
 var peerConnection;
 
 if(renegotiate == false) {
    peerConnection = new RTCPeerConnection(IceServers, null);
 }
 </pre>
-		<p>
-			Try a <a href="https://www.webrtc-experiment.com/demos/switch-streams.html" target="_blank">demo</a>.
-		</p>
+            <p>
+                Try a <a href="https://www.webrtc-experiment.com/demos/switch-streams.html" target="_blank">demo</a>.
+            </p>
 
-        <br />
-        <br />
-        <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+            <br />
+            <br />
+            <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
+                <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>
                 <div>
-                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
                 </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
-    </article>
-    <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-right"></a>
+        </article>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-right"></a>
     
-    <footer>
+        <footer>
             <p>
                 <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
                 © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
@@ -165,6 +171,6 @@ if(renegotiate == false) {
             </p>
         </footer>
 	
-    <script src="//www.webrtc-experiment.com/common.js"> </script>
-</body>
+        <script src="//www.webrtc-experiment.com/common.js"> </script>
+    </body>
 </html>

@@ -1,17 +1,23 @@
-﻿<!DOCTYPE html>
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
+-->
+
+<!DOCTYPE html>
 <html id="home" lang="en">
 
-<head>
-    <title>TURN server installation Guide ® Muaz Khan</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-    <meta name="author" content="Muaz Khan">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+    <head>
+        <title>TURN server installation Guide ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
 	
-    <style>
+        <style>
             p { padding: .8em; }
 
             li {
@@ -19,59 +25,75 @@
                 border-left: 1px solid rgb(189, 189, 189);
                 padding: .5em;
             }
-			
-			.image-container {
-				text-align:center;
-				margin: 2em 0;
-			}
-			
-			.image-parent {
-				margin: 0 2em;
-				border: 2px solid black;
-				border-radius: 5px;
-			}
-			
-			.image-parent img {
-				width: 100%;
-			}
+
+            .image-container {
+                margin: 2em 0;
+                text-align: center;
+            }
+
+            .image-parent {
+                border: 2px solid black;
+                border-radius: 5px;
+                margin: 0 2em;
+            }
+
+            .image-parent img { width: 100%; }
         </style>
-    <!-- for HTML5 el styling -->
-    <script>
-        document.createElement('article');
-        document.createElement('footer');
-    </script>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
 	
-	<script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"></script>
-    <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"></script>
-    <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"></script>
-    <link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
-</head>
+        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"> </script>
+        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"> </script>
+        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"> </script>
+        <link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
+    </head>
 
-<body onload="sh_highlightDocument();">
-    <article>
-        <a href="https://www.webrtc-experiment.com/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">Other Documentations</a>
+    <body onload="sh_highlightDocument();">
+        <article>
+            <a href="https://www.webrtc-experiment.com/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">Other Documentations</a>
 
-        <h1>TURN server installation Guide ® <a href="http://www.MuazKhan.com/">Muaz Khan</a></h1>
+            <h1>TURN server installation Guide ® <a href="http://www.MuazKhan.com/">Muaz Khan</a></h1>
+		
+            <p>
+                <a href="https://www.webrtc-experiment.com/">HOME</a>
+                <span> &copy; </span>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    
+                .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+            </p>
 				
-		<ol>
-			<li>
-				This document is aimed to explain TURN server installation steps for different operating systems.
-			</li>
+            <ol>
+                <li>
+                    This document is aimed to explain TURN server installation steps for different operating systems.
+                </li>
 			
-			<li>
-				<h2>TURN installation on CentOS</h2>
-				<ol>
-					<li>
-						<h2>First Step: Download & Install Prerequisite for CentOS</h2>
-						<pre class="sh_javascript">
+                <li>
+                    <h2>TURN installation on CentOS</h2>
+                    <ol>
+                        <li>
+                            <h2>First Step: Download & Install Prerequisite for CentOS</h2>
+                            <pre class="sh_javascript">
 yum install -y make gcc cc gcc-c++ wget
 yum install -y openssl-devel libevent libevent-devel mysql-devel mysql-server
 </pre>
-					</li>
+                        </li>
 					
-					<li>
-						<h2>Second Step: Download & Install LibEvent modules</h2>
-						<pre class="sh_javascript">
+                        <li>
+                            <h2>Second Step: Download & Install LibEvent modules</h2>
+                            <pre class="sh_javascript">
 wget https://github.com/downloads/libevent/libevent/libevent-2.0.21-stable.tar.gz
 tar xvfz libevent-2.0.21-stable.tar.gz
 cd libevent-2.0.21-stable
@@ -79,11 +101,11 @@ cd libevent-2.0.21-stable
 make
 make install
 </pre>
-					</li>
+                        </li>
 					
-					<li>
-						<h2>Third Step: <a href="https://code.google.com/p/rfc5766-turn-server/wiki/newDownloadsSite?tm=2" target="_blank">Download & Install</a> TURN modules</h2>
-						<pre class="sh_javascript">
+                        <li>
+                            <h2>Third Step: <a href="https://code.google.com/p/rfc5766-turn-server/wiki/newDownloadsSite?tm=2" target="_blank">Download & Install</a> TURN modules</h2>
+                            <pre class="sh_javascript">
 wget http://turnserver.open-sys.org/downloads/v3.2.2.7/turnserver-3.2.2.7-CentOS6.5-x86_64.tar.gz
 tar -xvzf turnserver-3.2.2.7-CentOS6.5-x86_64.tar.gz
 cd turnserver-3.2.2.7-CentOS6.5-x86_64
@@ -91,11 +113,11 @@ cd turnserver-3.2.2.7-CentOS6.5-x86_64
 make
 make install
 </pre>
-					</li>
+                        </li>
 					
-					<li>
-						<h2>Fourth Step: Copy *.pem files to "/usr/local/etc/"</h2>
-						<pre class="sh_javascript">
+                        <li>
+                            <h2>Fourth Step: Copy *.pem files to "/usr/local/etc/"</h2>
+                            <pre class="sh_javascript">
 cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turn_client_cert.pem /usr/local/etc/
 cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turn_client_pkey.pem /usr/local/etc/
 cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turn_server_cert.pem /usr/local/etc/
@@ -103,163 +125,163 @@ cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turn_server_pkey.pem /usr/l
 cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turnserver.conf /usr/local/etc/
 cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turnuserdb.conf /usr/local/etc/ 
 </pre>
-						<ol>
-							<li>
-								If you're trying to install another version of TURN server; make sure that you replaced "3.2.2.7" with <a href="https://code.google.com/p/rfc5766-turn-server/wiki/newDownloadsSite?tm=2" target="_blank">latest version number</a>.
-							</li>
-						</ol>
-					</li>
+                            <ol>
+                                <li>
+                                    If you're trying to install another version of TURN server; make sure that you replaced "3.2.2.7" with <a href="https://code.google.com/p/rfc5766-turn-server/wiki/newDownloadsSite?tm=2" target="_blank">latest version number</a>.
+                                </li>
+                            </ol>
+                        </li>
 					
-					<li>
-						<h2>Fifth Step: Configure "turnuserdb.conf" file</h2>
-						<pre class="sh_javascript">
+                        <li>
+                            <h2>Fifth Step: Configure "turnuserdb.conf" file</h2>
+                            <pre class="sh_javascript">
 cd /usr/local/etc
 vi turnuserdb.conf
 </pre>
-						<ol>
-							<li>
-								Find "<strong>&lt;username&gt;:&lt;password&gt;</strong>"; insert New-Line; and set TURN credentials:
-							</li>
+                            <ol>
+                                <li>
+                                    Find "<strong>&lt;username&gt;:&lt;password&gt;</strong>"; insert New-Line; and set TURN credentials:
+                                </li>
 							
-							<li>
-						<pre class="sh_javascript">
+                                <li>
+                                    <pre class="sh_javascript">
 # &lt;username&gt;:&lt;password&gt;
 turn-username:turn-password
 
 # listening-port=2222
 # listening-ip=127.1.1
 </pre>
-							</li>
-						</ol>
-					</li>
+                                </li>
+                            </ol>
+                        </li>
 					
-					<li>
-						<h2>Sixth Step: Run TURN server instance</h2>
-						<pre class="sh_javascript">
+                        <li>
+                            <h2>Sixth Step: Run TURN server instance</h2>
+                            <pre class="sh_javascript">
 turnserver -v -r  ip:port -a -b turnuserdb.conf -c turnserver.conf -u turn-username -r ip:port -p turn-password
 </pre>
-						<ol>
-							<li>
-								Replace "ip:port" with yours! E.g. 127.1.1:2222:
-							</li>
+                            <ol>
+                                <li>
+                                    Replace "ip:port" with yours! E.g. 127.1.1:2222:
+                                </li>
 							
-							<li>
-								<pre class="sh_javascript">
+                                <li>
+                                    <pre class="sh_javascript">
 turnserver -v -r  127.1.1:2222 -a -b turnuserdb.conf -c turnserver.conf -u turn-username -r 127.1.1:2222 -p turn-password
 </pre>
-							</li>
+                                </li>
 							
-							<li>
-								Replace "turn-username" with custom-username; and "turn-password" with custom-password.
-							</li>
+                                <li>
+                                    Replace "turn-username" with custom-username; and "turn-password" with custom-password.
+                                </li>
 							
-							<li>
-								<pre class="sh_javascript">
+                                <li>
+                                    <pre class="sh_javascript">
 turnserver -v -r  127.1.1:2222 -a -b turnuserdb.conf -c turnserver.conf -u custom-username -r 127.1.1:2222 -p custom-password
 </pre>
-							</li>
-						</ol>
-					</li>
+                                </li>
+                            </ol>
+                        </li>
 					
-					<li>
-						<h2>Last Step: "Permanently" run TURN server instance</h2>
-						<pre class="sh_javascript">
+                        <li>
+                            <h2>Last Step: "Permanently" run TURN server instance</h2>
+                            <pre class="sh_javascript">
 nohup turnserver -v -r  ip:port -a -b turnuserdb.conf -c turnserver.conf -u turn-username -r ip:port -p turn-password &
 </pre>
 
-						<ol>
-							<li>
-								You can see that the entire TURN execution command is placed between "nohup" and "&".
-							</li>
+                            <ol>
+                                <li>
+                                    You can see that the entire TURN execution command is placed between "nohup" and "&".
+                                </li>
 							
-							<li>
-								<pre class="sh_javascript">
+                                <li>
+                                    <pre class="sh_javascript">
 <strong>nohup</strong> TURN-execution-command <strong>&</strong>
 </pre>
-							</li>
-						</ol>
-					</li>
-				</ol>
-			</li>
-			<li>
-                Note: Following section is taken from <a href="http://www.slideshare.net/amiteshawa/web-rtc-media-stra" target="_blank">slideshare</a>; and its credit goes to @amiteshawa!
+                                </li>
+                            </ol>
+                        </li>
+                    </ol>
+                </li>
+                <li>
+                    Note: Following section is taken from <a href="http://www.slideshare.net/amiteshawa/web-rtc-media-stra" target="_blank">slideshare</a>; and its credit goes to @amiteshawa!
                 
-                <br />
+                    <br />
                 
-				<h2>TURN installation on Windows</h2>
-				<ol>
-					<li>
-						Install "Cygwin" application
-					</li>
+                    <h2>TURN installation on Windows</h2>
+                    <ol>
+                        <li>
+                            Install "Cygwin" application
+                        </li>
 					
-					<li>
-						Follow all steps from above section. E.g. install all dependencies; LibEvent and TURN modules.
-					</li>
+                        <li>
+                            Follow all steps from above section. E.g. install all dependencies; LibEvent and TURN modules.
+                        </li>
 					
-					<li>
-						You'll face some issues when invoking "./configure" command for TURN configuration:
+                        <li>
+                            You'll face some issues when invoking "./configure" command for TURN configuration:
 						
-						<ol>
-							<li><strong>Missing libpq.a, hiredis, postgreSql</strong></li>
-							<li>You can ignore them, because these modules are optional</li>
-						</ol>
-					</li>
+                            <ol>
+                                <li><strong>Missing libpq.a, hiredis, postgreSql</strong></li>
+                                <li>You can ignore them, because these modules are optional</li>
+                            </ol>
+                        </li>
 					
-					<li>
-						During "make" command invocation; you'll face error like "<strong>error: 'struct sockaddr_in' has no member named 'sin_len'</strong>"
-					</li>
+                        <li>
+                            During "make" command invocation; you'll face error like "<strong>error: 'struct sockaddr_in' has no member named 'sin_len'</strong>"
+                        </li>
 					
-					<li>
-						Edit "na_turn_ioaddr.c" and comment line number "169":
-						<pre class="sh_javascript">
+                        <li>
+                            Edit "na_turn_ioaddr.c" and comment line number "169":
+                            <pre class="sh_javascript">
 vi /turnserver-1.8.4.0/src/client/na_turn_ioaddr.c
 
 # commenting line number #169
 # addr->s4.sin_len = sizeof(struct sockaddr_in);
 </pre>
-					</li>
+                        </li>
 					
-					<li>
-						Now, "make" and "make install" commands for TURN modules installation will work.
-					</li>
+                        <li>
+                            Now, "make" and "make install" commands for TURN modules installation will work.
+                        </li>
 					
-					<li>
-						Then copy "turnserver.conf" file from "../examples/etc/" directory to "/usr/local/etc/":
-					</li>
+                        <li>
+                            Then copy "turnserver.conf" file from "../examples/etc/" directory to "/usr/local/etc/":
+                        </li>
 					
-					<li>
-						<pre class="sh_javascript">
+                        <li>
+                            <pre class="sh_javascript">
 cp /turnserver-1.8.4.0/examples/etc/turnserver.conf /usr/local/etc/
 </pre>
-					</li>
+                        </li>
 					
-					<li>
-						Now, you can follow "fifth" step from previous section to edit "turnserver.conf" for setting "username", "password", "listening-port" and "listening-ip".
-					</li>
+                        <li>
+                            Now, you can follow "fifth" step from previous section to edit "turnserver.conf" for setting "username", "password", "listening-port" and "listening-ip".
+                        </li>
 					
-				</ol>
-			</li>
-            <li>
-                <h2>TURN installation on Ubuntu</h2>
-                <pre class="sh_javascript">
+                    </ol>
+                </li>
+                <li>
+                    <h2>TURN installation on Ubuntu</h2>
+                    <pre class="sh_javascript">
 // Please follow this link:
 https://groups.google.com/d/msg/easyrtc/ypjJ5Yu3wZM/u5Lq6VNfabcJ
 </pre>
-            </li>
+                </li>
 
-		</ol>
+            </ol>
 
-        <br />
-        <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Want to ask a Question?</h2>
+            <br />
+            <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
+                <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Want to ask a Question?</h2>
                 <div>
-                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Feel free to ask any question regarding WebRTC!"></textarea>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Feel free to ask any question regarding WebRTC!"></textarea>
                 </div>
-                <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your email for private conversation!</small>
+                <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left: 1em;">You can include your email for private conversation!</small>
             </section>
-    </article>
+        </article>
     
-    <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
         
         <footer>
             <p>
@@ -271,5 +293,5 @@ https://groups.google.com/d/msg/easyrtc/ypjJ5Yu3wZM/u5Lq6VNfabcJ
     
         <!-- commits.js is useless for you! -->
         <script src="//www.webrtc-experiment.com/commits.js" async> </script>
-</body>
+    </body>
 </html>

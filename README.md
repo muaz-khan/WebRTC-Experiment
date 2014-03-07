@@ -188,6 +188,14 @@
 
 =
 
+## Custom Signaling
+
+1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs)
+2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs)
+3. [WebSync / ASP.NET MVC](https://github.com/muaz-khan/WebSync-Signaling)
+
+=
+
 ##### How to record audio using [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)?
 
 ```html

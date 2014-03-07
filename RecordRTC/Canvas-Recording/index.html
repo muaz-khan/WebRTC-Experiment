@@ -1,5 +1,9 @@
 ﻿<title>RecordRTC Canvas/HTML Recorder</title>
-
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+<meta name="author" content="Muaz Khan">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <style>
     body {overflow-x:hidden;background: rgb(233, 233, 233);}
     #elementToShare {
@@ -82,24 +86,27 @@ recorder.stopRecording(function(url) {
 
 <script src="//www.webrtc-experiment.com/screenshot.js"> </script>
 <script src="//www.webrtc-experiment.com/RecordRTC.js"> </script>
+
 <script>
-    var elementToShare = document.getElementById('elementToShare');
-    var recorder = RecordRTC(elementToShare, {
-        type: 'canvas'
+var elementToShare = document.getElementById('elementToShare');
+var recorder = RecordRTC(elementToShare, {
+    type: 'canvas'
+});
+
+document.getElementById('start').onclick = function() {
+    recorder.startRecording();
+
+    document.getElementById('start').disabled = true;
+    setTimeout(function() {
+        document.getElementById('stop').disabled = false;
+    }, 1000);
+};
+document.getElementById('stop').onclick = function() {
+    this.disabled = true;
+    recorder.stopRecording(function(url) {
+        window.open(url);
+        document.getElementById('start').disabled = false;
     });
-
-    document.getElementById('start').onclick = function() {
-        recorder.startRecording();
-
-        document.getElementById('start').disabled = true;
-        setTimeout(function() {
-            document.getElementById('stop').disabled = false;
-        }, 1000);
-    };
-    document.getElementById('stop').onclick = function() {
-        this.disabled = true;
-        recorder.stopRecording(function(url) {
-            window.open(url);
-        });
-    };
+};
 </script>
+<a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←WebRTC Experiments Homepage</a>
