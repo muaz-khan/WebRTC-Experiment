@@ -1,12 +1,4 @@
-// Last time updated at 29 January 2014, 05:46:23
-
-// Muaz Khan      - www.MuazKhan.com
-// MIT License    - www.WebRTC-Experiment.com/licence
-
-// RTCMultiConnection
-// Documentation  - www.RTCMultiConnection.org/docs
-
-// MultiRTC     - github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC
+// https://www.webrtc-experiment.com:12034/
 
 window.linkify = (function(){
   var
@@ -45,6 +37,7 @@ window.linkify = (function(){
   
   return function( txt, options ) {
 	txt = getSmileys(txt);
+	txt = txt.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/ /g, '&nbsp;').replace(/\n/g, '<br />');
 	
     options = options || {};
     

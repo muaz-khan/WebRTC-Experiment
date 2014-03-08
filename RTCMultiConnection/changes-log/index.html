@@ -57,12 +57,78 @@
             <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Changes Log ----/ <a href="http://www.RTCMultiConnection.org/docs/">Docs</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com:12034/">Demo: MultiRTC!</a></h1>
 		
             <br /><br /><br />
+            
+            <h2 id="v1.7"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.7">v1.7</a> / Work-in-Progress!</h2>
+		
+            <ol>
+                <li>
+                    File <a href="http://www.rtcmulticonnection.org/docs/chunkSize/">chunk-size</a> and <a href="http://www.rtcmulticonnection.org/docs/chunkInterval/">chunk-interval</a> are fixed for Firefox.
+                </li>
+                <li>
+                    Now, when renegotiating media streams, v1.7 checks to verify if remote stream is delivered to end-user; if delivery fails, v1.7 auto tries renegotiation again.
+                </li>
+                <li>
+                    Now, "isAcceptNewSession" is shifted to root-level. Using this feature, you can allow single user to join multiple rooms from the same <a href="http://www.RTCMultiConnection.org/docs/channel-id/">channel</a>:
+                    <pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onstream/">onstream</a> = function(event) {
+    if(event.type == 'remote') {
+        // set "isAcceptNewSession=true" so this user can get and join new session i.e. room
+        // it means that "<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a>" will be fired for this user as soon as other room is available!
+        connection.isAcceptNewSession = true;
+    }
+};
+</pre>
+                </li>
+                <li>
+                    Now, "<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>" object is always passed over "<a href="http://www.RTCMultiConnection.org/docs/onstreamended/">onstreamended</a>" event; so, you can check which stream is stopped: screen or audio/video:
+                    <pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onstreamended/">onstreamended</a> = function(event) {
+    if(event.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>.screen) { }                        // if screen stream is stopped.
+    if(event.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>.audio && !event.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>.video) { } // if audio stream is stopped.
+    if(event.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>.audio && event.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>.video) { }  // if audio+video stream is stopped.
+    
+    // event.type == 'local' || 'remote'
+};
+</pre>
+                </li>
+                <li>
+                    v1.6 and earlier releases has a bug for renegotiated streams. When you try to stop renegotiated stream; it is removed only from 1st participant; not from all participants. This issue has been fixed in v1.7.
+                </li>
+                <li>
+                    "<code>forceToStopRemoteStream</code>" added.
+                    <pre class="sh_javascript">
+var forceToStopRemoteStream = true;
+connection.<a href="http://www.RTCMultiConnection.org/docs/streams/">streams</a>['remote-stream-id'].stop( forceToStopRemoteStream );
+</pre>
+                    This feature was disabled since v1.4 however now enabled by passing a single boolean over "<code>stop</code>" method.
+                </li>
+                
+                <li>
+                    Default session is always kept there; it was a bug in v1.6 and earlier releases. Each new renegotiated session was overriding old sessions.
+                </li>
+                
+                <li>
+                    Renegotiated sessions are always stored; and always renegotiated to newcomers.
+                </li>
+                
+                <li>
+                    Renegotiation of external streams along with external session added.
+                </li>
+                
+                <li>
+                    Remote stream stop & removal issues fixed. Now, "<code>onstreamended</code>" is always fired for all users according to the stream stopped.
+                </li>
+                
+                <li>
+                    "<code>setDefaultEventsForMediaElement</code>" added. i.e. mute/unmute are implemented by default! When you'll click mute button from native video control; v1.7 will auto invoke "mute" among all relevant peers.
+                </li>
+            </ol>
 		
             <h2 id="v1.6"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.6">v1.6</a> / released in Jan 29, 2014</h2>
 		
             <ol>
                 <li>
-                    Now v1.6 is capable to auto-redial if connection is dropped by any mean.
+                    Now v1.6 is capable to auto-redial if connection is dropped by any mean. (This feature is disabled because it was affecting renegotiation process).
                 </li>
                 
                 <li>

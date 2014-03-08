@@ -58,7 +58,7 @@
                 <li>
                     <h2>
                         API Reference
-                        <input id="search" type="search" placeholder="Search APIs" style="font-size: inherit;">
+                        <input id="search" type="search" placeholder="Search APIs" style="font-size: inherit;" results="5" autosave>
                     </h2>
                     <ol class="api-reference">
                         <li>
@@ -1074,9 +1074,9 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>
                 var liLength = li.length;
 
                 var search = document.querySelector('#search');
-                search.onkeyup = function() {
+                search.onkeyup = search.onblur = search.onfocus = search.onsearch = function() {
                     for (var i = 0; i < liLength; i++) {
-                        li[i].style.display = li[i].querySelector('a').innerHTML.toLowerCase().indexOf(this.value.toLowerCase()) != -1 ? '' : 'none';
+                        li[i].style.display = !this.value.length || li[i].querySelector('a').innerHTML.toLowerCase().indexOf(this.value.toLowerCase()) != -1 ? '' : 'none';
                     }
                 };
             </script>

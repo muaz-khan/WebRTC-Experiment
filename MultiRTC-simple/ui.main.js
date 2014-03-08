@@ -50,8 +50,6 @@ function addNewMessage(args) {
     document.querySelector('#message-sound').play();
 }
 
-var socket;
-
 main.querySelector('input').onkeyup = function(e) {
     if (e.keyCode != 13) return;
     main.querySelector('button').onclick();
@@ -67,63 +65,30 @@ main.querySelector('button').onclick = function() {
         username: username,
 		color: getRandomColor()
     };
-
-    var signaling_url = '/?userid=' + rtcMultiConnection.userid + '&room=' + location.href.split('/').pop();
-    socket = io.connect(signaling_url);
-
+    
     addNewMessage({
         header: username,
         message: 'Searching for existing rooms...',
         userinfo: '<img src="images/action-needed.png">'
     });
-
-    socket.on('room-found', function(roomFound) {
-        if (roomFound) {
-            addNewMessage({
-                header: username,
-                message: 'Room found. Joining the room...',
-                userinfo: '<img src="images/action-needed.png">'
-            });
-
-            rtcMultiConnection.init();
-            rtcMultiConnection.connect();
-        } else {
+    
+    new window.Firebase('//'+ rtcMultiConnection.firebase +'.firebaseIO.com/' + rtcMultiConnection.channel).once('value', function (data) {
+        var isRoomPresent = data.val() != null;
+        if (!isRoomPresent) {
             addNewMessage({
                 header: username,
                 message: 'No room found. Creating new room...<br /><br />You can share following link with your friends:<br /><a href="' + location.href + '">' + location.href + '</a>',
                 userinfo: '<img src="images/action-needed.png">'
             });
-            rtcMultiConnection.init();
             rtcMultiConnection.open();
         }
-    });
-
-    socket.on('user-left', function(e) {
-        if (e.room != location.href.split('/').pop()) return;
-        console.log('user left', e.userid);
-
-        for (var stream in rtcMultiConnection.streams) {
-            stream = rtcMultiConnection.streams[stream];
-            if (stream.userid == e.userid) {
-                stream.stop();
-                rtcMultiConnection.onstreamended(stream.streamObject);
-                delete rtcMultiConnection.streams[stream];
-            }
-        }
-
-        numbersOfUsers.innerHTML = parseInt(numbersOfUsers.innerHTML) - 1;
-
-        addNewMessage({
-            header: 'User Left',
-            message: (rtcMultiConnection.peers[e.userid].extra.username || e.userid) + ' left the room.',
-            userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/info.png')
-        });
-    });
-    
-    socket.on('playRoleOfInitiator', function(who) {
-        if(who == rtcMultiConnection.userid) {
-            rtcMultiConnection.playRoleOfInitiator();
-            socket.emit('playRoleOfInitiator', rtcMultiConnection.userid);
+        else {
+            addNewMessage({
+                header: username,
+                message: 'Room found. Joining the room...',
+                userinfo: '<img src="images/action-needed.png">'
+            });
+            rtcMultiConnection.connect();
         }
     });
 };

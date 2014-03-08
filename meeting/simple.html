@@ -1,5 +1,5 @@
-﻿<script src="https://www.webrtc-experiment.com/firebase.js"> </script>
-<script src="https://www.webrtc-experiment.com/meeting/meeting.js"> </script>
+﻿<script src="//www.webrtc-experiment.com/firebase.js"> </script>
+<script src="//www.webrtc-experiment.com/meeting/meeting.js"> </script>
 <button id="setup-new-meeting">Setup New Meeting</button>
         
 <table style="border-left: 1px solid black; width: 100%;">
@@ -32,7 +32,7 @@
     };
 
     // using firebase for signaling
-    meeting.firebase = 'signaling';
+    meeting.firebase = 'webrtc-experiment';
 
     // if someone leaves; just remove his video
     meeting.onuserleft = function(userid) {
@@ -41,7 +41,7 @@
     };
 
     // check pre-created meeting rooms
-    meeting.check();
+    meeting.check('meeting-name');
 
     document.getElementById('setup-new-meeting').onclick = function() {
         // setup new meeting room

@@ -41,6 +41,8 @@
                 video[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
                 video.autoplay = true;
                 video.controls = true;
+                video.muted = true;
+                video.volume= 0;
                 video.play();
 
                 self.onaddstream({

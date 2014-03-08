@@ -60,36 +60,6 @@ rtcMultiConnection.onmessage = function(e) {
     document.title = e.data;
 };
 
-rtcMultiConnection.init = function() {
-    var channels = { };
-
-    socket.on('message', function(data) {
-        if (data.sender == rtcMultiConnection.userid) return;
-
-        if (channels[data.channel] && channels[data.channel].onmessage) {
-            channels[data.channel].onmessage(data.message);
-        }
-    });
-
-    // overriding "openSignalingChannel" method
-    rtcMultiConnection.openSignalingChannel = function(config) {
-        var channel = config.channel || this.channel;
-        channels[channel] = config;
-
-        if (config.onopen) setTimeout(config.onopen, 1000);
-        return {
-            send: function(message) {
-                socket.emit('message', {
-                    sender: rtcMultiConnection.userid,
-                    channel: channel,
-                    message: message
-                });
-            },
-            channel: channel
-        };
-    };
-};
-
 var sessions = { };
 rtcMultiConnection.onNewSession = function(session) {
     if (sessions[session.sessionid]) return;

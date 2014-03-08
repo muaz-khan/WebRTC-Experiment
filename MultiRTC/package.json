@@ -14,7 +14,7 @@
     }
   ],
   "scripts": {
-    "start": "node signaler.js"
+    "start": "signaler.js"
   },
   "main": "signaler.js",
   "repository": {

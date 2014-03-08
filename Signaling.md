@@ -330,6 +330,19 @@ new window.Firebase('https://chat.firebaseIO.com/' + sessionid).once('value', fu
 });
 ```
 
+or for RTCMultiConnectionjs or DataChaneljs:
+
+```javascript
+new window.Firebase('//' + rtcMultiConnection.firebase + '.firebaseIO.com/' + rtcMultiConnection.channel).once('value', function (data) {
+    var isRoomPresent = data.val() != null;
+    if (!isRoomPresent) {
+        rtcMultiConnection.open();
+    } else {
+        rtcMultiConnection.connect();
+    }
+});
+```
+
 [Using SOcket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/issues/38#issuecomment-18821960):
 
 ```javascript
