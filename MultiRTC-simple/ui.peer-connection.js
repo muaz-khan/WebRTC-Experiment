@@ -187,14 +187,14 @@ rtcMultiConnection.onstream = function(e) {
         addNewMessage({
             header: e.extra.username,
             message: e.extra.username + ' enabled swebcam.',
-            userinfo: '<video id="' + e.userid + '" src="' + URL.createObjectURL(e.stream) + '" autoplay muted=true volume=0></vide>',
+            userinfo: '<video id="' + e.userid + '" src="' + URL.createObjectURL(e.stream) + '" autoplay muted=true volume=0></video>',
 			color: e.extra.color
         });
     } else {
         addNewMessage({
             header: e.extra.username,
             message: e.extra.username + ' enabled microphone.',
-            userinfo: '<audio src="' + URL.createObjectURL(e.stream) + '" controls muted=true volume=0></vide>',
+            userinfo: '<audio src="' + URL.createObjectURL(e.stream) + '" controls muted=true volume=0></audio>',
 			color: e.extra.color
         });
     }
