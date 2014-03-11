@@ -1,4 +1,4 @@
-// Last time updated at 27 Feb 2014, 12:26:35
+// Last time updated at 04 March 2014, 11:20:18
 // Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.6.js
 
 // Muaz Khan         - www.MuazKhan.com
@@ -457,6 +457,7 @@ googNoiseReduction: true,
             if (e.data.type === 'text') {
                 textReceiver.receive(e.data, e.userid, e.extra);
             } else if (typeof e.data.maxChunks != 'undefined') {
+                e.data.sender = e.userid;
                 fileReceiver.receive(e.data);
             } else {
                 if (root.autoTranslateText) {
