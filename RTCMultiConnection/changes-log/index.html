@@ -61,6 +61,53 @@
             <h2 id="v1.7"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.7">v1.7</a> / Work-in-Progress!</h2>
 		
             <ol>
+				<li>
+					Mute/UnMute and "onstreamended" among multiple users, issues fixed.
+				</li>
+				
+				<li>
+					Now, "<a href="http://www.RTCMultiConnection.org/docs/getDevices/">getDevices</a>" method skips duplicate devices and returns array of unique audio/video devices.
+				</li>
+				
+				<li>
+					Now, "<a href="http://www.RTCMultiConnection.org/docs/onFileStart/">onFileStart</a>", "<a href="http://www.RTCMultiConnection.org/docs/onFileProgress/">onFileProgress</a>" and "<a href="http://www.RTCMultiConnection.org/docs/onFileEnd/">onFileEnd</a>" has remote user's ID, "sending" object and "<a href="http://www.RTCMultiConnection.org/docs/extra/">extra</a>" object:
+					<pre class="sh_javascript">
+// file sending or receiving instance is started.
+connection.<a href="http://www.RTCMultiConnection.org/docs/onFileStart/">onFileStart</a> = function(file) {
+    // file.<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a>  ---- userid of the file sender
+    // file.<a href="http://www.RTCMultiConnection.org/docs/extra/">extra</a>   ---- extra data from file sender
+	
+    // file.sending ---- true or false
+};
+
+// file sending or receiving instance is ended.
+connection.<a href="http://www.RTCMultiConnection.org/docs/onFileEnd/">onFileEnd</a> = function(file) {
+    // file.<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a>  ---- userid of the file sender
+    // file.<a href="http://www.RTCMultiConnection.org/docs/extra/">extra</a>    ---- extra data from file sender
+	
+    // file.sending ---- true or false
+};
+
+// file sending or receiving instance is working.
+connection.<a href="http://www.RTCMultiConnection.org/docs/onFileProgress/">onFileProgress</a> = function(chunk) {
+    // chunk.<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a>  ---- userid of the file sender
+    // chunk.<a href="http://www.RTCMultiConnection.org/docs/extra/">extra</a>    ---- extra data from file sender
+	
+    // chunk.sending ---- true or false
+};
+</pre>
+				</li>
+				
+				<li>
+					"<a href="http://www.rtcmulticonnection.org/docs/onstream/">onstream</a>" has two new objects:
+					<pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onstream/">onstream</a> = function(e) {
+    // e.isVideo ---- if it is a  Video stream
+    // e.isAudio ---- if it is an Audio stream
+};
+</pre>
+				</li>
+				
                 <li>
                     File <a href="http://www.rtcmulticonnection.org/docs/chunkSize/">chunk-size</a> and <a href="http://www.rtcmulticonnection.org/docs/chunkInterval/">chunk-interval</a> are fixed for Firefox.
                 </li>

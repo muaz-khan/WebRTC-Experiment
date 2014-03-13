@@ -51,7 +51,7 @@
         <article>
             <a href="http://www.RTCMultiConnection.org/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ www.RTCMultiConnection.org</a>
 
-            <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Docs ----/ <a href="http://www.RTCMultiConnection.org/changes-log/">Changes Log</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com:12034/">Demo: MultiRTC!</a></h1>
+            <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> Docs ----/ <a href="http://www.RTCMultiConnection.org/changes-log/">Changes Log</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com:12034/">Demo: MultiRTC!</a></h1>
 		
             <ol>
                 <li><a href="http://www.RTCMultiConnection.org/docs/getting-started/">Getting Started Guide</a></li>
@@ -158,21 +158,22 @@ var session = {
     audio: true
 };
 
-connection.captureUserMedia(function (mediaStream) { }, session);
+connection.<a href="http://www.RTCMultiConnection.org/docs/captureUserMedia/">captureUserMedia</a>(function (mediaStream) { }, session);
 </pre>
                         </li>
 					
-                        <li>
+                        <li id="direction">
                             <a href="http://www.RTCMultiConnection.org/docs/direction/">direction</a>
                             <pre class="sh_javascript">
-connection.direction = 'one-to-one';
+connection.<a href="http://www.RTCMultiConnection.org/docs/direction/">direction</a> = 'one-to-one';
+connection.<a href="http://www.RTCMultiConnection.org/docs/direction/">direction</a> = 'one-way';
 </pre>
                         </li>
 					
                         <li>
                             <a href="http://www.RTCMultiConnection.org/docs/getDevices/">getDevices</a>
                             <pre class="sh_javascript">
-connection.getDevices(function(devices){
+connection.<a href="http://www.RTCMultiConnection.org/docs/getDevices/">getDevices</a>(function(devices){
     for (var device in devices) {
         device = devices[device];
         
@@ -232,7 +233,7 @@ connection.onsilence = function (e) {
 </pre>
                         </li>
 					
-                        <li>
+                        <li id="openSignalingChannel">
                             <a href="http://www.RTCMultiConnection.org/docs/openSignalingChannel/">openSignalingChannel</a>
                             <pre class="sh_javascript">
 connection.openSignalingChannel = function(config) {};
@@ -1072,11 +1073,22 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>
                 var apiRef = document.querySelector('.api-reference');
                 var li = apiRef.querySelectorAll('li');
                 var liLength = li.length;
+                
+                var direction = 'one-way,oneway,broadcast,many-to-many,multi-user,video-conferencing,audio-conferencing';
+                var signaling = 'signaling,firebase,socket.io,socketio,websocket,php,asp.net,aspnet,.net,custom';
 
                 var search = document.querySelector('#search');
                 search.onkeyup = search.onblur = search.onfocus = search.onsearch = function() {
                     for (var i = 0; i < liLength; i++) {
                         li[i].style.display = !this.value.length || li[i].querySelector('a').innerHTML.toLowerCase().indexOf(this.value.toLowerCase()) != -1 ? '' : 'none';
+                    }
+                    
+                    if(direction.indexOf(this.value) != -1) {
+                        document.querySelector('#direction').style.display = '';
+                    }
+                    
+                    if(signaling.indexOf(this.value) != -1) {
+                        document.querySelector('#openSignalingChannel').style.display = '';
                     }
                 };
             </script>

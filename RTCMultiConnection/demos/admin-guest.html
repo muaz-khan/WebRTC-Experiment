@@ -316,9 +316,9 @@
             }
 
             function openSignalingChannel(config) {
-                var SIGNALING_SERVER = 'http://socketio-over-nodejs.jit.su:80/';
+                var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com/';
 
-                var channel = config.channel || this.channel || 'default-namespace';
+                var channel = config.channel || this.channel;
                 var sender = Math.round(Math.random() * 9999999999) + 9999999999;
 
                 io.connect(SIGNALING_SERVER).emit('new-channel', {

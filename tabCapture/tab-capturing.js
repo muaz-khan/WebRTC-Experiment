@@ -91,6 +91,13 @@ function setupRTCMultiConnection(stream) {
         oneway: true
     };
     
+    connection.onRequest = function(request) {
+        connection.accept(request);
+        
+        // #174, thanks @alberttsai for pointing out this issue!
+        chrome.tabs.create({url: chrome.extension.getURL('_generated_background_page.html')});
+    };
+    
     // http://www.rtcmulticonnection.org/docs/openSignalingChannel/
     connection.openSignalingChannel = openSignalingChannel;
     
