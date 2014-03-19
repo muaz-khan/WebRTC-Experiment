@@ -1,8 +1,11 @@
 ## Realtime/Working [WebRTC Experiments](https://www.webrtc-experiment.com/)
 
 1. It is a repository of uniquely experimented WebRTC demos; written by <a href="https://github.com/muaz-khan">Muaz Khan</a>!
-2. No special requirement! Just WebRTC supported browser (e.g. chrome/firefox/opera on desktop/android)
+2. No special requirement! Just WebRTC compatible web-browser (e.g. chrome/firefox/opera on desktop/android)
 3. These demos/experiments are entirely client-side; i.e. no server installation needed!
+4. You can use all these demos in PHP/Python/Ruby/ASP.NET/etc. everywhere!
+
+You can [donate!](https://www.webrtc-experiment.com/donate/) as well!
 
 =
 
@@ -30,7 +33,7 @@
 | `Part of Screen Sharing` | Share a region of the screen; not the entire screen! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing) | [Demo](https://www.webrtc-experiment.com/part-of-screen-sharing/) |
 | `Plugin-free Screen Sharing` | Share the entire screen | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) | [Demo](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/) |
 | `One-Way Broadcasting` | Same like radio stations; transmit audio/video/screen streams in one-way direction. Though, it is browser-to-browser streaming! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-broadcasting) | [Demo](https://www.webrtc-experiment.com/webrtc-broadcasting/) |
-| `Audio-only Calls` | Realtime, plugin-free, voice-only calls | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls) | [Demo](https://www.webrtc-experiment.com/calls/) |
+| `WebRTC 1-1 Audio/Video/Screen Sharing` | Realtime, pluginfree! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls) | [Demo](https://www.webrtc-experiment.com/calls/) |
 
 =
 
@@ -367,12 +370,6 @@ Read more [here](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Sign
 ##### Muaz Khan (muazkh@gmail.com) - [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb)
 
 <a href="http://www.MuazKhan.com"><img src="https://www.webrtc-experiment.com/images/Muaz-Khan.gif" /></a>
-
-=
-
-##### Want to Donate?
-
-https://www.webrtc-experiment.com/donate/
 
 =
 

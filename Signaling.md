@@ -1,4 +1,8 @@
+You can use any signaling implementation with any [WebRTC Experiment](https://www.webrtc-experiment.com/); whether it is XMPP/SIP or PHP/MySQL or Socket.io/WebSockets or WebSync/SignalR or PeerServer/SignalMaster or other gateway.
+
 ##### Nodejs/Socketio Server-Side Code
+
+Your server side nodejs can be as simple as:
 
 ```javascript
 io.sockets.on('connection', function (socket) {
@@ -12,13 +16,14 @@ io.sockets.on('connection', function (socket) {
 
 ##### `openSignalingChannel` for [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/) and [DataChanel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) (Client-Side Code)
 
+Your browser side code that overrides default signaling implementations:
+
 ```javascript
 var channels = {};
-var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
 var socketio = io.connect('http://localhost:8888/');
 
 socketio.on('message', function(data) {
-    if(data.sender == currentUserUUID) return;
+    if(data.sender == connection.userid) return;
     
     if (channels[data.channel] && channels[data.channel].onmessage) {
         channels[data.channel].onmessage(data.message);
@@ -33,7 +38,7 @@ connection.openSignalingChannel = function (config) {
     return {
         send: function (message) {
             socketio.emit('message', {
-                sender: currentUserUUID,
+                sender: connection.userid,
                 channel: channel,
                 message: message
             });
@@ -343,7 +348,7 @@ new window.Firebase('//' + rtcMultiConnection.firebase + '.firebaseIO.com/' + rt
 });
 ```
 
-[Using SOcket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/issues/38#issuecomment-18821960):
+[Using Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/issues/38#issuecomment-18821960):
 
 ```javascript
 function testChannelPresence(channel) {

@@ -74,6 +74,8 @@
                 .
                 <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
             </p>
+            
+            <div class="github-stargazers"></div>
 				
             <ol>
                 <li>
@@ -96,61 +98,76 @@ yum install -y openssl-devel libevent libevent-devel mysql-devel mysql-server
                             <pre class="sh_javascript">
 wget https://github.com/downloads/libevent/libevent/libevent-2.0.21-stable.tar.gz
 tar xvfz libevent-2.0.21-stable.tar.gz
-cd libevent-2.0.21-stable
-./configure
-make
-make install
+cd libevent-2.0.21-stable && ./configure
+make && make install && cd ..
 </pre>
                         </li>
 					
                         <li>
-                            <h2>Third Step: <a href="https://code.google.com/p/rfc5766-turn-server/wiki/newDownloadsSite?tm=2" target="_blank">Download & Install</a> TURN modules</h2>
+                            <h2>Third Step: <a href="https://code.google.com/p/rfc5766-turn-server/wiki/newDownloadsSite" target="_blank">Download & Install</a> TURN modules</h2>
                             <pre class="sh_javascript">
-wget http://turnserver.open-sys.org/downloads/v3.2.2.7/turnserver-3.2.2.7-CentOS6.5-x86_64.tar.gz
-tar -xvzf turnserver-3.2.2.7-CentOS6.5-x86_64.tar.gz
-cd turnserver-3.2.2.7-CentOS6.5-x86_64
-./configure
-make
-make install
+wget http://turnserver.open-sys.org/downloads/v3.2.2.911/turnserver-3.2.2.911.tar.gz
+tar -xvzf turnserver-3.2.2.911.tar.gz
+cd turnserver-3.2.2.911
+make && make install
 </pre>
                         </li>
 					
                         <li>
-                            <h2>Fourth Step: Copy *.pem files to "/usr/local/etc/"</h2>
+                            <h2>Fifth Step: Configure "turnserver.conf" file</h2>
                             <pre class="sh_javascript">
-cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turn_client_cert.pem /usr/local/etc/
-cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turn_client_pkey.pem /usr/local/etc/
-cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turn_server_cert.pem /usr/local/etc/
-cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turn_server_pkey.pem /usr/local/etc/
-cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turnserver.conf /usr/local/etc/
-cp /turnserver-3.2.2.7-CentOS6.5-x86_64/examples/etc/turnuserdb.conf /usr/local/etc/ 
-</pre>
-                            <ol>
-                                <li>
-                                    If you're trying to install another version of TURN server; make sure that you replaced "3.2.2.7" with <a href="https://code.google.com/p/rfc5766-turn-server/wiki/newDownloadsSite?tm=2" target="_blank">latest version number</a>.
-                                </li>
-                            </ol>
-                        </li>
-					
-                        <li>
-                            <h2>Fifth Step: Configure "turnuserdb.conf" file</h2>
-                            <pre class="sh_javascript">
-cd /usr/local/etc
-vi turnuserdb.conf
-</pre>
-                            <ol>
-                                <li>
-                                    Find "<strong>&lt;username&gt;:&lt;password&gt;</strong>"; insert New-Line; and set TURN credentials:
-                                </li>
-							
-                                <li>
-                                    <pre class="sh_javascript">
-# &lt;username&gt;:&lt;password&gt;
-turn-username:turn-password
+vi /etc/turnserver/turnserver.conf
 
-# listening-port=2222
-# listening-ip=127.1.1
+# setting static accounts
+# Remember, "static" accounts are not dynamically checked by the turnserver process.
+user=username:password
+
+# listen ports
+listening-port=2222
+listening-ip=127.1.1
+
+# Now press "inset" key; then "Esc" key
+# Then type:
+:wq         #-- this command will save your settings and close turnserver.conf file
+
+# if you don't want to save settings; and quite. Simply type:
+:q
 </pre>
+                            You can:
+                            <ol>
+                                <li>
+                                    Use Only STUN
+                                </li>
+                                <li>
+                                    Use Only TURN
+                                </li>
+                                
+                                <li>
+                                    Use Both STUN and TURN
+                                </li>
+                                
+                                <li>
+                                    Discard requests from all SSL/TLS version of protocols
+                                </li>
+                                
+                                <li>
+                                    Use short-live credentials. Other authentication mechanisms coming soon in next few weeks.
+                                </li>
+                                
+                                <li>
+                                    You can disable DTLS and TLS.
+                                </li>
+                                
+                                <li>
+                                    You can set both static and dynamic accounts.
+                                </li>
+                                
+                                <li>
+                                    You can give anonymous access to TURN server as well.
+                                </li>
+                                
+                                <li>
+                                    You can set credentials for stun-only option as well; usually STUN-binding requests are anonymous.
                                 </li>
                             </ol>
                         </li>
@@ -158,6 +175,8 @@ turn-username:turn-password
                         <li>
                             <h2>Sixth Step: Run TURN server instance</h2>
                             <pre class="sh_javascript">
+cd /etc/turnserver/
+
 turnserver -v -r  ip:port -a -b turnuserdb.conf -c turnserver.conf -u turn-username -r ip:port -p turn-password
 </pre>
                             <ol>

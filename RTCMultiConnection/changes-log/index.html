@@ -54,13 +54,43 @@
         <article>
             <a href="http://www.RTCMultiConnection.org/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ www.RTCMultiConnection.org</a>
 
+            <div class="github-stargazers"></div>
             <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Changes Log ----/ <a href="http://www.RTCMultiConnection.org/docs/">Docs</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com:12034/">Demo: MultiRTC!</a></h1>
 		
             <br /><br /><br />
             
-            <h2 id="v1.7"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.7">v1.7</a> / Work-in-Progress!</h2>
+            <h2 id="v1.7"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.7">v1.7</a> / Beta will be released at March 23, 2014!</h2>
 		
             <ol>
+                <li>
+					v1.7 is available for early testers:
+					<pre class="sh_javascript">
+https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js
+</pre>
+				</li>
+				
+				<li>
+					"<a href="http://www.rtcmulticonnection.org/docs/shareMediaFile/">shareMediaFile</a>" and "<a href="http://www.rtcmulticonnection.org/docs/onMediaFile/">onMediaFile</a>" added. (i.e. pre-recorded media support added):
+					<pre class="sh_javascript">
+// select WebM file to share as pre-recorded media!
+document.querySelector('input[type=file]').onchange = function() {
+    connection.<a href="http://www.rtcmulticonnection.org/docs/shareMediaFile/">shareMediaFile</a>( this.files[0] );
+};
+
+// receive WebM files
+connection.<a href="http://www.RTCMultiConnection.org/docs/onMediaFile/">onMediaFile</a> = function(e) {
+    // e.mediaElement (it is video-element)
+    // e.userid
+    // e.extra
+    
+    yourExistingVideoElement.src = e.mediaElement.src;
+    
+    // or
+    document.body.appendChild(e.mediaElement);
+};
+</pre>
+				</li>
+                
 				<li>
 					Mute/UnMute and "onstreamended" among multiple users, issues fixed.
 				</li>
@@ -785,6 +815,6 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-        <script src="//www.webrtc-experiment.com/common.js"> </script>
+        <script src="//www.webrtc-experiment.com/commits.js"> </script>
     </body>
 </html>

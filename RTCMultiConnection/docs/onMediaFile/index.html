@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>RTCMultiConnection API Reference / "maxParticipantsAllowed"</title>
+    <title>RTCMultiConnection API Reference / "onMediaFile" event</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -55,37 +55,44 @@
     <article>
         <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">RTCMultiConnection Docs</a>
 
-        <div class="github-stargazers"></div>
-        
-        <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/maxParticipantsAllowed/">maxParticipantsAllowed</a>"</h1>
+        <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/onMediaFile/">onMediaFile</a>" event</h1>
 		
 		<ol>
 			<li>
-				Default value for <a href="http://www.RTCMultiConnection.org/docs/maxParticipantsAllowed/">maxParticipantsAllowed</a> is 256.
+                "<a href="http://www.RTCMultiConnection.org/docs/onMediaFile/">onMediaFile</a>" event is fired when a file is shared using "<a href="http://www.RTCMultiConnection.org/docs/shareMediaFile/">shareMediaFile</a>" method:
 			</li>
 			
 			<li>
-				The <a href="http://www.RTCMultiConnection.org/docs/direction/">direction</a> "one-to-one" is identical like <a href="http://www.RTCMultiConnection.org/docs/maxParticipantsAllowed/">maxParticipantsAllowed</a> = 1.
+				<pre class="sh_javascript">
+// select WebM file to share as pre-recorded media!
+document.querySelector('input[type=file]').onchange = function() {
+    connection.<a href="http://www.rtcmulticonnection.org/docs/shareMediaFile/">shareMediaFile</a>( this.files[0] );
+};
+
+// receive WebM files
+connection.<a href="http://www.RTCMultiConnection.org/docs/onMediaFile/">onMediaFile</a> = function(e) {
+    // e.mediaElement (it is video-element)
+    // e.userid
+    // e.extra
+    
+    yourExistingVideoElement.src = e.mediaElement.src;
+    
+    // or
+    document.body.appendChild(e.mediaElement);
+};
+
+// "connection.preRecordedMedias" object allows you get list of pre-recorded 
+// media files shared
+for(var media in connection.preRecordedMedias) {
+    console.log(media, connection.preRecordedMedias[media] );
+    
+    // connection.preRecordedMedias[media].video
+    // connection.preRecordedMedias[media].streamer
+    // connection.preRecordedMedias[media].onData
+}
+</pre>
 			</li>
 		</ol>
-        
-        <h2>Users FAQ</h2>
-        
-        <ol>
-            <li>
-                <h2>Can max-participants be more than 1000?</h2>
-                <p>
-                    It depends upon signaling gateway and number of <a href="https://www.webrtc-experiment.com/docs/RTP-usage.html">current RTP ports</a>. Maximum peers limit is 256 which NEVER works! Suggested limit is max(10-to-20) users per room.
-                </p>
-            </li>
-            
-            <li>
-                <h2>Why this property is added in RTCMultiConnection?</h2>
-                <p>
-                    Chrome supports <a href="https://www.webrtc-experiment.com/webrtcpedia/">maximum 256</a> peers creation per page. This property is added to manage number of users who can join your room.
-                </p>
-            </li>
-        </ol>
 
         <br />
         <br />
@@ -97,15 +104,12 @@
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your email for private conversation!</small>
             </section>
     </article>
-    
-    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
-    
     <footer>
             <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
             <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-    <script src="//www.webrtc-experiment.com/commits.js"> </script>
+    <script src="//www.webrtc-experiment.com/common.js"> </script>
 </body>
 </html>

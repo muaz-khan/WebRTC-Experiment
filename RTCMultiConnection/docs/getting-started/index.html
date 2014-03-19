@@ -51,82 +51,123 @@
     <article>
         <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">RTCMultiConnection Docs</a>
 
-        <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Getting Started Guide / <a href="http://www.rtcmulticonnection.org/changes-log/">Changes Log</a> | <a href="http://www.rtcmulticonnection.org/docs/">Docs</a> | <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a></h1>
+        <div class="github-stargazers"></div>
+        
+        <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> Getting Started Guide / <a href="http://www.rtcmulticonnection.org/changes-log/">Changes Log</a> | <a href="http://www.rtcmulticonnection.org/docs/">Docs</a> | <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a></h1>
 		
 		<ol>
+            <li>
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection">RTCMultiConnection.js</a>: A comprehensive wrapper library for RTCWeb APIs; fits in any environment!
+            </li>
+            
+            <li>
+                You can use RTCMultiConnection.js in any webpage; on any environment; in any framework; in any situation; in any style! It is highly customizable; very rich; and totally free <a href="https://www.webrtc-experiment.com/">WebRTC</a> Library!
+            </li>
+            
+            <li>
+                You can use it in any PHP project; in any ASP.NET project; in any Ruby project; anywhere!
+            </li>
+            
+            <li>
+                RTCMultiConnection.js doesn't care about signaling gateways; it is upto you to decide whether you want to use MySQL, MS-SQL or WebSockets, WebSync, SignalR, or SignalMaster or PeerServer or SIP, XMPP, or any thing else exists in the globe! Read more <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md">here</a>!
+            </li>
+            
+            <li>
+                <h2>Want to use RTCMultiConnection.js?</h2>
+                
+                <ol>
+                    <li>
+                        First step you should do is link the library file in your HTML/PHP page.
+                    </li>
+                    
+                    <li>
+                        Second step you should do is override <code><a href="http://www.rtcmulticonnection.org/docs/openSignalingChannel/">openSignalingChannel</a></code> method. You can override it in your HTML page. This method allows you choose 3rd party services like Firebase, PubNub, Pusher etc. or open-source services like PeerServer, SignalMaster or custom services like WebSockets, Socket.io, SignalR, WebSync, or famous voip services like SIP and XMPP or traditional services like XHR/JSON/MySQL.
+                    </li>
+                </ol>
+            </li>
+            
 			<li>
+                <h2>First Step: Link Library File</h2>
 				<pre class="sh_html">
 &lt;script src="http://www.rtcmulticonnection.org/latest.js"&gt;&lt;/script&gt;
 
 // or following link supports both HTTP and HTTPs URLs
-&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.js"&gt;&lt;/script&gt;
-
-// last link has gzipped version as well!
-&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.min.js"&gt;&lt;/script&gt;
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.7.js"&gt;&lt;/script&gt;
 </pre>
+
+                Copy above code snippet and paste in this <a href="http://htmledit.squarefree.com/" rel="nofollow" target="_blank">Online HTML Editor</a>!
 			</li>
 			
 			<li>
 				<h2>Setup Video Conference using Shortest Syntax EVER!</h2>
-		<pre class="sh_javascript">
+                <pre class="sh_html">
+&lt;script src="http://www.rtcmulticonnection.org/latest.js"&gt;&lt;/script&gt;
+&lt;button id="openNewSessionButton"&gt;Open New Room&lt;/button&gt;
+&lt;script&gt;
+</pre><pre class="sh_javascript">
 var connection = <a href="http://www.rtcmulticonnection.org/docs/constructor/">new RTCMultiConnection</a>().<a href="http://www.rtcmulticonnection.org/docs/connect/">connect</a>();
-openNewSessionButton.onclick = function() {
+document.querySelector('#openNewSessionButton').onclick = function() {
     connection.<a href="http://www.rtcmulticonnection.org/docs/open/">open</a>();
 };
+</pre><pre class="sh_html">
+&lt;/script&gt;
 </pre>
+                Copy above code snippet and paste in this <a href="http://htmledit.squarefree.com/" rel="nofollow" target="_blank">Online HTML Editor</a>!
 			</li>
 			
 			<li>
 				<h2>Setup Video Conference using full syntax!</h2>
-		<pre class="sh_javascript">
-// www.RTCMultiConnection.org/docs/constructor
+                <pre class="sh_html">
+&lt;script src="http://www.rtcmulticonnection.org/latest.js"&gt;&lt;/script&gt;
+&lt;button id="openNewSessionButton"&gt;Open New Room&lt;/button&gt;
+&lt;script&gt;
+</pre><pre class="sh_javascript">
 var connection = new RTCMultiConnection();
 
 // easiest way to customize what you need!
-// www.RTCMultiConnection.org/docs/session
 connection.session = {
     audio: true,
     video: true
 };
 
 // on getting local or remote media stream
-// www.RTCMultiConnection.org/docs/onstream
 connection.onstream = function(e) {
     document.body.appendChild(e.mediaElement);
 };
 
-// check existing sessions
-// on getting local or remote media stream
-// www.RTCMultiConnection.org/docs/connect
+// setup signaling channel
 connection.connect();
 
 // open new session
-openNewSessionButton.onclick = function() {
-    // www.RTCMultiConnection.org/docs/open
+document.querySelector('#openNewSessionButton').onclick = function() {
     connection.open();
 };
+</pre><pre class="sh_html">
+&lt;/script&gt;
 </pre>
+                Copy above code snippet and paste in this <a href="http://htmledit.squarefree.com/" rel="nofollow" target="_blank">Online HTML Editor</a>!
 			</li>
 			
 			<li>
 				<h2>Setup Multi-user file sharing along with advance progress-bars!</h2>
-		<pre class="sh_html">&lt;input type=file&gt;</pre>
-		<pre class="sh_javascript">
-// www.RTCMultiConnection.org/docs/constructor
+		<pre class="sh_html">
+&lt;script src="http://www.rtcmulticonnection.org/latest.js"&gt;&lt;/script&gt;
+&lt;input type=file&gt;
+&lt;button id="openNewSessionButton"&gt;Open New Room&lt;/button&gt;
+&lt;script&gt;
+</pre><pre class="sh_javascript">
 var connection = new RTCMultiConnection();
 
-// www.RTCMultiConnection.org/docs/session
 connection.session = {
     data: true  // this line suggests that don't get/use audio/video; 
                 // only setup data connection
 };
 
-// www.RTCMultiConnection.org/docs/connect
+// setup signaling channel
 connection.connect();
 
 // open new session
-openNewSessionButton.onclick = function() {
-    // www.RTCMultiConnection.org/docs/open
+document.querySelector('#openNewSessionButton').onclick = function() {
     connection.open();
 };
 
@@ -134,7 +175,10 @@ openNewSessionButton.onclick = function() {
 document.querySelector('input[type=file]').onchange = function() {
     connection.send(this.files[0]);
 };
+</pre><pre class="sh_html">
+&lt;/script&gt;
 </pre>
+                Copy above code snippet and paste in this <a href="http://htmledit.squarefree.com/" rel="nofollow" target="_blank">Online HTML Editor</a>!
 			</li>
 		</ol>
 
@@ -147,13 +191,29 @@ document.querySelector('input[type=file]').onchange = function() {
                 </div>
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your email for private conversation!</small>
             </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
     </article>
+    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
+    
     <footer>
             <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
             <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-    <script src="//www.webrtc-experiment.com/common.js"> </script>
+    
+    <script src="//www.webrtc-experiment.com/commits.js"> </script>
 </body>
 </html>

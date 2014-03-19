@@ -1,7 +1,7 @@
 {
   "name": "multirtc",
   "preferGlobal": true,
-  "version": "5.5.5",
+  "version": "5.6.7",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com"
@@ -60,6 +60,6 @@
     "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues"
   },
   "homepage": "http://www.RTCMultiConnection.org/",
-  "_id": "multirtc@5.5.5",
+  "_id": "multirtc@5.6.7",
   "_from": "multirtc@"
 }

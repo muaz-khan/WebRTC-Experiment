@@ -53,6 +53,12 @@
 
 <body onload="sh_highlightDocument();">
     <article>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md" style="position: fixed;bottom: 0;right: 0;display: block;width: 18%;">
+            <img src="http://www.RTCMultiConnection.org/img/RTCMultiConnection-Logo.png" alt="RTCMultiConnection Log" style="width: 100%;border-top-left-radius: 30%;border: 1px solid red;">
+        </a>
+        
+        <div class="github-stargazers"></div>
+        
         <a href="http://www.RTCMultiConnection.org/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">www.RTCMultiConnection.org</a>
 
         <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> FAQ / <a href="http://www.rtcmulticonnection.org/docs/">Documentation</a></h1>
@@ -65,6 +71,61 @@
 			<li>
 				<a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a>'s signaling portion heavily relies on "<strong>channels</strong>"; A channel is a simple partitioning process for the connected clients.
 			</li>
+            
+            <li id="RTCMultiConnection-Signaling">
+                        <h2>RTCMultiConnection Signaling Concepts:</h2>
+                        <div class="image-container">
+                            <div class="image-parent">
+                                <a href="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Signaling.svg">
+                                    <img src="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Signaling.svg">
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li id="RTCMultiConnection-public-API-call-flow">
+                        <h2>RTCMultiConnection Public-API Call Flow Diagram:</h2>
+                        <div class="image-container">
+                            <div class="image-parent">
+                                <a href="http://www.rtcmulticonnection.org/img/RTCMultiConnection-public-API-call-flow.svg">
+                                    <img src="http://www.rtcmulticonnection.org/img/RTCMultiConnection-public-API-call-flow.svg">
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li id="RTCMultiConnection-Modules-Diagram">
+                        <h2>RTCMultiConnection Modules Diagram:</h2>
+                        <div class="image-container">
+                            <div class="image-parent">
+                                <a href="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Modules-Diagram.svg">
+                                    <img src="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Modules-Diagram.svg">
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li id="RTCMultiConnection-Structure">
+                        <h2>RTCMultiConnection Structure:</h2>
+                        <div class="image-container">
+                            <div class="image-parent">
+                                <a href="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Structure.png">
+                                    <img src="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Structure.png">
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li id="RTCMultiConnection-Call-Flow-Diagram">
+                        <h2>RTCMultiConnection Call Flow Diagram:</h2>
+                        <div class="image-container">
+                            <div class="image-parent">
+                                <a href="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Call-Flow-Diagram.png">
+                                    <img src="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Call-Flow-Diagram.png">
+                                </a>
+                            </div>
+                        </div>
+                    </li>
 			
 			<li>
 				A channel is a signaling room contains two or more connected clients; data travels privately inside the room; which gives us flexibility in transmission and simplicity in management.
@@ -396,6 +457,9 @@ participant.onNewSession = function (session) {
 };
 </pre>
 			</li>
+            
+            
+            
 		</ol>
 		
 		<h2>Useful Links:</h2>
@@ -423,6 +487,6 @@ participant.onNewSession = function (session) {
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-    <script src="//www.webrtc-experiment.com/common.js"> </script>
+    <script src="//www.webrtc-experiment.com/commits.js"> </script>
 </body>
 </html>

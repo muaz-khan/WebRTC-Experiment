@@ -50,9 +50,15 @@
     <body onload="sh_highlightDocument();">
         <article>
             <a href="http://www.RTCMultiConnection.org/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ www.RTCMultiConnection.org</a>
+            
+            <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md" style="position: fixed;bottom: 0;right: 0;display: block;width: 18%;">
+                <img src="http://www.RTCMultiConnection.org/img/RTCMultiConnection-Logo.png" alt="RTCMultiConnection Log" style="width: 100%;border-top-left-radius: 30%;border: 1px solid red;">
+            </a>
 
+            <div class="github-stargazers"></div>
             <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> Docs ----/ <a href="http://www.RTCMultiConnection.org/changes-log/">Changes Log</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com:12034/">Demo: MultiRTC!</a></h1>
 		
+        
             <ol>
                 <li><a href="http://www.RTCMultiConnection.org/docs/getting-started/">Getting Started Guide</a></li>
                 <li>
@@ -67,7 +73,7 @@
 new RTCMultiConnection('channel-id');
 </pre>
                         </li>
-                        <li>
+                        <li id="session">
                             <a href="http://www.RTCMultiConnection.org/docs/session/">session</a>
                             <pre class="sh_javascript">
 connection.session = {
@@ -1064,6 +1070,33 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/fakeDataChannels/">fa
 connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a> = { };
 </pre>
                         </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/onMediaFile/">onMediaFile</a>
+                            <pre class="sh_javascript">
+// receive WebM files
+connection.<a href="http://www.RTCMultiConnection.org/docs/onMediaFile/">onMediaFile</a> = function(e) {
+    // e.mediaElement (it is video-element)
+    // e.userid
+    // e.extra
+    
+    yourExistingVideoElement.src = e.mediaElement.src;
+    
+    // or
+    document.body.appendChild(e.mediaElement);
+};
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/shareMediaFile/">shareMediaFile</a>
+                            <pre class="sh_javascript">
+// select WebM file to share as pre-recorded media!
+document.querySelector('input[type=file]').onchange = function() {
+    connection.<a href="http://www.rtcmulticonnection.org/docs/shareMediaFile/">shareMediaFile</a>( this.files[0] );
+};
+</pre>
+                        </li>
                    
                     </ol>
                 </li>
@@ -1074,8 +1107,9 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>
                 var li = apiRef.querySelectorAll('li');
                 var liLength = li.length;
                 
-                var direction = 'one-way,oneway,broadcast,many-to-many,multi-user,video-conferencing,audio-conferencing';
+                var direction = 'one-way,oneway,broadcast,many-to-many,multi-user,video-conferencing,audio-conferencing,videoconferencing';
                 var signaling = 'signaling,firebase,socket.io,socketio,websocket,php,asp.net,aspnet,.net,custom';
+                var session = 'audio,video,screen,data,oneway,two-way,one-way,twoway,multi-user,share,media,type,broadcast';
 
                 var search = document.querySelector('#search');
                 search.onkeyup = search.onblur = search.onfocus = search.onsearch = function() {
@@ -1085,6 +1119,10 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>
                     
                     if(direction.indexOf(this.value) != -1) {
                         document.querySelector('#direction').style.display = '';
+                    }
+                    
+                    if(session.indexOf(this.value) != -1) {
+                        document.querySelector('#session').style.display = '';
                     }
                     
                     if(signaling.indexOf(this.value) != -1) {
@@ -1112,6 +1150,6 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a>
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-        <script src="//www.webrtc-experiment.com/common.js"> </script>
+        <script src="//www.webrtc-experiment.com/commits.js"> </script>
     </body>
 </html>
