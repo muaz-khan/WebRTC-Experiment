@@ -55,7 +55,7 @@
             <a href="http://www.RTCMultiConnection.org/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ www.RTCMultiConnection.org</a>
 
             <div class="github-stargazers"></div>
-            <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Changes Log ----/ <a href="http://www.RTCMultiConnection.org/docs/">Docs</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com:12034/">Demo: MultiRTC!</a></h1>
+            <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Changes Log ----/ <a href="http://www.RTCMultiConnection.org/docs/">Docs</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com/RTCMultiConnection/">Demo: MultiRTC!</a></h1>
 		
             <br /><br /><br />
             
@@ -68,6 +68,88 @@
 https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js
 </pre>
 				</li>
+                
+                <li>
+                    When you mute/unmute; video-controls are synced among all users! Volume is also synced!
+                </li>
+                
+                <li>
+                    <code>window.skipRTCMultiConnectionLogs</code> is replaced with <code>connection.skipLogs</code> method:
+                    <pre class="sh_javascript">
+connection.skipLogs();
+</pre>
+                </li>
+                
+                <li>
+                    Part of screen sharing has been implemented:
+                    <pre class="sh_javascript">
+// to share a DIV or region of screen with a specific user
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].sharePartOfScreen({
+    element: 'body', // querySelector or HTMLElement
+    interval: 1000   // milliseconds
+});
+
+// to capture shared parts of screen
+// var image = document.querySelector('img');
+connection.<a href="http://www.rtcmulticonnection.org/docs/onpartofscreen/">onpartofscreen</a> = function (e) {
+    // image.src = e.screenshot;
+};
+
+// to pause part-of-screen sharing
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].pausePartOfScreenSharing = true;
+
+// to stop part-of-screen sharing
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].stopPartOfScreenSharing = true;
+</pre>
+                </li>
+                
+           <li>
+                Now, <a href="http://www.rtcmulticonnection.org/docs/open/">open</a> method returns "sessionDescription" object. "open" method also accepts an object as well!
+			<ol>
+            
+            <li>
+                <a href="http://www.rtcmulticonnection.org/docs/join/">join</a> method can be used to join that "sessionDescription" anytime without connecting to signaling channel!
+			</li>
+            
+            <li>
+                <h2>For initiator:</h2>
+                    <pre class="sh_javascript">
+var initiator = new RTCMultiConnection();
+
+// you can pass object instead of string!
+var sessionDescription = initiator.<a href="http://www.rtcmulticonnection.org/docs/open/">open</a>({
+    dontTransmit: true
+});
+
+websocket.send(sessionDescription);
+</pre>
+                </li>
+                
+                <li>
+                <h2>For participant:</h2>
+                    <pre class="sh_javascript">
+var participant = new RTCMultiConnection();
+
+websocket.onmessage = function(event) {
+    var sessionDescription = event.data.sessionDescription;
+    participant.<a href="http://www.rtcmulticonnection.org/docs/join/">join</a>( sessionDescription );
+};
+</pre>
+
+
+                    </ol>
+                </li>
+                
+                <li>
+                    Now, <a href="http://www.rtcmulticonnection.org/docs/removeStream/">removeStream</a> method quickly removes streams and auto renegotiates. You can also call <a href="http://www.rtcmulticonnection.org/docs/removeStream/">removeStream</a> over <a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a> object:
+                    <pre class="sh_javascript">
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].removeStream( 'stream-id' );
+</pre>
+                </li>
+                
+                <li>
+                    Now, <a href="http://www.rtcmulticonnection.org/docs/onRequest/">onRequest</a> is fired only for <a href="http://www.rtcmulticonnection.org/docs/session-initiator/">session-initiator</a>.
+                </li>
 				
 				<li>
 					"<a href="http://www.rtcmulticonnection.org/docs/shareMediaFile/">shareMediaFile</a>" and "<a href="http://www.rtcmulticonnection.org/docs/onMediaFile/">onMediaFile</a>" added. (i.e. pre-recorded media support added):
@@ -804,6 +886,11 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
                     <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Feel free to ask any question regarding RTCMultiConnection.js!"></textarea>
                 </div>
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left: 1em;">You can include your email for private conversation!</small>
+            </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
             </section>
         </article>
 	

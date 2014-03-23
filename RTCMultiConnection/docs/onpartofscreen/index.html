@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>RTCMultiConnection API Reference / "open" method</title>
+    <title>RTCMultiConnection API Reference / "onpartofscreen" event</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -34,6 +34,10 @@
 			.image-parent img {
 				width: 100%;
 			}
+			
+			li pre {
+				margin: 0;
+			}
         </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -52,56 +56,48 @@
         <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">RTCMultiConnection Docs</a>
 
         <div class="github-stargazers"></div>
-        <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>" method</h1>
-		
-		<ol>
-            <li>
-                "<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>" method allows you open a new room in the current signaling channel:
-            </li>
-			<li>	
-				<pre class="sh_javascript">
-connection.<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>('session-id'); // i.e. room-id
-
-// or
-connection.<a href="http://www.RTCMultiConnection.org/docs/sessionid/">sessionid</a> = 'session-id';
-connection.<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>();
-</pre>
-			</li>
-			
-			<li>
-				If you skip "session-id"; RTCMultiConnection will use "full-URL" as session-id:
+        <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/onpartofscreen/">onpartofscreen</a>" event</h1>
 				
-				<pre class="sh_javascript">
-var sessionid = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-connection.<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>(sessionid);
-</pre>
+		<ol>
+			<li>
+				Since v1.7, RTCMultiConnection is supporting part/region of screen sharing between two users; where WebRTC data channels are used to share screenshots in realtime!
 			</li>
             
             <li>
-                    <a href="http://www.rtcmulticonnection.org/docs/open/">open</a> method accepts object parameter as well; also now it returns "sessionDescription" object:
-                    <pre class="sh_javascript">
-// you can pass object instead on string!
-var sessionDescription = connection.<a href="http://www.rtcmulticonnection.org/docs/open/">open</a>({
-    dontTransmit: true,    // optional --- disable default room-forwarding behaviour!
-    <a href="http://www.rtcmulticonnection.org/docs/sessionid/">sessionid</a>: 'something', // optional
-    <a href="http://www.rtcmulticonnection.org/docs/transmitRoomOnce/">transmitRoomOnce</a>: true // optional
+                Remember, you MUST open data connection ( <code>{data:true}</code> ); at least <a href="http://www.rtcmulticonnection.org/docs/fakeDataChannels/">fake data connection</a>!
+            </li>
+			
+			<li>
+				<pre class="sh_javascript">
+// to share a DIV or region of screen with a specific user
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].sharePartOfScreen({
+    element: 'body', // querySelector or HTMLElement
+    interval: 1000   // milliseconds
 });
 
-// you can share "sessionDescription" object using socket.io or any gateway
-// and target users can directly join using "join" method:
-connection.<a href="http://www.rtcmulticonnection.org/docs/join/">join</a>( sessionDescription );
-</pre>
-                </li>
-                
-                <li>
-                    "sessionDescription" object that is returned by "open" method allows you "join" on demand, anytime, using any style!
-                </li>
-                <li>
-                    You can <strong>disable default room-forwarding mechanism</strong> by passing <code>"dontTransmit:true"</code> parameter.
-                </li>
-		</ol>
+// to capture shared parts of screen
+// var image = document.querySelector('img');
+connection.<a href="http://www.rtcmulticonnection.org/docs/onpartofscreen/">onpartofscreen</a> = function (e) {
+    // image.src = e.screenshot;
+};
 
-        <br />
+// to pause part-of-screen sharing
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].pausePartOfScreenSharing = true;
+
+// to stop part-of-screen sharing
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].stopPartOfScreenSharing = true;
+</pre>
+			</li>            
+		</ol>
+        
+        <h2> Relevant <a href="https://www.webrtc-experiment.com/">WebRTC Experiments!</a> </h2>
+        
+        <ol>
+            <li>
+                <a href=""></a>
+            </li>
+        </ol>
+
         <br />
         <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
                 <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Want to ask a Question?</h2>
@@ -111,7 +107,7 @@ connection.<a href="http://www.rtcmulticonnection.org/docs/join/">join</a>( sess
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your email for private conversation!</small>
             </section>
             
-        <section class="experiment own-widgets latest-commits">
+            <section class="experiment own-widgets latest-commits">
                 <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
                 <div id="github-commits"></div>
             </section>

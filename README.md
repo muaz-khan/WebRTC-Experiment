@@ -5,8 +5,6 @@
 3. These demos/experiments are entirely client-side; i.e. no server installation needed!
 4. You can use all these demos in PHP/Python/Ruby/ASP.NET/etc. everywhere!
 
-You can [donate!](https://www.webrtc-experiment.com/donate/) as well!
-
 =
 
 ### Libraries

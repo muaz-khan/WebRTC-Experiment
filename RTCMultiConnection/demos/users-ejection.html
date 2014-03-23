@@ -86,7 +86,7 @@
 </script>
 
 <script src="//www.webrtc-experiment.com/firebase.js"></script>
-<script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.js"></script>
+<script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.7.js"></script>
 </head>
 
 <body>
@@ -173,7 +173,6 @@
     document.getElementById('start-new-session').onclick = function () {
         if (!window.username) window.username = prompt('Please enter your username') || 'Anonymous';
 
-        // connection.open( [session-id], extra );
 		connection.extra = {
 			username: window.username
 		};

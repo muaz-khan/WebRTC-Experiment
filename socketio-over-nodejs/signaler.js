@@ -1,11 +1,19 @@
-// Muaz Khan       - github.com/muaz-khan
-// MIT License     - www.webrtc-experiment.com/licence
-// Documentation   - github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs
+var fs = require('fs');
+var express = require('express');
 
-var app = require('express')(),
-    server = require('http').createServer(app),
-    io = require('socket.io').listen(server);
+var app = express();
 
+app.configure(function () {
+    var hourMs = 1000 * 60 * 60;
+    app.use(express.static('static', {
+        maxAge: hourMs
+    }));
+    app.use(express.directory('static'));
+    app.use(express.errorHandler());
+});
+
+var server = require('http').createServer(app);
+var io = require('socket.io').listen(server);
 server.listen(8888);
 
 // ----------------------------------socket.io
@@ -13,14 +21,19 @@ server.listen(8888);
 var channels = {};
 
 // sometimes it helps!
-io.set('transports', ['xhr-polling']);
+// io.set('transports', ['xhr-polling']);
 
 io.sockets.on('connection', function (socket) {
     var initiatorChannel = '';
-    if (!io.isConnected)
+    if (!io.isConnected) {
         io.isConnected = true;
+    }
 
     socket.on('new-channel', function (data) {
+        if (!channels[data.channel]) {
+            initiatorChannel = data.channel;
+        }
+
         channels[data.channel] = data.channel;
         onNewNamespace(data.channel, data.sender);
     });
@@ -28,13 +41,12 @@ io.sockets.on('connection', function (socket) {
     socket.on('presence', function (channel) {
         var isChannelPresent = !! channels[channel];
         socket.emit('presence', isChannelPresent);
-        if (!isChannelPresent)
-            initiatorChannel = channel;
     });
 
     socket.on('disconnect', function (channel) {
-        if (initiatorChannel)
-            channels[initiatorChannel] = null;
+        if (initiatorChannel) {
+            delete channels[initiatorChannel];
+        }
     });
 });
 
@@ -51,27 +63,3 @@ function onNewNamespace(channel, sender) {
         });
     });
 }
-
-// ----------------------------------extras
-
-app.get('/', function (req, res) {
-    res.sendfile(__dirname + '/static/video-conferencing/index.html');
-});
-
-app.get('/conference.js', function (req, res) {
-    res.setHeader('Content-Type', 'application/javascript');
-    res.sendfile(__dirname + '/static/video-conferencing/conference.js');
-});
-
-app.get('/chat', function (req, res) {
-    res.sendfile(__dirname + '/static/text-chat.html');
-});
-
-app.get('/RTCMultiConnection', function (req, res) {
-    res.sendfile(__dirname + '/static/RTCMultiConnection/index.html');
-});
-
-app.get('/socketio.js', function (req, res) {
-    res.setHeader('Content-Type', 'application/javascript');
-    res.sendfile(__dirname + '/static/socket.io.js');
-});

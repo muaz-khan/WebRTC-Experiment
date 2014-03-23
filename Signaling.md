@@ -1,8 +1,10 @@
 You can use any signaling implementation with any [WebRTC Experiment](https://www.webrtc-experiment.com/); whether it is XMPP/SIP or PHP/MySQL or Socket.io/WebSockets or WebSync/SignalR or PeerServer/SignalMaster or other gateway.
 
+=
+
 ##### Nodejs/Socketio Server-Side Code
 
-Your server side nodejs can be as simple as:
+Your server side code can be as simple as possible like this:
 
 ```javascript
 io.sockets.on('connection', function (socket) {
@@ -12,27 +14,130 @@ io.sockets.on('connection', function (socket) {
 });
 ```
 
+You can even use existing services like (for server side code only!):
+
+1. https://github.com/andyet/signalmaster
+2. https://github.com/peers/peerjs-server
+3. https://github.com/SignalR/SignalR
+4. http://millermedeiros.github.io/js-signals/
+5. https://github.com/sockjs/sockjs-client
+
+=
+
+#### Browser side coding?
+
+There are dozens of WebRTC Experiments and Libraries; you can use any existing signaling server with any WebRTC Experiment/Library!
+
+You just need to understand how signaling is implemented in WebRTC Experiments:
+
+1. All WebRTC Experiments has `openSocket` method; that can be defined in the HTML page; which allows you override/use any signaling implementation there!
+2. All WebRTC Libraries has a public method i.e. [`openSignalingChannel`](http://www.rtcmulticonnection.org/docs/openSignalingChannel/);  which can also be overridden/defined in the HTML page; also you can override it to easily use any signaling implementation exists out there!
+
+Now you understood how default implementations can be overridden; it is time to understand how to override for any signaling implementation exists out there!
+
+=
+
+#### Example code to explain how to override `openSignalingChannel`
+
+###### First Step: Initialize a global array-like object
+
+This array-like object will store `onmessage` callbacks.
+
+```javascript
+var onMessageCallbacks = {};
+```
+
+###### Second Step: Initialize Signaling Server
+
+```javascript
+var websocket = new WebSocket('wss://something:port/');
+var socket = io.connect('https://domain:port/');
+var firebase = new Firebase('https://user.firebaseio.com/' + connection.channel);
+```
+
+For socket.io; you can pass default channel as URL parameter:
+
+```javascript
+var socket = io.connect('https://domain:port/?channel=' + connection.channel);
+```
+
+###### 3rd Step: Subscribe to server messages
+
+Capture server messages:
+
+```javascript
+websocket.onmessage = function (event) {
+    onMessageCallBack(event.data);
+};
+
+socket.on('message', function (data) {
+    onMessageCallBack(data);
+});
+
+firebase.on('child_added', function (snap) {
+    onMessageCallBack(snap.val());
+    snap.ref().remove(); // for socket.io live behaviour
+});
+```
+
+and `onMessageCallBack`:
+
+```javascript
+function onMessageCallBack(data) {
+    data = JSON.parse(e.data);
+
+    if (data.sender == connection.userid) return;
+
+    if (onMessageCallbacks[data.channel]) {
+        onMessageCallbacks[data.channel](data.message);
+    };
+}
+```
+
+###### 4th and final Step: Override `openSignalingChannel` method
+
+```javascript
+connection.openSignalingChannel = function (config) {
+    var channel = config.channel || this.channel;
+    onMessageCallbacks[channel] = config.onmessage;
+
+    if (config.onopen) setTimeout(config.onopen, 1000);
+    return {
+        send: function (message) {
+            websocket.send(JSON.stringify({
+                sender: connection.userid,
+                channel: channel,
+                message: message
+            }));
+        },
+        channel: channel
+    };
+};
+```
+
+Read more [here](https://github.com/muaz-khan/WebRTC-Experiment/issues/180#issuecomment-38318694).
+
 =
 
 ##### `openSignalingChannel` for [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/) and [DataChanel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) (Client-Side Code)
 
-Your browser side code that overrides default signaling implementations:
+Putting above 4-steps together! Here is your browser side code that overrides default signaling implementations:
 
 ```javascript
-var channels = {};
+var onMessageCallbacks = {};
 var socketio = io.connect('http://localhost:8888/');
 
 socketio.on('message', function(data) {
     if(data.sender == connection.userid) return;
     
-    if (channels[data.channel] && channels[data.channel].onmessage) {
-        channels[data.channel].onmessage(data.message);
+    if (onMessageCallbacks[data.channel]) {
+        onMessageCallbacks[data.channel](data.message);
     };
 });
 
 connection.openSignalingChannel = function (config) {
     var channel = config.channel || this.channel;
-    channels[channel] = config;
+    onMessageCallbacks[channel] = config.onmessage;
 
     if (config.onopen) setTimeout(config.onopen, 1000);
     return {
@@ -50,25 +155,25 @@ connection.openSignalingChannel = function (config) {
 
 =
 
-##### `openSocket` for all standalone WebRC Experiments
+##### `openSocket` for all standalone WebRTC Experiments
 
 ```javascript
-var channels = {};
+var onMessageCallbacks = {};
 var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
 var socketio = io.connect('http://localhost:8888/');
 
 socketio.on('message', function(data) {
     if(data.sender == currentUserUUID) return;
     
-    if (channels[data.channel] && channels[data.channel].onmessage) {
-        channels[data.channel].onmessage(data.message);
+    if (onMessageCallbacks[data.channel]) {
+        onMessageCallbacks[data.channel](data.message);
     };
 });
 
 var config = {
     openSocket = function (config) {
         var channel = config.channel || 'main-channel';
-        channels[channel] = config;
+        onMessageCallbacks[channel] = config.onmessage;
 
         if (config.onopen) setTimeout(config.onopen, 1000);
         return {
@@ -91,7 +196,7 @@ var config = {
 
 ```javascript
 // global stuff
-var channels = {};
+var onMessageCallbacks = {};
 var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
 var websocket = new WebSocket('ws://localhost:8888/');
 
@@ -100,15 +205,15 @@ websocket.onmessage =  function(e) {
     
     if(data.sender == currentUserUUID) return;
     
-    if (channels[data.channel] && channels[data.channel].onmessage) {
-        channels[data.channel].onmessage(data.message);
+    if (onMessageCallbacks[data.channel]) {
+        onMessageCallbacks[data.channel](data.message);
     };
 };
 
 // overriding "openSignalingChannel" method
 connection.openSignalingChannel = function (config) {
     var channel = config.channel || this.channel;
-    channels[channel] = config;
+    onMessageCallbacks[channel] = config.onmessage;
 
     if (config.onopen) setTimeout(config.onopen, 1000);
     return {
@@ -126,57 +231,7 @@ connection.openSignalingChannel = function (config) {
 
 =
 
-##### How to use any signaling server? E.g. SignalR, WebSync, etc.
-
-First step: Define following "two" global variables:
-
-```javascript
-var channels = {};
-var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
-```
-
-Second Step: Initialize Signaling Server:
-
-```javascript
-var websocket = new WebSocket('ws://localhost:8888/');
-```
-
-Third Step: Receive/Subscribe transmitted messages/data:
-
-```javascript
-websocket.onmessage =  function(e) {
-    data = JSON.parse(e.data);
-    
-    if(data.sender == currentUserUUID) return;
-    
-    if (channels[data.channel] && channels[data.channel].onmessage) {
-        channels[data.channel].onmessage(data.message);
-    };
-};
-```
-
-Fourth and Last Step: Override "openSignalingChannel" or "openSocket" method:
-
-```javascript
-connection.openSignalingChannel = function (config) {
-    var channel = config.channel || this.channel;
-    channels[channel] = config;
-
-    if (config.onopen) setTimeout(config.onopen, 1000);
-    return {
-        send: function (message) {
-            websocket.send(JSON.stringify({
-                sender: currentUserUUID,
-                channel: channel,
-                message: message
-            }));
-        },
-        channel: channel
-    };
-};
-```
-
-A few points to remember:
+##### A few points to remember:
 
 1. The object returned by overridden `openSignalingChannel` or `openSocket` method MUST return an object with two things:
    i. `send` method. Used to send data via signaling gateway.
@@ -203,7 +258,7 @@ var connection = new RTCMultiConnection();
 
 // ------------------------------------------------------------------
 // start-using WebSync for signaling
-var channels = {};
+var onMessageCallbacks = {};
 var username = Math.round(Math.random() * 60535) + 5000;
 
 var client = new fm.websync.client('websync.ashx');
@@ -220,8 +275,8 @@ client.connect({
             userNickname: username,
             onReceive: function (event) {
                 var message = JSON.parse(event.getData().text);
-                if (channels[message.channel] && channels[message.channel].onmessage) {
-                    channels[message.channel].onmessage(message.message);
+                if (onMessageCallbacks[message.channel]) {
+                    onMessageCallbacks[message.channel](message.message);
                 }
             }
         });
@@ -230,7 +285,7 @@ client.connect({
 
 connection.openSignalingChannel = function (config) {
     var channel = config.channel || this.channel;
-    channels[channel] = config;
+    onMessageCallbacks[channel] = config.onmessage;
 
     if (config.onopen) setTimeout(config.onopen, 1000);
     return {
@@ -277,7 +332,7 @@ public class WebRtcHub3: Hub {
 **Second Step:** Client side stuff:
 
 ```javascript
-var channels = {};
+var onMessageCallbacks = {};
 
 var connection = new RTCMultiConnection();
 
@@ -288,8 +343,8 @@ $.connection.hub.url = '/signalr/hubs';
 
 hub.client.onMessageReceived = function (message) {
     var message = JSON.parse(message);
-    if (channels[message.channel] && channels[message.channel].onmessage) {
-        channels[message.channel].onmessage(message.message);
+    if (onMessageCallbacks[message.channel]) {
+        onMessageCallbacks[message.channel](message.message);
     }
 };
 
@@ -303,7 +358,7 @@ $.connection.hub.start();
 ```javascript
 connection.openSignalingChannel = function (config) {
     var channel = config.channel || this.channel;
-    channels[channel] = config;
+    onMessageCallbacks[channel] = config.onmessage;
 
     if (config.onopen) setTimeout(config.onopen, 1000);
     return {

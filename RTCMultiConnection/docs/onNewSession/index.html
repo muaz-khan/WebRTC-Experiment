@@ -58,22 +58,41 @@
         <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a>" event</h1>
 		
 		<ol>
+            <li>
+                "<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a>" event allows you join a room with or without stream(s):
+                <ol>
+                    <li>Join with only audio</li>
+                    <li>Join with only video</li>
+                    <li>Join with audio and video</li>
+                    <li>Join with only screen</li>
+                    <li>Join with only data</li>
+                    <li>Join anonymously</li>
+                </ol>
+                <h2>Scenarios:</h2>
+                <ol>
+                    <li>There are 5 teachers; and 20 students in a room! Teachers can see/talk each other. Students can just listen. Teachers can select any student to capture his webcam/mic at runtime!</li>
+                    <li>There are 3 broadcasters; and 15 listeners/viewers.</li>
+                    <li>User is given skype-like control i.e. join with audio or join with both webcam and mic!</li>
+                </ol>
+            </li>
 			<li>
 				<pre class="sh_javascript">
 connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
-     // session.userid
-     // session.sessionid
-     // session.extra
-     // session.session i.e. {audio,video,screen,data}
+     // session.<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a>
+     // session.<a href="http://www.RTCMultiConnection.org/docs/sessionid/">sessionid</a>
+     // session.<a href="http://www.RTCMultiConnection.org/docs/extra/">extra</a>
+     // session.<a href="http://www.RTCMultiConnection.org/docs/session/">session</a> i.e. {audio,video,screen,data}
 };
 
 // or
 connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
-    session.join();                           // join session as it is!
-    session.join({audio: true});              // join session while allowing only audio
-    session.join({video: true});              // join session while allowing only video
-    session.join({screen: true});             // join session while allowing only screen
-    session.join({audio: true, video: true}); // join session while allowing both audio and video
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>();                           // join session as it is!
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>({audio: true});              // join session while allowing only audio
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>({video: true});              // join session while allowing only video
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>({screen: true});             // join session while allowing only screen
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>({audio: true, video: true}); // join session while allowing both audio and video
+    
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>({oneway: true}); // to join with no stream!
 };
 </pre>
 			</li>

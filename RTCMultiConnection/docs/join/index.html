@@ -51,37 +51,43 @@
     <article>
         <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">RTCMultiConnection Docs</a>
 
+        <div class="github-stargazers"></div>
         <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>" method</h1>
 		
 		<ol>
-			<li>When you call "<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>" method; you're actually setting up signaling channel. You're not part of conferencing room yet.</li>
 			<li>
-				"<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>" method can be used only when you already connected with a signaling channel. "<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>" method allows you join conferencing room.
-				
-				<pre class="sh_javascript">
-participant.onNewSession = function(session) {
-    // found a conferencing room; join it!
-    participant.join(session);
+                Now, <a href="http://www.rtcmulticonnection.org/docs/open/">open</a> method returns "sessionDescription" object. "open" method also accepts an object as well!
+			</li>
+            
+            <li>
+                <a href="http://www.rtcmulticonnection.org/docs/join/">join</a> method can be used to join that "sessionDescription" anytime without connecting to signaling channel!
+			</li>
+            
+            <li>
+                <h2>For initiator:</h2>
+                    <pre class="sh_javascript">
+var initiator = new RTCMultiConnection();
+
+// you can pass object instead of string!
+var sessionDescription = initiator.<a href="http://www.rtcmulticonnection.org/docs/open/">open</a>({
+    dontTransmit: true
+});
+
+websocket.send(sessionDescription);
+</pre>
+                </li>
+                
+                <li>
+                <h2>For participant:</h2>
+                    <pre class="sh_javascript">
+var participant = new RTCMultiConnection();
+
+websocket.onmessage = function(event) {
+    var sessionDescription = event.data.sessionDescription;
+    participant.<a href="http://www.rtcmulticonnection.org/docs/join/">join</a>( sessionDescription );
 };
 </pre>
-			</li>
-			
-			<li>
-				"<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>" method takes single argument; named as "session" object:
-				
-				<pre class="sh_javascript">
-connection.join({
-    sessionid: 'room-id',
-    userid: 'initiator-id',
-    session: {audio:true,video:true},
-    extra: {}
-});
-</pre>
-			</li>
-			
-			<li>
-				You can NEVER skip the argument; otherwise, it will throw error.
-			</li>
+                </li>
 		</ol>
 
         <br />
@@ -93,13 +99,20 @@ connection.join({
                 </div>
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your email for private conversation!</small>
             </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
     </article>
-    <footer>
+    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
+	
+        <footer>
             <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
             <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-    <script src="//www.webrtc-experiment.com/common.js"> </script>
+        <script src="//www.webrtc-experiment.com/commits.js"> </script>
 </body>
 </html>

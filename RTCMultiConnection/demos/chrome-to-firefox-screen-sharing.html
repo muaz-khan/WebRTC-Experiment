@@ -4,11 +4,9 @@
 <button id="share-screen">Share Screen</button>
 <hr />
 <style>video { width: 80%; }</style>
-<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.6.min.js"> </script>
-<script src="https://www.webrtc-experiment.com/firebase.js"> </script>
+<script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.7.js"> </script>
+<script src="//www.webrtc-experiment.com/firebase.js"> </script>
 <script>
-    var session = 'AAAAABFDKJFDKFDd9fdjif';
-
     var connection = new RTCMultiConnection();
     connection.session = {
         screen: true,
@@ -30,12 +28,12 @@
     };
 
     // searching for pre-shared screens
-    connection.connect(session);
+    connection.connect();
 
     document.getElementById('share-screen').onclick = function() {
         this.disabled = true;
 
         // sharing you screen!
-        connection.open(session);
+        connection.open();
     };
 </script>

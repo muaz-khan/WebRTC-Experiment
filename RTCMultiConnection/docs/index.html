@@ -56,7 +56,7 @@
             </a>
 
             <div class="github-stargazers"></div>
-            <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> Docs ----/ <a href="http://www.RTCMultiConnection.org/changes-log/">Changes Log</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com:12034/">Demo: MultiRTC!</a></h1>
+            <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> Docs ----/ <a href="http://www.RTCMultiConnection.org/changes-log/">Changes Log</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com/RTCMultiConnection/">Demo: MultiRTC!</a></h1>
 		
         
             <ol>
@@ -1097,6 +1097,29 @@ document.querySelector('input[type=file]').onchange = function() {
 };
 </pre>
                         </li>
+                        
+                        <li id="onpartofscreen">
+                            <a href="http://www.RTCMultiConnection.org/docs/onpartofscreen/">onpartofscreen</a>
+                            <pre class="sh_javascript">
+// to share a DIV or region of screen with a specific user
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].sharePartOfScreen({
+    element: 'body',
+    interval: 1000
+});
+
+// to capture shared parts of screen
+// var image = document.querySelector('img');
+connection.<a href="http://www.rtcmulticonnection.org/docs/onpartofscreen/">onpartofscreen</a> = function (e) {
+    // image.src = e.screenshot;
+};
+
+// to pause part-of-screen sharing
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].pausePartOfScreenSharing = true;
+
+// to stop part-of-screen sharing
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].stopPartOfScreenSharing = true;
+</pre>
+                        </li>
                    
                     </ol>
                 </li>
@@ -1110,6 +1133,7 @@ document.querySelector('input[type=file]').onchange = function() {
                 var direction = 'one-way,oneway,broadcast,many-to-many,multi-user,video-conferencing,audio-conferencing,videoconferencing';
                 var signaling = 'signaling,firebase,socket.io,socketio,websocket,php,asp.net,aspnet,.net,custom';
                 var session = 'audio,video,screen,data,oneway,two-way,one-way,twoway,multi-user,share,media,type,broadcast';
+                var onpartofscreen = 'part-of-screen,region-of-screen,sharePartOfScreen,pausePartOfScreenSharing,stopPartOfScreenSharing,onpartofscreen';
 
                 var search = document.querySelector('#search');
                 search.onkeyup = search.onblur = search.onfocus = search.onsearch = function() {
@@ -1123,6 +1147,10 @@ document.querySelector('input[type=file]').onchange = function() {
                     
                     if(session.indexOf(this.value) != -1) {
                         document.querySelector('#session').style.display = '';
+                    }
+                    
+                    if(onpartofscreen.indexOf(this.value) != -1) {
+                        document.querySelector('#onpartofscreen').style.display = '';
                     }
                     
                     if(signaling.indexOf(this.value) != -1) {

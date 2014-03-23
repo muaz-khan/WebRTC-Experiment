@@ -44,7 +44,7 @@
         };
 
         function setupSignalingChannel() {
-            var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
+            var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com/';
             self.openSignalingChannel = function(config) {
                 var channel = config.channel || this.channel || 'default-namespace';
                 var sender = Math.round(Math.random() * 9999999999) + 9999999999;

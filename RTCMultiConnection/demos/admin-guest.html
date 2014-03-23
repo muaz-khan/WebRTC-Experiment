@@ -157,7 +157,7 @@
                 width: 48%;
             }
         </style>
-        <script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.min.js"> </script>
+        <script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.js"> </script>
         <script src="//www.webrtc-experiment.com/getMediaElement.min.js"> </script>
         <script src="//www.webrtc-experiment.com/socket.io.js"> </script>
     </head>
@@ -316,8 +316,8 @@
             }
 
             function openSignalingChannel(config) {
-                // var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com/';
-                var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8000/';
+                var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com/';
+                // var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8000/';
 
                 var channel = config.channel || this.channel;
                 var sender = Math.round(Math.random() * 9999999999) + 9999999999;
