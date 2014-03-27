@@ -202,6 +202,22 @@ rtcMultiConnection.onCustomMessage = function(message) {
 			rtcMultiConnection.peers[message.userid].renegotiate(customStream, message.session);
 		}
     }
+    
+    if(message.messageFor == rtcMultiConnection.userid && message.areYouStillConnected) {
+        rtcMultiConnection.sendCustomMessage({
+            messageFor: message.from,
+            from: rtcMultiConnection.userid,
+            iAmStillConnected: true
+        });
+    }
+    
+    if(message.messageFor == rtcMultiConnection.userid && message.iAmStillConnected) {
+        addNewMessage({
+            header: (rtcMultiConnection.peers[message.from].extra.username || message.from) + ' is still connected!',
+            message: 'WebRTC connection is still active between you and ' + (rtcMultiConnection.peers[message.from].extra.username || message.from) + '!',
+            userinfo: getUserinfo(rtcMultiConnection.blobURLs[message.from], 'images/info.png')
+        });
+    }
 };
 
 

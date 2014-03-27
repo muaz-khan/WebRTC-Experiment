@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿<!--
+> Muaz Khan     - github.com/muaz-khan 
+> MIT License   - www.webrtc-experiment.com/licence
+> Documentation - www.RTCMultiConnection.org
+-->
+<!DOCTYPE html>
 <html id="home" lang="en">
 
     <head>
@@ -10,7 +15,8 @@
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <style>
-			@import url(https://fonts.googleapis.com/css?family=Inconsolata);
+            @import url(https://fonts.googleapis.com/css?family=Inconsolata);
+
             html { background: #eee; }
 
             body {
@@ -169,8 +175,8 @@
             document.createElement('footer');
         </script>
 
-        <script src="//www.webrtc-experiment.com/firebase.js"></script>
-		<script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.2.js"></script>
+        <script src="//www.webrtc-experiment.com/firebase.js"> </script>
+        <script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.2.js"> </script>
     </head>
 
     <body>
@@ -201,7 +207,7 @@
                         <h2 style="display: block; text-align: center;">Local Media Stream</h2>
 
                         <section id="local-media-stream"></section>
-						<table id="rooms-list"></table>
+                        <table id="rooms-list"></table>
                     </td>
                     <td style="background: white; border-left: 1px solid black;">
                         <h2 style="display: block; font-size: 1em; text-align: center;">Share Files</h2>
@@ -225,39 +231,39 @@
             </table>
             <script>
                 var connection = new RTCMultiConnection('only-audio-and-data', {
-					session: 'audio+data'
-				});
-				
-				var roomsList = document.getElementById('rooms-list');
-				connection.onNewSession = function(session) {
-					console.log('New Session', session);
-					
-					var alreadyExists = document.getElementById(session.userid);
-					if (alreadyExists) return;
+                    session: 'audio+data'
+                });
 
-					if (!window.sessions) window.sessions = {};
-					window.sessions[session.userid] = session;
+                var roomsList = document.getElementById('rooms-list');
+                connection.onNewSession = function(session) {
+                    console.log('New Session', session);
 
-					var tr = document.createElement('tr');
-					tr.innerHTML = '<td>'+ session.userid  +' shared a room with you.</td>';
+                    var alreadyExists = document.getElementById(session.userid);
+                    if (alreadyExists) return;
 
-					var td = document.createElement('td');
+                    if (!window.sessions) window.sessions = { };
+                    window.sessions[session.userid] = session;
 
-					var button = document.createElement('button');
-					button.setAttribute('id', session.userid);
-					button.innerHTML = 'Join';
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td>' + session.userid + ' shared a room with you.</td>';
 
-					td.appendChild(button);
-					tr.appendChild(td);
-					roomsList.insertBefore(tr, roomsList.firstChild);
+                    var td = document.createElement('td');
 
-					button.onclick = function () {
-						var session = window.sessions[this.id];
-						connection.join(session);
-						roomsList.style.display = 'none';
-						document.getElementById('open-session').disabled = true;
-					};
-				};
+                    var button = document.createElement('button');
+                    button.setAttribute('id', session.userid);
+                    button.innerHTML = 'Join';
+
+                    td.appendChild(button);
+                    tr.appendChild(td);
+                    roomsList.insertBefore(tr, roomsList.firstChild);
+
+                    button.onclick = function() {
+                        var session = window.sessions[this.id];
+                        connection.join(session);
+                        roomsList.style.display = 'none';
+                        document.getElementById('open-session').disabled = true;
+                    };
+                };
                 connection.onopen = function() {
                     if (document.getElementById('chat-input')) document.getElementById('chat-input').disabled = false;
                     if (document.getElementById('file')) document.getElementById('file').disabled = false;
@@ -306,7 +312,7 @@
                     this.disabled = true;
                     var hash = location.hash.replace('#', '');
                     roomsList.style.display = 'none';
-					document.getElementById('open-session').disabled = true;
+                    document.getElementById('open-session').disabled = true;
                 };
 
                 document.getElementById('file').onchange = function() {
@@ -348,10 +354,10 @@
             <br/>
             <br/>
 
-            <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
+            <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
+                <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>
                 <div>
-                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
                 </div>
                 <button id="send-message" style="font-size: 1em;">Send Message</button>
             </section>
@@ -367,5 +373,5 @@
             </p>
         </footer>
     </body>
-	<script src="//www.webrtc-experiment.com/common.js"></script>
+    <script src="//www.webrtc-experiment.com/common.js"> </script>
 </html>

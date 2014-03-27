@@ -55,19 +55,35 @@
             <a href="http://www.RTCMultiConnection.org/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ www.RTCMultiConnection.org</a>
 
             <div class="github-stargazers"></div>
-            <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Changes Log ----/ <a href="http://www.RTCMultiConnection.org/docs/">Docs</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com/RTCMultiConnection/">Demo: MultiRTC!</a></h1>
+            <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Changes Log ----/ <a href="http://www.RTCMultiConnection.org/docs/">Docs</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com/RTCMultiConnection/">Demos!</a></h1>
 		
             <br /><br /><br />
             
-            <h2 id="v1.7"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.7">v1.7</a> / Beta will be released at March 23, 2014!</h2>
+            <h2 id="v1.7"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.7">v1.7</a> / Beta released in March 23, 2014!</h2>
 		
             <ol>
                 <li>
-					v1.7 is available for early testers:
-					<pre class="sh_javascript">
-https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js
+                    <code>hold/unhold</code> of individual media lines implemented:
+                    <pre class="sh_javascript">
+// hold only your audio
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].hold('audio');
+connection.<a href="http://www.rtcmulticonnection.org/docs/onhold/">onhold</a> = function(track) {
+    if(track.kind == 'audio') {}
+};
+
+// hold only your video
+connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].hold('video');
+connection.<a href="http://www.rtcmulticonnection.org/docs/onunhold/">onunhold</a> = function(track) {
+    if(track.kind == 'video') {}
+};
+
+// unhold all your 'video' m-lines
+connection.unhold('video');
+
+// hold all your 'audio' m-lines
+connection.hold('audio');
 </pre>
-				</li>
+                </li>
                 
                 <li>
                     When you mute/unmute; video-controls are synced among all users! Volume is also synced!
@@ -814,7 +830,7 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
                 </li>
             </ol>
 		
-            <h2 id="v1.4"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.4">v1.4/a> / released in July 06, 2013</h2>
+            <h2 id="v1.4"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.4">v1.4</a> / released in July 06, 2013</h2>
 		
             <ol>
                 <li>Multiple concurrent files transmission / see <a href="https://github.com/muaz-khan/WebRTC-Experiment/commit/a0f9b72654b3ba7c5232968d9850e35fb770bbbb#RTCMultiConnection" target="_blank">commit</a></li>

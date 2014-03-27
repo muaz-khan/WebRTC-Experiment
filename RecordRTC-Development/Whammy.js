@@ -4,7 +4,7 @@
 
 // https://github.com/antimatter15/whammy/blob/master/LICENSE
 // _________
-// whammy.js
+// Whammy.js
 
 // todo: Firefox now supports webp for webm containers!
 // their MediaRecorder implementation works well!

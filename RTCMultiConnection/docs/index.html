@@ -521,7 +521,7 @@ connection.mediaConstraints.audio = false;
 </pre>
                         </li>
 					
-                        <li>
+                        <li id="sdpConstraints">
                             <a href="http://www.RTCMultiConnection.org/docs/sdpConstraints/">sdpConstraints</a>
                             <pre class="sh_javascript">
 connection.sdpConstraints.mandatory = {
@@ -1134,6 +1134,7 @@ connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['ta
                 var signaling = 'signaling,firebase,socket.io,socketio,websocket,php,asp.net,aspnet,.net,custom';
                 var session = 'audio,video,screen,data,oneway,two-way,one-way,twoway,multi-user,share,media,type,broadcast';
                 var onpartofscreen = 'part-of-screen,region-of-screen,sharePartOfScreen,pausePartOfScreenSharing,stopPartOfScreenSharing,onpartofscreen';
+                var sdpConstraints = 'sdp,constraints,OfferToReceiveAudio,OfferToReceiveVideo,VoiceActivityDetection,IceRestart,createOffer,createAnswer';
 
                 var search = document.querySelector('#search');
                 search.onkeyup = search.onblur = search.onfocus = search.onsearch = function() {
@@ -1151,6 +1152,10 @@ connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['ta
                     
                     if(onpartofscreen.indexOf(this.value) != -1) {
                         document.querySelector('#onpartofscreen').style.display = '';
+                    }
+                    
+                    if(sdpConstraints.indexOf(this.value) != -1) {
+                        document.querySelector('#sdpConstraints').style.display = '';
                     }
                     
                     if(signaling.indexOf(this.value) != -1) {

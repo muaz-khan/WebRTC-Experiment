@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿<!--
+> Muaz Khan     - github.com/muaz-khan 
+> MIT License   - www.webrtc-experiment.com/licence
+> Documentation - www.RTCMultiConnection.org
+-->
+
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <title>Renegotiation using RTCMultiConnection ® Muaz Khan</title>
@@ -169,7 +175,7 @@
             connection.session = {
                 data: true
             };
-        
+
             connection.onopen = function(e) {
                 inputMessage.disabled = false;
                 connection.send('Hi, I\'m ' + e.userid);
@@ -187,14 +193,14 @@
             connection.onmessage = function(e) {
                 appendDIV(e.data);
             };
-        
+
             var remoteVideosContainer = document.getElementById('remote-videos-container');
             connection.onstream = function(e) {
                 video = getVideo(e);
                 if (e.type === 'local') document.getElementById('local-video-container').appendChild(video);
                 if (e.type === 'remote') remoteVideosContainer.appendChild(video, remoteVideosContainer.firstChild);
             };
-        
+
             connection.onstreamended = function(e) {
                 if (e.mediaElement.parentNode && e.mediaElement.parentNode.parentNode) e.mediaElement.parentNode.parentNode.removeChild(e.mediaElement.parentNode);
             };

@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿<!--
+> Muaz Khan     - github.com/muaz-khan 
+> MIT License   - www.webrtc-experiment.com/licence
+> Documentation - www.RTCMultiConnection.org
+-->
+
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <title>WebRTC Remote Stream Forwarding ® Muaz Khan</title>
@@ -128,35 +134,35 @@
                 </ol>
 
                 <script>
-    // http://www.rtcmulticonnection.org/docs/constructor/
+                    // http://www.rtcmulticonnection.org/docs/constructor/
                     var mainConnection = new RTCMultiConnection();
 
-    // http://www.rtcmulticonnection.org/docs/session/
+                    // http://www.rtcmulticonnection.org/docs/session/
                     mainConnection.session = {
                         audio: true,
                         video: true
                     };
-	// http://www.rtcmulticonnection.org/docs/direction/
+                    // http://www.rtcmulticonnection.org/docs/direction/
                     mainConnection.direction = 'one-way';
 
-    // http://www.rtcmulticonnection.org/docs/constructor/
+                    // http://www.rtcmulticonnection.org/docs/constructor/
                     var dummyConnection = new RTCMultiConnection('dummy-connection');
 
-    // http://www.rtcmulticonnection.org/docs/direction/
+                    // http://www.rtcmulticonnection.org/docs/direction/
                     dummyConnection.direction = 'one-way';
 
-    // http://www.rtcmulticonnection.org/docs/dontAttachStream/
+                    // http://www.rtcmulticonnection.org/docs/dontAttachStream/
                     dummyConnection.dontAttachStream = true;
 
                     var videosCotainer = document.getElementById('videos-container');
 
-    // http://www.rtcmulticonnection.org/docs/onstream/
+                    // http://www.rtcmulticonnection.org/docs/onstream/
                     mainConnection.onstream = function(e) {
                         dummyConnection.attachStreams.push(e.stream);
                         videosCotainer.appendChild(e.mediaElement);
                     };
 
-    // http://www.rtcmulticonnection.org/docs/onstream/
+                    // http://www.rtcmulticonnection.org/docs/onstream/
                     dummyConnection.onstream = function(e) {
                         alert('Wow, got forwarded stream!');
                         videosCotainer.appendChild(e.mediaElement);

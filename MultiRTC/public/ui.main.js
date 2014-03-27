@@ -78,45 +78,54 @@ main.querySelector('button').onclick = function() {
     });
 
     socket.on('room-found', function(roomFound) {
-        if (roomFound) {
-            addNewMessage({
-                header: username,
-                message: 'Room found. Joining the room...',
-                userinfo: '<img src="images/action-needed.png">'
-            });
+        rtcMultiConnection.getStats(function(stat) {
+            if(stat.numberOfConnectedUsers == 2) return;
+            
+            if (roomFound) {
+                addNewMessage({
+                    header: username,
+                    message: 'Room found. Joining the room...',
+                    userinfo: '<img src="images/action-needed.png">'
+                });
 
-            rtcMultiConnection.init();
-            rtcMultiConnection.connect();
-        } else {
-            addNewMessage({
-                header: username,
-                message: 'No room found. Creating new room...<br /><br />You can share following link with your friends:<br /><a href="' + location.href + '">' + location.href + '</a>',
-                userinfo: '<img src="images/action-needed.png">'
-            });
-            rtcMultiConnection.init();
-            rtcMultiConnection.open();
-        }
+                rtcMultiConnection.init();
+                rtcMultiConnection.connect();
+            } else {
+                addNewMessage({
+                    header: username,
+                    message: 'No room found. Creating new room...<br /><br />You can share following link with your friends:<br /><a href="' + location.href + '">' + location.href + '</a>',
+                    userinfo: '<img src="images/action-needed.png">'
+                });
+                rtcMultiConnection.init();
+                rtcMultiConnection.open();
+            }
+        });
     });
 
     socket.on('user-left', function(e) {
         if (e.room != location.href.split('/').pop()) return;
-        console.log('user left', e.userid);
-
-        for (var stream in rtcMultiConnection.streams) {
-            stream = rtcMultiConnection.streams[stream];
-            if (stream.userid == e.userid) {
-                stream.stop();
-                rtcMultiConnection.onstreamended(stream.streamObject);
-                delete rtcMultiConnection.streams[stream];
-            }
-        }
-
-        numbersOfUsers.innerHTML = parseInt(numbersOfUsers.innerHTML) - 1;
 
         addNewMessage({
-            header: 'User Left',
-            message: (rtcMultiConnection.peers[e.userid].extra.username || e.userid) + ' left the room.',
+            header: (rtcMultiConnection.peers[e.userid].extra.username || e.userid) + ' seems disconnected',
+            message: (rtcMultiConnection.peers[e.userid].extra.username || e.userid) + ' seems disconnected from socket.io server.<ol style="margin:2em;"><li>Maybe socket.io connection is dropped on his side. It is not a big deal!</li><li>Maybe he really left you! Then WebRTC connection will also drop.</li></ol>Checking WebRTC connection status...',
             userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/info.png')
+        });
+        
+        rtcMultiConnection.peers[e.userid].oniceconnectionstatechange = function() {
+            if(rtcMultiConnection.peers[e.userid].peer.connection.iceConnectionState == 'disconnected') {
+                addNewMessage({
+                    header: 'WebRTC Connection is Dropped!',
+                    message: 'WebRTC connection is dropped between you and ' + (rtcMultiConnection.peers[e.userid].extra.username || e.userid) + '!',
+                    userinfo: getUserinfo(rtcMultiConnection.blobURLs[e.userid], 'images/info.png')
+                });
+                onUserLeft(e.userid);
+            }
+        };
+        
+        rtcMultiConnection.sendCustomMessage({
+            messageFor: e.userid,
+            from: rtcMultiConnection.userid,
+            areYouStillConnected: true
         });
     });
     
@@ -127,6 +136,25 @@ main.querySelector('button').onclick = function() {
         }
     });
 };
+
+function onUserLeft(userid) {
+    for (var stream in rtcMultiConnection.streams) {
+        stream = rtcMultiConnection.streams[stream];
+        if (stream.userid == userid) {
+            stream.stop();
+            rtcMultiConnection.onstreamended(stream.streamObject);
+            delete rtcMultiConnection.streams[stream];
+        }
+    }
+
+    numbersOfUsers.innerHTML = parseInt(numbersOfUsers.innerHTML) - 1;
+
+    addNewMessage({
+        header: 'User Left',
+        message: (rtcMultiConnection.peers[userid].extra.username || userid) + ' left the room.',
+        userinfo: getUserinfo(rtcMultiConnection.blobURLs[userid], 'images/info.png')
+    });
+}
 
 function getUserinfo(blobURL, imageURL) {
     return blobURL ? '<video src="' + blobURL + '" autoplay></vide>' : '<img src="' + imageURL + '">';

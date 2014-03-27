@@ -1,4 +1,4 @@
-// Last time updated at 06 March 2014, 16:32:23
+// Last time updated at 27 March 2014, 16:32:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -6,8 +6,24 @@
 
 // Note: RecordRTC.js is using 3 other libraries; you need to accept their licences as well.
 
+// 1. RecordRTC.js
+// 2. MRecordRTC.js
+// 3. Cross-Browser-Declarations.js
+// 4. Storage.js
+// 5. MediaStreamRecorder.js
+// 6. StereoRecorder.js
+// 7. StereoAudioRecorder.js
+// 8. CanvasRecorder.js
+// 9. WhammyRecorder.js
+// 10. Whammy.js
+// 11. DiskStorage.js
+// 12. GifRecorder.js
+// 13. gifEncoder.js
+
 // ____________
 // RecordRTC.js
+
+// recordRTC.setAdvertisementArray( [ 'data:image-webp', 'data:image-webp', 'data:image-webp' ] );
 
 function RecordRTC(mediaStream, config) {
     config = config || { };
@@ -46,7 +62,7 @@ function RecordRTC(mediaStream, config) {
 
         console.warn('stopped recording ' + (IsChrome ? config.type : 'audio+video') + ' stream.');
 
-        if (config.type == 'audio' && !IsChrome) {
+        if ((config.type == 'audio' && !IsChrome) || (config.type == 'video' && IsChrome)) {
             mediaRecorder.stop(_callback);
         } else {
             mediaRecorder.stop();
@@ -120,6 +136,17 @@ function RecordRTC(mediaStream, config) {
         getFromDisk: function(callback) {
             if (!mediaRecorder) return console.warn(WARNING);
             RecordRTC.getFromDisk(config.type, callback);
+        },
+        setAdvertisementArray: function(arrayOfWebPImages) {
+            this.advertisement = [];
+
+            var length = arrayOfWebPImages.length;
+            for (var i = 0; i < length; i++) {
+                this.advertisement.push({
+                    duration: i,
+                    image: arrayOfWebPImages[i]
+                });
+            }
         }
     };
 }
@@ -202,8 +229,131 @@ RecordRTC.writeToDisk = function(options) {
     }
 };
 
-// __________________________
-// Cross-Browser Declarations
+// _____________
+// MRecordRTC.js
+
+function MRecordRTC(mediaStream) {
+    this.addStream = function(_mediaStream) {
+        if (_mediaStream) mediaStream = _mediaStream;
+    };
+
+    this.mediaType = {
+        audio: true,
+        video: true
+    };
+
+    this.startRecording = function() {
+        if (this.mediaType.audio) {
+            this.audioRecorder = RecordRTC(mediaStream, this).startRecording();
+        }
+
+        if (this.mediaType.video) {
+            this.videoRecorder = RecordRTC(mediaStream, {
+                type: 'video'
+            }).startRecording();
+        }
+
+        if (this.mediaType.gif) {
+            this.gifRecorder = RecordRTC(mediaStream, {
+                type: 'gif',
+                frameRate: this.frameRate || 200,
+                quality: this.quality || 10
+            }).startRecording();
+        }
+    };
+
+    this.stopRecording = function(callback) {
+        callback = callback || function() {
+        };
+
+        if (this.audioRecorder) {
+            this.audioRecorder.stopRecording(function(blobURL) {
+                callback(blobURL, 'audio');
+            });
+        }
+
+        if (this.videoRecorder) {
+            this.videoRecorder.stopRecording(function(blobURL) {
+                callback(blobURL, 'video');
+            });
+        }
+
+        if (this.gifRecorder) {
+            this.gifRecorder.stopRecording(function(blobURL) {
+                callback(blobURL, 'gif');
+            });
+        }
+    };
+
+    this.getBlob = function(callback) {
+        var output = { };
+
+        if (this.audioRecorder) {
+            output.audio = this.audioRecorder.getBlob();
+        }
+
+        if (this.videoRecorder) {
+            output.video = this.videoRecorder.getBlob();
+        }
+
+        if (this.gifRecorder) {
+            output.gif = this.gifRecorder.getBlob();
+        }
+        if (callback) callback(output);
+    };
+
+    this.getDataURL = function(callback) {
+        this.getBlob(function(blob) {
+            getDataURL(blob.audio, function(_audioDataURL) {
+                getDataURL(blob.video, function(_videoDataURL) {
+                    callback({
+                        audio: _audioDataURL,
+                        video: _videoDataURL
+                    });
+                });
+            });
+        });
+
+        function getDataURL(blob, callback00) {
+            if (!!window.Worker) {
+                var webWorker = processInWebWorker(function readFile(_blob) {
+                    postMessage(new FileReaderSync().readAsDataURL(_blob));
+                });
+
+                webWorker.onmessage = function(event) {
+                    callback00(event.data);
+                };
+
+                webWorker.postMessage(blob);
+            }
+        }
+
+        function processInWebWorker(_function) {
+            var blob = URL.createObjectURL(new Blob([_function.toString(),
+                    'this.onmessage =  function (e) {readFile(e.data);}'], {
+                        type: 'application/javascript'
+                    }));
+
+            var worker = new Worker(blob);
+            URL.revokeObjectURL(blob);
+            return worker;
+        }
+    };
+
+    this.writeToDisk = function() {
+        RecordRTC.writeToDisk({
+            audio: this.audioRecorder,
+            video: this.videoRecorder,
+            gif: this.gifRecorder
+        });
+    };
+}
+
+MRecordRTC.getFromDisk = RecordRTC.getFromDisk;
+MRecordRTC.writeToDisk = RecordRTC.writeToDisk;
+
+// _____________________________
+// Cross-Browser-Declarations.js
 
 // animation-frame used in WebM recording
 requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;
@@ -243,9 +393,16 @@ function reformatProps(obj) {
     return output;
 }
 
+// __________ (used to handle stuff like http://goo.gl/xmE5eg) issue #129
+// Storage.js
+var Storage = {
+    AudioContext: window.AudioContext || window.webkitAudioContext
+};
+
 // ______________________
 // MediaStreamRecorder.js
 
+// todo: need to show alert boxes for incompatible cases
 // encoder only supports 48k/16k mono audio channel
 
 /**
@@ -282,13 +439,10 @@ function MediaStreamRecorder(mediaStream) {
                 console.warn('Recording of', e.data.type, 'failed.');
                 return;
             }
-            /*
+
+            // todo: need to check who commented following two lines and why?
             // pull #118
-            if (self.recordedBlob)
-            self.recordedBlob = new Blob([self.recordedBlob, e.data], { type: e.data.type || 'audio/ogg' });
-            else
-                
-            */
+            // if (self.recordedBlob) self.recordedBlob = new Blob([self.recordedBlob, e.data], { type: e.data.type || 'audio/ogg' });
 
             dataAvailable = true;
             self.recordedBlob = new Blob([e.data], { type: e.data.type || 'audio/ogg' });
@@ -328,7 +482,6 @@ function MediaStreamRecorder(mediaStream) {
     var mediaRecorder;
 }
 
-
 // _________________
 // StereoRecorder.js
 
@@ -346,12 +499,6 @@ function StereoRecorder(mediaStream) {
     // Reference to "StereoAudioRecorder" object
     var mediaRecorder;
 }
-
-// __________ (used to handle stuff like http://goo.gl/xmE5eg) issue #129
-// Storage.js
-var Storage = {
-    AudioContext: window.AudioContext || window.webkitAudioContext
-};
 
 // source code from: http://typedarray.org/wp-content/projects/WebAudioRecorder/script.js
 // https://github.com/mattdiamond/Recorderjs#license-mit
@@ -544,104 +691,9 @@ function StereoAudioRecorder(mediaStream, root) {
 
     // we connect the recorder
     volume.connect(__stereoAudioRecorderJavacriptNode);
+
+    // to prevent self audio to be connected with speakers
     __stereoAudioRecorderJavacriptNode.connect(context.destination);
-}
-
-// _______________________ (webp detection code is taken from another github repo)
-// WebP presence detection
-
-var isWebPSupported;
-(function(callback) {
-    var img = new Image();
-
-    img.addEventListener('load', function() {
-        if (this.width === 2 && this.height === 1) {
-            callback(true);
-        } else callback(false);
-    });
-
-    img.addEventListener('error', function() {
-        callback(false);
-    });
-
-    img.src = 'data:image/webp;base64,UklGRjIAAABXRUJQVlA4ICYAAACyAgCdASoCAAEALmk0mk0iIiIiIgBoSygABc6zbAAA/v56QAAAAA==';
-})(function(_isWebPSupported) {
-    isWebPSupported = _isWebPSupported;
-});
-
-// _________________
-// WhammyRecorder.js
-
-function WhammyRecorder(mediaStream) {
-    if (!isWebPSupported) console.error('It seems that webp images are not supported in this browser. Please try chrome.');
-
-    this.record = function() {
-        if (!this.width) this.width = video.offsetWidth || 320;
-        if (!this.height) this.height = video.offsetHeight || 240;
-
-        if (!this.video) {
-            this.video = {
-                width: this.width,
-                height: this.height
-            };
-        }
-
-        if (!this.canvas) {
-            this.canvas = {
-                width: this.width,
-                height: this.height
-            };
-        }
-
-        canvas.width = this.canvas.width;
-        canvas.height = this.canvas.height;
-
-        video.width = this.video.width;
-        video.height = this.video.height;
-
-        startTime = Date.now();
-
-        (function drawVideoFrame(time) {
-            lastAnimationFrame = requestAnimationFrame(drawVideoFrame);
-
-            if (typeof lastFrameTime === undefined) {
-                lastFrameTime = time;
-            }
-
-            // ~10 fps
-            // console.log(time, lastFrameTime, time - lastFrameTime, time - lastFrameTime < 90);
-            // if (time - lastFrameTime < 90) return;
-
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            whammy.add(canvas, time - lastFrameTime);
-            // whammy.add(canvas);
-
-            lastFrameTime = time;
-        })();
-    };
-
-    this.stop = function() {
-        if (lastAnimationFrame) cancelAnimationFrame(lastAnimationFrame);
-        endTime = Date.now();
-        this.recordedBlob = whammy.compile();
-        whammy.frames = [];
-    };
-
-    var canvas = document.createElement('canvas');
-    var context = canvas.getContext('2d');
-
-    var video = document.createElement('video');
-    video.muted = true;
-    video.volume = 0;
-    video.autoplay = true;
-    video.src = URL.createObjectURL(mediaStream);
-    video.play();
-
-    var lastAnimationFrame = null;
-    var startTime, endTime, lastFrameTime;
-
-    var whammy = new Whammy.Video();
 }
 
 // _________________
@@ -674,10 +726,10 @@ function CanvasRecorder(htmlElement) {
     var whammy = new Whammy.Video(100);
 }
 
-// ______________
-// GifRecorder.js
+// _________________
+// WhammyRecorder.js
 
-function GifRecorder(mediaStream) {
+function WhammyRecorder(mediaStream) {
     this.record = function() {
         if (!this.width) this.width = video.offsetWidth || 320;
         if (!this.height) this.height = video.offsetHeight || 240;
@@ -702,64 +754,42 @@ function GifRecorder(mediaStream) {
         video.width = this.video.width;
         video.height = this.video.height;
 
-        // external library to record as GIF images
-        gifEncoder = new GIFEncoder();
-
-        // void setRepeat(int iter) 
-        // Sets the number of times the set of GIF frames should be played. 
-        // Default is 1; 0 means play indefinitely.
-        gifEncoder.setRepeat(0);
-
-        // void setFrameRate(Number fps) 
-        // Sets frame rate in frames per second. 
-        // Equivalent to setDelay(1000/fps).
-        // Using "setDelay" instead of "setFrameRate"
-        gifEncoder.setDelay(this.frameRate || 200);
-
-        // void setQuality(int quality) 
-        // Sets quality of color quantization (conversion of images to the 
-        // maximum 256 colors allowed by the GIF specification). 
-        // Lower values (minimum = 1) produce better colors, 
-        // but slow processing significantly. 10 is the default, 
-        // and produces good color mapping at reasonable speeds. 
-        // Values greater than 20 do not yield significant improvements in speed.
-        gifEncoder.setQuality(this.quality || 10);
-
-        // Boolean start() 
-        // This writes the GIF Header and returns false if it fails.
-        gifEncoder.start();
-
-        startTime = Date.now();
-
-        function drawVideoFrame(time) {
-            lastAnimationFrame = requestAnimationFrame(drawVideoFrame);
-
-            if (typeof lastFrameTime === undefined) {
-                lastFrameTime = time;
-            }
-
-            // ~10 fps
-            if (time - lastFrameTime < 90) return;
-
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            gifEncoder.addFrame(context);
-            lastFrameTime = time;
-        }
-
-        lastAnimationFrame = requestAnimationFrame(drawVideoFrame);
+        drawFrames();
     };
 
-    this.stop = function() {
-        if (lastAnimationFrame) cancelAnimationFrame(lastAnimationFrame);
+    var frames = [];
 
-        endTime = Date.now();
+    // if user want to display advertisement before recorded video!
+    if (this.advertisement) {
+        frames = advertisement;
+    }
 
-        this.recordedBlob = new Blob([new Uint8Array(gifEncoder.stream().bin)], {
-            type: 'image/gif'
+    function drawFrames() {
+        var duration = new Date().getTime() - lastTime;
+        lastTime = new Date().getTime();
+        if (!duration) return drawFrames();
+
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        frames.push({
+            duration: duration,
+            image: canvas.toDataURL('image/webp')
         });
 
-        // bug: find a way to clear old recorded blobs
-        gifEncoder.stream().bin = [];
+        if (!isStopDrawing) {
+            setTimeout(drawFrames, 10);
+        }
+    }
+
+    var isStopDrawing = false;
+
+    this.stop = function(callback) {
+        isStopDrawing = true;
+        whammy.frames = frames;
+        frames = [];
+
+        this.recordedBlob = whammy.compile();
+
+        if (callback) callback(this.recordedBlob);
     };
 
     var canvas = document.createElement('canvas');
@@ -767,28 +797,28 @@ function GifRecorder(mediaStream) {
 
     var video = document.createElement('video');
     video.muted = true;
+    video.volume = 0;
     video.autoplay = true;
     video.src = URL.createObjectURL(mediaStream);
     video.play();
 
-    var lastAnimationFrame = null;
-    var startTime, endTime, lastFrameTime;
+    var lastTime = new Date().getTime();
 
-    var gifEncoder;
+    var whammy = new Whammy.Video();
 }
 
 // https://github.com/antimatter15/whammy/blob/master/LICENSE
 // _________
-// whammy.js
+// Whammy.js
+
+// todo: Firefox now supports webp for webm containers!
+// their MediaRecorder implementation works well!
+// should we provide an option to record via Whammy.js or MediaRecorder API is a better solution?
 
 var Whammy = (function() {
-    // in this case, frames has a very specific meaning, which will be
-    // detailed once i finish writing the code
-
     function toWebM(frames) {
         var info = checkFrames(frames);
 
-        //max duration by cluster in milliseconds
         var CLUSTER_MAX_DURATION = 30000;
 
         var EBML = [
@@ -949,7 +979,7 @@ var Whammy = (function() {
         return generateEBML(EBML);
     }
 
-    // sums the lengths of all the frames and gets the duration, woo
+    // sums the lengths of all the frames and gets the duration
 
     function checkFrames(frames) {
         if (!frames[0]) {
@@ -1238,127 +1268,108 @@ var DiskStorage = {
     dataStoreName: 'recordRTC'
 };
 
-// _____________
-// MRecordRTC.js
+// ______________
+// GifRecorder.js
 
-function MRecordRTC(mediaStream) {
-    this.addStream = function(_mediaStream) {
-        if (_mediaStream) mediaStream = _mediaStream;
-    };
+function GifRecorder(mediaStream) {
+    this.record = function() {
+        if (!this.width) this.width = video.offsetWidth || 320;
+        if (!this.height) this.height = video.offsetHeight || 240;
 
-    this.mediaType = {
-        audio: true,
-        video: true
-    };
-
-    this.startRecording = function() {
-        if (this.mediaType.audio) {
-            this.audioRecorder = RecordRTC(mediaStream, this).startRecording();
+        if (!this.video) {
+            this.video = {
+                width: this.width,
+                height: this.height
+            };
         }
 
-        if (this.mediaType.video) {
-            this.videoRecorder = RecordRTC(mediaStream, {
-                type: 'video'
-            }).startRecording();
+        if (!this.canvas) {
+            this.canvas = {
+                width: this.width,
+                height: this.height
+            };
         }
 
-        if (this.mediaType.gif) {
-            this.gifRecorder = RecordRTC(mediaStream, {
-                type: 'gif',
-                frameRate: this.frameRate || 200,
-                quality: this.quality || 10
-            }).startRecording();
-        }
-    };
+        canvas.width = this.canvas.width;
+        canvas.height = this.canvas.height;
 
-    this.stopRecording = function(callback) {
-        callback = callback || function() { };
+        video.width = this.video.width;
+        video.height = this.video.height;
 
-        if (this.audioRecorder) {
-            this.audioRecorder.stopRecording(function(blobURL) {
-                callback(blobURL, 'audio');
-            });
-        }
+        // external library to record as GIF images
+        gifEncoder = new GIFEncoder();
 
-        if (this.videoRecorder) {
-            this.videoRecorder.stopRecording(function(blobURL) {
-                callback(blobURL, 'video');
-            });
-        }
+        // void setRepeat(int iter) 
+        // Sets the number of times the set of GIF frames should be played. 
+        // Default is 1; 0 means play indefinitely.
+        gifEncoder.setRepeat(0);
 
-        if (this.gifRecorder) {
-            this.gifRecorder.stopRecording(function(blobURL) {
-                callback(blobURL, 'gif');
-            });
-        }
-    };
+        // void setFrameRate(Number fps) 
+        // Sets frame rate in frames per second. 
+        // Equivalent to setDelay(1000/fps).
+        // Using "setDelay" instead of "setFrameRate"
+        gifEncoder.setDelay(this.frameRate || 200);
 
-    this.getBlob = function(callback) {
-        var output = { };
+        // void setQuality(int quality) 
+        // Sets quality of color quantization (conversion of images to the 
+        // maximum 256 colors allowed by the GIF specification). 
+        // Lower values (minimum = 1) produce better colors, 
+        // but slow processing significantly. 10 is the default, 
+        // and produces good color mapping at reasonable speeds. 
+        // Values greater than 20 do not yield significant improvements in speed.
+        gifEncoder.setQuality(this.quality || 10);
 
-        if (this.audioRecorder) {
-            output.audio = this.audioRecorder.getBlob();
-        }
+        // Boolean start() 
+        // This writes the GIF Header and returns false if it fails.
+        gifEncoder.start();
 
-        if (this.videoRecorder) {
-            output.video = this.videoRecorder.getBlob();
-        }
+        startTime = Date.now();
 
-        if (this.gifRecorder) {
-            output.gif = this.gifRecorder.getBlob();
-        }
-        if (callback) callback(output);
-    };
+        function drawVideoFrame(time) {
+            lastAnimationFrame = requestAnimationFrame(drawVideoFrame);
 
-    this.getDataURL = function(callback) {
-        this.getBlob(function(blob) {
-            getDataURL(blob.audio, function(_audioDataURL) {
-                getDataURL(blob.video, function(_videoDataURL) {
-                    callback({
-                        audio: _audioDataURL,
-                        video: _videoDataURL
-                    });
-                });
-            });
-        });
-
-        function getDataURL(blob, callback00) {
-            if (!!window.Worker) {
-                var webWorker = processInWebWorker(function readFile(_blob) {
-                    postMessage(new FileReaderSync().readAsDataURL(_blob));
-                });
-
-                webWorker.onmessage = function(event) {
-                    callback00(event.data);
-                };
-
-                webWorker.postMessage(blob);
+            if (typeof lastFrameTime === undefined) {
+                lastFrameTime = time;
             }
+
+            // ~10 fps
+            if (time - lastFrameTime < 90) return;
+
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            gifEncoder.addFrame(context);
+            lastFrameTime = time;
         }
 
-        function processInWebWorker(_function) {
-            var blob = URL.createObjectURL(new Blob([_function.toString(),
-                    'this.onmessage =  function (e) {readFile(e.data);}'], {
-                        type: 'application/javascript'
-                    }));
-
-            var worker = new Worker(blob);
-            URL.revokeObjectURL(blob);
-            return worker;
-        }
+        lastAnimationFrame = requestAnimationFrame(drawVideoFrame);
     };
 
-    this.writeToDisk = function() {
-        RecordRTC.writeToDisk({
-            audio: this.audioRecorder,
-            video: this.videoRecorder,
-            gif: this.gifRecorder
+    this.stop = function() {
+        if (lastAnimationFrame) cancelAnimationFrame(lastAnimationFrame);
+
+        endTime = Date.now();
+
+        this.recordedBlob = new Blob([new Uint8Array(gifEncoder.stream().bin)], {
+            type: 'image/gif'
         });
-    };
-}
 
-MRecordRTC.getFromDisk = RecordRTC.getFromDisk;
-MRecordRTC.writeToDisk = RecordRTC.writeToDisk;
+        // bug: find a way to clear old recorded blobs
+        gifEncoder.stream().bin = [];
+    };
+
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+
+    var video = document.createElement('video');
+    video.muted = true;
+    video.autoplay = true;
+    video.src = URL.createObjectURL(mediaStream);
+    video.play();
+
+    var lastAnimationFrame = null;
+    var startTime, endTime, lastFrameTime;
+
+    var gifEncoder;
+}
 
 // _____________
 // gifEncoder.js

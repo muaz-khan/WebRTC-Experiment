@@ -18,7 +18,7 @@ function toggle() {
         window.isStopBroadcasting = false;
         captureDesktop();
 
-        chrome.contextMenus.update('1234567890', {
+        chrome.contextMenus.update('454656567', {
             title: 'Stop sharing Desktop.'
         });
         console.log('Desktop sharing started...');
@@ -35,7 +35,7 @@ function toggle() {
             path: 'images/desktopCapture22.png'
         });
 
-        chrome.contextMenus.update('1234567890', {
+        chrome.contextMenus.update('454656567', {
             title: 'Share Desktop!'
         });
 
@@ -88,7 +88,7 @@ function onAccessApproved(desktop_id) {
 
 chrome.contextMenus.create({
     title: 'Share Desktop!',
-    id: '1234567890'
+    id: '454656567'
 });
 chrome.contextMenus.onClicked.addListener(toggle);
 

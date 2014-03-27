@@ -2,8 +2,8 @@
 // MIT License       - www.WebRTC-Experiment.com/licence
 // Documentation     - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
 
-// __________________________
-// Cross-Browser Declarations
+// _____________________________
+// Cross-Browser-Declarations.js
 
 // animation-frame used in WebM recording
 requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;

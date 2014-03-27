@@ -1,3 +1,8 @@
+<!--
+> Muaz Khan     - github.com/muaz-khan 
+> MIT License   - www.webrtc-experiment.com/licence
+> Documentation - www.RTCMultiConnection.org
+-->
 <title>RTCMultiConnection and Room-Screenshots</title>
 <style>
     @import url(https://fonts.googleapis.com/css?family=Ubuntu:300);
@@ -48,7 +53,7 @@
 <script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.7.js"> </script>
 <script src="//www.webrtc-experiment.com/firebase.js"> </script>
 
-<h1>Preview Screenshot of the room using <a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection.js</a></h2>
+<h1>Preview Screenshot of the room using <a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection.js</a></h1>
 
 <input type="text" placeholder="screenshot" id="screenshot" style="width: 50%;" title="Screenshot image URL">
 <button id="setup-connection">Setup Peer Connection</button>
@@ -57,22 +62,22 @@
 <hr />
 Posters, screenshots/snapshots (, or whatever else you want) can be passed as <strong>extra data</strong>!
 <pre>
-connection.extra = {
+connection.<a href="http://www.RTCMultiConnection.org/docs/extra/">extra</a> = {
     <strong>screenshot</strong>: document.getElementById('screenshot').value
 };
 connection.open();
 </pre>
 and "onNewSession":
 <pre>
-connection.onNewSession = function(session) {
+connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
     image.src = session.<strong>extra.screenshot</strong>;
 };
 </pre>
 <hr />
 <script>
     var images = [
-        'https://t2.gstatic.com/images?q=tbn:ANd9GcSppaMVFP96hiUOWKMTmyxAJCrOe8ZTVcCan2oVIwNtpYEvQm4Icg',
-        'https://si0.twimg.com/profile_images/2921933231/770e739390405fdff86ebc7a4a1d8d3d_bigger.png'
+        '//www.webrtc-experiment.com/images/javascript.png',
+        '//www.webrtc-experiment.com/images/ajax-loader.gif'
     ];
 
     var connection = new RTCMultiConnection();

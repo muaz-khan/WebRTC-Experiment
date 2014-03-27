@@ -43,7 +43,7 @@ function WhammyRecorder(mediaStream) {
     function drawFrames() {
         var duration = new Date().getTime() - lastTime;
         lastTime = new Date().getTime();
-        if (!duration) return setTimeout(drawFrames, 150);
+        if (!duration) return drawFrames();
 
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         frames.push({
@@ -52,7 +52,7 @@ function WhammyRecorder(mediaStream) {
         });
 
         if (!isStopDrawing) {
-            setTimeout(drawFrames, 150);
+            setTimeout(drawFrames, 10);
         }
     }
 
