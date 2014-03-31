@@ -1,4 +1,4 @@
-// Last time updated at 27 March 2014, 16:32:23
+// Last time updated at 31 March 2014, 16:32:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -88,11 +88,38 @@ function RecordRTC(mediaStream, config) {
     function getDataURL(callback, _mediaRecorder) {
         if (!callback) throw 'Pass a callback function over getDataURL.';
 
-        var reader = new FileReader();
-        reader.readAsDataURL(_mediaRecorder ? _mediaRecorder.recordedBlob : mediaRecorder.recordedBlob);
-        reader.onload = function(event) {
-            callback(event.target.result);
-        };
+        _getDataURL();
+
+        function _getDataURL() {
+            if (!!window.Worker) {
+                var webWorker = processInWebWorker(function readFile(_blob) {
+                    postMessage(new FileReaderSync().readAsDataURL(_blob));
+                });
+
+                webWorker.onmessage = function(event) {
+                    callback(event.data);
+                };
+
+                webWorker.postMessage(_mediaRecorder ? _mediaRecorder.recordedBlob : mediaRecorder.recordedBlob);
+            } else {
+                var reader = new FileReader();
+                reader.readAsDataURL(_mediaRecorder ? _mediaRecorder.recordedBlob : mediaRecorder.recordedBlob);
+                reader.onload = function(event) {
+                    callback(event.target.result);
+                };
+            }
+        }
+
+        function processInWebWorker(_function) {
+            var blob = URL.createObjectURL(new Blob([_function.toString(),
+                    'this.onmessage =  function (e) {readFile(e.data);}'], {
+                        type: 'application/javascript'
+                    }));
+
+            var worker = new Worker(blob);
+            URL.revokeObjectURL(blob);
+            return worker;
+        }
     }
 
     var WARNING = 'It seems that "startRecording" is not invoked for ' + config.type + ' recorder.';
@@ -816,6 +843,7 @@ function WhammyRecorder(mediaStream) {
 // should we provide an option to record via Whammy.js or MediaRecorder API is a better solution?
 
 var Whammy = (function() {
+
     function toWebM(frames) {
         var info = checkFrames(frames);
 
