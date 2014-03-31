@@ -61,32 +61,25 @@ rtcMultiConnection.onmessage = function(e) {
 };
 
 rtcMultiConnection.init = function() {
-    var channels = { };
-
-    socket.on('message', function(data) {
-        if (data.sender == rtcMultiConnection.userid) return;
-
-        if (channels[data.channel] && channels[data.channel].onmessage) {
-            channels[data.channel].onmessage(data.message);
-        }
-    });
-
-    // overriding "openSignalingChannel" method
-    rtcMultiConnection.openSignalingChannel = function(config) {
+    rtcMultiConnection.openSignalingChannel = function (config) {
         var channel = config.channel || this.channel;
-        channels[channel] = config;
+        defaultSocket.emit('new-channel', {
+            channel: channel,
+            sender: rtcMultiConnection.userid
+        });
 
-        if (config.onopen) setTimeout(config.onopen, 1000);
-        return {
-            send: function(message) {
-                socket.emit('message', {
-                    sender: rtcMultiConnection.userid,
-                    channel: channel,
-                    message: message
-                });
-            },
-            channel: channel
+        var privateSocket = io.connect('/' + channel);
+        privateSocket.channel = channel;
+        privateSocket.on('connect', function () {
+            if (config.callback) config.callback(privateSocket);
+        });
+        privateSocket.send = function (message) {
+            privateSocket.emit('message', {
+                sender: rtcMultiConnection.userid,
+                data: message
+            });
         };
+        privateSocket.on('message', config.onmessage);
     };
 };
 

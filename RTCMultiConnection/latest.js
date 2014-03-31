@@ -1,4 +1,4 @@
-// Last time updated at 27 March 2014, 15:50:23
+// Last time updated at 31 March 2014, 11:50:23
 // Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js
 
 // Muaz Khan         - www.MuazKhan.com
@@ -11,6 +11,14 @@
 // RTCMultiConnection-v1.7
 
 /* issues/features need to be fixed & implemented:
+
+-. connection.interconnect added. (for multi-user broadcasting scenarios!)
+
+-. if browswer doesn't support audio; auto join with only video
+-. if browswer doesn't support video; auto join with only audio
+
+-. a user MUST be able to join anonymously all conference participants; not just room-initiator!
+currently that user can see video from room-initiator only!
 
 -. streamid of a stream MUST be sync among all users instead of JUST for single user!
 
@@ -75,8 +83,8 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
             }
 
             // if firebase && if session initiator
-            if (connection.socket && connection.socket.onDisconnect) {
-                connection.socket.onDisconnect().remove();
+            if (connection.socket && connection.socket.remove) {
+                connection.socket.remove();
             }
 
             var sessionDescription = {
@@ -1128,13 +1136,23 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                 if (connection.userType && connection.direction !== 'many-to-many') return;
 
                 // original conferencing infrastructure!
-                if (!connection.session.oneway && !connection.session.broadcast && connection.isInitiator && getLength(participants) > 1 && getLength(participants) <= connection.maxParticipantsAllowed) {
-                    defaultSocket.send({
-                        sessionid: connection.sessionid,
-                        newParticipant: _config.userid || socket.channel,
-                        userid: connection.userid,
-                        extra: connection.extra || { }  // todo: need to verify that "connection.extra" should be used or "_config.extra"
-                    });
+                if (connection.isInitiator && getLength(participants) > 1 && getLength(participants) <= connection.maxParticipantsAllowed) {
+                    if (!connection.session.oneway && !connection.session.broadcast) {
+                        defaultSocket.send({
+                            sessionid: connection.sessionid,
+                            newParticipant: _config.userid || socket.channel,
+                            userid: connection.userid,
+                            extra: connection.extra
+                        });
+                    }
+
+                    else if (connection.interconnect) {
+                        socket.send({
+                            joinUsers: participants,
+                            userid: connection.userid,
+                            extra: connection.extra
+                        });
+                    }
                 }
 
                 if (connection.isInitiator) {
@@ -1358,6 +1376,19 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                         connection.peers[response.userid].renegotiate();
                     }
                 }
+
+                if (response.joinUsers) {
+                    for (var user in response.joinUsers) {
+                        error(response.joinUsers[user]);
+                        onNewParticipant({
+                            sessionid: connection.sessionid,
+                            newParticipant: response.joinUsers[user],
+                            userid: connection.userid,
+                            extra: connection.extra,
+                            interconnect: true
+                        });
+                    }
+                }
             }
 
             connection.playRoleOfInitiator = function() {
@@ -1454,6 +1485,8 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
         // sharing new user with existing participants
 
         function onNewParticipant(response) {
+            if (response.interconnect && !connection.interconnect) return;
+
             // todo: make sure this works as expected.
             // if(connection.sessionid && response.sessionid != connection.sessionid) return;
 
@@ -1751,6 +1784,12 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
 
         // join existing session
         this.joinSession = function(_config) {
+            if (!defaultSocket)
+                return setTimeout(function() {
+                    warn('Default-Socket is not yet initialized.');
+                    rtcMultiSession.joinSession(_config);
+                }, 1000);
+
             _config = _config || { };
             participants = { };
             connection.session = _config.session || { };
@@ -3233,7 +3272,7 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
         var progressHelper = { };
 
         // www.RTCMultiConnection.org/docs/body/
-        connection.body = document.body;
+        connection.body = document.body || document.documentElement;
 
         // www.RTCMultiConnection.org/docs/autoSaveToDisk/
         // to make sure file-saver dialog is not invoked.

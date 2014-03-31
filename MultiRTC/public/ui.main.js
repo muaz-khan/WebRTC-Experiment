@@ -50,7 +50,7 @@ function addNewMessage(args) {
     document.querySelector('#message-sound').play();
 }
 
-var socket;
+var defaultSocket;
 
 main.querySelector('input').onkeyup = function(e) {
     if (e.keyCode != 13) return;
@@ -68,8 +68,9 @@ main.querySelector('button').onclick = function() {
 		color: getRandomColor()
     };
 
-    var signaling_url = '/?userid=' + rtcMultiConnection.userid + '&room=' + location.href.split('/').pop();
-    socket = io.connect(signaling_url);
+    var roomid = location.href.split('/').pop();
+    var signaling_url = '/?userid=' + rtcMultiConnection.userid + '&room=' + roomid;
+    defaultSocket = io.connect(signaling_url);
 
     addNewMessage({
         header: username,
@@ -77,11 +78,11 @@ main.querySelector('button').onclick = function() {
         userinfo: '<img src="images/action-needed.png">'
     });
 
-    socket.on('room-found', function(roomFound) {
+    defaultSocket.on('room-found', function(roomFound) {
         rtcMultiConnection.getStats(function(stat) {
             if(stat.numberOfConnectedUsers == 2) return;
             
-            if (roomFound) {
+            if (roomFound && roomFound.sessionid) {
                 addNewMessage({
                     header: username,
                     message: 'Room found. Joining the room...',
@@ -89,7 +90,7 @@ main.querySelector('button').onclick = function() {
                 });
 
                 rtcMultiConnection.init();
-                rtcMultiConnection.connect();
+                rtcMultiConnection.join(roomFound);
             } else {
                 addNewMessage({
                     header: username,
@@ -97,12 +98,16 @@ main.querySelector('button').onclick = function() {
                     userinfo: '<img src="images/action-needed.png">'
                 });
                 rtcMultiConnection.init();
-                rtcMultiConnection.open();
+                var sessionDescription = rtcMultiConnection.open({
+                    sessionid: roomid,
+                    dontTransmit: true
+                });
+                defaultSocket.emit('session-description', sessionDescription);
             }
         });
     });
 
-    socket.on('user-left', function(e) {
+    defaultSocket.on('user-left', function(e) {
         if (e.room != location.href.split('/').pop()) return;
 
         addNewMessage({
@@ -129,10 +134,10 @@ main.querySelector('button').onclick = function() {
         });
     });
     
-    socket.on('playRoleOfInitiator', function(who) {
+    defaultSocket.on('playRoleOfInitiator', function(who) {
         if(who == rtcMultiConnection.userid) {
             rtcMultiConnection.playRoleOfInitiator();
-            socket.emit('playRoleOfInitiator', rtcMultiConnection.userid);
+            defaultSocket.emit('playRoleOfInitiator', rtcMultiConnection.userid);
         }
     });
 };
