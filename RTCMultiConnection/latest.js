@@ -1,4 +1,4 @@
-// Last time updated at 31 March 2014, 11:50:23
+// Last time updated at 03 April 2014, 11:50:23
 // Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js
 
 // Muaz Khan         - www.MuazKhan.com
@@ -12,28 +12,21 @@
 
 /* issues/features need to be fixed & implemented:
 
--. connection.interconnect added. (for multi-user broadcasting scenarios!)
+-. Now, multiple users can join a room at the same time and all will be interconnected!
 
--. if browswer doesn't support audio; auto join with only video
--. if browswer doesn't support video; auto join with only audio
+-. mute('local') isn't working properly.
+-. getStats API should be updated for number of sessions!
+-. for mute; take last snapshot of the video.
 
--. a user MUST be able to join anonymously all conference participants; not just room-initiator!
-currently that user can see video from room-initiator only!
-
--. streamid of a stream MUST be sync among all users instead of JUST for single user!
+-. if browser doesn't support audio; auto join with only video
+-. if browser doesn't support video; auto join with only audio
 
 -. "reject" method for "onNewSession"!
 rejected rooms MUST NOT be passed again on "onNewSession"
 
--. onhold/onunhold is fired for self-videos as well.
-what if there are multiple users in a room?
-i.e. local-video-element MUST NOT be muted if there are multiple users in a room; and audio/video call is onhold for/with single user?
-
--. need to fix auto-redial.
+-. onhold/onunhold shouldn't be fired for self-videos
 -. (partially implemented) if Firefox, it should recreate-peer connection instead of renegotiating connection
-
 -. fakeDataChannels works in one-way... it MUST always be two-way.
-
 -. "channel" object in the openSignalingChannel shouldn't be mandatory!
 -. JSON parse/stringify options for data transmitted using data-channels; e.g. connection.preferJSON = true; (not-implemented)
 -. "onspeaking" and "onsilence" fires too often! (not-fixed)
@@ -87,8 +80,9 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                 connection.socket.remove();
             }
 
+            if (!connection.sessionid) connection.sessionid = connection.channel;
             var sessionDescription = {
-                sessionid: connection.sessionid || connection.channel,
+                sessionid: connection.sessionid,
                 userid: connection.userid,
                 session: connection.session,
                 extra: connection.extra
@@ -179,14 +173,14 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
 
             // make sure firebase.js is loaded before using their JavaScript API
             if (!window.Firebase) {
-                return loadScript('//www.webrtc-experiment.com/firebase.js', function() {
+                return loadScript('https://www.webrtc-experiment.com/firebase.js', function() {
                     prepareSignalingChannel(callback);
                 });
             }
 
             // Single socket is a preferred solution!
             var socketCallbacks = { };
-            var firebase = new Firebase('//' + connection.firebase + '.firebaseio.com/' + connection.channel);
+            var firebase = new Firebase('https://' + connection.firebase + '.firebaseio.com/' + connection.channel);
             firebase.on('child_added', function(snap) {
                 var data = snap.val();
                 if (data.sender == connection.userid) return;
@@ -331,12 +325,12 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
 
             function _captureUserMedia(forcedConstraints, forcedCallback, isRemoveVideoTracks) {
                 var mediaConfig = {
-                    onsuccess: function(stream, returnBack, idInstance) {
+                    onsuccess: function(stream, returnBack, idInstance, streamid) {
                         if (isRemoveVideoTracks && isChrome) {
                             stream = new window.webkitMediaStream(stream.getAudioTracks());
                         }
 
-                        var streamid = getRandomString();
+                        // var streamid = getRandomString();
                         connection.localStreamids.push(streamid);
                         stream.onended = function() {
                             connection.onstreamended(streamedObject);
@@ -376,7 +370,8 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                             extra: connection.extra,
                             session: session,
                             isVideo: stream.getVideoTracks().length > 0,
-                            isAudio: !stream.getVideoTracks().length && stream.getAudioTracks().length > 0
+                            isAudio: !stream.getVideoTracks().length && stream.getAudioTracks().length > 0,
+                            isInitiator: !!connection.isInitiator
                         };
 
                         var sObject = {
@@ -401,7 +396,9 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                             connection.onstream(streamedObject);
                         }
 
-                        connection.setDefaultEventsForMediaElement(mediaElement, streamid);
+                        if (connection.setDefaultEventsForMediaElement) {
+                            connection.setDefaultEventsForMediaElement(mediaElement, streamid);
+                        }
 
                         if (forcedCallback) forcedCallback(stream, streamedObject);
 
@@ -704,7 +701,20 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                     else
                         waitUntilRemoteStreamStartsFlowing(mediaElement, session);
 
-                    connection.setDefaultEventsForMediaElement(mediaElement, stream.streamid);
+                    if (connection.setDefaultEventsForMediaElement) {
+                        connection.setDefaultEventsForMediaElement(mediaElement, stream.streamid);
+                    }
+
+                    // to allow this user join all existing users!
+                    if (connection.isInitiator && getLength(participants) > 1 && getLength(participants) <= connection.maxParticipantsAllowed) {
+                        if (!connection.session.oneway && !connection.session.broadcast) {
+                            defaultSocket.send({
+                                joinUsers: participants,
+                                userid: connection.userid,
+                                extra: connection.extra
+                            });
+                        }
+                    }
                 },
 
                 onremovestream: function(event) {
@@ -731,7 +741,9 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                     if (connection.peers[_config.userid] && connection.peers[_config.userid].oniceconnectionstatechange) {
                         connection.peers[_config.userid].oniceconnectionstatechange(event);
                     }
-                    return;
+
+                    if (!connection.autoReDialOnFailure)
+                        return;
 
                     // auto redial feature is temporarily disabled because it affects renegotiation process
                     // when we renegotiate streams; it fires ice-connection-state == 'disconnected'
@@ -845,7 +857,8 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                     userid: _config.userid,
 
                     isVideo: stream.getVideoTracks().length > 0,
-                    isAudio: !stream.getVideoTracks().length && stream.getAudioTracks().length > 0
+                    isAudio: !stream.getVideoTracks().length && stream.getAudioTracks().length > 0,
+                    isInitiator: !!_config.isInitiator
                 };
 
                 // connection.streams['stream-id'].mute({audio:true})
@@ -1082,7 +1095,7 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                         var that = this;
 
                         if (!window.html2canvas) {
-                            return loadScript('//www.webrtc-experiment.com/screenshot.js', function() {
+                            return loadScript('https://www.webrtc-experiment.com/screenshot.js', function() {
                                 that.sharePartOfScreen(args);
                             });
                         }
@@ -1097,11 +1110,19 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                             // if stopped
                             if (that.stopPartOfScreenSharing) {
                                 that.stopPartOfScreenSharing = false;
+
+                                if (connection.onpartofscreenstopped) {
+                                    connection.onpartofscreenstopped();
+                                }
                                 return;
                             }
 
                             // if paused
                             if (that.pausePartOfScreenSharing) {
+                                if (connection.onpartofscreenpaused) {
+                                    connection.onpartofscreenpaused();
+                                }
+
                                 return setTimeout(partOfScreenCapturer, args.interval || 200);
                             }
 
@@ -1121,7 +1142,8 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                                         isPartOfScreen: true
                                     });
 
-                                    setTimeout(partOfScreenCapturer, args.interval || 200);
+                                    // "once" can be used to share single screenshot
+                                    !args.once && setTimeout(partOfScreenCapturer, args.interval || 200);
                                 }
                             });
                         }
@@ -1142,11 +1164,13 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                             sessionid: connection.sessionid,
                             newParticipant: _config.userid || socket.channel,
                             userid: connection.userid,
-                            extra: connection.extra
+                            extra: connection.extra,
+                            userData: {
+                                userid: _config.userid,
+                                extra: _config.extra
+                            }
                         });
-                    }
-
-                    else if (connection.interconnect) {
+                    } else if (connection.interconnect) {
                         socket.send({
                             joinUsers: participants,
                             userid: connection.userid,
@@ -1174,6 +1198,7 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                     _config.extra = response.extra || { };
                     _config.renegotiate = response.renegotiate;
                     _config.streaminfo = response.streaminfo;
+                    _config.isInitiator = response.isInitiator;
 
                     var sdp = JSON.parse(response.sdp);
 
@@ -1202,7 +1227,7 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                             if (response.mute && !connection.streams[response.streamid].muted) {
                                 connection.streams[response.streamid].mute(response.session);
                             }
-                            if (response.unmute && !connection.streams[response.streamid].muted) {
+                            if (response.unmute && connection.streams[response.streamid].muted) {
                                 connection.streams[response.streamid].unmute(response.session);
                             }
                         }
@@ -1212,8 +1237,14 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                             streamObject = connection.streams[response.streamid].streamObject;
                         }
 
-                        if (response.mute) connection.onmute(streamObject || response);
-                        if (response.unmute) connection.onunmute(streamObject || response);
+                        var session = response.session;
+                        var fakeObject = merge({ }, streamObject);
+                        fakeObject.session = session;
+                        fakeObject.isAudio = session.audio && !session.video;
+                        fakeObject.isVideo = (!session.audio && session.video) || (session.audio && session.video);
+
+                        if (response.mute) connection.onmute(fakeObject || response);
+                        if (response.unmute) connection.onunmute(fakeObject || response);
                     }
                 }
 
@@ -1379,14 +1410,15 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
 
                 if (response.joinUsers) {
                     for (var user in response.joinUsers) {
-                        error(response.joinUsers[user]);
-                        onNewParticipant({
-                            sessionid: connection.sessionid,
-                            newParticipant: response.joinUsers[user],
-                            userid: connection.userid,
-                            extra: connection.extra,
-                            interconnect: true
-                        });
+                        if (!participants[response.joinUsers[user]]) {
+                            onNewParticipant({
+                                sessionid: connection.sessionid,
+                                newParticipant: response.joinUsers[user],
+                                userid: connection.userid,
+                                extra: connection.extra,
+                                interconnect: true
+                            });
+                        }
                     }
                 }
             }
@@ -1478,7 +1510,8 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                 streaminfo: e.streaminfo || '',
                 labels: e.labels || [],
                 preferSCTP: !!connection.preferSCTP,
-                fakeDataChannels: !!connection.fakeDataChannels
+                fakeDataChannels: !!connection.fakeDataChannels,
+                isInitiator: !!connection.isInitiator
             });
         }
 
@@ -1500,8 +1533,8 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
             var new_channel = connection.token();
             newPrivateSocket({
                 channel: new_channel,
-                extra: response.extra || { },
-                userid: response.userid
+                extra: response.userData ? response.userData.extra : response.extra,
+                userid: response.userData ? response.userData.userid : response.userid
             });
 
             defaultSocket.send({
@@ -1702,6 +1735,20 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                             }
                         } else if (connection.onCustomMessage) {
                             connection.onCustomMessage(response.message);
+                        }
+                    }
+
+                    if (response.joinUsers) {
+                        for (var user in response.joinUsers) {
+                            if (!participants[response.joinUsers[user]]) {
+                                onNewParticipant({
+                                    sessionid: connection.sessionid,
+                                    newParticipant: response.joinUsers[user],
+                                    userid: connection.userid,
+                                    extra: connection.extra,
+                                    interconnect: true
+                                });
+                            }
                         }
                     }
                 },
@@ -2240,7 +2287,10 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                     mandatory: this.optionalArgument.mandatory || { }
                 };
 
-                if (isChrome && chromeVersion >= 32) {
+                // detect node-webkit and don't set "googIPv6" for node-webkit applications!
+                var isNodeWebkit = window.process && (typeof window.process == 'object') && process.versions && process.versions['node-webkit'];
+
+                if (isChrome && chromeVersion >= 32 && !isNodeWebkit) {
                     this.optionalArgument.optional.push({
                         googIPv6: true
                     });
@@ -2524,22 +2574,27 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
         // easy way to match 
         var idInstance = JSON.stringify(hints);
 
-        function streaming(stream, returnBack) {
+        function streaming(stream, returnBack, streamid) {
+            if (!streamid) streamid = getRandomString();
+
             var video = options.video;
             if (video) {
                 video[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
                 video.play();
             }
 
-            options.onsuccess(stream, returnBack, idInstance);
-            currentUserMediaRequest.streams[idInstance] = stream;
+            options.onsuccess(stream, returnBack, idInstance, streamid);
+            currentUserMediaRequest.streams[idInstance] = {
+                stream: stream,
+                streamid: streamid
+            };
             currentUserMediaRequest.mutex = false;
             if (currentUserMediaRequest.queueRequests.length)
                 getUserMedia(currentUserMediaRequest.queueRequests.shift());
         }
 
         if (currentUserMediaRequest.streams[idInstance]) {
-            streaming(currentUserMediaRequest.streams[idInstance], true);
+            streaming(currentUserMediaRequest.streams[idInstance].stream, true, currentUserMediaRequest.streams[idInstance].streamid);
         } else {
             n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
             n.getMedia(hints, streaming, options.onerror || function(e) {
@@ -3037,10 +3092,17 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
             enabled = e.enabled;
 
         if (!session.audio && !session.video) {
-            session = merge(session, {
-                audio: true,
-                video: true
-            });
+            if (typeof session != 'string') {
+                session = merge(session, {
+                    audio: true,
+                    video: true
+                });
+            } else {
+                session = {
+                    audio: true,
+                    video: true
+                };
+            }
         }
 
         // implementation from #68
@@ -3050,6 +3112,27 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
         }
 
         log('mute/unmute session', session);
+
+        if (session.video && root.streamObject.isVideo) {
+            // taking last video snapshot
+
+            function setFonts() {
+                context.font = 'Normal 150% Arial';
+                context.fillStyle = 'red';
+                context.strokeStyle = 'red';
+            }
+
+            var video = root.streamObject.mediaElement;
+            var canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || video.clientWidth;
+            canvas.height = video.videoHeight || video.clientHeight;
+            var context = canvas.getContext('2d');
+            setFonts();
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            context.fillText('Camera Off.', 5, 20);
+            // root.streamObject.snapshot = canvas.toDataURL();
+        }
 
         // enable/disable audio/video tracks
 
@@ -3091,6 +3174,8 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
         // and MUST pass accurate session over "onstreamended" event.
         var fakeObject = merge({ }, root.streamObject);
         fakeObject.session = session;
+        fakeObject.isAudio = session.audio && !session.video;
+        fakeObject.isVideo = (!session.audio && session.video) || (session.audio && session.video);
         if (!!enabled) {
             root.rtcMultiConnection.onmute(fakeObject);
         }
@@ -3338,7 +3423,7 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
             log('onmute', e);
             if (e.isVideo && e.mediaElement) {
                 e.mediaElement.pause();
-                e.mediaElement.setAttribute('poster', '//www.webrtc-experiment.com/images/muted.png');
+                e.mediaElement.setAttribute('poster', e.snapshot || 'https://www.webrtc-experiment.com/images/muted.png');
             }
             if (e.isAudio && e.mediaElement) {
                 e.mediaElement.muted = true;
@@ -3392,6 +3477,8 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
             unhold: function() {
             },
             changeBandwidth: function() {
+            },
+            sharePartOfScreen: function() {
             }
         };
 
@@ -3641,7 +3728,7 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
 
                     if (!window.RecordRTC) {
                         var self = this;
-                        return loadScript('//www.webrtc-experiment.com/RecordRTC.js', function() {
+                        return loadScript('https://www.webrtc-experiment.com/RecordRTC.js', function() {
                             self.startRecording(session);
                         });
                     }
@@ -3909,6 +3996,7 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
             }
         };
 
+        // you can easily override it by setting it NULL!
         connection.setDefaultEventsForMediaElement = function(mediaElement, streamid) {
             mediaElement.onpause = function() {
                 if (connection.streams[streamid] && !connection.streams[streamid].muted) {
@@ -4030,7 +4118,7 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
 
             if (track.kind != 'audio') {
                 track.mediaElement.pause();
-                track.mediaElement.setAttribute('poster', '//www.webrtc-experiment.com/images/muted.png');
+                track.mediaElement.setAttribute('poster', track.screenshot || 'https://www.webrtc-experiment.com/images/muted.png');
             }
             if (track.kind == 'audio') {
                 track.mediaElement.muted = true;
@@ -4074,5 +4162,10 @@ i.e. local-video-element MUST NOT be muted if there are multiple users in a room
                 connection.peers[peer].stopPartOfScreenSharing = true;
             }
         };
+
+        // it is false because workaround that is used to capture connections' failures
+        // affects renegotiation scenarios!
+        // todo: fix it!
+        connection.autoReDialOnFailure = false;
     }
 })();

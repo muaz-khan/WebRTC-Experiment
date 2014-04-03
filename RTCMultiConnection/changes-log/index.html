@@ -63,6 +63,67 @@
 		
             <ol>
                 <li>
+                    Now, multiple users can join a room at the same time and all will be interconnected!
+                </li>
+                
+                <li>
+                    Now, "streamid" is synced among all users! You can mute/unmute or stop single stream-id and it will affect among all connected users!
+                </li>
+                
+                <li>
+                    <code>autoReDialOnFailure</code> added. You can force RTCMultiConnection to auto redial if peer connection is dropped unexpectedly or failed out of any exception!
+                    <pre class="sh_javascript">
+// by default, it is "false"
+// it is false because workaround that is used to capture connections' failures
+// affects renegotiation scenarios!
+connection.autoReDialOnFailure = true;
+</pre>
+                </li>
+                
+                <li>
+                    You can override <code>setDefaultEventsForMediaElement</code> to prevent default mute/unmute handlers on media elements.
+                    <pre class="sh_javascript">
+// by default it captures "onplay", "onpause" and "onvolumechange" events for all media elements
+connection.setDefaultEventsForMediaElement = null;
+</pre>
+                </li>
+                
+                <li>
+                    <code>connection.interconnect</code> added. (for multi-user broadcasting scenarios!)
+                    <pre class="sh_javascript">
+// "false" for all those users who will JUST view "all" broadcasts anonymously!
+connection.interconnect = false;
+
+// "true" for all those users who will broadcast their streams!
+connection.interconnect = true;
+</pre>
+                </li>
+                
+                <li>
+                    <code>onpartofscreenstopped</code> and <code>onpartofscreenpaused</code> added:
+                    <pre class="sh_javascript">
+// invoked when you "manually" stopped part-of-screen sharing!
+connection.onpartofscreenstopped = function() {};
+
+// invoked when you "manually" paused part-of-screen sharing!
+connection.onpartofscreenpaused = function() {};
+</pre>
+                </li>
+                
+                <li>
+                    Now, you can call <code>sharePartOfScreen</code>, <code>pausePartOfScreenSharing</code> and <code>stopPartOfScreenSharing</code> for all users:
+                    <pre class="sh_javascript">
+connection.sharePartOfScreen({
+    element: '#div-id', // querySelector or HTMLElement
+    interval: 1000      // milliseconds
+});
+
+connection.pausePartOfScreenSharing();
+connection.stopPartOfScreenSharing();
+</pre>
+                </li>
+                
+                <li>
                     <code>hold/unhold</code> of individual media lines implemented:
                     <pre class="sh_javascript">
 // hold only your audio
@@ -119,17 +180,17 @@ connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['ta
 </pre>
                 </li>
                 
-           <li>
-                Now, <a href="http://www.rtcmulticonnection.org/docs/open/">open</a> method returns "sessionDescription" object. "open" method also accepts an object as well!
-			<ol>
+                <li>
+                    Now, <a href="http://www.rtcmulticonnection.org/docs/open/">open</a> method returns "sessionDescription" object. "open" method also accepts an object as well!
+                    <ol>
             
-            <li>
-                <a href="http://www.rtcmulticonnection.org/docs/join/">join</a> method can be used to join that "sessionDescription" anytime without connecting to signaling channel!
-			</li>
+                        <li>
+                            <a href="http://www.rtcmulticonnection.org/docs/join/">join</a> method can be used to join that "sessionDescription" anytime without connecting to signaling channel!
+                        </li>
             
-            <li>
-                <h2>For initiator:</h2>
-                    <pre class="sh_javascript">
+                        <li>
+                            <h2>For initiator:</h2>
+                            <pre class="sh_javascript">
 var initiator = new RTCMultiConnection();
 
 // you can pass object instead of string!
@@ -139,11 +200,11 @@ var sessionDescription = initiator.<a href="http://www.rtcmulticonnection.org/do
 
 websocket.send(sessionDescription);
 </pre>
-                </li>
+                        </li>
                 
-                <li>
-                <h2>For participant:</h2>
-                    <pre class="sh_javascript">
+                        <li>
+                        <h2>For participant:</h2>
+                        <pre class="sh_javascript">
 var participant = new RTCMultiConnection();
 
 websocket.onmessage = function(event) {
@@ -167,9 +228,9 @@ connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['ta
                     Now, <a href="http://www.rtcmulticonnection.org/docs/onRequest/">onRequest</a> is fired only for <a href="http://www.rtcmulticonnection.org/docs/session-initiator/">session-initiator</a>.
                 </li>
 				
-				<li>
-					"<a href="http://www.rtcmulticonnection.org/docs/shareMediaFile/">shareMediaFile</a>" and "<a href="http://www.rtcmulticonnection.org/docs/onMediaFile/">onMediaFile</a>" added. (i.e. pre-recorded media support added):
-					<pre class="sh_javascript">
+                <li>
+                    "<a href="http://www.rtcmulticonnection.org/docs/shareMediaFile/">shareMediaFile</a>" and "<a href="http://www.rtcmulticonnection.org/docs/onMediaFile/">onMediaFile</a>" added. (i.e. pre-recorded media support added):
+                    <pre class="sh_javascript">
 // select WebM file to share as pre-recorded media!
 document.querySelector('input[type=file]').onchange = function() {
     connection.<a href="http://www.rtcmulticonnection.org/docs/shareMediaFile/">shareMediaFile</a>( this.files[0] );
@@ -187,19 +248,19 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/onMediaFile/">onMedia
     document.body.appendChild(e.mediaElement);
 };
 </pre>
-				</li>
+                </li>
                 
-				<li>
-					Mute/UnMute and "onstreamended" among multiple users, issues fixed.
-				</li>
+                <li>
+                    Mute/UnMute and "onstreamended" among multiple users, issues fixed.
+                </li>
 				
-				<li>
-					Now, "<a href="http://www.RTCMultiConnection.org/docs/getDevices/">getDevices</a>" method skips duplicate devices and returns array of unique audio/video devices.
-				</li>
+                <li>
+                    Now, "<a href="http://www.RTCMultiConnection.org/docs/getDevices/">getDevices</a>" method skips duplicate devices and returns array of unique audio/video devices.
+                </li>
 				
-				<li>
-					Now, "<a href="http://www.RTCMultiConnection.org/docs/onFileStart/">onFileStart</a>", "<a href="http://www.RTCMultiConnection.org/docs/onFileProgress/">onFileProgress</a>" and "<a href="http://www.RTCMultiConnection.org/docs/onFileEnd/">onFileEnd</a>" has remote user's ID, "sending" object and "<a href="http://www.RTCMultiConnection.org/docs/extra/">extra</a>" object:
-					<pre class="sh_javascript">
+                <li>
+                    Now, "<a href="http://www.RTCMultiConnection.org/docs/onFileStart/">onFileStart</a>", "<a href="http://www.RTCMultiConnection.org/docs/onFileProgress/">onFileProgress</a>" and "<a href="http://www.RTCMultiConnection.org/docs/onFileEnd/">onFileEnd</a>" has remote user's ID, "sending" object and "<a href="http://www.RTCMultiConnection.org/docs/extra/">extra</a>" object:
+                    <pre class="sh_javascript">
 // file sending or receiving instance is started.
 connection.<a href="http://www.RTCMultiConnection.org/docs/onFileStart/">onFileStart</a> = function(file) {
     // file.<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a>  ---- userid of the file sender
@@ -224,17 +285,17 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/onFileProgress/">onFi
     // chunk.sending ---- true or false
 };
 </pre>
-				</li>
+                </li>
 				
-				<li>
-					"<a href="http://www.rtcmulticonnection.org/docs/onstream/">onstream</a>" has two new objects:
-					<pre class="sh_javascript">
+                <li>
+                    "<a href="http://www.rtcmulticonnection.org/docs/onstream/">onstream</a>" has two new objects:
+                    <pre class="sh_javascript">
 connection.<a href="http://www.RTCMultiConnection.org/docs/onstream/">onstream</a> = function(e) {
     // e.isVideo ---- if it is a  Video stream
     // e.isAudio ---- if it is an Audio stream
 };
 </pre>
-				</li>
+                </li>
 				
                 <li>
                     File <a href="http://www.rtcmulticonnection.org/docs/chunkSize/">chunk-size</a> and <a href="http://www.rtcmulticonnection.org/docs/chunkInterval/">chunk-interval</a> are fixed for Firefox.
@@ -356,26 +417,26 @@ var isMobileDevice = connection.<a href="http://www.RTCMultiConnection.org/docs/
 </pre>
                 </li>
                 
-<li>
-					Now you can <a href="http://www.rtcmulticonnection.org/docs/renegotiation/">renegotiate</a> data-connection in your existing audio/video/screen session!
+                <li>
+                    Now you can <a href="http://www.rtcmulticonnection.org/docs/renegotiation/">renegotiate</a> data-connection in your existing audio/video/screen session!
                     <pre class="sh_javascript">
 connection.<a href="http://www.rtcmulticonnection.org/docs/addStream">addStream</a>({
     data: true
 });
 </pre>
-				</li>
+                </li>
                 
                 <li>
-					<a href="https://github.com/muaz-khan/WebRTC-Experiment/issues/152">Pull #152</a> merged for "<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>" method:
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues/152">Pull #152</a> merged for "<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>" method:
                     <pre class="sh_javascript">
 var randomString = connection.<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>();
 connection.<a href="http://www.RTCMultiConnection.org/docs/userid/">userid</a> = connection.<a href="http://www.RTCMultiConnection.org/docs/token/">token</a>();
 </pre>
-				</li>
+                </li>
                 
                 <li>
-					"<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a>" method added:
-					<pre class="sh_javascript">
+                    "<a href="http://www.RTCMultiConnection.org/docs/autoTranslateText/">autoTranslateText</a>" method added:
+                    <pre class="sh_javascript">
 // all incoming text messages will be converted in this language
 // by default, it is "en-US"
 connection.<a href="http://www.RTCMultiConnection.org/docs/language/">language</a> = 'ja'; // prefer Japanese
@@ -393,11 +454,11 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/Translator/">Translat
      console.log(convertedText);
 });
 </pre>
-				</li>
+                </li>
                 
                 <li>
-					"session.join" method added. Remember, it is "<strong>session</strong>.join"; it isn't "<strong>connection</strong>.join"!
-					<pre class="sh_javascript">
+                    "session.join" method added. Remember, it is "<strong>session</strong>.join"; it isn't "<strong>connection</strong>.join"!
+                    <pre class="sh_javascript">
 connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
     session.join();                           // join session as it is!
     session.join({audio: true});              // join session while allowing only audio
@@ -406,20 +467,20 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewS
     session.join({audio: true, video: true}); // join session while allowing both audio and video
 };
 </pre>
-				</li>
+                </li>
                 
                 <li>
-					<a href="https://github.com/muaz-khan/WebRTC-Experiment/issues/152">Bug #152</a> fixed.
-				</li>
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues/152">Bug #152</a> fixed.
+                </li>
                 
                 <li>
-					Now, <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC">MRecordRTC</a> is used for <a href="http://www.RTCMultiConnection.org/docs/startRecording/">audio/video recording</a>!
-				</li>
+                    Now, <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC">MRecordRTC</a> is used for <a href="http://www.RTCMultiConnection.org/docs/startRecording/">audio/video recording</a>!
+                </li>
                 
                 <li>
-					"<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>" method added. You can invoke save-as dialog like this:
+                    "<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>" method added. You can invoke save-as dialog like this:
 					
-					<pre class="sh_javascript">
+                    <pre class="sh_javascript">
 // "fileName" is optional
 connection.<a href="http://www.RTCMultiConnection.org/docs/saveToDisk/">saveToDisk</a>(fileURL, fileName);
 
@@ -430,24 +491,24 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
 }, {audio:true, video:true} );
 </pre>
 
-				</li>
+                </li>
                 
                 <li>
-					If you're recording both audio and video; then "<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>" will return both blobs in the single callback; where 1st parameter value will be audio-blob; and 2nd parameter value will be video-blob:
+                    If you're recording both audio and video; then "<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>" will return both blobs in the single callback; where 1st parameter value will be audio-blob; and 2nd parameter value will be video-blob:
 					
-					<pre class="sh_javascript">
+                    <pre class="sh_javascript">
 // stop both audio/video streams
 connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/stopRecording/">stopRecording</a>(function (audioBlob, videoBlob) {
     // POST both audio/video "Blobs" to PHP/other server using single FormData/XHR2
 }, {audio:true, video:true} );
 </pre>
 
-				</li>
+                </li>
                 
                 <li>
-					"<a href="http://www.RTCMultiConnection.org/docs/onhold/">onhold</a>" and "<a href="http://www.RTCMultiConnection.org/docs/onunhold/">onunhold</a>" events added:
+                    "<a href="http://www.RTCMultiConnection.org/docs/onhold/">onhold</a>" and "<a href="http://www.RTCMultiConnection.org/docs/onunhold/">onunhold</a>" events added:
 					
-					<pre class="sh_javascript">
+                    <pre class="sh_javascript">
 // to hold call; same like skype!
 connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['user-id'].hold();
 connection.<a href="http://www.RTCMultiConnection.org/docs/onhold/">onhold</a> = function(e) {
@@ -461,7 +522,7 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/onunhold/">onunhold</
 };
 </pre>
 
-				</li>
+                </li>
                 
                 <li>
                     Many method has been added in "<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>" object.
@@ -515,7 +576,7 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['us
                     </ol>
                 </li>
                 
-                 <li>
+                <li>
                     "<a href="http://www.RTCMultiConnection.org/docs/renegotiate/">renegotiate</a>" method added.
                     <pre class="sh_javascript">
 // renegotiate with/without media streams!

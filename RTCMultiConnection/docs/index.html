@@ -51,8 +51,8 @@
         <article>
             <a href="http://www.RTCMultiConnection.org/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ www.RTCMultiConnection.org</a>
             
-            <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md" style="position: fixed;bottom: 0;right: 0;display: block;width: 18%;">
-                <img src="http://www.RTCMultiConnection.org/img/RTCMultiConnection-Logo.png" alt="RTCMultiConnection Log" style="width: 100%;border-top-left-radius: 30%;border: 1px solid red;">
+            <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md" style="bottom: 0; display: block; position: fixed; right: 0; width: 18%;">
+                <img src="http://www.RTCMultiConnection.org/img/RTCMultiConnection-Logo.png" alt="RTCMultiConnection Log" style="border: 1px solid red; border-top-left-radius: 30%; width: 100%;">
             </a>
 
             <div class="github-stargazers"></div>
@@ -1118,6 +1118,50 @@ connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['ta
 
 // to stop part-of-screen sharing
 connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].stopPartOfScreenSharing = true;
+
+// invoked when you "manually" stopped part-of-screen sharing!
+connection.onpartofscreenstopped = function() {};
+
+// Now, you can call <code>sharePartOfScreen</code>, <code>pausePartOfScreenSharing</code> and <code>stopPartOfScreenSharing</code> for all users:
+// invoked when you "manually" paused part-of-screen sharing!
+connection.onpartofscreenpaused = function() {};
+
+connection.sharePartOfScreen({
+    element: '#div-id', // querySelector or HTMLElement
+    interval: 1000      // milliseconds
+});
+
+connection.pausePartOfScreenSharing();
+connection.stopPartOfScreenSharing();
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/">interconnect</a>
+                            <pre class="sh_javascript">
+// "false" for all those users who will JUST view "all" broadcasts anonymously!
+connection.interconnect = false;
+
+// "true" for all those users who will broadcast their streams!
+connection.interconnect = true;
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/">setDefaultEventsForMediaElement</a>
+                            <pre class="sh_javascript">
+// by default it captures "onplay", "onpause" and "onvolumechange" events for all media elements
+connection.setDefaultEventsForMediaElement = null;
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/">autoReDialOnFailure</a>
+                            <pre class="sh_javascript">
+// by default, it is "false"
+// it is false because workaround that is used to capture connections' failures
+// affects renegotiation scenarios!
+connection.autoReDialOnFailure = true;
 </pre>
                         </li>
                    
@@ -1129,11 +1173,11 @@ connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['ta
                 var apiRef = document.querySelector('.api-reference');
                 var li = apiRef.querySelectorAll('li');
                 var liLength = li.length;
-                
+
                 var direction = 'one-way,oneway,broadcast,many-to-many,multi-user,video-conferencing,audio-conferencing,videoconferencing';
                 var signaling = 'signaling,firebase,socket.io,socketio,websocket,php,asp.net,aspnet,.net,custom';
                 var session = 'audio,video,screen,data,oneway,two-way,one-way,twoway,multi-user,share,media,type,broadcast';
-                var onpartofscreen = 'part-of-screen,region-of-screen,sharePartOfScreen,pausePartOfScreenSharing,stopPartOfScreenSharing,onpartofscreen';
+                var onpartofscreen = 'part-of-screen,region-of-screen,sharePartOfScreen,pausePartOfScreenSharing,stopPartOfScreenSharing,onpartofscreen,onpartofscreenstopped,onpartofscreenpaused';
                 var sdpConstraints = 'sdp,constraints,OfferToReceiveAudio,OfferToReceiveVideo,VoiceActivityDetection,IceRestart,createOffer,createAnswer';
 
                 var search = document.querySelector('#search');
@@ -1141,24 +1185,24 @@ connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['ta
                     for (var i = 0; i < liLength; i++) {
                         li[i].style.display = !this.value.length || li[i].querySelector('a').innerHTML.toLowerCase().indexOf(this.value.toLowerCase()) != -1 ? '' : 'none';
                     }
-                    
-                    if(direction.indexOf(this.value) != -1) {
+
+                    if (direction.indexOf(this.value) != -1) {
                         document.querySelector('#direction').style.display = '';
                     }
-                    
-                    if(session.indexOf(this.value) != -1) {
+
+                    if (session.indexOf(this.value) != -1) {
                         document.querySelector('#session').style.display = '';
                     }
-                    
-                    if(onpartofscreen.indexOf(this.value) != -1) {
+
+                    if (onpartofscreen.indexOf(this.value) != -1) {
                         document.querySelector('#onpartofscreen').style.display = '';
                     }
-                    
-                    if(sdpConstraints.indexOf(this.value) != -1) {
+
+                    if (sdpConstraints.indexOf(this.value) != -1) {
                         document.querySelector('#sdpConstraints').style.display = '';
                     }
-                    
-                    if(signaling.indexOf(this.value) != -1) {
+
+                    if (signaling.indexOf(this.value) != -1) {
                         document.querySelector('#openSignalingChannel').style.display = '';
                     }
                 };
