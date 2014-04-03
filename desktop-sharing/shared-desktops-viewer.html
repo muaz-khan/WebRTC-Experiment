@@ -3,13 +3,13 @@
         <title>WebRTC Desktop Sharing using desktopCapture API  ® Muaz Khan</title>
         <meta name="description" content="Sharing Desktop using WebRTC desktopCapture API for chrome.">
         <meta name="keywords" content="WebRTC,Experiments,Desktop,Sharing,desktopCapture">
-		<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
 
         <style type='text/css'>
-			@font-face {
+            @font-face {
 				font-family: 'Myriad';
-				src: url('https://www.webrtc-experiment.com/fonts/MyriadPro-Light.otf') format("opentype");
+				src: url('//www.webrtc-experiment.com/fonts/MyriadPro-Light.otf') format("opentype");
 				font-weight:400;
 			}
 			
@@ -117,7 +117,8 @@
             }
 			
 			audio, video {
-				width: 98%;
+				max-width: 98%;
+                max-height: 100%;
 				vertical-align:top;
 			}
 			
@@ -138,99 +139,136 @@
 				background: inherit;
 			}
         </style>
-		<style>* {margin:0;padding:0;} .output-panel {overflow:hidden;max-height: 80%;}</style>
-		<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"> </script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            .output-panel {
+                max-height: 80%;
+                overflow: hidden;
+            }
+        </style>
+        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js"> </script>
     </head>
     <body>
         <p id="blah">WebRTC Desktop Sharing using <a href="http://developer.chrome.com/extensions/desktopCapture.html" target="_blank">desktopCapture API</a></p>
         
         <div class="button" id="logs">
-          <span>No</span><span>Desktop Shared!</span>
+            <span>No</span><span>Desktop Shared!</span>
         </div>
-		<br /><br /><hr />
-		<p>
-			This page is capable to view all shared desktops; that are shared using desktopCapture API. <br />
-			<a href="https://www.webrtc-experiment.com/desktop-sharing/download.zip">Download Chrome Extension | ZIP</a>
-		</p>
+        <br /><br /><hr />
+        <p>
+            This page is capable to view all shared desktops; that are shared using desktopCapture API. <br />
+            <a href="https://www.webrtc-experiment.com/desktop-sharing/download.zip">Download Chrome Extension | ZIP</a>
+        </p>
         
-		<footer>
-			<p>
-				<a href="https://www.webrtc-experiment.com/">https://www.webrtc-experiment.com/</a>
-			</p>
-		</footer>
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">https://www.webrtc-experiment.com/</a>
+            </p>
+        </footer>
 
-<script>
-console.log('You can download chrome extension here: https://www.webrtc-experiment.com/desktop-sharing/download.zip');
-// this page is using desktopCapture API to capture and share desktop
-// http://developer.chrome.com/extensions/desktopCapture.html
-// Availability:	Beta and dev channels only.
+        <script>
+            console.log('You can download chrome extension here: https://www.webrtc-experiment.com/desktop-sharing/download.zip');
+    // this page is using desktopCapture API to capture and share desktop
+    // http://developer.chrome.com/extensions/desktopCapture.html
+    // Availability:	Beta and dev channels only.
 
-// www.RTCMultiConnection.org
+    // www.RTCMultiConnection.org
 
-var connection = new RTCMultiConnection('webrtc-desktop-sharing');
+            (function() {
+                var params = { },
+                    r = /([^&=]+)=?([^&]*)/g ;
 
-// www.RTCMultiConnection.org/docs/onNewSession/
-connection.onNewSession = function(session) {
-   document.getElementById('logs').innerHTML = '<span>Someone</span><span>Shared Desktop!</span>';
-   connection.join(session);
-};
+                function d(s) {
+                    return decodeURIComponent(s.replace( /\+/g , ' '));
+                }
 
-// chrome extension API fails if b=AS in the sdp
-// www.RTCMultiConnection.org/docs/bandwidth/
-connection.bandwidth.video = false;
+                var match, search = window.location.search;
+                while (match = r.exec(search.substring(1)))
+                    params[d(match[1])] = d(match[2]);
 
-// overriding for websockets
-// www.RTCMultiConnection.org/docs/openSignalingChannel/
-connection.openSignalingChannel = openSignalingChannel;
+                window.params = params;
+            })();
 
-// www.RTCMultiConnection.org/docs/dontAttachStream/
-connection.dontAttachStream = true;
+            var sessionDescription = JSON.parse(decodeURIComponent(window.params.sessionDescription));
 
-// on successfully getting shared tab
-// www.RTCMultiConnection.org/docs/onstream/
-connection.onstream = function (e) {
-    document.body.innerHTML = '';
-    document.body.appendChild(e.mediaElement);
-};
+            var connection = new RTCMultiConnection(sessionDescription.sessionid);
 
-// if tab sharing is closed
-// www.RTCMultiConnection.org/docs/onstreamended/
-connection.onstreamended = function (e) {
-    if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
-};
+            connection.autoReDialOnFailure = true;
 
-// searching for shared tabs
-// www.RTCMultiConnection.org/docs/connect/
-connection.connect();
+    // chrome extension API fails if b=AS in the sdp
+    // www.RTCMultiConnection.org/docs/bandwidth/
+            connection.bandwidth.video = false;
 
-// using websockets for signaling
-function openSignalingChannel(config) {
-    config.channel = config.channel || this.channel;
-    var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-    websocket.onopen = function () {
-        websocket.push(JSON.stringify({
-            open: true,
-            channel: config.channel
-        }));
-        if (config.callback) config.callback(websocket);
-        console.log('WebSocket connection is opened!');
-    };
-    websocket.onmessage = function (event) {
-        config.onmessage(JSON.parse(event.data));
-    };
-    websocket.onerror = function() {
-        console.error('Unable to connect to wss://www.webrtc-experiment.com:8563');
-    };
-    websocket.push = websocket.send;
-    websocket.send = function (data) {
-        websocket.push(JSON.stringify({
-            data: data,
-            channel: config.channel
-        }));
-    };
-}
-</script>
+            connection.sdpConstraints = {
+                OfferToReceiveAudio: false
+            };
 
-        
+    // overriding for websockets
+    // www.RTCMultiConnection.org/docs/openSignalingChannel/
+            connection.openSignalingChannel = openSignalingChannel;
+
+    // www.RTCMultiConnection.org/docs/dontAttachStream/
+            connection.dontAttachStream = true;
+
+    // on successfully getting shared tab
+    // www.RTCMultiConnection.org/docs/onstream/
+            connection.onstream = function(e) {
+                document.body.innerHTML = '';
+                document.body.appendChild(e.mediaElement);
+
+                connection.peers[e.userid].oniceconnectionstatechange = function() {
+                    if (connection.peers[e.userid] && connection.peers[e.userid].peer.connection.iceConnectionState == 'disconnected') {
+                        alert('Desktop sharing is stopped.');
+                        location.reload();
+                    }
+                };
+            };
+
+    // if tab sharing is closed
+    // www.RTCMultiConnection.org/docs/onstreamended/
+            connection.onstreamended = function(e) {
+                if (e.mediaElement.parentNode) e.mediaElement.parentNode.removeChild(e.mediaElement);
+            };
+
+            connection.setDefaultEventsForMediaElement = null;
+
+    // searching for shared tabs
+    // www.RTCMultiConnection.org/docs/join/
+            connection.join(sessionDescription);
+
+    // using websockets for signaling
+
+            function openSignalingChannel(config) {
+                config.channel = config.channel || this.channel;
+                var websocket = new WebSocket('wss://wsnodejs.nodejitsu.com:443');
+                websocket.onopen = function() {
+                    websocket.push(JSON.stringify({
+                        open: true,
+                        channel: config.channel
+                    }));
+                    if (config.callback) config.callback(websocket);
+                    console.log('WebSocket connection is opened!');
+                };
+                websocket.onmessage = function(event) {
+                    config.onmessage(JSON.parse(event.data));
+                };
+                websocket.onerror = function() {
+                    alert('Unable to connect to wss://wsnodejs.nodejitsu.com:443');
+                };
+                websocket.push = websocket.send;
+                websocket.send = function(data) {
+                    websocket.push(JSON.stringify({
+                        data: data,
+                        channel: config.channel
+                    }));
+                };
+            }
+
+            document.getElementById('logs').innerHTML = '<span>Connecting.</span><span> Please wait..</span>';
+        </script> 
     </body>
 </html>
