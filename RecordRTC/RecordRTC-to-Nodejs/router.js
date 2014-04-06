@@ -1,6 +1,6 @@
-// 2013, Muaz Khan - www.MuazKhan.com
-// MIT License     - www.WebRTC-Experiment.com/licence
-// Experiments     - github.com/muaz-khan/WebRTC-Experiment
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// Source Code   - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs
 
 function respondWithHTTPCode(response, code) {
     response.writeHead(code, { 'Content-Type': 'text/plain' });

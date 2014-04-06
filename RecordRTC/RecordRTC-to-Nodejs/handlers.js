@@ -1,13 +1,13 @@
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
-// Experiments   - github.com/muaz-khan/WebRTC-Experiment
+// Source Code   - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs
 
 var config = require('./config'),
     fs = require('fs'),
     sys = require('sys'),
     exec = require('child_process').exec;
 
-function home(response, postData) {
+function home(response) {
     response.writeHead(200, {
         'Content-Type': 'text/html'
     });
@@ -22,17 +22,25 @@ function upload(response, postData) {
     // writing audio file to disk
     _upload(response, files.audio);
 
-    // writing video file to disk
-    _upload(response, files.video);
+    if (files.isFirefox) {
+        response.statusCode = 200;
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.end(files.audio.name);
+    }
 
-    merge(response, files);
+    if (!files.isFirefox) {
+        // writing video file to disk
+        _upload(response, files.video);
+
+        merge(response, files);
+    }
 }
 
 // this function merges wav/webm files
 
 function merge(response, files) {
     // detect the current operating system
-    var isWin = !! process.platform.match(/^win/);
+    var isWin = !!process.platform.match( /^win/ );
 
     if (isWin) {
         ifWin(response, files);
@@ -59,22 +67,10 @@ function _upload(response, file) {
 
     fileBuffer = new Buffer(file.contents, "base64");
 
-    if (config.s3_enabled) {
-
-        var knox = require('knox'),
-            client = knox.createClient(config.s3),
-            headers = {
-                'Content-Type': file.type
-            };
-
-        client.putBuffer(fileBuffer, fileRootName, headers);
-
-    } else {
-        fs.writeFileSync(filePath, fileBuffer);
-    }
+    fs.writeFileSync(filePath, fileBuffer);
 }
 
-function serveStatic(response, pathname, postData) {
+function serveStatic(response, pathname) {
 
     var extension = pathname.split('.').pop(),
         extensionTypes = {
@@ -102,8 +98,8 @@ function ifWin(response, files) {
     // if a "directory" has space in its name; below command will fail
     // e.g. "c:\\dir name\\uploads" will fail.
     // it must be like this: "c:\\dir-name\\uploads"
-    var command = merger + ', ' + videoFile + " " + audioFile + " " + mergedFile + '';
-    var cmd = exec(command, function (error, stdout, stderr) {
+    var command = merger + ', ' + audioFile + " " + videoFile + " " + mergedFile + '';
+    exec(command, function (error, stdout, stderr) {
         if (error) {
             console.log(error.stack);
             console.log('Error code: ' + error.code);
@@ -115,14 +111,8 @@ function ifWin(response, files) {
             });
             response.end(files.audio.name.split('.')[0] + '-merged.webm');
 
-            // removing audio/video files
             fs.unlink(audioFile);
             fs.unlink(videoFile);
-
-            // auto delete file after 1-minute
-            setTimeout(function () {
-                fs.unlink(mergedFile);
-            }, 60 * 1000);
         }
     });
 }
@@ -136,21 +126,18 @@ function ifMac(response, files) {
         exec = require('child_process').exec;
     //child_process = require('child_process');
 
-    var command = "ffmpeg -i " + videoFile + " -i " + audioFile + " -map 0:0 -map 1:0 " + mergedFile;
+    var command = "ffmpeg -i " + audioFile + " -itsoffset -00:00:01 -i " + videoFile + " -map 0:0 -map 1:0 " + mergedFile;
 
-    var child = exec(command, function (error, stdout, stderr) {
-
-        stdout ? util.print('stdout: ' + stdout) : null;
-        stderr ? util.print('stderr: ' + stderr) : null;
+    exec(command, function (error, stdout, stderr) {
+        if (stdout) console.log(stdout);
+        if (stderr) console.log(stderr);
 
         if (error) {
-
             console.log('exec error: ' + error);
             response.statusCode = 404;
             response.end();
 
         } else {
-
             response.statusCode = 200;
             response.writeHead(200, {
                 'Content-Type': 'application/json'
@@ -160,12 +147,6 @@ function ifMac(response, files) {
             // removing audio/video files
             fs.unlink(audioFile);
             fs.unlink(videoFile);
-
-            // auto delete file after 1-minute
-            setTimeout(function () {
-                fs.unlink(mergedFile);
-            }, 60 * 1000);
-
         }
 
     });

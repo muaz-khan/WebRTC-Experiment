@@ -1,7 +1,7 @@
 {
   "name": "recordrtc",
   "preferGlobal": true,
-  "version": "2.0.0",
+  "version": "3.0.0",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com"
@@ -44,7 +44,7 @@
   "bugs": {
     "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues"
   },
-  "homepage": "https://github.com/muaz-khan/WebRTC-Experiment",
-  "_id": "recordrtc@2.0.0",
+  "homepage": "https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs",
+  "_id": "recordrtc@3.0.0",
   "_from": "recordrtc@"
 }

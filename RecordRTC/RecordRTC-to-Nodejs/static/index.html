@@ -6,138 +6,184 @@
 
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<title>RecordRTC over Node.js</title>
+    <head>
+        <meta charset="utf-8" />
+        <title>RecordRTC over Node.js</title>
         <script>
-            if(location.href.indexOf('file:') == 0) {
+            if (location.href.indexOf('file:') == 0) {
                 document.write('<h1 style="color:red;">Please load this HTML file on HTTP or HTTPS.</h1>');
             }
         </script>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-		<meta name="author" content="Muaz Khan">
-		<script src="/RecordRTC.js"> </script>
-		<style>
-			html { background-color: #f7f7f7; }
-			body {
-				background-color: white;
-				margin: 1% 35%;
-				border: 1px solid rgb(15, 158, 238);
-				text-align: center;
-			}
-			hr {
-				border:0;
-				border-top: 1px solid rgb(15, 158, 238);
-			}
-			
-			a {
-				color: #2844FA;
-				text-decoration: none;
-			}
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
+        <style>
+            html { background-color: #f7f7f7; }
 
-			a:hover, a:focus { color: #1B29A4; }
+            body {
+                background-color: white;
+                border: 1px solid rgb(15, 158, 238);
+                margin: 1% 35%;
+                text-align: center;
+            }
 
-			a:active { color: #000; }
-		</style>
-	</head>
-	<body>
-		<h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a> <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs">over Node.js</a></h1>
-			<p>
-				<video id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></video> 
-			</p><hr />
+            hr {
+                border: 0;
+                border-top: 1px solid rgb(15, 158, 238);
+            }
 
-			<div>
-				<button id="start-recording">Start Recording</button>
-				<button id="stop-recording" disabled="">Stop Recording</button>
-			</div>
+            a {
+                color: #2844FA;
+                text-decoration: none;
+            }
+
+            a:hover, a:focus { color: #1B29A4; }
+
+            a:active { color: #000; }
+        </style>
+    </head>
+    <body>
+        <h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a> <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs">over Node.js</a></h1>
+        <p>
+            <video id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></video> 
+        </p><hr />
+
+        <div>
+            <button id="start-recording">Start Recording</button>
+            <button id="stop-recording" disabled="">Stop Recording</button>
+        </div>
 		
-<script>
-var startRecording = document.getElementById('start-recording');
-var stopRecording = document.getElementById('stop-recording');
-var cameraPreview = document.getElementById('camera-preview');
+        <script>
+            var startRecording = document.getElementById('start-recording');
+            var stopRecording = document.getElementById('stop-recording');
+            var cameraPreview = document.getElementById('camera-preview');
 
-var mRecordRTC = new MRecordRTC();
-mRecordRTC.mediaType = {
-	audio: true,
-	video: true
-};
+            var audio = document.querySelector('audio');
 
-mRecordRTC.bufferSize = 16384;
-mRecordRTC.canvas = {
-	width: innerWidth,
-	height: innerHeight
-};
+            var isFirefox = !!navigator.mozGetUserMedia;
 
-var recordAudio, recordVideo;
-startRecording.onclick = function() {
-    startRecording.disabled = true;
-    var video_constraints = {
-        mandatory: { },
-        optional: []
-    };
-    navigator.getUserMedia({
-            audio: true,
-            video: video_constraints
-        }, function(stream) {
-            cameraPreview.src = window.URL.createObjectURL(stream);
-            cameraPreview.play();
+            var recordAudio, recordVideo;
+            startRecording.onclick = function() {
+                startRecording.disabled = true;
+                navigator.getUserMedia({
+                        audio: true,
+                        video: true
+                    }, function(stream) {
+                        cameraPreview.src = window.URL.createObjectURL(stream);
+                        cameraPreview.play();
 
-            mRecordRTC.addStream(stream);
-			mRecordRTC.startRecording();
+                        recordAudio = RecordRTC(stream, {
+                            bufferSize: 16384
+                        });
 
-            stopRecording.disabled = false;
-        });
-};
+                        if (!isFirefox) {
+                            recordVideo = RecordRTC(stream, {
+                                type: 'video'
+                            });
+                        }
 
-var fileName;
-stopRecording.onclick = function() {
-    startRecording.disabled = false;
-    stopRecording.disabled = true;
+                        recordAudio.startRecording();
 
-    fileName = Math.round(Math.random() * 99999999) + 99999999;
+                        if (!isFirefox) {
+                            recordVideo.startRecording();
+                        }
 
-    mRecordRTC.stopRecording();
+                        stopRecording.disabled = false;
+                    }, function(error) {
+                        alert(JSON.stringify(error));
+                    });
+            };
 
-    mRecordRTC.getDataURL(function(dataURL) {
-        var files = {
-                audio: {
-                    name: fileName + '.wav',
-                    type: 'audio/wav',
-                    contents: dataURL.audio
-                },
-                video: {
-                    name: fileName + '.webm',
-                    type: 'video/webm',
-                    contents: dataURL.video
+
+            stopRecording.onclick = function() {
+                startRecording.disabled = false;
+                stopRecording.disabled = true;
+
+                recordAudio.stopRecording(function() {
+                    if (isFirefox) onStopRecording();
+                });
+
+                if (!isFirefox) {
+                    recordVideo.stopRecording();
+                    onStopRecording();
+                }
+
+                function onStopRecording() {
+                    recordAudio.getDataURL(function(audioDataURL) {
+                        if (!isFirefox) {
+                            recordVideo.getDataURL(function(videoDataURL) {
+                                postFiles(audioDataURL, videoDataURL);
+                            });
+                        } else postFiles(audioDataURL);
+                    });
                 }
             };
 
-            cameraPreview.src = '';
-            cameraPreview.poster = '/ajax-loader.gif';
+            var fileName;
 
-            xhr('/upload', JSON.stringify(files), function(fileName) {
-                var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
-                cameraPreview.src = href + 'uploads/' + fileName;
-                cameraPreview.play();
-            });
-    });
-};
+            function postFiles(audioDataURL, videoDataURL) {
+                fileName = getRandomString();
+                var files = { };
 
-function xhr(url, data, callback) {
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-        if (request.readyState == 4 && request.status == 200) {
-            callback(request.responseText);
-        }
-    };
-    request.open('POST', url);
-    request.send(data);
-}		
+                files.audio = {
+                    name: fileName + (isFirefox ? '.webm' : '.wav'),
+                    type: isFirefox ? 'video/webm' : 'audio/wav',
+                    contents: audioDataURL
+                };
 
-</script>
-		<footer style="position:fixed;bottom:0;left:0;right:0;text-align:center;font-size:2em;">
-			<a href="https://www.WebRTC-Experiment.com">www.WebRTC-Experiment.com</a>
-		</footer>
-	</body>
+                if (!isFirefox) {
+                    files.video = {
+                        name: fileName + '.webm',
+                        type: 'video/webm',
+                        contents: videoDataURL
+                    };
+                }
+
+                files.isFirefox = isFirefox;
+
+                cameraPreview.src = '';
+                cameraPreview.poster = '/ajax-loader.gif';
+
+                xhr('/upload', JSON.stringify(files), function(_fileName) {
+                    var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+                    cameraPreview.src = href + 'uploads/' + _fileName;
+                    cameraPreview.play();
+
+                    var h2 = document.createElement('h2');
+                    h2.innerHTML = '<a href="' + cameraPreview.src + '">' + cameraPreview.src + '</a>';
+                    document.body.appendChild(h2);
+                });
+            }
+
+            function xhr(url, data, callback) {
+                var request = new XMLHttpRequest();
+                request.onreadystatechange = function() {
+                    if (request.readyState == 4 && request.status == 200) {
+                        callback(request.responseText);
+                    }
+                };
+                request.open('POST', url);
+                request.send(data);
+            }
+
+            window.onbeforeunload = function() {
+                startRecording.disabled = false;
+            };
+
+            function getRandomString() {
+                if (window.crypto) {
+                    var a = window.crypto.getRandomValues(new Uint32Array(3)),
+                        token = '';
+                    for (var i = 0, l = a.length; i < l; i++) token += a[i].toString(36);
+                    return token;
+                } else {
+                    return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
+                }
+            }
+        </script>
+        <footer style="bottom: 0; font-size: 2em; left: 0; position: fixed; right: 0; text-align: center;">
+            <a href="https://www.WebRTC-Experiment.com">www.WebRTC-Experiment.com</a>
+        </footer>
+    </body>
 </html>
