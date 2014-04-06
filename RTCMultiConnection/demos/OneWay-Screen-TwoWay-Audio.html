@@ -22,12 +22,12 @@
 
 <script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.7.js"> </script>
 <script src="//www.webrtc-experiment.com/firebase.js"> </script>
+
 <script>
     var connection = new RTCMultiConnection();
     connection.session = {
         audio: true,
-        screen: true,
-        oneway: true
+        screen: true
     };
 
     var sessions = { };
@@ -38,14 +38,7 @@
         if (sessions[session.sessionid]) return;
         sessions[session.sessionid] = session;
 
-        // you can call "captureUserMedia" to attach a custom stream even if session is oneway!
-        connection.captureUserMedia(function() {
-            // it is mandatory; otherwise; RTCMultiConnection will remove audio stream
-            connection.dontAttachStream = true;
-
-            // "join" method must be invoked in the stream-callback
-            connection.join(session);
-        }, { audio: true });
+        session.join({ audio: true });
     };
 
     connection.onstream = function(e) {
@@ -65,21 +58,12 @@
 </ol>
 <pre>
 // initiator's session
-connection.session = {
+initiator.session = {
     audio: true,
-    screen: true,
-    oneway: true
+    screen: true
 };
 
-connection.onNewSession = function (session) {
-    // you can call "captureUserMedia" to attach a custom stream even if session is oneway!
-    // 2nd argument of the "captureUserMedia" allows you set type of the stream to be captured.
-    connection.<strong>captureUserMedia</strong>(function () {
-        // it is mandatory; otherwise; RTCMultiConnection will remove audio stream
-        connection.dontAttachStream = true;
-    
-        // "join" method must be invoked in the stream-callback
-        connection.join(session);
-    }, <strong>{ audio: true }</strong>);
+participant.onNewSession = function (session) {
+    session.join(  <strong>{ audio: true }</strong> );
 };
 </pre>

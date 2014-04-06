@@ -4,7 +4,7 @@ Sharing desktop using chrome **experimental desktopCapture APIs**; broadcasting 
 
 =
 
-#### How to capture MediaStream using tabCapture APIs?
+#### How to capture MediaStream using desktopCapture APIs?
 
 ```javascript
 function captureDesktop() {

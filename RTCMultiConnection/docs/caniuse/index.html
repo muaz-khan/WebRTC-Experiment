@@ -54,6 +54,8 @@
 <body onload="sh_highlightDocument();">
     <article>
         <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">RTCMultiConnection Docs</a>
+        
+        <div class="github-stargazers"></div>
 
         <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>" object</h1>
 				
@@ -70,6 +72,7 @@ console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/
 console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.ScreenSharing );
 console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.RtpDataChannels );
 console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.SctpDataChannels );
+console.log( connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.NodeWebkit );
 
 
 connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>.checkIfScreenSharingFlagEnabled(function (isFlagEnabled, warning) {
@@ -96,12 +99,14 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/caniuse/">caniuse</a>
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your email for private conversation!</small>
             </section>
     </article>
-    <footer>
+    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
+    
+        <footer>
             <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
             <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-    <script src="//www.webrtc-experiment.com/common.js"> </script>
+        <script src="//www.webrtc-experiment.com/commits.js"> </script>
 </body>
 </html>

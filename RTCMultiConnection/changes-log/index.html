@@ -63,6 +63,43 @@
 		
             <ol>
                 <li>
+                    <code>screen:300kbps</code> added in <code>connection.bandwidth</code>:
+                    <pre class="sh_javascript">
+// by default
+connection.bandwidth = {
+    screen: 300
+};
+
+// if you're using node-webkit; then you MUST set it to NULL
+// make sure that it is set both for browser-client and node-webkit!
+connection.bandwidth.screen = null;
+</pre>
+                </li>
+                <li>
+                    Now, you can check <code>connection.<a href="http://www.RTCMultiConnection.org/docs/stats/">stats</a>.numberOfSessions</code> in a specific channel:
+                    <pre class="sh_javascript">
+alert( connection.<a href="http://www.RTCMultiConnection.org/docs/stats/">stats</a>.numberOfSessions );
+
+// You can even access all sessions using this object-like array:
+alert( connection.<a href="http://www.RTCMultiConnection.org/docs/stats/">stats</a>.sessions['sessionid'] );
+
+// or
+for(var session in connection.<a href="http://www.RTCMultiConnection.org/docs/stats/">stats</a>.sessions) {
+    console.log(connection.<a href="http://www.RTCMultiConnection.org/docs/stats/">stats</a>.sessions[session]);
+}
+
+// You can get above values usnig "getStats" method as well:
+connection.<a href="http://www.RTCMultiConnection.org/docs/getStats/">getStats</a>(function(stat) {
+    console.log(stat.numberOfSessions);
+    
+    for(var session in stat.sessions) {
+       console.log(stat.sessions[session]);
+    }
+});
+</pre>
+                </li>
+                
+                <li>
                     Now, multiple users can join a room at the same time and all will be interconnected!
                 </li>
                 

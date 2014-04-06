@@ -50,6 +50,8 @@
     <body onload="sh_highlightDocument();">
         <article>
             <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">RTCMultiConnection Docs</a>
+            
+            <div class="github-stargazers"></div>
 
             <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/bandwidth/">bandwidth</a>" object</h1>
 				
@@ -62,13 +64,15 @@
 connection.bandwidth = {
     audio: 50,
     video: 256,
-    data: 1638400
+    data: 1638400,
+    screen: 300      // 300kbps
 };
 
 // or change them individually
 connection.bandwidth.audio = 80;
 connection.bandwidth.video = 2048;
 connection.bandwidth.data  = 1638400;
+connection.bandwidth.screen = 300;
 </pre>
                 </li>
                 <li>
@@ -162,9 +166,6 @@ connection.bandwidth = {};
                 <script src="http://www.rtcmulticonnection.org/latest.js"> </script>
                 <script src="http://www.rtcmulticonnection.org/firebase.js"> </script>
                 <script>
-                    // www.RTCMultiConnection.org/docs/skipRTCMultiConnectionLogs/
-                    window.skipRTCMultiConnectionLogs = false;
-
                     document.querySelector('#test').onclick = function() {
                         this.innerHTML = 'Please wait...';
                         this.disabled = true;
@@ -204,6 +205,8 @@ connection.bandwidth = {};
                         document.querySelector('input[type=file]').disabled = false;
                         document.querySelector('#test').innerHTML = 'Connected!';
                     };
+                    
+                    initiator.skipLogs();
 
                     document.querySelector('input[type=file]').onchange = function() {
                         // www.RTCMultiConnection.org/docs/send/
@@ -221,12 +224,14 @@ connection.bandwidth = {};
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left: 1em;">You can include your email for private conversation!</small>
             </section>
         </article>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
+    
         <footer>
             <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
             <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-        <script src="//www.webrtc-experiment.com/common.js"> </script>
+        <script src="//www.webrtc-experiment.com/commits.js"> </script>
     </body>
 </html>

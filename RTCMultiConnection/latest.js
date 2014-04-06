@@ -1,4 +1,4 @@
-// Last time updated at 03 April 2014, 11:50:23
+// Last time updated at 06 April 2014, 11:00:23
 // Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js
 
 // Muaz Khan         - www.MuazKhan.com
@@ -12,37 +12,26 @@
 
 /* issues/features need to be fixed & implemented:
 
--. Now, multiple users can join a room at the same time and all will be interconnected!
+-. session-duration & statistics (implemented)
 
--. mute('local') isn't working properly.
--. getStats API should be updated for number of sessions!
--. for mute; take last snapshot of the video.
+-. if system doesn't support audio; auto join with only video
+-. if system doesn't support video; auto join with only audio
 
--. if browser doesn't support audio; auto join with only video
--. if browser doesn't support video; auto join with only audio
-
--. "reject" method for "onNewSession"!
-rejected rooms MUST NOT be passed again on "onNewSession"
-
--. onhold/onunhold shouldn't be fired for self-videos
--. (partially implemented) if Firefox, it should recreate-peer connection instead of renegotiating connection
--. fakeDataChannels works in one-way... it MUST always be two-way.
 -. "channel" object in the openSignalingChannel shouldn't be mandatory!
 -. JSON parse/stringify options for data transmitted using data-channels; e.g. connection.preferJSON = true; (not-implemented)
 -. "onspeaking" and "onsilence" fires too often! (not-fixed)
 -. removeTrack() and addTracks() instead of "stop" (not-implemented)
--. session-duration & statistics (not-implemented)
 -. voice translation should be added!
 */
 
-(function() {
+(function () {
     // www.RTCMultiConnection.org/docs/constructor/
-    window.RTCMultiConnection = function(channel) {
+    window.RTCMultiConnection = function (channel) {
         // a reference to your constructor!
         var connection = this;
 
         // www.RTCMultiConnection.org/docs/channel-id/
-        connection.channel = channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
+        connection.channel = channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
         var rtcMultiSession; // a reference to backbone object i.e. RTCMultiSession!
 
@@ -51,8 +40,12 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         connection.isAcceptNewSession = true;
 
         // www.RTCMultiConnection.org/docs/open/
-        connection.open = function(args) {
+        connection.open = function (args) {
             connection.isAcceptNewSession = false;
+            
+            // www.RTCMultiConnection.org/docs/session-initiator/
+            // you can always use this property to determine room owner!
+            connection.isInitiator = true;
 
             var dontTransmit = false;
 
@@ -88,16 +81,21 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 extra: connection.extra
             };
 
-            // verify to see if "openSignalingChannel" exists!
-            prepareSignalingChannel(function() {
-                // connect with signaling channel
-                initRTCMultiSession();
+            if (!connection.stats.sessions[sessionDescription.sessionid]) {
+                connection.stats.numberOfSessions++;
+                connection.stats.sessions[sessionDescription.sessionid] = sessionDescription;
+            }
 
-                // for session-initiator, user-media is captured as soon as "open" is invoked.
-                captureUserMedia(function() {
-                    rtcMultiSession.initSession({
-                        sessionDescription: sessionDescription,
-                        dontTransmit: dontTransmit
+            // verify to see if "openSignalingChannel" exists!
+            prepareSignalingChannel(function () {
+                // connect with signaling channel
+                initRTCMultiSession(function () {
+                    // for session-initiator, user-media is captured as soon as "open" is invoked.
+                    captureUserMedia(function () {
+                        rtcMultiSession.initSession({
+                            sessionDescription: sessionDescription,
+                            dontTransmit: dontTransmit
+                        });
                     });
                 });
             });
@@ -105,14 +103,14 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/connect/
-        this.connect = function(sessionid) {
+        this.connect = function (sessionid) {
             // a channel can contain multiple rooms i.e. sessions
             if (sessionid) {
                 connection.sessionid = sessionid;
             }
 
             // verify to see if "openSignalingChannel" exists!
-            prepareSignalingChannel(function() {
+            prepareSignalingChannel(function () {
                 // connect with signaling channel
                 initRTCMultiSession();
             });
@@ -124,7 +122,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         this.join = joinSession;
 
         // www.RTCMultiConnection.org/docs/send/
-        this.send = function(data, _channel) {
+        this.send = function (data, _channel) {
             // send file/data or /text
             if (!data)
                 throw 'No file, data or text message to share.';
@@ -173,15 +171,15 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
             // make sure firebase.js is loaded before using their JavaScript API
             if (!window.Firebase) {
-                return loadScript('https://www.webrtc-experiment.com/firebase.js', function() {
+                return loadScript('https://www.webrtc-experiment.com/firebase.js', function () {
                     prepareSignalingChannel(callback);
                 });
             }
 
             // Single socket is a preferred solution!
-            var socketCallbacks = { };
+            var socketCallbacks = {};
             var firebase = new Firebase('https://' + connection.firebase + '.firebaseio.com/' + connection.channel);
-            firebase.on('child_added', function(snap) {
+            firebase.on('child_added', function (snap) {
                 var data = snap.val();
                 if (data.sender == connection.userid) return;
 
@@ -192,13 +190,13 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             });
 
             // www.RTCMultiConnection.org/docs/openSignalingChannel/
-            connection.openSignalingChannel = function(args) {
+            connection.openSignalingChannel = function (args) {
                 var callbackid = args.channel || connection.channel;
                 socketCallbacks[callbackid] = args.onmessage;
 
                 if (args.onopen) setTimeout(args.onopen, 1000);
                 return {
-                    send: function(message) {
+                    send: function (message) {
                         firebase.push({
                             sender: connection.userid,
                             channel: callbackid,
@@ -214,13 +212,13 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             callback();
         }
 
-        function initRTCMultiSession() {
+        function initRTCMultiSession(onSignalingReady) {
             // RTCMultiSession is the backbone object;
             // this object MUST be initialized once!
-            if (rtcMultiSession) return;
+            if (rtcMultiSession) return onSignalingReady();
 
             // your everything is passed over RTCMultiSession constructor!
-            rtcMultiSession = new RTCMultiSession(connection);
+            rtcMultiSession = new RTCMultiSession(connection, onSignalingReady);
         }
 
         function joinSession(session) {
@@ -229,17 +227,18 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
             if (!rtcMultiSession) {
                 // verify to see if "openSignalingChannel" exists!
-                prepareSignalingChannel(function() {
+                prepareSignalingChannel(function () {
                     // connect with signaling channel
-                    initRTCMultiSession();
-                    joinSession(session);
+                    initRTCMultiSession(function () {
+                        joinSession(session);
+                    });
                 });
                 return;
             }
 
             connection.session = session.session;
 
-            extra = connection.extra || session.extra || { };
+            extra = connection.extra || session.extra || {};
 
             // todo: need to verify that if-block statement works as expected.
             // expectations: if it is oneway streaming; or if it is data-only connection
@@ -247,7 +246,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             if (session.oneway || isData(session)) {
                 rtcMultiSession.joinSession(session, extra);
             } else {
-                captureUserMedia(function() {
+                captureUserMedia(function () {
                     rtcMultiSession.joinSession(session, extra);
                 });
             }
@@ -315,7 +314,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             if (session.screen) {
                 var _isFirstSession = isFirstSession;
 
-                _captureUserMedia(screen_constraints, constraints.audio || constraints.video ? function() {
+                _captureUserMedia(screen_constraints, constraints.audio || constraints.video ? function () {
 
                     if (_isFirstSession) isFirstSession = true;
 
@@ -325,20 +324,20 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
             function _captureUserMedia(forcedConstraints, forcedCallback, isRemoveVideoTracks) {
                 var mediaConfig = {
-                    onsuccess: function(stream, returnBack, idInstance, streamid) {
+                    onsuccess: function (stream, returnBack, idInstance, streamid) {
                         if (isRemoveVideoTracks && isChrome) {
                             stream = new window.webkitMediaStream(stream.getAudioTracks());
                         }
 
                         // var streamid = getRandomString();
                         connection.localStreamids.push(streamid);
-                        stream.onended = function() {
+                        stream.onended = function () {
                             connection.onstreamended(streamedObject);
 
                             // if user clicks "stop" button to close screen sharing
                             var _stream = connection.streams[streamid];
                             if (_stream && _stream.sockets.length) {
-                                _stream.sockets.forEach(function(socket) {
+                                _stream.sockets.forEach(function (socket) {
                                     socket.send({
                                         streamid: _stream.streamid,
                                         userid: _stream.rtcMultiConnection.userid,
@@ -348,6 +347,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                                 });
                             }
 
+                            currentUserMediaRequest.mutex = false;
                             // to make sure same stream can be captured again!
                             if (currentUserMediaRequest.streams[idInstance]) {
                                 delete currentUserMediaRequest.streams[idInstance];
@@ -411,7 +411,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                             soundMeter.connectToSource(stream);
                         }
                     },
-                    onerror: function(e) {
+                    onerror: function (e, idInstance) {
                         connection.onMediaError(toStr(e));
 
                         if (session.audio) {
@@ -428,27 +428,18 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                             } else if (location.protocol !== 'https:') {
                                 connection.onMediaError('<https> is mandatory to capture screen.');
                             } else {
-                                connection.onMediaError('Unable to detect actual issue. Trying to check availability of screen sharing flag.');
+                                connection.onMediaError('Unable to detect actual issue. Maybe "deprecated" screen capturing flag is not enabled or maybe you clicked "No" button.');
+                            }
 
-                                connection.caniuse.checkIfScreenSharingFlagEnabled(function(isFlagEnabled, warning) {
-                                    if (isFlagEnabled) {
-                                        if (chromeVersion < 31) {
-                                            connection.onMediaError('Multi-capturing of screen is not allowed. Capturing process is denied. Try chrome >= M31.');
-                                        } else {
-                                            connection.onMediaError('Unknown screen capturing error.');
-                                        }
-                                    }
+                            currentUserMediaRequest.mutex = false;
 
-                                    if (warning) connection.onMediaError(warning);
-
-                                    if (!warning) {
-                                        connection.onMediaError('It seems that "chrome://flags/#enable-usermedia-screen-capture" flag is not enabled.');
-                                    }
-                                });
+                            // to make sure same stream can be captured again!
+                            if (currentUserMediaRequest.streams[idInstance]) {
+                                delete currentUserMediaRequest.streams[idInstance];
                             }
                         }
                     },
-                    mediaConstraints: connection.mediaConstraints || { }
+                    mediaConstraints: connection.mediaConstraints || {}
                 };
 
                 mediaConfig.constraints = forcedConstraints || constraints;
@@ -461,7 +452,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         this.captureUserMedia = captureUserMedia;
 
         // www.RTCMultiConnection.org/docs/leave/
-        this.leave = function(userid) {
+        this.leave = function (userid) {
             // eject a user; or leave the session
             rtcMultiSession.leave(userid);
 
@@ -481,20 +472,20 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/eject/
-        this.eject = function(userid) {
+        this.eject = function (userid) {
             if (!connection.isInitiator) throw 'Only session-initiator can eject a user.';
             this.leave(userid);
         };
 
         // www.RTCMultiConnection.org/docs/close/
-        this.close = function() {
+        this.close = function () {
             // close entire session
             connection.autoCloseEntireSession = true;
             rtcMultiSession.leave();
         };
 
         // www.RTCMultiConnection.org/docs/renegotiate/
-        this.renegotiate = function(stream, session) {
+        this.renegotiate = function (stream, session) {
             rtcMultiSession.addStream({
                 renegotiate: session || {
                     oneway: true,
@@ -506,7 +497,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/addStream/
-        this.addStream = function(session, socket) {
+        this.addStream = function (session, socket) {
             // www.RTCMultiConnection.org/docs/renegotiation/
 
             // renegotiate new media stream
@@ -517,7 +508,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     isOneWayStreamFromParticipant = true;
                 }
 
-                captureUserMedia(function(stream) {
+                captureUserMedia(function (stream) {
                     if (isOneWayStreamFromParticipant) {
                         session.oneway = true;
                     }
@@ -535,7 +526,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/removeStream/
-        this.removeStream = function(streamid) {
+        this.removeStream = function (streamid) {
             // detach pre-attached streams
             if (!this.streams[streamid]) return warn('No such stream exists. Stream-id:', streamid);
 
@@ -548,7 +539,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         setDefaults(this);
     };
 
-    function RTCMultiSession(connection) {
+    function RTCMultiSession(connection, onSignalingReady) {
         var fileReceiver = new FileReceiver(connection);
         var textReceiver = new TextReceiver(connection);
 
@@ -564,7 +555,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             } else {
                 if (connection.autoTranslateText) {
                     e.original = e.data;
-                    connection.Translator.TranslateText(e.data, function(translatedText) {
+                    connection.Translator.TranslateText(e.data, function (translatedText) {
                         e.data = translatedText;
                         connection.onmessage(e);
                     });
@@ -579,7 +570,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             if (connection.sessionid && session.sessionid != connection.sessionid) return;
 
             if (connection.onNewSession) {
-                session.join = function(forceSession) {
+                session.join = function (forceSession) {
                     if (!forceSession) return connection.join(session);
 
                     for (var f in forceSession) {
@@ -590,7 +581,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     var isDontAttachStream = connection.dontAttachStream;
 
                     connection.dontAttachStream = false;
-                    connection.captureUserMedia(function() {
+                    connection.captureUserMedia(function () {
                         connection.dontAttachStream = true;
                         connection.join(session);
 
@@ -598,7 +589,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                         connection.dontAttachStream = isDontAttachStream;
                     }, forceSession);
                 };
-                if (!session.extra) session.extra = { };
+                if (!session.extra) session.extra = {};
 
                 return connection.onNewSession(session);
             }
@@ -606,12 +597,12 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             connection.join(session);
         }
 
-        var socketObjects = { };
+        var socketObjects = {};
         var sockets = [];
 
         var rtcMultiSession = this;
 
-        var participants = { };
+        var participants = {};
 
         function updateSocketForLocalStreams(socket) {
             for (var i = 0; i < connection.localStreamids.length; i++) {
@@ -628,7 +619,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             var socketConfig = {
                 channel: _config.channel,
                 onmessage: socketResponse,
-                onopen: function(_socket) {
+                onopen: function (_socket) {
                     if (_socket) socket = _socket;
 
                     if (isofferer && !peer) {
@@ -645,7 +636,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 }
             };
 
-            socketConfig.callback = function(_socket) {
+            socketConfig.callback = function (_socket) {
                 socket = _socket;
                 socketConfig.onopen();
             };
@@ -656,7 +647,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
             var peerConfig = {
                 onopen: onChannelOpened,
-                onicecandidate: function(candidate) {
+                onicecandidate: function (candidate) {
                     if (!connection.candidates) throw 'ICE candidates are mandatory.';
                     if (!connection.candidates.host && candidate.candidate.indexOf('typ host') != -1) return;
                     if (!connection.candidates.relay && candidate.candidate.indexOf('relay') != -1) return;
@@ -673,7 +664,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     });
                 },
                 onmessage: onDataChannelMessage,
-                onaddstream: function(stream, session) {
+                onaddstream: function (stream, session) {
                     session = session || _config.renegotiate || connection.session;
 
                     // if it is Firefox; then return.
@@ -692,8 +683,8 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     _config.stream = stream;
 
                     if (!stream.getVideoTracks().length)
-                        mediaElement.addEventListener('play', function() {
-                            setTimeout(function() {
+                        mediaElement.addEventListener('play', function () {
+                            setTimeout(function () {
                                 mediaElement.muted = false;
                                 afterRemoteStreamStartedFlowing(mediaElement, session);
                             }, 3000);
@@ -717,11 +708,11 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     }
                 },
 
-                onremovestream: function(event) {
+                onremovestream: function (event) {
                     warn('onremovestream', event);
                 },
 
-                onclose: function(e) {
+                onclose: function (e) {
                     e.extra = _config.extra;
                     e.userid = _config.userid;
                     connection.onclose(e);
@@ -730,42 +721,46 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     if (connection.channels[e.userid])
                         delete connection.channels[e.userid];
                 },
-                onerror: function(e) {
+                onerror: function (e) {
                     e.extra = _config.extra;
                     e.userid = _config.userid;
                     connection.onerror(e);
                 },
 
-                oniceconnectionstatechange: function(event) {
+                oniceconnectionstatechange: function (event) {
                     log('oniceconnectionstatechange', toStr(event));
                     if (connection.peers[_config.userid] && connection.peers[_config.userid].oniceconnectionstatechange) {
                         connection.peers[_config.userid].oniceconnectionstatechange(event);
                     }
 
-                    if (!connection.autoReDialOnFailure)
-                        return;
+                    if (!connection.autoReDialOnFailure) return;
 
-                    // auto redial feature is temporarily disabled because it affects renegotiation process
-                    // when we renegotiate streams; it fires ice-connection-state == 'disconnected'
-                    // so it is not easy to distinguish between peers failure or renegotiation.
+                    if (connection.peers[_config.userid]) {
+                        if (connection.peers[_config.userid].peer.connection.iceConnectionState != 'disconnected') {
+                            _config.redialing = false;
+                        }
 
-                    // if you want to enable auto-redial feature; then omit word "return" from above statement.
+                        if (connection.peers[_config.userid].peer.connection.iceConnectionState == 'disconnected' && !_config.redialing) {
+                            _config.redialing = true;
+                            warn('Peer connection is closed.', toStr(connection.peers[_config.userid].peer.connection), 'ReDialing..');
+                            connection.peers[_config.userid].socket.send({
+                                userid: connection.userid,
+                                extra: connection.extra || {},
+                                redial: true
+                            });
 
-                    if (!connection.peers[_config.userid]) return;
-
-                    if (connection.peers[_config.userid].peer.connection.iceConnectionState != 'disconnected') {
-                        _config.redialing = false;
-                    }
-
-                    if (connection.peers[_config.userid].peer.connection.iceConnectionState == 'disconnected' && !_config.redialing) {
-                        _config.redialing = true;
-
-                        error('Peer connection is closed.', toStr(connection.peers[_config.userid].peer.connection));
-                        connection.peers[_config.userid].redial();
+                            // to make sure all old "remote" streams are also removed!
+                            for (var stream in connection.streams) {
+                                stream = connection.streams[stream];
+                                if (stream.userid == _config.userid && stream.type == 'remote') {
+                                    connection.onstreamended(stream.streamObject);
+                                }
+                            }
+                        }
                     }
                 },
 
-                onsignalingstatechange: function(event) {
+                onsignalingstatechange: function (event) {
                     log('onsignalingstatechange', toStr(event));
                 },
 
@@ -778,7 +773,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 dataChannelDict: connection.dataChannelDict,
                 preferSCTP: connection.preferSCTP,
 
-                onSessionDescription: function(sessionDescription, streaminfo) {
+                onSessionDescription: function (sessionDescription, streaminfo) {
                     sendsdp({
                         sdp: sessionDescription,
                         socket: socket,
@@ -805,7 +800,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                             streamid: _config.stream.streamid
                         });
                     } else
-                        setTimeout(function() {
+                        setTimeout(function () {
                             log('waiting for remote video to play: ' + numberOfTimes);
                             waitUntilRemoteStreamStartsFlowing(mediaElement, session, numberOfTimes);
                         }, 200);
@@ -818,7 +813,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 // for non-data connections; allow fake data sender!
                 if (!connection.session.data) {
                     var fakeChannel = {
-                        send: function(data) {
+                        send: function (data) {
                             socket.send({
                                 fakeData: data
                             });
@@ -828,7 +823,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     // connection.channels['user-id'].send(data);
                     connection.channels[_config.userid] = {
                         channel: fakeChannel,
-                        send: function(data) {
+                        send: function (data) {
                             this.channel.send(data);
                         }
                     };
@@ -839,7 +834,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             function afterRemoteStreamStartedFlowing(mediaElement, session) {
                 var stream = _config.stream;
 
-                stream.onended = function() {
+                stream.onended = function () {
                     connection.onstreamended(streamedObject);
                 };
 
@@ -894,7 +889,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 // connection.channels['user-id'].send(data);
                 connection.channels[_config.userid] = {
                     channel: _config.channel,
-                    send: function(data) {
+                    send: function (data) {
                         connection.send(data, this.channel);
                     }
                 };
@@ -920,30 +915,31 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 socket.userid = _config.userid;
                 sockets[_config.socketIndex] = socket;
 
+                connection.stats.numberOfConnectedUsers++;
                 // connection.peers['user-id'].addStream({audio:true})
                 connection.peers[_config.userid] = {
                     socket: socket,
                     peer: peer,
                     userid: _config.userid,
                     extra: _config.extra,
-                    addStream: function(session00) {
+                    addStream: function (session00) {
                         // connection.peers['user-id'].addStream({audio: true, video: true);
 
                         connection.addStream(session00, this.socket);
                     },
-                    removeStream: function(streamid) {
+                    removeStream: function (streamid) {
                         if (!connection.streams[streamid])
                             return warn('No such stream exists. Stream-id:', streamid);
 
                         this.peer.connection.removeStream(connection.streams[streamid].stream);
                         this.renegotiate();
                     },
-                    renegotiate: function(stream, session) {
+                    renegotiate: function (stream, session) {
                         // connection.peers['user-id'].renegotiate();
 
                         connection.renegotiate(stream, session);
                     },
-                    changeBandwidth: function(bandwidth) {
+                    changeBandwidth: function (bandwidth) {
                         // connection.peers['user-id'].changeBandwidth();
 
                         if (!bandwidth) throw 'You MUST pass bandwidth object.';
@@ -955,26 +951,26 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                         // ask remote user to synchronize bandwidth
                         this.socket.send({
                             userid: connection.userid,
-                            extra: connection.extra || { },
+                            extra: connection.extra || {},
                             changeBandwidth: true,
                             bandwidth: bandwidth
                         });
                     },
-                    sendCustomMessage: function(message) {
+                    sendCustomMessage: function (message) {
                         // connection.peers['user-id'].sendCustomMessage();
 
                         this.socket.send({
                             userid: connection.userid,
-                            extra: connection.extra || { },
+                            extra: connection.extra || {},
                             customMessage: true,
                             message: message
                         });
                     },
-                    onCustomMessage: function(message) {
+                    onCustomMessage: function (message) {
                         log('Received "private" message from', this.userid,
                             typeof message == 'string' ? message : toStr(message));
                     },
-                    drop: function(dontSendMessage) {
+                    drop: function (dontSendMessage) {
                         // connection.peers['user-id'].drop();
 
                         for (var stream in connection.streams) {
@@ -994,50 +990,52 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                         !dontSendMessage && this.socket.send({
                             userid: connection.userid,
-                            extra: connection.extra || { },
+                            extra: connection.extra || {},
                             drop: true
                         });
                     },
-                    hold: function(holdMLine) {
+                    hold: function (holdMLine) {
                         // connection.peers['user-id'].hold();
 
-                        this.peer.hold = true;
                         this.socket.send({
                             userid: connection.userid,
-                            extra: connection.extra || { },
+                            extra: connection.extra || {},
                             hold: true,
                             holdMLine: holdMLine || 'both'
                         });
 
+                        this.peer.hold = true;
                         this.fireHoldUnHoldEvents({
                             kind: holdMLine,
                             isHold: true,
-                            userid: connection.userid
+                            userid: connection.userid,
+                            remoteUser: this.userid
                         });
                     },
-                    unhold: function(holdMLine) {
+                    unhold: function (holdMLine) {
                         // connection.peers['user-id'].unhold();
 
-                        this.peer.hold = false;
                         this.socket.send({
                             userid: connection.userid,
-                            extra: connection.extra || { },
+                            extra: connection.extra || {},
                             unhold: true,
                             holdMLine: holdMLine || 'both'
                         });
 
+                        this.peer.hold = false;
                         this.fireHoldUnHoldEvents({
                             kind: holdMLine,
                             isHold: false,
-                            userid: connection.userid
+                            userid: connection.userid,
+                            remoteUser: this.userid
                         });
                     },
-                    fireHoldUnHoldEvents: function(e) {
+                    fireHoldUnHoldEvents: function (e) {
                         // this method is for inner usages only!
 
                         var isHold = e.isHold;
                         var kind = e.kind;
-                        var userid = e.userid;
+                        var userid = e.remoteUser || e.userid;
 
                         // hold means inactive a specific media line!
                         // a media line can contain multiple synced sources (ssrc)
@@ -1063,7 +1061,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                             }
                         }
                     },
-                    redial: function() {
+                    redial: function () {
                         // connection.peers['user-id'].redial();
 
                         // 1st of all; remove all relevant remote media streams
@@ -1088,14 +1086,14 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                         peer = new PeerConnection();
                         peer.create('offer', peerConfig);
                     },
-                    sharePartOfScreen: function(args) {
+                    sharePartOfScreen: function (args) {
                         // www.RTCMultiConnection.org/docs/onpartofscreen/
 
                         var element = args.element;
                         var that = this;
 
                         if (!window.html2canvas) {
-                            return loadScript('https://www.webrtc-experiment.com/screenshot.js', function() {
+                            return loadScript('https://www.webrtc-experiment.com/screenshot.js', function () {
                                 that.sharePartOfScreen(args);
                             });
                         }
@@ -1128,7 +1126,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                             // html2canvas.js is used to take screenshots
                             html2canvas(element, {
-                                onrendered: function(canvas) {
+                                onrendered: function (canvas) {
                                     var screenshot = canvas.toDataURL();
 
                                     if (!connection.channels[that.userid]) {
@@ -1195,7 +1193,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                 if (response.sdp) {
                     _config.userid = response.userid;
-                    _config.extra = response.extra || { };
+                    _config.extra = response.extra || {};
                     _config.renegotiate = response.renegotiate;
                     _config.streaminfo = response.streaminfo;
                     _config.isInitiator = response.isInitiator;
@@ -1232,13 +1230,13 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                             }
                         }
                     } else {
-                        var streamObject = { };
+                        var streamObject = {};
                         if (connection.streams[response.streamid]) {
                             streamObject = connection.streams[response.streamid].streamObject;
                         }
 
                         var session = response.session;
-                        var fakeObject = merge({ }, streamObject);
+                        var fakeObject = merge({}, streamObject);
                         fakeObject.session = session;
                         fakeObject.isAudio = session.audio && !session.video;
                         fakeObject.isVideo = (!session.audio && session.video) || (session.audio && session.video);
@@ -1421,9 +1419,24 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                         }
                     }
                 }
+
+                if (response.redial) {
+                    if (connection.peers[response.userid]) {
+                        if (connection.peers[response.userid].peer.connection.iceConnectionState != 'disconnected') {
+                            _config.redialing = false;
+                        }
+
+                        if (connection.peers[response.userid].peer.connection.iceConnectionState == 'disconnected' && !_config.redialing) {
+                            _config.redialing = true;
+
+                            warn('Peer connection is closed.', toStr(connection.peers[response.userid].peer.connection), 'ReDialing..');
+                            connection.peers[response.userid].redial();
+                        }
+                    }
+                }
             }
 
-            connection.playRoleOfInitiator = function() {
+            connection.playRoleOfInitiator = function () {
                 connection.dontAttachStream = true;
                 connection.open();
                 sockets = swap(sockets);
@@ -1460,7 +1473,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                     _config.capturing = true;
 
-                    connection.captureUserMedia(function(stream) {
+                    connection.captureUserMedia(function (stream) {
                         _config.capturing = false;
 
                         if (isChrome || (isFirefox && !peer.connection.getLocalStreams().length)) {
@@ -1480,7 +1493,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                         return;
                     }
 
-                    peer.recreateAnswer(sdp, session, function(_sdp, streaminfo) {
+                    peer.recreateAnswer(sdp, session, function (_sdp, streaminfo) {
                         sendsdp({
                             sdp: _sdp,
                             socket: socket,
@@ -1549,6 +1562,8 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         // if a user leaves
 
         function clearSession(channel) {
+            connection.stats.numberOfConnectedUsers--;
+
             var alert = {
                 left: true,
                 extra: connection.extra,
@@ -1600,7 +1615,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         }
 
         // www.RTCMultiConnection.org/docs/remove/
-        connection.remove = function(userid) {
+        connection.remove = function (userid) {
             if (rtcMultiSession.requestsFrom && rtcMultiSession.requestsFrom[userid]) delete rtcMultiSession.requestsFrom[userid];
 
             if (connection.peers[userid]) {
@@ -1629,7 +1644,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/refresh/
-        connection.refresh = function() {
+        connection.refresh = function () {
             participants = [];
             connection.isAcceptNewSession = true;
             connection.busy = false;
@@ -1651,28 +1666,35 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/reject/
-        connection.reject = function(userid) {
+        connection.reject = function (userid) {
             if (typeof userid != 'string') userid = userid.userid;
             defaultSocket.send({
                 rejectedRequestOf: userid,
                 userid: connection.userid,
-                extra: connection.extra || { }
+                extra: connection.extra || {}
             });
         };
 
-        window.addEventListener('beforeunload', function() {
+        window.addEventListener('beforeunload', function () {
             clearSession();
         }, false);
 
-        window.addEventListener('keyup', function(e) {
+        window.addEventListener('keyup', function (e) {
             if (e.keyCode == 116)
                 clearSession();
         }, false);
 
         function initDefaultSocket() {
             defaultSocket = connection.openSignalingChannel({
-                onmessage: function(response) {
+                onmessage: function (response) {
                     if (response.userid == connection.userid) return;
+
+                    if (response.sessionid && response.userid) {
+                        if (!connection.stats.sessions[response.sessionid]) {
+                            connection.stats.numberOfSessions++;
+                            connection.stats.sessions[response.sessionid] = response;
+                        }
+                    }
 
                     if (connection.isAcceptNewSession && response.sessionid && response.userid) {
                         connection.session = response.session;
@@ -1752,13 +1774,15 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                         }
                     }
                 },
-                callback: function(socket) {
+                callback: function (socket) {
                     if (socket) defaultSocket = socket;
                     if (connection.userType) sendRequest(socket || defaultSocket);
+                    if (onSignalingReady) onSignalingReady();
                 },
-                onopen: function(socket) {
+                onopen: function (socket) {
                     if (socket) defaultSocket = socket;
                     if (connection.userType) sendRequest(socket || defaultSocket);
+                    if (onSignalingReady) onSignalingReady();
                 }
             });
         }
@@ -1769,7 +1793,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
         function sendRequest(socket) {
             if (!socket) {
-                return setTimeout(function() {
+                return setTimeout(function () {
                     sendRequest(defaultSocket);
                 }, 1000);
             }
@@ -1777,7 +1801,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             socket.send({
                 userType: connection.userType,
                 userid: connection.userid,
-                extra: connection.extra || { }
+                extra: connection.extra || {}
             });
         }
 
@@ -1805,17 +1829,17 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         }
 
         // open new session
-        this.initSession = function(args) {
+        this.initSession = function (args) {
             rtcMultiSession.isOwnerLeaving = false;
-
-            // www.RTCMultiConnection.org/docs/session-initiator/
-            // you can always use this property to determine room owner!
-            connection.isInitiator = true;
 
             setDirections();
-            participants = { };
+            participants = {};
 
             rtcMultiSession.isOwnerLeaving = false;
+
+            if (typeof args.transmitRoomOnce != 'undefined') {
+                connection.transmitRoomOnce = args.transmitRoomOnce;
+            }
 
             function transmit() {
                 if (getLength(participants) < connection.maxParticipantsAllowed && !rtcMultiSession.isOwnerLeaving) {
@@ -1826,20 +1850,21 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     setTimeout(transmit, connection.interval || 3000);
             }
 
-            if (!args.dontTransmit) transmit();
+            // todo: test and fix next line.
+            if (!args.dontTransmit /* || connection.transmitRoomOnce */) transmit();
         };
 
         // join existing session
-        this.joinSession = function(_config) {
+        this.joinSession = function (_config) {
             if (!defaultSocket)
-                return setTimeout(function() {
+                return setTimeout(function () {
                     warn('Default-Socket is not yet initialized.');
                     rtcMultiSession.joinSession(_config);
                 }, 1000);
 
-            _config = _config || { };
-            participants = { };
-            connection.session = _config.session || { };
+            _config = _config || {};
+            participants = {};
+            connection.session = _config.session || {};
             rtcMultiSession.broadcasterid = _config.userid;
 
             if (_config.sessionid) {
@@ -1852,7 +1877,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             var channel = getRandomString();
             newPrivateSocket({
                 channel: channel,
-                extra: _config.extra || { },
+                extra: _config.extra || {},
                 userid: _config.userid
             });
 
@@ -1867,7 +1892,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // send file/data or text message
-        this.send = function(message, _channel) {
+        this.send = function (message, _channel) {
             message = JSON.stringify({
                 extra: connection.extra,
                 userid: connection.userid,
@@ -1890,7 +1915,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // leave session
-        this.leave = function(userid) {
+        this.leave = function (userid) {
             clearSession(userid);
 
             if (connection.isInitiator) {
@@ -1919,7 +1944,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // renegotiate new stream
-        this.addStream = function(e) {
+        this.addStream = function (e) {
             var session = e.renegotiate;
 
             connection.renegotiatedSessions.push({
@@ -1971,7 +1996,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     return _peer.redial();
                 }
 
-                peer.recreateOffer(session, function(sdp, streaminfo) {
+                peer.recreateOffer(session, function (sdp, streaminfo) {
                     sendsdp({
                         sdp: sdp,
                         socket: socket,
@@ -1985,14 +2010,14 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/request/
-        connection.request = function(userid, extra) {
+        connection.request = function (userid, extra) {
             if (connection.direction === 'many-to-many') connection.busy = true;
 
-            connection.captureUserMedia(function() {
+            connection.captureUserMedia(function () {
                 // open private socket that will be used to receive offer-sdp
                 newPrivateSocket({
                     channel: connection.userid,
-                    extra: extra || { },
+                    extra: extra || {},
                     userid: userid
                 });
 
@@ -2000,14 +2025,14 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 defaultSocket.send({
                     participant: true,
                     userid: connection.userid,
-                    extra: connection.extra || { },
+                    extra: connection.extra || {},
                     targetUser: userid
                 });
             });
         };
 
         function acceptRequest(response) {
-            if (!rtcMultiSession.requestsFrom) rtcMultiSession.requestsFrom = { };
+            if (!rtcMultiSession.requestsFrom) rtcMultiSession.requestsFrom = {};
             if (connection.busy || rtcMultiSession.requestsFrom[response.userid]) return;
 
             var obj = {
@@ -2031,7 +2056,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 defaultSocket.send({
                     acceptedRequestOf: e.userid,
                     userid: connection.userid,
-                    extra: connection.extra || { }
+                    extra: connection.extra || {}
                 });
             }
 
@@ -2040,15 +2065,15 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 isofferer: true,
                 userid: e.userid,
                 channel: e.channel,
-                extra: e.extra || { },
+                extra: e.extra || {},
                 session: e.session || connection.session
             });
         }
 
         // www.RTCMultiConnection.org/docs/sendMessage/
-        connection.sendCustomMessage = function(message) {
+        connection.sendCustomMessage = function (message) {
             if (!defaultSocket) {
-                return setTimeout(function() {
+                return setTimeout(function () {
                     connection.sendMessage(message);
                 }, 1000);
             }
@@ -2061,16 +2086,16 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/accept/
-        connection.accept = function(e) {
+        connection.accept = function (e) {
             // for backward compatibility
             if (arguments.length > 1 && typeof arguments[0] == 'string') {
-                e = { };
+                e = {};
                 if (arguments[0]) e.userid = arguments[0];
                 if (arguments[1]) e.extra = arguments[1];
                 if (arguments[2]) e.channel = arguments[2];
             }
 
-            connection.captureUserMedia(function() {
+            connection.captureUserMedia(function () {
                 _accept(e);
             });
         };
@@ -2082,7 +2107,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
     function PeerConnection() {
         return {
-            create: function(type, options) {
+            create: function (type, options) {
                 merge(this, options);
 
                 var self = this;
@@ -2093,21 +2118,21 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                 if (isData(this.session) && isFirefox) {
                     navigator.mozGetUserMedia({
-                            audio: true,
-                            fake: true
-                        }, function(stream) {
-                            self.connection.addStream(stream);
+                        audio: true,
+                        fake: true
+                    }, function (stream) {
+                        self.connection.addStream(stream);
 
-                            if (type == 'offer') {
-                                self.createDataChannel();
-                            }
+                        if (type == 'offer') {
+                            self.createDataChannel();
+                        }
 
-                            self.getLocalDescription(type);
+                        self.getLocalDescription(type);
 
-                            if (type == 'answer') {
-                                self.createDataChannel();
-                            }
-                        }, this.onMediaError);
+                        if (type == 'answer') {
+                            self.createDataChannel();
+                        }
+                    }, this.onMediaError);
                 }
 
                 if (!isData(this.session) && isFirefox) {
@@ -2125,7 +2150,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 isChrome && self.getLocalDescription(type);
                 return this;
             },
-            getLocalDescription: function(type) {
+            getLocalDescription: function (type) {
                 log('peer type is', type);
 
                 if (type == 'answer') {
@@ -2133,18 +2158,18 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 }
 
                 var self = this;
-                this.connection[type == 'offer' ? 'createOffer' : 'createAnswer'](function(sessionDescription) {
+                this.connection[type == 'offer' ? 'createOffer' : 'createAnswer'](function (sessionDescription) {
                     sessionDescription.sdp = self.serializeSdp(sessionDescription.sdp);
                     self.connection.setLocalDescription(sessionDescription);
                     self.onSessionDescription(sessionDescription, self.streaminfo);
                 }, this.onSdpError, this.constraints);
             },
-            serializeSdp: function(sdp) {
+            serializeSdp: function (sdp) {
                 sdp = this.setBandwidth(sdp);
                 if (this.holdMLine == 'both') {
                     if (this.hold) {
                         this.prevSDP = sdp;
-                        sdp = sdp.replace( /sendonly|recvonly|sendrecv/g , 'inactive');
+                        sdp = sdp.replace(/sendonly|recvonly|sendrecv/g, 'inactive');
                     } else if (this.prevSDP) {
                         // sdp = sdp.replace(/inactive/g, 'sendrecv');
                         sdp = this.prevSDP;
@@ -2172,7 +2197,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     if (this.holdMLine == 'audio') {
                         if (this.hold) {
                             this.prevSDP = sdp[0] + audio + video;
-                            sdp = sdp[0] + audio.replace( /sendonly|recvonly|sendrecv/g , 'inactive') + video;
+                            sdp = sdp[0] + audio.replace(/sendonly|recvonly|sendrecv/g, 'inactive') + video;
                         } else if (this.prevSDP) {
                             // sdp = sdp[0] + audio.replace(/inactive/g, 'sendrecv') + video;
                             sdp = this.prevSDP;
@@ -2182,7 +2207,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     if (this.holdMLine == 'video') {
                         if (this.hold) {
                             this.prevSDP = sdp[0] + audio + video;
-                            sdp = sdp[0] + audio + video.replace( /sendonly|recvonly|sendrecv/g , 'inactive');
+                            sdp = sdp[0] + audio + video.replace(/sendonly|recvonly|sendrecv/g, 'inactive');
                         } else if (this.prevSDP) {
                             // sdp = sdp[0] + audio + video.replace(/inactive/g, 'sendrecv');
                             sdp = this.prevSDP;
@@ -2191,7 +2216,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 }
                 return sdp;
             },
-            init: function() {
+            init: function () {
                 this.setConstraints();
                 this.connection = new RTCPeerConnection(this.iceServers, this.optionalArgument);
 
@@ -2199,23 +2224,23 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     this.createDataChannel();
                 }
 
-                this.connection.onicecandidate = function(event) {
+                this.connection.onicecandidate = function (event) {
                     if (event.candidate) {
                         self.onicecandidate(event.candidate);
                     }
                 };
 
-                this.connection.onaddstream = function(e) {
+                this.connection.onaddstream = function (e) {
                     self.onaddstream(e.stream, self.session);
 
                     log('onaddstream', toStr(e.stream));
                 };
 
-                this.connection.onremovestream = function(e) {
+                this.connection.onremovestream = function (e) {
                     self.onremovestream(e.stream);
                 };
 
-                this.connection.onsignalingstatechange = function() {
+                this.connection.onsignalingstatechange = function () {
                     self.connection && self.oniceconnectionstatechange({
                         iceConnectionState: self.connection.iceConnectionState,
                         iceGatheringState: self.connection.iceGatheringState,
@@ -2223,7 +2248,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     });
                 };
 
-                this.connection.oniceconnectionstatechange = function() {
+                this.connection.oniceconnectionstatechange = function () {
                     self.connection && self.oniceconnectionstatechange({
                         iceConnectionState: self.connection.iceConnectionState,
                         iceGatheringState: self.connection.iceGatheringState,
@@ -2232,7 +2257,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 };
                 var self = this;
             },
-            setBandwidth: function(sdp) {
+            setBandwidth: function (sdp) {
                 // sdp.replace( /a=sendrecv\r\n/g , 'a=sendrecv\r\nb=AS:50\r\n');
 
                 if (isMobileDevice || isFirefox || !this.bandwidth) return sdp;
@@ -2240,31 +2265,31 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 var bandwidth = this.bandwidth;
 
                 // if screen; must use at least 300kbs
-                if (this.session.screen && isEmpty(bandwidth)) {
-                    sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
-                    sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:300\r\n');
+                if (bandwidth.screen && this.session.screen && isEmpty(bandwidth)) {
+                    sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
+                    sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + bandwidth.screen + '\r\n');
                 }
 
                 // remove existing bandwidth lines
                 if (bandwidth.audio || bandwidth.video || bandwidth.data) {
-                    sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
+                    sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
                 }
 
                 if (bandwidth.audio) {
-                    sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:' + bandwidth.audio + '\r\n');
+                    sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:' + bandwidth.audio + '\r\n');
                 }
 
                 if (bandwidth.video) {
-                    sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + (this.session.screen ? '300' : bandwidth.video) + '\r\n');
+                    sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + (this.session.screen ? '300' : bandwidth.video) + '\r\n');
                 }
 
                 if (bandwidth.data && !this.preferSCTP) {
-                    sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:' + bandwidth.data + '\r\n');
+                    sdp = sdp.replace(/a=mid:data\r\n/g, 'a=mid:data\r\nb=AS:' + bandwidth.data + '\r\n');
                 }
 
                 return sdp;
             },
-            setConstraints: function() {
+            setConstraints: function () {
                 this.constraints = {
                     optional: this.sdpConstraints.optional || [],
                     mandatory: this.sdpConstraints.mandatory || {
@@ -2284,11 +2309,8 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     optional: this.optionalArgument.optional || [{
                         DtlsSrtpKeyAgreement: true
                     }],
-                    mandatory: this.optionalArgument.mandatory || { }
+                    mandatory: this.optionalArgument.mandatory || {}
                 };
-
-                // detect node-webkit and don't set "googIPv6" for node-webkit applications!
-                var isNodeWebkit = window.process && (typeof window.process == 'object') && process.versions && process.versions['node-webkit'];
 
                 if (isChrome && chromeVersion >= 32 && !isNodeWebkit) {
                     this.optionalArgument.optional.push({
@@ -2311,7 +2333,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                 log('ice-servers', toStr(this.iceServers.iceServers));
             },
-            onSdpError: function(e) {
+            onSdpError: function (e) {
                 var message = toStr(e);
 
                 if (message && message.indexOf('RTP/SAVPF Expects at least 4 fields') != -1) {
@@ -2319,10 +2341,10 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 }
                 error('onSdpError:', message);
             },
-            onMediaError: function(err) {
+            onMediaError: function (err) {
                 error(toStr(err));
             },
-            setRemoteDescription: function(sessionDescription) {
+            setRemoteDescription: function (sessionDescription) {
                 if (!sessionDescription) throw 'Remote session description should NOT be NULL.';
 
                 log('setting remote description', sessionDescription.type, sessionDescription.sdp);
@@ -2330,14 +2352,11 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     new RTCSessionDescription(sessionDescription)
                 );
             },
-            addIceCandidate: function(candidate) {
+            addIceCandidate: function (candidate) {
                 var iceCandidate = new RTCIceCandidate({
                     sdpMLineIndex: candidate.sdpMLineIndex,
                     candidate: candidate.candidate
                 });
-
-                // detect node-webkit
-                var isNodeWebkit = window.process && (typeof window.process == 'object') && process.versions && process.versions['node-webkit'];
 
                 if (isNodeWebkit) {
                     this.connection.addIceCandidate(iceCandidate);
@@ -2347,18 +2366,18 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     this.connection.addIceCandidate(iceCandidate, this.onIceSuccess, this.onIceFailure);
                 }
             },
-            onIceSuccess: function() {
+            onIceSuccess: function () {
                 log('ice success', toStr(arguments));
             },
-            onIceFailure: function() {
+            onIceFailure: function () {
                 warn('ice failure', toStr(arguments));
             },
-            createDataChannel: function(channelIdentifier) {
+            createDataChannel: function (channelIdentifier) {
                 if (!this.channels) this.channels = [];
 
                 // protocol: 'text/chat', preset: true, stream: 16
                 // maxRetransmits:0 && ordered:false
-                var dataChannelDict = { };
+                var dataChannelDict = {};
 
                 if (this.dataChannelDict) dataChannelDict = this.dataChannelDict;
 
@@ -2369,7 +2388,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 log('dataChannelDict', toStr(dataChannelDict));
 
                 if (isFirefox) {
-                    this.connection.onconnection = function() {
+                    this.connection.onconnection = function () {
                         self.socket.send({
                             userid: self.selfUserid,
                             isCreateDataChannel: true
@@ -2378,7 +2397,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 }
 
                 if (this.type == 'answer' || isFirefox) {
-                    this.connection.ondatachannel = function(event) {
+                    this.connection.ondatachannel = function (event) {
                         self.setChannelEvents(event.channel);
                     };
                 }
@@ -2391,19 +2410,19 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                 var self = this;
             },
-            setChannelEvents: function(channel) {
+            setChannelEvents: function (channel) {
                 var self = this;
-                channel.onmessage = function(event) {
+                channel.onmessage = function (event) {
                     self.onmessage(event.data);
                 };
 
                 var numberOfTimes = 0;
-                channel.onopen = function() {
+                channel.onopen = function () {
                     channel.push = channel.send;
-                    channel.send = function(data) {
+                    channel.send = function (data) {
                         if (channel.readyState != 'open') {
                             numberOfTimes++;
-                            return setTimeout(function() {
+                            return setTimeout(function () {
                                 if (numberOfTimes < 20) {
                                     channel.send(data);
                                 } else throw 'Number of times exceeded to wait for WebRTC data connection to be opened.';
@@ -2411,11 +2430,11 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                         }
                         try {
                             channel.push(data);
-                        } catch(e) {
+                        } catch (e) {
                             numberOfTimes++;
                             warn('Data transmission failed. Re-transmitting..', numberOfTimes, toStr(e));
                             if (numberOfTimes >= 20) throw 'Number of times exceeded to resend data packets over WebRTC data channels.';
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 channel.send(data);
                             }, 100);
                         }
@@ -2423,17 +2442,17 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     self.onopen(channel);
                 };
 
-                channel.onerror = function(event) {
+                channel.onerror = function (event) {
                     self.onerror(event);
                 };
 
-                channel.onclose = function(event) {
+                channel.onclose = function (event) {
                     self.onclose(event);
                 };
 
                 this.channels.push(channel);
             },
-            attachMediaStreams: function() {
+            attachMediaStreams: function () {
                 var streams = this.attachStreams;
                 for (var i = 0; i < streams.length; i++) {
                     log('attaching stream:', streams[i].streamid);
@@ -2441,7 +2460,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 }
                 this.getStreamInfo();
             },
-            getStreamInfo: function() {
+            getStreamInfo: function () {
                 this.streaminfo = '';
                 var streams = this.attachStreams;
                 for (var i = 0; i < streams.length; i++) {
@@ -2453,7 +2472,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 }
                 this.attachStreams = [];
             },
-            recreateOffer: function(renegotiate, callback) {
+            recreateOffer: function (renegotiate, callback) {
                 // if(isFirefox) this.create(this.type, this);
 
                 log('recreating offer');
@@ -2473,7 +2492,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                 this.getLocalDescription('offer');
             },
-            recreateAnswer: function(sdp, session, callback) {
+            recreateAnswer: function (sdp, session, callback) {
                 // if(isFirefox) this.create(this.type, this);
 
                 log('recreating answer');
@@ -2498,7 +2517,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
     }
 
     var video_constraints = {
-        mandatory: { },
+        mandatory: {},
         optional: []
     };
 
@@ -2517,7 +2536,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         currentUserMediaRequest.mutex = true;
 
         // tools.ietf.org/html/draft-alvestrand-constraints-resolution-00
-        var mediaConstraints = options.mediaConstraints || { };
+        var mediaConstraints = options.mediaConstraints || {};
         var n = navigator,
             hints = options.constraints || {
                 audio: true,
@@ -2567,7 +2586,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
         // mediaConstraints.optional.bandwidth = 1638400;
         if (mediaConstraints.optional)
-            hints.video.optional[0] = merge({ }, mediaConstraints.optional);
+            hints.video.optional[0] = merge({}, mediaConstraints.optional);
 
         log('media hints:', toStr(hints));
 
@@ -2597,14 +2616,15 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             streaming(currentUserMediaRequest.streams[idInstance].stream, true, currentUserMediaRequest.streams[idInstance].streamid);
         } else {
             n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
-            n.getMedia(hints, streaming, options.onerror || function(e) {
-                error(toStr(e));
+            n.getMedia(hints, streaming, function (err) {
+                if (options.onerror) options.onerror(err, idInstance);
+                else error(toStr(err));
             });
         }
     }
 
     var FileSender = {
-        send: function(config) {
+        send: function (config) {
             var connection = config.connection;
             var channel = config.channel;
             var privateChannel = config._channel;
@@ -2642,14 +2662,14 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             if (!!window.Worker && !isMobileDevice) {
                 var webWorker = processInWebWorker();
 
-                webWorker.onmessage = function(event) {
+                webWorker.onmessage = function (event) {
                     onReadAsDataURL(event.data);
                 };
 
                 webWorker.postMessage(file);
             } else {
                 var reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     onReadAsDataURL(e.target.result);
                 };
                 reader.readAsDataURL(file);
@@ -2711,7 +2731,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                 textToTransfer = text.slice(data.message.length);
                 if (textToTransfer.length) {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         onReadAsDataURL(null, textToTransfer);
                     }, connection.chunkInterval || 100);
                 }
@@ -2720,9 +2740,9 @@ rejected rooms MUST NOT be passed again on "onNewSession"
     };
 
     function FileReceiver(connection) {
-        var content = { },
-            packets = { },
-            numberOfPackets = { };
+        var content = {},
+            packets = {},
+            numberOfPackets = {};
 
         function receive(data) {
             var uuid = data.uuid;
@@ -2752,21 +2772,21 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             if (data.last) {
                 var dataURL = content[uuid].join('');
 
-                FileConverter.DataURLToBlob(dataURL, data.fileType, function(blob) {
+                FileConverter.DataURLToBlob(dataURL, data.fileType, function (blob) {
                     blob.uuid = uuid;
                     blob.name = data.name;
                     blob.type = data.fileType;
 
                     blob.url = (window.URL || window.webkitURL).createObjectURL(blob);
 
-                    if (connection.autoSaveToDisk) {
-                        FileSaver.SaveToDisk(blob.url, data.name);
-                    }
-
                     blob.sending = false;
                     blob.userid = data.userid || connection.userid;
                     blob.extra = data.extra || connection.extra;
                     connection.onFileEnd(blob);
+
+                    if (connection.autoSaveToDisk) {
+                        FileSaver.SaveToDisk(blob.url, data.name);
+                    }
 
                     delete content[uuid];
                 });
@@ -2779,7 +2799,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
     }
 
     var FileSaver = {
-        SaveToDisk: function(fileUrl, fileName) {
+        SaveToDisk: function (fileUrl, fileName) {
             var hyperlink = document.createElement('a');
             hyperlink.href = fileUrl;
             hyperlink.target = '_blank';
@@ -2792,12 +2812,13 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             });
 
             hyperlink.dispatchEvent(mouseEvent);
-            (window.URL || window.webkitURL).revokeObjectURL(hyperlink.href);
+
+            // (window.URL || window.webkitURL).revokeObjectURL(hyperlink.href);
         }
     };
 
     var FileConverter = {
-        DataURLToBlob: function(dataURL, fileType, callback) {
+        DataURLToBlob: function (dataURL, fileType, callback) {
 
             function processInWebWorker() {
                 var blob = URL.createObjectURL(new Blob(['function getBlob(_dataURL, _fileType) {var binary = atob(_dataURL.substr(_dataURL.indexOf(",") + 1)),i = binary.length,view = new Uint8Array(i);while (i--) {view[i] = binary.charCodeAt(i);};postMessage(new Blob([view], {type: _fileType}));};this.onmessage =  function (e) {var data = JSON.parse(e.data); getBlob(data.dataURL, data.fileType);}'], {
@@ -2812,7 +2833,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             if (!!window.Worker && !isMobileDevice) {
                 var webWorker = processInWebWorker();
 
-                webWorker.onmessage = function(event) {
+                webWorker.onmessage = function (event) {
                     callback(event.data);
                 };
 
@@ -2835,7 +2856,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
     };
 
     var TextSender = {
-        send: function(config) {
+        send: function (config) {
             var connection = config.connection;
 
             var channel = config.channel,
@@ -2881,7 +2902,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 textToTransfer = text.slice(data.message.length);
 
                 if (textToTransfer.length) {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         sendText(null, textToTransfer);
                     }, connection.chunkInterval || 100);
                 }
@@ -2893,7 +2914,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
     // TextReceiver.js
 
     function TextReceiver(connection) {
-        var content = { };
+        var content = {};
 
         function receive(data, userid, extra) {
             // uuid is used to uniquely identify sending instance
@@ -2923,7 +2944,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     connection.preRecordedMedias[message.streamerid].onData(message.chunk);
                 } else if (connection.autoTranslateText) {
                     e.original = e.data;
-                    connection.Translator.TranslateText(e.data, function(translatedText) {
+                    connection.Translator.TranslateText(e.data, function (translatedText) {
                         e.data = translatedText;
                         connection.onmessage(e);
                     });
@@ -2955,7 +2976,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         this.script = context.createScriptProcessor(256, 1, 1);
         that = this;
 
-        this.script.onaudioprocess = function(event) {
+        this.script.onaudioprocess = function (event) {
             var input = event.inputBuffer.getChannelData(0);
             var i;
             var sum = 0.0;
@@ -2980,13 +3001,13 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
     }
 
-    SoundMeter.prototype.connectToSource = function(stream) {
+    SoundMeter.prototype.connectToSource = function (stream) {
         this.mic = this.context.createMediaStreamSource(stream);
         this.mic.connect(this.script);
         this.script.connect(this.context.destination);
     };
 
-    SoundMeter.prototype.stop = function() {
+    SoundMeter.prototype.stop = function () {
         this.mic.disconnect();
         this.script.disconnect();
     };
@@ -2994,16 +3015,19 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
     var isChrome = !!navigator.webkitGetUserMedia;
     var isFirefox = !!navigator.mozGetUserMedia;
-    var isMobileDevice = navigator.userAgent.match( /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i );
+    var isMobileDevice = navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
+
+    // detect node-webkit
+    var isNodeWebkit = window.process && (typeof window.process == 'object') && window.process.versions && window.process.versions['node-webkit'];
 
     window.MediaStream = window.MediaStream || window.webkitMediaStream;
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
     function getRandomString() {
-        return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
+        return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
     }
 
-    var chromeVersion = !!navigator.mozGetUserMedia ? 0 : parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]);
+    var chromeVersion = !!navigator.mozGetUserMedia ? 0 : parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]);
 
     function isData(session) {
         return !session.audio && !session.video && !session.screen && session.data;
@@ -3031,7 +3055,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
     var warn = console.warn.bind(console);
 
     function toStr(obj) {
-        return JSON.stringify(obj, function(key, value) {
+        return JSON.stringify(obj, function (key, value) {
             if (value && value.sdp) {
                 log(value.sdp.type, '\t', value.sdp.sdp);
                 return '';
@@ -3069,7 +3093,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
     }
 
     function merge(mergein, mergeto) {
-        if (!mergein) mergein = { };
+        if (!mergein) mergein = {};
         if (!mergeto) return mergein;
 
         for (var item in mergeto) {
@@ -3088,7 +3112,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
     function muteOrUnmute(e) {
         var stream = e.stream,
             root = e.root,
-            session = e.session || { },
+            session = e.session || {},
             enabled = e.enabled;
 
         if (!session.audio && !session.video) {
@@ -3111,28 +3135,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             if (session.type == 'local' && root.type != 'local') return;
         }
 
-        log('mute/unmute session', session);
-
-        if (session.video && root.streamObject.isVideo) {
-            // taking last video snapshot
-
-            function setFonts() {
-                context.font = 'Normal 150% Arial';
-                context.fillStyle = 'red';
-                context.strokeStyle = 'red';
-            }
-
-            var video = root.streamObject.mediaElement;
-            var canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth || video.clientWidth;
-            canvas.height = video.videoHeight || video.clientHeight;
-            var context = canvas.getContext('2d');
-            setFonts();
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            context.fillText('Camera Off.', 5, 20);
-            // root.streamObject.snapshot = canvas.toDataURL();
-        }
+        log(enabled ? 'mute' : 'unmute', 'session', session);
 
         // enable/disable audio/video tracks
 
@@ -3148,7 +3151,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 videoTracks.enabled = !enabled;
         }
 
-        root.sockets.forEach(function(socket) {
+        root.sockets.forEach(function (socket) {
             if (root.type == 'local')
                 socket.send({
                     userid: root.rtcMultiConnection.userid,
@@ -3172,7 +3175,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         // According to issue #135, onmute/onumute must be fired for self
         // "fakeObject" is used because we need to keep session for renegotiated streams; 
         // and MUST pass accurate session over "onstreamended" event.
-        var fakeObject = merge({ }, root.streamObject);
+        var fakeObject = merge({}, root.streamObject);
         fakeObject.session = session;
         fakeObject.isAudio = session.audio && !session.video;
         fakeObject.isVideo = (!session.audio && session.video) || (session.audio && session.video);
@@ -3205,7 +3208,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 // for chrome canary; which has "stop" method; however not functional yet!
                 try {
                     audioTracks[i].stop();
-                } catch(e) {
+                } catch (e) {
                     fallback = true;
                     continue;
                 }
@@ -3220,7 +3223,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 // for chrome canary; which has "stop" method; however not functional yet!
                 try {
                     videoTracks[i].stop();
-                } catch(e) {
+                } catch (e) {
                     fallback = true;
                     continue;
                 }
@@ -3249,17 +3252,17 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
             var reader = new window.FileReader();
             reader.readAsArrayBuffer(file);
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 startStreaming(new window.Blob([new window.Uint8Array(e.target.result)]));
             };
 
             var sourceBuffer, mediaSource = new MediaSource();
-            mediaSource.addEventListener(prefix + 'sourceopen', function() {
+            mediaSource.addEventListener(prefix + 'sourceopen', function () {
                 sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vorbis,vp8"');
                 log('MediaSource readyState: <', this.readyState, '>');
             }, false);
 
-            mediaSource.addEventListener(prefix + 'sourceended', function() {
+            mediaSource.addEventListener(prefix + 'sourceended', function () {
                 log('MediaSource readyState: <', this.readyState, '>');
             }, false);
 
@@ -3273,7 +3276,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                 function inner_streamer() {
                     reader = new window.FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         self.push(new window.Uint8Array(e.target.result));
 
                         startIndex += plus;
@@ -3300,7 +3303,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             var mediaSource = new MediaSource();
 
             self.video.src = window.URL.createObjectURL(mediaSource);
-            mediaSource.addEventListener(prefix + 'sourceopen', function() {
+            mediaSource.addEventListener(prefix + 'sourceopen', function () {
                 self.receiver = mediaSource.addSourceBuffer('video/webm; codecs="vorbis,vp8"');
                 self.mediaSource = mediaSource;
 
@@ -3308,53 +3311,53 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             }, false);
 
 
-            mediaSource.addEventListener(prefix + 'sourceended', function() {
+            mediaSource.addEventListener(prefix + 'sourceended', function () {
                 warn('MediaSource readyState: <', this.readyState, '>');
             }, false);
         }
 
-        this.append = function(data) {
+        this.append = function (data) {
             var that = this;
             if (!self.receiver)
-                return setTimeout(function() {
+                return setTimeout(function () {
                     that.append(data);
                 });
 
             try {
                 var uint8array = new window.Uint8Array(data);
                 self.receiver.appendBuffer(uint8array);
-            } catch(e) {
+            } catch (e) {
                 error('Pre-recorded media streaming:', e);
             }
         };
 
-        this.end = function() {
+        this.end = function () {
             self.mediaSource.endOfStream();
         };
     }
 
     function setDefaults(connection) {
         // www.RTCMultiConnection.org/docs/onmessage/
-        connection.onmessage = function(e) {
+        connection.onmessage = function (e) {
             log('onmessage', toStr(e));
         };
 
         // www.RTCMultiConnection.org/docs/onopen/
-        connection.onopen = function(e) {
+        connection.onopen = function (e) {
             log('Data connection is opened between you and', e.userid);
         };
 
         // www.RTCMultiConnection.org/docs/onerror/
-        connection.onerror = function(e) {
+        connection.onerror = function (e) {
             error(onerror, toStr(e));
         };
 
         // www.RTCMultiConnection.org/docs/onclose/
-        connection.onclose = function(e) {
+        connection.onclose = function (e) {
             warn('onclose', toStr(e));
         };
 
-        var progressHelper = { };
+        var progressHelper = {};
 
         // www.RTCMultiConnection.org/docs/body/
         connection.body = document.body || document.documentElement;
@@ -3364,7 +3367,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         connection.autoSaveToDisk = false;
 
         // www.RTCMultiConnection.org/docs/onFileStart/
-        connection.onFileStart = function(file) {
+        connection.onFileStart = function (file) {
             var div = document.createElement('div');
             div.title = file.name;
             div.innerHTML = '<label>0%</label> <progress></progress>';
@@ -3378,7 +3381,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/onFileProgress/
-        connection.onFileProgress = function(chunk) {
+        connection.onFileProgress = function (chunk) {
             var helper = progressHelper[chunk.uuid];
             if (!helper) return;
             helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
@@ -3386,7 +3389,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/onFileEnd/
-        connection.onFileEnd = function(file) {
+        connection.onFileEnd = function (file) {
             if (progressHelper[file.uuid]) progressHelper[file.uuid].div.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
 
             // for backward compatibility
@@ -3407,19 +3410,19 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         connection.dontAttachStream = false;
 
         // www.RTCMultiConnection.org/docs/onstream/
-        connection.onstream = function(e) {
+        connection.onstream = function (e) {
             connection.body.insertBefore(e.mediaElement, connection.body.firstChild);
         };
 
         // www.RTCMultiConnection.org/docs/onstreamended/
-        connection.onstreamended = function(e) {
+        connection.onstreamended = function (e) {
             if (e.mediaElement && e.mediaElement.parentNode) {
                 e.mediaElement.parentNode.removeChild(e.mediaElement);
             }
         };
 
         // www.RTCMultiConnection.org/docs/onmute/
-        connection.onmute = function(e) {
+        connection.onmute = function (e) {
             log('onmute', e);
             if (e.isVideo && e.mediaElement) {
                 e.mediaElement.pause();
@@ -3431,7 +3434,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/onunmute/
-        connection.onunmute = function(e) {
+        connection.onunmute = function (e) {
             log('onunmute', e);
             if (e.isVideo && e.mediaElement) {
                 e.mediaElement.play();
@@ -3443,11 +3446,11 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/onleave/
-        connection.onleave = function(e) {
+        connection.onleave = function (e) {
             log('onleave', toStr(e));
         };
 
-        connection.token = function() {
+        connection.token = function () {
             // suggested by @rvulpescu from #154
             if (window.crypto) {
                 var a = window.crypto.getRandomValues(new Uint32Array(3)),
@@ -3455,7 +3458,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 for (var i = 0, l = a.length; i < l; i++) token += a[i].toString(36);
                 return token;
             } else {
-                return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
+                return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
             }
         };
 
@@ -3463,22 +3466,22 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         connection.userid = connection.token();
 
         // www.RTCMultiConnection.org/docs/peers/
-        connection.peers = { };
+        connection.peers = {};
         connection.peers[connection.userid] = {
-            drop: function() {
+            drop: function () {
                 connection.drop();
             },
-            renegotiate: function() {
+            renegotiate: function () {
             },
-            addStream: function() {
+            addStream: function () {
             },
-            hold: function() {
+            hold: function () {
             },
-            unhold: function() {
+            unhold: function () {
             },
-            changeBandwidth: function() {
+            changeBandwidth: function () {
             },
-            sharePartOfScreen: function() {
+            sharePartOfScreen: function () {
             }
         };
 
@@ -3486,13 +3489,13 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
         // www.RTCMultiConnection.org/docs/streams/
         connection.streams = {
-            mute: function(session) {
+            mute: function (session) {
                 this._private(session, true);
             },
-            unmute: function(session) {
+            unmute: function (session) {
                 this._private(session, false);
             },
-            _private: function(session, enabled) {
+            _private: function (session, enabled) {
                 // implementation from #68
                 for (var stream in this) {
                     if (connection._skip.indexOf(stream) == -1) {
@@ -3500,7 +3503,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     }
                 }
             },
-            stop: function(type) {
+            stop: function (type) {
                 // connection.streams.stop('local');
                 var _stream;
                 for (var stream in this) {
@@ -3523,10 +3526,10 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         connection.renegotiatedSessions = [];
 
         // www.RTCMultiConnection.org/docs/channels/
-        connection.channels = { };
+        connection.channels = {};
 
         // www.RTCMultiConnection.org/docs/extra/
-        connection.extra = { };
+        connection.extra = {};
 
         // www.RTCMultiConnection.org/docs/session/
         connection.session = {
@@ -3535,12 +3538,14 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/bandwidth/
-        connection.bandwidth = { };
+        connection.bandwidth = {
+            screen: 300 // 300kbps (old workaround!)
+        };
 
-        connection.sdpConstraints = { };
-        connection.mediaConstraints = { };
-        connection.optionalArgument = { };
-        connection.dataChannelDict = { };
+        connection.sdpConstraints = {};
+        connection.mediaConstraints = {};
+        connection.optionalArgument = {};
+        connection.dataChannelDict = {};
 
         var iceServers = [];
 
@@ -3614,23 +3619,24 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             Firefox: isFirefox,
             Chrome: isChrome,
             Mobile: isMobileDevice,
-            Version: chromeVersion
+            Version: chromeVersion,
+            NodeWebkit: isNodeWebkit
         };
 
         // file queue: to store previous file objects in memory;
         // and stream over newly connected peers
         // www.RTCMultiConnection.org/docs/fileQueue/
-        connection.fileQueue = { };
+        connection.fileQueue = {};
 
         // www.RTCMultiConnection.org/docs/media/
         connection.media = {
-            min: function(width, height) {
+            min: function (width, height) {
                 this.minWidth = width;
                 this.minHeight = height;
             },
             minWidth: 640,
             minHeight: 360,
-            max: function(width, height) {
+            max: function (width, height) {
                 this.maxWidth = width;
                 this.maxHeight = height;
             },
@@ -3662,7 +3668,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         // 'many-to-many' / 'one-to-many' / 'one-to-one' / 'one-way'
         connection.direction = 'many-to-many';
 
-        connection._getStream = function(e) {
+        connection._getStream = function (e) {
             return {
                 rtcMultiConnection: e.rtcMultiConnection,
                 streamObject: e.streamObject,
@@ -3673,8 +3679,8 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 sockets: e.socket ? [e.socket] : [],
                 type: e.type,
                 mediaElement: e.mediaElement,
-                stop: function(forceToStopRemoteStream) {
-                    this.sockets.forEach(function(socket) {
+                stop: function (forceToStopRemoteStream) {
+                    this.sockets.forEach(function (socket) {
                         if (this.type == 'local') {
                             socket.send({
                                 userid: this.rtcMultiConnection.userid,
@@ -3698,15 +3704,15 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                         stopTracks(stream);
                     }
                 },
-                mute: function(session) {
+                mute: function (session) {
                     this.muted = true;
                     this._private(session, true);
                 },
-                unmute: function(session) {
+                unmute: function (session) {
                     this.muted = false;
                     this._private(session, false);
                 },
-                _private: function(session, enabled) {
+                _private: function (session, enabled) {
                     muteOrUnmute({
                         root: this,
                         session: session,
@@ -3714,7 +3720,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                         stream: this.stream
                     });
                 },
-                startRecording: function(session) {
+                startRecording: function (session) {
                     if (!session)
                         session = {
                             audio: true,
@@ -3728,7 +3734,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                     if (!window.RecordRTC) {
                         var self = this;
-                        return loadScript('https://www.webrtc-experiment.com/RecordRTC.js', function() {
+                        return loadScript('https://www.webrtc-experiment.com/RecordRTC.js', function () {
                             self.startRecording(session);
                         });
                     }
@@ -3738,9 +3744,9 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     this.recorder.addStream(this.stream);
                     this.recorder.startRecording();
                 },
-                stopRecording: function(callback) {
+                stopRecording: function (callback) {
                     this.recorder.stopRecording();
-                    this.recorder.getBlob(function(blob) {
+                    this.recorder.getBlob(function (blob) {
                         callback(blob.audio || blob.video, blob.video);
                     });
                 }
@@ -3748,7 +3754,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // new RTCMultiConnection().set({properties}).connect()
-        connection.set = function(properties) {
+        connection.set = function (properties) {
             for (var property in properties) {
                 this[property] = properties[property];
             }
@@ -3756,28 +3762,32 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/firebase/
-        connection.firebase = 'rtcweb';
+        connection.firebase = 'chat';
 
         // www.RTCMultiConnection.org/docs/onMediaError/
-        connection.onMediaError = function(_error) {
+        connection.onMediaError = function (_error) {
             error(_error);
         };
 
         // www.RTCMultiConnection.org/docs/stats/
-        connection.stats = { };
+        connection.stats = {
+            numberOfConnectedUsers: 0,
+            numberOfSessions: 0,
+            sessions: {}
+        };
 
         // www.RTCMultiConnection.org/docs/getStats/
-        connection.getStats = function(callback) {
+        connection.getStats = function (callback) {
             var numberOfConnectedUsers = 0;
-            for (var peer in this.peers) {
+            for (var peer in connection.peers) {
                 numberOfConnectedUsers++;
             }
 
-            this.stats.numberOfConnectedUsers = numberOfConnectedUsers;
+            connection.stats.numberOfConnectedUsers = numberOfConnectedUsers;
 
             // numberOfSessions
 
-            if (callback) callback(this.stats);
+            if (callback) callback(connection.stats);
         };
 
         // www.RTCMultiConnection.org/docs/caniuse/
@@ -3788,7 +3798,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
             // there is no way to check whether "getUserMedia" flag is enabled or not!
             ScreenSharing: isChrome && chromeVersion >= 26 && location.protocol == 'https:',
-            checkIfScreenSharingFlagEnabled: function(callback) {
+            checkIfScreenSharingFlagEnabled: function (callback) {
                 var warning;
                 if (isFirefox) {
                     warning = 'Screen sharing is NOT supported on Firefox.';
@@ -3845,13 +3855,13 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/snapshots/
-        connection.snapshots = { };
+        connection.snapshots = {};
 
         // www.RTCMultiConnection.org/docs/takeSnapshot/
-        connection.takeSnapshot = function(userid, callback) {
-            for (var stream in this.streams) {
-                stream = this.streams[stream];
-                if (stream.userid == userid && stream.getVideoTracks && stream.getVideoTracks().length) {
+        connection.takeSnapshot = function (userid, callback) {
+            for (var stream in connection.streams) {
+                stream = connection.streams[stream];
+                if (stream.userid == userid && stream.stream && stream.stream.getVideoTracks && stream.stream.getVideoTracks().length) {
                     var video = stream.streamObject.mediaElement;
                     var canvas = document.createElement('canvas');
                     canvas.width = video.videoWidth || video.clientWidth;
@@ -3860,23 +3870,23 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                     var context = canvas.getContext('2d');
                     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                    this.snapshots[userid] = canvas.toDataURL();
-                    callback && callback(this.snapshots[userid]);
+                    connection.snapshots[userid] = canvas.toDataURL();
+                    callback && callback(connection.snapshots[userid]);
                     continue;
                 }
             }
         };
 
-        connection.saveToDisk = function(blob, fileName) {
+        connection.saveToDisk = function (blob, fileName) {
             if (blob.size && blob.type) FileSaver.SaveToDisk(URL.createObjectURL(blob), fileName || blob.name || blob.type.replace('/', '-') + blob.type.split('/')[1]);
             else FileSaver.SaveToDisk(blob, fileName);
         };
 
         // www.WebRTC-Experiment.com/demos/MediaStreamTrack.getSources.html
-        connection._mediaSources = { };
+        connection._mediaSources = {};
 
         // www.RTCMultiConnection.org/docs/selectDevices/
-        connection.selectDevices = function(device1, device2) {
+        connection.selectDevices = function (device1, device2) {
             if (device1) select(this.devices[device1]);
             if (device2) select(this.devices[device2]);
 
@@ -3887,12 +3897,12 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/devices/
-        connection.devices = { };
+        connection.devices = {};
 
         // www.RTCMultiConnection.org/docs/getDevices/
-        connection.getDevices = function(callback) {
+        connection.getDevices = function (callback) {
             if (!!window.MediaStreamTrack && !!MediaStreamTrack.getSources) {
-                MediaStreamTrack.getSources(function(media_sources) {
+                MediaStreamTrack.getSources(function (media_sources) {
                     var sources = [];
                     for (var i = 0; i < media_sources.length; i++) {
                         sources.push(media_sources[i]);
@@ -3905,7 +3915,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
                 var index = 0;
 
-                var devicesFetched = { };
+                var devicesFetched = {};
 
                 function getAllUserMedias(media_sources) {
                     var media_source = media_sources[index];
@@ -3927,18 +3937,18 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/onCustomMessage/
-        connection.onCustomMessage = function(message) {
+        connection.onCustomMessage = function (message) {
             log('Custom message', message);
         };
 
         // www.RTCMultiConnection.org/docs/ondrop/
-        connection.ondrop = function(droppedBy) {
+        connection.ondrop = function (droppedBy) {
             log('Media connection is dropped by ' + droppedBy);
         };
 
         // www.RTCMultiConnection.org/docs/drop/
-        connection.drop = function(config) {
-            config = config || { };
+        connection.drop = function (config) {
+            config = config || {};
             this.attachStreams = [];
 
             // "drop" should detach all local streams
@@ -3975,7 +3985,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
         // www.RTCMultiConnection.org/docs/Translator/
         connection.Translator = {
-            TranslateText: function(text, callback) {
+            TranslateText: function (text, callback) {
                 // if(location.protocol === 'https:') return callback(text);
 
                 var newScript = document.createElement('script');
@@ -3984,7 +3994,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
                 var sourceText = encodeURIComponent(text); // escape
 
                 var randomNumber = 'method' + connection.token();
-                window[randomNumber] = function(response) {
+                window[randomNumber] = function (response) {
                     if (response.data && response.data.translations[0] && callback) {
                         callback(response.data.translations[0].translatedText);
                     }
@@ -3997,27 +4007,27 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // you can easily override it by setting it NULL!
-        connection.setDefaultEventsForMediaElement = function(mediaElement, streamid) {
-            mediaElement.onpause = function() {
+        connection.setDefaultEventsForMediaElement = function (mediaElement, streamid) {
+            mediaElement.onpause = function () {
                 if (connection.streams[streamid] && !connection.streams[streamid].muted) {
                     connection.streams[streamid].mute();
                 }
             };
 
             // todo: need to make sure that "onplay" EVENT doesn't play self-voice!
-            mediaElement.onplay = function() {
+            mediaElement.onplay = function () {
                 if (connection.streams[streamid] && connection.streams[streamid].muted) {
                     connection.streams[streamid].unmute();
                 }
             };
 
             var volumeChangeEventFired = false;
-            mediaElement.onvolumechange = function() {
+            mediaElement.onvolumechange = function () {
                 if (!volumeChangeEventFired) {
                     volumeChangeEventFired = true;
-                    setTimeout(function() {
+                    setTimeout(function () {
                         var root = connection.streams[streamid];
-                        connection.streams[streamid].sockets.forEach(function(socket) {
+                        connection.streams[streamid].sockets.forEach(function (socket) {
                             socket.send({
                                 userid: connection.userid,
                                 streamid: root.streamid,
@@ -4034,18 +4044,18 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         connection.localStreamids = [];
 
         // www.RTCMultiConnection.org/docs/onMediaFile/
-        connection.onMediaFile = function(e) {
+        connection.onMediaFile = function (e) {
             log('onMediaFile', e);
             connection.body.appendChild(e.mediaElement);
         };
 
         // this object stores pre-recorded media streaming uids
         // multiple pre-recorded media files can be streamed concurrently.
-        connection.preRecordedMedias = { };
+        connection.preRecordedMedias = {};
 
         // www.RTCMultiConnection.org/docs/shareMediaFile/
         // this method handles pre-recorded media streaming
-        connection.shareMediaFile = function(file, video, streamerid) {
+        connection.shareMediaFile = function (file, video, streamerid) {
             if (file && (typeof file.size == 'undefined' || typeof file.type == 'undefined')) throw 'You MUST attach file using input[type=file] or pass a Blob.';
 
             warn('Pre-recorded media streaming is added as experimental feature.');
@@ -4059,7 +4069,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
 
             var streamer = new Streamer(this);
 
-            streamer.push = function(chunk) {
+            streamer.push = function (chunk) {
                 connection.send({
                     preRecordedMediaChunk: true,
                     chunk: chunk,
@@ -4078,7 +4088,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             connection.preRecordedMedias[streamerid] = {
                 video: video,
                 streamer: streamer,
-                onData: function(data) {
+                onData: function (data) {
                     if (data.end) this.streamer.end();
                     else this.streamer.append(data);
                 }
@@ -4094,26 +4104,26 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/onpartofscreen/
-        connection.onpartofscreen = function(e) {
+        connection.onpartofscreen = function (e) {
             var image = document.createElement('img');
             image.src = e.screenshot;
             connection.body.appendChild(image);
         };
 
-        connection.skipLogs = function() {
-            log = error = warn = function() {
+        connection.skipLogs = function () {
+            log = error = warn = function () {
             };
         };
 
         // www.RTCMultiConnection.org/docs/hold/
-        connection.hold = function(mLine) {
+        connection.hold = function (mLine) {
             for (var peer in connection.peers) {
                 connection.peers[peer].hold(mLine);
             }
         };
 
         // www.RTCMultiConnection.org/docs/onhold/
-        connection.onhold = function(track) {
+        connection.onhold = function (track) {
             log('onhold', track);
 
             if (track.kind != 'audio') {
@@ -4126,14 +4136,14 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         };
 
         // www.RTCMultiConnection.org/docs/unhold/
-        connection.unhold = function(mLine) {
+        connection.unhold = function (mLine) {
             for (var peer in connection.peers) {
                 connection.peers[peer].unhold(mLine);
             }
         };
 
         // www.RTCMultiConnection.org/docs/onunhold/
-        connection.onunhold = function(track) {
+        connection.onunhold = function (track) {
             log('onunhold', track);
 
             if (track.kind != 'audio') {
@@ -4145,19 +4155,19 @@ rejected rooms MUST NOT be passed again on "onNewSession"
             }
         };
 
-        connection.sharePartOfScreen = function(args) {
+        connection.sharePartOfScreen = function (args) {
             for (var peer in connection.peers) {
                 connection.peers[peer].sharePartOfScreen(args);
             }
         };
 
-        connection.pausePartOfScreenSharing = function() {
+        connection.pausePartOfScreenSharing = function () {
             for (var peer in connection.peers) {
                 connection.peers[peer].pausePartOfScreenSharing = true;
             }
         };
 
-        connection.stopPartOfScreenSharing = function() {
+        connection.stopPartOfScreenSharing = function () {
             for (var peer in connection.peers) {
                 connection.peers[peer].stopPartOfScreenSharing = true;
             }
@@ -4167,5 +4177,7 @@ rejected rooms MUST NOT be passed again on "onNewSession"
         // affects renegotiation scenarios!
         // todo: fix it!
         connection.autoReDialOnFailure = false;
+
+        connection.isInitiator = false;
     }
 })();

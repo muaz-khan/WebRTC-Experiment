@@ -71,61 +71,6 @@
 			<li>
 				<a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a>'s signaling portion heavily relies on "<strong>channels</strong>"; A channel is a simple partitioning process for the connected clients.
 			</li>
-            
-            <li id="RTCMultiConnection-Signaling">
-                        <h2>RTCMultiConnection Signaling Concepts:</h2>
-                        <div class="image-container">
-                            <div class="image-parent">
-                                <a href="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Signaling.svg">
-                                    <img src="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Signaling.svg">
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    
-                    <li id="RTCMultiConnection-public-API-call-flow">
-                        <h2>RTCMultiConnection Public-API Call Flow Diagram:</h2>
-                        <div class="image-container">
-                            <div class="image-parent">
-                                <a href="http://www.rtcmulticonnection.org/img/RTCMultiConnection-public-API-call-flow.svg">
-                                    <img src="http://www.rtcmulticonnection.org/img/RTCMultiConnection-public-API-call-flow.svg">
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    
-                    <li id="RTCMultiConnection-Modules-Diagram">
-                        <h2>RTCMultiConnection Modules Diagram:</h2>
-                        <div class="image-container">
-                            <div class="image-parent">
-                                <a href="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Modules-Diagram.svg">
-                                    <img src="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Modules-Diagram.svg">
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    
-                    <li id="RTCMultiConnection-Structure">
-                        <h2>RTCMultiConnection Structure:</h2>
-                        <div class="image-container">
-                            <div class="image-parent">
-                                <a href="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Structure.png">
-                                    <img src="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Structure.png">
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    
-                    <li id="RTCMultiConnection-Call-Flow-Diagram">
-                        <h2>RTCMultiConnection Call Flow Diagram:</h2>
-                        <div class="image-container">
-                            <div class="image-parent">
-                                <a href="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Call-Flow-Diagram.png">
-                                    <img src="http://www.rtcmulticonnection.org/img/RTCMultiConnection-Call-Flow-Diagram.png">
-                                </a>
-                            </div>
-                        </div>
-                    </li>
 			
 			<li>
 				A channel is a signaling room contains two or more connected clients; data travels privately inside the room; which gives us flexibility in transmission and simplicity in management.
@@ -167,9 +112,9 @@
 					
 					<li>
 						<pre class="sh_javascript">
-var userA = new RTCMultiConnection('sessionid-007');
-var userB = new RTCMultiConnection('sessionid-007');
-var userC = new RTCMultiConnection('sessionid-007');
+var userA = new RTCMultiConnection('channel-id-007');
+var userB = new RTCMultiConnection('channel-id-007');
+var userC = new RTCMultiConnection('channel-id-007');
 </pre>
 					</li>
 					
