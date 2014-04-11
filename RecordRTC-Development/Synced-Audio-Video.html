@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        
+        <style>
+            body, html {
+                background: black;
+                color: white;
+                text-align: center;
+            }
+
+            button, a {
+                background: -webkit-gradient(linear, 50% 0, 50% 100%, color-stop(0%, #fff), color-stop(100%, #eaeaea));
+                background: -webkit-linear-gradient(top, #fff, #eaeaea);
+                background: -moz-linear-gradient(top, #fff, #eaeaea);
+                background: -o-linear-gradient(top, #fff, #eaeaea);
+                background: linear-gradient(top, #fff, #eaeaea);
+                border: 1px solid white;
+                border-radius: 5px;
+                color: #4f4f4f;
+                padding: 8px 15px;
+                text-decoration: none;
+                text-transform: capitalize;
+            }
+
+            button:hover, a:hover, button:active, a:active, button:focus, a:focus {
+                -moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+                -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+                background: #303030;
+                border-color: white;
+                box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+                color: white;
+            }
+
+            button[disabled] {
+                background: transparent;
+                border-color: rgb(83, 81, 81);
+                color: rgb(139, 133, 133);
+            }
+        </style>
+        <script src="RecordRTC.js"> </script>
+    </head>
+
+    <body style="text-align: center;">
+        <section class="experiment">  
+            <p style="text-align: center;">
+                <video id="preview" controls style="border: 1px solid rgb(15, 158, 238); height: 240px; max-width: 100%; vertical-align: top; width: 320px;"></video> 
+            </p>
+            
+            <p style="text-align: center;">
+                <audio controls style="border: 1px solid rgb(15, 158, 238); max-width: 100%; vertical-align: top; width: 320px;"></audio> 
+            </p>
+
+            <button id="record">Record</button>
+            <button id="stop" disabled>Stop</button>
+
+            <div id="container" style="padding: 1em 2em;"></div>
+        </section>
+            
+        <script>
+            function RenderBlobs(audioURL, videoURL) {
+                document.querySelector('audio').src = audioURL;
+                document.querySelector('video').src = videoURL;
+                
+                document.querySelector('audio').play();
+                document.querySelector('video').play();
+                
+                function mismatchChecker() {
+                   var mismatch = document.querySelector('audio').duration - document.querySelector('video').duration;
+                   stop.innerHTML = 'Audio has ' + (+mismatch.toFixed(1) * 1000) + ' milliseconds latency!';
+                };
+                
+                setTimeout(mismatchChecker, 2000);
+            }
+
+            var record = document.getElementById('record');
+            var stop = document.getElementById('stop');
+
+            var recordVideo = document.getElementById('record-video');
+            var preview = document.getElementById('preview');
+
+            var container = document.getElementById('container');
+
+            var isFirefox = !!navigator.mozGetUserMedia;
+
+            var recordAudio, recordVideo;
+            record.onclick = function() {
+                record.disabled = true;
+                !window.stream && navigator.getUserMedia({
+                        audio: true,
+                        video: true
+                    }, function(stream) {
+                        window.stream = stream;
+                        onstream();
+                    }, function(error) {
+                        alert(JSON.stringify(error, null, '\t'));
+                    });
+
+                window.stream && onstream();
+
+                function onstream() {
+                    preview.src = window.URL.createObjectURL(stream);
+                    preview.play();
+                    preview.muted = true;
+
+                    recordAudio = RecordRTC(stream, {
+                        bufferSize: 16384
+                    });
+                    recordAudio.startRecording();
+
+                    recordVideo = RecordRTC(stream, {
+                        type: 'video'
+                    });
+                    recordVideo.startRecording();
+
+                    stop.disabled = false;
+                }
+            };
+
+            var fileName;
+            stop.onclick = function() {
+                record.disabled = false;
+                stop.disabled = true;
+
+                preview.src = '';
+                preview.poster = '//www.webrtc-experiment.com/images/ajax-loader.gif';
+
+                fileName = Math.round(Math.random() * 99999999) + 99999999;
+
+                recordVideo.stopRecording(function(videoURL) {
+                    recordAudio.stopRecording(function(audioURL) {
+                       RenderBlobs(audioURL, videoURL);
+                    });
+                });
+            };
+        </script>
+        <br /><br /><hr style="height:3px; border-color:gray;"/>
+        <div style="text-align:left;">
+            <h2>Purpose of this experiment?</h2>
+            To make sure:
+            <ol>
+                <li>Length of both audio and video is same</li>
+                <li>There is no latency between audio and video playbacks!</li>
+                <li>In Chrome, when the javascript node is out of scope, the onaudioprocess callback stops firing. This leads to audio being significantly shorter than the generated video.</li>
+            </ol>
+        </div>
+    </body>
+</html>

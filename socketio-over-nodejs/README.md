@@ -60,10 +60,11 @@ In `ui.js` files you can find `openSocket` method; or in all libraries; you can 
 
 ```javascript
 // http://socketio-over-nodejs.hp.af.cm/
-// http://socketio-over-nodejs.jit.su:80/
-// http://webrtc-signaling.jit.su:80/
+// http://socketio-over-nodejs.nodejitsu.com:80/
+// https://socketio-over-nodejs.nodejitsu.com:443/
+// http://webrtc-signaling.nodejitsu:80/
 
-var SIGNALING_SERVER = 'http://socketio-over-nodejs.hp.af.cm';
+var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
 connection.openSignalingChannel = function(config) {   
    var channel = config.channel || this.channel || 'default-namespace';
    var sender = Math.round(Math.random() * 9999999999) + 9999999999;
