@@ -90,10 +90,6 @@
             </header>
 
             <div class="github-stargazers"></div>
-
-            <section class="plusone-gplus">
-                <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
-            </section>
         
             <!-- just copy this <section> and next script -->
             <section class="experiment">                
@@ -156,7 +152,7 @@
                     sessions[session.sessionid] = session;
 
                     var tr = document.createElement('tr');
-                    tr.innerHTML = '<td><strong>' + session.extra['session-name'] + '</strong> is sharing his webcam in one-way direction!</td>' +
+                    tr.innerHTML = '<td><strong>' + session.sessionid + '</strong> is sharing his webcam in one-way direction!</td>' +
                         '<td><button class="join">View His Webcam</button></td>';
                     roomsList.insertBefore(tr, roomsList.firstChild);
 
@@ -179,10 +175,8 @@
 
                 document.getElementById('setup-new-broadcast').onclick = function() {
                     this.disabled = true;
-                    connection.extra = {
-                        'session-name': document.getElementById('broadcast-name').value || 'Anonymous'
-                    };
-                    connection.open();
+                    
+                    connection.open( document.getElementById('broadcast-name').value || 'Anonymous' );
                 };
 
                 // setup signaling to search existing sessions

@@ -1,4 +1,4 @@
-// Last time updated at April 14, 2014, 08:00:23
+// Last time updated at April 14, 2014, 15:00:23
 // Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js
 
 // Muaz Khan         - www.MuazKhan.com
@@ -794,8 +794,9 @@
 
                 if (!(mediaElement.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || mediaElement.paused || mediaElement.currentTime <= 0)) {
                     afterRemoteStreamStartedFlowing(mediaElement, session);
+                    numberOfTimes = 0;
                 } else {
-                    if (numberOfTimes >= 100) {
+                    if (numberOfTimes >= 60 * 2) { // wait 2 minutes while video is delivered!
                         socket.send({
                             userid: connection.userid,
                             extra: connection.extra,
@@ -806,7 +807,7 @@
                         setTimeout(function() {
                             log('waiting for remote video to play: ' + numberOfTimes);
                             waitUntilRemoteStreamStartsFlowing(mediaElement, session, numberOfTimes);
-                        }, 200);
+                        }, 1000);
                 }
             }
 
@@ -2282,7 +2283,7 @@
                 }
 
                 if (bandwidth.video) {
-                    sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + (this.session.screen ? '300' : bandwidth.video) + '\r\n');
+                    sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + (bandwidth.screen || bandwidth.video) + '\r\n');
                 }
 
                 if (bandwidth.data && !this.preferSCTP) {
