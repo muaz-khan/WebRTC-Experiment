@@ -178,6 +178,7 @@
                 var roomsList = document.getElementById('rooms-list');
 
                 document.getElementById('setup-new-broadcast').onclick = function() {
+                    connection.sessionid = (Math.random() * 999999999999).toString().replace('.', '');
                     this.disabled = true;
                     connection.extra = {
                         'session-name': document.getElementById('broadcast-name').value || 'Anonymous'
