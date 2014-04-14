@@ -1,4 +1,4 @@
-// Last time updated at 11 April 2014, 20:32:23
+// Last time updated at April 14, 2014, 08:32:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -520,10 +520,11 @@ function StereoRecorder(mediaStream) {
 
     this.stop = function(callback) {
         var self = this;
-        if (mediaRecorder) mediaRecorder.stop(function() {
-            self.recordedBlob = mediaRecorder.recordedBlob;
-            callback();
-        });
+        if (mediaRecorder)
+            mediaRecorder.stop(function() {
+                self.recordedBlob = mediaRecorder.recordedBlob;
+                callback();
+            });
     };
 
     // Reference to "StereoAudioRecorder" object
@@ -550,7 +551,7 @@ function StereoAudioRecorder(mediaStream, root) {
         // reset the buffers for the new recording
         leftchannel.length = rightchannel.length = 0;
         recordingLength = 0;
-        
+
         recording = true;
     };
 
@@ -560,7 +561,7 @@ function StereoAudioRecorder(mediaStream, root) {
         function onRecordingStopped() {
             // stop recording
             recording = false;
-        
+
             // flat the left and right channels down
             var leftBuffer = mergeBuffers(leftchannel, recordingLength);
             var rightBuffer = mergeBuffers(rightchannel, recordingLength);
@@ -607,9 +608,10 @@ function StereoAudioRecorder(mediaStream, root) {
 
             // recorded audio length
             self.length = recordingLength;
-            
+
             callback();
         }
+
         var self = this;
     };
 
@@ -822,7 +824,7 @@ function WhammyRecorder(mediaStream) {
 
     this.stop = function(callback) {
         isStopDrawing = true;
-        whammy.frames = frames;
+        whammy.frames = dropFirstFrame(frames);
         frames = [];
 
         this.recordedBlob = whammy.compile();
@@ -1408,6 +1410,15 @@ function GifRecorder(mediaStream) {
     var startTime, endTime, lastFrameTime;
 
     var gifEncoder;
+}
+
+// This method is taken from a modified version of MediaStreamRecorder.js!
+// To solve first frame that is always blank. 
+// See: https://github.com/muaz-khan/WebRTC-Experiment/issues/94
+
+function dropFirstFrame(arr) {
+    arr.shift();
+    return arr;
 }
 
 // _____________

@@ -34,6 +34,11 @@
             .image-parent img { width: 100%; }
 
             li pre { margin-top: 0; }
+
+            li a {
+                font-family: monospace;
+                font-size: 1.2em;
+            }
         </style>
         <!-- for HTML5 el styling -->
         <script>
@@ -57,8 +62,6 @@
 
             <div class="github-stargazers"></div>
             <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> Docs ----/ <a href="http://www.RTCMultiConnection.org/changes-log/">Changes Log</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com/RTCMultiConnection/">Demo: MultiRTC!</a></h1>
-		
-        
             <ol>
                 <li><a href="http://www.RTCMultiConnection.org/docs/getting-started/">Getting Started Guide</a></li>
                 <li>
@@ -1137,17 +1140,6 @@ connection.stopPartOfScreenSharing();
                         </li>
                         
                         <li>
-                            <a href="http://www.RTCMultiConnection.org/docs/">interconnect</a>
-                            <pre class="sh_javascript">
-// "false" for all those users who will JUST view "all" broadcasts anonymously!
-connection.interconnect = false;
-
-// "true" for all those users who will broadcast their streams!
-connection.interconnect = true;
-</pre>
-                        </li>
-                        
-                        <li>
                             <a href="http://www.RTCMultiConnection.org/docs/">setDefaultEventsForMediaElement</a>
                             <pre class="sh_javascript">
 // by default it captures "onplay", "onpause" and "onvolumechange" events for all media elements
@@ -1162,6 +1154,56 @@ connection.setDefaultEventsForMediaElement = null;
 // it is false because workaround that is used to capture connections' failures
 // affects renegotiation scenarios!
 connection.autoReDialOnFailure = true;
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/">isAcceptNewSession</a>
+                            <pre class="sh_javascript">
+// Using <code>"isAcceptNewSession"</code>, you can allow single user to join multiple rooms from the same <code><a href="http://www.RTCMultiConnection.org/docs/channel-id/">channel</a></code>:
+connection.<a href="http://www.RTCMultiConnection.org/docs/onstream/">onstream</a> = function(event) {
+    if(event.type == 'remote') {
+        // set "isAcceptNewSession=true" so this user can get and join new session i.e. room
+        // it means that "<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a>" will be fired for this user as soon as other room is available!
+        connection.isAcceptNewSession = true;
+    }
+};
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/">askToShareParticipants</a>
+                            <pre class="sh_javascript">
+// Useful in multi-broadcasters and many viewers scenarios!
+connection.<a href="http://www.RTCMultiConnection.org/docs/onstream/">onstream</a> = function (e) {
+    if (e.type == 'remote' && role == 'Anonymous Viewer') {
+        // because "viewer" joined room as "oneway:true"
+        // initiator will NEVER share participants
+        // to manually ask for participants;
+        // call "askToShareParticipants" method.
+        connection.askToShareParticipants();
+    }
+
+    // if you're moderator
+    // if stream-type is 'remote'
+    // if target user is broadcaster!
+    if (connection.isInitiator && e.type == 'remote' && !e.session.oneway) {
+        // call "shareParticipants" to manually share participants with all connected users!
+        connection.shareParticipants({
+            dontShareWith: e.userid
+        });
+    }
+};
+</pre>
+                        </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/">dontOverrideSession</a>
+                            <pre class="sh_javascript">
+// dont-override-session allows you force RTCMultiConnection
+// to not override default session of participants;
+// by default, session is always overridden and set to the session coming from initiator!
+connection.dontOverrideSession = true;
 </pre>
                         </li>
                    

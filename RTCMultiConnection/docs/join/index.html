@@ -55,12 +55,31 @@
         <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>" method</h1>
 		
 		<ol>
-			<li>
-                Now, <a href="http://www.rtcmulticonnection.org/docs/open/">open</a> method returns "sessionDescription" object. "open" method also accepts an object as well!
-			</li>
-            
             <li>
-                <a href="http://www.rtcmulticonnection.org/docs/join/">join</a> method can be used to join that "sessionDescription" anytime without connecting to signaling channel!
+                Since <a href="http://www.rtcmulticonnection.org/changes-log/#v1.7">v1.7</a>, you can pass "<code><a href="http://www.RTCMultiConnection.org/docs/sessionid/">sessionid</a></code>" directly over "<code><a href="http://www.RTCMultiConnection.org/docs/join/">join</a></code>" method:
+                <pre class="sh_javascript">
+// make sure that room is created!
+// otherwise this "join" method will fail to join the room!
+// "join" method NEVER waits for onNewSession!!
+// it directly "joins" the room!
+connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>('sessionid');
+
+// otherwise, you can pass "room-description"
+// or "session-description" object over "join" method!
+var sessionDescription = {
+    sessionid: 'abcdef',
+    userid: 'xyz',
+    extra: {},
+    session: {
+        audio: true,
+        video: true
+    }
+};
+connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>( sessionDescription );
+</pre>
+            </li>
+			<li>
+                Since <a href="http://www.rtcmulticonnection.org/changes-log/#v1.7">v1.7</a>, "<code><a href="http://www.rtcmulticonnection.org/docs/open/">open</a></code>" method returns "<code>sessionDescription</code>" or "<code>roomDescription</code>" object:
 			</li>
             
             <li>
@@ -88,6 +107,25 @@ websocket.onmessage = function(event) {
 };
 </pre>
                 </li>
+                
+            <li>
+                <a href="http://www.rtcmulticonnection.org/changes-log/#v1.6">v1.6</a> and earlier versions allows you get "<code>sessionDescription</code>" or "<code>roomDescription</code>" from "<code><a href="http://www.rtcmulticonnection.org/docs/onNewSession/">onNewSession</a></code>" event:
+                <pre class="sh_javascript">
+// or
+connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>();                           // join session as it is!
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>({audio: true});              // join session while allowing only audio
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>({video: true});              // join session while allowing only video
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>({screen: true});             // join session while allowing only screen
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>({audio: true, video: true}); // join session while allowing both audio and video
+    
+    session.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>({oneway: true}); // to join with no stream!
+    
+    // you can even use "connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>" method
+    connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>( session );
+};
+</pre>
+			</li>
 		</ol>
 
         <br />

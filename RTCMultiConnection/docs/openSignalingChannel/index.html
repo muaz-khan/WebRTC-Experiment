@@ -58,40 +58,44 @@
         <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/openSignalingChannel/">openSignalingChannel</a>"</h1>
         
         <ol>
-            <li>
+            <li id="1">
                 In RTCMultiConnection, the entire signaling portion is encapsulated in single method; named as <a href="http://www.RTCMultiConnection.org/docs/openSignalingChannel/">openSignalingChannel</a>.
             </li>
             
-            <li>
+            <li id="2">
                 You can override <a href="http://www.RTCMultiConnection.org/docs/openSignalingChannel/">openSignalingChannel</a> method to force custom signaling gateways e.g. WebSockets, Socket.io, XMPP etc.
             </li>
             
-            <li>
+            <li style="text-align:center;" id="3">
+                <iframe src="//player.vimeo.com/video/91780227" style="width: 100%;" height="460" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+                <a href="https://vimeo.com/channels/rtcmulticonnection">RTCMultiConnection Videos Channel</a>!
+            </li>
+            
+            <li id="4">
                 <h2>Using <span style="color:red;">"Any Socket.io Server"</span> for Signaling</h2>
                 <pre class="sh_javascript">
 // global stuff
 var channels = {};
-var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
 var socketio = io.connect('http://localhost:8888/');
 
 socketio.on('message', function(data) {
-    if(data.sender == currentUserUUID) return;
+    if(data.sender == connection.userid) return;
     
-    if (channels[data.channel] && channels[data.channel].onmessage) {
-        channels[data.channel].onmessage(data.message);
+    if (channels[data.channel]) {
+        channels[data.channel](data.message);
     };
 });
 
 // overriding "openSignalingChannel" method
 connection.openSignalingChannel = function (config) {
     var channel = config.channel || this.channel;
-    channels[channel] = config;
+    channels[channel] = config.onmessage;
 
     if (config.onopen) setTimeout(config.onopen, 1000);
     return {
         send: function (message) {
             socketio.emit('message', {
-                sender: currentUserUUID,
+                sender: connection.userid,
                 channel: channel,
                 message: message
             });
@@ -102,17 +106,15 @@ connection.openSignalingChannel = function (config) {
 </pre>
             </li>
             
-            <li>
+            <li id="5">
                 <h2>Using "<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs">Custom</a> Socket.io Server" for Signaling</h2>
                 <pre class="sh_javascript">
 var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
 connection.openSignalingChannel = function(config) {   
-   var channel = config.channel || this.channel || 'default-namespace';
-   var sender = Math.round(Math.random() * 9999999999) + 9999999999;
-   
+   var channel = config.channel || this.channel;
    io.connect(SIGNALING_SERVER).emit('new-channel', {
       channel: channel,
-      sender : sender
+      sender : connection.userid
    });
    
    var socket = io.connect(SIGNALING_SERVER + channel);
@@ -124,7 +126,7 @@ connection.openSignalingChannel = function(config) {
    
    socket.send = function (message) {
         socket.emit('message', {
-            sender: sender,
+            sender: connection.userid,
             data  : message
         });
     };
@@ -134,34 +136,33 @@ connection.openSignalingChannel = function(config) {
 </pre>
             </li>
             
-            <li>
+            <li id="6">
                 <h2>Using <span style="color:red;">"Any WebSocket Server"</span> for Signaling</h2>
                 <pre class="sh_javascript">
 // global stuff
 var channels = {};
-var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
 var websocket = new WebSocket('ws://localhost:8888/');
 
 websocket.onmessage =  function(e) {
     data = JSON.parse(e.data);
     
-    if(data.sender == currentUserUUID) return;
+    if(data.sender == connection.userid) return;
     
-    if (channels[data.channel] && channels[data.channel].onmessage) {
-        channels[data.channel].onmessage(data.message);
+    if (channels[data.channel]) {
+        channels[data.channel](data.message);
     };
 };
 
 // overriding "openSignalingChannel" method
 connection.openSignalingChannel = function (config) {
     var channel = config.channel || this.channel;
-    channels[channel] = config;
+    channels[channel] = config.onmessage;
 
     if (config.onopen) setTimeout(config.onopen, 1000);
     return {
         send: function (message) {
             websocket.send(JSON.stringify({
-                sender: currentUserUUID,
+                sender: connection.userid,
                 channel: channel,
                 message: message
             }));
@@ -172,13 +173,13 @@ connection.openSignalingChannel = function (config) {
 </pre>
             </li>
             
-            <li>
+            <li id="7">
                 <h2>Using "<a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs">Custom</a> WebSocket Server" for Signaling</h2>
                 <pre class="sh_javascript">
 // var SIGNALING_SERVER = 'ws://wsnodejs.jit.su:80';
 var SIGNALING_SERVER = 'ws://' + document.domain + ':1338/';
 connection.openSignalingChannel = function(config) {
-    config.channel = config.channel || this.channel || 'default-channel';
+    config.channel = config.channel || this.channel;
     var websocket = new WebSocket(SIGNALING_SERVER);
     websocket.channel = config.channel;
     websocket.onopen = function() {
@@ -203,21 +204,20 @@ connection.openSignalingChannel = function(config) {
 </pre>
             </li>
             
-            <li>
+            <li id="8">
                 <h2>Using Firebase for Signaling (Technique No. 1)</h2>
                 <pre class="sh_javascript">
 // global stuff
 var channels = {};
-var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
 var firebase = new Firebase('//chat.firebaseio.com/something-unique');
 
 firebase.on('child_added', function(snap) {
     var data = snap.val();
     
-    if(data.sender == currentUserUUID) return;
+    if(data.sender == connection.userid) return;
     
-    if (channels[data.channel] && channels[data.channel].onmessage) {
-        channels[data.channel].onmessage(data.message);
+    if (channels[data.channel]) {
+        channels[data.channel](data.message);
     };
     
     snap.ref().remove();
@@ -226,13 +226,13 @@ firebase.on('child_added', function(snap) {
 // overriding "openSignalingChannel" method
 connection.openSignalingChannel = function (config) {
     var channel = config.channel || this.channel;
-    channels[channel] = config;
+    channels[channel] = config.onmessage;
 
     if (config.onopen) setTimeout(config.onopen, 1000);
     return {
         send: function (message) {
             firebase.push({
-                sender: currentUserUUID,
+                sender: connection.userid,
                 channel: channel,
                 message: message
             });
@@ -243,11 +243,11 @@ connection.openSignalingChannel = function (config) {
 </pre>
             </li>
             
-            <li>
+            <li id="9">
                 <h2>Using Firebase for Signaling (Technique No. 2)</h2>
                 <pre class="sh_javascript">
 connection.openSignalingChannel = function (config) {
-    var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+    var channel = config.channel || this.channel;
     
     var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
     socket.channel = channel;
@@ -267,11 +267,11 @@ connection.openSignalingChannel = function (config) {
 </pre>
             </li>
             
-            <li>
+            <li id="10">
                 <h2>Using PubNub for Signaling</h2>
                 <pre class="sh_javascript">
 connection.openSignalingChannel = function (config) {
-    var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+    var channel = config.channel || this.channel;
     var socket = io.connect('https://pubsub.pubnub.com/' + channel, {
         publish_key: 'demo',
         subscribe_key: 'demo',

@@ -157,6 +157,7 @@
 | **Customizing Bandwidth** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/bandwidth.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/demos/bandwidth.html) |
 | **Users ejection and presence detection** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/users-ejection.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/demos/users-ejection.html) |
 | **RTCMultiConnection-v1.3 and socket.io** | ---- | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/demos/RTCMultiConnection-v1.3-and-socket.io.html) |
+| **Multi-Broadcasters and Many Viewers** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/Multi-Broadcasters-and-Many-Viewers.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/demos/Multi-Broadcasters-and-Many-Viewers.html) |
 
 =
 
@@ -307,27 +308,26 @@ translator.speakTextUsingGoogleSpeaker({
 ##### `openSignalingChannel` for [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/) and [DataChanel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) (Client-Side Code)
 
 ```javascript
-var channels = {};
-var currentUserUUID = Math.round(Math.random() * 60535) + 5000;
+var onMessageCallbacks = {};
 var socketio = io.connect('http://localhost:8888/');
 
 socketio.on('message', function(data) {
-    if(data.sender == currentUserUUID) return;
+    if(data.sender == connection.userid) return;
     
-    if (channels[data.channel] && channels[data.channel].onmessage) {
-        channels[data.channel].onmessage(data.message);
+    if (onMessageCallbacks[data.channel]) {
+        onMessageCallbacks[data.channel](data.message);
     };
 });
 
 connection.openSignalingChannel = function (config) {
     var channel = config.channel || this.channel;
-    channels[channel] = config;
+    onMessageCallbacks[channel] = config.onmessage;
 
     if (config.onopen) setTimeout(config.onopen, 1000);
     return {
         send: function (message) {
             socketio.emit('message', {
-                sender: currentUserUUID,
+                sender: connection.userid,
                 channel: channel,
                 message: message
             });

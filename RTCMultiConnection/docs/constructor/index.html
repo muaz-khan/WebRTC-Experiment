@@ -51,6 +51,8 @@
     <article>
         <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">RTCMultiConnection Docs</a>
 
+        <div class="github-stargazers"></div>
+        
         <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / Constructor</h1>
 		
 		<ol>
@@ -58,7 +60,7 @@
 				RTCMultiConnection constructor takes single argument; named as "channel-id".
 				
 				<pre class="sh_javascript">
-var connection = new RTCMultiConnection('channel-id');
+var connection = new RTCMultiConnection(<a href="http://www.rtcmulticonnection.org/docs/channel-id/">'channel-id'</a>);
 </pre>
 			</li>
 			
@@ -66,8 +68,8 @@ var connection = new RTCMultiConnection('channel-id');
 				If you skip "channel-id"; RTCMultiConnection will use "full-URL" as channel-id:
 				
 				<pre class="sh_javascript">
-var channel_id = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-var connection = new RTCMultiConnection(channel_id);
+var <a href="http://www.rtcmulticonnection.org/docs/channel-id/">channel_id</a> = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+var connection = new RTCMultiConnection(<a href="http://www.rtcmulticonnection.org/docs/channel-id/">channel_id</a>);
 </pre>
 			</li>
 			
@@ -75,10 +77,26 @@ var connection = new RTCMultiConnection(channel_id);
 				You can access "channel-id" like this:
 				
 				<pre class="sh_javascript">
-console.log('channel-id is', connection.channel);
+console.log('channel-id is', connection.<a href="http://www.rtcmulticonnection.org/docs/channel-id/">channel</a>);
+</pre>
+			</li>
+            
+            <li>
+				You can set "channel-id" like this as well:
+				
+				<pre class="sh_javascript">
+connection.<a href="http://www.rtcmulticonnection.org/docs/channel-id/">channel</a> = 'channel-id';
 </pre>
 			</li>
 		</ol>
+        
+        <h2>Reference</h2>
+        
+        <ol>
+            <li>
+                <a href="http://www.rtcmulticonnection.org/docs/channel-id/">http://www.rtcmulticonnection.org/docs/channel-id/</a>
+            </li>
+        </ol>
 		
         <br />
         <br />
@@ -90,12 +108,14 @@ console.log('channel-id is', connection.channel);
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your email for private conversation!</small>
             </section>
     </article>
-    <footer>
+    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
+    
+        <footer>
             <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
             <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-    <script src="//www.webrtc-experiment.com/common.js"> </script>
+        <script src="//www.webrtc-experiment.com/commits.js"> </script>
 </body>
 </html>

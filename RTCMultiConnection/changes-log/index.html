@@ -63,16 +63,73 @@
 		
             <ol>
                 <li>
-                    <code>screen:300kbps</code> added in <code>connection.bandwidth</code>:
+                    <code>connection.dontOverrideSession</code> added:
+                    <pre class="sh_javascript">
+// dont-override-session allows you force RTCMultiConnection
+// to not override default session of participants;
+// by default, session is always overridden and set to the session coming from initiator!
+connection.dontOverrideSession = true;
+</pre>
+                </li>
+                
+                <li>
+                    <code>connection.askToShareParticipants</code> and <code>connection.shareParticipants</code> added. Useful in <a href="https://www.webrtc-experiment.com/RTCMultiConnection/Multi-Broadcasters-and-Many-Viewers.html">multi-broadcasters and many viewers scenarios</a>!
+                    <pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/onstream/">onstream</a> = function (e) {
+    if (e.type == 'remote' && role == 'Anonymous Viewer') {
+        // because "viewer" joined room as "oneway:true"
+        // initiator will NEVER share participants
+        // to manually ask for participants;
+        // call "askToShareParticipants" method.
+        connection.askToShareParticipants();
+    }
+
+    // if you're moderator
+    // if stream-type is 'remote'
+    // if target user is broadcaster!
+    if (connection.isInitiator && e.type == 'remote' && !e.session.oneway) {
+        // call "shareParticipants" to manually share participants with all connected users!
+        connection.shareParticipants({
+            dontShareWith: e.userid
+        });
+    }
+};
+</pre>
+                </li>
+                
+                <li>
+                    <code>connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>('sessionid')</code> has been improved.
+                </li>
+                
+                <li>
+                    Now you can pass "sessionid" over "join" method!
+                    <pre class="sh_javascript">
+// make sure that room is created!
+// otherwise this "join" method will fail to join the room!
+// "join" method NEVER waits for onNewSession!!
+// it directly "joins" the room!
+connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>('sessionid');
+</pre>
+                </li>
+                
+                <li>
+                    Session re-initiation has been fixed. You can leave/rejoin many times.
+                </li>
+                
+                <li>
+                    <a href="http://www.rtcmulticonnection.org/docs/admin-guest/">Admin/Guest features</a> has been removed. You should use v1.6 or earlier to use admin/guest features.
+                </li>
+                <li>
+                    <code>screen:300kbps</code> added in <code>connection.<a href="http://www.RTCMultiConnection.org/docs/bandwidth/">bandwidth</a></code>:
                     <pre class="sh_javascript">
 // by default
-connection.bandwidth = {
+connection.<a href="http://www.RTCMultiConnection.org/docs/bandwidth/">bandwidth</a> = {
     screen: 300
 };
 
 // if you're using node-webkit; then you MUST set it to NULL
 // make sure that it is set both for browser-client and node-webkit!
-connection.bandwidth.screen = null;
+connection.<a href="http://www.RTCMultiConnection.org/docs/bandwidth/">bandwidth</a>.screen = null;
 </pre>
                 </li>
                 <li>
@@ -122,17 +179,6 @@ connection.autoReDialOnFailure = true;
                     <pre class="sh_javascript">
 // by default it captures "onplay", "onpause" and "onvolumechange" events for all media elements
 connection.setDefaultEventsForMediaElement = null;
-</pre>
-                </li>
-                
-                <li>
-                    <code>connection.interconnect</code> added. (for multi-user broadcasting scenarios!)
-                    <pre class="sh_javascript">
-// "false" for all those users who will JUST view "all" broadcasts anonymously!
-connection.interconnect = false;
-
-// "true" for all those users who will broadcast their streams!
-connection.interconnect = true;
 </pre>
                 </li>
                 
