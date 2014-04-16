@@ -19,7 +19,7 @@ function setUserInterface() {
         startConferencing.onclick = function() {
             hangoutUI.createRoom({
                 userName: prompt('Enter your name', 'Anonymous'),
-                roomName: ((document.getElementById('conference-name') || { }).value || 'Anonymous') + ' // shared via ' + (!!navigator.webkitGetUserMedia ? 'Google Chrome (Stable/Canary)' : 'Mozilla Firefox (Aurora/Nightly)')
+                roomName: (document.getElementById('conference-name') || { }).value || 'Anonymous'
             });
             hideUnnecessaryStuff();
         };
@@ -62,6 +62,11 @@ function setUserInterface() {
 
 var config = {
     openSocket: function(config) {
+        // https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
+        // This method "openSocket" can be defined in HTML page
+        // to use any signaling gateway either XHR-Long-Polling or SIP/XMPP or WebSockets/Socket.io
+        // or WebSync/SignalR or existing implementations like signalmaster/peerserver or sockjs etc.
+
         var channel = config.channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
         var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
         socket.channel = channel;
@@ -146,7 +151,7 @@ var FileSender = {
         var channel = config.channel,
             file = config.file;
 
-        var packetSize = 1000,
+        var packetSize = 10 * 1000,
             textToTransfer = '',
             numberOfPackets = 0,
             packets = 0;
@@ -193,8 +198,7 @@ var FileSender = {
             if (textToTransfer.length) {
                 setTimeout(function() {
                     onReadAsDataURL(null, textToTransfer);
-                }, moz ? 1 : 500);
-                // bug: what's the best method to speedup data transferring on chrome?
+                }, 100);
             }
         }
     }
@@ -226,6 +230,8 @@ function FileReceiver() {
             var dataURL = content[uuid].join('');
             var blob = FileConverter.DataUrlToBlob(dataURL);
             var virtualURL = (window.URL || window.webkitURL).createObjectURL(blob);
+            
+            // todo: should we use virtual-URL or data-URL?
             FileSaver.SaveToDisk(dataURL, data.name);
 
             if (config.onFileReceived) config.onFileReceived(data.name);
@@ -591,9 +597,16 @@ function hangout(config) {
 
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
 // -------------------------
-// RTCPeerConnection-v1.5.js
+// RTCPeerConnection-v1.6.js
+
+// Last time updated at April 16, 2014, 08:32:23
+
+// Muaz Khan     - github.com/muaz-khan
+// MIT License   - www.WebRTC-Experiment.com/licence
+// Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
 
 window.moz = !!navigator.mozGetUserMedia;
+var chromeVersion = !!navigator.mozGetUserMedia ? 0 : parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]);
 
 function RTCPeerConnection(options) {
     var w = window,
@@ -601,44 +614,60 @@ function RTCPeerConnection(options) {
         SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
         IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
-    var STUN = {
-        url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-    };
+    var iceServers = [];
 
-    var TURN = {
-        url: 'turn:homeo@turn.bistri.com:80',
-        credential: 'homeo'
-    };
+    if (moz) {
+        iceServers.push({
+            url: 'stun:23.21.150.121'
+        });
 
-    var iceServers = {
-        iceServers: options.iceServers || [STUN]
-    };
-
-    if (!moz && !options.iceServers) {
-        if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
-            TURN = {
-                url: 'turn:turn.bistri.com:80',
-                credential: 'homeo',
-                username: 'homeo'
-            };
-
-        iceServers.iceServers = [TURN, STUN];
+        iceServers.push({
+            url: 'stun:stun.services.mozilla.com'
+        });
     }
+
+    if (!moz) {
+        iceServers.push({
+            url: 'stun:stun.l.google.com:19302'
+        });
+
+        iceServers.push({
+            url: 'stun:stun.anyfirewall.com:3478'
+        });
+    }
+
+    if (!moz && chromeVersion < 28) {
+        iceServers.push({
+            url: 'turn:homeo@turn.bistri.com:80',
+            credential: 'homeo'
+        });
+    }
+
+    if (!moz && chromeVersion >= 28) {
+        iceServers.push({
+            url: 'turn:turn.bistri.com:80',
+            credential: 'homeo',
+            username: 'homeo'
+        });
+
+        iceServers.push({
+            url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+            credential: 'webrtc',
+            username: 'webrtc'
+        });
+    }
+
+    if (options.iceServers) iceServers = options.iceServers;
+
+    iceServers = {
+        iceServers: iceServers
+    };
+
+    console.debug('ice-servers', JSON.stringify(iceServers.iceServers, null, '\t'));
 
     var optional = {
         optional: []
     };
-
-    if (!moz) {
-        optional.optional = [{
-            DtlsSrtpKeyAgreement: true
-        }];
-
-        if (options.onChannelMessage)
-            optional.optional = [{
-                RtpDataChannels: true
-            }];
-    }
 
     var peer = new PeerConnection(iceServers, optional);
 
@@ -679,10 +708,12 @@ function RTCPeerConnection(options) {
     var constraints = options.constraints || {
         optional: [],
         mandatory: {
-            OfferToReceiveAudio: !!moz,
-            OfferToReceiveVideo: !!moz
+            OfferToReceiveAudio: true,
+            OfferToReceiveVideo: true
         }
     };
+
+    console.debug('sdp-constraints', JSON.stringify(constraints.mandatory, null, '\t'));
 
     // onOfferSDP(RTCSessionDescription)
 
@@ -690,9 +721,11 @@ function RTCPeerConnection(options) {
         if (!options.onOfferSDP) return;
 
         peer.createOffer(function(sessionDescription) {
-            sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
+            sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onOfferSDP(sessionDescription);
+
+            console.debug('offer-sdp', sessionDescription.sdp);
         }, onSdpError, constraints);
     }
 
@@ -701,11 +734,14 @@ function RTCPeerConnection(options) {
     function createAnswer() {
         if (!options.onAnswerSDP) return;
 
+        //options.offerSDP.sdp = addStereo(options.offerSDP.sdp);
+        console.debug('offer-sdp', options.offerSDP.sdp);
         peer.setRemoteDescription(new SessionDescription(options.offerSDP), onSdpSuccess, onSdpError);
         peer.createAnswer(function(sessionDescription) {
-            sessionDescription.sdp = serializeSdp(sessionDescription.sdp);
+            sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
+            console.debug('answer-sdp', sessionDescription.sdp);
         }, onSdpError, constraints);
     }
 
@@ -715,51 +751,27 @@ function RTCPeerConnection(options) {
         createAnswer();
     }
 
-
-    // DataChannel Bandwidth
+    // options.bandwidth = { audio: 50, video: 256, data: 30 * 1000 * 1000 }
+    var bandwidth = options.bandwidth;
 
     function setBandwidth(sdp) {
+        if (moz || !bandwidth /* || navigator.userAgent.match( /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i ) */) return sdp;
+
         // remove existing bandwidth lines
         sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
-        sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:1638400\r\n');
 
-        return sdp;
-    }
-
-    // old: FF<>Chrome interoperability management
-
-    function getInteropSDP(sdp) {
-        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-            extractedChars = '';
-
-        function getChars() {
-            extractedChars += chars[parseInt(Math.random() * 40)] || '';
-            if (extractedChars.length < 40)
-                getChars();
-
-            return extractedChars;
+        if (bandwidth.audio) {
+            sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:' + bandwidth.audio + '\r\n');
         }
 
-        // usually audio-only streaming failure occurs out of audio-specific crypto line
-        // a=crypto:1 AES_CM_128_HMAC_SHA1_32 --------- kAttributeCryptoVoice
-        if (options.onAnswerSDP)
-            sdp = sdp.replace( /(a=crypto:0 AES_CM_128_HMAC_SHA1_32)(.*?)(\r\n)/g , '');
+        if (bandwidth.video) {
+            sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + bandwidth.video + '\r\n');
+        }
 
-        // video-specific crypto line i.e. SHA1_80
-        // a=crypto:1 AES_CM_128_HMAC_SHA1_80 --------- kAttributeCryptoVideo
-        var inline = getChars() + '\r\n' + (extractedChars = '');
-        sdp = sdp.indexOf('a=crypto') == -1 ? sdp.replace( /c=IN/g ,
-            'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + inline +
-                'c=IN') : sdp;
+        if (bandwidth.data) {
+            sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:' + bandwidth.data + '\r\n');
+        }
 
-        return sdp;
-    }
-
-    function serializeSdp(sdp) {
-        return sdp;
-        if (!moz) sdp = setBandwidth(sdp);
-        sdp = getInteropSDP(sdp);
-        console.debug(sdp);
         return sdp;
     }
 
@@ -767,29 +779,26 @@ function RTCPeerConnection(options) {
     var channel;
 
     function openOffererChannel() {
-        if (!options.onChannelMessage || (moz && !options.onOfferSDP))
+        if (!options.onChannelMessage || !options.onOfferSDP)
             return;
 
         _openOffererChannel();
 
-        if (moz) {
-            navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function(stream) {
-                    peer.addStream(stream);
-                    createOffer();
-                }, useless);
-        }
+        if (!moz) return;
+        navigator.mozGetUserMedia({
+                audio: true,
+                fake: true
+            }, function(stream) {
+                peer.addStream(stream);
+                createOffer();
+            }, useless);
     }
 
     function _openOffererChannel() {
-        channel = peer.createDataChannel(options.channel || 'RTCDataChannel', moz ? { } : {
-            reliable: false
-        });
-
-        if (moz)
-            channel.binaryType = 'blob';
+        // protocol: 'text/chat', preset: true, stream: 16
+        // maxRetransmits:0 && ordered:false
+        var dataChannelDict = { };
+        channel = peer.createDataChannel(options.channel || 'sctp-channel', dataChannelDict);
         setChannelEvents();
     }
 
@@ -808,49 +817,62 @@ function RTCPeerConnection(options) {
         };
         channel.onerror = function(event) {
             if (options.onChannelError) options.onChannelError(event);
+
+            console.error('WebRTC DataChannel error', event);
         };
     }
 
-    if (options.onAnswerSDP && moz && options.onChannelMessage)
+    if (options.onAnswerSDP && options.onChannelMessage) {
         openAnswererChannel();
+    }
 
     function openAnswererChannel() {
         peer.ondatachannel = function(event) {
             channel = event.channel;
-            channel.binaryType = 'blob';
             setChannelEvents();
         };
 
-        if (moz) {
-            navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function(stream) {
-                    peer.addStream(stream);
-                    createAnswer();
-                }, useless);
-        }
+        if (!moz) return;
+        navigator.mozGetUserMedia({
+                audio: true,
+                fake: true
+            }, function(stream) {
+                peer.addStream(stream);
+                createAnswer();
+            }, useless);
     }
 
+    // fake:true is also available on chrome under a flag!
+
     function useless() {
+        console.error('Error in fake:true');
     }
 
     function onSdpSuccess() {
     }
 
     function onSdpError(e) {
-        console.error('sdp error:', e.name, e.message);
+        var message = JSON.stringify(e, null, '\t');
+
+        console.error('onSdpError:', message);
     }
 
     return {
         addAnswerSDP: function(sdp) {
+            console.debug('adding answer-sdp', sdp.sdp);
             peer.setRemoteDescription(new SessionDescription(sdp), onSdpSuccess, onSdpError);
         },
         addICE: function(candidate) {
-            peer.addIceCandidate(new IceCandidate({
+            candidate = new IceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
-            }));
+            });
+
+            peer.addIceCandidate(candidate, function() {
+                console.debug('adding-ice', candidate);
+            }, function(error) {
+                console.error(error);
+            });
         },
 
         peer: peer,
