@@ -14,6 +14,78 @@ You can see three node.js files:
 
 =
 
+#### How to use?
+
+In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
+
+```javascript
+// wss://wsnodejs.nodejitsu.com:443
+// ws://wsnodejs.nodejitsu.com:80
+// wss://www.webrtc-experiment.com:8563
+
+var SIGNALING_SERVER = 'wss://wsnodejs.nodejitsu.com:443';
+connection.openSignalingChannel = function(config) {
+    config.channel = config.channel || this.channel;
+    var websocket = new WebSocket(SIGNALING_SERVER);
+    websocket.channel = config.channel;
+    websocket.onopen = function() {
+        websocket.push(JSON.stringify({
+            open: true,
+            channel: config.channel
+        }));
+        if (config.callback)
+            config.callback(websocket);
+    };
+    websocket.onmessage = function(event) {
+        config.onmessage(JSON.parse(event.data));
+    };
+    websocket.push = websocket.send;
+    websocket.send = function(data) {
+        websocket.push(JSON.stringify({
+            data: data,
+            channel: config.channel
+        }));
+    };
+}
+```
+
+=
+
+#### Presence Detection
+
+You can detect presence of any channel/room; and invoke open/join methods accordingly!
+
+```javascript
+// use "channel" as sessionid or use custom sessionid!
+var roomid = connection.channel;
+
+var SIGNALING_SERVER = 'wss://wsnodejs.nodejitsu.com:443';
+var websocket = new WebSocket(SIGNALING_SERVER);
+
+websocket.onmessage = function (event) {
+    var data = JSON.parse(event.data);
+  
+    if (data.isChannelPresent == false) {
+        connection.open();
+    } else {
+        connection.join(roomid);
+    }
+};
+
+websocket.onopen = function () {
+    websocket.send(JSON.stringify({
+        checkPresence: true,
+        channel: roomid
+    }));
+};
+```
+
+A simple example using same "presence detection" feature:
+
+* https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple
+
+=
+
 #### Dependencies
 
 1. WebSocket - for websocket over node.js connection
@@ -201,42 +273,6 @@ websocket.send = function (data) {
 websocket.onmessage = function (e) {
     console.log(JSON.parse(e.data));
 };
-```
-
-=
-
-#### How to use?
-
-In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
-
-```javascript
-// ws://wsnodejs.jit.su:80
-// wss://www.webrtc-experiment.com:8563
-
-var SIGNALING_SERVER = 'ws://' + document.domain + ':12034/';
-connection.openSignalingChannel = function(config) {
-    config.channel = config.channel || this.channel || 'default-channel';
-    var websocket = new WebSocket(SIGNALING_SERVER);
-    websocket.channel = config.channel;
-    websocket.onopen = function() {
-        websocket.push(JSON.stringify({
-            open: true,
-            channel: config.channel
-        }));
-        if (config.callback)
-            config.callback(websocket);
-    };
-    websocket.onmessage = function(event) {
-        config.onmessage(JSON.parse(event.data));
-    };
-    websocket.push = websocket.send;
-    websocket.send = function(data) {
-        websocket.push(JSON.stringify({
-            data: data,
-            channel: config.channel
-        }));
-    };
-}
 ```
 
 =

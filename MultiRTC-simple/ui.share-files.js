@@ -1,11 +1,13 @@
-// https://www.webrtc-experiment.com:12034/
+// Muaz Khan         - www.MuazKhan.com
+// MIT License       - www.WebRTC-Experiment.com/licence
+// Experiments       - github.com/muaz-khan/WebRTC-Experiment
 
 // file sharing
 var progressHelper = { };
 rtcMultiConnection.onFileStart = function(file) {
     addNewMessage({
         header: rtcMultiConnection.extra.username,
-        message: 'onFileStart: ' + file.name + ' ( ' + bytesToSize(file.size) + ' )',
+        message: '<strong>' + file.name + '</strong> ( ' + bytesToSize(file.size) + ' )',
         userinfo: getUserinfo(rtcMultiConnection.blobURLs[rtcMultiConnection.userid], 'images/share-files.png'),
         callback: function(div) {
             var innerDiv = document.createElement('div');
@@ -36,9 +38,9 @@ rtcMultiConnection.onFileEnd = function(file) {
     }
     var div = progressHelper[file.uuid].div;
     if (file.type.indexOf('image') != -1) {
-        div.innerHTML = '<a href="' + file.url + '" download="' + file.name + '">Download ' + file.name + ' </a><br /><img src="' + file.url + '" title="' + file.name + '">';
+        div.innerHTML = '<a href="' + file.url + '" download="' + file.name + '">Download <strong style="color:red;">' + file.name + '</strong> </a><br /><img src="' + file.url + '" title="' + file.name + '" style="max-width: 80%;">';
     } else {
-        div.innerHTML = '<a href="' + file.url + '" download="' + file.name + '">Download ' + file.name + ' </a><br /><iframe src="' + file.url + '" title="' + file.name + '" style="width: 69%;border: 0;border-left: 1px solid black;height: inherit;"></iframe>';
+        div.innerHTML = '<a href="' + file.url + '" download="' + file.name + '">Download <strong style="color:red;">' + file.name + '</strong> </a><br /><iframe src="' + file.url + '" title="' + file.name + '" style="width: 80%;border: 0;height: inherit;margin-top:1em;"></iframe>';
     }
 
     setTimeout(function() {

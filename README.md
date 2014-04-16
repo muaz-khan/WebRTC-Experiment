@@ -349,7 +349,7 @@ io.sockets.on('connection', function (socket) {
 });
 ```
 
-Read more [here](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md).
+[Read more here](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)!
 
 =
 

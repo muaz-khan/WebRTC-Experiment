@@ -1,4 +1,4 @@
-// Last time updated at 04 March 2014, 11:32:23
+// Last time updated at April 14, 2014, 20:32:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -62,7 +62,7 @@
                     config = config || {};
 
                     channel = config.channel || self.channel || 'default-channel';
-                    var socket = new window.Firebase('//' + (self.firebase || 'chat') + '.firebaseIO.com/' + channel);
+                    var socket = new window.Firebase('https://' + (self.firebase || 'chat') + '.firebaseIO.com/' + channel);
                     socket.channel = channel;
 
                     socket.on('child_added', function (data) {
@@ -84,7 +84,7 @@
 
                 if (!window.Firebase) {
                     var script = document.createElement('script');
-                    script.src = '//www.webrtc-experiment.com/firebase.js';
+                    script.src = 'https://www.webrtc-experiment.com/firebase.js';
                     script.onload = callback;
                     document.documentElement.appendChild(script);
                 } else callback();

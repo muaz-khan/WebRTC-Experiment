@@ -9,7 +9,7 @@
 // _______________________
 // getMediaElement-v1.1.js
 
-document.write('<link rel="stylesheet" href="//www.WebRTC-Experiment.com/getMediaElement-v1.2.css">');
+document.write('<link rel="stylesheet" href="https://www.WebRTC-Experiment.com/getMediaElement-v1.2.css">');
 
 (function() {
     window.getMediaElement = function(mediaStream, options) {

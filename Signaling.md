@@ -216,6 +216,8 @@ connection.openSignalingChannel = function (config) {
     onMessageCallbacks[channel] = config.onmessage;
 
     if (config.onopen) setTimeout(config.onopen, 1000);
+    
+    // directly returning socket object using "return" statement
     return {
         send: function (message) {
             websocket.send(JSON.stringify({
@@ -234,11 +236,92 @@ connection.openSignalingChannel = function (config) {
 ##### A few points to remember:
 
 1. The object returned by overridden `openSignalingChannel` or `openSocket` method MUST return an object with two things:
-   i. `send` method. Used to send data via signaling gateway.
-   ii. `channel` object. Used for video-conferencing. If you skip it; it will make one-to-many instead of many-to-many.
+
+   1. `send` method. Used to send data via signaling gateway.
+   2. `channel` object. Used for video-conferencing. If you skip it; it will make one-to-many instead of many-to-many.
+   
 2. `onmessage` or `on('message', callback)` MUST have same code as you can see a few lines above.
 
-You don't need to do anything else on your signaling server. You'll NEVER be asked to modify your existing signaling implementations! Just use existing stuff and enjoy WebRTC experiments!
+`openSocket` method can return `socket` object in three ways:
+
+1. Directly returning using `return` statement.
+2. Passing back over `config.callback` object.
+3. Passing back over `config.onopen` object.
+
+Second option i.e. `config.callback` is preferred.
+
+##### First Option
+
+```javascript
+ var config = {
+     openSocket: function (config) {
+         var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+         var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+         socket.channel = channel;
+         socket.on("child_added", function (data) {
+             config.onmessage && config.onmessage(data.val());
+         });
+         socket.send = function (data) {
+             this.push(data);
+         };
+         socket.onDisconnect().remove();
+
+         // first option: returning socket object using "return" statement!
+         return socket;
+     }
+ };
+```
+
+##### Second Option
+
+```javascript
+ var config = {
+     openSocket: function (config) {
+         var SIGNALING_SERVER = 'wss://wsnodejs.nodejitsu.com:443';
+         var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+         var websocket = new WebSocket(SIGNALING_SERVER);
+         websocket.channel = config.channel;
+         websocket.onopen = function () {
+             websocket.push(JSON.stringify({
+                 open: true,
+                 channel: config.channel
+             }));
+
+             // second option: returning socket object using "config.callback" method
+             if (config.callback)
+                 config.callback(websocket);
+         };
+         websocket.onmessage = function (event) {
+             config.onmessage(JSON.parse(event.data));
+         };
+         websocket.push = websocket.send;
+         websocket.send = function (data) {
+             websocket.push(JSON.stringify({
+                 data: data,
+                 channel: config.channel
+             }));
+         };
+     }
+ };
+```
+
+##### Third Option
+
+```javascript
+ var config = {
+     openSocket: function (config) {
+         // --------
+         websocket.onopen = function () {
+             // --------
+
+             // third option: returning socket object using "config.onopen" method
+             if (config.onopen)
+                 config.onopen(websocket);
+         };
+         // --------
+     }
+ };
+```
 
 =
 

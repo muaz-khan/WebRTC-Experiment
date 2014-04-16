@@ -14,7 +14,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
         
         <style>
             audio, video {
@@ -59,8 +59,8 @@
         </script>
         
         <!-- scripts used for video-conferencing -->
-        <script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.7.js"> </script>
-        <script src="//www.webrtc-experiment.com/firebase.js"> </script>
+        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js"> </script>
+        <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
     </head>
 
     <body>
@@ -89,6 +89,8 @@
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
+            
+            <div class="github-stargazers"></div>
         
             <section class="experiment">
                 <div id="videos-container"></div>
@@ -99,7 +101,7 @@
                         </td>
                 
                         <td>
-                            <button id="forward-main-session">forward main session</button>
+                            <button id="forward-main-session" disabled>forward main session</button>
                         </td>
                     </tr>
             
@@ -154,18 +156,19 @@
                     // http://www.rtcmulticonnection.org/docs/dontAttachStream/
                     dummyConnection.dontAttachStream = true;
 
-                    var videosCotainer = document.getElementById('videos-container');
+                    var videosContainer = document.getElementById('videos-container');
 
                     // http://www.rtcmulticonnection.org/docs/onstream/
                     mainConnection.onstream = function(e) {
-                        dummyConnection.attachStreams.push(e.stream);
-                        videosCotainer.appendChild(e.mediaElement);
+                        dummyConnection.attachStreams.push(e.stream /* .clone() */ );
+                        videosContainer.appendChild(e.mediaElement);
+                        document.querySelector('#forward-main-session').disabled = false;
                     };
 
                     // http://www.rtcmulticonnection.org/docs/onstream/
                     dummyConnection.onstream = function(e) {
-                        alert('Wow, got forwarded stream!');
-                        videosCotainer.appendChild(e.mediaElement);
+                        document.querySelector('h1').innerHTML = 'Wow, got forwarded stream!';
+                        videosContainer.appendChild(e.mediaElement);
                     };
 
                     document.querySelector('#join-main-session').onclick = function() {
@@ -197,9 +200,22 @@
                     };
                 </script>
             </section>
+            
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
         </article>
         
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-right"></a>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
         
         <footer>
             <p>
@@ -208,5 +224,8 @@
                 <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
             </p>
         </footer>
+        
+        <!-- commits.js is useless for you! -->
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

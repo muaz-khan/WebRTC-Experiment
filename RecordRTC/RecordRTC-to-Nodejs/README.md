@@ -1,4 +1,4 @@
-Note: You MUST always manually create a directory and name it "uploads". I tried trillion of times :) but NEVER able to push such directory to Github!
+Note: You MUST always manually create a directory and name it "uploads".
 
 =
 

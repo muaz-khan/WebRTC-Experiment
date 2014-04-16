@@ -1,6 +1,9 @@
-﻿// Muaz Khan     - https://github.com/muaz-khan
-// MIT License   - https://www.webrtc-experiment.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
+﻿// Muaz Khan         - www.MuazKhan.com
+// MIT License       - www.WebRTC-Experiment.com/licence
+// Experiments       - github.com/muaz-khan/WebRTC-Experiment
+
+// This library is known as multi-user connectivity wrapper!
+// It handles connectivity tasks to make sure two or more users can interconnect!
 
 var conference = function(config) {
     var self = {
@@ -36,7 +39,7 @@ var conference = function(config) {
         }
 
         // to make sure room is unlisted if owner leaves		
-        if(response.left && config.onRoomClosed) {
+        if (response.left && config.onRoomClosed) {
             config.onRoomClosed(response);
         }
     }
@@ -86,7 +89,7 @@ var conference = function(config) {
             },
             onRemoteStreamEnded: function(stream) {
                 if (config.onRemoteStreamEnded)
-                    config.onRemoteStreamEnded(stream,video);
+                    config.onRemoteStreamEnded(stream, video);
             }
         };
 
@@ -177,17 +180,17 @@ var conference = function(config) {
                 delete sockets[i];
             }
         }
-		
+
         // if owner leaves; try to remove his room from all other users side
-        if(isbroadcaster) {
+        if (isbroadcaster) {
             defaultSocket.send({
                 left: true,
                 userToken: self.userToken,
                 roomToken: self.roomToken
             });
         }
-		
-        if(config.attachStream) config.attachStream.stop();
+
+        if (config.attachStream) config.attachStream.stop();
     }
 
     window.onbeforeunload = function() {
@@ -258,6 +261,6 @@ var conference = function(config) {
                 joinUser: _config.joinUser
             });
         },
-		leaveRoom: leave
+        leaveRoom: leave
     };
 };

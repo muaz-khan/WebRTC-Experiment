@@ -1,14 +1,18 @@
 ## MultiRTC / A Demo application for [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/)!
 
-1. Source Code: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC
-2. Demo: https://www.webrtc-experiment.com:12034/
+1. Source Code: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple
+2. Demo: https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/
 3. RTCMultiConnection.js: http://www.RTCMultiConnection.org/docs/
+
+=
 
 ## Note: 
 
-This [MultiRTC demo](https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/) is using firebase; but you can use any signaling gateway by changing JUST single method i.e. [`openSignalingChannel`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md):
+[This MultiRTC Demo](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple) is using [WebSockets over Nodejs](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs) for signaling and presence detection!
 
-In the [`ui.main.js`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/MultiRTC-simple/ui.main.js) file; go to [line 75](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/MultiRTC-simple/ui.main.js#L75). It is using firebase to [check presence](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md#room-presence-detection) of the room; you can easily use any other signaling implementation there.
+You can easily use any signaling implementation; whether it is Socket.io or XHR-Long polling or SIP/XMPP or WebSync/SignalR etc. [Read more here](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)!
+
+=
 
 ### How it works?
 
@@ -20,30 +24,72 @@ In the [`ui.main.js`](https://github.com/muaz-khan/WebRTC-Experiment/blob/master
 
 It is an All-in-One solution for [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/)!
 
-<img src="https://www.webrtc-experiment.com/images/MultiRTC.gif" />
+=
 
-<a href="https://nodei.co/npm/multirtc/">
-    <img src="https://nodei.co/npm/multirtc.png">
-</a>
+### Presence Detection!
 
+Presence detection is handled by [websocket-over-nodejs](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs)! Open `ui.main.js` file and go to line 79.
+
+```javascript
+// use "channel" as sessionid or use custom sessionid!
+var roomid = connection.channel;
+
+var SIGNALING_SERVER = 'wss://wsnodejs.nodejitsu.com:443';
+var websocket = new WebSocket(SIGNALING_SERVER);
+
+websocket.onmessage = function (event) {
+    var data = JSON.parse(event.data);
+  
+    if (data.isChannelPresent == false) {
+        connection.open();
+    } else {
+        connection.join(roomid);
+    }
+};
+
+websocket.onopen = function () {
+    websocket.send(JSON.stringify({
+        checkPresence: true,
+        channel: roomid
+    }));
+};
 ```
-// Dependencies: 
-// 1) socket.io (npm install socket.io)
-// 2) node-static (npm install node-static)
 
-npm install multirtc
+=
 
-// to run it!
-cd node_modules/multirtc/ && node signaler.js
-```
+### [websocket-over-nodejs](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs) for signaling!
 
-Now, both socket.io and HTTPs servers are running at port `12034`:
+Open `ui.peer-connection.js` and go to line 15.
 
-```
-https://localhost:12034/
+```javascript
+// wss://wsnodejs.nodejitsu.com:443
+// ws://wsnodejs.nodejitsu.com:80
+// wss://www.webrtc-experiment.com:8563
 
-// or
-var socket = io.connect('https://localhost:12034/');
+var SIGNALING_SERVER = 'wss://wsnodejs.nodejitsu.com:443';
+connection.openSignalingChannel = function(config) {
+    config.channel = config.channel || this.channel;
+    var websocket = new WebSocket(SIGNALING_SERVER);
+    websocket.channel = config.channel;
+    websocket.onopen = function() {
+        websocket.push(JSON.stringify({
+            open: true,
+            channel: config.channel
+        }));
+        if (config.callback)
+            config.callback(websocket);
+    };
+    websocket.onmessage = function(event) {
+        config.onmessage(JSON.parse(event.data));
+    };
+    websocket.push = websocket.send;
+    websocket.send = function(data) {
+        websocket.push(JSON.stringify({
+            data: data,
+            channel: config.channel
+        }));
+    };
+}
 ```
 
 =
