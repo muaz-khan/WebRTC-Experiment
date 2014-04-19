@@ -342,7 +342,6 @@ var connection = new RTCMultiConnection();
 // ------------------------------------------------------------------
 // start-using WebSync for signaling
 var onMessageCallbacks = {};
-var username = Math.round(Math.random() * 60535) + 5000;
 
 var client = new fm.websync.client('websync.ashx');
 
@@ -354,8 +353,8 @@ client.connect({
     onSuccess: function () {
         client.join({
             channel: '/chat',
-            userId: username,
-            userNickname: username,
+            userId: connection.userid,
+            userNickname: connection.userid,
             onReceive: function (event) {
                 var message = JSON.parse(event.getData().text);
                 if (onMessageCallbacks[message.channel]) {
@@ -376,7 +375,7 @@ connection.openSignalingChannel = function (config) {
             client.publish({
                 channel: '/chat',
                 data: {
-                    username: username,
+                    username: connection.userid,
                     text: JSON.stringify({
                         message: message,
                         channel: channel
@@ -464,45 +463,58 @@ connection.openSignalingChannel = function (config) {
 [Using Firebase](https://github.com/muaz-khan/WebRTC-Experiment/issues/38#issuecomment-20527305):
 
 ```javascript
-new window.Firebase('https://chat.firebaseIO.com/' + sessionid).once('value', function (data) {
-    var isRoomPresent = data.val() != null;
-    if (!isRoomPresent) connection.open(sessionid);
-    else connection.connect(sessionid);
-
-    console.debug('room is present?', isRoomPresent);
-});
-```
-
-or for RTCMultiConnectionjs or DataChaneljs:
-
-```javascript
-new window.Firebase('//' + rtcMultiConnection.firebase + '.firebaseIO.com/' + rtcMultiConnection.channel).once('value', function (data) {
+new window.Firebase('https://' + connection.firebase + '.firebaseIO.com/' + connection.channel).once('value', function (data) {
     var isRoomPresent = data.val() != null;
     if (!isRoomPresent) {
-        rtcMultiConnection.open();
+        connection.open(connection.sessionid);
     } else {
-        rtcMultiConnection.connect();
+        connection.join(connection.sessionid);
     }
 });
 ```
 
-[Using Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/issues/38#issuecomment-18821960):
+#### [Using Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/issues/38#issuecomment-18821960):
 
 ```javascript
-function testChannelPresence(channel) {
-    var socket = io.connect('/');
+var socket = io.connect('/');
 
-    socket.on('presence', function (isChannelPresent) {
-            console.log('is channel present', isChannelPresent);
-            if (!isChannelPresent) playRoleOfSessionInitiator();
-        });
+socket.on('presence', function (isChannelPresent) {
+    if (!isChannelPresent)
+        connection.opne(connection.sessionid);
+    else
+        connection.join(connection.sessionid);
+});
 
-    socket.emit('presence', channel);
-}
-testChannelPresence('default-channel');
+socket.emit('presence', channel);
 ```
 
 Socket.io over Node.js demos can be found [here](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs).
+
+#### Using WebSocket over Node.js
+
+```javascript
+var SIGNALING_SERVER = 'wss://wsnodejs.nodejitsu.com:443';
+var websocket = new WebSocket(SIGNALING_SERVER);
+
+websocket.onmessage = function (event) {
+    var data = JSON.parse(event.data);
+  
+    if (data.isChannelPresent == false) {
+        connection.open(connection.sessionid);
+    } else {
+        connection.join(connection.sessionid);
+    }
+};
+
+websocket.onopen = function () {
+    websocket.send(JSON.stringify({
+        checkPresence: true,
+        channel: connection.channel
+    }));
+};
+```
+
+WebSocket over Node.js demos can be found [here](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs).
 
 =
 

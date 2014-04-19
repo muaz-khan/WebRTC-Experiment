@@ -66,6 +66,56 @@ Using Linux; ffmpeg installation is super-easy! You can install DEVEL packages a
 
 =
 
+##### Ubuntu, Debian, or Linux Mint?
+
+You're suggest to installed ffmpeg and libvpx from following URL:
+
+* https://trac.ffmpeg.org/wiki/UbuntuCompilationGuide
+
+Another useful resource is:
+
+* http://wiki.razuna.com/display/ecp/FFmpeg+Installation+for+Ubuntu
+
+Read following comments:
+
+> Actually it is very easy to install FFmpeg under Ubuntu with the apt-get command.
+> Unfortunately, the default FFmpeg installation doesn't let you include the latest codecs 
+> which are needed to merge WAV/WebM into vp8 encoded video i.e. WebM!
+> Thus you have to compile FFmpeg yourself!
+
+For example, you can check libvpx installation using following command:
+
+```
+dpkg -s libvpx | grep Status
+```
+
+This doesn't mean that you enabled libvpx for ffmpeg; you need to verify vp8 encoders in ffmpeg using following commands:
+
+```
+ffmpeg -codecs     # to check list of all decoders
+ffmpeg -encoders   # to check list of all encoders
+```
+
+Usually latest ffmpeg can decode WebM i.e. vp8 codecs; however it can't encode back into vp8 until you manually install libvpx.
+
+There is another useful resource!
+
+* http://juliensimon.blogspot.com/2013/08/howto-compiling-ffmpeg-x264-mp3-aac.html
+
+This provides a good command to check list of encoders in ffmpeg:
+
+```
+ffmpeg -encoders|grep -E "mp3|xvid|aac|gsm|amr|x264|theora|vorbis"
+```
+
+Sometimes you mistakenly install multiple ffmpeg instances. Find-out ffmpeg instance that has included libvpx; then include that instance's full path in the ffmpeg-command. E.g.
+
+```
+/home/ubuntu/bin/ffmpeg -i audioFile -itsoffset -00:00:02 -i videoFile -map 0:0 -map 1:0 outputFile;
+```
+
+=
+
 ##### How to install ffmpeg on windows?
 
 1. Download ffmpeg and extract ZIP file
@@ -86,8 +136,12 @@ http://www.wikihow.com/Install-FFmpeg-on-Windows
 Make sure you have **homebrew** installed. Then run following command:
 
 ```
-brew install ffmpeg --with-libvpx --with-theora --whit-libogg --with-libvorbis
+brew install ffmpeg --with-libvpx --with-theora --with-libogg --with-libvorbis
 ```
+
+More info here:
+
+* https://github.com/muaz-khan/WebRTC-Experiment/issues/198
 
 ##### How to test?
 

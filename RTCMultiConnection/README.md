@@ -1,35 +1,99 @@
-## [RTCMultiConnection.js](http://www.rtcmulticonnection.org/docs/) Library!
+<h1>
+    <a href="http://www.RTCMultiConnection.org/">RTCMultiConnection.js</a> / A <a href="https://www.webrtc-experiment.com/">WebRTC</a> Library!
+</h1>
 
-<a href="http://www.rtcmulticonnection.org/docs/">
-    <img src="http://www.rtcmulticonnection.org/img/documentation.png" />
-</a>
-
-http://www.rtcmulticonnection.org/docs/
+<table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;">
+    <tr>
+        <td>
+            <a href="https://www.webrtc-experiment.com/RTCMultiConnection/" target="_blank">
+                <img src="http://www.rtcmulticonnection.org/img/demo.png" style="display:block; width:99px; height99px;" alt="Demos">
+                Demos
+            </a>
+        </td>
+        
+        <td>
+            <a href="http://www.rtcmulticonnection.org/docs/getting-started/" target="_blank">
+                <img src="http://www.rtcmulticonnection.org/img/getting-started.png" style="display:block; width:99px; height99px;" alt="Getting-Started">
+                Getting Started
+            </a>
+        </td>
+        
+        <td>
+            <a href="http://www.rtcmulticonnection.org/docs/" target="_blank">
+                <img src="http://www.rtcmulticonnection.org/img/documentation.png" style="display:block; width:99px; height99px;" alt="Documentation">
+                Documentation
+            </a>
+        </td>
+        
+        <td>
+            <a href="http://www.rtcmulticonnection.org/changes-log/" target="_blank">
+                <img src="http://www.rtcmulticonnection.org/img/whats-new.png" style="display:block; width:99px; height99px;" alt="Changes Log">
+                Changes Log
+            </a>
+        </td>
+        
+        <td>
+            <a href="http://www.rtcmulticonnection.org/FAQ/" target="_blank">
+                <img src="http://www.rtcmulticonnection.org/img/FAQ.png" style="display:block; width:99px; height99px;" alt="FAQ">
+                FAQ
+            </a>
+        </td>
+    </tr>
+</table>
 
 =
 
-```html
-<button id="openNewSessionButton">open New Session Button</button><br />
+<h2>
+    <a href="http://www.RTCMultiConnection.org/">RTCMultiConnection.js</a> Supports following Features!
+</h2>
+            
+<ol>
+                <li>Cross-Browser audio/video/screen/data & file sharing</li>
+                <li>Multi-users connectivity; Multi-media sharing; and multiple sessions establishment</li>
+                <li>Dynamic & Runtime bandwidth management and auto adjustment among all peers!</li>
+                <li>Hold/UnHold and Mute/UnMute as well as full control over each media stream!</li>
+                <li>Auto text translation in about 41 languages; auto voice translation coming soon!</li>
+                <li>Runtime insertion and removal of streams from existing peers, any-time, any stream, and auto handled among single or multiple users!</li>
+                <li>Entire Client-Side Audio/Video recording using RecordRTC</li>
+                <li>Part/Region of screen sharing</li>
+                <li>Pre-recorded WebM file streaming!</li>
+                <li>Easiest possible way to use any signaling gateway or signaling implementation!</li>
+                <li>Auto-redialling if media is not received by end-users!</li>
+                <li>You can drop any media (same like skype!) and keep data connection opened!</li>
+                <li>Multiple concurrent files sharing (of any size) and multiple longest possible data/text sharing (of any length!)</li>
+                <li>Direct/private messages using data channel API or your signaling implementation!</li>
+                <li>Fake-datachannels allows you set single boolean to use signaling gateway for data sharing and file sharing!</li>
+                <li>Full control over how you'll join the call; set single boolean {audio:true} to join with only audio!</li>
+                <li>Full control over capture-user-media....prompt user media on demand!</li>
+                <li>Full control to override all default behaviours!</li>
+                <li>Easiest way to set directions like oneway; one-to-many; many-to-many or set limit for number of users allowed in a single room!</li>
+                <li>Get list of available audio/video input devices; and use any device for streaming!</li>
+                <li>"onspeaking" and "onsilence" allows you capture who is speaking in the moment!</li>
+                <li>Set two or three boolean to control how ICE should be used! STUN/TURN or HOST!</li>
+                <li>Full control over presence detection!</li>
+                <li>Highly reliable "onstreamended" and onmute/onhold/ondrop as well as onleave!</li>
+                <li>Pass any kind of extra data among all users by setting single property!</li>
+                <li>Custom messages; among all users or privately between two users!</li>
+                <li>Accept/Reject calls with "onstats" accepted or rejected!</li>
+                <li>Take snapshots of any media.</li>
+                <li>Advance "stats" for number of sessions and number of users!</li>
+                <li>"caniuse" for detecting features support!</li>
+                <li>Use custom STUN/TUNR servers by setting single array!</li>
+                <li>Call single method to play-role-of-initiator!</li>
+                <li>Full control over file chunk-size and chunk-interval!</li>
+                <li>You can join one or more rooms on the same page using same object!</li>
+                <li>Use single method to transfer list of participations from initiator!</li>
+                <li>Auto Mute/UnMute and Volume-Synchronization for native audio/video elements!</li>
+</ol>
 
-<script src="http://www.RTCMultiConnection.org/latest.js"> </script>
-<script>
-var connection = new RTCMultiConnection().connect();
-document.getElementById('openNewSessionButton').onclick = function() {
-    connection.open();
-};
-</script>
-```
 
-=
 
-## Documentation Links
+# Visit Following Links
 
-1. http://www.rtcmulticonnection.org/docs/
-2. http://www.rtcmulticonnection.org/changes-log/
-3. http://www.rtcmulticonnection.org/FAQ/
-4. http://www.rtcmulticonnection.org/peers/
-
-[RTCMultiConnection Getting Started Guide](http://www.rtcmulticonnection.org/docs/getting-started/)
+1. Documentation — http://www.rtcmulticonnection.org/docs/
+2. Getting Started — http://www.rtcmulticonnection.org/docs/getting-started/
+3. Changes Log — http://www.rtcmulticonnection.org/changes-log/
+4. FAQ — http://www.rtcmulticonnection.org/FAQ/
 
 =
 
@@ -39,7 +103,7 @@ https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
 =
 
-## Below documentation is old.
+# Below documentation is old. See above LINKs for latest documentation!
 
 =
 
