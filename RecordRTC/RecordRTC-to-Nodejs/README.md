@@ -68,7 +68,7 @@ Using Linux; ffmpeg installation is super-easy! You can install DEVEL packages a
 
 ##### Ubuntu, Debian, or Linux Mint?
 
-You're suggest to installed ffmpeg and libvpx from following URL:
+You're suggested to install ffmpeg and libvpx from following URL:
 
 * https://trac.ffmpeg.org/wiki/UbuntuCompilationGuide
 
