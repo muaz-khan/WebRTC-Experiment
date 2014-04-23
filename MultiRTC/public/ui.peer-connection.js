@@ -1,4 +1,6 @@
-// https://www.webrtc-experiment.com:12034/
+// Muaz Khan         - www.MuazKhan.com
+// MIT License       - www.WebRTC-Experiment.com/licence
+// Experiments       - github.com/muaz-khan/WebRTC-Experiment
 
 var rtcMultiConnection = new RTCMultiConnection();
 
@@ -9,7 +11,35 @@ rtcMultiConnection.sdpConstraints.mandatory = {
     OfferToReceiveVideo: true
 };
 
-rtcMultiConnection.customStreams = {};
+// using websockets for signaling!
+// https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs
+// var SIGNALING_SERVER = 'wss://wsnodejs.nodejitsu.com:443';
+var SIGNALING_SERVER = (location.protocol == 'https:' ? 'wss' : 'ws') + '://'+ document.domain +':12034/';
+
+rtcMultiConnection.openSignalingChannel = function(config) {
+    config.channel = config.channel || this.channel;
+    var websocket = new WebSocket(SIGNALING_SERVER);
+    websocket.channel = config.channel;
+    websocket.onopen = function() {
+        websocket.push(JSON.stringify({
+            open: true,
+            channel: config.channel
+        }));
+        if (config.callback)
+            config.callback(websocket);
+    };
+    websocket.onmessage = function(event) {
+        config.onmessage(JSON.parse(event.data));
+    };
+    websocket.push = websocket.send;
+    websocket.send = function(data) {
+        websocket.push(JSON.stringify({
+            data: data,
+            channel: config.channel
+        }));
+    };
+};
+rtcMultiConnection.customStreams = { };
 
 /*
 // http://www.rtcmulticonnection.org/docs/fakeDataChannels/
@@ -31,7 +61,7 @@ rtcMultiConnection.onopen = function(e) {
         header: e.extra.username,
         message: 'Data connection is opened between you and ' + e.extra.username + '.',
         userinfo: getUserinfo(rtcMultiConnection.blobURLs[rtcMultiConnection.userid], 'images/info.png'),
-		color: e.extra.color
+        color: e.extra.color
     });
 
     numbersOfUsers.innerHTML = parseInt(numbersOfUsers.innerHTML) + 1;
@@ -39,18 +69,18 @@ rtcMultiConnection.onopen = function(e) {
 
 var whoIsTyping = document.querySelector('#who-is-typing');
 rtcMultiConnection.onmessage = function(e) {
-	if(e.data.typing) {
-		whoIsTyping.innerHTML = e.extra.username + ' is typing ...';
-		return;
-	}
-    
-    if(e.data.stoppedTyping) {
+    if (e.data.typing) {
+        whoIsTyping.innerHTML = e.extra.username + ' is typing ...';
+        return;
+    }
+
+    if (e.data.stoppedTyping) {
         whoIsTyping.innerHTML = '';
         return;
     }
-    
-	whoIsTyping.innerHTML = '';
-	
+
+    whoIsTyping.innerHTML = '';
+
     addNewMessage({
         header: e.extra.username,
         message: 'Text message from ' + e.extra.username + ':<br /><br />' + (rtcMultiConnection.autoTranslateText ? linkify(e.data) + ' ( ' + linkify(e.original) + ' )' : linkify(e.data)),
@@ -58,29 +88,6 @@ rtcMultiConnection.onmessage = function(e) {
         color: e.extra.color
     });
     document.title = e.data;
-};
-
-rtcMultiConnection.init = function() {
-    rtcMultiConnection.openSignalingChannel = function (config) {
-        var channel = config.channel || this.channel;
-        defaultSocket.emit('new-channel', {
-            channel: channel,
-            sender: rtcMultiConnection.userid
-        });
-
-        var privateSocket = io.connect('/' + channel);
-        privateSocket.channel = channel;
-        privateSocket.on('connect', function () {
-            if (config.callback) config.callback(privateSocket);
-        });
-        privateSocket.send = function (message) {
-            privateSocket.emit('message', {
-                sender: rtcMultiConnection.userid,
-                data: message
-            });
-        };
-        privateSocket.on('message', config.onmessage);
-    };
 };
 
 var sessions = { };
@@ -94,7 +101,7 @@ rtcMultiConnection.onNewSession = function(session) {
         header: session.extra.username,
         message: 'Making handshake with room owner....!',
         userinfo: '<img src="images/action-needed.png">',
-		color: session.extra.color
+        color: session.extra.color
     });
 };
 
@@ -104,55 +111,55 @@ rtcMultiConnection.onRequest = function(request) {
         header: 'New Participant',
         message: 'A participant found. Accepting request of ' + request.extra.username + ' ( ' + request.userid + ' )...',
         userinfo: '<img src="images/action-needed.png">',
-		color: request.extra.color
+        color: request.extra.color
     });
 };
 
 rtcMultiConnection.onCustomMessage = function(message) {
     if (message.hasCamera || message.hasScreen) {
-		var msg = message.extra.username + ' enabled webcam. <button id="preview">Preview</button> ---- <button id="share-your-cam">Share Your Webcam</button>';
-		
-		if(message.hasScreen) {
-			msg = message.extra.username + ' is ready to share screen. <button id="preview">View His Screen</button> ---- <button id="share-your-cam">Share Your Screen</button>';
-		}
-		
+        var msg = message.extra.username + ' enabled webcam. <button id="preview">Preview</button> ---- <button id="share-your-cam">Share Your Webcam</button>';
+
+        if (message.hasScreen) {
+            msg = message.extra.username + ' is ready to share screen. <button id="preview">View His Screen</button> ---- <button id="share-your-cam">Share Your Screen</button>';
+        }
+
         addNewMessage({
             header: message.extra.username,
             message: msg,
             userinfo: '<img src="images/action-needed.png">',
-			color: message.extra.color,
+            color: message.extra.color,
             callback: function(div) {
                 div.querySelector('#preview').onclick = function() {
                     this.disabled = true;
-					
-					message.session.oneway= true;
+
+                    message.session.oneway = true;
                     rtcMultiConnection.sendMessage({
                         renegotiate: true,
-						streamid: message.streamid,
-						session: message.session
+                        streamid: message.streamid,
+                        session: message.session
                     });
                 };
 
                 div.querySelector('#share-your-cam').onclick = function() {
                     this.disabled = true;
-					
-					if(!message.hasScreen) {
-						var session = {audio: true, video: true};
-    
-						rtcMultiConnection.captureUserMedia(function(stream) {
-							rtcMultiConnection.peers[message.userid].peer.connection.addStream(stream);
-							div.querySelector('#preview').onclick();
-						}, session);
-					}
-					
-					if(message.hasScreen) {
-						var session = {screen: true};
-    
-						rtcMultiConnection.captureUserMedia(function(stream) {
-							rtcMultiConnection.peers[message.userid].peer.connection.addStream(stream);
-							div.querySelector('#preview').onclick();
-						}, session);
-					}
+
+                    if (!message.hasScreen) {
+                        session = { audio: true, video: true };
+
+                        rtcMultiConnection.captureUserMedia(function(stream) {
+                            rtcMultiConnection.peers[message.userid].peer.connection.addStream(stream);
+                            div.querySelector('#preview').onclick();
+                        }, session);
+                    }
+
+                    if (message.hasScreen) {
+                        var session = { screen: true };
+
+                        rtcMultiConnection.captureUserMedia(function(stream) {
+                            rtcMultiConnection.peers[message.userid].peer.connection.addStream(stream);
+                            div.querySelector('#preview').onclick();
+                        }, session);
+                    }
                 };
             }
         });
@@ -163,53 +170,37 @@ rtcMultiConnection.onCustomMessage = function(message) {
             header: message.extra.username,
             message: message.extra.username + ' enabled microphone. <button id="listen">Listen</button> ---- <button id="share-your-mic">Share Your Mic</button>',
             userinfo: '<img src="images/action-needed.png">',
-			color: message.extra.color,
+            color: message.extra.color,
             callback: function(div) {
                 div.querySelector('#listen').onclick = function() {
                     this.disabled = true;
-                    message.session.oneway= true;
+                    message.session.oneway = true;
                     rtcMultiConnection.sendMessage({
                         renegotiate: true,
-						streamid: message.streamid,
-						session: message.session
+                        streamid: message.streamid,
+                        session: message.session
                     });
                 };
 
                 div.querySelector('#share-your-mic').onclick = function() {
                     this.disabled = true;
-                    
-					var session = {audio: true};
-    
-					rtcMultiConnection.captureUserMedia(function(stream) {
-						rtcMultiConnection.peers[message.userid].peer.connection.addStream(stream);
-						div.querySelector('#listen').onclick();
-					}, session);
+
+                    var session = { audio: true };
+
+                    rtcMultiConnection.captureUserMedia(function(stream) {
+                        rtcMultiConnection.peers[message.userid].peer.connection.addStream(stream);
+                        div.querySelector('#listen').onclick();
+                    }, session);
                 };
             }
         });
     }
 
     if (message.renegotiate) {
-		var customStream = rtcMultiConnection.customStreams[message.streamid];
-		if(customStream) {
-			rtcMultiConnection.peers[message.userid].renegotiate(customStream, message.session);
-		}
-    }
-    
-    if(message.messageFor == rtcMultiConnection.userid && message.areYouStillConnected) {
-        rtcMultiConnection.sendCustomMessage({
-            messageFor: message.from,
-            from: rtcMultiConnection.userid,
-            iAmStillConnected: true
-        });
-    }
-    
-    if(message.messageFor == rtcMultiConnection.userid && message.iAmStillConnected) {
-        addNewMessage({
-            header: (rtcMultiConnection.peers[message.from].extra.username || message.from) + ' is still connected!',
-            message: 'WebRTC connection is still active between you and ' + (rtcMultiConnection.peers[message.from].extra.username || message.from) + '!',
-            userinfo: getUserinfo(rtcMultiConnection.blobURLs[message.from], 'images/info.png')
-        });
+        var customStream = rtcMultiConnection.customStreams[message.streamid];
+        if (customStream) {
+            rtcMultiConnection.peers[message.userid].renegotiate(customStream, message.session);
+        }
     }
 };
 
@@ -220,21 +211,21 @@ rtcMultiConnection.onstream = function(e) {
         rtcMultiConnection.blobURLs[e.userid] = e.blobURL;
         /*
         if( document.getElementById(e.userid) ) {
-        document.getElementById(e.userid).muted = true;
+            document.getElementById(e.userid).muted = true;
         }
         */
         addNewMessage({
             header: e.extra.username,
             message: e.extra.username + ' enabled swebcam.',
             userinfo: '<video id="' + e.userid + '" src="' + URL.createObjectURL(e.stream) + '" autoplay muted=true volume=0></vide>',
-			color: e.extra.color
+            color: e.extra.color
         });
     } else {
         addNewMessage({
             header: e.extra.username,
             message: e.extra.username + ' enabled microphone.',
             userinfo: '<audio src="' + URL.createObjectURL(e.stream) + '" controls muted=true volume=0></vide>',
-			color: e.extra.color
+            color: e.extra.color
         });
     }
     usersContainer.appendChild(e.mediaElement);
@@ -251,6 +242,6 @@ rtcMultiConnection.onclose = rtcMultiConnection.onleave = function(event) {
         header: event.extra.username,
         message: event.extra.username + ' left the room.',
         userinfo: getUserinfo(rtcMultiConnection.blobURLs[event.userid], 'images/info.png'),
-		color: e.extra.color
+        color: event.extra.color
     });
 };

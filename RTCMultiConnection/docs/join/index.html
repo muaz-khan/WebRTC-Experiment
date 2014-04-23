@@ -56,13 +56,24 @@
 		
 		<ol>
             <li>
+                <code><a href="http://www.RTCMultiConnection.org/docs/join/">join</a></code> method is used/called only for participant. It should NEVER be called for initiator!
+                
+                <pre class="sh_javascript">
+if(you_are_participant) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>('sessionid');
+}
+</pre>
+            </li>
+            <li>
                 Since <a href="http://www.rtcmulticonnection.org/changes-log/#v1.7">v1.7</a>, you can pass "<code><a href="http://www.RTCMultiConnection.org/docs/sessionid/">sessionid</a></code>" directly over "<code><a href="http://www.RTCMultiConnection.org/docs/join/">join</a></code>" method:
                 <pre class="sh_javascript">
 // make sure that room is created!
 // otherwise this "join" method will fail to join the room!
 // "join" method NEVER waits for onNewSession!!
 // it directly "joins" the room!
-connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>('sessionid');
+if(you_are_participant) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>('sessionid');
+}
 
 // otherwise, you can pass "room-description"
 // or "session-description" object over "join" method!
@@ -75,7 +86,10 @@ var sessionDescription = {
         video: true
     }
 };
-connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>( sessionDescription );
+
+if(you_are_participant) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>( sessionDescription );
+}
 </pre>
             </li>
 			<li>
@@ -92,6 +106,8 @@ var sessionDescription = initiator.<a href="http://www.rtcmulticonnection.org/do
     dontTransmit: true
 });
 
+// initiator will NEVER call "join" method!
+
 websocket.send(sessionDescription);
 </pre>
                 </li>
@@ -103,7 +119,10 @@ var participant = new RTCMultiConnection();
 
 websocket.onmessage = function(event) {
     var sessionDescription = event.data.sessionDescription;
-    participant.<a href="http://www.rtcmulticonnection.org/docs/join/">join</a>( sessionDescription );
+    
+    if(you_are_participant) {
+        participant.<a href="http://www.rtcmulticonnection.org/docs/join/">join</a>( sessionDescription );
+    }
 };
 </pre>
                 </li>

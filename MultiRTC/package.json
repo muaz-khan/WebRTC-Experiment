@@ -1,12 +1,12 @@
 {
   "name": "multirtc",
   "preferGlobal": true,
-  "version": "5.6.7",
+  "version": "6.0.0",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com"
   },
-  "description": "MultiRTC is an all-in-one demo application using RTCMultiConnection.js library. MultiRTC supports: 1. Multi-File sharing among multiple users! 2. Multi-screen sharing among multiple users; in multi-directions! 3. Audio and/or Video among multiple users; in multi-directions! MultiRTC supports many complex renegotiation scenarios so that you can open text chat, same like skype; then you can add/remove medias (audio/video/screen) any time in any direction!  MultiRTC currently targets maximum 8-users per conferencing room; however, it can setup about 256 connections. Demo app: https://www.webrtc-experiment.com:12034/",
+  "description": "1) It is a skype-like demo using WebRTC for realtime connections! 2) It allows you enable/disable webcams; and join with or without webcams! 3) It allows you share screen using existing peer connections! 4) It allows you share files with preview and download links! 5) It allows you auto translate incoming messages in your own language! 6) It gives you full control over bandwidth and screen resolutions! 7) It allows you adjust file sharing speed yourself by setting chunk-size and chunk-intervals! 8) It allows you test all WebRTC features by enabling/disabling some check-boxes!: https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/",
   "contributors": [
     {
       "name": "Muaz Khan",
@@ -53,13 +53,13 @@
   },
   "readmeFilename": "README.md",
   "dependencies": {
-    "socket.io": "0.9.x",
+    "websocket": "1.0.x",
     "node-static": "0.7.x"
   },
   "bugs": {
     "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues"
   },
-  "homepage": "http://www.RTCMultiConnection.org/",
-  "_id": "multirtc@5.6.7",
+  "homepage": "https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple",
+  "_id": "multirtc@6.0.0",
   "_from": "multirtc@"
 }

@@ -16,12 +16,11 @@ You can see three node.js files:
 
 #### How to use?
 
-In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
+Following code explains how to override [`openSignalingChannel`](http://www.rtcmulticonnection.org/docs/openSignalingChannel/) method in your HTML pages; `openSignalingChannel` is useful only for RTCMultiConnection.js and DataChannel.js. For other WebRTC Experiments, please check next section.
 
 ```javascript
-// wss://wsnodejs.nodejitsu.com:443
-// ws://wsnodejs.nodejitsu.com:80
-// wss://www.webrtc-experiment.com:8563
+// wss://wsnodejs.nodejitsu.com:443 (Secure port: HTTPs)
+// ws://wsnodejs.nodejitsu.com:80 (Ordinary port: HTTP)
 
 var SIGNALING_SERVER = 'wss://wsnodejs.nodejitsu.com:443';
 connection.openSignalingChannel = function(config) {
@@ -47,6 +46,47 @@ connection.openSignalingChannel = function(config) {
         }));
     };
 }
+```
+
+=
+
+#### How to use for `openSocket`?
+
+`openSocket` is used in all standalone WebRTC Experiments. You can define this method in your `ui.js` file or in your HTML page.
+
+```javascript
+// wss://wsnodejs.nodejitsu.com:443 (Secure port: HTTPs)
+// ws://wsnodejs.nodejitsu.com:80 (Ordinary port: HTTP)
+
+var SIGNALING_SERVER = 'wss://wsnodejs.nodejitsu.com:443';
+var config = {
+    openSocket = function (config) {
+        config.channel = config.channel || 'main-public-channel';
+
+        var websocket = new WebSocket(SIGNALING_SERVER);
+        websocket.channel = config.channel;
+        websocket.onopen = function () {
+            websocket.push(JSON.stringify({
+                open: true,
+                channel: config.channel
+            }));
+            if (config.callback)
+                config.callback(websocket);
+        };
+
+        websocket.onmessage = function (event) {
+            config.onmessage(JSON.parse(event.data));
+        };
+
+        websocket.push = websocket.send;
+        websocket.send = function (data) {
+            websocket.push(JSON.stringify({
+                data: data,
+                channel: config.channel
+            }));
+        };
+    }
+};
 ```
 
 =

@@ -257,7 +257,7 @@
 
             // --------------------------------------------------------
             var channel = location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
-            var websocket = new WebSocket('ws://wsnodejs.jit.su:80');
+            var websocket = new WebSocket('wss://wsnodejs.nodejitsu.com:443');
             websocket.onopen = function() {
                 console.log('websocket connection opened!');
                 websocket.push(JSON.stringify({

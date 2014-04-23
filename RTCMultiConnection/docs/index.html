@@ -9,7 +9,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="http://www.rtcmulticonnection.org/style.css">
 	
         <style>
             p { padding: .8em; }
@@ -422,15 +422,21 @@ connection.onleave = function(e) {
                         <li>
                             <a href="http://www.RTCMultiConnection.org/docs/onstream/">onstream</a>
                             <pre class="sh_javascript">
-connection.onstream = function(e) {
-    // e.mediaElement
-    // e.stream
-    // e.streamid
-    // e.session
+connection.<a href="http://www.RTCMultiConnection.org/docs/onstream/">onstream</a> = function(e) {
+    // e.mediaElement (audio or video element)
+    // e.stream     native MediaStream object
+    // e.streamid   unique identifier of the stream; it will be synced among all users!
+    // e.session {audio: true, video: true}
     // e.blobURL
-    // e.type
+    // e.type     "local" or "remote"
     // e.extra
-    // e.userid
+    // e.userid   the person who shared stream with you!
+    
+    // easiest way to display audio/video elements
+    document.body.appendChild(e.mediaElement);
+    
+    // e.isVideo ---- if it is a  Video stream
+    // e.isAudio ---- if it is an Audio stream
 };
 </pre>
                         </li>
@@ -438,16 +444,22 @@ connection.onstream = function(e) {
                         <li>
                             <a href="http://www.RTCMultiConnection.org/docs/onstreamended/">onstreamended</a>
                             <pre class="sh_javascript">
-connection.onstreamended = function(e) {
-    // e.mediaElement
-    // e.stream
-    // e.streamid
-    // e.session
+connection.<a href="http://www.RTCMultiConnection.org/docs/onstreamended/">onstreamended</a> = function (e) {
+    // e.mediaElement (audio or video element)
+    // e.stream     native MediaStream object
+    // e.streamid   unique identifier of the stream synced from stream sender
+    // e.session {audio: true, video: true}
     // e.blobURL
-    // e.type
+    // e.type     "local" or "remote"
     // e.extra
-    // e.userid
-};
+    // e.userid   the person who shared stream with you!
+    
+    // easiest way to remove relevant element!
+    e.mediaElement.parentNode.removeChild(e.mediaElement);
+    
+    // e.isVideo ---- if it is a  Video stream
+    // e.isAudio ---- if it is an Audio stream
+}
 </pre>
                         </li>
                     
@@ -1207,6 +1219,14 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/onstream/">onstream</
 connection.dontOverrideSession = true;
 </pre>
                         </li>
+                        
+                        <li>
+                            <a href="http://www.RTCMultiConnection.org/docs/peers/">redial</a>
+                            <pre class="sh_javascript">
+// to recreate offers/answers
+connection.<a href="http://www.RTCMultiConnection.org/docs/peers/">peers</a>['target-userid'].redial();
+</pre>
+                        </li>
                    
                     </ol>
                 </li>
@@ -1275,6 +1295,6 @@ connection.dontOverrideSession = true;
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-        <script src="//www.webrtc-experiment.com/commits.js"> </script>
+        <script src="http://www.rtcmulticonnection.org/commits.js"> </script>
     </body>
 </html>

@@ -57,11 +57,63 @@
 				
                     <pre class="sh_javascript">
 // you can suggest which session/room to join
-connection.connect('session-id');
+if(your_are_participant) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>('session-id');
+}
 
 // or
-connection.connect();
+if(your_are_participant) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>();
+}
 </pre>
+                </li>
+            </ol>
+            
+            <h2>A few points to remember</h2>
+            
+            <ol>
+                <li>
+                    <code><a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a></code> method should be called ONLY for initiator i.e. room-owner!
+                    
+                    <pre class="sh_javascript">
+if(your_are_participant) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>('session-id');
+}
+
+// if you're room owner; then call "open" method instead!
+if(your_are_initiator) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>('session-id');
+}
+</pre>
+                </li>
+                
+                <li>
+                    <code><a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a></code> causes delay in initial connection because it waits for <code><a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a></code> to be fired. That's why <code><a href="http://www.RTCMultiConnection.org/docs/join/">join</a></code> method is preferred to setup fast connections!
+                    <pre class="sh_javascript">
+// for fast handshake!
+if(you_want_to_setup_fast_connection) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>('session-id');
+}
+
+// for slow connections
+if(you_want_to_setup_slow_connection) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>('session-id');
+}
+</pre>
+                </li>
+                
+                <li>
+                    <code><a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a></code> will be fired only if you're participant and you called <code><a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a></code> method.
+                    <pre class="sh_javascript">
+connection.<a href="http://www.RTCMultiConnection.org/docs/connect/">connect</a>('session-id');
+connection.<a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> = function(session) {
+    session.join();
+};
+
+// if you're room-initiator; then you shouldn't call "connect" method
+// that's why "onNewSession" will NEVER be fired for initiator!
+</pre>
+                </li>
                 </li>
             </ol>
 

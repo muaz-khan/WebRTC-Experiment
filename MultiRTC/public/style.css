@@ -1,4 +1,8 @@
-/* https://www.webrtc-experiment.com:12034/ */
+/*
+// Muaz Khan         - www.MuazKhan.com
+// MIT License       - www.WebRTC-Experiment.com/licence
+// Experiments       - github.com/muaz-khan/WebRTC-Experiment
+*/
 
 @font-face {
     font-family: 'Myriad';
@@ -256,6 +260,8 @@ h1 img {
     position: absolute;
     top: 5px;
     left: 251px;
+    height: 25px;
+    overflow: hidden;
 }
 
 .settings {

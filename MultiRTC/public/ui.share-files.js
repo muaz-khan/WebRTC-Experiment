@@ -1,4 +1,6 @@
-// https://www.webrtc-experiment.com:12034/
+// Muaz Khan         - www.MuazKhan.com
+// MIT License       - www.WebRTC-Experiment.com/licence
+// Experiments       - github.com/muaz-khan/WebRTC-Experiment
 
 // file sharing
 var progressHelper = { };

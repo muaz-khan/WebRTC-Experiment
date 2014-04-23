@@ -56,22 +56,24 @@ and you're done!
 
 #### How to use?
 
-In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
+Following code explains how to override [`openSignalingChannel`](http://www.rtcmulticonnection.org/docs/openSignalingChannel/) method in your HTML pages; `openSignalingChannel` is useful only for RTCMultiConnection.js and DataChannel.js. For other WebRTC Experiments, please check next section.
 
 ```javascript
-// http://socketio-over-nodejs.hp.af.cm/
-// http://socketio-over-nodejs.nodejitsu.com:80/
-// https://socketio-over-nodejs.nodejitsu.com:443/
-// http://webrtc-signaling.nodejitsu:80/
+// http://socketio-over-nodejs.hp.af.cm/  (Ordinary port: HTTP)
+
+// http://socketio-over-nodejs.nodejitsu.com:80 (Secure port: HTTPs)
+// https://socketio-over-nodejs.nodejitsu.com:443/ (Ordinary port: HTTP)
+
+// https://webrtc-signaling.nodejitsu:443/ (Secure port: HTTPs)
+// http://webrtc-signaling.nodejitsu:80/ (Ordinary port: HTTP)
 
 var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
 connection.openSignalingChannel = function(config) {   
-   var channel = config.channel || this.channel || 'default-namespace';
-   var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+   var channel = config.channel || this.channel;
    
    io.connect(SIGNALING_SERVER).emit('new-channel', {
       channel: channel,
-      sender : sender
+      sender : connection.userid
    });
    
    var socket = io.connect(SIGNALING_SERVER + channel);
@@ -83,7 +85,7 @@ connection.openSignalingChannel = function(config) {
    
    socket.send = function (message) {
         socket.emit('message', {
-            sender: sender,
+            sender: connection.userid,
             data  : message
         });
     };
@@ -93,6 +95,51 @@ connection.openSignalingChannel = function(config) {
 ```
 
 `io.connect(URL).emit('new-channel')` starts a new namespace that is used privately or publicly to transmit/exchange appropriate stuff e.g. room-details, participation-requests, SDP, ICE, etc.
+
+=
+
+#### How to use for `openSocket`?
+
+`openSocket` is used in all standalone WebRTC Experiments. You can define this method in your `ui.js` file or in your HTML page.
+
+```javascript
+// http://socketio-over-nodejs.hp.af.cm/  (Ordinary port: HTTP)
+
+// http://socketio-over-nodejs.nodejitsu.com:80 (Secure port: HTTPs)
+// https://socketio-over-nodejs.nodejitsu.com:443/ (Ordinary port: HTTP)
+
+// https://webrtc-signaling.nodejitsu:443/ (Secure port: HTTPs)
+// http://webrtc-signaling.nodejitsu:80/ (Ordinary port: HTTP)
+
+var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
+var config = {
+    openSocket = function (config) {
+        var channel = config.channel || 'main-public-channel';
+        var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+
+        io.connect(SIGNALING_SERVER).emit('new-channel', {
+            channel: channel,
+            sender: sender
+        });
+
+        var socket = io.connect(SIGNALING_SERVER + channel);
+        socket.channel = channel;
+
+        socket.on('connect', function () {
+            if (config.callback) config.callback(socket);
+        });
+
+        socket.send = function (message) {
+            socket.emit('message', {
+                sender: sender,
+                data: message
+            });
+        };
+
+        socket.on('message', config.onmessage);
+    }
+};
+```
 
 =
 

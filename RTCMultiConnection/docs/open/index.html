@@ -54,32 +54,43 @@
 		
             <ol>
                 <li>
-                    "<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>" method allows you open a new room in the current signaling channel:
+                    <code><a href="http://www.RTCMultiConnection.org/docs/open/">open</a></code> will be called only for initiator!
+                </li>
+                <li>
+                    <code><a href="http://www.RTCMultiConnection.org/docs/open/">open</a></code> method allows you open a new room in the current signaling channel:
                 </li>
             
                 <li>
                     <a href="http://www.rtcmulticonnection.org/docs/open/">open</a> method accepts object parameter as well; also now it returns "sessionDescription" object:
                     <pre class="sh_javascript">
 // you can pass object instead on string!
-var sessionDescription = connection.<a href="http://www.rtcmulticonnection.org/docs/open/">open</a>({
-    dontTransmit: true,    // optional --- disable default room-forwarding behaviour!
-    <a href="http://www.rtcmulticonnection.org/docs/sessionid/">sessionid</a>: 'something', // optional
-    <a href="http://www.rtcmulticonnection.org/docs/transmitRoomOnce/">transmitRoomOnce</a>: true // optional
-});
+if(you_are_initiator) {
+    var sessionDescription = connection.<a href="http://www.rtcmulticonnection.org/docs/open/">open</a>({
+        dontTransmit: true,    // optional --- disable default room-forwarding behaviour!
+        <a href="http://www.rtcmulticonnection.org/docs/sessionid/">sessionid</a>: 'something', // optional
+        <a href="http://www.rtcmulticonnection.org/docs/transmitRoomOnce/">transmitRoomOnce</a>: true // optional
+    });
+}
 
 // you can share "sessionDescription" object using socket.io or any gateway
 // and target users can directly join using "join" method:
-connection.<a href="http://www.rtcmulticonnection.org/docs/join/">join</a>( sessionDescription );
+if(you_are_participant) {
+    connection.<a href="http://www.rtcmulticonnection.org/docs/join/">join</a>( sessionDescription );
+}
 </pre>
                 </li>
                 
                 <li>	
                     <pre class="sh_javascript">
-connection.<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>('session-id'); // i.e. room-id
+if(you_are_initiator) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>('session-id'); // i.e. room-id
+}
 
 // or
-connection.<a href="http://www.RTCMultiConnection.org/docs/sessionid/">sessionid</a> = 'session-id';
-connection.<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>();
+if(you_are_initiator) {
+    connection.<a href="http://www.RTCMultiConnection.org/docs/sessionid/">sessionid</a> = 'session-id';
+    connection.<a href="http://www.RTCMultiConnection.org/docs/open/">open</a>();
+}
 </pre>
                 </li>
 			

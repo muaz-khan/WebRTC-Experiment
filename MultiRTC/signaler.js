@@ -1,5 +1,4 @@
-var port80 = 12034;  // change it to 80
-var port443 = 12034; // change it to 443
+var port = 12034; // change it to 443
 
 var fs = require('fs');
 
@@ -11,96 +10,101 @@ var options = {
     cert: fs.readFileSync('certificate.pem')
 };
 
-var http = require('http').createServer(function(request, response) {
-    request.addListener('end', function() {
-        if (request.url.search( /.png|.gif|.js|.css/g ) == -1) {
-            file.serveFile('/index.html', 402, { }, request, response);
+var https = require('https').createServer(options, function (request, response) {
+    request.addListener('end', function () {
+        if (request.url.search(/.png|.gif|.js|.css/g) == -1) {
+            file.serveFile('/index.html', 402, {}, request, response);
         } else file.serve(request, response);
     }).resume();
-}).listen(port80);
+}).listen(port);
 
-var https = require('https').createServer(options, function(request, response) {
-    request.addListener('end', function() {
-        if (request.url.search( /.png|.gif|.js|.css/g ) == -1) {
-            file.serveFile('/index.html', 402, { }, request, response);
-        } else file.serve(request, response);
-    }).resume();
-}).listen(port443);
+var CHANNELS = {};
 
-// socket.io implementation
-var io = require('socket.io');
+var WebSocketServer = require('websocket').server;
 
-var https_io = io.listen(https);
-var http_io = io.listen(http);
+new WebSocketServer({
+    httpServer: https,
+    autoAcceptConnections: false
+}).on('request', onRequest);
 
-var channels = { };
+function onRequest(socket) {
+    var origin = socket.origin + socket.resource;
 
-// socket.io on port 443
-captureEvents(https_io);
+    var websocket = socket.accept(null, origin);
 
-// socket.io on port 80
-captureEvents(http_io);
-
-function captureEvents(_io) {
-    _io.sockets.on('connection', function(socket) {
-        var userid = socket.handshake.query.userid;
-        
-        var room = socket.handshake.query.room;
-        
-        socket.emit('room-found', channels[room]);
-        
-        var firstChannel;
-        if(!channels[room]) firstChannel = room;
-        channels[room] = room;
-        onNewNamespace(room, userid);
-        
-        socket.on('session-description', function(sessionDescription) {
-            channels[room] = sessionDescription;
-        });
-        
-        socket.on('new-channel', function(data) {
-            if(data.sender == userid) {
-                channels[data.channel] = data.channel;
-                onNewNamespace(data.channel, data.sender);
-            }
-        });
-        
-        socket.on('disconnect', function() {
-            socket.broadcast.emit('user-left', userid);
-            if(firstChannel && channels[firstChannel]) {
-                if(_io.sockets && _io.sockets.manager && _io.sockets.manager.namespaces && _io.sockets.manager.namespaces[firstChannel]){
-                    delete _io.sockets.manager.namespaces[firstChannel];
-                }
-                delete channels[firstChannel];
-            }
-            if(_io.sockets && _io.sockets[socket.id]){
-                delete _io.sockets[socket.id];
-            }
-            
-            if(_io.sockets && _io.sockets.clients && _io.sockets.clients(socket.id)) {
-                delete _io.sockets.clients(socket.id);
-            }
-            
-            socket.broadcast.emit('user-left', {
-                userid: userid,
-                room: room
-            });
-        });
-        
-        socket.on('playRoleOfInitiator', function(_userid) {
-            if(_userid == userid) {
-                firstChannel = room;
-            }
-        });
-        
-        function onNewNamespace(channel, sender) {
-            _io.of('/' + channel).on('connection', function(socket) {
-                socket.on('message', function(data) {
-                    if (data.sender == sender) {
-                        socket.broadcast.emit('message', data.data);
-                    }
-                });
-            });
+    websocket.on('message', function (message) {
+        if (message.type === 'utf8') {
+            onMessage(JSON.parse(message.utf8Data), websocket);
         }
     });
+
+    websocket.on('close', function () {
+        truncateChannels(websocket);
+    });
 }
+
+function onMessage(message, websocket) {
+    if (message.checkPresence)
+        checkPresence(message, websocket);
+    else if (message.open)
+        onOpen(message, websocket);
+    else
+        sendMessage(message, websocket);
+}
+
+function onOpen(message, websocket) {
+    var channel = CHANNELS[message.channel];
+
+    if (channel)
+        CHANNELS[message.channel][channel.length] = websocket;
+    else
+        CHANNELS[message.channel] = [websocket];
+}
+
+function sendMessage(message, websocket) {
+    message.data = JSON.stringify(message.data);
+    var channel = CHANNELS[message.channel];
+    if (!channel) {
+        console.error('no such channel exists');
+        return;
+    }
+
+    for (var i = 0; i < channel.length; i++) {
+        if (channel[i] && channel[i] != websocket) {
+            try {
+                channel[i].sendUTF(message.data);
+            } catch (e) {}
+        }
+    }
+}
+
+function checkPresence(message, websocket) {
+    websocket.sendUTF(JSON.stringify({
+        isChannelPresent: !! CHANNELS[message.channel]
+    }));
+}
+
+function swapArray(arr) {
+    var swapped = [],
+        length = arr.length;
+    for (var i = 0; i < length; i++) {
+        if (arr[i])
+            swapped[swapped.length] = arr[i];
+    }
+    return swapped;
+}
+
+function truncateChannels(websocket) {
+    for (var channel in CHANNELS) {
+        var _channel = CHANNELS[channel];
+        for (var i = 0; i < _channel.length; i++) {
+            if (_channel[i] == websocket)
+                delete _channel[i];
+        }
+        CHANNELS[channel] = swapArray(_channel);
+        if (CHANNELS && CHANNELS[channel] && !CHANNELS[channel].length)
+            delete CHANNELS[channel];
+    }
+}
+
+console.log('listening both websocket and HTTPs at port 12034');
