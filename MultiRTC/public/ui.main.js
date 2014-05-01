@@ -54,17 +54,17 @@ function addNewMessage(args) {
 
 main.querySelector('#your-name').onkeyup = function(e) {
     if (e.keyCode != 13) return;
-    main.querySelector('button').onclick();
+    main.querySelector('#continue').onclick();
 };
 
 main.querySelector('#room-name').onkeyup = function(e) {
     if (e.keyCode != 13) return;
-    main.querySelector('button').onclick();
+    main.querySelector('#continue').onclick();
 };
 
 main.querySelector('#room-name').value = (Math.random() * 1000).toString().replace('.', '');
 
-main.querySelector('button').onclick = function() {
+main.querySelector('#continue').onclick = function() {
     var yourName = this.parentNode.querySelector('#your-name');
     var roomName = this.parentNode.querySelector('#room-name');
     
@@ -120,7 +120,7 @@ main.querySelector('button').onclick = function() {
 };
 
 function getUserinfo(blobURL, imageURL) {
-    return blobURL ? '<video src="' + blobURL + '" autoplay controls></vide>' : '<img src="' + imageURL + '">';
+    return blobURL ? '<video src="' + blobURL + '" autoplay controls></video>' : '<img src="' + imageURL + '">';
 }
 
 var isShiftKeyPressed = false;

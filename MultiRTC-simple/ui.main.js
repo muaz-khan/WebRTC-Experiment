@@ -52,16 +52,30 @@ function addNewMessage(args) {
     document.querySelector('#message-sound').play();
 }
 
-main.querySelector('input').onkeyup = function(e) {
+main.querySelector('#your-name').onkeyup = function(e) {
     if (e.keyCode != 13) return;
-    main.querySelector('button').onclick();
+    main.querySelector('#continue').onclick();
 };
 
-main.querySelector('button').onclick = function() {
-    var input = this.parentNode.querySelector('input');
-    input.disabled = this.disabled = true;
+main.querySelector('#room-name').onkeyup = function(e) {
+    if (e.keyCode != 13) return;
+    main.querySelector('#continue').onclick();
+};
 
-    var username = input.value || 'Anonymous';
+main.querySelector('#room-name').value = (Math.random() * 1000).toString().replace('.', '');
+
+main.querySelector('#continue').onclick = function() {
+    var yourName = this.parentNode.querySelector('#your-name');
+    var roomName = this.parentNode.querySelector('#room-name');
+    
+    if(!roomName.value || !roomName.value.length) {
+        roomName.focus();
+        return alert('Your MUST Enter Room Name!');
+    }
+    
+    yourName.disabled = roomName.disabled = this.disabled = true;
+
+    var username = yourName.value || 'Anonymous';
 
     rtcMultiConnection.extra = {
         username: username,
@@ -73,8 +87,9 @@ main.querySelector('button').onclick = function() {
         message: 'Searching for existing rooms...',
         userinfo: '<img src="images/action-needed.png">'
     });
-
-    var roomid = rtcMultiConnection.channel;
+    
+    var roomid = main.querySelector('#room-name').value;
+    rtcMultiConnection.channel = roomid;
 
     var websocket = new WebSocket(SIGNALING_SERVER);
     websocket.onmessage = function(event) {
@@ -82,7 +97,7 @@ main.querySelector('button').onclick = function() {
         if (data.isChannelPresent == false) {
             addNewMessage({
                 header: username,
-                message: 'No room found. Creating new room...<br /><br />You can share following link with your friends:<br /><a href="' + location.href + '">' + location.href + '</a>',
+                message: 'No room found. Creating new room...<br /><br />You can share following room-id with your friends: <input type=text value="' + roomid + '">',
                 userinfo: '<img src="images/action-needed.png">'
             });
 
@@ -105,7 +120,7 @@ main.querySelector('button').onclick = function() {
 };
 
 function getUserinfo(blobURL, imageURL) {
-    return blobURL ? '<video src="' + blobURL + '" autoplay></vide>' : '<img src="' + imageURL + '">';
+    return blobURL ? '<video src="' + blobURL + '" autoplay controls></video>' : '<img src="' + imageURL + '">';
 }
 
 var isShiftKeyPressed = false;
@@ -223,8 +238,6 @@ function fireClickEvent(element) {
 
     element.dispatchEvent(evt);
 }
-
-getElement('#self-url').innerHTML = getElement('#self-url').href = location.href;
 
 function bytesToSize(bytes) {
     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];

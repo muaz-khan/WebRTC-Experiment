@@ -72,6 +72,54 @@ Solution? Obviously a media server!
 
 =
 
+#### How to setup private rooms?
+
+Following "channel" line makes private rooms according to the domain name.
+
+https://github.com/muaz-khan/WebRTC-Experiment/blob/master/webrtc-broadcasting/index.html#L140
+
+```javascript
+var channel = config.channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
+```
+
+You can see this code:    `location.href.replace( /\/|:|#|%|\.|\[|\]/g , '')`
+
+It means that "channel" which is a unique identifier of the room....is taken from the actual URL...
+
+So, your room will be visible only on your domain.
+
+You can use custom channel name if you wanna open single channel among all your pages.....
+
+var channel = config.channel || 'this-must-be-unique-must-be-private';
+
+For first case, where I was taking "channel" from the URL .... 
+
+i.e. `location.href.replace( /\/|:|#|%|\.|\[|\]/g , '')`
+
+In that case, each URL will have unique channel i.e.
+
+```
+http://localhost/first-page/
+http://localhost/second-page/
+http://localhost/third-page/
+```
+
+Users from all three pages can't see each other; they'll NEVER see "join" buttons etc.
+
+If no one has access to your channel; he can't see/view your broadcast.
+
+Also, hashes or query-string parameters causes unique channels.
+
+```
+http://localhost/first-page/
+http://localhost/first-page/#hash
+http://localhost/first-page/?query=something
+```
+
+All these three pages has unique channels. They'll NEVER see rooms from each other.
+
+=
+
 #### Want to use video-conferencing in your own webpage?
 
 ```html
@@ -93,14 +141,17 @@ Solution? Obviously a media server!
 <script>
     var config = {
         openSocket: function(config) {
-            // http://socketio-over-nodejs.hp.af.cm/
-            // http://socketio-over-nodejs.jit.su:80/
-            // http://webrtc-signaling.jit.su:80/
-			
-            var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/',
-                defaultChannel = location.hash.substr(1) || 'webrtc-oneway-broadcasting';
+            // http://socketio-over-nodejs.hp.af.cm/  (Ordinary port: HTTP)
 
-            var channel = config.channel || defaultChannel;
+            // http://socketio-over-nodejs.nodejitsu.com:80 (Secure port: HTTPs)
+            // https://socketio-over-nodejs.nodejitsu.com:443/ (Ordinary port: HTTP)
+
+            // https://webrtc-signaling.nodejitsu:443/ (Secure port: HTTPs)
+            // http://webrtc-signaling.nodejitsu:80/ (Ordinary port: HTTP)
+			
+            var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
+
+            var channel = config.channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
             var sender = Math.round(Math.random() * 999999999) + 999999999;
 
             io.connect(SIGNALING_SERVER).emit('new-channel', {
@@ -228,7 +279,7 @@ Solution? Obviously a media server!
 
 =
 
-For signaling; please check following page:
+#### For signaling; please check following page:
 
 https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
@@ -250,4 +301,4 @@ This [WebRTC One-Way Broadcasting](https://www.webrtc-experiment.com/webrtc-broa
 
 #### License
 
-[WebRTC One-Way Broadcasting](https://www.webrtc-experiment.com/webrtc-broadcasting/) experiment is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC One-Way Broadcasting](https://www.webrtc-experiment.com/webrtc-broadcasting/) experiment is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

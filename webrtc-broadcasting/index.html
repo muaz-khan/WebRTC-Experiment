@@ -1,7 +1,7 @@
 ﻿<!--
-> 2013, Muaz Khan - wwww.MuazKhan.com
-> MIT License     - www.WebRTC-Experiment.com/licence
-> Documentation   - github.com/muaz-khan/WebRTC-Experiment/tree/master/video-broadcasting
+> Muaz Khan     - wwww.MuazKhan.com
+> MIT License   - www.WebRTC-Experiment.com/licence
+> Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/video-broadcasting
 -->
 
 <!DOCTYPE html>
@@ -71,9 +71,12 @@
         </script>
         
         <!-- scripts used for broadcasting -->
-        <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
-        <script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
-        <script src="https://www.webrtc-experiment.com/webrtc-broadcasting/broadcast.js"> </script>
+        <script src="https://www.webrtc-experiment.com/firebase.js"> </script> <!-- Signaling -->
+        <script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script> <!-- WebRTC simple wrapper -->
+        <script src="https://www.webrtc-experiment.com/webrtc-broadcasting/broadcast.js"> </script> <!-- Multi-user connectivity handler -->
+        
+        <!-- This Library is used to detect WebRTC features -->
+        <script src="https://www.webrtc-experiment.com/DetectRTC.js"></script>
     </head>
 
     <body>
@@ -106,7 +109,7 @@
 
             <div class="github-stargazers"></div>
         
-            <!-- just copy this <section> and next script -->
+            <!-- copy this <section> and next <script> -->
             <section class="experiment">                
                 <section>
                     <select id="broadcasting-option">
@@ -193,8 +196,13 @@
 
                     captureUserMedia(function() {
                         var shared = 'video';
-                        if (window.option == 'Only Audio') shared = 'audio';
-                        if (window.option == 'Screen') shared = 'screen';
+                        if (window.option == 'Only Audio') {
+                            shared = 'audio';
+                        }
+                        if (window.option == 'Screen') {
+                            shared = 'screen';
+                        }
+                        
                         broadcastUI.createRoom({
                             roomName: (document.getElementById('broadcast-name') || { }).value || 'Anonymous',
                             isAudio: shared === 'audio'
@@ -211,6 +219,10 @@
                             audio: true,
                             video: false
                         };
+                        
+                        if(!DetectRTC.hasMicrophone) {
+                            alert('DetectRTC library is unable to find microphone; maybe you denied microphone access once and it is still denied or maybe microphone device is not attached to your system or another app is using same microphone.');
+                        }
                     }
                     if (option === 'Screen') {
                         var video_constraints = {
@@ -223,6 +235,14 @@
                             audio: false,
                             video: video_constraints
                         };
+                        
+                        if(!DetectRTC.isScreenCapturingSupported) {
+                           alert('DetectRTC library is unable to find screen capturing support. You MUST run chrome with command line flag "chrome --enable-usermedia-screen-capturing"');
+                        }
+                    }
+                    
+                    if (option != 'Only Audio' && option != 'Screen' && !DetectRTC.hasWebcam) {
+                        alert('DetectRTC library is unable to find webcam; maybe you denied webcam access once and it is still denied or maybe webcam device is not attached to your system or another app is using same webcam.');
                     }
 
                     var htmlElement = document.createElement(option === 'Only Audio' ? 'audio' : 'video');
@@ -280,9 +300,12 @@
             </script>
             
             <section class="experiment">
+                <h2 class="header">How it works?</h2>
                 <ol>
-                    <li>Mesh networking model is implemented to open multiple interconnected peer connections</li>
-                    <li>Maximum peer connections limit is <strong>256</strong> (on chrome)</li>
+                    <li>It broadcasts media in one-way direction over number of peers.</li>
+                    <li>All peers can view/watch/listen the broadcast, anonymously.</li>
+                    <li>"Anonymously" means viewers will NEVER be prompted to allow webcam or mic or screen.</li>
+                    <li>Assume like a radio station inside the browser. Remember, it works only browser-to-browser.</li>
                 </ol>
             </section>
         
@@ -341,20 +364,11 @@ sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
                     <li>Unclear voice and audio lost</li>
                     <li>Bandwidth issues / slow streaming / CPU overwhelming</li>
                 </ol>
-                <p>Solution? Obviously a media server!</p>
-            </section>
-            
-            <section class="experiment">
-                <h2 class="header">Suggestions</h2>
-                <ol>
-                    <li>
-                        <a href="http://www.RTCMultiConnection.org/" target="_blank">RTCMultiConnection.js</a> can be used for HD screen sharing; HD audio/video streaming; fastest file sharing; and writing entire skype-like app in the browser!
-                    </li>
-                </ol>
+                <p>Solution? Obviously a media server or <a href="https://www.webrtc-experiment.com/RTCMultiConnection/remote-stream-forwarding.html">remote-stream-forwarding</a>!</p>
             </section>
         </article>
         
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-broadcasting" class="fork-right"></a>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-broadcasting" class="fork-left"></a>
         
         <footer>
             <p>
@@ -364,7 +378,7 @@ sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
             </p>
         </footer>
     
-        <!-- commits.js is useless for you! -->
-        <script src="//www.webrtc-experiment.com/commits.js" async> </script>
+        <!-- commits.js is useless for you! It is not part of this WebRTC Experiment. -->
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

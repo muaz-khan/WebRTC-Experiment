@@ -1,4 +1,4 @@
-// Last time updated at April 14, 2014, 08:32:23
+// Last time updated at April 21, 2014, 08:32:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -24,6 +24,25 @@
 // RecordRTC.js
 
 // recordRTC.setAdvertisementArray( [ 'data:image-webp', 'data:image-webp', 'data:image-webp' ] );
+
+// why audio is not synced with video?
+//
+// default audio input => default audio output
+//
+// Use headphones. Tap with fingers on microphone.
+//
+// Mac: you will hear no noticeable delay (6ms latency approximately)
+//
+// Windows: you will hear long delay (100ms or so) due to WASAPI (Windows Audio Session API) shared mode
+// you can try using --enable-exclusive-audio command line flag to chrome to reduce it to half
+// but WASAPI exclusive input is not yet supported. So you won't get near the Mac
+
+/*
+WASAPI gives two options for audio rendering - Shared mode and Exclusive mode. 
+In exclusive mode, you are the only application talking to the audio endpoint in question 
+- all other applications cannot make any noise. 
+This gives the absolutely best performance possible
+*/
 
 function RecordRTC(mediaStream, config) {
     config = config || { };
@@ -383,8 +402,13 @@ MRecordRTC.writeToDisk = RecordRTC.writeToDisk;
 // Cross-Browser-Declarations.js
 
 // animation-frame used in WebM recording
-requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;
-cancelAnimationFrame = window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame;
+if(!window.requestAnimationFrame) {
+    requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;
+}
+
+if(!window.cancelAnimationFrame) {
+    cancelAnimationFrame = window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame;
+}
 
 // WebAudio API representer
 AudioContext = window.webkitAudioContext || window.mozAudioContext;
@@ -717,6 +741,12 @@ function StereoAudioRecorder(mediaStream, root) {
     }
 
     __stereoAudioRecorderJavacriptNode.onaudioprocess = function(e) {
+        // if MediaStream().stop() or MediaStreamTrack().stop() is invoked.
+        if (mediaStream.ended) {
+          __stereoAudioRecorderJavacriptNode.onaudioprocess = function () {};
+          return;
+        }
+        
         if (!recording) return;
 
         var left = e.inputBuffer.getChannelData(0);

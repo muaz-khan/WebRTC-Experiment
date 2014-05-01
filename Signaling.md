@@ -1,5 +1,14 @@
 You can use any signaling implementation with any [WebRTC Experiment](https://www.webrtc-experiment.com/); whether it is XMPP/SIP or PHP/MySQL or Socket.io/WebSockets or WebSync/SignalR or PeerServer/SignalMaster or other gateway.
 
+Remember, there are some built-in implementations:
+
+1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs)
+2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs)
+3. [WebSync for Signaling](https://github.com/muaz-khan/WebSync-Signaling) — useful only for .NET developers
+4. [XHR/XMLHttpRequest Signaling](https://github.com/muaz-khan/XHR-Signaling) — useful for both .NET and PHP developers!
+
+If you wanna understand basics of WebRTC signaling; then scroll to bottom and check [this section](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md#a-few-other-resources).
+
 =
 
 ##### Nodejs/Socketio Server-Side Code
@@ -518,6 +527,97 @@ WebSocket over Node.js demos can be found [here](https://github.com/muaz-khan/We
 
 =
 
+##### XHR/XMLHttpRequest for Signaling
+
+```javascript
+// database has a single table; which has two columns: 
+// 1) Message (required to store JSON data)
+// 2) ID (optional: as primary key)
+
+// a simple function to make XMLHttpRequests
+function xhr(url, callback, data) {
+    if (!window.XMLHttpRequest || !window.JSON) return;
+
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (callback && request.readyState == 4 && request.status == 200) {
+            // server MUST return JSON text
+            callback(JSON.parse(request.responseText));
+        }
+    };
+    request.open('POST', url);
+
+    var formData = new FormData();
+
+    // you're passing "message" parameter
+    formData.append('message', data);
+
+    request.send(formData);
+}
+
+// this object is used to store "onmessage" callbacks from "openSignalingChannel handler
+var onMessageCallbacks = {};
+
+// this object is used to make sure identical messages are not used multiple times
+var messagesReceived = {};
+
+function repeatedlyCheck() {
+    xhr('/Home/GetData', function (data) {
+        // if server says nothing; wait.
+        if (data == false) return setTimeout(repeatedlyCheck, 400);
+
+        // if already receied same message; skip.
+        if (messagesReceived[data.ID]) return setTimeout(repeatedlyCheck, 400);
+        messagesReceived[data.ID] = data.Message;
+
+        // "Message" property is JSON-ified in "openSignalingChannel handler
+        data = JSON.parse(data.Message);
+
+        // don't pass self messages over "onmessage" handlers
+        if (data.sender != connection.userid && onMessageCallbacks[data.channel]) {
+            onMessageCallbacks[data.channel](data.message);
+        }
+
+        // repeatedly check the database
+        setTimeout(repeatedlyCheck, 1);
+    });
+}
+
+repeatedlyCheck();
+
+// overriding "openSignalingChannel handler
+connection.openSignalingChannel = function (config) {
+    var channel = config.channel || this.channel;
+    onMessageCallbacks[channel] = config.onmessage;
+
+    // let RTCMultiConnection know that server connection is opened!
+    if (config.onopen) setTimeout(config.onopen, 1);
+
+    // returning an object to RTCMultiConnection
+    // so it can send data using "send" method
+    return {
+        send: function (data) {
+            data = {
+                channel: channel,
+                message: data,
+                sender: connection.userid
+            };
+
+            // posting data to server
+            // data is also JSON-ified.
+            xhr('/Home/PostData', null, JSON.stringify(data));
+        },
+        channel: channel
+    };
+};
+```
+
+Source code is available here: https://github.com/muaz-khan/XHR-Signaling
+
+Remember: You can use same code JavaScript code both for PHP and ASP.NET.
+
+=
+
 You can find many other good examples here:
 
 http://www.RTCMultiConnection.org/docs/openSignalingChannel/
@@ -535,4 +635,4 @@ http://www.RTCMultiConnection.org/docs/openSignalingChannel/
 
 ##### License
 
-[WebRTC Experiments](https://www.webrtc-experiment.com/) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Experiments](https://www.webrtc-experiment.com/) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

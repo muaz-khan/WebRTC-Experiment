@@ -260,6 +260,8 @@ h1 img {
     position: absolute;
     top: 5px;
     left: 251px;
+    height: 25px;
+    overflow: hidden;
 }
 
 .settings {

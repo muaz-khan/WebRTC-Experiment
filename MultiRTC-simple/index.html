@@ -6,7 +6,7 @@
 
 <html lang="en">
     <head>
-        <title>MultiRTC! ® Muaz Khan</title>
+        <title>MultiRTC! / RTCMultiConnection Demo ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -20,23 +20,23 @@
         
         <!-- www.RTCMultiConnection.org/changes-log/#v1.7 -->
         <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js"> </script>
+        
         <script src="linkify.js"> </script>
     </head>
     <body>
         <div class="settings">
-            <button id="settings">Settings</button>
+            <button id="settings" title="Customize many options according to your own needs!">Settings</button>
         </div>
         <div class="self-url">
-            <label>Copy & Share with friends:</label>
-            <a id="self-url" href="#" target="_blank"></a>
+            <label><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple">MultiRTC Demo</a> is using <a href="https://www.webrtc-experiment.com/">WebRTC</a> and <a href="http://www.RTCMultiConnection.org/">RTCMultiConnection.js</a>!</label>
         </div>
 	
-        <h1>
+        <h1 style="border: 0;text-align: center;width: 187px;">
             <img src="images/logo.png"><br />
-            <a href="http://www.rtcmulticonnection.org/docs/" target="_blank">MultiRTC!</a>
+            <a href="http://www.rtcmulticonnection.org/docs/" target="_blank" style="text-decoration:none;">MultiRTC!</a>
         </h1>
 		
-        <div class="users-list">
+        <div class="users-list" title="Click to view all shared screens and videos!">
             <div class="numbers-of-users">0</div>
             <img src="images/users.png">
         </div>
@@ -47,10 +47,10 @@
 			<p id="who-is-typing"></p>
 			
             <div class="controls">
-                <button id="allow-webcam" class="icon" disabled></button>
-                <button id="allow-mic" class="icon" disabled></button>
-                <button id="allow-screen" class="icon" disabled></button>
-                <button id="share-files" class="icon" disabled></button>
+                <button id="allow-webcam" class="icon" disabled title="Enable Your Webcam"></button>
+                <button id="allow-mic" class="icon" disabled title="Enable Your Microphone"></button>
+                <button id="allow-screen" class="icon" disabled title="Enable Your Screen"></button>
+                <button id="share-files" class="icon" disabled title="Select and Share Your Files"></button>
             </div>
         </div>
         
@@ -194,15 +194,68 @@
         <div class="users-container"></div>
 		
         <div class="main">
-            <div class="new-message">
-                <div class="user-info">
+            <div class="new-message" style="overflow: hidden;height: 250px;">
+                <div class="user-info" style="height: 100%">
                     <img src="images/user.png">
                 </div>
 				
                 <div class="user-activity">
+                    <div style="float:right;">
+                        MultiRTC is open-sourced <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple">here</a>!
+                    </div>
+                        
                     <h2 class="header">Welcome Sir!</h2>
                     <p class="message">
-                        Please Enter Your Name: <input type="text"><button id="continue">continue</button>
+                        Please Enter a <span style="color:red;">UNIQUE</span> room-name: <input type="text" id="room-name" placeholder="Private Room-ID" style="border: 1px solid rgb(253, 253, 253);box-shadow: inset 0 0 0 1px rgb(53, 52, 52);outline: 1px solid rgb(7, 7, 7);" title="Your private rooms unique-id. It is required!"><br />
+                        <small>You can enter email; or any string or numbers!</small> <br />
+                        <small style="color: rgb(1, 170, 143);font-style: italic;font-weight: bold;">You MUST <span style="color:red;">manually</span> share this <span style="color:red;">unique room-name</span> with target users so they can join you!</small> <br /><br />
+                    
+                        Please Enter Your Full Name: <input type="text" id="your-name" placeholder="(optional)" title="Optional but Recommended!"><button id="continue" title="Click to join the room!">continue</button>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="new-message" style="overflow: hidden;height: 300px;">
+                <div class="user-info" style="height: 100%">
+                    <img src="images/help.png">
+                </div>
+				
+                <div class="user-activity">
+                    <h2 class="header">What is <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple">MultiRTC</a>?</h2>
+                    <p class="message">
+                        <ol style="margin-left:2em;">
+                            <li>
+                                It is a skype-like demo using WebRTC for realtime connections!
+                            </li>
+                            
+                            <li>
+                                It allows you enable/disable webcams; and join with or without webcams!
+                            </li>
+                            
+                            <li>
+                                It allows you share screen using existing peer connections!
+                            </li>
+                            
+                            <li>
+                                It allows you share files with preview and download links!
+                            </li>
+                            
+                            <li>
+                                It allows you <span style="color:red;">auto translate incoming messages</span> in your <a href="http://www.rtcmulticonnection.org/docs/language/">own language</a>!
+                            </li>
+                            
+                            <li>
+                                It gives you full control over bandwidth and screen resolutions!
+                            </li>
+                            
+                            <li>
+                                It allows you adjust file sharing speed yourself by setting <a href="http://www.rtcmulticonnection.org/docs/chunkSize/">chunk-size</a> and <a href="http://www.rtcmulticonnection.org/docs/chunkInterval/">chunk-intervals</a>!
+                            </li>
+                            
+                            <li>
+                                It allows you test all WebRTC features by enabling/disabling some check-boxes!
+                            </li>
+                        </ol>
                     </p>
                 </div>
             </div>

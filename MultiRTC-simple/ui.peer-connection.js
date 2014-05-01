@@ -31,6 +31,12 @@ rtcMultiConnection.openSignalingChannel = function(config) {
     };
     websocket.push = websocket.send;
     websocket.send = function(data) {
+        if (websocket.readyState != 1) {
+                    return setTimeout(function() {
+                        websocket.send(data);
+                    }, 1000);
+        }
+                
         websocket.push(JSON.stringify({
             data: data,
             channel: config.channel
@@ -145,6 +151,11 @@ rtcMultiConnection.onCustomMessage = function(message) {
                         session = { audio: true, video: true };
 
                         rtcMultiConnection.captureUserMedia(function(stream) {
+                            rtcMultiConnection.renegotiatedSessions[JSON.stringify(session)] = {
+                                session: session,
+                                stream: stream
+                            }
+                        
                             rtcMultiConnection.peers[message.userid].peer.connection.addStream(stream);
                             div.querySelector('#preview').onclick();
                         }, session);
@@ -154,6 +165,11 @@ rtcMultiConnection.onCustomMessage = function(message) {
                         var session = { screen: true };
 
                         rtcMultiConnection.captureUserMedia(function(stream) {
+                            rtcMultiConnection.renegotiatedSessions[JSON.stringify(session)] = {
+                                session: session,
+                                stream: stream
+                            }
+                            
                             rtcMultiConnection.peers[message.userid].peer.connection.addStream(stream);
                             div.querySelector('#preview').onclick();
                         }, session);
@@ -186,6 +202,11 @@ rtcMultiConnection.onCustomMessage = function(message) {
                     var session = { audio: true };
 
                     rtcMultiConnection.captureUserMedia(function(stream) {
+                        rtcMultiConnection.renegotiatedSessions[JSON.stringify(session)] = {
+                            session: session,
+                            stream: stream
+                        }
+                        
                         rtcMultiConnection.peers[message.userid].peer.connection.addStream(stream);
                         div.querySelector('#listen').onclick();
                     }, session);
@@ -214,7 +235,7 @@ rtcMultiConnection.onstream = function(e) {
         */
         addNewMessage({
             header: e.extra.username,
-            message: e.extra.username + ' enabled swebcam.',
+            message: e.extra.username + ' enabled webcam.',
             userinfo: '<video id="' + e.userid + '" src="' + URL.createObjectURL(e.stream) + '" autoplay muted=true volume=0></vide>',
             color: e.extra.color
         });
