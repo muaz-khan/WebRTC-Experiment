@@ -1,6 +1,5 @@
-// Last time updated at May 01, 2014, 08:20:23
+// Last time updated at May 06, 2014, 20:32:23
 // Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js
-
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
 // Documentation     - www.RTCMultiConnection.org/docs
@@ -9,15 +8,7 @@
 // Demos             - www.WebRTC-Experiment.com/RTCMultiConnection
 // _______________________
 // RTCMultiConnection-v1.7
-
 /* issues/features need to be fixed & implemented:
-
--. now, using default camera resolutions instead of using minWidth/minHeight and maxWidth/maxHeight
--. you can easily override those values: www.RTCMultiConnection.org/docs/mediaConstraints/
-
--. make sure initial connection is as fast as possible! (connection.join brings fast connections!)
--. make sure initial connection NEVER fails.
--. make sure initial connection works with all signaling gateways. (seems working)
 
 -. "channel" object in the openSignalingChannel shouldn't be mandatory!
 -. JSON parse/stringify options for data transmitted using data-channels; e.g. connection.preferJSON = true;
@@ -668,9 +659,9 @@
                 onopen: onChannelOpened,
                 onicecandidate: function (candidate) {
                     if (!connection.candidates) throw 'ICE candidates are mandatory.';
-                    if (!connection.candidates.host && candidate.candidate.indexOf('typ host') != -1) return;
-                    if (!connection.candidates.relay && candidate.candidate.indexOf('relay') != -1) return;
-                    if (!connection.candidates.reflexive && candidate.candidate.indexOf('srflx') != -1) return;
+                    if (!connection.candidates.host && candidate.candidate.indexOf('typ host ') != -1) return;
+                    if (!connection.candidates.relay && candidate.candidate.indexOf('typ relay ') != -1) return;
+                    if (!connection.candidates.reflexive && candidate.candidate.indexOf('typ srflx ') != -1) return;
 
                     log(candidate.candidate);
 
@@ -698,7 +689,9 @@
                         _config.streaminfo = swap(streaminfo.pop()).join('----');
                     }
 
-                    var mediaElement = createMediaElement(stream, merge({ remote: true }, session));
+                    var mediaElement = createMediaElement(stream, merge({
+                        remote: true
+                    }, session));
                     _config.stream = stream;
 
                     if (!stream.getVideoTracks().length)
@@ -760,6 +753,8 @@
                                 connection.onstreamended(stream.streamObject);
                             }
                         }
+
+                        connection.remove(_config.userid);
                     }
 
                     if (!connection.autoReDialOnFailure) return;
@@ -1291,7 +1286,7 @@
                 }
 
                 // to stop remote stream
-                if (response.promptStreamStop /* && !connection.isInitiator */) {
+                if (response.promptStreamStop /* && !connection.isInitiator */ ) {
                     // var forceToStopRemoteStream = true;
                     // connection.streams['remote-stream-id'].stop( forceToStopRemoteStream );
                     warn('Remote stream has been manually stopped!');
@@ -1931,7 +1926,7 @@
             }
 
             // todo: test and fix next line.
-            if (!args.dontTransmit /* || connection.transmitRoomOnce */) transmit();
+            if (!args.dontTransmit /* || connection.transmitRoomOnce */ ) transmit();
         };
 
         // join existing session
@@ -2409,7 +2404,12 @@
                     this.optionalArgument.optional.push({
                         googIPv6: true
                     });
-                    this.optionalArgument.optional.push({ googDscp: true });
+                    this.optionalArgument.optional.push({
+                        googDscp: true
+                    });
+                    this.optionalArgument.optional.push({
+                        googImprovedWifiBwe: true
+                    });
                 }
 
                 if (!this.preferSCTP) {
@@ -2453,19 +2453,7 @@
                     candidate: candidate.candidate
                 });
 
-                if (isNodeWebkit) {
-                    this.connection.addIceCandidate(iceCandidate);
-                } else {
-                    // landed in chrome M33
-                    // node-webkit doesn't support this format yet!
-                    this.connection.addIceCandidate(iceCandidate, this.onIceSuccess, this.onIceFailure);
-                }
-            },
-            onIceSuccess: function () {
-                log('ice success', toStr(arguments));
-            },
-            onIceFailure: function () {
-                warn('ice failure', toStr(arguments));
+                this.connection.addIceCandidate(iceCandidate);
             },
             createDataChannel: function (channelIdentifier) {
                 if (!this.channels) this.channels = [];
@@ -2643,6 +2631,11 @@
         // connection.mediaConstraints.audio = false;
         if (typeof mediaConstraints.audio != 'undefined') {
             hints.audio = mediaConstraints.audio;
+        }
+
+        // connection.mediaConstraints.video = false;
+        if (typeof mediaConstraints.video != 'undefined' && hints.video) {
+            hints.video = merge(hints.video, mediaConstraints.video);
         }
 
         // connection.media.min(320,180);
@@ -3653,18 +3646,12 @@
             drop: function () {
                 connection.drop();
             },
-            renegotiate: function () {
-            },
-            addStream: function () {
-            },
-            hold: function () {
-            },
-            unhold: function () {
-            },
-            changeBandwidth: function () {
-            },
-            sharePartOfScreen: function () {
-            }
+            renegotiate: function () {},
+            addStream: function () {},
+            hold: function () {},
+            unhold: function () {},
+            changeBandwidth: function () {},
+            sharePartOfScreen: function () {}
         };
 
         connection._skip = ['stop', 'mute', 'unmute', '_private'];
@@ -3812,11 +3799,11 @@
 
         // www.RTCMultiConnection.org/docs/media/
         connection.media = {
-            min: function(width, height) {
+            min: function (width, height) {
                 this.minWidth = width;
                 this.minHeight = height;
             },
-            max: function(width, height) {
+            max: function (width, height) {
                 this.maxWidth = width;
                 this.maxHeight = height;
             }
@@ -3903,7 +3890,9 @@
 
                     if (isFirefox) {
                         // https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html
-                        session = { audio: true };
+                        session = {
+                            audio: true
+                        };
                     }
 
                     if (!window.RecordRTC) {
@@ -4311,8 +4300,7 @@
         };
 
         connection.skipLogs = function () {
-            log = error = warn = function () {
-            };
+            log = error = warn = function () {};
         };
 
         // www.RTCMultiConnection.org/docs/hold/

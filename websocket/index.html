@@ -127,6 +127,13 @@
 				};
 				websocket.push = websocket.send;
 				websocket.send = function(data) {
+                    if (websocket.readyState != 1) {
+                        console.warn('websocket connection is not opened yet.');
+                        return setTimeout(function() {
+                            websocket.send(data);
+                        }, 1000);
+                    }
+                
 					websocket.push(JSON.stringify({
 						data: data,
 						channel: channel

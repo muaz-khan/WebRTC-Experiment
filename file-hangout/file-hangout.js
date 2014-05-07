@@ -868,11 +868,7 @@ function RTCPeerConnection(options) {
                 candidate: candidate.candidate
             });
 
-            peer.addIceCandidate(candidate, function() {
-                console.debug('adding-ice', candidate);
-            }, function(error) {
-                console.error(error);
-            });
+            peer.addIceCandidate(candidate);
         },
 
         peer: peer,

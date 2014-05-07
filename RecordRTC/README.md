@@ -2,6 +2,16 @@
 
 [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is a server-less (entire client-side) JavaScript library can be used to record WebRTC audio/video media streams. It supports cross-browser audio/video recording.
 
+```javascript
+// Browsers Support::
+// Chrome (all versions) [ audio/video individually ]
+// Firefox ( >= 29 ) [ audio/video in single webm/mp4 container or only audio in ogg ]
+// Opera (all versions) [ same as chrome ]
+// Android (Chrome) [ only video ]
+// Android (Opera) [ only video ]
+// Android (Firefox) [ only video ]
+```
+
 =
 
 ## How RecordRTC encodes wav/webm?
@@ -29,6 +39,32 @@
 ```html
 <script src="//www.WebRTC-Experiment.com/RecordRTC.js"></script>
 ```
+
+=
+
+#### How to record audio+video on Firefox >= 29?
+
+You'll be recording both audio/video in single WebM container. Though you can edit RecordRTC.js to record in mp4.
+
+```javascript
+var session = {
+    audio: true,
+    video: true
+};
+
+navigator.getUserMedia(session, function (mediaStream) {
+    window.recordRTC = RecordRTC(MediaStream);
+    recordRTC.startRecording();
+}, onError);
+
+btnStopRecording.onclick = function () {
+    recordRTC.stopRecording(function (audioVideoWebMURL) {
+        window.open(audioVideoWebMURL);
+    });
+};
+```
+
+Demo: https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html
 
 =
 
@@ -64,6 +100,20 @@ navigator.getUserMedia(media_constraints, onsuccess, onfailure);
 URL.createObjectURL(MediaStream);
 ```
 
+#### How to fix audio echo issues?
+
+Simply set `volume=0` or `muted=true`:
+
+```javascript
+navigator.getUserMedia({audio: true}, function(mediaStream) {
+   audioElement.volume = 0;
+   audioElement.src = URL.createObjectURL(mediaStream);
+   audioElement.play();
+});
+```
+
+Or otherwise use `googEchoCancellation` and other experimental constraints from [here](https://chromium.googlesource.com/external/webrtc/+/master/talk/app/webrtc/mediaconstraintsinterface.cc).
+
 =
 
 #### How to record video?
@@ -80,6 +130,29 @@ recordRTC.stopRecording(function(videoURL) {
    mediaElement.src = videoURL;
 });
 ```
+
+=
+
+#### How to fix audio/video sync issues on chrome?
+
+```javascript
+recordAudio = RecordRTC( stream, {
+     onAudioProcessStarted: function( ) {
+         recordVideo.startRecording();
+     }
+});
+
+recordVideo = RecordRTC(stream, {
+    type: 'video'
+});
+
+recordAudio.startRecording();
+```
+
+`onAudioProcessStarted` fixes shared/exclusive audio gap (a little bit). Because shared audio sometimes causes 100ms delay...
+sometime about 400-to-500 ms delay. 
+Delay depends upon number of applications concurrently requesting same audio devices and CPU/Memory available. 
+Shared mode is the only mode currently available on 90% of windows systems especially on windows 7.
 
 =
 

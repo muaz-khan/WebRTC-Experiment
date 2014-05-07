@@ -1,3 +1,5 @@
+// Last time updated at May 06, 2014, 20:32:23
+
 // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.webrtc-experiment.com/licence/
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing
@@ -898,7 +900,9 @@ _html2canvas.Util.Font = (function () {
 
 /* Parse ------------------------- */
 _html2canvas.Parse = function (images, options) {
-  window.scroll(0,0);
+  // this was requsted to be removed. via #204
+  // https://github.com/muaz-khan/WebRTC-Experiment/issues/204
+  // window.scroll(0,0);
 
   var element = (( options.elements === undefined ) ? document.body : options.elements[0]), // select body by default
   numDraws = 0,

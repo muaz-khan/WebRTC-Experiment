@@ -47,7 +47,7 @@ This experiment:
 
 ```
 @echo off
-"C:\ffmpeg\bin\ffmpeg.exe" -i %1 -itsoffset -00:00:01 -i %2 %3
+"C:\ffmpeg\bin\ffmpeg.exe" -itsoffset -00:00:00 -i %1 -itsoffset -00:00:00 -i %2 %3
 ```
 
 **It is assumed that you already have installed ffmpeg on your system.** Though, EXE file is hard-coded to "C:\ffmpeg\bin\ffmpeg.exe" however you can easily edit it according to your own installations.
@@ -111,7 +111,7 @@ ffmpeg -encoders|grep -E "mp3|xvid|aac|gsm|amr|x264|theora|vorbis"
 Sometimes you mistakenly install multiple ffmpeg instances. Find-out ffmpeg instance that has included libvpx; then include that instance's full path in the ffmpeg-command. E.g.
 
 ```
-/home/ubuntu/bin/ffmpeg -i audioFile -itsoffset -00:00:02 -i videoFile -map 0:0 -map 1:0 outputFile;
+/home/ubuntu/bin/ffmpeg -itsoffset -00:00:00 -i audioFile -itsoffset -00:00:00 -i videoFile -map 0:0 -map 1:0 outputFile;
 ```
 
 =
@@ -149,15 +149,32 @@ In the node.js command prompt window; type `node index`; then open `http://local
 
 =
 
+#### How to fix audio/video sync issues on chrome?
+
+```javascript
+recordAudio = RecordRTC( stream, {
+     onAudioProcessStarted: function( ) {
+         recordVideo.startRecording();
+     }
+});
+
+recordVideo = RecordRTC(stream, {
+    type: 'video'
+});
+
+recordAudio.startRecording();
+```
+
+`onAudioProcessStarted` fixes shared/exclusive audio gap (a little bit). Because shared audio sometimes causes 100ms delay...
+sometime about 400-to-500 ms delay. 
+Delay depends upon number of applications concurrently requesting same audio devices and CPU/Memory available. 
+Shared mode is the only mode currently available on 90% of windows systems especially on windows 7.
+
+=
+
 ##### `index.html`
 
 ```html
-<!--
-// Muaz Khan     - www.MuazKhan.com
-// MIT License   - www.WebRTC-Experiment.com/licence
-// Experiments   - github.com/muaz-khan/WebRTC-Experiment
--->
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -227,19 +244,21 @@ In the node.js command prompt window; type `node index`; then open `http://local
                         cameraPreview.play();
 
                         recordAudio = RecordRTC(stream, {
-                            bufferSize: 16384
+                            bufferSize: 16384,
+                            onAudioProcessStarted: function() {
+                                recordVideo.startRecording();
+                            }
                         });
+                        
+                        if(isFirefox) {
+                            recordAudio.startRecording();
+                        }
 
                         if (!isFirefox) {
                             recordVideo = RecordRTC(stream, {
                                 type: 'video'
                             });
-                        }
-
-                        recordAudio.startRecording();
-
-                        if (!isFirefox) {
-                            recordVideo.startRecording();
+                            recordAudio.startRecording();
                         }
 
                         stopRecording.disabled = false;
@@ -468,7 +487,7 @@ function ifMac(response, files) {
         exec = require('child_process').exec;
     //child_process = require('child_process');
 
-    var command = "ffmpeg -i " + audioFile + " -itsoffset -00:00:01 -i " + videoFile + " -map 0:0 -map 1:0 " + mergedFile;
+    var command = "ffmpeg -itsoffset -00:00:00 -i " + audioFile + " -itsoffset -00:00:00 -i " + videoFile + " -map 0:0 -map 1:0 " + mergedFile;
 
     exec(command, function (error, stdout, stderr) {
         if (stdout) console.log(stdout);

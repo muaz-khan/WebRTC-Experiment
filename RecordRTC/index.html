@@ -13,7 +13,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
         
         <style>
             audio {
@@ -53,7 +53,7 @@
         </script>
         
         <!-- script used for audio/video/gif recording -->
-        <script src="//www.webrtc-experiment.com/RecordRTC.js"> </script>
+        <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
     </head>
 
     <body>
@@ -85,10 +85,10 @@
             <div class="github-stargazers"></div>
         
             <section class="experiment">  
-                <h2 class="header">Record Audio</h2>
+                <h2 class="header">Record Audio (both Chrome/Firefox)</h2>
 			
                 <div class="inner" style="height: 5em;">
-                    <audio id="audio" autoplay loop controls></audio>
+                    <audio id="audio" autoplay controls></audio>
                     <button id="record-audio">Record</button>
                     <button id="stop-recording-audio" disabled>Stop</button>
                     <h2 id="audio-url-preview"></h2>
@@ -97,7 +97,9 @@
 		
             <section class="experiment">
 		
-                <h2 class="header">Record Video</h2>
+                <h2 class="header">Record Video (only on chrome)</h2>
+                
+                <small>/ <a href="https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html">Record video on Firefox</a></small>
 			
                 <div class="inner">
                     <button style="float: right;" id="fit-to-screen">Fit to Screen!</button>
@@ -128,7 +130,7 @@
 
             <section class="experiment">
 		
-                <h2 class="header">Record video as animated gif image:</h2>
+                <h2 class="header">Record video as animated gif image (both Chrome/Firefox):</h2>
 			
                 <div class="inner">
                     <button id="record-gif">
@@ -199,6 +201,7 @@
                             audioStream = stream;
 
                             audio.src = URL.createObjectURL(audioStream);
+                            audio.muted = true;
                             audio.play();
 
                             // "audio" is a default type
@@ -210,6 +213,7 @@
                         });
                     else {
                         audio.src = URL.createObjectURL(audioStream);
+                        audio.muted = true;
                         audio.play();
                         if (recorder) recorder.startRecording();
                     }
@@ -291,6 +295,10 @@
 
                     if (recorder)
                         recorder.stopRecording(function(url) {
+                            audio.src = url;
+                            audio.muted = false;
+                            audio.play();
+                            
                             document.getElementById('audio-url-preview').innerHTML = '<a href="' + url + '" target="_blank">Recorded Audio URL</a>';
                         });
                 };
@@ -301,6 +309,9 @@
 
                     if (recorder)
                         recorder.stopRecording(function(url) {
+                            video.src = url;
+                            video.play();
+                            
                             document.getElementById('video-url-preview').innerHTML = '<a href="' + url + '" target="_blank">Recorded Video URL</a>';
                         });
                 };
@@ -491,6 +502,6 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="//www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

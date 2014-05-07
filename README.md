@@ -180,6 +180,12 @@
 | [WebRTC RTP Usage](https://www.webrtc-experiment.com/docs/RTP-usage.html) |
 | [webrtcpedia!](https://www.webrtc-experiment.com/webrtcpedia/) |
 | [Are you want to learn WebRTC?](http://muaz-khan.blogspot.com/2013/12/i-want-to-learn-webrtc.html) |
+| [WebRTC Tips & Tricks](http://muaz-khan.blogspot.com/2014/05/webrtc-tips-tricks.html) |
+
+1. http://muaz-khan.blogspot.com/search/label/WebRTC
+2. https://www.webrtc-experiment.com/#documentations
+3. https://www.facebook.com/WebRTC
+4. https://plus.google.com/+WebRTC-Experiment/posts
 
 =
 
@@ -197,6 +203,7 @@
 1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs)
 2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs)
 3. [WebSync / ASP.NET MVC](https://github.com/muaz-khan/WebSync-Signaling)
+4. [XHR Signaling](https://github.com/muaz-khan/XHR-Signaling)
 
 =
 
@@ -210,12 +217,12 @@
 var recordRTC = RecordRTC(mediaStream);
 
 recordRTC.startRecording();
-recordRTC.stopRecording();
+recordRTC.stopRecording(callback_function);
 
 var blob = recordRTC.getBlob();
 var blobURL = recordRTC.toURL();
 
-recordRTC.getDataURL(function(dataURL) {});
+recordRTC.getDataURL(callback_function);
 ```
 
 1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
@@ -350,7 +357,9 @@ io.sockets.on('connection', function (socket) {
 });
 ```
 
-[Read more here](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)!
+###### Read more here:
+
+* https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
 =
 
@@ -367,12 +376,14 @@ io.sockets.on('connection', function (socket) {
 
 =
 
-##### Muaz Khan (muazkh@gmail.com) - [@muazkh](https://twitter.com/muazkh) / [@WebRTCWeb](https://twitter.com/WebRTCWeb)
+# Muaz Khan
 
-<a href="http://www.MuazKhan.com"><img src="https://www.webrtc-experiment.com/images/Muaz-Khan.gif" /></a>
+1. Personal Webpage — http://www.muazkhan.com
+2. Email — muazkh@gmail.com
+3. Twitter — https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
 
 =
 
-##### License
+# License
 
 All [WebRTC Experiments](https://www.webrtc-experiment.com/) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

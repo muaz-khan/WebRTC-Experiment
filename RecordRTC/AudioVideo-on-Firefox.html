@@ -15,7 +15,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
         
         <style>
             video {
@@ -77,17 +77,16 @@
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
-			
-            <section class="experiment">
-                <ol>
-                    <li>This <a href="https://www.webrtc-experiment.com/">WebRTC</a> experiment records both audio/video in single WebM format using MediaRecorder API!</li>
-                </ol>
-            </section>
+            
+            <blockquote>
+                This <a href="https://www.webrtc-experiment.com/">WebRTC</a> experiment records both audio/video in single WebM/mp4 container/format using MediaRecorder API! It currently works only on Firefox &gt;= 29.<br /><br />
+                For chrome, please try <a href="https://www.webrtc-experiment.com/RecordRTC/">https://www.webrtc-experiment.com/RecordRTC/</a>.
+            </blockquote>
 
             <div class="github-stargazers"></div>
 		
             <section class="experiment">
-                <h2 class="header">Record Audio+Video using Firefox Nightly!</h2>
+                <h2 class="header">Record Audio+Video using Firefox &gt;= 29</h2>
                 <div class="inner">
                     <h2 id="download-url"></h2><br />
                     <video id="video" autoplay controls></video><hr />
@@ -132,17 +131,22 @@
                 }
 
             </script>
-		
-        
+            
             <section class="experiment">
-                <h2 class="header" id="feedback">Feedback</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+                <h2 class="header">Firefox and RecordRTC...</h2>
+                <ol>
+                    <li>
+                        Individual audio recordings in ogg container (Firefox &gt;= 26)
+                    </li>
+                    <li>
+                        Audio+Video in single WebM/mp4 container (Firefox &gt;= 29)
+                    </li>
+                    <li>
+                        Gif recording (Firefox &gt;= 18)
+                    </li>
+                </ol>
             </section>
-			
-			
+		
             <section class="experiment">
                 <h2 class="header">Using RecordRTC...</h2>
                 <ol>
@@ -153,6 +157,14 @@
                         For chrome; you can record audio as WAV and video as WebM or animated Gif.
                     </li>
                 </ol>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
 			
             <section class="experiment">
@@ -167,7 +179,7 @@
             </section>  
         </article>
         
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" class="fork-right"></a>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" class="fork-left"></a>
         
         <footer>
             <p>
@@ -178,6 +190,6 @@
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="//www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

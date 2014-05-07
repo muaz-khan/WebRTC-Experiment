@@ -219,6 +219,22 @@ websocket.onmessage =  function(e) {
     };
 };
 
+websocket.onopen = function() {
+    // this line is mandatory
+    websocket.push(JSON.stringify({
+        open: true,
+        channel: location.href.replace(/\/|:|#|%|\.|\[|\]/g, '')
+    }));
+};
+
+websocket.push = websocket.send;
+websocket.send = function(data) {
+    data.sender = user.userid;
+    data.channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+        
+    websocket.push(JSON.stringify(data));
+};
+
 // overriding "openSignalingChannel" method
 connection.openSignalingChannel = function (config) {
     var channel = config.channel || this.channel;
