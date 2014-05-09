@@ -111,7 +111,7 @@ ffmpeg -encoders|grep -E "mp3|xvid|aac|gsm|amr|x264|theora|vorbis"
 Sometimes you mistakenly install multiple ffmpeg instances. Find-out ffmpeg instance that has included libvpx; then include that instance's full path in the ffmpeg-command. E.g.
 
 ```
-/home/ubuntu/bin/ffmpeg -itsoffset -00:00:00 -i audioFile -itsoffset -00:00:00 -i videoFile -map 0:0 -map 1:0 outputFile;
+ffmpeg -itsoffset -00:00:00 -i audioFile -itsoffset -00:00:00 -i videoFile -map 0:0 -map 1:0 outputFile
 ```
 
 =

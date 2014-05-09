@@ -1,4 +1,4 @@
-// Last time updated at May 06, 2014, 20:32:23
+// Last time updated at May 09, 2014, 08:32:23
 // Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -744,6 +744,18 @@
                     if (connection.peers[_config.userid] && connection.peers[_config.userid].oniceconnectionstatechange) {
                         connection.peers[_config.userid].oniceconnectionstatechange(event);
                     }
+                    
+                    // if ICE connectivity check is failed; renegotiate or redial
+                    if (connection.peers[_config.userid] && connection.peers[_config.userid].peer.connection.iceConnectionState == 'failed') {
+                        if(isFirefox || _config.targetBrowser == 'gecko') {
+                            warn('ICE connectivity check is failed. Re-establishing peer connection.');
+                            connection.peers[_config.userid].redial();
+                        }
+                        else {
+                            warn('ICE connectivity check is failed. Renegotiating peer connection.');
+                            connection.peers[_config.userid].renegotiate();
+                        }
+                    }
 
                     if (connection.peers[_config.userid] && connection.peers[_config.userid].peer.connection.iceConnectionState == 'disconnected') {
                         // to make sure this user's all remote streams are removed.
@@ -1129,6 +1141,8 @@
                             if (!element) element = document.getElementById(element);
                         }
                         if (!element) throw 'HTML Element is inaccessible!';
+                        
+                        var lastScreenshot = '';
 
                         function partOfScreenCapturer() {
                             // if stopped
@@ -1159,12 +1173,16 @@
                                         throw 'No such data channel exists.';
                                     }
 
-                                    connection.channels[that.userid].send({
-                                        userid: connection.userid,
-                                        extra: connection.extra,
-                                        screenshot: screenshot,
-                                        isPartOfScreen: true
-                                    });
+                                    // don't share repeated content
+                                    if(screenshot != lastScreenshot) {
+                                        lastScreenshot = screenshot;
+                                        connection.channels[that.userid].send({
+                                            userid: connection.userid,
+                                            extra: connection.extra,
+                                            screenshot: screenshot,
+                                            isPartOfScreen: true
+                                        });
+                                    }
 
                                     // "once" can be used to share single screenshot
                                     !args.once && setTimeout(partOfScreenCapturer, args.interval || 200);
@@ -4359,6 +4377,29 @@
             for (var peer in connection.peers) {
                 connection.peers[peer].stopPartOfScreenSharing = true;
             }
+        };
+        
+        connection.takeScreenshot = function (element, callback) {
+            if(!element || !callback) throw 'Invalid number of arguments.';
+            
+            if (!window.html2canvas) {
+                return loadScript('https://www.webrtc-experiment.com/screenshot.js', function () {
+                    connection.takeScreenshot(element);
+                });
+            }
+
+            if (typeof element == 'string') {
+                element = document.querySelector(element);
+                if (!element) element = document.getElementById(element);
+            }
+            if (!element) throw 'HTML Element is inaccessible!';
+
+            // html2canvas.js is used to take screenshots
+            html2canvas(element, {
+                onrendered: function (canvas) {
+                    callback(canvas.toDataURL());
+                }
+            });
         };
 
         // it is false because workaround that is used to capture connections' failures

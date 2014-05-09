@@ -1,4 +1,4 @@
-// Last time updated at May 06, 2014, 20:32:23
+// Last time updated at May 09, 2014, 08:32:23
 
 // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.webrtc-experiment.com/licence/
@@ -900,7 +900,7 @@ _html2canvas.Util.Font = (function () {
 
 /* Parse ------------------------- */
 _html2canvas.Parse = function (images, options) {
-  // this was requsted to be removed. via #204
+  // this was requested to be removed. via #204
   // https://github.com/muaz-khan/WebRTC-Experiment/issues/204
   // window.scroll(0,0);
 
@@ -1931,6 +1931,17 @@ _html2canvas.Parse = function (images, options) {
         break;
       case "LI":
         renderListItem(element, stack, backgroundBounds);
+        break;
+      case "VIDEO":
+        // custom code written by Muaz Khan (www.muazkhan.com)
+        // to support <video> screenshots!
+        var tempCanvas = document.createElement('canvas');
+        tempCanvas.width = element.videoWidth || element.clientWidth || 320;
+        tempCanvas.height = element.videoHeight || element.clientHeight || 240;
+        var tempContext = tempCanvas.getContext('2d');
+        tempContext.drawImage(element, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+        renderImage(ctx, tempCanvas, tempCanvas, bounds, borders);
         break;
       case "CANVAS":
         renderImage(ctx, element, element, bounds, borders);

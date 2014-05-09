@@ -9,7 +9,7 @@
     <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+    <link rel="stylesheet" href="http://www.rtcmulticonnection.org/style.css">
 	
     <style>
             p { padding: .8em; }
@@ -56,29 +56,50 @@
         <a href="http://www.RTCMultiConnection.org/docs/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">RTCMultiConnection Docs</a>
 
         <div class="github-stargazers"></div>
+        
         <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/onpartofscreen/">onpartofscreen</a>" event</h1>
 				
 		<ol>
-			<li>
-				Since v1.7, RTCMultiConnection is supporting part/region of screen sharing between two users; where WebRTC data channels are used to share screenshots in realtime!
-			</li>
+            <li>
+                It is a real plugin-free screen sharing! (100% pluginfree!)
+            </li>
+            
+            <li>
+                It works with all browsers that supports Canvas2D API.
+            </li>
+            
+            <li>
+                WebRTC data channels are used to share screenshots in realtime!
+            </li>
+            
+            <li>
+                It can capture all HTML DOM elements except embedded contents, flash, PDF, video, and iframe from cross-doamin or iframe that is loading non-HTML stuff!
+            </li>
+            
+            <li>
+                Screenshots are HD (720p) and RTCMultiConnection is smart enough to share multiple longest strings or largest screenshots concurrently!
+            </li>
             
             <li>
                 Remember, you MUST open data connection ( <code>{data:true}</code> ); at least <a href="http://www.rtcmulticonnection.org/docs/fakeDataChannels/">fake data connection</a>!
             </li>
 			
 			<li>
-				<pre class="sh_javascript">
+				<pre>
+// Note: Following code snippet asks RTCMultiConnection to take screenshots of &lt;body&gt; element
+// share in realtime using WebRTC data channels
+// and gap between each screenshot transmission should be 200ms
+
 // to share a DIV or region of screen with a specific user
 connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['target-userid'].sharePartOfScreen({
     element: 'body', // querySelector or HTMLElement
-    interval: 1000   // milliseconds
+    interval: 200    // milliseconds
 });
 
 // to capture shared parts of screen
-// var image = document.querySelector('img');
+var image = document.querySelector('img');
 connection.<a href="http://www.rtcmulticonnection.org/docs/onpartofscreen/">onpartofscreen</a> = function (e) {
-    // image.src = e.screenshot;
+    image.src = e.screenshot;
 };
 
 // to pause part-of-screen sharing
@@ -94,7 +115,7 @@ connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['ta
         
         <ol>
             <li>
-                <a href=""></a>
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing">https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing</a>
             </li>
         </ol>
 
@@ -113,13 +134,13 @@ connection.<a href="http://www.rtcmulticonnection.org/docs/peers/">peers</a>['ta
             </section>
     </article>
     <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
-	
+    
         <footer>
             <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
             <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-        <script src="//www.webrtc-experiment.com/commits.js"> </script>
+        <script src="http://www.rtcmulticonnection.org/commits.js"> </script>
 </body>
 </html>
