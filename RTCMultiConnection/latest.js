@@ -1,4 +1,4 @@
-// Last time updated at May 09, 2014, 08:32:23
+// Last time updated at May 12, 2014, 08:32:23
 // Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -466,6 +466,7 @@
 
                 mediaConfig.constraints = forcedConstraints || constraints;
                 mediaConfig.media = connection.media;
+                mediaConfig.connection = connection;
                 getUserMedia(mediaConfig);
             }
         }
@@ -2349,9 +2350,6 @@
                 var self = this;
             },
             setBandwidth: function (sdp) {
-                // todo: should b=AS be inserted after c=IN? (RFC 4566)
-                // VoiceActivityDetection: false removes c=IN
-
                 if (isMobileDevice || isFirefox || !this.bandwidth) return sdp;
 
                 var bandwidth = this.bandwidth;
@@ -2390,14 +2388,10 @@
                 return sdp;
             },
             setConstraints: function () {
-                // c=IN must be there; otherwise chrome will fail for b=AS
-                if (isChrome && this.sdpConstraints.mandatory) {
-                    this.sdpConstraints.mandatory.VoiceActivityDetection = true;
-                }
-
-
                 this.constraints = {
-                    optional: this.sdpConstraints.optional || [],
+                    optional: this.sdpConstraints.optional || [{
+                        VoiceActivityDetection: false
+                    }],
                     mandatory: this.sdpConstraints.mandatory || {
                         OfferToReceiveAudio: !!this.session.audio,
                         OfferToReceiveVideo: !!this.session.video || !!this.session.screen
@@ -2409,7 +2403,13 @@
                     this.constraints.mandatory.OfferToReceiveAudio = true;
                 }
 
-                log('sdp-constraints', toStr(this.constraints.mandatory));
+                if(this.constraints.mandatory) {
+                    log('sdp-mandatory-constraints', toStr(this.constraints.mandatory));
+                }
+                
+                if(this.constraints.optional) {
+                    log('sdp-optional-constraints', toStr(this.constraints.optional));
+                }
 
                 this.optionalArgument = {
                     optional: this.optionalArgument.optional || [{
@@ -2635,6 +2635,8 @@
             return;
         }
         currentUserMediaRequest.mutex = true;
+        
+        var connection = options.connection;
 
         // tools.ietf.org/html/draft-alvestrand-constraints-resolution-00
         var mediaConstraints = options.mediaConstraints || {};
@@ -2703,13 +2705,41 @@
             hints.video.mandatory = merge(hints.video.mandatory, mandatory);
         }
 
-        if (mediaConstraints.mandatory)
+        if (mediaConstraints.mandatory) {
             hints.video.mandatory = merge(hints.video.mandatory, mediaConstraints.mandatory);
+        }
 
         // mediaConstraints.optional.bandwidth = 1638400;
         if (mediaConstraints.optional)
             hints.video.optional[0] = merge({}, mediaConstraints.optional);
-
+            
+        if(hints.video.mandatory && !isEmpty(hints.video.mandatory) && connection._mediaSources.video) {
+            hints.video.optional.forEach(function(video, index) {
+                if(video.sourceId == connection._mediaSources.video) {
+                    delete hints.video.optional[index];
+                }
+            });
+            
+            hints.video.optional = swap(hints.video.optional);
+            
+            hints.video.optional.push({
+                sourceId: connection._mediaSources.video
+            });
+        }
+        
+        if(hints.audio.mandatory && !isEmpty(hints.audio.mandatory) && connection._mediaSources.audio) {
+            hints.audio.optional.forEach(function(audio, index) {
+                if(audio.sourceId == connection._mediaSources.audio) {
+                    delete hints.audio.optional[index];
+                }
+            });
+            
+            hints.audio.optional = swap(hints.audio.optional);
+            
+            hints.audio.optional.push({
+                sourceId: connection._mediaSources.audio
+            });
+        }
 
         if (hints.video && hints.video.optional && hints.video.mandatory) {
             if (!hints.video.optional.length && isEmpty(hints.video.mandatory)) {

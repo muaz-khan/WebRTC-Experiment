@@ -4,7 +4,7 @@
 	"manifest_version" : 2,
 	"description" : "WebRTC Desktop Sharing using experimental desktopCapture APIs — https://www.webrtc-experiment.com/ — Muaz Khan",
 	"background": {
-		"scripts": ["RTCMultiConnection-v1.7.js", "desktop-capturing.js", "jquery.min.js"],
+		"scripts": ["RTCMultiConnection-v1.7.js", "desktop-capturing.js"],
 		"persistent": false
 	},
 	"browser_action" : {

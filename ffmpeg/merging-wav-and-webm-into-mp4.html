@@ -13,7 +13,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
         
         <style>
             video {
@@ -115,7 +115,10 @@
                             videoPreview.play();
 
                             recordAudio = RecordRTC(stream, {
-                                bufferSize: 16384
+                                // bufferSize: 16384,
+                                onAudioProcessStarted: function() {
+                                    recordVideo.startRecording();
+                                }
                             });
 
                             recordVideo = RecordRTC(stream, {
@@ -123,7 +126,6 @@
                             });
 
                             recordAudio.startRecording();
-                            recordVideo.startRecording();
                         }, function(error) { throw error;});
                     document.querySelector('#stop-recording-video').disabled = false;
                 };
@@ -307,6 +309,6 @@
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="//www.webrtc-experiment.com/commits.js" async> </script> 
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script> 
     </body>
 </html>

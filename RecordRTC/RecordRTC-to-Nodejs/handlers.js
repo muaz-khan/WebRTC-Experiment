@@ -22,13 +22,13 @@ function upload(response, postData) {
     // writing audio file to disk
     _upload(response, files.audio);
 
-    if (files.isFirefox) {
+    if (files.uploadOnlyAudio) {
         response.statusCode = 200;
         response.writeHead(200, { 'Content-Type': 'application/json' });
         response.end(files.audio.name);
     }
 
-    if (!files.isFirefox) {
+    if (!files.uploadOnlyAudio) {
         // writing video file to disk
         _upload(response, files.video);
 
@@ -76,16 +76,28 @@ function serveStatic(response, pathname) {
         extensionTypes = {
             'js': 'application/javascript',
             'webm': 'video/webm',
+            'mp4': 'video/mp4',
+            'wav': 'audio/wav',
+            'ogg': 'audio/ogg',
             'gif': 'image/gif'
         };
 
     response.writeHead(200, {
         'Content-Type': extensionTypes[extension]
     });
-    if (extensionTypes[extension] == 'video/webm')
+    if (hasMediaType(extensionTypes[extension]))
         response.end(fs.readFileSync('.' + pathname));
     else
         response.end(fs.readFileSync('./static' + pathname));
+}
+
+function hasMediaType(type) {
+    var isHasMediaType = false;
+    ['audio/wav', 'audio/ogg', 'video/webm', 'video/mp4'].forEach(function(t) {
+      if(t== type) isHasMediaType = true;
+    });
+    
+    return isHasMediaType;
 }
 
 function ifWin(response, files) {
@@ -122,11 +134,11 @@ function ifMac(response, files) {
     var audioFile = __dirname + '/uploads/' + files.audio.name;
     var videoFile = __dirname + '/uploads/' + files.video.name;
     var mergedFile = __dirname + '/uploads/' + files.audio.name.split('.')[0] + '-merged.webm';
+    
     var util = require('util'),
         exec = require('child_process').exec;
-    //child_process = require('child_process');
 
-    var command = "ffmpeg -i " + audioFile + " -itsoffset -00:00:01 -i " + videoFile + " -map 0:0 -map 1:0 " + mergedFile;
+    var command = "ffmpeg -i " + audioFile + " -i " + videoFile + " -map 0:0 -map 1:0 " + mergedFile;
 
     exec(command, function (error, stdout, stderr) {
         if (stdout) console.log(stdout);

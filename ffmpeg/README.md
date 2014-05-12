@@ -1,4 +1,4 @@
-## [ffmpeg-asm.js and RecordRTC! Audio/Video Merging & Transcoding!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ffmpeg) / [Demos](https://www.webrtc-experiment.com/ffmpeg/)
+### [ffmpeg-asm.js and RecordRTC! Audio/Video Merging & Transcoding!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ffmpeg) / [Demos](https://www.webrtc-experiment.com/ffmpeg/)
 
 [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is used to record WAV/WebM files; [`ffmpeg-asm.js`](https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2pibDg/ffmpeg_asm.js) is used to merge/transcode in mp4 or ogg/mp3.
 
@@ -6,15 +6,7 @@ Remember: [`ffmpeg-asm.js`](https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2
 
 =
 
-## File Size?
-
-**It is suggested to download `ffmpeg-asm` file and try locally!**
-
-[`ffmpeg-asm.js`](https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2pibDg/ffmpeg_asm.js) file's default size is 18MB; however you can gzip it to make it about 6MB.
-
-=
-
-## [ffmpeg-asm.js Demos](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ffmpeg)
+### [ffmpeg-asm.js Demos](https://www.webrtc-experiment.com/ffmpeg/)
 
 1. [Transcoding WAV into Ogg](https://www.webrtc-experiment.com/ffmpeg/wav-to-ogg.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/wav-to-ogg.html)
 2. [Transcoding WebM into mp4](https://www.webrtc-experiment.com/ffmpeg/wav-to-ogg.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/webm-to-mp4.html)
@@ -22,6 +14,14 @@ Remember: [`ffmpeg-asm.js`](https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2
 4. [Recording Audio+Canvas and merging in single mp4](https://www.webrtc-experiment.com/ffmpeg/audio-plus-canvas-recording.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/audio-plus-canvas-recording.html)
 
 <img src="https://www.webrtc-experiment.com/images/audo-plus-canvas-recording.gif" />
+
+=
+
+### File Size?
+
+**It is suggested to download `ffmpeg-asm` file and try locally!**
+
+[`ffmpeg-asm.js`](https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2pibDg/ffmpeg_asm.js) file's default size is 18MB; however you can gzip it to make it about 6MB.
 
 =
 

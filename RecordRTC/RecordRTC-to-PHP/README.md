@@ -62,6 +62,16 @@ function xhr(url, data, callback) {
 
 =
 
+#### Want to recording only audio?
+
+```
+// if you want to record only audio on chrome
+// then simply set "isFirefox=true"
+var isFirefox = true;
+```
+
+=
+
 ##### License
 
 [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

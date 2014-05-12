@@ -15,7 +15,10 @@ function route(handle, pathname, response, postData) {
         js: 'js',
         gif: 'gif',
         css: 'css',
-        webm: 'webm'
+        webm: 'webm',
+        mp4: 'mp4',
+        wav: 'wav',
+        ogg: 'ogg'
     };
 
     if ('function' === typeof handle[pathname]) {

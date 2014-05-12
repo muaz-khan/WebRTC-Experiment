@@ -84,8 +84,8 @@
     <button id="stop" disabled contenteditable="false">Stop</button>
 </div>
 
-<script src="//www.webrtc-experiment.com/screenshot.js"> </script>
-<script src="//www.webrtc-experiment.com/RecordRTC.js"> </script>
+<script src="https://www.webrtc-experiment.com/screenshot.js"> </script>
+<script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
 
 <script>
 var elementToShare = document.getElementById('elementToShare');
@@ -98,9 +98,11 @@ var recordAudio;
 document.getElementById('start').onclick = function() {
     this.disabled = true;
     navigator.getUserMedia({ audio: true }, function(stream) {
-        canvasRecorder.startRecording();
         recordAudio = RecordRTC(stream, {
-            bufferSize: 16384
+            // bufferSize: 16384.
+            onAudioProcessStarted: function() {
+                canvasRecorder.startRecording();
+            }
         });
         recordAudio.startRecording();
         document.getElementById('stop').disabled = false;
@@ -110,8 +112,6 @@ document.getElementById('stop').onclick = function() {
     this.disabled = true;
     recordAudio.stopRecording(function() {
         canvasRecorder.stopRecording(function() {
-        console.log (' canvas-blob', canvasRecorder.getBlob() );
-        console.log (' audio-blob' , recordAudio.getBlob()   );
         convertStreams(canvasRecorder.getBlob(), recordAudio.getBlob());
             log('<a href="'+ workerPath +'" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file download started. It is about 18MB in size; please be patient!');
         });

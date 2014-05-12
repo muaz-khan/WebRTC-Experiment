@@ -21,8 +21,8 @@
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
-        <script src="RecordRTC.js"> </script>
-        <script src="socket.io.js"> </script>
+        <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
+        <script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
         <style>
             html { background-color: #f7f7f7; }
 
@@ -73,13 +73,9 @@
             var recordAudio, recordVideo;
             startRecording.onclick = function() {
                 startRecording.disabled = true;
-                var video_constraints = {
-                    mandatory: { },
-                    optional: []
-                };
                 navigator.getUserMedia({
                         audio: true,
-                        video: video_constraints
+                        video: true
                     }, function(stream) {
                         cameraPreview.src = window.URL.createObjectURL(stream);
                         cameraPreview.play();
