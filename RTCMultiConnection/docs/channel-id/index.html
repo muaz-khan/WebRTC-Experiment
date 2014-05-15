@@ -9,7 +9,7 @@
     <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+    <link rel="stylesheet" href="//www.rtcmulticonnection.org/style.css">
 	
     <style>
             p { padding: .8em; }
@@ -38,6 +38,14 @@
 			li pre {
 				margin: 0;
 			}
+            
+            .answer p {
+                margin: 0!important;
+            }
+            
+            .answer pre {
+                margin: 0 3em!important;
+            }
         </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -59,6 +67,10 @@
 
         <h1><a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> API Reference / "<a href="http://www.RTCMultiConnection.org/docs/channel-id/">channel-id</a>"</h1>
 		
+        <blockquote class="inline">
+            Basically channel-id doesn't matters. It is used as optional-feature to make sure relevant-messages are shared with relevant users; and other users will NEVER EVER be able to see/access those messages even using hacking techniques or development tools!
+        </blockquote>
+        
 		<ol>
 			<li>
 				A "<a href="http://www.RTCMultiConnection.org/docs/channel-id/">channel-id</a>" can be set like this:
@@ -67,6 +79,10 @@
 					<li>
 					<pre class="sh_javascript">
 var connection = new RTCMultiConnection('channel-id');
+
+// or
+var connection = new RTCMultiConnection();
+connection.channel = 'channel-id';
 </pre>
 					</li>
 				</ol>
@@ -122,6 +138,78 @@ var userC = new RTCMultiConnection('channel-id-007');
 				For more information; read <a href="http://www.rtcmulticonnection.org/FAQ/">RTCMultiConnection FAQ</a>.
 			</li>
 		</ol>
+        
+         <h2 id="FAQ"><a href="#FAQ">FAQ</a></h2>
+        
+        <ol>
+            <li>
+                <blockquote>
+                    Does channelid have a specific characters or format? Must be a number or for example an hash like md5? So I basically pass the channelid to the RTCMultiConnection() API and to the other connect/open/join.
+                </blockquote>
+                
+                <div class="answer">
+                    <p> 
+                        It depends upon your server and how you're passing channel-id. 
+                    </p>
+                    
+                    <pre class="sh_javascript">
+var channelid = 'ABCdef123!@#$%^&*()_+]]{}|`~?.>,<';
+var connection = new RTCMultiConnection( channelid);
+</pre>
+                    
+                    <p>
+                        If you're passing channel-id using URL like this:
+                    </p>
+                    
+                    <p> 
+                        <pre class="sh_javascript">
+http://your-domain.com/channels/channel-id
+</pre>
+                    </p>
+                    
+                    <p>
+                        Then You MUST care about non-allowed or reserved characters like back-slash (/), dots (.), question marks (?), exclamation marks (?), etc.
+                    </p>
+                    
+                    <p>
+                        If you're passing using URL parameter; then you can pass whatever you want:
+                    </p>
+                    
+                    <p> 
+                        
+                        <pre class="sh_javascript">
+http://your-domain.com/channels/?channelid=Muaz+Name!+Good/+Wow+Awesome
+</pre>
+                        
+                    </p>
+                    
+                    <p>
+                        You may need to care about "?" if you're using URL parameters.
+                    </p>
+                    
+                    <p>
+                        If you're passing channel-id using XHR/FormData then there is no limitation!
+                    </p>
+                    
+                    <p> 
+                        
+                        <pre class="sh_javascript">
+var formData = new FormData();
+formData.append('channel-id', 'ABC?DE!/G*$%2140654(FD}[\543[]~fre');
+$.post('/StoreChannelid.php', formData, success_callback);
+</pre>
+                    </p>
+                    
+                    <p> 
+                        Basically channel-id doesn't matters. It is used as optional-feature to make sure relevant-messages are shared with relevant users; and other users will NEVER EVER be able to see/access those messages even using hacking techniques or development tools!
+                    </p>
+                    
+                    <p> 
+                        So, we will have a reliable signaling among users with less chances of failures or attacks!
+                    </p>
+                </div>
+            </li>
+        </ol>
 
         <br />
         <br />
@@ -133,6 +221,7 @@ var userC = new RTCMultiConnection('channel-id-007');
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left:1em;">You can include your email for private conversation!</small>
             </section>
     </article>
+    
     <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
     
         <footer>
@@ -141,6 +230,6 @@ var userC = new RTCMultiConnection('channel-id-007');
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
-        <script src="//www.webrtc-experiment.com/commits.js"> </script>
+        <script src="//www.rtcmulticonnection.org/commits.js"> </script>
 </body>
 </html>

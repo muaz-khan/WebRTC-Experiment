@@ -13,7 +13,8 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
         
         <style>
             video {
@@ -70,8 +71,8 @@
         </script>
         
         <!-- scripts used for screen-sharing -->
-        <script src='//www.webrtc-experiment.com/firebase.js'> </script>
-        <script src="//www.webrtc-experiment.com/Pluginfree-Screen-Sharing/conference.js"> </script>
+        <script src='https://www.webrtc-experiment.com/firebase.js'> </script>
+        <script src="https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/conference.js"> </script>
     </head>
 
     <body>
@@ -172,7 +173,7 @@
                     },
                     onNewParticipant: function(numberOfParticipants) {
                         document.title = numberOfParticipants + ' users are viewing your screen!';
-                        var element = document.getElementById('number-of-participants');
+                        var element = document.querySelector('h1') || document.getElementById('number-of-participants');
                         if (element) {
                             element.innerHTML = numberOfParticipants + ' users are viewing your screen!';
                         }
@@ -187,16 +188,34 @@
 
                     var screen_constraints = {
                         mandatory: {
-                            chromeMediaSource: 'screen',
-                            maxWidth: 1280,
-                            maxHeight: 720
+                            chromeMediaSource: DetectRTC.screen.chromeMediaSource,
+                            maxWidth: window.screen.width > 1280 ? window.screen.width : 1280,
+                            maxHeight: window.screen.height > 720 ? window.screen.height : 720,
+                            minAspectRatio: 1.77
                         },
                         optional: []
                     };
+                    
+                    if(DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
+                        DetectRTC.screen.getSourceId(function(error) {
+                            if(error && error == 'PermissionDeniedError') {
+                                alert('PermissionDeniedError: User denied to share content of his screen.');
+                            }
+                            
+                            captureUserMedia(callback);
+                        });
+                        return;
+                    }
+                    
+                    if(DetectRTC.screen.chromeMediaSource == 'desktop') {
+                        screen_constraints.mandatory.chromeMediaSourceId = DetectRTC.screen.sourceId;
+                    }
+                    
                     var constraints = {
                         audio: false,
                         video: screen_constraints
                     };
+                    
                     getUserMedia({
                         video: video,
                         constraints: constraints,
@@ -211,7 +230,7 @@
                             if (location.protocol === 'http:') {
                                 alert('Please test this WebRTC experiment on HTTPS.');
                             } else {
-                                alert('Screen capturing is either denied or not supported. Did you enable this flag: "Enable screen capture support in getUserMedia"?');
+                                alert('Screen capturing is either denied or not supported. Please install chrome extension for screen capturing or run chrome with command-line flag: --enable-usermedia-screen-capturing');
                             }
                         }
                     });
@@ -251,18 +270,166 @@
 
             </script>
             
+            <script>
+                // todo: need to check exact chrome browser because opera also uses chromium framework
+                var isChrome = !!navigator.webkitGetUserMedia;
+                
+                // DetectRTC.js - github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
+                // Below code is taken from RTCMultiConnection-v1.8.js (http://www.rtcmulticonnection.org/changes-log/#v1.8)
+                var DetectRTC = {};
+
+                (function () {
+
+                    function CheckDeviceSupport(callback) {
+                        // This method is useful only for Chrome!
+
+                        // 1st step: verify "MediaStreamTrack" support.
+                        if (!window.MediaStreamTrack && !navigator.getMediaDevices) {
+                            return;
+                        }
+
+                        if (!window.MediaStreamTrack && navigator.getMediaDevices) {
+                            window.MediaStreamTrack = {};
+                        }
+
+                        // 2nd step: verify "getSources" support which is planned to be removed soon!
+                        // "getSources" will be replaced with "getMediaDevices"
+                        if (!MediaStreamTrack.getSources) {
+                            MediaStreamTrack.getSources = MediaStreamTrack.getMediaDevices;
+                        }
+
+                        // todo: need to verify if this trick works
+                        // via: https://code.google.com/p/chromium/issues/detail?id=338511
+                        if (!MediaStreamTrack.getSources && navigator.getMediaDevices) {
+                            MediaStreamTrack.getSources = navigator.getMediaDevices.bind(navigator);
+                        }
+
+                        // if still no "getSources"; it MUST be firefox!
+                        if (!MediaStreamTrack.getSources) {
+                            // assuming that it is older chrome or chromium implementation
+                            if (isChrome) {
+                                DetectRTC.hasMicrophone = true;
+                                DetectRTC.hasWebcam = true;
+                            }
+
+                            return;
+                        }
+
+                        // loop over all audio/video input/output devices
+                        MediaStreamTrack.getSources(function (sources) {
+                            var result = {};
+
+                            for (var i = 0; i < sources.length; i++) {
+                                result[sources[i].kind] = true;
+                            }
+
+                            DetectRTC.hasMicrophone = result.audio;
+                            DetectRTC.hasWebcam = result.video;
+                            
+                            if(callback) callback();
+                        });
+                    }
+
+                    // check for microphone/webcam support!
+                    CheckDeviceSupport();
+                    DetectRTC.load = CheckDeviceSupport;
+                    
+                    var screenCallback;
+                    
+                    DetectRTC.screen = {
+                        chromeMediaSource: 'screen',
+                        getSourceId: function(callback) {
+                            if(!callback) throw '"callback" parameter is mandatory.';
+                            screenCallback = callback;
+                            window.postMessage('get-sourceId', '*');
+                        },
+                        isChromeExtensionAvailable: function(callback) {
+                            if(!callback) return;
+                            
+                            if(DetectRTC.screen.chromeMediaSource == 'desktop') callback(true);
+                            
+                            // ask extension if it is available
+                            window.postMessage('are-you-there', '*');
+                            
+                            setTimeout(function() {
+                                if(DetectRTC.screen.chromeMediaSource == 'screen') {
+                                    callback(false);
+                                }
+                                else callback(true);
+                            }, 2000);
+                        },
+                        onMessageCallback: function(data) {
+                            console.log('chrome message', data);
+                            
+                            // "cancel" button is clicked
+                            if(data == 'PermissionDeniedError') {
+                                DetectRTC.screen.chromeMediaSource = 'PermissionDeniedError';
+                                if(screenCallback) return screenCallback('PermissionDeniedError');
+                                else throw new Error('PermissionDeniedError');
+                            }
+                            
+                            // extension notified his presence
+                            if(data == 'rtcmulticonnection-extension-loaded') {
+                                DetectRTC.screen.chromeMediaSource = 'desktop';
+                            }
+                            
+                            // extension shared temp sourceId
+                            if(data.sourceId) {
+                                DetectRTC.screen.sourceId = data.sourceId;
+                                if(screenCallback) screenCallback( DetectRTC.screen.sourceId );
+                            }
+                        }
+                    };
+                    
+                    // check if desktop-capture extension installed.
+                    if(window.postMessage && isChrome) {
+                        DetectRTC.screen.isChromeExtensionAvailable();
+                    }
+                })();
+                
+                window.addEventListener('message', function (event) {
+                    if (event.origin != window.location.origin) {
+                        return;
+                    }
+                    
+                    DetectRTC.screen.onMessageCallback(event.data);
+                });
+            </script>
+            
             <section class="experiment">
+                <h2>Prerequisites</h2>
+                <ol>
+                    <li>Install chrome extension. Google Apps Store link will be given shortly. <a href="https://www.webrtc-experiment.com/store/capture-screen/">Temp Link</a></li>
+                    <li>
+                        Otherwise make sure you are running the chrome with command line flag "<strong><a href="http://peter.sh/experiments/chromium-command-line-switches/#enable-usermedia-screen-capturing">--enable-usermedia-screen-capturing</a></strong>" e.g. on Windows "<strong>Chrome.exe --enable-usermedia-screen-capturing</strong>"
+                        <div style="text-align:center;">
+                            <img src="https://www.webrtc-experiment.com/images/--enable-usermedia-screen-capturing.png" style="max-width: 100%;">
+                        </div>
+                    </li>
+                </ol>
+            </section>
+            
+            <section class="experiment">
+                <h2>Advantages</h2>
                 <ol>
                     <li>Share full screen with one or more users in <strong>HD</strong> format!</li>
-                    <li>Make sure you enabled the flag "<strong>Enable screen capture support in getUserMedia</strong>" via "<strong>chrome://flags/#enable-usermedia-screen-capture</strong>".<br/><br/>Screen-sharing fails if you've not enabled that flag. 
-                    
-                        <br /><br /><strong>When you enabled the flag; don't forget to restart/relaunch the browser! You can find a "relaunch" button at bottom-left corner of the screen.</strong>
+                    <li>Share screen from chrome and view over all WebRTC compatible browsers/plugins.</li>
+                    <li>
+                        You can open private rooms and it will be really "totally" private!<br /><br />
+                        <ol>
+                            <li>Use hashes to open private rooms: <strong>#private-room</strong></li>
+                            <li>Use URL parameters to open private rooms: <strong>?private=room</strong></li>
+                        </ol>
                     </li>
+                </ol>
+            </section>
+            
+            <section class="experiment">
+                <h2>Common issues & queries</h2>
+                <ol>
                     <li>Recursive cascade images or blurred screen experiences occur only when you try to share screen between two tabs on the same system. This NEVER happens when sharing between unique systems or devices.</li>
-                    <li>You may face low-quality screen resolutions on Linux or Mac. It works very well on Windows!</li>
-                    <li>Firefox/Opera has no support of screen-sharing yet. However, you can view shared screens on both Firefox and Opera!</li>
+                    <li>Firefox/Opera has no support of screen-capturing yet. However, you can view shared screens on both Firefox and Opera!</li>
                     <li>Remember, it is not desktop sharing! It is just a state-less screen sharing. Desktop sharing is possible only through native (C++) applications.</li>
-                    <li>P.S. Firefox has modules for screen capturing; however, it may take months to land it in nightly!</li>
                 </ol>
             </section>
         
@@ -286,11 +453,13 @@
                         You've not used '<strong>chromeMediaSource</strong>' constraint: 
                         <pre>
 mandatory: {chromeMediaSource: 'screen'}
+
+// or desktop-Capturing
+mandatory: {chromeMediaSource: 'desktop'}
 </pre>
                     </li>
                     <li>You requested audio-stream alongwith '<strong>chromeMediaSource</strong>' – it is not permitted.</li>
                     <li>You're not testing it on SSL origin (HTTPS domain).</li>
-                    <li>Screen capturing is requested <strong>multiple times</strong>. Multiple capturing of screen is not allowed even from two unique tabs. (This issue is old. Chrome now supports multi-capturing of the screen)</li>
                     <li>You may used media constraints like min/max frameRate; bandwidth or min/max width/height like 2000*2000 that is "currently" not allowed.</li>
                 </ol>
 				
@@ -321,6 +490,6 @@ mandatory: {chromeMediaSource: 'screen'}
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="//www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

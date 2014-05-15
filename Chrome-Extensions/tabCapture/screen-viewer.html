@@ -1,4 +1,4 @@
-<script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.4.min.js"> </script>
+<script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.min.js"> </script>
 <style>video {width: 100%;}</style>
 <script>
     var connection = new RTCMultiConnection('webrtc-tab-sharing');
@@ -32,6 +32,9 @@
                 channel: config.channel
             }));
             if (config.callback) config.callback(websocket);
+        };
+        websocket.onerror = function() {
+            alert('Unable to connect to wss://www.webrtc-experiment.com:8563');
         };
         websocket.onmessage = function(event) {
             config.onmessage(JSON.parse(event.data));

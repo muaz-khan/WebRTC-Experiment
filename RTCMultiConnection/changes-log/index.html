@@ -58,11 +58,45 @@
             <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Changes Log ----/ <a href="http://www.RTCMultiConnection.org/docs/">Docs</a> | <a href="http://www.RTCMultiConnection.org/FAQ/">FAQ</a> | <a href="https://www.webrtc-experiment.com/RTCMultiConnection/">Demos!</a></h1>
 		
             <br /><br /><br />
+            <section class="experiment">
+                <h2 id="v1.8"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.8">v1.8</a> / beta coming soon.</h2>
+                <blockquote class="inline">
+                    v1.8 is following WebRTC standards to handle exceptions and call flows; to provide a little bit more reliability in initial call setup and redials.<br /><br />
+                    v1.8 will focus totally on providing WebRTC standards like API and you'll have full-control over each WebRTC API invocation!<br /><br />
+                    
+                    <pre class="sh_html" style="margin: 0;">
+// early release available here
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.8.js"&gt;&lt;/script&gt;
+</pre>
+                </blockquote>
+                
+                <ol>
+                    <li>
+                        <code><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing">chrome.desktopCapture.chooseDesktopMedia</a></code> is now preferred for screen capturing; and if extension is not installed or disabled, then RTCMultiConnection will auto fallback to <a href="https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/">command-line flag oriented screen-capturing API</a>; and if both are not available then it will throw a clear "human readable" exception.<br /><br />
+                        Chrome extension is available <a href="https://www.webrtc-experiment.com/store/capture-screen/">here</a>.
+                    </li>
+                    
+                    <li>
+                        <code>navigator.getUserMedia</code> errors handling in <code>onMediaError</code> event:
+                        <pre class="sh_javascript">
+connection.onMediaError = function(error) {
+    if(error.name == 'PermissionDeniedError') {
+        alert(error.message);
+    }
+};
+</pre>
+                    </li>
+                </ol>
+            </section>
             
             <section class="experiment">
             
-            <h2 id="v1.7"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.7">v1.7</a> / Beta released in March 23, 2014!</h2>
+            <h2 id="v1.7"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.7">v1.7</a> / released in May 14, 2014</h2>
 		
+                <blockquote class="inline">
+                    v1.7 focused on reliable API invocation, reliable concurrent users connectivity, and more. A few other features were added in this build like part of screen streaming, pre-recorded media streaming, ice-trickling booleans, and obviously DetectRTC!
+                </blockquote>
+                
             <ol>
                 <li>
                     <code>connection.trickleIce</code> added. Useful if you're using XHR/SIP/XMPP for signaling. <a href="https://github.com/muaz-khan/XHR-Signaling">XHR Demo</a>

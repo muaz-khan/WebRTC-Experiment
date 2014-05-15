@@ -1,14 +1,18 @@
-// Last time updated at May 12, 2014, 08:32:23
-// Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.7.js
+// Last time updated at May 15, 2014, 08:32:23
+// Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.8.js
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
 // Documentation     - www.RTCMultiConnection.org/docs
 // FAQ               - www.RTCMultiConnection.org/FAQ
-// v1.7 changes log  - www.RTCMultiConnection.org/changes-log/#v1.7
+// v1.8 changes log  - www.RTCMultiConnection.org/changes-log/#v1.8
 // Demos             - www.WebRTC-Experiment.com/RTCMultiConnection
 // _______________________
-// RTCMultiConnection-v1.7
+// RTCMultiConnection-v1.8
 /* issues/features need to be fixed & implemented:
+
+-. add connection.keepStreamsOpened
+-. trickleIce & renegotiation fails.
+-. iframes causes very big delay to capture streams.
 
 -. "channel" object in the openSignalingChannel shouldn't be mandatory!
 -. JSON parse/stringify options for data transmitted using data-channels; e.g. connection.preferJSON = true;
@@ -275,18 +279,6 @@
                 return;
             }
 
-            // it is possible to check presence of the microphone before using it!
-            if (isChrome && session.audio && !DetectRTC.hasMicrophone) {
-                warn('It seems that you have no microphone attached to your device/system.');
-                session.audio = connection.session.audio = false;
-            }
-
-            // it is possible to check presence of the webcam before using it!
-            if (isChrome && session.video && !DetectRTC.hasWebcam) {
-                warn('It seems that you have no webcam attached to your device/system.');
-                session.video = connection.session.video = false;
-            }
-
             // you can force to skip media capturing!
             if (connection.dontAttachStream)
                 return callback();
@@ -326,7 +318,10 @@
                 audio: false,
                 video: {
                     mandatory: {
-                        chromeMediaSource: 'screen'
+                        chromeMediaSource: DetectRTC.screen.chromeMediaSource,
+                        maxWidth: window.screen.width > 1280 ? window.screen.width : 1280,
+                        maxHeight: window.screen.height > 720 ? window.screen.height : 720,
+                        minAspectRatio: 1.77
                     },
                     optional: []
                 }
@@ -334,6 +329,26 @@
 
             // if screen is prompted
             if (session.screen) {
+                if(DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
+                    DetectRTC.screen.getSourceId(function(error) {
+                        if(error && error == 'PermissionDeniedError') {
+                            var mediaStreamError = {
+                                message: 'User denied to share content of his screen.',
+                                name: 'PermissionDeniedError',
+                                constraintName: screen_constraints
+                            };
+                            return connection.onMediaError(mediaStreamError);
+                        }
+                        
+                        captureUserMedia(callback, _session);
+                    });
+                    return;
+                }
+                
+                if(DetectRTC.screen.chromeMediaSource == 'desktop') {
+                    screen_constraints.video.mandatory.chromeMediaSourceId = DetectRTC.screen.sourceId;
+                }
+                
                 var _isFirstSession = isFirstSession;
 
                 _captureUserMedia(screen_constraints, constraints.audio || constraints.video ? function () {
@@ -434,31 +449,100 @@
                         }
                     },
                     onerror: function (e, idInstance) {
-                        connection.onMediaError(toStr(e));
+                        // http://dev.w3.org/2011/webrtc/editor/getusermedia.html#h2_error-handling
+                        if(e.name && e.name == 'PermissionDeniedError') {
+                            var mediaStreamError = 'Either: ';
+                            mediaStreamError += '\n Media resolutions are not permitted.';
+                            mediaStreamError += '\n Another application is using same media device.';
+                            mediaStreamError += '\n Media device is not attached or drivers not installed.';
+                            mediaStreamError += '\n You denied access once and it is still denied.';
+                            
+                            if(e.message && e.message.length) {
+                                mediaStreamError += '\n ' + e.message;
+                            }
+                            
+                            mediaStreamError = {
+                                message: mediaStreamError,
+                                name: e.name,
+                                constraintName: ''
+                            };
+                            
+                            connection.onMediaError(mediaStreamError);
+                            
+                            if(isChrome && (session.audio || session.video)) {
+                                // todo: this snippet fails if user has two or more 
+                                // microphone/webcam attached.
+                                DetectRTC.load(function() {
+                                    // it is possible to check presence of the microphone before using it!
+                                    if (session.audio && !DetectRTC.hasMicrophone) {
+                                        warn('It seems that you have no microphone attached to your device/system.');
+                                        session.audio = session.audio = false;
+                                        
+                                        if(!session.video) {
+                                            alert('It seems that you are capturing microphone and there is no device available or access is denied. Reloading...');
+                                            location.reload();
+                                        }
+                                    }
 
-                        if (session.audio) {
-                            connection.onMediaError('Maybe microphone access is denied.');
+                                    // it is possible to check presence of the webcam before using it!
+                                    if (session.video && !DetectRTC.hasWebcam) {
+                                        warn('It seems that you have no webcam attached to your device/system.');
+                                        session.video = session.video = false;
+                                        
+                                        if(!session.audio) {
+                                            alert('It seems that you are capturing webcam and there is no device available or access is denied. Reloading...');
+                                            location.reload();
+                                        }
+                                    }
+                                    
+                                    if(!DetectRTC.hasMicrophone && !DetectRTC.hasWebcam) {
+                                        alert('It seems that either both microphone/webcam are not available or access is denied. Reloading...');
+                                        location.reload();
+                                    }
+                                    else if(!connection.getUserMediaPromptedOnce){
+                                        // make maximum two tries!
+                                        connection.getUserMediaPromptedOnce = true;
+                                        captureUserMedia(callback, session);
+                                    }
+                                });
+                            }
                         }
-
-                        if (session.video) {
-                            connection.onMediaError('Maybe webcam access is denied.');
+                        
+                        if(e.name && e.name == 'ConstraintNotSatisfiedError') {
+                            var mediaStreamError = 'Either: ';
+                            mediaStreamError += '\n You are prompting unknown media resolutions.';
+                            mediaStreamError += '\n You are using invalid media constraints.';
+                            
+                            if(e.message && e.message.length) {
+                                mediaStreamError += '\n ' + e.message;
+                            }
+                            
+                            mediaStreamError = {
+                                message: mediaStreamError,
+                                name: e.name,
+                                constraintName: ''
+                            };
+                            
+                            connection.onMediaError(mediaStreamError);
                         }
 
                         if (session.screen) {
                             if (isFirefox) {
-                                connection.onMediaError('Firefox has not yet released their screen capturing modules. Still work in progress! Please try chrome for now!');
+                                error('Firefox has not yet released their screen capturing modules. Still work in progress! Please try chrome for now!');
                             } else if (location.protocol !== 'https:') {
-                                connection.onMediaError('<https> is mandatory to capture screen.');
+                                if(!isNodeWebkit && (location.protocol == 'file:' || location.protocol == 'http:')) {
+                                    error('You cannot use HTTP or file protocol for screen capturing. You must either use HTTPs or chrome extension page or Node-Webkit page.');
+                                }
                             } else {
-                                connection.onMediaError('Unable to detect actual issue. Maybe "deprecated" screen capturing flag is not enabled or maybe you clicked "No" button.');
+                                error('Unable to detect actual issue. Maybe "deprecated" screen capturing flag was not set using command line or maybe you clicked "No" button or maybe chrome extension returned invalid "sourceId".');
                             }
+                        }
+                        
+                        currentUserMediaRequest.mutex = false;
 
-                            currentUserMediaRequest.mutex = false;
-
-                            // to make sure same stream can be captured again!
-                            if (currentUserMediaRequest.streams[idInstance]) {
-                                delete currentUserMediaRequest.streams[idInstance];
-                            }
+                        // to make sure same stream can be captured again!
+                        if (currentUserMediaRequest.streams[idInstance]) {
+                            delete currentUserMediaRequest.streams[idInstance];
                         }
                     },
                     mediaConstraints: connection.mediaConstraints || {}
@@ -3500,7 +3584,7 @@
 
     (function () {
 
-        function CheckDeviceSupport() {
+        function CheckDeviceSupport(callback) {
             // This method is useful only for Chrome!
 
             // 1st step: verify "MediaStreamTrack" support.
@@ -3545,6 +3629,8 @@
 
                 DetectRTC.hasMicrophone = result.audio;
                 DetectRTC.hasWebcam = result.video;
+                
+                if(callback) callback();
             });
         }
 
@@ -3556,9 +3642,69 @@
 
         // check for microphone/webcam support!
         CheckDeviceSupport();
+        DetectRTC.load = CheckDeviceSupport;
+        
+        var screenCallback;
+        
+        DetectRTC.screen = {
+            chromeMediaSource: 'screen',
+            getSourceId: function(callback) {
+                if(!callback) throw '"callback" parameter is mandatory.';
+                screenCallback = callback;
+                window.postMessage('get-sourceId', '*');
+            },
+            isChromeExtensionAvailable: function(callback) {
+                if(!callback) return;
+                
+                if(DetectRTC.screen.chromeMediaSource == 'desktop') callback(true);
+                
+                // ask extension if it is available
+                window.postMessage('are-you-there', '*');
+                
+                setTimeout(function() {
+                    if(DetectRTC.screen.chromeMediaSource == 'screen') {
+                        callback(false);
+                    }
+                    else callback(true);
+                }, 2000);
+            },
+            onMessageCallback: function(data) {
+                log('chrome message', data);
+                
+                // "cancel" button is clicked
+                if(data == 'PermissionDeniedError') {
+                    DetectRTC.screen.chromeMediaSource = 'PermissionDeniedError';
+                    if(screenCallback) return screenCallback('PermissionDeniedError');
+                    else throw new Error('PermissionDeniedError');
+                }
+                
+                // extension notified his presence
+                if(data == 'rtcmulticonnection-extension-loaded') {
+                    DetectRTC.screen.chromeMediaSource = 'desktop';
+                }
+                
+                // extension shared temp sourceId
+                if(data.sourceId) {
+                    DetectRTC.screen.sourceId = data.sourceId;
+                    if(screenCallback) screenCallback( DetectRTC.screen.sourceId );
+                }
+            }
+        };
+        
+        // check if desktop-capture extension installed.
+        if(window.postMessage && isChrome) {
+            DetectRTC.screen.isChromeExtensionAvailable();
+        }
     })();
-
-
+    
+    window.addEventListener('message', function (event) {
+        if (event.origin != window.location.origin) {
+            return;
+        }
+        
+        DetectRTC.screen.onMessageCallback(event.data);
+    });
+    
     function setDefaults(connection) {
         // www.RTCMultiConnection.org/docs/onmessage/
         connection.onmessage = function (e) {
@@ -3976,8 +4122,8 @@
         connection.firebase = 'chat';
 
         // www.RTCMultiConnection.org/docs/onMediaError/
-        connection.onMediaError = function (_error) {
-            error(_error);
+        connection.onMediaError = function (event) {
+            error(event.name, event.message);
         };
 
         // www.RTCMultiConnection.org/docs/stats/

@@ -1,0 +1,30 @@
+{
+	"name" : "Screen Capturing",
+    "short_name": "Screen-Capturing",
+    "author": "Muaz Khan",
+	"version" : "1.0",
+	"manifest_version" : 2,
+    "minimum_chrome_version": "34",
+	"description" : "This chrome extension is developed primary for https://www.webrtc-experiment.com/. It doesn't do anything except capturing content of your screen. It can be accessed from any WebRTC application!",
+    "homepage_url": "https://www.webrtc-experiment.com/",
+	"background": {
+		"scripts": ["background-script.js"],
+		"persistent": false
+	},
+    "content_scripts": [ {
+       "js": [ "content-script.js" ],
+       "matches": ["*://localhost:*/*", "*://www.webrtc-experiment.com/*"]
+    }],
+    "externally_connectable": {
+      "matches": ["*://localhost:*/*", "*://www.webrtc-experiment.com/*"]
+    },
+	"icons" : {
+		"48" : "icon.png"
+	},
+	"permissions": [
+		"desktopCapture"
+	],
+	"web_accessible_resources": [
+		"icon.png"
+	]
+}

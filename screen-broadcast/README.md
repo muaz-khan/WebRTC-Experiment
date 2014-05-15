@@ -2,7 +2,7 @@
 
 Sharing tab using chrome **experimental tabCapture APIs**; broadcasting over many peers.
 
-https://github.com/muaz-khan/WebRTC-Experiment/tree/master/tabCapture
+https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture
 
 =
 
@@ -63,4 +63,4 @@ There is a plugin-free screen sharing experiment too! [Try it Now!](https://goog
 
 #### License
 
-[TabCapture Extension](http://code.google.com/p/muazkh/downloads/list) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[TabCapture Extension](http://code.google.com/p/muazkh/downloads/list) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

@@ -9,8 +9,10 @@ var conference = function(config) {
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
-        participants = 1,
+        participants = 0,
         defaultSocket = { };
+        
+    var sockets = [];
 
     function openDefaultSocket() {
         defaultSocket = config.openSocket({
@@ -45,6 +47,7 @@ var conference = function(config) {
             onmessage: socketResponse,
             onopen: function() {
                 if (isofferer && !peer) initPeer();
+                sockets[sockets.length] = socket;
             }
         };
 
@@ -167,6 +170,16 @@ var conference = function(config) {
                     candidate: JSON.parse(response.candidate.candidate)
                 });
             }
+            
+            if (response.left) {
+                participants--;
+                if (isofferer && config.onNewParticipant) config.onNewParticipant(participants);
+                
+                if (peer && peer.peer) {
+                    peer.peer.close();
+                    peer.peer = null;
+                }
+            }
         }
 
         var invokedOnce = false;
@@ -177,12 +190,47 @@ var conference = function(config) {
             invokedOnce = true;
 
             inner.sdp = JSON.parse(inner.firstPart + inner.secondPart + inner.thirdPart);
-            if (isofferer) {
+            if (isofferer && inner.sdp.type == 'answer') {
                 peer.addAnswerSDP(inner.sdp);
-                if (config.onNewParticipant) config.onNewParticipant(participants++);
+                participants++;
+                if (config.onNewParticipant) config.onNewParticipant(participants);
             } else initPeer(inner.sdp);
         }
     }
+    
+    function leave() {
+        var length = sockets.length;
+        for (var i = 0; i < length; i++) {
+            var socket = sockets[i];
+            if (socket) {
+                socket.send({
+                    left: true,
+                    userToken: self.userToken
+                });
+                delete sockets[i];
+            }
+        }
+
+        // if owner leaves; try to remove his room from all other users side
+        if (isbroadcaster) {
+            defaultSocket.send({
+                left: true,
+                userToken: self.userToken,
+                roomToken: self.roomToken
+            });
+        }
+
+        if (config.attachStream) config.attachStream.stop();
+    }
+    
+    window.addEventListener('beforeunload', function () {
+        leave();
+    }, false);
+
+    window.addEventListener('keyup', function (e) {
+        if (e.keyCode == 116)
+            leave();
+    }, false);
 
     function startBroadcasting() {
         defaultSocket && defaultSocket.send({

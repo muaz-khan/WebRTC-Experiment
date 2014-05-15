@@ -24,7 +24,7 @@
 
 =
 
-##### Important Experiments
+##### Important [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
 
 | Experiment Name        | Short Description           | Source Code | Demo |
 | ------------- |-------------|-------------|-------------|
@@ -32,11 +32,10 @@
 | `Part of Screen Sharing` | Share a region of the screen; not the entire screen! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing) | [Demo](https://www.webrtc-experiment.com/part-of-screen-sharing/) |
 | `Plugin-free Screen Sharing` | Share the entire screen | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) | [Demo](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/) |
 | `One-Way Broadcasting` | Same like radio stations; transmit audio/video/screen streams in one-way direction. Though, it is browser-to-browser streaming! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-broadcasting) | [Demo](https://www.webrtc-experiment.com/webrtc-broadcasting/) |
-| `WebRTC 1-1 Audio/Video/Screen Sharing` | Realtime, pluginfree! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls) | [Demo](https://www.webrtc-experiment.com/calls/) |
 
 =
 
-##### Useful Experiments
+##### Useful [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
 
 | Experiment Name        | Previous Demos           | New Demos |
 | ------------- |-------------|-------------|
@@ -48,7 +47,16 @@
 
 =
 
-##### One-to-Many style of WebRTC Experiments
+##### [Google Chrome Extensions](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions) for [WebRTC](https://www.webrtc-experiment.com/)!
+
+1. https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
+2. https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture
+3. https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/webrtc-extension
+4. https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing
+
+=
+
+##### One-to-Many style of WebRTC [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
 
 | Experiment Name        | Previous Demos           | New Demos |
 | ------------- |-------------|-------------|
@@ -57,12 +65,13 @@
 
 =
 
-##### One-to-One style of WebRTC Experiments
+##### One-to-One style of WebRTC [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
 | **One-to-one WebRTC video chat using WebSocket** | [Demo](https://www.webrtc-experiment.com/websocket/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket) |
 | **One-to-one WebRTC video chat using socket.io** | [Demo](https://www.webrtc-experiment.com/socket.io/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io) |
+| `WebRTC 1-1 Audio/Video/Screen Sharing` | Realtime, pluginfree! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls) | [Demo](https://www.webrtc-experiment.com/calls/) |
 
 =
 
@@ -87,7 +96,7 @@
 | ------------- |-------------|-------------|
 | **Plugin-free screen sharing** / share the entire screen | [Demo](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) | [Demo](https://www.webrtc-experiment.com/screen-sharing/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing) |
 | **Desktop sharing** / using `desktopCapture` APIs | [Demo](https://www.webrtc-experiment.com/desktop-sharing/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing) | -- |
-| **Tab sharing** / using `tabCapture` APIs | [Demo](https://www.webrtc-experiment.com/screen-broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/tabCapture) | -- |
+| **Tab sharing** / using `tabCapture` APIs | [Demo](https://www.webrtc-experiment.com/screen-broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture) | -- |
 
 =
 

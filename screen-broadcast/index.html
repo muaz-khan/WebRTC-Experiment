@@ -9,7 +9,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
         <style>video {width: 100%;}</style>
         <!-- for HTML5 el styling -->
         <script>
@@ -17,14 +17,14 @@
             document.createElement('footer');
         </script>
         
-        <script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.4.min.js"> </script>
+        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.min.js"> </script>
     </head>
 
     <body>
         <article>
             <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; text-decoration: none;right:0;top:0;">↑ WEBRTC EXPERIMENTS</a>
 
-            <h1>WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/tabCapture" target="_blank">Tab Sharing</a> / Broadcasting</h1>
+            <h1>WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture" target="_blank">Tab Sharing</a> / Broadcasting</h1>
              <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
                     <span> &copy; </span>
@@ -114,6 +114,9 @@
                         }));
                         if (config.callback) config.callback(websocket);
                     };
+                    websocket.onerror = function() {
+                        alert('Unable to connect to wss://www.webrtc-experiment.com:8563');
+                    };
                     websocket.onmessage = function (event) {
                         config.onmessage(JSON.parse(event.data));
                     };
@@ -136,7 +139,7 @@
             <br />
 		
             <blockquote>
-                You need to <a href="//www.webrtc-experiment.com/tabCapture/tabCapture-chrome-extension.zip">download extension</a> (in ZIP format) if you want to broadcast your own tab. To join any broadcasted tab; you don't need to download ZIP file.
+                You need to <a href="https://www.webrtc-experiment.com/tabCapture/tabCapture-chrome-extension.zip">download extension</a> (in ZIP format) if you want to broadcast your own tab. To join any broadcasted tab; you don't need to download ZIP file.
             </blockquote>
             <blockquote>
                 <ol>
@@ -182,7 +185,8 @@
                 <button id="send-message" style="font-size: 1em;">Send Message</button>
             </section>
         </article>
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/tabCapture" class="fork-right"></a>
+        
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture" class="fork-left"></a>
         
         <footer>
             <p>
@@ -193,6 +197,6 @@
         </footer>
         
         <!-- commits.js is useless for you! -->
-        <script src="//www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

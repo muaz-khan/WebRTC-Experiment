@@ -1,8 +1,14 @@
 // Last time updated at May 12, 2014, 08:32:23
 //------------------------------------
+
 // issues?
+// -. remote audio recording seems fixed on latest canary. Need to test it.
 // -. audio self-playback (ehco/noise/etc.)
 // -. need to fix: recordRTC.setAdvertisementArray( [ 'data:image-webp', 'data:image-webp', 'data:image-webp' ] );
+// -. it seems that RecordRTC is cutting off the last couple of seconds of recordings
+// -. ffmpeg-asm.js demos should encode in Hight Quality audio and video containers (ref issue #204)
+// -. 14K ogg is not a good output; it should be 128k ogg. VLC is unable to play it; it must!
+
 //------------------------------------
 // Browsers Support::
 // Chrome (all versions) [ audio/video individually ]

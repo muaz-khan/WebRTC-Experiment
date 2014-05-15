@@ -318,6 +318,17 @@ recordRTC.save();
 ##### How to customize Buffer-Size for audio recording?
 
 ```javascript
+// From the spec: This value controls how frequently the audioprocess event is 
+// dispatched and how many sample-frames need to be processed each call. 
+// Lower values for buffer size will result in a lower (better) latency. 
+// Higher values will be necessary to avoid audio breakup and glitches
+// bug: how to minimize wav size?
+// workaround? obviously ffmpeg!
+// The size of the buffer (in sample-frames) which needs to 
+// be processed each time onprocessaudio is called. 
+
+// Legal values are (256, 512, 1024, 2048, 4096, 8192, 16384). 
+
 var options = {
    bufferSize: 16384
 };
@@ -343,6 +354,17 @@ var options = {
 ##### How to customize Sample-Rate for audio recording?
 
 ```javascript
+// The sample rate (in sample-frames per second) at which the 
+// AudioContext handles audio. It is assumed that all AudioNodes 
+// in the context run at this rate. In making this assumption, 
+// sample-rate converters or "varispeed" processors are not supported 
+// in real-time processing.
+// The sampleRate parameter describes the sample-rate of the 
+// linear PCM audio data in the buffer in sample-frames per second. 
+
+// An implementation must support sample-rates in at least 
+// the range 22050 to 96000.
+
 var options = {
    sampleRate: 96000
 };
