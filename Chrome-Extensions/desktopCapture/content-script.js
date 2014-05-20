@@ -1,6 +1,6 @@
 ﻿// this content-script plays role of medium to publish/subscribe messages from webpage to the background script
 
-// this object is used to make sure our extension ins't conflicted with irrelevant messages!
+// this object is used to make sure our extension isn't conflicted with irrelevant messages!
 var rtcmulticonnectionMessages = {
     'are-you-there': true,
     'get-sourceId':  true
@@ -30,7 +30,7 @@ window.addEventListener('message', function (event) {
         return window.postMessage('rtcmulticonnection-extension-loaded', '*');
     }
 
-    // if it is smething that need to be shared with background script
+    // if it is something that need to be shared with background script
     if(event.data == 'get-sourceId') {
         // forward message to background script
         port.postMessage(event.data);

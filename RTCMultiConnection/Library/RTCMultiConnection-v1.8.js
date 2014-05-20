@@ -1,4 +1,4 @@
-// Last time updated at May 15, 2014, 08:32:23
+// Last time updated at May 20, 2014, 08:32:23
 // Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.8.js
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -319,8 +319,8 @@
                 video: {
                     mandatory: {
                         chromeMediaSource: DetectRTC.screen.chromeMediaSource,
-                        maxWidth: window.screen.width > 1280 ? window.screen.width : 1280,
-                        maxHeight: window.screen.height > 720 ? window.screen.height : 720,
+                        maxWidth: 1920,
+                        maxHeight: 1080,
                         minAspectRatio: 1.77
                     },
                     optional: []
@@ -348,6 +348,7 @@
                 if(DetectRTC.screen.chromeMediaSource == 'desktop') {
                     screen_constraints.video.mandatory.chromeMediaSourceId = DetectRTC.screen.sourceId;
                 }
+                else log('You can install screen capturing chrome extension from this link: https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk');
                 
                 var _isFirstSession = isFirstSession;
 
@@ -1831,15 +1832,31 @@
                 userid: connection.userid,
                 extra: connection.extra || {}
             });
+            
+            // remove relevant data to allow him join again
+            connection.remove(userid);
         };
+        
+        function fireOnSessionRemoved() {
+            if(!connection.isInitiator || !connection.autoCloseEntireSession) return;
+            defaultSocket.send({
+                isSessionClosed: true,
+                session: connection.sessionDescription,
+                userid: connection.userid,
+                extra: connection.extra
+            });
+        }
 
         window.addEventListener('beforeunload', function () {
+            fireOnSessionRemoved();
             clearSession();
         }, false);
 
         window.addEventListener('keyup', function (e) {
-            if (e.keyCode == 116)
+            if (e.keyCode == 116) {
+                fireOnSessionRemoved();
                 clearSession();
+            }
         }, false);
 
         function onSignalingReady() {
@@ -1892,6 +1909,10 @@
 
                     onNewSession(response);
                 }
+                
+                if(response.isSessionClosed) {
+                    connection.onSessionClosed(response.session);
+                }
 
                 if (response.newParticipant && !connection.isAcceptNewSession && rtcMultiSession.broadcasterid === response.userid) {
                     onNewParticipant(response);
@@ -1937,7 +1958,7 @@
                 }
 
                 if (connection.isInitiator && response.searchingForRooms) {
-                    defaultSocket.send({
+                    defaultSocket && defaultSocket.send({
                         userid: connection.userid,
                         extra: connection.extra,
                         sessionDescription: connection.sessionDescription,
@@ -1953,7 +1974,7 @@
                     }
                 }
 
-                if (connection.isInitiator && response.askToShareParticipants) {
+                if (connection.isInitiator && response.askToShareParticipants && defaultSocket) {
                     connection.shareParticipants({
                         shareWith: response.userid
                     });
@@ -2665,7 +2686,9 @@
                 this.type = 'offer';
                 this.renegotiate = true;
                 this.session = renegotiate;
-                this.setConstraints();
+                
+                // todo: make sure this doesn't affect renegotiation scenarios
+                //this.setConstraints();
 
                 this.onSessionDescription = callback;
                 this.getStreamInfo();
@@ -2685,7 +2708,9 @@
                 this.type = 'answer';
                 this.renegotiate = true;
                 this.session = session;
-                this.setConstraints();
+                
+                // todo: make sure this doesn't affect renegotiation scenarios
+                // this.setConstraints();
 
                 this.onSessionDescription = callback;
                 this.offerDescription = sdp;
@@ -3788,6 +3813,11 @@
             if (e.mediaElement && e.mediaElement.parentNode) {
                 e.mediaElement.parentNode.removeChild(e.mediaElement);
             }
+        };
+        
+        // todo: need to write documentation link
+        connection.onSessionClosed = function(session) {
+            warn('Session has been closed.', session);
         };
 
         // www.RTCMultiConnection.org/docs/onmute/

@@ -13,7 +13,7 @@ It isn't totally pluginfree (unfortunately)! You'll be asked either to enable co
 ### Prerequisites
 
 <ol>
-    <li>Install chrome extension. Google Apps Store link will be given shortly. <a href="https://www.webrtc-experiment.com/store/capture-screen/">Temp Link</a></li>
+    <li><a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">Install chrome extension</a>.</li>
     <li>
         Otherwise make sure you are running the chrome with command line flag "<strong><a href="http://peter.sh/experiments/chromium-command-line-switches/#enable-usermedia-screen-capturing">--enable-usermedia-screen-capturing</a></strong>" e.g. on Windows "<strong>Chrome.exe --enable-usermedia-screen-capturing</strong>"
         <div style="text-align:center;">
@@ -27,7 +27,7 @@ It isn't totally pluginfree (unfortunately)! You'll be asked either to enable co
 ### Advantages
 
 <ol>
-    <li>Share full screen with one or more users in <strong>HD</strong> format!</li>
+    <li>Share full screen with one or more users in <strong>HD (1080p)</strong> format!</li>
     <li>Share screen from chrome and view over all WebRTC compatible browsers/plugins.</li>
     <li>
         You can open private rooms and it will be really "totally" private!<br /><br />
@@ -58,8 +58,8 @@ It isn't totally pluginfree (unfortunately)! You'll be asked either to enable co
 var screen_constraints = {
     mandatory: {
         chromeMediaSource: 'screen',
-        maxWidth: window.screen.width > 1280 ? window.screen.width : 1280,
-        maxHeight: window.screen.height > 720 ? window.screen.height : 720,
+        maxWidth: 1920,
+        maxHeight: 1080,
         minAspectRatio: 1.77
     },
     optional: []
@@ -80,14 +80,24 @@ Simply follow these steps:
 
 ##### How to capture content of screen from chrome extension?
 
-First step you should do is download [`Capture-Screen.crx`](https://www.webrtc-experiment.com/store/capture-screen/Capture-Screen.crx) and [`Capture-Screen.pem`](https://www.webrtc-experiment.com/store/capture-screen/Capture-Screen.pem) from [this link](https://www.webrtc-experiment.com/store/capture-screen/).
+First step you should do is [download Google Chrome Extension](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture). Second step you should do is [open manifest.json](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Chrome-Extensions/desktopCapture/manifest.json) and and scroll to [line 16](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Chrome-Extensions/desktopCapture/manifest.json#L16) where you can insert your webpage domain:
 
-Remember: You must drag&drop `crx` file over `chrome://extensions/` page to install chrome extension.
+```
+{
+    "content_scripts": [ {
+       "js": [ "content-script.js" ],
+       "matches": ["*://localhost:*/*", "*://www.your-domain.com/*"]
+    }],
+    "externally_connectable": {
+      "matches": ["*://localhost:*/*", "*://www.your-domain.com/*"]
+    }
+}
+```
 
 Second Step you should do is inject following DetectRTC code in your WebRTC application:
 
 ```javascript
-// todo: need to check exact chrome browser because opera also uses chromium framework
+// todo: need to check exact chrome browser because opera/node-webkit also uses chromium framework
 var isChrome = !!navigator.webkitGetUserMedia;
 
 // DetectRTC.js - github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
@@ -156,7 +166,7 @@ window.addEventListener('message', function (event) {
 });
 ```
 
-Now, you can capture content of any opened application using follownig code snippet:
+Now, you can capture content of any opened application using following code snippet:
 
 ```javascript
 function captureUserMedia(onStreamApproved) {
@@ -165,8 +175,8 @@ function captureUserMedia(onStreamApproved) {
     var screen_constraints = {
         mandatory: {
             chromeMediaSource: DetectRTC.screen.chromeMediaSource,
-            maxWidth: window.screen.width > 1280 ? window.screen.width : 1280,
-            maxHeight: window.screen.height > 720 ? window.screen.height : 720,
+            maxWidth: 1920,
+            maxHeight: 1080,
             minAspectRatio: 1.77
         },
         optional: []
@@ -201,9 +211,20 @@ function captureUserMedia(onStreamApproved) {
 
     // now invoking native getUserMedia API
     navigator.webkitGetUserMedia(session, onStreamApproved, OnStreamDenied);
-
 });
 ```
+
+Source code of the above experiment is available here:
+
+* https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
+
+You can also install chrome extension from Google App Store:
+
+* https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk
+
+Remember, [the one](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) you install from Google App Store is useful only within https://www.webrtc-experiment.com/. You can test following WebRTC experiment after installations:
+
+* https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/
 
 =
 
@@ -220,6 +241,10 @@ Current experiment is using chrome screen sharing APIs (media/constraints) which
 =
 
 Test it on HTTPS. Because, screen capturing (currently) only works on SSL domains.
+
+Otherwise enable `--allow-http-screen-capture` command-line flag:
+
+* http://kurtextrem.github.io/ChromiumFlags/#allow-http-screen-capture
 
 Chrome denies request automatically in the following cases:
 
@@ -247,9 +272,7 @@ if (!screen_capture_enabled ||
 	}
 ```
 
-Personally I don’t know why they deny non-SSL requests. Maybe they’re using iframes in sandbox mode or something else that runs only on HTTPS.
-
-Browsers who don't understand {chromeMediaSource: 'screen'} constraint will simply get video like chrome stable or Firefox.
+Browsers that don't understand `{chromeMediaSource: 'screen'}` constraint will simply get video like chrome stable or Firefox.
 
 =
 

@@ -1,27 +1,38 @@
-## [Google Chrome Extension to capture content of screen](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture) / [Demo](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/)
+<h1>
+    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture">
+        Google Chrome Extension
+        <br />to capture
+        <br />content of screen!
+    </a>
+</h2>
 
-Use your browser to share content of screen in High-Quality (HD) format with one or more users!
+Use your browser to share content of screen in High-Quality (HD-1080p) format with one or more users!
 
-Extension files are available here:
+You can install extension directly from Google App Store:
 
-* https://www.webrtc-experiment.com/store/capture-screen/
+* https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk
 
-=
+You can test following demo after installation:
 
-### Prerequisites
-
-Install chrome extension. Google Apps Store link will be given shortly. <a href="https://www.webrtc-experiment.com/store/capture-screen/">Temp Link</a>
+* https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/
 
 =
 
 ##### How to capture content of screen from chrome extension?
 
-Following any of the following steps:
+First step you should do is [download Google Chrome Extension](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture). Second step you should do is [open manifest.json](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Chrome-Extensions/desktopCapture/manifest.json) and and scroll to [line 16](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Chrome-Extensions/desktopCapture/manifest.json#L16) where you can insert your webpage domain:
 
-1. Download [`Capture-Screen.crx`](https://www.webrtc-experiment.com/store/capture-screen/Capture-Screen.crx) and [`Capture-Screen.pem`](https://www.webrtc-experiment.com/store/capture-screen/Capture-Screen.pem) from [this link](https://www.webrtc-experiment.com/store/capture-screen/).
-2. Otherwise, open `chrome://extensions/`; enable "Developer Mode"; click "Load unpacked extension..." button and select current directory.
-
-Remember: You must drag&drop `crx` file over `chrome://extensions/` page to install chrome extension.
+```
+{
+    "content_scripts": [ {
+       "js": [ "content-script.js" ],
+       "matches": ["*://localhost:*/*", "*://www.your-domain.com/*"]
+    }],
+    "externally_connectable": {
+      "matches": ["*://localhost:*/*", "*://www.your-domain.com/*"]
+    }
+}
+```
 
 Second Step you should do is inject following DetectRTC code in your WebRTC application:
 
@@ -95,7 +106,7 @@ window.addEventListener('message', function (event) {
 });
 ```
 
-Now, you can capture content of any opened application using follownig code snippet:
+Now, you can capture content of any opened application using following code snippet:
 
 ```javascript
 function captureUserMedia(onStreamApproved) {
@@ -104,8 +115,8 @@ function captureUserMedia(onStreamApproved) {
     var screen_constraints = {
         mandatory: {
             chromeMediaSource: DetectRTC.screen.chromeMediaSource,
-            maxWidth: window.screen.width > 1280 ? window.screen.width : 1280,
-            maxHeight: window.screen.height > 720 ? window.screen.height : 720,
+            maxWidth: 1920,
+            maxHeight: 1080,
             minAspectRatio: 1.77
         },
         optional: []
@@ -146,7 +157,19 @@ function captureUserMedia(onStreamApproved) {
 
 =
 
-#### Browser Support
+## How to test on HTTP?
+
+Enable a command-line switch on chrome canary:
+
+```
+--allow-http-screen-capture
+```
+
+Ref: http://kurtextrem.github.io/ChromiumFlags/#allow-http-screen-capture
+
+=
+
+## Browser Support
 
 [Capture Screen Extension](https://www.webrtc-experiment.com/store/capture-screen/) works fine on following web-browsers:
 

@@ -70,6 +70,8 @@
             document.createElement('footer');
         </script>
         
+        <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk">
+        
         <!-- scripts used for screen-sharing -->
         <script src='https://www.webrtc-experiment.com/firebase.js'> </script>
         <script src="https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/conference.js"> </script>
@@ -104,14 +106,16 @@
             </header>
 
             <div class="github-stargazers"></div>
+            
+            <h2 id="number-of-participants" style="display: block;text-align: center;border:0;margin-bottom:0;">Its a full-HD (1080p) screen sharing application using <a href="https://www.webrtc-experiment.com/">WebRTC</a>!</h2>
         
             <!-- just copy this <section> and next script -->
             <section class="experiment">                
-                <section id="number-of-participants">
+                <section>
                     <span>
                         Private ?? <a href="/Pluginfree-Screen-Sharing/" target="_blank" title="Open this link for private screen sharing!"><code><strong id="unique-token">#123456789</strong></code></a>
                     </span>
-                    <input type="text" id="room-name">
+                    <input type="text" id="room-name" placeholder="Your Name">
                     <button id="share-screen" class="setup">Share Your Screen</button>
                 </section>
                 
@@ -129,7 +133,7 @@
 
                 var config = {
                     openSocket: function(config) {
-                        var channel = config.channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
+                        var channel = config.channel || 'screen-capturing-' + location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
                         var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
                         socket.channel = channel;
                         socket.on("child_added", function(data) {
@@ -173,28 +177,33 @@
                     },
                     onNewParticipant: function(numberOfParticipants) {
                         document.title = numberOfParticipants + ' users are viewing your screen!';
-                        var element = document.querySelector('h1') || document.getElementById('number-of-participants');
+                        var element = document.getElementById('number-of-participants');
                         if (element) {
                             element.innerHTML = numberOfParticipants + ' users are viewing your screen!';
                         }
                     }
                 };
 
-                function captureUserMedia(callback) {
-                    var video = document.createElement('video');
-                    video.setAttribute('autoplay', true);
-                    video.setAttribute('controls', true);
-                    videosContainer.insertBefore(video, videosContainer.firstChild);
-
+                function captureUserMedia(callback, extensionAvailable) {
+                    console.log('captureUserMedia chromeMediaSource', DetectRTC.screen.chromeMediaSource);
+                    
                     var screen_constraints = {
                         mandatory: {
                             chromeMediaSource: DetectRTC.screen.chromeMediaSource,
-                            maxWidth: window.screen.width > 1280 ? window.screen.width : 1280,
-                            maxHeight: window.screen.height > 720 ? window.screen.height : 720,
+                            maxWidth: 1920,
+                            maxHeight: 1080,
                             minAspectRatio: 1.77
                         },
                         optional: []
                     };
+
+                    // try to check if extension is installed.
+                    if(typeof extensionAvailable == 'undefined' && DetectRTC.screen.chromeMediaSource != 'desktop') {
+                        DetectRTC.screen.isChromeExtensionAvailable(function(available) {
+                            captureUserMedia(callback, available);
+                        });
+                        return;
+                    }
                     
                     if(DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
                         DetectRTC.screen.getSourceId(function(error) {
@@ -215,6 +224,13 @@
                         audio: false,
                         video: screen_constraints
                     };
+                    
+                    console.log( JSON.stringify( constraints , null, '\t') );
+                    
+                    var video = document.createElement('video');
+                    video.setAttribute('autoplay', true);
+                    video.setAttribute('controls', true);
+                    videosContainer.insertBefore(video, videosContainer.firstChild);
                     
                     getUserMedia({
                         video: video,
@@ -274,7 +290,7 @@
                 // todo: need to check exact chrome browser because opera also uses chromium framework
                 var isChrome = !!navigator.webkitGetUserMedia;
                 
-                // DetectRTC.js - github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
+                // DetectRTC.js - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
                 // Below code is taken from RTCMultiConnection-v1.8.js (http://www.rtcmulticonnection.org/changes-log/#v1.8)
                 var DetectRTC = {};
 
@@ -370,6 +386,9 @@
                             
                             // extension notified his presence
                             if(data == 'rtcmulticonnection-extension-loaded') {
+                                if(document.getElementById('install-button')) {
+                                    document.getElementById('install-button').parentNode.innerHTML = '<strong>Great!</strong> <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Google chrome extension</a> is installed.';
+                                }
                                 DetectRTC.screen.chromeMediaSource = 'desktop';
                             }
                             
@@ -394,12 +413,19 @@
                     
                     DetectRTC.screen.onMessageCallback(event.data);
                 });
+                
+                console.log('current chromeMediaSource', DetectRTC.screen.chromeMediaSource);
             </script>
-            
+
             <section class="experiment">
                 <h2>Prerequisites</h2>
                 <ol>
-                    <li>Install chrome extension. Google Apps Store link will be given shortly. <a href="https://www.webrtc-experiment.com/store/capture-screen/">Temp Link</a></li>
+                    <li>
+                        <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Install chrome extension</a>.
+                        <button onclick="!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk', function() {location.reload();})" id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
+                            <img src="https://www.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
+                        </button>
+                    </li>
                     <li>
                         Otherwise make sure you are running the chrome with command line flag "<strong><a href="http://peter.sh/experiments/chromium-command-line-switches/#enable-usermedia-screen-capturing">--enable-usermedia-screen-capturing</a></strong>" e.g. on Windows "<strong>Chrome.exe --enable-usermedia-screen-capturing</strong>"
                         <div style="text-align:center;">
@@ -433,19 +459,6 @@
                 </ol>
             </section>
         
-            <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-                <div id="github-commits"></div>
-            </section>
-        
-            <section class="experiment">
-                <h2 class="header" id="feedback">Feedback</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
-            </section>
-            
             <section class="experiment">
                 <h2 class="header">Why Screen Sharing Fails?</h2>
                 <ol>
@@ -459,15 +472,15 @@ mandatory: {chromeMediaSource: 'desktop'}
 </pre>
                     </li>
                     <li>You requested audio-stream alongwith '<strong>chromeMediaSource</strong>' – it is not permitted.</li>
-                    <li>You're not testing it on SSL origin (HTTPS domain).</li>
+                    <li>You're not testing it on SSL origin (HTTPS domain) otherwise you didn't enable <code><a href="http://kurtextrem.github.io/ChromiumFlags/#allow-http-screen-capture">--allow-http-screen-capture</a></code> command-line flag on canary.</li>
                     <li>You may used media constraints like min/max frameRate; bandwidth or min/max width/height like 2000*2000 that is "currently" not allowed.</li>
                 </ol>
-				
+                
                 <p>
                     <strong><code>mandatory: {chromeMediaSource: 'tab'}</code></strong> is useful only in chrome extensions. See <a href="https://www.webrtc-experiment.com/screen-broadcast/">Tab sharing using tabCapture APIs</a>.
                 </p>
             </section>
-			
+            
             <section class="experiment">
                 <h2 class="header">Suggestions</h2>
                 <ol>
@@ -475,6 +488,19 @@ mandatory: {chromeMediaSource: 'desktop'}
                         <a href="http://www.RTCMultiConnection.org/" target="_blank">RTCMultiConnection.js</a> can be used for HD screen sharing; HD audio/video streaming; fastest file sharing; and writing entire skype-like app in the browser!
                     </li>
                 </ol>
+            </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
             
         </article>
