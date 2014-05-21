@@ -21,8 +21,10 @@
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
+        
         <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
         <script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
+        
         <style>
             html { background-color: #f7f7f7; }
 
@@ -52,7 +54,12 @@
         <h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a> <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio">over Socket.io</a></h1>
         <p>
             <video id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></video> 
-        </p><hr />
+        </p>
+        
+        <div style="display:none;">
+            <label id="percentage">Ffmpeg Progress 0%</label>
+            <progress id="progress-bar" value=0 max=100></progress><br />
+        </div>
 
         <div>
             <button id="start-recording" disabled>Start Recording</button>
@@ -60,6 +67,14 @@
         </div>
 		
         <script>
+            // you can set it equal to "false" to record only audio
+            var recordVideoSeparately = !!navigator.webkitGetUserMedia;
+            
+            if(!!navigator.webkitGetUserMedia && !recordVideoSeparately) {
+                var cameraPreview  = document.getElementById('camera-preview');
+                cameraPreview.parentNode.innerHTML = '<audio id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></audio> ';
+            }
+            
             var socketio = io.connect('http://localhost:8888/');
             
             socketio.on('connect', function() {
@@ -69,6 +84,9 @@
             var startRecording = document.getElementById('start-recording');
             var stopRecording  = document.getElementById('stop-recording');
             var cameraPreview  = document.getElementById('camera-preview');
+            
+            var progressBar = document.querySelector('#progress-bar');
+            var percentage = document.querySelector('#percentage');
 
             var recordAudio, recordVideo;
             startRecording.onclick = function() {
@@ -77,14 +95,24 @@
                         audio: true,
                         video: true
                     }, function(stream) {
-                        cameraPreview.src = window.URL.createObjectURL(stream);
-                        cameraPreview.play();
+                        recordAudio = RecordRTC(stream, {
+                            onAudioProcessStarted: function() {
+                                recordVideoSeparately && recordVideo.startRecording();
+                                
+                                cameraPreview.src = window.URL.createObjectURL(stream);
+                                cameraPreview.play();
+                            }
+                        });
+                        
+                        recordVideo = RecordRTC(stream, {
+                            type: 'video'
+                        });
 
-                        mRecordRTC.addStream(stream);
-                        mRecordRTC.startRecording();
-
+                        recordAudio.startRecording();
 
                         stopRecording.disabled = false;
+                    }, function(error) {
+                        alert( JSON.stringify( error ) );
                     });
             };
 
@@ -92,49 +120,90 @@
                 startRecording.disabled = false;
                 stopRecording.disabled = true;
 
-                mRecordRTC.stopRecording();
-
                 var fileName = Math.round(Math.random() * 99999999) + 99999999;
 
-                mRecordRTC.getDataURL(function(dataURL) {
-                    var files = {
-                        audio: {
-                            name: fileName + '.wav',
-                            type: 'audio/wav',
-                            dataURL: dataURL.audio
-                        },
-                        video: {
-                            name: fileName + '.webm',
-                            type: 'video/webm',
-                            dataURL: dataURL.video
-                        }
-                    };
+                // stop audio recorder
+                recordVideoSeparately && recordAudio.stopRecording(function() {
+                    // stop video recorder
+                    recordVideo.stopRecording(function() {
+                    
+                        // get audio data-URL
+                        recordAudio.getDataURL(function(audioDataURL) {
+                        
+                            // get video data-URL
+                            recordVideo.getDataURL(function(videoDataURL) {
+                                var files = {
+                                    audio: {
+                                        name: fileName + '.wav',
+                                        type: recordAudio.getBlob().type || 'audio/wav',
+                                        dataURL: audioDataURL
+                                    },
+                                    video: {
+                                        name: fileName + '.webm',
+                                        type: recordVideo.getBlob().type || 'video/webm',
+                                        dataURL: videoDataURL
+                                    }
+                                };
 
-                    socketio.emit('message', files);
+                                socketio.emit('message', files);
+                            });
+                            
+                        });
+                        
+                        cameraPreview.src = '';
+                        cameraPreview.poster = 'ajax-loader.gif';
+                    });
+                    
+                });
+                
+                // if firefox or if you want to record only audio
+                // stop audio recorder
+                !recordVideoSeparately && recordAudio.stopRecording(function() {
+                    // get audio data-URL
+                    recordAudio.getDataURL(function(audioDataURL) {
+                        var files = {
+                            audio: {
+                                name: fileName + '.wav',
+                                type: recordAudio.getBlob().type || 'audio/wav',
+                                dataURL: audioDataURL
+                            }
+                        };
 
+                        socketio.emit('message', files);
+                     });
+                        
                     cameraPreview.src = '';
                     cameraPreview.poster = 'ajax-loader.gif';
-                });
+                 });
             };
 
             socketio.on('merged', function(fileName) {
-                cameraPreview.src = location.href + '/uploads/' + fileName;
+                var href = (location.href.split('/').pop().length 
+                        ? location.href.replace( location.href.split('/').pop(), '' ) 
+                        : location.href
+                    );
+                    
+                href = href + '/uploads/' + fileName;
+                    
+                console.log('got file ' + href);
+                
+                cameraPreview.src = href
                 cameraPreview.play();
             });
-
-
-            var mRecordRTC = new MRecordRTC();
-
-            mRecordRTC.mediaType = {
-                audio: true,
-                video: true
-            };
-
-            mRecordRTC.bufferSize = 16384;
-            mRecordRTC.canvas = {
-                width: innerWidth,
-                height: innerHeight
-            };
+            
+            socketio.on('ffmpeg-output', function(result) {
+                if(parseInt(result) >= 100) {
+                    progressBar.parentNode.style.display = 'none';
+                    return;
+                }
+                progressBar.parentNode.style.display = 'block';
+                progressBar.value = result;
+                percentage.innerHTML = 'Ffmpeg Progress ' + result + "%";
+            });
+            
+            socketio.on('ffmpeg-error', function(error) {
+                alert(error);
+            });
 
         </script>
 		

@@ -38,6 +38,14 @@
             }
 
             .image-parent img { width: 100%; }
+            
+            .experiment h2 {
+                color: rgb(26, 86, 214);
+            }
+            
+            li h2 {
+                color: rgb(223, 32, 101)!important;
+            }
         </style>
         <!-- for HTML5 el styling -->
         <script>
@@ -76,14 +84,13 @@
             </header>
             
             <div class="github-stargazers"></div>
-				
-            <ol>
-                <li>
-                    This document is aimed to explain TURN server installation steps for different operating systems.
-                </li>
-			
-                <li>
-                    <h2>TURN installation on CentOS</h2>
+            
+            <blockquote class="inline">
+                This document is aimed to explain TURN server installation steps for different operating systems.
+            </blockquote>
+            
+            <section class="experiment">
+                <h2>TURN installation on CentOS</h2>
                     <ol>
                         <li>
                             <h2>First Step: Download & Install Prerequisite for CentOS</h2>
@@ -100,15 +107,18 @@ wget https://github.com/downloads/libevent/libevent/libevent-2.0.21-stable.tar.g
 tar xvfz libevent-2.0.21-stable.tar.gz
 cd libevent-2.0.21-stable && ./configure
 make && make install && cd ..
+
+# you can use "sudo" if permission-denied kind of erros occurred.
+# sudo make && sudo make install && cd ..
 </pre>
                         </li>
 					
                         <li>
                             <h2>Third Step: <a href="https://code.google.com/p/rfc5766-turn-server/wiki/newDownloadsSite" target="_blank">Download & Install</a> TURN modules</h2>
                             <pre class="sh_javascript">
-wget http://turnserver.open-sys.org/downloads/v3.2.2.911/turnserver-3.2.2.911.tar.gz
-tar -xvzf turnserver-3.2.2.911.tar.gz
-cd turnserver-3.2.2.911
+wget http://turnserver.open-sys.org/downloads/v3.2.3.8/turnserver-3.2.3.8.tar.gz
+tar -xvzf turnserver-3.2.3.8.tar.gz
+cd turnserver-3.2.3.8
 make && make install
 </pre>
                         </li>
@@ -126,7 +136,7 @@ user=username:password
 listening-port=2222
 listening-ip=127.1.1
 
-# Now press "inset" key; then "Esc" key
+# Now press "insert" key; then "Esc" key
 # Then type:
 :wq         #-- this command will save your settings and close turnserver.conf file
 
@@ -221,13 +231,11 @@ nohup turnserver -v -r  ip:port -a -b turnuserdb.conf -c turnserver.conf -u turn
                             </ol>
                         </li>
                     </ol>
-                </li>
-                <li>
-                    Note: Following section is taken from <a href="http://www.slideshare.net/amiteshawa/web-rtc-media-stra" target="_blank">slideshare</a>; and its credit goes to @amiteshawa!
-                
-                    <br />
-                
-                    <h2>TURN installation on Windows</h2>
+            </section>
+            
+            <section class="experiment">
+                <h2>TURN installation on Windows</h2><br />
+                    <small>Note: Following section is taken from <a href="http://www.slideshare.net/amiteshawa/web-rtc-media-stra" target="_blank">slideshare</a>; and its credit goes to @amiteshawa!</small>
                     <ol>
                         <li>
                             Install "Cygwin" application
@@ -279,16 +287,67 @@ cp /turnserver-1.8.4.0/examples/etc/turnserver.conf /usr/local/etc/
                         </li>
 					
                     </ol>
-                </li>
-                <li>
-                    <h2>TURN installation on Ubuntu</h2>
+            </section>
+            
+            <section class="experiment">
+                <h2>TURN installation on Ubuntu</h2>
                     <pre class="sh_javascript">
 // Please follow this link:
 https://groups.google.com/d/msg/easyrtc/ypjJ5Yu3wZM/u5Lq6VNfabcJ
 </pre>
-                </li>
+            </section>
+            
+            <section class="experiment">
+                <h2>reTurnServer installation on Ubuntu</h2><br />
+                <small>Below words are taken from <a href="http://www.rtcquickstart.org/ICE-STUN-TURN-server-installation" target="_blank">this link</a>.</small>
+                <blockquote class="inline">
+                    "<a href="http://www.resiprocate.org/ReTurn_Overview" target="_blank">reTurn</a> is a highly efficient C++ open-source STUN/TURN server and client library.  It is an implementation of the latest STUN/TURN RFCs:  <a rel="nofollow" class="external text" href="http://tools.ietf.org/html/rfc5389">RFC5389</a> (STUN), and <a rel="nofollow" class="external text" href="http://tools.ietf.org/html/rfc5766">RFC5766</a> (TURN)."
+                </blockquote>
+                <ol>
+                    <li>
+                        <h2>First Step: Install reTurnServer:</h2>
+                        <pre class="sh_javascript">
+# Install the package using the apt-get utility on Debian/Ubuntu:
+apt-get install resiprocate-turn-server
 
-            </ol>
+# or using yum on Fedora:
+yum install resiprocate-turn-server
+</pre>
+                    </li>
+                    
+                    <li>
+                        <h2>Second Step: Edit <code>reTurnServer.config</code> file:</h2>
+                        <pre class="sh_javascript">
+# you can use "vi" or "vim"
+vim /etc/reTurnServer.config
+
+# your IP addresses go here:
+TurnAddress = your-first-ip
+AltStunAddress = your-second-ip
+
+# your domain goes here:
+AuthenticationRealm = your-domain
+
+# your desired password goes here:
+LongTermAuthPassword = your-password
+</pre>
+                    </li>
+                    
+                    <li>
+                        <h2>Last Step: ReStart reTurnServer:</h2>
+                        <pre class="sh_javascript">
+service resiprocate-turn-server restart
+</pre>
+                    </li>
+                    
+                    <li>
+                        You can check ports and addresses reTurnServer is listenning on:
+                        <pre class="sh_javascript">
+netstat -nlp | grep reTurnServer
+</pre>
+                    </li>
+                </ol>
+            </section>
 
             <br />
             <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
@@ -297,6 +356,11 @@ https://groups.google.com/d/msg/easyrtc/ypjJ5Yu3wZM/u5Lq6VNfabcJ
                     <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Feel free to ask any question regarding WebRTC!"></textarea>
                 </div>
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left: 1em;">You can include your email for private conversation!</small>
+            </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
             </section>
         </article>
     

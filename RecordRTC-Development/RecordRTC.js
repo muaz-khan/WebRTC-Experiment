@@ -1,8 +1,15 @@
-// Last time updated at May 12, 2014, 08:32:23
+// Last time updated at May 21, 2014, 08:32:23
 //------------------------------------
+
 // issues?
+// -. audio recording while passing multi-tracks media stream for Firefox.
+// -. remote audio recording seems fixed on latest canary. Need to test it.
 // -. audio self-playback (ehco/noise/etc.)
 // -. need to fix: recordRTC.setAdvertisementArray( [ 'data:image-webp', 'data:image-webp', 'data:image-webp' ] );
+// -. it seems that RecordRTC is cutting off the last couple of seconds of recordings
+// -. ffmpeg-asm.js demos should encode in Hight Quality audio and video containers (ref issue #204)
+// -. 14K ogg is not a good output; it should be 128k ogg. VLC is unable to play it; it must!
+
 //------------------------------------
 // Browsers Support::
 // Chrome (all versions) [ audio/video individually ]
@@ -104,7 +111,7 @@ function RecordRTC(mediaStream, config) {
         _getDataURL();
 
         function _getDataURL() {
-            if (!!window.Worker00) {
+            if (!!window.Worker) {
                 var webWorker = processInWebWorker(function readFile(_blob) {
                     postMessage(new FileReaderSync().readAsDataURL(_blob));
                 });
@@ -355,7 +362,7 @@ function MRecordRTC(mediaStream) {
         });
 
         function getDataURL(blob, callback00) {
-            if (!!window.Worker00) {
+            if (!!window.Worker) {
                 var webWorker = processInWebWorker(function readFile(_blob) {
                     postMessage(new FileReaderSync().readAsDataURL(_blob));
                 });
@@ -513,6 +520,8 @@ function MediaStreamRecorder(mediaStream) {
         // Start recording. If timeSlice has been provided, mediaRecorder will
         // raise a dataavailable event containing the Blob of collected data on every timeSlice milliseconds.
         // If timeSlice isn't provided, UA should call the RequestData to obtain the Blob data, also set the mTimeSlice to zero.
+        
+        if (self.onAudioProcessStarted) self.onAudioProcessStarted();
     };
 
     this.stop = function (callback) {
@@ -1453,7 +1462,3 @@ function dropFirstFrame(arr) {
 if (location.href.indexOf('file:') == 0) {
     console.error('Please load this HTML file on HTTP or HTTPS.');
 }
-
-// temporarily disabling "FileReaderSync"
-// which is used to read DataURLs in web-worker context
-window.Worker00 = false;

@@ -1,4 +1,4 @@
-// Last time updated at April 14, 2014, 20:32:23
+// Last time updated at May 21, 2014, 08:32:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -460,7 +460,7 @@
                 closeSocket: true
             });
 
-            defaultSocket.send({
+            defaultSocket && defaultSocket.send({
                 participant: true,
                 userToken: self.userToken,
                 joinUser: channel,

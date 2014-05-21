@@ -1,32 +1,70 @@
-// Last time updated at 29 January 2014, 05:46:23
+// Last time updated at May 21, 2014, 09:21:23
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
 // Experiments    - github.com/muaz-khan/WebRTC-Experiment
 // RecordRTC      - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
 
-// RecordRTC over 
-// Socket.io      - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio
+// RecordRTC over Socket.io - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio
+var http = require("http"),
+    url = require("url"),
+    path = require("path"),
+    fs = require("fs"),
+    port = process.argv[2] || 8888;
 
-var fs = require('fs'),
-    sys = require('sys'),
+var app = http.createServer(function (request, response) {
+
+    var uri = url.parse(request.url).pathname,
+        filename = path.join(process.cwd(), uri);
+
+    path.exists(filename, function (exists) {
+        if (!exists) {
+            response.writeHead(404, {
+                "Content-Type": "text/plain"
+            });
+            response.write('404 Not Found: ' + filename + '\n');
+            response.end();
+            return;
+        }
+
+        if (fs.statSync(filename).isDirectory()) filename += '/index.html';
+
+        fs.readFile(filename, 'binary', function (err, file) {
+            if (err) {
+                response.writeHead(500, {
+                    "Content-Type": "text/plain"
+                });
+                response.write(err + "\n");
+                response.end();
+                return;
+            }
+
+            response.writeHead(200);
+            response.write(file, 'binary');
+            response.end();
+        });
+    });
+}).listen(parseInt(port, 10));
+
+var sys = require('sys'),
     exec = require('child_process').exec;
 
-var app = require('http').createServer(handler),
-    io = require('socket.io').listen(app);
+var io = require('socket.io').listen(app);
 
-function handler(req, res) {
-    res.writeHead(200);
-    res.end("welcome sir!");
-}
+io.sockets.on('connection', function (socket) {
+    socket.on('message', function (data) {
+        ffmpeg_finished = false;
 
-io.sockets.on('connection', function(socket) {
-    socket.on('message', function(data) {
-        console.log('writing to disk');
         writeToDisk(data.audio.dataURL, data.audio.name);
-        writeToDisk(data.video.dataURL, data.video.name);
-
-        merge(socket, data.audio.name, data.video.name);
+        
+        // if it is chrome
+        if(data.video) {
+            writeToDisk(data.video.dataURL, data.video.name);
+            merge(socket, data.audio.name, data.video.name);
+        }
+        
+        // if it is firefox or if user is recording only audio
+        else socket.emit('merged', data.audio.name);
     });
 });
 
@@ -53,14 +91,18 @@ function writeToDisk(dataURL, fileName) {
 
 function merge(socket, audioName, videoName) {
     // detect the current operating system
-    var isWin = !!process.platform.match( /^win/ );
+    var isWin = !!process.platform.match(/^win/);
 
     if (isWin) {
         ifWin(socket, audioName, videoName);
     } else {
         ifMac(socket, audioName, videoName);
     }
+    
+    readFfmpeOutput(audioName, socket);
 }
+
+var ffmpeg_finished = false;
 
 function ifWin(socket, audioName, videoName) {
     // following command tries to merge wav/webm files using ffmpeg
@@ -72,13 +114,15 @@ function ifWin(socket, audioName, videoName) {
     // if a "directory" has space in its name; below command will fail
     // e.g. "c:\\dir name\\uploads" will fail.
     // it must be like this: "c:\\dir-name\\uploads"
-    var command = merger + ', ' + videoFile + " " + audioFile + " " + mergedFile + '';
-    var cmd = exec(command, function(error) {
+    var command = merger + ', ' + videoFile + " " + audioFile + " " + mergedFile + ' ' + audioName.split('.')[0] + '';
+
+    var cmd = exec(command, function (error) {
         if (error) {
             console.log(error.stack);
             console.log('Error code: ' + error.code);
             console.log('Signal received: ' + error.signal);
         } else {
+            ffmpeg_finished = true;
             socket.emit('merged', audioName.split('.')[0] + '-merged.webm');
 
             // removing audio/video files
@@ -86,7 +130,7 @@ function ifWin(socket, audioName, videoName) {
             fs.unlink(videoFile);
 
             // auto delete file after 1-minute
-            setTimeout(function() {
+            setTimeout(function () {
                 fs.unlink(mergedFile);
             }, 60 * 1000);
         }
@@ -102,15 +146,16 @@ function ifMac(response, audioName, videoName) {
         exec = require('child_process').exec;
     //child_process = require('child_process');
 
-    var command = "ffmpeg -i " + videoFile + " -i " + audioFile + " -map 0:0 -map 1:0 " + mergedFile;
+    var command = "ffmpeg -i " + videoFile + " -i " + audioFile + " -map 0:0 -map 1:0 " + mergedFile + '  1> ffmpeg-output/%4.txt 2>&1';
 
-    var child = exec(command, function(error) {
+    var child = exec(command, function (error) {
         if (error) {
             console.log(error.stack);
             console.log('Error code: ' + error.code);
             console.log('Signal received: ' + error.signal);
 
         } else {
+            ffmpeg_finished = true;
             socket.emit('merged', audioName.split('.')[0] + '-merged.webm');
 
             // removing audio/video files
@@ -118,10 +163,47 @@ function ifMac(response, audioName, videoName) {
             fs.unlink(videoFile);
 
             // auto delete file after 1-minute
-            setTimeout(function() {
+            setTimeout(function () {
                 fs.unlink(mergedFile);
             }, 60 * 1000);
-
         }
+    });
+}
+
+function readFfmpeOutput(fName, socket) {
+    if (ffmpeg_finished) return;
+    fs.readFile('ffmpeg-output/' + fName.split('.')[0] + '.txt', 'utf8', function (err, content) {
+        if (!err && content.match(/Duration: (.*?), start:/)) {
+            var duration = 0,
+                time = 0,
+                progress = 0;
+            var resArr = [];
+            var matches = (content) ? content.match(/Duration: (.*?), start:/) : [];
+            if (matches.length > 0) {
+                var rawDuration = matches[1];
+                var ar = rawDuration.split(":").reverse();
+                duration = parseFloat(ar[0]);
+                if (ar[1]) duration += parseInt(ar[1]) * 60;
+                if (ar[2]) duration += parseInt(ar[2]) * 60 * 60;
+                matches = content.match(/time=(.*?) bitrate/g);
+                if (content.match(/time=(.*?) bitrate/g) && matches.length > 0) {
+                    var rawTime = matches.pop();
+                    rawTime = rawTime.replace('time=', '').replace(' bitrate', '');
+                    ar = rawTime.split(":").reverse();
+                    time = parseFloat(ar[0]);
+                    if (ar[1]) time += parseInt(ar[1]) * 60;
+                    if (ar[2]) time += parseInt(ar[2]) * 60 * 60;
+                    progress = Math.round((time / duration) * 100);
+                }
+
+                socket.emit('ffmpeg-output', progress);
+            } else if (content.indexOf('Permission denied') > -1) {
+                socket.emit('ffmpeg-error', 'ffmpeg : Permission denied, either for ffmpeg or upload location ...');
+            }
+
+            readFfmpeOutput(fName, socket);
+        } else setTimeout(function() {
+            readFfmpeOutput(fName, socket);
+        }, 500);
     });
 }
