@@ -61,19 +61,67 @@
             <section class="experiment">
                 <h2 id="v1.8"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.8">v1.8</a> / beta coming soon.</h2>
                 <blockquote class="inline">
-                    v1.8 is following WebRTC standards to handle exceptions and call flows; to provide a little bit more reliability in initial call setup and redials.<br /><br />
-                    v1.8 will focus totally on providing WebRTC standards like API and you'll have full-control over each WebRTC API invocation!<br /><br />
-                    
+                    Early release available here:
                     <pre class="sh_html" style="margin: 0;">
-// early release available here
-&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.8.js"&gt;&lt;/script&gt;
+&lt;script src="http://www.RTCMultiConnection.org/latest.js"&gt;&lt;/script&gt;
 </pre>
                 </blockquote>
                 
                 <ol>
+                
+                    <li>
+                        <code>connection.preventSSLAutoAllowed</code> added. Now RTCMultiConnection focuses more on end-users privacy! You can ask RTCMultiConnection to "always" display "getUserMedia-permission-bar" even if chrome is running on HTTPs i.e. SSL domain:
+                        <pre class="sh_javascript">
+// by default "preventSSLAutoAllowed" is true only for "HTTPs" domains
+// you can force it for HTTP domains as well by setting this Boolean in your HTML page.
+connection.preventSSLAutoAllowed = true;
+</pre>
+                    </li>
+                    
+                    <li>
+                        <code>onScreenCapturingExtensionAvailable</code>  is fired when RTCMultiConnection detects that chrome extension for screen capturing is installed and available:
+                        <pre class="sh_javascript">
+connection.onScreenCapturingExtensionAvailable = function() {
+    btnInlineInstallButton.disabled = true;
+};
+</pre>
+                    </li>
+                    
+                    <li>
+                        Now, <code>connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a></code> method allows you force how to join (i.e. with or without streams etc.):
+                        <pre class="sh_javascript">
+// it doesn't matter if incoming stream is audio+video
+// you can join it with only audio or with only video
+// or anonymously i.e. { oneway: true }
+var joinWith = {
+    audio: true
+};
+
+connection.<a href="http://www.RTCMultiConnection.org/docs/join/">join</a>('sessionid', joinWith); // 2nd parameter
+</pre>
+                    </li>
+                    
+                    <li>
+                        Now, <a href="http://www.RTCMultiConnection.org/docs/onNewSession/">onNewSession</a> is fired once for each room. It will NEVER fire multiple times.
+                    </li>
+                    
                     <li>
                         <code><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing">chrome.desktopCapture.chooseDesktopMedia</a></code> is now preferred for screen capturing; and if extension is not installed or disabled, then RTCMultiConnection will auto fallback to <a href="https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/">command-line flag oriented screen-capturing API</a>; and if both are not available then it will throw a clear "human readable" exception.<br /><br />
                         Chrome extension is available <a href="https://www.webrtc-experiment.com/store/capture-screen/">here</a>.
+                    </li>
+                    
+                    <li>
+                        You can use <code>connection.DetectRTC</code> like this:
+                        <pre class="sh_javascript">
+connection.DetectRTC.load(function() {
+    if(connection.DetectRTC.hasMicrophone) { }
+    if(connection.DetectRTC.hasWebcam) { }
+});
+
+connection.DetectRTC.screen.isChromeExtensionAvailable(function(available) {
+    if(available) alert('Chrome screen capturing extension is installed and available.');
+}):
+</pre>
                     </li>
                     
                     <li>

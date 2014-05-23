@@ -1,12 +1,15 @@
 <h1>
     <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture">
         Google Chrome Extension
-        <br />to capture
-        <br />content of screen!
+        <br />to capture content of screen!
     </a>
 </h2>
 
-Use your browser to share content of screen in High-Quality (HD-1080p) format with one or more users!
+> Use your browser to share content of screen in High-Quality (HD-1080p) format with one or more users!
+
+**Download the extension; edit `manifest.json` then publish on Google App Store and enjoy HD screen capturing!**
+
+=
 
 You can install extension directly from Google App Store:
 
@@ -18,29 +21,106 @@ You can test following demo after installation:
 
 =
 
-##### How to capture content of screen from chrome extension?
+## Remember
 
-First step you should do is [download Google Chrome Extension](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture). Second step you should do is [open manifest.json](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Chrome-Extensions/desktopCapture/manifest.json) and and scroll to [line 16](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Chrome-Extensions/desktopCapture/manifest.json#L16) where you can insert your webpage domain:
+**This chrome extension has no dependency!**
 
-```
+**This chrome extension simply gets sourceId for the content of the screen you wanted to be shared. It doesn't invoke getUserMedia API itself; also it doesn't use PeerConnection API to do anything P2P!**
+
+i.e. **This chrome extension is totally stateless extension which is useful only to get sourceId of the content of screen!**
+
+1. You can upload/publish/use this chrome extension within any WebRTC application
+2. You simply need to edit `manifest.json` file to link content-script to your webpage (its mandatory part, though)
+3. You can directly load extension in developer mode or make crx file and drop over `chrome://extensions` page or publish to Google App Store
+4. The extension that is already [published over Google App Store](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) is useful only for **WebRTC Experiments** webpage; you can't use it because extension is hard-coded to link https://www.webrtc-experiment.com/
+
+Fourth point is important to understand because usually developers try to install [Google App Store extension](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) and they're unable to use it in their own webpages.
+
+=
+
+## How to publish on Google App Store?
+
+It is very easy to publish this extension to Google App Store. 
+
+<ol>
+    <li>
+        Make sure that you edited <code>manifest.json</code> file:
+        
+        <pre>
 {
     "content_scripts": [ {
        "js": [ "content-script.js" ],
-       "matches": ["*://localhost:*/*", "*://www.your-domain.com/*"]
+       "matches": ["*://www.your-domain.com/*"]
     }],
     "externally_connectable": {
-      "matches": ["*://localhost:*/*", "*://www.your-domain.com/*"]
+      "matches": ["*://www.your-domain.com/*"]
     }
 }
+</pre>
+    </li>
+    
+    <li>
+        Open <a href="https://chrome.google.com/webstore/developer/dashboard">Chrome WebStore Developer Dashboard</a> and click <strong>Add New Item</strong> blue button.
+    </li>
+</ol>
+
+Learn more about how to publish a chrome extension on Google WebStore [here](https://developer.chrome.com/webstore/publish).
+
+=
+
+## How to add inline-install button?
+
+> Make sure that you added and verified your webpage/domain using Google WebMaster tools.
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- head; this <link> tag MUST be in <head> section -->
+        <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/your-chrome-extension-id">
+    </head>
+    <body>
+        <!-- body; the button element that is used to invoke inline installation -->
+        <button onclick="" id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
+            <img src="https://www.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
+        </button>
+        
+        <script>
+            document.querySelector('#inline-install').onclick = function() {
+                !!navigator.webkitGetUserMedia 
+                    && !!window.chrome 
+                    && !!chrome.webstore 
+                    && !!chrome.webstore.install && 
+                chrome.webstore.install(
+                    'https://chrome.google.com/webstore/detail/your-chrome-extension-id', 
+                    successCallback, 
+                    failureCallback
+                );
+            };
+            
+            function successCallback() {
+                location.reload();
+            }
+            
+            function failureCallback(error) {
+                alert(error);
+            }
+        </script>
+    </body>
+</html>
 ```
 
-Second Step you should do is inject following DetectRTC code in your WebRTC application:
+=
+
+##### How to use chrome extension in your own webpage?
+
+Simply inject following DetectRTC code in your WebRTC application:
 
 ```javascript
 // todo: need to check exact chrome browser because opera also uses chromium framework
 var isChrome = !!navigator.webkitGetUserMedia;
 
-// DetectRTC.js - github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
+// DetectRTC.js - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
 // Below code is taken from RTCMultiConnection-v1.8.js (http://www.rtcmulticonnection.org/changes-log/#v1.8)
 var DetectRTC = {};
 
