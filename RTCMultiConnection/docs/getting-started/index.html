@@ -106,7 +106,7 @@
         </section>
         
         <section class="experiment">
-            <h2>Setup Video Conference using Shortest Syntax EVER!</h2>
+            <h2 id="video-conference-short-syntax"><a href="#video-conference-short-syntax">Setup Video Conference using Shortest Syntax EVER!</a></h2>
                 <pre class="sh_html">
 &lt;script src="http://www.rtcmulticonnection.org/latest.js"&gt;&lt;/script&gt;
 &lt;button id="openNewSessionButton"&gt;Open New Room&lt;/button&gt;
@@ -123,7 +123,7 @@ document.querySelector('#openNewSessionButton').onclick = function() {
         </section>
         
         <section class="experiment">
-            <h2>Setup Video Conference using full syntax!</h2>
+            <h2 id="video-conference-full-syntax"><a href="#video-conference-full-syntax">Setup Video Conference using full syntax!</a></h2>
                 <pre class="sh_html">
 &lt;script src="http://www.rtcmulticonnection.org/latest.js"&gt;&lt;/script&gt;
 &lt;button id="openNewSessionButton"&gt;Open New Room&lt;/button&gt;
@@ -156,7 +156,7 @@ document.querySelector('#openNewSessionButton').onclick = function() {
         </section>
         
         <section class="experiment">
-            <h2>Auto open/join the room</h2>
+            <h2 id="auto-open-join-room"><a href="#auto-open-join-room">Auto open/join the room</a></h2>
                 <pre class="sh_html">
 &lt;script src="http://www.rtcmulticonnection.org/latest.js"&gt;&lt;/script&gt;
 &lt;script src="http://www.rtcmulticonnection.org/firebase.js"&gt;&lt;/script&gt;
@@ -164,7 +164,7 @@ document.querySelector('#openNewSessionButton').onclick = function() {
 </pre><pre class="sh_javascript">
 var connection = new RTCMultiConnection();
 
-var firebaseURL = 'https://chat.firebaseio.com/';
+var firebaseURL = 'https://' + connection.firebase + '.firebaseio.com/';
 
 var roomFirebase = new Firebase(firebaseURL + connection.channel + '-session');
 roomFirebase.once('value', function (data) {
@@ -172,17 +172,28 @@ roomFirebase.once('value', function (data) {
 
     // checking for room; if not available "open" otherwise "join"
     if (sessionDescription == null) {
-        connection.open(connection.sessionid);
-
-        // storing room on server
-        roomFirebase.set(connection.sessionDescription);
-
-        // if room owner leaves; remove room from the server
-        roomFirebase.onDisconnect().remove();
+        connection.open({
+            sessionid: connection.sessionid,
+            dontTransmit: true,
+            onMediaCaptured: function() {
+                // storing room on server
+                roomFirebase.set(connection.sessionDescription);
+                
+                // if room owner leaves; remove room from the server
+                roomFirebase.onDisconnect().remove();
+            }
+        });
     } else {
+        // you can join with only audio or audio+video
+        var joinWith = {
+            audio: true,
+            video: true
+        };
+        
         // join as fast as possible
         // pure "sessionDescription" object is passed over "join" method
-        connection.join(sessionDescription);
+        // 2nd parameter is optional which allows you customize how to join the session
+        connection.join(sessionDescription, joinWith);
 
     }
 
@@ -195,7 +206,7 @@ roomFirebase.once('value', function (data) {
         </section>
         
         <section class="experiment">
-            <h2>Setup Multi-user file sharing along with advance progress-bars!</h2>
+            <h2 id="file-sharing"><a href="#file-sharing">Setup Multi-user file sharing along with advance progress-bars!</a></h2>
 		<pre class="sh_html">
 &lt;script src="http://www.rtcmulticonnection.org/latest.js"&gt;&lt;/script&gt;
 &lt;input type=file&gt;
@@ -219,7 +230,7 @@ document.querySelector('#openNewSessionButton').onclick = function() {
 
 // send single file or multiple files concurrently!
 document.querySelector('input[type=file]').onchange = function() {
-    connection.send(this.files[0]);
+    connection.send( this.files[0] );
 };
 </pre><pre class="sh_html">
 &lt;/script&gt;

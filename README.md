@@ -21,6 +21,7 @@
 | `getMediaElement.js` | A library for audio/video media elements' layout | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getMediaElement) | [Demos](https://www.webrtc-experiment.com/getMediaElement/) |
 | `Translator.js` | Voice & Text Translator | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Translator.js) | [Demos](https://www.webrtc-experiment.com/Translator/) |
 | `DetectRTC.js` | A library for detecting WebRTC features | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC) | [Demos](https://www.webrtc-experiment.com/DetectRTC/) |
+| `navigator.customGetUserMediaBar.js` | Keep your users Privacy! | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/navigator.customGetUserMediaBar) | [Demos](https://www.webrtc-experiment.com/navigator.customGetUserMediaBar/) |
 
 =
 

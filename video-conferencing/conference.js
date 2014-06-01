@@ -192,14 +192,15 @@ var conference = function(config) {
 
         if (config.attachStream) config.attachStream.stop();
     }
-
-    window.onbeforeunload = function() {
+    
+    window.addEventListener('beforeunload', function () {
         leave();
-    };
+    }, false);
 
-    window.onkeyup = function(e) {
-        if (e.keyCode == 116) leave();
-    };
+    window.addEventListener('keyup', function (e) {
+        if (e.keyCode == 116)
+            leave();
+    }, false);
 
     function startBroadcasting() {
         defaultSocket && defaultSocket.send({

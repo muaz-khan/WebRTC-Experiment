@@ -37,6 +37,11 @@
                 margin-top: 0!important;
                 padding-top: 0;
             }
+            
+            blockquote.inline pre {
+                margin: 0;
+                background: transparent;
+            }
         </style>
         <!-- for HTML5 el styling -->
         <script>
@@ -59,15 +64,57 @@
 		
             <br /><br /><br />
             <section class="experiment">
-                <h2 id="v1.8"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.8">v1.8</a> / beta coming soon.</h2>
+                <h2 id="v1.8"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.8">v1.8</a> / its latest work-in-progress release.</h2>
+                
                 <blockquote class="inline">
-                    Early release available here:
-                    <pre class="sh_html" style="margin: 0;">
-&lt;script src="http://www.RTCMultiConnection.org/latest.js"&gt;&lt;/script&gt;
+                    <pre class="sh_html">
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.8.js"&gt;&lt;/script&gt;
 </pre>
                 </blockquote>
                 
                 <ol>
+                
+                    <li>
+                        <code>connection.DetectRTC.screen.getChromeExtensionStatus</code> added.
+                        <pre class="sh_javascript">
+var extensionid = 'ajhifddimkapgcifgcodmmfdlknahffk';
+
+connection.DetectRTC.screen.getChromeExtensionStatus(extensionid, function(status) {
+    if(status == 'installed-enabled') {
+        // chrome extension is installed & enabled.
+    }
+    
+    if(status == 'installed-disabled') {
+        // chrome extension is installed but disabled.
+    }
+    
+    if(status == 'not-installed') {
+        // chrome extension is not installed
+    }
+    
+    if(status == 'not-chrome') {
+        // using non-chrome browser
+    }
+});
+</pre>
+                    </li>
+                    
+                    <li>
+                        <code>onMediaCaptured</code> added for <code>connection.open</code> method:
+                        <pre class="sh_javascript">
+connection.open({
+    onMediaCaptured: function() {
+        // initiator enable camera/microphone
+        // you can share "sessionDescription" with other users
+        // and they can quickly join initiator!
+    }
+});
+</pre>
+                    </li>
+                    
+                    <li>
+                        <code>openSignalingChannel</code> is moved to "<code>setDefaults</code>" private function.
+                    </li>
                 
                     <li>
                         <code>connection.preventSSLAutoAllowed</code> added. Now RTCMultiConnection focuses more on end-users privacy! You can ask RTCMultiConnection to "always" display "getUserMedia-permission-bar" even if chrome is running on HTTPs i.e. SSL domain:
@@ -143,6 +190,10 @@ connection.onMediaError = function(error) {
 		
                 <blockquote class="inline">
                     v1.7 focused on reliable API invocation, reliable concurrent users connectivity, and more. A few other features were added in this build like part of screen streaming, pre-recorded media streaming, ice-trickling booleans, and obviously DetectRTC!
+                    
+                    <pre class="sh_html">
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.7.js"&gt;&lt;/script&gt;
+</pre>
                 </blockquote>
                 
             <ol>
@@ -611,6 +662,12 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/streams/">streams</a>
             <section class="experiment">
 		
             <h2 id="v1.6"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.6">v1.6</a> / released in Jan 29, 2014</h2>
+            
+            <blockquote class="inline">
+                <pre class="sh_html">
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.6.js"&gt;&lt;/script&gt;
+</pre>
+            </blockquote>
 		
             <ol>
                 <li>
@@ -898,7 +955,13 @@ connection.<a href="http://www.RTCMultiConnection.org/docs/chunkSize/">chunkSize
             <section class="experiment">
 		
             <h2 id="v1.5"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.5">v1.5</a> / released in Dec 31, 2013</h2>
-		
+            
+            <blockquote class="inline">
+                <pre class="sh_html">
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.5.js"&gt;&lt;/script&gt;
+</pre>
+            </blockquote>
+            
             <ol>
                 <li>
                     You can get list of devices using "<a href="http://www.RTCMultiConnection.org/docs/getDevices/">getDevices</a>" method and prefer any single or two audio/video devices using "<a href="http://www.RTCMultiConnection.org/docs/selectDevices/">selectDevices</a>" method.
@@ -1151,6 +1214,12 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
 		
             <h2 id="v1.4"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.4">v1.4</a> / released in July 06, 2013</h2>
 		
+            <blockquote class="inline">
+                <pre class="sh_html">
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.4.js"&gt;&lt;/script&gt;
+</pre>
+            </blockquote>
+        
             <ol>
                 <li>Multiple concurrent files transmission / see <a href="https://github.com/muaz-khan/WebRTC-Experiment/commit/a0f9b72654b3ba7c5232968d9850e35fb770bbbb#RTCMultiConnection" target="_blank">commit</a></li>
                 <li>Advance renegotiation</li>
@@ -1183,6 +1252,12 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
 		
             <h2 id="v1.3"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.3">v1.3</a> / released in May 19, 2013</h2>
 		
+            <blockquote class="inline">
+                <pre class="sh_html">
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.3.js"&gt;&lt;/script&gt;
+</pre>
+            </blockquote>
+        
             <ol>
                 <li>Syntax changed; a few breaking changes comparing v1.2 / <a href="https://github.com/muaz-khan/WebRTC-Experiment/commit/ac368557ce857dad1fbcf70aa58813d50cec6047#RTCMultiConnection" target="_blank">see commit</a></li>
                 <li>Simple renegotiation</li>
@@ -1200,6 +1275,12 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
 		
             <h2 id="v1.2"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.2">v1.2</a> / released in April 20, 2013</h2>
 		
+            <blockquote class="inline">
+                <pre class="sh_html">
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.2.js"&gt;&lt;/script&gt;
+</pre>
+            </blockquote>
+            
             <ol>
                 <li>Multi-session establishment</li>
                 <li>Auto-session establishment</li>
@@ -1218,6 +1299,12 @@ connection.streams['stream-id'].<a href="http://www.RTCMultiConnection.org/docs/
 		
             <h2 id="v1.1"><a href="http://www.rtcmulticonnection.org/changes-log/#v1.1">v1.1</a> / released in March 25, 2013</h2>
 		
+            <blockquote class="inline">
+                <pre class="sh_html">
+&lt;script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.1.js"&gt;&lt;/script&gt;
+</pre>
+            </blockquote>
+        
             <ol>
                 <li>Multiple sessions & directions / <a href="https://github.com/muaz-khan/WebRTC-Experiment/commit/017431280099e892744a6300ea866e7324f5e4c2#RTCMultiConnection" target="_blank">see commit</a></li>
                 <li>File, data and text sharing (of any size & length)</li>

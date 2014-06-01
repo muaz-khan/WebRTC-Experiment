@@ -65,32 +65,29 @@
                     »
                     <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@@WebRTC Experiments</a>
                     »
-                    <a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
+                    <a href="https://plus.google.com/+WebRTC-Experiment" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
                     »
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
                 </p>
             </header>
 
-			<div class="github-stargazers"></div>
-            <section class="plusone-gplus">
-                <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
-            </section>
+            <div class="github-stargazers"></div>
         
             <section class="experiment">  
                 <h2 class="header">Record and POST to Server!</h2>
-			
-				<p style="text-align:center;">
-					<video id="preview" controls style="border: 1px solid rgb(15, 158, 238); height: 240px; width: 320px;"></video> 
-				</p>
-				<hr />
+            
+                <p style="text-align:center;">
+                    <video id="preview" controls style="border: 1px solid rgb(15, 158, 238); height: 240px; width: 320px;"></video> 
+                </p>
+                <hr />
 
-				<button id="record">Record</button>
-				<button id="stop" disabled>Stop</button>
-				<button id="delete" disabled>Delete your webm/wav files from Server</button>
+                <button id="record">Record</button>
+                <button id="stop" disabled>Stop</button>
+                <button id="delete" disabled>Delete your webm/wav files from Server</button>
 
-				<div id="container" style="padding:1em 2em;"></div>
+                <div id="container" style="padding:1em 2em;"></div>
             </section>
-			
+            
             <script>
                 function PostBlob(blob, fileType, fileName) {
                     // FormData
@@ -108,12 +105,12 @@
                     container.appendChild(progress);
 
                     // POST the Blob
-                    xhr('http://webrtc.somee.com/RecordRTC/PostRecordedAudioVideo', formData, progress, function (fName) {
+                    xhr('/RecordRTC/PostRecordedAudioVideo', formData, progress, function (fName) {
                         container.appendChild(document.createElement('hr'));
                         var mediaElement = document.createElement(fileType);
 
                         var source = document.createElement('source');
-                        source.src = 'http://webrtc.somee.com/uploads/' + fName.replace(/"/g, '');
+                        source.src = '/uploads/' + fName.replace(/"/g, '');
 
                         if (fileType == 'video') source.type = 'video/webm; codecs="vp8, vorbis"';
                         if (fileType == 'audio') source.type = !!navigator.mozGetUserMedia ? 'audio/ogg': 'audio/wav';
@@ -151,11 +148,7 @@
                         preview.src = window.URL.createObjectURL(stream);
                         preview.play();
 
-                        // var legalBufferValues = [256, 512, 1024, 2048, 4096, 8192, 16384];
-                        // sample-rates in at least the range 22050 to 96000.
                         recordAudio = RecordRTC(stream, {
-                            // bufferSize: 16384,
-                            // sampleRate: 45000,
                             onAudioProcessStarted: function() {
                                 if(!navigator.mozGetUserMedia) {
                                     recordVideo.startRecording();
@@ -203,7 +196,7 @@
                 if (!fileName) return;
                 var formData = new FormData();
                 formData.append('delete-file', fileName);
-                xhr('http://webrtc.somee.com/RecordRTC/DeleteFile', formData, null, function (response) {
+                xhr('/RecordRTC/DeleteFile', formData, null, function (response) {
                     console.log(response);
                 });
                 fileName = null;
@@ -240,13 +233,13 @@
                 }
             };
             </script>
-			
-			<section class="experiment">
-				<ol>
-					<li>Both files are recorded and uploaded individually (wav/webm)</li>
-					<li>You can merge/mux them in single format like avi or mkv — using tools like ffmpeg/avconv</li>
-				</ol>
-			</section>
+            
+            <section class="experiment">
+                <ol>
+                    <li>Both files are recorded and uploaded individually (wav/webm)</li>
+                    <li>You can merge/mux them in single format like avi or mkv — using tools like ffmpeg/avconv</li>
+                </ol>
+            </section>
         
             <section class="experiment">
                 <h2 class="header" id="feedback">Feedback</h2>
@@ -255,16 +248,16 @@
                 </div>
                 <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
-			
-			<section class="experiment">
-				<h2>
-					How to save recorded wav/webm file to IIS server?</h2>
-				<ol>
-					<li>Write a csharp class (*.cs) to write recrded blob on disk</li>
-					<li>Write Javascript to POST recorded blobs to server using XHR2/FormdData</li>
-				</ol>
-			</section>
-			
+            
+            <section class="experiment">
+                <h2>
+                    How to save recorded wav/webm file to IIS server?</h2>
+                <ol>
+                    <li>Write a csharp class (*.cs) to write recrded blob on disk</li>
+                    <li>Write Javascript to POST recorded blobs to server using XHR2/FormdData</li>
+                </ol>
+            </section>
+            
             <section class="experiment">
         <h2>ASP.NET MVC (CSharp) Code</h2>
         <pre>
@@ -310,8 +303,8 @@ function xhr(url, data, callback) {
 </pre></section>
 
 <section class="experiment">
-			<h2>To Delete File</h2>
-			<pre>
+            <h2>To Delete File</h2>
+            <pre>
 [HttpPost]
 public ActionResult DeleteFile()
 {
@@ -341,8 +334,8 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>audioURL</strong>) {
 </pre>
 
             </section>
-		
-		
+        
+        
             <section class="experiment">
                 <h2 class="header">
                     How to record video using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a>?</h2>
@@ -366,7 +359,7 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>videoURL</strong>) {
 </pre>
 
             </section>
-		
+        
             <section class="experiment">
         
                 <h2 class="header">
@@ -392,7 +385,7 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
 });
 </pre>
             </section>
-		
+        
             <section class="experiment">
                 <h2>
                     Possible <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">
@@ -417,32 +410,24 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
                     RecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">Documentation</a>
                 </p>
             </section>
-			
-			<section class="experiment own-widgets latest-commits">
-				<h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-				<div id="github-commits"></div>
-			</section>  
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>  
         </article>
+        
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC" class="fork-left"></a>
+        
         <footer>
             <p>
                 <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
-                ©
-                <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
-                <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
-                <a href="http://twitter.com/muazkh" target="_blank">@@muazkh</a>»
-                <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
             </p>
         </footer>
     
         <!-- commits.js is useless for you! -->
         <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
-        
-        <!-- Below lines are used to hide somee.com Ads! -->
-        <style>
-            center, .last-div, .last-div ~ * {
-	            display: none !important
-	        }
-        </style>
-        <div class="last-div"></div>
     </body>
 </html>

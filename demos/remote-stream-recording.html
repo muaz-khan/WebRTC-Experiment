@@ -1,21 +1,28 @@
 ﻿<title>Recording Remote Audio Streams / RecordRTC</title>
 <style>
 html{
-	background: rgb(231, 241, 241);
-	font-family: 'Open Sans', sans-serif;
+    background: rgb(231, 241, 241);
+    font-family: 'Open Sans', sans-serif;
     font-size: 1.2em;
     line-height: 1.5;
 }
 h1 {
-	text-align: center;
-	border-bottom: 2px solid rgb(121, 40, 40);
-	color: rgb(121, 40, 40);
+    text-align: center;
+    border-bottom: 2px solid rgb(121, 40, 40);
+    color: rgb(121, 40, 40);
 }
-ol {
-    margin-left: 4em;
+
+blockquote, pre {
+    border: 1px solid rgb(184, 172, 172);
+    background: rgb(255, 253, 253);
+    padding: 5px 11px;
+    border-radius: 5px;
+    margin-left: 2em;
 }
-pre {
-    margin-left: 6em;
+
+.highlight {
+    border: 1px dotted black;
+    background: yellow;
 }
 </style>
 <h1>Recording Remote Audio Streams / <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a></h2>
@@ -23,6 +30,46 @@ pre {
 <h2>issue: <a href="http://stackoverflow.com/questions/17475038/recording-a-remote-webrtc-stream-with-recordrtc/17475416#17475416" target="_blank">unable to record remote audio streams using RecordRTC.</a></h2>
 
 <ol>
+    <li>
+        <a href="https://code.google.com/p/chromium/issues/detail?id=264611">issue: Support multiple AudioProcessing modules for WebRtc media stream</a>
+        
+        <br /><br />
+        <blockquote>
+            Currently we only support one AudioProcessing module for one WebRtc VoiceEngine. This introduces a couple of problems, for example:<br />
+            # Supporting multiple microphones.<br />
+            # Different audio tracks might have different constrains.<br />
+            # When a peer connection has multiple audio tracks, the loggings are not correct in libjingle.<br /><br />
+
+            The correct fix to all the problem is that we should be able to have different AudioProcessing module to different audio tracks if they are using different sources or having different constrains.
+            <br /><br />
+            <a href="https://code.google.com/p/chromium/issues/detail?id=264611">Ref: #264611</a>
+        </blockquote>
+        
+        <br /><br />
+        
+        <blockquote>
+            There is also an architectural (legacy) "problem" with the current design/implementation.<br />
+            The APM related constraints are specified at the getUserMedia layer but are currently applied in PeerConnection which is technically a different API.  This means that APIs that support using a MediaStream from gUM (e.g. WebAudio), will currently not get processed audio and that a mediastream will look different (well, rather sound different) to different destination APIs.
+            <br /><br />
+            <a href="https://code.google.com/p/chromium/issues/detail?id=264611">Ref: #264611</a>
+        </blockquote>
+        
+        <h2>Expected Solution?</h2>
+        <p>
+            Upcoming (M37+) "<code>--enable-audio-processor</code>" command-line flag or maybe "<code>--<a href="https://groups.google.com/a/chromium.org/forum/#!topic/chromium-reviews/2xPcC1ZKUFM">enable-audio-track-processing</a></code>" or maybe:<br />
+            <pre>
+var audioConstraints = {
+    optional: [],
+    mandatory: {
+        googEchoCancellation: true
+    }
+};
+
+navigator.webkitGetUserMedia({ audio: audioConstraints }, onSuccess, onFailure);
+</pre>
+        </p>
+    </li>
+    
     <li>
         <a href="https://code.google.com/p/chromium/issues/detail?id=328034">issue: Support feeding remote WebRTC MediaStreamTrack output to WebAudio</a>
     </li>
@@ -87,7 +134,14 @@ For stereo; we need:
 64-128 kb/s .... i.e. FB stereo music
 </pre>
 
-<script src="//www.webrtc-experiment.com/RecordRTC.js"></script>
+<blockquote>
+<a href="https://code.google.com/p/chromium/codesearch#chromium/src/content/renderer/media/media_stream_audio_processor.cc&l=418">webrtc::AudioProcessing</a> accepts the same format as what it uses to process capture data, which is <strong class="highlight">32k mono</strong> for desktops and <strong class="highlight">16k mono</strong> for Android.
+</blockquote>
+
+<!--
+<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
+-->
+<script src="/RecordRTC.js"></script>
 
 <script>
     var offerer, answerer;
@@ -107,6 +161,15 @@ For stereo; we need:
     };
 </script>
 <script>
+    var sdpConstraints = {
+        optional: [{
+            VoiceActivityDetection: false
+        }],
+        mandatory: {
+            OfferToReceiveAudio: true,
+            OfferToReceiveVideo: false
+        }
+    };
     /* offerer */
 
     function offererPeer(stream) {
@@ -121,13 +184,11 @@ For stereo; we need:
         };
 
         offerer.createOffer(function (offer) {
-            offer.sdp = offer.sdp.replace('opus/48000/2', 'opus/44100/1');
-            console.log('\n\npeer connection opus codec\'s sample-rate is changed from', 'opus/48000/2', 'to', 'opus/44100/1', '\n\n\n');
-            console.debug('offer sdp', offer.sdp);
-
             offerer.setLocalDescription(offer);
+            
+            console.debug('offer sdp', offer.sdp);
             answererPeer(offer);
-        });
+        }, function() { }, sdpConstraints);
     }
 </script>
 <script>
@@ -139,27 +200,27 @@ For stereo; we need:
         // stream that is flowing from offerer toward answerer
         answerer.onaddstream = function (event) {
             console.debug('remote stream', event.stream);
-			
-			var recorder = new RecordRTC(event.stream);
-			recorder.startRecording();
-			setTimeout(function() {
-				recorder.stopRecording(function(url) {
-					recorder.getDataURL(function(dataURL) {
-						if(dataURL.indexOf('AAAAAAAAAAAA') != -1) {
-							document.querySelector('h2').innerHTML = 'Unable to record remote audio stream.<br />It seems that WebAudio APIs are unable to read/process remote audio stream buffers.<br /><textarea style="width:100%;height:100px;">' +dataURL + '</textarea>';
-						}
-						console.log('data-url', dataURL);
-					});
-					console.log('blob', recorder.getBlob());
-					console.log('virtual url', url);
+            
+            var recorder = new RecordRTC(event.stream);
+            recorder.startRecording();
+            setTimeout(function() {
+                recorder.stopRecording(function(url) {
+                    recorder.getDataURL(function(dataURL) {
+                        if(dataURL.indexOf('AAAAAAAAAAAA') != -1) {
+                            document.querySelector('h2').innerHTML = 'Unable to record remote audio stream.<br />It seems that WebAudio APIs are unable to read/process remote audio stream buffers out of single APM i.e. <a href="https://code.google.com/p/chromium/codesearch#chromium/src/content/renderer/media/media_stream_audio_processor.cc">MediaStreamAudioProcessor</a> / WebRtcAudioCapturer.<br /><textarea style="width:100%;height:100px;">' +dataURL + '</textarea>';
+                        }
+                        console.log('data-url', dataURL);
+                    });
+                    console.log('blob', recorder.getBlob());
+                    console.log('virtual url', url);
                     var audio = document.createElement('audio');
                     audio.controls = true;
                     audio.src = url;
                     document.querySelector('h1').appendChild(document.createElement('br'));
                     document.querySelector('h1').appendChild(audio);
                     audio.play();
-				});
-			}, 5000);
+                });
+            }, 5000);
         };
 
         answerer.onicecandidate = function (event) {
@@ -169,18 +230,26 @@ For stereo; we need:
 
         answerer.setRemoteDescription(offer);
         answerer.createAnswer(function (answer) {
-            answer.sdp = answer.sdp.replace('opus/48000/2', 'opus/44100/1');
             answerer.setLocalDescription(answer);
+            
+            console.debug('answer sdp', answer.sdp);
             offerer.setRemoteDescription(answer);
-        });
+        }, function() { }, sdpConstraints);
     }
 </script>
 <script>
     function getUserMedia(callback) {
-        navigator.getUserMedia({
-            audio: true,
-            video: false
-        }, callback, onerror);
+        var audioConstraints = {
+            optional: [],
+            mandatory: {
+                googEchoCancellation: true,
+                googAutoGainControl: true,
+                googNoiseSuppression: true,
+                googHighpassFilter: true,
+                googTypingNoiseDetection: true
+            }
+        };
+        navigator.getUserMedia({ audio: audioConstraints }, callback, onerror);
 
         function onerror(e) {
             console.error(e);
