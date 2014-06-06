@@ -31,7 +31,7 @@ blockquote, pre {
 
 <ol>
     <li>
-        <a href="https://code.google.com/p/chromium/issues/detail?id=264611">issue: Support multiple AudioProcessing modules for WebRtc media stream</a>
+        <a href="https://code.google.com/p/chromium/issues/detail?id=264611">issue: Support multiple AudioProcessing modules for WebRtc media stream</a> / <a href="https://code.google.com/p/webrtc/issues/detail?id=2192#c15" style="color:red;">Read Latest News</a>
         
         <br /><br />
         <blockquote>
@@ -79,69 +79,7 @@ navigator.webkitGetUserMedia({ audio: audioConstraints }, onSuccess, onFailure);
     </li>
 </ol>
 
-<blockquote>
-"opus" is the default codec on chrome;
-</blockquote>
-
-<blockquote>
-Chrome uses two modes for opus....
-</blockquote>
-
-<ol>
-<li>"voip" (i.e. voice mode) which is used if mono audio stream is provided by the  sender</li>
-<li>"audio" which is used if stereo audio stream is provided by  the sender</li>
-</ol>
-<blockquote>
-There is no parameter in sdp allows us control voip/audio mode for outgoing/incoming audio streams. This job can be done by sender.
-</blockquote>
-
-<blockquote>
-They're using code like this:
-</blockquote>
-
-<pre>
-// Default to VoIP application for mono, and AUDIO for stereo.
-int application = (channels == 1) ? OPUS_APPLICATION_VOIP : OPUS_APPLICATION_AUDIO;
-
-state->encoder = opus_encoder_create(48000, channels, application, &error);
-</pre>
-
-<blockquote>
-You can see that if channels equals 1; i.e. if mono audio; they're using "voip" mode. Otherwise "audio" mode.
-</blockquote>
-
-<blockquote>
-In the session description; you can see this line:
-</blockquote>
-
-<pre>
-a=rtpmap:111 opus/48000/2
-</pre>
-
-<blockquote>
-It is mono section with 48000 Hz (i.e. highest) clock rate.
-</blockquote>
-
-<pre>
-Bitrate is 48-64 kb/s .... i.e. FB mono music
-</pre>
-
-<blockquote>
-For stereo; we need:
-</blockquote>
-
-<pre>
-64-128 kb/s .... i.e. FB stereo music
-</pre>
-
-<blockquote>
-<a href="https://code.google.com/p/chromium/codesearch#chromium/src/content/renderer/media/media_stream_audio_processor.cc&l=418">webrtc::AudioProcessing</a> accepts the same format as what it uses to process capture data, which is <strong class="highlight">32k mono</strong> for desktops and <strong class="highlight">16k mono</strong> for Android.
-</blockquote>
-
-<!--
 <script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
--->
-<script src="/RecordRTC.js"></script>
 
 <script>
     var offerer, answerer;

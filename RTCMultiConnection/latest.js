@@ -1,4 +1,4 @@
-// Last time updated at June 01, 2014, 08:32:23
+// Last time updated at June 06, 2014, 08:32:23
 // Latest file can be found here: https://www.webrtc-experiment.com/RTCMultiConnection-v1.8.js
 
 // Muaz Khan         - www.MuazKhan.com
@@ -13,8 +13,12 @@
 
 /* issues/features need to be fixed & implemented:
 
--. todo: add connection.open( { captureUserMediaOnDemand: true } )
--.       to invoke captureUserMedia only when needed.
+-. todo: fix "disconnected" which happens very often.
+
+-. all other webrtc-experiments works if firefox creates offer; but RTCMultiConnection fails.
+-. todo: fix this issue ASAP.
+
+-. todo: remove RTP-data-channels support.
 
 -. add connection.keepStreamsOpened
 -. trickleIce & renegotiation fails.
@@ -90,8 +94,18 @@
 
             // connect with signaling channel
             initRTCMultiSession(function () {
+                // "captureUserMediaOnDemand" is enabled by default.
+                if(!args || (args && args.captureUserMediaOnDemand)|| (args && typeof args.captureUserMediaOnDemand == 'undefined')) {
+                    // invoke "getUserMedia" only when first participant found.
+                    rtcMultiSession.captureUserMediaOnDemand = true;
+                }
+                
+                if(args && args.onMediaCaptured) {
+                    rtcMultiSession.onMediaCaptured = args.onMediaCaptured;
+                }
+                
                 // for session-initiator, user-media is captured as soon as "open" is invoked.
-                captureUserMedia(function () {
+                if (!rtcMultiSession.captureUserMediaOnDemand) captureUserMedia(function () {
                     rtcMultiSession.initSession({
                         sessionDescription: connection.sessionDescription,
                         dontTransmit: dontTransmit
@@ -99,8 +113,15 @@
 
                     // to let user know that media resource has been captured
                     // now, he can share "sessionDescription" using sockets
-                    if (args && args.onMediaCaptured) args.onMediaCaptured();
+                    if (rtcMultiSession.onMediaCaptured) rtcMultiSession.onMediaCaptured();
                 });
+                
+                if (rtcMultiSession.captureUserMediaOnDemand) {
+                    rtcMultiSession.initSession({
+                        sessionDescription: connection.sessionDescription,
+                        dontTransmit: dontTransmit
+                    });
+                }
             });
             return connection.sessionDescription;
         };
@@ -327,8 +348,16 @@
 
             function _captureUserMedia(forcedConstraints, forcedCallback, isRemoveVideoTracks, dontPreventSSLAutoAllowed) {
 
-                if (connection.preventSSLAutoAllowed && !dontPreventSSLAutoAllowed && isChrome && connection.SSLPreventAutoAllowedExtension) {
-                    connection.SSLPreventAutoAllowedExtension(forcedConstraints, function () {
+                if (connection.preventSSLAutoAllowed && !dontPreventSSLAutoAllowed && isChrome) {
+                    // if navigator.customGetUserMediaBar.js is missing:
+                    if(!navigator.customGetUserMediaBar) {
+                        loadScript('https://www.WebRTC-Experiment.com/navigator.customGetUserMediaBar.js', function() {
+                            _captureUserMedia(forcedConstraints, forcedCallback, isRemoveVideoTracks, dontPreventSSLAutoAllowed);
+                        });
+                        return;
+                    }
+                    
+                    navigator.customGetUserMediaBar(forcedConstraints, function () {
                         _captureUserMedia(forcedConstraints, forcedCallback, isRemoveVideoTracks, true);
                     }, function () {
                         connection.onMediaError({
@@ -453,7 +482,9 @@
                             });
                         }
 
-                        if (e.name && e.name == 'PermissionDeniedError') {
+                        // it seems that chrome 35+ throws "DevicesNotFoundError" exception 
+                        // when any of the requested media is either denied or absent
+                        if (e.name && ( e.name == 'PermissionDeniedError' || e.name == 'DevicesNotFoundError' )) {
                             var mediaStreamError = 'Either: ';
                             mediaStreamError += '\n Media resolutions are not permitted.';
                             mediaStreamError += '\n Another application is using same media device.';
@@ -846,6 +877,8 @@
                         }
                     }
 
+                    /*
+                    // "disconnected" happens very often
                     if (connection.peers[_config.userid] && connection.peers[_config.userid].peer.connection.iceConnectionState == 'disconnected') {
                         // to make sure this user's all remote streams are removed.
                         for (var stream in connection.streams) {
@@ -857,6 +890,7 @@
 
                         connection.remove(_config.userid);
                     }
+                    */
 
                     if (!connection.autoReDialOnFailure) return;
 
@@ -2240,6 +2274,17 @@
         }
 
         function _accept(e) {
+            if(rtcMultiSession.captureUserMediaOnDemand) {
+                rtcMultiSession.captureUserMediaOnDemand = false;
+                connection.captureUserMedia(function() {
+                    _accept(e);
+                    
+                    // to let user know that media resource has been captured
+                    if (rtcMultiSession.onMediaCaptured) rtcMultiSession.onMediaCaptured();
+                });
+                return;
+            }
+            
             participants[e.userid] = e.userid;
             newPrivateSocket({
                 isofferer: true,
@@ -2334,7 +2379,7 @@
                 log('peer type is', type);
 
                 if (type == 'answer') {
-                    this.setRemoteDescription(this.offerDescription);
+                    this.setRemoteDescription( new RTCSessionDescription( this.offerDescription ) );
                 }
 
                 var self = this;
@@ -2344,6 +2389,10 @@
 
                     if (self.trickleIce) {
                         self.onSessionDescription(sessionDescription, self.streaminfo);
+                    }
+                    
+                    if(sessionDescription.type == 'offer') {
+                        log('offer sdp', sessionDescription.sdp);
                     }
                 }, this.onSdpError, this.constraints);
             },
@@ -2419,7 +2468,7 @@
 
                 this.connection.ongatheringchange = function () {
                     // this method is usually not fired.
-                    // todo: need to fix event listners
+                    // todo: need to fix event listeners
                     log('iceGatheringState', self.connection.iceGatheringState);
 
                     if (self.trickleIce) return;
@@ -3604,16 +3653,24 @@
         };
     }
 
-    // github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
+    // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
     var DetectRTC = {};
 
     (function () {
 
         function CheckDeviceSupport(callback) {
             // This method is useful only for Chrome!
+            
+            // Firefox has "navigator.getMediaDevices" which isn't working properly
+            // todo: remove this if-block when Firefox issue is fixed.
+            if(isFirefox) {
+                callback && callback();
+                return;
+            }
 
             // 1st step: verify "MediaStreamTrack" support.
             if (!window.MediaStreamTrack && !navigator.getMediaDevices) {
+                callback && callback();
                 return;
             }
 
@@ -3633,14 +3690,15 @@
                 MediaStreamTrack.getSources = navigator.getMediaDevices.bind(navigator);
             }
 
-            // if still no "getSources"; it MUST be firefox!
+            // if still no "getSources"; it MUST be Firefox!
             if (!MediaStreamTrack.getSources) {
                 // assuming that it is older chrome or chromium implementation
                 if (isChrome) {
                     DetectRTC.hasMicrophone = true;
                     DetectRTC.hasWebcam = true;
                 }
-
+                
+                callback && callback();
                 return;
             }
 
@@ -3660,12 +3718,12 @@
         }
 
         DetectRTC.isWebRTCSupported = !!window.webkitRTCPeerConnection || !!window.mozRTCPeerConnection;
-        DetectRTC.isAudioContextSupported = !!window.AudioContext || !!window.webkitAudioContext;
+        DetectRTC.isAudioContextSupported = (!!window.AudioContext || !!window.webkitAudioContext) && !!AudioContext.prototype.createMediaStreamSource;
         DetectRTC.isScreenCapturingSupported = isChrome && chromeVersion >= 26 && (isNodeWebkit ? true : location.protocol == 'https:');
         DetectRTC.isSctpDataChannelsSupported = !!navigator.mozGetUserMedia || (isChrome && chromeVersion >= 25);
         DetectRTC.isRtpDataChannelsSupported = isChrome && chromeVersion >= 31;
 
-        // check for microphone/webcam support!
+        // check for microphone/camera support!
         CheckDeviceSupport();
         DetectRTC.load = CheckDeviceSupport;
 
@@ -3705,7 +3763,7 @@
                 // extension notified his presence
                 if (data == 'rtcmulticonnection-extension-loaded') {
                     DetectRTC.screen.chromeMediaSource = 'desktop';
-                    if (DetectRTC.screen.onScreenCapturingExtensionAvailable) {
+                    if (DetectRTC.screen && DetectRTC.screen.onScreenCapturingExtensionAvailable) {
                         DetectRTC.screen.onScreenCapturingExtensionAvailable();
 
                         // make sure that this event isn't fired multiple times
@@ -3756,89 +3814,6 @@
 
         DetectRTC.screen.onMessageCallback(event.data);
     });
-
-    // ____________________________________________________
-    // RTCMultiConnection.SSLPreventAutoAllowedExtension.js
-
-    // this feature added to keep users privacy and 
-    // make sure HTTPs pages NEVER auto capture users media
-
-    // RTCMultiConnection-v1.8 and upper builds started focusing on users' privacy as much as possible!
-    // also, it new versions started following WebRTC standards for all API invocations.
-
-    RTCMultiConnection.prototype.SSLPreventAutoAllowedExtension = function (session, success_callback, failure_callback) {
-        // this feature is added only for chrome
-        if (!!navigator.mozGetUserMedia) return success_callback();
-
-        // it seems screen capturing request; simply skip custom notification-bar
-        if (session.video && session.video.mandatory && session.video.mandatory.chromeMediaSource) {
-            return success_callback();
-        }
-
-        var body = document.body || document.documentElement;
-
-        var styles = [
-            'border:0;position: fixed;left:0;top: 0;z-index: 10000;font-size: 16px;font-family: Arial;font-weight: normal;padding: 4px 18px;text-decoration: none;background: -webkit-gradient( linear, left top, left bottom, color-stop(5%, #ededed), color-stop(100%, #dfdfdf) );color: #290D0D;display: inline-block;text-shadow: 1px 1px 0px #ffffff;box-shadow: inset 1px 1px 0px 0px #ffffff;width: 100%;border-bottom: 1px solid rgb(175, 172, 172);-webkit-user-select:none;cursor:default;transition: all .1s ease;height:0;overflow:hidden;opacity:0;'
-        ];
-
-        var notification_bar = document.createElement('iframe');
-        body.appendChild(notification_bar);
-        var iframe = notification_bar;
-
-        notification_bar.setAttribute('style', styles.join(''));
-
-        notification_bar = notification_bar.contentDocument || notification_bar.contentWindow.document;
-        notification_bar = notification_bar.body;
-        notification_bar.setAttribute('style', 'margin:0;padding:0;font-family: Arial;font-size: 16px;');
-
-        notification_bar.innerHTML = '<div style="position: fixed;margin: 0;top: 7px;right: 40px;"><a style="margin-right: 36px;text-decoration: underline;color: #2844FA;" href="https://support.google.com/chrome/answer/2693767?p=ib_access_cam_mic&rd=1" target="_blank" >Learn more</a><button style="background: none;padding: 4px;height: auto;margin: 0;line-height: .5;color: black;text-shadow: none;box-shadow: none;border: 1px solid black;border-radius: 2px;cursor: pointer;" id="close-notification-bar">x</button></div>';
-
-        if (session.audio && session.video) {
-            notification_bar.innerHTML += location.href.replace('://', '-----').split('/')[0].replace('-----', '://') + '/ wants to use your microphone and webcam.';
-        } else if (session.audio && !session.video) {
-            notification_bar.innerHTML += location.href.replace('://', '-----').split('/')[0].replace('-----', '://') + '/ wants to use your microphone.';
-        } else if (!session.audio && session.video) {
-            notification_bar.innerHTML += location.href.replace('://', '-----').split('/')[0].replace('-----', '://') + '/ wants to use your webcam.';
-        }
-
-        var buttonSyles = 'font-size: 14px;font-family: Arial;font-weight: normal;border-radius: 3px;border: 1px solid #7C7777;padding: 4px 12px;text-decoration: none;background: -webkit-gradient( linear, left top, left bottom, color-stop(5%, #D6D3D3), color-stop(100%, #FFFFFF) );background-color: #ededed;color: #1B1A1A;display: inline-block;box-shadow: inset 1px 1px 0px 0px #ffffff;text-shadow: none;';
-
-        notification_bar.innerHTML += '<button id="allow-notification-bar">Allow</button>';
-        notification_bar.innerHTML += '<button id="deny-notification-bar">Deny</button>';
-
-        notification_bar.querySelector('#allow-notification-bar').setAttribute('style', buttonSyles);
-        notification_bar.querySelector('#deny-notification-bar').setAttribute('style', buttonSyles);
-        notification_bar.querySelector('#deny-notification-bar').style.background = '-webkit-gradient( linear, left top, left bottom, color-stop(5%, #F1F1F1), color-stop(100%, #E6E6E6) )';
-
-        function hideBar() {
-            iframe.style.opacity = 0;
-            iframe.style.height = 0;
-            document.documentElement.style.marginTop = 0;
-
-            setTimeout(function () {
-                body.removeChild(iframe);
-            }, 100);
-        }
-
-        notification_bar.querySelector('#close-notification-bar').onclick = function () {
-            notification_bar.querySelector('#deny-notification-bar').onclick();
-        };
-
-        notification_bar.querySelector('#allow-notification-bar').onclick = function () {
-            success_callback();
-            hideBar();
-        };
-        notification_bar.querySelector('#allow-notification-bar').focus();
-
-        notification_bar.querySelector('#deny-notification-bar').onclick = function () {
-            failure_callback();
-            hideBar();
-        };
-
-        iframe.style.opacity = 1;
-        iframe.style.height = '32px';
-        document.documentElement.style.marginTop = '32px';
-    };
 
     function setDefaults(connection) {
         // www.RTCMultiConnection.org/docs/onmessage/
@@ -4135,6 +4110,7 @@
                 username: 'webrtc'
             });
         }
+        
         connection.iceServers = iceServers;
 
         // www.RTCMultiConnection.org/docs/preferSCTP/
@@ -4765,6 +4741,7 @@
 
         // you can falsify it to merge all ICE in SDP and share only SDP!
         // such mechanism is useful for SIP/XMPP and XMLHttpRequest signaling
+        // bug: renegotiation fails if "trickleIce" is false
         connection.trickleIce = true;
 
         // this object stores list of all sessions in current channel

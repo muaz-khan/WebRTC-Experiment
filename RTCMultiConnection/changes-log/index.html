@@ -75,6 +75,21 @@
                 <ol>
                 
                     <li>
+                        <code>captureUserMediaOnDemand</code> added for <code>connection.open</code> method:
+                        <pre class="sh_javascript">
+// it is enabled by default
+// it means that "getUserMedia" API for initiator will 
+// be invoked only when required.
+// i.e. when first participant is detected.
+
+// you can disable it by setting it to "false"
+connection.open({
+    captureUserMediaOnDemand: false
+});
+</pre>
+                    </li>
+                
+                    <li>
                         <code>connection.DetectRTC.screen.getChromeExtensionStatus</code> added.
                         <pre class="sh_javascript">
 var extensionid = 'ajhifddimkapgcifgcodmmfdlknahffk';
