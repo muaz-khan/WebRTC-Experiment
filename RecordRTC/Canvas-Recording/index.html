@@ -63,16 +63,14 @@
     a:active { color: #000; }
 </style>
 
-<div id="elementToShare" contenteditable>
+<div id="elementToShare" contenteditable style="margin-top: 3px;">
     <h2>Welcome to <a href="https://www.webrtc-experiment.com/RecordRTC/" contenteditable="false">RecordRTC</a> Canvas/HTML Recorder!</h2>
     <h3>Content is edit-able.</h3>
     <input type="text" value="Type Text!" />
     <br />
     <textarea>resize textarea</textarea>
-    <br /><br />
-    <button id="start" contenteditable="false">Start Canvas Recording</button>
-    <button id="stop" disabled contenteditable="false">Stop</button>
-    <br /><br />
+    <br />
+
     <pre>
 var recorder = RecordRTC(elementToShare, {
     type: 'canvas'
@@ -84,8 +82,13 @@ recorder.stopRecording(function(url) {
 </pre>
 </div>
 
-<script src="//www.webrtc-experiment.com/screenshot.js"> </script>
-<script src="//www.webrtc-experiment.com/RecordRTC.js"> </script>
+<div style="position: fixed;left: 20%;right: 20%;text-align: center;">
+    <button id="start" contenteditable="false">Start Canvas Recording</button>
+    <button id="stop" disabled contenteditable="false">Stop</button>
+</div>
+
+<script src="https://www.webrtc-experiment.com/screenshot.js"> </script>
+<script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
 
 <script>
 var elementToShare = document.getElementById('elementToShare');

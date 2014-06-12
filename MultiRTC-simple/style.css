@@ -16,6 +16,7 @@ body, body * {
     outline: none;
     -webkit-user-drag: none;
     font-family: Myriad, Arial, Verdana;
+    word-wrap: break-word;
 }
 
 html {
@@ -76,6 +77,7 @@ body {
 
 .message {
     padding: .6em .8em;
+    word-wrap: break-word;
 }
 
 .message img, .message iframe {

@@ -14,7 +14,7 @@
 | `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
 | `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](http://www.RTCMultiConnection.org/docs/) | [Demos](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/) |
 | `DataChannel.js` | An ultimate wrapper library for `RTCDataChannel APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) | [Demos](https://www.webrtc-experiment.com/#DataChannel) |
-| `SdpSerializer.js` | An easiest way to modify SDP | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/SdpSerializer) | [Demos](https://www.webrtc-experiment.com/SdpSerializer/demo.html) |
+| `SdpSerializer.js` | An easiest way to modify SDP | [Documentation](https://github.com/muaz-khan/SdpSerializer) | [Demos](https://www.webrtc-experiment.com/SdpSerializer/demo.html) |
 | `RTCall.js` | A library for voice (i.e. audio-only) calls | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) | [Demos](https://www.webrtc-experiment.com/RTCall/) |
 | `Meeting.js` | A library for audio/video conferencing | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) | [Demos](https://www.webrtc-experiment.com/meeting/) |
 | `File.js` | A standalone library for file sharing functionalities | [Documentation](https://www.webrtc-experiment.com/docs/Share-Files-using-Filejs.html) | [Demos](https://www.webrtc-experiment.com/WebRTC-File-Sharing/) |
@@ -112,7 +112,7 @@
 
 =
 
-##### Demos using [MediaStreamRecorder.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MediaStreamRecorder) library
+##### Demos using [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) library
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
@@ -169,6 +169,7 @@
 | **Users ejection and presence detection** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/users-ejection.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/demos/users-ejection.html) |
 | **RTCMultiConnection-v1.3 and socket.io** | ---- | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/demos/RTCMultiConnection-v1.3-and-socket.io.html) |
 | **Multi-Broadcasters and Many Viewers** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/Multi-Broadcasters-and-Many-Viewers.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/demos/Multi-Broadcasters-and-Many-Viewers.html) |
+| **Stream Mp3 Live** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/stream-mp3-live.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/demos/stream-mp3-live.html) |
 
 =
 

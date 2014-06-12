@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Multi-Broadcasters and Many Viewers using using RTCMultiConnection ® Muaz Khan</title>
+        <title>Multi-Broadcasters and Many Viewers using RTCMultiConnection ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -14,6 +14,7 @@
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="/style.css">
         <style>
             audio, video {
                 -moz-transition: all 1s ease;
@@ -56,9 +57,9 @@
             document.createElement('footer');
         </script>
         
-        <!-- scripts used for broadcasting -->
-        <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
-        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.8.js"> </script>
+        <!-- scripts used for WebRTC connections -->
+        <script src="//www.rtcmulticonnection.org/firebase.js"> </script>
+        <script src="//www.rtcmulticonnection.org/latest.js"> </script>
     </head>
 
     <body>
@@ -147,7 +148,7 @@
                     connection.onstream = function(e) {
                         videos.appendChild(e.mediaElement);
 
-                        if (e.type == 'remote' && role == 'Anonymous Viewer') {
+                        if (e.type == 'remote') {
                             // because "viewer" joined room as "oneway:true"
                             // initiator will NEVER share participants
                             // to manually ask for participants;
@@ -166,11 +167,7 @@
                         }
                     };
 
-                    var sessions = { };
                     connection.onNewSession = function(session) {
-                        if (sessions[session.sessionid]) return;
-                        sessions[session.sessionid] = session;
-
                         if (role == 'Anonymous Viewer') {
                             session.join({ oneway: true });
                         }
@@ -181,9 +178,12 @@
                     };
 
                     if (role == 'Room Moderator')
-                        connection.open(connection.channel);
+                        connection.open({
+                            sessionid: connection.channel,
+                            captureUserMediaOnDemand: false
+                        });
                     else
-                        connection.join(connection.channel);
+                        connection.connect(connection.channel);
                 };
             </script>
         

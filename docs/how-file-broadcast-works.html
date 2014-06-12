@@ -67,6 +67,7 @@
             
             <div class="github-stargazers"></div>
 
+            <section class="experiment">
             <h2>Getting started — You'll</h2>
             <ol>
                 <li>Get access to file using input—type=file</li>
@@ -74,9 +75,10 @@
                 <li>Define chunk length i.e. 1000 chars — to make sure it should work on chrome</li>
                 <li>Get first chunk accordingly; transmit and continue...</li>
             </ol>
-
-            <br />
-            <br />
+            
+            </section>
+            
+            <section class="experiment">
 
             <h2>First step: Getting access to file using INPUT-File element</h2>
             <pre class="sh_javascript">
@@ -84,8 +86,9 @@ document.querySelector('input[type=file]').onchange = function() {
     var file = this.files[0];
 };</pre>
 
-            <br />
-            <br />
+            </section>
+            
+            <section class="experiment">
 
             <h2>Second step: Reading file as Data-URL using FileReader API</h2>
             <pre class="sh_javascript">
@@ -93,16 +96,18 @@ var reader = new window.FileReader();
 reader.readAsDataURL(file);
 reader.onload = onReadAsDataURL;</pre>
 
-            <br />
-            <br />
+            </section>
+            
+            <section class="experiment">
 
             <h2>Third step: Defining chunk length</h2>
 
             <pre class="sh_javascript">
 var chunkLength = 1000;</pre>
 
-            <br />
-            <br />
+            </section>
+            
+            <section class="experiment">
 
             <h2>Fourth step: Getting chunk and transmitting...</h2>
 
@@ -127,8 +132,9 @@ function onReadAsDataURL(event, text) {
     }, 500)
 }</pre>
 
-            <br />
-            <br />
+            </section>
+            
+            <section class="experiment">
 
             <h2>Fifth step: Receive chunks; store in array and...</h2>
 
@@ -145,10 +151,11 @@ dataChannel.onmessage = function (event) {
     }
 };</pre>
 
-            <br />
-            <br />
+            </section>
+            
+            <section class="experiment">
 
-            <h2>Sending/Receving files using Firefox</h2>
+            <h2>Sending/Receiving files using Firefox</h2>
 
             <pre class="sh_javascript">
 document.querySelector('input[type=file]').onchange = function () {
@@ -167,8 +174,9 @@ dataChannel.onmessage = function (event) {
     };
 };</pre>
 
-            <br />
-            <br />
+            </section>
+            
+            <section class="experiment">
 
             <h2>SaveToDisk function — old syntax</h2>
 
@@ -187,8 +195,9 @@ function saveToDisk(fileUrl, fileName) {
     (window.URL || window.webkitURL).revokeObjectURL(save.href);
 }</pre>
 
-            <br />
-            <br />
+            </section>
+            
+            <section class="experiment">
 
             <h2>SaveToDisk function — new syntax</h2>
 
@@ -206,12 +215,16 @@ function saveToDisk(fileUrl, fileName) {
     (window.URL || window.webkitURL).revokeObjectURL(save.href);
 }</pre>
 
-            <br />
-            <br />
+            </section>
+            
+            <section class="experiment">
 
             <h2>Links</h2>
 
             <ol>
+                <li>
+                    <a href="https://www.webrtc-experiment.com/docs/Share-Files-using-Filejs.html">Share files using File.js</a>
+                </li>
                 <li>
                     <a href="https://www.webrtc-experiment.com/file-hangout/" target="_blank">Share Files / Demo</a>
                 </li>
@@ -221,9 +234,11 @@ function saveToDisk(fileUrl, fileName) {
                 </li>
 
                 <li>
-                    <a href="http://RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> — A library for everything!
+                    <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> — A library for everything!
                 </li>
             </ol>
+            
+            </section>
 
             <br />
             <br />
@@ -233,6 +248,11 @@ function saveToDisk(fileUrl, fileName) {
                     <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
                 </div>
                 <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
             </section>
         </article>
         

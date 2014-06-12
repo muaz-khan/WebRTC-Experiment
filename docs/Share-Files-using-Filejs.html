@@ -61,16 +61,25 @@
             </header>
 
             <div class="github-stargazers"></div>
+            
+            <blockquote class="inline">
+                Relevant tutorial: <a href="https://www.webrtc-experiment.com/docs/how-file-broadcast-works.html">How to share files using WebRTC Data Channel (RTP/SCTP) APIs?</a>
+                
+                <p>
+                    This tutorial introduces a new library called "<a href="https://www.WebRTC-Experiment.com/File.js" target="_blank">File.js</a>" which can be used alongwidth any framework or realtime protocol like WebSockets/SCTP/etc. to share files of any size concurrently.
+                </p>
+            </blockquote>
 
-            <p>
-                This tutorial introduces a new library called "<a href="https://www.WebRTC-Experiment.com/File.js" target="_blank">File.js</a>" which can be used alongwidth any framework or realtime protocol like WebSockets/SCTP/etc. to share files of any size concurrently.
-            </p>
+            <section class="experiment">
 		
             <h2>First Step: Link the Library</h2>
 		
             <pre class="sh_javascript">
 &lt;script src="https://www.WebRTC-Experiment.com/File.js"&gt;&lt;/script&gt;
 </pre>
+            </section>
+            
+            <section class="experiment">
 
             <h2>Second Step: Setup ProgressBar Helpers</h2>
 		
@@ -107,7 +116,9 @@ function updateLabel(progress, label) {
     label.innerHTML = position + '%';
 }
 </pre>
-
+            </section>
+            
+            <section class="experiment">
             <ol>
                 <li>
                     "progressHelper" is a user-defined variable used to store progress-bars of the each file. It is useful to display multiple progress-bars at the same time!
@@ -115,6 +126,10 @@ function updateLabel(progress, label) {
                 <li>"outputPanel" is another user-defined variable used to display progress-bars.</li>
                 <li>"uuid" is files unique identifier; used to allow multiple files "concurrent" but "guaranteed" transmission.</li>
             </ol>
+            
+            </section>
+            
+            <section class="experiment">
 		
             <h2>Third Setp: Send One or More Files Concurrently</h2>
             <pre class="sh_javascript">
@@ -131,6 +146,9 @@ File.Send({
 });
 </pre>
 
+            </section>
+            
+            <section class="experiment">
             <ol>
                 <li>"file" can be input[type=file] or Blob</li>
                 <li>"channel" can be socket.io, websockets or webrtc-peer</li>
@@ -140,6 +158,10 @@ File.Send({
                 <li>"onProgress" is fired on sending a chunk</li>
                 <li>"onEnd" is fired on sending entire file</li>
             </ol>
+            
+            </section>
+            
+            <section class="experiment">
 
             <h2>Fourth Step: Receive Files</h2>
 		
@@ -150,6 +172,9 @@ peer.onmessage = function (data) {
 };
 </pre>
 
+            </section>
+            
+            <section class="experiment">
             <ol>
                 <li>
                     On the constructor; you need to pass an object like {onBegin, onEnd, onProgress}:
@@ -162,6 +187,8 @@ peer.onmessage = function (data) {
                 </li>
                 <li>"receive" method must be called as soon as your signalling solution gets/receives the chunk.</li>
             </ol>
+            
+            </section>
 
             <br />
             <br />
@@ -171,6 +198,11 @@ peer.onmessage = function (data) {
                     <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
                 </div>
                 <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
             </section>
         </article>
         

@@ -1,9 +1,8 @@
-// Last time updated at May 21, 2014, 08:32:23
+// Last time updated at June 07, 2014, 08:32:23
 //------------------------------------
 
 // issues?
 // -. audio recording while passing multi-tracks media stream for Firefox.
-// -. remote audio recording seems fixed on latest canary. Need to test it.
 // -. audio self-playback (ehco/noise/etc.)
 // -. need to fix: recordRTC.setAdvertisementArray( [ 'data:image-webp', 'data:image-webp', 'data:image-webp' ] );
 // -. it seems that RecordRTC is cutting off the last couple of seconds of recordings
@@ -82,7 +81,7 @@ function RecordRTC(mediaStream, config) {
 
         console.warn('stopped recording ' + (IsChrome ? config.type : 'audio+video') + ' stream.');
 
-        if ((config.type == 'audio' /* && !IsChrome */ ) || (config.type == 'video' && IsChrome)) {
+        if ((config.type == 'audio' /* && !IsChrome */ ) || (config.type == 'video' && IsChrome) || (config.type == 'canvas')) {
             mediaRecorder.stop(_callback);
         } else {
             mediaRecorder.stop();
@@ -90,10 +89,12 @@ function RecordRTC(mediaStream, config) {
         }
 
         function _callback() {
-            if (callback && mediaRecorder) {
-                var url = URL.createObjectURL(mediaRecorder.recordedBlob);
+            var blob = mediaRecorder.recordedBlob;
+            if (callback) {
+                var url = URL.createObjectURL(blob);
                 callback(url);
             }
+            console.debug(blob.type, '->', bytesToSize(blob.size));
 
             if (config.autoWriteToDisk) {
                 getDataURL(function (dataURL) {
@@ -161,7 +162,6 @@ function RecordRTC(mediaStream, config) {
         },
         save: function () {
             if (!mediaRecorder) return console.warn(WARNING);
-            console.log('saving recorded ' + config.type + ' stream to disk!');
 
             // bug: should we use "getBlob" instead; to handle aww-snaps!
             this.getDataURL(function (dataURL) {
@@ -486,8 +486,6 @@ function MediaStreamRecorder(mediaStream) {
         mediaRecorder.ondataavailable = function (e) {
             if (dataAvailable) return;
 
-            console.log(e.data.type, e.data);
-
             if (!e.data.size) {
                 console.warn('Recording of', e.data.type, 'failed.');
                 return;
@@ -803,20 +801,38 @@ function CanvasRecorder(htmlElement) {
         drawCanvasFrame();
     };
 
-    this.stop = function () {
+    this.stop = function (callback) {
         isRecording = false;
+        whammy.frames = dropFirstFrame(frames);
+        
         this.recordedBlob = whammy.compile();
-        whammy.frames = [];
+        
+        frames = [];
+        if(callback) callback( this.recordedBlob );
     };
+    
+    var frames = [];
 
     function drawCanvasFrame() {
         html2canvas(htmlElement, {
             onrendered: function (canvas) {
-                whammy.add(canvas);
+                var duration = new Date().getTime() - lastTime;
+                if (!duration) return drawCanvasFrame();
+
+                // via #206, by Jack i.e. @Seymourr
+                lastTime = new Date().getTime();
+                
+                frames.push({
+                    duration: duration,
+                    image: canvas.toDataURL('image/webp')
+                });
+                
                 if (isRecording) requestAnimationFrame(drawCanvasFrame);
             }
         });
     }
+    
+    var lastTime = new Date().getTime();
 
     var whammy = new Whammy.Video(100);
 }
@@ -1461,4 +1477,13 @@ function dropFirstFrame(arr) {
 
 if (location.href.indexOf('file:') == 0) {
     console.error('Please load this HTML file on HTTP or HTTPS.');
+}
+
+// below function via: http://goo.gl/B3ae8c
+function bytesToSize(bytes) {
+    var k = 1000;
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) return '0 Bytes';
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+    return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
 }

@@ -185,6 +185,60 @@ var isRecordOnlyAudio = true;
 
 =
 
+#### Want to use Expressjs over Nodejs?
+
+Simply replace [server.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RecordRTC/RecordRTC-to-Nodejs/server.js) with following code block:
+
+```javascript
+var config = require('./config'),
+    url = require('url');
+
+function start(route, handle) {
+    var fs = require('fs');
+    var express = require('express');
+
+    var app = express();
+
+    app.use(function (request, response, next) {
+        if (request.url.match(/JS|CSS|HTML|PNG|JPEG|JPG|GIF/gi)) {
+            express.static(__dirname + '/static')(request, response, next);
+        } else if (request.url.match(/WebM/gi)) {
+            fs.readFile(__dirname + request.url, "binary", function (err, file) {
+                if (err) throw err;
+
+                response.writeHead(200, {
+                    "Content-Type": 'video/webm'
+                });
+                
+                response.write(file, "binary");
+                response.end();
+            });
+        } else {
+            var pathname = url.parse(request.url).pathname,
+                postData = '';
+
+            request.setEncoding('utf8');
+
+            request.addListener('data', function (postDataChunk) {
+                postData += postDataChunk;
+            });
+
+            request.addListener('end', function () {
+                route(handle, pathname, response, postData);
+            });
+        }
+    });
+
+    var server = require('http').createServer(app);
+
+    server.listen(config.port);
+}
+
+exports.start = start;
+```
+
+=
+
 1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
 2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
 3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)

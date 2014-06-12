@@ -61,12 +61,18 @@
             </header>
             
             <div class="github-stargazers"></div>
+            
+            <blockquote class="inline">
 		
             <h2>The term "signaling" in <a href="https://www.webrtc-experiment.com/">WebRTC</a>...</h2>
 		
             <p>
                 Signaling is a process used in <a href="https://www.webrtc-experiment.com/">WebRTC</a> to detect peers; exchange session descriptions to setup media ports; and helps share everything used for initial handshake. 
             </p>
+            
+            </blockquote>
+            
+            <section class="experiment">
 		
             <p>
                 Signaling is used to coordinate communication and send control messages.
@@ -199,7 +205,7 @@ websocket.send({
 });
 </pre>
 
-            <h2 id="xhr">What about XHR i.e. POST/GET? <a href="http://pastebin.com/L4G3p9Bu" target="_blank" rel="nofollow">An Example</a></h2>
+            <h2 id="xhr">What about XHR i.e. POST/GET? <a href="https://github.com/muaz-khan/XHR-Signaling" target="_blank" rel="nofollow">An Example</a></h2>
 		
             <p>
                 Create a table and name it "RoomTable"; add following columns:
@@ -347,6 +353,8 @@ websocket.send({
                 <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs">Socket.io over Node.js</a></li>
                 <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs">WebSocket over Node.js</a></li>
             </ol>
+            
+            </section>
 
             <br />
             <br />
@@ -357,10 +365,15 @@ websocket.send({
                 </div>
                 <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
         </article>
         
         <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
-    
+        
         <footer>
             <p>
                 <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
@@ -368,7 +381,8 @@ websocket.send({
                 <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
             </p>
         </footer>
-	
-        <script src="https://www.webrtc-experiment.com/common.js"> </script>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>
