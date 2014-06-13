@@ -107,7 +107,9 @@
                     stopRecording.disabled = false;
 
                     captureUserMedia(function(stream) {
-                        window.audioVideoRecorder = window.RecordRTC(stream);
+                        window.audioVideoRecorder = window.RecordRTC(stream, {
+                            type: 'video' // don't forget this; otherwise you'll get video/webm instead of audio/ogg
+                        });
                         window.audioVideoRecorder.startRecording();
                     });
                 };

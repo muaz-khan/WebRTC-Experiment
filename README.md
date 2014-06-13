@@ -101,10 +101,11 @@
 
 =
 
-##### Experiments to share region/part of the screen
+##### Experiments to [share region/part of the screen](https://www.webrtc-experiment.com/part-of-screen-sharing/)
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
+| Share part-of-screen **RTCMultiConnection** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/RTCMultiConnection.sharePartOfScreen.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/demos/RTCMultiConnection.sharePartOfScreen.html) |
 | Share part-of-screen **using RTCDataChannel APIs** | [Demo](https://www.webrtc-experiment.com/part-of-screen-sharing/webrtc-data-channel/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/webrtc-and-part-of-screen-sharing) |
 | Share part-of-screen **using Firebase** | [Demo](https://www.webrtc-experiment.com/part-of-screen-sharing/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing) |
 | **A realtime chat using RTCDataChannel** | [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/realtime-chat/RTCDataChannel) |
