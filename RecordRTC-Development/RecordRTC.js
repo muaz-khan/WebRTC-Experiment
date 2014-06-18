@@ -1,4 +1,4 @@
-// Last time updated at June 13, 2014, 08:32:23
+// Last time updated at June 14, 2014, 08:32:23
 
 //------------------------------------
 /*
@@ -381,6 +381,13 @@ function MRecordRTC(mediaStream) {
                 };
 
                 webWorker.postMessage(blob);
+            }
+            else {
+                var reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onload = function (event) {
+                    callback00(event.target.result);
+                };
             }
         }
 

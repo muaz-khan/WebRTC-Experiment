@@ -252,7 +252,7 @@
                             // www.RTCMultiConnection.org/docs/stopRecording/
                             connection.streams[e.streamid].stopRecording(function(blob) {
                                 if (blob.audio) connection.saveToDisk(blob.audio);
-                                else if (blob.video) connection.saveToDisk(blob.audio);
+                                else if (blob.video) connection.saveToDisk(blob.video);
                                 else connection.saveToDisk(blob);
                             }, type);
                         },

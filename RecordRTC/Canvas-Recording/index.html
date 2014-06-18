@@ -107,8 +107,12 @@ document.getElementById('start').onclick = function() {
 document.getElementById('stop').onclick = function() {
     this.disabled = true;
     recorder.stopRecording(function(url) {
-        window.open(url);
-        document.getElementById('start').disabled = false;
+        var video = document.createElement('video');
+        video.src = url;
+        video.setAttribute('style', 'height: 100%; position: absolute; top:0;');
+        document.body.appendChild(video);
+        video.controls = true;
+        video.play();
     });
 };
 </script>
