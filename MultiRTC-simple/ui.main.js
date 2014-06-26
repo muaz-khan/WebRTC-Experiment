@@ -62,7 +62,10 @@ main.querySelector('#room-name').onkeyup = function(e) {
     main.querySelector('#continue').onclick();
 };
 
-main.querySelector('#room-name').value = (Math.random() * 1000).toString().replace('.', '');
+main.querySelector('#room-name').value = localStorage.getItem('room-name') || (Math.random() * 1000).toString().replace('.', '');
+if(localStorage.getItem('user-name')) {
+    main.querySelector('#your-name').value = localStorage.getItem('user-name');
+}
 
 main.querySelector('#continue').onclick = function() {
     var yourName = this.parentNode.querySelector('#your-name');
@@ -72,6 +75,9 @@ main.querySelector('#continue').onclick = function() {
         roomName.focus();
         return alert('Your MUST Enter Room Name!');
     }
+    
+    localStorage.setItem('room-name', roomName.value);
+    localStorage.setItem('user-name', yourName.value);
     
     yourName.disabled = roomName.disabled = this.disabled = true;
 

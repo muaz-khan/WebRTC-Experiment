@@ -1,0 +1,57 @@
+<script src="//www.rtcmulticonnection.org/latest.js"></script>
+<script src="//www.rtcmulticonnection.org/firebase.js"></script>
+
+<button id="openNewSessionButton">Open New Room</button>
+<button id="changeBandwidth" disabled>changeBandwidth</button><br />
+<script>
+var connection = new RTCMultiConnection();
+
+// easiest way to customize what you need!
+connection.session = {
+    audio: true,
+    video: true
+};
+
+// using low-bandwidth
+connection.bandwidth = {
+    audio: 20,
+    video: 30
+};
+
+connection.media.max(1920, 1080);
+
+// on getting local or remote media stream
+connection.onstream = function (e) {
+    document.body.appendChild(e.mediaElement);
+
+    if(e.type == 'remote') {
+        document.querySelector('#changeBandwidth').disabled = false;
+    }
+};
+
+// setup signaling channel
+connection.connect();
+
+// open new session
+document.querySelector('#openNewSessionButton').onclick = function () {
+    this.disabled = true;
+    connection.open();
+};
+
+// changing bandwidth at runtime
+document.querySelector('#changeBandwidth').onclick = function () {
+    this.disabled = true;
+
+    function changeBandwidthFromAllPeers(bandwidth) {
+        for (var peer in connection.peers) {
+            connection.peers[peer].changeBandwidth(bandwidth);
+        }
+    }
+
+    changeBandwidthFromAllPeers({
+        audio: 50,
+        video: 256
+    });
+};
+</script>
+<style>video { width: 35%; }</style>

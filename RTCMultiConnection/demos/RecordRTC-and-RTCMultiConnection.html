@@ -81,8 +81,8 @@
         </script>
         
         <!-- scripts used for broadcasting -->
-        <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
-        <script src="https://www.webrtc-experiment.com/RTCMultiConnection-v1.8.js"> </script>
+        <script src="https://www.rtcmulticonnection.org/firebase.js"> </script>
+        <script src="https://www.rtcmulticonnection.org/latest.js"> </script>
         <script src="https://www.webrtc-experiment.com/RecordRTC.min.js"> </script>
     </head>
 
@@ -175,13 +175,13 @@
                             });
                         } else {
                             this.innerHTML = 'Start Recording';
-                            connection.streams[this.id].stopRecording(function(audioBlob, videoBlob) {
+                            connection.streams[this.id].stopRecording(function(blob) {
                                 var h2 = document.createElement('h2');
-                                h2.innerHTML = '<a href="' + URL.createObjectURL(audioBlob) + '" target="_blank">Open recorded ' + audioBlob.type + '</a>';
+                                h2.innerHTML = '<a href="' + URL.createObjectURL(blob.audio) + '" target="_blank">Open recorded ' + blob.audio.type + '</a>';
                                 div.appendChild(h2);
 
                                 h2 = document.createElement('h2');
-                                h2.innerHTML = '<a href="' + URL.createObjectURL(videoBlob) + '" target="_blank">Open recorded ' + videoBlob.type + '</a>';
+                                h2.innerHTML = '<a href="' + URL.createObjectURL(blob.video) + '" target="_blank">Open recorded ' + blob.video.type + '</a>';
                                 div.appendChild(h2);
                             });
                         }
