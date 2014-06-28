@@ -101,6 +101,11 @@ var broadcast = function(config) {
         }
 
         function onRemoteStreamStartsFlowing() {
+            if(navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i)) {
+                // if mobile device
+                return afterRemoteStreamStartedFlowing();
+            }
+            
             if (!(htmlElement.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || htmlElement.paused || htmlElement.currentTime <= 0)) {
                 afterRemoteStreamStartedFlowing();
             } else setTimeout(onRemoteStreamStartsFlowing, 50);

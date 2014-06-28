@@ -189,7 +189,7 @@
                     roomsList.innerHTML = '';
                     sessions = {};
                     
-                    connection.close();
+                    connection.leave();
                 };
 
                 // setup signaling to search existing sessions

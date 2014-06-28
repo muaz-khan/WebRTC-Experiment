@@ -103,25 +103,33 @@ var conference = function(config) {
 
             peer = RTCPeerConnection(peerConfig);
         }
+        
+        function afterRemoteStreamStartedFlowing() {
+            gotstream = true;
+
+            if (config.onRemoteStream)
+                config.onRemoteStream({
+                    video: video,
+                    stream: _config.stream
+                });
+
+            if (isbroadcaster && channels.split('--').length > 3) {
+                /* broadcasting newly connected participant for video-conferencing! */
+                defaultSocket.send({
+                    newParticipant: socket.channel,
+                    userToken: self.userToken
+                });
+            }
+        }
 
         function onRemoteStreamStartsFlowing() {
+            if(navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i)) {
+                // if mobile device
+                return afterRemoteStreamStartedFlowing();
+            }
+            
             if (!(video.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || video.paused || video.currentTime <= 0)) {
-                gotstream = true;
-
-                if (config.onRemoteStream)
-                    config.onRemoteStream({
-                        video: video,
-                        stream: _config.stream
-                    });
-
-                if (isbroadcaster && channels.split('--').length > 3) {
-                    /* broadcasting newly connected participant for video-conferencing! */
-                    defaultSocket.send({
-                        newParticipant: socket.channel,
-                        userToken: self.userToken
-                    });
-                }
-
+                afterRemoteStreamStartedFlowing();
             } else setTimeout(onRemoteStreamStartsFlowing, 50);
         }
 

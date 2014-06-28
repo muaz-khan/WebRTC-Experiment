@@ -95,22 +95,25 @@
                     ® <a href="http://www.muazkhan.com/" target="_blank">Muaz Khan</a>
                 </h1>            
                 <p>
-                    <span>© 2013</span>
-                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
-                    »
-                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
-                    »
-                    <a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
-                    »
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
 
             <div class="github-stargazers"></div>
-
-            <section class="plusone-gplus">
-                <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
-            </section>
         
             <!-- just copy this <section> and next script -->
             <section class="experiment">                
@@ -299,8 +302,9 @@
 			
             <section class="experiment">
                 <ol>
-                    <li>You can record video from both local and remote media streams (only on chrome, though!)</li>
-                    <li>You can record audio from local stream both on chrome and firefox</li>
+                    <li>You can record video from both local and remote media streams (chrome,firefox,opera)</li>
+                    <li>You can record audio from local stream (chrome,firefox,opera)</li>
+                    <li>You can record "remote-audio" only on firefox</li>
                     <li>Many streams can be added; renegotiated; and recorded (simultaneously)!</li>
                 </ol>
             </section>
@@ -308,7 +312,7 @@
                 <h2 class="header">You can invoke audio/video recorder like this:</h2>
 				
                 <pre>
-connection.streams['stream-id'].startRecording({
+connection.streams['stream-id'].<a href="http://www.rtcmulticonnection.org/docs/startRecording/">startRecording</a>({
     audio: true,
     video: true
 });
@@ -318,25 +322,21 @@ connection.streams['stream-id'].startRecording({
                 <h2 class="header">You can skip argument:</h2>
                 <pre>
 // to record both audio and video
-connection.streams['stream-id'].startRecording();
+connection.streams['stream-id'].<a href="http://www.rtcmulticonnection.org/docs/startRecording/">startRecording</a>();
 </pre>
             </section>
             <section class="experiment">
                 <h2 class="header">Stop recording and get blob.</h2>
-                <ol>					
+                <ol>
                     <li>
-                        "recordingType" can be either "audio" or "video".
-                    </li>
-					
-                    <li>
-                        A real "Blob" object is returned.
+                        A JavaScritp object is returned with audio/video blobs e.g. blob.audio or blob.video.
                     </li>
                 </ol>
 				
                 <pre>
-connection.streams['stream-id'].stopRecording(function (blob) {
-    var mediaElement = document.createElement(blob.recordingType);
-    mediaElement.src = URL.createObjectURL(blob);
+connection.streams['stream-id'].<a href="http://www.rtcmulticonnection.org/docs/stopRecording/">stopRecording</a>(function (blob) {
+    var mediaElement = document.createElement('audio');
+    mediaElement.src = URL.createObjectURL(blob.audio);
     document.documentElement.appendChild(h2);
 });
 </pre>
@@ -345,7 +345,7 @@ connection.streams['stream-id'].stopRecording(function (blob) {
                 <h2 class="header">You can force to stop a specific stream:</h2>
 				
                 <pre>
-connection.streams['stream-id'].stopRecording(onBlob, {
+connection.streams['stream-id'].<a href="http://www.rtcmulticonnection.org/docs/stopRecording/">stopRecording</a>(onBlobs, {
     audio: true // stop audio recorder and get audio blob
 });
 </pre>
@@ -357,8 +357,7 @@ connection.streams['stream-id'].stopRecording(onBlob, {
 connection.onstream = function (e) {
     // e.type == 'remote' || 'local'
 	
-    connection.streams[e.streamid].startRecording({
-        audio: true,
+    connection.streams[e.streamid].<a href="http://www.rtcmulticonnection.org/docs/startRecording/">startRecording</a>({
         video: true
     });
 
@@ -366,9 +365,9 @@ connection.onstream = function (e) {
     var recordingInterval = 10 * 10000;
 
     setTimeout(function () {
-        connection.streams[e.streamid].stopRecording(function (blob) {
-            var mediaElement = document.createElement(blob.recordingType);
-            mediaElement.src = URL.createObjectURL(blob);
+        connection.streams[e.streamid].<a href="http://www.rtcmulticonnection.org/docs/stopRecording/">stopRecording</a>(function (blob) {
+            var mediaElement = document.createElement('video');
+            mediaElement.src = URL.createObjectURL(blob.video);
             document.documentElement.appendChild(h2);
         });
     }, recordingInterval)
@@ -389,18 +388,17 @@ connection.onstream = function (e) {
                 <div id="github-commits"></div>
             </section>
         </article>
+        
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
+	
         <footer>
-            <p>
-                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
-                ©
-                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
-                <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
-                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
-                <a href="https://github.com/muaz-khan" target="_blank">Github</a>
-            </p>
+            <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
+            <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
+            <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
+            <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="//www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

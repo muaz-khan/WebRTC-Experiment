@@ -1,4 +1,4 @@
-// Last time updated at June 26, 2014, 08:32:23
+// Last time updated at June 28, 2014, 08:32:23
 
 // Latest file can be found here: https://www.rtcmulticonnection.org/latest.js
 
@@ -14,7 +14,7 @@
 
 /* issues/features need to be fixed & implemented:
 
--. todo: add "enumerateDevices" method. Keep "getMediaDevices" as fallback.
+-. (to fix canary ipv6 candidates issues): disabled "googIPv6", "googDscp" and "googImprovedWifiBwe"
 
 -. "groupId" returned by MediaDeviceInfo object refers to single device with multiple tracks.
 -. need to provide API like this:
@@ -28,14 +28,6 @@ connection.DetectRTC.MediaDevices.forEach(function(device) {
 --- device.videoinput (webcam)
 -------- device.videoinput.audiooutput
 });
-
-
--. connection.leaveOnPageUnload added.
--. onstream: event.blobURL for Firefox, fixed.
--. (fixed) renegotiation scenarios.
--. connection.donotJoin added.
--. (fixed) sharePartOfScreen currently works only with existing peers. Newcomers can't see part of screen.
--. resumePartOfScreenSharing added.
 
 -. renegotiation scenarios that fails:
 -. 1) if chrome starts video-only session and firefox joins with only audio
@@ -228,6 +220,10 @@ connection.DetectRTC.MediaDevices.forEach(function(device) {
         }
 
         function joinSession(session, joinAs) {
+            if (typeof session == 'string') {
+                connection.skipOnNewSession = true;
+            }
+            
             if (!rtcMultiSession) {
                 log('Signaling channel is not ready. Connecting...');
                 // connect with signaling channel
@@ -479,6 +475,7 @@ connection.DetectRTC.MediaDevices.forEach(function(device) {
 
                         var sObject = {
                             stream: stream,
+                            blobURL: streamedObject.blobURL,
                             userid: connection.userid,
                             streamid: streamid,
                             session: session,
@@ -748,6 +745,8 @@ connection.DetectRTC.MediaDevices.forEach(function(device) {
         }
 
         function onNewSession(session) {
+            if(connection.skipOnNewSession) return;
+            
             // todo: make sure this works as expected.
             // i.e. "onNewSession" should be fired only for 
             // sessionid that is passed over "connect" method.
@@ -1081,6 +1080,7 @@ connection.DetectRTC.MediaDevices.forEach(function(device) {
                 // connection.streams['stream-id'].mute({audio:true})
                 connection.streams[stream.streamid] = connection._getStream({
                     stream: stream,
+                    blobURL: streamedObject.blobURL,
                     userid: _config.userid,
                     streamid: stream.streamid,
                     socket: socket,
@@ -2260,6 +2260,8 @@ connection.DetectRTC.MediaDevices.forEach(function(device) {
                     video: !!offers.video
                 }
             });
+            
+            connection.skipOnNewSession = false;
         }
 
         // join existing session
@@ -2758,6 +2760,7 @@ connection.DetectRTC.MediaDevices.forEach(function(device) {
                 };
 
                 if (isChrome && chromeVersion >= 32 && !isNodeWebkit) {
+                    /*
                     this.optionalArgument.optional.push({
                         googIPv6: true
                     });
@@ -2767,6 +2770,7 @@ connection.DetectRTC.MediaDevices.forEach(function(device) {
                     this.optionalArgument.optional.push({
                         googImprovedWifiBwe: true
                     });
+                    */
                 }
 
                 if (!this.preferSCTP) {
@@ -2814,7 +2818,9 @@ connection.DetectRTC.MediaDevices.forEach(function(device) {
                     candidate: candidate.candidate
                 });
 
-                this.connection.addIceCandidate(iceCandidate);
+                this.connection.addIceCandidate(iceCandidate, function() {}, function() {
+                    error('onIceFailure', arguments, candidate.candidate);
+                });
             },
             createDataChannel: function (channelIdentifier) {
                 if (!this.channels) this.channels = [];
@@ -4275,6 +4281,7 @@ connection.DetectRTC.MediaDevices.forEach(function(device) {
                 rtcMultiConnection: e.rtcMultiConnection,
                 streamObject: e.streamObject,
                 stream: e.stream,
+                blobURL: e.blobURL,
                 session: e.session,
                 userid: e.userid,
                 streamid: e.streamid,
@@ -4793,7 +4800,7 @@ connection.DetectRTC.MediaDevices.forEach(function(device) {
         
         connection.resumePartOfScreenSharing = function () {
             for (var peer in connection.peers) {
-                connection.peers[peer].pausePartOfScreenSharing = true;
+                connection.peers[peer].pausePartOfScreenSharing = false;
             }
             
             if(connection.partOfScreen) {
