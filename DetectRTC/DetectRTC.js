@@ -52,7 +52,7 @@ var DetectRTC = {};
 
     // is this a chromium browser (opera or chrome)
     var isChrome = !! navigator.webkitGetUserMedia;
-    var chromeVersion = !! navigator.mozGetUserMedia ? 0 : parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]);
+    var chromeVersion = !! (!isChrome || navigator.mozGetUserMedia ) ? 0 : parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]);
 
     DetectRTC.isWebRTCSupported = !! window.webkitRTCPeerConnection || !! window.mozRTCPeerConnection;
     DetectRTC.isAudioContextSupported = !! window.AudioContext || !! window.webkitAudioContext;
