@@ -3,11 +3,15 @@
         Google Chrome Extension
         <br />to capture content of screen!
     </a>
-</h2>
+</h1>
 
 > Use your browser to share content of screen in High-Quality (HD-1080p) format with one or more users!
 
-**Download the extension; edit `manifest.json` then publish on Google App Store and enjoy HD screen capturing!**
+<h2>
+    Same [chrome extension](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) can be used in all your domains! You don't need to deploy yourself!
+</h2>
+
+If you still want to publish yourself, **Download the extension; edit `manifest.json` then publish on Google App Store and enjoy HD screen capturing!**
 
 =
 
@@ -32,9 +36,7 @@ i.e. **This chrome extension is totally stateless extension which is useful only
 1. You can upload/publish/use this chrome extension within any WebRTC application
 2. You simply need to edit `manifest.json` file to link content-script to your webpage (its mandatory part, though)
 3. You can directly load extension in developer mode or make crx file and drop over `chrome://extensions` page or publish to Google App Store
-4. The extension that is already [published over Google App Store](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) is useful only for **WebRTC Experiments** webpage; you can't use it because extension is hard-coded to link https://www.webrtc-experiment.com/
-
-Fourth point is important to understand because usually developers try to install [Google App Store extension](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) and they're unable to use it in their own webpages.
+4. The extension that is already [published over Google App Store](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) can be used in all domains!
 
 =
 

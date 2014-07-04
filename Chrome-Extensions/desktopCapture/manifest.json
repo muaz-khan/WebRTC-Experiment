@@ -12,11 +12,9 @@
     },
     "content_scripts": [ {
        "js": [ "content-script.js" ],
+       "all_frames": true,
        "matches": ["*://localhost:*/*", "*://www.webrtc-experiment.com/*"]
     }],
-    "externally_connectable": {
-      "matches": ["*://localhost:*/*", "*://www.webrtc-experiment.com/*"]
-    },
     "icons" : {
         "48" : "icon.png"
     },

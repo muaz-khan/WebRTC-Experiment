@@ -1,15 +1,18 @@
-// Last time updated at June 14, 2014, 08:32:23
+// Last time updated at July 02, 2014, 08:32:23
 
 //------------------------------------
 /*
 -. breaking updates:
+-. (fixed) audio recording while passing multi-tracks media stream for Firefox.
 -. now, you MUST always set config-type == 'video' for Firefox; otherwise
 -. RecordRTC will record audio/ogg instead of video/webm.
 -. It doesn't matter which kind of stream you're passing. Multi-tracks or single track.
 */
 
 // issues?
-// -. (fixed) audio recording while passing multi-tracks media stream for Firefox.
+// - chrome started supporting Blob-in-IndexedDB. Update DiskStorage.js 
+// - ref: http://updates.html5rocks.com/2014/07/Blob-support-for-IndexedDB-landed-on-Chrome-Dev
+
 // -. audio self-playback (ehco/noise/etc.)
 // -. need to fix: recordRTC.setAdvertisementArray( [ 'data:image-webp', 'data:image-webp', 'data:image-webp' ] );
 // -. it seems that RecordRTC is cutting off the last couple of seconds of recordings
@@ -90,7 +93,7 @@ function RecordRTC(mediaStream, config) {
 
         console.warn('stopped recording ' + config.type + ' stream.');
 
-        if ((config.type == 'audio') || (config.type == 'video') || (config.type == 'canvas')) {
+        if (config.type != 'gif') {
             mediaRecorder.stop(_callback);
         } else {
             mediaRecorder.stop();
@@ -117,6 +120,16 @@ function RecordRTC(mediaStream, config) {
 
     function getDataURL(callback, _mediaRecorder) {
         if (!callback) throw 'Pass a callback function over getDataURL.';
+        
+        var recordedBlob = _mediaRecorder ? _mediaRecorder.recordedBlob : mediaRecorder.recordedBlob;
+        
+        if(!recordedBlob) {
+            console.warn('Blob encoder did not yet finished its job.');
+            setTimeout(function() {
+                getDataURL(callback, _mediaRecorder)
+            }, 1000);
+            return;
+        }
 
         _getDataURL();
 
@@ -130,10 +143,10 @@ function RecordRTC(mediaStream, config) {
                     callback(event.data);
                 };
 
-                webWorker.postMessage(_mediaRecorder ? _mediaRecorder.recordedBlob : mediaRecorder.recordedBlob);
+                webWorker.postMessage(recordedBlob);
             } else {
                 var reader = new FileReader();
-                reader.readAsDataURL(_mediaRecorder ? _mediaRecorder.recordedBlob : mediaRecorder.recordedBlob);
+                reader.readAsDataURL(recordedBlob);
                 reader.onload = function (event) {
                     callback(event.target.result);
                 };
@@ -559,7 +572,8 @@ function MediaStreamRecorder(mediaStream) {
         // mediaRecorder.state == 'stopped' means that media recorder is detached from the "session" ... in this case; "session" will also be deleted.
 
         if (mediaRecorder.state == 'recording') {
-            mediaRecorder.requestData();
+            // "stop" method auto invokes "requestData"!
+            // mediaRecorder.requestData();
             mediaRecorder.stop();
         }
     };
