@@ -8,7 +8,7 @@
 > Use your browser to share content of screen in High-Quality (HD-1080p) format with one or more users!
 
 <h2>
-    Same [chrome extension](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) can be used in all your domains! You don't need to deploy yourself!
+    Same <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">chrome extension</a> can be used in all your domains! You don't need to deploy yourself!
 </h2>
 
 If you still want to publish yourself, **Download the extension; edit `manifest.json` then publish on Google App Store and enjoy HD screen capturing!**

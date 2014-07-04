@@ -13,6 +13,7 @@
 | ------------- |-------------|-------------|-------------|
 | `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
 | `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](http://www.RTCMultiConnection.org/docs/) | [Demos](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/) |
+| `Conversation.js` | Enjoy Skype-like Conversations! | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Conversation.js) | [Demos](https://www.rtcmulticonnection.org/conversationjs/demos/) |
 | `DataChannel.js` | An ultimate wrapper library for `RTCDataChannel APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) | [Demos](https://www.webrtc-experiment.com/#DataChannel) |
 | `SdpSerializer.js` | An easiest way to modify SDP | [Documentation](https://github.com/muaz-khan/SdpSerializer) | [Demos](https://www.webrtc-experiment.com/SdpSerializer/demo.html) |
 | `RTCall.js` | A library for voice (i.e. audio-only) calls | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) | [Demos](https://www.webrtc-experiment.com/RTCall/) |

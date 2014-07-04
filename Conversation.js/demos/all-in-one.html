@@ -1,0 +1,278 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Conversation.js All-in-One Demo ® Muaz Khan</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <style>
+        html {
+            background: #eee;
+        }
+        
+        body {
+            font-family: Verdana;
+            font-size: 1.2em;
+            line-height: 1.5em;
+            margin: 0;
+        }
+        
+        button {
+            -moz-border-radius: 3px;
+            -moz-transition: none;
+            -webkit-transition: none;
+            background: #0370ea;
+            background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
+            background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
+            border: 1px solid #076bd2;
+            border-radius: 3px;
+            color: #fff;
+            display: inline-block;
+            font-family: inherit;
+            font-size: .8em;
+            line-height: 1.3;
+            padding: 5px 12px;
+            text-align: center;
+            text-shadow: 1px 1px 1px #076bd2;
+            font-size: 1.5em;
+        }
+
+        button:hover{
+            background: rgb(9, 147, 240);
+        }
+
+        button:active {
+            background: rgb(10, 118, 190);
+        }
+
+        button[disabled] {
+            background: none;
+            border: 1px solid rgb(187, 181, 181);
+            color: gray;
+            text-shadow: none;
+        }
+        
+        audio, video {
+                -moz-transition: all 1s ease;
+                -ms-transition: all 1s ease;
+                
+                -o-transition: all 1s ease;
+                -webkit-transition: all 1s ease;
+                transition: all 1s ease;
+                vertical-align: top;
+        }
+
+        input {
+            border: 1px solid #d9d9d9;
+            border-radius: 1px;
+            font-size: 2em;
+        }
+        label {
+            display: inline-block;
+            width: 20%;
+        }
+    </style>
+    
+    <script src="//www.rtcmulticonnection.org/latest.js"></script>
+    <script src="//www.rtcmulticonnection.org/conversation.js"></script>
+</head>
+
+<body>
+    <label for="your-username">Your UserName:</label>
+    <input type="text" id="your-username"><br />
+
+    <label for="target-username">Target UserName:</label>
+    <input type="text" id="target-username" placeholder="Required"><br />
+
+    <button id="start-signaler">Start Signaler</button>
+    <button id="call" disabled>Call</button>
+    
+    <button id="enable-microphone" disabled>Enable Microphone</button>
+    <button id="enable-camera" disabled>Enable Camera</button>
+    <button id="enable-screen" disabled>Enable Screen</button>
+
+    <hr /><br /><br />
+
+    <ol></ol>
+    <label for="chat-message">Type Your Message:</label>
+    <input type="text" id="chat-message" disabled>
+    
+    <input type="file" disabled multiple>
+
+    <script>
+        var user = new User({
+            status: 'online',
+            // username: 'google',
+            email: 'awesome@google.com'
+        });
+        
+        document.querySelector('#your-username').value = user.username;
+        document.querySelector('#your-username').onkeyup = function() {
+            user.username = this.value;
+        };
+
+        document.querySelector('#start-signaler').onclick = function() {
+            this.disabled = true;
+            
+            user.emit('signaler', 'start');
+        };
+
+        user.on('signaler-connected', function() {
+            document.querySelector('#call').disabled = false;
+            document.querySelector('#start-signaler').disabled = true;
+        });
+        
+        user.on('friend-request', function(request) {
+            return request.accept();
+            
+            if(window.confirm('Do you want to accept friend-request made by ' + request.sender + '?')) {
+                request.accept();
+            }
+            else {
+                request.reject();
+            }
+        });
+                
+        user.on('request-status', function(request) {
+            return;
+            if(request.status == 'accepted') {
+                alert(request.sender + ' accepted your request.');
+            }
+            if(request.status == 'rejected') {
+                alert(request.sender + ' rejected your request.');
+            }
+        });
+
+        document.querySelector('#call').onclick = function () {
+            var targetuser = document.querySelector('#target-username').value;
+            
+            document.querySelector('#target-username').disabled = true;
+            document.querySelector('#call').disabled = true;
+
+            user.openconversationwith(targetuser);
+        }
+        
+        user.on('conversation-opened', function (conversation) {
+            document.querySelector('#target-username').disabled = false;
+            document.querySelector('#call').disabled = false;
+            document.querySelector('#target-username').value = '';
+            
+            document.querySelector('#enable-microphone').disabled = false;
+            document.querySelector('#enable-camera').disabled = false;
+            document.querySelector('#enable-screen').disabled = false;
+            document.querySelector('#chat-message').disabled = false;
+            document.querySelector('input[type=file]').disabled = false;
+            
+            appendmessage('System Message', 'conversation has been started between you and ' + conversation.target.username);
+
+            conversation.on('message', function (event) {
+                appendmessage(event.userid, event.data);
+            });
+            
+            // if someone enabled microphone or camera or screen
+            conversation.on('media-enabled', function (media) {
+                // media.type == 'audio' || 'video' || 'screen'
+                // media.hasmicrophone == true || null
+                // media.hascamera == true || null
+                // media.hasscreen == true || null
+                // media.sender == 'string'
+                // media.staticdata == custom object
+                
+                var mediatype = '';
+                if(media.hasmicrophone) {
+                    mediatype = 'only microphone';
+                }
+                
+                if(media.hascamera) {
+                    mediatype = 'microphone and camera';
+                }
+                
+                if(media.hasscreen) {
+                    mediatype = 'only screen';
+                }
+                
+                var join = prompt(media.sender + ' enabled ' + mediatype + '. You can preview it by typing "preview" or join with microphone by typing "joinwithmicrophone" and join with camera by typing "joinwithcamera" or join with screen by typing "joinwithscreen".', 'preview');
+                
+                if(join == 'preview') {
+                    media.emit('join-with', 'nothing');
+                }
+                
+                if(join == 'joinwithmicrophone') {
+                    media.emit('join-with', 'microphone');
+                }
+                
+                if(join == 'joinwithcamera') {
+                    media.emit('join-with', 'camera');
+                }
+                
+                if(join == 'joinwithscreen') {
+                    media.emit('join-with', 'screen');
+                }
+            });
+            
+            conversation.on('add-file', function(file) {
+                file.download();
+            });
+            
+            conversation.on('file-progress', function(progress) {
+                console.log('percentage %', progress.percentage);
+                // progress.file.name
+                // progress.sender
+            });
+            
+            conversation.on('file-downloaded', function(file) {
+                // file.sender
+                file.savetodisk();
+            });
+            
+            conversation.on('file-sent', function(file) {
+                // file.sender
+                console.log(file.name, 'sent.');
+            });
+            
+            conversation.on('file-cancelled', function(file) {
+                // file.sender
+                console.log(file.name, 'cancelled.');
+            });
+        });
+        
+        document.querySelector('#chat-message').onkeyup = function (event) {
+            if (event.keyCode != 13 || !this.value || !this.value.length) return;
+            
+            user.peers.emit('message', this.value);
+            
+            appendmessage(user.username, this.value);
+            this.value = '';
+        };
+        
+        document.querySelector('#enable-microphone').onclick = function() {
+            user.peers.emit('enable', 'microphone');
+            this.disabled = true;
+        };
+            
+        document.querySelector('#enable-camera').onclick = function() {
+            user.peers.emit('enable', 'camera');
+            this.disabled = true;
+        };
+        
+        document.querySelector('#enable-screen').onclick = function() {
+            user.peers.emit('enable', 'screen');
+            this.disabled = true;
+        };
+       
+        var ol = document.querySelector('ol');
+        function appendmessage(sender, message) {
+            ol.innerHTML += '<li>' + sender + ':- ' + message + '</li>';
+        }
+        
+        document.querySelector('input[type=file]').onchange = function() {
+            user.peers.emit('add-file', this.files);
+        };
+    </script>
+</body>
+</html>

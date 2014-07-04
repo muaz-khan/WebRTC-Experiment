@@ -1,0 +1,85 @@
+﻿<script src="//www.rtcmulticonnection.org/latest.js"></script>
+<script src="//www.rtcmulticonnection.org/conversation.js"></script>
+
+<h1>Conversation.js one-to-one test.</h1>
+
+<input id="target-username" placeholder="Target UserName">
+<button id="call">Call Him</button>
+<button id="enable-microphone" disabled>Enable Microphone</button>
+
+<br />
+
+<label for="text-chat">Type message here; press Enter:</label>
+<input id="text-chat" type="text" placeholder="text chat" disabled>
+
+<script>
+// you can pass any kind of custom data as 
+// "User" object's constructor's first argument
+var user = new User({
+    email: 'awesome@google.com'
+});
+
+user.on('friend-request', function (request) {
+    request.accept();
+    inputTargetUserName.value = request.sender;
+});
+
+document.querySelector('h1').innerHTML = 'Your username is: <strong contenteditable>' + user.username + '</strong>';
+
+// this event is fired when conversation is opened
+user.on('conversation-opened', function (conversation) {
+    textChat.disabled = btnEnableMicrophone.disabled = false;
+    inputTargetUserName.disabled = true;
+    
+    // var staticdata = conversation.target.staticdata;
+    // var username = conversation.target.username;
+
+    // emit a message to target user
+    conversation.emit('message', 'hello there');
+
+    conversation.on('message', function (event) {
+        document.querySelector('h1').innerHTML = event.username + ': ' + event.data;
+    });
+
+    // enable your microphone and tell target user about it; he can 
+    // also enable his microphone or he can simply listen your voice!
+    // conversation.emit('enable', 'microphone');
+
+    conversation.on('media-enabled', function (media) {
+        // media.type == 'audio' || 'video' || 'screen'
+        // media.hasmicrophone == true || null
+        // media.hascamera == true || null
+        // media.hasscreen == true || null
+        // media.sender == 'string'
+        
+        media.emit('join-with', 'microphone');
+
+        // media.staticdata == custom object
+    });
+});
+
+var btnEnableMicrophone = document.getElementById('enable-microphone');
+var btnCall = document.getElementById('call');
+var inputTargetUserName = document.getElementById('target-username');
+var textChat = document.getElementById('text-chat');
+
+btnCall.onclick = function() {
+    this.disabled = true;
+    // invoke this method to open conversation with any user
+    user.openconversationwith(inputTargetUserName.value);
+};
+
+btnEnableMicrophone.onclick = function() {
+    this.disabled = true;
+    user.conversations[inputTargetUserName.value].emit('enable', 'microphone');
+};
+
+textChat.onkeyup = function(e) {
+    if(e.keyCode != 13) return;
+    user.conversations[inputTargetUserName.value].emit('message', this.value);
+    
+    this.value = '';
+};
+</script>
+
+<style>button[disabled], input[disabled] { background: rgba(216, 205, 205, 0.2); border: 1px solid rgb(233, 224, 224);}</style>
