@@ -9,10 +9,10 @@ Note: You MUST always manually create a directory and name it "uploads".
 </a>
 
 ```
-npm install recordrtc
+npm install recordrtc-nodejs
 
 // to run it!
-cd ./node_modules/recordrtc/ && node index.js
+cd ./node_modules/recordrtc-nodejs/ && node index.js
 ```
 
 **Make sure that directory names MUST NOT have spaces; e.g.**
