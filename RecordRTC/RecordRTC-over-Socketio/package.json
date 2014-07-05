@@ -1,0 +1,54 @@
+{
+  "name": "recordrtc-socketio",
+  "preferGlobal": true,
+  "version": "3.0.1",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com"
+  },
+  "description": "RecordRTC is a server-less (entire client-side) JavaScript library can be used to record WebRTC audio/video media streams. It supports cross-browser audio/video recording. Current experiment:  1. Records audio/video separately as wav/webm 2. POST both files in single HttpPost-Request to Node.js (FormData) 3. Node.js code saves both files into disk 4. Node.js code invokes ffmpeg to merge wav/webm in single WebM file 5. The merged webm file's URL is returned using same HTTP-callback for playback!",
+  "contributors": [
+    {
+      "name": "Muaz Khan",
+      "email": "muazkh@gmail.com"
+    }
+  ],
+  "scripts": {
+    "start": "node server.js"
+  },
+  "main": "./server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/WebRTC-Experiment.git"
+  },
+  "keywords": [
+    "webrtc",
+    "javascript",
+    "RecordRTC",
+    "Node.js",
+    "ffmpeg",
+    "audio-recording",
+    "video-recording",
+    "gif-recording",
+    "audio/video recording",
+    "webp",
+    "webm",
+    "wav"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.6"
+  },
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues"
+  },
+  "homepage": "https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio",
+  "_id": "recordrtc@3.0.1",
+  "_from": "recordrtc@",
+  "dependencies": {
+    "fluent-ffmpeg": "^1.7.2",
+    "socket.io": "^1.0.6"
+  }
+}
