@@ -53,7 +53,7 @@
     <body>
         <h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a> <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio">over Socket.io</a></h1>
         <p>
-            <video id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></video> 
+	    <video id="camera-preview" style="border: 1px solid rgb(15, 158, 238); width: 94%;"></video>
         </p>
         
         <div style="display:none;">
@@ -107,6 +107,8 @@
                                 
                                 cameraPreview.src = window.URL.createObjectURL(stream);
                                 cameraPreview.play();
+				cameraPreview.muted = true;
+				cameraPreview.controls = false;
                             }
                         });
                         
@@ -197,6 +199,8 @@
                 
                 cameraPreview.src = href
                 cameraPreview.play();
+		cameraPreview.muted = false;
+		cameraPreview.controls = true;
             });
             
             socketio.on('ffmpeg-output', function(result) {
