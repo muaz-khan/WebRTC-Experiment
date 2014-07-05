@@ -1,18 +1,27 @@
 #### [WebRTC](https://www.webrtc-experiment.com/) [Part of Screen Sharing Demos](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing) / [Demos](https://www.webrtc-experiment.com/part-of-screen-sharing/)
 
-* [https://github.com/muaz-khan/WebRTC-Experiment/blob/master/part-of-screen-sharing/screenshot-dev.js](screenshot-dev.js) — developers version
-* [https://github.com/muaz-khan/WebRTC-Experiment/blob/master/part-of-screen-sharing/screenshot.js](screenshot.js) — minified
+Another realtime/p2p working demo: 
+
+* https://www.webrtc-experiment.com/RTCMultiConnection/RTCMultiConnection.sharePartOfScreen.html
+
+Files:
+
+* [screenshot-dev.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/part-of-screen-sharing/screenshot-dev.js) — developers version
+* [screenshot.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/part-of-screen-sharing/screenshot.js) — minified
 
 ```html
-<script src="https://www.webrtc-experiment.com/screenshot.js"></script>
+<script src="//www.webrtc-experiment.com/screenshot.js"></script>
 
 <!-- or Developers version -->
-<script src="https://www.webrtc-experiment.com/screenshot-dev.js"></script>
+<script src="//www.webrtc-experiment.com/screenshot-dev.js"></script>
 ```
+
+Remember, `grabMouse` is used by default. You need to make it `false` to make sure your resulting screenshot has no cursor icon.
 
 ```javascript
 var divToShare = document.querySelector('div');
 html2canvas(divToShare, {
+    grabMouse: false,  //---- if you don't want to take mouse icon
     onrendered: function (canvas) {
         var screenshot = canvas.toDataURL();
         // image.src = screenshot;

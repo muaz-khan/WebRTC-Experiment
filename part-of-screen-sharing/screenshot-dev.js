@@ -1,4 +1,4 @@
-// Last time updated at May 09, 2014, 08:32:23
+// Last time updated at July 05, 2014, 08:32:23
 
 // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.webrtc-experiment.com/licence/
@@ -2708,10 +2708,21 @@ window.html2canvas = function(elements, opts) {
     canvas = _html2canvas.Renderer( queue, options );
 
     if (typeof options.onrendered === "function") {
-      options.onrendered( canvas );
+
+      if(typeof options.grabMouse != 'undefined' && !options.grabMouse) {
+         options.onrendered( canvas );
+      }
+      else {
+        // this code block is added by Muaz Khan.
+        // it is used to render cursor icon in the resulting drawing.
+        var cursorImage = new Image(25, 25);
+        cursorImage.onload = function() {
+           canvas.getContext('2d').drawImage(cursorImage, coordX, coordY, 25, 25);
+           options.onrendered( canvas );
+        };
+        cursorImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAZCAYAAAAxFw7TAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAAzZJREFUSEut1EtME1EUANBiTTFaivRDKbaFFgiILgxx0bQllYItYKFIgEYoC2oEwqeCC4gG1xg2dmEwEQMJujIxwQ24wA2uCFAB3SBBfqWuyqd/CuV634QSPgOFxElu+mZye+a++948BgAw/mccYAwGIyY7O1vR3NzSiuMLX5GiDoO8tLQ0QzAYDLW1tT2/qEgHJslk8rKtLU9odzcMTU3N7RdB6UBhRkZG6fz8QrCuzgJutwfq6xtazovSgunp6SUOhzPI5XJBr9fD9nYojHjDeVA6MJH0EMGARCIBRKC8vJygO2ZzrSUaSgumpqY+cDjWAlJpCgWSMJlMiO6EqqpMtWehtKBUKi1eXV3zI3wAEhQrJJUGseJHp6G0IE61CKfsl8lkR0CCWiyPAXeU32AwVNChdKAAwUIEfXK5/ARI0IaGRkS3vXp9ofE4SguKxWL92tpfH642LUjQ1lYr+P0Bt1abX3wYPQv04n48FSRoe/sz8Pn8G7m5uboISgfyk5OT72OF3szMzBMgk8k88qyjowPW1zddCoVCS1BaUCQSEdCTlZV18GcOh0ONq6trYGbmJ0xMTO3Z7dMwPj4B4XAYXC7XhkqlKqAFBQJBAS6KB08dClEqlTA8/JUak5cEAkHo6nppMxqN7ZWVVZ0GQ0lnRUXlC6VSVXoamI+gm/RQKEyChYU/u5gYUqvVFDo09AVsNttrHMdh3MAQYyRhxNIeX3y+QLu0tLKlVufC5OQU9Pa+/TgwMPCpv7+fAouKigG/pFX81qV4H4PBwrh8Wg95eOUtLi5vLi+v4FSHRzExRafTNZJ7NptNobOzs2C1Wp+eZx/yEhIS8jwer99ut//icOJvk+mwWCzF3NzvebPZTIF4+ILd/mMcx1ei7UOeUCjUjY19n8YvRYPJVzG4GGk9PT3vRkZGKJDH44PT6STTfxgNjGez4+4idg8Tr+8nx+KvNCcnx4y926mpMUNf33vY2wPo7n71JhpImszer4x5KFmE4zujo98m3W6ve3Dww2eNRvMEW3GLrG4kj26Vj/c5ch+Pg5t4ApXhopFWSDASMcjzg+siIKmWVJm839Nr+Hvp+Nsj4D+5Hdf43ZzjNQAAAABJRU5ErkJggg==';
+      }
     }
-
-
   };
 
   // for pages without images, we still want this to be async, i.e. return methods before executing
@@ -2903,3 +2914,44 @@ _html2canvas.Renderer.Canvas = function(options) {
             clearTimeout(id);
         };
 }());
+
+// below code is added by Muaz Khan.
+// this code is used to capture mouse pointer coordinates
+// these coordinates are used to render cursor-icon in the resulting screenshot.
+
+// Detect if the browser is IE or not.
+// If it is not IE, we assume that the browser is NS.
+var IE = document.all ? true : false
+
+// If NS -- that is, !IE -- then set up for mouse capture
+if (!IE) document.captureEvents(Event.MOUSEMOVE)
+
+// Set-up to use getMouseXY function onMouseMove
+document.onmousemove = getMouseXY;
+
+// Temporary variables to hold mouse x-y pos.s
+var coordX = 0
+var coordY = 0
+
+// Main function to retrieve mouse x-y pos.s
+
+function getMouseXY(e) {
+
+    if (IE) { // grab the x-y pos.s if browser is IE
+        coordX = event.clientX + document.body.scrollLeft
+        coordY = event.clientY + document.body.scrollTop
+    } else { // grab the x-y pos.s if browser is NS
+        coordX = e.pageX
+        coordY = e.pageY
+    }
+    // catch possible negative values in NS4
+    if (coordX < 0) {
+        coordX = 0
+    }
+    if (coordY < 0) {
+        coordY = 0
+    }
+
+
+    return true
+}
