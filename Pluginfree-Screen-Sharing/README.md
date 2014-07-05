@@ -1,6 +1,14 @@
-## [WebRTC](https://www.webrtc-experiment.com/) plugin free screen sharing / [Demo](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/)
+## [WebRTC plugin free screen sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) / [Demo](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/)
 
 Use your browser to share content of screen in High-Quality (HD) format with one or more users!
+
+This WebRTC experiment uses a chrome extension:
+
+* https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk
+
+> Same [chrome extension](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) can be used in all your domains! You don't need to deploy yourself!
+
+Read more here: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
 
 =
 

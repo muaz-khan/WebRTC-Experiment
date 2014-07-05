@@ -115,8 +115,8 @@
                     <span>
                         Private ?? <a href="/Pluginfree-Screen-Sharing/" target="_blank" title="Open this link for private screen sharing!"><code><strong id="unique-token">#123456789</strong></code></a>
                     </span>
-                    <input type="text" id="room-name" placeholder="Your Name">
-                    <button id="share-screen" class="setup">Share Your Screen</button>
+                    <input type="text" id="room-name" placeholder="Your Name" disabled>
+                    <button id="share-screen" class="setup" disabled>Share Your Screen</button>
                 </section>
                 
                 <!-- list of all available broadcasting rooms -->
@@ -130,6 +130,8 @@
                 // Muaz Khan     - https://github.com/muaz-khan
                 // MIT License   - https://www.webrtc-experiment.com/licence/
                 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing
+                
+                var isWebRTCExperimentsDomain = document.domain.indexOf('webrtc-experiment.com') != -1;
 
                 var config = {
                     openSocket: function(config) {
@@ -198,14 +200,14 @@
                     };
 
                     // try to check if extension is installed.
-                    if(typeof extensionAvailable == 'undefined' && DetectRTC.screen.chromeMediaSource != 'desktop') {
+                    if(isWebRTCExperimentsDomain && typeof extensionAvailable == 'undefined' && DetectRTC.screen.chromeMediaSource != 'desktop') {
                         DetectRTC.screen.isChromeExtensionAvailable(function(available) {
                             captureUserMedia(callback, available);
                         });
                         return;
                     }
                     
-                    if(DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
+                    if(isWebRTCExperimentsDomain && DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
                         DetectRTC.screen.getSourceId(function(error) {
                             if(error && error == 'PermissionDeniedError') {
                                 alert('PermissionDeniedError: User denied to share content of his screen.');
@@ -213,6 +215,32 @@
                             
                             captureUserMedia(callback);
                         });
+                        return;
+                    }
+                    
+                    // for non-www.webrtc-experiment.com domains
+                    if(!isWebRTCExperimentsDomain && !DetectRTC.screen.sourceId) {
+                        window.addEventListener('message', function (event) {
+                            if (event.data && event.data.chromeMediaSourceId) {
+                                var sourceId = event.data.chromeMediaSourceId;
+
+                                DetectRTC.screen.sourceId = sourceId;
+                                DetectRTC.screen.chromeMediaSource = 'desktop';
+
+                                if (sourceId == 'PermissionDeniedError') {
+                                    return alert('User denied to share content of his screen.');
+                                }
+
+                                captureUserMedia(callback, true);
+                            }
+
+                            if (event.data && event.data.chromeExtensionStatus) {
+                                warn('Screen capturing extension status is:', event.data.chromeExtensionStatus);
+                                DetectRTC.screen.chromeMediaSource = 'screen';
+                                captureUserMedia(callback, true);
+                            }
+                        });
+                        screenFrame.postMessage();
                         return;
                     }
                     
@@ -287,6 +315,50 @@
             </script>
             
             <script>
+                var screenFrame, loadedScreenFrame;
+                
+                function loadScreenFrame(skip) {
+                    if(loadedScreenFrame) return;
+                    if(!skip) return loadScreenFrame(true);
+
+                    loadedScreenFrame = true;
+
+                    var iframe = document.createElement('iframe');
+                    iframe.onload = function () {
+                        iframe.isLoaded = true;
+                        console.log('Screen Capturing frame is loaded.');
+                        
+                        document.getElementById('share-screen').disabled = false;
+                        document.getElementById('room-name').disabled = false;
+                    };
+                    iframe.src = 'https://www.webrtc-experiment.com/getSourceId/';
+                    iframe.style.display = 'none';
+                    (document.body || document.documentElement).appendChild(iframe);
+
+                    screenFrame = {
+                        postMessage: function () {
+                            if (!iframe.isLoaded) {
+                                setTimeout(screenFrame.postMessage, 100);
+                                return;
+                            }
+                            console.log('Asking iframe for sourceId.');
+                            iframe.contentWindow.postMessage({
+                                captureSourceId: true
+                            }, '*');
+                        }
+                    };
+                };
+                
+                if(!isWebRTCExperimentsDomain) {
+                    loadScreenFrame();
+                }
+                else {
+                    document.getElementById('share-screen').disabled = false;
+                    document.getElementById('room-name').disabled = false;
+                }
+            </script>
+            
+            <script>
                 // todo: need to check exact chrome browser because opera also uses chromium framework
                 var isChrome = !!navigator.webkitGetUserMedia;
                 
@@ -295,60 +367,6 @@
                 var DetectRTC = {};
 
                 (function () {
-
-                    function CheckDeviceSupport(callback) {
-                        // This method is useful only for Chrome!
-
-                        // 1st step: verify "MediaStreamTrack" support.
-                        if (!window.MediaStreamTrack && !navigator.getMediaDevices) {
-                            return;
-                        }
-
-                        if (!window.MediaStreamTrack && navigator.getMediaDevices) {
-                            window.MediaStreamTrack = {};
-                        }
-
-                        // 2nd step: verify "getSources" support which is planned to be removed soon!
-                        // "getSources" will be replaced with "getMediaDevices"
-                        if (!MediaStreamTrack.getSources) {
-                            MediaStreamTrack.getSources = MediaStreamTrack.getMediaDevices;
-                        }
-
-                        // todo: need to verify if this trick works
-                        // via: https://code.google.com/p/chromium/issues/detail?id=338511
-                        if (!MediaStreamTrack.getSources && navigator.getMediaDevices) {
-                            MediaStreamTrack.getSources = navigator.getMediaDevices.bind(navigator);
-                        }
-
-                        // if still no "getSources"; it MUST be firefox!
-                        if (!MediaStreamTrack.getSources) {
-                            // assuming that it is older chrome or chromium implementation
-                            if (isChrome) {
-                                DetectRTC.hasMicrophone = true;
-                                DetectRTC.hasWebcam = true;
-                            }
-
-                            return;
-                        }
-
-                        // loop over all audio/video input/output devices
-                        MediaStreamTrack.getSources(function (sources) {
-                            var result = {};
-
-                            for (var i = 0; i < sources.length; i++) {
-                                result[sources[i].kind] = true;
-                            }
-
-                            DetectRTC.hasMicrophone = result.audio;
-                            DetectRTC.hasWebcam = result.video;
-                            
-                            if(callback) callback();
-                        });
-                    }
-
-                    // check for microphone/webcam support!
-                    CheckDeviceSupport();
-                    DetectRTC.load = CheckDeviceSupport;
                     
                     var screenCallback;
                     
@@ -362,7 +380,7 @@
                         isChromeExtensionAvailable: function(callback) {
                             if(!callback) return;
                             
-                            if(DetectRTC.screen.chromeMediaSource == 'desktop') callback(true);
+                            if(DetectRTC.screen.chromeMediaSource == 'desktop') return callback(true);
                             
                             // ask extension if it is available
                             window.postMessage('are-you-there', '*');
@@ -375,6 +393,8 @@
                             }, 2000);
                         },
                         onMessageCallback: function(data) {
+                            if (!(typeof data == 'string' || !!data.sourceId)) return;
+                            
                             console.log('chrome message', data);
                             
                             // "cancel" button is clicked
@@ -397,6 +417,27 @@
                                 DetectRTC.screen.sourceId = data.sourceId;
                                 if(screenCallback) screenCallback( DetectRTC.screen.sourceId );
                             }
+                        },
+                        getChromeExtensionStatus: function (callback) {
+                            if (!!navigator.mozGetUserMedia) return callback('not-chrome');
+                            
+                            var extensionid = 'ajhifddimkapgcifgcodmmfdlknahffk';
+
+                            var image = document.createElement('img');
+                            image.src = 'chrome-extension://' + extensionid + '/icon.png';
+                            image.onload = function () {
+                                DetectRTC.screen.chromeMediaSource = 'screen';
+                                window.postMessage('are-you-there', '*');
+                                setTimeout(function () {
+                                    if (!DetectRTC.screen.notInstalled) {
+                                        callback('installed-enabled');
+                                    }
+                                }, 2000);
+                            };
+                            image.onerror = function () {
+                                DetectRTC.screen.notInstalled = true;
+                                callback('not-installed');
+                            };
                         }
                     };
                     
@@ -405,6 +446,15 @@
                         DetectRTC.screen.isChromeExtensionAvailable();
                     }
                 })();
+                
+                DetectRTC.screen.getChromeExtensionStatus(function(status) {
+                    if(status == 'installed-enabled') {
+                        if(document.getElementById('install-button')) {
+                            document.getElementById('install-button').parentNode.innerHTML = '<strong>Great!</strong> <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Google chrome extension</a> is installed.';
+                        }
+                        DetectRTC.screen.chromeMediaSource = 'desktop';
+                    }
+                });
                 
                 window.addEventListener('message', function (event) {
                     if (event.origin != window.location.origin) {

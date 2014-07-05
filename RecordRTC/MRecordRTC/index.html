@@ -11,7 +11,7 @@
 
 <div id="videos-container"></div>
 
-<audio id="audio" muted loop></audio>
+<audio id="audio" loop></audio>
 
 <script src="//www.webrtc-experiment.com/RecordRTC.js"> </script>
 <script src="//www.webrtc-experiment.com/getMediaElement.js"> </script>
@@ -20,16 +20,16 @@
     
     var recordRTC = new MRecordRTC();
     recordRTC.mediaType = {
-        audio: true,
+        audio: !!navigator.webkitGetUserMedia,
         video: true,
-        gif: true
+        gif: !!navigator.webkitGetUserMedia
     };
     //recordRTC.bufferSize = 16384;
 
     document.querySelector('#start').onclick = function() {
         this.disabled = true;
 
-        navigator.webkitGetUserMedia({ audio: true, video: true }, function(stream) {
+        navigator.getUserMedia({ audio: true, video: true }, function(stream) {
             var video = document.createElement('video');
             video.src = URL.createObjectURL(stream);
             video.play();
@@ -49,6 +49,8 @@
 
             recordRTC.addStream(stream);
             recordRTC.startRecording();
+        }, function(error) {
+            alert( JSON.stringify(error) );
         });
     };
 
@@ -62,7 +64,7 @@
     document.querySelector('#get').onclick = function() {
         this.disabled = true;
 
-        MRecordRTC.getFromDisk('all', function(dataURL, type) {
+        !!navigator.webkitGetUserMedia && MRecordRTC.getFromDisk('all', function(dataURL, type) {
             if (!dataURL) return;
 
             if (type == 'audio') {
@@ -84,8 +86,9 @@
                         document.querySelector('#audio').play();
                     }
                 });
-                mediaElement.toggle('mute-video');
                 videosContainer.appendChild(mediaElement);
+                document.querySelector('#audio').play();
+                mediaElement.media.play();
             }
 
             if (type == 'gif') {
@@ -94,7 +97,35 @@
                 videosContainer.appendChild(gifImage);
             }
         });
+        
+        !!navigator.mozGetUserMedia && MRecordRTC.getFromDisk('video', function(dataURL) {
+            if (!dataURL) return;
+
+            var video = document.createElement('video');
+            video.src = dataURL;
+            video.loop = true;
+            var mediaElement = getMediaElement(video, {
+                buttons: ['mute-video'],
+                showOnMouseEnter: false,
+                enableTooltip: false,
+                onMuted: function() {
+                    mediaElement.muted = true;
+                },
+                onUnMuted: function() {
+                    mediaElement.muted = false;
+                    mediaElement.play();
+                }
+            });
+            videosContainer.appendChild(mediaElement);
+            mediaElement.media.play();
+        });
     };
+    
+    window.addEventListener('beforeunload', function() {
+        document.querySelector('#start').disabled=false;
+        document.querySelector('#stop').disabled=false;
+        document.querySelector('#get').disabled=false;
+    }, false);
 </script>
 
 <pre>

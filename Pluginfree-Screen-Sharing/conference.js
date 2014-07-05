@@ -1,23 +1,22 @@
 ﻿// Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
 // Documentation  - github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
-
-var conference = function(config) {
+var conference = function (config) {
     var self = {
-        userToken: uniqueToken()
-    },
+            userToken: uniqueToken()
+        },
         channels = '--',
         isbroadcaster,
         isGetNewRoom = true,
         participants = 0,
-        defaultSocket = { };
-        
+        defaultSocket = {};
+
     var sockets = [];
 
     function openDefaultSocket() {
         defaultSocket = config.openSocket({
             onmessage: defaultSocketResponse,
-            callback: function(socket) {
+            callback: function (socket) {
                 defaultSocket = socket;
             }
         });
@@ -45,13 +44,13 @@ var conference = function(config) {
         var socketConfig = {
             channel: _config.channel,
             onmessage: socketResponse,
-            onopen: function() {
+            onopen: function () {
                 if (isofferer && !peer) initPeer();
                 sockets[sockets.length] = socket;
             }
         };
 
-        socketConfig.callback = function(_socket) {
+        socketConfig.callback = function (_socket) {
             socket = _socket;
             this.onopen();
         };
@@ -60,12 +59,12 @@ var conference = function(config) {
             isofferer = _config.isofferer,
             gotstream,
             htmlElement = document.createElement('video'),
-            inner = { },
+            inner = {},
             peer;
 
         var peerConfig = {
             attachStream: config.attachStream,
-            onICE: function(candidate) {
+            onICE: function (candidate) {
                 socket && socket.send({
                     userToken: self.userToken,
                     candidate: {
@@ -74,12 +73,12 @@ var conference = function(config) {
                     }
                 });
             },
-            onRemoteStream: function(stream) {
+            onRemoteStream: function (stream) {
                 htmlElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
                 htmlElement.play();
 
                 _config.stream = stream;
-                onRemoteStreamStartsFlowing();
+                afterRemoteStreamStartedFlowing();
             }
         };
 
@@ -90,17 +89,6 @@ var conference = function(config) {
                 peerConfig.onAnswerSDP = sendsdp;
             }
             peer = RTCPeerConnection(peerConfig);
-        }
-
-        function onRemoteStreamStartsFlowing() {
-            if(navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i)) {
-                // if mobile device
-                return afterRemoteStreamStartedFlowing();
-            }
-            
-            if (!(htmlElement.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || htmlElement.paused || htmlElement.currentTime <= 0)) {
-                afterRemoteStreamStartedFlowing();
-            } else setTimeout(onRemoteStreamStartsFlowing, 50);
         }
 
         function afterRemoteStreamStartedFlowing() {
@@ -175,11 +163,11 @@ var conference = function(config) {
                     candidate: JSON.parse(response.candidate.candidate)
                 });
             }
-            
+
             if (response.left) {
                 participants--;
                 if (isofferer && config.onNewParticipant) config.onNewParticipant(participants);
-                
+
                 if (peer && peer.peer) {
                     peer.peer.close();
                     peer.peer = null;
@@ -202,7 +190,7 @@ var conference = function(config) {
             } else initPeer(inner.sdp);
         }
     }
-    
+
     function leave() {
         var length = sockets.length;
         for (var i = 0; i < length; i++) {
@@ -227,7 +215,7 @@ var conference = function(config) {
 
         if (config.attachStream) config.attachStream.stop();
     }
-    
+
     window.addEventListener('beforeunload', function () {
         leave();
     }, false);
@@ -270,7 +258,7 @@ var conference = function(config) {
 
     openDefaultSocket();
     return {
-        createRoom: function(_config) {
+        createRoom: function (_config) {
             self.roomName = _config.roomName || 'Anonymous';
             self.roomToken = uniqueToken();
 
@@ -278,7 +266,7 @@ var conference = function(config) {
             isGetNewRoom = false;
             startBroadcasting();
         },
-        joinRoom: function(_config) {
+        joinRoom: function (_config) {
             self.roomToken = _config.roomToken;
             isGetNewRoom = false;
 
@@ -307,30 +295,27 @@ function RTCPeerConnection(options) {
         SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
         IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
-    var STUN = {
-        url: !moz ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-    };
+    var iceServers = [];
 
-    var TURN = {
-        url: 'turn:homeo@turn.bistri.com:80',
-        credential: 'homeo'
-    };
+    iceServers.push({
+        url: 'stun:stun.l.google.com:19302'
+    });
 
-    var iceServers = {
-        iceServers: options.iceServers || [STUN]
-    };
+    iceServers.push({
+        url: 'stun:stun.anyfirewall.com:3478'
+    });
 
-    if (!moz && !options.iceServers) {
-        if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28) {
-            TURN = {
-                url: 'turn:turn.bistri.com:80',
-                credential: 'homeo',
-                username: 'homeo'
-            };
-        }
+    iceServers.push({
+        url: 'turn:turn.bistri.com:80',
+        credential: 'homeo',
+        username: 'homeo'
+    });
 
-        iceServers.iceServers = [STUN, TURN];
-    }
+    iceServers.push({
+        url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+        credential: 'webrtc',
+        username: 'webrtc'
+    });
 
     var optional = {
         optional: []
@@ -342,9 +327,11 @@ function RTCPeerConnection(options) {
         }];
     }
 
-    var peer = new PeerConnection(iceServers, optional);
+    var peer = new PeerConnection({
+        iceServers: iceServers
+    }, optional);
 
-    peer.onicecandidate = function(event) {
+    peer.onicecandidate = function (event) {
         if (event.candidate)
             options.onICE(event.candidate);
     };
@@ -362,11 +349,11 @@ function RTCPeerConnection(options) {
         }
     }
 
-    peer.onaddstream = function(event) {
+    peer.onaddstream = function (event) {
         var remoteMediaStream = event.stream;
 
         // onRemoteStreamEnded(MediaStream)
-        remoteMediaStream.onended = function() {
+        remoteMediaStream.onended = function () {
             if (options.onRemoteStreamEnded) options.onRemoteStreamEnded(remoteMediaStream);
         };
 
@@ -389,7 +376,7 @@ function RTCPeerConnection(options) {
     function createOffer() {
         if (!options.onOfferSDP) return;
 
-        peer.createOffer(function(sessionDescription) {
+        peer.createOffer(function (sessionDescription) {
             sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onOfferSDP(sessionDescription);
@@ -403,7 +390,7 @@ function RTCPeerConnection(options) {
 
         //options.offerSDP.sdp = addStereo(options.offerSDP.sdp);
         peer.setRemoteDescription(new SessionDescription(options.offerSDP), onSdpSuccess, onSdpError);
-        peer.createAnswer(function(sessionDescription) {
+        peer.createAnswer(function (sessionDescription) {
             sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
             peer.setLocalDescription(sessionDescription);
             options.onAnswerSDP(sessionDescription);
@@ -415,11 +402,11 @@ function RTCPeerConnection(options) {
         if (navigator.userAgent.toLowerCase().indexOf('android') > -1) return sdp;
 
         // removing existing bandwidth lines
-        sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
+        sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
 
 
         // "300kbit/s" for screen sharing
-        sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:300\r\n');
+        sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:300\r\n');
 
         return sdp;
     }
@@ -427,17 +414,17 @@ function RTCPeerConnection(options) {
     createOffer();
     createAnswer();
 
-    function onSdpSuccess() { }
+    function onSdpSuccess() {}
 
     function onSdpError(e) {
         console.error('sdp error:', JSON.stringify(e, null, '\t'));
     }
 
     return {
-        addAnswerSDP: function(sdp) {
+        addAnswerSDP: function (sdp) {
             peer.setRemoteDescription(new SessionDescription(sdp), onSdpSuccess, onSdpError);
         },
-        addICE: function(candidate) {
+        addICE: function (candidate) {
             peer.addIceCandidate(new IceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
@@ -450,7 +437,7 @@ function RTCPeerConnection(options) {
 
 // getUserMedia
 var video_constraints = {
-    mandatory: { },
+    mandatory: {},
     optional: []
 };
 
@@ -459,11 +446,11 @@ function getUserMedia(options) {
         media;
     n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
     n.getMedia(options.constraints || {
-            audio: true,
-            video: video_constraints
-        }, streaming, options.onerror || function(e) {
-            console.error(e);
-        });
+        audio: true,
+        video: video_constraints
+    }, streaming, options.onerror || function (e) {
+        console.error(e);
+    });
 
     function streaming(stream) {
         var video = options.video;
