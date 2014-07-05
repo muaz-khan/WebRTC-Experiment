@@ -46,5 +46,8 @@
   },
   "homepage": "https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs",
   "_id": "recordrtc@3.0.1",
-  "_from": "recordrtc@"
+  "_from": "recordrtc@",
+  "dependencies": {
+    "fluent-ffmpeg": "^1.7.2"
+  }
 }
