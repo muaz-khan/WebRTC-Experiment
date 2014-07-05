@@ -1,5 +1,5 @@
 {
-  "name": "recordrtc",
+  "name": "recordrtc-socketio",
   "preferGlobal": true,
   "version": "3.0.1",
   "author": {
@@ -14,9 +14,9 @@
     }
   ],
   "scripts": {
-    "start": "node index"
+    "start": "node server.js"
   },
-  "main": "./index",
+  "main": "./server.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/muaz-khan/WebRTC-Experiment.git"
@@ -44,10 +44,11 @@
   "bugs": {
     "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues"
   },
-  "homepage": "https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs",
+  "homepage": "https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio",
   "_id": "recordrtc@3.0.1",
   "_from": "recordrtc@",
   "dependencies": {
-    "fluent-ffmpeg": "^1.7.2"
+    "fluent-ffmpeg": "^1.7.2",
+    "socket.io": "^1.0.6"
   }
 }

@@ -120,26 +120,22 @@
                 startRecording.disabled = false;
                 stopRecording.disabled = true;
 
-                var fileName = Math.round(Math.random() * 99999999) + 99999999;
-
                 // stop audio recorder
                 recordVideoSeparately && recordAudio.stopRecording(function() {
                     // stop video recorder
                     recordVideo.stopRecording(function() {
-                    
+
                         // get audio data-URL
                         recordAudio.getDataURL(function(audioDataURL) {
-                        
+
                             // get video data-URL
                             recordVideo.getDataURL(function(videoDataURL) {
                                 var files = {
                                     audio: {
-                                        name: fileName + '.wav',
                                         type: recordAudio.getBlob().type || 'audio/wav',
                                         dataURL: audioDataURL
                                     },
                                     video: {
-                                        name: fileName + '.webm',
                                         type: recordVideo.getBlob().type || 'video/webm',
                                         dataURL: videoDataURL
                                     }
@@ -147,15 +143,15 @@
 
                                 socketio.emit('message', files);
                             });
-                            
+
                         });
-                        
+
                         cameraPreview.src = '';
                         cameraPreview.poster = 'ajax-loader.gif';
                     });
-                    
+
                 });
-                
+
                 // if firefox or if you want to record only audio
                 // stop audio recorder
                 !recordVideoSeparately && recordAudio.stopRecording(function() {
