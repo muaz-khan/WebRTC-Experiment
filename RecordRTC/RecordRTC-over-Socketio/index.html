@@ -76,10 +76,15 @@
             }
             
             var socketio = io.connect('http://localhost:8888/');
+			var mediaStream = false;
             
             socketio.on('connect', function() {
                 startRecording.disabled = false;
             });
+
+	    socketio.on('connect', function() {
+		startRecording.disabled = false;
+	    });
 
             var startRecording = document.getElementById('start-recording');
             var stopRecording  = document.getElementById('stop-recording');
@@ -95,6 +100,7 @@
                         audio: true,
                         video: true
                     }, function(stream) {
+			mediaStream = stream;
                         recordAudio = RecordRTC(stream, {
                             onAudioProcessStarted: function() {
                                 recordVideoSeparately && recordVideo.startRecording();
@@ -146,6 +152,7 @@
                                 };
 
                                 socketio.emit('message', files);
+				mediaStream.stop();
                             });
                             
                         });
@@ -170,6 +177,7 @@
                         };
 
                         socketio.emit('message', files);
+			mediaStream.stop();
                      });
                         
                     cameraPreview.src = '';
