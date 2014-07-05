@@ -23,8 +23,7 @@
         <meta name="author" content="Muaz Khan">
         
         <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
-        <script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
-        
+	<script src="http://localhost:8888/socket.io/socket.io.js"> </script>
         <style>
             html { background-color: #f7f7f7; }
 
@@ -75,8 +74,8 @@
                 cameraPreview.parentNode.innerHTML = '<audio id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></audio> ';
             }
             
-            var socketio = io.connect('http://localhost:8888/');
-            
+
+	    var socketio = io();
             socketio.on('connect', function() {
                 startRecording.disabled = false;
             });
