@@ -109,6 +109,10 @@ function merge(socket, fileName) {
 	.on('end', function() {
 	    socket.emit('merged', fileName + '-merged.webm');
 	    console.log('Merging finished !');
+
+	    // removing audio/video files
+	    fs.unlink(audioFile);
+	    fs.unlink(videoFile);
 	})
 	.saveToFile(mergedFile);
 }
