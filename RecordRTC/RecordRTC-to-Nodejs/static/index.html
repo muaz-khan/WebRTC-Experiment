@@ -50,7 +50,7 @@
     <body>
         <h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a> <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs">over Node.js</a></h1>
         <p>
-            <video controls></video> 
+	    <video></video>
         </p><hr />
         
         <div>
@@ -83,6 +83,8 @@
             var fileName;
             var audioRecorder;
             var videoRecorder;
+
+	    var mediaStream = false;
             
             // Firefox can record both audio/video in single webm container
             // Don't need to create multiple instances of the RecordRTC for Firefox
@@ -137,6 +139,8 @@
                     var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
                     videoElement.src = href + 'uploads/' + _fileName;
                     videoElement.play();
+		    videoElement.muted = false;
+		    videoElement.controls = true;
 
                     var h2 = document.createElement('h2');
                     h2.innerHTML = '<a href="' + videoElement.src + '">' + videoElement.src + '</a>';
@@ -201,6 +205,8 @@
                     
                     // if record only audio (either wav or ogg)
                     if (isRecordOnlyAudio) postFiles(audio);
+
+		    mediaStream.stop();
                 });
             }
         </script>
@@ -225,8 +231,12 @@
                 btnStartRecording.disabled = true;
                 
                 captureUserMedia(function(stream) {
+		    mediaStream = stream;
+
                     videoElement.src = window.URL.createObjectURL(stream);
                     videoElement.play();
+		    videoElement.muted = true;
+		    videoElement.controls = false;
                     
                     // it is second parameter of the RecordRTC
                     var audioConfig = {};
@@ -246,7 +256,7 @@
                         videoRecorder = RecordRTC(stream, videoConfig);
                     }
                     
-                    audioRecorder.startRecording();
+		    audioRecorder.startRecording( );
                     
                     // enable stop-recording button
                     btnStopRecording.disabled = false;
