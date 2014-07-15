@@ -15,6 +15,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        
         <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
         
         <style>
@@ -50,7 +51,7 @@
         </script>
         
         <!-- script used for audio/video/gif recording -->
-        <script src="//www.webrtc-experiment.com/RecordRTC.js"> </script>
+        <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
     </head>
 
     <body>
@@ -78,6 +79,8 @@
                 </p>
             </header>
             
+            <div class="github-stargazers"></div>
+            
             <blockquote>
                 This <a href="https://www.webrtc-experiment.com/">WebRTC</a> experiment records both audio/video in single WebM/mp4 container/format using MediaRecorder API! It currently works only on Firefox &gt;= 29.<br /><br />
                 For chrome, please try <a href="https://www.webrtc-experiment.com/RecordRTC/">https://www.webrtc-experiment.com/RecordRTC/</a>.
@@ -89,7 +92,7 @@
                 <h2 class="header">Record Audio+Video using Firefox &gt;= 29</h2>
                 <div class="inner">
                     <h2 id="download-url"></h2><br />
-                    <video id="video" autoplay controls></video><hr />
+                    <video id="video"></video><hr />
                     <button id="start-recording">Record Audio+Video</button>
                     <button id="stop-recording" disabled>Stop</button><br />
                 </div>
@@ -121,6 +124,15 @@
                     window.audioVideoRecorder.stopRecording(function(url) {
                         downloadURL.innerHTML = '<a href="' + url + '" download="RecordRTC.webm" target="_blank">Save RecordRTC.webm to Disk!</a>';
                         video.src = url;
+                        video.muted = false;
+                        video.play();
+                        
+                        video.onended = function() {
+                            video.pause();
+                            
+                            // dirty workaround for: "firefox seems unable to playback"
+                            video.src = URL.createObjectURL(audioVideoRecorder.getBlob());
+                        };
                     });
                 };
 
@@ -128,6 +140,10 @@
                     navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
                     navigator.getUserMedia({ audio: true, video: true }, function(stream) {
                         video.src = URL.createObjectURL(stream);
+                        video.muted = true;
+                        video.controls = true;
+                        video.play();
+                        
                         callback(stream);
                     }, function(error) { console.error(error); });
                 }

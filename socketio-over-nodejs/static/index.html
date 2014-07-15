@@ -13,7 +13,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
         
         <style>
             audio, video {
@@ -58,10 +58,13 @@
         </script>
         
         <!-- scripts used for video-conferencing -->
-        <script src="//www.webrtc-experiment.com/socket.io.js"> </script>
-        <script src="//www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
-        <script src="//www.webrtc-experiment.com/video-conferencing/conference.js"> </script>
-        <script src="//www.webrtc-experiment.com/getMediaElement.min.js"> </script>
+        <script src="/socket.io/socket.io.js"> </script>
+        <script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
+        <script src="https://www.webrtc-experiment.com/video-conferencing/conference.js"> </script>
+        <script src="https://www.webrtc-experiment.com/getMediaElement.min.js"> </script>
+        
+        <!-- script used to display custom notification bar! -->
+        <script src="https://www.webrtc-experiment.com/navigator.customGetUserMediaBar.js"> </script>
     </head>
 
     <body>
@@ -183,6 +186,8 @@
                                     roomToken: roomToken,
                                     joinUser: broadcaster
                                 });
+                            }, function() {
+                                joinRoomButton.disabled = false;
                             });
                         };
                     },
@@ -205,10 +210,35 @@
                         conferenceUI.createRoom({
                             roomName: (document.getElementById('conference-name') || { }).value || 'Anonymous'
                         });
+                    }, function() {
+                        btnSetupNewRoom.disabled = document.getElementById('conference-name').disabled = false;
                     });
                 }
 
-                function captureUserMedia(callback) {
+                function captureUserMedia(callback, failure_callback, forceSkipCustomGetUserMediaBar) {
+                    if(!forceSkipCustomGetUserMediaBar) {
+                        var mediaConstraints = {
+                            audio: true,
+                            video: true
+                        };
+
+                        navigator.customGetUserMediaBar(mediaConstraints, function () {
+
+                            // now you can invoke "getUserMedia" to seamlessly capture user's media
+                            captureUserMedia(callback, failure_callback, true);
+
+                        }, function () {
+
+                            // user clicked "Deny" or "x" button
+                            // throw new Error('PermissionDeniedError');
+                            alert('PermissionDeniedError: User denied permission.');
+                            
+                            if(failure_callback) failure_callback();
+
+                        });
+                        return;
+                    }
+
                     var video = document.createElement('video');
 
                     getUserMedia({
@@ -292,11 +322,129 @@
             
             <section class="experiment">
                 <ol>
-                    <li>Mesh networking model is implemented to open multiple interconnected peer connections</li>
-                    <li>Maximum peer connections limit is <strong>256</strong> (on chrome)</li>
+                    <li>This <a href="https://www.webrtc-experiment.com/">WebRTC</a> experiment is aimed to transmit audio/video streams in many-to-many style.</li>
+                    <li>It setups multiple peer connections to support multi-user connectivity feature. Remember, <a href="https://www.webrtc-experiment.com/">WebRTC</a> doesn't supports 3-way handshake!</li>
+                    <li>Out of multi-peers establishment; many RTP-ports are opened according to number of media streams referenced to each peer connection.</li>
+                    <li>Multi-ports establishment will cause <a href="https://www.webrtc-experiment.com/docs/RTP-usage.html">huge CPU and bandwidth usage</a>!</li>
+                    <li>Mesh networking model is implemented to open multiple interconnected peer connections.</li>
+                    <li>Maximum peer connections limit is 256 (on chrome). It means that 256 users can be interconnected!</li>
                 </ol>
             </section>
         
+            <section class="experiment">
+                <h2 class="header">Want to use video-conferencing in your own webpage?</h2>
+                <pre>
+&lt;script src="//www.webrtc-experiment.com/socket.io.js"&gt; &lt;/script&gt;
+&lt;script src="//www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"&gt; &lt;/script&gt;
+&lt;script src="//www.webrtc-experiment.com/video-conferencing/conference.js"&gt; &lt;/script&gt;
+
+&lt;button id="setup-new-room"&gt;Setup New Conference&lt;/button&gt;
+&lt;table style="width: 100%;" id="rooms-list"&gt;&lt;/table&gt;
+&lt;div id="videos-container"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+var config = {
+    openSocket: function (config) {
+        // http://socketio-over-nodejs.hp.af.cm/
+        // http://socketio-over-nodejs.nodejitsu.com:80/
+        // http://webrtc-signaling.nodejitsu.com:80/
+
+        var SIGNALING_SERVER = 'http://webrtc-signaling.nodejitsu.com:80/',
+            defaultChannel = location.hash.substr(1) || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+
+        var channel = config.channel || defaultChannel;
+        var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+        io.connect(SIGNALING_SERVER).emit('new-channel', {
+            channel: channel,
+            sender: sender
+        });
+
+        var socket = io.connect(SIGNALING_SERVER + channel);
+        socket.channel = channel;
+        socket.on('connect', function () {
+            if (config.callback) config.callback(socket);
+        });
+
+        socket.send = function (message) {
+            socket.emit('message', {
+                sender: sender,
+                data: message
+            });
+        };
+
+        socket.on('message', config.onmessage);
+    },
+    onRemoteStream: function (media) {
+        var video = media.video;
+        video.setAttribute('controls', true);
+        video.setAttribute('id', media.stream.id);
+        videosContainer.insertBefore(video, videosContainer.firstChild);
+        video.play();
+    },
+    onRemoteStreamEnded: function (stream) {
+        var video = document.getElementById(stream.id);
+        if (video) video.parentNode.removeChild(video);
+    },
+    onRoomFound: function (room) {
+        var alreadyExist = document.querySelector('button[data-broadcaster="' + room.broadcaster + '"]');
+        if (alreadyExist) return;
+
+        var tr = document.createElement('tr');
+        tr.innerHTML = '&lt;td&gt;&lt;strong&gt;' + room.roomName + '&lt;/strong&gt; shared a conferencing room with you!&lt;/td&gt;' +
+            '&lt;td&gt;&lt;button class="join"&gt;Join&lt;/button&gt;&lt;/td&gt;';
+        roomsList.insertBefore(tr, roomsList.firstChild);
+
+        var joinRoomButton = tr.querySelector('.join');
+        joinRoomButton.setAttribute('data-broadcaster', room.broadcaster);
+        joinRoomButton.setAttribute('data-roomToken', room.broadcaster);
+        joinRoomButton.onclick = function () {
+            this.disabled = true;
+
+            var broadcaster = this.getAttribute('data-broadcaster');
+            var roomToken = this.getAttribute('data-roomToken');
+            captureUserMedia(function () {
+                conferenceUI.joinRoom({
+                    roomToken: roomToken,
+                    joinUser: broadcaster
+                });
+            });
+        };
+    }
+};
+
+var conferenceUI = conference(config);
+var videosContainer = document.getElementById('videos-container') || document.body;
+var roomsList = document.getElementById('rooms-list');
+
+document.getElementById('setup-new-room').onclick = function () {
+    this.disabled = true;
+    captureUserMedia(function () {
+        conferenceUI.createRoom({
+            roomName: 'Anonymous'
+        });
+    });
+};
+
+function captureUserMedia(callback) {
+    var video = document.createElement('video');
+    video.setAttribute('autoplay', true);
+    video.setAttribute('controls', true);
+    videosContainer.insertBefore(video, videosContainer.firstChild);
+
+    getUserMedia({
+        video: video,
+        onsuccess: function (stream) {
+            config.attachStream = stream;
+            video.setAttribute('muted', true);
+            callback();
+        }
+    });
+}
+&lt;/script&gt;
+</pre>
+            </section>
+            
             <section class="experiment own-widgets latest-commits">
                 <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
                 <div id="github-commits"></div>
@@ -309,51 +457,22 @@
                 </div>
                 <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
-            
-            <section class="experiment">
-                <h2 class="header">How it works?</h2>
-                <p><strong>
-                       Huge bandwidth and CPU-usage out of multiple peers interconnection:
-                   </strong>
-                </p>
-                <p>
-                    To understand it better; assume that 10 users are sharing video in a group.
-                    <strong>40</strong> RTP-ports (i.e. streams) will be created for each user. All streams are expected
-                    to be flowing concurrently; which causes blur video experience and audio lose/noise (echo)
-                    issues.</p>
-                <p>
-                    For each user:</p>
-                <ol>
-                    <li>10 RTP ports are opened to send video upward i.e. for outgoing video streams</li>
-                    <li>10 RTP ports are opened to send audio upward i.e. for outgoing audio streams</li>
-                    <li>10 RTP ports are opened to receive video i.e. for incoming video streams</li>
-                    <li>10 RTP ports are opened to receive audio i.e. for incoming audio streams</li>
-                </ol>
-                <p>
-                    Maximum bandwidth used by each video RTP port (media-track) is about 1MB; which can be controlled using "b=AS" session description parameter values. In two-way video-only session; 2MB bandwidth is used by each peer; otherwise; a low-quality blurred video will be delivered.
-                </p>
-                <pre>
-// removing existing bandwidth lines
-sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
-
-// setting "outgoing" audio RTP port's bandwidth to "50kbit/s"
-sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:50\r\n');
-
-// setting "outgoing" video RTP port's bandwidth to "256kbit/s"
-sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
-</pre>
-                <p>
-                    Possible issues:</p>
-                <ol>
-                    <li>Blurry video experience</li>
-                    <li>Unclear voice and audio lost</li>
-                    <li>Bandwidth issues / slow streaming / CPU overwhelming</li>
-                </ol>
-                <p>Solution? Obviously a media server!</p>
-            </section>
         </article>
         
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing" class="fork-right"></a>
+        <aside style="position: fixed; top:2em;right:0;">
+            <h2>Other Demos</h2>
+            <ol>
+                <li>
+                    <a href="/text-chat.html">Text Chat</a>
+                </li>
+                
+                <li>
+                    <a href="/RTCMultiConnection">MultiRTC</a>
+                </li>
+            </ol>
+        </aside>
+        
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing" class="fork-left"></a>
         
         <footer>
             <p>
@@ -364,6 +483,6 @@ sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="//www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

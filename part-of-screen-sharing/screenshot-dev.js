@@ -1,4 +1,4 @@
-// Last time updated at July 05, 2014, 08:32:23
+// Last time updated at July 06, 2014, 08:32:23
 
 // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.webrtc-experiment.com/licence/
@@ -2927,7 +2927,8 @@ var IE = document.all ? true : false
 if (!IE) document.captureEvents(Event.MOUSEMOVE)
 
 // Set-up to use getMouseXY function onMouseMove
-document.onmousemove = getMouseXY;
+// document.onmousemove = getMouseXY;
+document.addEventListener('mousemove', getMouseXY, false);
 
 // Temporary variables to hold mouse x-y pos.s
 var coordX = 0

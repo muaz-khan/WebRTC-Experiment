@@ -12,6 +12,24 @@
 // Android (Firefox) [ only video ]
 ```
 
+<a href="https://nodei.co/npm/recordrtc/">
+    <img src="https://nodei.co/npm/recordrtc.png">
+</a>
+
+```
+npm install recordrtc
+```
+
+To use it:
+
+```htm
+<script src="./node_modules/recordrtc/RecordRTC.js"></script>
+```
+
+There are some other NPM packages regarding RecordRTC:
+
+* https://www.npmjs.org/search?q=RecordRTC
+
 =
 
 ## How RecordRTC encodes wav/webm?

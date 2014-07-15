@@ -17,7 +17,75 @@ npm install socketio-over-nodejs
 and run the `signaler.js` nodejs file:
 
 ```
-cd node_modules/socketio-over-nodejs/ && node signaler
+node ./node_modules/socketio-over-nodejs/signaler.js
+```
+
+Now you can test: `http://localhost:8888/`
+
+=
+
+### Install on Linux/Ubuntu/CentOS/Debian/Mac etc.
+
+```
+# create a directory
+mkdir socketio-over-nodejs
+
+# open directory
+cd socketio-over-nodejs
+
+# get package
+wget http://www.webrtc-experiment.com/packages/socketio-over-nodejs.tar
+
+# extract package
+tar -xf socketio-over-nodejs.tar
+
+# run node.js server
+node signaler.js
+```
+
+Now, you can open port `8888` on your ip address/domain; or otherwise on localhost: `http://localhost:8888/`
+
+=
+
+It is using port `8888`; you can edit this port using following commands:
+
+```
+vi signaler.js
+
+# now edit port 12034
+# and save changes & quit
+
+# press "insert" key; then press "Esc" key and the type
+:wq
+```
+
+`:wq` command saves changes in the file and exits editing mode. If you don't want to save changes; simply type:
+
+```
+# if you don't want to save changes however want to exit editing mode
+:q
+```
+
+Common Error: `Error: listen EADDRINUSE`. It means that same port is used by another application. You can close all existing processes running on same port:
+
+```
+// list all active processes running on same port
+fuser -v 8888/tcp
+
+// kill all processes running on port "8888"
+fuser -vk 8888/tcp
+
+// list again to verify closing ports
+fuser -v 8888/tcp
+```
+
+You can delete "directory" and re-install:
+
+```
+rm -rf socketio-over-nodejs
+mkdir socketio-over-nodejs
+
+# and following above steps to "wget" and "tar" then "node" to run!
 ```
 
 =
@@ -56,24 +124,21 @@ and you're done!
 
 #### How to use?
 
-Following code explains how to override [`openSignalingChannel`](http://www.rtcmulticonnection.org/docs/openSignalingChannel/) method in your HTML pages; `openSignalingChannel` is useful only for RTCMultiConnection.js and DataChannel.js. For other WebRTC Experiments, please check next section.
+In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
 
 ```javascript
-// http://socketio-over-nodejs.hp.af.cm/  (Ordinary port: HTTP)
+// http://socketio-over-nodejs.hp.af.cm/
+// http://socketio-over-nodejs.jit.su:80/
+// http://webrtc-signaling.jit.su:80/
 
-// http://socketio-over-nodejs.nodejitsu.com:80 (Secure port: HTTPs)
-// https://socketio-over-nodejs.nodejitsu.com:443/ (Ordinary port: HTTP)
-
-// https://webrtc-signaling.nodejitsu:443/ (Secure port: HTTPs)
-// http://webrtc-signaling.nodejitsu:80/ (Ordinary port: HTTP)
-
-var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
+var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com/';
 connection.openSignalingChannel = function(config) {   
-   var channel = config.channel || this.channel;
+   var channel = config.channel || this.channel || 'default-namespace';
+   var sender = Math.round(Math.random() * 9999999999) + 9999999999;
    
    io.connect(SIGNALING_SERVER).emit('new-channel', {
       channel: channel,
-      sender : connection.userid
+      sender : sender
    });
    
    var socket = io.connect(SIGNALING_SERVER + channel);
@@ -85,7 +150,7 @@ connection.openSignalingChannel = function(config) {
    
    socket.send = function (message) {
         socket.emit('message', {
-            sender: connection.userid,
+            sender: sender,
             data  : message
         });
     };
@@ -98,51 +163,6 @@ connection.openSignalingChannel = function(config) {
 
 =
 
-#### How to use for `openSocket`?
-
-`openSocket` is used in all standalone WebRTC Experiments. You can define this method in your `ui.js` file or in your HTML page.
-
-```javascript
-// http://socketio-over-nodejs.hp.af.cm/  (Ordinary port: HTTP)
-
-// http://socketio-over-nodejs.nodejitsu.com:80 (Secure port: HTTPs)
-// https://socketio-over-nodejs.nodejitsu.com:443/ (Ordinary port: HTTP)
-
-// https://webrtc-signaling.nodejitsu:443/ (Secure port: HTTPs)
-// http://webrtc-signaling.nodejitsu:80/ (Ordinary port: HTTP)
-
-var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
-var config = {
-    openSocket = function (config) {
-        var channel = config.channel || 'main-public-channel';
-        var sender = Math.round(Math.random() * 9999999999) + 9999999999;
-
-        io.connect(SIGNALING_SERVER).emit('new-channel', {
-            channel: channel,
-            sender: sender
-        });
-
-        var socket = io.connect(SIGNALING_SERVER + channel);
-        socket.channel = channel;
-
-        socket.on('connect', function () {
-            if (config.callback) config.callback(socket);
-        });
-
-        socket.send = function (message) {
-            socket.emit('message', {
-                sender: sender,
-                data: message
-            });
-        };
-
-        socket.on('message', config.onmessage);
-    }
-};
-```
-
-=
-
 #### Presence Detection
 
 You can detect presence of a room like this:
@@ -152,7 +172,7 @@ You can detect presence of a room like this:
 // http://socketio-over-nodejs.jit.su:80/
 // http://webrtc-signaling.jit.su:80/
 
-var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
+var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com/';
 function testChannelPresence(channel) {
     var socket = io.connect(SIGNALING_SERVER);
     socket.on('presence', function (isChannelPresent) {
@@ -185,10 +205,10 @@ This command runs node.js server via `signaler.js` file. That file handles socke
 This command deploys the **entire directory** (i.e. project, including all `node_modules` dependencies) over `nodejitsu` servers. You will be able to access your deployed project using URL like this:
 
 ```javascript
-http://username.jit.su/
+https://username.nodejitsu.com/
 ```
 
-See the demo URL: http://webrtc-signaling.jit.su/
+See the demo URL: https://webrtc-signaling.nodejitsu.com/
 
 =
 
@@ -233,4 +253,4 @@ https://github.com/muaz-khan/WebRTC-Experiment/issues/62
 
 #### License
 
-[Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

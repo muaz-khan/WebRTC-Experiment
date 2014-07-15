@@ -1,5 +1,20 @@
 #### [RecordRTC over Socket.io](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio)
 
+<a href="https://nodei.co/npm/recordrtc-socketio/">
+    <img src="https://nodei.co/npm/recordrtc-socketio.png">
+</a>
+
+```
+npm install recordrtc-socketio
+
+// to run it!
+node ./node_modules/recordrtc-socketio/server.js
+```
+
+There are some other NPM packages regarding RecordRTC:
+
+* https://www.npmjs.org/search?q=RecordRTC
+
 This experiment:
 
 1. Records audio/video separately as wav/webm
@@ -11,7 +26,7 @@ This experiment:
 Client side stuff:
 
 ```javascript
-var socketio = io.connect('http://localhost:8888/');
+var socketio = io();
 
 var files = {
     audio: {

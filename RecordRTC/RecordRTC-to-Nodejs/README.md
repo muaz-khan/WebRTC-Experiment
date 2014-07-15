@@ -1,19 +1,29 @@
-Note: You MUST always manually create a directory and name it "uploads".
-
-=
-
 #### [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
 
-<a href="https://nodei.co/npm/recordrtc/">
-    <img src="https://nodei.co/npm/recordrtc.png">
+<a href="https://nodei.co/npm/recordrtc-nodejs/">
+    <img src="https://nodei.co/npm/recordrtc-nodejs.png">
 </a>
 
 ```
-npm install recordrtc
+npm install recordrtc-nodejs
 
 // to run it!
-cd ./node_modules/recordrtc/ && node index.js
+node ./node_modules/recordrtc-nodejs/index.js
 ```
+
+=
+
+##### How to test?
+
+In the node.js command prompt window; type `node index`; then open `http://localhost:8000/`.
+
+=
+
+There are some other NPM packages regarding RecordRTC:
+
+* https://www.npmjs.org/search?q=RecordRTC
+
+=
 
 **Make sure that directory names MUST NOT have spaces; e.g.**
 
@@ -47,7 +57,7 @@ This experiment:
 
 ```
 @echo off
-ffmpeg -i audio-file.wav -i video-file.webm 0:0 -map 1:0 output-file-name.webm
+"C:\ffmpeg\bin\ffmpeg.exe" -i %1 -itsoffset -00:00:01 -i %2 %3
 ```
 
 **It is assumed that you already have installed ffmpeg on your system.** Though, EXE file is hard-coded to "C:\ffmpeg\bin\ffmpeg.exe" however you can easily edit it according to your own installations.
@@ -59,60 +69,10 @@ ffmpeg -i audio-file.wav -i video-file.webm 0:0 -map 1:0 output-file-name.webm
 `merger.sh` file is executed to invoke ffmpeg functionalities on Mac/Linux/etc.
 
 ```
-ffmpeg -i audio-file.wav -i video-file.webm -map 0:0 -map 1:0 output-file-name.webm
+ffmpeg -i audio-file.wav -itsoffset -00:00:01 -i video-file.webm -map 0:0 -map 1:0 output-file-name.webm
 ```
 
 Using Linux; ffmpeg installation is super-easy! You can install DEVEL packages as well.
-
-=
-
-##### Ubuntu, Debian, or Linux Mint?
-
-You're suggested to install ffmpeg and libvpx from following URL:
-
-* https://trac.ffmpeg.org/wiki/UbuntuCompilationGuide
-
-Another useful resource is:
-
-* http://wiki.razuna.com/display/ecp/FFmpeg+Installation+for+Ubuntu
-
-Read following comments:
-
-> Actually it is very easy to install FFmpeg under Ubuntu with the apt-get command.
-> Unfortunately, the default FFmpeg installation doesn't let you include the latest codecs 
-> which are needed to merge WAV/WebM into vp8 encoded video i.e. WebM!
-> Thus you have to compile FFmpeg yourself!
-
-For example, you can check libvpx installation using following command:
-
-```
-dpkg -s libvpx | grep Status
-```
-
-This doesn't mean that you enabled libvpx for ffmpeg; you need to verify vp8 encoders in ffmpeg using following commands:
-
-```
-ffmpeg -codecs     # to check list of all decoders
-ffmpeg -encoders   # to check list of all encoders
-```
-
-Usually latest ffmpeg can decode WebM i.e. vp8 codecs; however it can't encode back into vp8 until you manually install libvpx.
-
-There is another useful resource!
-
-* http://juliensimon.blogspot.com/2013/08/howto-compiling-ffmpeg-x264-mp3-aac.html
-
-This provides a good command to check list of encoders in ffmpeg:
-
-```
-ffmpeg -encoders|grep -E "mp3|xvid|aac|gsm|amr|x264|theora|vorbis"
-```
-
-Sometimes you mistakenly install multiple ffmpeg instances. Find-out ffmpeg instance that has included libvpx; then include that instance's full path in the ffmpeg-command. E.g.
-
-```
-ffmpeg -i audioFile -i videoFile -map 0:0 -map 1:0 outputFile
-```
 
 =
 
@@ -136,105 +96,359 @@ http://www.wikihow.com/Install-FFmpeg-on-Windows
 Make sure you have **homebrew** installed. Then run following command:
 
 ```
-brew install ffmpeg --with-libvpx --with-theora --with-libogg --with-libvorbis
-```
-
-More info here:
-
-* https://github.com/muaz-khan/WebRTC-Experiment/issues/198
-
-##### How to test?
-
-In the node.js command prompt window; type `node index`; then open `http://localhost:8000/`.
-
-=
-
-#### How to fix audio/video sync issues on chrome?
-
-```javascript
-recordAudio = RecordRTC( stream, {
-     onAudioProcessStarted: function( ) {
-         recordVideo.startRecording();
-     }
-});
-
-recordVideo = RecordRTC(stream, {
-    type: 'video'
-});
-
-recordAudio.startRecording();
-```
-
-`onAudioProcessStarted` fixes shared/exclusive audio gap (a little bit). Because shared audio sometimes causes 100ms delay...
-sometime about 400-to-500 ms delay. 
-Delay depends upon number of applications concurrently requesting same audio devices and CPU/Memory available. 
-Shared mode is the only mode currently available on 90% of windows systems especially on windows 7.
-
-=
-
-#### Want to recording only audio?
-
-```
-// line 91:
-
-// Firefox can record both audio/video in single webm container
-// Don't need to create multiple instances of the RecordRTC for Firefox
-// You can even use below property to force recording only audio blob on chrome
-var isRecordOnlyAudio = true;
+brew install ffmpeg --with-libvpx --with-theora --whit-libogg --with-libvorbis
 ```
 
 =
 
-#### Want to use Expressjs over Nodejs?
+##### `index.html`
 
-Simply replace [server.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RecordRTC/RecordRTC-to-Nodejs/server.js) with following code block:
+```html
+<!--
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// Experiments   - github.com/muaz-khan/WebRTC-Experiment
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>RecordRTC over Node.js</title>
+        <script>
+            if (location.href.indexOf('file:') == 0) {
+                document.write('<h1 style="color:red;">Please load this HTML file on HTTP or HTTPS.</h1>');
+            }
+        </script>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
+        <style>
+            html { background-color: #f7f7f7; }
+
+            body {
+                background-color: white;
+                border: 1px solid rgb(15, 158, 238);
+                margin: 1% 35%;
+                text-align: center;
+            }
+
+            hr {
+                border: 0;
+                border-top: 1px solid rgb(15, 158, 238);
+            }
+
+            a {
+                color: #2844FA;
+                text-decoration: none;
+            }
+
+            a:hover, a:focus { color: #1B29A4; }
+
+            a:active { color: #000; }
+        </style>
+    </head>
+    <body>
+        <p>
+            <video id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></video> 
+        </p><hr />
+
+        <div>
+            <button id="start-recording">Start Recording</button>
+            <button id="stop-recording" disabled="">Stop Recording</button>
+        </div>
+		
+        <script>
+            var startRecording = document.getElementById('start-recording');
+            var stopRecording = document.getElementById('stop-recording');
+            var cameraPreview = document.getElementById('camera-preview');
+
+            var audio = document.querySelector('audio');
+
+            var isFirefox = !!navigator.mozGetUserMedia;
+
+            var recordAudio, recordVideo;
+            startRecording.onclick = function() {
+                startRecording.disabled = true;
+                navigator.getUserMedia({
+                        audio: true,
+                        video: true
+                    }, function(stream) {
+                        cameraPreview.src = window.URL.createObjectURL(stream);
+                        cameraPreview.play();
+
+                        recordAudio = RecordRTC(stream, {
+                            bufferSize: 16384
+                        });
+
+                        if (!isFirefox) {
+                            recordVideo = RecordRTC(stream, {
+                                type: 'video'
+                            });
+                        }
+
+                        recordAudio.startRecording();
+
+                        if (!isFirefox) {
+                            recordVideo.startRecording();
+                        }
+
+                        stopRecording.disabled = false;
+                    }, function(error) {
+                        alert(JSON.stringify(error));
+                    });
+            };
+
+
+            stopRecording.onclick = function() {
+                startRecording.disabled = false;
+                stopRecording.disabled = true;
+
+                recordAudio.stopRecording(function() {
+                    if (isFirefox) onStopRecording();
+                });
+
+                if (!isFirefox) {
+                    recordVideo.stopRecording();
+                    onStopRecording();
+                }
+
+                function onStopRecording() {
+                    recordAudio.getDataURL(function(audioDataURL) {
+                        if (!isFirefox) {
+                            recordVideo.getDataURL(function(videoDataURL) {
+                                postFiles(audioDataURL, videoDataURL);
+                            });
+                        } else postFiles(audioDataURL);
+                    });
+                }
+            };
+
+            var fileName;
+
+            function postFiles(audioDataURL, videoDataURL) {
+                fileName = getRandomString();
+                var files = { };
+
+                files.audio = {
+                    name: fileName + (isFirefox ? '.webm' : '.wav'),
+                    type: isFirefox ? 'video/webm' : 'audio/wav',
+                    contents: audioDataURL
+                };
+
+                if (!isFirefox) {
+                    files.video = {
+                        name: fileName + '.webm',
+                        type: 'video/webm',
+                        contents: videoDataURL
+                    };
+                }
+
+                files.isFirefox = isFirefox;
+
+                cameraPreview.src = '';
+                cameraPreview.poster = '/ajax-loader.gif';
+
+                xhr('/upload', JSON.stringify(files), function(_fileName) {
+                    var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+                    cameraPreview.src = href + 'uploads/' + _fileName;
+                    cameraPreview.play();
+
+                    var h2 = document.createElement('h2');
+                    h2.innerHTML = '<a href="' + cameraPreview.src + '">' + cameraPreview.src + '</a>';
+                    document.body.appendChild(h2);
+                });
+            }
+
+            function xhr(url, data, callback) {
+                var request = new XMLHttpRequest();
+                request.onreadystatechange = function() {
+                    if (request.readyState == 4 && request.status == 200) {
+                        callback(request.responseText);
+                    }
+                };
+                request.open('POST', url);
+                request.send(data);
+            }
+
+            window.onbeforeunload = function() {
+                startRecording.disabled = false;
+            };
+
+            function getRandomString() {
+                if (window.crypto) {
+                    var a = window.crypto.getRandomValues(new Uint32Array(3)),
+                        token = '';
+                    for (var i = 0, l = a.length; i < l; i++) token += a[i].toString(36);
+                    return token;
+                } else {
+                    return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
+                }
+            }
+        </script>
+    </body>
+</html>
+```
+
+=
+
+##### `handlers.js`
 
 ```javascript
 var config = require('./config'),
-    url = require('url');
+    fs = require('fs'),
+    sys = require('sys'),
+    exec = require('child_process').exec;
 
-function start(route, handle) {
-    var fs = require('fs');
-    var express = require('express');
-
-    var app = express();
-
-    app.use(function (request, response, next) {
-        if (request.url.match(/JS|CSS|HTML|PNG|JPEG|JPG|GIF/gi)) {
-            express.static(__dirname + '/static')(request, response, next);
-        } else if (request.url.match(/WebM/gi)) {
-            fs.readFile(__dirname + request.url, "binary", function (err, file) {
-                if (err) throw err;
-
-                response.writeHead(200, {
-                    "Content-Type": 'video/webm'
-                });
-                
-                response.write(file, "binary");
-                response.end();
-            });
-        } else {
-            var pathname = url.parse(request.url).pathname,
-                postData = '';
-
-            request.setEncoding('utf8');
-
-            request.addListener('data', function (postDataChunk) {
-                postData += postDataChunk;
-            });
-
-            request.addListener('end', function () {
-                route(handle, pathname, response, postData);
-            });
-        }
+function home(response) {
+    response.writeHead(200, {
+        'Content-Type': 'text/html'
     });
-
-    var server = require('http').createServer(app);
-
-    server.listen(config.port);
+    response.end(fs.readFileSync('./static/index.html'));
 }
 
-exports.start = start;
+// this function uploads files
+
+function upload(response, postData) {
+    var files = JSON.parse(postData);
+
+    // writing audio file to disk
+    _upload(response, files.audio);
+
+    if (files.isFirefox) {
+        response.statusCode = 200;
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.end(files.audio.name);
+    }
+
+    if (!files.isFirefox) {
+        // writing video file to disk
+        _upload(response, files.video);
+
+        merge(response, files);
+    }
+}
+
+// this function merges wav/webm files
+
+function merge(response, files) {
+    // detect the current operating system
+    var isWin = !!process.platform.match( /^win/ );
+
+    if (isWin) {
+        ifWin(response, files);
+    } else {
+        ifMac(response, files);
+    }
+}
+
+function _upload(response, file) {
+    var fileRootName = file.name.split('.').shift(),
+        fileExtension = file.name.split('.').pop(),
+        filePathBase = config.upload_dir + '/',
+        fileRootNameWithBase = filePathBase + fileRootName,
+        filePath = fileRootNameWithBase + '.' + fileExtension,
+        fileID = 2,
+        fileBuffer;
+
+    while (fs.existsSync(filePath)) {
+        filePath = fileRootNameWithBase + '(' + fileID + ').' + fileExtension;
+        fileID += 1;
+    }
+
+    file.contents = file.contents.split(',').pop();
+
+    fileBuffer = new Buffer(file.contents, "base64");
+
+    fs.writeFileSync(filePath, fileBuffer);
+}
+
+function serveStatic(response, pathname) {
+
+    var extension = pathname.split('.').pop(),
+        extensionTypes = {
+            'js': 'application/javascript',
+            'webm': 'video/webm',
+            'gif': 'image/gif'
+        };
+
+    response.writeHead(200, {
+        'Content-Type': extensionTypes[extension]
+    });
+    if (extensionTypes[extension] == 'video/webm')
+        response.end(fs.readFileSync('.' + pathname));
+    else
+        response.end(fs.readFileSync('./static' + pathname));
+}
+
+function ifWin(response, files) {
+    // following command tries to merge wav/webm files using ffmpeg
+    var merger = __dirname + '\\merger.bat';
+    var audioFile = __dirname + '\\uploads\\' + files.audio.name;
+    var videoFile = __dirname + '\\uploads\\' + files.video.name;
+    var mergedFile = __dirname + '\\uploads\\' + files.audio.name.split('.')[0] + '-merged.webm';
+
+    // if a "directory" has space in its name; below command will fail
+    // e.g. "c:\\dir name\\uploads" will fail.
+    // it must be like this: "c:\\dir-name\\uploads"
+    var command = merger + ', ' + audioFile + " " + videoFile + " " + mergedFile + '';
+    exec(command, function (error, stdout, stderr) {
+        if (error) {
+            console.log(error.stack);
+            console.log('Error code: ' + error.code);
+            console.log('Signal received: ' + error.signal);
+        } else {
+            response.statusCode = 200;
+            response.writeHead(200, {
+                'Content-Type': 'application/json'
+            });
+            response.end(files.audio.name.split('.')[0] + '-merged.webm');
+
+            fs.unlink(audioFile);
+            fs.unlink(videoFile);
+        }
+    });
+}
+
+function ifMac(response, files) {
+    // its probably *nix, assume ffmpeg is available
+    var audioFile = __dirname + '/uploads/' + files.audio.name;
+    var videoFile = __dirname + '/uploads/' + files.video.name;
+    var mergedFile = __dirname + '/uploads/' + files.audio.name.split('.')[0] + '-merged.webm';
+    var util = require('util'),
+        exec = require('child_process').exec;
+    //child_process = require('child_process');
+
+    var command = "ffmpeg -i " + audioFile + " -itsoffset -00:00:01 -i " + videoFile + " -map 0:0 -map 1:0 " + mergedFile;
+
+    exec(command, function (error, stdout, stderr) {
+        if (stdout) console.log(stdout);
+        if (stderr) console.log(stderr);
+
+        if (error) {
+            console.log('exec error: ' + error);
+            response.statusCode = 404;
+            response.end();
+
+        } else {
+            response.statusCode = 200;
+            response.writeHead(200, {
+                'Content-Type': 'application/json'
+            });
+            response.end(files.audio.name.split('.')[0] + '-merged.webm');
+
+            // removing audio/video files
+            fs.unlink(audioFile);
+            fs.unlink(videoFile);
+        }
+
+    });
+}
+
+exports.home = home;
+exports.upload = upload;
+exports.serveStatic = serveStatic;
 ```
 
 =

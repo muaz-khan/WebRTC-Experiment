@@ -1,27 +1,34 @@
 var fs = require('fs');
-var express = require('express');
 
-var app = express();
-
-app.configure(function () {
-    var hourMs = 1000 * 60 * 60;
-    app.use(express.static('static', {
-        maxAge: hourMs
-    }));
-    app.use(express.directory('static'));
-    app.use(express.errorHandler());
+var _static = require('node-static');
+var file = new _static.Server('./static', {
+    cache: false
 });
 
-var server = require('http').createServer(app);
-var io = require('socket.io').listen(server);
-server.listen(8888);
+var app = require('http').createServer(serverCallback);
 
-// ----------------------------------socket.io
+function serverCallback(request, response) {
+    request.addListener('end', function () {
+        response.setHeader('Access-Control-Allow-Origin', '*');
+        response.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+        response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+        file.serve(request, response);
+    }).resume();
+}
+
+var io = require('socket.io').listen(app, {
+    log: true,
+    origins: '*:*'
+});
+
+io.set('transports', [
+    // 'websocket',
+    'xhr-polling',
+    'jsonp-polling'
+]);
 
 var channels = {};
-
-// sometimes it helps!
-// io.set('transports', ['xhr-polling']);
 
 io.sockets.on('connection', function (socket) {
     var initiatorChannel = '';
@@ -52,14 +59,27 @@ io.sockets.on('connection', function (socket) {
 
 function onNewNamespace(channel, sender) {
     io.of('/' + channel).on('connection', function (socket) {
+        var username;
         if (io.isConnected) {
             io.isConnected = false;
             socket.emit('connect', true);
         }
 
         socket.on('message', function (data) {
-            if (data.sender == sender)
+            if (data.sender == sender) {
+                if(!username) username = data.data.sender;
+                
                 socket.broadcast.emit('message', data.data);
+            }
+        });
+        
+        socket.on('disconnect', function() {
+            if(username) {
+                socket.broadcast.emit('user-left', username);
+                username = null;
+            }
         });
     });
 }
+
+app.listen(8888);
