@@ -13,6 +13,7 @@
 | ------------- |-------------|-------------|-------------|
 | `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
 | `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](http://www.RTCMultiConnection.org/docs/) | [Demos](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/) |
+| `getScreenId.js` | Single chrome extension for all domains! | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js) | [Demos](https://www.webrtc-experiment.com/getScreenId/) |
 | `Conversation.js` | Enjoy Skype-like Conversations! | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Conversation.js) | [Demos](https://www.rtcmulticonnection.org/conversationjs/demos/) |
 | `DataChannel.js` | An ultimate wrapper library for `RTCDataChannel APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) | [Demos](https://www.webrtc-experiment.com/#DataChannel) |
 | `SdpSerializer.js` | An easiest way to modify SDP | [Documentation](https://github.com/muaz-khan/SdpSerializer) | [Demos](https://www.webrtc-experiment.com/SdpSerializer/demo.html) |
@@ -338,6 +339,31 @@ translator.speakTextUsingGoogleSpeaker({
     textToSpeak: 'text-to-convert',
     targetLanguage: 'your-language'
 });
+```
+
+=
+
+##### [getScreenId.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js) / [Demo](https://www.webrtc-experiment.com/getScreenId/)
+
+Simply use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js">getScreenId.js</a> and enjoy screen capturing from any domain. You don't need to deploy chrome extension yourself. You can refer your users to install <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">this chrome extension</a> instead. Also, <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js">getScreenId.js</a> auto-fallbacks to command-line based screen capturing if chrome extension isn't installed or disabled. <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js">getScreenId.js</a> throws clear exceptions which is helpful for end-user experiences.
+
+Demo: https://www.webrtc-experiment.com/getScreenId/
+
+```html
+<script src="//cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+
+<script>
+getScreenId(function (error, sourceId, screen_constraints) {
+    // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
+    // sourceId == null || 'string'
+
+    navigator.webkitGetUserMedia(screen_constraints, function (stream) {
+        document.querySelector('video').src = URL.createObjectURL(stream);
+    }, function (error) {
+        console.error(error);
+    });
+});
+</script>
 ```
 
 =
