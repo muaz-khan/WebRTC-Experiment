@@ -1,8 +1,8 @@
 ### [ffmpeg-asm.js and RecordRTC! Audio/Video Merging & Transcoding!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ffmpeg) / [Demos](https://www.webrtc-experiment.com/ffmpeg/)
 
-[RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is used to record WAV/WebM files; [`ffmpeg-asm.js`](https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2pibDg/ffmpeg_asm.js) is used to merge/transcode in mp4 or ogg/mp3.
+[RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is used to record WAV/WebM files; [`ffmpeg-asm.js`](https://cdn.webrtc-experiment.com/ffmpeg_asm.js) is used to merge/transcode in mp4 or ogg/mp3.
 
-Remember: [`ffmpeg-asm.js`](https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2pibDg/ffmpeg_asm.js)'s credit goes to: https://github.com/bgrins/videoconverter.js
+Remember: [`ffmpeg-asm.js`](https://cdn.webrtc-experiment.com/ffmpeg_asm.js)'s credit goes to: https://github.com/bgrins/videoconverter.js
 
 =
 
@@ -13,7 +13,7 @@ Remember: [`ffmpeg-asm.js`](https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2
 3. [Transcoding WebM into mp4; then merging WAV+mp4 into single mp4](https://www.webrtc-experiment.com/ffmpeg/merging-wav-and-webm-into-mp4.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/merging-wav-and-webm-into-mp4.html)
 4. [Recording Audio+Canvas and merging in single mp4](https://www.webrtc-experiment.com/ffmpeg/audio-plus-canvas-recording.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/audio-plus-canvas-recording.html)
 
-<img src="https://www.webrtc-experiment.com/images/audo-plus-canvas-recording.gif" />
+<img src="//cdn.webrtc-experiment.com/images/audo-plus-canvas-recording.gif" />
 
 =
 
@@ -21,7 +21,7 @@ Remember: [`ffmpeg-asm.js`](https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2
 
 **It is suggested to download `ffmpeg-asm` file and try locally!**
 
-[`ffmpeg-asm.js`](https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2pibDg/ffmpeg_asm.js) file's default size is 18MB; however you can gzip it to make it about 6MB.
+[`ffmpeg-asm.js`](https://cdn.webrtc-experiment.com/ffmpeg_asm.js) file's default size is 18MB; however you can gzip it to make it about 6MB.
 
 =
 

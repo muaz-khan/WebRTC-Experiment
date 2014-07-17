@@ -17,9 +17,9 @@
 #### Want to use video-conferencing in your own webpage?
 
 ```html
-<script src="//www.webrtc-experiment.com/socket.io.js"> </script>
-<script src="//www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
-<script src="//www.webrtc-experiment.com/video-conferencing/conference.js"> </script>
+<script src="//cdn.webrtc-experiment.com/socket.io.js"> </script>
+<script src="//cdn.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
+<script src="//cdn.webrtc-experiment.com/video-conferencing/conference.js"> </script>
 
 <button id="setup-new-room">Setup New Conference</button>
 <table style="width: 100%;" id="rooms-list"></table>
@@ -32,8 +32,8 @@ var config = {
         // http://socketio-over-nodejs.nodejitsu.com:80/
         // http://webrtc-signaling.nodejitsu.com:80/
 
-        var SIGNALING_SERVER = 'http://webrtc-signaling.nodejitsu.com:80/',
-            defaultChannel = location.hash.substr(1) || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+        var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/',
+            defaultChannel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
         var channel = config.channel || defaultChannel;
         var sender = Math.round(Math.random() * 999999999) + 999999999;

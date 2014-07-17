@@ -13,7 +13,8 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        
+        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
         
         <style>
             audio, video {
@@ -58,13 +59,12 @@
         </script>
         
         <!-- scripts used for video-conferencing -->
-        <script src="https://www.webrtc-experiment.com/firebase.js"> </script>
-        <script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
-        <script src="https://www.webrtc-experiment.com/video-conferencing/conference.js"> </script>
-        <script src="https://www.webrtc-experiment.com/getMediaElement.min.js"> </script>
+        <script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
+        <script src="//cdn.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
+        <script src="//cdn.webrtc-experiment.com/video-conferencing/conference.js"> </script>
         
-        <!-- script used to display custom notification bar! -->
-        <script src="https://www.webrtc-experiment.com/navigator.customGetUserMediaBar.js"> </script>
+        <!-- script used to stylize video element -->
+        <script src="//cdn.webrtc-experiment.com/getMediaElement.min.js"> </script>
     </head>
 
     <body>
@@ -202,30 +202,7 @@
                     });
                 }
 
-                function captureUserMedia(callback, failure_callback, forceSkipCustomGetUserMediaBar) {
-                    if(!forceSkipCustomGetUserMediaBar) {
-                        var mediaConstraints = {
-                            audio: true,
-                            video: true
-                        };
-
-                        navigator.customGetUserMediaBar(mediaConstraints, function () {
-
-                            // now you can invoke "getUserMedia" to seamlessly capture user's media
-                            captureUserMedia(callback, failure_callback, true);
-
-                        }, function () {
-
-                            // user clicked "Deny" or "x" button
-                            // throw new Error('PermissionDeniedError');
-                            alert('PermissionDeniedError: User denied permission.');
-                            
-                            if(failure_callback) failure_callback();
-
-                        });
-                        return;
-                    }
-
+                function captureUserMedia(callback, failure_callback) {
                     var video = document.createElement('video');
 
                     getUserMedia({
@@ -321,9 +298,9 @@
             <section class="experiment">
                 <h2 class="header">Want to use video-conferencing in your own webpage?</h2>
                 <pre>
-&lt;script src="//www.webrtc-experiment.com/socket.io.js"&gt; &lt;/script&gt;
-&lt;script src="//www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"&gt; &lt;/script&gt;
-&lt;script src="//www.webrtc-experiment.com/video-conferencing/conference.js"&gt; &lt;/script&gt;
+&lt;script src="//cdn.webrtc-experiment.com/socket.io.js"&gt; &lt;/script&gt;
+&lt;script src="//cdn.webrtc-experiment.com/RTCPeerConnection-v1.5.js"&gt; &lt;/script&gt;
+&lt;script src="//cdn.webrtc-experiment.com/video-conferencing/conference.js"&gt; &lt;/script&gt;
 
 &lt;button id="setup-new-room"&gt;Setup New Conference&lt;/button&gt;
 &lt;table style="width: 100%;" id="rooms-list"&gt;&lt;/table&gt;
@@ -336,8 +313,8 @@ var config = {
         // http://socketio-over-nodejs.nodejitsu.com:80/
         // http://webrtc-signaling.nodejitsu.com:80/
 
-        var SIGNALING_SERVER = 'http://webrtc-signaling.nodejitsu.com:80/',
-            defaultChannel = location.hash.substr(1) || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+        var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/',
+            defaultChannel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
         var channel = config.channel || defaultChannel;
         var sender = Math.round(Math.random() * 999999999) + 999999999;
@@ -457,6 +434,6 @@ function captureUserMedia(callback) {
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

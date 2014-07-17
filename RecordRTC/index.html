@@ -13,7 +13,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
         
         <style>
             audio {
@@ -53,7 +53,7 @@
         </script>
         
         <!-- script used for audio/video/gif recording -->
-        <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
+        <script src="//cdn.webrtc-experiment.com/RecordRTC.js"> </script>
     </head>
 
     <body>
@@ -335,15 +335,6 @@
                     videoHeight_input.value = canvasHeight_input.value = innerHeight;
                 };
             </script>
-        
-            <section class="experiment">
-                <h2 class="header" id="feedback">Feedback</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
-            </section>
-			
 			
             <section class="experiment">
                 <h2 class="header">Using RecordRTC...</h2>
@@ -393,7 +384,7 @@
                 <h2 class="header">
                     How to use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a>?</h2>
                 <pre>
-&lt;script src="https://www.WebRTC-Experiment.com/RecordRTC.js"&gt;&lt;/script&gt;
+&lt;script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"&gt;&lt;/script&gt;
 </pre>
             </section>
             <section class="experiment">
@@ -484,6 +475,14 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
                     RecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">Documentation</a>
                 </p>
             </section>
+            
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
 			
             <section class="experiment own-widgets latest-commits">
                 <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
@@ -502,6 +501,6 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

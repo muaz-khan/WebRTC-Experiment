@@ -55,7 +55,7 @@ There are some other NPM packages regarding RecordRTC:
 =
 
 ```html
-<script src="//www.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
 ```
 
 =

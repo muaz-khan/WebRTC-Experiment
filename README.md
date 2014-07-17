@@ -239,7 +239,7 @@
 ##### How to record audio using [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)?
 
 ```html
-<script src="//www.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="//cdn.webrtc-experiment.com/RecordRTC.js"></script>
 ```
 
 ```javascript
@@ -274,7 +274,7 @@ You can write entire skype-like web-app using RTCMultiConnection! It supports al
 ```html
 <button id="openNewSessionButton">open New Session Button</button><br />
 
-<script src="http://www.RTCMultiConnection.org/latest.js"> </script>
+<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
 <script>
 var connection = new RTCMultiConnection().connect();
 document.getElementById('openNewSessionButton').onclick = function() {
@@ -290,7 +290,7 @@ document.getElementById('openNewSessionButton').onclick = function() {
 ##### [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) / A library for RTCDataChannel APIs
 
 ```html
-<script src="//www.webrtc-experiment.com/DataChannel.js"> </script>
+<script src="//cdn.webrtc-experiment.com/DataChannel.js"> </script>
 <script>
     var channel = new DataChannel();
     channel.onopen = function(userid) {};
@@ -314,7 +314,7 @@ document.getElementById('openNewSessionButton').onclick = function() {
 Translator.js is a JavaScript library built top on Google Speech-Recognition & Translation API to transcript and translate voice and text. It supports many locales and brings globalization in <a href="https://www.webrtc-experiment.com/">WebRTC</a>!
 
 ```html
-<script src="//www.webrtc-experiment.com/Translator.js"> </script>
+<script src="//cdn.webrtc-experiment.com/Translator.js"> </script>
 ```
 
 ```javascript

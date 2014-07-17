@@ -7,7 +7,7 @@ Translator.js is a JavaScript library built top on Google Speech-Recognition & T
 ##### How to use?
 
 ```html
-<script src="//www.webrtc-experiment.com/Translator.js"> </script>
+<script src="//cdn.webrtc-experiment.com/Translator.js"> </script>
 ```
 
 =
@@ -72,7 +72,7 @@ This method uses meSpeak.js library to play text using a robot voice. Behind the
 
 ```javascript
 translator.speakTextUsingRobot(textToPlay, {
-    workerPath: 'https://www.webrtc-experiment.com/Robot-Speaker.js',
+    workerPath: '//cdn.webrtc-experiment.com/Robot-Speaker.js',
     callback: function (WAV_File) {},
     amplitude: 100,
     wordgap: 0,

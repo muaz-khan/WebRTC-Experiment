@@ -10,10 +10,10 @@ Files:
 * [screenshot.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/part-of-screen-sharing/screenshot.js) — minified
 
 ```html
-<script src="//www.webrtc-experiment.com/screenshot.js"></script>
+<script src="//cdn.webrtc-experiment.com/screenshot.js"></script>
 
 <!-- or Developers version -->
-<script src="//www.webrtc-experiment.com/screenshot-dev.js"></script>
+<script src="//cdn.webrtc-experiment.com/screenshot-dev.js"></script>
 ```
 
 Remember, `grabMouse` is used by default. You need to make it `false` to make sure your resulting screenshot has no cursor icon.

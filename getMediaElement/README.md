@@ -1,12 +1,12 @@
 #### getMediaElement.js: A reusable library for all WebRTC applications! / [Demo](https://www.webrtc-experiment.com/getMediaElement/)
 
 ```html
-<script src="//www.webrtc-experiment.com/getMediaElement-v1.2.js"></script>
+<script src="//cdn.webrtc-experiment.com/getMediaElement.js"></script>
 ```
 
 This library generates HTML Audio/Video element with rich user-interface and advance media controls. It gives you full control over each control button; and its functionality!
 
-<img src="https://www.webrtc-experiment.com/images/getMediaElement.js.gif" />
+<img src="//cdn.webrtc-experiment.com/images/getMediaElement.js.gif" />
 
 ```javascript
 // you can pass HTML Video Element

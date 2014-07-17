@@ -13,7 +13,8 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        
+        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
         
         <style>
             video {
@@ -48,7 +49,7 @@
         </script>
         
         <!-- script used for audio/video/gif recording -->
-        <script src="//www.webrtc-experiment.com/RecordRTC.js"> </script>
+        <script src="//cdn.webrtc-experiment.com/RecordRTC.js"> </script>
     </head>
 
     <body>
@@ -88,7 +89,7 @@
             </section>
             
             <section class="experiment">  
-                <h2 class="header">Record Video and convert into "mp4" using <a href="https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2pibDg/ffmpeg_asm.js" download="ffmpeg-asm.js">ffmpeg-asm.js</a>!</h2>
+                <h2 class="header">Record Video and convert into "mp4" using <a href="https://cdn.webrtc-experiment.com/ffmpeg_asm.js" download="ffmpeg-asm.js">ffmpeg-asm.js</a>!</h2>
 			
                 <div class="inner">
                     <video id="video-preview" controls></video>
@@ -126,13 +127,13 @@
                         videoPreview.src = url;
                         videoPreview.download = videoFile;
                         
-                        log('<a href="https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2pibDg/ffmpeg_asm.js" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file download started. It is about 18MB in size; please be patient!');
+                        log('<a href="'+ workerPath +'" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file download started. It is about 18MB in size; please be patient!');
                         convertStreams(recordVideo.getBlob());
                     });
                 };
 
                 // var workerPath = location.href.replace(location.href.split('/').pop(), '') + 'ffmpeg_asm.js';
-                var workerPath = 'https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2pibDg/ffmpeg_asm.js';
+                var workerPath = 'https://cdn.webrtc-experiment.com/ffmpeg_asm.js';
 
                 function processInWebWorker() {
                     var blob = URL.createObjectURL(new Blob(['importScripts("' + workerPath + '");var now = Date.now;function print(text) {postMessage({"type" : "stdout","data" : text});};onmessage = function(event) {var message = event.data;if (message.type === "command") {var Module = {print: print,printErr: print,files: message.files || [],arguments: message.arguments || [],TOTAL_MEMORY: message.TOTAL_MEMORY || false};postMessage({"type" : "start","data" : Module.arguments.join(" ")});postMessage({"type" : "stdout","data" : "Received command: " +Module.arguments.join(" ") +((Module.TOTAL_MEMORY) ? ".  Processing with " + Module.TOTAL_MEMORY + " bits." : "")});var time = now();var result = ffmpeg_run(Module);var totalTime = now() - time;postMessage({"type" : "stdout","data" : "Finished processing (took " + totalTime + "ms)"});postMessage({"type" : "done","data" : result,"time" : totalTime});}};postMessage({"type" : "ready"});'], {
@@ -166,7 +167,7 @@
                     worker.onmessage = function(event) {
                         var message = event.data;
                         if (message.type == "ready") {
-                            log('<a href="https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2pibDg/ffmpeg_asm.js" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file has been loaded.');
+                            log('<a href="'+ workerPath +'" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file has been loaded.');
 
                             workerReady = true;
                             if (buffersReady)
@@ -174,7 +175,7 @@
                         } else if (message.type == "stdout") {
                             log(message.data);
                         } else if (message.type == "start") {
-                            log('<a href="https://googledrive.com/host/0B6GWd_dUUTT8OEtLRGdQb2pibDg/ffmpeg_asm.js" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file received ffmpeg command.');
+                            log('<a href="'+ workerPath +'" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file received ffmpeg command.');
                         } else if (message.type == "done") {
                             log(JSON.stringify(message));
 
@@ -195,7 +196,12 @@
 
                         worker.postMessage({
                             type: 'command',
-                            arguments: ['-i', videoFile, '-c:v', 'mpeg4', '-b:v', '64k', '-strict', 'experimental', 'output.mp4'],
+                            arguments: [
+                                '-i', videoFile, 
+                                '-c:v', 'mpeg4', 
+                                '-b:v', '6400k', 
+                                '-strict', 'experimental', 'output.mp4'
+                            ],
                             files: [
                                 {
                                     data: new Uint8Array(aab),
@@ -281,6 +287,7 @@
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://cdn.webrtc-experiment.com/ffmpeg_asm.js" async> </script>
     </body>
 </html>

@@ -253,7 +253,7 @@ Ref: http://kurtextrem.github.io/ChromiumFlags/#allow-http-screen-capture
 
 ## Browser Support
 
-[Capture Screen Extension](https://www.webrtc-experiment.com/store/capture-screen/) works fine on following web-browsers:
+[Capture Screen Extension](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture) works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -263,4 +263,4 @@ Ref: http://kurtextrem.github.io/ChromiumFlags/#allow-http-screen-capture
 
 #### License
 
-[Capture Screen Extension](https://www.webrtc-experiment.com/store/capture-screen/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[Capture Screen Extension](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

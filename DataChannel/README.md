@@ -23,7 +23,7 @@ DataChannel.js is a JavaScript library useful to write many-to-many i.e. group f
 ##### Try a Quick Demo (Text Chat)
 
 ```html
-<script src="https://www.webrtc-experiment.com/DataChannel.js"> </script>
+<script src="//cdn.webrtc-experiment.com/DataChannel.js"> </script>
 <button id="setup-datachannel" style="width:30%;">Open NEW DataChannel</button>
 <input type="text" id="chat-input" disabled style="font-size: 2em; width: 65%;"><br />
 <div id="chat-output"></div>
@@ -69,7 +69,7 @@ document.querySelector('button#setup-datachannel').onclick = function () {
 ##### First Step: Link the library
 
 ```html
-<script src="https://www.webrtc-experiment.com/DataChannel.js"></script>
+<script src="//cdn.webrtc-experiment.com/DataChannel.js"></script>
 ```
 
 =

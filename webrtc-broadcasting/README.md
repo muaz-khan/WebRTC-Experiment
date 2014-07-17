@@ -123,9 +123,9 @@ All these three pages has unique channels. They'll NEVER see rooms from each oth
 #### Want to use video-conferencing in your own webpage?
 
 ```html
-<script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
-<script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
-<script src="https://www.webrtc-experiment.com/webrtc-broadcasting/broadcast.js"> </script>
+<script src="//cdn.webrtc-experiment.com/socket.io.js"> </script>
+<script src="//cdn.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
+<script src="//cdn.webrtc-experiment.com/webrtc-broadcasting/broadcast.js"> </script>
 
 <select id="broadcasting-option">
     <option>Audio + Video</option>

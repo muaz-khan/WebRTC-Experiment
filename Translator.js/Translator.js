@@ -1,4 +1,4 @@
-// Last time updated at 04 Feb 2014, 05:46:23
+// Last time updated at July 17, 2014, 05:46:23
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -59,6 +59,9 @@ function Translator() {
         window[randomNumber] = function(response) {
             if (response.data && response.data.translations[0] && config.callback) {
                 config.callback(response.data.translations[0].translatedText);
+            }
+            if(response.error && response.error.message == 'Daily Limit Exceeded') {
+                config.callback('Google says, "Daily Limit Exceeded". Please try this experiment a few hours later.');
             }
         };
 
