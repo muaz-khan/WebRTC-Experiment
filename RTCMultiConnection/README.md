@@ -2,6 +2,26 @@
     <a href="http://www.RTCMultiConnection.org/">RTCMultiConnection.js</a> / A <a href="https://www.webrtc-experiment.com/">WebRTC</a> Library!
 </h1>
 
+## Current Version is [v1.9](http://www.rtcmulticonnection.org/changes-log/#v1.9)
+
+=
+
+## Want to try latest stable version?
+
+```html
+// recommended link (you can even use version numbers)
+// e.g. cdn.webrtc-experiment.com/RTCMultiConnection-v1.9.js
+<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+
+// or
+<script src="//www.rtcmulticonnection.org/latest.js"></script>
+
+// or
+<script src="//www.webrtc-experiment.com/RTCMultiConnection-v1.9.js"></script>
+```
+
+=
+
 Note: There is a separate repository for experimental changes:
 
 https://github.com/muaz-khan/RTCMultiConnection-experimental
@@ -14,6 +34,16 @@ https://github.com/muaz-khan/RTCMultiConnection-experimental
         <th>Changes Logs</th>
     </thead>
     <tbody>
+        <tr>
+            <td>
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/Library/RTCMultiConnection-v1.9.js">RTCMultiConnection-v1.9.js</a>
+            </td>
+            
+            <td>
+                <a href="http://www.rtcmulticonnection.org/changes-log/#v1.9">Changes Log</a>
+            </td>
+        </tr>
+        
         <tr>
             <td>
                 <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCMultiConnection/Library/RTCMultiConnection-v1.8.js">RTCMultiConnection-v1.8.js</a>

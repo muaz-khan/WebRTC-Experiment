@@ -1,4 +1,4 @@
-// Last time updated at July 17, 2014, 08:32:23
+// Last time updated at July 18, 2014, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getScreenId.js
 
@@ -72,7 +72,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
     iframe.onload = function () {
         iframe.isLoaded = true;
     };
-    iframe.src = 'https://cdn.webrtc-experiment.com/getSourceId/';
+    iframe.src = 'https://www.webrtc-experiment.com/getSourceId/';
     
     iframe.style.display = 'none';
     (document.body || document.documentElement).appendChild(iframe);
