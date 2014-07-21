@@ -1,9 +1,0 @@
-It is a tab sharing experiment using RTCWeb PeerConnection APIs.
-
-When you'll share your tab; it will be visible here:
-
-https://webrtc-experiment.appspot.com/screen-broadcast/
-
-Credit goes to Muaz Khan, copyright 2013
->> http://twitter.com/muazkh
->> https://github.com/muaz-khan

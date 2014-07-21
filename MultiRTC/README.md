@@ -29,6 +29,72 @@ https://localhost:12034/
 
 =
 
+### Install on Linux/Ubuntu/CentOS/Debian/Mac etc.
+
+```
+# create a directory
+mkdir MultiRTC
+
+# open directory
+cd MultiRTC
+
+# get package
+wget http://cdn.webrtc-experiment.com/packages/MultiRTC.tar
+
+# extract package
+tar -xf MultiRTC.tar
+
+# run node.js server
+node signaler.js
+```
+
+Now, you can open port `12034` on your ip address/domain; or otherwise on localhost: `https://localhost:12034/`
+
+=
+
+It is using port `12034`; you can edit this port using following commands:
+
+```
+vi signaler.js
+
+# now edit port 12034
+# and save changes & quit
+
+# press "insert" key; then press "Esc" key and the type
+:wq
+```
+
+`:wq` command saves changes in the file and exits editing mode. If you don't want to save changes; simply type:
+
+```
+# if you don't want to save changes however want to exit editing mode
+:q
+```
+
+Common Error: `Error: listen EADDRINUSE`. It means that same port is used by another application. You can close all existing processes running on same port:
+
+```
+// list all active processes running on same port
+fuser -v 12034/tcp
+
+// kill all processes running on port "12034"
+fuser -vk 12034/tcp
+
+// list again to verify closing ports
+fuser -v 12034/tcp
+```
+
+You can delete "directory" and re-install:
+
+```
+rm -rf MultiRTC
+mkdir MultiRTC
+
+# and following above steps to "wget" and "tar" then "node" to run!
+```
+
+=
+
 ## Note: 
 
 [This MultiRTC Demo](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple) is using [WebSockets over Nodejs](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs) for signaling and presence detection!

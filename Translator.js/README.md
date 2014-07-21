@@ -49,6 +49,7 @@ This method allows you convert language. You just need to pass text and get tran
 translator.translateLanguage(textToConvert, {
     from: 'language-of-the-text',
     to: 'convert-into',
+    api_key: 'AIzaSyCUmCjvKRb-kOYrnoL2xaXb8I-_JJeKpf0', // use your own key
     callback: function (translatedText) {
         console.log('translated text', translatedText);
     }

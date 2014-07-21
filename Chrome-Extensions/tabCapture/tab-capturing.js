@@ -48,10 +48,13 @@ function captureTab() {
             videoConstraints: {
                 mandatory: {
                     chromeMediaSource: 'tab',
-                    minWidth: 1920,
+                    minWidth: 1280,
+                    minHeight: 720,
+                    
                     maxWidth: 1920,
-                    minHeight: 1080,
-                    maxHeight: 1080
+                    maxHeight: 1080,
+                    
+                    minAspectRatio: 1.77
                 }
             }
         };
@@ -80,10 +83,16 @@ var connection;
 // RTCMultiConnection - http://www.rtcmulticonnection.org/docs/
 function setupRTCMultiConnection(stream) {
     // http://www.rtcmulticonnection.org/docs/constructor/
-    connection = new RTCMultiConnection('webrtc-tab-sharing');
+    connection = new RTCMultiConnection();
     
-    // http://www.rtcmulticonnection.org/docs/bandwidth/
-    connection.bandwidth = {};
+    connection.channel = connection.token();
+    
+    connection.autoReDialOnFailure = true;
+    
+    // www.RTCMultiConnection.org/docs/bandwidth/
+    connection.bandwidth = {
+        video: 300 // 300kbps
+    };
     
     // http://www.rtcmulticonnection.org/docs/session/
     connection.session = {
@@ -91,11 +100,14 @@ function setupRTCMultiConnection(stream) {
         oneway: true
     };
     
+    connection.sdpConstraints.OfferToReceiveAudio = false;
+    connection.sdpConstraints.OfferToReceiveVideo = false;
+    
     connection.onRequest = function(request) {
         connection.accept(request);
         
         // #174, thanks @alberttsai for pointing out this issue!
-        chrome.tabs.create({url: chrome.extension.getURL('_generated_background_page.html')});
+        // chrome.tabs.create({url: chrome.extension.getURL('_generated_background_page.html')});
     };
     
     // http://www.rtcmulticonnection.org/docs/openSignalingChannel/
@@ -108,23 +120,41 @@ function setupRTCMultiConnection(stream) {
     connection.attachStreams.push(stream);
     
     // http://www.rtcmulticonnection.org/docs/open/
-    connection.open();
+    connection.open({
+        dontTransmit: true
+    });
+    
+    var domain = 'https://www.webrtc-experiment.com';
+    var resultingURL = domain + '/screen-broadcast/?userid=' + connection.userid + '&sessionid=' + connection.channel;
+    chrome.tabs.create({
+        url: resultingURL,
+        active: false
+    });
+    alert('The tab, that is just opened, is your private room URL. You can share the URL with friends so that, they can view your privately shared tab. Make sure that the tab that you are sharing is active whilst your friends are joining you. For inactive-shared-tabs, connection may fail.');
 }
 
 // using websockets for signaling
 
+var webSocketURI = 'wss://wsnodejs.nodejitsu.com:443';
 function openSignalingChannel(config) {
     config.channel = config.channel || this.channel;
-    var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
+    var websocket = new WebSocket(webSocketURI);
     websocket.onopen = function() {
         websocket.push(JSON.stringify({
             open: true,
             channel: config.channel
         }));
         if (config.callback) config.callback(websocket);
+        console.log('connected to websocket at: ' + webSocketURI);
     };
     websocket.onmessage = function(event) {
         config.onmessage(JSON.parse(event.data));
+    };
+    websocket.onerror = function() {
+        console.error('Unable to connect to ' + webSocketURI);
+        if(connection.stats.numberOfConnectedUsers == 0) {
+            chrome.runtime.reload();
+        }
     };
     websocket.push = websocket.send;
     websocket.send = function(data) {

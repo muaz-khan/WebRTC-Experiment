@@ -34,7 +34,7 @@ mkdir socketio-over-nodejs
 cd socketio-over-nodejs
 
 # get package
-wget http://www.webrtc-experiment.com/packages/socketio-over-nodejs.tar
+wget http://cdn.webrtc-experiment.com/packages/socketio-over-nodejs.tar
 
 # extract package
 tar -xf socketio-over-nodejs.tar

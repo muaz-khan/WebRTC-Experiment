@@ -1,6 +1,22 @@
-### Desktop Sharing using desktopCapture APIs / [Demo](https://www.webrtc-experiment.com/desktop-sharing/)
+## WebRTC [Desktop/Screen](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing) Sharing & Broadcasting / [Demo](https://www.webrtc-experiment.com/desktop-sharing/)
 
-Sharing desktop using chrome **experimental desktopCapture APIs**; broadcasting over many peers.
+Desktop Capture API that can be used to capture content of screen, individual windows or tabs.
+
+This experiment is capturing content of screen using desktopCapture API and sharing/broadcasting over many users.
+
+=
+
+## Links
+
+Install chrome extension from Google App Store:
+
+https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg
+
+Above extension's source-code is located in the sub-directory `Chrome-Extension`:
+
+https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing/Chrome-Extension
+
+Official resource: chrome.desktopCapture - https://developer.chrome.com/extensions/desktopCapture
 
 =
 
@@ -12,8 +28,8 @@ function captureDesktop() {
         ["screen", "window"], onAccessApproved);
 }
 
-function onAccessApproved(desktop_id) {
-    if (!desktop_id) {
+function onAccessApproved(chromeMediaSourceId) {
+    if (!chromeMediaSourceId) {
         alert('Desktop Capture access rejected.');
         return;
     }
@@ -23,7 +39,7 @@ function onAccessApproved(desktop_id) {
         video: {
             mandatory: {
                 chromeMediaSource: 'desktop',
-                chromeMediaSourceId: desktop_id,
+                chromeMediaSourceId: chromeMediaSourceId,
                 minWidth: 1280,
                 maxWidth: 1280,
                 minHeight: 720,
@@ -52,17 +68,6 @@ function onAccessApproved(desktop_id) {
 #### Demo Chrome Extension Code
 
 ```javascript
-// Muaz Khan          - https://github.com/muaz-khan
-// MIT License        - https://www.WebRTC-Experiment.com/licence/
-// ==============================================================
-// webrtc-extension   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing
-
-// this page is using desktopCapture API to capture and share desktop
-// http://developer.chrome.com/extensions/desktopCapture.html
-// Availability:	Beta/Dev and Canary channels only.
-
-console.log('WebRTC Experiments: https://www.webrtc-experiment.com/');
-
 var contextMenuID = '4353455656';
 
 chrome.contextMenus.create({
@@ -91,7 +96,7 @@ function contextMenuSuccessCallback() {
             }
 
             if (localStorage['desktop-media-request-id']) {
-                // chrome.desktopCapture.cancelChooseDesktopMedia(parseInt(localStorage['desktop-media-request-id']));
+                chrome.desktopCapture.cancelChooseDesktopMedia(parseInt(localStorage['desktop-media-request-id']));
             }
 
             localStorage.removeItem('desktop-sharing');
@@ -111,39 +116,40 @@ function contextMenuSuccessCallback() {
     }
 
     // this method captures Desktop stream
-
-    var pre_desktop_id;
-
+    
     function captureDesktop() {
-        pre_desktop_id = chrome.desktopCapture.chooseDesktopMedia(
+        var desktop_id = chrome.desktopCapture.chooseDesktopMedia(
             ["screen", "window"], onAccessApproved);
+            
+        localStorage.setItem('desktop-media-request-id', desktop_id);
     }
 
-    function onAccessApproved(desktop_id) {
-        if (!desktop_id) {
-            alert('Desktop Capture access rejected.');
+    function onAccessApproved(chromeMediaSourceId) {
+        if (!chromeMediaSourceId) {
+            alert('Desktop Capture access is rejected.');
             return;
         }
-
-        localStorage.setItem('desktop-media-request-id', desktop_id);
 
         navigator.webkitGetUserMedia({
             audio: false,
             video: {
                 mandatory: {
                     chromeMediaSource: 'desktop',
-                    chromeMediaSourceId: desktop_id,
+                    chromeMediaSourceId: chromeMediaSourceId,
                     minWidth: 1280,
-                    maxWidth: 1280,
                     minHeight: 720,
-                    maxHeight: 720
+                    
+                    maxWidth: 1920,
+                    maxHeight: 1080,
+                    
+                    minAspectRatio: 1.77
                 }
             }
         }, gotStream, getUserMediaError);
 
         function gotStream(stream) {
             if (!stream) {
-                console.error('Unable to capture Desktop. Note that Chrome internal pages cannot be captured.');
+                alert('Unable to capture Desktop. Note that Chrome internal pages cannot be captured.');
                 return;
             }
 
@@ -151,16 +157,10 @@ function contextMenuSuccessCallback() {
             chrome.browserAction.setIcon({
                 path: 'images/pause22.png'
             });
-
-            stream.onended = function() {
-                if (!localStorage.getItem('desktop-sharing')) {
-                    toggle();
-                }
-            };
         }
 
         function getUserMediaError(e) {
-            console.error('getUserMediaError:', JSON.stringify(e, null, '---'));
+            alert('getUserMediaError: ' + JSON.stringify(e, null, '---'));
         }
     }
 
@@ -169,12 +169,12 @@ function contextMenuSuccessCallback() {
 
     function setupRTCMultiConnection(stream) {
         // #174, thanks @alberttsai for pointing out this issue!
-        chrome.tabs.create({ url: chrome.extension.getURL('_generated_background_page.html') });
-
-        var token = new RTCMultiConnection().token();
+        // chrome.tabs.create({ url: chrome.extension.getURL('_generated_background_page.html') });
 
         // www.RTCMultiConnection.org/docs/
-        connection = new RTCMultiConnection(token);
+        connection = new RTCMultiConnection();
+        
+        connection.channel = connection.token();
         
         connection.autoReDialOnFailure = true;
 
@@ -189,7 +189,11 @@ function contextMenuSuccessCallback() {
             oneway: true
         };
 
-        connection.sdpConstraints.OfferToReceiveAudio = false;
+        // www.rtcmulticonnection.org/docs/sdpConstraints/
+        connection.sdpConstraints.mandatory = {
+            OfferToReceiveAudio: false,
+            OfferToReceiveVideo: false
+        };
 
         // www.RTCMultiConnection.org/docs/openSignalingChannel/
         connection.openSignalingChannel = openSignalingChannel;
@@ -205,15 +209,19 @@ function contextMenuSuccessCallback() {
             dontTransmit: true
         });
 
-        var url = 'https://www.webrtc-experiment.com/desktop-sharing/shared-desktops-viewer.html?sessionDescription=' + encodeURIComponent(JSON.stringify(sessionDescription));
-        chrome.tabs.create({ url: url });
+        var domain = 'https://www.webrtc-experiment.com';
+        var resultingURL = domain + '/desktop-sharing/?userid=' + connection.userid + '&sessionid=' + connection.channel;
+        chrome.tabs.create({
+            url: resultingURL
+        });
     }
 
     // using websockets for signaling
 
+    var webSocketURI = 'wss://wsnodejs.nodejitsu.com:443';
     function openSignalingChannel(config) {
         config.channel = config.channel || this.channel;
-        var websocket = new WebSocket('wss://wsnodejs.nodejitsu.com:443');
+        var websocket = new WebSocket(webSocketURI);
         websocket.onopen = function() {
             websocket.push(JSON.stringify({
                 open: true,
@@ -223,7 +231,10 @@ function contextMenuSuccessCallback() {
             console.log('WebSocket connection is opened!');
         };
         websocket.onerror = function() {
-            alert('Unable to connect to wss://wsnodejs.nodejitsu.com:443');
+            console.error('Unable to connect to ' + webSocketURI);
+            if(connection.stats.numberOfConnectedUsers == 0) {
+                chrome.runtime.reload();
+            }
         };
         websocket.onmessage = function(event) {
             config.onmessage(JSON.parse(event.data));
@@ -241,26 +252,19 @@ function contextMenuSuccessCallback() {
 
 =
 
-#### Browser support of desktopCapture APIs
+#### Browser support
 
-From Nov, 2013:
-
-| Browser        | Support           |
-| ------------- |-------------|
-| Google Chrome | [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-
-=
-
-#### List of browsers that can view broadcasted desktops
+You can share screen, only from chrome.
 
 | Browser        | Support           |
 | ------------- |-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Internet Explorer / IE | [Chrome Frame](http://www.google.com/chromeframe) |
+| Opera | [Stable](http://www.opera.com/) / [NEXT](http://www.opera.com/computer/next)  |
+| Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) / [Opera](https://play.google.com/store/apps/details?id=com.opera.browser) |
 
 =
 
 #### License
 
-[DesktopCapture Extension](http://code.google.com/p/muazkh/downloads/list) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[DesktopCapture Extension](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing/Chrome-Extension) is released under [MIT licence](https://webrtc-experiment.appspot.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

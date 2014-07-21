@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
     <head>
-        <title>WebRTC Tab Sharing / Broadcasting ® Muaz Khan</title>
+        <title>WebRTC Desktop/Screen Sharing & Broadcasting ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -17,7 +17,7 @@
             document.createElement('footer');
         </script>
         
-        <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/pcnepejfgcmidedoimegcafiabjnodhk">
+        <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/nkemblooioekjnpfekmjhpgkackcajhg">
         
         <script src="//cdn.webrtc-experiment.com/RTCMultiConnection-v1.9.js"> </script>
     </head>
@@ -25,7 +25,7 @@
     <body>
         <article>
             <header style="text-align: center;">
-                <h1>WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture" target="_blank">Tab Sharing</a> / Broadcasting</h1>
+                <h1>WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing" target="_blank">Desktop/Screen</a> Sharing & Broadcasting</h1>
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
                     <span> &copy; </span>
@@ -82,7 +82,7 @@
                 // http://www.rtcmulticonnection.org/docs/openSignalingChannel/
                 connection.openSignalingChannel = openSignalingChannel;
 
-                // on successfully getting shared tab
+                // on successfully getting shared desktop
                 var participants = document.getElementById('participants');
                 
                 // http://www.rtcmulticonnection.org/docs/onstream/
@@ -136,25 +136,25 @@
                 <h2>Prerequisites</h2>
                 <ol>
                     <li>
-                        <a href="https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk" target="_blank">Install chrome extension</a>.
+                        <a href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg" target="_blank">Install chrome extension</a>.
                         <button id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
                             <img src="https://cdn.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
                         </button>
                         
                         <script>
                             document.getElementById('install-button').onclick = function () {
-                                !!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/pcnepejfgcmidedoimegcafiabjnodhk', function () {
+                                !!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/nkemblooioekjnpfekmjhpgkackcajhg', function () {
                                     alert('Chrome Extension is installed.');
                                 }, function (error) {
                                     alert(error);
-                                    window.open('https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk');
+                                    window.open('https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg');
                                 });
                             };
                             
                             var image = document.createElement('img');
-                            image.src = 'chrome-extension://pcnepejfgcmidedoimegcafiabjnodhk/images/tabCapture48.png';
+                            image.src = 'chrome-extension://nkemblooioekjnpfekmjhpgkackcajhg/images/desktopCapture48.png';
                             image.onload = function () {
-                                document.getElementById('install-button').parentNode.innerHTML = '<strong>Great!</strong> <a href="https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk" target="_blank">Google chrome extension</a> is installed.';
+                                document.getElementById('install-button').parentNode.innerHTML = '<strong>Great!</strong> <a href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg" target="_blank">Google chrome extension</a> is installed.';
                             };
                             image.onerror = function () {
                                 // alert('Chrome extension is not installed.');
@@ -162,11 +162,6 @@
                         </script>
                     </li>
                 </ol>
-            </section>
-            
-            <section class="experiment">
-                <h2>How to capture tab using tabCapture APIs?</h2><br />
-                <img src="https://cdn.webrtc-experiment.com/images/capture-tab-using-tabCapture-APIs.png" />
             </section>
             
             <br /><br />
@@ -184,7 +179,7 @@
             </section>
         </article>
         
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-broadcast" class="fork-left"></a>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing" class="fork-left"></a>
         
         <footer>
             <p>

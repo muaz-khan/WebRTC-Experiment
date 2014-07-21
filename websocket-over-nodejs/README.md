@@ -159,7 +159,7 @@ mkdir websocket-over-nodejs
 cd websocket-over-nodejs
 
 # get package
-wget http://www.webrtc-experiment.com/packages/websocket-over-nodejs.tar
+wget http://cdn.webrtc-experiment.com/packages/websocket-over-nodejs.tar
 
 # extract package
 tar -xf websocket-over-nodejs.tar
@@ -222,7 +222,7 @@ Warning: Native modules not compiled.  UTF-8 validation disabled.
 
 #### Download ZIP on windows
 
-http://www.webrtc-experiment.com/packages/websocket-over-nodejs.zip
+http://cdn.webrtc-experiment.com/packages/websocket-over-nodejs.zip
 
 =
 

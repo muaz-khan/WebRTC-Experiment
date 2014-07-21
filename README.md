@@ -52,10 +52,9 @@
 
 ##### [Google Chrome Extensions](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions) for [WebRTC](https://www.webrtc-experiment.com/)!
 
-1. https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
-2. https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture
-3. https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/webrtc-extension
-4. https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing
+1. [desktopCapture API](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture) / [Install App Store Extension](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk)
+2. [tabCapture API](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture) / [Install App Store Extension](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk)
+3. [Desktop Sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing) / [Install App Store Extension](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg)
 
 =
 

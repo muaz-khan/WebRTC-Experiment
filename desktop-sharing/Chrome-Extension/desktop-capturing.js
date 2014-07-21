@@ -5,9 +5,6 @@
 
 // this page is using desktopCapture API to capture and share desktop
 // http://developer.chrome.com/extensions/desktopCapture.html
-// Availability:	Beta/Dev and Canary channels only.
-
-console.log('WebRTC Experiments: https://www.webrtc-experiment.com/');
 
 var contextMenuID = '4353455656';
 
@@ -37,7 +34,7 @@ function contextMenuSuccessCallback() {
             }
 
             if (localStorage['desktop-media-request-id']) {
-                // chrome.desktopCapture.cancelChooseDesktopMedia(parseInt(localStorage['desktop-media-request-id']));
+                chrome.desktopCapture.cancelChooseDesktopMedia(parseInt(localStorage['desktop-media-request-id']));
             }
 
             localStorage.removeItem('desktop-sharing');
@@ -57,32 +54,33 @@ function contextMenuSuccessCallback() {
     }
 
     // this method captures Desktop stream
-
-    var pre_desktop_id;
-
+    
     function captureDesktop() {
-        pre_desktop_id = chrome.desktopCapture.chooseDesktopMedia(
+        var desktop_id = chrome.desktopCapture.chooseDesktopMedia(
             ["screen", "window"], onAccessApproved);
+            
+        localStorage.setItem('desktop-media-request-id', desktop_id);
     }
 
-    function onAccessApproved(desktop_id) {
-        if (!desktop_id) {
-            alert('Desktop Capture access rejected.');
+    function onAccessApproved(chromeMediaSourceId) {
+        if (!chromeMediaSourceId) {
+            alert('Desktop Capture access is rejected.');
             return;
         }
-
-        localStorage.setItem('desktop-media-request-id', pre_desktop_id);
 
         navigator.webkitGetUserMedia({
             audio: false,
             video: {
                 mandatory: {
                     chromeMediaSource: 'desktop',
-                    chromeMediaSourceId: desktop_id,
+                    chromeMediaSourceId: chromeMediaSourceId,
                     minWidth: 1280,
-                    maxWidth: 1280,
                     minHeight: 720,
-                    maxHeight: 720
+                    
+                    maxWidth: 1920,
+                    maxHeight: 1080,
+                    
+                    minAspectRatio: 1.77
                 }
             }
         }, gotStream, getUserMediaError);
@@ -97,12 +95,6 @@ function contextMenuSuccessCallback() {
             chrome.browserAction.setIcon({
                 path: 'images/pause22.png'
             });
-
-            stream.onended = function() {
-                if (!localStorage.getItem('desktop-sharing')) {
-                    toggle();
-                }
-            };
         }
 
         function getUserMediaError(e) {
@@ -115,12 +107,12 @@ function contextMenuSuccessCallback() {
 
     function setupRTCMultiConnection(stream) {
         // #174, thanks @alberttsai for pointing out this issue!
-        chrome.tabs.create({ url: chrome.extension.getURL('_generated_background_page.html') });
-
-        var token = new RTCMultiConnection().token();
+        // chrome.tabs.create({ url: chrome.extension.getURL('_generated_background_page.html') });
 
         // www.RTCMultiConnection.org/docs/
-        connection = new RTCMultiConnection(token);
+        connection = new RTCMultiConnection();
+        
+        connection.channel = connection.token();
         
         connection.autoReDialOnFailure = true;
 
@@ -135,7 +127,11 @@ function contextMenuSuccessCallback() {
             oneway: true
         };
 
-        connection.sdpConstraints.OfferToReceiveAudio = false;
+        // www.rtcmulticonnection.org/docs/sdpConstraints/
+        connection.sdpConstraints.mandatory = {
+            OfferToReceiveAudio: false,
+            OfferToReceiveVideo: false
+        };
 
         // www.RTCMultiConnection.org/docs/openSignalingChannel/
         connection.openSignalingChannel = openSignalingChannel;
@@ -151,15 +147,19 @@ function contextMenuSuccessCallback() {
             dontTransmit: true
         });
 
-        var url = 'https://www.webrtc-experiment.com/desktop-sharing/shared-desktops-viewer.html?sessionDescription=' + encodeURIComponent(JSON.stringify(sessionDescription));
-        chrome.tabs.create({ url: url });
+        var domain = 'https://www.webrtc-experiment.com';
+        var resultingURL = domain + '/desktop-sharing/?userid=' + connection.userid + '&sessionid=' + connection.channel;
+        chrome.tabs.create({
+            url: resultingURL
+        });
     }
 
     // using websockets for signaling
 
+    var webSocketURI = 'wss://wsnodejs.nodejitsu.com:443';
     function openSignalingChannel(config) {
         config.channel = config.channel || this.channel;
-        var websocket = new WebSocket('wss://wsnodejs.nodejitsu.com:443');
+        var websocket = new WebSocket(webSocketURI);
         websocket.onopen = function() {
             websocket.push(JSON.stringify({
                 open: true,
@@ -169,7 +169,10 @@ function contextMenuSuccessCallback() {
             console.log('WebSocket connection is opened!');
         };
         websocket.onerror = function() {
-            alert('Unable to connect to wss://wsnodejs.nodejitsu.com:443');
+            console.error('Unable to connect to ' + webSocketURI);
+            if(connection.stats.numberOfConnectedUsers == 0) {
+                chrome.runtime.reload();
+            }
         };
         websocket.onmessage = function(event) {
             config.onmessage(JSON.parse(event.data));
