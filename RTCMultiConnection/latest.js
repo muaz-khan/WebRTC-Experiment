@@ -1,4 +1,4 @@
-// Last time updated at July 21, 2014, 08:32:23
+// Last time updated at July 22, 2014, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/RTCMultiConnection.js
 
@@ -13,6 +13,8 @@
 // RTCMultiConnection-v1.9
 
 /* issues/features need to be fixed & implemented:
+
+-. connection.eject is fixed. Now, onSessionClosed has "event.isEjected" boolean.
 
 -. connection.dontCaptureUserMedia added. Now, connection.dontAttachStream merely prevents attachment of any stream.
 -. these are breaking changes for those who are using dontAttachStream in their client-scripts.
@@ -703,14 +705,17 @@
         connection.leave = function (userid) {
             isFirstSession = true;
 
-            // eject a user; or leave the session
-            rtcMultiSession.leave(userid);
+            if(userid) connection.eject(userid);
+            else rtcMultiSession.leave();;
         };
 
         // www.RTCMultiConnection.org/docs/eject/
         connection.eject = function (userid) {
             if (!connection.isInitiator) throw 'Only session-initiator can eject a user.';
-            connection.leave(userid);
+            if(!connection.peers[userid]) throw 'You inject invalid user.';
+            connection.peers[userid].sendCustomMessage({
+                ejected: true
+            });
         };
 
         // www.RTCMultiConnection.org/docs/close/
@@ -1643,21 +1648,6 @@
                     if (response.closeEntireSession) {
                         connection.close();
                         connection.refresh();
-                    } else if (socket && response.ejected) {
-                        // if user is ejected; his stream MUST be removed
-                        // from all other users' side
-                        socket.send({
-                            left: true,
-                            extra: connection.extra,
-                            userid: connection.userid
-                        });
-
-                        if (sockets[_config.socketIndex])
-                            delete sockets[_config.socketIndex];
-                        if (socketObjects[socket.channel])
-                            delete socketObjects[socket.channel];
-
-                        socket = null;
                     }
 
                     connection.remove(response.userid);
@@ -1695,7 +1685,21 @@
 
                 if (response.customMessage) {
                     if (!connection.peers[response.userid]) throw 'No such peer exists.';
-                    connection.peers[response.userid].onCustomMessage(response.message);
+                    if(response.message.ejected) {
+                        if(connection.sessionDescriptions[connection.sessionid].userid != response.userid) {
+                            throw 'only initiator can eject a user.';
+                        }
+                        // initiator ejected this user
+                        connection.leave();
+                        connection.refresh();
+                        
+                        connection.onSessionClosed({
+                            userid: response.userid,
+                            extra: response.extra || _config.extra,
+                            isEjected: true
+                        });
+                    }
+                    else connection.peers[response.userid].onCustomMessage(response.message);
                 }
 
                 if (response.drop) {
@@ -1932,7 +1936,7 @@
 
         // if a user leaves
 
-        function clearSession(channel) {
+        function clearSession() {
             connection.stats.numberOfConnectedUsers--;
 
             var alert = {
@@ -1953,32 +1957,16 @@
                 }
             }
 
-            if (!channel) {
-                var length = sockets.length;
-                for (var i = 0; i < length; i++) {
-                    var socket = sockets[i];
-                    if (socket) {
-                        socket.send(alert);
-
-                        if (socketObjects[socket.channel])
-                            delete socketObjects[socket.channel];
-
-                        delete sockets[i];
-                    }
-                }
-            }
-
-            // eject a specific user!
-            if (channel) {
-                socket = socketObjects[channel];
+            var length = sockets.length;
+            for (var i = 0; i < length; i++) {
+                var socket = sockets[i];
                 if (socket) {
-                    alert.ejected = true;
                     socket.send(alert);
 
-                    if (sockets[socket.index])
-                        delete sockets[socket.index];
+                    if (socketObjects[socket.channel])
+                        delete socketObjects[socket.channel];
 
-                    delete socketObjects[channel];
+                    delete sockets[i];
                 }
             }
 
@@ -2498,8 +2486,8 @@
         };
 
         // leave session
-        this.leave = function (userid) {
-            clearSession(userid);
+        this.leave = function () {
+            clearSession();
             connection.refresh();
         };
 
@@ -4285,7 +4273,10 @@
 
         // todo: need to write documentation link
         connection.onSessionClosed = function (session) {
-            warn('Session has been closed.', session);
+            if(session.isEjected) {
+                warn(event.userid, 'ejected you.');
+            }
+            else warn('Session has been closed.', session);
         };
 
         // www.RTCMultiConnection.org/docs/onmute/

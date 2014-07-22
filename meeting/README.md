@@ -1,19 +1,21 @@
-#### WebRTC Meeting i.e. Video-Conferencing / [Demo](https://www.webrtc-experiment.com/meeting/)
+## [WebRTC Meeting](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) i.e. Video-Conferencing / [Demo](https://www.webrtc-experiment.com/meeting/)
 
-1. Mesh networking model is implemented to open multiple peer connections i.e. interconnected peer connections
+1. Mesh networking model is implemented to open 1:1 multiple peer connections i.e. interconnected peer connections
 2. Maximum peer connections limit in mesh-networking is 256 (on chrome)
+
+1:1 multiple is explained here: [WebRTC RTP Usage](https://www.webrtc-experiment.com/docs/RTP-usage.html)
 
 =
 
-#### First Step: Link the library
+## First Step: Link the library
 
 ```html
-<script src="https://www.webrtc-experiment.com/meeting/meeting.js"></script>
+<script src="//cdn.webrtc-experiment.com/meeting.js"></script>
 ```
 
 =
 
-#### Last Step: Start using it!
+## Last Step: Start using it!
 
 ```javascript
 var meeting = new Meeting('meeting-unique-id');
@@ -28,16 +30,24 @@ meeting.onaddstream = function(e) {
 // check pre-created meeting rooms
 // it is useful to auto-join
 // or search pre-created sessions
-meeting.check();
+meeting.check('meeting room name');
 
 document.getElementById('setup-new-meeting').onclick = function() {
     meeting.setup('meeting room name');
 };
 ```
 
+You can use `check` method like this:
+
+```javascript
+document.getElementById('join-meeting').onclick = function() {
+    meeting.check('meeting room name');
+};
+```
+
 =
 
-#### Custom user-ids?
+## Custom user-ids?
 
 ```javascript
 meeting.userid = 'username';
@@ -45,7 +55,7 @@ meeting.userid = 'username';
 
 =
 
-#### Custom signaling channel?
+## Custom signaling channel?
 
 You can use each and every signaling channel:
 
@@ -80,9 +90,11 @@ Want to use `Firebase` for signaling?
 meeting.firebase = 'chat';
 ```
 
+More details here: https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
+
 =
 
-#### Want to manually join rooms?
+## Want to manually join rooms?
 
 ```javascript
 meeting.onmeeting = function(room) {
@@ -103,7 +115,7 @@ meeting.onmeeting = function(room) {
 
 =
 
-#### Leave a meeting room
+## Leave a meeting room
 
 ```javascript
 meeting.leave();
@@ -111,7 +123,7 @@ meeting.leave();
 
 =
 
-#### If someone leaves...
+## If someone leaves...
 
 Participants' presence can be detected using `onuserleft`:
 
@@ -125,7 +137,7 @@ meeting.onuserleft = function(userid) {
 
 =
 
-#### `onaddstream`
+## `onaddstream`
 
 It is called both for `local` and `remote` media streams. It returns:
 
@@ -144,9 +156,9 @@ meeting.onaddstream = function(e) {
 
 =
 
-#### Browser Support
+## Browser Support
 
-This [WebRTC Meeting](https://www.webrtc-experiment.com/meeting/) experiment works fine on following web-browsers:
+This [WebRTC Meeting](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -156,6 +168,6 @@ This [WebRTC Meeting](https://www.webrtc-experiment.com/meeting/) experiment wor
 
 =
 
-#### License
+## License
 
-[WebRTC Meeting](https://www.webrtc-experiment.com/meeting/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Meeting](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
