@@ -1,4 +1,4 @@
-## [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC): [WebRTC](https://www.webrtc-experiment.com/) audio/video recording / [Demo](https://www.webrtc-experiment.com/RecordRTC/)
+## [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC): [WebRTC](https://www.webrtc-experiment.com/) audio/video recording / [Demo](https://www.webrtc-experiment.com/RecordRTC/) [![npm](https://img.shields.io/npm/v/recordrtc.svg)](https://npmjs.org/package/recordrtc) [![downloads](https://img.shields.io/npm/dm/recordrtc.svg)](https://npmjs.org/package/recordrtc)
 
 [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is a server-less (entire client-side) JavaScript library can be used to record WebRTC audio/video media streams. It supports cross-browser audio/video recording.
 
@@ -179,6 +179,9 @@ Shared mode is the only mode currently available on 90% of windows systems espec
 Everything is optional except `type:'gif'`:
 
 ```javascript
+// you must link:
+// https://cdn.webrtc-experiment.com/gif-recorder.js
+
 var options = {
    type: 'gif',
    frameRate: 200,

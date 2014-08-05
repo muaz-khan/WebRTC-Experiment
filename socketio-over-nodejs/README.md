@@ -1,4 +1,4 @@
-#### [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) / [Demo](http://webrtc-signaling.jit.su/)
+#### [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) / [Demo](http://webrtc-signaling.jit.su/) [![npm](https://img.shields.io/npm/v/socketio-over-nodejs.svg)](https://npmjs.org/package/socketio-over-nodejs) [![downloads](https://img.shields.io/npm/dm/socketio-over-nodejs.svg)](https://npmjs.org/package/socketio-over-nodejs)
 
 **socket.io over node.js** for webrtc-signaling!
 
@@ -131,7 +131,7 @@ In `ui.js` files you can find `openSocket` method; or in all libraries; you can 
 // http://socketio-over-nodejs.jit.su:80/
 // http://webrtc-signaling.jit.su:80/
 
-var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com/';
+var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
 connection.openSignalingChannel = function(config) {   
    var channel = config.channel || this.channel || 'default-namespace';
    var sender = Math.round(Math.random() * 9999999999) + 9999999999;
@@ -172,7 +172,7 @@ You can detect presence of a room like this:
 // http://socketio-over-nodejs.jit.su:80/
 // http://webrtc-signaling.jit.su:80/
 
-var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com/';
+var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
 function testChannelPresence(channel) {
     var socket = io.connect(SIGNALING_SERVER);
     socket.on('presence', function (isChannelPresent) {

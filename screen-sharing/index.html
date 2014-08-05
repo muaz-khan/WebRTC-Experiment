@@ -14,7 +14,7 @@
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         
-        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
         
         <style>
             video {
@@ -73,8 +73,9 @@
         <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk">
         
         <!-- scripts used for screen-sharing -->
-        <script src='https://www.webrtc-experiment.com/firebase.js'> </script>
-        <script src="https://www.webrtc-experiment.com/screen-sharing/screen.js"> </script>
+        <script src='//cdn.webrtc-experiment.com/firebase.js'> </script>
+        <script src="//cdn.webrtc-experiment.com/getScreenId.js"> </script>
+        <script src="//cdn.webrtc-experiment.com/screen.js"> </script>
     </head>
 
     <body>
@@ -231,6 +232,11 @@
                 <h2>Prerequisites</h2>
                 <ol>
                     <li>
+                        Is that Firefox Nightly? You simply need to open "about:config" and set "<strong>media.getusermedia.screensharing.enabled</strong>" to "<strong>true</strong>".
+                    </li>
+                    
+                    <li>
+                        Is that chrome? 
                         <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Install chrome extension</a>.
                         <button onclick="!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk', function() {location.reload();})" id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
                             <img src="https://www.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
@@ -265,7 +271,7 @@
                 <h2>Common issues & queries</h2>
                 <ol>
                     <li>Recursive cascade images or blurred screen experiences occur only when you try to share screen between two tabs on the same system. This NEVER happens when sharing between unique systems or devices.</li>
-                    <li>Firefox/Opera has no support of screen-capturing yet. However, you can view shared screens on both Firefox and Opera!</li>
+                    <li>Opera/IE/Safari has no support of screen-capturing yet. However, you can view shared screens on Opera/IE/Safari!</li>
                     <li>Remember, it is not desktop sharing! It is just a state-less screen sharing. Desktop sharing is possible only through native (C++) applications.</li>
                 </ol>
             </section>
@@ -274,16 +280,21 @@
                 <h2 class="header">Why Screen Sharing Fails?</h2>
                 <ol>
                     <li>
-                        You've not used '<strong>chromeMediaSource</strong>' constraint: 
+                        You've not used '<strong>chromeMediaSource</strong>' or '<strong>mediaSource</strong>' constraint: 
                         <pre>
+// for chrome
 mandatory: {chromeMediaSource: 'screen'}
-
 // or desktop-Capturing
 mandatory: {chromeMediaSource: 'desktop'}
+
+// for Firefox
+video: {
+    mediaSource: 'window' || 'screen'
+}
 </pre>
                     </li>
-                    <li>You requested audio-stream alongwith '<strong>chromeMediaSource</strong>' – it is not permitted.</li>
-                    <li>You're not testing it on SSL origin (HTTPS domain) otherwise you didn't enable <code><a href="http://peter.sh/experiments/chromium-command-line-switches/#allow-http-screen-capture" target="_blank">--allow-http-screen-capture</a></code> command-line flag on canary.</li>
+                    <li>On chrome, you requested audio-stream alongwith '<strong>chromeMediaSource</strong>' – it is not permitted on chrome. Remember, Firefox is supporting audio+screen from single getUserMedia request.</li>
+                    <li>On chrome, you're not testing it on SSL origin (HTTPS domain) otherwise you didn't enable <code><a href="http://peter.sh/experiments/chromium-command-line-switches/#allow-http-screen-capture" target="_blank">--allow-http-screen-capture</a></code> command-line flag on canary. Firefox is supporting screen capturing from both HTTP and HTTPs domains.</li>
                     <li>You may used media constraints like min/max frameRate; bandwidth or min/max width/height like 2000*2000 that is "currently" not allowed.</li>
                 </ol>
                 
@@ -295,7 +306,7 @@ mandatory: {chromeMediaSource: 'desktop'}
             <section class="experiment">
                 <h2 class="header">How to use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing">screen.js</a>?</h2>
                 <pre>
-&lt;script src="//www.webrtc-experiment.com/screen-sharing/screen.js"&gt;&lt;/script&gt;
+&lt;script src="//cdn.webrtc-experiment.com/screen.js"&gt;&lt;/script&gt;
 </pre>
         <pre>
 var screen = new Screen('screen-unique-id');
@@ -363,6 +374,6 @@ document.getElementById('share-screen').onclick = function() {
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

@@ -27,6 +27,15 @@
 
 =
 
+### Experimental Libraries/Demos
+
+1. [PluginRTC: IE/Safari Plugins compatible WebRTC-Experiments](https://github.com/muaz-khan/PluginRTC)
+2. [RecordRTC Experimental](https://github.com/muaz-khan/RecordRTC-experimental)
+3. [RTCMultiConnection Experimental](https://github.com/muaz-khan/RTCMultiConnection-experimental)
+4. [Conversation.js Experimental](https://github.com/muaz-khan/Conversation.js)
+
+=
+
 ##### Important [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
 
 | Experiment Name        | Short Description           | Source Code | Demo |

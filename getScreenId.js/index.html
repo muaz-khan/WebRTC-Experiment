@@ -104,31 +104,11 @@
                         console.log('getScreenId constraints', toStr(screen_constraints));
                         
                         // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
-                        // sourceId == null || 'string'
+                        // sourceId == null || 'string' || 'firefox'
                         // getUserMedia(screen_constraints, onSuccess, onFailure);
                         
-                        screen_constraints = {
-                            video: {
-                                mandatory: {
-                                    chromeMediaSource: 'screen',
-                                    maxWidth: 1920,
-                                    maxHeight: 1080,
-                                    minAspectRatio: 1.77
-                                }
-                            }
-                        };
-                        
-                        if(error === 'permission-denied') return alert('Permission is denied.');
-                        if(error === 'not-chrome') return alert('Please use chrome.');
-                        
-                        if(!error && sourceId) {
-                            screen_constraints.video.mandatory.chromeMediaSource = 'desktop';
-                            screen_constraints.video.mandatory.chromeMediaSourceId = sourceId;
-                        }
-                        
-                        console.log( 'custom-constraints', toStr(screen_constraints) );
-                        
-                        navigator.webkitGetUserMedia(screen_constraints, function(stream) {
+                        navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+                        navigator.getUserMedia(screen_constraints, function(stream) {
                             document.querySelector('video').src = URL.createObjectURL(stream);
                         }, function(error) {
                             console.error(error);
@@ -157,9 +137,10 @@
                 <pre>
 getScreenId(function (error, sourceId, screen_constraints) {
     // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
-    // sourceId == null || 'string'
+    // sourceId == null || 'string' || 'firefox'
 
-    navigator.webkitGetUserMedia(screen_constraints, function (stream) {
+    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    navigator.getUserMedia(screen_constraints, function (stream) {
         document.querySelector('video').src = URL.createObjectURL(stream);
     }, function (error) {
         console.error(error);
@@ -174,28 +155,31 @@ getScreenId(function (error, sourceId, screen_constraints) {
                 <pre>
 getScreenId(function (error, sourceId, screen_constraints) {
     // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
-    // sourceId == null || 'string'
-
-    screen_constraints = {
-        video: {
-            mandatory: {
-                chromeMediaSource: 'screen',
-                maxWidth: 1920,
-                maxHeight: 1080,
-                minAspectRatio: 1.77
+    // sourceId == null || 'string' || 'firefox'
+    
+    if(sourceId && sourceId != 'firefox') {
+        screen_constraints = {
+            video: {
+                mandatory: {
+                    chromeMediaSource: 'screen',
+                    maxWidth: 1920,
+                    maxHeight: 1080,
+                    minAspectRatio: 1.77
+                }
             }
+        };
+
+        if (error === 'permission-denied') return alert('Permission is denied.');
+        if (error === 'not-chrome') return alert('Please use chrome.');
+
+        if (!error && sourceId) {
+            screen_constraints.video.mandatory.chromeMediaSource = 'desktop';
+            screen_constraints.video.mandatory.chromeMediaSourceId = sourceId;
         }
-    };
-
-    if (error === 'permission-denied') return alert('Permission is denied.');
-    if (error === 'not-chrome') return alert('Please use chrome.');
-
-    if (!error && sourceId) {
-        screen_constraints.video.mandatory.chromeMediaSource = 'desktop';
-        screen_constraints.video.mandatory.chromeMediaSourceId = sourceId;
     }
 
-    navigator.webkitGetUserMedia(screen_constraints, function (stream) {
+    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    navigator.getUserMedia(screen_constraints, function (stream) {
         document.querySelector('video').src = URL.createObjectURL(stream);
     }, function (error) {
         console.error(error);

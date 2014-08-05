@@ -1,4 +1,4 @@
-## MRecordRTC i.e. Multi-RecordRTC! / [Demo](https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/)
+## [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC) i.e. Multi-RecordRTC! / [Demo](https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/)
 
 This [WebRTC](https://www.webrtc-experiment.com/) experiment is using [RecordRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) to record multiple audio/video/gif streams.
 
@@ -10,7 +10,7 @@ This [WebRTC](https://www.webrtc-experiment.com/) experiment is using [RecordRTC
 =
 
 ```html
-<script src="//www.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
 <script>
 var recorder = new MRecordRTC();
 recorder.addStream(MediaStream);
@@ -20,7 +20,9 @@ recorder.mediaType = {
    gif: true
 };
 recorder.startRecording();
-recorder.stopRecording();
+recorder.stopRecording(function(url, type) {
+    document.querySelector(type).src = url;
+});
 
 recorder.getBlob(function(blobs) {
    blobs.audio --- audio blob
@@ -28,10 +30,9 @@ recorder.getBlob(function(blobs) {
    blobs.gif   --- gif blob
 });
 
-mRecordRTC.getDataURL(function (dataURL) {
-    // dataURL.audio
-    // dataURL.video
-});
+// invoke save-as dialog
+// for all recorded blobs
+recorder.save();
 
 recorder.writeToDisk();
 
@@ -57,6 +58,27 @@ MRecordRTC.getFromDisk('audio', function(dataURL) {
 mRecordRTC.getDataURL(function (dataURL) {
     // dataURL.audio
     // dataURL.video
+});
+```
+
+=
+
+#### `save`
+
+Invoke save-as dialog:
+
+```javascript
+recorder.save();
+
+// or save only audio stream
+recorder.save({
+    audio: true
+});
+
+// or save audio and video streams
+recorder.save({
+    audio: true,
+    video: true
 });
 ```
 

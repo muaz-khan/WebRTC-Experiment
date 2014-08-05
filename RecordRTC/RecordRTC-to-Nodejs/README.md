@@ -1,4 +1,4 @@
-#### [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
+#### [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs) [![npm](https://img.shields.io/npm/v/recordrtc-nodejs.svg)](https://npmjs.org/package/recordrtc-nodejs) [![downloads](https://img.shields.io/npm/dm/recordrtc-nodejs.svg)](https://npmjs.org/package/recordrtc-nodejs)
 
 <a href="https://nodei.co/npm/recordrtc-nodejs/">
     <img src="https://nodei.co/npm/recordrtc-nodejs.png">

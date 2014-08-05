@@ -2,12 +2,15 @@
 
 Ad-ons free; plugin-free; extension free; direct browser-to-browser screen sharing.
 
+**Firefox Nightly?** Make sure that you are using Firefox Nightly and you enabled: `media.getusermedia.screensharing.enabled` flag from `about:config` page. You also need to add your domain in `media.getusermedia.screensharing.allowed_domains` flag.
+
 =
 
 #### First Step: Link the library
 
 ```html
-<script src="https://www.webrtc-experiment.com/screen-sharing/screen.js"></script>
+<script src="//cdn.webrtc-experiment.com/getScreenId.js"></script>
+<script src="//cdn.webrtc-experiment.com/screen.js"></script>
 ```
 
 =
@@ -199,4 +202,4 @@ Remember, recursive cascade images or blurred screen is chrome's implementation 
 
 #### License
 
-[WebRTC Screen Sharing](https://www.webrtc-experiment.com/screen-sharing/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+[WebRTC Screen Sharing](https://www.webrtc-experiment.com/screen-sharing/) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

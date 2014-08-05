@@ -49,7 +49,7 @@ document.querySelector('input[type=file]').onchange = function () {
             soundSource.connect(destination);
 
             connection.attachStreams.push(destination.stream);
-            connection.dontAttachStream = true;
+            connection.dontCaptureUserMedia = true;
 
             document.getElementById('openNewSessionButton').disabled = false;
         });

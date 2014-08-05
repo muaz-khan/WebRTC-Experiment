@@ -1,6 +1,6 @@
 ## [navigator.customGetUserMediaBar.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/navigator.customGetUserMediaBar) : Keep Users Privacy! / [Demo](https://www.WebRTC-Experiment.com/navigator.customGetUserMediaBar/)
 
-<img src="//cdn.webrtc-experiment.com/images/navigator.customGetUserMediaBar.gif" style="width:100%;" />
+<img src="https://cdn.webrtc-experiment.com/images/navigator.customGetUserMediaBar.gif" style="width:100%;" />
 
 =
 

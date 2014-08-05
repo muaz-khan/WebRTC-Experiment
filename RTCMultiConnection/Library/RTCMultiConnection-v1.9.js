@@ -1,4 +1,4 @@
-// Last time updated at July 22, 2014, 08:32:23
+// Last time updated at July 30, 2014, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/RTCMultiConnection.js
 
@@ -14,7 +14,21 @@
 
 /* issues/features need to be fixed & implemented:
 
+-. https://bugzilla.mozilla.org/show_bug.cgi?id=1045810
+-. workaround-added: Firefox don't yet support onended for any stream (remote/local)
+
+-. RTCMultiConnection is updated for audio+screen from single getUserMedia request for Firefox Nightly.
+
+-. todo: onFileProgress: if connection gets dropped; re-attempt sharing from last position/chunk.
+
+-. screen capturing support for firefox nightly added.
+-. command-line flag: media.getusermedia.screensharing.enabled
+
+-. connection.onstreamid added.
+-. connection.onconnected, connection.ondisconnected, connection.onfailed added.
+
 -. connection.eject is fixed. Now, onSessionClosed has "event.isEjected" boolean.
+-. (fixed) connection.playRoleOfInitiator must have extra-data as well.
 
 -. connection.dontCaptureUserMedia added. Now, connection.dontAttachStream merely prevents attachment of any stream.
 -. these are breaking changes for those who are using dontAttachStream in their client-scripts.
@@ -27,7 +41,6 @@
 -. todo: add connection.keepStreamsOpened
 -. support inactive at initial handshake
 -. todo: sharePartOfScreen must be fixed for "performance" when sharing over all users.
--. todo: connection.playRoleOfInitiator must have extra-data as well.
 -. audio+video recording must support single-file for Firefox.
 -. need to use maxaveragebitrate for audio bandwidth.
 -. need to add LAN connectivity support.
@@ -346,14 +359,32 @@
                     optional: []
                 }
             };
+            
+            if(isFirefox && session.screen) {
+                warn(Firefox_Screen_Capturing_Warning);
+                screen_constraints.video = merge(screen_constraints.video.mandatory, {
+                    mozMediaSource: 'window', // mozMediaSource is redundant here
+                    mediaSource: 'window' // 'screen' || 'window'
+                });
+                
+                // Firefox is supporting audio+screen from single getUserMedia request
+                // audio+video+screen will become audio+screen for Firefox
+                // because Firefox isn't supporting multi-streams feature
+                if(constraints.audio /* && !session.video */) {
+                    screen_constraints.audio = true;
+                    constraints = {};
+                }
+                
+                delete screen_constraints.video.chromeMediaSource;
+            }
 
             // if screen is prompted
             if (session.screen) {
-                if(DetectRTC.screen.extensionid != ReservedExtensionID) {
-                    connection.useCustomChromeExtensionForScreenCapturing = true;
+                if(isChrome && DetectRTC.screen.extensionid != ReservedExtensionID) {
+                    useCustomChromeExtensionForScreenCapturing = true;
                 }
                 
-                if (!connection.useCustomChromeExtensionForScreenCapturing && !dontCheckChromExtension && !DetectRTC.screen.sourceId) {
+                if (isChrome && !useCustomChromeExtensionForScreenCapturing && !dontCheckChromExtension && !DetectRTC.screen.sourceId) {
                     window.addEventListener('message', function (event) {
                         if (event.data && event.data.chromeMediaSourceId) {
                             var sourceId = event.data.chromeMediaSourceId;
@@ -391,9 +422,8 @@
                 }
                 
                 // check if screen capturing extension is installed.
-                if(connection.useCustomChromeExtensionForScreenCapturing && !dontCheckChromExtension && DetectRTC.screen.chromeMediaSource == 'screen' && DetectRTC.screen.extensionid) {
+                if(isChrome && useCustomChromeExtensionForScreenCapturing && !dontCheckChromExtension && DetectRTC.screen.chromeMediaSource == 'screen' && DetectRTC.screen.extensionid) {
                     if(DetectRTC.screen.extensionid == ReservedExtensionID && document.domain.indexOf('webrtc-experiment.com') == -1) {
-                        log('Please pass valid extension-id whilst using useCustomChromeExtensionForScreenCapturing boolean.');
                         return captureUserMedia(callback, _session, true);
                     }
                     
@@ -409,7 +439,7 @@
                     return;
                 }
                 
-                if (connection.useCustomChromeExtensionForScreenCapturing && DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
+                if (isChrome && useCustomChromeExtensionForScreenCapturing && DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
                     DetectRTC.screen.getSourceId(function (sourceId) {
                         if (sourceId == 'PermissionDeniedError') {
                             var mediaStreamError = {
@@ -434,9 +464,9 @@
                     return;
                 }
 
-                if (DetectRTC.screen.chromeMediaSource == 'desktop') {
+                if (isChrome && DetectRTC.screen.chromeMediaSource == 'desktop') {
                     screen_constraints.video.mandatory.chromeMediaSourceId = DetectRTC.screen.sourceId;
-                } else log('You can install screen capturing chrome extension from this link: https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk');
+                }
 
                 var _isFirstSession = isFirstSession;
 
@@ -580,6 +610,18 @@
                                 };
                             }
                         }
+                        
+                        if(isFirefox && constraintUsed.video && constraintUsed.video.mozMediaSource) {
+                            mediaStreamError = {
+                                message: Firefox_Screen_Capturing_Warning,
+                                name: e.name || 'PermissionDeniedError',
+                                constraintName: constraintUsed,
+                                session: session
+                            };
+
+                            connection.onMediaError(mediaStreamError);
+                            return;
+                        }
 
                         if (typeof e == 'string') {
                             return connection.onMediaError({
@@ -705,14 +747,18 @@
         connection.leave = function (userid) {
             isFirstSession = true;
 
-            if(userid) connection.eject(userid);
-            else rtcMultiSession.leave();;
+            if(userid) {
+                connection.eject(userid);
+                return;
+            }
+            
+            rtcMultiSession.leave();
         };
 
         // www.RTCMultiConnection.org/docs/eject/
         connection.eject = function (userid) {
             if (!connection.isInitiator) throw 'Only session-initiator can eject a user.';
-            if(!connection.peers[userid]) throw 'You inject invalid user.';
+            if(!connection.peers[userid]) throw 'You ejected invalid user.';
             connection.peers[userid].sendCustomMessage({
                 ejected: true
             });
@@ -788,6 +834,18 @@
             if (!e) return;
 
             e = JSON.parse(e);
+            
+            if(e.data.checkingPresence && connection.channels[e.userid]) {
+                connection.channels[e.userid].send({
+                    presenceDetected: true
+                });
+                return;
+            }
+            
+            if(e.data.presenceDetected && connection.peers[e.userid]) {
+                connection.peers[e.userid].connected = true;
+                return;
+            }
 
             if (e.data.type === 'text') {
                 textReceiver.receive(e.data, e.userid, e.extra);
@@ -1023,30 +1081,12 @@
                     }
 
                     if (connection.peers[_config.userid] && connection.peers[_config.userid].peer.connection.iceConnectionState == 'disconnected') {
-                        connection.peers[_config.userid].connected = false;
-
-                        socket.send({
-                            userid: connection.userid,
-                            extra: connection.extra,
-                            question: 'are-you-there'
+                        connection.ondisconnected({
+                            userid: _config.userid,
+                            extra: _config.extra,
+                            peer: connection.peers[_config.userid],
+                            targetuser: _config.userinfo
                         });
-
-                        // wait 5 seconds, if target peer didn't response, simply disconnect
-                        setTimeout(function () {
-                            // iceConnectionState == 'disconnected' occurred out of low-bandwidth
-                            // or internet connectivity issues
-                            if (connection.peers[_config.userid].connected) return;
-
-                            // to make sure this user's all remote streams are removed.
-                            for (var stream in connection.streams) {
-                                stream = connection.streams[stream];
-                                if (stream.userid == _config.userid && stream.type == 'remote') {
-                                    connection.onstreamended(stream.streamObject);
-                                }
-                            }
-
-                            connection.remove(_config.userid);
-                        }, 5000);
                     }
 
                     if (!connection.autoReDialOnFailure) return;
@@ -1097,7 +1137,17 @@
                     });
                 },
                 trickleIce: connection.trickleIce,
-                processSdp: connection.processSdp
+                processSdp: connection.processSdp,
+                sendStreamId: function(stream) {
+                    socket.send({
+                        userid: connection.userid,
+                        extra: connection.extra,
+                        streamid: stream.streamid,
+                        isScreen: stream.isScreen,
+                        isAudio: stream.getAudioTracks().length && !stream.getVideoTracks().length,
+                        isVideo: !!stream.getVideoTracks().length
+                    });
+                }
             };
 
             function waitUntilRemoteStreamStartsFlowing(args) {
@@ -1571,6 +1621,16 @@
                         candidate: JSON.parse(response.candidate.candidate)
                     });
                 }
+                
+                if(response.streamid) {
+                    if(!rtcMultiSession.streamids) {
+                        rtcMultiSession.streamids = {};
+                    }
+                    if(!rtcMultiSession.streamids[response.streamid]) {
+                        rtcMultiSession.streamids[response.streamid] = response.streamid;
+                        connection.onstreamid(response);
+                    }
+                }
 
                 if (response.mute || response.unmute) {
                     if (response.promptMuteUnmute) {
@@ -1633,7 +1693,7 @@
                             stream = connection.streams[stream];
                             if (stream.userid == userLeft) {
                                 stopTracks(stream);
-                                stream.stream.onended(stream.streamObject);
+                                connection.onstreamended(stream.streamObject);
                             }
                         }
                     }
@@ -1644,19 +1704,16 @@
                         }
                         peer.connection = null;
                     }
+                    
+                    if (participants[response.userid]) delete participants[response.userid];
 
                     if (response.closeEntireSession) {
-                        connection.close();
-                        connection.refresh();
+                        connection.onSessionClosed(response);
+                        connection.leave();
+                        return;
                     }
 
                     connection.remove(response.userid);
-
-                    if (participants[response.userid]) delete participants[response.userid];
-                    
-                    if(response.closeEntireSession) {
-                        connection.onSessionClosed(response);
-                    }
 
                     connection.onleave({
                         userid: response.userid,
@@ -1668,6 +1725,7 @@
                 // keeping session active even if initiator leaves
                 if (response.playRoleOfBroadcaster) {
                     if (response.extra) {
+                        // clone extra-data from initial moderator
                         connection.extra = merge(connection.extra, response.extra);
                     }
                     setTimeout(connection.playRoleOfInitiator, 2000);
@@ -1691,7 +1749,6 @@
                         }
                         // initiator ejected this user
                         connection.leave();
-                        connection.refresh();
                         
                         connection.onSessionClosed({
                             userid: response.userid,
@@ -1770,18 +1827,6 @@
                         }
                     }
                 }
-
-                if (response.question == 'are-you-there') {
-                    socket.send({
-                        userid: connection.userid,
-                        extra: connection.extra,
-                        answer: 'yes-iam-connected'
-                    });
-                }
-
-                if (response.answer == 'yes-iam-connected' && connection.peers[_config.userid]) {
-                    connection.peers[_config.userid].connected = true;
-                }
             }
 
             connection.playRoleOfInitiator = function () {
@@ -1848,7 +1893,7 @@
                         _config.capturing = false;
 
                         if (isChrome || (isFirefox && !peer.connection.getLocalStreams().length)) {
-                            peer.connection.addStream(stream);
+                            peer.addStream(stream);
                         }
 
                         connection.renegotiatedSessions[JSON.stringify(_config.renegotiate)] = {
@@ -1939,7 +1984,7 @@
         function clearSession() {
             connection.stats.numberOfConnectedUsers--;
 
-            var alert = {
+            var alertMessage = {
                 left: true,
                 extra: connection.extra,
                 userid: connection.userid,
@@ -1947,30 +1992,39 @@
             };
 
             if (connection.isInitiator) {
+                // if initiator wants to close entire session
                 if (connection.autoCloseEntireSession) {
-                    alert.closeEntireSession = true;
+                    alertMessage.closeEntireSession = true;
                 } else if (sockets[0]) {
+                    // shift initiation control to another user
                     sockets[0].send({
                         playRoleOfBroadcaster: true,
-                        userid: connection.userid
+                        userid: connection.userid,
+                        extra: connection.extra
                     });
                 }
             }
+            
+            sockets.forEach(function(socket, i) {
+                socket.send(alertMessage);
 
-            var length = sockets.length;
-            for (var i = 0; i < length; i++) {
-                var socket = sockets[i];
-                if (socket) {
-                    socket.send(alert);
-
-                    if (socketObjects[socket.channel])
-                        delete socketObjects[socket.channel];
-
-                    delete sockets[i];
+                if (socketObjects[socket.channel]) {
+                    delete socketObjects[socket.channel];
                 }
-            }
+
+                delete sockets[i];
+            });
 
             sockets = swap(sockets);
+            
+            connection.refresh();
+            
+            webAudioMediaStreamSources.forEach(function(mediaStreamSource) {
+                // if source is connected; then chrome will crash on unload.
+                mediaStreamSource.disconnect();
+            });
+            
+            webAudioMediaStreamSources = [];
         }
 
         // www.RTCMultiConnection.org/docs/remove/
@@ -1994,7 +2048,6 @@
                 stream = connection.streams[stream];
                 if (stream.userid == userid) {
                     connection.onstreamended(stream.streamObject);
-                    if (stream.stop) stream.stop();
                     delete connection.streams[stream];
                 }
             }
@@ -2025,14 +2078,6 @@
                 queueRequests: []
             };
 
-            // to make sure remote streams are also removed!
-            for (var stream in connection.streams) {
-                if (connection._skip.indexOf(stream) == -1) {
-                    connection.onstreamended(connection.streams[stream].streamObject);
-                    delete connection.streams[stream];
-                }
-            }
-
             rtcMultiSession.isOwnerLeaving = true;
             
             connection.isInitiator = false;
@@ -2062,8 +2107,10 @@
                 }
             }
             
-            for(var stream in connection.streams) {
+            // to make sure remote streams are also removed!
+            for (var stream in connection.streams) {
                 if (connection._skip.indexOf(stream) == -1) {
+                    connection.onstreamended(connection.streams[stream].streamObject);
                     delete connection.streams[stream];
                 }
             }
@@ -2189,7 +2236,7 @@
 
                         if (response.message.renegotiate) {
                             // renegotiate; so "peer.removeStream" happens.
-                            connection.addStream();
+                            connection.renegotiate();
                         }
                     } else if (connection.onCustomMessage) {
                         connection.onCustomMessage(response.message);
@@ -2488,7 +2535,6 @@
         // leave session
         this.leave = function () {
             clearSession();
-            connection.refresh();
         };
 
         // renegotiate new stream
@@ -2541,7 +2587,7 @@
                     // if(isFirefox) peer.connection.removeStream(e.stream);
 
                     if (isChrome || (isFirefox && !peer.connection.getLocalStreams().length)) {
-                        peer.connection.addStream(e.stream);
+                        peer.addStream(e.stream);
                     }
                 }
 
@@ -3035,27 +3081,40 @@
 
                 this.channels.push(channel);
             },
+            addStream: function(stream) {
+                if(!stream.streamid) {
+                    stream.streamid = getRandomString();
+                }
+                
+                log('attaching stream:', stream.streamid);
+                    
+                if(!stream.isScreen) {
+                    stream.isScreen = false;
+                }
+                    
+                this.connection.addStream(stream);
+                this.sendStreamId(stream);
+                this.getStreamInfo();
+            },
             attachMediaStreams: function () {
                 var streams = this.attachStreams;
                 for (var i = 0; i < streams.length; i++) {
-                    log('attaching stream:', streams[i].streamid);
-                    this.connection.addStream(streams[i]);
+                    this.addStream(streams[i]);
                 }
-                this.getStreamInfo();
             },
             getStreamInfo: function () {
                 this.streaminfo = '';
-                var streams = this.attachStreams;
+                var streams = this.connection.getLocalStreams();
                 for (var i = 0; i < streams.length; i++) {
                     if (i == 0) {
                         this.streaminfo = JSON.stringify({
-                            streamid: streams[i].streamid,
-                            isScreen: streams[i].isScreen
+                            streamid: streams[i].streamid || '',
+                            isScreen: streams[i].isScreen || false
                         });
                     } else {
                         this.streaminfo += '----' +  JSON.stringify({
-                            streamid: streams[i].streamid,
-                            isScreen: streams[i].isScreen
+                            streamid: streams[i].streamid || '',
+                            isScreen: streams[i].isScreen || false
                         });
                     }
                 }
@@ -3131,11 +3190,17 @@
 
         // tools.ietf.org/html/draft-alvestrand-constraints-resolution-00
         var mediaConstraints = options.mediaConstraints || {};
-        var n = navigator,
-            hints = options.constraints || {
-                audio: true,
-                video: video_constraints
-            };
+        
+        var n = navigator;
+        var hints = options.constraints || {
+            audio: true,
+            video: video_constraints
+        };
+        
+        if(hints.video && hints.video.mozMediaSource) {
+            // todo: verify this case
+            mediaConstraints = {};
+        }
 
         if (hints.video == true) hints.video = video_constraints;
 
@@ -3152,7 +3217,7 @@
         // connection.media.min(320,180);
         // connection.media.max(1920,1080);
         var mandatoryConstraints = mediaConstraints.mandatory;
-        if (isChrome && mandatoryConstraints) {
+        if (mandatoryConstraints) {
             var mandatory = {};
 
             if (mandatoryConstraints.minWidth) {
@@ -3241,7 +3306,7 @@
             });
         }
 
-        if (hints.video && hints.video.optional && hints.video.mandatory) {
+        if (hints.video && !hints.video.mozMediaSource && hints.video.optional && hints.video.mandatory) {
             if (!hints.video.optional.length && isEmpty(hints.video.mandatory)) {
                 hints.video = true;
             }
@@ -3617,6 +3682,8 @@
             receive: receive
         };
     }
+    
+    var webAudioMediaStreamSources = [];
 
     function convertToAudioStream(mediaStream) {
         if (!mediaStream) throw 'MediaStream is mandatory.';
@@ -3626,13 +3693,15 @@
 
         var destination = context.createMediaStreamDestination();
         mediaStreamSource.connect(destination);
+        
+        webAudioMediaStreamSources.push(mediaStreamSource);
 
         return destination.stream;
     }
 
     var isChrome = !!navigator.webkitGetUserMedia;
     var isFirefox = !!navigator.mozGetUserMedia;
-    var isMobileDevice = navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
+    var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
 
     // detect node-webkit
     var isNodeWebkit = window.process && (typeof window.process == 'object') && window.process.versions && window.process.versions['node-webkit'];
@@ -3720,6 +3789,12 @@
         mediaElement.controls = true;
         mediaElement.autoplay = !!session.remote;
         mediaElement.muted = session.remote ? false : true;
+        
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1045810
+        // Firefox don't yet support onended for any stream (remote/local)
+        isFirefox && mediaElement.addEventListener('ended', function() {
+            stream.onended();
+        }, false);
 
         mediaElement.play();
 
@@ -3902,12 +3977,16 @@
         }
 
         if (isFirefox) {
-            // todo-verify: this may cause multiple-invocation of "onstreamended"
+            // Firefox don't yet support onended for any stream (remote/local)
             if (mediaStream.onended) mediaStream.onended();
         }
     }
     
+    var Firefox_Screen_Capturing_Warning = 'Make sure that you are using Firefox Nightly and you enabled: media.getusermedia.screensharing.enabled flag from about:config page. You also need to add your domain in "media.getusermedia.screensharing.allowed_domains" flag.';
     var ReservedExtensionID = 'ajhifddimkapgcifgcodmmfdlknahffk';
+    
+    // if you deployed your own extension on Google App Store
+    var useCustomChromeExtensionForScreenCapturing = document.domain.indexOf('webrtc-experiment.com') != -1;
 
     // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
     var DetectRTC = {};
@@ -4047,7 +4126,7 @@
                 // extension notified his presence
                 if (data == 'rtcmulticonnection-extension-loaded') {
                     DetectRTC.screen.chromeMediaSource = 'desktop';
-                    if (DetectRTC.screen && DetectRTC.screen.onScreenCapturingExtensionAvailable) {
+                    if (DetectRTC.screen.onScreenCapturingExtensionAvailable) {
                         DetectRTC.screen.onScreenCapturingExtensionAvailable();
 
                         // make sure that this event isn't fired multiple times
@@ -4239,6 +4318,14 @@
             });
 
             firebase.send = function (data) {
+                // a quick dirty workaround to make sure firebase
+                // shouldn't fail for NULL values.
+                for(var prop in data) {
+                    if(typeof data[prop] == 'undefined') {
+                        data[prop] = false;
+                    }
+                }
+                
                 this.push(data);
             };
 
@@ -4274,7 +4361,7 @@
         // todo: need to write documentation link
         connection.onSessionClosed = function (session) {
             if(session.isEjected) {
-                warn(event.userid, 'ejected you.');
+                warn(session.userid, 'ejected you.');
             }
             else warn('Session has been closed.', session);
         };
@@ -5158,9 +5245,6 @@
         };
         
         connection.getExternalIceServers = true;
-
-        // if you deployed your own extension on Google App Store
-        connection.useCustomChromeExtensionForScreenCapturing = document.domain.indexOf('webrtc-experiment.com') != -1;
         
         connection.onfailed = function(event) {
             if (isFirefox || event.targetuser.browser == 'firefox') {
@@ -5173,12 +5257,45 @@
         };
         
         connection.onconnected = function(event) {
-            // var peer = event.peer;
-            // peer.addStream || peer.removeStream || peer.getStats
+            // event.peer.addStream || event.peer.getStats
             log('Peer connection has been established between you and', event.userid);
         };
+        
+        connection.ondisconnected = function(event) {
+            log('Peer connection seems has been disconnected between you and', event.userid);
+            
+            if(isEmpty(connection.channels)) return;
+            if(!connection.channels[event.userid]) return;
+            
+            // use WebRTC data channels to detect user's presence
+            connection.channels[event.userid].send({
+                checkingPresence: true
+            });
+            
+            // wait 5 seconds, if target peer didn't response, simply disconnect
+            setTimeout(function () {
+                // iceConnectionState == 'disconnected' occurred out of low-bandwidth
+                // or internet connectivity issues
+                if (connection.peers[event.userid].connected) {
+                    delete connection.peers[event.userid].connected;
+                    return;
+                }
 
-        // part-of-screen fallback for firefox
-        // when { screen: true }
+                // to make sure this user's all remote streams are removed.
+                for (var stream in connection.streams) {
+                    stream = connection.streams[stream];
+                    if (stream.userid == event.userid && stream.type == 'remote') {
+                        connection.onstreamended(stream.streamObject);
+                    }
+                }
+
+                connection.remove(event.userid);
+            }, 5000);
+        };
+        
+        connection.onstreamid = function(event) {
+            // event.isScreen || event.isVideo || event.isAudio
+            log('got remote streamid', event.streamid, 'from', event.userid);
+        };
     }
 })();

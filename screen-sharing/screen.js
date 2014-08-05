@@ -1,15 +1,20 @@
+// Last time updated at August 05, 2014, 08:32:23
+
+// Latest file can be found here: https://cdn.webrtc-experiment.com/screen.js
+
 // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.webrtc-experiment.com/licence/
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing
-(function () {
+
+(function() {
 
     // a middle-agent between public API and the Signaler object
-    window.Screen = function (channel) {
+    window.Screen = function(channel) {
         var signaler, self = this;
         this.channel = channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
         // get alerted for each new meeting
-        this.onscreen = function (screen) {
+        this.onscreen = function(screen) {
             if (self.detectedRoom) return;
             self.detectedRoom = true;
 
@@ -21,85 +26,49 @@
         }
 
         function captureUserMedia(callback, extensionAvailable) {
-            var screen_constraints = {
-                mandatory: {
-                    chromeMediaSource: DetectRTC.screen.chromeMediaSource,
-                    maxWidth: 1920,
-                    maxHeight: 1080,
-                    minAspectRatio: 1.77
-                },
-                optional: []
-            };
+            getScreenId(function(error, sourceId, screen_constraints) {
+                console.log('screen_constraints', JSON.stringify(screen_constraints, null, '\t'));
+                navigator.getUserMedia(screen_constraints, function(stream) {
+                    stream.onended = function() {
+                        if (self.onuserleft) self.onuserleft('self');
+                    };
 
-            // try to check if extension is installed.
-            if (typeof extensionAvailable == 'undefined' && DetectRTC.screen.chromeMediaSource != 'desktop') {
-                DetectRTC.screen.isChromeExtensionAvailable(function (available) {
-                    captureUserMedia(callback, available);
-                });
-                return;
-            }
+                    self.stream = stream;
 
-            if (DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
-                DetectRTC.screen.getSourceId(function (error) {
-                    if (error && error == 'PermissionDeniedError') {
-                        alert('PermissionDeniedError: User denied to share content of his screen.');
+                    var video = document.createElement('video');
+                    video.id = 'self';
+                    video[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
+                    video.autoplay = true;
+                    video.controls = true;
+                    video.play();
+
+                    self.onaddstream({
+                        video: video,
+                        stream: stream,
+                        userid: 'self',
+                        type: 'local'
+                    });
+
+                    callback(stream);
+                }, function(error) {
+                    if (isChrome && location.protocol === 'http:') {
+                        alert('You\'re not testing it on SSL origin (HTTPS domain) otherwise you didn\'t enable --allow-http-screen-capture command-line flag on canary.');
+                    } else if (isChrome) {
+                        alert('Screen capturing is either denied or not supported. Please install chrome extension for screen capturing or run chrome with command-line flag: --enable-usermedia-screen-capturing');
+                    } else if (isFirefox) {
+                        alert(Firefox_Screen_Capturing_Warning);
                     }
 
-                    captureUserMedia(callback);
+                    console.error(e);
                 });
-                return;
-            }
-
-            if (DetectRTC.screen.chromeMediaSource == 'desktop') {
-                screen_constraints.mandatory.chromeMediaSourceId = DetectRTC.screen.sourceId;
-            }
-            
-            console.log('screen_constraints', JSON.stringify(screen_constraints, null, '\t'));
-
-            var constraints = {
-                audio: false,
-                video: screen_constraints
-            };
-
-            navigator.getUserMedia(constraints, onstream, onerror);
-
-            function onstream(stream) {
-                stream.onended = function () {
-                    if (self.onuserleft) self.onuserleft('self');
-                };
-
-                self.stream = stream;
-
-                var video = document.createElement('video');
-                video.id = 'self';
-                video[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
-                video.autoplay = true;
-                video.controls = true;
-                video.play();
-
-                self.onaddstream({
-                    video: video,
-                    stream: stream,
-                    userid: 'self',
-                    type: 'local'
-                });
-
-                callback(stream);
-            }
-
-            function onerror(e) {
-                if (location.protocol === 'http:') {
-                    alert('You\'re not testing it on SSL origin (HTTPS domain) otherwise you didn\'t enable --allow-http-screen-capture command-line flag on canary.');
-                } else {
-                    alert('Screen capturing is either denied or not supported. Please install chrome extension for screen capturing or run chrome with command-line flag: --enable-usermedia-screen-capturing');
-                }
-                console.error(e);
-            }
+            });
         }
 
+        var Firefox_Screen_Capturing_Warning = 'Make sure that you are using Firefox Nightly and you enabled: media.getusermedia.screensharing.enabled flag from about:config page. You also need to add your domain in "media.getusermedia.screensharing.allowed_domains" flag.';
+
         // share new screen
-        this.share = function (roomid) {
-            captureUserMedia(function () {
+        this.share = function(roomid) {
+            captureUserMedia(function() {
                 !signaler && initSignaler(roomid);
                 signaler.broadcast({
                     roomid: (roomid && roomid.length) || self.channel,
@@ -109,7 +78,7 @@
         };
 
         // view pre-shared screens
-        this.view = function (room) {
+        this.view = function(room) {
             !signaler && initSignaler();
             signaler.join({
                 to: room.userid,
@@ -137,18 +106,18 @@
 
         // object to store ICE candidates for answerer
         var candidates = {};
-        
+
         var numberOfParticipants = 0;
 
         // it is called when your signaling implementation fires "onmessage"
-        this.onmessage = function (message) {
+        this.onmessage = function(message) {
             // if new room detected
             if (message.roomid == roomid && message.broadcasting && !signaler.sentParticipationRequest)
                 root.onscreen(message);
 
             else
             // for pretty logging
-                console.debug(JSON.stringify(message, function (key, value) {
+                console.debug(JSON.stringify(message, function(key, value) {
                 if (value.sdp) {
                     console.log(value.sdp.type, '————', value.sdp.sdp);
                     return '';
@@ -169,15 +138,15 @@
                 _options.to = message.userid;
                 _options.stream = root.stream;
                 peers[message.userid] = Offer.createOffer(_options);
-                
+
                 numberOfParticipants++;
-                
-                if(root.onNumberOfParticipantsChnaged) root.onNumberOfParticipantsChnaged(numberOfParticipants);
+
+                if (root.onNumberOfParticipantsChnaged) root.onNumberOfParticipantsChnaged(numberOfParticipants);
             }
         };
 
         // if someone shared SDP
-        this.onsdp = function (message) {
+        this.onsdp = function(message) {
             var sdp = message.sdp;
 
             if (sdp.type == 'offer') {
@@ -194,7 +163,7 @@
         };
 
         // if someone shared ICE
-        this.onice = function (message) {
+        this.onice = function(message) {
             var peer = peers[message.userid];
             if (!peer) {
                 var candidate = candidates[message.userid];
@@ -215,22 +184,22 @@
 
         // it is passed over Offer/Answer objects for reusability
         var options = {
-            onsdp: function (sdp, to) {
+            onsdp: function(sdp, to) {
                 signaler.signal({
                     sdp: sdp,
                     to: to
                 });
             },
-            onicecandidate: function (candidate, to) {
+            onicecandidate: function(candidate, to) {
                 signaler.signal({
                     candidate: candidate,
                     to: to
                 });
             },
-            onaddstream: function (stream, _userid) {
+            onaddstream: function(stream, _userid) {
                 console.debug('onaddstream', '>>>>>>', stream);
 
-                stream.onended = function () {
+                stream.onended = function() {
                     if (root.onuserleft) root.onuserleft(_userid);
                 };
 
@@ -242,6 +211,10 @@
                 video.play();
 
                 function onRemoteStreamStartsFlowing() {
+                    if(isMobileDevice) {
+                        return afterRemoteStreamStartedFlowing();
+                    }
+                    
                     if (!(video.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || video.paused || video.currentTime <= 0)) {
                         afterRemoteStreamStartedFlowing();
                     } else
@@ -263,13 +236,13 @@
         };
 
         // call only for session initiator
-        this.broadcast = function (_config) {
+        this.broadcast = function(_config) {
             signaler.roomid = _config.roomid || getToken();
-            
-            if(_config.userid) {
+
+            if (_config.userid) {
                 userid = _config.userid;
             }
-            
+
             signaler.isbroadcaster = true;
             (function transmit() {
                 signaler.signal({
@@ -286,7 +259,7 @@
         };
 
         // called for each new participant
-        this.join = function (_config) {
+        this.join = function(_config) {
             signaler.roomid = _config.roomid;
             this.signal({
                 participationRequest: true,
@@ -294,12 +267,12 @@
             });
             signaler.sentParticipationRequest = true;
         };
-        
-        window.addEventListener('beforeunload', function () {
+
+        window.addEventListener('beforeunload', function() {
             leaveRoom();
         }, false);
 
-        window.addEventListener('keyup', function (e) {
+        window.addEventListener('keyup', function(e) {
             if (e.keyCode == 116) {
                 leaveRoom();
             }
@@ -330,14 +303,14 @@
             // Firebase is capable to store data in JSON format
             // root.transmitOnce = true;
             socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + root.channel);
-            socket.on('child_added', function (snap) {
+            socket.on('child_added', function(snap) {
                 var data = snap.val();
                 if (data.userid != userid) {
                     if (!data.leaving) signaler.onmessage(data);
                     else {
                         numberOfParticipants--;
-                        if(root.onNumberOfParticipantsChnaged) root.onNumberOfParticipantsChnaged( numberOfParticipants );
-                        
+                        if (root.onNumberOfParticipantsChnaged) root.onNumberOfParticipantsChnaged(numberOfParticipants);
+
                         root.onuserleft(data.userid);
                     }
                 }
@@ -350,27 +323,27 @@
             });
 
             // method to signal the data
-            this.signal = function (data) {
+            this.signal = function(data) {
                 data.userid = userid;
                 socket.push(data);
             };
         } else {
             // custom signaling implementations
             // e.g. WebSocket, Socket.io, SignalR, WebSycn, XMLHttpRequest, Long-Polling etc.
-            socket = root.openSignalingChannel(function (message) {
+            socket = root.openSignalingChannel(function(message) {
                 message = JSON.parse(message);
                 if (message.userid != userid) {
                     if (!message.leaving) signaler.onmessage(message);
                     else {
                         root.onuserleft(data.userid);
                         numberOfParticipants--;
-                        if(root.onNumberOfParticipantsChnaged) root.onNumberOfParticipantsChnaged( numberOfParticipants );
+                        if (root.onNumberOfParticipantsChnaged) root.onNumberOfParticipantsChnaged(numberOfParticipants);
                     }
                 }
             });
 
             // method to signal the data
-            this.signal = function (data) {
+            this.signal = function(data) {
                 data.userid = userid;
                 socket.send(JSON.stringify(data));
             };
@@ -387,43 +360,69 @@
 
     var isFirefox = !!navigator.mozGetUserMedia;
     var isChrome = !!navigator.webkitGetUserMedia;
+    var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
 
-    var STUN = {
-        url: isChrome ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
+    var iceServers = [];
+
+    iceServers.push({
+        url: 'stun:stun.l.google.com:19302'
+    });
+
+    iceServers.push({
+        url: 'stun:stun.anyfirewall.com:3478'
+    });
+
+    iceServers.push({
+        url: 'turn:turn.bistri.com:80',
+        credential: 'homeo',
+        username: 'homeo'
+    });
+
+    iceServers.push({
+        url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+        credential: 'webrtc',
+        username: 'webrtc'
+    });
+
+    iceServers = {
+        iceServers: iceServers
     };
 
-    var TURN = {
-        url: 'turn:homeo@turn.bistri.com:80',
-        credential: 'homeo'
+    var iceFrame, loadedIceFrame;
+
+    function loadIceFrame(callback, skip) {
+        if (loadedIceFrame) return;
+        if (!skip) return loadIceFrame(callback, true);
+
+        loadedIceFrame = true;
+
+        var iframe = document.createElement('iframe');
+        iframe.onload = function() {
+            iframe.isLoaded = true;
+
+            window.addEventListener('message', function(event) {
+                window.iceServers = event.data.iceServers;
+
+                if (!event.data || !event.data.iceServers) return;
+                callback(event.data.iceServers);
+            });
+
+            iframe.contentWindow.postMessage('get-ice-servers', '*');
+        };
+        iframe.src = 'https://cdn.webrtc-experiment.com/getIceServers/';
+        iframe.style.display = 'none';
+        (document.body || document.documentElement).appendChild(iframe);
     };
 
-    var iceServers = {
-        iceServers: [STUN]
-    };
-
-    if (isChrome) {
-        if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
-            TURN = {
-                url: 'turn:turn.bistri.com:80',
-                credential: 'homeo',
-                username: 'homeo'
-            };
-
-        iceServers.iceServers = [STUN, TURN];
-    }
+    loadIceFrame(function(_iceServers) {
+        iceServers.iceServers = iceServers.iceServers.concat(_iceServers);
+        console.log('iceServers', JSON.stringify(iceServers.iceServers, null, '\t'));
+    });
 
     var optionalArgument = {
         optional: [{
             DtlsSrtpKeyAgreement: true
         }]
-    };
-
-    var offerAnswerConstraints = {
-        optional: [],
-        mandatory: {
-            OfferToReceiveAudio: false,
-            OfferToReceiveVideo: true
-        }
     };
 
     function getToken() {
@@ -433,39 +432,45 @@
     function onSdpSuccess() {}
 
     function onSdpError(e) {
-        console.error('sdp error:', e.name, e.message);
+        console.error('sdp error:', e);
     }
 
     // var offer = Offer.createOffer(config);
     // offer.setRemoteDescription(sdp);
     // offer.addIceCandidate(candidate);
+    var offerConstraints = {
+        optional: [],
+        mandatory: {
+            OfferToReceiveAudio: false,
+            OfferToReceiveVideo: false
+        }
+    };
+    
     var Offer = {
-        createOffer: function (config) {
+        createOffer: function(config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
 
-            if (config.stream) peer.addStream(config.stream);
-            if (config.onaddstream)
-                peer.onaddstream = function (event) {
-                    config.onaddstream(event.stream, config.to);
-                };
-            if (config.onicecandidate)
-                peer.onicecandidate = function (event) {
-                    if (event.candidate) config.onicecandidate(event.candidate, config.to);
-                };
+            peer.addStream(config.stream);
+            peer.onicecandidate = function(event) {
+                if (event.candidate) config.onicecandidate(event.candidate, config.to);
+            };
 
-            peer.createOffer(function (sdp) {
+            peer.createOffer(function(sdp) {
+                sdp.sdp = setBandwidth(sdp.sdp);
                 peer.setLocalDescription(sdp);
-                if (config.onsdp) config.onsdp(sdp, config.to);
-            }, onSdpError, offerAnswerConstraints);
+                config.onsdp(sdp, config.to);
+            }, onSdpError, offerConstraints);
 
             this.peer = peer;
 
             return this;
         },
-        setRemoteDescription: function (sdp) {
+        setRemoteDescription: function(sdp) {
+            console.log('setting remote descriptions', sdp.sdp);
             this.peer.setRemoteDescription(new RTCSessionDescription(sdp), onSdpSuccess, onSdpError);
         },
-        addIceCandidate: function (candidate) {
+        addIceCandidate: function(candidate) {
+            console.log('adding ice', candidate.candidate);
             this.peer.addIceCandidate(new RTCIceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
@@ -476,163 +481,67 @@
     // var answer = Answer.createAnswer(config);
     // answer.setRemoteDescription(sdp);
     // answer.addIceCandidate(candidate);
+    var answerConstraints = {
+        optional: [],
+        mandatory: {
+            OfferToReceiveAudio: false,
+            OfferToReceiveVideo: true
+        }
+    };
     var Answer = {
-        createAnswer: function (config) {
+        createAnswer: function(config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
 
-            if (config.stream) peer.addStream(config.stream);
-            if (config.onaddstream)
-                peer.onaddstream = function (event) {
-                    config.onaddstream(event.stream, config.to);
-                };
-            if (config.onicecandidate)
-                peer.onicecandidate = function (event) {
-                    if (event.candidate) config.onicecandidate(event.candidate, config.to);
-                };
+            peer.onaddstream = function(event) {
+                config.onaddstream(event.stream, config.to);
+            };
+            peer.onicecandidate = function(event) {
+                if (event.candidate) config.onicecandidate(event.candidate, config.to);
+            };
 
+            console.log('setting remote descriptions', config.sdp.sdp);
             peer.setRemoteDescription(new RTCSessionDescription(config.sdp), onSdpSuccess, onSdpError);
-            peer.createAnswer(function (sdp) {
+            peer.createAnswer(function(sdp) {
+                sdp.sdp = setBandwidth(sdp.sdp);
                 peer.setLocalDescription(sdp);
-                if (config.onsdp) config.onsdp(sdp, config.to);
-            }, onSdpError, offerAnswerConstraints);
+                config.onsdp(sdp, config.to);
+            }, onSdpError, answerConstraints);
 
             this.peer = peer;
 
             return this;
         },
-        addIceCandidate: function (candidate) {
+        addIceCandidate: function(candidate) {
+            console.log('adding ice', candidate.candidate);
+        
             this.peer.addIceCandidate(new RTCIceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
             }));
         }
     };
+    
+    function setBandwidth(sdp) {
+        if (isFirefox) return sdp;
+        if (isMobileDevice) return sdp;
 
-    // todo: need to check exact chrome browser because opera also uses chromium framework
-    var isChrome = !!navigator.webkitGetUserMedia;
+        // removing existing bandwidth lines
+        sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
 
-    // DetectRTC.js - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
-    // Below code is taken from RTCMultiConnection-v1.8.js (http://www.rtcmulticonnection.org/changes-log/#v1.8)
-    var DetectRTC = {};
+        // "300kbit/s" for screen sharing
+        sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:300\r\n');
 
-    (function () {
+        return sdp;
+    }
 
-        function CheckDeviceSupport(callback) {
-            // This method is useful only for Chrome!
+    // getScreenId.js - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js
 
-            // 1st step: verify "MediaStreamTrack" support.
-            if (!window.MediaStreamTrack && !navigator.getMediaDevices) {
-                return;
-            }
+    function loadScript(src, onload) {
+        var script = document.createElement('script');
+        script.src = src;
+        document.documentElement.appendChild(script);
+        console.log('loaded', src);
+    }
 
-            if (!window.MediaStreamTrack && navigator.getMediaDevices) {
-                window.MediaStreamTrack = {};
-            }
-
-            // 2nd step: verify "getSources" support which is planned to be removed soon!
-            // "getSources" will be replaced with "getMediaDevices"
-            if (!MediaStreamTrack.getSources) {
-                MediaStreamTrack.getSources = MediaStreamTrack.getMediaDevices;
-            }
-
-            // todo: need to verify if this trick works
-            // via: https://code.google.com/p/chromium/issues/detail?id=338511
-            if (!MediaStreamTrack.getSources && navigator.getMediaDevices) {
-                MediaStreamTrack.getSources = navigator.getMediaDevices.bind(navigator);
-            }
-
-            // if still no "getSources"; it MUST be firefox!
-            if (!MediaStreamTrack.getSources) {
-                // assuming that it is older chrome or chromium implementation
-                if (isChrome) {
-                    DetectRTC.hasMicrophone = true;
-                    DetectRTC.hasWebcam = true;
-                }
-
-                return;
-            }
-
-            // loop over all audio/video input/output devices
-            MediaStreamTrack.getSources(function (sources) {
-                var result = {};
-
-                for (var i = 0; i < sources.length; i++) {
-                    result[sources[i].kind] = true;
-                }
-
-                DetectRTC.hasMicrophone = result.audio;
-                DetectRTC.hasWebcam = result.video;
-
-                if (callback) callback();
-            });
-        }
-
-        // check for microphone/webcam support!
-        CheckDeviceSupport();
-        DetectRTC.load = CheckDeviceSupport;
-
-        var screenCallback;
-
-        DetectRTC.screen = {
-            chromeMediaSource: 'screen',
-            getSourceId: function (callback) {
-                if (!callback) throw '"callback" parameter is mandatory.';
-                screenCallback = callback;
-                window.postMessage('get-sourceId', '*');
-            },
-            isChromeExtensionAvailable: function (callback) {
-                if (!callback) return;
-
-                if (DetectRTC.screen.chromeMediaSource == 'desktop') callback(true);
-
-                // ask extension if it is available
-                window.postMessage('are-you-there', '*');
-
-                setTimeout(function () {
-                    if (DetectRTC.screen.chromeMediaSource == 'screen') {
-                        callback(false);
-                    } else callback(true);
-                }, 2000);
-            },
-            onMessageCallback: function (data) {
-                console.log('chrome message', data);
-
-                // "cancel" button is clicked
-                if (data == 'PermissionDeniedError') {
-                    DetectRTC.screen.chromeMediaSource = 'PermissionDeniedError';
-                    if (screenCallback) return screenCallback('PermissionDeniedError');
-                    else throw new Error('PermissionDeniedError');
-                }
-
-                // extension notified his presence
-                if (data == 'rtcmulticonnection-extension-loaded') {
-                    if (document.getElementById('install-button')) {
-                        document.getElementById('install-button').parentNode.innerHTML = '<strong>Great!</strong> <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Google chrome extension</a> is installed.';
-                    }
-                    DetectRTC.screen.chromeMediaSource = 'desktop';
-                }
-
-                // extension shared temp sourceId
-                if (data.sourceId) {
-                    DetectRTC.screen.sourceId = data.sourceId;
-                    if (screenCallback) screenCallback(DetectRTC.screen.sourceId);
-                }
-            }
-        };
-
-        // check if desktop-capture extension installed.
-        if (window.postMessage && isChrome) {
-            DetectRTC.screen.isChromeExtensionAvailable();
-        }
-    })();
-
-    window.addEventListener('message', function (event) {
-        if (event.origin != window.location.origin) {
-            return;
-        }
-
-        DetectRTC.screen.onMessageCallback(event.data);
-    });
-
-    console.log('current chromeMediaSource', DetectRTC.screen.chromeMediaSource);
+    !window.getScreenId && loadScript('https://cdn.webrtc-experiment.com/getScreenId.js');
 })();

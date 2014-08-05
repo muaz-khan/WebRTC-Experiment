@@ -1,4 +1,4 @@
-// Last time updated at July 18, 2014, 08:32:23
+// Last time updated at July 29, 2014, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getScreenId.js
 
@@ -12,16 +12,36 @@
 /*
 getScreenId(function (error, sourceId, screen_constraints) {
     // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
-    // sourceId == null || 'string'
-    // navigator.webkitGetUserMedia(screen_constraints, onSuccess, onFailure);
+    // sourceId == null || 'string' || 'firefox'
+    
+    if(sourceId == 'firefox') {
+        navigator.mozGetUserMedia(screen_constraints, onSuccess, onFailure);
+    }
+    else navigator.webkitGetUserMedia(screen_constraints, onSuccess, onFailure);
 });
 */
 
-(function () {
-    window.getScreenId = function (callback) {
+(function() {
+    window.getScreenId = function(callback) {
+        // for Firefox:
+        // sourceId == 'firefox'
+        // screen_constraints = {...}
+        if (!!navigator.mozGetUserMedia) {
+            callback(null, 'firefox', {
+                video: {
+                    mozMediaSource: 'window',
+                    mediaSource: 'window',
+                    maxWidth: 1920,
+                    maxHeight: 1080,
+                    minAspectRatio: 1.77
+                }
+            });
+            return;
+        }
+
         postMessage();
 
-        window.addEventListener('message', function (event) {
+        window.addEventListener('message', function(event) {
             if (!event.data) return;
 
             if (event.data.chromeMediaSourceId) {
@@ -69,11 +89,11 @@ getScreenId(function (error, sourceId, screen_constraints) {
     }
 
     var iframe = document.createElement('iframe');
-    iframe.onload = function () {
+    iframe.onload = function() {
         iframe.isLoaded = true;
     };
     iframe.src = 'https://www.webrtc-experiment.com/getSourceId/';
-    
+
     iframe.style.display = 'none';
     (document.body || document.documentElement).appendChild(iframe);
 })();

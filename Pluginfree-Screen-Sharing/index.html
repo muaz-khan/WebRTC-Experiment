@@ -200,14 +200,14 @@
                     };
 
                     // try to check if extension is installed.
-                    if(isWebRTCExperimentsDomain && typeof extensionAvailable == 'undefined' && DetectRTC.screen.chromeMediaSource != 'desktop') {
+                    if(isChrome && isWebRTCExperimentsDomain && typeof extensionAvailable == 'undefined' && DetectRTC.screen.chromeMediaSource != 'desktop') {
                         DetectRTC.screen.isChromeExtensionAvailable(function(available) {
                             captureUserMedia(callback, available);
                         });
                         return;
                     }
                     
-                    if(isWebRTCExperimentsDomain && DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
+                    if(isChrome && isWebRTCExperimentsDomain && DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
                         DetectRTC.screen.getSourceId(function(error) {
                             if(error && error == 'PermissionDeniedError') {
                                 alert('PermissionDeniedError: User denied to share content of his screen.');
@@ -219,7 +219,7 @@
                     }
                     
                     // for non-www.webrtc-experiment.com domains
-                    if(!isWebRTCExperimentsDomain && !DetectRTC.screen.sourceId) {
+                    if(isChrome && !isWebRTCExperimentsDomain && !DetectRTC.screen.sourceId) {
                         window.addEventListener('message', function (event) {
                             if (event.data && event.data.chromeMediaSourceId) {
                                 var sourceId = event.data.chromeMediaSourceId;
@@ -244,7 +244,7 @@
                         return;
                     }
                     
-                    if(DetectRTC.screen.chromeMediaSource == 'desktop') {
+                    if(isChrome && DetectRTC.screen.chromeMediaSource == 'desktop') {
                         screen_constraints.mandatory.chromeMediaSourceId = DetectRTC.screen.sourceId;
                     }
                     
@@ -252,6 +252,17 @@
                         audio: false,
                         video: screen_constraints
                     };
+                    
+                    if(!!navigator.mozGetUserMedia) {
+                        console.warn(Firefox_Screen_Capturing_Warning);
+                        constraints.video = {
+                            mozMediaSource: 'window',
+                            mediaSource: 'window',
+                            maxWidth: 1920,
+                            maxHeight: 1080,
+                            minAspectRatio: 1.77
+                        };
+                    }
                     
                     console.log( JSON.stringify( constraints , null, '\t') );
                     
@@ -271,10 +282,13 @@
                             rotateVideo(video);
                         },
                         onerror: function() {
-                            if (location.protocol === 'http:') {
+                            if (isChrome && location.protocol === 'http:') {
                                 alert('Please test this WebRTC experiment on HTTPS.');
-                            } else {
+                            } else if(isChrome) {
                                 alert('Screen capturing is either denied or not supported. Please install chrome extension for screen capturing or run chrome with command-line flag: --enable-usermedia-screen-capturing');
+                            }
+                            else if(!!navigator.mozGetUserMedia) {
+                                alert(Firefox_Screen_Capturing_Warning);
                             }
                         }
                     });
@@ -311,6 +325,8 @@
                         if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
                         else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
                 })();
+                
+                var Firefox_Screen_Capturing_Warning = 'Make sure that you are using Firefox Nightly and you enabled: media.getusermedia.screensharing.enabled flag from about:config page. You also need to add your domain in "media.getusermedia.screensharing.allowed_domains" flag.';
 
             </script>
             
@@ -471,6 +487,11 @@
                 <h2>Prerequisites</h2>
                 <ol>
                     <li>
+                        Is that Firefox Nightly? Make sure that you are using Firefox Nightly and you enabled: media.getusermedia.screensharing.enabled flag from about:config page. You also need to add your domain in "media.getusermedia.screensharing.allowed_domains" flag.
+                    </li>
+                    
+                    <li>
+                        Is that chrome? 
                         <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Install chrome extension</a>.
                         <button onclick="!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk', function() {location.reload();})" id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
                             <img src="https://www.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
@@ -479,7 +500,7 @@
                     <li>
                         Otherwise make sure you are running the chrome with command line flag "<strong><a href="http://peter.sh/experiments/chromium-command-line-switches/#enable-usermedia-screen-capturing">--enable-usermedia-screen-capturing</a></strong>" e.g. on Windows "<strong>Chrome.exe --enable-usermedia-screen-capturing</strong>"
                         <div style="text-align:center;">
-                            <img src="//cdn.webrtc-experiment.com/images/--enable-usermedia-screen-capturing.png" style="max-width: 100%;">
+                            <img src="https://www.webrtc-experiment.com/images/--enable-usermedia-screen-capturing.png" style="max-width: 100%;">
                         </div>
                         Learn more about <a href="http://www.chromium.org/developers/how-tos/run-chromium-with-flags" target="_blank">how to enable command-line flags</a> on different operating systems.
                     </li>
@@ -505,7 +526,7 @@
                 <h2>Common issues & queries</h2>
                 <ol>
                     <li>Recursive cascade images or blurred screen experiences occur only when you try to share screen between two tabs on the same system. This NEVER happens when sharing between unique systems or devices.</li>
-                    <li>Firefox/Opera has no support of screen-capturing yet. However, you can view shared screens on both Firefox and Opera!</li>
+                    <li>Opera/IE/Safari has no support of screen-capturing yet. However, you can view shared screens on Opera/IE/Safari!</li>
                     <li>Remember, it is not desktop sharing! It is just a state-less screen sharing. Desktop sharing is possible only through native (C++) applications.</li>
                 </ol>
             </section>
@@ -514,16 +535,21 @@
                 <h2 class="header">Why Screen Sharing Fails?</h2>
                 <ol>
                     <li>
-                        You've not used '<strong>chromeMediaSource</strong>' constraint: 
+                        You've not used '<strong>chromeMediaSource</strong>' or '<strong>mediaSource</strong>' constraint: 
                         <pre>
+// for chrome
 mandatory: {chromeMediaSource: 'screen'}
-
 // or desktop-Capturing
 mandatory: {chromeMediaSource: 'desktop'}
+
+// for Firefox
+video: {
+    mediaSource: 'window' || 'screen'
+}
 </pre>
                     </li>
-                    <li>You requested audio-stream alongwith '<strong>chromeMediaSource</strong>' – it is not permitted.</li>
-                    <li>You're not testing it on SSL origin (HTTPS domain) otherwise you didn't enable <code><a href="http://peter.sh/experiments/chromium-command-line-switches/#allow-http-screen-capture" target="_blank">--allow-http-screen-capture</a></code> command-line flag on canary.</li>
+                    <li>On chrome, you requested audio-stream alongwith '<strong>chromeMediaSource</strong>' – it is not permitted on chrome. Remember, Firefox is supporting audio+screen from single getUserMedia request.</li>
+                    <li>On chrome, you're not testing it on SSL origin (HTTPS domain) otherwise you didn't enable <code><a href="http://peter.sh/experiments/chromium-command-line-switches/#allow-http-screen-capture" target="_blank">--allow-http-screen-capture</a></code> command-line flag on canary. Firefox is supporting screen capturing from both HTTP and HTTPs domains.</li>
                     <li>You may used media constraints like min/max frameRate; bandwidth or min/max width/height like 2000*2000 that is "currently" not allowed.</li>
                 </ol>
                 
@@ -537,6 +563,10 @@ mandatory: {chromeMediaSource: 'desktop'}
                 <ol>
                     <li>
                         <a href="http://www.RTCMultiConnection.org/" target="_blank">RTCMultiConnection.js</a> can be used for HD screen sharing; HD audio/video streaming; fastest file sharing; and writing entire skype-like app in the browser!
+                    </li>
+                    
+                    <li>
+                        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing" target="_blank">Screen.js</a> can be used for HD screen sharing; HD audio/video streaming; fastest file sharing!
                     </li>
                 </ol>
             </section>

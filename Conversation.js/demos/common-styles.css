@@ -1,0 +1,81 @@
+* {
+    -webkit-user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    
+    font-family: Calibri;
+    font-family: 'Segoe UI Light', 'Segoe UI';
+    font-size: 1.1em;
+    font-weight: normal;
+}
+
+html {
+    background: #eee;
+}
+
+body {
+    font-size: 1.2em;
+    line-height: 1.2em;
+    margin: 0;
+}
+
+input[type=text], input[type=search] {
+    background: none repeat scroll 0 0 #F9F9F9;
+    border: 1px solid #CCCCCC;
+    border-radius: 0 0 5px 5px;
+    border-top: 0;
+    font: 300 18px/40px'light', inherit;
+    height: 40px;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    padding: 5px 10px;
+    width: 100%;
+}
+
+#output {
+    background: none repeat scroll 0 0 #F9F9F9;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px 5px 0 0;
+    font: 300 18px/40px'light', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    height: 400px;
+    letter-spacing: 1px;
+    margin-bottom: 0;
+    overflow: scroll;
+    padding: 5px 10px;
+}
+
+#output div {
+    border-bottom: 1px solid #CCCCCC;
+}
+
+section.name {
+    float: left;
+    overflow: hidden;
+    padding-left: 2em;
+    padding-right: 1em;
+    text-align: right;
+    width: 7em;
+    height: 35px;
+}
+
+section.message {
+    border-left: 1px solid #CCCCCC;
+    margin-left: 10em;
+    overflow: hidden;
+    padding-left: 1em;
+}
+
+input, .message {
+    -webkit-user-select: initial;
+    -o-user-select: initial;
+    -ms-user-select: initial;
+    -moz-user-select: initial;
+    user-select: initial;
+}
+
+button[disabled], input[disabled] {
+    background: rgba(216, 205, 205, 0.2);
+    border: 1px solid rgb(233, 224, 224);
+}

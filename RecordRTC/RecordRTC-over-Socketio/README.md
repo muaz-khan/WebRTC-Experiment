@@ -1,4 +1,4 @@
-#### [RecordRTC over Socket.io](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio)
+#### [RecordRTC over Socket.io](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio) [![npm](https://img.shields.io/npm/v/recordrtc-socketio.svg)](https://npmjs.org/package/recordrtc-socketio) [![downloads](https://img.shields.io/npm/dm/recordrtc-socketio.svg)](https://npmjs.org/package/recordrtc-socketio)
 
 <a href="https://nodei.co/npm/recordrtc-socketio/">
     <img src="https://nodei.co/npm/recordrtc-socketio.png">

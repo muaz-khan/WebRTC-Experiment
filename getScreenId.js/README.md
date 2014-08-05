@@ -6,6 +6,12 @@ Simply use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/g
 
 Demo: https://www.webrtc-experiment.com/getScreenId/
 
+**Firefox Nightly?** Make sure that you are using Firefox Nightly and you enabled: `media.getusermedia.screensharing.enabled` flag from `about:config` page. You also need to add your domain in `media.getusermedia.screensharing.allowed_domains` flag.
+
+=
+
+### Browser Support: Both Firefox and Chrome
+
 =
 
 <h2>
@@ -19,9 +25,10 @@ Demo: https://www.webrtc-experiment.com/getScreenId/
 ```javascript
 getScreenId(function (error, sourceId, screen_constraints) {
     // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
-    // sourceId == null || 'string'
+    // sourceId == null || 'string' || 'firefox'
 
-    navigator.webkitGetUserMedia(screen_constraints, function (stream) {
+    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    navigator.getUserMedia(screen_constraints, function (stream) {
         document.querySelector('video').src = URL.createObjectURL(stream);
     }, function (error) {
         console.error(error);
@@ -34,28 +41,31 @@ Or...
 ```javascript
 getScreenId(function (error, sourceId, screen_constraints) {
     // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
-    // sourceId == null || 'string'
-
-    screen_constraints = {
-        video: {
-            mandatory: {
-                chromeMediaSource: 'screen',
-                maxWidth: 1920,
-                maxHeight: 1080,
-                minAspectRatio: 1.77
+    // sourceId == null || 'string' || 'firefox'
+    
+    if(sourceId && sourceId != 'firefox') {
+        screen_constraints = {
+            video: {
+                mandatory: {
+                    chromeMediaSource: 'screen',
+                    maxWidth: 1920,
+                    maxHeight: 1080,
+                    minAspectRatio: 1.77
+                }
             }
+        };
+
+        if (error === 'permission-denied') return alert('Permission is denied.');
+        if (error === 'not-chrome') return alert('Please use chrome.');
+
+        if (!error && sourceId) {
+            screen_constraints.video.mandatory.chromeMediaSource = 'desktop';
+            screen_constraints.video.mandatory.chromeMediaSourceId = sourceId;
         }
-    };
-
-    if (error === 'permission-denied') return alert('Permission is denied.');
-    if (error === 'not-chrome') return alert('Please use chrome.');
-
-    if (!error && sourceId) {
-        screen_constraints.video.mandatory.chromeMediaSource = 'desktop';
-        screen_constraints.video.mandatory.chromeMediaSourceId = sourceId;
     }
 
-    navigator.webkitGetUserMedia(screen_constraints, function (stream) {
+    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    navigator.getUserMedia(screen_constraints, function (stream) {
         document.querySelector('video').src = URL.createObjectURL(stream);
     }, function (error) {
         console.error(error);

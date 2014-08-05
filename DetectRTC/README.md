@@ -3,7 +3,7 @@
 > A library for detecting WebRTC features!
 > Demo: https://www.webrtc-experiment.com/DetectRTC/
 
-<img src="//cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
+<img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
 
 =
 

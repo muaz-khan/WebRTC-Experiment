@@ -1,0 +1,290 @@
+@font-face {
+    font-family: 'Myriad';
+    src: url('../fonts/MyriadPro-Light.otf') format("opentype");
+    font-weight:400;
+}
+
+* {
+    margin:0;
+    padding: 0;
+    color: black;
+    font-family:Myriad, Arial, Verdana;
+    
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
+    -webkit-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    -ms-user-drag: none;
+    user-drag: none;
+}
+
+textarea, input, .message {
+    -webkit-user-select: initial;
+    -moz-user-select: initial;
+    -o-user-select: initial;
+    -ms-user-select: initial;
+    user-select: initial;
+}
+
+body {
+    background: white;
+}
+
+header {
+    background: rgb(245, 243, 243);
+    border-bottom: 1px solid rgb(77, 72, 72);
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+    vertical-align: middle;
+}
+
+.search-box {
+    border: 1px solid rgb(158, 157, 157);
+    display: inline-block;
+    vertical-align: middle;
+    width: 50%;
+    overflow: hidden;
+    background: white;
+}
+
+.search-box input {
+    border:0;
+    padding: 4px 4px;
+    outline: none;
+    font-size: 30px;
+    background: transparent;
+    color: black;
+}
+
+.icon {
+    background-repeat:no-repeat;
+    background-position: center center;
+    width: 48px;
+    height: 48px;
+    vertical-align: middle;
+    background-color: rgb(233, 231, 231);
+    border: 1px solid rgb(151, 147, 147);
+}
+
+.icon:hover {
+    background-color: rgb(233, 231, 201);
+}
+
+.icon:active {
+    background-color: rgb(233, 231, 191);
+}
+
+.search-user {
+    background-image: url('../images/search-user.png');
+}   
+
+.setttings {
+    background-image: url('../images/settings.png');
+}
+
+.microphone {
+    background-image: url('../images/microphone.png');
+}
+
+.camera {
+    background-image: url('../images/camera.png');
+}
+
+.share-files {
+    background-image: url('../images/share-files.png');
+}
+    
+.conversation-panel {
+    border: 1px solid rgb(158, 157, 157);
+    margin: 10px;
+}
+
+.conversation {
+    border-top: 1px solid rgb(158, 157, 157);
+    margin-top: -1px;
+}
+
+.activist-name {
+    display: inline-block;
+    border-right: 1px solid rgb(158, 157, 157);
+    vertical-align: middle;
+    text-align: center;
+    padding: 8px 4px;
+    width: 70px;
+    overflow: hidden;
+    border-top: 1px solid rgb(158, 157, 157);
+    margin-top: -1px;
+}
+
+.activist-name .symbol {
+    font-size: 30px;
+    font-weight: bolder;
+    text-decoration: underline;
+}
+
+.activist-name .full-name {
+}
+
+.conversation .message {
+    display: inline-block;
+    padding: 8px 4px;
+    vertical-align: top;
+    max-width: 90%;
+    border-left: 1px solid rgb(158, 157, 157);
+    margin-left: -1px;
+    padding-left: 10px;
+}
+
+.conversation .message input {
+    color: black;
+    border: 1px solid rgb(139, 131, 131);
+    background: white;
+    padding: 0 5px;
+}
+
+.conversation .message-date {
+    font-size: 12px;
+    color: gray;
+    margin-top: 5px;
+}
+
+footer {
+    position: fixed; 
+    bottom: 0;
+    width: 100%;
+    border: 1px solid rgb(158, 157, 157);
+    background: white;
+    border: 1px solid rgb(77, 72, 72);
+}
+
+.chat-input {
+    border-right: 1px solid rgb(158, 157, 157);
+    display: inline-block;
+    vertical-align: middle;
+    width: 85%;
+    overflow: hidden;
+}
+
+.chat-input textarea {
+    border:0;
+    padding: 4px 4px;
+    outline: none;
+    font-size: 20px;
+    background: transparent;
+    resize: none;
+    width: 99%;
+}
+
+footer button {
+    background-image: url('../images/send-message.png');
+}
+
+.slogan {
+    position: absolute;
+    margin-top: 8px;
+    font-size: 14px;
+    font-style: italic;
+    height: 16px;
+    overflow: hidden;
+    width: 250px;
+}
+
+.media-panel {
+    margin-left: 10%;
+    display: none;
+    margin-bottom: 1em;
+}
+
+.media-panel #hide-section {
+    width: auto;
+    padding: 0 7px;
+    background: rgb(243, 80, 80);
+    border: 1px solid rgb(162, 12, 12);
+    height: 23px;
+    color: white;
+    cursor: pointer;
+    border-radius: 3px
+}
+
+.media-panel video {
+    width: 22%;
+}
+
+@media all and (max-width: 650px) {
+    .conversation .message {
+        max-width: 80%;
+    }
+    .chat-input {
+        width: 90%;
+    }
+    .search-box {
+        width: 45%;
+    }
+}
+
+@media all and (max-width: 500px) {
+    .conversation .message {
+        max-width: 70%;
+    }
+    .chat-input {
+        width: 80%;
+    }
+    .search-box {
+        width: 35%;
+    }
+}
+
+@media all and (max-width: 330px) {
+    .conversation .message {
+        max-width: 60%;
+    }
+    .chat-input {
+        width: 70%;
+    }
+    .search-box {
+        width: 30%;
+    }
+}
+
+@media all and (max-width: 270px) {
+    .conversation .message {
+        max-width: 50%;
+    }
+    .chat-input {
+        width: 50%;
+    }
+    .search-box {
+        width: 25%;
+    }
+}
+@media all and (max-width: 240px) {
+    .conversation .message {
+        max-width: 40%;
+    }
+    .chat-input {
+        width: 40%;
+    }
+    .search-box {
+        width: 20%;
+    }
+}
+
+@media all and (max-width: 200px) {
+    .conversation .message {
+        max-width: 30%;
+    }
+    .chat-input {
+        width: 30%;
+    }
+    .search-box {
+        width: 15%;
+    }
+}

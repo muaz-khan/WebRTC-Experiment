@@ -1,0 +1,16 @@
+{
+  "name": "AndroidRTC",
+  "description": "AndroidRTC uses WebRTC standards to bring realtime p2p connections!",
+  "version": "0.0.0.1",
+  "app": {
+    "main": {
+        "scripts": []
+    },
+    "launch":{
+      "local_path": "index.html"
+    }
+  },
+  "icons": {
+    "128": "images/logo.png"
+  }
+}

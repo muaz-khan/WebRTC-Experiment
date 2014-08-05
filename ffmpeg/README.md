@@ -13,7 +13,7 @@ Remember: [`ffmpeg-asm.js`](https://cdn.webrtc-experiment.com/ffmpeg_asm.js)'s c
 3. [Transcoding WebM into mp4; then merging WAV+mp4 into single mp4](https://www.webrtc-experiment.com/ffmpeg/merging-wav-and-webm-into-mp4.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/merging-wav-and-webm-into-mp4.html)
 4. [Recording Audio+Canvas and merging in single mp4](https://www.webrtc-experiment.com/ffmpeg/audio-plus-canvas-recording.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/audio-plus-canvas-recording.html)
 
-<img src="//cdn.webrtc-experiment.com/images/audo-plus-canvas-recording.gif" />
+<img src="https://cdn.webrtc-experiment.com/images/audo-plus-canvas-recording.gif" />
 
 =
 

@@ -1,10 +1,10 @@
-## [MultiRTC](https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/) / A Demo application for [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/)!
+## [MultiRTC](https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/) / A Demo application for [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/)! [![npm](https://img.shields.io/npm/v/multirtc.svg)](https://npmjs.org/package/multirtc) [![downloads](https://img.shields.io/npm/dm/multirtc.svg)](https://npmjs.org/package/multirtc)
 
 1. Source Code: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC
 2. Similar Demo: https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/
 3. RTCMultiConnection.js: http://www.RTCMultiConnection.org/docs/
 
-<img src="https://www.webrtc-experiment.com/images/MultiRTC.gif" />
+<img src="https://cdn.webrtc-experiment.com/images/MultiRTC.gif" />
 
 <a href="https://nodei.co/npm/multirtc/">
     <img src="https://nodei.co/npm/multirtc.png">

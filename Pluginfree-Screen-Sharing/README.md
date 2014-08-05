@@ -2,6 +2,8 @@
 
 Use your browser to share content of screen in High-Quality (HD) format with one or more users!
 
+**Firefox Nightly?** Make sure that you are using Firefox Nightly and you enabled: `media.getusermedia.screensharing.enabled` flag from `about:config` page. You also need to add your domain in `media.getusermedia.screensharing.allowed_domains` flag.
+
 This WebRTC experiment uses a chrome extension:
 
 * https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk

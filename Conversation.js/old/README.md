@@ -6,13 +6,13 @@ It allows you open data conversation between two or more users using their user-
 
 <img src="https://cdn.webrtc-experiment.com/images/AndroidRTC.gif" />
 
+## Demos: https://www.rtcmulticonnection.org/conversationjs/demos/
+
 > Note: It is experimental release and API may change until v1.0 gets stable.
 
-Original source-code can be found here:
+**Current-directory is experimental.** Original source-code can be found here:
 
 https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Conversation.js
-
-Experimental Repository: https://github.com/muaz-khan/Conversation.js
 
 =
 
@@ -151,7 +151,7 @@ signaler.connect(user);
 
 "defaults" are default properties, objects and methods that are applied to RTCMultiConnection object.
 
-See list of all such properties here: http://www.rtcmulticonnection.org/docs/
+See list of all such properties here: http://rtcmulticonnection.org/docs/
 
 ```javascript
 user.defaults = {
@@ -296,13 +296,9 @@ conversation.on('file-cancelled', function (file) {
 
 =
 
-## [Demos](https://www.rtcmulticonnection.org/conversationjs/demos/)
+## Demos
 
 See nested directory `./demos/` for list of all available demos.
-
-1. AndroidRTC
-2. demos/search-user.html
-3. demos/cross-language-chat.html
 
 =
 
