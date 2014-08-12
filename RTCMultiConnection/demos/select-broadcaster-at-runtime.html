@@ -1,0 +1,90 @@
+<title>Select Broadcaster at runtime / RTCMultiConnection</title>
+<h1>Select Broadcaster at runtime / <a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a></h2>
+
+<script>
+if(!location.hash.replace('#', '').length) {
+    location.hash = (Math.random() * 1000).toString().replace('.', '');
+    location.reload();
+}
+</script>
+
+<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+<script src="//cdn.webrtc-experiment.com/firebase.js"></script>
+<hr />
+<button id="openNewSessionButton">Open New Room</button>
+<button id="select-broadcaster-id" disabled>Select New Broadcaster</button>
+<hr />
+<script>
+var connection = new RTCMultiConnection();
+
+// easiest way to customize what you need!
+connection.session = {
+    audio: true,
+    video: true,
+    oneway: true
+};
+
+connection.onNewSession = function(session) {
+    connection.dontCaptureUserMedia = true;
+    session.join({ oneway: true }); // argument is optional
+};
+
+connection.userid = prompt('Please enter your userid.');
+
+// on getting local or remote media stream
+connection.onstream = function(e) {
+    document.body.appendChild(e.mediaElement);
+};
+
+// setup signaling channel
+connection.connect();
+
+// open new session
+document.querySelector('#openNewSessionButton').onclick = function() {
+    this.disabled = true;
+    connection.open();
+    
+    document.querySelector('#select-broadcaster-id').disabled = false;
+};
+
+document.querySelector('#select-broadcaster-id').onclick = function() {
+    var targetUserId = prompt('Please type new broadcaster id');
+    connection.sendCustomMessage({
+        messageFor: targetUserId,
+        broadcast: true
+    });
+};
+
+connection.onCustomMessage = function(message) {
+    if (message.messageFor == connection.userid && message.broadcast == true) {
+        // because "viewer" joined room as "oneway:true"
+        // initiator will NEVER share participants
+        // to manually ask for participants;
+        // call "askToShareParticipants" method.
+        connection.askToShareParticipants();
+        
+        connection.dontCaptureUserMedia = false;
+        connection.addStream({
+            audio: true,
+            video: true
+        });
+    }
+};
+</script>
+
+<pre>
+// because "viewer" joined room as "oneway:true"
+// initiator will NEVER share participants
+// to manually ask for participants;
+// call "askToShareParticipants" method.
+connection.askToShareParticipants();
+
+// become a broadcaster
+connection.<a href="http://www.rtcmulticonnection.org/docs/addStream/">addStream</a>({
+    audio: true,
+    video: true,
+    oneway: true
+});
+</pre>
+
+<style>video{width: 20%;}</style>
