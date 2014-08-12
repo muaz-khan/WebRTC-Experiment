@@ -4,7 +4,27 @@ Conversation.js is inspired by skype; and it provides simple events-like API to 
 
 It allows you open data conversation between two or more users using their user-ids.
 
-<img src="https://cdn.webrtc-experiment.com/images/AndroidRTC.gif" />
+## [Demos](https://www.webrtc-experiment.com/Conversationjs/) using [Conversation.js](https://github.com/muaz-khan/Conversation.js)
+
+<ol>				
+                <li>
+					<a href="https://www.webrtc-experiment.com/Conversationjs/AndroidRTC/">AndroidRTC</a>
+                </li>
+                
+                <li>
+					<a href="https://www.webrtc-experiment.com/Conversationjs/search-user.html">Search Users</a>
+                </li>
+                
+                <li>
+					<a href="https://www.webrtc-experiment.com/Conversationjs/cross-language-chat.html">Cross-Language (Multi-Lingual) Text Chat</a>
+                </li>
+                
+                <li>
+                    <a href="https://www.rtcmulticonnection.org/conversationjs/demos/">Old Conversation.js demos</a>
+                </li>
+</ol>
+
+## [Gif Presentation](https://cdn.webrtc-experiment.com/images/AndroidRTC.gif)
 
 > Note: It is experimental release and API may change until v1.0 gets stable.
 

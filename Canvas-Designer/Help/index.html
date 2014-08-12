@@ -1,0 +1,433 @@
+﻿<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0, user-scalable=no">
+
+	<title>Canvas Designer Help ® Muaz Khan</title>    
+	<meta name="description" content="Help for HTML5 Canvas Designer ® Muaz Khan – A tool aimed to give you a full-fledged drawing surface and also auto generate appropriate code for you in different formats!">
+
+	<meta name="author" content="Muaz Khan">
+	<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+
+	<link href="../Style.css" rel="stylesheet">
+	<style>
+		.highlight {
+			color: rgb(166, 20, 20);
+		}
+        html, body {
+            overflow: auto;
+            height: auto;
+        }
+        body {
+            padding: 0 5%;
+            -webkit-user-select: initial;
+        }
+        h1, footer {
+            height: auto;
+            margin: 0 -10%;
+        }
+	</style>
+</head>
+<body>
+	<h1>Canvas Designer Help</h1>
+	<div>
+		<h2>
+			Introducing the tool!
+		</h2>
+		<p>
+			<a href="../" title="HTML5 Canvas Designer/Tool">Canvas Designer is a tool</a> aimed to give you a full-fledged drawing surface and also auto generate appropriate code for you in different formats!
+		</p>
+		<p>
+			It targets <a href="http://www.w3c.org/TR/2dcontext/" title="HTML5 Canvas 2D Context">Canvas 2D Context</a> – i.e. it gives you a <strong>built-in IDE</strong> for <a href="http://www.w3c.org/TR/2dcontext/" title="HTML5 Canvas 2D Context">Canvas 2D API</a>s!
+		</p>
+	    <p>
+	        Obviously, it is developed & designed solely by <a href="https://github.com/muaz-khan" rel="author" title="Muaz Khan's Google+ profile">Muaz Khan</a>!
+	    </p>
+	</div>
+	<div>
+		<h2>
+			How files are arranged?
+		</h2>
+		<p>
+			Each task or feature has a unique JavaScript file. It simplifies not only coding but also later edits and additions!
+		</p>
+		<ul>
+			<li>
+				<a href="../line-handler.js">line-handler.js</a> : for lines drawing!
+			</li>
+			<li>
+				<a href="../arc-handler.js">arc-handler.js</a> : for arcs/circles drawing!
+			</li>
+			<li>
+				<a href="../quadratic-handler.js">quadratic-handler.js</a> : for quadratic curves drawing!
+			</li>
+			<li>
+				<a href="../bezier-handler.js">bezier-handler.js</a> : for bezier curves drawing!
+			</li>
+			<li>
+				<a href="../rect-handler.js">rect-handler.js</a> : for rectangles drawing!
+			</li>
+		</ul>
+		<p>
+			Common task like output in textarea, global variables/objects etc. have been placed in <a href="../common.js">common.js</a> file.
+		</p>
+		<p>
+			Dragging relevant code has been placed in <a href="../drag-helper.js">drag-helper.js</a> and drawing relevant code has been placed in <a href="../draw-helper.js">draw-helper.js</a> file. (<strong>Note:</strong> <a href="../draw-helper.js">draw-helper.js</a> is most important file in this project because functions it contains are repeatedly called from all portions of the project!)
+		</p>
+		<p>
+			<a href="../events-handler.js">events-handler.js</a> is used to handle global events like mousemove, mouseup, mousedown and their touch relevant!
+		</p>
+		<p>
+			There is a file <a href="../decorator.js">decorator.js</a> which is aimed to decorate the designer; i.e. to decorate the design surface, toolbox, etc.
+		</p>
+	</div>
+	
+	<div>
+		<h2>
+			How I store coordinates?
+		</h2>
+		<p>
+			There is a global variable named points of type array which stores all x/y coordinates plus extra values in the following style:
+		</p>
+		<pre>
+var points = [['shape', [x, y], [lineWidth, strokeStyle, fillStyle, globalAlpha, globalCompositeOperation, lineCap, lineJoin]]];
+</pre>
+		<p>
+			i.e.
+		</p>
+		<pre>
+var points = [path-name, path-coordinates, path-options];
+</pre>
+		<p>
+			Where: 
+		</p>
+		<ol>
+			<li>
+				<code>path-name</code> can be line/arc/rect/quadratic/bezier etc.
+			</li>
+			<li>
+				<code>path-coordinates</code> are the shape's x/y coordinates + width, height, radius etc.
+			</li>
+			<li>
+				<code>path-options</code> are line-width, stroke/fill styles, global alpha/composite-operation, line cap/join etc.
+			</li>
+		</ol>
+	</div>
+	
+	<div>
+		<h2>
+			Digging into the code!
+		</h2>
+		<p>
+			<a href="../draw-helper.js">draw-helper.js</a> defines a method named "<code>redraw</code>" that is one of the most called functions in this project. <code>redraw</code> aimed to refresh all points on the drawing surface! By default, this function is called on each <code>mousedown</code>/<code>mouseup</code> event; however, in some cases, it is also called in <code>mousemove</code> event. (See <a href="../drag-helper.js">drag-helper.js</a> file)
+		</p>
+		<p>
+			<a href="../common.js">common.js</a> defines second most called function "<code>updateTextArea</code>" which is aimed to update the output accordingly.
+		</p>
+		<p>
+			In the top of <a href="../common.js">common.js</a> file; there is an object "<code>is</code>" which contains <code>Boolean</code> properties for selected toolbox shape(s). Mouse/Touch events in the <a href="../events-handler.js">events-handler.js</a> are using these properties to call appropriate objects!
+		</p>
+	</div>
+	
+	<div id="copy">
+		<h2>
+			How to copy and paste?
+		</h2>
+		<p>
+			You can use <code>Ctrl + C</code> for copy and <code>Ctrl + V</code> for paste. You can also use <code>Ctrl + MouseDown</code> for directly copy and paste!
+		</p>
+		<p>
+			You can copy in two formats:
+		</p>
+	    <ol>
+	        <li>
+	            Copy last path
+	        </li>
+	        <li>
+	            Copy all paths (at a time!)
+	        </li>
+	    </ol>
+	    <p>
+	        <strong>Remember:</strong> <code>Ctrl + MouseDown</code> will only work if one option is selected: <code>DragAllPaths</code> or <code>DragLastPath</code> (from tool-box!)
+	    </p>
+	</div>
+	
+	<div id="undo">
+		<h2>
+			How to Undo?
+		</h2>
+		<p>
+			You can undo using <strong>Ctrl + Z</strong>.
+		</p>
+		<p>
+			You can also use <strong>Ctrl + A</strong> to select all drawing for dragging purpose!
+		</p>
+	</div>
+	
+	<div id="contribute">
+		<h2>
+			How to Contribute?
+		</h2>
+		<p>
+			If you want to add new features in the <a href="../">Canvas Designer</a>; follow these steps:
+		</p>
+		<h2>
+			1st Step: Add new toolbox icon!
+		</h2>
+		<p>
+			You've to add something through which end-users can use/access your feature – you can add any HTML element for this purpose (e.g. checkbox, radio-button, button, etc.) – however I recommend you add new toolbox icon instead! (which is a <code>&lt;canvas&gt;</code> element!)
+		</p>
+		<pre>
+&lt;div id="tool-box" class="tool-box"&gt;
+	........................................
+	&lt;canvas id="<span class="highlight">icon-unique-id</span>" width="40" height="40"&gt;&lt;/canvas&gt;
+&lt;/div&gt;
+</pre>
+		<h2>
+			2nd Step: Decorate the icon!
+		</h2>
+		<p>
+			After adding above HTML code, if you refresh the page; you'll see an empty icon appended in the bottom of the toolbox. Now you've to decorate this icon so end users can understand it!
+		</p>
+		<p>
+			Open <a href="../decorator.js">decorator.js</a> file and append following code anywhere in <a href="../decorator.js">the file</a>.
+		</p>
+		<pre>
+function givenName() {
+	var context = getContext('<span class="highlight">icon-unique-id</span>');
+
+	// 2d context relevant code here! (decoration code!!!)
+
+	bindEvent(context, '<span class="highlight">FeatureSelected</span>');
+}
+givenName();
+</pre>
+		<p>
+			<code>FeatureSelected</code> is a global property used to understand the current state of your new toolbox icon (whether icon is selected or not). (Open <a href="../common.js">common.js</a> file)
+		</p>
+		<pre>
+var is = {
+	......................
+	<span class="highlight">isFeatureSelected: false</span>,
+
+	set: function (shape) {
+		...................... = <span class="highlight">is.isFeatureSelected</span> = false;
+		.............................................
+	}
+};
+</pre>
+		<h2>
+			3rd Step: Create new JavaScript file
+		</h2>
+		<p>
+			Now you've to create a new javascript file where you'll put all your "new feature" relevant code! Name the file like this: <strong>feature-handler.js</strong>
+		</p>
+		<pre>
+var <span class="highlight">featureHandler</span> = {
+	ismousedown: false,
+
+	mousedown: function(e) {
+		this.ismousedown = true;
+	},
+	
+	mouseup: function(e) { 
+		this.ismousedown = false;
+	},
+	
+	mousemove: function(e) {
+		if(this.ismousedown) { ... }
+	}
+};
+</pre>
+		<h2>
+			4th Step: Bind mouse events
+		</h2>
+		<p>
+			Now you've to bind mouse events to your newly created object. Open <a href="../events-handler.js">events-handler.js</a> and append following code:
+		</p>
+		<pre>
+addEvent(canvas, isTouch ? 'touchstart' : 'mousedown', function (e) {
+	............................................................
+	<span class="highlight">else if (is.isFeatureSelected) featureHandler.mousedown(e);</span>
+	............................................................
+});
+
+addEvent(document, isTouch ? 'touchend' : 'mouseup', function (e) {
+	............................................................
+	<span class="highlight">else if (is.isFeatureSelected) featureHandler.mouseup(e);</span>
+	............................................................
+});
+
+addEvent(canvas, isTouch ? 'touchmove' : 'mousemove', function (e) {
+	............................................................
+	<span class="highlight">else if (is.isFeatureSelected) featureHandler.mousemove(e);</span>
+	............................................................
+});
+</pre>
+		<p>
+			Now you are 80% done! I strongly recommend you place your feature's drawing relevant code in the <a href="../draw-helper.js">draw-helper.js</a> file as I did for other features! - Reusability!!
+		</p>
+		<h2>
+			5th Step: Handle the output (textarea!)
+		</h2>
+		<p>
+			This is the last step. You've to handle the output for textarea.
+		</p>
+		<p>
+			Open <a href="../common.js">common.js</a> file; there is a function "updateTextArea" in the "common" object – which is aimed to output into textarea element.
+		</p>
+		<p>
+			You don't have to change "updateTextArea". For simplicity purpose, code is separated in different functions/properties that you've to edit:
+		</p>
+		<ol>
+			<li>
+				<code>common.forLoop</code>
+			</li>
+			<li>
+				<code>common.absoluteNOTShortened</code>
+			</li>
+			<li>
+				<code>common.relativeShortened</code>
+			</li>
+			<li>
+				<code>common.relativeNOTShortened</code>
+			</li>
+		</ol>
+		<p>
+			Wait! – You've to edit "<code>init</code>" function and <a href="../drag-helper.js">drag-helper.js</a> file too! – See below div.
+		</p>
+	</div>
+	
+	<div>
+		<h2>
+			What "init" function in <a href="../drag-helper.js">drag-helper.js</a> do?
+		</h2>
+		<p>
+			This function is aimed to draw little transparent-red circles around the stretchable points of the shape so end-user can stretch the shape using those points! (To test it; draw a line, then click arrow [first-icon] on toolbox!) – This function is called on <code>mousemove</code> event.
+		</p>
+		<pre>
+if (p[0] === '<span class="highlight">your-shape</span>') {
+
+	tempContext.beginPath();
+
+	tempContext.arc(point[0], point[1], 10, Math.PI * 2, 0, !1);
+	tempContext.arc(point[2], point[3], 10, Math.PI * 2, 0, !1);
+	
+	<span class="highlight">// For additional circles, copy above line and only change point's index!</span>
+
+	tempContext.fill();
+}
+</pre>
+		<p>
+			You've to edit other two functions in the <a href="../drag-helper.js">drag-helper.js</a> file (It is absolutely necessary because it helps change points accordingly while dragging the shape!):
+		</p>
+		<ol>
+			<li>
+				<code>dragHelper.dragLastPath</code>
+			</li>
+			<li>
+				<code>dragHelper.dragAllPaths</code>
+			</li>
+		</ol>
+		<pre>
+/*≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡*/
+// in "dragAllPaths":
+if (p[0] === '<span class="highlight">your-shape-name</span>') {
+	
+	points[i] = [p[0], [
+		getPoint(x, prevX, point[0]),
+		getPoint(y, prevY, point[1]),
+	], p[2]];
+}
+
+/*≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡*/
+// in "dragLastPath":
+if (p[0] === '<span class="highlight">your-shape-name</span>') {
+
+	if (g.pointsToMove === '<span class="highlight">moveTo-points</span>' || isMoveAllPoints) {
+		point[0] = getPoint(x, prevX, point[0]);
+		point[1] = getPoint(y, prevY, point[1]);
+	}
+
+	points[points.length - 1] = [p[0], point, p[2]];
+}
+
+/*≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡*/
+// in "mousedown" event (in the <a href="../drag-helper.js">same file</a>!)
+if (p[0] === '<span class="highlight">your-shape-name</span>') {
+
+	if (dHelper.isPointInPath(x, y, point[0], point[1])) {
+		g.pointsToMove = '<span class="highlight">moveTo-points</span>';
+	}
+}
+/*≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡*/
+</pre>
+		<p>
+			Now you're 100% done!
+		</p>
+	</div>
+	
+	<div>
+		<h2>
+			How I drag shapes?
+		</h2>
+		<p>
+			I did a detailed post about this: <a href="http://muaz-khan.blogspot.com/2012/02/draggingmoving-shapes-smoothly-using_12.html">Dragging/Moving shapes smoothly using Canvas 2d APIs</a>
+		</p>
+		<p>
+			In the <a href="../drag-helper.js">drag-helper.js</a> file – "<code>global</code>" object contains following three properties:
+		</p>
+		<ol>
+			<li>
+				<code>prevX</code>
+			</li>
+			<li>
+				<code>prevY</code>
+			</li>
+			<li>
+				<code>pointsToMove</code>
+			</li>
+		</ol>
+		<p>
+			<code>prevX/prevY</code> aimed to save previous <code>mousedown</code> points so we can extract the dragged distance accordingly!
+		</p>
+		<p>
+			<code>pointsToMove</code> aimed to understand which point of the shape is to move – e.g. first control points of the last Bezier curve or second control points (or moving/ending points!)
+		</p>
+		<pre>
+<span class="highlight">dragHelper.getPoint</span>: function (point, prev, otherPoint) {
+	if (point > prev) point = otherPoint + (point - prev);
+	else point = otherPoint - (prev - point);
+
+	return point;
+}
+</pre>
+		<p>
+			<code>dragHelper.getPoint</code> returns the dragged distance!
+		</p>
+	</div>
+	
+	<div id="relative-and-absolute">
+		<h2>
+			Explaining relative and absolute coordinates
+		</h2>
+		<p>
+			By default, output in the textarea is provided in absolute coordinates. However, you can choose relative option too. Relative means points are relative to each other. If one or two points changes; all subsequent also changes, accordingly. Relative coordinates help you drag/move shape(s) at any portion of the screen without any bit of disturbance in the original shape!
+		</p>
+		<p>
+			You can set pageX/pageY (or offset top/left) values to x-y objects and move whole shape on mousemove/mouseup/mousedown or at any other event!
+		</p>
+		<p>
+			You can get shortened code for both formats: relative and absolute! Normal code is also provided there!
+		</p>
+	</div>
+
+	<footer itemprop="breadcrumb">
+		<a href="http://twitter.com/muazkh" title="@muazkh">©</a> <a href="https://plus.google.com/+MuazKhan" rel="author" title="Muaz Khan's Google+ profile">Muaz Khan</a>
+		(<a href="mailto:muazkh@gmail.com" title="muazkh@gmail.com">Email</a>) ® <a href="../" title="Canvas-Designer: Drawing Tool">Canvas Designer</a>
+		- <a href="https://github.com/muaz-khan/Canvas-Designer" title="Source code on Github">Source Code</a>
+	</footer>
+</body>
+</html>
