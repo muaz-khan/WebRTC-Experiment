@@ -1,6 +1,11 @@
-##### [WebRTC Browser-to-Browser Pluginfree Calls](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls) / [Demo](https://www.webrtc-experiment.com/calls/)
+## [WebRTC 1:1 Pluginfree Calls](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls)
 
-<img src="https://www.webrtc-experiment.com/images/WebRTC-plugin-free-calls.png" />
+Demos:
+
+1. https://www.webrtc-experiment.com/realtime-pluginfree-calls/
+2. https://www.webrtc-experiment.com/calls/
+
+<img src="https://cdn.webrtc-experiment.com/images/WebRTC-plugin-free-calls.png" />
 
 This [WebRTC](https://www.webrtc-experiment.com/) demo setups one-to-one audio/video/screen calls between two users.
 
@@ -8,11 +13,9 @@ Users can set unique identifiers (userids) for them; and target users can call t
 
 It supports realtime text-chat as well; where websocket/socket.io is used for text sharing.
 
-Try the demo: https://www.webrtc-experiment.com/calls/
-
 =
 
-##### Browser Support
+## Browser Support
 
 [Audio-Only calling experiment](https://www.webrtc-experiment.com/calls/) works fine on following web-browsers:
 
@@ -25,6 +28,6 @@ Try the demo: https://www.webrtc-experiment.com/calls/
 
 =
 
-#### License
+## License
 
-All [WebRTC Experiments](https://www.webrtc-experiment.com/) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[1:1 Calls based demos](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

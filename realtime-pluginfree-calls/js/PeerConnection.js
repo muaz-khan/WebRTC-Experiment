@@ -154,8 +154,7 @@
         }, false);
 
         function onmessage(message) {
-            console.log(root.userid, onmessage);
-            if (message.userid == root.userid) return;
+            // if (message.userid == root.userid) return;
 
             if (message.customMessage) {
                 if (root.onCustomMessage) root.onCustomMessage(message);
@@ -304,8 +303,15 @@
             };
 
             peer.onicecandidate = function (event) {
-                if (event.candidate)
-                    config.onicecandidate(event.candidate);
+                config.onicecandidate(event.candidate);
+            };
+            
+            peer.oniceconnectionstatechange = function() {
+                console.log('oniceconnectionstatechange', JSON.stringify({
+                    iceConnectionState: peer.iceConnectionState,
+                    iceGatheringState: peer.iceGatheringState,
+                    signalingState: peer.signalingState
+                }, null, '\t'));
             };
 
             peer.createOffer(function (sdp) {
@@ -339,8 +345,15 @@
             };
 
             peer.onicecandidate = function (event) {
-                if (event.candidate)
-                    config.onicecandidate(event.candidate);
+                config.onicecandidate(event.candidate);
+            };
+            
+            peer.oniceconnectionstatechange = function() {
+                console.log('oniceconnectionstatechange', JSON.stringify({
+                    iceConnectionState: peer.iceConnectionState,
+                    iceGatheringState: peer.iceGatheringState,
+                    signalingState: peer.signalingState
+                }, null, '\t'));
             };
 
             peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
@@ -372,24 +385,5 @@
     function onSdpError() {}
 
     window.URL = window.webkitURL || window.URL;
-    navigator.getMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-    navigator.getUserMedia = function (hints, onsuccess, onfailure) {
-        if (!hints) hints = {
-            audio: true,
-            video: true
-        };
-        if (!onsuccess) throw 'Second argument is mandatory. navigator.getUserMedia(hints,onsuccess,onfailure)';
-
-        navigator.getMedia(hints, _onsuccess, _onfailure);
-
-        function _onsuccess(stream) {
-            onsuccess(stream);
-        }
-
-        function _onfailure(e) {
-            if (onfailure) onfailure(e);
-            else throw Error('getUserMedia failed: ' + JSON.stringify(e, null, '\t'));
-        }
-    };
-
+    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 })();

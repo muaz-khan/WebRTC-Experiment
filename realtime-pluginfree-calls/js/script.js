@@ -6,11 +6,20 @@
 // MIT License   - www.webrtc-experiment.com/licence
 // Experiments   - github.com/muaz-khan/WebRTC-Experiment
 
+// loading larger images as data-URLs across domains.
+var imageURL = getBackgroundImage();
+var imgElephant = document.getElementById("images-video-container-png");
+imgElephant.setAttribute('src', imageURL);
+
+var chatSection = getElement('.chat-section'),
+    chatOutput = getElement('.chat-output'),
+    chatInput = getElement('.chat-input input');
+
 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 var sender = Math.round(Math.random() * 999999999) + 999999999;
 
-// var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
-var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8000/';
+var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
+// var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8000/';
 io.connect(SIGNALING_SERVER).emit('new-channel', {
     channel: channel,
     sender: sender
@@ -18,7 +27,17 @@ io.connect(SIGNALING_SERVER).emit('new-channel', {
 
 var socket = io.connect(SIGNALING_SERVER + channel);
 socket.on('connect', function () {
-    console.log('Socket.io connection is opened.');
+    chatInput.disabled = false;
+    appendMessage('Socket.io connection is opened.', 'System', 'System');
+});
+
+socket.on('disconnect', function() {
+    chatInput.disabled = true;
+    appendMessage('Socket.io connection is disconnected.', 'System', 'System');
+});
+
+socket.on('error', function () {
+    appendMessage('Socket.io connection failed.', 'System', 'System');
 });
 
 socket.send = function (message) {
@@ -63,12 +82,7 @@ function getUserMedia(mediaType, callback) {
             audio: true,
             video: {
                 optional: [],
-                mandatory: {
-                    minWidth: 1920,
-                    minHeight: 1080,
-                    maxWidth: 1920,
-                    maxHeight: 1080
-                }
+                mandatory: {}
             }
         };
     }
@@ -76,16 +90,18 @@ function getUserMedia(mediaType, callback) {
     if (mediaType == 'screen') {
         hints = {
             audio: false,
-            video: {
+            video: !!navigator.webkitGetUserMedia ? {
                 optional: [],
                 mandatory: {
-                    minWidth: 1280,
-                    minHeight: 720,
                     maxWidth: 1920,
                     maxHeight: 1080,
-                    minAspectRatio: 1.77,
                     chromeMediaSource: 'screen'
                 }
+            } : {
+                mozMediaSource: 'window',
+                mediaSource: 'window',
+                maxWidth: 1920,
+                maxHeight: 1080
             }
         };
     }
@@ -105,6 +121,8 @@ function getUserMedia(mediaType, callback) {
 
         if (mediaType == 'audio') mediaElement.controls = true;
         else takeSnapshot(peer.userid, mediaElement);
+    }, function(error) {
+        alert( JSON.stringify(error, null, '\t') );
     });
 }
 
@@ -170,10 +188,6 @@ function appendMessage(message, className, userid) {
     div.focus();
     chatInput.focus();
 }
-
-var chatSection = getElement('.chat-section'),
-    chatOutput = getElement('.chat-output'),
-    chatInput = getElement('.chat-input input');
 
 chatInput.onkeyup = function (e) {
     if (e.keyCode != 13) return;
@@ -346,8 +360,10 @@ peer.onStreamAdded = function (e) {
     smallPreview.innerHTML = '';
 
     var mediaElementInMainPreviewBox = mainPreview.querySelector(peer.mediaType);
-    if (mediaElementInMainPreviewBox)
+    if (mediaElementInMainPreviewBox) {
         smallPreview.appendChild(mediaElementInMainPreviewBox);
+        mediaElementInMainPreviewBox.play();
+    }
 
     mainPreview.appendChild(e.mediaElement);
 
