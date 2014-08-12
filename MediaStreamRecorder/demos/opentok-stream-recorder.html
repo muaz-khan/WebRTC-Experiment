@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Stream Recording using OpenTokStreamRecorder</title>
+        <script src="https://www.webrtc-experiment.com/MediaStreamRecorder/OpentTokStreamRecorder.js"> </script>
+    </head>
+    <body>
+        <h1>
+            Stream Recording using <a href="https://github.com/streamproc/MediaStreamRecorder"
+                                     target="_blank">OpenTokStreamRecorder</a>
+        </h1>
+        <p>
+            You must run this app on your server. Our example will be soon.
+        </p>
+        <script>
+            openTokRecorder = new OpenTokStreamRecorder({
+                style:'blank',
+                remoteToken:'/openTok/default/getToken',
+                remoteApiKey:'/openTok/default/getApiKey',
+                remoteArchive: function (e) {
+                    return '/openTok/default/getVideoURL/id/' + e.archives[0].archiveId
+                },
+                onstart: function() {
+                    console.log('start');
+                },
+                onstop: function() {
+                    console.log('stop');
+                },
+                ondataavailable: function(e) {
+                    console.log(e.data);
+                }
+            });
+            openTokRecorder.start();
+            setTimeout(function(){
+                openTokRecorder.stop();
+            }, 5000);
+        </script>
+    </body>
+</html>

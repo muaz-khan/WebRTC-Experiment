@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Audio Recording using FlashAudioRecorder</title>
+        <script src="../AudioStreamRecorder/FlashAudioRecorder.js"> </script>
+    </head>
+    <body>
+        <h1>
+            Memory Leaks with Audio Recording using <a href="https://github.com/streamproc/MediaStreamRecorder"
+                                     target="_blank">FlashAudioRecorder</a>
+        </h1>
+        <p>
+            In this example we're using dataType: raw. It means that we can handle data from FlashRecorder before upload
+        </p>
+        <p>
+            Open Chrome and press Shift+Esc. Then look at your process. Or you can see this data at Timeline tab in Chrome Developer Tools.
+        </p>
+        <p>
+            <table>
+                <tr>
+                    <th>Duration</th>
+                    <th>Memory</th>
+                </tr>
+                <tr>
+                    <td>5s</td>
+                    <td>+15Mb (Max 15Mb)</td>
+                </tr>
+                <tr>
+                    <td>10s</td>
+                    <td>+30Mb (Max 30Mb)</td>
+                </tr>
+                <tr>
+                    <td>15s</td>
+                    <td>+40Mb (Max 40Mb)</td>
+                </tr>
+                <tr>
+                    <td>30s</td>
+                    <td>+50Mb (Max 80Mb)</td>
+                </tr>
+                <tr>
+                    <td>1m</td>
+                    <td>+160Mb (Max 190Mb)</td>
+                </tr>
+            </table>
+        </p>
+        <p>
+            Memory grows!
+        </p>
+        <script>
+            function start() {
+                var flashRecorder = new FlashAudioRecorder();
+                    flashRecorder.dataType = 'raw';
+                flashRecorder.onstart = function(e) {
+                    console.log('start');
+                }
+                flashRecorder.onstop = function(e) {
+                    console.log('stop');
+                }
+                flashRecorder.ondataavailable = function(e) {
+                    console.log('blob captured');
+                    console.log(e);
+                    e = null;
+                }
+                flashRecorder.onready = function(e) {
+                    console.log('ready');
+                }
+                flashRecorder.start();
+                setTimeout(function(){
+                    flashRecorder.stop();
+                }, 5000);
+            }
+            start();
+            
+        </script>
+    </body>
+</html>

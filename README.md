@@ -5,17 +5,21 @@
 3. These demos/experiments are entirely client-side; i.e. no server installation needed!
 4. You can use all these demos in PHP/Python/Ruby/ASP.NET/etc. everywhere!
 
-=
+## How to use?
 
-### Libraries
+**Each demo has a unique directory. Simply download that directory, upload in your webserver and use it; and it'll work!**
+
+You don't need to modify any single line to use it. No single installation or modification is needed :)
+
+## Libraries
 
 | Library Name        | Short Description           | Documentation | Demos |
 | ------------- |-------------|-------------|-------------|
-| `RecordRTC.js` | A library for audio/video recording | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
-| `RTCMultiConnection.js` | An ultimate wrapper library for `RTCWeb APIs` | [Documentation](http://www.RTCMultiConnection.org/docs/) | [Demos](https://www.webrtc-experiment.com/RTCMultiConnection-v1.4-Demos/) |
-| `getScreenId.js` | Single chrome extension for all domains! | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js) | [Demos](https://www.webrtc-experiment.com/getScreenId/) |
-| `Conversation.js` | Enjoy Skype-like Conversations! | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Conversation.js) | [Demos](https://www.rtcmulticonnection.org/conversationjs/demos/) |
-| `DataChannel.js` | An ultimate wrapper library for `RTCDataChannel APIs` | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) | [Demos](https://www.webrtc-experiment.com/#DataChannel) |
+| `RecordRTC.js` | Supports cross-browser audio/video recordings! | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
+| `RTCMultiConnection.js` | Single Library for Everything! Just imagine :) | [Documentation](http://www.RTCMultiConnection.org/docs/) | [Demos](https://www.webrtc-experiment.com/RTCMultiConnection/) |
+| `getScreenId.js` | Single chrome extension for all domains! Again, imagine :) | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js) | [Demos](https://www.webrtc-experiment.com/getScreenId/) |
+| `Conversation.js` | Enjoy Skype-like Conversations! Oops :) | [Documentation](https://github.com/muaz-khan/Conversation.js) | [Demos](https://www.webrtc-experiment.com/Conversationjs/) |
+| `DataChannel.js` | Supports data-streaming among multiple peers | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) | [Demos](https://www.webrtc-experiment.com/#DataChannel) |
 | `SdpSerializer.js` | An easiest way to modify SDP | [Documentation](https://github.com/muaz-khan/SdpSerializer) | [Demos](https://www.webrtc-experiment.com/SdpSerializer/demo.html) |
 | `RTCall.js` | A library for voice (i.e. audio-only) calls | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall) | [Demos](https://www.webrtc-experiment.com/RTCall/) |
 | `Meeting.js` | A library for audio/video conferencing | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) | [Demos](https://www.webrtc-experiment.com/meeting/) |
@@ -25,18 +29,19 @@
 | `DetectRTC.js` | A library for detecting WebRTC features | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC) | [Demos](https://www.webrtc-experiment.com/DetectRTC/) |
 | `navigator.customGetUserMediaBar.js` | Keep your users Privacy! | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/navigator.customGetUserMediaBar) | [Demos](https://www.webrtc-experiment.com/navigator.customGetUserMediaBar/) |
 
-=
-
-### Experimental Libraries/Demos
+## Other Repositories
 
 1. [PluginRTC: IE/Safari Plugins compatible WebRTC-Experiments](https://github.com/muaz-khan/PluginRTC)
-2. [RecordRTC Experimental](https://github.com/muaz-khan/RecordRTC-experimental)
-3. [RTCMultiConnection Experimental](https://github.com/muaz-khan/RTCMultiConnection-experimental)
-4. [Conversation.js Experimental](https://github.com/muaz-khan/Conversation.js)
+2. [RecordRTC.js](https://github.com/muaz-khan/RecordRTC)
+3. [RTCMultiConnection.js](https://github.com/muaz-khan/RTCMultiConnection)
+4. [Conversation.js](https://github.com/muaz-khan/Conversation.js)
+5. [Collaborate Canvas Designer](https://github.com/muaz-khan/Canvas-Designer)
+6. [XHR-Signaling](https://github.com/muaz-khan/XHR-Signaling)
+7. [ASP.NET MVC based WebRTC 1:1 Demo](https://github.com/muaz-khan/WebRTC-ASPNET-MVC)
+8. [WebSync Signaling](https://github.com/muaz-khan/WebSync-Signaling)
+9. [SdpSerializer.js](https://github.com/muaz-khan/SdpSerializer)
 
-=
-
-##### Important [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
+## Important [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
 
 | Experiment Name        | Short Description           | Source Code | Demo |
 | ------------- |-------------|-------------|-------------|
@@ -45,9 +50,7 @@
 | `Plugin-free Screen Sharing` | Share the entire screen | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) | [Demo](https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/) |
 | `One-Way Broadcasting` | Same like radio stations; transmit audio/video/screen streams in one-way direction. Though, it is browser-to-browser streaming! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-broadcasting) | [Demo](https://www.webrtc-experiment.com/webrtc-broadcasting/) |
 
-=
-
-##### Useful [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
+## Useful [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
 
 | Experiment Name        | Previous Demos           | New Demos |
 | ------------- |-------------|-------------|
@@ -57,36 +60,29 @@
 | **text chat** / multi-user (group) text chat | [Demo](https://www.webrtc-experiment.com/chat-hangout/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/chat-hangout) | [Demo](https://www.webrtc-experiment.com/text-chat/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/text-chat) |
 | **MultiRTC** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/) / -- | -- / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple) |
 
-=
-
-##### [Google Chrome Extensions](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions) for [WebRTC](https://www.webrtc-experiment.com/)!
+## [Google Chrome Extensions](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions) for [WebRTC](https://www.webrtc-experiment.com/)!
 
 1. [desktopCapture API](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture) / [Install App Store Extension](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk)
 2. [tabCapture API](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture) / [Install App Store Extension](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk)
 3. [Desktop Sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing) / [Install App Store Extension](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg)
 
-=
-
-##### One-to-Many style of WebRTC [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
+## One-to-Many style of WebRTC [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
 
 | Experiment Name        | Previous Demos           | New Demos |
 | ------------- |-------------|-------------|
 | **video-broadcasting** | [Demo](https://www.webrtc-experiment.com/broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/broadcast) | [Demo](https://www.webrtc-experiment.com/one-to-many-video-broadcasting/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/one-to-many-video-broadcasting) |
 | **audio-broadcasting** | [Demo](https://www.webrtc-experiment.com/audio-broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/audio-broadcast) | [Demo](https://www.webrtc-experiment.com/one-to-many-audio-broadcasting/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/one-to-many-audio-broadcasting) |
 
-=
-
-##### One-to-One style of WebRTC [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
+## One-to-One Calls
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
-| **One-to-one WebRTC video chat using WebSocket** | [Demo](https://www.webrtc-experiment.com/websocket/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket) |
-| **One-to-one WebRTC video chat using socket.io** | [Demo](https://www.webrtc-experiment.com/socket.io/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io) |
-| `WebRTC 1-1 Audio/Video/Screen Sharing` | Realtime, pluginfree! | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls) | [Demo](https://www.webrtc-experiment.com/calls/) |
+| One-to-one WebRTC video chat using WebSocket | [Demo](https://www.webrtc-experiment.com/websocket/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket) |
+| One-to-one WebRTC video chat using socket.io | [Demo](https://www.webrtc-experiment.com/socket.io/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io) |
+| WebRTC 1-1 Audio/Video/Screen Sharing | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls) | [Demo](https://www.webrtc-experiment.com/realtime-pluginfree-calls/) |
+| WebRTC 1-1 Calls | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/realtime-pluginfree-calls) | [Demo](https://www.webrtc-experiment.com/realtime-pluginfree-calls/) |
 
-=
-
-##### Single-Page / One-Page / Client Side
+## Single-Page / One-Page / Client Side
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
@@ -99,9 +95,7 @@
 | **Audio Only Streaming** | [Demo](https://www.webrtc-experiment.com/demos/audio-only-streaming.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/audio-only-streaming.html) |
 | **MediaStreamTrack.getSources** | [Demo](https://www.webrtc-experiment.com/demos/MediaStreamTrack.getSources.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/MediaStreamTrack.getSources.html) |
 
-=
-
-##### Experiments to share tab/screen/desktop
+## Experiments to share tab/screen/desktop
 
 | Experiment Name        | Previous Demos           | New Demos |
 | ------------- |-------------|-------------|
@@ -109,9 +103,7 @@
 | **Desktop sharing** / using `desktopCapture` APIs | [Demo](https://www.webrtc-experiment.com/desktop-sharing/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing) | -- |
 | **Tab sharing** / using `tabCapture` APIs | [Demo](https://www.webrtc-experiment.com/screen-broadcast/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture) | -- |
 
-=
-
-##### Experiments to [share region/part of the screen](https://www.webrtc-experiment.com/part-of-screen-sharing/)
+## Experiments to [share region/part of the screen](https://www.webrtc-experiment.com/part-of-screen-sharing/)
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
@@ -121,18 +113,15 @@
 | **A realtime chat using RTCDataChannel** | [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/realtime-chat/RTCDataChannel) |
 | **A realtime chat using Firebase** | [Demo](https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/realtime-chat/No-WebRTC-Chat.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/realtime-chat) |
 
-=
-
-##### Demos using [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) library
+## [Demos](https://www.webrtc-experiment.com/msr/) using [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) library
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
-| **Audio Recording** | [Demo](https://www.webrtc-experiment.com/msr/audio-recorder.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MediaStreamRecorder/demos/audio-recorder.html) |
-| **Video/Gif Recording** | [Demo](https://www.webrtc-experiment.com/msr/video-recorder.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MediaStreamRecorder/demos/video-recorder.html) |
+| **Audio Recording** | [Demo](https://www.webrtc-experiment.com/msr/audio-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/audio-recorder.html) |
+| **Video Recording** | [Demo](https://www.webrtc-experiment.com/msr/video-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/video-recorder.html) |
+| **Gif Recording** | [Demo](https://www.webrtc-experiment.com/msr/gif-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/gif-recorder.html) |
 
-=
-
-##### Demos using [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) library
+## Demos using [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) library
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
@@ -140,33 +129,27 @@
 | **Auto Session Establishment** | [Demo](https://www.webrtc-experiment.com/DataChannel/auto-session-establishment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/DataChannel/auto-session-establishment.html) |
 | **Share part-of-screen using DataChannel.js** | [Demo](https://www.webrtc-experiment.com/part-of-screen-sharing/webrtc-data-channel/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/webrtc-and-part-of-screen-sharing) |
 | **Private Chat** | [Demo](https://muazkh.appspot.com/privatechat/) | ---- |
+| **Text Chat using Pusher and DataChannel.js** | [Demo](http://webrtc-chat-demo.pusher.io/) | [Source](https://github.com/pusher/pusher-webrtc-chat-demo) |
 
-=
-
-##### Experimental (Non-Functional)
+## Experimental (Non-Functional)
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
-| **Attaching Remote Media Streams** | [Demo](https://www.webrtc-experiment.com/experimental/remote-media-stream-attachment/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/remote-media-stream-attachment) |
+| **Attaching Remote Audio Streams** | [Demo](https://www.webrtc-experiment.com/experimental/remote-media-stream-attachment/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/remote-media-stream-attachment) |
 | **mozCaptureStreamUntilEnded for pre-recorded media streaming** | [Demo](https://www.webrtc-experiment.com/experimental/mozCaptureStreamUntilEnded/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/mozCaptureStreamUntilEnded) |
 | **Remote audio stream recording** | [Demo](https://www.webrtc-experiment.com/demos/remote-stream-recording.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/remote-stream-recording.html) |
 
-=
-
-##### [Demos](https://www.webrtc-experiment.com/RTCMultiConnection/) using [RTCMultiConnection](http://www.RTCMultiConnection.org/)
+## [Demos](https://www.webrtc-experiment.com/RTCMultiConnection/) using [RTCMultiConnection](http://www.RTCMultiConnection.org/)
 
 <ol>
+                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/AppRTC-Look.html">AppRTC like RTCMultiConnection demo!</a></li>
                 <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/">MultiRTC! RTCMultiConnection all-in-one demo!</a></li>
+                <li><a href="https://www.webrtc-experiment.com/Canvas-Designer/">Collaborative Canvas Designer</a></li>
 				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/all-in-one.html">All-in-One test</a></li>
                 <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/Multi-Broadcasters-and-Many-Viewers.html">Multi-Broadcasters and Many Viewers</a></li>
+                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/select-broadcaster-at-runtime.html">Select Broadcaster at runtime</a></li>
                 <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/OneWay-Screen-TwoWay-Audio.html">OneWay Screen & Two-Way Audio</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/stream-mp3-live.html">Stream Mp3 Live</a></li>
-                
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/remote-stream-forwarding.html">Remote Stream Forwarding</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/getMediaDevices.html">navigator.getMediaDevices AKA navigator.enumerateDevices</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/changeBandwidth.html">connection.changeBandwidth({ audio: 128, video: 256 })</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/RTCMultiConnection.sharePartOfScreen.html">connection.sharePartOfScreen({ element: 'body'})</a></li>
-                
+                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/stream-mp3-live.html">Stream Mp3 Live</a></li>                
 				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/Renegotiation.html">Renegotiation & Mute/UnMute/Stop</a></li>
 				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/videoconferencing.html">Video-Conferencing</a></li>
 				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/video-broadcasting.html">Video Broadcasting</a></li>
@@ -195,18 +178,32 @@
                 <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/one-to-one-filesharing.html">One-to-One file sharing</a></li>
                 <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission.html">Manual session establishment + extra data transmission</a></li>
                 <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html">Manual session establishment + extra data transmission + video conferencing</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/chrome-to-firefox-screen-sharing.html">Chrome-to-Firefox Screen Sharing</a></li>
 </ol>
 
-=
+## [Demos](https://www.webrtc-experiment.com/Conversationjs/) using [Conversation.js](https://github.com/muaz-khan/Conversation.js)
 
-##### [Documents for newcomers/newbies/beginners](https://www.webrtc-experiment.com/docs/)
+<ol>				
+                <li>
+					<a href="https://www.webrtc-experiment.com/Conversationjs/AndroidRTC/">AndroidRTC</a>
+                </li>
+                
+                <li>
+					<a href="https://www.webrtc-experiment.com/Conversationjs/search-user.html">Search Users</a>
+                </li>
+                
+                <li>
+					<a href="https://www.webrtc-experiment.com/Conversationjs/cross-language-chat.html">Cross-Language (Multi-Lingual) Text Chat</a>
+                </li>
+                
+                <li>
+                    <a href="https://www.rtcmulticonnection.org/conversationjs/demos/">Old Conversation.js demos</a>
+                </li>
+</ol>
+
+## [Documents for newcomers/newbies/beginners](https://www.webrtc-experiment.com/docs/)
 
 | A few documents for newbies and beginners        |
 | ------------- |
-| [RTCMultiConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection) |
-| [DataChannel Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) |
-| [RTCPeerConnection Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection) |
 | [How to use RTCPeerConnection.js?](https://www.webrtc-experiment.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html) |
 | [RTCDataChannel for Beginners](https://www.webrtc-experiment.com/docs/rtc-datachannel-for-beginners.html) |
 | [How to use RTCDataChannel?](https://www.webrtc-experiment.com/docs/how-to-use-rtcdatachannel.html) - single code for both canary and nightly |
@@ -242,10 +239,9 @@
 2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs)
 3. [WebSync / ASP.NET MVC](https://github.com/muaz-khan/WebSync-Signaling)
 4. [XHR Signaling](https://github.com/muaz-khan/XHR-Signaling)
+5. [openSignalingChannel](http://www.rtcmulticonnection.org/docs/openSignalingChannel/)
 
-=
-
-##### How to record audio using [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)?
+## How to record audio using [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)?
 
 ```html
 <script src="//cdn.webrtc-experiment.com/RecordRTC.js"></script>
@@ -274,51 +270,48 @@ recordRTC.getDataURL(callback_function);
 9. [Recording Audio+Video in single WebM on Firefox](https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html)
 10. [RecordRTC / PHP / FFmpeg](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/PHP-and-FFmpeg)
 
-=
-
-##### [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/)
+## [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/)
 
 You can write entire skype-like web-app using RTCMultiConnection! It supports all complex renegotiation scenarios!
 
 ```html
-<button id="openNewSessionButton">open New Session Button</button><br />
+<button id="openRoom">Open Room</button>
+<button id="joinRoom">Join Room</button><br />
 
 <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
 <script>
-var connection = new RTCMultiConnection().connect();
-document.getElementById('openNewSessionButton').onclick = function() {
-    connection.open();
+document.getElementById('openRoom').onclick = function() {
+    new RTCMultiConnection().open();
+};
+document.getElementById('joinRoom').onclick = function() {
+    new RTCMultiConnection().connect();
 };
 </script>
 ```
 
 [RTCMultiConnection Documentation](http://www.RTCMultiConnection.org/docs/)
 
-=
-
-##### [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) / A library for RTCDataChannel APIs
+## [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) / A library for RTCDataChannel APIs
 
 ```html
 <script src="//cdn.webrtc-experiment.com/DataChannel.js"> </script>
 <script>
-    var channel = new DataChannel();
-    channel.onopen = function(userid) {};
-    channel.onmessage = function(message) {};
+    var datachannel = new DataChannel();
+    datachannel.onopen = function(remoteUserid) {};
+    datachannel.onmessage = function(message, remoteUserid) {};
 	
     // search for existing channels
-    channel.connect();
+    datachannel.connect();
 
     document.getElementById('new-channel').onclick = function() {
-        channel.open(); // setup new channel
+        datachannel.open(); // setup new channel
     };
 </script>
 ```
 
 [DataChannel Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
 
-=
-
-##### [Translator.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Translator.js) / [Demo](https://www.webrtc-experiment.com/Translator/)
+## [Translator.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Translator.js) / [Demo](https://www.webrtc-experiment.com/Translator/)
 
 Translator.js is a JavaScript library built top on Google Speech-Recognition & Translation API to transcript and translate voice and text. It supports many locales and brings globalization in <a href="https://www.webrtc-experiment.com/">WebRTC</a>!
 
@@ -349,9 +342,7 @@ translator.speakTextUsingGoogleSpeaker({
 });
 ```
 
-=
-
-##### [getScreenId.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js) / [Demo](https://www.webrtc-experiment.com/getScreenId/)
+## [getScreenId.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js) / [Demo](https://www.webrtc-experiment.com/getScreenId/)
 
 Simply use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js">getScreenId.js</a> and enjoy screen capturing from any domain. You don't need to deploy chrome extension yourself. You can refer your users to install <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">this chrome extension</a> instead. Also, <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js">getScreenId.js</a> auto-fallbacks to command-line based screen capturing if chrome extension isn't installed or disabled. <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js">getScreenId.js</a> throws clear exceptions which is helpful for end-user experiences.
 
@@ -365,7 +356,8 @@ getScreenId(function (error, sourceId, screen_constraints) {
     // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
     // sourceId == null || 'string'
 
-    navigator.webkitGetUserMedia(screen_constraints, function (stream) {
+    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    navigator.getUserMedia(screen_constraints, function (stream) {
         document.querySelector('video').src = URL.createObjectURL(stream);
     }, function (error) {
         console.error(error);
@@ -374,59 +366,13 @@ getScreenId(function (error, sourceId, screen_constraints) {
 </script>
 ```
 
-=
-
-##### `openSignalingChannel` for [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/) and [DataChanel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) (Client-Side Code)
-
-```javascript
-var onMessageCallbacks = {};
-var socketio = io.connect('http://localhost:8888/');
-
-socketio.on('message', function(data) {
-    if(data.sender == connection.userid) return;
-    
-    if (onMessageCallbacks[data.channel]) {
-        onMessageCallbacks[data.channel](data.message);
-    };
-});
-
-connection.openSignalingChannel = function (config) {
-    var channel = config.channel || this.channel;
-    onMessageCallbacks[channel] = config.onmessage;
-
-    if (config.onopen) setTimeout(config.onopen, 1000);
-    return {
-        send: function (message) {
-            socketio.emit('message', {
-                sender: connection.userid,
-                channel: channel,
-                message: message
-            });
-        },
-        channel: channel
-    };
-};
-```
-
-=
-
-##### Nodejs/Socketio Server-Side Code
-
-```javascript
-io.sockets.on('connection', function (socket) {
-    socket.on('message', function (data) {
-        socket.broadcast.emit('message', data);
-    });
-});
-```
-
-###### Read more here:
+## Signaling?
 
 * https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
 =
 
-##### Browser Support
+## Browser Support
 
 [WebRTC Experiments](https://www.webrtc-experiment.com/) works fine on following web-browsers:
 
@@ -449,4 +395,4 @@ io.sockets.on('connection', function (socket) {
 
 # License
 
-All [WebRTC Experiments](https://www.webrtc-experiment.com/) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+All [WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

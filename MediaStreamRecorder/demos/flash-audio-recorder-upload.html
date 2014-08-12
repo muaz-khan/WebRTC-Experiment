@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Audio Recording using FlashAudioRecorder</title>
+        <script src="https://www.webrtc-experiment.com/MediaStreamRecorder/AudioStreamRecorder/FlashAudioRecorder.js"> </script>
+    </head>
+    <body>
+        <h1>
+            Audio Recording using <a href="https://github.com/streamproc/MediaStreamRecorder"
+                                     target="_blank">FlashAudioRecorder</a>
+        </h1>
+        <script>
+            var flashRecorder = new FlashAudioRecorder({
+                uploadParams:{
+                    method: "POST",
+                    url: "http://url",
+                    audioParam: "qqfile",
+                    params: {}
+                }
+            });
+            
+            flashRecorder.onstart = function(e) {
+                console.log('start');
+            }
+            flashRecorder.onstop = function(e) {
+                console.log('stop');
+            }
+            flashRecorder.ondataavailable = function(e) {
+                console.log('file url:'+e.url);
+            }
+            flashRecorder.onready = function(e) {
+                console.log('ready');
+            }
+            flashRecorder.start();
+            setTimeout(function(){
+                flashRecorder.stop();
+            }, 2000);
+        </script>
+    </body>
+</html>
