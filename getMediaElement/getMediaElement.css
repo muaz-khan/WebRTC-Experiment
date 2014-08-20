@@ -1,5 +1,5 @@
 /*
-Last time updated at 09 Feb 2014, 14:46:23
+Last time updated at August 19, 2014, 14:46:23
 
 Muaz Khan     - www.MuazKhan.com
 MIT License   - www.WebRTC-Experiment.com/licence
@@ -125,6 +125,7 @@ Demo          - www.WebRTC-Experiment.com/getMediaElement
 .media-box video {
     width: 100%;
     vertical-align: top;
+    object-fit: fill;
 }
 
 .media-box audio {

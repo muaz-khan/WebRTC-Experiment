@@ -67,7 +67,7 @@
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> Video Broadcasting using 
+                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> Video OneWay Broadcasting using 
                     <a href="http://www.rtcmulticonnection.org/docs/" target="_blank">RTCMultiConnection</a>
                 </h1>            
                 <p>
@@ -222,6 +222,14 @@
                 window.onresize = scaleVideos;
             </script>
 			
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
             <section class="experiment own-widgets latest-commits">
                 <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
                 <div id="github-commits"></div>

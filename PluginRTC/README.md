@@ -8,9 +8,9 @@ This repository isn't providing WebRTC plugins. It is simply using existing plug
 
 ### Experiments Supported?
 
-1. [RTCMultiConection.js](http://www.rtcmulticonnection.org/changes-log/)
+1. [RTCMultiConection.js](https://github.com/muaz-khan/RTCMultiConnection) - `npm install rtcmulticonnection`
 
-Scroll to bottom to see how to use these plugins within other [WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment).
+[Scroll to bottom](https://github.com/muaz-khan/PluginRTC#how-to-use-in-your-own-demoslibraries) to see how to use these plugins within other [WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment).
 
 =
 
@@ -35,7 +35,7 @@ First step; link any of the following:
 Second step; add following code:
 
 ```javascript
-var Plugin = window.PluginRTC || {};
+var Plugin = {};
 window.onPluginRTCInitialized = function(pluginRTCObject) {
     Plugin = pluginRTCObject;
     MediaStreamTrack      = Plugin.MediaStreamTrack;
@@ -43,7 +43,7 @@ window.onPluginRTCInitialized = function(pluginRTCObject) {
     RTCIceCandidate       = Plugin.RTCIceCandidate;
     RTCSessionDescription = Plugin.RTCSessionDescription;
 };
-if (!isEmpty(Plugin)) window.onPluginRTCInitialized(Plugin);
+if (!!window.PluginRTC) window.onPluginRTCInitialized(window.PluginRTC);
 ```
 
 Now you can use `Plugin` object like this:

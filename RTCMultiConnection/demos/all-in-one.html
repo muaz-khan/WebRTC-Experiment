@@ -93,7 +93,7 @@
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection</a> 
+                    <a href="http://www.RTCMultiConnection.org/" target="_blank">RTCMultiConnection</a> 
                     All-in-One test
                     ® 
                     <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
@@ -127,7 +127,7 @@
                 </div>
                 
                 <h2 class="header" id="feedback">
-                    It is suggested to try <a href="https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/">MultiRTC</a>!
+                    Select SessionType and Direction-of-Flow!
                 </h2>
                 
                 <section>
@@ -403,43 +403,99 @@
             
             <section class="experiment">
                 <ol>
-                    <li>Mesh networking model is implemented to open multiple interconnected peer connections</li>
-                    <li>Maximum peer connections limit is <strong>256</strong> (on chrome)</li>
+                    <li>Mesh networking model is implemented to open multiple (1:1) interconnected peer connections</li>
+                    <li>Maximum peer connections limit per page is <strong>256</strong> (on chrome) i.e. 256 users can connect together!</li>
                 </ol>
             </section>
             
             <section class="experiment">
-                <h2 class="header">How to use <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection</a>?</h2>
+                <h2 class="header">How to use <a href="http://www.RTCMultiConnection.org/" target="_blank">RTCMultiConnection</a>?</h2>
                 
                 <pre>
-// www.RTCMultiConnection.org/latest.js
-
-var connection = new RTCMultiConnection();
-
-// easiest way to customize what you need!
-connection.session = {
+// https://cdn.webrtc-experiment.com/RTCMultiConnection.js
+</pre>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">Common Code</h2>
+                
+                <pre>
+var MODERATOR_CHANNEL_ID = 'ABCDEF'; // channel-id
+var MODERATOR_SESSION_ID = 'XYZ';    // room-id
+var MODERATOR_ID         = 'JKL';    // user-id
+var MODERATOR_SESSION    = {         // media-type
     audio: true,
     video: true
 };
+var MODERATOR_EXTRA      = {};       // empty extra-data
+</pre>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">Code for Room Moderator (i.e. Initiator)</h2>
+                
+                <pre>
+var moderator     = new RTCMultiConnection(MODERATOR_CHANNEL_ID);
+moderator.session = MODERATOR_SESSION;
+moderator.userid  = MODERATOR_ID;
+moderator.extra   = MODERATOR_EXTRA;
+moderator.open({
+    dontTransmit: true,
+    sessionid:    MODERATOR_SESSION_ID
+});
 
-// on getting local or remote media stream
-connection.onstream = function(e) {
-    document.body.appendChild(e.mediaElement);
+</pre>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">Code for Room Participants</h2>
+                
+                <pre>
+var participants = new RTCMultiConnection(MODERATOR_CHANNEL_ID);
+participants.join({
+    sessionid: MODERATOR_SESSION_ID,
+    userid:    MODERATOR_ID,
+    extra:     MODERATOR_EXTRA,
+    session:   MODERATOR_SESSION
+});
+</pre>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">(optional) Handle how to get streams</h2>
+                
+                <pre>
+// same code can be used for participants
+// (it is optional) 
+moderator.onstreamid = function(event) {
+    // got a clue of incoming remote stream
+    // didn't get remote stream yet
+    
+    var incoming_stream_id = event.streamid;
+    
+    YOUR_PREVIEW_IMAGE.show();
+    
+    // or
+    YOUR_PREVIEW_VIDEO.show();
 };
 
-// remove video if someone leaves
-connection.onstreamended = function(e) {
-    if(e.mediaElement.parentNode) {
-        e.mediaElement.parentNode.removeChild(e.mediaElement);
-    }
+// same code can be used for participants
+// it is useful
+moderator.onstream = function(event) {
+    // got local or remote stream
+    // if(event.type == 'local')  {}
+    // if(event.type == 'remote') {}
+    
+    document.body.appendChild(event.mediaElement);
+    
+    // or YOUR_VIDEO.src = event.blobURL;
+    // or YOUR_VIDEO.src = URL.createObjectURL(event.stream);
 };
 
-// check existing sessions
-connection.connect();
-
-// open new session
-document.getElementById('open-new-session').onclick = function() {
-    connection.open();
+// same code can be used for participants
+// it is useful but optional
+moderator.onstreamended = function(event) {
+    event.mediaElement.parentNode.removeChild(event.mediaElement);
 };
 </pre>
             </section>
@@ -462,7 +518,7 @@ document.getElementById('open-new-session').onclick = function() {
 	
         <footer>
             <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
-            <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
+            <a href="http://www.RTCMultiConnection.org/" target="_blank">RTCMultiConnection.js</a> ©
             <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
             <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
         </footer>

@@ -67,7 +67,7 @@
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> Video Screen Sharing 
+                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> Screen Sharing using
                     <a href="http://www.rtcmulticonnection.org/docs/" target="_blank">RTCMultiConnection</a>
                 </h1>            
                 <p>
@@ -115,6 +115,16 @@
                 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection
 
                 var connection = new RTCMultiConnection();
+                
+                // connection.trickleIce = false;
+                
+                // this code is used for screen-viewers only.
+                // screen sender will be overriding it later.
+                connection.sdpConstraints.mandatory = {
+                    OfferToReceiveAudio: false,
+                    OfferToReceiveVideo: true
+                };
+                
                 connection.session = {
                     screen: true,
                     oneway: true
@@ -165,7 +175,7 @@
 
                         if (!session) throw 'No such session exists.';
 
-                        connection.join(session);
+                        session.join();
                     };
                 };
 
@@ -177,6 +187,14 @@
                     connection.extra = {
                         'session-name': document.getElementById('broadcast-name').value || 'Anonymous'
                     };
+                    
+                    // screen sender don't need to receive any media.
+                    // so both media-lines must be "sendonly".
+                    connection.sdpConstraints.mandatory = {
+                        OfferToReceiveAudio: false,
+                        OfferToReceiveVideo: false
+                    };
+                    
                     connection.open();
                 };
 
@@ -231,12 +249,20 @@
                     </li>
                     
                     <li>
-                        Is that Firefox Nightly? You simply need to open "about:config" and set "<strong>media.getusermedia.screensharing.enabled</strong>" to "<strong>true</strong>".
+                        Is that Firefox Nightly? Make sure that you are using Firefox Nightly and you enabled: <strong>"media.getusermedia.screensharing.enabled"</strong> flag from <strong>"about:config"</strong> page. You also need to add your domain in <strong>"media.getusermedia.screensharing.allowed_domains"</strong> flag.
                     </li>
                 </ol>
                 
             </section>
 			
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
             <section class="experiment own-widgets latest-commits">
                 <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
                 <div id="github-commits"></div>

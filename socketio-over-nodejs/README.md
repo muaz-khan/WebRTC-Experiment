@@ -17,10 +17,16 @@ npm install socketio-over-nodejs
 and run the `signaler.js` nodejs file:
 
 ```
+// run simple HTTP server
 node ./node_modules/socketio-over-nodejs/signaler.js
+
+// run HTTPs server
+node ./node_modules/socketio-over-nodejs/signaler-ssl.js
 ```
 
-Now you can test: `http://localhost:8888/`
+Now you can test: `http://localhost:8888/` or `https://localhost:8888/`
+
+You can use ip-address `127.1.1` on Mac/Linux instead of `localhost`.
 
 =
 
@@ -39,8 +45,11 @@ wget http://cdn.webrtc-experiment.com/packages/socketio-over-nodejs.tar
 # extract package
 tar -xf socketio-over-nodejs.tar
 
-# run node.js server
+# run simple node.js server
 node signaler.js
+
+# run HTTPs server
+node signaler-ssl.js
 ```
 
 Now, you can open port `8888` on your ip address/domain; or otherwise on localhost: `http://localhost:8888/`
@@ -52,7 +61,7 @@ It is using port `8888`; you can edit this port using following commands:
 ```
 vi signaler.js
 
-# now edit port 12034
+# now edit port 8888
 # and save changes & quit
 
 # press "insert" key; then press "Esc" key and the type
@@ -160,6 +169,46 @@ connection.openSignalingChannel = function(config) {
 ```
 
 `io.connect(URL).emit('new-channel')` starts a new namespace that is used privately or publicly to transmit/exchange appropriate stuff e.g. room-details, participation-requests, SDP, ICE, etc.
+
+=
+
+#### `openSocket`
+
+```javascript
+var config = {
+    openSocket: function (config) {
+        // http://socketio-over-nodejs.hp.af.cm/
+        // http://socketio-over-nodejs.nodejitsu.com:80/
+        // http://webrtc-signaling.nodejitsu.com:80/
+
+        var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
+
+        config.channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+        var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+        io.connect(SIGNALING_SERVER).emit('new-channel', {
+            channel: config.channel,
+            sender: sender
+        });
+
+        var socket = io.connect(SIGNALING_SERVER + config.channel);
+        socket.channel = config.channel;
+        socket.on('connect', function () {
+            if (config.callback) config.callback(socket);
+        });
+
+        socket.send = function (message) {
+            socket.emit('message', {
+                sender: sender,
+                data: message
+            });
+        };
+
+        socket.on('message', config.onmessage);
+    }
+};
+
+```
 
 =
 

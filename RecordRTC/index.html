@@ -98,7 +98,7 @@
 		
             <section class="experiment">
 		
-                <h2 class="header">Record Video (only on chrome)</h2>
+                <h2 class="header">Record Video (in chrome)</h2>
                 
                 <small>/ <a href="https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html">Record video on Firefox</a></small>
 			
@@ -348,35 +348,27 @@
                 <h2 class="header">Technical Guide</h2>
                 <ol>
                     <li>
-                        Chrome allows getUserMedia invocation on majority of non-file protocols e.g. HTTP/HTTPS/ or inside chrome extension pages.
+                        Chrome allows getUserMedia invocation on majority of non-file protocols e.g. HTTP/HTTPS/ or inside chrome extension pages. Though, there is always options to use CL (command-line) flags to support file protocols.
                     </li>
 				
                     <li>
-                        RecordRTC doesn’t support recording of video on Firefox; because webp image format is not implemented in Gecko framework yet.
+                        (<strong>In Chrome</strong>) RecordRTC captures video frames via Canvas2D; which is encoded in webp-DataURL; now it is using a library named “weppy” which encodes webp into webm.
                     </li>
 				
                     <li>
-                        RecordRTC captures video frames via Canvas2D; which is encoded in webp-DataURL; now it is using a library named “weppy” which encodes webp into webm.
+                        (<strong>In Firefox</strong>) RecordRTC is using MediaRecorder API; which supports both audio/video recordings, both in single and multiple files.
                     </li>
 				
                     <li>
-                        RecordRTC is using MediaRecorder API on Firefox; which supports only audio recording (in the moment).
+                        (<strong>In Chrome</strong>) RecordRTC is using WebAudio API for audio-recording. Such API has many issues e.g. unable to capture mono audio in wav format; <a href="https://www.webrtc-experiment.com/demos/remote-stream-recording.html">unable to capture remote audio</a>; failure on XP SP2; etc.
                     </li>
 				
                     <li>
-                        RecordRTC is using WebAudio API for audio-recording on chrome. Such API has many issues e.g. unable to capture mono audio in wav format; failure on XP SP2; etc.
+                        (<strong>In Chrome</strong>) If you’re using notebook’s built-in audio input device for audio recording; then you may get "blank" blob.
                     </li>
 				
                     <li>
-                        If you’re using notebook’s built-in audio input device for audio recording; then you may get “blank” blob.
-                    </li>
-				
-                    <li>
-                        RecordRTC is incapable to record audio/video in a single file; however there is ffmpeg merging solution available on Github repository.
-                    </li>
-				
-                    <li>
-                        RecordRTC is incapable to record WebRTC remote media streams; because such streams are delivered in mono audio; however, RecordRTC can capture stereo audio only.
+                        (<strong>In Chrome</strong>) RecordRTC is incapable to record audio/video in a single file; however there is ffmpeg merging solution available on Github repository.
                     </li>
                 </ol>
             </section>
@@ -461,8 +453,8 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
                                  issues</a>/<a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">failures</a>:
                 </h2>
                 <p>
-                    The biggest issue is that RecordRTC is <strong>unable to record</strong> both audio and video streams in single file.<br /><br />
-                    Do you know "RecordRTC" fails recording audio because following conditions fails:
+                    (<strong>In Chrome</strong>) The biggest issue is that RecordRTC is <strong>unable to record</strong> both audio and video streams in single file.<br /><br />
+                    Do you know "RecordRTC" fails recording audio because following conditions fails (<strong>applies only to chrome</strong>):
                     <ol>
                         <li>Sample rate and channel configuration must be the same for input and output sides
                             on Windows i.e. audio input/output devices must match</li>

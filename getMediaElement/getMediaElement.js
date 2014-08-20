@@ -1,4 +1,4 @@
-// Last time updated at April 14, 2014, 14:46:23
+// Last time updated at August 19, 2014, 14:46:23
 
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
@@ -6,7 +6,7 @@
 
 // Demo          - www.WebRTC-Experiment.com/getMediaElement
 
-document.write('<link rel="stylesheet" href="https://www.WebRTC-Experiment.com/getMediaElement.css">');
+document.write('<link rel="stylesheet" href="https://cdn.WebRTC-Experiment.com/getMediaElement.css">');
 
 // __________________
 // getMediaElement.js

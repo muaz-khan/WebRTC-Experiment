@@ -178,14 +178,21 @@
                             });
                         } else {
                             this.innerHTML = 'Start Recording';
-                            connection.streams[this.id].stopRecording(function(blob) {
-                                var h2 = document.createElement('h2');
-                                h2.innerHTML = '<a href="' + URL.createObjectURL(blob.audio) + '" target="_blank">Open recorded ' + blob.audio.type + '</a>';
-                                div.appendChild(h2);
+                            var stream = connection.streams[this.id];
+                            stream.stopRecording(function(blob) {
+                                var h2;
+                                
+                                if(blob.audio && !(connection.UA.Chrome && stream.type == 'remote')) {
+                                    h2 = document.createElement('h2');
+                                    h2.innerHTML = '<a href="' + URL.createObjectURL(blob.audio) + '" target="_blank">Open recorded ' + blob.audio.type + '</a>';
+                                    div.appendChild(h2);
+                                }
 
-                                h2 = document.createElement('h2');
-                                h2.innerHTML = '<a href="' + URL.createObjectURL(blob.video) + '" target="_blank">Open recorded ' + blob.video.type + '</a>';
-                                div.appendChild(h2);
+                                if(blob.video) {
+                                    h2 = document.createElement('h2');
+                                    h2.innerHTML = '<a href="' + URL.createObjectURL(blob.video) + '" target="_blank">Open recorded ' + blob.video.type + '</a>';
+                                    div.appendChild(h2);
+                                }
                             });
                         }
                         setTimeout(function() {
