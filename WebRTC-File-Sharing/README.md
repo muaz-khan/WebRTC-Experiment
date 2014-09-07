@@ -1,8 +1,13 @@
-#### WebRTC File Sharing using SCTP Data Channels / [Demo](https://www.webrtc-experiment.com/WebRTC-File-Sharing/)
+### FileBufferReader.js is recommended:
+
+* https://github.com/muaz-khan/FileBufferReader
+
+
+### WebRTC File Sharing using SCTP Data Channels / [Demo](https://www.webrtc-experiment.com/WebRTC-File-Sharing/)
 
 This [WebRTC Experiment](https://www.webrtc-experiment.com/) is using SCTP-based data channels to share files across browsers (chrome & firefox).
 
-#### [`File.js`](https://www.webrtc-experiment.com/WebRTC-File-Sharing/File.js)
+## [`File.js`](https://www.webrtc-experiment.com/WebRTC-File-Sharing/File.js)
 
 A reusable "standalone" library that can be used in any WebRTC or non-WebRTC application to share files.
 
@@ -85,4 +90,4 @@ WebRTC [WebRTC File Sharing](https://www.webrtc-experiment.com/WebRTC-File-Shari
 
 #### License
 
-WebRTC [WebRTC File Sharing](https://www.webrtc-experiment.com/WebRTC-File-Sharing/) experiment is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).
+WebRTC [WebRTC File Sharing](https://www.webrtc-experiment.com/WebRTC-File-Sharing/) experiment is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

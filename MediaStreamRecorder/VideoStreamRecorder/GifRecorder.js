@@ -38,7 +38,7 @@ function GifRecorder(mediaStream) {
         // but slow processing significantly. 10 is the default,
         // and produces good color mapping at reasonable speeds.
         // Values greater than 20 do not yield significant improvements in speed.
-        gifEncoder.setQuality(this.quality || 10);
+        gifEncoder.setQuality(this.quality || 1);
 
         // Boolean start()
         // This writes the GIF Header and returns false if it fails.
@@ -79,7 +79,7 @@ function GifRecorder(mediaStream) {
         });
         self.ondataavailable(gifBlob);
 
-        // bug: find a way to clear old recorded blobs
+        // todo: find a way to clear old recorded blobs
         gifEncoder.stream().bin = [];
     };
 
@@ -91,10 +91,8 @@ function GifRecorder(mediaStream) {
         }
     };
 
-    this.ondataavailable = function() {
-    };
-    this.onstop = function() {
-    };
+    this.ondataavailable = function() {};
+    this.onstop = function() {};
 
     // Reference to itself
     var self = this;

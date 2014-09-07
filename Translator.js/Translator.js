@@ -1,4 +1,4 @@
-// Last time updated at July 17, 2014, 05:46:23
+// Last time updated at Sep 05, 2014, 05:46:23
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -48,7 +48,7 @@ function Translator() {
     this.translateLanguage = function(text, config) {
         config = config || { };
         // please use your own API key; if possible
-        var api_key = config.api_key || 'AIzaSyCUmCjvKRb-kOYrnoL2xaXb8I-_JJeKpf0';
+        var api_key = config.api_key || Google_Translate_API_KEY;
 
         var newScript = document.createElement('script');
         newScript.type = 'text/javascript';
@@ -187,4 +187,6 @@ function Translator() {
             speakWorker.postMessage({ text: text, args: _args });
         }
     };
+    
+    var Google_Translate_API_KEY = 'AIzaSyCgB5hmFY74WYB-EoWkhr9cAGr6TiTHrEE';
 }

@@ -65,10 +65,10 @@
             <section class="experiment">
                 <h2 class="header" id="test">Test among two computers or windows:</h2>
                 <p>
-                    <input type="checkbox" id="robot-voice" checked>
+                    <input type="checkbox" id="robot-voice" checked title="A client-side robot that can speak your voice in target language!">
                     <label for="robot-voice"><a href="//cdn.webrtc-experiment.com/Robot-Speaker.js">Robot</a> Voice?</label>
 
-                    <select id="your-language">
+                    <select id="your-language" title="Auto translate remote voice into?">
                         <option>en (English)</option>
                         <option>ar (العربية)</option>
                         <option>de (Deutsch)</option>
@@ -112,7 +112,11 @@
                         <option>cy (Cymraeg)</option>
                     </select>
 
-                    <button id="start-speaking">Start Speaking</button>
+                    <button id="start-speaking" title="Speak in selected language.">Start Speaking</button>
+                    
+                    <p>
+                        Do you want to open private room? Click <a href="/Translator/" target="_blank" title="Open this link in new tab. Then your room will be private!"><code><strong id="unique-token">#123456789</strong></code></a> and open resulting URL between two tabs or windows.
+                    </p>
             
                     <ol id="logs"></ol>
             
@@ -125,8 +129,21 @@
         
             <section class="experiment">
                 <h2 class="header" id="how">How to test?</h2>
+                <ol>
+                    <li>
+                        Make sure that you're using Microphone instead of notebook's built-in audio input device or webcam's audio input device.
+                    </li>
+                    
+                    <li>
+                        Open same URL/webpage on two computers or devices; choose language in which incoming voice will be translated; then select "robot-voice" to prefer using meSpeak.js robot; otherwise, Translator.js will use Google's Translation API to play the voice.
+                    </li>
+                </ol>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header" id="how">Disclaimer</h2>
                 <p>
-                    Open same URL/webpage on two computers or devices; choose language in which incoming voice will be translated; then select "robot-voice" to prefer using meSpeak.js robot; otherwise, Translator.js will use Google's Translation API to play the voice.
+                    This demo will not work in your custom domains until you buy an API-key from Google API console. Actually, Google Translate API is a paid service, and this demo is using Google Translate API to convert text from one language to another.
                 </p>
             </section>
 
@@ -182,7 +199,7 @@
                                     targetLanguage: yourLanguage.value.split(' (')[0],
 
                                     // please use your own API key; if possible
-                                    api_key: 'AIzaSyCUmCjvKRb-kOYrnoL2xaXb8I-_JJeKpf0'
+                                    api_key: 'AIzaSyCgB5hmFY74WYB-EoWkhr9cAGr6TiTHrEE'
                                 });
                             }
                         }
@@ -203,6 +220,14 @@
                     li.tabIndex = 0;
                     li.focus();
                 }
+                
+                // just to generate random room-id
+                (function() {
+                    var uniqueToken = document.getElementById('unique-token');
+                    if (uniqueToken)
+                        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = 'Your room seeems private. Plese open <a href="' + location.href + '" target="_blank">same URL</a> in another tab/window.';
+                        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
+                })();
             </script>
 
             <br />
@@ -275,6 +300,7 @@ translator.speakTextUsingGoogleSpeaker({
     targetLanguage: 'your-language',
 
     // Google Translation service's API Key
+    // You can buy it from Google API console
     api_key: 'Your-Private-API-Key'
 });
 </pre>                

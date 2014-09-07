@@ -58,7 +58,8 @@
             document.createElement('footer');
         </script>
         
-        <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+        <!-- currently only v2+ are supporting "enumerateDevices" method. -->
+        <script src="//cdn.webrtc-experiment.com/RTCMultiConnection-v2.0.js"></script>
     </head>
 
     <body>
@@ -98,19 +99,12 @@
         
             <script>
                 var connection = new RTCMultiConnection();
-                connection.getMediaDevices = connection.getDevices;
-
-                connection.preventSSLAutoAllowed = false;
+                
+                connection.preventSSLAutoAllowed           = false;
                 connection.setDefaultEventsForMediaElement = false;
 
-                connection.getMediaDevices(function () {
-                    connection.DetectRTC.MediaDevices.forEach(function (device) {
-                        if (device.kind == 'audioinput' || device.kind == 'audio') {
-                            appendOption(device);
-                        } else if (device.kind == 'videoinput' || device.kind == 'video') {
-                            appendOption(device);
-                        }
-                    });
+                connection.enumerateDevices(function (devices) {
+                    devices.forEach(appendOption);
 
                     function appendOption(device) {
                         var option = document.createElement('option');
@@ -142,8 +136,8 @@
             <section class="experiment">
                 <h2>How to get media devices?</h2>
                 <pre>
-connection.getMediaDevices(function() {
-    connection.DetectRTC.MediaDevices.forEach(function (device) {
+connection.enumerateDevices(function(devices) {
+    devices.forEach(function (device) {
         // device.kind == 'audioinput' || 'audiooutput' || 'audio'
         // device.kind == 'videoinput' || 'videooutput' || 'video'
         // device.deviceId
@@ -153,6 +147,19 @@ connection.getMediaDevices(function() {
     });
 });
 </pre>
+            </section>
+            
+            <section class="experiment">
+                <h2>Reference Links</h2>
+                <ol>
+                    <li>
+                        <a href="http://www.rtcmulticonnection.org/docs/getDevices/">http://www.rtcmulticonnection.org/docs/getDevices/</a>
+                    </li>
+                    
+                    <li>
+                        <a href="http://www.rtcmulticonnection.org/docs/selectDevices/">http://www.rtcmulticonnection.org/docs/selectDevices/</a>
+                    </li>
+                </ol>
             </section>
         
             <section class="experiment">

@@ -99,10 +99,6 @@
                     this.disabled = true;
                     
                     getScreenId(function(error, sourceId, screen_constraints) {
-                        console.log('error', error);
-                        console.log('sourceId', sourceId);
-                        console.log('getScreenId constraints', toStr(screen_constraints));
-                        
                         // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
                         // sourceId == null || 'string' || 'firefox'
                         // getUserMedia(screen_constraints, onSuccess, onFailure);
@@ -110,21 +106,42 @@
                         navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
                         navigator.getUserMedia(screen_constraints, function(stream) {
                             document.querySelector('video').src = URL.createObjectURL(stream);
+                            
+                            stream.onended = function() {
+                                document.querySelector('video').src = null;
+                                document.getElementById('capture-screen').disabled = false;
+                            };
                         }, function(error) {
-                            console.error(error);
+                            alert(JSON.stringify(error, null, '\t'));
                         });
                     });
                 };
-
-                function toStr(obj) {
-                    return JSON.stringify(obj, function (key, value) {
-                        if (value && value.sdp) {
-                            log(value.sdp.type, '\t', value.sdp.sdp);
-                            return '';
-                        } else return value;
-                    }, '\t');
-                }
             </script>
+            
+            <section class="experiment">
+                <h2>Prerequisites</h2>
+                <ol>
+                    <li>
+                        Is that chrome? 
+                        <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Install chrome extension</a>.
+                        <button onclick="!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk', function() {location.reload();})" id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
+                            <img src="https://www.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
+                        </button>
+                    </li>
+                    
+                    <li>
+                        Is that Firefox Nightly? Make sure that you are using Firefox Nightly and you enabled: "<strong>media.getusermedia.screensharing.enabled</strong>" flag from "<strong>about:config</strong>" page. You also need to add your domain in "<strong>media.getusermedia.screensharing.allowed_domains</strong>" flag.
+                    </li>
+                    
+                    <li>
+                        Otherwise make sure you are running the chrome with command line flag "<strong><a href="http://peter.sh/experiments/chromium-command-line-switches/#enable-usermedia-screen-capturing">--enable-usermedia-screen-capturing</a></strong>" e.g. on Windows "<strong>Chrome.exe --enable-usermedia-screen-capturing</strong>"
+                        <div style="text-align:center;">
+                            <img src="https://www.webrtc-experiment.com/images/--enable-usermedia-screen-capturing.png" style="max-width: 100%;">
+                        </div>
+                        Learn more about <a href="http://www.chromium.org/developers/how-tos/run-chromium-with-flags" target="_blank">how to enable command-line flags</a> on different operating systems.
+                    </li>
+                </ol>
+            </section>
             
             <section class="experiment">
                 <h2 class="header">

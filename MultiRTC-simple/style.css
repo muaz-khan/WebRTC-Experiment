@@ -6,7 +6,7 @@
 
 @font-face {
     font-family: 'Myriad';
-    src: url('//www.webrtc-experiment.com/fonts/MyriadPro-Light.otf') format("opentype");
+    src: url('//cdn.webrtc-experiment.com/fonts/MyriadPro-Light.otf') format("opentype");
     font-weight: 400;
 }
 

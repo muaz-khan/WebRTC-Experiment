@@ -2,44 +2,46 @@
 
 ## [Demos](https://www.webrtc-experiment.com/RTCMultiConnection/) using [RTCMultiConnection](http://www.RTCMultiConnection.org/)
 
-<ol>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/AppRTC-Look.html">AppRTC like RTCMultiConnection demo!</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/">MultiRTC! RTCMultiConnection all-in-one demo!</a></li>
-                <li><a href="https://www.webrtc-experiment.com/Canvas-Designer/">Collaborative Canvas Designer</a></li>
-				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/all-in-one.html">All-in-One test</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/Multi-Broadcasters-and-Many-Viewers.html">Multi-Broadcasters and Many Viewers</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/select-broadcaster-at-runtime.html">Select Broadcaster at runtime</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/OneWay-Screen-TwoWay-Audio.html">OneWay Screen & Two-Way Audio</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/stream-mp3-live.html">Stream Mp3 Live</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/socketio-auto-open-join-room.html">Socket.io auto Open/Join rooms</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/getMediaDevices.html">navigator.getMediaDevices / navigator.enumerateDevices / MediaStreamTrack.getSources</a></li>
-				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/Renegotiation.html">Renegotiation & Mute/UnMute/Stop</a></li>
-				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/videoconferencing.html">Video-Conferencing</a></li>
-				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/video-broadcasting.html">Video Broadcasting</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/audioconferencing.html">Audio Conferencing</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/multi-streams-attachment.html">Multi-streams attachment</a></li>
-				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/admin-guest.html">Admin/Guest audio/video calling</a></li>
-				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/session-reinitiation.html">Session Re-initiation Test</a></li>
-				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/rooms-screenshots.html">Preview Screenshot of the room</a></li>
-				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/RecordRTC-and-RTCMultiConnection.html">RecordRTC & RTCMultiConnection</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/features.html">Explains how to customize ice servers; and resolutions</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/mute-unmute.html">Mute/Unmute and onmute/onunmute</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/one-page-demo.html">One-page demo: Explains how to skip external signalling gateways</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/password-protect-rooms.html">Password Protect Rooms: Explains how to authenticate users</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/session-management.html">Session Management: Explains difference between "leave" and "close" methods</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/multi-sessions-management.html">Multi-Sessions Management</a></li>
-				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/RTCMultiConnection-v1.3-demo.html">RTCMultiConnection-v1.3 test</a></li>
-				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/bandwidth.html">Customizing Bandwidth</a></li>
-				<li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/users-ejection.html">Users ejection and presence detection</a></li>				
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/multi-session-establishment.html">Multi-Session Establishment</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/group-file-sharing-plus-text-chat.html">File Sharing + Text Chat</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/audio-conferencing-data-sharing.html">Audio Conferencing + File Sharing + Text Chat</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/join-with-or-without-camera.html">Join with/without camera</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/screen-sharing.html">Screen Sharing</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/one-to-one-filesharing.html">One-to-One file sharing</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission.html">Manual session establishment + extra data transmission</a></li>
-                <li><a href="https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html">Manual session establishment + extra data transmission + video conferencing</a></li>
-</ol>
+| Experiment Name        | Demo           | Source Code |
+| ------------- |-------------|-------------|
+| AppRTC like RTCMultiConnection demo! | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/AppRTC-Look.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/AppRTC-Look.html) |
+| MultiRTC! RTCMultiConnection all-in-one demo! | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple) |
+| Collaborative Canvas Designer | [Demo](https://www.webrtc-experiment.com/Canvas-Designer/) | [Source](https://github.com/muaz-khan/Canvas-Designer) |
+| Conversation.js - Skype like library | [Demo](https://www.webrtc-experiment.com/Conversationjs/) | [Source](https://github.com/muaz-khan/Conversation.js) |
+| All-in-One test | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/all-in-one.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/all-in-one.html) |
+| Multi-Broadcasters and Many Viewers | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/Multi-Broadcasters-and-Many-Viewers.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Multi-Broadcasters-and-Many-Viewers.html) |
+| Select Broadcaster at runtime | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/select-broadcaster-at-runtime.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/select-broadcaster-at-runtime.html) |
+| OneWay Screen & Two-Way Audio | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/OneWay-Screen-TwoWay-Audio.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/OneWay-Screen-TwoWay-Audio.html) |
+| Stream Mp3 Live | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/stream-mp3-live.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/stream-mp3-live.html) |
+| Socket.io auto Open/Join rooms | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/socketio-auto-open-join-room.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/socketio-auto-open-join-room.html) |
+| Screen Sharing & Cropping | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/cropped-screen-sharing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/cropped-screen-sharing.html) |
+| Share Part of Screen without cropping it | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/RTCMultiConnection.sharePartOfScreen.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/RTCMultiConnection.sharePartOfScreen.html) |
+| getMediaDevices/enumerateDevices | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/getMediaDevices.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/getMediaDevices.html) |
+| Renegotiation & Mute/UnMute/Stop | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/Renegotiation.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Renegotiation.html) |
+| Video-Conferencing | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/videoconferencing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/videoconferencing.html) |
+| Video Broadcasting | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/video-broadcasting.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/video-broadcasting.html) |
+| Audio Conferencing | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/audioconferencing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/audioconferencing.html) |
+| Multi-streams attachment | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/multi-streams-attachment.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/multi-streams-attachment.html) |
+| Admin/Guest audio/video calling | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/admin-guest.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/admin-guest.html) |
+| Session Re-initiation Test | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/session-reinitiation.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/session-reinitiation.html) |
+| Preview Screenshot of the room | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/rooms-screenshots.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/rooms-screenshots.html) |
+| RecordRTC & RTCMultiConnection | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/RecordRTC-and-RTCMultiConnection.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/RecordRTC-and-RTCMultiConnection.html) |
+| Explains how to customize ice servers; and resolutions | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/features.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/features.html) |
+| Mute/Unmute and onmute/onunmute | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/mute-unmute.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/mute-unmute.html) |
+| One-page demo: Explains how to skip external signalling gateways | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/one-page-demo.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/one-page-demo.html) |
+| Password Protect Rooms: Explains how to authenticate users | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/password-protect-rooms.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/password-protect-rooms.html) |
+| Session Management: Explains difference between "leave" and "close" methods | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/session-management.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/session-management.html) |
+| Multi-Sessions Management | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/multi-sessions-management.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/multi-sessions-management.html) |
+| Customizing Bandwidth | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/bandwidth.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/bandwidth.html) |
+| Users ejection and presence detection | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/users-ejection.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/users-ejection.html) |
+| Multi-Session Establishment | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/multi-session-establishment.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/multi-session-establishment.html) |
+| Group File Sharing + Text Chat | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/group-file-sharing-plus-text-chat.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/group-file-sharing-plus-text-chat.html) |
+| Audio Conferencing + File Sharing + Text Chat | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/audio-conferencing-data-sharing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/audio-conferencing-data-sharing.html) |
+| Join with/without camera | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/join-with-or-without-camera.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/join-with-or-without-camera.html) |
+| Screen Sharing | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/screen-sharing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/screen-sharing.html) |
+| One-to-One file sharing | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/one-to-one-filesharing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/one-to-one-filesharing.html) |
+| Manual session establishment + extra data transmission | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/manual-session-establishment-plus-extra-data-transmission.html) |
+| Manual session establishment + extra data transmission + video conferencing | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html) |
 
 ## License
 

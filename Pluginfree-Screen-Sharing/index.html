@@ -156,6 +156,15 @@
                         rotateVideo(video);
                     },
                     onRoomFound: function(room) {
+                        if(location.hash.replace('#', '').length) {
+                            // private rooms should auto be joined.
+                            conferenceUI.joinRoom({
+                                roomToken: room.roomToken,
+                                joinUser: room.broadcaster
+                            });
+                            return;
+                        }
+                        
                         var alreadyExist = document.getElementById(room.broadcaster);
                         if (alreadyExist) return;
 
@@ -183,6 +192,15 @@
                         if (element) {
                             element.innerHTML = numberOfParticipants + ' users are viewing your screen!';
                         }
+                    },
+                    oniceconnectionstatechange: function(state) {
+                        if(state == 'failed') {
+                            alert('Failed to bypass Firewall rules. It seems that target user did not receive your screen. Please ask him reload the page and try again.');
+                        }
+                        
+                        if(state == 'connected') {
+                            alert('A user successfully received your screen.');
+                        }
                     }
                 };
 
@@ -192,11 +210,15 @@
                     var screen_constraints = {
                         mandatory: {
                             chromeMediaSource: DetectRTC.screen.chromeMediaSource,
-                            maxWidth: 1920,
-                            maxHeight: 1080,
-                            minAspectRatio: 1.77
+                            maxWidth: screen.width > 1920 ? screen.width : 1920,
+                            maxHeight: screen.height > 1080 ? screen.height : 1080
+                            // minAspectRatio: 1.77
                         },
-                        optional: []
+                        optional: [{ // non-official Google-only optional constraints
+                            googTemporalLayeredScreencast: true
+                        }, {
+                            googLeakyBucket: true
+                        }]
                     };
 
                     // try to check if extension is installed.
@@ -484,7 +506,9 @@
             </script>
 
             <section class="experiment">
-                <h2>Prerequisites</h2>
+                <h2 id="prerequisites">
+                    <a href="#prerequisites">Prerequisites</a>
+                </h2>
                 <ol>
                     <li>
                         Is that Firefox Nightly? Make sure that you are using Firefox Nightly and you enabled: media.getusermedia.screensharing.enabled flag from about:config page. You also need to add your domain in "media.getusermedia.screensharing.allowed_domains" flag.
@@ -508,7 +532,18 @@
             </section>
             
             <section class="experiment">
-                <h2>Advantages</h2>
+                <h2 id="suggestions">
+                    <a href="#suggestions">Suggestions</a>
+                </h2>
+                <blockquote class="inline">
+                    <a href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg">There is a chrome-extension</a> for the same application; which allows you share any tab/screen any time without opening this page.
+                </blockquote>
+            </section>
+            
+            <section class="experiment">
+                <h2 id="advantages">
+                    <a href="#advantages">Advantages</a>
+                </h2>
                 <ol>
                     <li>Share full screen with one or more users in <strong>HD</strong> format!</li>
                     <li>Share screen from chrome and view over all WebRTC compatible browsers/plugins.</li>
@@ -523,7 +558,9 @@
             </section>
             
             <section class="experiment">
-                <h2>Common issues & queries</h2>
+                <h2 id="common-queries">
+                    <a href="#common-queries">Common issues & queries</a>
+                </h2>
                 <ol>
                     <li>Recursive cascade images or blurred screen experiences occur only when you try to share screen between two tabs on the same system. This NEVER happens when sharing between unique systems or devices.</li>
                     <li>Opera/IE/Safari has no support of screen-capturing yet. However, you can view shared screens on Opera/IE/Safari!</li>
@@ -532,7 +569,9 @@
             </section>
         
             <section class="experiment">
-                <h2 class="header">Why Screen Sharing Fails?</h2>
+                <h2 id="why-screen-fails">
+                    <a href="#why-screen-fails">Why Screen Sharing Fails?</a>
+                </h2>
                 <ol>
                     <li>
                         You've not used '<strong>chromeMediaSource</strong>' or '<strong>mediaSource</strong>' constraint: 
@@ -559,7 +598,7 @@ video: {
             </section>
             
             <section class="experiment">
-                <h2 class="header">Suggestions</h2>
+                <h2 class="header">Bottom Lines</h2>
                 <ol>
                     <li>
                         <a href="http://www.RTCMultiConnection.org/" target="_blank">RTCMultiConnection.js</a> can be used for HD screen sharing; HD audio/video streaming; fastest file sharing; and writing entire skype-like app in the browser!

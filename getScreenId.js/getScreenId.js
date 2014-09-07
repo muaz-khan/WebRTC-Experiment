@@ -1,4 +1,4 @@
-// Last time updated at July 29, 2014, 08:32:23
+// Last time updated at Sep 07, 2014, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getScreenId.js
 
@@ -30,10 +30,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
             callback(null, 'firefox', {
                 video: {
                     mozMediaSource: 'window',
-                    mediaSource: 'window',
-                    maxWidth: 1920,
-                    maxHeight: 1080,
-                    minAspectRatio: 1.77
+                    mediaSource: 'window'
                 }
             });
             return;
@@ -41,7 +38,9 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
         postMessage();
 
-        window.addEventListener('message', function(event) {
+        window.addEventListener('message', onIFrameCallback);
+
+        function onIFrameCallback(event) {
             if (!event.data) return;
 
             if (event.data.chromeMediaSourceId) {
@@ -53,7 +52,10 @@ getScreenId(function (error, sourceId, screen_constraints) {
             if (event.data.chromeExtensionStatus) {
                 callback(event.data.chromeExtensionStatus, null, getScreenConstraints(event.data.chromeExtensionStatus));
             }
-        });
+
+            // this event listener is no more needed
+            window.removeEventListener('message', onIFrameCallback);
+        }
     };
 
     function getScreenConstraints(error, sourceId) {
@@ -62,9 +64,8 @@ getScreenId(function (error, sourceId, screen_constraints) {
             video: {
                 mandatory: {
                     chromeMediaSource: error ? 'screen' : 'desktop',
-                    maxWidth: 1920,
-                    maxHeight: 1080,
-                    minAspectRatio: 1.77
+                    maxWidth: window.screen.width > 1920 ? window.screen.width : 1920,
+                    maxHeight: window.screen.height > 1080 ? window.screen.height : 1080
                 },
                 optional: []
             }
@@ -93,7 +94,6 @@ getScreenId(function (error, sourceId, screen_constraints) {
         iframe.isLoaded = true;
     };
     iframe.src = 'https://www.webrtc-experiment.com/getSourceId/';
-
     iframe.style.display = 'none';
     (document.body || document.documentElement).appendChild(iframe);
 })();

@@ -1,4 +1,4 @@
-﻿// Last time updated at July 29, 2014, 08:32:23
+﻿// Last time updated at August 22, 2014, 08:32:23
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -66,6 +66,19 @@ var conference = function(config) {
             peer;
 
         var peerConfig = {
+            oniceconnectionstatechange: function(p) {
+                if(!isofferer || peer.firedOnce) return;
+        
+                if(p.iceConnectionState == 'failed') {
+                    peer.firedOnce = true;
+                    config.oniceconnectionstatechange('failed');
+                }
+                
+                if(p.iceConnectionState == 'connected' && p.iceGatheringState == 'complete' && p.signalingState == 'stable') {
+                    peer.firedOnce = true;
+                    config.oniceconnectionstatechange('connected');
+                }
+            },
             attachStream: config.attachStream,
             onICE: function(candidate) {
                 socket && socket.send({
@@ -308,6 +321,8 @@ iceServers = {
     iceServers: iceServers
 };
 
+/*
+
 var iceFrame, loadedIceFrame;
 
 function loadIceFrame(callback, skip) {
@@ -336,6 +351,7 @@ loadIceFrame(function(_iceServers) {
     iceServers.iceServers = iceServers.iceServers.concat(_iceServers);
     console.log('ice-servers', JSON.stringify(iceServers.iceServers, null, '\t'));
 });
+*/
 
 window.moz = !!navigator.mozGetUserMedia;
 
@@ -435,6 +451,10 @@ function RTCPeerConnection(options) {
 
         return sdp;
     }
+    
+    peer.oniceconnectionstatechange = function() {
+        options.oniceconnectionstatechange(peer);
+    };
 
     createOffer();
     createAnswer();

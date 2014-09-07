@@ -1,0 +1,187 @@
+<!--
+> Muaz Khan     - wwww.MuazKhan.com
+> MIT License   - www.WebRTC-Experiment.com/licence
+> Documentation - https://github.com/muaz-khan/FileBufferReader
+-->
+<html>
+    <head>
+        <title>File Sharing using FileBufferReader.js  ® Muaz Khan</title>
+        <meta name="description" content="WebRTC File Sharing Experiment using WebRTC SCTP based DataChannel API.">
+        <meta name="keywords" content="WebRTC,Experiments,SCTP,DataChannel,File-Sharing">
+        <link rel="author" type="text/html" href="http://google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+
+        <style type='text/css'>
+            @font-face {
+                font-family: 'Myriad';
+                src: url('https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.googledrive.com/host/0B6GWd_dUUTT8WjhzNlloZmZtdzA/fonts/MyriadPro-Light.otf') format("opentype");
+                font-weight: 400;
+            }
+
+            * { -webkit-user-select: none; }
+
+            body {
+                background: #474747 url('data:image/gif;base64,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');
+                color: #777;
+                cursor: default;
+                font-family: Myriad, Arial, Verdana;
+                font-size: 19px;
+                margin: 0 auto;
+                text-align: center;
+            }
+
+            hr { border-color: #777; }
+
+            a {
+                color: #888;
+                text-decoration: none;
+                text-shadow: 0 1px #333;
+            }
+
+            p a:hover { color: #6792cc; }
+
+            #blah {
+                font-size: 2em;
+                line-height: 30px;
+                margin-top: 128px;
+            }
+
+            .canary:hover { color: #e6c11e; }
+
+            .button {
+                background-color: rgba(0, 0, 0, .3);
+                border-bottom: 1px solid #666;
+                border-radius: 4px;
+                box-shadow: inset 0 2px 2px #111;
+                cursor: pointer;
+                font-size: 22px;
+                margin: 0 auto;
+                margin-top: 64px;
+                overflow: hidden;
+                padding: 8px;
+                position: relative;
+                width: 324px;
+            }
+
+            @-webkit-keyframes woohoo {
+            0%,
+
+            100% { opacity: .5; } 
+            50%
+
+             { opacity: 1; }
+
+            }
+
+            .button span {
+                -webkit-animation: woohoo 2s infinite;
+				margin: 0 .2em;
+            }
+
+            .button span:nth-child(2) {
+                color: #6792cc;
+            }
+
+            .rotate {
+                -webkit-transform: rotate(360deg);
+                   -moz-transform: rotate(360deg);
+                    -ms-transform: rotate(360deg);
+                     -o-transform: rotate(360deg);
+                        transform: rotate(360deg);
+
+                -webkit-transition: all 0.6s ease-out;
+                   -moz-transition: all 0.6s ease-out;
+                    -ms-transition: all 0.6s ease-out;
+                     -o-transition: all 0.6s ease-out;
+                        transition: all 0.6s ease-out;
+            }
+
+            #social {
+                margin-top: 60px;
+                opacity: 0;
+            }
+
+            #social.displayed {
+                opacity: 1;
+                -webkit-transition: all 0.8s ease-out;
+                   -moz-transition: all 0.8s ease-out;
+                    -ms-transition: all 0.8s ease-out;
+                     -o-transition: all 0.8s ease-out;
+                        transition: all 0.8s ease-out;
+            }
+
+            #sorry {
+                margin-top: 64px;
+                color: #9ACD32;
+            }
+
+            .credits {
+                font-size: 70%;
+                opacity: 0.6;
+            }
+			
+			audio, video {
+				width: 40%;
+				vertical-align:top;
+			}
+			
+			ol li {
+				border-top: 8px solid rgb(0, 0, 0);
+				list-style:none;
+			}
+			ol li a {
+				color:red;
+			}
+			
+			footer {
+				position:fixed;
+				bottom:0;
+				left:0;
+				right:0;
+				border-top:1px solid #777;
+				background: inherit;
+			}
+        </style>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            .output-panel {
+                max-height: 80%;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <p id="blah">File Sharing using <a href="https://github.com/muaz-khan/FileBufferReader">FileBufferReader.js</a></p>
+        
+        <div class="button" id="setup-offer">
+            <span>Connecting</span><span>Signaling Socket..</span>
+        </div>
+		
+        <div class="button" style="padding: 0;">
+            <button id="select-file" disabled style="font-size: 2em;">Select File</button>
+            <ol class="output-panel"></ol>
+        </div>
+        
+        <footer>
+            <p>
+                Want to share files privately?
+				
+                <a href="#1877571462" target="_blank" 
+                   title="Open this link in new tab to share files privately!">
+                    <code>
+                        <strong id="unique-token">#1877571462</strong>
+                    </code>
+                </a>
+                &rarr;
+                <a href="https://www.webrtc-experiment.com/">https://www.webrtc-experiment.com/</a>
+            </p>
+        </footer>
+        <script src="https://cdn.webrtc-experiment.com/FileBufferReader.js"></script>
+        <script src="PeerConnection.js"> </script>
+        <script src="PeerUI.js"></script>
+    </body>
+</html>

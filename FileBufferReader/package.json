@@ -1,0 +1,49 @@
+{
+  "name": "fbr",
+  "preferGlobal": true,
+  "version": "1.0.1",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "http://www.muazkhan.com/"
+  },
+  "description": "FileBufferReader is a JavaScript library reads file and returns chunkified array-buffers. The resulting buffers can be shared using WebRTC data channels or socket.io. Share files same as Skype do!",
+  "scripts": {
+    "start": "node FileBufferReader.js"
+  },
+  "main": "./FileBufferReader.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/FileBufferReader.git"
+  },
+  "keywords": [
+    "webrtc",
+    "file",
+    "file-sharing",
+    "datachannel",
+    "data-channels",
+    "file-reading",
+    "file-buffer",
+    "buffer",
+    "arraybuffer",
+    "buffers",
+    "chunkifier",
+    "fragmenter",
+    "library",
+    "javascript",
+    "webrtc-experiment",
+    "javascript-library",
+    "muaz",
+    "muaz-khan"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/muaz-khan/FileBufferReader/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://www.WebRTC-Experiment.com/FileBufferReader/",
+  "_id": "fbr@1.0.1",
+  "_from": "fbr@"
+}
