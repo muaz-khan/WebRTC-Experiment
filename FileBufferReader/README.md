@@ -1,4 +1,6 @@
-# [FileBufferReader.js](https://github.com/muaz-khan/FileBufferReader) [![npm](https://img.shields.io/npm/v/fbr.svg)](https://npmjs.org/package/fbr) [![downloads](https://img.shields.io/npm/dm/fbr.svg)](https://npmjs.org/package/fbr) / [Demo](https://www.WebRTC-Experiment.com/FileBufferReader/)
+# [FileBufferReader.js](https://github.com/muaz-khan/FileBufferReader) [![npm](https://img.shields.io/npm/v/fbr.svg)](https://npmjs.org/package/fbr) [![downloads](https://img.shields.io/npm/dm/fbr.svg)](https://npmjs.org/package/fbr)
+
+Demo: https://www.WebRTC-Experiment.com/FileBufferReader/
 
 Using FileBufferReader.js, you can:
 
@@ -29,6 +31,15 @@ To use it:
 ```htm
 <script src="./node_modules/fbr/FileBufferReader.js"></script>
 ```
+
+## FileBufferReader API
+
+1. `chunks` object. It contains multiple files' chunks. Even if you received chunks from remote peer, and invoked `addChunk` method; all chunks will be stored in same `chunks` object. `var fileChunks = fileBufferReader.chunks['file-uuid']`.
+2. `readAsArrayBuffer` method. It reads entire file and stores chunkified buffers in `chunks` object.
+3. `getNextChunk` method. It simply reads `last-position` and returns next available array-buffer chunk.
+4. `onBegin`, `onEnd` and `onProgress` events. These are added only to support file progress bars.
+5. `addChunk` method. It allows you store all received chunks in an array until entire file is received.
+6. `convertToObject` method. FileBufferReader assumes that you're sending ArrayBuffer using WebRTC data channels. It means that you'll be getting ArrayBuffer type in the `onmessage` event. `convertToObject` method allows you convert ArrayBuffer into JavaScript object type, which is helpful to check type of message.
 
 ## 1. Link The Library
 
@@ -101,7 +112,7 @@ datachannel.onmessage = function(event) {
         // array buffers are passed using WebRTC data channels
         // need to convert data back into JavaScript objects
     
-        fileBufferReader.ConvertToObject(chunk, function(object) {
+        fileBufferReader.convertToObject(chunk, function(object) {
             datachannel.onmessage({
                 data: object
             });
@@ -174,6 +185,10 @@ fileBufferReader.onBegin    = FileHelper.onBegin;
 fileBufferReader.onProgress = FileHelper.onProgress;
 fileBufferReader.onEnd      = FileHelper.onEnd;
 ```
+
+## Applications using FileBufferReader
+
+1. [RTCMultiConnection.js](http://www.RTCMultiConnection.org/)
 
 ## Credits
 

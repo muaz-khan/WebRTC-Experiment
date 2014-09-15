@@ -1,10 +1,8 @@
-// Last time updated at August 15, 2014, 08:32:23
+// Last time updated at August 25, 2014, 08:32:23
 
 // updates?
 /*
 -. if you're recording GIF, you must link: https://cdn.webrtc-experiment.com/gif-recorder.js
--. "save" method added in MRecordRTC.
--. "save" method accepts file-name.
 */
 
 // issues?
@@ -15,7 +13,7 @@
 //------------------------------------
 
 // Browsers Support::
-// Chrome (all versions) [ audio/video individually ]
+// Chrome (all versions) [ audio/video separately ]
 // Firefox ( >= 29 ) [ audio/video in single webm/mp4 container or only audio in ogg ]
 // Opera (all versions) [ same as chrome ]
 // Android (Chrome) [ only video ]
@@ -176,25 +174,28 @@ function RecordRTC(mediaStream, config) {
             return URL.createObjectURL(mediaRecorder.recordedBlob);
         },
         save: function (fileName) {
-            if (!mediaRecorder) return console.warn(WARNING);
+            if (!mediaRecorder) {
+                var that = this;
+                setTimeout(function() {
+                    that.save(fileName);
+                }, 2000);
+                return console.warn(WARNING);
+            }
 
-            // bug: should we use "getBlob" instead; to handle aww-snaps!
-            this.getDataURL(function (dataURL) {
-                var hyperlink = document.createElement('a');
-                hyperlink.href = dataURL;
-                hyperlink.target = '_blank';
-                hyperlink.download = (fileName || (Math.round(Math.random() * 9999999999) + 888888888)) + '.' + mediaRecorder.recordedBlob.type.split('/')[1];
+            var hyperlink = document.createElement('a');
+            hyperlink.href = URL.createObjectURL(mediaRecorder.recordedBlob);
+            hyperlink.target = '_blank';
+            hyperlink.download = (fileName || (Math.round(Math.random() * 9999999999) + 888888888)) + '.' + mediaRecorder.recordedBlob.type.split('/')[1];
 
-                var evt = new MouseEvent('click', {
-                    view: window,
-                    bubbles: true,
-                    cancelable: true
-                });
-
-                hyperlink.dispatchEvent(evt);
-
-                (window.URL || window.webkitURL).revokeObjectURL(hyperlink.href);
+            var evt = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true
             });
+
+            hyperlink.dispatchEvent(evt);
+
+            (window.URL || window.webkitURL).revokeObjectURL(hyperlink.href);
         },
         getFromDisk: function (callback) {
             if (!mediaRecorder) return console.warn(WARNING);
@@ -660,6 +661,9 @@ function StereoAudioRecorder(mediaStream, root) {
             // stop recording
             recording = false;
             
+            audioInput.disconnect();
+            volume.disconnect();
+            
             requestAnimationFrame(function() {
 
             // flat the left and right channels down
@@ -794,10 +798,7 @@ function StereoAudioRecorder(mediaStream, root) {
     var context = Storage.AudioContextConstructor;
 
     // creates a gain node
-    if (!Storage.VolumeGainNode)
-        Storage.VolumeGainNode = context.createGain();
-
-    var volume = Storage.VolumeGainNode;
+    var volume = context.createGain();
 
     // creates an audio node from the microphone incoming stream
     var audioInput = context.createMediaStreamSource(mediaStream);
@@ -853,7 +854,7 @@ function StereoAudioRecorder(mediaStream, root) {
     var isAudioProcessStarted = false,
         self = this;
     __stereoAudioRecorderJavacriptNode.onaudioprocess = function (e) {
-        // if MediaStream().stop() or MediaStreamTrack().stop() is invoked.
+        // if MediaStream().stop() or MediaStreamTrack.stop() is invoked.
         if (mediaStream.ended) {
             __stereoAudioRecorderJavacriptNode.onaudioprocess = function () {};
             return;

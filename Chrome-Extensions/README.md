@@ -1,9 +1,25 @@
-##### [Google Chrome Extensions](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions) for [WebRTC](https://www.webrtc-experiment.com/)!
+# [Chrome Extensions](https://github.com/muaz-khan/Chrome-Extensions)
 
-1. [desktopCapture API](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture) / [Install App Store Extension](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk)
-2. [tabCapture API](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture) / [Install App Store Extension](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk)
-3. [Desktop Sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing) / [Install App Store Extension](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg)
+desktopCapture/tabCapture API are used to capture content of screen or content of selected tab.
 
-#### License
+A few chrome extensions are supporting direct p2p screen steaming; whilst others are merely capturing `source-id` that web applications can use to capture relevant `MediaStream` object(s).
 
-[Google Chrome Extensions](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+## Install?
+
+1. [desktopCapture - simple](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk)
+2. [desktopCapture with p2p streaming](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg)
+3. [tabCapture with p2p streaming](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk)
+
+## Credits
+
+[Muaz Khan](https://github.com/muaz-khan):
+
+1. Personal Webpage: http://www.muazkhan.com
+2. Email: muazkh@gmail.com
+3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
+4. Google+: https://plus.google.com/+WebRTC-Experiment
+5. Facebook: https://www.facebook.com/WebRTC
+
+## License
+
+[Chrome-Extensions](https://github.com/muaz-khan/Chrome-Extensions) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

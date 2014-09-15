@@ -1,4 +1,4 @@
-// Last time updated at Sep 07, 2014, 08:32:23
+// Last time updated at Sep 14, 2014, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/FileBufferReader.js
 
@@ -15,6 +15,7 @@
 // binarize.js is written by @agektmr: https://github.com/agektmr/binarize.js.
 
 /* issues/features need to be fixed & implemented:
+-. "onEnd" for sender now having "url" property as well; same as file receiver.
 -. "extra" must not be an empty object i.e. {} -because "binarize" fails to parse empty objects.
 -. "extra" must not have "date" types; -because "binarize" fails to parse date-types.
 */
@@ -30,6 +31,7 @@
             
             File.Read(file, function(args) {
                 file.extra = extra || {};
+                file.url = URL.createObjectURL(file);
                 args.file = file; // passed over "onEnd"
                 fileBufferReader.chunks[args.uuid] = args;
                 callback(args.uuid);

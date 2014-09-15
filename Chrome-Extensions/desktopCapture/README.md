@@ -1,78 +1,65 @@
-<h1>
-    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture">
-        Google Chrome Extension
-        <br />to capture content of screen!
-    </a>
-</h1>
+# Chrome desktopCapture extension
 
-> Use your browser to share content of screen in High-Quality (HD-1080p) format with one or more users!
+This chrome extension simply captures content of your screen. It returns `source-id` to callee; and that `source-id` can be used as `chromeMediaSourceId` in WebRTC applications to capture screen's MediaStream.
 
-<h2>
-    Same <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">chrome extension</a> can be used in all your domains! You don't need to deploy yourself!
-</h2>
+List of applications that are using same extension:
 
-If you still want to publish yourself, **Download the extension; edit `manifest.json` then publish on Google App Store and enjoy HD screen capturing!**
+1. [getScreenId.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js) - a tinny javascript library that be used in any domain, application or WebRTC wrapper library.
+2. [RTCMultiConnection.js](https://github.com/muaz-khan/RTCMultiConnection) - a WebRTC wrapper library providing approximately all possible WebRTC p2p-mesh-based features.
+3. [Screen.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing) - a screen capturing library along with multi-user p2p screen streaming.
+4. [Pluginfree Screen Sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) - a standalone application, providing multi-user p2p screen streaming in HD format.
 
-=
+## Recommendations?
 
-You can install extension directly from Google App Store:
+It is recommended to use `getScreenId.js` to capture screen. In that case, you don't need to publish this chrome extension yourself in Google App Store.
+
+```html
+<script src="//cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+<video controls autoplay></video>
+<script>
+getScreenId(function (error, sourceId, screen_constraints) {
+    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    navigator.getUserMedia(screen_constraints, function (stream) {
+        document.querySelector('video').src = URL.createObjectURL(stream);
+    }, function (error) {
+        console.error(error);
+    });
+});
+</script>
+```
+
+## How to install?
 
 * https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk
 
-You can test following demo after installation:
+## How to publish yourself?
 
-* https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/
+First step: modify `allowed-domains` in `manifest.json` file:
 
-=
-
-## Remember
-
-**This chrome extension has no dependency!**
-
-**This chrome extension simply gets sourceId for the content of the screen you wanted to be shared. It doesn't invoke getUserMedia API itself; also it doesn't use PeerConnection API to do anything P2P!**
-
-i.e. **This chrome extension is totally stateless extension which is useful only to get sourceId of the content of screen!**
-
-1. You can upload/publish/use this chrome extension within any WebRTC application
-2. You simply need to edit `manifest.json` file to link content-script to your webpage (its mandatory part, though)
-3. You can directly load extension in developer mode or make crx file and drop over `chrome://extensions` page or publish to Google App Store
-4. The extension that is already [published over Google App Store](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) can be used in all domains!
-
-=
-
-## How to publish on Google App Store?
-
-It is very easy to publish this extension to Google App Store. 
-
-<ol>
-    <li>
-        Make sure that you edited <code>manifest.json</code> file:
-        
-        <pre>
+```
 {
     "content_scripts": [ {
        "js": [ "content-script.js" ],
-       "matches": ["*://www.your-domain.com/*"]
-    }],
-    "externally_connectable": {
-      "matches": ["*://www.your-domain.com/*"]
-    }
+       "all_frames": true,
+       "run_at": "document_start",
+       "matches": ["*://www.domain.com/*"]
+    }]
 }
-</pre>
-    </li>
-    
-    <li>
-        Open <a href="https://chrome.google.com/webstore/developer/dashboard">Chrome WebStore Developer Dashboard</a> and click <strong>Add New Item</strong> blue button.
-    </li>
-</ol>
+```
 
-Learn more about how to publish a chrome extension on Google WebStore [here](https://developer.chrome.com/webstore/publish).
+To test locally, you can add `*://localhost:*/*` in the `matches` list.
 
-=
+Second step: make ZIP of the directory.
+
+Third step: navigate to [Chrome WebStore Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard) and click **Add New Item** blue button.
+
+To learn more about how to publish a chrome extension in Google App Store:
+
+* https://developer.chrome.com/webstore/publish
 
 ## How to add inline-install button?
 
-> Make sure that you added and verified your webpage/domain using Google WebMaster tools.
+**Make sure that you added and verified your webpage/domain using Google WebMaster tools.** Additional instructions available [here](https://support.google.com/webmasters/answer/35179?hl=en).
 
 ```html
 <!DOCTYPE html>
@@ -112,155 +99,20 @@ Learn more about how to publish a chrome extension on Google WebStore [here](htt
 </html>
 ```
 
-=
+## For more information
 
-##### How to use chrome extension in your own webpage?
+For additional information, click [this link](https://github.com/muaz-khan/WebRTC-Experiment/blob/7cd04a81b30cdca2db159eb746e2714307640767/Chrome-Extensions/desktopCapture/README.md).
 
-Simply inject following DetectRTC code in your WebRTC application:
+## Credits
 
-```javascript
-// todo: need to check exact chrome browser because opera also uses chromium framework
-var isChrome = !!navigator.webkitGetUserMedia;
+[Muaz Khan](https://github.com/muaz-khan):
 
-// DetectRTC.js - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
-// Below code is taken from RTCMultiConnection-v1.8.js (http://www.rtcmulticonnection.org/changes-log/#v1.8)
-var DetectRTC = {};
+1. Personal Webpage: http://www.muazkhan.com
+2. Email: muazkh@gmail.com
+3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
+4. Google+: https://plus.google.com/+WebRTC-Experiment
+5. Facebook: https://www.facebook.com/WebRTC
 
-(function () {
-    var screenCallback;
+## License
 
-    DetectRTC.screen = {
-        chromeMediaSource: 'screen',
-        getSourceId: function (callback) {
-            if (!callback) throw '"callback" parameter is mandatory.';
-            screenCallback = callback;
-            window.postMessage('get-sourceId', '*');
-        },
-        isChromeExtensionAvailable: function (callback) {
-            if (!callback) return;
-
-            if (DetectRTC.screen.chromeMediaSource == 'desktop') callback(true);
-
-            // ask extension if it is available
-            window.postMessage('are-you-there', '*');
-
-            setTimeout(function () {
-                if (DetectRTC.screen.chromeMediaSource == 'screen') {
-                    callback(false);
-                } else callback(true);
-            }, 2000);
-        },
-        onMessageCallback: function (data) {
-            console.log('chrome message', data);
-
-            // "cancel" button is clicked
-            if (data == 'PermissionDeniedError') {
-                DetectRTC.screen.chromeMediaSource = 'PermissionDeniedError';
-                if (screenCallback) return screenCallback('PermissionDeniedError');
-                else throw new Error('PermissionDeniedError');
-            }
-
-            // extension notified his presence
-            if (data == 'rtcmulticonnection-extension-loaded') {
-                DetectRTC.screen.chromeMediaSource = 'desktop';
-            }
-
-            // extension shared temp sourceId
-            if (data.sourceId) {
-                DetectRTC.screen.sourceId = data.sourceId;
-                if (screenCallback) screenCallback(DetectRTC.screen.sourceId);
-            }
-        }
-    };
-
-    // check if desktop-capture extension installed.
-    if (window.postMessage && isChrome) {
-        DetectRTC.screen.isChromeExtensionAvailable();
-    }
-})();
-
-window.addEventListener('message', function (event) {
-    if (event.origin != window.location.origin) {
-        return;
-    }
-
-    DetectRTC.screen.onMessageCallback(event.data);
-});
-```
-
-Now, you can capture content of any opened application using following code snippet:
-
-```javascript
-function captureUserMedia(onStreamApproved) {
-    // this statement defines getUserMedia constraints
-    // that will be used to capture content of screen
-    var screen_constraints = {
-        mandatory: {
-            chromeMediaSource: DetectRTC.screen.chromeMediaSource,
-            maxWidth: 1920,
-            maxHeight: 1080,
-            minAspectRatio: 1.77
-        },
-        optional: []
-    };
-
-    // this statement verifies chrome extension availability
-    // if installed and available then it will invoke extension API
-    // otherwise it will fallback to command-line based screen capturing API
-    if (DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
-        DetectRTC.screen.getSourceId(function (error) {
-            // if exception occurred or access denied
-            if (error && error == 'PermissionDeniedError') {
-                alert('PermissionDeniedError: User denied to share content of his screen.');
-            }
-
-            captureUserMedia(onStreamApproved);
-        });
-        return;
-    }
-
-    // this statement sets gets 'sourceId" and sets "chromeMediaSourceId" 
-    if (DetectRTC.screen.chromeMediaSource == 'desktop') {
-        screen_constraints.mandatory.chromeMediaSourceId = DetectRTC.screen.sourceId;
-    }
-
-    // it is the session that we want to be captured
-    // audio must be false
-    var session = {
-        audio: false,
-        video: screen_constraints
-    };
-
-    // now invoking native getUserMedia API
-    navigator.webkitGetUserMedia(session, onStreamApproved, OnStreamDenied);
-
-});
-```
-
-=
-
-## How to test on HTTP?
-
-Enable a command-line switch on chrome canary:
-
-```
---allow-http-screen-capture
-```
-
-Ref: http://kurtextrem.github.io/ChromiumFlags/#allow-http-screen-capture
-
-=
-
-## Browser Support
-
-[Capture Screen Extension](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture) works fine on following web-browsers:
-
-| Browser        | Support           |
-| ------------- |-------------|
-| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-
-=
-
-#### License
-
-[Capture Screen Extension](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[Chrome-Extensions](https://github.com/muaz-khan/Chrome-Extensions) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

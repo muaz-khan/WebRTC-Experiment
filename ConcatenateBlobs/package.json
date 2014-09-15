@@ -1,0 +1,47 @@
+{
+  "name": "concatenateblobs",
+  "preferGlobal": true,
+  "version": "1.0.0",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "http://www.muazkhan.com/"
+  },
+  "description": "Simply pass array of blobs. This javascript library will concatenate all blobs in single Blob object.",
+  "scripts": {
+    "start": "node ConcatenateBlobs.js"
+  },
+  "main": "./ConcatenateBlobs.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/ConcatenateBlobs.git"
+  },
+  "keywords": [
+    "concatenateblobs",
+    "library",
+    "javascript",
+    "chrome",
+    "firefox",
+    "opera",
+    "ie",
+    "internet-explorer",
+    "android",
+    "concatenate-blobs",
+    "concatenateblobs.js",
+    "mergeblobs",
+    "merge-blobs",
+    "javascript-library",
+    "muaz",
+    "muaz-khan"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/muaz-khan/ConcatenateBlobs/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://www.webrtc-experiment.com/ConcatenateBlobs/",
+  "_id": "concatenateblobs@1.0.0",
+  "_from": "concatenateblobs@"
+}

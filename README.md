@@ -29,6 +29,7 @@ You don't need to modify any single line to use it. No single installation or mo
 | `getMediaElement.js` | A library for audio/video media elements' layout | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getMediaElement) | [Demos](https://www.webrtc-experiment.com/getMediaElement/) |
 | `DetectRTC.js` | A library for detecting WebRTC features | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC) | [Demos](https://www.webrtc-experiment.com/DetectRTC/) |
 | `navigator.customGetUserMediaBar.js` | Keep your users Privacy! | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/navigator.customGetUserMediaBar) | [Demos](https://www.webrtc-experiment.com/navigator.customGetUserMediaBar/) |
+| `ConcatenateBlobs.js` | Concatenate Array of Blobs | [Documentation](https://github.com/muaz-khan/ConcatenateBlobs) | [Demos](https://www.webrtc-experiment.com/ConcatenateBlobs/) |
 
 ## Other Repositories
 
@@ -376,7 +377,7 @@ datachannel.onmessage = function(event) {
         // array buffers are passed using WebRTC data channels
         // need to convert data back into JavaScript objects
     
-        fileBufferReader.ConvertToObject(chunk, function(object) {
+        fileBufferReader.convertToObject(chunk, function(object) {
             datachannel.onmessage({
                 data: object
             });

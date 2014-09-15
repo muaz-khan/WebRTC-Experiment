@@ -1,0 +1,144 @@
+﻿<title>ConcatenateBlobs | JavaScript</title>
+
+<h1>ConcatenateBlobs | JavaScript - <a href="https://github.com/muaz-khan/ConcatenateBlobs">Source Code</a></h1>
+
+<blockquote>
+    You can record multiple blobs; then click "concatenateBlobs" button to concatenate all recorded blobs in single Blob. The resulting "single" Blob can be either played-back locally or pushed to server.
+</blockquote>
+
+<style>
+button {
+    font-family: Myriad, Arial, Verdana;
+    font-weight: normal;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    padding: 4px 12px;
+    text-decoration: none;
+    color: rgb(27, 26, 26);
+    display: inline-block;
+    box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+    text-shadow: none;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
+    font-size: 20px;
+    border: 1px solid red;
+}
+button[disabled] {
+    background: rgba(216, 205, 205, 0.2);
+    border: 1px solid rgb(233, 224, 224);
+}
+blockquote {
+    font-size: 20px;
+    color: rgb(172, 10, 10);
+    border: 1px solid rgb(172, 10, 10);
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin: 9px 10px;
+}
+span {
+    border: 1px dotted red;
+    background: yellow;
+    padding: 0 5px;
+}
+</style>
+
+<hr />
+<button id="concatenateBlobs" disabled style="float:right;">concatenateBlobs</button>
+<button id="startRecording">startRecording</button>
+<button id="stopRecording" disabled>stopRecording</button>
+<p style="display:inline-block;">
+    <span id="output">0 blobs</span> recorded. To concatenate all, click right-side button.
+</p>
+<hr />
+
+<audio controls></audio>
+
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js" autoplay> </script>
+<script src="https://cdn.webrtc-experiment.com/ConcatenateBlobs.js" autoplay> </script>
+
+<script>
+var audio = document.querySelector('audio');
+
+var recordRTC;
+var allBlobs = [];
+var localMediaStream;
+document.querySelector('#startRecording').onclick = function() {
+    this.disabled = true;
+    document.querySelector('#concatenateBlobs').disabled = true;
+    
+    navigator.getUserMedia({
+        audio: true
+    }, function(stream) {
+        localMediaStream = stream;
+        
+        audio.src = URL.createObjectURL(stream);
+        audio.play();
+
+        recordRTC = RecordRTC(stream);
+        recordRTC.startRecording();
+
+        document.querySelector('#stopRecording').disabled = false;
+    }, function(error) {});
+};
+
+document.querySelector('#stopRecording').onclick = function() {
+    this.disabled = true;
+    recordRTC.stopRecording(function() {
+        if(localMediaStream) localMediaStream.stop();
+        
+        allBlobs.push(recordRTC.getBlob());
+        
+        var totalBytes = 0;
+        allBlobs.forEach(function(blob) {
+            totalBytes += blob.size;
+        });
+        
+        output.innerHTML = allBlobs.length + ' blobs (total size: ' + bytesToSize(totalBytes) + ')';
+        
+        document.querySelector('#startRecording').disabled = false;
+        document.querySelector('#concatenateBlobs').disabled = false;
+    });
+};
+
+document.querySelector('#concatenateBlobs').onclick = function() {
+    this.disabled = true;
+    document.querySelector('#startRecording').disabled = true;
+    document.querySelector('#stopRecording').disabled = true;
+    
+    var parent = output.parentNode;
+    parent.innerHTML =  'Concatenating ' + allBlobs.length + ' blobs.';
+    ConcatenateBlobs(allBlobs, 'audio/wav', function(resultingBlob) {
+        parent.innerHTML =  'Concatenated. Resulting blob size: <span>' + bytesToSize(resultingBlob.size) + '</span>. Playing-back locally in &lt;audio&gt; tag.';
+        
+        audio.src = URL.createObjectURL(resultingBlob);
+        audio.play();
+    });
+};
+
+var output = document.querySelector('#output');
+
+// below function via: http://goo.gl/B3ae8c
+function bytesToSize(bytes) {
+    var k = 1000;
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) return '0 Bytes';
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+    return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+}
+</script>
+
+<h2>How to use?</h2>
+<pre>
+// https://cdn.webrtc-experiment.com/ConcatenateBlobs.js
+// or: npm install concatenateblobs
+
+// 2nd argument is type of "resulting-blob"
+ConcatenateBlobs(<span>[arrayOfBlobs]</span>, <span>'audio/wav'</span>, function(<span>resultingBlob</span>) {
+
+    POST_to_Server(<span>resultingBlob</span>);
+    
+    // or preview locally
+    localVideo.src = URL.createObjectURL(<span>resultingBlob</span>);
+});
+</pre>
