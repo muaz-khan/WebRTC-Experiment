@@ -1,4 +1,4 @@
-// Last time updated at Sep 20, 2014, 08:32:23
+// Last time updated at Sep 16, 2014, 08:32:23
 
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
@@ -13,25 +13,12 @@
 // Demos         - www.WebRTC-Experiment.com/RTCMultiConnection
 
 // _________________________
-// RTCMultiConnection-v2.1.9
+// RTCMultiConnection-v2.1.8
 
 /* issues/features need to be fixed & implemented:
 
 -. v2.0.* changes-log here: http://www.rtcmulticonnection.org/changes-log/#v2.0
 -. trello: https://trello.com/b/8bhi1G6n/rtcmulticonnection
-
--. fixed: session={data:true} must not having audio/video media lines
--. Ref: https://trello.com/c/yk2BSREE/62-session-data-true-must-not-having-audio-video-media-lines
-
--. onleave is "merely" fired once for each user
-
--. sync:false added for "connection.streams['streamid'].mute" method. 
--. Ref: https://trello.com/c/zAr3yFXg/60-sync-false-added-for-mute-method
-
--. updated: connection.mediaConstraints = { video: videoConstraints, audio: audioConstraints };
--. Ref: https://trello.com/c/BHDoAb93/59-connection-mediaconstraints-is-prioritized-over-connection-session
-
--. "onstreamended" fixed. Ref: https://trello.com/c/7MpMLJgY/58-onstreamended-fixed
 
 -. renegotiation fixed. It was a bug in 2.*.* < 2.1.7
 -. connection.rtcConfiguration={iceTransports:'relay',iceServers:iceServersArray} added.
@@ -369,8 +356,8 @@
                 video: {
                     mandatory: {
                         chromeMediaSource: DetectRTC.screen.chromeMediaSource,
-                        maxWidth: screen.width > 1920 ? screen.width : 1920,
-                        maxHeight: screen.height > 1080 ? screen.height : 1080
+                        maxWidth: 1920,
+                        maxHeight: 1080
                     },
                     optional: []
                 }
@@ -509,7 +496,7 @@
                     userid: 'browser',
                     extra: {},
                     name: 'fetching-usermedia',
-                    reason: 'About to capture user-media with constraints: ' + toStr(forcedConstraints)
+                    reason: 'About to capture user-media with constants: ' + toStr(forcedConstraints)
                 });
 
 
@@ -543,7 +530,7 @@
                             userid: 'browser',
                             extra: {},
                             name: 'usermedia-fetched',
-                            reason: 'Captured user media using constraints: ' + toStr(forcedConstraints)
+                            reason: 'Captured user media using constants: ' + toStr(forcedConstraints)
                         });
 
                         if (isRemoveVideoTracks) {
@@ -552,9 +539,24 @@
 
                         connection.localStreamids.push(streamid);
                         stream.onended = function() {
-                            if (streamedObject.mediaElement && !streamedObject.mediaElement.parentNode && document.getElementById(stream.streamid)) {
+                            if (!streamedObject.mediaElement.parentNode && document.getElementById(stream.streamid)) {
                                 streamedObject.mediaElement = document.getElementById(stream.streamid);
                             }
+
+                            /*
+                            if(connection.localStreamids[stream.streamid]) {
+                                delete connection.localStreamids[stream.streamid];
+                            }
+                            
+                            if(connection.streams[stream.streamid]) {
+                                delete connection.streams[stream.streamid];
+                            }
+                            
+                            if(connection.attachStreams[connection.attachStreams.length] && connection.attachStreams[connection.attachStreams.length] == stream) {
+                                delete connection.attachStreams[connection.attachStreams.length];
+                                connection.attachStreams = swap(connection.attachStreams);
+                            }
+                            */
 
                             onStreamEndedHandler(streamedObject, connection);
 
@@ -1007,7 +1009,7 @@
         var rtcMultiSession = this;
         var participants = {};
 
-        if (!rtcMultiSession.fileBufferReader && connection.session.data) {
+        if (!rtcMultiSession.fileBufferReader) {
             initFileBufferReader(connection, function(fbr) {
                 rtcMultiSession.fileBufferReader = fbr;
             });
@@ -1459,7 +1461,7 @@
                 var stream = args.stream;
 
                 stream.onended = function() {
-                    if (streamedObject.mediaElement && !streamedObject.mediaElement.parentNode && document.getElementById(stream.streamid)) {
+                    if (!streamedObject.mediaElement.parentNode && document.getElementById(stream.streamid)) {
                         streamedObject.mediaElement = document.getElementById(stream.streamid);
                     }
 
@@ -1971,11 +1973,11 @@
 
                     connection.remove(response.userid);
 
-                    onLeaveHandler({
+                    connection.onleave({
                         userid: response.userid,
-                        extra: response.extra || {},
+                        extra: response.extra,
                         entireSessionClosed: !!response.closeEntireSession
-                    }, connection);
+                    });
                 }
 
                 // keeping session active even if initiator leaves
@@ -2257,7 +2259,7 @@
 
             var alertMessage = {
                 left: true,
-                extra: connection.extra || {},
+                extra: connection.extra,
                 userid: connection.userid,
                 sessionid: connection.sessionid
             };
@@ -3240,7 +3242,8 @@
                     // http://tools.ietf.org/html/rfc4340
 
                     // From RFC 4145, SDP setup attribute values.
-                    // http://goo.gl/xETJEp && http://goo.gl/3Wgcau
+                    // constants.cc&l=268 - http://goo.gl/xETJEp
+                    // dtlstransport.h&l=123 - http://goo.gl/3Wgcau
                     if (createType == 'offer') {
                         sdp = sdp.replace(/a=setup:passive|a=setup:active|a=setup:holdconn/g, 'a=setup:actpass');
                     } else {
@@ -3368,11 +3371,6 @@
                         OfferToReceiveVideo: !!this.session.video || !!this.session.screen
                     }
                 };
-                
-                if(isData(this.session)) {
-                    this.constraints.mandatory.OfferToReceiveAudio = false;
-                    this.constraints.mandatory.OfferToReceiveVideo = false;
-                }
 
                 if (this.constraints.mandatory) {
                     log('sdp-mandatory-constraints', toStr(this.constraints.mandatory));
@@ -3651,7 +3649,7 @@
         };
     }
 
-    var defaultConstraints = {
+    var video_constraints = {
         mandatory: {},
         optional: []
     };
@@ -3688,72 +3686,62 @@
 
         // tools.ietf.org/html/draft-alvestrand-constraints-resolution-00
         var mediaConstraints = options.mediaConstraints || {};
-        var videoConstraints = typeof mediaConstraints.video == 'boolean' ? mediaConstraints.video : mediaConstraints.video || mediaConstraints;
-        var audioConstraints = typeof mediaConstraints.audio == 'boolean' ? mediaConstraints.audio : mediaConstraints.audio || defaultConstraints;
 
         var n = navigator;
         var hints = options.constraints || {
-            audio: defaultConstraints,
-            video: defaultConstraints
+            audio: true,
+            video: video_constraints
         };
 
         if (hints.video && hints.video.mozMediaSource) {
-            // "mozMediaSource" is redundant
-            // need to check "mediaSource" instead.
-            videoConstraints = {};
+            // todo: verify this case
+            mediaConstraints = {};
         }
 
-        if (hints.video == true) hints.video = defaultConstraints;
-        if (hints.audio == true) hints.audio = defaultConstraints;
+        if (hints.video == true) hints.video = video_constraints;
 
         // connection.mediaConstraints.audio = false;
-        if (typeof audioConstraints == 'boolean' && hints.audio) {
-            hints.audio = audioConstraints;
+        if (!isNull(mediaConstraints.audio)) {
+            hints.audio = mediaConstraints.audio;
         }
 
         // connection.mediaConstraints.video = false;
-        if (typeof videoConstraints == 'boolean' && hints.video) {
-            hints.video = videoConstraints;
-        }
-
-        // connection.mediaConstraints.audio.mandatory = {prop:true};
-        var audioMandatoryConstraints = audioConstraints.mandatory;
-        if (!isEmpty(audioMandatoryConstraints)) {
-            hints.audio.mandatory = merge(hints.audio.mandatory, audioMandatoryConstraints);
+        if (!isNull(mediaConstraints.video) && hints.video) {
+            hints.video = merge(hints.video, mediaConstraints.video);
         }
 
         // connection.media.min(320,180);
         // connection.media.max(1920,1080);
-        var videoMandatoryConstraints = videoConstraints.mandatory;
-        if (videoMandatoryConstraints) {
+        var mandatoryConstraints = mediaConstraints.mandatory;
+        if (mandatoryConstraints) {
             var mandatory = {};
 
-            if (videoMandatoryConstraints.minWidth) {
-                mandatory.minWidth = videoMandatoryConstraints.minWidth;
+            if (mandatoryConstraints.minWidth) {
+                mandatory.minWidth = mandatoryConstraints.minWidth;
             }
 
-            if (videoMandatoryConstraints.minHeight) {
-                mandatory.minHeight = videoMandatoryConstraints.minHeight;
+            if (mandatoryConstraints.minHeight) {
+                mandatory.minHeight = mandatoryConstraints.minHeight;
             }
 
-            if (videoMandatoryConstraints.maxWidth) {
-                mandatory.maxWidth = videoMandatoryConstraints.maxWidth;
+            if (mandatoryConstraints.maxWidth) {
+                mandatory.maxWidth = mandatoryConstraints.maxWidth;
             }
 
-            if (videoMandatoryConstraints.maxHeight) {
-                mandatory.maxHeight = videoMandatoryConstraints.maxHeight;
+            if (mandatoryConstraints.maxHeight) {
+                mandatory.maxHeight = mandatoryConstraints.maxHeight;
             }
 
-            if (videoMandatoryConstraints.minAspectRatio) {
-                mandatory.minAspectRatio = videoMandatoryConstraints.minAspectRatio;
+            if (mandatoryConstraints.minAspectRatio) {
+                mandatory.minAspectRatio = mandatoryConstraints.minAspectRatio;
             }
 
-            if (videoMandatoryConstraints.maxFrameRate) {
-                mandatory.maxFrameRate = videoMandatoryConstraints.maxFrameRate;
+            if (mandatoryConstraints.maxFrameRate) {
+                mandatory.maxFrameRate = mandatoryConstraints.maxFrameRate;
             }
 
-            if (videoMandatoryConstraints.minFrameRate) {
-                mandatory.minFrameRate = videoMandatoryConstraints.minFrameRate;
+            if (mandatoryConstraints.minFrameRate) {
+                mandatory.minFrameRate = mandatoryConstraints.minFrameRate;
             }
 
             if (mandatory.minWidth && mandatory.minHeight) {
@@ -3777,18 +3765,13 @@
             hints.video.mandatory = merge(hints.video.mandatory, mandatory);
         }
 
-        if (videoMandatoryConstraints) {
-            hints.video.mandatory = merge(hints.video.mandatory, videoMandatoryConstraints);
+        if (mediaConstraints.mandatory) {
+            hints.video.mandatory = merge(hints.video.mandatory, mediaConstraints.mandatory);
         }
 
-        // videoConstraints.optional = [{prop:true}];
-        if (videoConstraints.optional && videoConstraints.optional instanceof Array && videoConstraints.optional.length) {
-            hints.video.optional = hints.video.optional ? hints.video.optional.concat(videoConstraints.optional) : videoConstraints.optional;
-        }
-
-        // audioConstraints.optional = [{prop:true}];
-        if (audioConstraints.optional && audioConstraints.optional instanceof Array && audioConstraints.optional.length) {
-            hints.audio.optional = hints.audio.optional ? hints.audio.optional.concat(audioConstraints.optional) : audioConstraints.optional;
+        // mediaConstraints.optional.bandwidth = 1638400;
+        if (mediaConstraints.optional && mediaConstraints.optional instanceof Array && mediaConstraints.optional.length) {
+            hints.video.optional = hints.video.optional ? hints.video.optional.concat(mediaConstraints.optional) : mediaConstraints.optional;
         }
 
         if (hints.video.mandatory && !isEmpty(hints.video.mandatory) && connection._mediaSources.video) {
@@ -3834,10 +3817,7 @@
             };
         }
 
-        // connection.mediaConstraints always overrides constraints
-        // passed from "captureUserMedia" function.
-        // todo: need to verify all possible situations
-        log('invoked getUserMedia with constraints:', toStr(hints));
+        log('media hints:', toStr(hints));
 
         // easy way to match 
         var idInstance = JSON.stringify(hints);
@@ -4196,13 +4176,6 @@
         if (onStreamEndedHandlerFiredFor[streamedObject.streamid]) return;
         onStreamEndedHandlerFiredFor[streamedObject.streamid] = streamedObject;
         connection.onstreamended(streamedObject);
-    }
-    
-    var onLeaveHandlerFiredFor = {};
-    function onLeaveHandler(event, connection) {
-        if(onLeaveHandlerFiredFor[event.userid]) return;
-        onLeaveHandlerFiredFor[event.userid] = event;
-        connection.onleave(event);
     }
 
     function invokeMediaCaptured(connection) {
@@ -4728,16 +4701,8 @@
 
         // www.RTCMultiConnection.org/docs/mediaConstraints/
         connection.mediaConstraints = {
-            mandatory: {}, // kept for backward compatibility
-            optional: [], // kept for backward compatibility
-            audio: {
-                mandatory: {},
-                optional: [],
-            },
-            video: {
-                mandatory: {},
-                optional: [],
-            }
+            mandatory: {},
+            optional: []
         };
 
         // www.RTCMultiConnection.org/docs/candidates/
@@ -5273,23 +5238,19 @@
         // www.RTCMultiConnection.org/docs/media/
         connection.media = {
             min: function(width, height) {
-                if (!connection.mediaConstraints.video) return;
-
-                if (!connection.mediaConstraints.video.mandatory) {
-                    connection.mediaConstraints.video.mandatory = {};
+                if (!connection.mediaConstraints.mandatory) {
+                    connection.mediaConstraints.mandatory = {};
                 }
-                connection.mediaConstraints.video.mandatory.minWidth = width;
-                connection.mediaConstraints.video.mandatory.minHeight = height;
+                connection.mediaConstraints.mandatory.minWidth = width;
+                connection.mediaConstraints.mandatory.minHeight = height;
             },
             max: function(width, height) {
-                if (!connection.mediaConstraints.video) return;
-
-                if (!connection.mediaConstraints.video.mandatory) {
-                    connection.mediaConstraints.video.mandatory = {};
+                if (!connection.mediaConstraints.mandatory) {
+                    connection.mediaConstraints.mandatory = {};
                 }
 
-                connection.mediaConstraints.video.mandatory.maxWidth = width;
-                connection.mediaConstraints.video.mandatory.maxHeight = height;
+                connection.mediaConstraints.mandatory.maxWidth = width;
+                connection.mediaConstraints.mandatory.maxHeight = height;
             }
         };
 
@@ -5333,25 +5294,7 @@
                 this._private(session, false);
             };
 
-            function muteOrUnmuteLocally(session, isPause, mediaElement) {
-                if (!mediaElement) return;
-                var lastPauseState = mediaElement.onpause;
-                var lastPlayState = mediaElement.onplay;
-                mediaElement.onpause = mediaElement.onplay = function() {};
-
-                if (isPause) mediaElement.pause();
-                else mediaElement.play();
-
-                mediaElement.onpause = lastPauseState;
-                mediaElement.onplay = lastPlayState;
-            }
-
             resultingObject._private = function(session, enabled) {
-                if (session && !isNull(session.sync) && session.sync == false) {
-                    muteOrUnmuteLocally(session, enabled, this.mediaElement);
-                    return;
-                }
-
                 muteOrUnmute({
                     root: this,
                     session: session,

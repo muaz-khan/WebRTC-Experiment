@@ -1,8 +1,20 @@
-## [Conversation.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Conversation.js) runs top over [RTCMultiConnection.js](http://www.RTCMultiConnection.org/)
+## [Conversation.js](https://github.com/muaz-khan/Conversation.js) runs top over [RTCMultiConnection.js](http://www.RTCMultiConnection.org/)  [![npm](https://img.shields.io/npm/v/conversationjs.svg)](https://npmjs.org/package/conversationjs) [![downloads](https://img.shields.io/npm/dm/conversationjs.svg)](https://npmjs.org/package/conversationjs)
 
 Conversation.js is inspired by skype; and it provides simple events-like API to manage conversations, enable/disable media devices; add/download files; and do anything supported by Skype.
 
 It allows you open data conversation between two or more users using their user-ids.
+
+It is <a href="https://www.webrtc-experiment.com/licence/">MIT Licenced</a>, which means that you can use it in any commercial/non-commercial product, free of cost.
+
+```
+npm install conversationjs
+```
+
+To use it:
+
+```htm
+<script src="./node_modules/conversationjs/conversation.js"></script>
+```
 
 ## [Demos](https://www.webrtc-experiment.com/Conversationjs/) using [Conversation.js](https://github.com/muaz-khan/Conversation.js)
 
@@ -24,17 +36,9 @@ It allows you open data conversation between two or more users using their user-
                 </li>
 </ol>
 
-## [Gif Presentation](https://cdn.webrtc-experiment.com/images/AndroidRTC.gif)
+## Gif Presentation
 
-> Note: It is experimental release and API may change until v1.0 gets stable.
-
-Original source-code can be found here:
-
-https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Conversation.js
-
-Experimental Repository: https://github.com/muaz-khan/Conversation.js
-
-=
+* https://cdn.webrtc-experiment.com/images/AndroidRTC.gif
 
 ## Link the library
 
@@ -105,8 +109,6 @@ user.on('conversation-opened', function (conversation) {
 });
 ```
 
-=
-
 ## How to use socket.io?
 
 ```javascript
@@ -133,8 +135,6 @@ socket.on('message', function(message) {
 // connect user to signaler
 signaler.connect(user);
 ```
-
-=
 
 ## How to use WebSockets?
 
@@ -165,8 +165,6 @@ websocket.onmessage = function(event) {
 signaler.connect(user);
 ```
 
-=
-
 ## How to set defaults?
 
 "defaults" are default properties, objects and methods that are applied to RTCMultiConnection object.
@@ -196,8 +194,6 @@ user.defaults = {
 };
 ```
 
-=
-
 ## How to accept/reject friend requests?
 
 ```javascript
@@ -209,8 +205,6 @@ user.on('friend-request', function (request) {
     }
 });
 ```
-
-=
 
 ## How to check friend-request status?
 
@@ -224,8 +218,6 @@ user.on('request-status', function (request) {
     }
 });
 ```
-
-=
 
 ## How to emit events to multiple users?
 
@@ -247,8 +239,6 @@ document.querySelector('#enable-screen').onclick = function () {
 };
 ```
 
-=
-
 ## How to share files?
 
 ```javascript
@@ -256,8 +246,6 @@ document.querySelector('input[type=file]').onchange = function () {
     user.peers.emit('add-file', this.files);
 };
 ```
-
-=
 
 ## How to check if target user added file?
 
@@ -269,8 +257,6 @@ conversation.on('add-file', function (file) {
 });
 ```
 
-=
-
 ## How to check file-download progress?
 
 ```javascript
@@ -281,8 +267,6 @@ conversation.on('file-progress', function (progress) {
 });
 ```
 
-=
-
 ## How to save downloaded file to disk?
 
 ```javascript
@@ -291,8 +275,6 @@ conversation.on('file-downloaded', function (file) {
     file.savetodisk();
 });
 ```
-
-=
 
 ## How to check if file is successfully sent?
 
@@ -303,8 +285,6 @@ conversation.on('file-sent', function (file) {
 });
 ```
 
-=
-
 ## How to check if target user refused to receive your file?
 
 ```javascript
@@ -314,18 +294,20 @@ conversation.on('file-cancelled', function (file) {
 });
 ```
 
-=
+## Demos
 
-## [Demos](https://www.rtcmulticonnection.org/conversationjs/demos/)
+* https://www.rtcmulticonnection.org/conversationjs/demos/
 
-See nested directory `./demos/` for list of all available demos.
+## Credits
 
-1. AndroidRTC
-2. demos/search-user.html
-3. demos/cross-language-chat.html
+[Muaz Khan](https://github.com/muaz-khan):
 
-=
+1. Personal Webpage: http://www.muazkhan.com
+2. Email: muazkh@gmail.com
+3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
+4. Google+: https://plus.google.com/+WebRTC-Experiment
+5. Facebook: https://www.facebook.com/WebRTC
 
 ## License
 
-[Conversation.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Conversation.js) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[Conversation.js](https://github.com/muaz-khan/Conversation.js) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

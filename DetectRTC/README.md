@@ -1,90 +1,83 @@
-## [DetectRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC) / Detect <a href="https://www.webrtc-experiment.com/">WebRTC</a> features!
+## [DetectRTC.js](https://github.com/muaz-khan/DetectRTC) / [Demo](https://www.webrtc-experiment.com/DetectRTC/) [![npm](https://img.shields.io/npm/v/detectrtc.svg)](https://npmjs.org/package/detectrtc) [![downloads](https://img.shields.io/npm/dm/detectrtc.svg)](https://npmjs.org/package/detectrtc)
 
-> A library for detecting WebRTC features!
-> Demo: https://www.webrtc-experiment.com/DetectRTC/
+A tiny JavaScript library that can be used to detect WebRTC features e.g. system having speakers, microphone or webcam, screen capturing is supported, number of audio/video devices etc.
 
-<img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
+It is <a href="https://www.webrtc-experiment.com/licence/">MIT Licenced</a>, which means that you can use it in any commercial/non-commercial product, free of cost.
 
-=
+```
+npm install detectrtc
+```
 
-### How to use it?
+To use it:
+
+```htm
+<script src="./node_modules/detectrtc/DetectRTC.js"></script>
+```
+
+## Link the library
 
 ```html
 <script src="//cdn.webrtc-experiment.com/DetectRTC.js"></script>
 ```
 
-=
+<img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
 
-### Browser has Microphone?
+## How to use it?
 
-```javascript
-if(DetectRTC.hasMicrophone) {
-    alert('Your browser has microphone (audio input device!)!');
-}
+```html
+<script src="//cdn.webrtc-experiment.com/DetectRTC.js"></script>
 ```
 
-=
-
-### Browser has Webcam?
+## List of available detections
 
 ```javascript
-if(DetectRTC.hasWebcam) {
-    alert('Your browser has webcam (video output device!)!');
-}
+DetectRTC.load(function() {
+    // DetectRTC.hasWebcam (has webcam device!)
+    // DetectRTC.hasMicrophone (has microphone device!)
+    // DetectRTC.hasSpeakers (has speakers!)
+    // DetectRTC.isScreenCapturingSupported
+    // DetectRTC.isSctpDataChannelsSupported
+    // DetectRTC.isRtpDataChannelsSupported
+    // DetectRTC.isAudioContextSupported
+    // DetectRTC.isWebRTCSupported
+    // DetectRTC.isDesktopCapturingSupported
+    // DetectRTC.isMobileDevice
+    // DetectRTC.isWebSocketsSupported
+    
+    // DetectRTC.osName
+    
+    // DetectRTC.browser.name
+    // DetectRTC.browser.version
+    // DetectRTC.browser.isChrome
+    // DetectRTC.browser.isFirefox
+    // DetectRTC.browser.isOpera
+    // DetectRTC.browser.isIE
+    // DetectRTC.browser.isSafari
+
+    // DetectRTC.DetectLocalIPAddress(callback)
+});
 ```
 
-=
+## Why `load` method?
 
-### Browser Supports Screen Capturing?
+If you're not detecting audio/video input/outupt devices then you can skip this method.
 
-```javascript
-if(DetectRTC.isScreenCapturingSupported) {
-    alert('Your browser seems supporting screen capturing!');
-}
-```
+`DetectRTC.load` simply makes sure that all devices are captured and valid result is set for relevant properties.
 
-=
+## Demo
 
-### Browser Supports WebRTC?
+* https://www.webrtc-experiment.com/DetectRTC/
 
-```javascript
-if(DetectRTC.isWebRTCSupported) {
-    alert('Your browser seems supporting WebRTC!');
-}
-```
+## Credits
 
-=
+[Muaz Khan](https://github.com/muaz-khan):
 
-### Browser Supports WebAudio API?
+1. Personal Webpage: http://www.muazkhan.com
+2. Email: muazkh@gmail.com
+3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
+4. Google+: https://plus.google.com/+WebRTC-Experiment
+5. Facebook: https://www.facebook.com/WebRTC
 
-```javascript
-if(DetectRTC.isAudioContextSupported) {
-    alert('Your browser seems supporting WebAudio API!');
-}
-```
+## License
 
-=
-
-### Browser Supports SCTP Data Channels?
-
-```javascript
-if(DetectRTC.isSctpDataChannelsSupported) {
-    alert('Your browser seems supporting SCTP Data Channels!');
-}
-```
-
-=
-
-### Browser Supports RTP Data Channels?
-
-```javascript
-if(DetectRTC.isRtpDataChannelsSupported) {
-    alert('Your browser seems supporting RTP Data Channels!');
-}
-```
-
-=
-
-##### License
-
-[DetectRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[DetectRTC.js](https://github.com/muaz-khan/DetectRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

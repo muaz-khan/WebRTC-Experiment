@@ -28,9 +28,25 @@ npm install fbr
 
 To use it:
 
-```htm
+```html
 <script src="./node_modules/fbr/FileBufferReader.js"></script>
 ```
+
+## fbr-client
+
+You can even try socket.io file sharing client:
+
+```
+npm install fbr-client
+```
+
+Then run the server:
+
+```
+node ./node_modules/fbr-client/server.js
+```
+
+Then open: `http://localhost:8888/` or `http://local-ip:8888/`.
 
 ## FileBufferReader API
 
@@ -40,6 +56,7 @@ To use it:
 4. `onBegin`, `onEnd` and `onProgress` events. These are added only to support file progress bars.
 5. `addChunk` method. It allows you store all received chunks in an array until entire file is received.
 6. `convertToObject` method. FileBufferReader assumes that you're sending ArrayBuffer using WebRTC data channels. It means that you'll be getting ArrayBuffer type in the `onmessage` event. `convertToObject` method allows you convert ArrayBuffer into JavaScript object type, which is helpful to check type of message.
+7. `convertToArrayBuffer` method. You can pass javascript object or any data-type, and this method will return `ArrayBuffer`.
 
 ## 1. Link The Library
 
@@ -90,7 +107,7 @@ fileBufferReader.readAsArrayBuffer(file, function(uuid) {
 
 ```javascript
 var extra = {
-    chunkSize: 15 * 1000k, // Firefox' receiving limit is 16k
+    chunkSize: 15 * 1000, // Firefox' receiving limit is 16k
     senderUserName: 'someone',
     autoSaveToDisk: true,
     coords: {
@@ -180,6 +197,12 @@ var FileHelper = {
         updateLabel(helper.progress, helper.label);
     }
 };
+
+function updateLabel(progress, label) {
+    if (progress.position == -1) return;
+    var position = +progress.position.toFixed(2).split('.')[1] || 100;
+    label.innerHTML = position + '%';
+}
 
 fileBufferReader.onBegin    = FileHelper.onBegin;
 fileBufferReader.onProgress = FileHelper.onProgress;

@@ -1,4 +1,4 @@
-// Last time updated at Sep 20, 2014, 08:32:23
+// Last time updated at Sep 19, 2014, 08:32:23
 
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
@@ -13,17 +13,12 @@
 // Demos         - www.WebRTC-Experiment.com/RTCMultiConnection
 
 // _________________________
-// RTCMultiConnection-v2.1.9
+// RTCMultiConnection-v2.1.8
 
 /* issues/features need to be fixed & implemented:
 
 -. v2.0.* changes-log here: http://www.rtcmulticonnection.org/changes-log/#v2.0
 -. trello: https://trello.com/b/8bhi1G6n/rtcmulticonnection
-
--. fixed: session={data:true} must not having audio/video media lines
--. Ref: https://trello.com/c/yk2BSREE/62-session-data-true-must-not-having-audio-video-media-lines
-
--. onleave is "merely" fired once for each user
 
 -. sync:false added for "connection.streams['streamid'].mute" method. 
 -. Ref: https://trello.com/c/zAr3yFXg/60-sync-false-added-for-mute-method
@@ -369,8 +364,8 @@
                 video: {
                     mandatory: {
                         chromeMediaSource: DetectRTC.screen.chromeMediaSource,
-                        maxWidth: screen.width > 1920 ? screen.width : 1920,
-                        maxHeight: screen.height > 1080 ? screen.height : 1080
+                        maxWidth: 1920,
+                        maxHeight: 1080
                     },
                     optional: []
                 }
@@ -1007,7 +1002,7 @@
         var rtcMultiSession = this;
         var participants = {};
 
-        if (!rtcMultiSession.fileBufferReader && connection.session.data) {
+        if (!rtcMultiSession.fileBufferReader) {
             initFileBufferReader(connection, function(fbr) {
                 rtcMultiSession.fileBufferReader = fbr;
             });
@@ -1971,11 +1966,11 @@
 
                     connection.remove(response.userid);
 
-                    onLeaveHandler({
+                    connection.onleave({
                         userid: response.userid,
-                        extra: response.extra || {},
+                        extra: response.extra,
                         entireSessionClosed: !!response.closeEntireSession
-                    }, connection);
+                    });
                 }
 
                 // keeping session active even if initiator leaves
@@ -2257,7 +2252,7 @@
 
             var alertMessage = {
                 left: true,
-                extra: connection.extra || {},
+                extra: connection.extra,
                 userid: connection.userid,
                 sessionid: connection.sessionid
             };
@@ -3368,11 +3363,6 @@
                         OfferToReceiveVideo: !!this.session.video || !!this.session.screen
                     }
                 };
-                
-                if(isData(this.session)) {
-                    this.constraints.mandatory.OfferToReceiveAudio = false;
-                    this.constraints.mandatory.OfferToReceiveVideo = false;
-                }
 
                 if (this.constraints.mandatory) {
                     log('sdp-mandatory-constraints', toStr(this.constraints.mandatory));
@@ -4196,13 +4186,6 @@
         if (onStreamEndedHandlerFiredFor[streamedObject.streamid]) return;
         onStreamEndedHandlerFiredFor[streamedObject.streamid] = streamedObject;
         connection.onstreamended(streamedObject);
-    }
-    
-    var onLeaveHandlerFiredFor = {};
-    function onLeaveHandler(event, connection) {
-        if(onLeaveHandlerFiredFor[event.userid]) return;
-        onLeaveHandlerFiredFor[event.userid] = event;
-        connection.onleave(event);
     }
 
     function invokeMediaCaptured(connection) {

@@ -86,26 +86,62 @@
             <div class="github-stargazers"></div>
             
             <section class="experiment">
-                <img src="//cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
+                <h2 id="welcome">Detect WebRTC!</h2>
                 <table id="browser-features"></table>
+                
+                <img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
             </section>
             
             <script>
                 var browserFeaturesTable = document.querySelector('#browser-features');
                 function appendTR(firstValue, secondValue) {
                     var tr = document.createElement('tr');
-                    tr.innerHTML = '<td style="width:90%;">' + firstValue + '</td><td>' + secondValue + '</td>';
+                    tr.innerHTML = '<td>' + firstValue + '</td><td>' + secondValue + '</td>';
                     browserFeaturesTable.appendChild(tr);
                 }
                 
-                window.onload = function() {
-                    appendTR('Browser has Microphone?', DetectRTC.hasMicrophone);
-                    appendTR('Browser has Webcam?', DetectRTC.hasWebcam);appendTR('Browser Supports Screen Capturing?', DetectRTC.isScreenCapturingSupported);
-                    appendTR('Browser Supports WebRTC?', DetectRTC.isWebRTCSupported);
-                    appendTR('Browser Supports WebAudio API?', DetectRTC.isAudioContextSupported);
-                    appendTR('Browser Supports SCTP Data Channels?', DetectRTC.isSctpDataChannelsSupported);
-                    appendTR('Browser Supports RTP Data Channels?', DetectRTC.isRtpDataChannelsSupported);
-                };
+                function printVal(value) {
+                    return value == true ? 'Yep' : value == false ? 'Nope' : value;
+                }
+                
+                    DetectRTC.load(function() {
+                        appendTR('System has Speakers?', printVal(DetectRTC.hasSpeakers));
+                        appendTR('System has Microphone?', printVal(DetectRTC.hasMicrophone));
+                        appendTR('System has Webcam?', printVal(DetectRTC.hasWebcam));
+                        appendTR('Browser Supports Screen Capturing?', printVal(DetectRTC.isScreenCapturingSupported));
+                        appendTR('Browser Supports WebRTC?', printVal(DetectRTC.isWebRTCSupported));
+                        appendTR('Browser Supports WebAudio API?', printVal(DetectRTC.isAudioContextSupported));
+                        appendTR('Browser Supports SCTP Data Channels?', printVal(DetectRTC.isSctpDataChannelsSupported));
+                        appendTR('Browser Supports RTP Data Channels?', printVal(DetectRTC.isRtpDataChannelsSupported));
+                       
+                        appendTR('Browser Supports desktopCapture API?', printVal(DetectRTC.isDesktopCapturingSupported));
+                        appendTR('Browser Supports Screen Capturing API?', printVal(DetectRTC.isScreenCapturingSupported));
+                        appendTR('Is it mobile device?', printVal(DetectRTC.isMobileDevice));
+                        appendTR('Browser Supports WebSockets?', printVal(DetectRTC.isWebSocketsSupported));
+                        
+                        document.getElementById('welcome').innerHTML = DetectRTC.osName + ': ' + DetectRTC.browser.name + ' (version: ' + DetectRTC.browser.version + ')';
+                    
+                        var rightSide = '';
+                        var audioDevices = [];
+                        var videoDevices = [];
+                        DetectRTC.MediaDevices.forEach(function(device) {
+                            if(device.kind == 'audio' && audioDevices.indexOf(device.label) == -1) {
+                                audioDevices.push(device.label || 'unable to detect');
+                            }
+                            if(device.kind == 'video' && videoDevices.indexOf(device.label) == -1) {
+                                videoDevices.push(device.label || 'unable to detect');
+                            }
+                        });
+                        
+                        rightSide += '<h2>Audio Devices</h2><br>' + audioDevices.join('<br>');
+                        rightSide += '<br><br><h2>Video Devices</h2><br>' + videoDevices.join('<br>');
+                        
+                        appendTR(audioDevices.length + ' audio and ' + videoDevices.length + ' video devices', rightSide);
+                        
+                        DetectRTC.DetectLocalIPAddress(function(ipAddress) {
+                            appendTR('Your Local IP Address', ipAddress);
+                        });
+                    });
             </script>
         
             <section class="experiment">
@@ -125,40 +161,31 @@
             </section>
             <section class="experiment">
                 <pre>
-// Browser has Microphone?
-if(DetectRTC.hasMicrophone) {
-    alert('Your browser has microphone (audio input device!)!');
-}
+DetectRTC.load(function() {
+    // DetectRTC.hasWebcam (has webcam device!)
+    // DetectRTC.hasMicrophone (has microphone device!)
+    // DetectRTC.hasSpeakers (has speakers!)
+    // DetectRTC.isScreenCapturingSupported
+    // DetectRTC.isSctpDataChannelsSupported
+    // DetectRTC.isRtpDataChannelsSupported
+    // DetectRTC.isAudioContextSupported
+    // DetectRTC.isWebRTCSupported
+    // DetectRTC.isDesktopCapturingSupported
+    // DetectRTC.isMobileDevice
+    // DetectRTC.isWebSocketsSupported
+    
+    // DetectRTC.osName
+    
+    // DetectRTC.browser.name
+    // DetectRTC.browser.version
+    // DetectRTC.browser.isChrome
+    // DetectRTC.browser.isFirefox
+    // DetectRTC.browser.isOpera
+    // DetectRTC.browser.isIE
+    // DetectRTC.browser.isSafari
 
-// Browser has Webcam?
-if(DetectRTC.hasWebcam) {
-    alert('Your browser has webcam (video output device!)!');
-}
-
-// Browser Supports Screen Capturing?
-if(DetectRTC.isScreenCapturingSupported) {
-    alert('Your browser seems supporting screen capturing!');
-}
-
-// Browser Supports WebRTC?
-if(DetectRTC.isWebRTCSupported) {
-    alert('Your browser seems supporting WebRTC!');
-}
-
-// Browser Supports WebAudio API?
-if(DetectRTC.isAudioContextSupported) {
-    alert('Your browser seems supporting WebAudio API!');
-}
-
-// Browser Supports SCTP Data Channels?
-if(DetectRTC.isSctpDataChannelsSupported) {
-    alert('Your browser seems supporting SCTP Data Channels!');
-}
-
-// Browser Supports RTP Data Channels?
-if(DetectRTC.isRtpDataChannelsSupported) {
-    alert('Your browser seems supporting RTP Data Channels!');
-}
+    // DetectRTC.DetectLocalIPAddress(callback)
+});
 </pre>
 
             </section>

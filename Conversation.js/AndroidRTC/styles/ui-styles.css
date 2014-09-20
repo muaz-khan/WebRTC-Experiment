@@ -62,6 +62,7 @@ header {
     font-size: 30px;
     background: transparent;
     color: black;
+    width: 100%;
 }
 
 .icon {
@@ -84,6 +85,9 @@ header {
 
 .search-user {
     background-image: url('../images/search-user.png');
+    position: absolute;
+    margin-top: 26px;
+    margin-left: -47px;
 }   
 
 .setttings {
@@ -141,6 +145,24 @@ header {
     border-left: 1px solid rgb(158, 157, 157);
     margin-left: -1px;
     padding-left: 10px;
+}
+.conversation .message button {
+    font-size: 13px;
+    padding: 0 7px;
+    height: 16px;
+    cursor: pointer;
+    background: rgb(253, 253, 255);
+    border: 1px solid rgb(226, 43, 43);
+    border-radius: 2px;
+    margin: 0 5px;
+}
+
+.conversation .message button[disabled] {
+    cursor: default;
+    background: transparent;
+    border: 1px solid rgb(219, 208, 208);
+    border-radius: 0;
+    color: rgb(219, 208, 208);
 }
 
 .conversation .message input {

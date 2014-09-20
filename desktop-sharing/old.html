@@ -2,7 +2,7 @@
 <html id="home" lang="en">
 
     <head>
-        <title>WebRTC Desktop Viewer ® Muaz Khan</title>
+        <title>WebRTC Desktop/Screen Sharing & Broadcasting ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -10,16 +10,22 @@
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
-        <style>video {max-width: 100%;}</style>
-        <script src="//cdn.webrtc-experiment.com/RTCMultiConnection-v2.1.9.js"> </script>
+        <style>video {width: 100%;}</style>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+        
+        <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/nkemblooioekjnpfekmjhpgkackcajhg">
+        
+        <script src="//cdn.webrtc-experiment.com/RTCMultiConnection-v1.9.js"> </script>
     </head>
 
     <body>
         <article>
             <header style="text-align: center;">
-                <h1>
-                    <a href="https://github.com/muaz-khan/Chrome-Extensions">WebRTC Desktop Viewer</a>
-                </h1>
+                <h1>WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing" target="_blank">Desktop/Screen</a> Sharing & Broadcasting</h1>
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
                     <span> &copy; </span>
@@ -38,16 +44,7 @@
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
-            
             <div class="github-stargazers"></div>
-            
-            <blockquote class="inline">
-                If URL is having "sessionid" parameters, it means that 
-                a private unique room has been opened for you.<br><br>
-                
-                This page will be joining that unique room.<br>
-                You can <a href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg">Install Chrome Extension</a>! It will allow you share your own screens as well!
-            </blockquote>
 		
             <div class="experiment" id="participants"></div>
 
@@ -74,48 +71,14 @@
                 // http://www.rtcmulticonnection.org/docs/bandwidth/
                 connection.bandwidth = {};
                 
-                var ol = document.createElement('ol');
-                document.getElementById('participants').appendChild(ol);
                 // http://www.rtcmulticonnection.org/docs/onstatechange/
-                connection.onstatechange = function (stat) {
-                    var li = document.createElement('li');
-                    li.innerHTML = '<h2>' + stat.name + '</h2><p>' + stat.reason + '</p>';
-                    ol.insertBefore(li, ol.firstChild);
-                };
-                
-                connection.ondisconnected = function(event) {
-                    var li = document.createElement('li');
-                    li.innerHTML = '<h2>Peer Connection Disconnected</h2><p>Peer connection seems has been disconnected between you and ' + event.userid + '</p>';
-                    ol.insertBefore(li, ol.firstChild);
-                };
-                
-                var defaultOnFailed = connection.onfailed;
-                connection.onfailed = function(event) {
-                    var li = document.createElement('li');
-                    li.innerHTML = '<h2>Peer Connection Disconnected</h2><p>ICE connectivity check is failed between you and ' + event.userid + '</p>';
-                    ol.insertBefore(li, ol.firstChild);
-                    
-                    // default implementation auto redials or renegotiates
-                    defaultOnFailed(event);
-                };
-                
-                var logsOL = document.createElement('ol');
-                document.getElementById('participants').appendChild(logsOL);
-                // http://www.rtcmulticonnection.org/docs/#onlog
-                connection.onlog = function (log) {
-                    var li = document.createElement('li');
-                    
-                    // to handle messages like "Uncaught TypeError: Converting circular structure to JSON"
-                    try {
-                        log = JSON.stringify(log, null, '\r\r').replace(/\\r\\n/g, '<br />');
-                    }
-                    catch(e) {}
-                    
-                    li.innerHTML = log;
-                    logsOL.insertBefore(li, logsOL.firstChild);
+                connection.onstatechange = function (state) {
+                    var div = document.createElement('div');
+                    div.innerHTML = '<h2>' + state + '</h2>';
+                    participants.appendChild(div);
                 };
 
-                // using websockets as signaling medium
+                // overriding for websockets
                 // http://www.rtcmulticonnection.org/docs/openSignalingChannel/
                 connection.openSignalingChannel = openSignalingChannel;
 
@@ -128,7 +91,7 @@
                 };
                 
                 var sessionDescription = {
-                    userid: params.sessionid,
+                    userid: params.userid,
                     extra: {},
                     session: {
                         video: true,
@@ -137,7 +100,7 @@
                     sessionid: params.sessionid
                 };
                 
-                if(params.sessionid) {
+                if(params.userid && params.sessionid) {
                     // http://www.rtcmulticonnection.org/docs/join/
                     connection.join(sessionDescription);
                 }
@@ -154,7 +117,7 @@
                         if (config.callback) config.callback(websocket);
                     };
                     websocket.onerror = function() {
-                        location.reload();
+                        alert('Unable to connect to wss://www.webrtc-experiment.com:8563');
                     };
                     websocket.onmessage = function (event) {
                         config.onmessage(JSON.parse(event.data));
@@ -168,6 +131,38 @@
                     };
                 }
             </script>
+            
+            <section class="experiment">
+                <h2>Prerequisites</h2>
+                <ol>
+                    <li>
+                        <a href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg" target="_blank">Install chrome extension</a>.
+                        <button id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
+                            <img src="https://cdn.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
+                        </button>
+                        
+                        <script>
+                            document.getElementById('install-button').onclick = function () {
+                                !!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/nkemblooioekjnpfekmjhpgkackcajhg', function () {
+                                    alert('Chrome Extension is installed.');
+                                }, function (error) {
+                                    alert(error);
+                                    window.open('https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg');
+                                });
+                            };
+                            
+                            var image = document.createElement('img');
+                            image.src = 'chrome-extension://nkemblooioekjnpfekmjhpgkackcajhg/images/desktopCapture48.png';
+                            image.onload = function () {
+                                document.getElementById('install-button').parentNode.innerHTML = '<strong>Great!</strong> <a href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg" target="_blank">Google chrome extension</a> is installed.';
+                            };
+                            image.onerror = function () {
+                                // alert('Chrome extension is not installed.');
+                            };
+                        </script>
+                    </li>
+                </ol>
+            </section>
             
             <br /><br />
             <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">

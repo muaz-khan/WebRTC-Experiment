@@ -1,13 +1,13 @@
 {
 	"name" : "WebRTC Desktop Sharing",
     "author": "Muaz Khan",
-	"version" : "1.1",
+	"version" : "1.2",
 	"manifest_version" : 2,
     "minimum_chrome_version": "34",
 	"description" : "Using WebRTC desktop-capturing API to share screen of any application or entire screen or screen of any chrome tab.",
     "homepage_url": "https://www.webrtc-experiment.com/",
 	"background": {
-		"scripts": ["RTCMultiConnection-v1.9.js", "desktop-capturing.js"],
+		"scripts": ["RTCMultiConnection-v2.1.9.js", "desktop-capturing.js"],
 		"persistent": false
 	},
 	"browser_action" : {

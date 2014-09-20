@@ -1,10 +1,29 @@
 {
   "name": "AndroidRTC",
-  "description": "AndroidRTC uses WebRTC standards to bring realtime p2p connections!",
-  "version": "0.0.0.1",
+  "description": "AndroidRTC is using WebRTC standards to bring realtime [secure] p2p connections!",
+  "version": "0.0.0.3",
   "app": {
     "main": {
-        "scripts": []
+        "scripts": [
+            "scripts/socket.io.js",
+            "scripts/RTCMultiConnection.js",
+            "scripts/FileBufferReader.js",
+            "scripts/conversation.js",
+            "scripts/common-signaling.js",
+            "scripts/ui-handler.js",
+            "styles/ui-styles.css",
+            "fonts/MyriadPro-Bold.otf",
+            "fonts/MyriadPro-Light.otf",
+            "fonts/MyriadPro-Regular.otf",
+            "images/camera.png",
+            "images/loader.gif",
+            "images/logo.png",
+            "images/microphone.png",
+            "images/search-user.png",
+            "images/send-message.png",
+            "images/settings.png",
+            "images/share-files.png"
+        ]
     },
     "launch":{
       "local_path": "index.html"

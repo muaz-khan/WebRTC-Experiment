@@ -27,7 +27,7 @@ It isn't totally pluginfree (unfortunately)! You'll be asked either to enable co
     <li>
         Otherwise make sure you are running the chrome with command line flag "<strong><a href="http://peter.sh/experiments/chromium-command-line-switches/#enable-usermedia-screen-capturing">--enable-usermedia-screen-capturing</a></strong>" e.g. on Windows "<strong>Chrome.exe --enable-usermedia-screen-capturing</strong>"
         <div style="text-align:center;">
-            <img src="//cdn.webrtc-experiment.com/images/--enable-usermedia-screen-capturing.png" style="max-width: 100%;">
+            <img src="https://cdn.webrtc-experiment.com/images/--enable-usermedia-screen-capturing.png" style="max-width: 100%;">
         </div>
     </li>
 </ol>

@@ -13,7 +13,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
         
         <style>
             audio {
@@ -50,7 +50,7 @@
         </script>
         
         <!-- script used for audio/video/gif recording -->
-        <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"> </script>
     </head>
 
     <body>
@@ -219,8 +219,9 @@
                     fileName = Math.round(Math.random() * 99999999) + 99999999;
                     
                     if(!isFirefox) {
-                        recordAudio.stopRecording();
-                        PostBlob(recordAudio.getBlob(), 'audio', fileName + '.wav');
+                        recordAudio.stopRecording(function() {
+                            PostBlob(recordAudio.getBlob(), 'audio', fileName + '.wav');
+                        });
                     }
                     else {
                         recordAudio.stopRecording( function(url) {
@@ -230,8 +231,9 @@
                     }
 
                     if(!isFirefox) {
-                        recordVideo.stopRecording();
-                        PostBlob(recordVideo.getBlob(), 'video', fileName + '.webm');
+                        recordVideo.stopRecording(function() {
+                            PostBlob(recordVideo.getBlob(), 'video', fileName + '.webm');
+                        });
                     }
 
                     deleteFiles.disabled = false;
@@ -471,6 +473,6 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

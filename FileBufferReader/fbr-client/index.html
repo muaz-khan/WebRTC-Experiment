@@ -1,0 +1,225 @@
+﻿<title>FileBufferReader | Socket.io</title>
+
+<h1>FileBufferReader | Socket.io - <a href="https://github.com/muaz-khan/FileBufferReader">Source Code</a></h1>
+
+<blockquote>
+    FileBufferReader is a JavaScript library reads file and returns chunkified array-buffers. The resulting buffers can be shared using WebRTC data channels or socket.io.
+</blockquote>
+
+<style>
+button {
+    font-family: Myriad, Arial, Verdana;
+    font-weight: normal;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    padding: 4px 12px;
+    text-decoration: none;
+    color: rgb(27, 26, 26);
+    display: inline-block;
+    box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+    text-shadow: none;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
+    font-size: 20px;
+    border: 1px solid red;
+}
+button[disabled] {
+    background: rgba(216, 205, 205, 0.2);
+    border: 1px solid rgb(233, 224, 224);
+}
+blockquote {
+    font-size: 20px;
+    color: rgb(172, 10, 10);
+    border: 1px solid rgb(172, 10, 10);
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin: 9px 10px;
+}
+span {
+    border: 1px dotted red;
+    background: yellow;
+    padding: 0 5px;
+}
+</style>
+
+<hr />
+<button id="select-file">Select & Read File</button>
+<button id="share-file" disabled>Share File</button>
+<hr />
+
+<script src="/socket.io/socket.io.js" autoplay> </script>
+<script src="/fbr/FileBufferReader.js" autoplay> </script>
+
+<script>
+var socket = io.connect();
+
+var fileBufferReader = new FileBufferReader();
+var fileSelector = new FileSelector();
+
+function onFileSent() {
+    document.getElementById('select-file').disabled = false;
+    document.getElementById('share-file').disabled  = true;
+}
+
+document.getElementById('select-file').onclick = function() {    
+    this.disabled = true;
+    
+    fileSelector.selectSingleFile(function(file) {
+        fileBufferReader.readAsArrayBuffer(file, function(uuid) {
+            document.getElementById('share-file').setAttribute('data-uuid', uuid);
+            document.getElementById('share-file').disabled = false;
+        });
+    });
+};
+
+document.getElementById('share-file').onclick = function() {
+    this.disabled = true;
+    
+    var uuid = this.getAttribute('data-uuid');
+    fileBufferReader.getNextChunk(uuid, function(nextChunk, isLastChunk) {
+        if (isLastChunk) {
+            onFileSent();
+        }
+        
+        socket.emit('buffer-stream', nextChunk);
+    });
+};
+
+socket.on('buffer-stream', onBufferStream);
+
+function onBufferStream(chunk) {
+    if (chunk instanceof ArrayBuffer || chunk instanceof DataView) {
+        // need to convert data back into JavaScript objects
+        fileBufferReader.convertToObject(chunk, onBufferStream);
+        return;
+    }
+    
+    // if you passed "extra-data", you can access it here:
+    // chunk.extra.senderUserName or whatever else
+
+    // if target peer requested next chunk
+    if (chunk.readyForNextChunk) {
+        fileBufferReader.getNextChunk(chunk.uuid, function(nextChunk, isLastChunk) {
+            if (isLastChunk) {
+                onFileSent();
+            }
+            
+            socket.emit('buffer-stream', nextChunk);
+        });
+        return;
+    }
+
+    // if chunk is received
+    fileBufferReader.addChunk(chunk, function(promptNextChunk) {
+        // request next chunk
+        socket.emit('buffer-stream', promptNextChunk);
+    });
+}
+
+var progressHelper = {};
+var outputPanel = document.body;
+
+var FileHelper = {
+    onBegin: function(file) {
+        // if you passed "extra-data", you can access it here:
+        // file.extra.senderUserName or whatever else
+
+        var li = document.createElement('li');
+        li.title = file.name;
+        li.innerHTML = '<label>0%</label> <progress></progress>';
+        outputPanel.insertBefore(li, outputPanel.firstChild);
+        progressHelper[file.uuid] = {
+            li: li,
+            progress: li.querySelector('progress'),
+            label: li.querySelector('label')
+        };
+        progressHelper[file.uuid].progress.max = file.maxChunks;
+    },
+    onEnd: function(file) {
+        // if you passed "extra-data", you can access it here:
+        // file.extra.senderUserName or whatever else
+
+        progressHelper[file.uuid].li.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
+    },
+    onProgress: function(chunk) {
+        // if you passed "extra-data", you can access it here:
+        // chunk.extra.senderUserName or whatever else
+
+        var helper = progressHelper[chunk.uuid];
+        helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
+        updateLabel(helper.progress, helper.label);
+    }
+};
+
+function updateLabel(progress, label) {
+    if (progress.position == -1) return;
+    var position = +progress.position.toFixed(2).split('.')[1] || 100;
+    label.innerHTML = position + '%';
+}
+
+fileBufferReader.onBegin    = FileHelper.onBegin;
+fileBufferReader.onProgress = FileHelper.onProgress;
+fileBufferReader.onEnd      = FileHelper.onEnd;
+</script>
+
+<h2>How to use?</h2>
+<pre>
+// https://cdn.webrtc-experiment.com/FileBufferReader.js
+// or: npm install fbr
+
+var fileBufferReader = new FileBufferReader();
+
+fileBufferReader.readAsArrayBuffer(file, function(uuid) {
+    // var file         = fileBufferReader.chunks[uuid];
+    // var listOfChunks = file.listOfChunks;
+
+    // get first chunk, and send using WebRTC data channels
+    // NEVER send chunks in loop; otherwise you'll face issues in slow networks
+    // remote peer should notify if it is ready for next chunk
+    fileBufferReader.getNextChunk(uuid, function(nextChunk, isLastChunk) {
+        if(isLastChunk) {
+            alert('File Successfully sent.');
+        }
+        // sending using WebRTC data channels
+        datachannel.send(nextChunk);
+    });
+});
+
+datachannel.onmessage = function(event) {
+    var chunk = event.data;
+
+    if (chunk instanceof ArrayBuffer || chunk instanceof DataView) {
+        // array buffers are passed using WebRTC data channels
+        // need to convert data back into JavaScript objects
+
+        fileBufferReader.convertToObject(chunk, function(object) {
+            datachannel.onmessage({
+                data: object
+            });
+        });
+        return;
+    }
+
+    // if you passed "extra-data", you can access it here:
+    // chunk.extra.senderUserName or whatever else
+
+    // if target peer requested next chunk
+    if(chunk.readyForNextChunk) {
+        fileBufferReader.getNextChunk(chunk.uuid, function(nextChunk, isLastChunk) {
+            if(isLastChunk) {
+                alert('File Successfully sent.');
+            }
+            // sending using WebRTC data channels
+            datachannel.send(nextChunk);
+        });
+        return;
+    }
+
+    // if chunk is received
+    fileBufferReader.addChunk(chunk, function(promptNextChunk) {
+        // request next chunk
+        datachannel.send(promptNextChunk);
+    });
+};
+</pre>

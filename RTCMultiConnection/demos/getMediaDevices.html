@@ -59,7 +59,7 @@
         </script>
         
         <!-- currently only v2+ are supporting "enumerateDevices" method. -->
-        <script src="//cdn.webrtc-experiment.com/RTCMultiConnection-v2.0.js"></script>
+        <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
     </head>
 
     <body>
@@ -99,8 +99,6 @@
         
             <script>
                 var connection = new RTCMultiConnection();
-                
-                connection.preventSSLAutoAllowed           = false;
                 connection.setDefaultEventsForMediaElement = false;
 
                 connection.enumerateDevices(function (devices) {
