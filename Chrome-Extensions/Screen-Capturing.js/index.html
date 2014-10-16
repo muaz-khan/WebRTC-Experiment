@@ -1,0 +1,300 @@
+﻿
+<!--
+> Muaz Khan       - wwww.MuazKhan.com
+> MIT License     - www.WebRTC-Experiment.com/licence
+> Documentation   - https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js
+-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Screen-Capturing.js » Chrome Extension Direct Usage ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        
+        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+        
+        <style>
+            audio, video {
+                -moz-transition: all 1s ease;
+                -ms-transition: all 1s ease;
+                
+                -o-transition: all 1s ease;
+                -webkit-transition: all 1s ease;
+                transition: all 1s ease;
+                vertical-align: top;
+            }
+
+            input {
+                border: 1px solid #d9d9d9;
+                border-radius: 1px;
+                font-size: 2em;
+                margin: .2em;
+                width: 30%;
+            }
+
+            .setup {
+                border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
+                font-size: 102%;
+                height: 47px;
+                margin-left: -9px;
+                margin-top: 8px;
+                position: absolute;
+            }
+
+            p { padding: 1em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+        </style>
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+        
+        <!-- scripts used for screen capturing -->
+        <script src="//cdn.webrtc-experiment.com/Screen-Capturing.js"> </script>
+        
+        <!-- syntax highlighting -->
+        <script src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js" type="text/javascript"> </script>
+        <script src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js" type="text/javascript"> </script>
+        <link href="https://cdn.webrtc-experiment.com/syntax/sh_style.css" type="text/css" rel="stylesheet">
+    </head>
+
+    <body onload="sh_highlightDocument();">
+        <article>
+            <header style="text-align: center;">
+                <h1>
+                    <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js">Screen-Capturing.js</a> » Chrome Extension Direct Usage
+                    ® 
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+                </h1>            
+                <p>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                </p>
+            </header>
+
+            <div class="github-stargazers"></div>
+        
+            <!-- just copy this <section> and next script -->
+            <section class="experiment">                
+                <video controls style="max-width: 80%;"></video>
+                <hr>
+                You can click any button. Each button explains usage of a unique method:
+                <ol>
+                    <li>
+                        <button id="getSourceId">getSourceId</button> » Simply get "chromeMediaSourceId" from chrome extension. 
+                    </li>
+                    
+                    <li>
+                        <button id="getScreenConstraints" style="max-width: 100%;overflow: auto;">getScreenConstraints</button> » Get customized screen constraints.
+                    </li>
+                    
+                    <li>
+                        <button id="getChromeExtensionStatus">getChromeExtensionStatus</button> » Recommended method to detect presence of chrome extension.
+                    </li>
+                    
+                    <li>
+                        <button id="isChromeExtensionAvailable">isChromeExtensionAvailable</button> » Not recommended; check if chrome extension is installed and available.
+                    </li>
+                    
+                    <li>
+                        <button id="getUserMedia">getUserMedia</button> » Render screen in a &lt;video&gt; element.
+                    </li>
+                </ol>
+            </section>
+            
+            <blockquote class="inline">
+                You can download chrome extension's full source-code from <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture">this link</a>
+                and then you need to modify "manifest.json" to add your domain name (DNS) and last step is 
+                simply <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture#how-to-publish-yourself">make ZIP</a> which should be <a href="https://developer.chrome.com/webstore/publish">deployed to Google AppStore</a>.<br><br>
+                Though, you always having options to make CRX file or directly link the directory in developer mode however
+                Google AppStore is preferred option.<br><br>
+                Then you can use <a href="https://cdn.webrtc-experiment.com/Screen-Capturing.js">this JavaScript file</a>  in your own 
+                project/demo/library and enjoy fast/direct capturing of the selected content's frames.<br><br>
+                
+                <ol>
+                    <li>
+                        <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">Google AppStore deployed extension</a>
+                    </li>
+                    
+                    <li>
+                        <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture">Source code of the extension</a>
+                    </li>
+                    
+                    <li>
+                        <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js">Source code of Screen-Capturing.js</a>
+                    </li>
+                </ol>
+                
+                <h2>If I don't want to deploy to Google AppStore?</h2><br><br>
+                You can try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js">getScreenId.js</a> which simply uses an iframe-hack to 
+                fetch "sourceId" from "www.webrtc-experiment.com" domain. Simply link the library, and use it without any single installation!
+            </blockquote>
+        
+            <script>
+                document.querySelector('#getSourceId').onclick =  function() {
+                    this.disabled=true;
+                    
+                    getSourceId(function(sourceId) {
+                        document.querySelector('#getSourceId').innerHTML = 'SourceId: ' + sourceId;
+                    });
+                };
+
+                document.querySelector('#getScreenConstraints').onclick =  function() {
+                    this.disabled=true;
+                    getScreenConstraints(function(error, screen_constraints) {
+                        if(error) {
+                            return alert(error);
+                        }
+                        document.querySelector('#getScreenConstraints').innerHTML = 'Screen Constraints: ' + JSON.stringify(screen_constraints);
+                    });
+                };
+
+                document.querySelector('#isChromeExtensionAvailable').onclick =  function() {
+                    this.disabled=true;
+                    isChromeExtensionAvailable(function(isAvailable) {
+                        document.querySelector('#isChromeExtensionAvailable').innerHTML = 'Is Chrome Extension Available: ' + isAvailable;
+                    });
+                };
+
+                document.querySelector('#getUserMedia').onclick =  function() {
+                    this.disabled=true;
+                    getScreenConstraints(function(error, screen_constraints) {
+                        if(error) {
+                            return alert(error);
+                        }
+                        
+                        console.log('screen_constraints', screen_constraints);
+                        
+                        navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                        navigator.getUserMedia({ video: screen_constraints }, function(stream) {
+                            var video = document.querySelector('video');
+                            video.src = URL.createObjectURL(stream);
+                            video.play();
+                        }, function(error) {
+                            alert(JSON.stringify(error, null, '\t'));
+                        });
+                    });
+                };
+
+                document.querySelector('#getChromeExtensionStatus').onclick =  function() {
+                    this.disabled=true;
+                    
+                    getChromeExtensionStatus(function(status) {
+                        document.querySelector('#getChromeExtensionStatus').innerHTML = 'Status: ' + status;
+                    });
+                };
+
+                // Firefox is ugly enough :)
+                window.onbeforeunload = function() {
+                    document.querySelector('#getScreenConstraints').disabled=false;
+                };
+            </script>
+        
+            <section class="experiment">
+                <h2 class="header">How to use <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js">Screen-Capturing.js</a>?</h2>
+                <pre class="sh_javascript">
+// cdn.webrtc-experiment.com/Screen-Capturing.js
+
+// advance users can directly use "getSourceId" method
+getSourceId(function(sourceId) {
+    if(sourceId != 'PermissionDeniedError') {
+        // your code here
+    }
+});
+
+// otherwise, you can use a helper method
+getScreenConstraints(function(error, screen_constraints) {
+    if (error) {
+        return alert(error);
+    }
+
+    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    navigator.webkitGetUserMedia({
+        video: screen_constraints
+    }, function(stream) {
+        var video = document.querySelector('video');
+        video.src = URL.createObjectURL(stream);
+        video.play();
+    }, function(error) {
+        alert(JSON.stringify(error, null, '\t'));
+    });
+});
+
+// if you want to check if chrome extension is installed and enabled
+isChromeExtensionAvailable(function(isAvailable) {
+    if(!isAvailable) alert('Chrome extension is either not installed or disabled.');
+});
+
+// instead of using "isChromeExtensionAvailable", you can use
+// a little bit more reliable method: "getChromeExtensionStatus"
+getChromeExtensionStatus('your-extension-id', function(status) {
+    if(status == 'installed-enabled') {
+        // chrome extension is installed & enabled.
+    }
+    
+    if(status == 'installed-disabled') {
+        // chrome extension is installed but disabled.
+    }
+    
+    if(status == 'not-installed') {
+        // chrome extension is not installed
+    }
+    
+    if(status == 'not-chrome') {
+        // using non-chrome browser
+    }
+});
+</pre>
+            </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+        </article>
+        
+        <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js" class="fork-left"></a>
+        
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+            </p>
+        </footer>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
+    </body>
+</html>

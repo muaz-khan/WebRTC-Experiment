@@ -117,6 +117,11 @@
                 connection.session = {
                     audio: true
                 };
+                
+                connection.sdpConstraints.mandatory = {
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: false
+                };
 
                 connection.onstream = function(e) {
                     audioContainer.insertBefore(e.mediaElement, audioContainer.firstChild);
@@ -182,7 +187,7 @@
             </section>
         </article>
 		
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" class="fork-left"></a>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection" class="fork-left"></a>
 	
         <footer>
             <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 

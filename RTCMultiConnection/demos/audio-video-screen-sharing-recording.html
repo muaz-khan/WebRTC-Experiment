@@ -1,0 +1,142 @@
+﻿<title>Audio/Video/Screen sharing and recording using RTCMultiConnection</title>
+<h1>Audio/Video/Screen sharing and recording using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection</a> / <a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/audio-video-screen-sharing-recording.html">Source Code</a></h1>
+
+<hr>
+<button id="openRoom">Open Room</button>
+<button id="joinRoom">Join Room</button>
+<button id="shareScreen" disabled>Share Screen</button>
+<button id="recordScreen" disabled>Record Screen</button>
+<button id="recordAudioVideo" disabled>Record Audio/Video</button>
+<hr>
+<div id="videos-container"></div>
+
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script> <!-- for p2p streaming -->
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"> </script>          <!-- for recording -->
+<script src="https://cdn.webrtc-experiment.com/firebase.js"> </script>           <!-- for signaling medium -->
+
+<script>
+// http://www.rtcmulticonnection.org/docs/constructor/
+var rmc = new RTCMultiConnection();
+
+rmc.body = document.getElementById('videos-container');
+
+// http://www.rtcmulticonnection.org/docs/#getExternalIceServers
+rmc.getExternalIceServers = false;
+
+document.getElementById('openRoom').onclick = function() {
+    // http://www.rtcmulticonnection.org/docs/open/
+    rmc.open();
+};
+
+document.getElementById('joinRoom').onclick = function() {
+    // http://www.rtcmulticonnection.org/docs/connect/
+    rmc.connect();
+};
+
+rmc.onMediaCaptured = function() {
+    document.getElementById('shareScreen').disabled = false;
+    document.getElementById('recordAudioVideo').disabled = false;
+    
+    document.getElementById('openRoom').disabled = true;
+    document.getElementById('joinRoom').disabled = true;
+};
+
+document.getElementById('shareScreen').onclick = function() {
+    // http://www.rtcmulticonnection.org/docs/addStream/
+    rmc.addStream({
+        screen: true,
+        oneway: true
+    });
+    
+    document.getElementById('recordScreen').disabled = false;
+};
+
+document.getElementById('recordScreen').onclick = function() {
+    // http://www.rtcmulticonnection.org/docs/streams/
+    var localScreenStream = rmc.streams.selectFirst({
+        screen: true,
+        local: true
+    });
+
+    if (!localScreenStream) return;
+
+    var recordingSession = {
+        video: true
+    };
+    
+    var button = this;
+
+    if (button.innerHTML == 'Record Screen') {
+        button.innerHTML = 'Stop Screen Recording';
+        
+        // http://www.rtcmulticonnection.org/docs/startRecording/
+        localScreenStream.startRecording(recordingSession);
+    }
+
+    else if (button.innerHTML == 'Stop Screen Recording') {
+        // http://www.rtcmulticonnection.org/docs/stopRecording/
+        localScreenStream.stopRecording(function(blobs) {
+            alert('Screen blob size in bytes: ' + blobs.video.size);
+            button.innerHTML = 'Record Screen';
+        }, recordingSession);
+    }
+};
+
+document.getElementById('recordAudioVideo').onclick = function() {
+    var localVideoStream = rmc.streams.selectFirst({
+        video: true,
+        local: true
+    });
+
+    if (!localVideoStream) return;
+
+    var recordingSession = {
+        audio: true,
+        video: true
+    };
+    
+    var button = this;
+
+    if (button.innerHTML == 'Record Audio/Video') {
+        button.innerHTML = 'Stop Recording Audio/Video';
+        
+        // http://www.rtcmulticonnection.org/docs/startRecording/
+        localVideoStream.startRecording(recordingSession);
+    }
+
+    else if (button.innerHTML == 'Stop Recording Audio/Video') {
+        // http://www.rtcmulticonnection.org/docs/stopRecording/
+        localVideoStream.stopRecording(function(blobs) {
+            alert('Audio blob size in bytes: ' + blobs.audio.size);
+            alert('Video blob size in bytes: ' + blobs.video.size);
+            button.innerHTML = 'Record Audio/Video';
+        }, recordingSession);
+    }
+};
+</script>
+<style>
+video {
+    width: 30%;
+}
+button {
+    font-family: Myriad, Arial, Verdana;
+    font-weight: normal;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    padding: 4px 12px;
+    text-decoration: none;
+    color: rgb(27, 26, 26);
+    display: inline-block;
+    box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+    text-shadow: none;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
+    font-size: 20px;
+    border: 1px solid red;
+}
+button[disabled] {
+    background: rgba(216, 205, 205, 0.2);
+    border: 1px solid rgb(233, 224, 224);
+}
+</style>

@@ -14,121 +14,10 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        
+        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+        
         <style>
-            @import url(https://fonts.googleapis.com/css?family=Inconsolata);
-
-            html { background: #eee; }
-
-            body {
-                font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
-                font-size: 1.2em;
-                line-height: 1.2em;
-                margin: 0;
-            }
-
-            article, footer {
-                display: block;
-                max-width: 900px;
-                min-width: 360px;
-                width: 80%;
-            }
-
-            article {
-                background: #fff;
-                border: 1px solid;
-                border-color: #ddd #aaa #aaa #ddd;
-                margin: 2.5em auto 0 auto;
-                padding: 2em;
-            }
-
-            h1 { margin-top: 0; }
-
-            article p:first-of-type { margin-top: 1.6em; }
-
-            article p:last-child { margin-bottom: 0; }
-
-            footer {
-                margin: 0 auto 2em auto;
-                text-align: center;
-            }
-
-            footer a {
-                color: #666;
-                font-size: inherit;
-                padding: 1em;
-                text-decoration: none;
-                text-shadow: 0 1px 1px #fff;
-            }
-
-            footer a:hover, footer a:focus { color: #111; }
-
-            h1, h2 {
-                border-bottom: 1px solid black;
-                display: inline;
-                font-weight: normal;
-                line-height: 36px;
-                padding: 0 0 3px 0;
-            }
-
-            a {
-                color: #2844FA;
-                text-decoration: none;
-            }
-
-            a:hover, a:focus { color: #1B29A4; }
-
-            a:active { color: #000; }
-
-            :-moz-any-link:focus {
-                border: 0;
-                color: #000;
-            }
-
-            ::selection { background: #ccc; }
-
-            ::-moz-selection { background: #ccc; }
-
-            button, select {
-                -moz-border-radius: 3px;
-                -moz-transition: none;
-                -webkit-transition: none;
-                background: #0370ea;
-                background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
-                background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
-                border: 1px solid #076bd2;
-                border-radius: 3px;
-                color: #fff;
-                display: inline-block;
-                font-family: inherit;
-                font-size: .8em;
-                line-height: 1.3;
-                padding: 5px 12px;
-                text-align: center;
-                text-shadow: 1px 1px 1px #076bd2;
-            }
-
-            button:hover { background: rgb(9, 147, 240); }
-
-            button:active { background: rgb(10, 118, 190); }
-
-            button[disabled] {
-                background: none;
-                border: 1px solid rgb(187, 181, 181);
-                color: gray;
-                text-shadow: none;
-            }
-
-            strong {
-                color: rgb(204, 14, 14);
-                font-family: inherit;
-                font-weight: normal;
-            }
-
-            select {
-                color: black;
-                text-shadow: none;
-            }
-
             td { vertical-align: top; }
 
             #chat-output div, #file-progress div {
@@ -151,12 +40,6 @@
                 max-height: 12em;
                 overflow: auto;
             }
-
-            pre {
-                border-left: 2px solid red;
-                margin-left: 2em;
-                padding-left: 1em;
-            }
         </style>
         <!-- for HTML5 el styling -->
         <script>
@@ -166,27 +49,35 @@
 
         <script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
         <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
+        <script src="//cdn.webrtc-experiment.com/FileBufferReader.js"> </script>
     </head>
 
     <body>
         <article>
-            <a href="https://www.webrtc-experiment.com/"
-               style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑
-                WEBRTC EXPERIMENTS</a>
+            <header>
+                <h1>File Sharing + Text Chat using <a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a>
+                </h1>
 
-
-            <h1>File Sharing + Text Chat using <a
-                                                   href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection</a>
-            </h1>
-
-            <p>
-                <span>Copyright © 2013</span>
-                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a
-                                                                                                         href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
-            </p>
-            <section class="plusone-gplus">
-                <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
-            </section>
+                <p>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                </p>
+            </header>
+            
+            <div class="github-stargazers"></div>
+            
             <section>
                 <h2>Open Data Channel</h2>
                 <input type="text" id="channel" value="channel" style="font-size: 1.1em; text-align: right; width: 4em;"
@@ -219,7 +110,7 @@
                     data: true
                 };
 
-    // [optional] onmessage/onopen is for sending/receiving data/text
+                // [optional] onmessage/onopen is for sending/receiving data/text
                 connection.onmessage = function(e) {
                     appendDIV(e.data);
                 };
@@ -229,20 +120,6 @@
                     if (document.getElementById('file')) document.getElementById('file').disabled = false;
 
                     if (document.getElementById('init-RTCMultiConnection')) document.getElementById('init-RTCMultiConnection').disabled = true;
-                };
-
-    // [optional] onFileProgress/onFileSent/onFileReceived for sharing files
-                connection.onFileProgress = function(packets) {
-                    appendDIV(packets.remaining + ' packets remaining.', fileProgress);
-                    if (packets.sent) appendDIV(packets.sent + ' packets sent.', fileProgress);
-                    if (packets.received) appendDIV(packets.received + ' packets received.', fileProgress);
-                };
-                connection.onFileSent = function(file) {
-                    appendDIV(file.name + ' sent.', fileProgress);
-                };
-
-                connection.onFileReceived = function(fileName) {
-                    appendDIV(fileName + ' received.', fileProgress);
                 };
 
                 document.getElementById('init-RTCMultiConnection').onclick = function() {
@@ -262,15 +139,15 @@
                     connection.send(file);
                 };
 
-                var chatOutput = document.getElementById('chat-output'),
-                    fileProgress = document.getElementById('file-progress');
+                var chatOutput = document.getElementById('chat-output');
+                    
+                connection.body = document.getElementById('file-progress');
 
-                function appendDIV(data, parent) {
+                function appendDIV(data) {
                     var div = document.createElement('div');
                     div.innerHTML = data;
 
-                    if (!parent) chatOutput.insertBefore(div, chatOutput.firstChild);
-                    else parent.insertBefore(div, parent.firstChild);
+                    chatOutput.insertBefore(div, chatOutput.firstChild);
 
                     div.tabIndex = 0;
                     div.focus();
@@ -290,7 +167,7 @@
             <h2>Getting started with <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection"
                                         target="_blank">RTCMultiConnection</a></h2>
             <pre>
-&lt;script src="<a href="https://www.webrtc-experiment.com/RTCMultiConnection-v1.3.js" target="_blank">https://www.webrtc-experiment.com/RTCMultiConnection-v1.3.js</a>"&gt;&lt;/script&gt;
+&lt;script src="<a href="https://cdn.webrtc-experiment.com/RTCMultiConnection.js" target="_blank">https://cdn.webrtc-experiment.com/RTCMultiConnection.js</a>"&gt;&lt;/script&gt;
 &lt;script&gt;
     var connection = new <strong>RTCMultiConnection</strong>();
 	
@@ -332,22 +209,39 @@
     // to be alerted on data ports get new message
     connection.<strong>onmessage</strong> = function(e) {}
 
-    // show progress bar!
-    connection.<strong>onFileProgress</strong> = function (packets) {
-        // packets.remaining
-        // packets.sent
-        // packets.received
-        // packets.length
+    var progressHelper = {};
+
+    // to make sure file-saver dialog is not invoked.
+    connection.autoSaveToDisk = false;
+
+    connection.onFileProgress = function (chunk, uuid) {
+        var helper = progressHelper[chunk.uuid];
+        helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
+        updateLabel(helper.progress, helper.label);
     };
 
-    // on file successfully sent
-    connection.<strong>onFileSent</strong> = function (file) {
-        // file.name
-        // file.size
+    connection.onFileStart = function (file) {
+        var div = document.createElement('div');
+        div.title = file.name;
+        div.innerHTML = '&lt;label&gt;0%&lt;/label&gt; &lt;progress&gt;&lt;/progress&gt;';
+        document.body.appendChild(div);
+        progressHelper[file.uuid] = {
+            div: div,
+            progress: div.querySelector('progress'),
+            label: div.querySelector('label')
+        };
+        progressHelper[file.uuid].progress.max = file.maxChunks;
     };
 
-    // on file successfully received
-    connection.<strong>onFileReceived</strong> = function (fileName) {};
+    connection.onFileEnd = function (file) {
+        progressHelper[file.uuid].div.innerHTML = '&lt;a href="' + file.url + '" target="_blank" download="' + file.name + '"&gt;' + file.name + '&lt;/a&gt;';
+    };
+
+    function updateLabel(progress, label) {
+        if (progress.position == -1) return;
+        var position = +progress.position.toFixed(2).split('.')[1] || 100;
+        label.innerHTML = position + '%';
+    }
 &lt;/script&gt;
 </pre>
             <br/>
@@ -383,14 +277,17 @@
                 </div>
                 <button id="send-message" style="font-size: 1em;">Send Message</button>
             </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section> 
         </article>
         <footer>
             <p>
-                <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a>©
-                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>,
-                <span>2013 </span>»
-                <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
-                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
+                <a href="https://www.webrtc-experiment.com/licence/">MIT License</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
                 <a href="https://github.com/muaz-khan" target="_blank">Github</a>
             </p>
         </footer>

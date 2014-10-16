@@ -1,7 +1,7 @@
 {
   "name": "recordrtc",
   "preferGlobal": true,
-  "version": "4.0.4",
+  "version": "4.0.5",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -18,7 +18,7 @@
   },
   "keywords": [
     "webrtc",
-    "RecordRTC",
+    "recordrtc",
     "audio-recording",
     "video-recording",
     "gif-recording",
@@ -31,7 +31,7 @@
     "url": "https://github.com/muaz-khan/RecordRTC/issues",
     "email": "muazkh@gmail.com"
   },
-  "homepage": "https://www.webrtc-experiment.com/RecordRTC/",
-  "_id": "recordrtc@4.0.4",
+  "homepage": "http://RecordRTC.org/",
+  "_id": "recordrtc@",
   "_from": "recordrtc@"
 }
