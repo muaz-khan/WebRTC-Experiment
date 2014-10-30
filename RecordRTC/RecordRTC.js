@@ -1002,15 +1002,96 @@ function WhammyRecorder(mediaStream) {
         }
     }
 
+    /**
+     * remove black frames from the beginning to the specified frame
+     * @param _frames : array of frames to be checked
+     * @param _framesToCheck : number of frame until check will be executed (-1 - will drop all frames until frame not matched will be found)
+     * @param _pixTolerance : 0 - very strict (only black pixel color) ; 1 - all
+     * @param _frameTolerance : 0 - very strict (only black frame color) ; 1 - all
+     * @returns {Array} : array of frames
+     */
+    function dropBlackFrames(_frames, _framesToCheck, _pixTolerance, _frameTolerance) {
+        var localCanvas = document.createElement('canvas');
+        localCanvas.width = canvas.width;
+        localCanvas.height = canvas.height;
+        var context2d = localCanvas.getContext('2d');
+        var resultFrames = [];
+
+        var checkUntilNotBlack = _framesToCheck === -1;
+        var endCheckFrame = (_framesToCheck && _framesToCheck > 0 && _framesToCheck <= _frames.length) ?
+            _framesToCheck : _frames.length;
+        var sampleColor = { r : 0, g : 0, b : 0 };
+        var maxColorDifference = Math.sqrt(
+                Math.pow(255, 2) +
+                Math.pow(255, 2) +
+                Math.pow(255, 2)
+        );
+        var pixTolerance = _pixTolerance && _pixTolerance >= 0 && _pixTolerance <= 1 ? _pixTolerance : 0;
+        var frameTolerance = _frameTolerance && _frameTolerance >= 0 && _frameTolerance <= 1 ? _frameTolerance : 0;
+        var doNotCheckNext = false;
+
+        for(var f = 0; f < endCheckFrame; f++) {
+            if (!doNotCheckNext) {
+                var image = new Image();
+                image.src = _frames[f].image;
+                context2d.drawImage(image, 0, 0, canvas.width, canvas.height);
+                var imageData = context2d.getImageData(0, 0, canvas.width, canvas.height);
+                var matchPixCount = 0;
+                var endPixCheck = imageData.data.length;
+                var maxPixCount = imageData.data.length/4;
+
+                for(var pix = 0; pix < endPixCheck; pix+=4) {
+                    var currentColor = { r : imageData.data[pix], g : imageData.data[pix+1], b : imageData.data[pix+2] };
+                    var colorDifference = Math.sqrt(
+                            Math.pow(currentColor.r - sampleColor.r, 2) +
+                            Math.pow(currentColor.g - sampleColor.g, 2) +
+                            Math.pow(currentColor.b - sampleColor.b, 2)
+                    );
+                    // difference in color it is difference in color vectors (r1,g1,b1) <=> (r2,g2,b2)
+                    if (colorDifference <= maxColorDifference * pixTolerance) {
+                        matchPixCount++;
+                    }
+                }
+            }
+
+            if (!doNotCheckNext && maxPixCount - matchPixCount <= maxPixCount * frameTolerance) {
+//                console.log('removed black frame : ' + f + ' ; frame duration ' + _frames[f].duration);
+            } else {
+//                console.log('frame is passed : ' + f);
+                if (checkUntilNotBlack) {
+                    doNotCheckNext = true;
+                }
+                resultFrames.push(_frames[f]);
+            }
+        }
+
+        resultFrames = resultFrames.concat(_frames.slice(endCheckFrame));
+
+        if (resultFrames.length <= 0) {
+            // at least one last frame should be available for next manipulation
+            // if total duration of all frames will be < 1000 than ffmpeg doesn't work well...
+            resultFrames.push(_frames[_frames.length - 1]);
+        }
+
+        return resultFrames;
+    }
+
     var isStopDrawing = false;
 
     this.stop = function(callback) {
         isStopDrawing = true;
-        whammy.frames = dropFirstFrame(frames);
+        var _this = this;
+        // analyse of all frames takes some time!
+        setTimeout(function() {
+            // e.g. dropBlackFrames(frames, 10, 1, 1) - will cut all 10 frames
+            // e.g. dropBlackFrames(frames, 10, 0.5, 0.5) - will analyse 10 frames
+            // e.g. dropBlackFrames(frames, 10) == dropBlackFrames(frames, 10, 0, 0) - will analyse 10 frames with strict black color
+            whammy.frames = dropBlackFrames(frames, -1);
 
-        this.blob = whammy.compile();
+            _this.blob = whammy.compile();
 
-        if (callback) callback(this.blob);
+            if (callback) callback(_this.blob);
+        }, 10);
     };
 
     var canvas = document.createElement('canvas');
