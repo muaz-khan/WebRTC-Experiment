@@ -69,7 +69,7 @@ function RecordRTC(mediaStream, config) {
         // html2canvas recording!
         if (config.type == 'canvas') Recorder = window.CanvasRecorder;
 
-        mediaRecorder = new Recorder(mediaStream);
+        mediaRecorder = new Recorder(mediaStream, config.type);
 
         // Merge all data-types except "function"
         mediaRecorder = mergeProps(mediaRecorder, config);
@@ -530,13 +530,13 @@ var Storage = {
  * Also extract the encoded data and create blobs on every timeslice passed from start function or RequestData function called by UA.
  */
 
-function MediaStreamRecorder(mediaStream) {
+function MediaStreamRecorder(mediaStream, type) {
     var self = this;
 
     // if user chosen only audio option; and he tried to pass MediaStream with
     // both audio and video tracks;
     // using a dirty workaround to generate audio-only stream so that we can get audio/ogg output.
-    if (this.type == 'audio' && mediaStream.getVideoTracks && mediaStream.getVideoTracks().length) {
+    if (type === 'audio' && mediaStream.getVideoTracks && mediaStream.getVideoTracks().length) {
         var context = new AudioContext();
         var mediaStreamSource = context.createMediaStreamSource(mediaStream);
 
