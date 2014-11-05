@@ -248,22 +248,28 @@ You don't need to modify any single line to use it. No single installation or mo
 4. [XHR Signaling](https://github.com/muaz-khan/XHR-Signaling)
 5. [openSignalingChannel](http://www.rtcmulticonnection.org/docs/openSignalingChannel/)
 
-## How to record audio using [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)?
+## How to record audio using [RecordRTC](http://recordrtc.org/)?
 
 ```html
 <script src="//cdn.webrtc-experiment.com/RecordRTC.js"></script>
 ```
 
+Documentation page: http://recordrtc.org/RecordRTC.html
+
 ```javascript
-var recordRTC = RecordRTC(mediaStream);
+var recordRTC = RecordRTC(mediaStream, {
+    type: 'video' // audio or video or gif or canvas
+});
 
 recordRTC.startRecording();
-recordRTC.stopRecording(callback_function);
 
-var blob = recordRTC.getBlob();
-var blobURL = recordRTC.toURL();
-
-recordRTC.getDataURL(callback_function);
+recordRTC.stopRecording(function(videoURL) {
+    video.src = videoURL;
+    
+    var blob = recordRTC.blob;
+    var arrayBuffer = recordRTC.buffer;
+    recordRTC.getDataURL(callback_function);
+});
 ```
 
 1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)

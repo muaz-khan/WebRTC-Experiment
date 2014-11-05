@@ -1,7 +1,7 @@
 {
   "name": "recordrtc",
-  "preferGlobal": true,
-  "version": "4.0.5",
+  "preferGlobal": false,
+  "version": "4.0.9",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",

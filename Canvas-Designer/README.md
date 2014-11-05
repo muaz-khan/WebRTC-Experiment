@@ -8,9 +8,7 @@ This speciality of this drawing-tool is that, it generates Canvas2D code for you
 
 Also, you can collaborate your drawing with up to 15 users; and everything is synced from all users. So, if you draw a line and your friend-A draws quadratic curve and friend-B draws rectangle then everythign will be synced among all users!
 
-<img src="https://cdn.webrtc-experiment.com/images/Canvas-Designer.gif" />
-
-=
+## [Click to view Gif Presentation](https://cdn.webrtc-experiment.com/images/Canvas-Designer.gif)
 
 ## WebRTC?
 
@@ -26,8 +24,6 @@ connection.addStream({ audio: true, video: true });
 
 Read more here: http://www.rtcmulticonnection.org/docs/
 
-=
-
 ## Links
 
 1. https://www.webrtc-experiment.com/Canvas-Designer/
@@ -40,8 +36,6 @@ There is a similar "tinny" tool, however it isn't yet supporting collaboration: 
 
 And WebRTC-Experiments! https://github.com/muaz-khan/WebRTC-Experiment
 
-=
-
 ## How to use my own library or code?
 
 Do two things:
@@ -50,8 +44,6 @@ Do two things:
 2. Open `decorator.js` and scroll to line 338. This line is using `connection.send`. You simply need to replace it with your own code e.g. `webrtc_connection.sendData(..)`.
 
 Now the tool is using your own WebRTC implementation!
-
-=
 
 ## License
 

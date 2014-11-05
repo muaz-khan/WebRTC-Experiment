@@ -1,4 +1,8 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace RecordRTC_to_ASPNETMVC
@@ -31,12 +35,6 @@ namespace RecordRTC_to_ASPNETMVC
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
-        }
-		
-		/* To allow Cross-Origin Requests from: https://www.webrtc-experiment.com/ */
-        protected void Application_BeginRequest(object sender, System.EventArgs e)
-        {
-            Response.AddHeader("Access-Control-Allow-Origin", "*");
         }
     }
 }

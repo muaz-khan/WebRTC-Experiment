@@ -1,34 +1,30 @@
-## [RecordRTC](https://github.com/muaz-khan/RecordRTC): [WebRTC](https://www.webrtc-experiment.com/) audio/video recording / [Wiki Pages](https://github.com/muaz-khan/RecordRTC/wiki) / [Demo](https://www.webrtc-experiment.com/RecordRTC/) 
+# [RecordRTC](https://github.com/muaz-khan/RecordRTC): [WebRTC](https://www.webrtc-experiment.com/) audio/video recording
+
+[RecordRTC Documentation](https://RecordRTC.org/) / [RecordRTC Wiki Pages](https://github.com/muaz-khan/RecordRTC/wiki) / [RecordRTC Demo](https://www.webrtc-experiment.com/RecordRTC/) / [WebRTC Experiments](https://www.webrtc-experiment.com/)
 
 [![npm](https://img.shields.io/npm/v/recordrtc.svg)](https://npmjs.org/package/recordrtc) [![downloads](https://img.shields.io/npm/dm/recordrtc.svg)](https://npmjs.org/package/recordrtc)
 
-[RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is a server-less (entire client-side) JavaScript library can be used to record WebRTC audio/video media streams. It supports cross-browser audio/video recording.
+> [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is a JavaScript-based media-recording library for modern web-browsers (supporting WebRTC getUserMedia API). It is optimized for different devices and browsers to bring all client-side (pluginfree) recording solutions in single place.
 
-> Documentation & Demos: http://RecordRTC.org
+1. [RecordRTC API Reference](http://RecordRTC.org/RecordRTC.html)
+2. [MRecordRTC API Reference](http://RecordRTC.org/MRecordRTC.html)
+3. [MediaStreamRecorder API Reference](http://RecordRTC.org/MediaStreamRecorder.html)
+4. [StereoRecorder API Reference](http://RecordRTC.org/StereoRecorder.html)
+5. [StereoAudioRecorder API Reference](http://RecordRTC.org/StereoAudioRecorder.html)
+6. [WhammyRecorder API Reference](http://RecordRTC.org/WhammyRecorder.html)
+7. [Whammy API Reference](http://RecordRTC.org/Whammy.html)
+8. [CanvasRecorder API Reference](http://RecordRTC.org/CanvasRecorder.html)
+9. [GifRecorder API Reference](http://RecordRTC.org/GifRecorder.html)
+10. [Global API Reference](http://RecordRTC.org/global.html)
 
-```javascript
-// Browsers Support::
-// Chrome (all versions) [ audio/video individually ]
-// Firefox ( >= 29 ) [ audio/video in single webm/mp4 container or only audio in ogg ]
-// Opera (all versions) [ same as chrome ]
-// Android (Chrome) [ only video ]
-// Android (Opera) [ only video ]
-// Android (Firefox) [ only video ]
-```
+## Browsers Support:
 
-```
-npm install recordrtc
-```
-
-To use it:
-
-```htm
-<script src="./node_modules/recordrtc/RecordRTC.js"></script>
-```
-
-There are some other NPM packages regarding RecordRTC:
-
-* https://www.npmjs.org/search?q=RecordRTC
+| Browser        | Support           |
+| ------------- |-------------|
+| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
+| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
+| Opera | [Stable](http://www.opera.com/) / [NEXT](http://www.opera.com/computer/next)  |
+| Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) / [Opera](https://play.google.com/store/apps/details?id=com.opera.browser) |
 
 ## How RecordRTC encodes wav/webm?
 
@@ -37,7 +33,7 @@ There are some other NPM packages regarding RecordRTC:
 |Audio File (WAV) | 1411 kbps | pcm_s16le |44100 Hz|stereo, s16|
 |Video File (WebM)|60 kb/s | (whammy) vp8 codec yuv420p|--|SAR 1:1 DAR 4:3, 1k tbr, 1k tbn, 1k tbc (default)|
 
-=
+## RecordRTC Demos
 
 1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
 2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
@@ -51,14 +47,30 @@ There are some other NPM packages regarding RecordRTC:
 10. [Record Audio and upload to Nodejs server](https://www.npmjs.org/package/record-audio)
 11. [ConcatenateBlobs.js](https://github.com/muaz-khan/ConcatenateBlobs) - Concatenate multiple recordings in single Blob!
 
-=
+## How to link?
+
+```
+npm install recordrtc
+```
+
+To use it:
 
 ```html
+<script src="./node_modules/recordrtc/RecordRTC.js"></script>
+
+<!-- or -->
 <script src="http://RecordRTC.org/latest.js"></script>
 
 <!-- or -->
 <script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+
+<!-- or -->
+<script src="//www.WebRTC-Experiment.com/RecordRTC.js"></script>
 ```
+
+There are some other NPM packages regarding RecordRTC:
+
+* [https://www.npmjs.org/search?q=RecordRTC](https://www.npmjs.org/search?q=RecordRTC)
 
 ## Record audio+video in Firefox
 
@@ -87,7 +99,7 @@ btnStopRecording.onclick = function () {
 };
 ```
 
-Demo: https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html
+Demo: [AudioVideo-on-Firefox.html](https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html)
 
 ## Record only Audio
 
@@ -153,9 +165,7 @@ function onSuccess(mediaStream) {
 }
 ```
 
-Constraints Reference:
-
-* https://chromium.googlesource.com/external/webrtc/+/master/talk/app/webrtc/mediaconstraintsinterface.cc
+* [Constraints Reference](https://chromium.googlesource.com/external/webrtc/+/master/talk/app/webrtc/mediaconstraintsinterface.cc)
 
 ## Record Video
 
@@ -225,6 +235,7 @@ You can say it: "HTML/Canvas Recording using RecordRTC"!
 ```html
 <script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
 <script src="//cdn.webrtc-experiment.com/screenshot.js"></script>
+
 <div id="elementToShare" style="width:100%;height:100%;background:green;"></div>
 <script>
 var elementToShare = document.getElementById('elementToShare');
@@ -241,7 +252,7 @@ recordRTC.stopRecording(function(videoURL) {
 </script>
 ```
 
-See a demo: https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/
+See a demo: [/Canvas-Recording/](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/)
 
 # API Reference
 
@@ -284,7 +295,7 @@ RecordRTC.getFromDisk('audio', function(dataURL) {
 });
 ```
 
-For [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC); you can use word `MRecordRTC` instead of `RecordRTC`!
+For [MRecordRTC](https://RecordRTC.org/MRecordRTC.html); you can use word `MRecordRTC` instead of `RecordRTC`!
 
 Another possible situation!
 
@@ -456,17 +467,6 @@ Media Stream Recording API (MediaRecorder object) is being implemented by both F
 
 RecordRTC is unable to record "mono" audio on chrome; however it seems that we can covert channels from "stereo" to "mono" using WebAudio API, though. MediaRecorder API's encoder only support 48k/16k mono audio channel (on Firefox Nightly).
 
-## Browser Support
-
-[RecordRTC Demo](https://www.webrtc-experiment.com/RecordRTC/) works fine on following web-browsers:
-
-| Browser        | Support           |
-| ------------- |-------------|
-| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
-| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Opera | [Stable](http://www.opera.com/) / [NEXT](http://www.opera.com/computer/next)  |
-| Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) / [Opera](https://play.google.com/store/apps/details?id=com.opera.browser) |
-
 ## Credits
 
 1. [Recorderjs](https://github.com/mattdiamond/Recorderjs) for audio recording
@@ -480,6 +480,90 @@ RecordRTC is unable to record "mono" audio on chrome; however it seems that we c
 3. [Canvas2D](http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/)
 4. [MediaStream Recording](https://dvcs.w3.org/hg/dap/raw-file/tip/media-stream-capture/MediaRecorder.html)
 5. [Media Capture and Streams](http://www.w3.org/TR/mediacapture-streams/)
+
+## Contribute in [RecordRTC.org](http://RecordRTC.org)
+
+[![npm](https://img.shields.io/npm/v/recordrtc.org.svg)](https://npmjs.org/package/recordrtc.org) [![downloads](https://img.shields.io/npm/dm/recordrtc.org.svg)](https://npmjs.org/package/recordrtc.org)
+
+http://recordrtc.org/ is a documentation webpage for [RecordRTC.js](https://github.com/muaz-khan/RecordRTC). It is [open-sourced in github](https://github.com/muaz-khan/RecordRTC/tree/gh-pages) and everyone can collaborate to improve documentation.
+
+To contribute:
+
+1. You should modify `RecordRTC.js` file (aka [`latest.js`](https://github.com/muaz-khan/RecordRTC/blob/gh-pages/latest.js) file)
+2. You'll see that each function/property/method is having comments (format is chosen from http://usejsdoc.org/).
+3. Using `jsdoc` tool, you can generate documentation HTML pages from `latest.js` file
+4. You should NEVER modify HTML pages. You merely need to modify `latest.js` file for documentation.
+
+Steps to contribute:
+
+1. Modify `latest.js` file
+2. Use below NPM-commands to generate HTML pages.
+3. Manually copy/paste `latest.js` file in the resulting `recordrtc.org` directory
+4. Copy `recordrtc.org` directory and replace in `RecordRTC` github clone's `gh-pages` section
+5. Send a pull-request and done!
+
+```
+# First step: install recordrtc.org template and javascript file
+npm install recordrtc.org
+
+# Second step: generate HTML files from template & latest.js file
+cd .\node_modules\recordrtc.org
+
+# This command generates HTML pages from latest.js file
+node_modules\.bin\jsdoc node_modules\recordrtc\RecordRTC.js -d .\..\..\recordrtc.org node_modules\recordrtc\README.md -t template
+```
+
+Now you'll see a directory with name `recordrtc.org`.
+
+```
+# This command runs index.html file
+# You can use it to preview HTML pages (doc files)
+.\..\..\recordrtc.org\index.html
+```
+
+## Send pull requests
+
+Now, you should fork this repository:
+
+* [https://github.com/muaz-khan/RecordRTC](https://github.com/muaz-khan/RecordRTC)
+
+And push/pull `recordrtc.org` directory to `gh-pages`.
+
+## How to modify `latest.js` file?
+
+RecordRTC is using comments format from jsdoc:
+
+* [http://usejsdoc.org/](http://usejsdoc.org/)
+
+E.g.
+
+```javascript
+/**
+* Description
+* @summary Summary
+* @typedef Hello
+* @example
+* var some = new Something();
+*/
+```
+
+Example - [`stopRecording`](https://github.com/muaz-khan/RecordRTC/blob/gh-pages/latest.js#L206) method:
+
+```javascript
+/**
+ * This method stops recording. It takes single "callback" argument. It is suggested to get blob or URI in the callback to make sure all encoders finished their jobs.
+ * @param {function} callback - This callback function is invoked after completion of all encoding jobs.
+ * @method
+ * @memberof RecordRTC
+ * @instance
+ * @example
+ * recordRTC.stopRecording(function(videoURL) {
+ *     video.src = videoURL;
+ * });
+ * @todo Implement <code class="str">recordRTC.stopRecording().getDataURL(callback);</code>
+ */
+stopRecording: stopRecording,
+```
 
 ## License
 

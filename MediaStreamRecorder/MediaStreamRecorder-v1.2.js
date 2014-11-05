@@ -23,7 +23,7 @@ function MediaStreamRecorder(mediaStream) {
         // video recorder (in GIF format)
         if (this.mimeType === 'image/gif') Recorder = window.GifRecorder;
 
-        mediaRecorder = new Recorder(mediaStream);
+        mediaRecorder = new Recorder(mediaStream, this.type);
         mediaRecorder.ondataavailable = this.ondataavailable;
         mediaRecorder.onstop = this.onstop;
 

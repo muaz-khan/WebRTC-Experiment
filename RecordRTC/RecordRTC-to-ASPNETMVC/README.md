@@ -1,4 +1,4 @@
-#### RecordRTC to ASP.NET MVC / [Demo](https://www.webrtc-experiment.com/RecordRTC/RecordRTC-to-ASPNETMVC/)
+#### RecordRTC to ASP.NET MVC / RecordRTC.org
 
 This documentation explains how to POST recorded audio/video files to ASP.NET MVC (IIS) server. It captures `Blob` and POST them using XHR2/FormData.
 
@@ -62,4 +62,4 @@ function xhr(url, data, callback) {
 
 ##### License
 
-[RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/100325991024054712503).
+[RecordRTC](https://github.com/muaz-khan/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

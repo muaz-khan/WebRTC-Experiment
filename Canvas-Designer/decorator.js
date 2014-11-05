@@ -335,7 +335,7 @@ function setSelection(element, prop) {
         if(btn == designPreview) designPreview.className = 'preview-selected';
         else codePreview.className = 'preview-selected';
         
-        if(!isSkipWebRTCMessage && window.connection && connection.stats.numberOfConnectedUsers >= 1) {
+        if(!isSkipWebRTCMessage && window.connection && connection.numberOfConnectedUsers >= 1) {
             connection.send({
                 btnSelected: btn.id
             });

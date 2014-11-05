@@ -1,0 +1,58 @@
+{
+  "name": "msr",
+  "preferGlobal": true,
+  "version": "1.2.2",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "http://www.muazkhan.com/"
+  },
+  "description": "Cross-Browser recording of audio/video media streams; targets WebRTC/getUserMedia/WebAudio/etc. Works both on Chrome/Firefox/Opera on desktop & android.",
+  "scripts": {
+    "start": "node MediaStreamRecorder.js"
+  },
+  "main": "./MediaStreamRecorder.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/streamproc/MediaStreamRecorder.git"
+  },
+  "keywords": [
+    "recorder",
+    "audio-recorder",
+    "video-recorder",
+    "audio-recording",
+    "video-recording",
+    "recording",
+    "record",
+    "audio-video-recorder",
+    "gif-recorder",
+    "audio",
+    "video",
+    "gif",
+    "mediarecorder",
+    "media",
+    "client-side",
+    "webrtc",
+    "mediastreamrecorder",
+    "webrtc-library",
+    "library",
+    "javascript",
+    "chrome",
+    "firefox",
+    "opera",
+    "mediastreamrecorder.js",
+    "webrtc-experiment",
+    "javascript-library",
+    "muaz",
+    "muaz-khan"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/streamproc/MediaStreamRecorder/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://www.webrtc-experiment.com/msr/",
+  "_from": "msr@"
+}

@@ -6,12 +6,12 @@ namespace RecordRTC_to_ASPNETMVC.Controllers
 {
     // www.MuazKhan.com
     // www.WebRTC-Experiment.com
+    // RecordRTC.org
     public class RecordRTCController : Controller
     {
         // ---/RecordRTC/
         public ActionResult Index()
         {
-            Response.RedirectPermanent("https://www.webrtc-experiment.com/RecordRTC/RecordRTC-to-ASPNETMVC/");
             return View();
         }
 

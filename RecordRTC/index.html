@@ -1,7 +1,8 @@
 ﻿<!--
 > Muaz Khan     - www.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
-> Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+> Documentation - github.com/muaz-khan/RecordRTC
+> and           - RecordRTC.org
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -106,12 +107,6 @@
 			
                 <div class="inner">
                     <button style="float: right;" id="fit-to-screen">Fit to Screen!</button>
-                    <label for="video-width-input">Video Width</label>
-                    <input type="text" id="video-width-input" value="320">
-                    <br />
-                    <label for="video-height-input">Video Height</label>
-                    <input type="text" id="video-height-input" value="240">
-                    <br />
                     <label for="canvas-width-input">Canvas Width</label>
                     <input type="text" id="canvas-width-input" value="320">
                     <br />
@@ -119,14 +114,13 @@
                     <input type="text" id="canvas-height-input" value="240">
                     <br />
                     <div>
-                        <video id="video" autoplay loop controls muted></video>
-                        <input type="checkbox" id="record-screen">
-                        <label for="record-screen">Record Screen</label>
-			
                         <button id="record-video">Record</button>
                         <button id="stop-recording-video" disabled>Stop</button>
-                        <h2 id="video-url-preview"></h2>
-			
+                        <hr>
+                        <h2 id="video-url-preview"></h2><br>
+                        <input type="checkbox" id="record-screen" style="width:auto;">
+                        <label for="record-screen">Record Screen</label><br>
+                        <video id="video" autoplay loop controls muted></video>
                     </div>
                 </div>
             </section>
@@ -168,9 +162,6 @@
                     stopRecordingAudio = getByID('stop-recording-audio'),
                     stopRecordingVideo = getByID('stop-recording-video'),
                     stopRecordingGIF = getByID('stop-recording-gif');
-
-                var videoWidth_input = getByID('video-width-input'),
-                    videoHeight_input = getByID('video-height-input');
 
                 var canvasWidth_input = getByID('canvas-width-input'),
                     canvasHeight_input = getByID('canvas-height-input');
@@ -230,8 +221,18 @@
 
                 function isCaptureScreen() {
                     if (document.getElementById('record-screen').checked) {
+                        document.getElementById('fit-to-screen').onclick();
                         screen_constraints = {
-                            mandatory: { chromeMediaSource: 'screen' },
+                            mandatory: { 
+                                chromeMediaSource: 'screen',
+                                    maxWidth: 1920,
+                                    maxHeight: 1080,
+                                    minWidth: 1280,
+                                    minHeight: 720,
+                                    minAspectRatio: 1.77,
+                                    minFrameRate: 3,
+                                    maxFrameRate: 64
+                            },
                             optional: []
                         };
                         videoConstraints.video = screen_constraints;
@@ -250,25 +251,23 @@
 
                 function recordVideoOrGIF(isRecordVideo) {
                     navigator.getUserMedia(videoConstraints, function(stream) {
-                        video.src = URL.createObjectURL(stream);
+                        video.onloadedmetadata = function() {
+                            video.width = canvasWidth_input.value || 320;
+                            video.height = canvasHeight_input.value || 240;
 
-                        video.width = videoWidth_input.value || 320;
-                        video.height = videoHeight_input.value || 240;
+                            var options = {
+                                type: isRecordVideo ? 'video' : 'gif',
+                                video: video,
+                                canvas: {
+                                    width: canvasWidth_input.value,
+                                    height: canvasHeight_input.value
+                                }
+                            };
 
-                        var options = {
-                            type: isRecordVideo ? 'video' : 'gif',
-                            video: {
-                                width: videoWidth_input.value,
-                                height: videoHeight_input.value
-                            },
-                            canvas: {
-                                width: canvasWidth_input.value,
-                                height: canvasHeight_input.value
-                            }
+                            recorder = window.RecordRTC(stream, options);
+                            recorder.startRecording();
                         };
-
-                        recorder = window.RecordRTC(stream, options);
-                        recorder.startRecording();
+                        video.src = URL.createObjectURL(stream);
                     }, function() {
                         if (document.getElementById('record-screen').checked) {
                             if (location.protocol === 'http:')
@@ -333,8 +332,8 @@
                 document.getElementById('fit-to-screen').onclick = function() {
                     this.disabled = true;
 
-                    videoWidth_input.value = canvasWidth_input.value = innerWidth;
-                    videoHeight_input.value = canvasHeight_input.value = innerHeight;
+                    video.width = canvasWidth_input.value = innerWidth;
+                    video.height = canvasHeight_input.value = innerHeight;
                 };
             </script>
 			

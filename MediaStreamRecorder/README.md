@@ -1,4 +1,4 @@
-## [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) - [Demos](https://www.webrtc-experiment.com/msr/)
+## [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) - [Demos](https://www.webrtc-experiment.com/msr/) -   [![npm](https://img.shields.io/npm/v/msr.svg)](https://npmjs.org/package/msr) [![downloads](https://img.shields.io/npm/dm/msr.svg)](https://npmjs.org/package/msr)
 
 A cross-browser implementation to record audio/video streams:
 
@@ -7,9 +7,7 @@ A cross-browser implementation to record audio/video streams:
 
 MediaStreamRecorder is useful in scenarios where you're planning to submit/upload recorded blobs in realtime to the server! You can get blobs after specific time-intervals.
 
-=
-
-##### [Demos](https://www.webrtc-experiment.com/msr/) using [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) library
+## [Demos](https://www.webrtc-experiment.com/msr/) using [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) library
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
@@ -17,13 +15,35 @@ MediaStreamRecorder is useful in scenarios where you're planning to submit/uploa
 | **Video Recording** | [Demo](https://www.webrtc-experiment.com/msr/video-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/video-recorder.html) |
 | **Gif Recording** | [Demo](https://www.webrtc-experiment.com/msr/gif-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/gif-recorder.html) |
 
-=
+----
 
 There is a similar project: **RecordRTC**! [Demo](https://www.webrtc-experiment.com/RecordRTC/) - [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
 
-=
-
 ## How to link scripts?
+
+You can [install scripts using NPM](https://www.npmjs.org/package/msr):
+
+```javascript
+npm install msr
+```
+
+Then link single/standalone "MediaStreamRecorder.js" file:
+
+```html
+<script src="./node_modules/msr/MediaStreamRecorder.js"> </script>
+```
+
+## Otherwise, you can "directly" link standalone file from CDN:
+
+```html
+<script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
+```
+
+## Otherwise, you can link specific files:
+
+To link specific files, you must [download](https://github.com/streamproc/MediaStreamRecorder) this ZIP:
+
+* https://github.com/streamproc/MediaStreamRecorder/archive/master.zip
 
 ```html
 <script src="/MediaStreamRecorder-v1.2.js" data-require="MediaRecorder" data-scripts-dir="/"> </script>
@@ -99,12 +119,14 @@ You can manually link the files as well; use `data-manual=true`:
 <script src="../VideoStreamRecorder/lib/gif-encoder.js"> </script>
 ```
 
-=
-
-#### Record audio+video on Firefox in single WebM
+## Record audio+video in Firefox in single WebM
 
 ```html
+<!-- link either specific files -->
 <script src="//cdn.webrtc-experiment.com/MediaStreamRecorder-v1.2.js" data-require="MediaRecorder" data-scripts-dir="/msr/"> </script>
+
+<!-- or standalone file -->
+<script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 ```
 
 ```javascript
@@ -121,7 +143,7 @@ function onMediaSuccess(stream) {
     mediaRecorder.ondataavailable = function (blob) {
         // POST/PUT "Blob" using FormData/XHR2
         var blobURL = URL.createObjectURL(blob);
-        document.write('&lt;a href="' + blobURL + '"&gt;' + blobURL + '&lt;/a&gt;');
+        document.write('<a href="' + blobURL + '">' + blobURL + '</a>');
     };
     mediaRecorder.start(3000);
 }
@@ -131,20 +153,20 @@ function onMediaError(e) {
 }
 ```
 
-=
-
-#### How to manually stop recordings?
+## How to manually stop recordings?
 
 ```javascript
 mediaRecorder.stop();
 ```
 
-=
-
-#### Record only audio on Chrome/Firefox
+## Record only audio in Chrome/Firefox
 
 ```html
+<!-- link either specific files -->
 <script src="//cdn.webrtc-experiment.com/MediaStreamRecorder-v1.2.js" data-require="StereoRecorder,MediaRecorder" data-scripts-dir="/msr/"> </script>
+
+<!-- or standalone file -->
+<script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 ```
 
 ```javascript
@@ -160,7 +182,7 @@ function onMediaSuccess(stream) {
     mediaRecorder.ondataavailable = function (blob) {
         // POST/PUT "Blob" using FormData/XHR2
         var blobURL = URL.createObjectURL(blob);
-        document.write('&lt;a href="' + blobURL + '"&gt;' + blobURL + '&lt;/a&gt;');
+        document.write('<a href="' + blobURL + '">' + blobURL + '</a>');
     };
     mediaRecorder.start(3000);
 }
@@ -170,12 +192,14 @@ function onMediaError(e) {
 }
 ```
 
-=
-
-#### Record only-video on chrome
+## Record only-video in chrome
 
 ```html
+<!-- link either specific files -->
 <script src="//cdn.webrtc-experiment.com/MediaStreamRecorder-v1.2.js" data-require="WhammyRecorder" data-scripts-dir="/msr/"> </script>
+
+<!-- or standalone file -->
+<script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 ```
 
 ```javascript
@@ -198,7 +222,7 @@ function onMediaSuccess(stream) {
     mediaRecorder.ondataavailable = function (blob) {
         // POST/PUT "Blob" using FormData/XHR2
         var blobURL = URL.createObjectURL(blob);
-        document.write('&lt;a href="' + blobURL + '"&gt;' + blobURL + '&lt;/a&gt;');
+        document.write('<a href="' + blobURL + '">' + blobURL + '</a>');
     };
     mediaRecorder.start(3000);
 }
@@ -208,9 +232,7 @@ function onMediaError(e) {
 }
 ```
 
-=
-
-##### How to upload recorded files using PHP?
+## How to upload recorded files using PHP?
 
 **PHP code:**
 
@@ -258,9 +280,7 @@ function xhr(url, data, callback) {
 }
 ```
 
-=
-
-##### Browser Support
+## Browser Support
 
 | Browser        | Support           |
 | ------------- |-------------|
@@ -269,16 +289,12 @@ function xhr(url, data, callback) {
 | Opera | [Stable](http://www.opera.com/) / [NEXT](http://www.opera.com/computer/next)  |
 | Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) / [Opera](https://play.google.com/store/apps/details?id=com.opera.browser) |
 
-=
-
-##### Contributors
+## Contributors
 
 1. [Muaz Khan](https://github.com/muaz-khan)
 2. [neizerth](https://github.com/neizerth)
 3. [andersaloof](https://github.com/andersaloof)
 
-=
-
-##### License
+## License
 
 [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) library is released under [MIT licence](https://www.webrtc-experiment.com/licence/).
