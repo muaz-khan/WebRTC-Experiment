@@ -1,4 +1,4 @@
-// Last time updated at Nov 04, 2014, 08:32:23
+// Last time updated at Nov 11, 2014, 08:32:23
 
 // links:
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
@@ -10,6 +10,7 @@
 
 // updates?
 /*
+-. Fixed MRecordRTC.
 -. Added functionality for analyse black frames and cut them - pull#293
 -. if you're recording GIF, you must link: https://cdn.webrtc-experiment.com/gif-recorder.js
 */
@@ -212,6 +213,7 @@ function RecordRTC(mediaStream, config) {
          * @example
          * recordRTC.stopRecording(function(videoURL) {
          *     video.src = videoURL;
+         *     recordRTC.blob; recordRTC.buffer;
          * });
          * @todo Implement <code class="str">recordRTC.stopRecording().getDataURL(callback);</code>
          */
@@ -242,11 +244,6 @@ function RecordRTC(mediaStream, config) {
          * @memberof RecordRTC
          * @instance
          * @example
-         * recordRTC.getDataURL(function(dataURL) {
-         *     video.src = dataURL;
-         * });
-         *
-         * // or
          * recordRTC.stopRecording(function() {
          *     recordRTC.getDataURL(function(dataURL) {
          *         video.src = dataURL;
@@ -311,10 +308,8 @@ function RecordRTC(mediaStream, config) {
          * @memberof RecordRTC
          * @instance
          * @example
-         * recordRTC.stopRecording(function() {
-         *     recordRTC.getFromDisk(function(dataURL) {
-         *         video.src = dataURL;
-         *     });
+         * recordRTC.getFromDisk(function(dataURL) {
+         *     video.src = dataURL;
          * });
          */
         getFromDisk: function(callback) {
@@ -586,19 +581,27 @@ function MRecordRTC(mediaStream) {
     * recorder.startRecording();
     */
     this.startRecording = function() {
-        if (!IsChrome && mediaStream && mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
+        if (!IsChrome && mediaStream && mediaStream.getAudioTracks && mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
             // Firefox is supporting both audio/video in single blob
             this.mediaType.audio = false;
         }
 
         if (this.mediaType.audio) {
-            this.audioRecorder = RecordRTC(mediaStream, this).startRecording();
+            this.audioRecorder = RecordRTC(mediaStream, {
+                type: 'audio',
+                bufferSize: this.bufferSize,
+                sampleRate: this.sampleRate
+            });            
+            this.audioRecorder.startRecording();
         }
 
         if (this.mediaType.video) {
             this.videoRecorder = RecordRTC(mediaStream, {
-                type: 'video'
-            }).startRecording();
+                type: 'video',
+                video: this.video,
+                canvas: this.canvas
+            });
+            this.videoRecorder.startRecording();
         }
 
         if (this.mediaType.gif) {
@@ -606,7 +609,8 @@ function MRecordRTC(mediaStream) {
                 type: 'gif',
                 frameRate: this.frameRate || 200,
                 quality: this.quality || 10
-            }).startRecording();
+            });
+            this.gifRecorder.startRecording();
         }
     };
 
@@ -1251,6 +1255,9 @@ function StereoAudioRecorder(mediaStream, config) {
         */
         this.view = view;
 
+        this.sampleRate = sampleRate;
+        this.bufferSize = bufferSize;
+
         // recorded audio length
         this.length = recordingLength;
 
@@ -1327,6 +1334,7 @@ function StereoAudioRecorder(mediaStream, config) {
     * });
     */
     
+    // "0" means, let chrome decide the most accurate buffer-size for current platform.
     var bufferSize = config.bufferSize || 4096;
 
     if (legalBufferValues.indexOf(bufferSize) == -1) {
@@ -1358,12 +1366,6 @@ function StereoAudioRecorder(mediaStream, config) {
         // throw 'sample-rate must be under range 22050 and 96000.';
     }
 
-    this.sampleRate = sampleRate;
-    this.bufferSize = bufferSize;
-
-    console.log('sample-rate', sampleRate);
-    console.log('buffer-size', bufferSize);
-
     if (context.createJavaScriptNode) {
         __stereoAudioRecorderJavacriptNode = context.createJavaScriptNode(bufferSize, 2, 2);
     } else if (context.createScriptProcessor) {
@@ -1371,6 +1373,11 @@ function StereoAudioRecorder(mediaStream, config) {
     } else {
         throw 'WebAudio API has no support on this browser.';
     }
+
+    bufferSize = __stereoAudioRecorderJavacriptNode.bufferSize;
+
+    console.log('sample-rate', sampleRate);
+    console.log('buffer-size', bufferSize);
 
     var isAudioProcessStarted = false,
         self = this;
@@ -1576,11 +1583,6 @@ function WhammyRecorder(mediaStream) {
 
     var frames = [];
 
-    // if user want to display advertisement before recorded video!
-    if (this.advertisement) {
-        frames = advertisement;
-    }
-
     function drawFrames() {
         var duration = new Date().getTime() - lastTime;
         if (!duration) return drawFrames();
@@ -1704,6 +1706,11 @@ function WhammyRecorder(mediaStream) {
             // e.g. dropBlackFrames(frames, 10, 0.5, 0.5) - will analyse 10 frames
             // e.g. dropBlackFrames(frames, 10) == dropBlackFrames(frames, 10, 0, 0) - will analyse 10 frames with strict black color
             whammy.frames = dropBlackFrames(frames, -1);
+            
+            // to display advertisement images!
+            if (this.advertisement && this.advertisement.length) {
+                whammy.frames = advertisement.concat(whammy.frames);
+            }
 
             /**
             * @property {Blob} blob - Recorded frames in video/webm blob.

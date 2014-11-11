@@ -13,7 +13,7 @@
 // Demos         - www.WebRTC-Experiment.com/RTCMultiConnection
 
 // _________________________
-// RTCMultiConnection-v2.2.2
+// RTCMultiConnection-v2.2.3
 
 /* issues/features need to be fixed & implemented:
 
@@ -3467,7 +3467,7 @@ connection.rtcConfiguration
                     }
 
                     this.iceServers = {
-                        iceServers: this.rtcConfiguration || this.iceServers,
+                        iceServers: this.iceServers,
                         iceTransports: this.rtcConfiguration.iceTransports
                     };
                 } else this.iceServers = null;
