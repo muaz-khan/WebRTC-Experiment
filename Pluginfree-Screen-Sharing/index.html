@@ -511,22 +511,16 @@
                 </h2>
                 <ol>
                     <li>
-                        Is that Firefox Nightly? Make sure that you are using Firefox Nightly and you enabled: media.getusermedia.screensharing.enabled flag from about:config page. You also need to add your domain in "media.getusermedia.screensharing.allowed_domains" flag.
-                    </li>
-                    
-                    <li>
-                        Is that chrome? 
+                        Chrome? 
                         <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Install chrome extension</a>.
                         <button onclick="!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk', function() {location.reload();})" id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
                             <img src="https://www.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
                         </button>
+                         / <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture">Source Code</a>
                     </li>
+                    
                     <li>
-                        Otherwise make sure you are running the chrome with command line flag "<strong><a href="http://peter.sh/experiments/chromium-command-line-switches/#enable-usermedia-screen-capturing">--enable-usermedia-screen-capturing</a></strong>" e.g. on Windows "<strong>Chrome.exe --enable-usermedia-screen-capturing</strong>"
-                        <div style="text-align:center;">
-                            <img src="https://www.webrtc-experiment.com/images/--enable-usermedia-screen-capturing.png" style="max-width: 100%;">
-                        </div>
-                        Learn more about <a href="http://www.chromium.org/developers/how-tos/run-chromium-with-flags" target="_blank">how to enable command-line flags</a> on different operating systems.
+                        Firefox? <a href="https://www.webrtc-experiment.com/store/firefox-extension/enable-screen-capturing.xpi">Install Firefox Extension</a> / <a href="https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing">Source Code</a>
                     </li>
                 </ol>
             </section>

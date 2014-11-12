@@ -33,16 +33,19 @@ You don't need to modify any single line to use it. No single installation or mo
 
 ## Other Repositories
 
-1. [PluginRTC: IE/Safari Plugins compatible WebRTC-Experiments](https://github.com/muaz-khan/PluginRTC)
-2. [RecordRTC.js](https://github.com/muaz-khan/RecordRTC)
-3. [RTCMultiConnection.js](https://github.com/muaz-khan/RTCMultiConnection)
-4. [Conversation.js](https://github.com/muaz-khan/Conversation.js)
-5. [Collaborate Canvas Designer](https://github.com/muaz-khan/Canvas-Designer)
-6. [XHR-Signaling](https://github.com/muaz-khan/XHR-Signaling)
+1. [RecordRTC.js](https://github.com/muaz-khan/RecordRTC)
+2. [RTCMultiConnection.js](https://github.com/muaz-khan/RTCMultiConnection)
+3. [Conversation.js](https://github.com/muaz-khan/Conversation.js)
+4. [Collaborate Canvas Designer](https://github.com/muaz-khan/Canvas-Designer)
+5. [XHR-Signaling](https://github.com/muaz-khan/XHR-Signaling)
+6. [PluginRTC: IE/Safari Plugins compatible WebRTC-Experiments](https://github.com/muaz-khan/PluginRTC)
 7. [ASP.NET MVC based WebRTC 1:1 Demo](https://github.com/muaz-khan/WebRTC-ASPNET-MVC)
 8. [WebSync Signaling](https://github.com/muaz-khan/WebSync-Signaling)
 9. [SdpSerializer.js](https://github.com/muaz-khan/SdpSerializer)
 10. [FileBufferReader.js](https://github.com/muaz-khan/FileBufferReader)
+11. [Chrome-Extensions](https://github.com/muaz-khan/Chrome-Extensions)
+12. [Firefox-Extensions](https://github.com/muaz-khan/Firefox-Extensions)
+13. [WebRTC Scalable Broadcast](https://github.com/muaz-khan/WebRTC-Scalable-Broadcast)
 
 ## Important [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
 
@@ -68,6 +71,10 @@ You don't need to modify any single line to use it. No single installation or mo
 1. [desktopCapture API](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture) / [Install App Store Extension](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk)
 2. [tabCapture API](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/tabCapture) / [Install App Store Extension](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk)
 3. [Desktop Sharing](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing) / [Install App Store Extension](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg)
+
+## [Firefox Extensions](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Firefox-Extensions) for [WebRTC](https://www.webrtc-experiment.com/)!
+
+1. [enable-screen-capturing](https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing)
 
 ## One-to-Many style of WebRTC [Experiments](https://github.com/muaz-khan/WebRTC-Experiment)
 

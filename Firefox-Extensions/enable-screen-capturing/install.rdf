@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+    <Description about="urn:mozilla:install-manifest">
+        <em:id>muazkh@gmail.com</em:id>
+        <em:type>2</em:type>
+        <em:name>Screen Capturing in Firefox</em:name>
+        <em:description>Firefox extension to enable screen capturing</em:description>
+        <em:version>1.0</em:version>
+        <em:bootstrap>true</em:bootstrap>
+        <em:creator>Muaz Khan</em:creator>
+        <em:homepageURL>https://www.webrtc-experiment.com/</em:homepageURL>
+        <em:iconURL>icon.png</em:iconURL>
+        <em:targetApplication>
+            <Description>
+                <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+                <em:minVersion>33.0</em:minVersion>
+                <em:maxVersion>36.*</em:maxVersion>
+            </Description>
+        </em:targetApplication>
+    </Description>
+</RDF>

@@ -1,0 +1,44 @@
+{
+  "name": "webrtc-scalable-broadcast",
+  "preferGlobal": false,
+  "version": "1.0.1",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "http://www.muazkhan.com/"
+  },
+  "description": "Scalable WebRTC peer-to-peer broadcasting demo.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "main": "./server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/WebRTC-Scalable-Broadcast.git"
+  },
+  "keywords": [
+    "webrtc",
+    "broadcast",
+    "scalable",
+    "broadcast",
+    "webrtc",
+    "webrtc-broadcast",
+    "scalable-broadcast",
+    "webrtc-scalable-broadcast",
+    "rtcmulticonnection",
+    "rmc"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "socket.io": "0.9.x"
+  },
+  "bugs": {
+    "url": "https://github.com/muaz-khan/WebRTC-Scalable-Broadcast/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://github.com/muaz-khan",
+  "_id": "webrtc-scalable-broadcast@",
+  "_from": "webrtc-scalable-broadcast@"
+}

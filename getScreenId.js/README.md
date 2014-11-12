@@ -6,7 +6,7 @@ Simply use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/g
 
 Demo: https://www.webrtc-experiment.com/getScreenId/
 
-**Firefox Nightly?** Make sure that you are using Firefox Nightly and you enabled: `media.getusermedia.screensharing.enabled` flag from `about:config` page. You also need to add your domain in `media.getusermedia.screensharing.allowed_domains` flag.
+**Firefox?** [Install Firefox Extension](https://www.webrtc-experiment.com/store/firefox-extension/enable-screen-capturing.xpi) / [Source Code](https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing)
 
 =
 

@@ -245,14 +245,18 @@
                 <h2>Pre-Requisites?</h2>
                 <ol>
                     <li>
-                        Is that chrome? <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Install Chrome Screen Capturing Extension</a>
+                        Chrome? 
+                        <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Install chrome extension</a>.
+                        <button onclick="!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk', function() {location.reload();})" id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
+                            <img src="https://www.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
+                        </button>
+                         / <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture">Source Code</a>
                     </li>
                     
                     <li>
-                        Is that Firefox Nightly? Make sure that you are using Firefox Nightly and you enabled: <strong>"media.getusermedia.screensharing.enabled"</strong> flag from <strong>"about:config"</strong> page. You also need to add your domain in <strong>"media.getusermedia.screensharing.allowed_domains"</strong> flag.
+                        Firefox? <a href="https://www.webrtc-experiment.com/store/firefox-extension/enable-screen-capturing.xpi">Install Firefox Extension</a> / <a href="https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing">Source Code</a>
                     </li>
                 </ol>
-                
             </section>
 			
             <section class="experiment">
