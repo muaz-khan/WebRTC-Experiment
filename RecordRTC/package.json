@@ -1,7 +1,7 @@
 {
   "name": "recordrtc",
   "preferGlobal": false,
-  "version": "5.0.1",
+  "version": "5.0.4",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -33,5 +33,17 @@
   },
   "homepage": "http://RecordRTC.org/",
   "_id": "recordrtc@",
-  "_from": "recordrtc@"
+  "_from": "recordrtc@",
+  "devDependencies": {
+    "grunt": "latest",
+    "grunt-cli": "latest",
+    "load-grunt-tasks": "latest",
+    "grunt-contrib-concat": "latest",
+    "grunt-contrib-csslint": "latest",
+    "grunt-contrib-jshint": "latest",
+    "grunt-contrib-uglify": "latest",
+    "grunt-htmlhint": "latest",
+    "grunt-jsbeautifier": "latest",
+    "grunt-bump": "latest"
+  }
 }

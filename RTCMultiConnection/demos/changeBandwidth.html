@@ -2,7 +2,8 @@
 <script src="//cdn.webrtc-experiment.com/firebase.js"></script>
 
 <button id="openNewSessionButton">Open New Room</button>
-<button id="changeBandwidth" disabled>changeBandwidth</button><br />
+<button id="changeBandwidth" disabled>changeBandwidth</button>
+<br />
 <script>
 var connection = new RTCMultiConnection();
 
@@ -21,10 +22,10 @@ connection.bandwidth = {
 connection.media.max(1920, 1080);
 
 // on getting local or remote media stream
-connection.onstream = function (e) {
+connection.onstream = function(e) {
     document.body.appendChild(e.mediaElement);
 
-    if(e.type == 'remote') {
+    if (e.type == 'remote') {
         document.querySelector('#changeBandwidth').disabled = false;
     }
 };
@@ -33,13 +34,13 @@ connection.onstream = function (e) {
 connection.connect();
 
 // open new session
-document.querySelector('#openNewSessionButton').onclick = function () {
+document.querySelector('#openNewSessionButton').onclick = function() {
     this.disabled = true;
     connection.open();
 };
 
 // changing bandwidth at runtime
-document.querySelector('#changeBandwidth').onclick = function () {
+document.querySelector('#changeBandwidth').onclick = function() {
     this.disabled = true;
 
     function changeBandwidthFromAllPeers(bandwidth) {
@@ -54,4 +55,8 @@ document.querySelector('#changeBandwidth').onclick = function () {
     });
 };
 </script>
-<style>video { width: 35%; }</style>
+<style>
+video {
+    width: 35%;
+}
+</style>

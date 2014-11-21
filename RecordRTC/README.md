@@ -2,9 +2,11 @@
 
 [RecordRTC Documentation](https://RecordRTC.org/) / [RecordRTC Wiki Pages](https://github.com/muaz-khan/RecordRTC/wiki) / [RecordRTC Demo](https://www.webrtc-experiment.com/RecordRTC/) / [WebRTC Experiments](https://www.webrtc-experiment.com/)
 
-[![npm](https://img.shields.io/npm/v/recordrtc.svg)](https://npmjs.org/package/recordrtc) [![downloads](https://img.shields.io/npm/dm/recordrtc.svg)](https://npmjs.org/package/recordrtc)
+[![npm](https://img.shields.io/npm/v/recordrtc.svg)](https://npmjs.org/package/recordrtc) [![downloads](https://img.shields.io/npm/dm/recordrtc.svg)](https://npmjs.org/package/recordrtc) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RecordRTC.png?branch=master)](https://travis-ci.org/muaz-khan/RecordRTC)
 
 > [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is a JavaScript-based media-recording library for modern web-browsers (supporting WebRTC getUserMedia API). It is optimized for different devices and browsers to bring all client-side (pluginfree) recording solutions in single place.
+
+Please check [dev](https://github.com/muaz-khan/RecordRTC/tree/master/dev) directory for development files.
 
 1. [RecordRTC API Reference](http://RecordRTC.org/RecordRTC.html)
 2. [MRecordRTC API Reference](http://RecordRTC.org/MRecordRTC.html)
@@ -51,6 +53,12 @@
 
 ```
 npm install recordrtc
+```
+
+or using [Bower](http://bower.io):
+
+```
+bower install recordrtc
 ```
 
 To use it:

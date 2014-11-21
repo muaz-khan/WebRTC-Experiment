@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
 // Documentation     - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
@@ -6,174 +6,181 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>RecordRTC / PHP / FFmpeg</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-        <meta name="author" content="Muaz Khan">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        
-        <style>
-            body, html {
-                background: black;
-                color: white;
-                text-align: center;
-            }
 
-            button, a {
-                background: -webkit-gradient(linear, 50% 0, 50% 100%, color-stop(0%, #fff), color-stop(100%, #eaeaea));
-                background: -webkit-linear-gradient(top, #fff, #eaeaea);
-                background: -moz-linear-gradient(top, #fff, #eaeaea);
-                background: -o-linear-gradient(top, #fff, #eaeaea);
-                background: linear-gradient(top, #fff, #eaeaea);
-                border: 1px solid white;
-                border-radius: 5px;
-                color: #4f4f4f;
-                padding: 8px 15px;
-                text-decoration: none;
-                text-transform: capitalize;
-            }
+<head>
+    <title>RecordRTC / PHP / FFmpeg</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-            button:hover, a:hover, button:active, a:active, button:focus, a:focus {
-                -moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
-                -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
-                background: #303030;
-                border-color: white;
-                box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
-                color: white;
-            }
+    <style>
+    body,
+    html {
+        background: black;
+        color: white;
+        text-align: center;
+    }
+    button,
+    a {
+        background: -webkit-gradient(linear, 50% 0, 50% 100%, color-stop(0%, #fff), color-stop(100%, #eaeaea));
+        background: -webkit-linear-gradient(top, #fff, #eaeaea);
+        background: -moz-linear-gradient(top, #fff, #eaeaea);
+        background: -o-linear-gradient(top, #fff, #eaeaea);
+        background: linear-gradient(top, #fff, #eaeaea);
+        border: 1px solid white;
+        border-radius: 5px;
+        color: #4f4f4f;
+        padding: 8px 15px;
+        text-decoration: none;
+        text-transform: capitalize;
+    }
+    button:hover,
+    a:hover,
+    button:active,
+    a:active,
+    button:focus,
+    a:focus {
+        -moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        background: #303030;
+        border-color: white;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        color: white;
+    }
+    button[disabled] {
+        background: transparent;
+        border-color: rgb(83, 81, 81);
+        color: rgb(139, 133, 133);
+    }
+    </style>
 
-            button[disabled] {
-                background: transparent;
-                border-color: rgb(83, 81, 81);
-                color: rgb(139, 133, 133);
-            }
-        </style>
-        
-        <!-- script used for audio/video/gif recording -->
-        <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
-    </head>
+    <!-- script used for audio/video/gif recording -->
+    <script src="https://www.webrtc-experiment.com/RecordRTC.js">
+    </script>
+</head>
 
-    <body style="text-align: center;">
-        <h1>
-            <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a>
-            <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC-to-PHP">PHP</a>
-            <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ffmpeg">FFmpeg</a>
-        </h1>
-        <section class="experiment">  
-            <p style="text-align: center;">
-                <video id="preview" controls style="border: 1px solid rgb(15, 158, 238); height: 240px; max-width: 100%; vertical-align: top; width: 320px;"></video> 
-            </p>
+<body style="text-align: center;">
+    <h1>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC-to-PHP">PHP</a>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ffmpeg">FFmpeg</a>
+    </h1>
+    <section class="experiment">
+        <p style="text-align: center;">
+            <video id="preview" controls style="border: 1px solid rgb(15, 158, 238); height: 240px; max-width: 100%; vertical-align: top; width: 320px;"></video>
+        </p>
 
-            <button id="record">Record</button>
-            <button id="stop" disabled>Stop</button>
+        <button id="record">Record</button>
+        <button id="stop" disabled>Stop</button>
 
-            <div id="container" style="padding: 1em 2em;"></div>
-        </section>
-            
-        <script>
-            // todo: this demo need to be updated for Firefox.
-            // it currently focuses only chrome.
-            
-            function PostBlob(audioBlob, videoBlob, fileName) {
-                var formData = new FormData();
-                formData.append('filename', fileName);
-                formData.append('audio-blob', audioBlob);
-                formData.append('video-blob', videoBlob);
-                xhr('save.php', formData, function(ffmpeg_output) {
-                    document.querySelector('h1').innerHTML = ffmpeg_output.replace( /\\n/g , '<br />');
-                    preview.src = 'uploads/' + fileName + '-merged.webm';
-                    preview.play();
-                    preview.muted = false;
-                });
-            }
+        <div id="container" style="padding: 1em 2em;"></div>
+    </section>
 
-            var record = document.getElementById('record');
-            var stop = document.getElementById('stop');
+    <script>
+    // todo: this demo need to be updated for Firefox.
+    // it currently focuses only chrome.
 
-            var audio = document.querySelector('audio');
+    function PostBlob(audioBlob, videoBlob, fileName) {
+        var formData = new FormData();
+        formData.append('filename', fileName);
+        formData.append('audio-blob', audioBlob);
+        formData.append('video-blob', videoBlob);
+        xhr('save.php', formData, function(ffmpeg_output) {
+            document.querySelector('h1').innerHTML = ffmpeg_output.replace(/\\n/g, '<br />');
+            preview.src = 'uploads/' + fileName + '-merged.webm';
+            preview.play();
+            preview.muted = false;
+        });
+    }
 
-            var recordVideo = document.getElementById('record-video');
-            var preview = document.getElementById('preview');
+    var record = document.getElementById('record');
+    var stop = document.getElementById('stop');
 
-            var container = document.getElementById('container');
+    var audio = document.querySelector('audio');
 
-            var isFirefox = !!navigator.mozGetUserMedia;
+    var recordVideo = document.getElementById('record-video');
+    var preview = document.getElementById('preview');
 
-            var recordAudio, recordVideo;
-            record.onclick = function() {
-                record.disabled = true;
-                !window.stream && navigator.getUserMedia({
-                        audio: true,
-                        video: true
-                    }, function(stream) {
-                        window.stream = stream;
-                        onstream();
-                    }, function(error) {
-                        alert(JSON.stringify(error, null, '\t'));
-                    });
+    var container = document.getElementById('container');
 
-                window.stream && onstream();
+    var isFirefox = !!navigator.mozGetUserMedia;
 
-                function onstream() {
-                    preview.src = window.URL.createObjectURL(stream);
-                    preview.play();
-                    preview.muted = true;
+    var recordAudio, recordVideo;
+    record.onclick = function() {
+        record.disabled = true;
+        !window.stream && navigator.getUserMedia({
+            audio: true,
+            video: true
+        }, function(stream) {
+            window.stream = stream;
+            onstream();
+        }, function(error) {
+            alert(JSON.stringify(error, null, '\t'));
+        });
 
-                    recordAudio = RecordRTC(stream, {
-                        // bufferSize: 16384,
-                        onAudioProcessStarted: function() {
-                            if(!isFirefox) {
-                                recordVideo.startRecording();
-                            }
-                        }
-                    });
-                    
-                    recordVideo = RecordRTC(stream, {
-                        type: 'video'
-                    });
-                    
-                    recordAudio.startRecording();
+        window.stream && onstream();
 
-                    stop.disabled = false;
-                }
-            };
+        function onstream() {
+            preview.src = window.URL.createObjectURL(stream);
+            preview.play();
+            preview.muted = true;
 
-            var fileName;
-            stop.onclick = function() {
-                document.querySelector('h1').innerHTML = 'Getting Blobs...';
-
-                record.disabled = false;
-                stop.disabled = true;
-
-                preview.src = '';
-                preview.poster = 'ajax-loader.gif';
-
-                fileName = Math.round(Math.random() * 99999999) + 99999999;
-
-                if (!isFirefox) {
-                    recordAudio.stopRecording(function() {
-                        document.querySelector('h1').innerHTML = 'Got audio-blob. Getting video-blob...';
-                        recordVideo.stopRecording(function() {
-                            document.querySelector('h1').innerHTML = 'Uploading to server...';
-                            PostBlob(recordAudio.getBlob(), recordVideo.getBlob(), fileName);
-                        });
-                    });
-                }
-            };
-
-            function xhr(url, data, callback) {
-                var request = new XMLHttpRequest();
-                request.onreadystatechange = function() {
-                    if (request.readyState == 4 && request.status == 200) {
-                        callback(request.responseText);
+            recordAudio = RecordRTC(stream, {
+                // bufferSize: 16384,
+                onAudioProcessStarted: function() {
+                    if (!isFirefox) {
+                        recordVideo.startRecording();
                     }
-                };
-                request.open('POST', url);
-                request.send(data);
+                }
+            });
+
+            recordVideo = RecordRTC(stream, {
+                type: 'video'
+            });
+
+            recordAudio.startRecording();
+
+            stop.disabled = false;
+        }
+    };
+
+    var fileName;
+    stop.onclick = function() {
+        document.querySelector('h1').innerHTML = 'Getting Blobs...';
+
+        record.disabled = false;
+        stop.disabled = true;
+
+        preview.src = '';
+        preview.poster = 'ajax-loader.gif';
+
+        fileName = Math.round(Math.random() * 99999999) + 99999999;
+
+        if (!isFirefox) {
+            recordAudio.stopRecording(function() {
+                document.querySelector('h1').innerHTML = 'Got audio-blob. Getting video-blob...';
+                recordVideo.stopRecording(function() {
+                    document.querySelector('h1').innerHTML = 'Uploading to server...';
+                    PostBlob(recordAudio.getBlob(), recordVideo.getBlob(), fileName);
+                });
+            });
+        }
+    };
+
+    function xhr(url, data, callback) {
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+            if (request.readyState == 4 && request.status == 200) {
+                callback(request.responseText);
             }
-        </script>
-    </body>
+        };
+        request.open('POST', url);
+        request.send(data);
+    }
+    </script>
+</body>
+
 </html>

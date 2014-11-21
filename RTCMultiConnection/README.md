@@ -1,19 +1,61 @@
-<a href="https://github.com/muaz-khan/RTCMultiConnection"><img src="https://www.rtcmulticonnection.org/images/logo.png" /></a> / <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki Pages</a> / <a href="http://www.rtcmulticonnection.org/docs/">Documentation</a> / <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+<a href="https://github.com/muaz-khan/RTCMultiConnection"><img src="https://i.imgur.com/MFfRBSM.png" /></a> / <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki Pages</a> / <a href="http://www.rtcmulticonnection.org/docs/">Documentation</a> / <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a> / <a href="https://www.webrtc-experiment.com/RTCMultiConnection/">Demos</a> / <a href="http://www.rtcmulticonnection.org/changes-log/">Changes Log</a>
 
-## WebRTC Library  [![npm](https://img.shields.io/npm/v/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection)
+## WebRTC Library  [![npm](https://img.shields.io/npm/v/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master)](https://travis-ci.org/muaz-khan/RTCMultiConnection)
 
 Quick-Demos for newbies: 
 
 1. <a href="http://jsfiddle.net/zar6fg60/">http://jsfiddle.net/zar6fg60/</a> (simplest)
 2. <a href="http://jsfiddle.net/c46de0L8/">http://jsfiddle.net/c46de0L8/</a> (simple)
 
-Changes log for current version: http://www.rtcmulticonnection.org/changes-log/#v2.0
+<table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;">
+    <tr>
+        <td>
+            <a href="https://www.webrtc-experiment.com/RTCMultiConnection/" target="_blank">
+                <img src="https://i.imgur.com/Fz1Pff6.png" style="display:block; width:99px; height99px;" alt="Demos">
+                Demos
+            </a>
+        </td>
+        
+        <td>
+            <a href="http://www.rtcmulticonnection.org/docs/getting-started/" target="_blank">
+                <img src="https://i.imgur.com/v3YdSC6.png" style="display:block; width:99px; height99px;" alt="Getting-Started">
+                Getting Started
+            </a>
+        </td>
+        
+        <td>
+            <a href="http://www.rtcmulticonnection.org/docs/" target="_blank">
+                <img src="https://i.imgur.com/mtu6091.png" style="display:block; width:99px; height99px;" alt="Documentation">
+                Documentation
+            </a>
+        </td>
+        
+        <td>
+            <a href="http://www.rtcmulticonnection.org/changes-log/" target="_blank">
+                <img src="https://i.imgur.com/zHngv8r.png" style="display:block; width:99px; height99px;" alt="Changes Log">
+                Changes Log
+            </a>
+        </td>
+        
+        <td>
+            <a href="http://www.rtcmulticonnection.org/FAQ/" target="_blank">
+                <img src="https://i.imgur.com/Zeqlfv2.png" style="display:block; width:99px; height99px;" alt="FAQ">
+                FAQ
+            </a>
+        </td>
+    </tr>
+</table>
 
 RTCMultiConnection is a <a href="https://www.webrtc-experiment.com/">WebRTC</a> JavaScript wrapper library runs top over RTCPeerConnection API to provide multi-session establishment scenarios. It also provides dozens of features as hybrid-less mesh networking model, a reliable presence detection and syncing system; complex renegotiation scenarios; and much more. It provides everything you've in your mind! Just understand the API and you'll enjoy using it! It is simple and its syntax is similar as WebSockets JavaScript API and RTCPeerConnection API.
 
 It is <a href="https://www.webrtc-experiment.com/licence/">MIT Licenced</a>, which means that you can use it in any commercial/non-commercial product, free of cost.
 
+## Upgrade? Please check [list of breaking changes](https://github.com/muaz-khan/RTCMultiConnection/wiki/Breaking-Changes)
+
 ```
+bower install rtcmulticonnection
+
+# or NPM!
 npm install rtcmulticonnection
 ```
 
@@ -59,7 +101,7 @@ moderator.userid  = MODERATOR_ID;
 moderator.extra   = MODERATOR_EXTRA;
 moderator.open({
     dontTransmit: true,
-    sessionid:    MODERATOR_SESSION_ID
+    sessionid   : MODERATOR_SESSION_ID
 });
 ```
 
@@ -69,9 +111,9 @@ moderator.open({
 var participants = new RTCMultiConnection(MODERATOR_CHANNEL_ID);
 participants.join({
     sessionid: MODERATOR_SESSION_ID,
-    userid:    MODERATOR_ID,
-    extra:     MODERATOR_EXTRA,
-    session:   MODERATOR_SESSION
+    userid   : MODERATOR_ID,
+    extra    : MODERATOR_EXTRA,
+    session  : MODERATOR_SESSION
 });
 ```
 
@@ -120,52 +162,13 @@ moderator.onstreamended = function(event) {
 <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
 <script>
 document.getElementById('openRoom').onclick = function() {
-    new RTCMultiConnection().open();
+    (new RTCMultiConnection).open();
 };
 document.getElementById('joinRoom').onclick = function() {
-    new RTCMultiConnection().connect();
+    (new RTCMultiConnection).connect();
 };
 </script>
 ```
-
-<table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;">
-    <tr>
-        <td>
-            <a href="https://www.webrtc-experiment.com/RTCMultiConnection/" target="_blank">
-                <img src="https://www.rtcmulticonnection.org/img/demo.png" style="display:block; width:99px; height99px;" alt="Demos">
-                Demos
-            </a>
-        </td>
-        
-        <td>
-            <a href="http://www.rtcmulticonnection.org/docs/getting-started/" target="_blank">
-                <img src="https://www.rtcmulticonnection.org/img/getting-started.png" style="display:block; width:99px; height99px;" alt="Getting-Started">
-                Getting Started
-            </a>
-        </td>
-        
-        <td>
-            <a href="http://www.rtcmulticonnection.org/docs/" target="_blank">
-                <img src="https://www.rtcmulticonnection.org/img/documentation.png" style="display:block; width:99px; height99px;" alt="Documentation">
-                Documentation
-            </a>
-        </td>
-        
-        <td>
-            <a href="http://www.rtcmulticonnection.org/changes-log/" target="_blank">
-                <img src="https://www.rtcmulticonnection.org/img/whats-new.png" style="display:block; width:99px; height99px;" alt="Changes Log">
-                Changes Log
-            </a>
-        </td>
-        
-        <td>
-            <a href="http://www.rtcmulticonnection.org/FAQ/" target="_blank">
-                <img src="https://www.rtcmulticonnection.org/img/FAQ.png" style="display:block; width:99px; height99px;" alt="FAQ">
-                FAQ
-            </a>
-        </td>
-    </tr>
-</table>
 
 ## Demos using [RTCMultiConnection](http://www.RTCMultiConnection.org/)
 
@@ -212,17 +215,13 @@ document.getElementById('joinRoom').onclick = function() {
 | takeSnapshot i.e. Take Snapshot of Local/Remote streams | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/takeSnapshot.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/takeSnapshot.html) |
 | Audio/Video/Screen sharing and recording | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/audio-video-screen-sharing-recording.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/audio-video-screen-sharing-recording.html) |
 | Broadcast Multiple-Cameras | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/Broadcast-Multiple-Cameras.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Broadcast-Multiple-Cameras.html) |
+| Remote Stream Forwarding | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/remote-stream-forwarding.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/remote-stream-forwarding.html) |
+| WebRTC Scalable Broadcast | Socketio/Nodejs | [Source](https://github.com/muaz-khan/WebRTC-Scalable-Broadcast) |
 
-## Credits
+## Credits & Contributors
 
-[Muaz Khan](https://github.com/muaz-khan):
-
-1. Personal Webpage: http://www.muazkhan.com
-2. Email: muazkh@gmail.com
-3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
-4. Google+: https://plus.google.com/+WebRTC-Experiment
-5. Facebook: https://www.facebook.com/WebRTC
+* [CONTRIBUTING.md](https://github.com/muaz-khan/RTCMultiConnection/blob/master/CONTRIBUTING.md)
 
 ## License
 
-[RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection) is released under [MIT licence](https://github.com/muaz-khan/RTCMultiConnection/blob/master/LICENSE.md) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).

@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 > Muaz Khan     - github.com/muaz-khan 
 > MIT License   - www.webrtc-experiment.com/licence
 > Documentation - www.RTCMultiConnection.org
@@ -6,322 +6,309 @@
 <!DOCTYPE html>
 <html id="home" lang="en">
 
-    <head>
-        <title>takeSnapshot using RTCMultiConnection ® Muaz Khan</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-        <meta name="author" content="Muaz Khan">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        
-        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+<head>
+    <title>takeSnapshot using RTCMultiConnection ® Muaz Khan</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-        <style>
-            audio, video {
-                -moz-transition: all 1s ease;
-                -ms-transition: all 1s ease;
-                
-                -o-transition: all 1s ease;
-                -webkit-transition: all 1s ease;
-                transition: all 1s ease;
-                vertical-align: top;
-            }
+    <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
 
-            input {
-                border: 1px solid #d9d9d9;
-                border-radius: 1px;
-                font-size: 2em;
-                margin: .2em;
-                width: 30%;
-            }
+    <style>
+    audio,
+    video {
+        -moz-transition: all 1s ease;
+        -ms-transition: all 1s ease;
+        -o-transition: all 1s ease;
+        -webkit-transition: all 1s ease;
+        transition: all 1s ease;
+        vertical-align: top;
+    }
+    input {
+        border: 1px solid #d9d9d9;
+        border-radius: 1px;
+        font-size: 2em;
+        margin: .2em;
+        width: 30%;
+    }
+    .setup {
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+        font-size: 102%;
+        height: 47px;
+        margin-left: -9px;
+        margin-top: 8px;
+        position: absolute;
+    }
+    p {
+        padding: 1em;
+    }
+    li {
+        border-bottom: 1px solid rgb(189, 189, 189);
+        border-left: 1px solid rgb(189, 189, 189);
+        padding: .5em;
+    }
+    .video-container {
+        background: white;
+        border: 2px solid black;
+        border-radius: 0.2em;
+        display: inline-block;
+        margin: 2em .2em;
+        padding: .1em;
+        vertical-align: top;
+    }
+    .video-container h2 {
+        border: 0;
+        border-top: 1px solid black;
+        display: block;
+        margin: 0;
+        text-align: center;
+    }
+    .takeSnapshot,
+    .takeSnapshot:hover,
+    .takeSnapshot:active {
+        background-color: transparent;
+        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuM4zml1AAAAO1SURBVHhe7VpNixNBEN17focevewP3IMIgiDeBT2IoIgoIoJ40IMigoh48CQLwiZZkaCbZLNfCfG93pqme6Yyk5mepbPTPnhUp7pnmHrd1R8z2Voul0lTdaZE1ZkSVWdKVJ0pUXWmRNWZElVnSlSdKVF1rsEeeEW4syavbm9vb7VN3DeIqrOCvfF4/BG2FnDNV5jWRcA9g6g6K8heb4odLYgQ4p5BVJ0VTEYAN88tF4vFA9imuAdq80MIC8+4goynEGfBAfZOTk5uHh4e/kW5M5jNZlN03nUUPSHcwMnewcHBd9jOQkSwMXvBTyaTD7AWmLn3jo+Pn8vPTmA6nY5g7ChwBWCeWJydnT2CyeaBroExrRYA+f8GJlOpsQDIu1cwO7Cvzz3tQCbiykkQI/gzrAbWrxYAsA2kXBtIp/cwZuND27IIdjlFuYy9FSl88QJwsskeUh6UvdUW1hWA1J7/4gXAavINxo4ADMcfpqIdbL4ABILeRSrcgf0prlYgE3QmbhXjCXCRgKg8kK2zE7wG5kG/iS8LMh+obSDlruG/AKCJLwsyH2gUATCsfw2Hw6f7+/uPaQeDwTPsSSZS3SY2SwBZq5nPhRcm9LEuv00PxGYIgB7/AqMGnifbsC2uGcKGIr4Ask22gbMMUgyNXjuIwNdrIYgrgCxhXlA4pb01lQpQ9w7Ga4+UGJjKZognAF9MwOSD+W0qSwAR/sC413FkNEU8AU5PT2+4wWMCnJ3XVEPO8kYEWhkZTRBHAAnWBoDzwidTUQNyqszu0XQUxBGAa7vT+yFD2ByGYDkKOCrqIo4AueEfLADZ7/dfiK8O4ggA2AdHz90WXxPY+4xGo7viq4P4AvDVu/ia4HIK4L4lws9WUgDzyhPx1UEcAXjICRVADkd2JWm4NY4jgLsJom3yohTX3AoVEYgjgMAOX5TZg3vn7mrIVysrYMBHm3gCSMAmCEeEXVNZAjd4uS5kDoknAHF0dPQSxhOBy6KkiAfk/FiWTK99k12kg7gCEPP5/CGMDSoLDGTPuiy0gVA8SocgvgCE5LAXYBnZVo7SodgMAQgExG8GhZ52g2a9/GdhjHIbKBdAcjT442gdMP+xq7uPopcCECj07Y+GcgEIWaOT+jzOP0h4r5l4fhchOgOkEf/6o/5Bguxib3so+4sMaYb8OhuTywb2PN9HoGh7n3SDd5nl/jr0Jq0I1J5Joxd4xoIjNarOlKg6U6LqTImqMyWqzpSoOlOi6kyJqjMlqs6UqDrT4XLrH5iAs+/bwo6TAAAAAElFTkSuQmCC') !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+        height: 44px;
+        margin: .2em;
+        position: absolute;
+        width: 63px;
+        z-index: 200;
+        border: 0;
+        cursor: pointer;
+    }
+    </style>
+    <!-- for HTML5 el styling -->
+    <script>
+    document.createElement('article');
+    document.createElement('footer');
+    </script>
 
-            .setup {
-                border-bottom-left-radius: 0;
-                border-top-left-radius: 0;
-                font-size: 102%;
-                height: 47px;
-                margin-left: -9px;
-                margin-top: 8px;
-                position: absolute;
-            }
+    <script src="//cdn.webrtc-experiment.com/firebase.js">
+    </script>
+    <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
+    </script>
+</head>
 
-            p { padding: 1em; }
+<body>
+    <article>
+        <header style="text-align: center;">
+            <h1>
+                <a href="http://www.rtcmulticonnection.org/docs/takeSnapshot/">takeSnapshot</a> using <a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a> ® <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+            </h1>
 
-            li {
-                border-bottom: 1px solid rgb(189, 189, 189);
-                border-left: 1px solid rgb(189, 189, 189);
-                padding: .5em;
-            }
+            <p>
+                <a href="https://www.webrtc-experiment.com/">HOME</a>
+                <span> &copy; </span>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a> .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+            </p>
+        </header>
 
-            .video-container {
-                background: white;
-                border: 2px solid black;
-                border-radius: 0.2em;
-                display: inline-block;
-                margin: 2em .2em;
-                padding: .1em;
-                vertical-align: top;
-            }
+        <div class="github-stargazers"></div>
 
-            .video-container h2 {
-                border: 0;
-                border-top: 1px solid black;
-                display: block;
-                margin: 0;
-                text-align: center;
-            }
+        <section class="experiment">
+            <h2>New Session:</h2>
+            <button id="start-new-session">Start New Video Session</button>
+            <section id="snapshots-container"></section>
 
-            .takeSnapshot, .takeSnapshot:hover, .takeSnapshot:active {
-                background-color: transparent;
-                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuM4zml1AAAAO1SURBVHhe7VpNixNBEN17focevewP3IMIgiDeBT2IoIgoIoJ40IMigoh48CQLwiZZkaCbZLNfCfG93pqme6Yyk5mepbPTPnhUp7pnmHrd1R8z2Voul0lTdaZE1ZkSVWdKVJ0pUXWmRNWZElVnSlSdKVF1rsEeeEW4syavbm9vb7VN3DeIqrOCvfF4/BG2FnDNV5jWRcA9g6g6K8heb4odLYgQ4p5BVJ0VTEYAN88tF4vFA9imuAdq80MIC8+4goynEGfBAfZOTk5uHh4e/kW5M5jNZlN03nUUPSHcwMnewcHBd9jOQkSwMXvBTyaTD7AWmLn3jo+Pn8vPTmA6nY5g7ChwBWCeWJydnT2CyeaBroExrRYA+f8GJlOpsQDIu1cwO7Cvzz3tQCbiykkQI/gzrAbWrxYAsA2kXBtIp/cwZuND27IIdjlFuYy9FSl88QJwsskeUh6UvdUW1hWA1J7/4gXAavINxo4ADMcfpqIdbL4ABILeRSrcgf0prlYgE3QmbhXjCXCRgKg8kK2zE7wG5kG/iS8LMh+obSDlruG/AKCJLwsyH2gUATCsfw2Hw6f7+/uPaQeDwTPsSSZS3SY2SwBZq5nPhRcm9LEuv00PxGYIgB7/AqMGnifbsC2uGcKGIr4Ask22gbMMUgyNXjuIwNdrIYgrgCxhXlA4pb01lQpQ9w7Ga4+UGJjKZognAF9MwOSD+W0qSwAR/sC413FkNEU8AU5PT2+4wWMCnJ3XVEPO8kYEWhkZTRBHAAnWBoDzwidTUQNyqszu0XQUxBGAa7vT+yFD2ByGYDkKOCrqIo4AueEfLADZ7/dfiK8O4ggA2AdHz90WXxPY+4xGo7viq4P4AvDVu/ia4HIK4L4lws9WUgDzyhPx1UEcAXjICRVADkd2JWm4NY4jgLsJom3yohTX3AoVEYgjgMAOX5TZg3vn7mrIVysrYMBHm3gCSMAmCEeEXVNZAjd4uS5kDoknAHF0dPQSxhOBy6KkiAfk/FiWTK99k12kg7gCEPP5/CGMDSoLDGTPuiy0gVA8SocgvgCE5LAXYBnZVo7SodgMAQgExG8GhZ52g2a9/GdhjHIbKBdAcjT442gdMP+xq7uPopcCECj07Y+GcgEIWaOT+jzOP0h4r5l4fhchOgOkEf/6o/5Bguxib3so+4sMaYb8OhuTywb2PN9HoGh7n3SDd5nl/jr0Jq0I1J5Joxd4xoIjNarOlKg6U6LqTImqMyWqzpSoOlOi6kyJqjMlqs6UqDrT4XLrH5iAs+/bwo6TAAAAAElFTkSuQmCC') !important;
-                background-position: center center !important;
-                background-repeat: no-repeat !important;
-                height: 44px;
-                margin: .2em;
-                position: absolute;
-                width: 63px;
-                z-index: 200;
-                border: 0;
-                cursor: pointer;                
-            }
-        </style>
-        <!-- for HTML5 el styling -->
+            <table style="border-left: 1px solid black; width: 100%;">
+                <tr>
+                    <td id="local-video-container">
+                        <h2>Local video container</h2>
+                    </td>
+                    <td id="remote-videos-container" style="background: white; border-left: 1px solid black;">
+                        <h2>Remote videos container
+                        </h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table id="sessions-list" style="width: 100%;"></table>
+                    </td>
+                </tr>
+            </table>
+        </section>
+
         <script>
-            document.createElement('article');
-            document.createElement('footer');
+        // window.username = Math.random() * 9999 << 9999;
+
+        var connection = new RTCMultiConnection();
+
+        var sessionsList = document.getElementById('sessions-list');
+        connection.onNewSession = function(session) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + session.extra.username + '</td>';
+
+            var td = document.createElement('td');
+            var button = document.createElement('button');
+            button.innerHTML = 'join';
+
+            td.appendChild(button);
+            tr.appendChild(td);
+            sessionsList.insertBefore(tr, sessionsList.firstChild);
+
+            button.onclick = function() {
+                if (!window.username) window.username = prompt('Please enter your username') || 'Anonymous';
+
+                connection.extra = {
+                    username: window.username
+                };
+                session.join();
+
+                document.getElementById('start-new-session').disabled = true;
+                sessionsList.style.display = 'none';
+            };
+        };
+
+        // check if user is ejected
+        // clear rooms-list if user is ejected
+        connection.onSessionClosed = function(event) {
+            if (event.isEjected) {
+                sessionsList.innerHTML = '';
+                sessionsList.style.display = 'block';
+            }
+        };
+
+        document.getElementById('start-new-session').onclick = function() {
+            if (!window.username) window.username = prompt('Please enter your username') || 'Anonymous';
+
+            connection.extra = {
+                username: window.username
+            };
+            connection.sessionid = window.username;
+            connection.open();
+
+            document.getElementById('start-new-session').disabled = true;
+            sessionsList.style.display = 'none';
+        };
+
+        connection.onstream = function(stream) {
+            var div = document.createElement('div');
+            div.className = 'video-container';
+            div.id = stream.streamid || 'self';
+
+            var takeSnapshot = document.createElement('button');
+            takeSnapshot.className = 'takeSnapshot';
+            takeSnapshot.title = 'Take snapshot of this video';
+
+            takeSnapshot.onclick = function() {
+                // http://www.rtcmulticonnection.org/docs/takeSnapshot/
+                connection.streams[this.parentNode.id].takeSnapshot(function(snapshot) {
+                    var image = new Image();
+                    image.src = snapshot;
+                    snapshotsContainer.appendChild(image);
+                });
+            };
+            div.appendChild(takeSnapshot);
+
+            div.appendChild(stream.mediaElement);
+
+            if (stream.type === 'local') {
+                document.getElementById('local-video-container').appendChild(div);
+            }
+
+            if (stream.type === 'remote') {
+                var remoteVideosContainer = document.getElementById('remote-videos-container');
+                remoteVideosContainer.appendChild(div, remoteVideosContainer.firstChild);
+            }
+            stream.mediaElement.width = innerWidth / 3.4;
+        };
+
+        connection.onstreamended = function(e) {
+            if (e.mediaElement && e.mediaElement.parentNode && e.mediaElement.parentNode.parentNode) {
+                e.mediaElement.parentNode.parentNode.removeChild(e.mediaElement.parentNode);
+            }
+        };
+
+        var snapshotsContainer = document.getElementById('snapshots-container');
+
+        connection.connect();
         </script>
 
-        <script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
-        <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
-    </head>
+        <br/>
+        <br/>
 
-    <body>
-        <article>
-            <header style="text-align: center;">
-                <h1>
-                    <a href="http://www.rtcmulticonnection.org/docs/takeSnapshot/">takeSnapshot</a> using <a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a>
-                    ® <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
-                </h1>
+        <blockquote class="inline">
+            "
+            <a href="http://www.RTCMultiConnection.org/docs/takeSnapshot/">
+                <code>takeSnapshot</code>
+            </a>" can be used to take snapshots of a user's first available stream. You can even take snapshot of a specific stream using "stream-id".
+        </blockquote>
 
-                <p>
-                    <a href="https://www.webrtc-experiment.com/">HOME</a>
-                    <span> &copy; </span>
-                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
-                        
-                    .
-                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
-                        
-                    .
-                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
-                        
-                    .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
-                        
-                    .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
-                </p>
-            </header>
-            
-            <div class="github-stargazers"></div>
-
-            <section class="experiment">
-                <h2>New Session:</h2>
-                <button id="start-new-session">Start New Video Session</button>
-                <section id="snapshots-container"></section>
-                
-                <table style="border-left: 1px solid black; width: 100%;">
-                    <tr>
-                        <td id="local-video-container"><h2>Local video container</h2></td>
-                        <td id="remote-videos-container" style="background: white; border-left: 1px solid black;"><h2>Remote videos
-                                                                                                                      container</h2></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <table id="sessions-list" style="width: 100%;"></table>
-                        </td>
-                    </tr>
-                </table>
-            </section>
-
-            <script>
-                // window.username = Math.random() * 9999 << 9999;
-
-                var connection = new RTCMultiConnection();
-
-                var sessionsList = document.getElementById('sessions-list');
-                connection.onNewSession = function(session) {
-                    var tr = document.createElement('tr');
-                    tr.innerHTML = '<td>' + session.extra.username + '</td>';
-
-                    var td = document.createElement('td');
-                    var button = document.createElement('button');
-                    button.innerHTML = 'join';
-
-                    td.appendChild(button);
-                    tr.appendChild(td);
-                    sessionsList.insertBefore(tr, sessionsList.firstChild);
-
-                    button.onclick = function() {
-                        if (!window.username) window.username = prompt('Please enter your username') || 'Anonymous';
-
-                        connection.extra = {
-                            username: window.username
-                        };
-                        session.join();
-
-                        document.getElementById('start-new-session').disabled = true;
-                        sessionsList.style.display = 'none';
-                    };
-                };
-                
-                // check if user is ejected
-                // clear rooms-list if user is ejected
-                connection.onSessionClosed = function(event) {
-                    if(event.isEjected) {
-                        sessionsList.innerHTML = '';
-                        sessionsList.style.display = 'block';
-                    }
-                };
-
-                document.getElementById('start-new-session').onclick = function() {
-                    if (!window.username) window.username = prompt('Please enter your username') || 'Anonymous';
-
-                    connection.extra = {
-                        username: window.username
-                    };
-                    connection.sessionid = window.username;
-                    connection.open();
-
-                    document.getElementById('start-new-session').disabled = true;
-                    sessionsList.style.display = 'none';
-                };
-
-                connection.onstream = function(stream) {
-                    var div = document.createElement('div');
-                    div.className = 'video-container';
-                    div.id = stream.streamid || 'self';
-
-                    var takeSnapshot = document.createElement('button');
-                    takeSnapshot.className = 'takeSnapshot';
-                    takeSnapshot.title = 'Take snapshot of this video';
-
-                    takeSnapshot.onclick = function() {
-                        // http://www.rtcmulticonnection.org/docs/takeSnapshot/
-                        connection.streams[this.parentNode.id].takeSnapshot(function(snapshot) {
-                            var image = new Image();
-                            image.src = snapshot;
-                            snapshotsContainer.appendChild(image);
-                        });
-                    };
-                    div.appendChild(takeSnapshot);
-                    
-                    div.appendChild(stream.mediaElement);
-                    
-                    if (stream.type === 'local') {
-                        document.getElementById('local-video-container').appendChild(div);
-                    }
-
-                    if (stream.type === 'remote') {
-                        var remoteVideosContainer = document.getElementById('remote-videos-container');
-                        remoteVideosContainer.appendChild(div, remoteVideosContainer.firstChild);
-                    }
-                    stream.mediaElement.width = innerWidth / 3.4;
-                };
-
-                connection.onstreamended = function(e) {
-                    if (e.mediaElement && e.mediaElement.parentNode && e.mediaElement.parentNode.parentNode) {
-                        e.mediaElement.parentNode.parentNode.removeChild(e.mediaElement.parentNode);
-                    }
-                };
-                
-                var snapshotsContainer = document.getElementById('snapshots-container');
-
-                connection.connect();
-            </script>
-
-            <br/>
-            <br/>
-            
-            <blockquote class="inline">
-                "<a href="http://www.RTCMultiConnection.org/docs/takeSnapshot/"><code>takeSnapshot</code></a>" can be used to take snapshots of a user's first available stream. You can even take snapshot of a specific stream using "stream-id".
-            </blockquote>
-
-            <section class="experiment">
+        <section class="experiment">
             <h2>Take Snapshot of First Available Stream</h2>
             <pre class="sh_javascript">
-// added since v1.4
-connection.<a href="http://www.RTCMultiConnection.org/docs/takeSnapshot/"><code>takeSnapshot</code></a>(userid, function(snapshot) {
-    imagePreview.src = snapshot;
-});
-
-// or
-// added since v2.2.0
-connection.<a href="http://www.RTCMultiConnection.org/docs/peers/"><code>peers</code></a>['target-userid'].takeSnapshot(function(snapshot) {
-    imagePreview.src = snapshot;
-});
-
-// or
-connection.<a href="http://www.RTCMultiConnection.org/docs/onstream/"><code>onstream</code></a> = function(event) {
-    if(event.type == 'local') return; // skip local streams
-    setTimeout(function() {
-        connection.<a href="http://www.RTCMultiConnection.org/docs/peers/"><code>peers</code></a>[event.userid].takeSnapshot(function(snapshot) {
-            imagePreview.src = snapshot;
-        });
-    }, 2000); // wait 2 seconds to make sure video is rendered
-};
-</pre>
+                // added since v1.4 connection.
+                <a href="http://www.RTCMultiConnection.org/docs/takeSnapshot/">
+                    <code>takeSnapshot</code>
+                </a>(userid, function(snapshot) { imagePreview.src = snapshot; }); // or // added since v2.2.0 connection.
+                <a href="http://www.RTCMultiConnection.org/docs/peers/">
+                    <code>peers</code>
+                </a>['target-userid'].takeSnapshot(function(snapshot) { imagePreview.src = snapshot; }); // or connection.
+                <a href="http://www.RTCMultiConnection.org/docs/onstream/">
+                    <code>onstream</code>
+                </a> = function(event) { if(event.type == 'local') return; // skip local streams setTimeout(function() { connection.
+                <a href="http://www.RTCMultiConnection.org/docs/peers/">
+                    <code>peers</code>
+                </a>[event.userid].takeSnapshot(function(snapshot) { imagePreview.src = snapshot; }); }, 2000); // wait 2 seconds to make sure video is rendered };
+            </pre>
         </section>
-        
+
         <section class="experiment">
             <h2>Take Snapshot of a Specific Stream</h2>
             <pre class="sh_javascript">
-// added since v2.2.0
-connection.<a href="http://www.RTCMultiConnection.org/docs/streams/"><code>streams</code></a>['streamid'].takeSnapshot(function(snapshot) {
-    imagePreview.src = snapshot;
-});
-
-// or
-connection.<a href="http://www.RTCMultiConnection.org/docs/onstream/"><code>onstream</code></a> = function(event) {
-    if(event.type == 'local') return; // skip local streams
-    setTimeout(function() {
-        connection.<a href="http://www.RTCMultiConnection.org/docs/streams/"><code>streams</code></a>[event.streamid].takeSnapshot(function(snapshot) {
-            imagePreview.src = snapshot;
-        });
-    }, 2000); // wait 2 seconds to make sure video is rendered
-};
-</pre>
+                // added since v2.2.0 connection.
+                <a href="http://www.RTCMultiConnection.org/docs/streams/">
+                    <code>streams</code>
+                </a>['streamid'].takeSnapshot(function(snapshot) { imagePreview.src = snapshot; }); // or connection.
+                <a href="http://www.RTCMultiConnection.org/docs/onstream/">
+                    <code>onstream</code>
+                </a> = function(event) { if(event.type == 'local') return; // skip local streams setTimeout(function() { connection.
+                <a href="http://www.RTCMultiConnection.org/docs/streams/">
+                    <code>streams</code>
+                </a>[event.streamid].takeSnapshot(function(snapshot) { imagePreview.src = snapshot; }); }, 2000); // wait 2 seconds to make sure video is rendered };
+            </pre>
         </section>
 
-            <br/>
-            <br/>
-            <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
-                <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>
+        <br/>
+        <br/>
+        <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
+            <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>
 
-                <div>
-                    <textarea id="message"
-                              style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;"
-                              placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button>
-            </section>
-            
-            <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-                <div id="github-commits"></div>
-            </section>
-        </article>
-        
-        <a href="https://github.com/muaz-khan/RTCMultiConnection" class="fork-left"></a>
-	
-        <footer>
-            <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and 
-            <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
-            <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
-            <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
-        </footer>
-    
-        <!-- commits.js is useless for you! -->
-        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
-    </body>
+            <div>
+                <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+            </div>
+            <button id="send-message" style="font-size: 1em;">Send Message</button>
+        </section>
+
+        <section class="experiment own-widgets latest-commits">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a>
+            </h2>
+            <div id="github-commits"></div>
+        </section>
+    </article>
+
+    <a href="https://github.com/muaz-khan/RTCMultiConnection" class="fork-left"></a>
+
+    <footer>
+        <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and
+        <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
+        <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
+        <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
+    </footer>
+
+    <!-- commits.js is useless for you! -->
+    <script src="//cdn.webrtc-experiment.com/commits.js" async>
+    </script>
+</body>
+
 </html>

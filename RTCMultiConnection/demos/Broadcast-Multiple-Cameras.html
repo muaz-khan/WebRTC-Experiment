@@ -1,20 +1,19 @@
-﻿<title>Broadcast Multiple-Cameras using RTCMultiConnection.js</title>
-<h1>Broadcast Multiple-Cameras using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection.js</a></h1>
+<title>Broadcast Multiple-Cameras using RTCMultiConnection.js</title>
+<h1>Broadcast Multiple-Cameras using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection.js</a>
+</h1>
 <hr />
 <div id="buttons-container">
     <button id="broadcast-all-cameras" disabled>Broadcast All Cameras</button>
 </div>
 <blockquote>
-    This demo is using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection.js</a>. 
-    This demo enumerates over all available video devices, and appends &lt;button&gt; for each device.
-    You can click any button to capture relevant webcam.
-    Then you can click "Broadcast All Cameras" button to broadcast your "multiple-cameras" over multiple users.
+    This demo is using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection.js</a>. This demo enumerates over all available video devices, and appends &lt;button&gt; for each device. You can click any button to capture relevant webcam. Then you can click "Broadcast All Cameras" button to broadcast your "multiple-cameras" over multiple users.
 </blockquote>
 <hr />
 
 <div id="videos-container"></div>
 
-<script src="//cdn.webrtc-experiment.com/RTCMultiConnection-v2.2.1.js"> </script>
+<script src="//cdn.webrtc-experiment.com/RTCMultiConnection-v2.2.1.js">
+</script>
 <script>
 var connection = new RTCMultiConnection();
 
@@ -59,8 +58,8 @@ connection.DetectRTC.load(function() {
                 connection.captureUserMedia(function(stream) {
                     connection.attachStreams.push(stream);
                     connection.dontCaptureUserMedia = true;
-                    
-                    if(document.getElementById('broadcast-all-cameras').disabled == true) {
+
+                    if (document.getElementById('broadcast-all-cameras').disabled == true) {
                         document.getElementById('broadcast-all-cameras').disabled = false;
                         document.getElementById('broadcast-all-cameras').style.background = '-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(143, 231, 253)), to(rgb(255, 255, 255)))';
                     }
@@ -103,13 +102,15 @@ connection.connect();
 document.getElementById('broadcast-all-cameras').onclick = function() {
     this.disabled = true;
     this.style.background = 'rgba(216, 205, 205, 0.2)';
-    
+
     connection.open();
 };
 </script>
-            
+
 <style>
-video {width: 30%}
+video {
+    width: 30%
+}
 button {
     font-family: Myriad, Arial, Verdana;
     font-weight: normal;

@@ -1,7 +1,7 @@
 {
   "name": "concatenateblobs",
   "preferGlobal": true,
-  "version": "1.0.0",
+  "version": "1.0.2",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -42,6 +42,6 @@
     "email": "muazkh@gmail.com"
   },
   "homepage": "https://www.webrtc-experiment.com/ConcatenateBlobs/",
-  "_id": "concatenateblobs@1.0.0",
+  "_id": "concatenateblobs@",
   "_from": "concatenateblobs@"
 }

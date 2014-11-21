@@ -21,6 +21,9 @@ To use it:
 
 ```
 https://cdn.webrtc-experiment.com/ConcatenateBlobs.js
+
+// or
+https://www.webrtc-experiment.com/ConcatenateBlobs.js
 ```
 
 ## 2. Use it
@@ -38,13 +41,7 @@ ConcatenateBlobs([arrayOfBlobs], 'audio/wav', function(resultingBlob) {
 
 ## Credits
 
-[Muaz Khan](https://github.com/muaz-khan):
-
-1. Personal Webpage: http://www.muazkhan.com
-2. Email: muazkh@gmail.com
-3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
-4. Google+: https://plus.google.com/+WebRTC-Experiment
-5. Facebook: https://www.facebook.com/WebRTC
+* [Muaz Khan](http://www.MuazKhan.com/)
 
 ## License
 

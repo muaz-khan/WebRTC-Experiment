@@ -1,69 +1,67 @@
-﻿<!--
+<!--
 > Muaz Khan     - github.com/muaz-khan 
 > MIT License   - www.webrtc-experiment.com/licence
 > Documentation - www.RTCMultiConnection.org
 -->
 <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> & Mute/UnMute</h1>
-<button id="setup">Setup RTC-Multi-Connection</button><button id="mute">Mute</button><hr />
+<button id="setup">Setup RTC-Multi-Connection</button>
+<button id="mute">Mute</button>
+<hr />
 
-<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
-<script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
-<script>
-    document.querySelector('#setup').onclick = function() {
-        connection.open();
-        this.disabled = true;
-    };
-
-    document.querySelector('#mute').onclick = function() {
-        if (this.innerHTML == 'Mute') {
-            this.innerHTML = 'UnMute';
-            connection.streams.mute({
-                video: true,
-                type: 'local'
-            });
-        } else {
-            this.innerHTML = 'Mute';
-            connection.streams.unmute({
-                video: true,
-                type: 'local'
-            });
-        }
-    };
-
-    var connection = new RTCMultiConnection();
-    connection.onstream = function(e) {
-        document.body.appendChild(e.mediaElement);
-    };
-
-    // if local or remote stream is muted
-    connection.onmute = function(e) {
-        e.mediaElement.setAttribute('poster', '//www.webrtc-experiment.com/images/muted.png');
-    };
-
-    // if local or remote stream is unmuted
-    connection.onunmute = function(e) {
-        e.mediaElement.removeAttribute('poster');
-    };
-
-    connection.connect();
+<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
 </script>
-<pre>
+<script src="//cdn.webrtc-experiment.com/firebase.js">
+</script>
+<script>
+document.querySelector('#setup').onclick = function() {
+    connection.open();
+    this.disabled = true;
+};
+
+document.querySelector('#mute').onclick = function() {
+    if (this.innerHTML == 'Mute') {
+        this.innerHTML = 'UnMute';
+        connection.streams.mute({
+            video: true,
+            type: 'local'
+        });
+    } else {
+        this.innerHTML = 'Mute';
+        connection.streams.unmute({
+            video: true,
+            type: 'local'
+        });
+    }
+};
+
+var connection = new RTCMultiConnection();
+connection.onstream = function(e) {
+    document.body.appendChild(e.mediaElement);
+};
+
 // if local or remote stream is muted
 connection.onmute = function(e) {
-   e.mediaElement.setAttribute('poster', '//www.webrtc-experiment.com/images/muted.png');
+    e.mediaElement.setAttribute('poster', '//www.webrtc-experiment.com/images/muted.png');
 };
 
 // if local or remote stream is unmuted
 connection.onunmute = function(e) {
-   e.mediaElement.removeAttribute('poster');
+    e.mediaElement.removeAttribute('poster');
 };
+
+connection.connect();
+</script>
+<pre>
+    // if local or remote stream is muted connection.onmute = function(e) { e.mediaElement.setAttribute('poster', '//www.webrtc-experiment.com/images/muted.png'); }; // if local or remote stream is unmuted connection.onunmute = function(e) { e.mediaElement.removeAttribute('poster'); };
 </pre>
 <hr />
 <style>
-    html { background: rgb(255, 252, 239); }
-
-    audio, video {
-        vertical-align: top;
-        width: 40%;
-    }
+html {
+    background: rgb(255, 252, 239);
+}
+audio,
+video {
+    vertical-align: top;
+    width: 40%;
+}
 </style>

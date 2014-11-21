@@ -1,4 +1,4 @@
-// Last time updated at Sep 15, 2014, 08:32:23
+// Last time updated at Nov 18, 2014, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/ConcatenateBlobs.js
 
@@ -39,16 +39,17 @@
             buffers.forEach(function(buffer) {
                 byteLength += buffer.byteLength;
             });
+            
             var tmp = new Uint16Array(byteLength);
-
             var lastOffset = 0;
             buffers.forEach(function(buffer) {
                 // BYTES_PER_ELEMENT == 2 for Uint16Array
-                if (buffer.byteLength % 2 != 0) {
-                    delete buffer[byteLength - 1];
+                var reusableByteLength = buffer.byteLength;
+                if (reusableByteLength % 2 != 0) {
+                    buffer = buffer.slice(0, reusableByteLength - 1)
                 }
                 tmp.set(new Uint16Array(buffer), lastOffset);
-                lastOffset += buffer.byteLength;
+                lastOffset += reusableByteLength;
             });
 
             var blob = new Blob([tmp.buffer], {

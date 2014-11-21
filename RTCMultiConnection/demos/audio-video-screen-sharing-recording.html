@@ -1,5 +1,6 @@
-﻿<title>Audio/Video/Screen sharing and recording using RTCMultiConnection</title>
-<h1>Audio/Video/Screen sharing and recording using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection</a> / <a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/audio-video-screen-sharing-recording.html">Source Code</a></h1>
+<title>Audio/Video/Screen sharing and recording using RTCMultiConnection</title>
+<h1>Audio/Video/Screen sharing and recording using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection</a> / <a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/audio-video-screen-sharing-recording.html">Source Code</a>
+</h1>
 
 <hr>
 <button id="openRoom">Open Room</button>
@@ -10,9 +11,15 @@
 <hr>
 <div id="videos-container"></div>
 
-<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script> <!-- for p2p streaming -->
-<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"> </script>          <!-- for recording -->
-<script src="https://cdn.webrtc-experiment.com/firebase.js"> </script>           <!-- for signaling medium -->
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js">
+</script>
+<!-- for p2p streaming -->
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js">
+</script>
+<!-- for recording -->
+<script src="https://cdn.webrtc-experiment.com/firebase.js">
+</script>
+<!-- for signaling medium -->
 
 <script>
 // http://www.rtcmulticonnection.org/docs/constructor/
@@ -36,7 +43,7 @@ document.getElementById('joinRoom').onclick = function() {
 rmc.onMediaCaptured = function() {
     document.getElementById('shareScreen').disabled = false;
     document.getElementById('recordAudioVideo').disabled = false;
-    
+
     document.getElementById('openRoom').disabled = true;
     document.getElementById('joinRoom').disabled = true;
 };
@@ -47,7 +54,7 @@ document.getElementById('shareScreen').onclick = function() {
         screen: true,
         oneway: true
     });
-    
+
     document.getElementById('recordScreen').disabled = false;
 };
 
@@ -63,17 +70,15 @@ document.getElementById('recordScreen').onclick = function() {
     var recordingSession = {
         video: true
     };
-    
+
     var button = this;
 
     if (button.innerHTML == 'Record Screen') {
         button.innerHTML = 'Stop Screen Recording';
-        
+
         // http://www.rtcmulticonnection.org/docs/startRecording/
         localScreenStream.startRecording(recordingSession);
-    }
-
-    else if (button.innerHTML == 'Stop Screen Recording') {
+    } else if (button.innerHTML == 'Stop Screen Recording') {
         // http://www.rtcmulticonnection.org/docs/stopRecording/
         localScreenStream.stopRecording(function(blobs) {
             alert('Screen blob size in bytes: ' + blobs.video.size);
@@ -94,17 +99,15 @@ document.getElementById('recordAudioVideo').onclick = function() {
         audio: true,
         video: true
     };
-    
+
     var button = this;
 
     if (button.innerHTML == 'Record Audio/Video') {
         button.innerHTML = 'Stop Recording Audio/Video';
-        
+
         // http://www.rtcmulticonnection.org/docs/startRecording/
         localVideoStream.startRecording(recordingSession);
-    }
-
-    else if (button.innerHTML == 'Stop Recording Audio/Video') {
+    } else if (button.innerHTML == 'Stop Recording Audio/Video') {
         // http://www.rtcmulticonnection.org/docs/stopRecording/
         localVideoStream.stopRecording(function(blobs) {
             alert('Audio blob size in bytes: ' + blobs.audio.size);

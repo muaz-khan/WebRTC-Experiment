@@ -2,6 +2,8 @@ You can use any signaling implementation with any [WebRTC Experiment](https://ww
 
 Remember, there are some built-in implementations:
 
+1. [RTCMultiConnection.js and Reliable Signaling](https://github.com/muaz-khan/Reliable-Signaler/tree/master/rtcmulticonnection-client)
+2. [DataChanel.js and Reliable Signaling](https://github.com/muaz-khan/Reliable-Signaler/tree/master/datachannel-client)
 1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs)
 2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs)
 3. [WebSync for Signaling](https://github.com/muaz-khan/WebSync-Signaling) — useful only for .NET developers

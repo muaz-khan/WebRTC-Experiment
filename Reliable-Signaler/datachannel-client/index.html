@@ -1,0 +1,87 @@
+<hr>
+/room-id/<input type="text" id="room-id" placeholder="room-id" style="width: 100px;">/
+<button id="open">Open</button>
+<button id="join">Join</button>
+<hr>
+<div id="chat-container">
+    <input type="text" id="input-text-chat" placeholder="Enter Text Chat" disabled><br>
+    <div class="chat-output"></div>
+</div>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/signaler.js"></script>
+<script src="/DataChannel.js"></script>
+<script>
+// initializing DataChannel.js constructor.
+var channel = new DataChannel();
+
+// using reliable-signaler
+var dataChannelSignaler = initReliableSignaler(channel, '/');
+
+channel.ondatachannel = function() {};
+
+document.getElementById('open').onclick = function() {
+    var roomid = document.getElementById('room-id').value;
+    if (roomid.replace(/^\s+|\s+$/g, '').length <= 0) {
+        alert('Please enter room-id');
+        document.getElementById('room-id').focus();
+        return;
+    }
+
+    channel.userid = roomid;
+    channel.transmitRoomOnce = true;
+    channel.open(roomid);
+    
+    dataChannelSignaler.openNewSession(roomid, function() {
+        document.getElementById('open').disabled = true;
+    });
+};
+
+document.getElementById('join').onclick = function() {
+    var roomid = document.getElementById('room-id').value;
+    if (roomid.replace(/^\s+|\s+$/g, '').length <= 0) {
+        alert('Please enter room-id');
+        document.getElementById('room-id').focus();
+        return;
+    }
+    
+    this.disabled = true;
+    dataChannelSignaler.joinSession(roomid, function(roomDescription) {
+        channel.connect(roomDescription.id); // setting 'channel' & connecting socket
+        channel.join(roomDescription);       // setting 'roomToken' and 'broadcaster' and joining
+    });
+};
+
+channel.onopen = function() {
+    document.getElementById('input-text-chat').disabled = false;
+};
+
+document.getElementById('input-text-chat').onkeyup = function(e) {
+    if(e.keyCode != 13) return;
+    
+    // removing trailing/leading whitespace
+    this.value = this.value.replace(/^\s+|\s+$/g, '');
+
+    if (!this.value.length) return;
+    
+    channel.send(this.value);
+    appendDIV(this.value);
+    this.value =  '';
+};
+
+channel.onmessage = appendDIV;
+
+var chatContainer = document.querySelector('.chat-output');
+
+// a custom method used to append a new DIV into DOM
+function appendDIV(event) {
+    var div = document.createElement('div');
+    div.innerHTML = event.data || event;
+    chatContainer.insertBefore(div, chatContainer.firstChild);
+    div.tabIndex = 0; div.focus();
+    
+    document.getElementById('input-text-chat').focus();
+}
+</script>

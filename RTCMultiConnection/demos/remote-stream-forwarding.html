@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 > Muaz Khan     - github.com/muaz-khan 
 > MIT License   - www.webrtc-experiment.com/licence
 > Documentation - www.RTCMultiConnection.org
@@ -6,238 +6,249 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>WebRTC Remote Stream Forwarding ® Muaz Khan</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-        <meta name="author" content="Muaz Khan">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        
-        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
-        
-        <style>
-            audio, video {
-                -moz-transition: all 1s ease;
-                -ms-transition: all 1s ease;
-                
-                -o-transition: all 1s ease;
-                -webkit-transition: all 1s ease;
-                transition: all 1s ease;
-                vertical-align: top;
-                width: 40%;
-            }
 
-            input {
-                border: 1px solid #d9d9d9;
-                border-radius: 1px;
-                font-size: 2em;
-                margin: .2em;
-                width: 30%;
-            }
+<head>
+    <title>WebRTC Remote Stream Forwarding ® Muaz Khan</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-            .setup {
-                border-bottom-left-radius: 0;
-                border-top-left-radius: 0;
-                font-size: 102%;
-                height: 47px;
-                margin-left: -9px;
-                margin-top: 8px;
-                position: absolute;
-            }
+    <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
 
-            p { padding: 1em; }
+    <style>
+    audio,
+    video {
+        -moz-transition: all 1s ease;
+        -ms-transition: all 1s ease;
+        -o-transition: all 1s ease;
+        -webkit-transition: all 1s ease;
+        transition: all 1s ease;
+        vertical-align: top;
+        width: 40%;
+    }
+    input {
+        border: 1px solid #d9d9d9;
+        border-radius: 1px;
+        font-size: 2em;
+        margin: .2em;
+        width: 30%;
+    }
+    .setup {
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+        font-size: 102%;
+        height: 47px;
+        margin-left: -9px;
+        margin-top: 8px;
+        position: absolute;
+    }
+    p {
+        padding: 1em;
+    }
+    li {
+        border-bottom: 1px solid rgb(189, 189, 189);
+        border-left: 1px solid rgb(189, 189, 189);
+        padding: .5em;
+    }
+    </style>
+    <script>
+    document.createElement('article');
+    document.createElement('footer');
+    </script>
 
-            li {
-                border-bottom: 1px solid rgb(189, 189, 189);
-                border-left: 1px solid rgb(189, 189, 189);
-                padding: .5em;
-            }
-        </style>
-        <script>
-            document.createElement('article');
-            document.createElement('footer');
-        </script>
-        
-        <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
-        <script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
-    </head>
+    <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
+    </script>
+    <script src="//cdn.webrtc-experiment.com/firebase.js">
+    </script>
+</head>
 
-    <body>
-        <article>
-            <header style="text-align: center;">
+<body>
+    <article>
+        <header style="text-align: center;">
 
-                <h1>
-                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues/2#issuecomment-33593799">remote media stream forwarding</a> using <a href="http://www.rtcmulticonnection.org/docs/">RTCMultiConnection.js</a>
-                </h1>
+            <h1>
+                <a href="https://www.webrtc-experiment.com/">WebRTC</a> <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues/2#issuecomment-33593799">remote media stream forwarding</a> using <a href="http://www.rtcmulticonnection.org/docs/">RTCMultiConnection.js</a>
+            </h1>
 
-                <p>
-                    <a href="https://www.webrtc-experiment.com/">HOME</a>
-                    <span> &copy; </span>
-                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
-                    
-                    .
-                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
-                    
-                    .
-                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
-                    
-                    .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
-                    
-                    .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
-                </p>
-            </header>
-            
-            <div class="github-stargazers"></div>
-            
-            <blockquote class="inner" style="text-align: center;">
-                Chrome is <a href="https://code.google.com/p/webrtc/issues/detail?id=2192#c15">still not supporting</a> remote audio forwarding. It will forward only remote <strong>video</strong> stream.
-            </blockquote>
-        
-            <section class="experiment">
-                <div id="videos-container"></div>
-                <table>
-                    <tr>
-                        <td>
-                            <button id="open-main-session">open main session</button>
-                        </td>
-                
-                        <td>
-                            <button id="forward-main-session" disabled>forward main session</button>
-                        </td>
-                    </tr>
-            
-                    <tr>
-                        <td>
-                            <button id="join-main-session">join main session</button>
-                        </td>
-                
-                        <td>
-                            <button id="join-forwarded-session">join forwarded session</button>
-                        </td>
-                    </tr>
-                </table>
-
-                <h2>How to use?</h2>
-                <ol>
-                    <li>
-                        Click "open main session" button from 1st computer.
-                    </li>
-    
-                    <li>
-                        Click "join main session" button from 2nd computer.
-                    </li>
-    
-                    <li>
-                        Click "forward main session" button from the same 2nd computer.
-                    </li>
-    
-                    <li>
-                        Click "join forwarded session" button from 3rd computer.
-                    </li>
-                </ol>
-
-                <script>
-                    // http://www.rtcmulticonnection.org/docs/constructor/
-                    var mainConnection = new RTCMultiConnection();
-
-                    // http://www.rtcmulticonnection.org/docs/session/
-                    mainConnection.session = {
-                        audio: true,
-                        video: true
-                    };
-                    // http://www.rtcmulticonnection.org/docs/direction/
-                    mainConnection.direction = 'one-way';
-
-                    // http://www.rtcmulticonnection.org/docs/constructor/
-                    var dummyConnection = new RTCMultiConnection('dummy-connection');
-
-                    // http://www.rtcmulticonnection.org/docs/direction/
-                    dummyConnection.direction = 'one-way';
-
-                    // http://www.rtcmulticonnection.org/docs/dontCaptureUserMedia/
-                    dummyConnection.dontCaptureUserMedia = true;
-
-                    var videosContainer = document.getElementById('videos-container');
-
-                    // http://www.rtcmulticonnection.org/docs/onstream/
-                    mainConnection.onstream = function(e) {
-                        if(mainConnection.UA.Chrome) {
-                            // chrome doesn't yet permits remote audio forwarding
-                            // https://code.google.com/p/webrtc/issues/detail?id=2192#c15
-                            var stream = new webkitMediaStream( e.stream.getVideoTracks() );
-                            dummyConnection.attachStreams.push(stream);
-                        }
-                        videosContainer.appendChild(e.mediaElement);
-                        document.querySelector('#forward-main-session').disabled = false;
-                    };
-
-                    // http://www.rtcmulticonnection.org/docs/onstream/
-                    dummyConnection.onstream = function(e) {
-                        document.querySelector('h1').innerHTML = 'Wow, got forwarded stream!';
-                        videosContainer.appendChild(e.mediaElement);
-                    };
-
-                    document.querySelector('#join-main-session').onclick = function() {
-                        this.disabled = true;
-
-                        // http://www.rtcmulticonnection.org/docs/connect/
-                        mainConnection.connect();
-                    };
-
-                    document.querySelector('#join-forwarded-session').onclick = function() {
-                        this.disabled = true;
-
-                        // http://www.rtcmulticonnection.org/docs/connect/
-                        dummyConnection.connect();
-                    };
-
-                    document.querySelector('#open-main-session').onclick = function() {
-                        this.disabled = true;
-
-                        // http://www.rtcmulticonnection.org/docs/open/
-                        mainConnection.open();
-                    };
-
-                    document.querySelector('#forward-main-session').onclick = function() {
-                        this.disabled = true;
-
-                        // http://www.rtcmulticonnection.org/docs/open/
-                        dummyConnection.open({
-                            captureUserMediaOnDemand: false
-                        });
-                    };
-                </script>
-            </section>
-            
-            <section class="experiment">
-                <h2 class="header" id="feedback">Feedback</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
-            </section>
-            
-            <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-                <div id="github-commits"></div>
-            </section>
-        </article>
-        
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
-        
-        <footer>
             <p>
-                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
-                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
-                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+                <a href="https://www.webrtc-experiment.com/">HOME</a>
+                <span> &copy; </span>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a> .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
             </p>
-        </footer>
-        
-        <!-- commits.js is useless for you! -->
-        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
-    </body>
+        </header>
+
+        <div class="github-stargazers"></div>
+
+        <blockquote class="inner" style="text-align: center;">
+            Chrome is <a href="https://code.google.com/p/webrtc/issues/detail?id=2192#c15">still not supporting</a> remote audio forwarding. It will forward only remote
+            <strong>video</strong> stream. There is another demo: <a href="https://github.com/muaz-khan/WebRTC-Scalable-Broadcast">WebRTC Scalable Broadcast</a> which can broadcast video/screen over unlimited users!
+        </blockquote>
+
+        <section class="experiment">
+            <div id="videos-container"></div>
+            <table>
+                <tr>
+                    <td>
+                        <button id="open-main-session">open main session</button>
+                    </td>
+
+                    <td>
+                        <button id="forward-main-session" disabled>forward main session</button>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <button id="join-main-session">join main session</button>
+                    </td>
+
+                    <td>
+                        <button id="join-forwarded-session">join forwarded session</button>
+                    </td>
+                </tr>
+            </table>
+
+            <h2>How to use?</h2>
+            <ol>
+                <li>
+                    Click "open main session" button from 1st computer.
+                </li>
+
+                <li>
+                    Click "join main session" button from 2nd computer.
+                </li>
+
+                <li>
+                    Click "forward main session" button from the same 2nd computer.
+                </li>
+
+                <li>
+                    Click "join forwarded session" button from 3rd computer.
+                </li>
+            </ol>
+
+            <script>
+            // http://www.rtcmulticonnection.org/docs/constructor/
+            var mainConnection = new RTCMultiConnection();
+
+            // http://www.rtcmulticonnection.org/docs/session/
+            mainConnection.session = {
+                video: true
+            };
+            // http://www.rtcmulticonnection.org/docs/direction/
+            mainConnection.direction = 'one-way';
+
+            mainConnection.onNewSession = function(session) {
+                mainConnection.sdpConstraints.mandatory = {
+                    OfferToReceiveVideo: true
+                };
+                mainConnection.join(session);
+            };
+
+            // http://www.rtcmulticonnection.org/docs/constructor/
+            var dummyConnection = new RTCMultiConnection('dummy-connection');
+
+            dummyConnection.onNewSession = function(session) {
+                dummyConnection.sdpConstraints.mandatory = {
+                    OfferToReceiveVideo: true
+                };
+                dummyConnection.join(session);
+            };
+
+            // http://www.rtcmulticonnection.org/docs/direction/
+            dummyConnection.direction = 'one-way';
+
+            // http://www.rtcmulticonnection.org/docs/dontCaptureUserMedia/
+            dummyConnection.dontCaptureUserMedia = true;
+
+            var videosContainer = document.getElementById('videos-container');
+
+            // http://www.rtcmulticonnection.org/docs/onstream/
+            mainConnection.onstream = function(e) {
+                dummyConnection.attachStreams.push(e.stream);
+                videosContainer.appendChild(e.mediaElement);
+                document.querySelector('#forward-main-session').disabled = false;
+            };
+
+            // http://www.rtcmulticonnection.org/docs/onstream/
+            dummyConnection.onstream = function(e) {
+                document.querySelector('h1').innerHTML = 'Wow, got forwarded stream!';
+                videosContainer.appendChild(e.mediaElement);
+            };
+
+            document.querySelector('#join-main-session').onclick = function() {
+                this.disabled = true;
+
+                // http://www.rtcmulticonnection.org/docs/connect/
+                mainConnection.connect();
+            };
+
+            document.querySelector('#join-forwarded-session').onclick = function() {
+                this.disabled = true;
+
+                // http://www.rtcmulticonnection.org/docs/connect/
+                dummyConnection.connect();
+            };
+
+            document.querySelector('#open-main-session').onclick = function() {
+                this.disabled = true;
+
+                mainConnection.sdpConstraints.mandatory = {
+                    OfferToReceiveVideo: false
+                };
+
+                // http://www.rtcmulticonnection.org/docs/open/
+                mainConnection.open();
+            };
+
+            document.querySelector('#forward-main-session').onclick = function() {
+                this.disabled = true;
+
+                dummyConnection.sdpConstraints.mandatory = {
+                    OfferToReceiveVideo: false
+                };
+
+                // http://www.rtcmulticonnection.org/docs/open/
+                dummyConnection.open();
+            };
+            </script>
+        </section>
+
+        <section class="experiment">
+            <h2 class="header" id="feedback">Feedback</h2>
+            <div>
+                <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+            </div>
+            <button id="send-message" style="font-size: 1em;">Send Message</button>
+            <small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+        </section>
+
+        <section class="experiment own-widgets latest-commits">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a>
+            </h2>
+            <div id="github-commits"></div>
+        </section>
+    </article>
+
+    <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
+
+    <footer>
+        <p>
+            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+        </p>
+    </footer>
+
+    <!-- commits.js is useless for you! -->
+    <script src="//cdn.webrtc-experiment.com/commits.js" async>
+    </script>
+</body>
+
 </html>

@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 > Muaz Khan     - github.com/muaz-khan 
 > MIT License   - www.webrtc-experiment.com/licence
 > Documentation - www.RTCMultiConnection.org
@@ -8,48 +8,57 @@
 
 <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
 <style>
-    video {
-        vertical-align: top;
-        width: 60%;
-    }
-
-    audio { float: right; }
+video {
+    vertical-align: top;
+    width: 60%;
+}
+audio {
+    float: right;
+}
 </style>
 
-<h1>OneWay Screen & Two-Way Audio using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection</a></h1><br /><br />
-<button id="share-screen-and-audio">Share Screen + Audio</button><hr />
+<h1>OneWay Screen & Two-Way Audio using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection</a>
+</h1>
+<br />
+<br />
+<button id="share-screen-and-audio">Share Screen + Audio</button>
+<hr />
 <div id="container"></div>
 
-<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
-<script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
+<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
+</script>
+<script src="//cdn.webrtc-experiment.com/firebase.js">
+</script>
 
 <script>
-    var connection = new RTCMultiConnection();
-    connection.session = {
-        audio: true,
-        screen: true
-    };
+var connection = new RTCMultiConnection();
+connection.session = {
+    audio: true,
+    screen: true
+};
 
-    var sessions = { };
-    connection.onNewSession = function(session) {
-        // if room is not transmitted once;
-        // "onNewSession" will be called multiple times for same session;
-        // we need to store session-id in an object.
-        if (sessions[session.sessionid]) return;
-        sessions[session.sessionid] = session;
+var sessions = {};
+connection.onNewSession = function(session) {
+    // if room is not transmitted once;
+    // "onNewSession" will be called multiple times for same session;
+    // we need to store session-id in an object.
+    if (sessions[session.sessionid]) return;
+    sessions[session.sessionid] = session;
 
-        session.join({ audio: true });
-    };
+    session.join({
+        audio: true
+    });
+};
 
-    connection.onstream = function(e) {
-        document.querySelector('div#container').appendChild(e.mediaElement);
-    };
-    connection.connect();
+connection.onstream = function(e) {
+    document.querySelector('div#container').appendChild(e.mediaElement);
+};
+connection.connect();
 
-    document.querySelector('#share-screen-and-audio').onclick = function() {
-        this.disabled = true;
-        connection.open();
-    };
+document.querySelector('#share-screen-and-audio').onclick = function() {
+    this.disabled = true;
+    connection.open();
+};
 </script>
 <p>This demo uses <a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection.js</a> to:</p>
 <ol>
@@ -57,13 +66,6 @@
     <li>Share audio in two-way; among all users.</li>
 </ol>
 <pre>
-// initiator's session
-initiator.session = {
-    audio: true,
-    screen: true
-};
-
-participant.onNewSession = function (session) {
-    session.join(  <strong>{ audio: true }</strong> );
-};
+    // initiator's session initiator.session = { audio: true, screen: true }; participant.onNewSession = function (session) { session.join(
+    <strong>{ audio: true }</strong> ); };
 </pre>

@@ -1,15 +1,16 @@
-﻿<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 <script src="//cdn.webrtc-experiment.com/firebase.js"></script>
 
 <input type="file">
-<button id="openNewSessionButton" disabled>Open New Room</button><br />
+<button id="openNewSessionButton" disabled>Open New Room</button>
+<br />
 <script>
 var connection = new RTCMultiConnection();
 connection.session = {
     audio: true,
     oneway: true
 };
-connection.onstream = function (e) {
+connection.onstream = function(e) {
     document.body.appendChild(e.mediaElement);
 };
 
@@ -17,7 +18,7 @@ connection.onstream = function (e) {
 connection.connect();
 
 // open new session
-document.getElementById('openNewSessionButton').onclick = function () {
+document.getElementById('openNewSessionButton').onclick = function() {
     this.disabled = true;
     connection.open();
 };
@@ -31,13 +32,13 @@ gainNode.connect(context.destination);
 // don't play for self
 gainNode.gain.value = 0;
 
-document.querySelector('input[type=file]').onchange = function () {
+document.querySelector('input[type=file]').onchange = function() {
     this.disabled = true;
 
     var reader = new FileReader();
-    reader.onload = (function (e) {
+    reader.onload = (function(e) {
         // Import callback function that provides PCM audio data decoded as an audio buffer
-        context.decodeAudioData(e.target.result, function (buffer) {
+        context.decodeAudioData(e.target.result, function(buffer) {
             // Create the sound source
             var soundSource = context.createBufferSource();
 
@@ -58,4 +59,11 @@ document.querySelector('input[type=file]').onchange = function () {
     reader.readAsArrayBuffer(this.files[0]);
 };
 </script>
-<style>input, button[disabled] { background: none;border: 1px solid rgb(226, 223, 223);color: rgb(219, 217, 217); }</style>
+<style>
+input,
+button[disabled] {
+    background: none;
+    border: 1px solid rgb(226, 223, 223);
+    color: rgb(219, 217, 217);
+}
+</style>

@@ -1,44 +1,50 @@
-﻿<!--
+<!--
 > Muaz Khan     - github.com/muaz-khan 
 > MIT License   - www.webrtc-experiment.com/licence
 > Documentation - www.RTCMultiConnection.org
 -->
 <h1>
     Multi-streams attachment using <a href="http://www.RTCMultiConnection.org/docs/">
-                                       RTCMultiConnection</a> / <a href="https://www.webrtc-experiment.com/">Home</a></h1>
+
+
+
+                                       RTCMultiConnection</a> / <a href="https://www.webrtc-experiment.com/">Home</a>
+</h1>
 <style>
-    video {
-        vertical-align: top;
-        width: 48%;
-    }
+video {
+    vertical-align: top;
+    width: 48%;
+}
 </style>
-<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
-<script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
+<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
+</script>
+<script src="//cdn.webrtc-experiment.com/firebase.js">
+</script>
 <button id="init">
     Open New Connection</button>
 <br />
 <br />
 <script>
-    var connection = new RTCMultiConnection();
-    connection.session = {
-        audio: true,
-        video: true,
-        screen: true,
-        oneway: true
-    };
-    connection.onstream = function(e) {
-        document.body.appendChild(e.mediaElement);
-    };
+var connection = new RTCMultiConnection();
+connection.session = {
+    audio: true,
+    video: true,
+    screen: true,
+    oneway: true
+};
+connection.onstream = function(e) {
+    document.body.appendChild(e.mediaElement);
+};
 
-    connection.connect();
+connection.connect();
 
-    document.getElementById('init').onclick = function() {
-        this.disabled = true;
-        connection.open();
-    };
+document.getElementById('init').onclick = function() {
+    this.disabled = true;
+    connection.open();
+};
 
-    connection.onstreamended = function(e) {
-        var mediaElement = e.mediaElement;
-        if (mediaElement.parentNode) mediaElement.parentNode.removeChild(mediaElement);
-    };
+connection.onstreamended = function(e) {
+    var mediaElement = e.mediaElement;
+    if (mediaElement.parentNode) mediaElement.parentNode.removeChild(mediaElement);
+};
 </script>

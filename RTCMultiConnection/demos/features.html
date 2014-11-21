@@ -1,12 +1,15 @@
-﻿<!--
+<!--
 > Muaz Khan     - github.com/muaz-khan 
 > MIT License   - www.webrtc-experiment.com/licence
 > Documentation - www.RTCMultiConnection.org
 -->
 <title>RTCMultiConnection Features Demo</title>
-<h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Features Demo / <a href="https://www.webrtc-experiment.com/">Goto Homepage</a></h1>
+<h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> Features Demo / <a href="https://www.webrtc-experiment.com/">Goto Homepage</a>
+</h1>
 <style>
-    video { max-width: 45%; }
+video {
+    max-width: 45%;
+}
 </style>
 <hr />
 <button id="prepare-connection">Prepare Connection</button>
@@ -49,89 +52,91 @@
 </select>
 <hr />
 
-<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
-<script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
+<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
+</script>
+<script src="//cdn.webrtc-experiment.com/firebase.js">
+</script>
 
 <script>
-    var connection;
+var connection;
 
-    function setupConnection() {
-        connection = new RTCMultiConnection();
-        connection.session = {
-            audio: true,
-            video: true
-        };
-
-        var properties = document.querySelector('#ice-servers').value.split(', ');
-        var iceServer = { };
-        properties.forEach(function(property) {
-            var tup = property.split(': ');
-            iceServer[tup[0]] = tup[1];
-        });
-
-        console.log(iceServer);
-        connection.iceServers = [iceServer];
-
-        var select = document.querySelector('#resolutions');
-        var coords = select.value.split(':');
-
-        var width = coords[0];
-        var height = coords[1];
-
-        console.log(width, ':', height);
-        connection.media.min(width, height);
-        connection.media.max(width, height);
-
-        var iceCandidates = document.querySelector('#ice-candidates').value;
-
-        connection.candidates.host = iceCandidates.indexOf('host') != -1;
-        connection.candidates.reflexive = iceCandidates.indexOf('reflexive') != -1;
-        connection.candidates.relay = iceCandidates.indexOf('relay') != -1;
-
-        connection.onstream = function(e) {
-            document.body.appendChild(e.mediaElement);
-        };
-
-        // searching for existing sessions
-        connection.connect();
-    }
-
-    document.getElementById('prepare-connection').onclick = function() {
-        if (isValidOption() == false) return;
-        this.disabled = true;
-        setupConnection();
-
-        document.getElementById('setup-room').disabled = false;
+function setupConnection() {
+    connection = new RTCMultiConnection();
+    connection.session = {
+        audio: true,
+        video: true
     };
 
-    document.getElementById('setup-room').onclick = function() {
-        if (isValidOption() == false) return;
-        this.disabled = true;
+    var properties = document.querySelector('#ice-servers').value.split(', ');
+    var iceServer = {};
+    properties.forEach(function(property) {
+        var tup = property.split(': ');
+        iceServer[tup[0]] = tup[1];
+    });
 
-        // sharing you screen!
-        connection.open();
+    console.log(iceServer);
+    connection.iceServers = [iceServer];
+
+    var select = document.querySelector('#resolutions');
+    var coords = select.value.split(':');
+
+    var width = coords[0];
+    var height = coords[1];
+
+    console.log(width, ':', height);
+    connection.media.min(width, height);
+    connection.media.max(width, height);
+
+    var iceCandidates = document.querySelector('#ice-candidates').value;
+
+    connection.candidates.host = iceCandidates.indexOf('host') != -1;
+    connection.candidates.reflexive = iceCandidates.indexOf('reflexive') != -1;
+    connection.candidates.relay = iceCandidates.indexOf('relay') != -1;
+
+    connection.onstream = function(e) {
+        document.body.appendChild(e.mediaElement);
     };
 
-    function isValidOption() {
-        var properties = document.querySelector('#ice-servers').value.split(', ');
-        var iceServer = { };
-        properties.forEach(function(property) {
-            var tup = property.split(': ');
-            iceServer[tup[0]] = tup[1];
-        });
+    // searching for existing sessions
+    connection.connect();
+}
 
-        var iceCandidates = document.querySelector('#ice-candidates').value;
+document.getElementById('prepare-connection').onclick = function() {
+    if (isValidOption() == false) return;
+    this.disabled = true;
+    setupConnection();
 
-        if (iceServer.url.indexOf('turn') != -1 && iceCandidates.indexOf('relay') == -1) {
-            alert('It seems that you have not selected TURN server. Select "relay" to proceeed.');
-            return false;
-        }
+    document.getElementById('setup-room').disabled = false;
+};
 
-        if (iceServer.url.indexOf('stun') != -1 && iceCandidates.indexOf('reflexive') == -1) {
-            alert('It seems that you have not selected STUN server. Select "reflexive" to proceeed.');
-            return false;
-        }
+document.getElementById('setup-room').onclick = function() {
+    if (isValidOption() == false) return;
+    this.disabled = true;
 
-        return true;
+    // sharing you screen!
+    connection.open();
+};
+
+function isValidOption() {
+    var properties = document.querySelector('#ice-servers').value.split(', ');
+    var iceServer = {};
+    properties.forEach(function(property) {
+        var tup = property.split(': ');
+        iceServer[tup[0]] = tup[1];
+    });
+
+    var iceCandidates = document.querySelector('#ice-candidates').value;
+
+    if (iceServer.url.indexOf('turn') != -1 && iceCandidates.indexOf('relay') == -1) {
+        alert('It seems that you have not selected TURN server. Select "relay" to proceeed.');
+        return false;
     }
+
+    if (iceServer.url.indexOf('stun') != -1 && iceCandidates.indexOf('reflexive') == -1) {
+        alert('It seems that you have not selected STUN server. Select "reflexive" to proceeed.');
+        return false;
+    }
+
+    return true;
+}
 </script>

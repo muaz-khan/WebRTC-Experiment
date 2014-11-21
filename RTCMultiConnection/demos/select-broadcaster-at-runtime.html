@@ -1,8 +1,9 @@
 <title>Select Broadcaster at runtime / RTCMultiConnection</title>
-<h1>Select Broadcaster at runtime / <a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a></h2>
+<h1>Select Broadcaster at runtime / <a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a>
+</h1>
 
 <script>
-if(!location.hash.replace('#', '').length) {
+if (!location.hash.replace('#', '').length) {
     location.hash = (Math.random() * 1000).toString().replace('.', '');
     location.reload();
 }
@@ -26,7 +27,9 @@ connection.session = {
 
 connection.onNewSession = function(session) {
     connection.dontCaptureUserMedia = true;
-    session.join({ oneway: true }); // argument is optional
+    session.join({
+        oneway: true
+    }); // argument is optional
 };
 
 connection.userid = prompt('Please enter your userid.');
@@ -43,7 +46,7 @@ connection.connect();
 document.querySelector('#openNewSessionButton').onclick = function() {
     this.disabled = true;
     connection.open();
-    
+
     document.querySelector('#select-broadcaster-id').disabled = false;
 };
 
@@ -62,7 +65,7 @@ connection.onCustomMessage = function(message) {
         // to manually ask for participants;
         // call "askToShareParticipants" method.
         connection.askToShareParticipants();
-        
+
         connection.dontCaptureUserMedia = false;
         connection.addStream({
             audio: true,
@@ -73,18 +76,12 @@ connection.onCustomMessage = function(message) {
 </script>
 
 <pre>
-// because "viewer" joined room as "oneway:true"
-// initiator will NEVER share participants
-// to manually ask for participants;
-// call "askToShareParticipants" method.
-connection.askToShareParticipants();
-
-// become a broadcaster
-connection.<a href="http://www.rtcmulticonnection.org/docs/addStream/">addStream</a>({
-    audio: true,
-    video: true,
-    oneway: true
-});
+    // because "viewer" joined room as "oneway:true" // initiator will NEVER share participants // to manually ask for participants; // call "askToShareParticipants" method. connection.askToShareParticipants(); // become a broadcaster connection.
+    <a href="http://www.rtcmulticonnection.org/docs/addStream/">addStream</a>({ audio: true, video: true, oneway: true });
 </pre>
 
-<style>video{width: 20%;}</style>
+<style>
+video {
+    width: 20%;
+}
+</style>

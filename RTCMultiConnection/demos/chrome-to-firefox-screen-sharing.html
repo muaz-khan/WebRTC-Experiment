@@ -1,44 +1,51 @@
-﻿<!--
+<!--
 > Muaz Khan     - github.com/muaz-khan 
 > MIT License   - www.webrtc-experiment.com/licence
 > Documentation - www.RTCMultiConnection.org
 -->
-<h1>Chrome-to-Firefox Screen Sharing Demo / using <a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a></h1>
+<h1>Chrome-to-Firefox Screen Sharing Demo / using <a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a>
+</h1>
 
 <hr />
 <button id="share-screen">Share Screen</button>
 <hr />
-<style>video { width: 80%; }</style>
-<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
-<script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
+<style>
+video {
+    width: 80%;
+}
+</style>
+<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
+</script>
+<script src="//cdn.webrtc-experiment.com/firebase.js">
+</script>
 <script>
-    var connection = new RTCMultiConnection();
-    connection.session = {
-        screen: true,
-        oneway: true
-    };
+var connection = new RTCMultiConnection();
+connection.session = {
+    screen: true,
+    oneway: true
+};
 
-    // forcing STUN; no TURN will be used!
-    connection.iceServers = [{
-        url: 'stun:stun.l.google.com:19302'
-    }];
+// forcing STUN; no TURN will be used!
+connection.iceServers = [{
+    url: 'stun:stun.l.google.com:19302'
+}];
 
-    // forcing "OfferToReceiveAudio:false"
-    connection.sdpConstraints = {
-        OfferToReceiveAudio: false
-    };
+// forcing "OfferToReceiveAudio:false"
+connection.sdpConstraints = {
+    OfferToReceiveAudio: false
+};
 
-    connection.onstream = function(e) {
-        document.body.appendChild(e.mediaElement);
-    };
+connection.onstream = function(e) {
+    document.body.appendChild(e.mediaElement);
+};
 
-    // searching for pre-shared screens
-    connection.connect();
+// searching for pre-shared screens
+connection.connect();
 
-    document.getElementById('share-screen').onclick = function() {
-        this.disabled = true;
+document.getElementById('share-screen').onclick = function() {
+    this.disabled = true;
 
-        // sharing you screen!
-        connection.open();
-    };
+    // sharing you screen!
+    connection.open();
+};
 </script>

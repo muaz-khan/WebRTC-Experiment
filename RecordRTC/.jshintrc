@@ -1,0 +1,33 @@
+{
+  "browser": true,
+  "camelcase": true,
+  "curly": true,
+  "devel": true,
+  "eqeqeq": true,
+  "forin": false,
+  "globalstrict": true,
+  "quotmark": "single",
+  "undef": true,
+  "globals": {
+    "RecordRTC": true,
+    "MRecordRTC": true,
+    "Storage": true,
+    "StereoRecorder": true,
+    "StereoAudioRecorder": true,
+    "CanvasRecorder": true,
+    "WhammyRecorder": true,
+    "Whammy": true,
+    "DiskStorage": true,
+    "GifRecorder": true,
+    "requestAnimationFrame": true,
+    "cancelAnimationFrame": true,
+    "AudioContext": true,
+    "URL": true,
+    "IsChrome": true,
+    "mergeProps": true,
+    "reformatProps": true,
+    "bytesToSize": true,
+    "FileReaderSync": true,
+    "postMessage": true
+  }
+}

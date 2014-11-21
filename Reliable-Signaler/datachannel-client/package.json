@@ -1,0 +1,39 @@
+{
+  "name": "datachannel-client",
+  "preferGlobal": true,
+  "version": "1.0.0",
+  "author": "Muaz Khan <muazkh@gmail.com> (http://www.muazkhan.com/)",
+  "description": "Reliable signaling implementation for DataChannel.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "main": "./server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/Reliable-Signaler.git"
+  },
+  "keywords": [
+    "webrtc",
+    "signaler",
+    "signaling",
+    "reliable",
+    "javascript",
+    "datachannel",
+    "webrtc-experiment",
+    "muaz",
+    "muaz-khan"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/muaz-khan/Reliable-Signaler/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://github.com/muaz-khan/WebRTC-Experiment/blob/master/DataChannel",
+  "_from": "datachannel-client@",
+  "dependencies": {
+    "reliable-signaler": "1.0.0",
+    "socket.io": "0.9.x"
+  },
+  "devDependencies": {}
+}

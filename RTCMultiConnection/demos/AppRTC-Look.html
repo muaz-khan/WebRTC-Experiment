@@ -1,10 +1,10 @@
-﻿<title>AppRTC look for RTCMultiConnection Demo ® Muaz Khan</title>
+<title>AppRTC look for RTCMultiConnection Demo ® Muaz Khan</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 
 <meta name="description" content="AppRTC like RTCMultiConnection demo where styles and layout is taken from AppRTC demo." />
 <meta name="keywords" content="AppRTC,RTCMultiConnection,AppRTC-Look,WebRTC" />
-    
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
 <meta name="author" content="Muaz Khan">
@@ -14,25 +14,25 @@
 <script src="//cdn.webrtc-experiment.com/firebase.js"></script>
 
 <style>
-body, html {
+body,
+html {
     background: black;
     text-align: center;
     color: white;
     overflow: hidden;
 }
-
-.local-media, .remote-media {
+.local-media,
+.remote-media {
     max-width: 100%;
     max-height: 70%;
 }
-
-.local-media-small, .remote-media-small {
+.local-media-small,
+.remote-media-small {
     width: 20%;
     position: fixed;
     bottom: 0;
     left: 0;
 }
-
 button {
     display: inline-block;
     outline: 0;
@@ -47,22 +47,21 @@ button {
     line-height: 1.4;
     position: relative;
     border-radius: 10px;
-    -webkit-box-shadow: 5px 5px 0 0 rgba(0,0,0,0.15);
-    box-shadow: 5px 5px 0 0 rgba(0,0,0,0.15);
+    -webkit-box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.15);
     -webkit-transition: 0.1s;
     transition: 0.1s;
 }
-
-button:hover , button:active, button:focus {
+button:hover,
+button:active,
+button:focus {
     background: #04C;
 }
-
 button[disabled] {
     background: transparent;
     border-color: rgb(83, 81, 81);
     color: rgb(139, 133, 133);
 }
-
 #container {
     -webkit-perspective: 1000;
     background-color: #000000;
@@ -71,29 +70,26 @@ button[disabled] {
     position: absolute;
     width: 100%;
 }
-
 #card {
     -webkit-transform-style: preserve-3d;
     -webkit-transition-duration: 2s;
     -webkit-transition-property: rotation;
 }
-
 #local {
     -webkit-backface-visibility: hidden;
     -webkit-transform: scale(-1, 1);
     position: absolute;
     width: 100%;
 }
-
 #remote {
     -webkit-backface-visibility: hidden;
     -webkit-transform: rotateY(180deg);
     position: absolute;
     width: 100%;
 }
-
 #mini {
-                /* -webkit-transform: scale(-1, 1); */
+    /* -webkit-transform: scale(-1, 1); */
+    
     bottom: 0;
     height: 30%;
     opacity: 1.0;
@@ -101,7 +97,6 @@ button[disabled] {
     right: 4px;
     width: 30%;
 }
-
 #localVideo {
     -webkit-transition-duration: 2s;
     -webkit-transition-property: opacity;
@@ -109,7 +104,6 @@ button[disabled] {
     opacity: 0;
     width: 100%;
 }
-
 #remoteVideo {
     -webkit-transition-duration: 2s;
     -webkit-transition-property: opacity;
@@ -117,15 +111,14 @@ button[disabled] {
     opacity: 0;
     width: 100%;
 }
-
-#miniVideo, .other-videos {
+#miniVideo,
+.other-videos {
     -webkit-transition-duration: 2s;
     -webkit-transition-property: opacity;
     height: 100%;
     opacity: 0;
     width: 100%;
 }
-
 #footer {
     background-color: #3F3F3F;
     bottom: 0;
@@ -138,7 +131,6 @@ button[disabled] {
     text-align: center;
     width: 100%;
 }
-
 #hangup {
     background-color: #808080;
     border-color: #FFFFFF;
@@ -222,24 +214,24 @@ if (navigator.mozGetUserMedia) {
     getUserMedia = navigator.mozGetUserMedia.bind(navigator);
 
     // Attach a media stream to an element.
-    attachMediaStream = function (element, stream) {
+    attachMediaStream = function(element, stream) {
         console.log("Attaching media stream");
         element.mozSrcObject = stream;
         element.play();
     };
 
-    reattachMediaStream = function (to, from) {
+    reattachMediaStream = function(to, from) {
         console.log("Reattaching media stream");
         to.mozSrcObject = from.mozSrcObject;
         to.play();
     };
 
     // Fake get{Video,Audio}Tracks
-    MediaStream.prototype.getVideoTracks = function () {
+    MediaStream.prototype.getVideoTracks = function() {
         return [];
     };
 
-    MediaStream.prototype.getAudioTracks = function () {
+    MediaStream.prototype.getAudioTracks = function() {
         return [];
     };
 } else if (navigator.webkitGetUserMedia) {
@@ -257,7 +249,7 @@ if (navigator.mozGetUserMedia) {
     getUserMedia = navigator.webkitGetUserMedia.bind(navigator);
 
     // Attach a media stream to an element.
-    attachMediaStream = function (element, stream) {
+    attachMediaStream = function(element, stream) {
         if (typeof element.srcObject !== 'undefined') {
             element.srcObject = stream;
         } else if (typeof element.mozSrcObject !== 'undefined') {
@@ -269,27 +261,27 @@ if (navigator.mozGetUserMedia) {
         }
     };
 
-    reattachMediaStream = function (to, from) {
+    reattachMediaStream = function(to, from) {
         to.src = from.src;
     };
 
     // The representation of tracks in a stream is changed in M26.
     // Unify them for earlier Chrome versions in the coexisting period.
     if (!webkitMediaStream.prototype.getVideoTracks) {
-        webkitMediaStream.prototype.getVideoTracks = function () {
+        webkitMediaStream.prototype.getVideoTracks = function() {
             return this.videoTracks;
         };
-        webkitMediaStream.prototype.getAudioTracks = function () {
+        webkitMediaStream.prototype.getAudioTracks = function() {
             return this.audioTracks;
         };
     }
 
     // New syntax of getXXXStreams method in M26.
     if (!webkitRTCPeerConnection.prototype.getLocalStreams) {
-        webkitRTCPeerConnection.prototype.getLocalStreams = function () {
+        webkitRTCPeerConnection.prototype.getLocalStreams = function() {
             return this.localStreams;
         };
-        webkitRTCPeerConnection.prototype.getRemoteStreams = function () {
+        webkitRTCPeerConnection.prototype.getRemoteStreams = function() {
             return this.remoteStreams;
         };
     }
@@ -299,7 +291,7 @@ if (navigator.mozGetUserMedia) {
 
 // onstream event; fired both for local and remote videos
 var numberOfRemoteVideos = 0;
-connection.onstream = function (e) {
+connection.onstream = function(e) {
     if (e.type == 'local') {
         localStream = e.stream;
         attachMediaStream(localVideo, e.stream);
@@ -331,14 +323,14 @@ connection.onstream = function (e) {
     if (e.type == 'remote' && numberOfRemoteVideos == 4) {
         appendVideo(e, 'opacity: 1;position: fixed;top: 0;z-index: 1;width: 32%;right:0;');
     }
-    
-    if(e.type == 'local') {
+
+    if (e.type == 'local') {
         document.getElementById('open-room').style.display = 'none';
     }
 };
 
 function appendVideo(e, style) {
-    createVideoContainer(e, style, function (div) {
+    createVideoContainer(e, style, function(div) {
         var video = document.createElement('video');
         video.className = 'other-videos';
         video.setAttribute('style', 'height:auto;opacity:1;');
@@ -358,7 +350,7 @@ function createVideoContainer(e, style, callback) {
 }
 
 // if user left
-connection.onleave = function (e) {
+connection.onleave = function(e) {
     var video = document.getElementById(e.userid);
 
     if (numberOfRemoteVideos == 1) {
@@ -382,10 +374,10 @@ function waitForRemoteVideo() {
 function transitionToActive() {
     remoteVideo.style.opacity = 1;
     card.style.webkitTransform = 'rotateY(180deg)';
-    setTimeout(function () {
+    setTimeout(function() {
         localVideo.src = '';
     }, 500);
-    setTimeout(function () {
+    setTimeout(function() {
         miniVideo.style.opacity = 1;
     }, 1000);
     // Reset window display according to the aspectRatio of remote video.
@@ -394,7 +386,7 @@ function transitionToActive() {
 
 function transitionToWaiting() {
     card.style.webkitTransform = 'rotateY(0deg)';
-    setTimeout(function () {
+    setTimeout(function() {
         localVideo.src = miniVideo.src;
         localVideo.muted = true;
         miniVideo.src = '';
@@ -408,7 +400,7 @@ function transitionToWaiting() {
 
 
 // Set the video displaying in the center of window.
-window.onresize = function () {
+window.onresize = function() {
     var aspectRatio;
     if (remoteVideo.style.opacity === '1') {
         aspectRatio = remoteVideo.videoWidth / remoteVideo.videoHeight;
@@ -438,9 +430,9 @@ function enterFullScreen() {
 // connecting to signaling medium
 connection.connect();
 
-document.getElementById('open-room').onclick = function () {
+document.getElementById('open-room').onclick = function() {
     this.disabled = true;
-    
+
     // starting a new room
     connection.open();
 };

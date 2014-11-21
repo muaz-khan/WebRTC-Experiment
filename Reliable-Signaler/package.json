@@ -1,0 +1,39 @@
+{
+  "name": "reliable-signaler",
+  "preferGlobal": true,
+  "version": "1.0.0",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "http://www.muazkhan.com/"
+  },
+  "description": "Reliable signaling implementation for RTCMultiConnectiion and WebRTC Experiments.",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "main": "./index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/Reliable-Signaler.git"
+  },
+  "keywords": [
+    "webrtc",
+    "signaler",
+    "signaling",
+    "reliable",
+    "javascript",
+    "rtcmulticonnection",
+    "webrtc-experiment",
+    "muaz",
+    "muaz-khan"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/muaz-khan/Reliable-Signaler/wiki",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://github.com/muaz-khan/WebRTC-Experiment",
+  "_from": "reliable-signaler@"
+}

@@ -7,7 +7,7 @@
 </blockquote>
 
 <style>
-button {
+button, select {
     font-family: Myriad, Arial, Verdana;
     font-weight: normal;
     border-top-left-radius: 3px;
@@ -23,10 +23,16 @@ button {
     background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
     font-size: 20px;
     border: 1px solid red;
+    outline:none;
 }
-button[disabled] {
-    background: rgba(216, 205, 205, 0.2);
-    border: 1px solid rgb(233, 224, 224);
+button:active, button:focus, select:active {
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
+    border: 1px solid rgb(142, 142, 142);
+}
+button[disabled], select[disabled] {
+    background: rgb(249, 249, 249);
+    border: 1px solid rgb(218, 207, 207);
+    color: rgb(197, 189, 189);
 }
 blockquote {
     font-size: 20px;
@@ -52,13 +58,17 @@ span {
 </p>
 <hr />
 
-<audio controls></audio>
+<select>
+    <option>Audio</option>
+    <option>Video</option>
+</select><br><br>
+<audio controls data-type="audio/wav"></audio>
 
 <script src="https://cdn.webrtc-experiment.com/RecordRTC.js" autoplay> </script>
 <script src="https://cdn.webrtc-experiment.com/ConcatenateBlobs.js" autoplay> </script>
 
 <script>
-var audio = document.querySelector('audio');
+var mediaElement = document.querySelector('audio');
 
 var recordRTC;
 var allBlobs = [];
@@ -68,14 +78,18 @@ document.querySelector('#startRecording').onclick = function() {
     document.querySelector('#concatenateBlobs').disabled = true;
     
     navigator.getUserMedia({
-        audio: true
+        audio: mediaElement.getAttribute('data-type') == 'audio/wav',
+        video: mediaElement.getAttribute('data-type') == 'video/webm'
     }, function(stream) {
         localMediaStream = stream;
         
-        audio.src = URL.createObjectURL(stream);
-        audio.play();
+        mediaElement.src = URL.createObjectURL(stream);
+        mediaElement.play();
 
-        recordRTC = RecordRTC(stream);
+        recordRTC = RecordRTC(stream, {
+            type: mediaElement.getAttribute('data-type') == 'audio/wav' ? 'audio' : 'video',
+            video: mediaElement
+        });
         recordRTC.startRecording();
 
         document.querySelector('#stopRecording').disabled = false;
@@ -108,11 +122,11 @@ document.querySelector('#concatenateBlobs').onclick = function() {
     
     var parent = output.parentNode;
     parent.innerHTML =  'Concatenating ' + allBlobs.length + ' blobs.';
-    ConcatenateBlobs(allBlobs, 'audio/wav', function(resultingBlob) {
+    ConcatenateBlobs(allBlobs, mediaElement.getAttribute('data-type'), function(resultingBlob) {
         parent.innerHTML =  'Concatenated. Resulting blob size: <span>' + bytesToSize(resultingBlob.size) + '</span>. Playing-back locally in &lt;audio&gt; tag.';
         
-        audio.src = URL.createObjectURL(resultingBlob);
-        audio.play();
+        mediaElement.src = URL.createObjectURL(resultingBlob);
+        mediaElement.play();
     });
 };
 
@@ -126,6 +140,24 @@ function bytesToSize(bytes) {
     var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
     return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
 }
+
+document.querySelector('select').onchange = function() {
+    if(this.value == 'Video') {
+        var video = document.createElement('video');
+        video.setAttribute('data-type', 'video/webm');
+        video.setAttribute('controls', 'true');
+        mediaElement.parentNode.replaceChild(video, mediaElement);
+        mediaElement = video;
+    }
+    
+    if(this.value == 'Audio') {
+        var video = document.createElement('audio');
+        video.setAttribute('data-type', 'audio/wav');
+        video.setAttribute('controls', 'true');
+        mediaElement.parentNode.replaceChild(video, mediaElement);
+        mediaElement = video;
+    }
+};
 </script>
 
 <h2>How to use?</h2>

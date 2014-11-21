@@ -1,12 +1,12 @@
-##### [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) : A JavaScript wrapper library for RTCDataChannel APIs / [Demos](https://www.webrtc-experiment.com/#DataChannel)
+# [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) : A JavaScript wrapper library for RTCDataChannel APIs / [Demos](https://www.webrtc-experiment.com/#DataChannel)
 
 DataChannel.js is a JavaScript library useful to write many-to-many i.e. group file/data sharing or text chat applications. Its syntax is easier to use and understand. It highly simplifies complex tasks like any or all user rejection/ejection; direct messages delivery; and more.
 
 If you want all DataChannel.js functionalities along with media streaming and runtime additions/deletions then [RTCMultiConnection.js](http://www.rtcmulticonnection.org/) is a good chose with similar APIs/syntax.
 
-=
+* [DataChanel.js and Reliable Signaling](https://github.com/muaz-khan/Reliable-Signaler/tree/master/datachannel-client)
 
-##### Features
+## Features
 
 1. Direct messages — to any user using his `user-id`
 2. Eject/Reject any user — using his `user-id`
@@ -20,17 +20,13 @@ If you want all DataChannel.js functionalities along with media streaming and ru
 10. Multi-longest strings/files concurrent 
 11. File queue support added. Previously shared files will be auto transmitted to each new peer.
 
-=
-
-##### [Demos using DataChannel.js](https://www.webrtc-experiment.com/#DataChannel)
+## [Demos using DataChannel.js](https://www.webrtc-experiment.com/#DataChannel)
 
 1. [DataChannel basic demo](https://www.webrtc-experiment.com/DataChannel/)
 2. [Auto Session Establishment and Users presence detection](https://www.webrtc-experiment.com/DataChannel/auto-session-establishment.html)
 3. [Text Chat using Pusher and DataChannel.js](http://webrtc-chat-demo.pusher.io/)
 
-=
-
-##### Try a Quick Demo (Text Chat)
+## Try a Quick Demo (Text Chat)
 
 ```html
 <script src="//cdn.webrtc-experiment.com/DataChannel.js"> </script>
@@ -74,26 +70,20 @@ document.querySelector('button#setup-datachannel').onclick = function () {
 </script>
 ```
 
-=
-
-##### First Step: Link the library
+## First Step: Link the library
 
 ```html
 <script src="//cdn.webrtc-experiment.com/DataChannel.js"></script>
 ```
 
-=
-
-##### Last Step: Start using it!
+## Last Step: Start using it!
 
 ```javascript
 var channel = new DataChannel('[optional] channel-name');
 channel.send(file || data || 'text-message');
 ```
 
-=
-
-##### open/connect data channels
+## open/connect data channels
 
 ```javascript
 // to create/open a new channel
@@ -103,9 +93,7 @@ channel.open('channel-name');
 channel.connect('channel-name');
 ```
 
-=
-
-##### `onopen` and `onmessage`
+## `onopen` and `onmessage`
 
 If you're familiar with WebSockets; these two methods works in the exact same way:
 
@@ -116,9 +104,7 @@ channel.onmessage = function(message, userid, latency) { }
 
 `user-ids` can be used to send **direct messages** or to **eject/leave** any user:
 
-=
-
-##### `ondatachannel`
+## `ondatachannel`
 
 Allows you show list of all available data channels to the user; and let him choose which one to join:
 
@@ -137,9 +123,7 @@ channel.ondatachannel = function(data_channel) {
 };
 ```
 
-=
-
-##### Use custom user-ids
+## Use custom user-ids
 
 ```javascript
 channel.userid = 'predefined-userid';
@@ -147,41 +131,31 @@ channel.userid = 'predefined-userid';
 
 Remember; custom defined `user-id` must be unique username.
 
-=
-
-##### Direct messages
+## Direct messages
 
 ```javascript
 channel.channels[userid].send(file || data || 'text message');
 ```
 
-=
-
-##### Eject/Reject users using their `user-ids`
+## Eject/Reject users using their `user-ids`
 
 ```javascript
 channel.eject(userid);  // throw a user out of your room!
 ```
 
-=
-
-##### Close/Leave the entire room
+## Close/Leave the entire room
 
 ```javascript
 channel.leave();        // close your own entire data session
 ```
 
-=
-
-##### Detect users' presence
+## Detect users' presence
 
 ```javascript
 channel.onleave = function(userid) { };
 ```
 
-=
-
-##### Auto Close Entire Session
+## Auto Close Entire Session
 
 When room initiator leaves; you can enforce auto-closing of the entire session. By default: it is `false`:
 
@@ -198,9 +172,7 @@ channel.autoCloseEntireSession = true;
 channel.leave(); // closing entire session
 ```
 
-=
-
-##### `uuid` for files
+## `uuid` for files
 
 You can get `uuid` for each file (being sent) like this:
 
@@ -209,9 +181,7 @@ channel.send(file);
 var uuid = file.uuid; // "file"-Dot-uuid
 ```
 
-=
-
-##### To Share files
+## To Share files
 
 ```javascript
 var progressHelper = {};
@@ -252,9 +222,8 @@ function updateLabel(progress, label) {
     label.innerHTML = position + '%';
 }
 ```
-=
 
-##### File Queue
+## File Queue
 
 File Queue support added to make sure newly connected users gets all previously shared files.
 
@@ -264,9 +233,7 @@ You can see list of previously shared files:
 console.log( channel.fileQueue );
 ```
 
-=
-
-##### Auto-Save file to Disk
+## Auto-Save file to Disk
 
 By default; `autoSaveToDisk` is set to `true`. When it is `true`; it will save file to disk as soon as it is received. To prevent auto-saving feature; just set it `false`:
 
@@ -280,9 +247,7 @@ channel.onFileReceived = function (fileName, file) {
 };
 ```
 
-=
-
-##### Latency Detection
+## Latency Detection
 
 ```javascript
 channel.onmessage = function(message, userid, latency) {
@@ -290,9 +255,7 @@ channel.onmessage = function(message, userid, latency) {
 };
 ```
 
-=
-
-##### Concurrent Transmission
+## Concurrent Transmission
 
 You can send multiple files concurrently; or multiple longer text messages:
 
@@ -310,9 +273,7 @@ channel.send('longer string-2');
 channel.send('longer string-3');
 ```
 
-=
-
-##### Errors Handling
+## Errors Handling
 
 ```javascript
 // error to open data ports
@@ -322,9 +283,7 @@ channel.onerror = function(event) {}
 channel.onclose = function(event) {}
 ```
 
-=
-
-##### Data session direction
+## Data session direction
 
 Default direction is `many-to-many`.
 
@@ -342,16 +301,12 @@ https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
 Remember, you can use any signaling implementation that exists out there without modifying any single line! Just skip below code and open [above link](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)!
 
-=
-
 ## Resources
 
 1. Video Presentation for `openSignalingChannel`: https://vimeo.com/91780227
 2. Documentation for `openSignalingChannel`: http://www.rtcmulticonnection.org/docs/openSignalingChannel/
 
-=
-
-##### Use [your own socket.io for signaling](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs)
+## Use [your own socket.io for signaling](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs)
 
 ```javascript
 dataChannel.openSignalingChannel = function(config) {
@@ -375,15 +330,13 @@ dataChannel.openSignalingChannel = function(config) {
 };
 ```
 
-=
-
-##### Use Pusher for signaling
+## Use Pusher for signaling
 
 A demo & tutorial available here: http://pusher.com/tutorials/webrtc_chat
 
 Another link: http://www.rtcmulticonnection.org/docs/openSignalingChannel/#pusher-signaling
 
-##### Use [firebase for signaling](http://www.rtcmulticonnection.org/docs/openSignalingChannel/#firebase-signaling)
+## Use [firebase for signaling](http://www.rtcmulticonnection.org/docs/openSignalingChannel/#firebase-signaling)
 
 ```javascript
 // firebase stores data on their servers
@@ -410,9 +363,9 @@ channel.openSignalingChannel = function (config) {
 };
 ```
 
-=
-
 ## Other Signaling resources
+
+* [DataChanel.js and Reliable Signaling](https://github.com/muaz-khan/Reliable-Signaler/tree/master/datachannel-client)
 
 1. [XHR for Signaling](http://www.rtcmulticonnection.org/docs/openSignalingChannel/#xhr-signaling)
 2. [WebSync for Signaling](http://www.rtcmulticonnection.org/docs/openSignalingChannel/#websync-signaling)
@@ -421,9 +374,7 @@ channel.openSignalingChannel = function (config) {
 5. [Firebase for Signaling](http://www.rtcmulticonnection.org/docs/openSignalingChannel/#firebase-signaling)
 6. [PubNub for Signaling](http://www.rtcmulticonnection.org/docs/openSignalingChannel/#pubnub-signaling)
 
-=
-
-##### `transmitRoomOnce`
+## `transmitRoomOnce`
 
 `transmitRoomOnce` is preferred when using Firebase for signaling. It saves bandwidth and asks DataChannel.js library to not repeatedly transmit room details.
 
@@ -431,9 +382,7 @@ channel.openSignalingChannel = function (config) {
 channel.transmitRoomOnce = true;
 ```
 
-=
-
-##### Browser Support
+## Browser Support
 
 [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) works fine on following browsers:
 
@@ -443,8 +392,6 @@ channel.transmitRoomOnce = true;
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
 
-=
-
-##### License
+## License
 
 [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

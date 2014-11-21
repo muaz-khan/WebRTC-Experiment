@@ -1,11 +1,13 @@
-﻿<!--
+<!--
 > Muaz Khan     - github.com/muaz-khan 
 > MIT License   - www.webrtc-experiment.com/licence
 > Documentation - www.RTCMultiConnection.org
 -->
 
-<script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
-<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
+<script src="//cdn.webrtc-experiment.com/firebase.js">
+</script>
+<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
+</script>
 
 <button id="init">Open NEW Session</button>
 
@@ -21,97 +23,96 @@
 </table>
 
 <script>
-    window.username = Math.random() * 9999 << 9999;
+window.username = Math.random() * 9999 << 9999;
 
-    var connection = new RTCMultiConnection();
+var connection = new RTCMultiConnection();
 
-    connection.onstream = function(e) {
-        if (e.type === 'local') {
-            var video = getVideo(e, {
-                username: window.username
-            });
+connection.onstream = function(e) {
+    if (e.type === 'local') {
+        var video = getVideo(e, {
+            username: window.username
+        });
 
-            document.getElementById('local-video-container').appendChild(video);
-        }
-
-        if (e.type === 'remote') {
-            var video = getVideo(e, e.extra);
-
-            var remoteVideosContainer = document.getElementById('remote-videos-container');
-            remoteVideosContainer.appendChild(video, remoteVideosContainer.firstChild);
-        }
-        e.mediaElement.width = innerWidth / 3.4;
-    };
-
-    connection.onleave = function(userid, extra) {
-        if (extra) console.log(extra.username + ' left you!');
-
-        var video = document.getElementById(userid);
-        if (video) video.parentNode.removeChild(video);
-    };
-
-    function getVideo(e, extra) {
-        var div = document.createElement('div');
-        div.className = 'video-container';
-        div.id = e.userid || 'self';
-
-        if (e.type === 'remote') {
-            if (connection.isInitiator) {
-                var eject = document.createElement('button');
-                eject.className = 'eject';
-                eject.title = 'Eject this User';
-
-                eject.onclick = function() {
-                    connection.eject(this.parentNode.id);
-                    this.parentNode.style.display = 'none';
-                };
-                div.appendChild(eject);
-            }
-        }
-        div.appendChild(e.mediaElement);
-
-        if (extra) {
-            var h2 = document.createElement('h2');
-            h2.innerHTML = 'username: ' + extra.username;
-            div.appendChild(h2);
-        }
-        return div;
+        document.getElementById('local-video-container').appendChild(video);
     }
 
-    document.getElementById('init').onclick = function() {
-        connection.interval = 1000;
-        connection.open();
-        this.disabled = true;
-    };
+    if (e.type === 'remote') {
+        var video = getVideo(e, e.extra);
 
-    connection.extra = {
-        username: window.username
-    };
+        var remoteVideosContainer = document.getElementById('remote-videos-container');
+        remoteVideosContainer.appendChild(video, remoteVideosContainer.firstChild);
+    }
+    e.mediaElement.width = innerWidth / 3.4;
+};
 
-    connection.connect();
+connection.onleave = function(userid, extra) {
+    if (extra) console.log(extra.username + ' left you!');
+
+    var video = document.getElementById(userid);
+    if (video) video.parentNode.removeChild(video);
+};
+
+function getVideo(e, extra) {
+    var div = document.createElement('div');
+    div.className = 'video-container';
+    div.id = e.userid || 'self';
+
+    if (e.type === 'remote') {
+        if (connection.isInitiator) {
+            var eject = document.createElement('button');
+            eject.className = 'eject';
+            eject.title = 'Eject this User';
+
+            eject.onclick = function() {
+                connection.eject(this.parentNode.id);
+                this.parentNode.style.display = 'none';
+            };
+            div.appendChild(eject);
+        }
+    }
+    div.appendChild(e.mediaElement);
+
+    if (extra) {
+        var h2 = document.createElement('h2');
+        h2.innerHTML = 'username: ' + extra.username;
+        div.appendChild(h2);
+    }
+    return div;
+}
+
+document.getElementById('init').onclick = function() {
+    connection.interval = 1000;
+    connection.open();
+    this.disabled = true;
+};
+
+connection.extra = {
+    username: window.username
+};
+
+connection.connect();
 </script>
 
 <style>
-    html { background: rgb(255, 252, 239); }
-
-    .video-container {
-        background: white;
-        display: inline-block;
-        overflow: hidden;
-        vertical-align: top;
-    }
-
-    .video-container h2 {
-        border: 0;
-        border-top: 1px solid black;
-        display: block;
-        margin: 0;
-        text-align: center;
-    }
-
-    .video-container button {
-        margin: .2em;
-        position: absolute;
-        z-index: 200;
-    }
+html {
+    background: rgb(255, 252, 239);
+}
+.video-container {
+    background: white;
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+}
+.video-container h2 {
+    border: 0;
+    border-top: 1px solid black;
+    display: block;
+    margin: 0;
+    text-align: center;
+}
+.video-container button {
+    margin: .2em;
+    position: absolute;
+    z-index: 200;
+}
 </style>
