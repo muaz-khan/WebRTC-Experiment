@@ -43,7 +43,7 @@
         hasWebcam: navigator.getMediaDevices || navigator.enumerateDevices ? false : 'unable to detect',
 
         isWebRTCSupported: !!window.webkitRTCPeerConnection || !!window.mozRTCPeerConnection,
-        isAudioContextSupported: (!!window.AudioContext || !!window.webkitAudioContext) && !!AudioContext.prototype.createMediaStreamSource,
+        isAudioContextSupported: (!!window.AudioContext && !!AudioContext.prototype.createMediaStreamSource) || (!!window.webkitAudioContext && !!webkitAudioContext.prototype.createMediaStreamSource),
 
         isScreenCapturingSupported: (isFirefox && browser.version >= 33) ||
             (isChrome && browser.version >= 26 && (isNodeWebkit ? true : location.protocol == 'https:')),
