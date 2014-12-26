@@ -2,7 +2,7 @@
 // RecordRTC.js
 
 /**
- * RecordRTC is a JavaScript-based media-recording library for modern web-browsers (supporting WebRTC getUserMedia API). It is optimized for different devices and browsers to bring all client-side (pluginfree) recording solutions in single place.
+ * {@link https://github.com/muaz-khan/RecordRTC|RecordRTC} is a JavaScript-based media-recording library for modern web-browsers (supporting WebRTC getUserMedia API). It is optimized for different devices and browsers to bring all client-side (pluginfree) recording solutions in single place.
  * @summary JavaScript audio/video recording library runs top over WebRTC getUserMedia API.
  * @license {@link https://www.webrtc-experiment.com/licence/|MIT}
  * @author {@link https://www.MuazKhan.com|Muaz Khan}
@@ -33,7 +33,9 @@ function RecordRTC(mediaStream, config) {
     var self = this;
 
     function startRecording() {
-        console.debug('started recording ' + config.type + ' stream.');
+        if (!config.disableLogs) {
+            console.debug('started recording ' + config.type + ' stream.');
+        }
 
         // Media Stream Recording API has not been implemented in chrome yet;
         // That's why using WebAudio API to record stereo audio in WAV format
@@ -84,7 +86,9 @@ function RecordRTC(mediaStream, config) {
         /*jshint validthis:true */
         var recordRTC = this;
 
-        console.warn('Stopped recording ' + config.type + ' stream.');
+        if (!config.disableLogs) {
+            console.warn('Stopped recording ' + config.type + ' stream.');
+        }
 
         if (config.type !== 'gif') {
             mediaRecorder.stop(_callback);
@@ -110,7 +114,9 @@ function RecordRTC(mediaStream, config) {
                 callback(url);
             }
 
-            console.debug(blob.type, '->', bytesToSize(blob.size));
+            if (!config.disableLogs) {
+                console.debug(blob.type, '->', bytesToSize(blob.size));
+            }
 
             if (!config.autoWriteToDisk) {
                 return;
@@ -132,7 +138,10 @@ function RecordRTC(mediaStream, config) {
         var blob = _mediaRecorder ? _mediaRecorder.blob : mediaRecorder.blob;
 
         if (!blob) {
-            console.warn('Blob encoder did not yet finished its job.');
+            if (!config.disableLogs) {
+                console.warn('Blob encoder did not yet finished its job.');
+            }
+
             setTimeout(function() {
                 getDataURL(callback, _mediaRecorder);
             }, 1000);

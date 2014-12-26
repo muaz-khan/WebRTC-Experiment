@@ -4,7 +4,7 @@
 // StereoAudioRecorder.js
 
 /**
- * StereoAudioRecorder is a standalone class used by RecordRTC to bring "stereo" audio-recording in chrome.
+ * StereoAudioRecorder is a standalone class used by {@link RecordRTC} to bring "stereo" audio-recording in chrome.
  * @summary JavaScript standalone object for stereo audio recording.
  * @typedef StereoAudioRecorder
  * @class
@@ -65,7 +65,6 @@ function StereoAudioRecorder(mediaStream, config) {
 
         // to make sure onaudioprocess stops firing
         audioInput.disconnect();
-        volume.disconnect();
 
         // flat the left and right channels down
         var leftBuffer = mergeBuffers(leftchannel, recordingLength);
@@ -73,9 +72,15 @@ function StereoAudioRecorder(mediaStream, config) {
 
         // interleave both channels together
         var interleaved = interleave(leftBuffer, rightBuffer);
+        var interleavedLength = interleaved.length;
 
         // create our wav file
-        var buffer = new ArrayBuffer(44 + interleaved.length * 2);
+        var resultingBufferLength = 44 + interleavedLength * 2;
+        if (!config.disableLogs) {
+            console.log('Resulting Buffer Length', resultingBufferLength);
+        }
+
+        var buffer = new ArrayBuffer(resultingBufferLength);
 
         var view = new DataView(buffer);
 
@@ -83,8 +88,8 @@ function StereoAudioRecorder(mediaStream, config) {
         writeUTFBytes(view, 0, 'RIFF');
 
         // RIFF chunk length
-        // view.setUint32(4, 44 + interleaved.length * 2, true);
-        view.setUint32(4, 36 + interleaved.length * 2, true);
+        var blockAlign = 4;
+        view.setUint32(blockAlign, 44 + interleavedLength * 2, true);
 
         // RIFF type 
         writeUTFBytes(view, 8, 'WAVE');
@@ -105,11 +110,11 @@ function StereoAudioRecorder(mediaStream, config) {
         // sample rate 
         view.setUint32(24, sampleRate, true);
 
-        // byte rate (sample rate * block align) 
-        view.setUint32(28, sampleRate * 4, true);
+        // byte rate (sample rate * block align)
+        view.setUint32(28, sampleRate * blockAlign, true);
 
         // block align (channel count * bytes per sample) 
-        view.setUint16(32, 4, true);
+        view.setUint16(32, blockAlign, true);
 
         // bits per sample 
         view.setUint16(34, 16, true);
@@ -119,13 +124,23 @@ function StereoAudioRecorder(mediaStream, config) {
         writeUTFBytes(view, 36, 'data');
 
         // data chunk length 
-        view.setUint32(40, interleaved.length * 2, true);
+        view.setUint32(40, interleavedLength * 2, true);
 
         // write the PCM samples
-        var offset = 44;
-        for (var i = 0; i < interleaved.length; i++, offset += 2) {
-            var s = Math.max(-1, Math.min(1, interleaved[i]));
-            view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        var offset = 44,
+            leftChannel;
+        for (var i = 0; i < interleavedLength; i++, offset += 2) {
+            var size = Math.max(-1, Math.min(1, interleaved[i]));
+            var currentChannel = size < 0 ? size * 32768 : size * 32767;
+
+            if (config.leftChannel) {
+                if (currentChannel !== leftChannel) {
+                    view.setInt16(offset, currentChannel, true);
+                }
+                leftChannel = currentChannel;
+            } else {
+                view.setInt16(offset, currentChannel, true);
+            }
         }
 
         /**
@@ -173,7 +188,12 @@ function StereoAudioRecorder(mediaStream, config) {
 
     function interleave(leftChannel, rightChannel) {
         var length = leftChannel.length + rightChannel.length;
-        var result = new Float32Array(length);
+
+        if (!config.disableLogs) {
+            console.log('Buffers length:', length);
+        }
+
+        var result = new Float64Array(length);
 
         var inputIndex = 0;
 
@@ -186,14 +206,16 @@ function StereoAudioRecorder(mediaStream, config) {
     }
 
     function mergeBuffers(channelBuffer, rLength) {
-        var result = new Float32Array(rLength);
+        var result = new Float64Array(rLength);
         var offset = 0;
         var lng = channelBuffer.length;
+
         for (var i = 0; i < lng; i++) {
             var buffer = channelBuffer[i];
             result.set(buffer, offset);
             offset += buffer.length;
         }
+
         return result;
     }
 
@@ -210,16 +232,10 @@ function StereoAudioRecorder(mediaStream, config) {
 
     var context = Storage.AudioContextConstructor;
 
-    // creates a gain node
-    var volume = context.createGain();
-
     // creates an audio node from the microphone incoming stream
     var audioInput = context.createMediaStreamSource(mediaStream);
 
-    // connect the stream to the gain node
-    audioInput.connect(volume);
-
-    var legalBufferValues = [256, 512, 1024, 2048, 4096, 8192, 16384];
+    var legalBufferValues = [0, 256, 512, 1024, 2048, 4096, 8192, 16384];
 
     /**
      * From the spec: This value controls how frequently the audioprocess event is
@@ -238,10 +254,12 @@ function StereoAudioRecorder(mediaStream, config) {
      */
 
     // "0" means, let chrome decide the most accurate buffer-size for current platform.
-    var bufferSize = config.bufferSize || 4096;
+    var bufferSize = typeof config.bufferSize === 'undefined' ? 4096 : config.bufferSize;
 
     if (legalBufferValues.indexOf(bufferSize) === -1) {
-        // throw 'Legal values for buffer-size are ' + JSON.stringify(legalBufferValues, null, '\t');
+        if (!config.disableLogs) {
+            console.warn('Legal values for buffer-size are ' + JSON.stringify(legalBufferValues, null, '\t'));
+        }
     }
 
 
@@ -262,11 +280,13 @@ function StereoAudioRecorder(mediaStream, config) {
      *     sampleRate: 44100
      * });
      */
-    var sampleRate = config.sampleRate || context.sampleRate || 44100;
+    var sampleRate = typeof config.sampleRate !== 'undefined' ? config.sampleRate : context.sampleRate || 44100;
 
     if (sampleRate < 22050 || sampleRate > 96000) {
         // Ref: http://stackoverflow.com/a/26303918/552182
-        // throw 'sample-rate must be under range 22050 and 96000.';
+        if (!config.disableLogs) {
+            console.warn('sample-rate must be under range 22050 and 96000.');
+        }
     }
 
     if (context.createJavaScriptNode) {
@@ -277,10 +297,15 @@ function StereoAudioRecorder(mediaStream, config) {
         throw 'WebAudio API has no support on this browser.';
     }
 
+    // connect the stream to the gain node
+    audioInput.connect(__stereoAudioRecorderJavacriptNode);
+
     bufferSize = __stereoAudioRecorderJavacriptNode.bufferSize;
 
-    console.log('sample-rate', sampleRate);
-    console.log('buffer-size', bufferSize);
+    if (!config.disableLogs) {
+        console.log('sample-rate', sampleRate);
+        console.log('buffer-size', bufferSize);
+    }
 
     var isAudioProcessStarted = false,
         self = this;
@@ -292,6 +317,7 @@ function StereoAudioRecorder(mediaStream, config) {
         }
 
         if (!recording) {
+            audioInput.disconnect();
             return;
         }
 
@@ -318,9 +344,6 @@ function StereoAudioRecorder(mediaStream, config) {
 
         recordingLength += bufferSize;
     };
-
-    // we connect the recorder
-    volume.connect(__stereoAudioRecorderJavacriptNode);
 
     // to prevent self audio to be connected with speakers
     __stereoAudioRecorderJavacriptNode.connect(context.destination);

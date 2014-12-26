@@ -149,7 +149,7 @@ if (isChrome || isFirefox || isSafari) {
 function toStr(obj) {
     return JSON.stringify(obj, function(key, value) {
         key = key;
-        if (value && value.sdp) {
+        if (value && value.sdp && value.sdp.type) {
             log(value.sdp.type, '\t', value.sdp.sdp);
             return '';
         } else {
@@ -173,6 +173,19 @@ function getLength(obj) {
 // Get HTMLAudioElement/HTMLVideoElement accordingly
 
 function createMediaElement(stream, session) {
+    if (!stream.isAudio && stream.getVideoTracks && !stream.getVideoTracks().length) {
+        stream.isAudio = true;
+        session.video = session.screen = stream.isVideo = stream.isScreen = false;
+    }
+
+    if (stream.isAudio && stream.getAudioTracks && !stream.getAudioTracks().length) {
+        session.audio = stream.isAudio = false;
+
+        if (!stream.isScreen) {
+            stream.isVideo = true;
+        }
+    }
+
     var mediaElement = document.createElement(stream.isAudio ? 'audio' : 'video');
     mediaElement.id = stream.streamid;
 
@@ -237,6 +250,19 @@ function takeSnapshot(args) {
     var userid = args.userid;
     var connection = args.connection;
 
+    function dataURItoBlob(dataURI, dataTYPE) {
+        var binary = atob(dataURI.split(',')[1]),
+            array = [];
+
+        for (var i = 0; i < binary.length; i++) {
+            array.push(binary.charCodeAt(i));
+        }
+
+        return new Blob([new Uint8Array(array)], {
+            type: dataTYPE
+        });
+    }
+
     function _takeSnapshot(video) {
         var canvas = document.createElement('canvas');
         canvas.width = video.videoWidth || video.clientWidth;
@@ -250,7 +276,9 @@ function takeSnapshot(args) {
         if (!args.callback) {
             return;
         }
-        args.callback(connection.snapshots[userid]);
+
+        var blob = dataURItoBlob(connection.snapshots[userid], 'image/png');
+        args.callback(connection.snapshots[userid], blob);
     }
 
     if (args.mediaElement) {
@@ -485,7 +513,7 @@ function muteOrUnmute(e) {
 
     root.sockets.forEach(function(socket) {
         if (root.type === 'local') {
-            socket.send({
+            socket.send2({
                 streamid: root.streamid,
                 mute: !!enabled,
                 unmute: !enabled,
@@ -494,7 +522,7 @@ function muteOrUnmute(e) {
         }
 
         if (root.type === 'remote') {
-            socket.send({
+            socket.send2({
                 promptMuteUnmute: true,
                 streamid: root.streamid,
                 mute: !!enabled,
@@ -557,7 +585,7 @@ function listenEventHandler(eventName, eventHandler) {
     window.addEventListener(eventName, eventHandler, false);
 }
 
-function initHark(args) {
+function initHark(args, callback) {
     if (!window.hark) {
         loadScript(args.connection.resources.hark, function() {
             initHark(args);
@@ -566,32 +594,30 @@ function initHark(args) {
     }
 
     var connection = args.connection;
-    var streamedObject = args.streamedObject;
-    var stream = args.stream;
 
-    var options = {};
-    var speechEvents = window.hark(stream, options);
-
-    speechEvents.on('speaking', function() {
-        if (connection.onspeaking) {
-            connection.onspeaking(streamedObject);
-        }
-    });
-
-    speechEvents.on('stopped_speaking', function() {
-        if (connection.onsilence) {
-            connection.onsilence(streamedObject);
-        }
-    });
-
-    speechEvents.on('volume_change', function(volume, threshold) {
-        if (connection.onvolumechange) {
+    callback(window.hark(args.stream, {
+        onspeaking: function() {
+            if (!connection.onspeaking) {
+                return;
+            }
+            connection.onspeaking(args.streamedObject);
+        },
+        onsilence: function() {
+            if (!connection.onsilence) {
+                return;
+            }
+            connection.onsilence(args.streamedObject);
+        },
+        onvolumechange: function(volume, threshold) {
+            if (!connection.onvolumechange) {
+                return;
+            }
             connection.onvolumechange(merge({
                 volume: volume,
                 threshold: threshold
-            }, streamedObject));
+            }, args.streamedObject));
         }
-    });
+    }));
 }
 
 window.attachEventListener = function(video, type, listener, useCapture) {

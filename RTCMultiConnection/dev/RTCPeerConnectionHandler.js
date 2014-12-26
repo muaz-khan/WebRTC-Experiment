@@ -2,7 +2,7 @@ var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConne
 var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
 var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
 
-function PeerConnection() {
+function RTCPeerConnectionHandler() {
     return {
         create: function(type, options) {
             merge(this, options);
@@ -378,6 +378,10 @@ function PeerConnection() {
             }
 
             function onAddIceCandidate(iceCandidate) {
+                if (!self.connection) {
+                    return;
+                }
+
                 self.connection.addIceCandidate(iceCandidate, function() {
                     log('added:', candidate.sdpMid, candidate.candidate);
                 }, function() {
@@ -504,6 +508,14 @@ function PeerConnection() {
         },
         attachMediaStreams: function() {
             var streams = this.attachStreams;
+
+            if (isFirefox) {
+                if (streams[0]) {
+                    this.addStream(streams[0]);
+                }
+                return;
+            }
+
             for (var i = 0; i < streams.length; i++) {
                 this.addStream(streams[i]);
             }

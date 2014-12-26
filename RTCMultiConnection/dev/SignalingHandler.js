@@ -1,12 +1,10 @@
-function RTCMultiSession(connection, callbackForSignalingReady) {
-    var socketObjects = {};
-    var sockets = [];
-    var rtcMultiSession = this;
+function SignalingHandler(connection, callbackForSignalingReady) {
+    var signalingHandler = this;
     var participants = {};
 
-    if (!rtcMultiSession.fileBufferReader && connection.session.data && connection.enableFileSharing) {
+    if (!signalingHandler.fileBufferReader && connection.session.data && connection.enableFileSharing) {
         initFileBufferReader(connection, function(fbr) {
-            rtcMultiSession.fileBufferReader = fbr;
+            signalingHandler.fileBufferReader = fbr;
         });
     }
 
@@ -104,53 +102,18 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         }
     }
 
-    function newPrivateSocket(_config) {
-        var socketConfig = {
-            channel: _config.channel,
-            onmessage: socketResponse,
-            onopen: function(_socket) {
-                if (_socket) {
-                    socket = _socket;
-                }
+    var peerNegotiationHandler = {};
 
-                if (isofferer && !peer) {
-                    peerConfig.session = connection.session;
-                    if (!peer) {
-                        peer = new PeerConnection();
-                    }
-
-                    peer.create('offer', peerConfig);
-                }
-
-                _config.socketIndex = socket.index = sockets.length;
-                socketObjects[socketConfig.channel] = socket;
-                sockets[_config.socketIndex] = socket;
-
-                updateSocketForLocalStreams(socket);
-
-                if (!socket.__push) {
-                    socket.__push = socket.send;
-                    socket.send = function(message) {
-                        message.userid = message.userid || connection.userid;
-                        message.extra = message.extra || connection.extra || {};
-
-                        socket.__push(message);
-                    };
-                }
-            }
+    function handlePeersNegotiation(_config) {
+        var socket = connection.socket;
+        socket.send2 = function(message) {
+            message.channel = _config.channel;
+            socket.send(message);
         };
 
-        socketConfig.callback = function(_socket) {
-            socket = _socket;
-            socketConfig.onopen();
-        };
+        peerNegotiationHandler[_config.channel] = socketResponse;
 
-        var socket = connection.openSignalingChannel(socketConfig);
-        if (socket) {
-            socketConfig.onopen(socket);
-        }
-
-        var isofferer = _config.isofferer,
+        var isCreateOffer = _config.isCreateOffer,
             peer;
 
         var peerConfig = {
@@ -207,7 +170,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                     return;
                 }
 
-                socket.send({
+                socket.send2({
                     candidate: JSON.stringify({
                         candidate: candidate.candidate,
                         sdpMid: candidate.sdpMid,
@@ -229,23 +192,23 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                         throw 'It seems that receiving data is either "Blob" or "File" but file sharing is disabled.';
                     }
 
-                    if (!rtcMultiSession.fileBufferReader) {
+                    if (!signalingHandler.fileBufferReader) {
                         var that = this;
                         initFileBufferReader(connection, function(fbr) {
-                            rtcMultiSession.fileBufferReader = fbr;
+                            signalingHandler.fileBufferReader = fbr;
                             that.onmessage(data);
                         });
                         return;
                     }
 
-                    var fileBufferReader = rtcMultiSession.fileBufferReader;
+                    var fileBufferReader = signalingHandler.fileBufferReader;
 
                     fileBufferReader.convertToObject(data, function(chunk) {
                         if (chunk.maxChunks || chunk.readyForNextChunk) {
                             // if target peer requested next chunk
                             if (chunk.readyForNextChunk) {
                                 fileBufferReader.getNextChunk(chunk.uuid, function(nextChunk) {
-                                    rtcMultiSession.send(nextChunk);
+                                    signalingHandler.send(nextChunk);
                                 });
                                 return;
                             }
@@ -253,7 +216,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                             // if chunk is received
                             fileBufferReader.addChunk(chunk, function(promptNextChunk) {
                                 // request next chunk
-                                rtcMultiSession.send(promptNextChunk);
+                                signalingHandler.send(promptNextChunk);
                             });
                             return;
                         }
@@ -393,7 +356,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                 }
 
                 // if ICE connectivity check is failed; renegotiate or redial
-                if (connection.peers[_config.userid] && connection.peers[_config.userid].peer.connection.iceConnectionState === 'failed') {
+                if (connection.peers[_config.userid] && connection.peers[_config.userid].peer && connection.peers[_config.userid].peer.connection.iceConnectionState === 'failed') {
                     connection.onfailed({
                         userid: _config.userid,
                         extra: _config.extra,
@@ -426,7 +389,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                     if (connection.peers[_config.userid].peer.connection.iceConnectionState === 'disconnected' && !_config.redialing) {
                         _config.redialing = true;
                         warn('Peer connection is closed.', toStr(connection.peers[_config.userid].peer.connection), 'ReDialing..');
-                        connection.peers[_config.userid].socket.send({
+                        connection.peers[_config.userid].socket.send2({
                             redial: true
                         });
 
@@ -467,7 +430,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                     return;
                 }
 
-                socket.send({
+                socket.send2({
                     streamid: stream.streamid,
                     isScreen: !!stream.isScreen,
                     isAudio: !!stream.isAudio,
@@ -494,7 +457,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             }
 
             if (args.numberOfTimes >= 60) { // wait 60 seconds while video is delivered!
-                return socket.send({
+                return socket.send2({
                     failedToReceiveRemoteVideo: true,
                     streamid: args.stream.streamid
                 });
@@ -515,7 +478,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             if (!connection.session.data) {
                 var fakeChannel = {
                     send: function(data) {
-                        socket.send({
+                        socket.send2({
                             fakeData: data
                         });
                     },
@@ -543,6 +506,10 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                 }
 
                 onStreamEndedHandler(streamedObject, connection);
+
+                if (harker) {
+                    harker.stop();
+                }
             };
 
             var streamedObject = {
@@ -586,21 +553,24 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
 
             onSessionOpened();
 
-            if (connection.onspeaking) {
+            var harker;
+            if (connection.onspeaking && false) { // temporarily disabled
                 initHark({
                     stream: stream,
                     streamedObject: streamedObject,
                     connection: connection
+                }, function(_harker) {
+                    harker = _harker;
                 });
             }
         }
 
         function onChannelOpened(channel) {
-            _config.channel = channel;
+            _config.datachannel = channel;
 
             // connection.channels['user-id'].send(data);
             connection.channels[_config.userid] = {
-                channel: _config.channel,
+                channel: _config.datachannel,
                 send: function(data) {
                     connection.send(data, this.channel);
                 }
@@ -633,7 +603,6 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             }
 
             socket.userid = _config.userid;
-            sockets[_config.socketIndex] = socket;
 
             connection.numberOfConnectedUsers++;
             // connection.peers['user-id'].addStream({audio:true})
@@ -676,7 +645,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                     this.peer.bandwidth = bandwidth;
 
                     // ask remote user to synchronize bandwidth
-                    this.socket.send({
+                    this.socket.send2({
                         changeBandwidth: true,
                         bandwidth: bandwidth
                     });
@@ -684,7 +653,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                 sendCustomMessage: function(message) {
                     // connection.peers['user-id'].sendCustomMessage();
 
-                    this.socket.send({
+                    this.socket.send2({
                         customMessage: true,
                         message: message
                     });
@@ -715,7 +684,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                         return;
                     }
 
-                    this.socket.send({
+                    this.socket.send2({
                         drop: true
                     });
                 },
@@ -723,7 +692,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                     // connection.peers['user-id'].hold();
 
                     if (peer.prevCreateType === 'answer') {
-                        this.socket.send({
+                        this.socket.send2({
                             unhold: true,
                             holdMLine: holdMLine || 'both',
                             takeAction: true
@@ -731,7 +700,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                         return;
                     }
 
-                    this.socket.send({
+                    this.socket.send2({
                         hold: true,
                         holdMLine: holdMLine || 'both'
                     });
@@ -748,7 +717,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                     // connection.peers['user-id'].unhold();
 
                     if (peer.prevCreateType === 'answer') {
-                        this.socket.send({
+                        this.socket.send2({
                             unhold: true,
                             holdMLine: holdMLine || 'both',
                             takeAction: true
@@ -756,7 +725,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                         return;
                     }
 
-                    this.socket.send({
+                    this.socket.send2({
                         unhold: true,
                         holdMLine: holdMLine || 'both'
                     });
@@ -818,11 +787,12 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
 
                     log('ReDialing...');
 
-                    socket.send({
+                    socket.send2({
                         recreatePeer: true
                     });
 
-                    peer = new PeerConnection();
+                    peerConfig.attachStreams = connection.attachStreams;
+                    peer = new RTCPeerConnectionHandler();
                     peer.create('offer', peerConfig);
                 },
                 sharePartOfScreen: function(args) {
@@ -912,7 +882,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             // original conferencing infrastructure!
             if (connection.isInitiator && getLength(participants) && getLength(participants) <= connection.maxParticipantsAllowed) {
                 if (!connection.session.oneway && !connection.session.broadcast) {
-                    defaultSocket.send({
+                    connection.socket.send({
                         sessionid: connection.sessionid,
                         newParticipant: _config.userid || socket.channel,
                         userData: {
@@ -939,8 +909,19 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             }
         }
 
+        if (isCreateOffer && !peer) {
+            peerConfig.session = connection.session;
+            if (!peer) {
+                peer = new RTCPeerConnectionHandler();
+            }
+
+            peer.create('offer', peerConfig);
+        }
+
+        updateSocketForLocalStreams(socket);
+
         function socketResponse(response) {
-            if (isRMSDeleted) {
+            if (isSignalingHandlerDeleted) {
                 return;
             }
 
@@ -975,11 +956,11 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             }
 
             if (response.streamid) {
-                if (!rtcMultiSession.streamids) {
-                    rtcMultiSession.streamids = {};
+                if (!signalingHandler.streamids) {
+                    signalingHandler.streamids = {};
                 }
-                if (!rtcMultiSession.streamids[response.streamid]) {
-                    rtcMultiSession.streamids[response.streamid] = response.streamid;
+                if (!signalingHandler.streamids[response.streamid]) {
+                    signalingHandler.streamids[response.streamid] = response.streamid;
                     connection.onstreamid(response);
                 }
             }
@@ -1101,33 +1082,10 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                     extra: response.extra || {},
                     entireSessionClosed: !!response.closeEntireSession
                 }, connection);
-            }
 
-            // keeping session active even if initiator leaves
-            if (response.playRoleOfBroadcaster) {
-                if (response.extra) {
-                    // clone extra-data from initial moderator
-                    connection.extra = merge(connection.extra, response.extra);
+                if (peerNegotiationHandler[_config.channel]) {
+                    delete peerNegotiationHandler[_config.channel];
                 }
-                if (response.participants) {
-                    participants = response.participants;
-
-                    // make sure that if 2nd initiator leaves; control is shifted to 3rd person.
-                    if (participants[connection.userid]) {
-                        delete participants[connection.userid];
-                    }
-
-                    if (sockets[0] && sockets[0].userid === response.userid) {
-                        delete sockets[0];
-                        sockets = swap(sockets);
-                    }
-
-                    if (socketObjects[response.userid]) {
-                        delete socketObjects[response.userid];
-                    }
-                }
-
-                setTimeout(connection.playRoleOfInitiator, 2000);
             }
 
             if (response.changeBandwidth) {
@@ -1188,7 +1146,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                 connection.peers[response.userid].peer.hold = !!response.hold;
                 connection.peers[response.userid].peer.holdMLine = response.holdMLine;
 
-                socket.send({
+                socket.send2({
                     isRenegotiate: true
                 });
 
@@ -1209,9 +1167,13 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             }
 
             // sometimes we don't need to renegotiate e.g. when peers are disconnected
-            // or if it is firefox
+            // or if it is Firefox
             if (response.recreatePeer) {
-                peer = new PeerConnection();
+                if (peer && peer.connection) {
+                    peer.connection.close();
+                }
+                peerConfig.attachStreams = connection.attachStreams;
+                peer = new RTCPeerConnectionHandler();
             }
 
             // remote video failed either out of ICE gathering process or ICE connectivity check-up
@@ -1232,49 +1194,12 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                     if (connection.peers[response.userid].peer.connection.iceConnectionState === 'disconnected' && !_config.redialing) {
                         _config.redialing = true;
 
-                        warn('Peer connection is closed.', toStr(connection.peers[response.userid].peer.connection), 'ReDialing..');
+                        warn('Peer connection is closed. ReDialing..');
                         connection.peers[response.userid].redial();
                     }
                 }
             }
         }
-
-        connection.playRoleOfInitiator = function() {
-            connection.dontCaptureUserMedia = true;
-            connection.open();
-            sockets = swap(sockets);
-            connection.dontCaptureUserMedia = false;
-        };
-
-        connection.askToShareParticipants = function() {
-            if (!defaultSocket) {
-                return;
-            }
-
-            defaultSocket.send({
-                askToShareParticipants: true
-            });
-        };
-
-        connection.shareParticipants = function(args) {
-            var message = {
-                joinUsers: participants,
-                userid: connection.userid,
-                extra: connection.extra
-            };
-
-            if (args) {
-                if (args.dontShareWith) {
-                    message.dontShareWith = args.dontShareWith;
-                }
-
-                if (args.shareWith) {
-                    message.shareWith = args.shareWith;
-                }
-            }
-
-            defaultSocket.send(message);
-        };
 
         function sdpInvoker(sdp, labels) {
             if (sdp.type === 'answer') {
@@ -1288,7 +1213,8 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                 peerConfig.session = connection.session;
 
                 if (!peer) {
-                    peer = new PeerConnection();
+                    peerConfig.attachStreams = connection.attachStreams;
+                    peer = new RTCPeerConnectionHandler();
                 }
 
                 peer.create('answer', peerConfig);
@@ -1351,8 +1277,46 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         }
     }
 
+    connection.playRoleOfInitiator = function() {
+        connection.dontCaptureUserMedia = true;
+        connection.open();
+        connection.dontCaptureUserMedia = false;
+    };
+
+    connection.askToShareParticipants = function() {
+        if (!connection.socket) {
+            return;
+        }
+
+        connection.socket.send({
+            askToShareParticipants: true
+        });
+    };
+
+    connection.shareParticipants = function(args) {
+        var message = {
+            joinUsers: participants,
+            userid: connection.userid,
+            extra: connection.extra
+        };
+
+        if (args) {
+            if (args.dontShareWith) {
+                message.dontShareWith = args.dontShareWith;
+            }
+
+            if (args.shareWith) {
+                message.shareWith = args.shareWith;
+            }
+        }
+
+        connection.socket.send(message);
+    };
+
+
+
     function detachMediaStream(labels, peer) {
-        if (!labels) {
+        if (!labels || isFirefox) {
             return;
         }
 
@@ -1365,7 +1329,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
     }
 
     function sendsdp(e) {
-        e.socket.send({
+        e.socket.send2({
             sdp: JSON.stringify({
                 sdp: e.sdp.sdp,
                 type: e.sdp.type
@@ -1392,13 +1356,13 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         }
 
         var newChannel = connection.token();
-        newPrivateSocket({
+        handlePeersNegotiation({
             channel: newChannel,
             extra: response.userData ? response.userData.extra : response.extra,
             userid: response.userData ? response.userData.userid : response.userid
         });
 
-        defaultSocket.send({
+        connection.socket.send({
             participant: true,
             targetUser: channel,
             channel: newChannel
@@ -1419,28 +1383,28 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             // if initiator wants to close entire session
             if (connection.autoCloseEntireSession) {
                 alertMessage.closeEntireSession = true;
-            } else if (sockets[0]) {
-                // shift initiation control to another user
-                sockets[0].send({
-                    playRoleOfBroadcaster: true,
-                    userid: connection.userid,
-                    extra: connection.extra,
-                    participants: participants
-                });
+            } else {
+                var firstPeer;
+                for (var peer in connection.peers) {
+                    if (peer !== connection.userid) {
+                        firstPeer = connection.peers[peer];
+                        continue;
+                    }
+                }
+                if (firstPeer) {
+                    // shift initiation control to another user
+                    firstPeer.socket.send2({
+                        isPlayRoleOfInitiator: true,
+                        messageFor: firstPeer.userid,
+                        userid: connection.userid,
+                        extra: connection.extra,
+                        participants: participants
+                    });
+                }
             }
         }
 
-        sockets.forEach(function(socket, i) {
-            socket.send(alertMessage);
-
-            if (socketObjects[socket.channel]) {
-                delete socketObjects[socket.channel];
-            }
-
-            delete sockets[i];
-        });
-
-        sockets = swap(sockets);
+        connection.socket.send(alertMessage);
 
         connection.refresh();
 
@@ -1454,8 +1418,8 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
 
     // www.RTCMultiConnection.org/docs/remove/
     connection.remove = function(userid) {
-        if (rtcMultiSession.requestsFrom && rtcMultiSession.requestsFrom[userid]) {
-            delete rtcMultiSession.requestsFrom[userid];
+        if (signalingHandler.requestsFrom && signalingHandler.requestsFrom[userid]) {
+            delete signalingHandler.requestsFrom[userid];
         }
 
         if (connection.peers[userid]) {
@@ -1477,10 +1441,6 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                 onStreamEndedHandler(stream, connection);
                 delete connection.streams[streamid];
             }
-        }
-
-        if (socketObjects[userid]) {
-            delete socketObjects[userid];
         }
     };
 
@@ -1505,7 +1465,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             queueRequests: []
         };
 
-        rtcMultiSession.isOwnerLeaving = true;
+        signalingHandler.isOwnerLeaving = true;
 
         connection.isInitiator = false;
         connection.isAcceptNewSession = true;
@@ -1539,8 +1499,6 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             }
         }
 
-        socketObjects = {};
-        sockets = [];
         participants = {};
     };
 
@@ -1550,7 +1508,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             userid = userid.userid;
         }
 
-        defaultSocket.send({
+        connection.socket.send({
             rejectedRequestOf: userid
         });
 
@@ -1558,7 +1516,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         connection.remove(userid);
     };
 
-    rtcMultiSession.leaveHandler = function(e) {
+    signalingHandler.leaveHandler = function(e) {
         if (!connection.leaveOnPageUnload) {
             return;
         }
@@ -1572,43 +1530,16 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         }
     };
 
-    listenEventHandler('beforeunload', rtcMultiSession.leaveHandler);
-    listenEventHandler('keyup', rtcMultiSession.leaveHandler);
-
-    rtcMultiSession.onLineOffLineHandler = function() {
-        if (!navigator.onLine) {
-            rtcMultiSession.isOffLine = true;
-        } else if (rtcMultiSession.isOffLine) {
-            rtcMultiSession.isOffLine = !navigator.onLine;
-
-            // defaultSocket = getDefaultSocketRef();
-
-            // pending tasks should be resumed?
-            // sockets should be reconnected?
-            // peers should be re-established?
-        }
-    };
-
-    listenEventHandler('load', rtcMultiSession.onLineOffLineHandler);
-    listenEventHandler('online', rtcMultiSession.onLineOffLineHandler);
-    listenEventHandler('offline', rtcMultiSession.onLineOffLineHandler);
+    listenEventHandler('beforeunload', signalingHandler.leaveHandler);
+    listenEventHandler('keyup', signalingHandler.leaveHandler);
 
     function onSignalingReady() {
-        if (rtcMultiSession.signalingReady) {
+        if (signalingHandler.signalingReady) {
             return;
         }
 
-        rtcMultiSession.signalingReady = true;
-
+        signalingHandler.signalingReady = true;
         setTimeout(callbackForSignalingReady, 1000);
-
-        if (!connection.isInitiator && defaultSocket) {
-            // as soon as signaling gateway is connected;
-            // user should check existing rooms!
-            defaultSocket.send({
-                searchingForRooms: true
-            });
-        }
     }
 
     function joinParticipants(joinUsers) {
@@ -1624,211 +1555,217 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         }
     }
 
-    function getDefaultSocketRef() {
-        return connection.openSignalingChannel({
-            onmessage: function(response) {
-                // RMS === RTCMultiSession
-                if (isRMSDeleted) {
-                    return;
-                }
-
-                // if message is sent by same user
-                if (response.userid === connection.userid) {
-                    return;
-                }
-
-                if (response.sessionid && response.userid) {
-                    if (!connection.sessionDescriptions[response.sessionid]) {
-                        connection.numberOfSessions++;
-                        connection.sessionDescriptions[response.sessionid] = response;
-
-                        // fire "onNewSession" only if:
-                        // 1) "isAcceptNewSession" boolean is true
-                        // 2) "sessionDescriptions" object isn't having same session i.e. to prevent duplicate invocations
-                        if (connection.isAcceptNewSession) {
-
-                            if (!connection.dontOverrideSession) {
-                                connection.session = response.session;
-                            }
-
-                            onNewSession(response);
-                        }
-                    }
-                }
-
-                if (response.newParticipant && !connection.isAcceptNewSession && rtcMultiSession.broadcasterid === response.userid) {
-                    if (response.newParticipant !== connection.userid) {
-                        onNewParticipant(response);
-                    }
-                }
-
-                if (getLength(participants) < connection.maxParticipantsAllowed && response.targetUser === connection.userid && response.participant) {
-                    if (connection.peers[response.userid] && !connection.peers[response.userid].peer) {
-                        delete participants[response.userid];
-                        delete connection.peers[response.userid];
-                        connection.isAcceptNewSession = true;
-                        return acceptRequest(response);
-                    }
-
-                    if (!participants[response.userid]) {
-                        acceptRequest(response);
-                    }
-                }
-
-                if (response.acceptedRequestOf === connection.userid) {
-                    connection.onstatechange({
-                        userid: response.userid,
-                        extra: response.extra,
-                        name: 'request-accepted',
-                        reason: response.userid + ' accepted your participation request.'
-                    });
-                }
-
-                if (response.rejectedRequestOf === connection.userid) {
-                    connection.onstatechange({
-                        userid: response.userid,
-                        extra: response.extra,
-                        name: 'request-rejected',
-                        reason: response.userid + ' rejected your participation request.'
-                    });
-                }
-
-                if (response.customMessage) {
-                    if (response.message.drop) {
-                        connection.ondrop(response.userid);
-
-                        connection.attachStreams = [];
-                        // "drop" should detach all local streams
-                        for (var stream in connection.streams) {
-                            if (connection._skip.indexOf(stream) === -1) {
-                                stream = connection.streams[stream];
-                                if (stream.type === 'local') {
-                                    connection.detachStreams.push(stream.streamid);
-                                    onStreamEndedHandler(stream, connection);
-                                } else {
-                                    onStreamEndedHandler(stream, connection);
-                                }
-                            }
-                        }
-
-                        if (response.message.renegotiate) {
-                            // renegotiate; so "peer.removeStream" happens.
-                            connection.renegotiate();
-                        }
-                    } else if (connection.onCustomMessage) {
-                        connection.onCustomMessage(response.message);
-                    }
-                }
-
-                if (connection.isInitiator && response.searchingForRooms && defaultSocket) {
-                    defaultSocket.send({
-                        sessionDescription: connection.sessionDescription,
-                        responseFor: response.userid
-                    });
-                }
-
-                if (response.sessionDescription && response.responseFor === connection.userid) {
-                    var sessionDescription = response.sessionDescription;
-                    if (!connection.sessionDescriptions[sessionDescription.sessionid]) {
-                        connection.numberOfSessions++;
-                        connection.sessionDescriptions[sessionDescription.sessionid] = sessionDescription;
-                    }
-                }
-
-                if (connection.isInitiator && response.askToShareParticipants && defaultSocket) {
-                    connection.shareParticipants({
-                        shareWith: response.userid
-                    });
-                }
-
-                // participants are shared with single user
-                if (response.shareWith === connection.userid && response.dontShareWith !== connection.userid && response.joinUsers) {
-                    joinParticipants(response.joinUsers);
-                }
-
-                // participants are shared with all users
-                if (!response.shareWith && response.joinUsers) {
-                    if (response.dontShareWith) {
-                        if (connection.userid !== response.dontShareWith) {
-                            joinParticipants(response.joinUsers);
-                        }
-                    } else {
-                        joinParticipants(response.joinUsers);
-                    }
-                }
-
-                if (response.messageFor === connection.userid && response.presenceState) {
-                    if (response.presenceState === 'checking') {
-                        defaultSocket.send({
-                            messageFor: response.userid,
-                            presenceState: 'available',
-                            _config: response._config
-                        });
-                        log('participant asked for availability');
-                    }
-
-                    if (response.presenceState === 'available') {
-                        rtcMultiSession.presenceState = 'available';
-
-                        connection.onstatechange({
-                            userid: 'browser',
-                            extra: {},
-                            name: 'room-available',
-                            reason: 'Initiator is available and room is active.'
-                        });
-
-                        joinSession(response._config);
-                    }
-                }
-
-                if (response.donotJoin && response.messageFor === connection.userid) {
-                    log(response.userid, 'is not joining your room.');
-                }
-
-                // if initiator disconnects sockets, participants should also disconnect
-                if (response.isDisconnectSockets) {
-                    log('Disconnecting your sockets because initiator also disconnected his sockets.');
-                    connection.disconnect();
-                }
-            },
-            callback: function(socket) {
-                if (!socket) {
-                    return;
-                }
-
-                this.onopen(socket);
-            },
-            onopen: function(socket) {
-                if (socket) {
-                    defaultSocket = socket;
-                }
-
-                if (onSignalingReady) {
-                    onSignalingReady();
-                }
-
-                rtcMultiSession.defaultSocket = defaultSocket;
-
-                if (!defaultSocket.__push) {
-                    defaultSocket.__push = defaultSocket.send;
-                    defaultSocket.send = function(message) {
-                        message.userid = message.userid || connection.userid;
-                        message.extra = message.extra || connection.extra || {};
-
-                        defaultSocket.__push(message);
-                    };
-                }
-            }
-        });
-    }
-
     // default-socket is a common socket shared among all users in a specific channel;
     // to share participation requests; room descriptions; and other stuff.
-    var defaultSocket = getDefaultSocketRef();
+    connection.socket = connection.openSignalingChannel({
+        onmessage: function(response) {
+            if (peerNegotiationHandler[response.channel]) {
+                return peerNegotiationHandler[response.channel](response);
+            }
 
-    rtcMultiSession.defaultSocket = defaultSocket;
+            // if message is sent by same user
+            if (response.userid === connection.userid) {
+                return;
+            }
 
-    if (defaultSocket && onSignalingReady) {
+            if (isSignalingHandlerDeleted) {
+                return;
+            }
+
+            if (response.sessionid && response.userid) {
+                if (!connection.sessionDescriptions[response.sessionid]) {
+                    connection.numberOfSessions++;
+                    connection.sessionDescriptions[response.sessionid] = response;
+
+                    // fire "onNewSession" only if:
+                    // 1) "isAcceptNewSession" boolean is true
+                    // 2) "sessionDescriptions" object isn't having same session i.e. to prevent duplicate invocations
+                    if (connection.isAcceptNewSession) {
+
+                        if (!connection.dontOverrideSession) {
+                            connection.session = response.session;
+                        }
+
+                        onNewSession(response);
+                    }
+                }
+            }
+
+            if (response.newParticipant && !connection.isAcceptNewSession && signalingHandler.broadcasterid === response.userid) {
+                if (response.newParticipant !== connection.userid) {
+                    onNewParticipant(response);
+                }
+            }
+
+            if (getLength(participants) < connection.maxParticipantsAllowed && response.targetUser === connection.userid && response.participant) {
+                if (connection.peers[response.userid] && !connection.peers[response.userid].peer) {
+                    delete participants[response.userid];
+                    delete connection.peers[response.userid];
+                    connection.isAcceptNewSession = true;
+                    return acceptRequest(response);
+                }
+
+                if (!participants[response.userid]) {
+                    acceptRequest(response);
+                }
+            }
+
+            if (response.acceptedRequestOf === connection.userid) {
+                connection.onstatechange({
+                    userid: response.userid,
+                    extra: response.extra,
+                    name: 'request-accepted',
+                    reason: response.userid + ' accepted your participation request.'
+                });
+            }
+
+            if (response.rejectedRequestOf === connection.userid) {
+                connection.onstatechange({
+                    userid: response.userid,
+                    extra: response.extra,
+                    name: 'request-rejected',
+                    reason: response.userid + ' rejected your participation request.'
+                });
+            }
+
+            if (response.customMessage) {
+                if (response.message.drop) {
+                    connection.ondrop(response.userid);
+
+                    connection.attachStreams = [];
+                    // "drop" should detach all local streams
+                    for (var stream in connection.streams) {
+                        if (connection._skip.indexOf(stream) === -1) {
+                            stream = connection.streams[stream];
+                            if (stream.type === 'local') {
+                                connection.detachStreams.push(stream.streamid);
+                                onStreamEndedHandler(stream, connection);
+                            } else {
+                                onStreamEndedHandler(stream, connection);
+                            }
+                        }
+                    }
+
+                    if (response.message.renegotiate) {
+                        // renegotiate; so "peer.removeStream" happens.
+                        connection.renegotiate();
+                    }
+                } else if (connection.onCustomMessage) {
+                    connection.onCustomMessage(response.message);
+                }
+            }
+
+            if (response.sessionDescription && response.responseFor === connection.userid) {
+                var sessionDescription = response.sessionDescription;
+                if (!connection.sessionDescriptions[sessionDescription.sessionid]) {
+                    connection.numberOfSessions++;
+                    connection.sessionDescriptions[sessionDescription.sessionid] = sessionDescription;
+                }
+            }
+
+            if (connection.isInitiator && response.askToShareParticipants && connection.socket) {
+                connection.shareParticipants({
+                    shareWith: response.userid
+                });
+            }
+
+            // participants are shared with single user
+            if (response.shareWith === connection.userid && response.dontShareWith !== connection.userid && response.joinUsers) {
+                joinParticipants(response.joinUsers);
+            }
+
+            // participants are shared with all users
+            if (!response.shareWith && response.joinUsers) {
+                if (response.dontShareWith) {
+                    if (connection.userid !== response.dontShareWith) {
+                        joinParticipants(response.joinUsers);
+                    }
+                } else {
+                    joinParticipants(response.joinUsers);
+                }
+            }
+
+            if (response.messageFor === connection.userid && response.presenceState) {
+                if (response.presenceState === 'checking') {
+                    connection.socket.send({
+                        messageFor: response.userid,
+                        presenceState: 'available',
+                        _config: response._config
+                    });
+                    log('participant asked for availability');
+                }
+
+                if (response.presenceState === 'available') {
+                    signalingHandler.presenceState = 'available';
+
+                    connection.onstatechange({
+                        userid: 'browser',
+                        extra: {},
+                        name: 'room-available',
+                        reason: 'Initiator is available and room is active.'
+                    });
+
+                    joinSession(response._config);
+                }
+            }
+
+            if (response.donotJoin && response.messageFor === connection.userid) {
+                log(response.userid, 'is not joining your room.');
+            }
+
+            // if initiator disconnects sockets, participants should also disconnect
+            if (response.isDisconnectSockets) {
+                log('Disconnecting your sockets because initiator also disconnected his sockets.');
+                connection.disconnect();
+            }
+
+            // keeping session active even if initiator leaves
+            if (response.isPlayRoleOfInitiator && response.messageFor === connection.userid) {
+                if (response.extra) {
+                    // clone extra-data from initial moderator
+                    connection.extra = merge(connection.extra, response.extra);
+                }
+                if (response.participants) {
+                    participants = response.participants;
+
+                    // make sure that if 2nd initiator leaves; control is shifted to 3rd person.
+                    if (participants[connection.userid]) {
+                        delete participants[connection.userid];
+                    }
+                }
+
+                setTimeout(connection.playRoleOfInitiator, 2000);
+            }
+        },
+        callback: function(socket) {
+            if (!socket) {
+                return;
+            }
+
+            this.onopen(socket);
+        },
+        onopen: function(socket) {
+            if (socket) {
+                connection.socket = socket;
+            }
+
+            if (onSignalingReady) {
+                onSignalingReady();
+            }
+
+            if (!connection.socket.__push) {
+                connection.socket.__push = connection.socket.send;
+                connection.socket.send = function(message) {
+                    message.userid = message.userid || connection.userid;
+                    message.extra = message.extra || connection.extra || {};
+
+                    connection.socket.__push(message);
+                };
+            }
+        }
+    });
+
+    if (connection.socket && onSignalingReady) {
         setTimeout(onSignalingReady, 2000);
     }
 
@@ -1894,23 +1831,23 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
 
     // open new session
     this.initSession = function(args) {
-        rtcMultiSession.isOwnerLeaving = false;
+        signalingHandler.isOwnerLeaving = false;
 
         setDirections();
         participants = {};
 
-        rtcMultiSession.isOwnerLeaving = false;
+        signalingHandler.isOwnerLeaving = false;
 
         if (!isNull(args.transmitRoomOnce)) {
             connection.transmitRoomOnce = args.transmitRoomOnce;
         }
 
         function transmit() {
-            if (defaultSocket && getLength(participants) < connection.maxParticipantsAllowed && !rtcMultiSession.isOwnerLeaving) {
-                defaultSocket.send(connection.sessionDescription);
+            if (connection.socket && getLength(participants) < connection.maxParticipantsAllowed && !signalingHandler.isOwnerLeaving) {
+                connection.socket.send(connection.sessionDescription);
             }
 
-            if (!connection.transmitRoomOnce && !rtcMultiSession.isOwnerLeaving) {
+            if (!connection.transmitRoomOnce && !signalingHandler.isOwnerLeaving) {
                 setTimeout(transmit, connection.interval || 3000);
             }
         }
@@ -1922,7 +1859,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
     };
 
     function joinSession(_config) {
-        if (rtcMultiSession.donotJoin && rtcMultiSession.donotJoin === _config.sessionid) {
+        if (signalingHandler.donotJoin && signalingHandler.donotJoin === _config.sessionid) {
             return;
         }
 
@@ -1934,7 +1871,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         }
 
         // make sure that inappropriate users shouldn't receive onNewSession event
-        rtcMultiSession.broadcasterid = _config.userid;
+        signalingHandler.broadcasterid = _config.userid;
 
         if (_config.sessionid) {
             // used later to prevent external rooms messages to be used by this user!
@@ -1944,7 +1881,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         connection.isAcceptNewSession = false;
 
         var channel = getRandomString();
-        newPrivateSocket({
+        handlePeersNegotiation({
             channel: channel,
             extra: _config.extra || {},
             userid: _config.userid
@@ -1974,7 +1911,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             reason: 'Checking presence of the initiator; and the room.'
         });
 
-        defaultSocket.send({
+        connection.socket.send({
             participant: true,
             channel: channel,
             targetUser: _config.userid,
@@ -1991,17 +1928,17 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
 
     // join existing session
     this.joinSession = function(_config) {
-        if (!defaultSocket) {
+        if (!connection.socket) {
             return setTimeout(function() {
                 warn('Default-Socket is not yet initialized.');
-                rtcMultiSession.joinSession(_config);
+                signalingHandler.joinSession(_config);
             }, 1000);
         }
 
         _config = _config || {};
         participants = {};
 
-        rtcMultiSession.presenceState = 'checking';
+        signalingHandler.presenceState = 'checking';
 
         connection.onstatechange({
             userid: _config.userid,
@@ -2011,9 +1948,9 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         });
 
         function contactInitiator() {
-            defaultSocket.send({
+            connection.socket.send({
                 messageFor: _config.userid,
-                presenceState: rtcMultiSession.presenceState,
+                presenceState: signalingHandler.presenceState,
                 _config: {
                     userid: _config.userid,
                     extra: _config.extra || {},
@@ -2025,11 +1962,11 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         contactInitiator();
 
         function checker() {
-            if (rtcMultiSession.presenceState === 'checking') {
+            if (signalingHandler.presenceState === 'checking') {
                 warn('Unable to reach initiator. Trying again...');
                 contactInitiator();
                 setTimeout(function() {
-                    if (rtcMultiSession.presenceState === 'checking') {
+                    if (signalingHandler.presenceState === 'checking') {
                         connection.onstatechange({
                             userid: _config.userid,
                             extra: _config.extra || {},
@@ -2048,14 +1985,14 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
     };
 
     connection.donotJoin = function(sessionid) {
-        rtcMultiSession.donotJoin = sessionid;
+        signalingHandler.donotJoin = sessionid;
 
         var session = connection.sessionDescriptions[sessionid];
         if (!session) {
             return;
         }
 
-        defaultSocket.send({
+        connection.socket.send({
             donotJoin: true,
             messageFor: session.userid,
             sessionid: sessionid
@@ -2154,6 +2091,14 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             // because Firefox has no support of renegotiation yet;
             // so both chrome and firefox should redial instead of renegotiate!
             if (isFirefox || _peer.userinfo.browser === 'firefox') {
+                if (connection.attachStreams[0] && connection.attachStreams[0] !== e.stream) {
+                    connection.stopMediaStream(connection.attachStreams[0]);
+                }
+
+                connection.attachStreams = [e.stream].concat(connection.attachStreams);
+                if (_peer.connection) {
+                    _peer.connection.close();
+                }
                 return _peer.redial();
             }
 
@@ -2170,30 +2115,12 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         }
     };
 
-    // www.RTCMultiConnection.org/docs/request/
-    connection.request = function(userid, extra) {
-        connection.captureUserMedia(function() {
-            // open private socket that will be used to receive offer-sdp
-            newPrivateSocket({
-                channel: connection.userid,
-                extra: extra || {},
-                userid: userid
-            });
-
-            // ask other user to create offer-sdp
-            defaultSocket.send({
-                participant: true,
-                targetUser: userid
-            });
-        });
-    };
-
     function acceptRequest(response) {
-        if (!rtcMultiSession.requestsFrom) {
-            rtcMultiSession.requestsFrom = {};
+        if (!signalingHandler.requestsFrom) {
+            signalingHandler.requestsFrom = {};
         }
 
-        if (rtcMultiSession.requestsFrom[response.userid]) {
+        if (signalingHandler.requestsFrom[response.userid]) {
             return;
         }
 
@@ -2227,7 +2154,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             log('target user\'s SDP has?', toStr(connection.sdpConstraints.mandatory));
         }
 
-        rtcMultiSession.requestsFrom[response.userid] = obj;
+        signalingHandler.requestsFrom[response.userid] = obj;
 
         // www.RTCMultiConnection.org/docs/onRequest/
         if (connection.onRequest && connection.isInitiator) {
@@ -2238,8 +2165,8 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
     }
 
     function _accept(e) {
-        if (rtcMultiSession.captureUserMediaOnDemand) {
-            rtcMultiSession.captureUserMediaOnDemand = false;
+        if (signalingHandler.captureUserMediaOnDemand) {
+            signalingHandler.captureUserMediaOnDemand = false;
             connection.captureUserMedia(function() {
                 _accept(e);
 
@@ -2249,13 +2176,18 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         }
 
         log('accepting request from', e.userid);
+
         participants[e.userid] = e.userid;
-        newPrivateSocket({
-            isofferer: true,
+        handlePeersNegotiation({
+            isCreateOffer: true,
             userid: e.userid,
             channel: e.channel,
             extra: e.extra || {},
             session: e.session || connection.session
+        });
+
+        connection.socket.send({
+            acceptedRequestOf: e.userid
         });
     }
 
@@ -2280,7 +2212,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         });
     };
 
-    var isRMSDeleted = false;
+    var isSignalingHandlerDeleted = false;
     this.disconnect = function() {
         this.isOwnerLeaving = true;
 
@@ -2298,15 +2230,15 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         }
 
         if (connection.isInitiator) {
-            defaultSocket.send({
+            connection.socket.send({
                 isDisconnectSockets: true
             });
         }
 
         connection.refresh();
 
-        rtcMultiSession.defaultSocket = defaultSocket = null;
-        isRMSDeleted = true;
+        connection.socket = null;
+        isSignalingHandlerDeleted = true;
 
         connection.ondisconnected({
             userid: connection.userid,
@@ -2318,8 +2250,8 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         // if there is any peer still opened; close it.
         connection.close();
 
-        window.removeEventListener('beforeunload', rtcMultiSession.leaveHandler);
-        window.removeEventListener('keyup', rtcMultiSession.leaveHandler);
+        window.removeEventListener('beforeunload', signalingHandler.leaveHandler);
+        window.removeEventListener('keyup', signalingHandler.leaveHandler);
 
         log('Disconnected your sockets, peers, streams and everything except RTCMultiConnection object.');
     };

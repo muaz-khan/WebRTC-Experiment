@@ -2,7 +2,7 @@
 // StereoRecorder.js
 
 /**
- * StereoRecorder is a standalone class used by RecordRTC to bring audio-recording in chrome. It runs top over {@link StereoAudioRecorder}.
+ * StereoRecorder is a standalone class used by {@link RecordRTC} to bring audio-recording in chrome. It runs top over {@link StereoAudioRecorder}.
  * @summary JavaScript standalone object for stereo audio recording.
  * @typedef StereoRecorder
  * @class

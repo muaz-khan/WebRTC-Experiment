@@ -16,7 +16,7 @@
  */
 
 /**
- * MediaStreamRecorder is an abstraction layer for "MediaRecorder API".
+ * MediaStreamRecorder is an abstraction layer for "MediaRecorder API". It is used by {@link RecordRTC} to record MediaStream(s) in Firefox.
  * @summary Runs top over MediaRecorder API.
  * @typedef MediaStreamRecorder
  * @class
@@ -74,7 +74,9 @@ function MediaStreamRecorder(mediaStream) {
             }
 
             if (!e.data.size) {
-                console.warn('Recording of', e.data.type, 'failed.');
+                if (!self.disableLogs) {
+                    console.warn('Recording of', e.data.type, 'failed.');
+                }
                 return;
             }
 
@@ -96,7 +98,10 @@ function MediaStreamRecorder(mediaStream) {
         };
 
         mediaRecorder.onerror = function(error) {
-            console.warn(error);
+            if (!self.disableLogs) {
+                console.warn(error);
+            }
+
             mediaRecorder.stop();
             self.record(0);
         };

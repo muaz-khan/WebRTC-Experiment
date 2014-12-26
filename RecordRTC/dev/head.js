@@ -1,4 +1,4 @@
-// Last time updated at Nov 19, 2014, 08:32:23
+// Last time updated at Dec 14, 2014, 08:32:23
 
 // links:
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
@@ -10,6 +10,10 @@
 
 // updates?
 /*
+-. Fixed echo.
+-. Added "disableLogs"         - RecordRTC(stream, { disableLogs: true });
+-. You can pass "bufferSize:0" - RecordRTC(stream, { bufferSize: 0 });
+-. You can set "leftChannel"   - RecordRTC(stream, { leftChannel: true });
 -. Fixed MRecordRTC.
 -. Added functionality for analyse black frames and cut them - pull#293
 -. if you're recording GIF, you must link: https://cdn.webrtc-experiment.com/gif-recorder.js

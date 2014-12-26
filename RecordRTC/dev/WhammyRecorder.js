@@ -2,7 +2,7 @@
 // WhammyRecorder.js
 
 /**
- * WhammyRecorder is a standalone class used by RecordRTC to bring video recording in Chrome. It runs top over {@link Whammy}.
+ * WhammyRecorder is a standalone class used by {@link RecordRTC} to bring video recording in Chrome. It runs top over {@link Whammy}.
  * @summary Video recording feature in Chrome.
  * @typedef WhammyRecorder
  * @class
@@ -68,8 +68,10 @@ function WhammyRecorder(mediaStream) {
         lastTime = new Date().getTime();
         whammy = new Whammy.Video();
 
-        console.log('canvas resolutions', canvas.width, '*', canvas.height);
-        console.log('video width/height', video.width || canvas.width, '*', video.height || canvas.height);
+        if (!this.disableLogs) {
+            console.log('canvas resolutions', canvas.width, '*', canvas.height);
+            console.log('video width/height', video.width || canvas.width, '*', video.height || canvas.height);
+        }
 
         drawFrames();
     };

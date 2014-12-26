@@ -7,7 +7,7 @@
 // should we provide an option to record via Whammy.js or MediaRecorder API is a better solution?
 
 /**
- * Whammy is a standalone class used by RecordRTC to bring video recording in Chrome. It is written by {@link https://github.com/antimatter15|antimatter15}
+ * Whammy is a standalone class used by {@link RecordRTC} to bring video recording in Chrome. It is written by {@link https://github.com/antimatter15|antimatter15}
  * @summary A real time javascript webm encoder based on a canvas hack.
  * @typedef Whammy
  * @class
@@ -158,7 +158,7 @@ var Whammy = (function() {
 
     function checkFrames(frames) {
         if (!frames[0]) {
-            console.warn('Something went wrong. Maybe WebP format is not supported in the current browser.');
+            console.error('Something went wrong. Maybe WebP format is not supported in the current browser.');
             return;
         }
 

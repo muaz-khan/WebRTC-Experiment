@@ -2,7 +2,7 @@
 // CanvasRecorder.js
 
 /**
- * CanvasRecorder is a standalone class used by RecordRTC to bring HTML5-Canvas recording into video WebM. It uses HTML2Canvas library and runs top over {@link Whammy}.
+ * CanvasRecorder is a standalone class used by {@link RecordRTC} to bring HTML5-Canvas recording into video WebM. It uses HTML2Canvas library and runs top over {@link Whammy}.
  * @summary HTML2Canvas recording into video WebM.
  * @typedef CanvasRecorder
  * @class

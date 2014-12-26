@@ -1,4 +1,4 @@
-// Last time updated at Nov 19, 2014, 08:32:23
+// Last time updated at Dec 14, 2014, 08:32:23
 
 // links:
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
@@ -10,6 +10,10 @@
 
 // updates?
 /*
+-. Fixed echo.
+-. Added "disableLogs"         - RecordRTC(stream, { disableLogs: true });
+-. You can pass "bufferSize:0" - RecordRTC(stream, { bufferSize: 0 });
+-. You can set "leftChannel"   - RecordRTC(stream, { leftChannel: true });
 -. Fixed MRecordRTC.
 -. Added functionality for analyse black frames and cut them - pull#293
 -. if you're recording GIF, you must link: https://cdn.webrtc-experiment.com/gif-recorder.js
@@ -50,7 +54,7 @@
 // RecordRTC.js
 
 /**
- * RecordRTC is a JavaScript-based media-recording library for modern web-browsers (supporting WebRTC getUserMedia API). It is optimized for different devices and browsers to bring all client-side (pluginfree) recording solutions in single place.
+ * {@link https://github.com/muaz-khan/RecordRTC|RecordRTC} is a JavaScript-based media-recording library for modern web-browsers (supporting WebRTC getUserMedia API). It is optimized for different devices and browsers to bring all client-side (pluginfree) recording solutions in single place.
  * @summary JavaScript audio/video recording library runs top over WebRTC getUserMedia API.
  * @license {@link https://www.webrtc-experiment.com/licence/|MIT}
  * @author {@link https://www.MuazKhan.com|Muaz Khan}
@@ -81,7 +85,9 @@ function RecordRTC(mediaStream, config) {
     var self = this;
 
     function startRecording() {
-        console.debug('started recording ' + config.type + ' stream.');
+        if (!config.disableLogs) {
+            console.debug('started recording ' + config.type + ' stream.');
+        }
 
         // Media Stream Recording API has not been implemented in chrome yet;
         // That's why using WebAudio API to record stereo audio in WAV format
@@ -132,7 +138,9 @@ function RecordRTC(mediaStream, config) {
         /*jshint validthis:true */
         var recordRTC = this;
 
-        console.warn('Stopped recording ' + config.type + ' stream.');
+        if (!config.disableLogs) {
+            console.warn('Stopped recording ' + config.type + ' stream.');
+        }
 
         if (config.type !== 'gif') {
             mediaRecorder.stop(_callback);
@@ -158,7 +166,9 @@ function RecordRTC(mediaStream, config) {
                 callback(url);
             }
 
-            console.debug(blob.type, '->', bytesToSize(blob.size));
+            if (!config.disableLogs) {
+                console.debug(blob.type, '->', bytesToSize(blob.size));
+            }
 
             if (!config.autoWriteToDisk) {
                 return;
@@ -180,7 +190,10 @@ function RecordRTC(mediaStream, config) {
         var blob = _mediaRecorder ? _mediaRecorder.blob : mediaRecorder.blob;
 
         if (!blob) {
-            console.warn('Blob encoder did not yet finished its job.');
+            if (!config.disableLogs) {
+                console.warn('Blob encoder did not yet finished its job.');
+            }
+
             setTimeout(function() {
                 getDataURL(callback, _mediaRecorder);
             }, 1000);
@@ -983,7 +996,7 @@ var Storage = {
  */
 
 /**
- * MediaStreamRecorder is an abstraction layer for "MediaRecorder API".
+ * MediaStreamRecorder is an abstraction layer for "MediaRecorder API". It is used by {@link RecordRTC} to record MediaStream(s) in Firefox.
  * @summary Runs top over MediaRecorder API.
  * @typedef MediaStreamRecorder
  * @class
@@ -1041,7 +1054,9 @@ function MediaStreamRecorder(mediaStream) {
                 }
 
                 if (!e.data.size) {
-                    console.warn('Recording of', e.data.type, 'failed.');
+                    if (!self.disableLogs) {
+                        console.warn('Recording of', e.data.type, 'failed.');
+                    }
                     return;
                 }
 
@@ -1063,7 +1078,10 @@ function MediaStreamRecorder(mediaStream) {
             };
 
             mediaRecorder.onerror = function(error) {
-                console.warn(error);
+                if (!self.disableLogs) {
+                    console.warn(error);
+                }
+
                 mediaRecorder.stop();
                 self.record(0);
             };
@@ -1113,7 +1131,7 @@ function MediaStreamRecorder(mediaStream) {
     // StereoRecorder.js
 
 /**
- * StereoRecorder is a standalone class used by RecordRTC to bring audio-recording in chrome. It runs top over {@link StereoAudioRecorder}.
+ * StereoRecorder is a standalone class used by {@link RecordRTC} to bring audio-recording in chrome. It runs top over {@link StereoAudioRecorder}.
  * @summary JavaScript standalone object for stereo audio recording.
  * @typedef StereoRecorder
  * @class
@@ -1178,7 +1196,7 @@ function StereoRecorder(mediaStream) {
     // StereoAudioRecorder.js
 
 /**
- * StereoAudioRecorder is a standalone class used by RecordRTC to bring "stereo" audio-recording in chrome.
+ * StereoAudioRecorder is a standalone class used by {@link RecordRTC} to bring "stereo" audio-recording in chrome.
  * @summary JavaScript standalone object for stereo audio recording.
  * @typedef StereoAudioRecorder
  * @class
@@ -1239,7 +1257,6 @@ function StereoAudioRecorder(mediaStream, config) {
 
             // to make sure onaudioprocess stops firing
             audioInput.disconnect();
-            volume.disconnect();
 
             // flat the left and right channels down
             var leftBuffer = mergeBuffers(leftchannel, recordingLength);
@@ -1247,9 +1264,15 @@ function StereoAudioRecorder(mediaStream, config) {
 
             // interleave both channels together
             var interleaved = interleave(leftBuffer, rightBuffer);
+            var interleavedLength = interleaved.length;
 
             // create our wav file
-            var buffer = new ArrayBuffer(44 + interleaved.length * 2);
+            var resultingBufferLength = 44 + interleavedLength * 2;
+            if (!config.disableLogs) {
+                console.log('Resulting Buffer Length', resultingBufferLength);
+            }
+
+            var buffer = new ArrayBuffer(resultingBufferLength);
 
             var view = new DataView(buffer);
 
@@ -1257,8 +1280,8 @@ function StereoAudioRecorder(mediaStream, config) {
             writeUTFBytes(view, 0, 'RIFF');
 
             // RIFF chunk length
-            // view.setUint32(4, 44 + interleaved.length * 2, true);
-            view.setUint32(4, 36 + interleaved.length * 2, true);
+            var blockAlign = 4;
+            view.setUint32(blockAlign, 44 + interleavedLength * 2, true);
 
             // RIFF type 
             writeUTFBytes(view, 8, 'WAVE');
@@ -1279,11 +1302,11 @@ function StereoAudioRecorder(mediaStream, config) {
             // sample rate 
             view.setUint32(24, sampleRate, true);
 
-            // byte rate (sample rate * block align) 
-            view.setUint32(28, sampleRate * 4, true);
+            // byte rate (sample rate * block align)
+            view.setUint32(28, sampleRate * blockAlign, true);
 
             // block align (channel count * bytes per sample) 
-            view.setUint16(32, 4, true);
+            view.setUint16(32, blockAlign, true);
 
             // bits per sample 
             view.setUint16(34, 16, true);
@@ -1293,13 +1316,23 @@ function StereoAudioRecorder(mediaStream, config) {
             writeUTFBytes(view, 36, 'data');
 
             // data chunk length 
-            view.setUint32(40, interleaved.length * 2, true);
+            view.setUint32(40, interleavedLength * 2, true);
 
             // write the PCM samples
-            var offset = 44;
-            for (var i = 0; i < interleaved.length; i++, offset += 2) {
-                var s = Math.max(-1, Math.min(1, interleaved[i]));
-                view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+            var offset = 44,
+                leftChannel;
+            for (var i = 0; i < interleavedLength; i++, offset += 2) {
+                var size = Math.max(-1, Math.min(1, interleaved[i]));
+                var currentChannel = size < 0 ? size * 32768 : size * 32767;
+
+                if (config.leftChannel) {
+                    if (currentChannel !== leftChannel) {
+                        view.setInt16(offset, currentChannel, true);
+                    }
+                    leftChannel = currentChannel;
+                } else {
+                    view.setInt16(offset, currentChannel, true);
+                }
             }
 
             /**
@@ -1347,7 +1380,12 @@ function StereoAudioRecorder(mediaStream, config) {
 
         function interleave(leftChannel, rightChannel) {
             var length = leftChannel.length + rightChannel.length;
-            var result = new Float32Array(length);
+
+            if (!config.disableLogs) {
+                console.log('Buffers length:', length);
+            }
+
+            var result = new Float64Array(length);
 
             var inputIndex = 0;
 
@@ -1360,14 +1398,16 @@ function StereoAudioRecorder(mediaStream, config) {
         }
 
         function mergeBuffers(channelBuffer, rLength) {
-            var result = new Float32Array(rLength);
+            var result = new Float64Array(rLength);
             var offset = 0;
             var lng = channelBuffer.length;
+
             for (var i = 0; i < lng; i++) {
                 var buffer = channelBuffer[i];
                 result.set(buffer, offset);
                 offset += buffer.length;
             }
+
             return result;
         }
 
@@ -1384,16 +1424,10 @@ function StereoAudioRecorder(mediaStream, config) {
 
         var context = Storage.AudioContextConstructor;
 
-        // creates a gain node
-        var volume = context.createGain();
-
         // creates an audio node from the microphone incoming stream
         var audioInput = context.createMediaStreamSource(mediaStream);
 
-        // connect the stream to the gain node
-        audioInput.connect(volume);
-
-        var legalBufferValues = [256, 512, 1024, 2048, 4096, 8192, 16384];
+        var legalBufferValues = [0, 256, 512, 1024, 2048, 4096, 8192, 16384];
 
         /**
          * From the spec: This value controls how frequently the audioprocess event is
@@ -1412,10 +1446,12 @@ function StereoAudioRecorder(mediaStream, config) {
          */
 
         // "0" means, let chrome decide the most accurate buffer-size for current platform.
-        var bufferSize = config.bufferSize || 4096;
+        var bufferSize = typeof config.bufferSize === 'undefined' ? 4096 : config.bufferSize;
 
         if (legalBufferValues.indexOf(bufferSize) === -1) {
-            // throw 'Legal values for buffer-size are ' + JSON.stringify(legalBufferValues, null, '\t');
+            if (!config.disableLogs) {
+                console.warn('Legal values for buffer-size are ' + JSON.stringify(legalBufferValues, null, '\t'));
+            }
         }
 
 
@@ -1436,11 +1472,13 @@ function StereoAudioRecorder(mediaStream, config) {
          *     sampleRate: 44100
          * });
          */
-        var sampleRate = config.sampleRate || context.sampleRate || 44100;
+        var sampleRate = typeof config.sampleRate !== 'undefined' ? config.sampleRate : context.sampleRate || 44100;
 
         if (sampleRate < 22050 || sampleRate > 96000) {
             // Ref: http://stackoverflow.com/a/26303918/552182
-            // throw 'sample-rate must be under range 22050 and 96000.';
+            if (!config.disableLogs) {
+                console.warn('sample-rate must be under range 22050 and 96000.');
+            }
         }
 
         if (context.createJavaScriptNode) {
@@ -1451,10 +1489,15 @@ function StereoAudioRecorder(mediaStream, config) {
             throw 'WebAudio API has no support on this browser.';
         }
 
+        // connect the stream to the gain node
+        audioInput.connect(__stereoAudioRecorderJavacriptNode);
+
         bufferSize = __stereoAudioRecorderJavacriptNode.bufferSize;
 
-        console.log('sample-rate', sampleRate);
-        console.log('buffer-size', bufferSize);
+        if (!config.disableLogs) {
+            console.log('sample-rate', sampleRate);
+            console.log('buffer-size', bufferSize);
+        }
 
         var isAudioProcessStarted = false,
             self = this;
@@ -1466,6 +1509,7 @@ function StereoAudioRecorder(mediaStream, config) {
             }
 
             if (!recording) {
+                audioInput.disconnect();
                 return;
             }
 
@@ -1493,9 +1537,6 @@ function StereoAudioRecorder(mediaStream, config) {
             recordingLength += bufferSize;
         };
 
-        // we connect the recorder
-        volume.connect(__stereoAudioRecorderJavacriptNode);
-
         // to prevent self audio to be connected with speakers
         __stereoAudioRecorderJavacriptNode.connect(context.destination);
     }
@@ -1503,7 +1544,7 @@ function StereoAudioRecorder(mediaStream, config) {
     // CanvasRecorder.js
 
 /**
- * CanvasRecorder is a standalone class used by RecordRTC to bring HTML5-Canvas recording into video WebM. It uses HTML2Canvas library and runs top over {@link Whammy}.
+ * CanvasRecorder is a standalone class used by {@link RecordRTC} to bring HTML5-Canvas recording into video WebM. It uses HTML2Canvas library and runs top over {@link Whammy}.
  * @summary HTML2Canvas recording into video WebM.
  * @typedef CanvasRecorder
  * @class
@@ -1595,7 +1636,7 @@ function CanvasRecorder(htmlElement) {
     // WhammyRecorder.js
 
 /**
- * WhammyRecorder is a standalone class used by RecordRTC to bring video recording in Chrome. It runs top over {@link Whammy}.
+ * WhammyRecorder is a standalone class used by {@link RecordRTC} to bring video recording in Chrome. It runs top over {@link Whammy}.
  * @summary Video recording feature in Chrome.
  * @typedef WhammyRecorder
  * @class
@@ -1661,8 +1702,10 @@ function WhammyRecorder(mediaStream) {
             lastTime = new Date().getTime();
             whammy = new Whammy.Video();
 
-            console.log('canvas resolutions', canvas.width, '*', canvas.height);
-            console.log('video width/height', video.width || canvas.width, '*', video.height || canvas.height);
+            if (!this.disableLogs) {
+                console.log('canvas resolutions', canvas.width, '*', canvas.height);
+                console.log('video width/height', video.width || canvas.width, '*', video.height || canvas.height);
+            }
 
             drawFrames();
         };
@@ -1838,7 +1881,7 @@ function WhammyRecorder(mediaStream) {
 // should we provide an option to record via Whammy.js or MediaRecorder API is a better solution?
 
 /**
- * Whammy is a standalone class used by RecordRTC to bring video recording in Chrome. It is written by {@link https://github.com/antimatter15|antimatter15}
+ * Whammy is a standalone class used by {@link RecordRTC} to bring video recording in Chrome. It is written by {@link https://github.com/antimatter15|antimatter15}
  * @summary A real time javascript webm encoder based on a canvas hack.
  * @typedef Whammy
  * @class
@@ -1989,7 +2032,7 @@ var Whammy = (function() {
 
     function checkFrames(frames) {
         if (!frames[0]) {
-            console.warn('Something went wrong. Maybe WebP format is not supported in the current browser.');
+            console.error('Something went wrong. Maybe WebP format is not supported in the current browser.');
             return;
         }
 
