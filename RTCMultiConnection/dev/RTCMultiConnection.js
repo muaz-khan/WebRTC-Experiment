@@ -311,12 +311,7 @@ window.RTCMultiConnection = function(channel) {
         }
 
         var constraints = {
-            audio: !!session.audio ? {
-                mandatory: {},
-                optional: [{
-                    chromeRenderToAssociatedSink: true
-                }]
-            } : false,
+            audio: !!session.audio ? connection.mediaConstraints.audio : false,
             video: !!session.video
         };
 
@@ -1060,7 +1055,9 @@ window.RTCMultiConnection = function(channel) {
         optional: [], // kept for backward compatibility
         audio: {
             mandatory: {},
-            optional: []
+            optional: [{
+                chromeRenderToAssociatedSink: true
+            }]
         },
         video: {
             mandatory: {},
@@ -1075,13 +1072,14 @@ window.RTCMultiConnection = function(channel) {
         turn: true
     };
 
-    connection.sdpConstraints = {};
-
-    // as @serhanters proposed in #225
-    // it will auto fix "all" renegotiation scenarios
-    connection.sdpConstraints.mandatory = {
-        OfferToReceiveAudio: true,
-        OfferToReceiveVideo: true
+    connection.sdpConstraints = {
+        mandatory: {
+            OfferToReceiveAudio: true,
+            OfferToReceiveVideo: true
+        },
+        optional: [{
+            VoiceActivityDetection: false
+        }]
     };
 
     connection.privileges = {

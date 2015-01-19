@@ -277,9 +277,7 @@ function RTCPeerConnectionHandler() {
         },
         setConstraints: function() {
             this.constraints = {
-                optional: this.sdpConstraints.optional || isChrome ? [{
-                    VoiceActivityDetection: false
-                }] : [],
+                optional: this.sdpConstraints.optional || [],
                 mandatory: this.sdpConstraints.mandatory || {
                     OfferToReceiveAudio: !!this.session.audio,
                     OfferToReceiveVideo: !!this.session.video || !!this.session.screen

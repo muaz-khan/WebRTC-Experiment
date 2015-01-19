@@ -107,14 +107,23 @@ main.querySelector('#continue').onclick = function() {
                 userinfo: '<img src="images/action-needed.png">'
             });
 
-            rtcMultiConnection.open();
+            rtcMultiConnection.userid = roomid;
+            rtcMultiConnection.open({
+                dontTransmit: true,
+                sessionid: roomid
+            });
         } else {
             addNewMessage({
                 header: username,
                 message: 'Room found. Joining the room...',
                 userinfo: '<img src="images/action-needed.png">'
             });
-            rtcMultiConnection.join(roomid);
+            rtcMultiConnection.join({
+                sessionid: roomid,
+                userid: roomid,
+                extra: {},
+                session: rtcMultiConnection.session
+            });
         }
     };
     websocket.onopen = function() {

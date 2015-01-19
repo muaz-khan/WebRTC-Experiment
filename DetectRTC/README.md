@@ -1,4 +1,4 @@
-## [DetectRTC.js](https://github.com/muaz-khan/DetectRTC) / [Demo](https://www.webrtc-experiment.com/DetectRTC/) [![npm](https://img.shields.io/npm/v/detectrtc.svg)](https://npmjs.org/package/detectrtc) [![downloads](https://img.shields.io/npm/dm/detectrtc.svg)](https://npmjs.org/package/detectrtc)
+# [DetectRTC.js](https://github.com/muaz-khan/DetectRTC) / [Demo](https://www.webrtc-experiment.com/DetectRTC/) [![npm](https://img.shields.io/npm/v/detectrtc.svg)](https://npmjs.org/package/detectrtc) [![downloads](https://img.shields.io/npm/dm/detectrtc.svg)](https://npmjs.org/package/detectrtc)  [![Build Status: Linux](https://travis-ci.org/muaz-khan/DetectRTC.png?branch=master)](https://travis-ci.org/muaz-khan/DetectRTC)
 
 A tiny JavaScript library that can be used to detect WebRTC features e.g. system having speakers, microphone or webcam, screen capturing is supported, number of audio/video devices etc.
 
@@ -6,29 +6,27 @@ It is <a href="https://www.webrtc-experiment.com/licence/">MIT Licenced</a>, whi
 
 ```
 npm install detectrtc
+
+# or
+bower install detectrtc
 ```
 
 To use it:
 
-```htm
-<script src="./node_modules/detectrtc/DetectRTC.js"></script>
-```
-
-## Link the library
-
 ```html
+<script src="./node_modules/detectrtc/DetectRTC.js"></script>
+
+<!-- or CDN link -->
 <script src="//cdn.webrtc-experiment.com/DetectRTC.js"></script>
 ```
+
+**Check all releases:**
+
+* https://github.com/muaz-khan/DetectRTC/releases
 
 <img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
 
-## How to use it?
-
-```html
-<script src="//cdn.webrtc-experiment.com/DetectRTC.js"></script>
-```
-
-## List of available detections
+# How to use it?
 
 ```javascript
 DetectRTC.load(function() {
@@ -64,20 +62,10 @@ If you're not detecting audio/video input/outupt devices then you can skip this 
 
 `DetectRTC.load` simply makes sure that all devices are captured and valid result is set for relevant properties.
 
-## Demo
+# Demo
 
 * https://www.webrtc-experiment.com/DetectRTC/
 
-## Credits
-
-[Muaz Khan](https://github.com/muaz-khan):
-
-1. Personal Webpage: http://www.muazkhan.com
-2. Email: muazkh@gmail.com
-3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
-4. Google+: https://plus.google.com/+WebRTC-Experiment
-5. Facebook: https://www.facebook.com/WebRTC
-
-## License
+# License
 
 [DetectRTC.js](https://github.com/muaz-khan/DetectRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

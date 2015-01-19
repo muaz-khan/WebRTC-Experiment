@@ -1,7 +1,7 @@
 {
   "name": "detectrtc",
   "preferGlobal": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -36,6 +36,17 @@
     "email": "muazkh@gmail.com"
   },
   "homepage": "https://www.webrtc-experiment.com/DetectRTC/",
-  "_id": "detectrtc@1.0.1",
-  "_from": "detectrtc@"
+  "_id": "detectrtc@",
+  "_from": "detectrtc@",
+  "devDependencies": {
+    "grunt": "latest",
+    "grunt-cli": "latest",
+    "load-grunt-tasks": "latest",
+    "grunt-contrib-concat": "latest",
+    "grunt-contrib-csslint": "latest",
+    "grunt-contrib-jshint": "latest",
+    "grunt-contrib-uglify": "latest",
+    "grunt-jsbeautifier": "latest",
+    "grunt-bump": "latest"
+  }
 }

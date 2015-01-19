@@ -1,7 +1,9 @@
 ﻿<!--
 > Muaz Khan     - www.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
-> Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
+> Documentation - github.com/muaz-khan/DetectRTC
+> npm install detectrtc
+> bower install detectrtc
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -108,15 +110,15 @@
                         appendTR('System has Speakers?', printVal(DetectRTC.hasSpeakers));
                         appendTR('System has Microphone?', printVal(DetectRTC.hasMicrophone));
                         appendTR('System has Webcam?', printVal(DetectRTC.hasWebcam));
-                        appendTR('Browser Supports Screen Capturing?', printVal(DetectRTC.isScreenCapturingSupported));
+                        
                         appendTR('Browser Supports WebRTC?', printVal(DetectRTC.isWebRTCSupported));
                         appendTR('Browser Supports WebAudio API?', printVal(DetectRTC.isAudioContextSupported));
                         appendTR('Browser Supports SCTP Data Channels?', printVal(DetectRTC.isSctpDataChannelsSupported));
                         appendTR('Browser Supports RTP Data Channels?', printVal(DetectRTC.isRtpDataChannelsSupported));
                        
-                        appendTR('Browser Supports desktopCapture API?', printVal(DetectRTC.isDesktopCapturingSupported));
-                        appendTR('Browser Supports Screen Capturing API?', printVal(DetectRTC.isScreenCapturingSupported));
-                        appendTR('Is it mobile device?', printVal(DetectRTC.isMobileDevice));
+                        appendTR('This page Supports desktopCapture API?', printVal(DetectRTC.isDesktopCapturingSupported));
+                        appendTR('This page Supports Screen Capturing API?', printVal(DetectRTC.isScreenCapturingSupported));
+                        appendTR('Is it a mobile device?', printVal(DetectRTC.isMobileDevice));
                         appendTR('Browser Supports WebSockets?', printVal(DetectRTC.isWebSocketsSupported));
                         
                         document.getElementById('welcome').innerHTML = DetectRTC.osName + ': ' + DetectRTC.browser.name + ' (version: ' + DetectRTC.browser.version + ')';
@@ -154,7 +156,7 @@
             
             <section class="experiment">
                 <h2 class="header">
-                    How to use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC" target="_blank">DetectRTC</a>?</h2>
+                    How to use <a href="https://github.com/muaz-khan/DetectRTC" target="_blank">DetectRTC</a>?</h2>
                 <pre>
 &lt;script src="//cdn.WebRTC-Experiment.com/DetectRTC.js"&gt;&lt;/script&gt;
 </pre>
@@ -191,12 +193,12 @@ DetectRTC.load(function() {
             </section>
 			
             <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/DetectRTC/commits/master" target="_blank">Latest Updates</a></h2>
                 <div id="github-commits"></div>
             </section>  
         </article>
         
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC" class="fork-left"></a>
+        <a href="https://github.com/muaz-khan/DetectRTC" class="fork-left"></a>
         
         <footer>
             <p>

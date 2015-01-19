@@ -62,6 +62,13 @@ var broadcast = function(config) {
             peer;
 
         var peerConfig = {
+            constraints: {
+                mandatory: {
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: true
+                },
+                optional: []
+            },
             attachStream: config.attachStream,
             onICE: function(candidate) {
                 socket.send({

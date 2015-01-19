@@ -221,7 +221,7 @@
                             video: false
                         };
                         
-                        if(!DetectRTC.hasMicrophone) {
+                        if(DetectRTC.hasMicrophone !== true) {
                             alert('DetectRTC library is unable to find microphone; maybe you denied microphone access once and it is still denied or maybe microphone device is not attached to your system or another app is using same microphone.');
                         }
                     }
@@ -237,12 +237,12 @@
                             video: video_constraints
                         };
                         
-                        if(!DetectRTC.isScreenCapturingSupported) {
+                        if(DetectRTC.isScreenCapturingSupported !== true) {
                            alert('DetectRTC library is unable to find screen capturing support. You MUST run chrome with command line flag "chrome --enable-usermedia-screen-capturing"');
                         }
                     }
                     
-                    if (option != 'Only Audio' && option != 'Screen' && !DetectRTC.hasWebcam) {
+                    if (option != 'Only Audio' && option != 'Screen' && DetectRTC.hasWebcam !== true) {
                         alert('DetectRTC library is unable to find webcam; maybe you denied webcam access once and it is still denied or maybe webcam device is not attached to your system or another app is using same webcam.');
                     }
 

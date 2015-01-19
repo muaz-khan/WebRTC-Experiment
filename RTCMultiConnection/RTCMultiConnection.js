@@ -1,4 +1,4 @@
-// Last time updated at Dec 09, 2014, 08:32:23
+// Last time updated at Dec 29, 2014, 08:32:23
 
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
@@ -13,7 +13,8 @@
 // Demos         - www.WebRTC-Experiment.com/RTCMultiConnection
 
 // _________________________
-// RTCMultiConnection-v2.2.4
+// RTCMultiConnection-v2.2.5
+
 /* issues/features need to be fixed & implemented:
 
 -. v2.0.* changes-log here: http://www.rtcmulticonnection.org/changes-log/#v2.2
@@ -33,6 +34,7 @@
 --. Renegotiation is fixed for Firefox. Removing old stream and using new one.
 --. Fixed: If stream is having no audio or video tracks but session=audio:true,video:true
 --. Fixed: onstatechange isn't firing "request-accepted".
+--. Now, "onSessionClosed" is fired as soon as initiator leaves, for all users---even NON-connected users.
 
 NEW/Breaking changes:
 --. RTCMultiSession is renamed to "SignalingHandler"
@@ -3869,6 +3871,13 @@ NEW/Breaking changes:
         // if a user leaves
 
         function clearSession() {
+            if (connection.isInitiator) {
+                connection.socket.send({
+                    sessionClosed: true,
+                    session: connection.sessionDescription
+                });
+            }
+
             var alertMessage = {
                 left: true,
                 extra: connection.extra || {},
@@ -4232,6 +4241,10 @@ NEW/Breaking changes:
                     }
 
                     setTimeout(connection.playRoleOfInitiator, 2000);
+                }
+
+                if (response.sessionClosed) {
+                    connection.onSessionClosed(response);
                 }
             },
             callback: function(socket) {

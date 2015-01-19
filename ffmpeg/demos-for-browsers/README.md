@@ -1,4 +1,4 @@
-# [Ffmpeg demos](https://github.com/muaz-khan/Ffmpeg.js), Both for browsers & node.js
+# [Ffmpeg demos](https://github.com/muaz-khan/Ffmpeg.js) for both browsers & node.js
 
 [Demos](https://www.webrtc-experiment.com/ffmpeg/) for the browser-side ffmpeg processing:
 
@@ -13,15 +13,11 @@ Remember: [`ffmpeg-asm.js`](https://cdn.webrtc-experiment.com/ffmpeg_asm.js)'s c
 
 * [audo-plus-canvas-recording.gif](https://cdn.webrtc-experiment.com/images/audo-plus-canvas-recording.gif)
 
-File Size? **It is suggested to download `ffmpeg-asm` file and try locally!**
+# File Size?
+
+**It is suggested to download `ffmpeg-asm` file and try locally!**
 
 [`ffmpeg-asm.js`](https://cdn.webrtc-experiment.com/ffmpeg_asm.js) file's default size is 18MB; however you can gzip it to make it about 6MB.
-
-Node.js side demos:
-
-1. [PHP-and-FFmpeg](https://github.com/muaz-khan/RecordRTC/tree/master/PHP-and-FFmpeg)
-2. [RecordRTC-to-Nodejs](https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs)
-3. [RecordRTC-over-Socketio](https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-over-Socketio)
 
 # License
 
