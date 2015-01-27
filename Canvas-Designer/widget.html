@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0, user-scalable=no">
+
+	<title>Canvas Designer ® Muaz Khan</title>    
+	<meta name="description" content="HTML5 Canvas Designer ® Muaz Khan – A tool aimed to give you a full-fledged drawing surface and also auto generate appropriate code for you in different formats! Generator/Tool/Editor – 2D API/Context">
+
+	<meta name="author" content="Muaz Khan">
+	<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+
+	<link href="Style.css" rel="stylesheet">
+</head>
+<body>
+	<section class="design-surface">
+		<canvas id="temp-canvas"></canvas>
+		<canvas id="main-canvas"></canvas>
+	</section>
+	
+	<!------------------------------------------>
+
+	<section id="tool-box" class="tool-box">
+        <canvas id="pencil-icon" width="40" height="40"></canvas>
+        <canvas id="eraser-icon" width="40" height="40"></canvas>
+        <canvas id="text-icon" width="40" height="40"></canvas>
+		<canvas id="drag-last-path" width="40" height="40"></canvas>
+		<canvas id="drag-all-paths" width="40" height="40"></canvas>
+
+		<canvas id="line" class="selected-shape" width="40" height="40"></canvas>
+		<canvas id="arc" width="40" height="40"></canvas>
+		<canvas id="rectangle" width="40" height="40"></canvas>
+		<canvas id="quadratic-curve" width="40" height="40"></canvas>
+		<canvas id="bezier-curve" width="40" height="40"></canvas>
+
+		<canvas id="line-width" width="40" height="40"></canvas>
+		<canvas id="colors" width="40" height="40"></canvas>
+		<canvas id="additional" width="40" height="40"></canvas>
+	</section>
+	
+	<!------------------------------------------>
+
+	<section id="arc-range-container" class="arc-range-container">
+		<input id="arc-range" class="arc-range" type="text" value="2">
+		<input type="checkbox" id="is-clockwise" checked="" class="allow-select">
+		<label for="is-clockwise">Clockwise?</label>
+		<div class="arc-range-container-guide">Use arrow keys ↑↓</div>
+	</section>
+	
+	<!------------------------------------------>
+
+	<section class="code-container">
+		<textarea id="code-text" class="code-text allow-select"></textarea>
+	</section>
+	
+	<section class="preview-panel">
+		<div id="design-preview" class="preview-selected">Preview</div>
+		<div id="code-preview">Code</div>
+	</section>
+	
+	<!------------------------------------------>
+	
+	<section id="options-container" class="options-container">
+		<div>
+			<input type="checkbox" id="is-absolute-points" checked="">
+			<label for="is-absolute-points">Absolute Points</label>
+		</div>
+		<div>
+			<input type="checkbox" id="is-shorten-code" checked="">
+			<label for="is-shorten-code">Shorten Code</label>
+		</div>
+	</section>
+	
+	<!------------------------------------------>
+
+	<section id="line-width-container" class="context-popup">
+		<label for="line-width-text">Line Width:</label>
+		<input id="line-width-text" class="line-width-text" type="text" value="2">
+		
+		<div id="line-width-done" class="done">Done</div>
+	</section>
+	
+	<!------------------------------------------>
+	
+	<section id="colors-container" class="context-popup colors-container">
+		<div class="input-div">
+			<label for="stroke-style">Stroke Style:</label>
+			<input id="stroke-style" type="color" value="#6c96c8">
+		</div>
+		
+		<div class="input-div">
+			<label for="fill-style">Fill Style:</label>
+			<input id="fill-style" type="color" value="transparent">
+		</div>
+		
+		<div id="colors-done" class="done">Done</div>
+	</section>
+	
+	<!------------------------------------------>
+
+	<section id="copy-container" class="context-popup">
+		<div>
+			<input type="checkbox" id="copy-last" checked=""/>
+			<label for="copy-last">Copy last path</label>
+		</div>
+		<div style="margin-top: 5px;">
+			<input type="checkbox" id="copy-all"/>
+			<label for="copy-all">Copy all paths</label>
+		</div>
+	</section>
+	
+	<!------------------------------------------>
+	
+	<section id="additional-container" class="context-popup additional-container">
+		<div>
+			<label for="lineCap-select">Line Cap:</label>
+			<select id="lineCap-select">
+				<option>butt</option>
+				<option>round</option>
+				<option>square</option>
+			</select>
+		</div>
+		
+		<div>
+			<label for="lineJoin-select">Line Join:</label>
+			<select id="lineJoin-select">
+				<option>bevel</option>
+				<option>round</option>
+				<option>miter</option>
+			</select>
+		</div>
+		
+		<div>
+			<label for="globalAlpha-select">globalAlpha:</label>
+			<select id="globalAlpha-select">
+				<option>1.0</option>
+				<option>0.9</option>
+				<option>0.8</option>
+				<option>0.7</option>
+				<option>0.6</option>
+				<option>0.5</option>
+				<option>0.4</option>
+				<option>0.3</option>
+				<option>0.2</option>
+				<option>0.1</option>
+				<option>0.0</option>
+			</select>
+		</div>
+		
+		<div>
+			<label for="globalCompositeOperation-select">globalCompositeOperation:</label>
+			<select id="globalCompositeOperation-select">
+				<option>source-atop</option>
+				<option>source-in</option>
+				<option>source-out</option>
+				<option selected="">source-over</option>
+				<option>destination-atop</option>
+				<option>destination-in</option>
+				<option>destination-out</option>
+				<option>destination-over</option>
+				<option>lighter</option>
+				<option>copy</option>
+				<option>xor</option>
+			</select>
+		</div>
+		
+		<div id="additional-close" class="done">Done</div>
+	</section>
+
+    <!------------------------------------------>
+    
+    <input type="text" id="text-input" style="position: absolute; top: -100000px; left: -100000px; z-index: 1000000;border:0;outline:none; font-size: 15px;padding:0;margin:0; background: transparent; width: 100%;">
+	
+	<!------------------------------------------>
+
+	<script src="common.js"></script>
+	<script src="decorator.js"></script>
+	
+	<script src="draw-helper.js"></script>
+	<script src="drag-helper.js"></script>
+	
+    <script src="pencil-handler.js"></script>
+    <script src="eraser-handler.js"></script>
+    <script src="text-handler.js"></script>
+	<script src="arc-handler.js"></script>
+	<script src="line-handler.js"></script>
+	<script src="rect-handler.js"></script>
+	<script src="quadratic-handler.js"></script>
+	<script src="bezier-handler.js"></script>
+
+	<script src="events-handler.js"></script>
+    
+    <!------------------------------------------>
+    
+    <div id="fade"></div>
+    
+    <!------------------------------------------>
+    <script src="share-drawings.js"></script>
+    <!------------------------------------------>
+</body>
+</html>

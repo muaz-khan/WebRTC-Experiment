@@ -4,16 +4,30 @@ It is a node.js and socket.io based reliable signaling implementation. Remember,
 
 1. Auto reconnects if node.js gets down out of any reason.
 2. Auto reconnects if internet connection disconnects.
-3. It provides [custom-signaling](https://github.com/muaz-khan/RTCMultiConnection/wiki/Custom-Private-Servers#signaling-servers) for your [RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection) applications!
+3. It provides [custom-signaling](https://github.com/muaz-khan/RTCMultiConnection/wiki/Custom-Private-Servers#signaling-servers) for your [RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection) and [DataChannel](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) applications!
 
 ```
 npm install reliable-signaler
 ```
 
+# How it works?
+
+1. You can store a room-id on server using `createNewRoomOnServer` method.
+2. You can get that room-id using `getRoomFromServer` method.
+
+# How to use?
+
+1. In your Node.js server, invoke `require('reliable-signaler')` and pass HTTP-Server object.
+2. In your HTML file, link this script: `/reliable-signaler/signaler.js`
+3. In your `<script>` tag, invoke `initReliableSignaler` constructor.
+4. Invoke `createNewRoomOnServer` method for room-moderator.
+5. Invoke `getRoomFromServer` method from room-participants (multiple participants).
+
 # Demos
 
-* https://www.npmjs.org/package/rtcmulticonnection-client
-* https://www.npmjs.org/package/datachannel-client
+* `rtcmulticonnection-client`: [![npm](https://img.shields.io/npm/v/rtcmulticonnection-client.svg)](https://npmjs.org/package/rtcmulticonnection-client) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection-client.svg)](https://npmjs.org/package/rtcmulticonnection-client)
+* `datachannel-client`: [![npm](https://img.shields.io/npm/v/datachannel-client.svg)](https://npmjs.org/package/datachannel-client) [![downloads](https://img.shields.io/npm/dm/datachannel-client.svg)](https://npmjs.org/package/datachannel-client)
+* `videoconferencing-client`: [![npm](https://img.shields.io/npm/v/videoconferencing-client.svg)](https://npmjs.org/package/videoconferencing-client) [![downloads](https://img.shields.io/npm/dm/videoconferencing-client.svg)](https://npmjs.org/package/videoconferencing-client)
 
 ```
 # install rtcmulticonnection-client
@@ -23,90 +37,175 @@ node ./node_modules/rtcmulticonnection-client/server.js
 # or intall datachannel-client
 npm install datachannel-client
 node ./node_modules/datachannel-client/server.js
+
+# or intall videoconferencing-client
+npm install videoconferencing-client
+node ./node_modules/videoconferencing-client/server.js
 ```
 
 Now open localhost port:`8080`.
 
-# 1st Step: Node.js Server
+# 1st Step: Node.js Server-side code
 
 To use it in your node.js code: (required)
 
 ```javascript
-require('reliable-signaler')(httpServer || expressServer || portNumber);
+var httpServer = require('http').createServer(callback);
+
+require('reliable-signaler')(httpServer || expressServer || portNumber, {
+    // for custom socket handlers
+    socketCallback: function(socket) {
+        socket.on('custom-handler', function(message) {
+            socket.broadcast.emit('custom-handler', message);
+        });
+    }
+});
 ```
 
-# 2nd Step: Browser-side code
+Constructor of the module `reliable-signaler` takes an `config` object where you can pass `socketCallback` and other configurations:
 
-Note: Below code targets: [rtcmulticonnection-client](https://www.npmjs.org/package/rtcmulticonnection-client)
+```javascript
+var config = {
+    socketCallback: function(socket) {}
+};
+require('reliable-signaler')(httpServer, config);
+```
+
+*. `socketCallback`: If you want to attach custom handlers over socket object.
+
+# 2nd Step: Browser-side code
 
 To use it in the browser: (required)
 
 ```htm
-<script src="/reliable-signaler/rmc-signaler.js"></script>
+<script src="/reliable-signaler/signaler.js"></script>
 ```
 
-> Remember, `/reliable-signaler/rmc-signaler.js` route is auto opened by this implementation. If you passed `portNumber` instead of `httpServer` then you need to provide absolute URL instead of static one i.e. `http://localhost:port/reliable-signaler/rmc-signaler.js`
-
-And your RTCMultiConnection code:
+And your client-side javascript code:
 
 ```javascript
 var connection = new RTCMultiConnection();
 
-// invoke "initRMCSignaler" and pass "connection" object
-var rmcSignaler = initRMCSignaler(connection);
-
-// or to pass "socket-URL"
-var rmcSignaler = initRMCSignaler({
-    connection: connection,
-    socketURL: 'http://domain:port/'
-});
+// invoke "initReliableSignaler" and pass "connection" or "channel" object
+var signaler = initReliableSignaler(connection, 'http://domain:port/');
 ```
 
-Call `openNewSession` method as soon as you'll call `open` method:
+Call `createNewRoomOnServer` method as soon as you'll call `open` method. You can even call `createNewRoomOnServer` earlier than `open` however it isn't suggested:
+
+For RTCMultiConnection: 
 
 ```javascript
+// for data-only sessions
 connection.open();
-rmcSignaler.openNewSession();
+signaler.createNewRoomOnServer(connection.sessionid);
 
-// or:
+// or (not recommended)
+signaler.createNewRoomOnServer(connection.sessionid, function() {
+    connection.open();
+});
+
+// or --- recommended.
 connection.open({
-    onMediaCaptured: rmcSignaler.openNewSession
+    onMediaCaptured: function() {
+        signaler.createNewRoomOnServer(connection.sessionid);
+    }
 });
 ```
 
-For participants, call `joinSession` method:
+For DataChannel: 
 
 ```javascript
-rmcSignaler.joinSession('sessioin-id', function(sessionDescription) {
-    connection.join(sessionDescription); // invoke "join" in callback
+channel.open('room-id');
+signaler.createNewRoomOnServer('room-id', successCallback);
+```
+
+For participants, call `getRoomFromServer` method:
+
+```javascript
+// RTCMultiConnection
+signaler.getRoomFromServer('sessioin-id', function(roomid) {
+    // invoke "join" in callback
+    connection.join({
+        sessionid: roomid,
+        userid: roomid,
+        extra: {},
+        session: connection.session
+    });
+    
+    // or simply
+    connection.join(roomid);
+    
+    // or
+    connection.connect(roomid);
+});
+
+// DataChannel
+signaler.getRoomFromServer('sessioin-id', function(roomid) {
+    channel.join({
+        id: roomid,
+        owner: roomid
+    });
+    
+    // or
+    channel.connect(roomid);
 });
 ```
 
-# Complete Client-Side Example
+# Complete Client-Side Example for RTCMultiConnection
 
 ```html
-<script src="/reliable-signaler/rmc-signaler.js"></script>
+<script src="/reliable-signaler/signaler.js"></script>
 <script>
 var connection = new RTCMultiConnection();
 
-var rmcSignaler = initRMCSignaler({
-    connection: connection,
-    socketURL: '/'
-});
+var signaler = initReliableSignaler(connection, '/');
 
 btnOpenRoom.onclick = function() {
     connection.channel = connection.sessionid = connection.userid = sessionid;
     connection.open({
         onMediaCaptured: function() {
-            rmcSignaler.openNewSession();
+            signaler.createNewRoomOnServer(connection.sessionid);
         }
     });
 };
 
 btnJoinRoom.onclick = function() {
-    rmcSignaler.joinSession(sessionid, function(sessionDescription){
-        connection.channel = connection.sessionid = sessionDescription.sessionid;
-        connection.join(sessionDescription);
+    signaler.getRoomFromServer(roomid, function(roomid){
+        connection.channel = connection.sessionid = roomid;
+        connection.join({
+            sessionid: roomid,
+            userid: roomid,
+            extra: {},
+            session: connection.session
+        });
+    });
+};
+</script>
+```
+
+# Complete Client-Side Example for DataChannel
+
+```html
+<script src="/reliable-signaler/signaler.js"></script>
+<script>
+var channel = new DataChannel();
+
+var signaler = initReliableSignaler(channel, '/');
+
+btnOpenRoom.onclick = function() {
+    signaler.createNewRoomOnServer(roomid, function() {
+        channel.channel = channel.userid = roomid;
+        channel.open(roomid);
+    });
+};
+
+btnJoinRoom.onclick = function() {
+    signaler.getRoomFromServer(roomid, function(roomid){
+        channel.channel = roomid;
+        channel.join({
+            id: roomid,
+            owner: roomid
+        });
     });
 };
 </script>
@@ -118,41 +217,46 @@ Constructor takes either `RTCMultiConnection` instance or a `config` object:
 
 ```javascript
 # 1st option: Pass RTCMultiConnection object
-var rmcSignaler = initRMCSignaler(rtcMultiConnection);
+var signaler = initReliableSignaler(connection);
 
 # 2nd option: Pass "config" object
-var rmcSignaler = initRMCSignaler({
-    connection: rtcMultiConnection,
-    socketURL: '/'
-});
+var signaler = initReliableSignaler(connection, '/');
 ```
 
-`initRMCSignaler` global-function exposes/returns 3-objects:
+`initReliableSignaler` global-function exposes/returns 3-objects:
 
 1. `socket`
-2. `openNewSession`
-3. `joinSession`
+2. `createNewRoomOnServer`
+3. `getRoomFromServer`
 
 ```javascript
 // "socket" object
-rmcSignaler.socket.emit('message', 'hello');
+signaler.socket.emit('message', 'hello');
 
-// "openNewSession" method
-rmcSignaler.openNewSession(connection.sessionDescription || null);
+// "createNewRoomOnServer" method
+signaler.createNewRoomOnServer(connection.sessionid, successCallback);
 
-// "joinSession" object
-rmcSignaler.joinSession('sessioin-id', callback);
+// "getRoomFromServer" object
+signaler.getRoomFromServer('sessioin-id', callback);
 ```
 
-## `openNewSession`
+## `createNewRoomOnServer`
 
-This method simply takes `connection.sessionDescription` object and stores in node.js server.
+This method simply takes `sessioin-id` and stores in node.js server. You can even pass `successCallback`.
 
-## `joinSession`
+```javascript
+signaler.createNewRoomOnServer(roomid, successCallback);
+```
+
+## `getRoomFromServer`
 
 This method looks for active `sessioin-id` in node.js server. Node.js server will fire callback only when session is found.
 
-If session is absent, then node.js server will wait until someone opens that session; and node.js will fire `joinSession-callback` as soon a session is opened.
+If session is absent, then node.js server will wait until someone opens that session; and node.js will fire `getRoomFromServer-callback` as soon a session is opened.
+
+```javascript
+signaler.getRoomFromServer(roomid, successCallback);
+```
 
 ## License
 

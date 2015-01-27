@@ -170,6 +170,11 @@ var dragHelper = {
 
             tempContext.fill();
         }
+        
+        if (p[0] === 'text') {
+            tempContext.font = "15px Verdana";
+            tempContext.fillText(point[0], point[1], point[2]);
+        }
 
         if (p[0] === 'rect') {
 
@@ -250,6 +255,14 @@ var dragHelper = {
                 ], p[2]];
 
             }
+            
+            if (p[0] === 'text') {
+                points[i] = [p[0], [
+                    point[0],
+                    getPoint(x, prevX, point[1]),
+                    getPoint(y, prevY, point[2])
+                ], p[2]];
+            }
 
             if (p[0] === 'arc') {
                 points[i] = [p[0], [
@@ -317,6 +330,16 @@ var dragHelper = {
             if (g.pointsToMove === 'tail' || isMoveAllPoints) {
                 point[2] = getPoint(x, prevX, point[2]);
                 point[3] = getPoint(y, prevY, point[3]);
+            }
+
+            points[points.length - 1] = [p[0], point, p[2]];
+        }
+        
+        if (p[0] === 'text') {
+
+            if (g.pointsToMove === 'head' || isMoveAllPoints) {
+                point[1] = getPoint(x, prevX, point[1]);
+                point[2] = getPoint(y, prevY, point[2]);
             }
 
             points[points.length - 1] = [p[0], point, p[2]];

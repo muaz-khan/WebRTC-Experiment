@@ -1,4 +1,4 @@
-// Last time updated at Dec 29, 2014, 08:32:23
+// Last time updated at Jan 27, 2015, 08:32:23
 
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
@@ -17,29 +17,7 @@
 
 /* issues/features need to be fixed & implemented:
 
--. v2.0.* changes-log here: http://www.rtcmulticonnection.org/changes-log/#v2.2
--. trello: https://trello.com/b/8bhi1G6n/rtcmulticonnection 
-
---. screen capturing improved & some bugs fixed.
---. connection.stopMediaStream improved.
---. fixed: audio-only stream & crash.
---. added: connection.attachExternalStream(MediaStream, isScreen);
---. connection.candidates={relay:true} fixed. (a=candidate is removed).
---. connection.numberOfConnectedUsers is fixed.
---. hark.js updated. "onspeaking" is disabled for remote streams. Check "Coding Tricks" wiki page for further details.
---. Now, stream object is having "pause" and "resume" methods to pause/resume hark.js instances.
-
---. connection.rtcConfiguration
---. takeSnapshot now returns "blob" as second argument.
---. Renegotiation is fixed for Firefox. Removing old stream and using new one.
---. Fixed: If stream is having no audio or video tracks but session=audio:true,video:true
---. Fixed: onstatechange isn't firing "request-accepted".
---. Now, "onSessionClosed" is fired as soon as initiator leaves, for all users---even NON-connected users.
-
-NEW/Breaking changes:
---. RTCMultiSession is renamed to "SignalingHandler"
---. "PeerConnection" is renamed to "RTCPeerConnectionHandler"
---. MultiSockets concept has been removed. Now there is always single socket.
+-. v2.2.* changes-log here: http://www.rtcmulticonnection.org/changes-log/#v2.2
 */
 
 'use strict';
@@ -358,12 +336,7 @@ NEW/Breaking changes:
             }
 
             var constraints = {
-                audio: !!session.audio ? {
-                    mandatory: {},
-                    optional: [{
-                        chromeRenderToAssociatedSink: true
-                    }]
-                } : false,
+                audio: !!session.audio ? connection.mediaConstraints.audio : false,
                 video: !!session.video
             };
 
@@ -1107,7 +1080,9 @@ NEW/Breaking changes:
             optional: [], // kept for backward compatibility
             audio: {
                 mandatory: {},
-                optional: []
+                optional: [{
+                    chromeRenderToAssociatedSink: true
+                }]
             },
             video: {
                 mandatory: {},
@@ -1122,13 +1097,14 @@ NEW/Breaking changes:
             turn: true
         };
 
-        connection.sdpConstraints = {};
-
-        // as @serhanters proposed in #225
-        // it will auto fix "all" renegotiation scenarios
-        connection.sdpConstraints.mandatory = {
-            OfferToReceiveAudio: true,
-            OfferToReceiveVideo: true
+        connection.sdpConstraints = {
+            mandatory: {
+                OfferToReceiveAudio: true,
+                OfferToReceiveVideo: true
+            },
+            optional: [{
+                VoiceActivityDetection: false
+            }]
         };
 
         connection.privileges = {
@@ -3871,7 +3847,7 @@ NEW/Breaking changes:
         // if a user leaves
 
         function clearSession() {
-            if (connection.isInitiator) {
+            if (connection.isInitiator && connection.socket) {
                 connection.socket.send({
                     sessionClosed: true,
                     session: connection.sessionDescription
@@ -3897,7 +3873,7 @@ NEW/Breaking changes:
                             continue;
                         }
                     }
-                    if (firstPeer) {
+                    if (firstPeer && firstPeer.socket) {
                         // shift initiation control to another user
                         firstPeer.socket.send2({
                             isPlayRoleOfInitiator: true,
@@ -3910,7 +3886,9 @@ NEW/Breaking changes:
                 }
             }
 
-            connection.socket.send(alertMessage);
+            if (connection.socket) {
+                connection.socket.send(alertMessage);
+            }
 
             connection.refresh();
 
@@ -5926,9 +5904,7 @@ NEW/Breaking changes:
             },
             setConstraints: function() {
                 this.constraints = {
-                    optional: this.sdpConstraints.optional || isChrome ? [{
-                        VoiceActivityDetection: false
-                    }] : [],
+                    optional: this.sdpConstraints.optional || [],
                     mandatory: this.sdpConstraints.mandatory || {
                         OfferToReceiveAudio: !!this.session.audio,
                         OfferToReceiveVideo: !!this.session.video || !!this.session.screen

@@ -54,7 +54,10 @@ function StereoRecorder(mediaStream) {
             for (var item in mediaRecorder) {
                 self[item] = mediaRecorder[item];
             }
-            callback();
+
+            if (callback) {
+                callback();
+            }
         });
     };
 

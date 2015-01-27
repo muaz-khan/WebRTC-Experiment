@@ -94,7 +94,9 @@ function MediaStreamRecorder(mediaStream) {
                 type: e.data.type || self.mimeType || 'audio/ogg'
             });
 
-            self.callback();
+            if (self.callback) {
+                self.callback();
+            }
         };
 
         mediaRecorder.onerror = function(error) {

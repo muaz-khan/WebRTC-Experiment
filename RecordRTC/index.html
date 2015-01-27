@@ -63,7 +63,7 @@
     <article>
         <header style="text-align: center;">
             <h1>
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a>: <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC</a> audio/video recording ®
+                <a href="https://github.com/muaz-khan/RecordRTC">RecordRTC</a>: <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC</a> audio/video recording ®
                 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
             </h1>
             <p>
@@ -72,8 +72,8 @@
                 <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
                 <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
                 <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a> .
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                <a href="https://github.com/muaz-khan/RecordRTC/issues?state=open" target="_blank">Latest issues</a> .
+                <a href="https://github.com/muaz-khan/RecordRTC/commits/master" target="_blank">What's New?</a>
             </p>
         </header>
 
@@ -81,7 +81,7 @@
 
         <section class="experiment">
             <h2 class="header">
-                Record Audio ( <a href="http://www.recordrtc.org/" title="Suggested to visit for RecordRTC demos and API Documentations">www.RecordRTC.org</a> )
+                Record Audio ( <a href="http://recordrtc.org/" title="API Documentation">RecordRTC.org</a> )
             </h2>
 
             <div class="inner" style="height: 5em;">
@@ -90,6 +90,12 @@
                 <button id="stop-recording-audio" disabled>Stop</button>
                 <h2 id="audio-url-preview"></h2>
             </div>
+            
+            <pre>
+// you can even use URL parameters:
+<a href="https://www.webrtc-experiment.com/RecordRTC/?bufferSize=0&sampleRate=44100">?bufferSize=0&sampleRate=44100</a>
+<a href="https://www.webrtc-experiment.com/RecordRTC/?leftChannel=false&disableLogs=false">?leftChannel=false&disableLogs=false</a>
+</pre>
         </section>
 
         <section class="experiment">
@@ -119,6 +125,11 @@
                     <video id="video" autoplay loop controls muted></video>
                 </div>
             </div>
+            
+            <pre>
+// you can even use URL parameters:
+<a href="https://www.webrtc-experiment.com/RecordRTC/?canvas_width=1280&canvas_height=720">?canvas_width=1280&canvas_height=720</a>
+</pre>
         </section>
 
         <section class="experiment">
@@ -138,17 +149,35 @@
             </h2>
             <ol>
                 <li><a href="https://github.com/muaz-khan/ConcatenateBlobs">ConcatenateBlobs.js</a> - Concatenate multiple recordings in single Blob!</li>
-                <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/PHP-and-FFmpeg">RecordRTC / PHP / FFmpeg</a> (synced audio/video in single file!)</li>
-                <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs" target="_blank">RecordRTC-to-Nodejs</a> (used ffmpeg to merge wav/webm in single WebM container)</li>
-                <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP" target="_blank">RecordRTC-to-PHP</a> (audio/video recording and uploading to server)</li>
-                <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC" target="_blank">RecordRTC-to-ASP.NET MVC</a> (audio/video recording and uploading to server)</li>
+                <li><a href="https://github.com/muaz-khan/RecordRTC/tree/master/PHP-and-FFmpeg">RecordRTC / PHP / FFmpeg</a> (synced audio/video in single file!)</li>
+                <li><a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs" target="_blank">RecordRTC-to-Nodejs</a> (used ffmpeg to merge wav/webm in single WebM container)</li>
+                <li><a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-PHP" target="_blank">RecordRTC-to-PHP</a> (audio/video recording and uploading to server)</li>
+                <li><a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-ASPNETMVC" target="_blank">RecordRTC-to-ASP.NET MVC</a> (audio/video recording and uploading to server)</li>
                 <li><a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/" target="_blank">Canvas Recording!</a> (webpage recording)</li>
                 <li><a href="https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/" target="_blank">MRecordRTC and writeToDisk/getFromDisk!</a>
                 </li>
-                <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio" target="_blank">RecordRTC-to-Socket.io</a> (used ffmpeg to merge wav/webm in single WebM container)</li>
+                <li><a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-over-Socketio" target="_blank">RecordRTC-to-Socket.io</a> (used ffmpeg to merge wav/webm in single WebM container)</li>
                 <li><a href="https://www.webrtc-experiment.com/ffmpeg/" target="_blank">RecordRTC and ffmpeg-asm.js</a> (ffmpeg inside the browser!)</li>
             </ol>
         </section>
+        
+        <script>
+            (function() {
+                var params = {},
+                    r = /([^&=]+)=?([^&]*)/g;
+
+                function d(s) {
+                    return decodeURIComponent(s.replace(/\+/g, ' '));
+                }
+
+                var match, search = window.location.search;
+                while (match = r.exec(search.substring(1)))
+                    params[d(match[1])] = d(match[2]);
+
+                window.params = params;
+            })();
+        </script>
+        
         <script>
         function getByID(id) {
             return document.getElementById(id);
@@ -163,6 +192,14 @@
 
         var canvasWidth_input = getByID('canvas-width-input'),
             canvasHeight_input = getByID('canvas-height-input');
+            
+        if(params.canvas_width) {
+            canvasWidth_input.value = params.canvas_width;
+        }
+        
+        if(params.canvas_height) {
+            canvasHeight_input.value = params.canvas_height;
+        }
 
         var video = getByID('video');
         var audio = getByID('audio');
@@ -196,7 +233,11 @@
 
                     // "audio" is a default type
                     recorder = window.RecordRTC(stream, {
-                        type: 'audio'
+                        type: 'audio',
+                        bufferSize: typeof params.bufferSize == 'undefined' ? 4096 : params.bufferSize,
+                        sampleRate: typeof params.sampleRate == 'undefined' ? 44100 : params.sampleRate,
+                        leftChannel: params.leftChannel || false,
+                        disableLogs: params.disableLogs || false
                     });
                     recorder.startRecording();
                 }, function() {});
@@ -257,7 +298,8 @@
                         canvas: {
                             width: canvasWidth_input.value,
                             height: canvasHeight_input.value
-                        }
+                        },
+                        disableLogs: params.disableLogs || false
                     };
 
                     recorder = window.RecordRTC(stream, options);
@@ -375,61 +417,71 @@
 
         <section class="experiment">
             <h2 class="header">
-                How to use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a>?</h2>
+                How to use <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>?</h2>
             <pre>
-                &lt;script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"&gt;&lt;/script&gt;
-            </pre>
+&lt;script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"&gt;&lt;/script&gt;
+</pre>
         </section>
         <section class="experiment">
             <h2 class="header">
-                How to record audio using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a>?</h2>
+                How to record audio using <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>?</h2>
             <pre>
-                var recordRTC = <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a>(mediaStream); recordRTC.
-                <strong>startRecording</strong>(); recordRTC.
-                <strong>stopRecording</strong>(function(
-                <strong>audioURL</strong>) { mediaElement.src = audioURL; });
-            </pre>
+var recordRTC = <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>(mediaStream); 
+recordRTC.<strong>startRecording</strong>(); 
+recordRTC.<strong>stopRecording</strong>(function(<strong>audioURL</strong>) { 
+    mediaElement.src = audioURL; 
+});
+</pre>
 
         </section>
 
 
         <section class="experiment">
             <h2 class="header">
-                How to record video using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a>?</h2>
+                How to record video using <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>?</h2>
             <pre>
-                var options = {
-                <strong>type</strong>: 'video',
-                <strong>video</strong>: { width: 320, height: 240 },
-                <strong>canvas</strong>: { width: 320, height: 240 } }; var recordRTC = <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, options); recordRTC.
-                <strong>startRecording</strong>(); recordRTC.
-                <strong>stopRecording</strong>(function(
-                <strong>videoURL</strong>) { mediaElement.src = videoURL; });
-            </pre>
+var options = {
+    <strong>type</strong>: 'video',
+    <strong>video</strong>: { width: 320, height: 240 },
+    <strong>canvas</strong>: { width: 320, height: 240 }
+}; 
+    
+var recordRTC = <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, options); 
+recordRTC.<strong>startRecording</strong>(); 
+recordRTC.<strong>stopRecording</strong>(function(<strong>videoURL</strong>) { 
+    mediaElement.src = videoURL; 
+});
+</pre>
 
         </section>
 
         <section class="experiment">
 
             <h2 class="header">
-                How to record animated GIF using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a>?</h2>
+                How to record animated GIF using <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>?</h2>
             <pre>
-                // you must link: // https://cdn.webrtc-experiment.com/gif-recorder.js var options = {
-                <strong>type</strong>: 'gif',
-                <strong>video</strong>: { width: 320, height: 240 },
-                <strong>canvas</strong>: { width: 320, height: 240 },
-                <strong>frameRate</strong>: 200,
-                <strong>quality</strong>: 10 }; var recordRTC = <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, options); recordRTC.
-                <strong>startRecording</strong>(); recordRTC.
-                <strong>stopRecording</strong>(function(
-                <strong>gifURL</strong>) { mediaElement.src = gifURL; });
-            </pre>
+// you must link: // https://cdn.webrtc-experiment.com/gif-recorder.js
+var options = {
+    <strong>type</strong>: 'gif',
+    <strong>video</strong>: { width: 320, height: 240 },
+    <strong>canvas</strong>: { width: 320, height: 240 },
+    <strong>frameRate</strong>: 200,
+    <strong>quality</strong>: 10
+}; 
+        
+var recordRTC = <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, options); 
+recordRTC.<strong>startRecording</strong>(); recordRTC.
+<strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
+    mediaElement.src = gifURL;
+});
+</pre>
         </section>
 
         <section class="experiment">
             <h2>
-                Possible <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">
+                Possible <a href="https://github.com/muaz-khan/RecordRTC/issues" target="_blank">
 
-                                 issues</a>/<a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">failures</a>:
+                                 issues</a>/<a href="https://github.com/muaz-khan/RecordRTC/issues" target="_blank">failures</a>:
             </h2>
             <p>
                 (
@@ -448,7 +500,7 @@
         </section>
         <section class="experiment">
             <p style="margin-top: 0;">
-                RecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">Documentation</a>
+                RecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">Documentation</a>
             </p>
         </section>
 
@@ -462,13 +514,13 @@
         </section>
 
         <section class="experiment own-widgets latest-commits">
-            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a>
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RecordRTC/commits/master" target="_blank">Latest Updates</a>
             </h2>
             <div id="github-commits"></div>
         </section>
     </article>
 
-    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" class="fork-left"></a>
+    <a href="https://github.com/muaz-khan/RecordRTC" class="fork-left"></a>
 
     <footer>
         <p>

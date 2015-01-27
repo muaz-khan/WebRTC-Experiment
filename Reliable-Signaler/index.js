@@ -1,6 +1,7 @@
 // Note: Code in this file is taken from socket.io github repository
 // It is added merely to provide direct access of this script:
-// <script src="/reliable-signaler/rmc-signaler.js"></script>
+
+// <script src="/reliable-signaler/signaler.js"></script>
 
 // Remember, there is a separate file named as "reliable-signaler.js"
 // which handles socket.io signaling part.
@@ -12,21 +13,26 @@ var url = require('url');
 
 module.exports = Server;
 
-var clientSource = read('node_modules/reliable-signaler/rmc-signaler.js', 'utf-8');
-
 function Server(srv, opts) {
     if (!(this instanceof Server)) return new Server(srv, opts);
     if ('object' == typeof srv && !srv.listen) {
         opts = srv;
         srv = null;
     }
+    //console.log(opts);
     opts = opts || {};
     this.nsps = {};
-    this.path(opts.path || '/reliable-signaler');
+    this.path(opts.path || '/reliable-signaler/signaler.js');
     this.serveClient(false !== opts.serveClient);
     this.origins(opts.origins || '*:*');
     if (srv) this.attach(srv, opts);
 }
+
+Server.prototype.path = function(v) {
+    if (!arguments.length) return this._path;
+    this._path = v.replace(/\/$/, '');
+    return this;
+};
 
 Server.prototype.checkRequest = function(req, fn) {
     var origin = req.headers.origin || req.headers.referer;
@@ -84,23 +90,6 @@ Server.prototype.set = function(key, val) {
     return this;
 };
 
-Server.prototype.path = function(v) {
-    if (!arguments.length) return this._path;
-    this._path = v.replace(/\/$/, '');
-    return this;
-};
-
-Server.prototype.adapter = function(v) {
-    if (!arguments.length) return this._adapter;
-    this._adapter = v;
-    for (var i in this.nsps) {
-        if (this.nsps.hasOwnProperty(i)) {
-            this.nsps[i].initAdapter();
-        }
-    }
-    return this;
-};
-
 Server.prototype.origins = function(v) {
     if (!arguments.length) return this._origins;
 
@@ -141,14 +130,14 @@ Server.prototype.listen =
 
         // Export http server
         this.httpServer = srv;
-
-        require('./reliable-signaler.js').ReliableSignaler(srv);
+        
+        require('./reliable-signaler.js').ReliableSignaler(srv, opts.socketCallback || function() {});
 
         return this;
     };
 
 Server.prototype.attachServe = function(srv) {
-    var url = this._path + '/rmc-signaler.js';
+    var url = this._path;
     var evs = srv.listeners('request').slice(0);
     var self = this;
     srv.removeAllListeners('request');
@@ -166,7 +155,7 @@ Server.prototype.attachServe = function(srv) {
 Server.prototype.serve = function(req, res) {
     res.setHeader('Content-Type', 'application/javascript');
     res.writeHead(200);
-    res.end(clientSource);
+    res.end(read('node_modules' + this._path, 'utf-8'));
 };
 
 Server.listen = Server;

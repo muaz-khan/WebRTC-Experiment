@@ -11,14 +11,14 @@
 <link rel="stylesheet" href="style.css">
 
 <script src="/socket.io/socket.io.js"></script>
-<script src="/signaler.js"></script>
-<script src="/DataChannel.js"></script>
+<script src="/reliable-signaler/signaler.js"></script>
+<script src="//cdn.webrtc-experiment.com/DataChannel.js"></script>
 <script>
 // initializing DataChannel.js constructor.
 var channel = new DataChannel();
 
 // using reliable-signaler
-var dataChannelSignaler = initReliableSignaler(channel, '/');
+var signaler = initReliableSignaler(channel, '/');
 
 channel.ondatachannel = function() {};
 
@@ -29,13 +29,13 @@ document.getElementById('open').onclick = function() {
         document.getElementById('room-id').focus();
         return;
     }
-
-    channel.userid = roomid;
-    channel.transmitRoomOnce = true;
-    channel.open(roomid);
     
-    dataChannelSignaler.openNewSession(roomid, function() {
+    signaler.createNewRoomOnServer(roomid, function() {
         document.getElementById('open').disabled = true;
+        
+        channel.userid = roomid;
+        channel.transmitRoomOnce = true;
+        channel.open(roomid);
     });
 };
 
@@ -48,9 +48,14 @@ document.getElementById('join').onclick = function() {
     }
     
     this.disabled = true;
-    dataChannelSignaler.joinSession(roomid, function(roomDescription) {
-        channel.connect(roomDescription.id); // setting 'channel' & connecting socket
-        channel.join(roomDescription);       // setting 'roomToken' and 'broadcaster' and joining
+    signaler.getRoomFromServer(roomid, function(roomid) {
+        channel.connect(roomid); // setting 'channel' & connecting socket
+        
+        // setting 'roomToken' and 'broadcaster' and joining
+        channel.join({
+            id: roomid,
+            owner: roomid
+        });
     });
 };
 

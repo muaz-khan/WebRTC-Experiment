@@ -1,4 +1,4 @@
-// Last time updated at August 05, 2014, 08:32:23
+// Last time updated at Jan 21, 2015, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/screen.js
 
@@ -539,6 +539,7 @@
     function loadScript(src, onload) {
         var script = document.createElement('script');
         script.src = src;
+        script.async = true;
         document.documentElement.appendChild(script);
         console.log('loaded', src);
     }

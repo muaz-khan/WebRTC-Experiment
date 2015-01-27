@@ -9,6 +9,12 @@ function WhammyRecorder(mediaStream) {
 
         mediaRecorder = new WhammyRecorderHelper(mediaStream, this);
 
+        for (var prop in this) {
+            if (typeof this[prop] !== 'function') {
+                mediaRecorder[prop] = this[prop];
+            }
+        }
+
         mediaRecorder.record();
 
         timeout = setInterval(function() {
@@ -23,8 +29,7 @@ function WhammyRecorder(mediaStream) {
         }
     };
 
-    this.ondataavailable = function() {
-    };
+    this.ondataavailable = function() {};
 
     // Reference to "WhammyRecorder" object
     var mediaRecorder;

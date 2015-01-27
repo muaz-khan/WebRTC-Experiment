@@ -14,7 +14,7 @@
 
 <link rel="stylesheet" href="style.css">
 
-<script src="/reliable-signaler/rmc-signaler.js"></script>
+<script src="/reliable-signaler/signaler.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 <script src="https://cdn.webrtc-experiment.com/FileBufferReader.js"></script>
@@ -25,10 +25,7 @@ var connection = new RTCMultiConnection();
 connection.body = document.getElementById('container');
 
 // using reliable-signaler
-var rmcSignaler = initRMCSignaler({
-    connection: connection,
-    socketURL: '/'
-});
+var signaler = initReliableSignaler(connection, '/');
 
 connection.session = {
     audio: true,
@@ -83,7 +80,7 @@ document.getElementById('open').onclick = function() {
     connection.channel = connection.sessionid = connection.userid = sessionid;
     connection.open({
         onMediaCaptured: function() {
-            rmcSignaler.openNewSession(connection.sessionDescription);
+            signaler.createNewRoomOnServer(connection.sessionid);
         }
     });
 };
@@ -97,9 +94,14 @@ document.getElementById('join').onclick = function() {
     }
 
     this.disabled = true;
-    rmcSignaler.joinSession(sessionid, function(sessionDescription) {
-        connection.channel = connection.sessionid = sessionDescription.sessionid;
-        connection.join(sessionDescription);
+    signaler.getRoomFromServer(sessionid, function(sessionid) {
+        connection.channel = connection.sessionid = sessionid;
+        connection.join({
+            sessionid: sessionid,
+            userid: sessionid,
+            extra: {},
+            session: connection.session
+        });
     });
 };
 

@@ -1411,7 +1411,7 @@ function SignalingHandler(connection, callbackForSignalingReady) {
             }
         }
 
-        if(connection.socket) {
+        if (connection.socket) {
             connection.socket.send(alertMessage);
         }
 

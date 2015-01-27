@@ -23,7 +23,7 @@ function MediaStreamRecorder(mediaStream) {
         // video recorder (in GIF format)
         if (this.mimeType === 'image/gif') Recorder = window.GifRecorder;
 
-        mediaRecorder = new Recorder(mediaStream, this.type);
+        mediaRecorder = new Recorder(mediaStream);
         mediaRecorder.ondataavailable = this.ondataavailable;
         mediaRecorder.onstop = this.onstop;
 
@@ -140,11 +140,11 @@ var ObjectStore = {
 * Also extract the encoded data and create blobs on every timeslice passed from start function or RequestData function called by UA.
 */
 
-function MediaRecorderWrapper(mediaStream, type) {
+function MediaRecorderWrapper(mediaStream) {
     // if user chosen only audio option; and he tried to pass MediaStream with
     // both audio and video tracks;
     // using a dirty workaround to generate audio-only stream so that we can get audio/ogg output.
-    if (type === 'audio' && mediaStream.getVideoTracks && mediaStream.getVideoTracks().length && !navigator.mozGetUserMedia) {
+    if (this.type == 'audio' && mediaStream.getVideoTracks && mediaStream.getVideoTracks().length && !navigator.mozGetUserMedia) {
         var context = new AudioContext();
         var mediaStreamSource = context.createMediaStreamSource(mediaStream);
 
@@ -487,8 +487,13 @@ function StereoAudioRecorder(mediaStream, root) {
 
 function WhammyRecorderHelper(mediaStream, root) {
     this.record = function(timeSlice) {
-        if (!this.width) this.width = video.offsetWidth || 320;
-        if (!this.height) this.height = video.offsetHeight || 240;
+        if (!this.width) this.width = 320;
+        if (!this.height) this.height = 240;
+
+        if (this.video && this.video instanceof HTMLVideoElement) {
+            if (!this.width) this.width = video.videoWidth || 320;
+            if (!this.height) this.height = video.videoHeight || 240;
+        }
 
         if (!this.video) {
             this.video = {
@@ -507,40 +512,57 @@ function WhammyRecorderHelper(mediaStream, root) {
         canvas.width = this.canvas.width;
         canvas.height = this.canvas.height;
 
-        video.width = this.video.width;
-        video.height = this.video.height;
+        // setting defaults
+        if (this.video && this.video instanceof HTMLVideoElement) {
+            video = this.video.cloneNode();
+        } else {
+            video = document.createElement('video');
+            video.src = URL.createObjectURL(mediaStream);
+
+            video.width = this.video.width;
+            video.height = this.video.height;
+        }
+
+        video.muted = true;
+        video.play();
+
+        lastTime = new Date().getTime();
+        whammy = new Whammy.Video();
+
+        console.log('canvas resolutions', canvas.width, '*', canvas.height);
+        console.log('video width/height', video.width || canvas.width, '*', video.height || canvas.height);
 
         drawFrames();
     };
-    
+
     var requestDataInvoked = false;
     this.requestData = function() {
-        if(!frames.length) {
+        if (!frames.length) {
             requestDataInvoked = false;
             return;
         }
-        
+
         requestDataInvoked = true;
         // clone stuff
         var internal_frames = frames.slice(0);
-        
+
         // reset the frames for the new recording
         frames = [];
-        
+
         whammy.frames = dropFirstFrame(internal_frames);
         var WebM_Blob = whammy.compile();
         root.ondataavailable(WebM_Blob);
-        
+
         requestDataInvoked = false;
     };
 
     var frames = [];
 
     function drawFrames() {
-        if(isStopDrawing) return;
-        
-        if(requestDataInvoked) return setTimeout(drawFrames, 100);
-        
+        if (isStopDrawing) return;
+
+        if (requestDataInvoked) return setTimeout(drawFrames, 100);
+
         var duration = new Date().getTime() - lastTime;
         if (!duration) return drawFrames();
 
@@ -566,16 +588,10 @@ function WhammyRecorderHelper(mediaStream, root) {
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
 
-    var video = document.createElement('video');
-    video.muted = true;
-    video.volume = 0;
-    video.autoplay = true;
-    video.src = URL.createObjectURL(mediaStream);
-    video.play();
+    var video;
+    var lastTime;
+    var whammy;
 
-    var lastTime = new Date().getTime();
-
-    var whammy = new Whammy.Video();
     var self = this;
 }
 
@@ -589,6 +605,12 @@ function WhammyRecorder(mediaStream) {
         timeSlice = timeSlice || 1000;
 
         mediaRecorder = new WhammyRecorderHelper(mediaStream, this);
+
+        for (var prop in this) {
+            if (typeof this[prop] !== 'function') {
+                mediaRecorder[prop] = this[prop];
+            }
+        }
 
         mediaRecorder.record();
 
@@ -604,13 +626,13 @@ function WhammyRecorder(mediaStream) {
         }
     };
 
-    this.ondataavailable = function() {
-    };
+    this.ondataavailable = function() {};
 
     // Reference to "WhammyRecorder" object
     var mediaRecorder;
     var timeout;
 }
+
 
 // Muaz Khan     - https://github.com/muaz-khan 
 // neizerth      - https://github.com/neizerth
@@ -1116,4 +1138,100 @@ function GifRecorder(mediaStream) {
 
     var gifEncoder;
     var timeout;
+}
+
+// ______________________
+// MultiStreamRecorder.js
+
+function MultiStreamRecorder(mediaStream) {
+    if (!mediaStream) throw 'MediaStream is mandatory.';
+
+    var self = this;
+    var isFirefox = !!navigator.mozGetUserMedia;
+
+    this.stream = mediaStream;
+
+    // void start(optional long timeSlice)
+    // timestamp to fire "ondataavailable"
+    this.start = function(timeSlice) {
+        audioRecorder = new MediaStreamRecorder(mediaStream);
+        videoRecorder = new MediaStreamRecorder(mediaStream);
+
+        audioRecorder.mimeType = 'audio/ogg';
+        videoRecorder.mimeType = 'video/webm';
+
+        for (var prop in this) {
+            if (typeof this[prop] !== 'function') {
+                audioRecorder[prop] = videoRecorder[prop] = this[prop];
+            }
+        }
+
+        audioRecorder.ondataavailable = function(blob) {
+            if (!audioVideoBlobs[recordingInterval]) {
+                audioVideoBlobs[recordingInterval] = {};
+            }
+
+            audioVideoBlobs[recordingInterval].audio = blob;
+
+            if (audioVideoBlobs[recordingInterval].video && !audioVideoBlobs[recordingInterval].posted) {
+                audioVideoBlobs[recordingInterval].posted = true;
+                postToServer(audioVideoBlobs[recordingInterval]);
+            }
+        };
+
+        videoRecorder.ondataavailable = function(blob) {
+            if (isFirefox) {
+                return self.ondataavailable({
+                    video: blob,
+                    audio: blob
+                });
+            }
+
+            if (!audioVideoBlobs[recordingInterval]) {
+                audioVideoBlobs[recordingInterval] = {};
+            }
+
+            audioVideoBlobs[recordingInterval].video = blob;
+
+            if (audioVideoBlobs[recordingInterval].audio && !audioVideoBlobs[recordingInterval].posted) {
+                audioVideoBlobs[recordingInterval].posted = true;
+                postToServer(audioVideoBlobs[recordingInterval]);
+            }
+        };
+
+        function postToServer(blobs) {
+            recordingInterval++;
+
+            self.ondataavailable(blobs);
+        }
+
+        videoRecorder.onstop = audioRecorder.onstop = function(error) {
+            self.onstop(error);
+        };
+
+        if (!isFirefox) {
+            audioRecorder.start(timeSlice);
+        }
+
+        videoRecorder.start(timeSlice);
+    };
+
+    this.stop = function() {
+        if (audioRecorder) audioRecorder.stop();
+        if (videoRecorder) videoRecorder.stop();
+    };
+
+    this.ondataavailable = function(blob) {
+        console.log('ondataavailable..', blob);
+    };
+
+    this.onstop = function(error) {
+        console.warn('stopped..', error);
+    };
+
+    var audioRecorder;
+    var videoRecorder;
+
+    var audioVideoBlobs = {};
+    var recordingInterval = 0;
 }

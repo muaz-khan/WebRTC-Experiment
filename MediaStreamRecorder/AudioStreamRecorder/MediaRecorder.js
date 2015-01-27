@@ -12,11 +12,11 @@
 * Also extract the encoded data and create blobs on every timeslice passed from start function or RequestData function called by UA.
 */
 
-function MediaRecorderWrapper(mediaStream, type) {
+function MediaRecorderWrapper(mediaStream) {
     // if user chosen only audio option; and he tried to pass MediaStream with
     // both audio and video tracks;
     // using a dirty workaround to generate audio-only stream so that we can get audio/ogg output.
-    if (type === 'audio' && mediaStream.getVideoTracks && mediaStream.getVideoTracks().length && !navigator.mozGetUserMedia) {
+    if (this.type == 'audio' && mediaStream.getVideoTracks && mediaStream.getVideoTracks().length && !navigator.mozGetUserMedia) {
         var context = new AudioContext();
         var mediaStreamSource = context.createMediaStreamSource(mediaStream);
 

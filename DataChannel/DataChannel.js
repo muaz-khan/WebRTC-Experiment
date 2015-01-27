@@ -149,12 +149,13 @@
                     }
 
                     self.onclose(event);
-                }
+                },
+                openSignalingChannel: self.openSignalingChannel
             };
 
             dataConnector = IsDataChannelSupported ?
-            new DataConnector(self, self.config) :
-            new SocketConnector(self.channel, self.config);
+                new DataConnector(self, self.config) :
+                new SocketConnector(self.channel, self.config);
 
             fileReceiver = new FileReceiver(self);
             textReceiver = new TextReceiver(self);
@@ -185,6 +186,12 @@
         this.join = function (room) {
             if (!room.id || !room.owner) {
                 throw 'Invalid room info passed.';
+            }
+            
+            if(!dataConnector) init();
+            
+            if(!dataConnector.joinRoom) {
+                return;
             }
 
             dataConnector.joinRoom({
@@ -621,15 +628,18 @@
     }
 
     function SocketConnector(_channel, config) {
-        var channel = config.openSocket({
+        var socket = config.openSignalingChannel({
             channel: _channel,
             onopen: config.onopen,
-            onmessage: config.onmessage
+            onmessage: config.onmessage,
+            callback: function(_socket) {
+                socket = _socket;
+            }
         });
 
         return {
             send: function (message) {
-                channel && channel.send({
+                socket && socket.send({
                     userid: userid,
                     message: message
                 });
@@ -646,7 +656,11 @@
     var isMobileDevice = navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
     var isChrome = !!navigator.webkitGetUserMedia;
     var isFirefox = !!navigator.mozGetUserMedia;
-    var chromeVersion = !!navigator.mozGetUserMedia ? 0 : parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]);
+    
+    var chromeVersion = 50;
+    if(isChrome) {
+        chromeVersion = !!navigator.mozGetUserMedia ? 0 : parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]);
+    }
 
     var FileSender = {
         send: function (config) {

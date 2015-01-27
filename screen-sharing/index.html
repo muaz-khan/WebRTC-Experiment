@@ -135,9 +135,9 @@
                 var videosContainer = document.getElementById("videos-container") || document.body;
                 var roomsList = document.getElementById('rooms-list');
                 
-                var screen = new Screen();
+                var screensharing = new Screen();
                 
-                screen.onscreen = function(_screen) {
+                screensharing.onscreen = function(_screen) {
                     var alreadyExist = document.getElementById(_screen.userid);
                     if (alreadyExist) return;
 
@@ -161,12 +161,12 @@
                             userid: button.getAttribute('data-userid'),
                             roomid: button.getAttribute('data-roomid')
                         };
-                        screen.view(_screen);
+                        screensharing.view(_screen);
                     };
                 };
 
                 // on getting each new screen
-                screen.onaddstream = function(media) {
+                screensharing.onaddstream = function(media) {
                     media.video.id = media.userid;
                     
                     var video = media.video;
@@ -180,16 +180,16 @@
                 // screen.firebase = 'signaling';
 
                 // if someone leaves; just remove his screen
-                screen.onuserleft = function(userid) {
+                screensharing.onuserleft = function(userid) {
                     var video = document.getElementById(userid);
                     if (video && video.parentNode) video.parentNode.removeChild(video);
                 };
 
                 // check pre-shared screens
-                screen.check();
+                screensharing.check();
 
                 document.getElementById('share-screen').onclick = function() {
-                    screen.share();
+                    screensharing.share();
                     this.disabled = true;
                 };
                 
@@ -197,10 +197,10 @@
                     var username = document.getElementById('user-name');
                     username.disabled = this.disabled = true;
                     
-                    screen.isModerator = true;
-                    screen.userid = username.value;
+                    screensharing.isModerator = true;
+                    screensharing.userid = username.value;
                     
-                    screen.share();
+                    screensharing.share();
                 };
                 
                 function rotateVideo(video) {
@@ -217,8 +217,8 @@
                         else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
                 })();
                 
-                screen.onNumberOfParticipantsChnaged = function(numberOfParticipants) {
-                    if(!screen.isModerator) return;
+                screensharing.onNumberOfParticipantsChnaged = function(numberOfParticipants) {
+                    if(!screensharing.isModerator) return;
                     
                     document.title = numberOfParticipants + ' users are viewing your screen!';
                     var element = document.getElementById('number-of-participants');

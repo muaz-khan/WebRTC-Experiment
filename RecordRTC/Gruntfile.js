@@ -70,7 +70,7 @@ module.exports = function(grunt) {
         },
         jsbeautifier: {
             files: [
-                'RecordRTC.js',
+                // 'RecordRTC.js',
                 'dev/*.js',
                 'Gruntfile.js',
                 './Canvas-Recording/*.html',

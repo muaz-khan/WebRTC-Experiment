@@ -3,8 +3,13 @@
 
 function WhammyRecorderHelper(mediaStream, root) {
     this.record = function(timeSlice) {
-        if (!this.width) this.width = video.offsetWidth || 320;
-        if (!this.height) this.height = video.offsetHeight || 240;
+        if (!this.width) this.width = 320;
+        if (!this.height) this.height = 240;
+
+        if (this.video && this.video instanceof HTMLVideoElement) {
+            if (!this.width) this.width = video.videoWidth || 320;
+            if (!this.height) this.height = video.videoHeight || 240;
+        }
 
         if (!this.video) {
             this.video = {
@@ -23,40 +28,57 @@ function WhammyRecorderHelper(mediaStream, root) {
         canvas.width = this.canvas.width;
         canvas.height = this.canvas.height;
 
-        video.width = this.video.width;
-        video.height = this.video.height;
+        // setting defaults
+        if (this.video && this.video instanceof HTMLVideoElement) {
+            video = this.video.cloneNode();
+        } else {
+            video = document.createElement('video');
+            video.src = URL.createObjectURL(mediaStream);
+
+            video.width = this.video.width;
+            video.height = this.video.height;
+        }
+
+        video.muted = true;
+        video.play();
+
+        lastTime = new Date().getTime();
+        whammy = new Whammy.Video();
+
+        console.log('canvas resolutions', canvas.width, '*', canvas.height);
+        console.log('video width/height', video.width || canvas.width, '*', video.height || canvas.height);
 
         drawFrames();
     };
-    
+
     var requestDataInvoked = false;
     this.requestData = function() {
-        if(!frames.length) {
+        if (!frames.length) {
             requestDataInvoked = false;
             return;
         }
-        
+
         requestDataInvoked = true;
         // clone stuff
         var internal_frames = frames.slice(0);
-        
+
         // reset the frames for the new recording
         frames = [];
-        
+
         whammy.frames = dropFirstFrame(internal_frames);
         var WebM_Blob = whammy.compile();
         root.ondataavailable(WebM_Blob);
-        
+
         requestDataInvoked = false;
     };
 
     var frames = [];
 
     function drawFrames() {
-        if(isStopDrawing) return;
-        
-        if(requestDataInvoked) return setTimeout(drawFrames, 100);
-        
+        if (isStopDrawing) return;
+
+        if (requestDataInvoked) return setTimeout(drawFrames, 100);
+
         var duration = new Date().getTime() - lastTime;
         if (!duration) return drawFrames();
 
@@ -82,15 +104,9 @@ function WhammyRecorderHelper(mediaStream, root) {
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
 
-    var video = document.createElement('video');
-    video.muted = true;
-    video.volume = 0;
-    video.autoplay = true;
-    video.src = URL.createObjectURL(mediaStream);
-    video.play();
+    var video;
+    var lastTime;
+    var whammy;
 
-    var lastTime = new Date().getTime();
-
-    var whammy = new Whammy.Video();
     var self = this;
 }

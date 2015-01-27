@@ -1,0 +1,140 @@
+<hr>
+/room-id/<input type="text" id="room-id" placeholder="room-id" style="width: 100px;">/
+<button id="open">Open</button>
+<button id="join">Join</button>
+<hr>
+<div id="videos-container"></div>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/reliable-signaler/signaler.js"></script>
+<script src="/conference.js"></script>
+<script src="/RTCPeerConnection-v1.5.js"></script>
+
+<script>
+// https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
+
+var videosContainer = document.getElementById('videos-container');
+
+var conferenceArgument = {
+    onRemoteStream: function(media) {
+        videosContainer.insertBefore(media.video, videosContainer.firstChild);
+    },
+    onRemoteStreamEnded: function(stream, video) {
+        if (video.parentNode) {
+            video.parentNode.removeChild(video);
+        }
+    },
+    onRoomFound: function(room) {}
+};
+
+
+
+// using reliable-signaler
+var signaler = initReliableSignaler(conferenceArgument, '/');
+conferenceArgument.openSocket = conferenceArgument.openSignalingChannel;
+
+var conferenceUI = conference(conferenceArgument);
+
+document.getElementById('open').onclick = function() {
+    var roomid = document.getElementById('room-id').value;
+    if (roomid.replace(/^\s+|\s+$/g, '').length <= 0) {
+        alert('Please enter room-id');
+        document.getElementById('room-id').focus();
+        return;
+    }
+
+    signaler.createNewRoomOnServer(roomid, function() {
+        document.getElementById('open').disabled = true;
+
+        captureUserMedia(function() {
+            conferenceUI.createRoom({
+                roomToken: roomid,
+                userToken: roomid,
+                transmitRoomOnce: true
+            });
+        }, function() {});
+    });
+};
+
+document.getElementById('join').onclick = function() {
+    var roomid = document.getElementById('room-id').value;
+    if (roomid.replace(/^\s+|\s+$/g, '').length <= 0) {
+        alert('Please enter room-id');
+        document.getElementById('room-id').focus();
+        return;
+    }
+
+    this.disabled = true;
+    signaler.getRoomFromServer(roomid, function(roomid) {
+        // setting 'roomToken' and 'broadcaster' and joining
+        captureUserMedia(function() {
+            conferenceUI.joinRoom({
+                roomToken: roomid,
+                joinUser: roomid
+            });
+        }, function() {
+
+        });
+    });
+};
+
+function captureUserMedia(callback, failure_callback) {
+    var video = document.createElement('video');
+
+    getUserMedia({
+        video: video,
+        onsuccess: function(stream) {
+            conferenceArgument.attachStream = stream;
+            callback && callback();
+            video.setAttribute('muted', true);
+            videosContainer.insertBefore(video, videosContainer.firstChild);
+        },
+        onerror: function() {
+            alert('unable to get access to your webcam');
+            callback && callback();
+        }
+    });
+}
+
+function rotateVideo(video) {
+    video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
+    setTimeout(function() {
+        video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
+    }, 1000);
+}
+
+function scaleVideos() {
+    var videos = document.querySelectorAll('video'),
+        length = videos.length,
+        video;
+
+    var minus = 130;
+    var windowHeight = 700;
+    var windowWidth = 600;
+    var windowAspectRatio = windowWidth / windowHeight;
+    var videoAspectRatio = 4 / 3;
+    var blockAspectRatio;
+    var tempVideoWidth = 0;
+    var maxVideoWidth = 0;
+
+    for (var i = length; i > 0; i--) {
+        blockAspectRatio = i * videoAspectRatio / Math.ceil(length / i);
+        if (blockAspectRatio <= windowAspectRatio) {
+            tempVideoWidth = videoAspectRatio * windowHeight / Math.ceil(length / i);
+        } else {
+            tempVideoWidth = windowWidth / i;
+        }
+        if (tempVideoWidth > maxVideoWidth)
+            maxVideoWidth = tempVideoWidth;
+    }
+    for (var i = 0; i < length; i++) {
+        video = videos[i];
+        if (video)
+            video.width = maxVideoWidth - minus;
+    }
+}
+
+window.onresize = scaleVideos;
+</script>

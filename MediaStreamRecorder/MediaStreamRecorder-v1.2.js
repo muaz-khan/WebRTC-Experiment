@@ -23,7 +23,7 @@ function MediaStreamRecorder(mediaStream) {
         // video recorder (in GIF format)
         if (this.mimeType === 'image/gif') Recorder = window.GifRecorder;
 
-        mediaRecorder = new Recorder(mediaStream, this.type);
+        mediaRecorder = new Recorder(mediaStream);
         mediaRecorder.ondataavailable = this.ondataavailable;
         mediaRecorder.onstop = this.onstop;
 
@@ -107,6 +107,10 @@ if (!scriptTag.getAttribute('data-manual')) {
             // these files are used to support gif-recording in both chrome & firefox
             loadScript('VideoStreamRecorder/GifRecorder.js');
             loadScript('VideoStreamRecorder/lib/gif-encoder.js');
+        }
+        
+        if(script == 'multistreamrecorder') {
+            loadScript('MultiStreamRecorder.js');
         }
     });
 }

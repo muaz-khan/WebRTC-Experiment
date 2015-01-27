@@ -1,7 +1,7 @@
 {
   "name": "msr",
   "preferGlobal": true,
-  "version": "1.2.2",
+  "version": "1.2.4",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -44,7 +44,12 @@
     "webrtc-experiment",
     "javascript-library",
     "muaz",
-    "muaz-khan"
+    "muaz-khan",
+    "stereorecorder",
+    "mediarecorder",
+    "whammyrecorder",
+    "gifrecorder",
+    "multistreamrecorder"
   ],
   "analyze": false,
   "license": "MIT",

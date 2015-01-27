@@ -1,200 +1,407 @@
-﻿<!DOCTYPE html>
-<html id="home" lang="en">
+﻿<title>WebRTC Desktop Viewer ® Muaz Khan</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
 
-    <head>
-        <title>WebRTC Desktop Viewer ® Muaz Khan</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-        <meta name="author" content="Muaz Khan">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
-        <style>video {max-width: 100%;}</style>
-        <script src="//cdn.webrtc-experiment.com/RTCMultiConnection-v2.1.9.js"> </script>
-    </head>
+<meta name="description" content="AppRTC like RTCMultiConnection demo where styles and layout is taken from AppRTC demo." />
+<meta name="keywords" content="AppRTC,RTCMultiConnection,AppRTC-Look,WebRTC" />
 
-    <body>
-        <article>
-            <header style="text-align: center;">
-                <h1>
-                    <a href="https://github.com/muaz-khan/Chrome-Extensions">WebRTC Desktop Viewer</a>
-                </h1>
-                <p>
-                    <a href="https://www.webrtc-experiment.com/">HOME</a>
-                    <span> &copy; </span>
-                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
-                    
-                    .
-                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
-                    
-                    .
-                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
-                    
-                    .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
-                    
-                    .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
-                </p>
-            </header>
-            
-            <div class="github-stargazers"></div>
-            
-            <blockquote class="inline">
-                If URL is having "sessionid" parameters, it means that 
-                a private unique room has been opened for you.<br><br>
-                
-                This page will be joining that unique room.<br>
-                You can <a href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg">Install Chrome Extension</a>! It will allow you share your own screens as well!
-            </blockquote>
-		
-            <div class="experiment" id="participants"></div>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+<meta name="author" content="Muaz Khan">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-            <script>
-                (function () {
-                    var params = {},
-                        r = /([^&=]+)=?([^&]*)/g;
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection-v2.1.9.js"> </script>
 
-                    function d(s) {
-                        return decodeURIComponent(s.replace(/\+/g, ' '));
-                    }
+<style>
+body,
+html {
+    background: black;
+    text-align: center;
+    color: white;
+    overflow: hidden;
+}
+.local-media,
+.remote-media {
+    max-width: 100%;
+    max-height: 70%;
+}
+.local-media-small,
+.remote-media-small {
+    width: 20%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+button {
+    display: inline-block;
+    outline: 0;
+    color: white;
+    background: #4472b9;
+    white-space: nowrap;
+    border: 5px solid #4472b9 !important;
+    font-family: 'Gotham Rounded A', 'Gotham Rounded B', sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    padding: 9px 16px !important;
+    line-height: 1.4;
+    position: relative;
+    border-radius: 10px;
+    -webkit-box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.15);
+    -webkit-transition: 0.1s;
+    transition: 0.1s;
+}
+button:hover,
+button:active,
+button:focus {
+    background: #04C;
+}
+button[disabled] {
+    background: transparent;
+    border-color: rgb(83, 81, 81);
+    color: rgb(139, 133, 133);
+}
+#container {
+    -webkit-perspective: 1000;
+    background-color: #000000;
+    height: 100%;
+    margin: 0px auto;
+    position: absolute;
+    width: 100%;
+}
+#card {
+    -webkit-transform-style: preserve-3d;
+    -webkit-transition-duration: 2s;
+    -webkit-transition-property: rotation;
+}
+#local {
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: scale(-1, 1);
+    position: absolute;
+    width: 100%;
+}
+#remote {
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: rotateY(180deg);
+    position: absolute;
+    width: 100%;
+}
+#mini {
+    /* -webkit-transform: scale(-1, 1); */
+    
+    bottom: 0;
+    height: 30%;
+    opacity: 1.0;
+    position: absolute;
+    right: 4px;
+    width: 30%;
+}
+#remoteVideo {
+    -webkit-transition-duration: 2s;
+    -webkit-transition-property: opacity;
+    height: 100%;
+    opacity: 0;
+    width: 100%;
+}
+#info-bar {
+    background-color: #15DBFF;
+    bottom: 55%;
+    color: rgb(255, 255, 255);
+    font-size: 25px;
+    font-weight: bold;
+    height: 38px;
+    line-height: 38px;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    text-shadow: 1px 1px rgb(14, 105, 137);
+    border: 2px solid rgb(47, 102, 118);
+    box-shadow: 0 0 6px white;
+}
+</style>
 
-                    var match, search = window.location.search;
-                    while (match = r.exec(search.substring(1)))
-                        params[d(match[1])] = d(match[2]);
+<div id="container" ondblclick="enterFullScreen()">
+    <div id="card">
+        <div id="remote">
+            <video id="remoteVideo" autoplay="autoplay"></video>
+        </div>
+    </div>
+    
+    <div id="info-bar"></div>
+</div>
 
-                    window.params = params;
-                })();
-                
-                // http://www.rtcmulticonnection.org/docs/constructor/
-                var connection = new RTCMultiConnection(params.sessionid);
+<script>
+(function() {
+    var params = {},
+        r = /([^&=]+)=?([^&]*)/g;
 
-                // chrome extension API fails if b=AS in the sdp
-                // http://www.rtcmulticonnection.org/docs/bandwidth/
-                connection.bandwidth = {};
-                
-                var ol = document.createElement('ol');
-                document.getElementById('participants').appendChild(ol);
-                // http://www.rtcmulticonnection.org/docs/onstatechange/
-                connection.onstatechange = function (stat) {
-                    var li = document.createElement('li');
-                    li.innerHTML = '<h2>' + stat.name + '</h2><p>' + stat.reason + '</p>';
-                    ol.insertBefore(li, ol.firstChild);
-                };
-                
-                connection.ondisconnected = function(event) {
-                    var li = document.createElement('li');
-                    li.innerHTML = '<h2>Peer Connection Disconnected</h2><p>Peer connection seems has been disconnected between you and ' + event.userid + '</p>';
-                    ol.insertBefore(li, ol.firstChild);
-                };
-                
-                var defaultOnFailed = connection.onfailed;
-                connection.onfailed = function(event) {
-                    var li = document.createElement('li');
-                    li.innerHTML = '<h2>Peer Connection Disconnected</h2><p>ICE connectivity check is failed between you and ' + event.userid + '</p>';
-                    ol.insertBefore(li, ol.firstChild);
-                    
-                    // default implementation auto redials or renegotiates
-                    defaultOnFailed(event);
-                };
-                
-                var logsOL = document.createElement('ol');
-                document.getElementById('participants').appendChild(logsOL);
-                // http://www.rtcmulticonnection.org/docs/#onlog
-                connection.onlog = function (log) {
-                    var li = document.createElement('li');
-                    
-                    // to handle messages like "Uncaught TypeError: Converting circular structure to JSON"
-                    try {
-                        log = JSON.stringify(log, null, '\r\r').replace(/\\r\\n/g, '<br />');
-                    }
-                    catch(e) {}
-                    
-                    li.innerHTML = log;
-                    logsOL.insertBefore(li, logsOL.firstChild);
-                };
+    function d(s) {
+        return decodeURIComponent(s.replace(/\+/g, ' '));
+    }
 
-                // using websockets as signaling medium
-                // http://www.rtcmulticonnection.org/docs/openSignalingChannel/
-                connection.openSignalingChannel = openSignalingChannel;
+    var match, search = window.location.search;
+    while (match = r.exec(search.substring(1)))
+        params[d(match[1])] = d(match[2]);
 
-                // on successfully getting shared desktop
-                var participants = document.getElementById('participants');
-                
-                // http://www.rtcmulticonnection.org/docs/onstream/
-                connection.onstream = function (e) {
-                    participants.insertBefore(e.mediaElement, participants.firstChild);
-                };
-                
-                var sessionDescription = {
-                    userid: params.sessionid,
-                    extra: {},
-                    session: {
-                        video: true,
-                        oneway: true
-                    },
-                    sessionid: params.sessionid
-                };
-                
-                if(params.sessionid) {
-                    // http://www.rtcmulticonnection.org/docs/join/
-                    connection.join(sessionDescription);
+    window.params = params;
+})();
+
+// using websockets for signaling
+function openSignalingChannel(config) {
+    config.channel = config.channel || this.channel;
+    var websocket = new WebSocket('wss://wsnodejs.nodejitsu.com:443');
+    // var websocket = new WebSocket('ws://localhost:8888');
+    websocket.onopen = function() {
+        websocket.push(JSON.stringify({
+            open: true,
+            channel: config.channel
+        }));
+        if (config.callback) config.callback(websocket);
+    };
+    websocket.onerror = function() {
+        location.reload();
+    };
+    websocket.onmessage = function(event) {
+        config.onmessage(JSON.parse(event.data));
+    };
+    websocket.push = websocket.send;
+    websocket.send = function(data) {
+        websocket.push(JSON.stringify({
+            data: data,
+            channel: config.channel
+        }));
+    };
+}
+
+function setBandwidth(connection) {
+    // www.RTCMultiConnection.org/docs/bandwidth/
+    connection.bandwidth = {
+        screen: 300 // 300kbps
+    };
+
+    connection.processSdp = function(sdp) {
+        sdp = setSendBandwidth(sdp);
+        return sdp;
+    };
+
+    function setSendBandwidth(sdp) {
+        var sdpLines = sdp.split('\r\n');
+
+        // VP8
+        var vp8Index = findLine(sdpLines, 'a=rtpmap', 'VP8/90000');
+        var vp8Payload;
+        if (vp8Index) {
+            vp8Payload = getCodecPayloadType(sdpLines[vp8Index]);
+        }
+
+        var rtxIndex = findLine(sdpLines, 'a=rtpmap', 'rtx/90000');
+        var rtxPayload;
+        if (rtxIndex) {
+            rtxPayload = getCodecPayloadType(sdpLines[rtxIndex]);
+        }
+
+        var rtxFmtpLineIndex = findLine(sdpLines, 'a=fmtp:' + rtxPayload.toString());
+        if (rtxFmtpLineIndex !== null) {
+            var appendrtxNext = '\r\n';
+            appendrtxNext += 'a=fmtp:' + vp8Payload + ' x-google-min-bitrate=300; x-google-max-bitrate=300';
+            sdpLines[rtxFmtpLineIndex] = sdpLines[rtxFmtpLineIndex].concat(appendrtxNext);
+            sdp = sdpLines.join('\r\n');
+        }
+        return sdp;
+    }
+
+    function findLine(sdpLines, prefix, substr) {
+        return findLineInRange(sdpLines, 0, -1, prefix, substr);
+    }
+
+    function findLineInRange(sdpLines, startLine, endLine, prefix, substr) {
+        var realEndLine = endLine !== -1 ? endLine : sdpLines.length;
+        for (var i = startLine; i < realEndLine; ++i) {
+            if (sdpLines[i].indexOf(prefix) === 0) {
+                if (!substr ||
+                    sdpLines[i].toLowerCase().indexOf(substr.toLowerCase()) !== -1) {
+                    return i;
                 }
+            }
+        }
+        return null;
+    }
 
-                // using websockets for signaling
-                function openSignalingChannel(config) {
-                    config.channel = config.channel || this.channel;
-                    var websocket = new WebSocket('wss://wsnodejs.nodejitsu.com:443');
-                    websocket.onopen = function () {
-                        websocket.push(JSON.stringify({
-                            open: true,
-                            channel: config.channel
-                        }));
-                        if (config.callback) config.callback(websocket);
-                    };
-                    websocket.onerror = function() {
-                        location.reload();
-                    };
-                    websocket.onmessage = function (event) {
-                        config.onmessage(JSON.parse(event.data));
-                    };
-                    websocket.push = websocket.send;
-                    websocket.send = function (data) {
-                        websocket.push(JSON.stringify({
-                            data: data,
-                            channel: config.channel
-                        }));
-                    };
-                }
-            </script>
-            
-            <br /><br />
-            <section style="border: 1px solid rgb(189, 189, 189); margin: 1em 3em; border-radius: .2em;">
-                <h2 id="feedback" style="padding: .2em .4em; border-bottom: 1px solid rgb(189, 189, 189);">Feedback</h2>
-                <div>
-                    <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button>
-            </section>
-            
-            <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-                <div id="github-commits"></div>
-            </section>
-        </article>
-        
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/desktop-sharing" class="fork-left"></a>
-        
-        <footer>
-            <p>
-                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
-                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
-                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
-            </p>
-        </footer>
-        
-        <!-- commits.js is useless for you! -->
-        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
-    </body>
-</html>
+    function getCodecPayloadType(sdpLine) {
+        var pattern = new RegExp('a=rtpmap:(\\d+) \\w+\\/\\d+');
+        var result = sdpLine.match(pattern);
+        return (result && result.length === 2) ? result[1] : null;
+    }
+}
+
+// http://www.rtcmulticonnection.org/docs/constructor/
+var connection = new RTCMultiConnection(params.sessionid);
+
+setBandwidth(connection);
+
+connection.optionalArgument = {
+    optional: [{
+        DtlsSrtpKeyAgreement: true
+    }, {
+        googImprovedWifiBwe: true
+    }, {
+        googScreencastMinBitrate: 300
+    }, {
+        googIPv6: true
+    }, {
+        googDscp: true
+    }, {
+        googCpuUnderuseThreshold: 55
+    }, {
+        googCpuOveruseThreshold: 85
+    }, {
+        googSuspendBelowMinBitrate: true
+    }, {
+        googCpuOveruseDetection: true
+    }],
+    mandatory: {}
+};
+
+connection.ondisconnected = function(event) {
+    infoBar.innerHTML = 'Screen sharing has been closed.';
+    infoBar.style.display = 'block';
+    location.reload();
+};
+
+// using websockets as signaling medium
+// http://www.rtcmulticonnection.org/docs/openSignalingChannel/
+connection.openSignalingChannel = openSignalingChannel;
+</script>
+
+<script>
+// DOM objects
+var remoteVideo = document.getElementById('remoteVideo');
+var card = document.getElementById('card');
+var containerDiv;
+
+if (navigator.mozGetUserMedia) {
+    attachMediaStream = function(element, stream) {
+        console.log("Attaching media stream");
+        element.mozSrcObject = stream;
+        element.play();
+    };
+    reattachMediaStream = function(to, from) {
+        console.log("Reattaching media stream");
+        to.mozSrcObject = from.mozSrcObject;
+        to.play();
+    };
+} else if (navigator.webkitGetUserMedia) {
+    attachMediaStream = function(element, stream) {
+        if (typeof element.srcObject !== 'undefined') {
+            element.srcObject = stream;
+        } else if (typeof element.mozSrcObject !== 'undefined') {
+            element.mozSrcObject = stream;
+        } else if (typeof element.src !== 'undefined') {
+            element.src = URL.createObjectURL(stream);
+        } else {
+            console.log('Error attaching stream to element.');
+        }
+    };
+    reattachMediaStream = function(to, from) {
+        to.src = from.src;
+    };
+} else {
+    console.log("Browser does not appear to be WebRTC-capable");
+}
+// onstream event; fired both for local and remote videos
+
+var infoBar = document.getElementById('info-bar');
+
+connection.onstatechange = function(state) {
+    infoBar.innerHTML = state.name + ': ' + state.reason;
+};
+
+connection.onstreamid = function(event) {
+    infoBar.innerHTML = 'Remote peer is about to send his screen.';
+};
+
+connection.onstream = function(e) {
+    if (e.type == 'remote') {
+        infoBar.style.display = 'none';
+        remoteStream = e.stream;
+        attachMediaStream(remoteVideo, e.stream);
+        waitForRemoteVideo();
+        remoteVideo.setAttribute('data-id', e.userid);
+    }
+};
+// if user left
+connection.onleave = function(e) {
+    transitionToWaiting();
+};
+
+connection.onSessionClosed = function() {
+    infoBar.innerHTML = 'Screen sharing has been closed.';
+    infoBar.style.display = 'block';
+};
+
+connection.onstreamended = function() {};
+
+function waitForRemoteVideo() {
+    // Call the getVideoTracks method via adapter.js.
+    var videoTracks = remoteStream.getVideoTracks();
+    if (videoTracks.length === 0 || remoteVideo.currentTime > 0) {
+        transitionToActive();
+    } else {
+        setTimeout(waitForRemoteVideo, 100);
+    }
+}
+
+function transitionToActive() {
+    remoteVideo.style.opacity = 1;
+    card.style.webkitTransform = 'rotateY(180deg)';
+    window.onresize();
+}
+
+function transitionToWaiting() {
+        card.style.webkitTransform = 'rotateY(0deg)';
+        remoteVideo.style.opacity = 0;
+    }
+    // Set the video displaying in the center of window.
+window.onresize = function() {
+    var aspectRatio;
+    if (remoteVideo.style.opacity === '1') {
+        aspectRatio = remoteVideo.videoWidth / remoteVideo.videoHeight;
+    } else {
+        return;
+    }
+    var innerHeight = this.innerHeight;
+    var innerWidth = this.innerWidth;
+    var videoWidth = innerWidth < aspectRatio * window.innerHeight ?
+        innerWidth : aspectRatio * window.innerHeight;
+    var videoHeight = innerHeight < window.innerWidth / aspectRatio ?
+        innerHeight : window.innerWidth / aspectRatio;
+    containerDiv = document.getElementById('container');
+    containerDiv.style.width = videoWidth + 'px';
+    containerDiv.style.height = videoHeight + 'px';
+    containerDiv.style.left = (innerWidth - videoWidth) / 2 + 'px';
+    containerDiv.style.top = (innerHeight - videoHeight) / 2 + 'px';
+};
+
+function enterFullScreen() {
+    container.webkitRequestFullScreen();
+}
+</script>
+
+<script>
+var sessionDescription = {
+    userid: params.sessionid,
+    extra: {},
+    session: {
+        video: true,
+        oneway: true
+    },
+    sessionid: params.sessionid
+};
+
+if (params.sessionid) {
+    infoBar.innerHTML = 'Joining session: ' + params.sessionid;
+    
+    // http://www.rtcmulticonnection.org/docs/join/
+    connection.join(sessionDescription);
+}
+</script>

@@ -1,4 +1,4 @@
-// Last time updated at Dec 14, 2014, 08:32:23
+// Last time updated at Jan 21, 2015, 08:32:23
 
 // links:
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
@@ -11,6 +11,7 @@
 // updates?
 /*
 -. Fixed echo.
+-. If MediaStream is suddenly stopped in Firefox.
 -. Added "disableLogs"         - RecordRTC(stream, { disableLogs: true });
 -. You can pass "bufferSize:0" - RecordRTC(stream, { bufferSize: 0 });
 -. You can set "leftChannel"   - RecordRTC(stream, { leftChannel: true });

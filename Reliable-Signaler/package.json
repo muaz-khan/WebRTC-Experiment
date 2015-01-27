@@ -1,13 +1,13 @@
 {
   "name": "reliable-signaler",
   "preferGlobal": true,
-  "version": "1.0.0",
+  "version": "1.0.2",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
     "url": "http://www.muazkhan.com/"
   },
-  "description": "Reliable signaling implementation for RTCMultiConnectiion and WebRTC Experiments.",
+  "description": "Reliable signaling implementation for RTCMultiConnection.js, DataChannel.js and WebRTC Experiments.",
   "scripts": {
     "start": "node index.js"
   },
@@ -31,7 +31,7 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "bugs": {
-    "url": "https://github.com/muaz-khan/Reliable-Signaler/wiki",
+    "url": "https://github.com/muaz-khan/Reliable-Signaler/issues",
     "email": "muazkh@gmail.com"
   },
   "homepage": "https://github.com/muaz-khan/WebRTC-Experiment",

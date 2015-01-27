@@ -37,7 +37,7 @@ textarea::-webkit-scrollbar-corner {
     text-shadow: none;
 }
 /*-------------------------------------------------------------*/
-html, body, footer, input, textarea, h1, h2 {
+html, body, input, textarea, h1, h2 {
     margin: 0;
     padding: 0;
 
@@ -60,27 +60,9 @@ html, body {
     height:100%;
     cursor: default;
     color:  Gray;
+    overflow: hidden;
 }
 /*-------------------------------------------------------------*/
-footer
-{
-    border-top: 1px solid #E5E5E5;
-    text-align: center;
-}
-/*-------------------------------------------------------------*/
-h1
-{
-    border-bottom: 1px solid #E5E5E5;
-    text-align: center;
-    text-shadow: 1px 1px #E5E5E5, 2px 2px white, 3px 3px #E5E5E5;
-    color: #6c96c8;
-    font-size: 400%;
-    font-weight: normal;
-    padding-bottom: 10px;
-
-    overflow:hidden;
-    height: 62px;
-}
 
 h1, .line-width-done, .colors-done, .additional-close
 {
@@ -120,7 +102,7 @@ a:hover {
 {
     border-right: 1px solid #E5E5E5;
     position: absolute;
-    top: 73px;
+    top: 0;
     width: 40px;
     background-color: #FBFBFB;
     overflow: hidden;
@@ -146,11 +128,11 @@ a:hover {
     position: absolute;
     right: 10px;
     background-color: #FBFBFB;
+    bottom: 0;
 }
 .preview-panel div
 {
     border: 1px solid #E5E5E5;
-    border-top: 0;
     display: inline-block;
     padding: 5px 10px;
 }
@@ -161,16 +143,12 @@ a:hover {
 .preview-panel div
 {
     border: 1px solid #E5E5E5;
-    border-top-color: white;
 }
-.preview-panel div:not(.preview-selected)
-{
-    border-top: 1px solid #E5E5E5;
+.preview-panel div:not(.preview-selected) {
 }
 .preview-panel div
 {
     border: 1px solid rgb(9, 159, 243);
-    border-top-color: #fff;
 }
 
 .preview-selected {
@@ -228,7 +206,7 @@ input:focus {
 .code-container
 {
     position: absolute;
-    top: 72px;
+    top: 0;
     width: 100%;
     display: none;
 }
@@ -248,7 +226,7 @@ input:focus {
 .options-container
 {
     position: absolute;
-    top: 72px;
+    top: 0;
     left: 0;
     border: 1px solid #E5E5E5;
     border-left: 0;
@@ -324,135 +302,4 @@ input:focus {
 }
 .additional-container select {
     width: 120px;
-}
-
-
-
-/*-------------------------------------------------------------*/
-
-#share-drawing {
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-image: url('share.png');
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 203px;
-    height: 64px;
-    background-color: transparent;
-    border-radius: 4px;
-    margin: 3px;
-    cursor: pointer;
-}
-
-#fade {
-    display: none;
-    position: absolute;
-    left: 0%;
-    top: 0%;
-    background-color: black;
-    opacity: .70;
-    filter: alpha(opacity=70);
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-.alert-box {
-	position:absolute;
-	top:30%;
-	left: 30%;
-	right: 30%;
-	border: 1px solid black;
-	z-index:10;
-	background-color:white;
-	box-shadow: 0 0 6px black, 0 0 49px;
-	border-radius: 5px;
-    visibility: hidden;
-	opacity:0;
-	z-index: 1;
-    zoom: 70%;
-    -moz-transition: all .5s ease-in-out;
-	-ms-transition: all .5s ease-in-out;
-
-	-o-transition: all .5s ease-in-out;
-	-webkit-transition: all .5s ease-in-out;
-	transition: all .5s ease-in-out;
-}
-.alert-box-header {
-	background-color: rgb(135, 240, 135);
-	border-bottom: 3px solid black;
-}
-
-.alert-box-header h2 {
-	margin: 0;
-    padding: inherit;
-    font-size: 3em;
-    overflow: hidden;
-    padding-left: 12px;
-    color: black;
-}
-
-.alert-box-content {
-	padding: .8em;
-	font-size:1.2em;
-}
-
-.alert-box-content h2 {
-    color: rgb(14, 86, 134);
-    border-bottom: 1px solid rgb(14, 86, 134);
-    display: inline;
-    padding-bottom: 5px;
-    line-height: 2;
-    font-weight: normal;
-}
-
-.alert-box-content #unique-roomid {
-    color: red;
-    border-bottom: 1px solid red;
-    padding-bottom: 5px;
-    line-height: 2;
-    vertical-align: middle;
-}
-
-.alert-box-content {
-    font-size: 18px;
-    color: black;
-}
-
-.alert-box-content input  {
-    font-size: 18px;
-    color: black;
-    border: 1px solid black;
-    width:100%
-}
-
-.alert-box hr {
-	border-width:1px;
-	border-color:black;
-	margin:0 -15px;
-	margin-bottom:1em;
-}
-
-.alert-box h2 {
-    font-size: 36px;
-    height: 45px;
-    overflow: hidden;
-}
-
-.alert-box-close-button {
-    background: red;
-    position: absolute;
-    right: 0;
-    width: 42px;
-    height: 46px;
-    font-size: 34px;
-    padding-left: 20px;
-    color: white;
-    border-left: 3px solid black;
-    cursor: pointer;
-}
-
-.alert-box-close-button:hover {
-    background: rgb(172, 10, 10);
 }

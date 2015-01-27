@@ -10,208 +10,168 @@
 
 	<meta name="author" content="Muaz Khan">
 	<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-
-	<link href="Style.css" rel="stylesheet">
 </head>
 <body>
-	<h1><a href="https://github.com/muaz-khan/Canvas-Designer">Canvas Designer</a> ® <a href="https://github.com/muaz-khan">Muaz Khan</a></h1>
-	
-	<!------------------------------------------>
+<script src="canvas-designer-widget.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+<script src="https://cdn.webrtc-experiment.com/firebase.js"></script>
 
-	<section class="design-surface">
-		<canvas id="temp-canvas"></canvas>
-		<canvas id="main-canvas"></canvas>
-	</section>
-	
-	<!------------------------------------------>
+<style>
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+input[type=text] {
+    -webkit-user-select: initial;
+    -moz-user-select: initial;
+    -o-user-select: initial;
+    -ms-user-select: initial;
+    user-select: initial;
+}
+</style>
 
-	<section id="tool-box" class="tool-box">
-		<canvas id="drag-last-path" width="40" height="40"></canvas>
-		<canvas id="drag-all-paths" width="40" height="40"></canvas>
+<div id="widget-container" style="position: fixed;bottom: 0;right: 20%;left: 20%;height: 100%;border: 1px solid black; border-top:0; border-bottom: 0;"></div>
 
-		<canvas id="line" class="selected-shape" width="40" height="40"></canvas>
-		<canvas id="arc" width="40" height="40"></canvas>
-		<canvas id="rectangle" width="40" height="40"></canvas>
-		<canvas id="quadratic-curve" width="40" height="40"></canvas>
-		<canvas id="bezier-curve" width="40" height="40"></canvas>
-
-		<canvas id="line-width" width="40" height="40"></canvas>
-		<canvas id="colors" width="40" height="40"></canvas>
-		<canvas id="additional" width="40" height="40"></canvas>
-	</section>
-	
-	<!------------------------------------------>
-
-	<section id="arc-range-container" class="arc-range-container">
-		<input id="arc-range" class="arc-range" type="text" value="2">
-		<input type="checkbox" id="is-clockwise" checked="" class="allow-select">
-		<label for="is-clockwise">Clockwise?</label>
-		<div class="arc-range-container-guide">Use arrow keys ↑↓</div>
-	</section>
-	
-	<!------------------------------------------>
-
-	<section class="code-container">
-		<textarea id="code-text" class="code-text allow-select"></textarea>
-	</section>
-	
-	<section class="preview-panel">
-		<div id="design-preview" class="preview-selected">Preview</div>
-		<div id="code-preview">Code</div>
-	</section>
-	
-	<!------------------------------------------>
-	
-	<section id="options-container" class="options-container">
-		<div>
-			<input type="checkbox" id="is-absolute-points" checked="">
-			<label for="is-absolute-points">Absolute Points</label>
-		</div>
-		<div>
-			<input type="checkbox" id="is-shorten-code" checked="">
-			<label for="is-shorten-code">Shorten Code</label>
-		</div>
-	</section>
-	
-	<!------------------------------------------>
-
-	<section id="line-width-container" class="context-popup">
-		<label for="line-width-text">Line Width:</label>
-		<input id="line-width-text" class="line-width-text" type="text" value="2">
-		
-		<div id="line-width-done" class="done">Done</div>
-	</section>
-	
-	<!------------------------------------------>
-	
-	<section id="colors-container" class="context-popup colors-container">
-		<div class="input-div">
-			<label for="stroke-style">Stroke Style:</label>
-			<input id="stroke-style" type="color" value="#6c96c8">
-		</div>
-		
-		<div class="input-div">
-			<label for="fill-style">Fill Style:</label>
-			<input id="fill-style" type="color" value="transparent">
-		</div>
-		
-		<div id="colors-done" class="done">Done</div>
-	</section>
-	
-	<!------------------------------------------>
-
-	<section id="copy-container" class="context-popup">
-		<div>
-			<input type="checkbox" id="copy-last" checked=""/>
-			<label for="copy-last">Copy last path</label>
-		</div>
-		<div style="margin-top: 5px;">
-			<input type="checkbox" id="copy-all"/>
-			<label for="copy-all">Copy all paths</label>
-		</div>
-	</section>
-	
-	<!------------------------------------------>
-	
-	<section id="additional-container" class="context-popup additional-container">
-		<div>
-			<label for="lineCap-select">Line Cap:</label>
-			<select id="lineCap-select">
-				<option>butt</option>
-				<option>round</option>
-				<option>square</option>
-			</select>
-		</div>
-		
-		<div>
-			<label for="lineJoin-select">Line Join:</label>
-			<select id="lineJoin-select">
-				<option>bevel</option>
-				<option>round</option>
-				<option>miter</option>
-			</select>
-		</div>
-		
-		<div>
-			<label for="globalAlpha-select">globalAlpha:</label>
-			<select id="globalAlpha-select">
-				<option>1.0</option>
-				<option>0.9</option>
-				<option>0.8</option>
-				<option>0.7</option>
-				<option>0.6</option>
-				<option>0.5</option>
-				<option>0.4</option>
-				<option>0.3</option>
-				<option>0.2</option>
-				<option>0.1</option>
-				<option>0.0</option>
-			</select>
-		</div>
-		
-		<div>
-			<label for="globalCompositeOperation-select">globalCompositeOperation:</label>
-			<select id="globalCompositeOperation-select">
-				<option>source-atop</option>
-				<option>source-in</option>
-				<option>source-out</option>
-				<option selected="">source-over</option>
-				<option>destination-atop</option>
-				<option>destination-in</option>
-				<option>destination-out</option>
-				<option>destination-over</option>
-				<option>lighter</option>
-				<option>copy</option>
-				<option>xor</option>
-			</select>
-		</div>
-		
-		<div id="additional-close" class="done">Done</div>
-	</section>
-
-    <!------------------------------------------>
-
-    <footer itemprop="breadcrumb">
-		<a href="http://twitter.com/muazkh" title="@muazkh">©</a> <a href="https://plus.google.com/+MuazKhan" rel="author" title="Muaz Khan's Google+ profile">Muaz Khan</a>
-		(<a href="mailto:muazkh@gmail.com" title="muazkh@gmail.com">Email</a>) ® <a href="Help/" title="Relevant stuff!">Help!</a>
-		- <a href="https://github.com/muaz-khan/Canvas-Designer" title="Source code on Github">Source Code</a>
-	</footer>
-	
-	<!------------------------------------------>
-
-	<script src="common.js"></script>
-	<script src="decorator.js"></script>
-	
-	<script src="draw-helper.js"></script>
-	<script src="drag-helper.js"></script>
-	
-	<script src="arc-handler.js"></script>
-	<script src="line-handler.js"></script>
-	<script src="rect-handler.js"></script>
-	<script src="quadratic-handler.js"></script>
-	<script src="bezier-handler.js"></script>
-
-	<script src="events-handler.js"></script>
+<div id="action-controls" style="width: 19%; padding: 1%;position: absolute;left:0;">
+    <h2>Select Icons</h2>
+    <input type="checkbox" id="pencil" checked>
+    <label for="pencil">pencil</label><br>
     
-    <!------------------------------------------>
+    <input type="checkbox" id="text" checked>
+    <label for="text">text</label><br>
     
-    <div id="fade"></div>
+    <input type="checkbox" id="line">
+    <label for="line">line</label><br>
     
-    <div id="alert-box" class="alert-box">
-        <div class="alert-box-header">
-            <div id="alert-box-close-button" class="icon alert-box-close-button">x</div>
-            <h2>Collaborate using WebRTC!</h2>
-        </div>
-        <div class="alert-box-content">
-            Copy & Share this URL so that your fellows can collaborate with you in realtime!<br />
-            <input type="text" id="unique-roomid" value="">            
-        </div>
+    <input type="checkbox" id="dragSingle">
+    <label for="dragSingle">dragSingle</label><br>
+    
+    <input type="checkbox" id="dragMultiple">
+    <label for="dragMultiple">dragMultiple</label><br>
+    
+    <input type="checkbox" id="arc">
+    <label for="arc">arc</label><br>
+    
+    <input type="checkbox" id="rectangle">
+    <label for="rectangle">rectangle</label><br>
+    
+    <input type="checkbox" id="quadratic">
+    <label for="quadratic">quadratic</label><br>
+    
+    <input type="checkbox" id="bezier">
+    <label for="bezier">bezier</label><br><br>
+    
+    <hr>
+    <div id="hide-on-datachannel-opened">
+    You can open a private WebRTC room to sync dashboard with private users.
+    <input type="text" id="room-id" placeholder="room-id"><button id="open-room">Open</button>
     </div>
+</div>
+
+<div style="position: fixed; right: 0; width: 19%; padding: 1%;top:0; text-align: center;">
+    <h1>Canvas Designer!</h1>
+    <h2>
+        <a href="https://github.com/muaz-khan/Canvas-Designer">This tool is Open-Sourced!</a>
+    </h2>
     
-    <!------------------------------------------>
-    <button id="share-drawing"></button>
-    <script src="//cdn.webrtc-experiment.com/RTCMultiConnection-v2.2.2.js"></script>
-    <script src="share-drawings.js"></script>
-    <!------------------------------------------>
+    Author: <a href="https://github.com/muaz-khan">Muaz Khan</a>
+    
+    <hr>
+    <h2>How to use in your own site?</h2>
+    
+    <ol style="text-align: left;">
+        <li>Take all code from <a href="https://github.com/muaz-khan/Canvas-Designer">this link</a> and upload somewhere on your site.</li>
+        <li>Target directly will be having this file: <a href="https://github.com/muaz-khan/Canvas-Designer/blob/master/canvas-designer-widget.js">canvas-designer-widget.js</a>. Link this file in your HTML/PHP page.</li>
+        <li>
+            Use this command to append widget in your HTML page:<br>
+            
+            <code>CanvasDesigner.appendTo(<br>document.documentElement<br>);</code>
+            <br><br>
+            <a href="https://github.com/muaz-khan/Canvas-Designer#how-to-use">Read more here</a>.
+        </li>
+    </ol>
+</div>
+
+<script>
+document.getElementById('open-room').onclick = function() {
+    var roomid = document.getElementById('room-id').value;
+    if(!roomid.length) return alert('Please enter roomid.');
+    
+    this.disabled = true;
+    
+    connection.channel = connection.userid = roomid;
+    connection.open({
+        dontTransmit: true,
+        sessionid: roomid
+    });
+    
+    this.parentNode.innerHTML = '<a href="#' + roomid + '" target="_blank">Please share this link</a>';
+};
+
+var connection = new RTCMultiConnection();
+connection.enableFileSharing = false;
+connection.session = {
+    data: true
+};
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: false,
+    OfferToReceiveVideo: false
+};
+if(location.hash.replace('#', '').length) {
+    var roomid = location.hash.replace('#', '');
+    connection.channel = roomid;
+    connection.join({
+        userid: roomid,
+        sessionid: roomid,
+        extra: {},
+        session: connection.session
+    });
+}
+
+connection.onopen = function() {
+    document.getElementById('hide-on-datachannel-opened').style.display = 'none';
+};
+
+connection.onmessage = function(event) {
+    CanvasDesigner.syncData( event.data );
+};
+</script>
+
+<script>
+CanvasDesigner.addSyncListener(function(data) {
+    connection.send(data);
+});
+
+CanvasDesigner.setSelected('pencil');
+
+CanvasDesigner.setTools({
+    pencil: true,
+    text: true
+});
+
+CanvasDesigner.appendTo(document.getElementById('widget-container'));
+
+Array.prototype.slice.call(document.getElementById('action-controls').querySelectorAll('input[type=checkbox]')).forEach(function(checkbox) {
+    checkbox.onchange = function() {
+        CanvasDesigner.destroy();
+        
+        CanvasDesigner.addSyncListener(function(data) {
+            connection.send(data);
+        });
+        
+        var tools = {};
+        Array.prototype.slice.call(document.getElementById('action-controls').querySelectorAll('input[type=checkbox]')).forEach(function(checkbox2) {
+            if(checkbox2.checked) {
+                tools[checkbox2.id] = true;
+            }
+        });
+        CanvasDesigner.setTools(tools);
+        CanvasDesigner.appendTo(document.getElementById('widget-container'));
+    };
+});
+</script>
 </body>
 </html>

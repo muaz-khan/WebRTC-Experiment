@@ -14,6 +14,7 @@ MediaStreamRecorder is useful in scenarios where you're planning to submit/uploa
 | **Audio Recording** | [Demo](https://www.webrtc-experiment.com/msr/audio-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/audio-recorder.html) |
 | **Video Recording** | [Demo](https://www.webrtc-experiment.com/msr/video-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/video-recorder.html) |
 | **Gif Recording** | [Demo](https://www.webrtc-experiment.com/msr/gif-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/gif-recorder.html) |
+| **MultiStreamRecorder Demo** | [Demo](https://www.webrtc-experiment.com/msr/MultiStreamRecorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/MultiStreamRecorder.html) |
 
 ----
 
@@ -41,95 +42,13 @@ Then link single/standalone "MediaStreamRecorder.js" file:
 
 ## Otherwise, you can link specific files:
 
-To link specific files, you must [download](https://github.com/streamproc/MediaStreamRecorder) this ZIP:
-
-* https://github.com/streamproc/MediaStreamRecorder/archive/master.zip
-
-```html
-<script src="/MediaStreamRecorder-v1.2.js" data-require="MediaRecorder" data-scripts-dir="/"> </script>
-```
-
-`data-require`: Comma separated modules names. Supported values are `StereoRecorder,MediaRecorder,WhammyRecorder,GifRecorder`.
-
-```html
-// to record audio only on chrome
-data-require="StereoRecorder"
-
-// to record audio only on firefox
-data-require="MediaRecorder"
-
-// to record audio both on chrome and firefox
-data-require="MediaRecorder,StereoRecorder"
-
-// to record only video (both on chrome and firefox)
-data-require="MediaRecorder,WhammyRecorder"
-
-// to record only gif
-data-require="GifRecorder"
-
-// to record everything
-data-require="StereoRecorder,MediaRecorder,WhammyRecorder,GifRecorder"
-```
-
-`data-scripts-dir="/"`: Location of the directory where all required script files resides.
-
-```html
-// root-directory
-data-scripts-dir="/"
-
-// sub/nested directory
-data-scripts-dir="../subdir/"
-
-// same directory where HTML-file is placed
-data-scripts-dir="../"
-
-// you can use absolute-URIs
-data-scripts-dir="//cdn.webrtc-experiment.com/msr/"
-```
-
-You can manually link the files as well; use `data-manual=true`:
-
-```html
-<!--
-    This file provides public-API for all recording scenarios
-    You need to use "data-manual" only with this script.
--->
-<script src="MediaStreamRecorder-v1.2.js" data-manual="true"> </script>
-
-<!-- cross-browser getUserMedia/AudioContext declarations -->
-<script src="../common/Cross-Browser-Declarations.js"> </script>
-
-<!-- stores AudioContext-level objects in memory for re-usability purposes -->
-<script src="../common/ObjectStore.js"> </script>
-
-<!-- both these files are used to support audio recording in chrome -->        
-<script src="../AudioStreamRecorder/StereoRecorder.js"> </script>
-<script src="../AudioStreamRecorder/StereoAudioRecorder.js"> </script>
-
-<!-- this one uses MediaRecorder draft for voice & video recording (works only in Firefox) -->
-<script src="../AudioStreamRecorder/MediaRecorder.js"> </script>
-
-<!-- these files are supporting video-recording in chrome (webm) -->        
-<script src="../VideoStreamRecorder/WhammyRecorder.js"> </script>
-<script src="../VideoStreamRecorder/WhammyRecorderHelper.js"> </script>
-<script src="../VideoStreamRecorder/lib/whammy.js"> </script>
-
-<!-- these files are used to support gif-recording in both chrome & firefox -->
-<script src="../VideoStreamRecorder/GifRecorder.js"> </script>
-<script src="../VideoStreamRecorder/lib/gif-encoder.js"> </script>
-```
+* https://github.com/streamproc/MediaStreamRecorder/blob/master/How-to-Link-Specific-Files.md
 
 ## Record audio+video in Firefox in single WebM
 
 ```html
-<!-- link either specific files -->
-<script src="//cdn.webrtc-experiment.com/MediaStreamRecorder-v1.2.js" data-require="MediaRecorder" data-scripts-dir="/msr/"> </script>
-
-<!-- or standalone file -->
 <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
-```
-
-```javascript
+<script>
 var mediaConstraints = {
     audio: !!navigator.mozGetUserMedia, // don't forget audio!
     video: true                         // don't forget video!
@@ -151,21 +70,41 @@ function onMediaSuccess(stream) {
 function onMediaError(e) {
     console.error('media error', e);
 }
+</script>
 ```
 
-## How to manually stop recordings?
+## Record audio+video in Chrome
 
-```javascript
-mediaRecorder.stop();
+`MultiStreamRecorder.js` records both audio/video and returns both blobs in single `ondataavailable` event.
+
+```html
+<script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
+<script>
+var mediaConstraints = {
+    audio: true,
+    video: true
+};
+
+navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
+
+function onMediaSuccess(stream) {
+    var multiStreamRecorder = new MultiStreamRecorder(stream);
+    multiStreamRecorder.ondataavailable = function (blobs) {
+        // blobs.audio
+        // blobs.video
+    };
+    multiStreamRecorder.start(3 * 1000);
+}
+
+function onMediaError(e) {
+    console.error('media error', e);
+}
+</script>
 ```
 
 ## Record only audio in Chrome/Firefox
 
 ```html
-<!-- link either specific files -->
-<script src="//cdn.webrtc-experiment.com/MediaStreamRecorder-v1.2.js" data-require="StereoRecorder,MediaRecorder" data-scripts-dir="/msr/"> </script>
-
-<!-- or standalone file -->
 <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 ```
 
@@ -195,14 +134,8 @@ function onMediaError(e) {
 ## Record only-video in chrome
 
 ```html
-<!-- link either specific files -->
-<script src="//cdn.webrtc-experiment.com/MediaStreamRecorder-v1.2.js" data-require="WhammyRecorder" data-scripts-dir="/msr/"> </script>
-
-<!-- or standalone file -->
 <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
-```
-
-```javascript
+<script>
 var mediaConstraints = {
     video: true
 };
@@ -216,8 +149,8 @@ function onMediaSuccess(stream) {
     // for gif recording
     // mediaRecorder.mimeType = 'image/gif';
 	
-    mediaRecorder.videoWidth = 320;
-    mediaRecorder.videoHeight = 240;
+    mediaRecorder.width = 320;
+    mediaRecorder.height = 240;
 	
     mediaRecorder.ondataavailable = function (blob) {
         // POST/PUT "Blob" using FormData/XHR2
@@ -230,6 +163,13 @@ function onMediaSuccess(stream) {
 function onMediaError(e) {
     console.error('media error', e);
 }
+</script>
+```
+
+## How to manually stop recordings?
+
+```javascript
+mediaRecorder.stop();
 ```
 
 ## How to upload recorded files using PHP?

@@ -28,6 +28,8 @@ function StereoAudioRecorder(mediaStream, config) {
         throw 'Your stream has no audio tracks.';
     }
 
+    var self = this;
+
     // variables
     var leftchannel = [];
     var rightchannel = [];
@@ -49,6 +51,147 @@ function StereoAudioRecorder(mediaStream, config) {
         recording = true;
     };
 
+    function mergeLeftRightBuffers(config, callback) {
+        var webWorker = processInWebWorker(function mergeAudioBuffers(config) {
+            var leftBuffers = config.leftBuffers;
+            var rightBuffers = config.rightBuffers;
+            var sampleRate = config.sampleRate;
+
+            leftBuffers = mergeBuffers(leftBuffers[0], leftBuffers[1]);
+            rightBuffers = mergeBuffers(rightBuffers[0], rightBuffers[1]);
+
+            function mergeBuffers(channelBuffer, rLength) {
+                var result = new Float64Array(rLength);
+                var offset = 0;
+                var lng = channelBuffer.length;
+
+                for (var i = 0; i < lng; i++) {
+                    var buffer = channelBuffer[i];
+                    result.set(buffer, offset);
+                    offset += buffer.length;
+                }
+
+                return result;
+            }
+
+            function interleave(leftChannel, rightChannel) {
+                var length = leftChannel.length + rightChannel.length;
+
+                var result = new Float64Array(length);
+
+                var inputIndex = 0;
+
+                for (var index = 0; index < length;) {
+                    result[index++] = leftChannel[inputIndex];
+                    result[index++] = rightChannel[inputIndex];
+                    inputIndex++;
+                }
+                return result;
+            }
+
+            function writeUTFBytes(view, offset, string) {
+                var lng = string.length;
+                for (var i = 0; i < lng; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            }
+
+            // interleave both channels together
+            var interleaved = interleave(leftBuffers, rightBuffers);
+
+            var interleavedLength = interleaved.length;
+
+            // create wav file
+            var resultingBufferLength = 44 + interleavedLength * 2;
+
+            var buffer = new ArrayBuffer(resultingBufferLength);
+
+            var view = new DataView(buffer);
+
+            // RIFF chunk descriptor/identifier 
+            writeUTFBytes(view, 0, 'RIFF');
+
+            // RIFF chunk length
+            var blockAlign = 4;
+            view.setUint32(blockAlign, 44 + interleavedLength * 2, true);
+
+            // RIFF type 
+            writeUTFBytes(view, 8, 'WAVE');
+
+            // format chunk identifier 
+            // FMT sub-chunk
+            writeUTFBytes(view, 12, 'fmt ');
+
+            // format chunk length 
+            view.setUint32(16, 16, true);
+
+            // sample format (raw)
+            view.setUint16(20, 1, true);
+
+            // stereo (2 channels)
+            view.setUint16(22, 2, true);
+
+            // sample rate 
+            view.setUint32(24, sampleRate, true);
+
+            // byte rate (sample rate * block align)
+            view.setUint32(28, sampleRate * blockAlign, true);
+
+            // block align (channel count * bytes per sample) 
+            view.setUint16(32, blockAlign, true);
+
+            // bits per sample 
+            view.setUint16(34, 16, true);
+
+            // data sub-chunk
+            // data chunk identifier 
+            writeUTFBytes(view, 36, 'data');
+
+            // data chunk length 
+            view.setUint32(40, interleavedLength * 2, true);
+
+            // write the PCM samples
+            var offset = 44,
+                leftChannel;
+            for (var i = 0; i < interleavedLength; i++, offset += 2) {
+                var size = Math.max(-1, Math.min(1, interleaved[i]));
+                var currentChannel = size < 0 ? size * 32768 : size * 32767;
+
+                if (config.leftChannel) {
+                    if (currentChannel !== leftChannel) {
+                        view.setInt16(offset, currentChannel, true);
+                    }
+                    leftChannel = currentChannel;
+                } else {
+                    view.setInt16(offset, currentChannel, true);
+                }
+            }
+
+            postMessage({
+                buffer: buffer,
+                view: view
+            });
+        });
+
+        webWorker.onmessage = function(event) {
+            callback(event.data.buffer, event.data.view);
+        };
+
+        webWorker.postMessage(config);
+    }
+
+    function processInWebWorker(_function) {
+        var blob = URL.createObjectURL(new Blob([_function.toString(),
+            'this.onmessage =  function (e) {mergeAudioBuffers(e.data);}'
+        ], {
+            type: 'application/javascript'
+        }));
+
+        var worker = new Worker(blob);
+        URL.revokeObjectURL(blob);
+        return worker;
+    }
+
     /**
      * This method stops recording MediaStream.
      * @param {function} callback - Callback function, that is used to pass recorded blob back to the callee.
@@ -66,165 +209,57 @@ function StereoAudioRecorder(mediaStream, config) {
         // to make sure onaudioprocess stops firing
         audioInput.disconnect();
 
-        // flat the left and right channels down
-        var leftBuffer = mergeBuffers(leftchannel, recordingLength);
-        var rightBuffer = mergeBuffers(rightchannel, recordingLength);
+        mergeLeftRightBuffers({
+            sampleRate: sampleRate,
+            leftChannel: config.leftChannel,
+            leftBuffers: [leftchannel, recordingLength],
+            rightBuffers: [rightchannel, recordingLength]
+        }, function(buffer, view) {
+            /**
+             * @property {Blob} blob - The recorded blob object.
+             * @memberof StereoAudioRecorder
+             * @example
+             * recorder.stop(function(){
+             *     var blob = recorder.blob;
+             * });
+             */
+            self.blob = new Blob([view], {
+                type: 'audio/wav'
+            });
 
-        // interleave both channels together
-        var interleaved = interleave(leftBuffer, rightBuffer);
-        var interleavedLength = interleaved.length;
+            /**
+             * @property {ArrayBuffer} buffer - The recorded buffer object.
+             * @memberof StereoAudioRecorder
+             * @example
+             * recorder.stop(function(){
+             *     var buffer = recorder.buffer;
+             * });
+             */
+            self.buffer = new ArrayBuffer(view);
 
-        // create our wav file
-        var resultingBufferLength = 44 + interleavedLength * 2;
-        if (!config.disableLogs) {
-            console.log('Resulting Buffer Length', resultingBufferLength);
-        }
+            /**
+             * @property {DataView} view - The recorded data-view object.
+             * @memberof StereoAudioRecorder
+             * @example
+             * recorder.stop(function(){
+             *     var view = recorder.view;
+             * });
+             */
+            self.view = view;
 
-        var buffer = new ArrayBuffer(resultingBufferLength);
+            self.sampleRate = sampleRate;
+            self.bufferSize = bufferSize;
 
-        var view = new DataView(buffer);
+            // recorded audio length
+            self.length = recordingLength;
 
-        // RIFF chunk descriptor/identifier 
-        writeUTFBytes(view, 0, 'RIFF');
-
-        // RIFF chunk length
-        var blockAlign = 4;
-        view.setUint32(blockAlign, 44 + interleavedLength * 2, true);
-
-        // RIFF type 
-        writeUTFBytes(view, 8, 'WAVE');
-
-        // format chunk identifier 
-        // FMT sub-chunk
-        writeUTFBytes(view, 12, 'fmt ');
-
-        // format chunk length 
-        view.setUint32(16, 16, true);
-
-        // sample format (raw)
-        view.setUint16(20, 1, true);
-
-        // stereo (2 channels)
-        view.setUint16(22, 2, true);
-
-        // sample rate 
-        view.setUint32(24, sampleRate, true);
-
-        // byte rate (sample rate * block align)
-        view.setUint32(28, sampleRate * blockAlign, true);
-
-        // block align (channel count * bytes per sample) 
-        view.setUint16(32, blockAlign, true);
-
-        // bits per sample 
-        view.setUint16(34, 16, true);
-
-        // data sub-chunk
-        // data chunk identifier 
-        writeUTFBytes(view, 36, 'data');
-
-        // data chunk length 
-        view.setUint32(40, interleavedLength * 2, true);
-
-        // write the PCM samples
-        var offset = 44,
-            leftChannel;
-        for (var i = 0; i < interleavedLength; i++, offset += 2) {
-            var size = Math.max(-1, Math.min(1, interleaved[i]));
-            var currentChannel = size < 0 ? size * 32768 : size * 32767;
-
-            if (config.leftChannel) {
-                if (currentChannel !== leftChannel) {
-                    view.setInt16(offset, currentChannel, true);
-                }
-                leftChannel = currentChannel;
-            } else {
-                view.setInt16(offset, currentChannel, true);
+            if (callback) {
+                callback();
             }
-        }
 
-        /**
-         * @property {Blob} blob - The recorded blob object.
-         * @memberof StereoAudioRecorder
-         * @example
-         * recorder.stop(function(){
-         *     var blob = recorder.blob;
-         * });
-         */
-        this.blob = new Blob([view], {
-            type: 'audio/wav'
+            isAudioProcessStarted = false;
         });
-
-        /**
-         * @property {ArrayBuffer} buffer - The recorded buffer object.
-         * @memberof StereoAudioRecorder
-         * @example
-         * recorder.stop(function(){
-         *     var buffer = recorder.buffer;
-         * });
-         */
-        this.buffer = new ArrayBuffer(view);
-
-        /**
-         * @property {DataView} view - The recorded data-view object.
-         * @memberof StereoAudioRecorder
-         * @example
-         * recorder.stop(function(){
-         *     var view = recorder.view;
-         * });
-         */
-        this.view = view;
-
-        this.sampleRate = sampleRate;
-        this.bufferSize = bufferSize;
-
-        // recorded audio length
-        this.length = recordingLength;
-
-        callback();
-
-        isAudioProcessStarted = false;
     };
-
-    function interleave(leftChannel, rightChannel) {
-        var length = leftChannel.length + rightChannel.length;
-
-        if (!config.disableLogs) {
-            console.log('Buffers length:', length);
-        }
-
-        var result = new Float64Array(length);
-
-        var inputIndex = 0;
-
-        for (var index = 0; index < length;) {
-            result[index++] = leftChannel[inputIndex];
-            result[index++] = rightChannel[inputIndex];
-            inputIndex++;
-        }
-        return result;
-    }
-
-    function mergeBuffers(channelBuffer, rLength) {
-        var result = new Float64Array(rLength);
-        var offset = 0;
-        var lng = channelBuffer.length;
-
-        for (var i = 0; i < lng; i++) {
-            var buffer = channelBuffer[i];
-            result.set(buffer, offset);
-            offset += buffer.length;
-        }
-
-        return result;
-    }
-
-    function writeUTFBytes(view, offset, string) {
-        var lng = string.length;
-        for (var i = 0; i < lng; i++) {
-            view.setUint8(offset + i, string.charCodeAt(i));
-        }
-    }
 
     if (!Storage.AudioContextConstructor) {
         Storage.AudioContextConstructor = new Storage.AudioContext();
@@ -307,8 +342,8 @@ function StereoAudioRecorder(mediaStream, config) {
         console.log('buffer-size', bufferSize);
     }
 
-    var isAudioProcessStarted = false,
-        self = this;
+    var isAudioProcessStarted = false;
+
     __stereoAudioRecorderJavacriptNode.onaudioprocess = function(e) {
         // if MediaStream().stop() or MediaStreamTrack.stop() is invoked.
         if (mediaStream.ended) {
