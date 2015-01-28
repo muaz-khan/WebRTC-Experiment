@@ -1753,6 +1753,11 @@ function WhammyRecorder(mediaStream) {
 
     function drawFrames() {
         var duration = new Date().getTime() - lastTime;
+        
+        // Tweak for Android Chrome
+        if(video.paused)
+            video.play();
+            
         if (!duration) {
             return drawFrames();
         }
