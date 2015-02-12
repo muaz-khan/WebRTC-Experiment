@@ -10,7 +10,7 @@ var config = {
         // or WebSync/SignalR or existing implementations like signalmaster/peerserver or sockjs etc.
 
         var channel = config.channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
-        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
+        var socket = new Firebase('https://webrtc.firebaseIO.com/' + channel);
 
         socket.channel = channel;
         socket.on("child_added", function(data) {

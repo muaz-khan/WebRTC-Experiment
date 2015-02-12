@@ -40,6 +40,9 @@ input[type=text] {
     <input type="checkbox" id="pencil" checked>
     <label for="pencil">pencil</label><br>
     
+    <input type="checkbox" id="eraser" checked>
+    <label for="eraser">eraser</label><br>
+    
     <input type="checkbox" id="text" checked>
     <label for="text">text</label><br>
     
@@ -149,7 +152,8 @@ CanvasDesigner.setSelected('pencil');
 
 CanvasDesigner.setTools({
     pencil: true,
-    text: true
+    text: true,
+    eraser: true
 });
 
 CanvasDesigner.appendTo(document.getElementById('widget-container'));

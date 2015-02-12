@@ -426,7 +426,7 @@
 
             // Firebase is capable to store data in JSON format
             // root.transmitRoomOnce = true;
-            var socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + channel);
+            var socket = new window.Firebase('https://' + (root.firebase || 'signaling') + '.firebaseIO.com/' + channel);
             socket.on('child_added', function(snap) {
                 var data = snap.val();
                 onSocketMessage(data);

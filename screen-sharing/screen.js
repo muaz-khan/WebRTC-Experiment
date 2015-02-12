@@ -302,7 +302,7 @@
 
             // Firebase is capable to store data in JSON format
             // root.transmitOnce = true;
-            socket = new window.Firebase('https://' + (root.firebase || 'chat') + '.firebaseIO.com/' + root.channel);
+            socket = new window.Firebase('https://' + (root.firebase || 'signaling') + '.firebaseIO.com/' + root.channel);
             socket.on('child_added', function(snap) {
                 var data = snap.val();
                 if (data.userid != userid) {

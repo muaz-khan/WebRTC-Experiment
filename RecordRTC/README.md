@@ -338,6 +338,18 @@ var options = {
 };
 ```
 
+## `pauseRecording`
+
+```javascript
+recordRTC.pauseRecording();
+```
+
+## `resumeRecording`
+
+```javascript
+recordRTC.resumeRecording();
+```
+
 ## `getDataURL`
 
 ```javascript

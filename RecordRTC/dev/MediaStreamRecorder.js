@@ -104,6 +104,12 @@ function MediaStreamRecorder(mediaStream) {
                 console.warn(error);
             }
 
+            // When the stream is "ended" set recording to 'inactive' 
+            // and stop gathering data. Callers should not rely on 
+            // exactness of the timeSlice value, especially 
+            // if the timeSlice value is small. Callers should 
+            // consider timeSlice as a minimum value
+
             mediaRecorder.stop();
             self.record(0);
         };
@@ -135,6 +141,10 @@ function MediaStreamRecorder(mediaStream) {
      * });
      */
     this.stop = function(callback) {
+        if (!mediaRecorder) {
+            return;
+        }
+
         this.callback = callback;
         // mediaRecorder.state === 'recording' means that media recorder is associated with "session"
         // mediaRecorder.state === 'stopped' means that media recorder is detached from the "session" ... in this case; "session" will also be deleted.
@@ -143,6 +153,48 @@ function MediaStreamRecorder(mediaStream) {
             // "stop" method auto invokes "requestData"!
             // mediaRecorder.requestData();
             mediaRecorder.stop();
+        }
+    };
+
+    /**
+     * This method pauses the recording process.
+     * @method
+     * @memberof MediaStreamRecorder
+     * @example
+     * recorder.pause();
+     */
+    this.pause = function() {
+        if (!mediaRecorder) {
+            return;
+        }
+
+        if (mediaRecorder.state === 'recording') {
+            mediaRecorder.pause();
+
+            if (!this.disableLogs) {
+                console.debug('Paused recording.');
+            }
+        }
+    };
+
+    /**
+     * This method resumes the recording process.
+     * @method
+     * @memberof MediaStreamRecorder
+     * @example
+     * recorder.resume();
+     */
+    this.resume = function() {
+        if (!mediaRecorder) {
+            return;
+        }
+
+        if (mediaRecorder.state === 'paused') {
+            mediaRecorder.resume();
+
+            if (!this.disableLogs) {
+                console.debug('Resumed recording.');
+            }
         }
     };
 

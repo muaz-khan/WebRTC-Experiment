@@ -75,6 +75,10 @@ function isString(obj) {
 }
 
 function isEmpty(session) {
+    if (!session) {
+        throw 'Parameter is requried.';
+    }
+
     var stringified = JSON.stringify(session);
     if (stringified === '{}' || !stringified.split(',').length) {
         return true;

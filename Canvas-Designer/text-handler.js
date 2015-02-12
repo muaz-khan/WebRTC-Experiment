@@ -23,7 +23,11 @@ textInput.onkeyup = function(e) {
 textInput.onblur = function(e) {
     if (textInput.value.length) {
         fillText();
+        return;
     }
+    //textInput.style.top = '-100000px';
+    //textInput.style.left = '-100000px';
+    //textHandler.isTextPending = false;
 };
 
 function fillText() {

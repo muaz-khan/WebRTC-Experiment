@@ -59,7 +59,7 @@ var drawHelper = {
 
     text: function (context, point, options) {
         var oldFillStyle = fillStyle;
-        context.fillStyle = fillStyle == 'transparent' ? 'Black' : fillStyle;
+        context.fillStyle = fillStyle === 'transparent' || fillStyle === 'White' ? 'Black' : fillStyle;
         context.font = '15px Verdana';
 		context.fillText(point[0].substr(1, point[0].length - 2), point[1], point[2]);
         fillStyle = oldFillStyle;

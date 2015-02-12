@@ -78,6 +78,7 @@ function setSelection(element, prop) {
         else is.set('Pencil');
 
         addEvent(context.canvas, 'click', function() {
+            
             dragHelper.global.startingIndex = 0;
 
             setSelection(this, shape);
@@ -108,7 +109,7 @@ function setSelection(element, prop) {
                 strokeStyle = 'White';
                 fillStyle = 'White';
                 lineWidth = 10;
-            } else if (cache.strokeStyle && cache.fillStyle && cache.lineWidth) {
+            } else if (cache.strokeStyle && cache.fillStyle && typeof cache.lineWidth !== 'undefined') {
                 strokeStyle = cache.strokeStyle;
                 fillStyle = cache.fillStyle;
                 lineWidth = cache.lineWidth;

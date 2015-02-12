@@ -9,7 +9,7 @@
 <button>Share DIV</button>
 <script>
 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-var firebase = new Firebase('https://chat.firebaseIO.com/' + channel);
+var firebase = new Firebase('https://webrtc.firebaseIO.com/' + channel);
 
 var image = document.querySelector('img');
 firebase.on("child_added", function (data) {

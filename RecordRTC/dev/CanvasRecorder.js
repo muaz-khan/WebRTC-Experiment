@@ -63,7 +63,44 @@ function CanvasRecorder(htmlElement) {
         }
     };
 
+    var isPausedRecording = false;
+
+    /**
+     * This method pauses the recording process.
+     * @method
+     * @memberof CanvasRecorder
+     * @example
+     * recorder.pause();
+     */
+    this.pause = function() {
+        isPausedRecording = true;
+
+        if (!this.disableLogs) {
+            console.debug('Paused recording.');
+        }
+    };
+
+    /**
+     * This method resumes the recording process.
+     * @method
+     * @memberof CanvasRecorder
+     * @example
+     * recorder.resume();
+     */
+    this.resume = function() {
+        isPausedRecording = false;
+
+        if (!this.disableLogs) {
+            console.debug('Resumed recording.');
+        }
+    };
+
     function drawCanvasFrame() {
+        if (isPausedRecording) {
+            lastTime = new Date().getTime();
+            return setTimeout(drawCanvasFrame, 100);
+        }
+
         window.html2canvas(htmlElement, {
             onrendered: function(canvas) {
                 var duration = new Date().getTime() - lastTime;

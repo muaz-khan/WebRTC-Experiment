@@ -52,7 +52,7 @@ function StereoAudioRecorder(mediaStream, config) {
     };
 
     function mergeLeftRightBuffers(config, callback) {
-        var webWorker = processInWebWorker(function mergeAudioBuffers(config) {
+        function mergeAudioBuffers(config) {
             var leftBuffers = config.leftBuffers;
             var rightBuffers = config.rightBuffers;
             var sampleRate = config.sampleRate;
@@ -171,7 +171,8 @@ function StereoAudioRecorder(mediaStream, config) {
                 buffer: buffer,
                 view: view
             });
-        });
+        }
+        var webWorker = processInWebWorker(mergeAudioBuffers);
 
         webWorker.onmessage = function(event) {
             callback(event.data.buffer, event.data.view);
@@ -182,7 +183,7 @@ function StereoAudioRecorder(mediaStream, config) {
 
     function processInWebWorker(_function) {
         var blob = URL.createObjectURL(new Blob([_function.toString(),
-            'this.onmessage =  function (e) {mergeAudioBuffers(e.data);}'
+            'this.onmessage =  function (e) {' + _function.name + '(e.data);}'
         ], {
             type: 'application/javascript'
         }));
@@ -342,9 +343,44 @@ function StereoAudioRecorder(mediaStream, config) {
         console.log('buffer-size', bufferSize);
     }
 
+    var isPaused = false;
+    /**
+     * This method pauses the recording process.
+     * @method
+     * @memberof StereoAudioRecorder
+     * @example
+     * recorder.pause();
+     */
+    this.pause = function() {
+        isPaused = true;
+
+        if (!config.disableLogs) {
+            console.debug('Paused recording.');
+        }
+    };
+
+    /**
+     * This method resumes the recording process.
+     * @method
+     * @memberof StereoAudioRecorder
+     * @example
+     * recorder.resume();
+     */
+    this.resume = function() {
+        isPaused = false;
+
+        if (!config.disableLogs) {
+            console.debug('Resumed recording.');
+        }
+    };
+
     var isAudioProcessStarted = false;
 
     __stereoAudioRecorderJavacriptNode.onaudioprocess = function(e) {
+        if (isPaused) {
+            return;
+        }
+
         // if MediaStream().stop() or MediaStreamTrack.stop() is invoked.
         if (mediaStream.ended) {
             __stereoAudioRecorderJavacriptNode.onaudioprocess = function() {};

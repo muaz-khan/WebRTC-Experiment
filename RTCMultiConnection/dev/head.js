@@ -1,4 +1,4 @@
-// Last time updated at Jan 27, 2015, 08:32:23
+// Last time updated at Feb 07, 2015, 08:32:23
 
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
@@ -18,6 +18,7 @@
 /* issues/features need to be fixed & implemented:
 
 -. v2.2.* changes-log here: http://www.rtcmulticonnection.org/changes-log/#v2.2
+-. Fixed: https://github.com/muaz-khan/WebRTC-Experiment/issues/321
 */
 
 'use strict';

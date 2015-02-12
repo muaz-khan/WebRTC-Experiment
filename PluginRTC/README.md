@@ -50,9 +50,81 @@ Now you can use `Plugin` object like this:
 
 ```javascript
 // capture video
-Plugin.getUserMedia({video: true}, function(stream) {
-    Plugin.attachMediaStream( DOMLoaded_HTML_Video_Element, stream );
-}, function(error) {});
+var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+var isIE = !!document.documentMode;
+var isPluginRTC = isSafari || isIE;
+
+if (isPluginRTC) {
+    var mediaElement = document.createElement('video');
+    Plugin.getUserMedia({
+        video: true
+    }, function(stream) {
+        var body = (document.body || document.documentElement);
+        body.insertBefore(mediaElement, body.firstChild);
+
+        setTimeout(function() {
+            Plugin.attachMediaStream(mediaElement, stream);
+            
+            // here you can append "mediaElement" to specific container
+            // specificContainer.appendChild(mediaElement);
+        }, 3000);
+    }, function(error) {});
+} else {
+    navigator.getUserMedia(hints, success, failure);
+}
+```
+
+When `onaddstream` event is fired:
+
+```javascript
+peer.onaddstream = function(event) {
+    if (isPluginRTC) {
+        var mediaElement = document.createElement('video');
+
+        var body = (document.body || document.documentElement);
+        body.insertBefore(mediaElement, body.firstChild);
+
+        setTimeout(function() {
+            Plugin.attachMediaStream(mediaElement, event.stream);
+
+            // here you can append "mediaElement" to specific container
+            // specificContainer.appendChild(mediaElement);
+        }, 3000);
+    } else {
+        // do chrome/Firefox relevant stuff with "event.stream"
+    }
+};
+```
+
+When `onicecandidate` event is fired:
+
+```javascript
+peer.onicecandidate = function(event) {
+    if (!event.candidate) return;
+    
+    // always use like this!
+    // don't use JSON.stringify
+    // or, don't directly send "event.candidate"
+    sendToRemoteParty({
+        candidate: event.candidate.candidate,
+        sdpMid: event.candidate.sdpMid,
+        sdpMLineIndex: event.candidate.sdpMLineIndex
+    });
+};
+```
+
+When getting local session-description (SDP):
+
+```javascript
+peer.setLocalDescription(localSdp);
+
+// always use like this!
+// don't use JSON.stringify
+// or, don't directly send "RTCSessionDescription" object
+sendToRemoteParty({
+    type: localSdp.type,
+    sdp: localSdp.sdp
+});
 ```
 
 =

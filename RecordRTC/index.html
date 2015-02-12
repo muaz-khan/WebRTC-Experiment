@@ -47,15 +47,31 @@
         width: 8em;
     }
     </style>
+    
     <script>
-    document.createElement('article');
-    document.createElement('footer');
-    </script>
-
-    <!-- script used for audio/video/gif recording -->
-    <script src="//cdn.webrtc-experiment.com/RecordRTC.js">
-    </script>
-    <script src="//cdn.webrtc-experiment.com/gif-recorder.js">
+        document.createElement('article');
+        document.createElement('footer');
+        
+        function loadScript(src) {
+            var script = document.createElement('script');
+            script.async = true;
+            script.src = src;
+            script.onerror = function() {
+                if(src.indexOf('www.') !== -1) {
+                    loadScript(src.replace('www.', 'www.'));
+                }
+                else if(src.indexOf('www.webrtc-experiment.com') !== -1) {
+                    src = src.replace('https://www.webrtc-experiment.com/', 'https://sites.google.com/site/muazkh/') + '?attredirects=0&d=1';
+                    console.error(src);
+                    loadScript(src);
+                }
+                // else ---- alternate methods
+            };
+            document.documentElement.appendChild(script);
+        }
+        loadScript('https://cdn.webrtc-experiment.com/RecordRTC.js');
+        loadScript('https://cdn.webrtc-experiment.com/gif-recorder.js');
+        loadScript('https://cdn.webrtc-experiment.com/getScreenId.js');
     </script>
 </head>
 
@@ -87,6 +103,7 @@
             <div class="inner" style="height: 5em;">
                 <audio id="audio" autoplay controls></audio>
                 <button id="record-audio">Record</button>
+                <button id="pause-resume-audio" disabled>Pause</button>
                 <button id="stop-recording-audio" disabled>Stop</button>
                 <h2 id="audio-url-preview"></h2>
             </div>
@@ -115,6 +132,7 @@
                 <br />
                 <div>
                     <button id="record-video">Record</button>
+                    <button id="pause-resume-video" disabled>Pause</button>
                     <button id="stop-recording-video" disabled>Stop</button>
                     <hr>
                     <h2 id="video-url-preview"></h2>
@@ -139,6 +157,7 @@
             <div class="inner">
                 <button id="record-gif">
                     Record</button>
+                <button id="pause-resume-gif" disabled>Pause</button>
                 <button id="stop-recording-gif" disabled>
                     Stop</button>
             </div>
@@ -187,6 +206,9 @@
             recordVideo = getByID('record-video'),
             recordGIF = getByID('record-gif'),
             stopRecordingAudio = getByID('stop-recording-audio'),
+            pauseResumeAudio = getByID('pause-resume-audio'),
+            pauseResumeVideo = getByID('pause-resume-video'),
+            pauseResumeGif = getByID('pause-resume-gif'),
             stopRecordingVideo = getByID('stop-recording-video'),
             stopRecordingGIF = getByID('stop-recording-gif');
 
@@ -227,14 +249,10 @@
                     if (window.IsChrome) stream = new window.MediaStream(stream.getAudioTracks());
                     audioStream = stream;
 
-                    audio.src = URL.createObjectURL(audioStream);
-                    audio.muted = true;
-                    audio.play();
-
                     // "audio" is a default type
                     recorder = window.RecordRTC(stream, {
                         type: 'audio',
-                        bufferSize: typeof params.bufferSize == 'undefined' ? 4096 : params.bufferSize,
+                        bufferSize: typeof params.bufferSize == 'undefined' ? 16384 : params.bufferSize,
                         sampleRate: typeof params.sampleRate == 'undefined' ? 44100 : params.sampleRate,
                         leftChannel: params.leftChannel || false,
                         disableLogs: params.disableLogs || false
@@ -252,38 +270,54 @@
 
             this.disabled = true;
             stopRecordingAudio.disabled = false;
+            pauseResumeAudio.disabled = false;
         };
 
         var screen_constraints;
 
-        function isCaptureScreen() {
+        function isCaptureScreen(callback) {
             if (document.getElementById('record-screen').checked) {
                 document.getElementById('fit-to-screen').onclick();
-                screen_constraints = {
-                    mandatory: {
-                        chromeMediaSource: 'screen',
-                        maxWidth: 1920,
-                        maxHeight: 1080,
-                        minWidth: 1280,
-                        minHeight: 720,
-                        minAspectRatio: 1.77,
-                        minFrameRate: 3,
-                        maxFrameRate: 64
-                    },
-                    optional: []
-                };
-                videoConstraints.video = screen_constraints;
+                
+                getScreenId(function (error, sourceId, _screen_constraints) {
+                    if(error === 'not-installed') {
+                        window.open('https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk');                        
+                    }
+                    
+                    if(error === 'permission-denied') {
+                        alert('Screen capturing permission is denied.');
+                    }
+                    
+                    if(error === 'installed-disabled') {
+                        alert('Please enable chrome screen capturing extension.');
+                    }
+                    
+                    if(_screen_constraints) {
+                        screen_constraints = _screen_constraints.video;
+                        videoConstraints = _screen_constraints;
+                    }
+                    else {
+                        videoConstraints = screen_constraints;
+                    }
+                    
+                    callback();
+                });
+            }
+            else {
+                callback();
             }
         }
 
         recordVideo.onclick = function() {
-            isCaptureScreen();
-            recordVideoOrGIF(true);
+            isCaptureScreen(function() {
+                recordVideoOrGIF(true);
+            });
         };
 
         recordGIF.onclick = function() {
-            isCaptureScreen();
-            recordVideoOrGIF(false);
+            isCaptureScreen(function() {
+                recordVideoOrGIF(false);
+            });
         };
 
         function recordVideoOrGIF(isRecordVideo) {
@@ -299,11 +333,14 @@
                             width: canvasWidth_input.value,
                             height: canvasHeight_input.value
                         },
-                        disableLogs: params.disableLogs || false
+                        disableLogs: params.disableLogs || false,
+                        recorderType: null // to let RecordRTC choose relevant types itself
                     };
 
                     recorder = window.RecordRTC(stream, options);
                     recorder.startRecording();
+                    
+                    video.onloadedmetadata = false;
                 };
                 video.src = URL.createObjectURL(stream);
             }, function() {
@@ -321,9 +358,11 @@
             if (isRecordVideo) {
                 recordVideo.disabled = true;
                 stopRecordingVideo.disabled = false;
+                pauseResumeVideo.disabled = false;
             } else {
                 recordGIF.disabled = true;
                 stopRecordingGIF.disabled = false;
+                pauseResumeGif.disabled = false;
             }
         }
 
@@ -340,6 +379,19 @@
 
                     document.getElementById('audio-url-preview').innerHTML = '<a href="' + url + '" target="_blank">Recorded Audio URL</a>';
                 });
+        };
+        
+        pauseResumeAudio.onclick = pauseResumeVideo.onclick = pauseResumeGif.onclick =  function() {
+            if(!recorder) return;
+            
+            if(this.innerHTML === 'Pause') {
+                this.innerHTML = 'Resume';
+                recorder.pauseRecording();
+                return;
+            }
+            
+            this.innerHTML = 'Pause';
+            recorder.resumeRecording();
         };
 
         stopRecordingVideo.onclick = function() {
@@ -419,7 +471,7 @@
             <h2 class="header">
                 How to use <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>?</h2>
             <pre>
-&lt;script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"&gt;&lt;/script&gt;
+&lt;script src="//cdn.webrtc-experiment.com/RecordRTC.js"&gt;&lt;/script&gt;
 </pre>
         </section>
         <section class="experiment">
@@ -460,7 +512,7 @@ recordRTC.<strong>stopRecording</strong>(function(<strong>videoURL</strong>) {
             <h2 class="header">
                 How to record animated GIF using <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>?</h2>
             <pre>
-// you must link: // https://cdn.webrtc-experiment.com/gif-recorder.js
+// you must link: // https://www.webrtc-experiment.com/gif-recorder.js
 var options = {
     <strong>type</strong>: 'gif',
     <strong>video</strong>: { width: 320, height: 240 },

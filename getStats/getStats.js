@@ -1,4 +1,4 @@
-// Last time updated at Sep 16, 2014, 08:32:23
+// Last time updated at Feb 05, 2015, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getStats.js
 
@@ -21,17 +21,24 @@ rtcPeerConnection.getStats(function(result) {
 });
 */
 
-(function () {
+(function() {
     RTCPeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-    window.getStats = function (callback, interval) {
+    window.getStats = function(mediaStreamTrack, callback, interval) {
         var peer = this;
-        
-        if(arguments[0] instanceof RTCPeerConnection) {
+
+        if (arguments[0] instanceof RTCPeerConnection) {
             peer = arguments[0];
-            callback = arguments[1];
-            interval = arguments[2];
+            mediaStreamTrack = arguments[1];
+            callback = arguments[2];
+            interval = arguments[3];
+
+            if (!(mediaStreamTrack instanceof window.MediaStreamTrack) && !!navigator.mozGetUserMedia) {
+                throw '2nd argument is not instance of MediaStreamTrack.';
+            }
+        } else if (!(mediaStreamTrack instanceof window.MediaStreamTrack) && !!navigator.mozGetUserMedia) {
+            throw '1st argument is not instance of MediaStreamTrack.';
         }
-        
+
         var globalObject = {
             audio: {},
             video: {}
@@ -42,12 +49,12 @@ rtcPeerConnection.getStats(function(result) {
         getPrivateStats();
 
         function getPrivateStats() {
-            _getStats(function (results) {
+            _getStats(function(results) {
                 var result = {
                     audio: {},
                     video: {},
                     results: results,
-                    nomore: function () {
+                    nomore: function() {
                         nomore = true;
                     }
                 };
@@ -119,7 +126,7 @@ rtcPeerConnection.getStats(function(result) {
                             googTransmitBitrate: res.googTransmitBitrate
                         };
                     }
-                    
+
                     // res.googActiveConnection means either STUN or TURN is used.
 
                     if (res.type == 'googCandidatePair' && res.googActiveConnection == 'true') {
@@ -150,12 +157,13 @@ rtcPeerConnection.getStats(function(result) {
         // following code-snippet is taken from somewhere on the github
         function _getStats(cb) {
             // if !peer or peer.signalingState == 'closed' then return;
-            
+
             if (!!navigator.mozGetUserMedia) {
                 peer.getStats(
-                    function (res) {
+                    mediaStreamTrack,
+                    function(res) {
                         var items = [];
-                        res.forEach(function (result) {
+                        res.forEach(function(result) {
                             items.push(result);
                         });
                         cb(items);
@@ -163,11 +171,11 @@ rtcPeerConnection.getStats(function(result) {
                     cb
                 );
             } else {
-                peer.getStats(function (res) {
+                peer.getStats(function(res) {
                     var items = [];
-                    res.result().forEach(function (result) {
+                    res.result().forEach(function(result) {
                         var item = {};
-                        result.names().forEach(function (name) {
+                        result.names().forEach(function(name) {
                             item[name] = result.stat(name);
                         });
                         item.id = result.id;
@@ -180,7 +188,7 @@ rtcPeerConnection.getStats(function(result) {
             }
         };
     }
-    
+
     function merge(mergein, mergeto) {
         if (!mergein) mergein = {};
         if (!mergeto) return mergein;

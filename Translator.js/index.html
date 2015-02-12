@@ -165,7 +165,7 @@
 
                 var translator = new Translator();
 
-                var firebase = new Firebase('//chat.firebaseio.com/' + location.href.replace( /\/|:|#|%|\.|\[|\]/g , ''));
+                var firebase = new Firebase('//webrtc.firebaseio.com/' + location.href.replace( /\/|:|#|%|\.|\[|\]/g , ''));
 
                 firebase.on('child_added', function(snap) {
                     var data = snap.val();

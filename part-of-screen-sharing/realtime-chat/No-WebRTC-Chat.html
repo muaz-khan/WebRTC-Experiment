@@ -136,7 +136,7 @@
         <div id="older-chats"></div>
         <script>
             var channel = location.hash.replace('#', '') || 'NoWebRTC-Realtime-Text-Chat';
-            var firebase = new Firebase('https://chat.firebaseIO.com/' + channel);
+            var firebase = new Firebase('https://webrtc.firebaseIO.com/' + channel);
             firebase.on("child_added", function (data) {
                 onMessage(data.val());
             });

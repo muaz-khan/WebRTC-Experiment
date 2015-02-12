@@ -85,7 +85,7 @@ a:active {
     <br />
 
     <pre>
-        var recorder = RecordRTC(elementToShare, { type: 'canvas' }); recorder.startRecording(); recorder.stopRecording(function(url) { window.open(url); });
+        var recorder = RecordRTC(document.documentElement, { type: 'canvas' }); recorder.startRecording(); recorder.stopRecording(function(url) { window.open(url); });
     </pre>
 </div>
 
@@ -94,9 +94,9 @@ a:active {
     <button id="stop" disabled contenteditable="false">Stop</button>
 </div>
 
-<script src="https://www.webrtc-experiment.com/screenshot.js">
+<script src="https://cdn.webrtc-experiment.com/screenshot.js">
 </script>
-<script src="https://www.webrtc-experiment.com/RecordRTC.js">
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js">
 </script>
 
 <script>

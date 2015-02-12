@@ -56,6 +56,10 @@ function RecordRTC(mediaStream, config) {
             Recorder = window.CanvasRecorder;
         }
 
+        if (config.recorderType) {
+            Recorder = config.recorderType;
+        }
+
         mediaRecorder = new Recorder(mediaStream);
 
         // Merge all data-types except "function"
@@ -127,6 +131,32 @@ function RecordRTC(mediaStream, config) {
                 parameter[config.type + 'Blob'] = dataURL;
                 DiskStorage.Store(parameter);
             });
+        }
+    }
+
+    function pauseRecording() {
+        if (!mediaRecorder) {
+            return console.warn(WARNING);
+        }
+
+        // not all libs yet having  this method
+        if (mediaRecorder.pause) {
+            mediaRecorder.pause();
+        } else if (!config.disableLogs) {
+            console.warn('This recording library is having no "pause" method.');
+        }
+    }
+
+    function resumeRecording() {
+        if (!mediaRecorder) {
+            return console.warn(WARNING);
+        }
+
+        // not all libs yet having  this method
+        if (mediaRecorder.resume) {
+            mediaRecorder.resume();
+        } else if (!config.disableLogs) {
+            console.warn('This recording library is having no "resume" method.');
         }
     }
 
@@ -205,9 +235,28 @@ function RecordRTC(mediaStream, config) {
          *     video.src = videoURL;
          *     recordRTC.blob; recordRTC.buffer;
          * });
-         * @todo Implement <code class="str">recordRTC.stopRecording().getDataURL(callback);</code>
          */
         stopRecording: stopRecording,
+
+        /**
+         * This method pauses the recording process.
+         * @method
+         * @memberof RecordRTC
+         * @instance
+         * @example
+         * recordRTC.pauseRecording();
+         */
+        pauseRecording: pauseRecording,
+
+        /**
+         * This method resumes the recording process.
+         * @method
+         * @memberof RecordRTC
+         * @instance
+         * @example
+         * recordRTC.resumeRecording();
+         */
+        resumeRecording: resumeRecording,
 
         /**
          * It is equivalent to <code class="str">"recordRTC.blob"</code> property.

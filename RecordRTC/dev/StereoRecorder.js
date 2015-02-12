@@ -61,6 +61,36 @@ function StereoRecorder(mediaStream) {
         });
     };
 
+    /**
+     * This method pauses the recording process.
+     * @method
+     * @memberof StereoRecorder
+     * @example
+     * recorder.pause();
+     */
+    this.pause = function() {
+        if (!mediaRecorder) {
+            return;
+        }
+
+        mediaRecorder.pause();
+    };
+
+    /**
+     * This method resumes the recording process.
+     * @method
+     * @memberof StereoRecorder
+     * @example
+     * recorder.resume();
+     */
+    this.resume = function() {
+        if (!mediaRecorder) {
+            return;
+        }
+
+        mediaRecorder.resume();
+    };
+
     // Reference to "StereoAudioRecorder" object
     var mediaRecorder;
 }

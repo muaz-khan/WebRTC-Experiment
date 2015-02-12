@@ -81,6 +81,14 @@ rtcPeerConnection.getPeerStats(function(result) {
 }, repeatInterval);
 ```
 
+## Firefox?
+
+```javascript
+peer.getStats(peer.getLocalStreams()[0].getAudioTracks()[0], function(results) {
+    // rest goes here
+}, 5 * 1000);
+```
+
 ## result.audio
 
 1. availableBandwidth

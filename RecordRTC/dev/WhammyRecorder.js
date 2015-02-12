@@ -79,11 +79,22 @@ function WhammyRecorder(mediaStream) {
     function drawFrames() {
         var duration = new Date().getTime() - lastTime;
         if (!duration) {
-            return drawFrames();
+            return setTimeout(drawFrames, 10);
+        }
+
+        if (isPausedRecording) {
+            lastTime = new Date().getTime();
+            return setTimeout(drawFrames, 100);
         }
 
         // via #206, by Jack i.e. @Seymourr
         lastTime = new Date().getTime();
+
+        if (video.paused) {
+            // via: https://github.com/muaz-khan/WebRTC-Experiment/pull/316
+            // Tweak for Android Chrome
+            video.play();
+        }
 
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         whammy.frames.push({
@@ -217,18 +228,52 @@ function WhammyRecorder(mediaStream) {
              *     var blob = recorder.blob;
              * });
              */
-            _this.blob = whammy.compile();
+            whammy.compile(function(blob) {
+                _this.blob = blob;
 
-            if (_this.blob.forEach) {
-                _this.blob = new Blob([], {
-                    type: 'video/webm'
-                });
-            }
+                if (_this.blob.forEach) {
+                    _this.blob = new Blob([], {
+                        type: 'video/webm'
+                    });
+                }
 
-            if (callback) {
-                callback(_this.blob);
-            }
+                if (callback) {
+                    callback(_this.blob);
+                }
+            });
         }, 10);
+    };
+
+    var isPausedRecording = false;
+
+    /**
+     * This method pauses the recording process.
+     * @method
+     * @memberof WhammyRecorder
+     * @example
+     * recorder.pause();
+     */
+    this.pause = function() {
+        isPausedRecording = true;
+
+        if (!this.disableLogs) {
+            console.debug('Paused recording.');
+        }
+    };
+
+    /**
+     * This method resumes the recording process.
+     * @method
+     * @memberof WhammyRecorder
+     * @example
+     * recorder.resume();
+     */
+    this.resume = function() {
+        isPausedRecording = false;
+
+        if (!this.disableLogs) {
+            console.debug('Resumed recording.');
+        }
     };
 
     var canvas = document.createElement('canvas');

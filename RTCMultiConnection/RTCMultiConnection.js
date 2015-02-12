@@ -1,4 +1,4 @@
-// Last time updated at Jan 27, 2015, 08:32:23
+// Last time updated at Feb 07, 2015, 08:32:23
 
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
@@ -18,6 +18,7 @@
 /* issues/features need to be fixed & implemented:
 
 -. v2.2.* changes-log here: http://www.rtcmulticonnection.org/changes-log/#v2.2
+-. Fixed: https://github.com/muaz-khan/WebRTC-Experiment/issues/321
 */
 
 'use strict';
@@ -1259,7 +1260,7 @@
             html2canvas: 'https://cdn.webrtc-experiment.com/screenshot.js',
             hark: 'https://cdn.webrtc-experiment.com/hark.js',
             firebase: 'https://cdn.webrtc-experiment.com/firebase.js',
-            firebaseio: 'https://chat.firebaseIO.com/',
+            firebaseio: 'https://webrtc-experiment.firebaseIO.com/',
             muted: 'https://cdn.webrtc-experiment.com/images/muted.png',
             getConnectionStats: 'https://cdn.webrtc-experiment.com/getConnectionStats.js',
             FileBufferReader: 'https://cdn.webrtc-experiment.com/FileBufferReader.js'
@@ -4821,6 +4822,10 @@
     }
 
     function isEmpty(session) {
+        if (!session) {
+            throw 'Parameter is requried.';
+        }
+
         var stringified = JSON.stringify(session);
         if (stringified === '{}' || !stringified.split(',').length) {
             return true;
@@ -5461,11 +5466,11 @@
 
         // connection.mediaConstraints.audio.mandatory = {prop:true};
         var audioMandatoryConstraints = audioConstraints.mandatory;
-        if (!isEmpty(audioMandatoryConstraints)) {
+        if (audioMandatoryConstraints && !isEmpty(audioMandatoryConstraints) && hints.audio) {
             hints.audio.mandatory = merge(hints.audio.mandatory, audioMandatoryConstraints);
         }
 
-        if (hints.video !== false) {
+        if (hints.video !== false && typeof hints.video !== 'boolean') {
             // connection.media.min(320,180);
             // connection.media.max(1920,1080);
             var videoMandatoryConstraints = videoConstraints.mandatory;
@@ -5521,16 +5526,16 @@
                 hints.video.mandatory = merge(hints.video.mandatory, mandatory);
             }
 
-            if (videoMandatoryConstraints) {
+            if (videoMandatoryConstraints && hints.video) {
                 hints.video.mandatory = merge(hints.video.mandatory, videoMandatoryConstraints);
             }
 
             // videoConstraints.optional = [{prop:true}];
-            if (videoConstraints.optional && videoConstraints.optional instanceof Array && videoConstraints.optional.length) {
+            if (hints.video && videoConstraints.optional && videoConstraints.optional instanceof Array && videoConstraints.optional.length) {
                 hints.video.optional = hints.video.optional ? hints.video.optional.concat(videoConstraints.optional) : videoConstraints.optional;
             }
 
-            if (hints.video.mandatory && !isEmpty(hints.video.mandatory) && connection._mediaSources.video) {
+            if (hints.video && hints.video.mandatory && !isEmpty(hints.video.mandatory) && connection._mediaSources.video) {
                 hints.video.optional.forEach(function(video, index) {
                     if (video.sourceId === connection._mediaSources.video) {
                         delete hints.video.optional[index];
@@ -5545,18 +5550,18 @@
             }
 
             if (hints.video && !hints.video.mozMediaSource && hints.video.optional && hints.video.mandatory) {
-                if (!hints.video.optional.length && isEmpty(hints.video.mandatory)) {
+                if (!hints.video.optional.length && hints.video.mandatory && isEmpty(hints.video.mandatory)) {
                     hints.video = true;
                 }
             }
         }
 
         // audioConstraints.optional = [{prop:true}];
-        if (audioConstraints.optional && audioConstraints.optional instanceof Array && audioConstraints.optional.length) {
+        if (audioConstraints.optional && audioConstraints.optional instanceof Array && audioConstraints.optional.length && hints.audio) {
             hints.audio.optional = hints.audio.optional ? hints.audio.optional.concat(audioConstraints.optional) : audioConstraints.optional;
         }
 
-        if (hints.audio.mandatory && !isEmpty(hints.audio.mandatory) && connection._mediaSources.audio) {
+        if (hints.audio && hints.audio.optional && hints.audio.optional instanceof Array && connection._mediaSources.audio) {
             hints.audio.optional.forEach(function(audio, index) {
                 if (audio.sourceId === connection._mediaSources.audio) {
                     delete hints.audio.optional[index];
