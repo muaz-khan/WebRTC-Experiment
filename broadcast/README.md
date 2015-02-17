@@ -2,10 +2,10 @@
 
 =
 
-1. This [WebRTC](https://www.webrtc-experiment.com/) experiment is aimed to transmit audio/video stream in one-to-many style.
-2. It setups multiple peer connections to support multi-user connectivity feature. Rememebr, [WebRTC](https://www.webrtc-experiment.com/) doesn't supports 3-way handshake!
-3. Out of multi-peers establishment; many RTP-ports are opened according to number of media streamas referenced to each peer connection.
-4. Multi-ports establishment will cause huge [CPU and bandwidth usage](https://www.webrtc-experiment.com/docs/RTP-usage.html)!
+1. This [WebRTC](https://www.webrtc-experiment.com/) experiment is for one-to-many transmission of audio/video streams.
+2. It sets up multiple peer connections to support the multi-user connectivity feature. Rememebr, [WebRTC](https://www.webrtc-experiment.com/) doesn't supports 3-way handshake!
+3. Multi-peers establishment opens many RTP-ports according to the number of media streamas referenced to each peer connection.
+4. Multi-ports establishment causes huge [CPU and bandwidth usage](https://www.webrtc-experiment.com/docs/RTP-usage.html)!
 
 =
 
@@ -37,7 +37,7 @@ For signaling; please check following page:
 
 https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
-Remember, you can use any signaling implementation exists out there without modifying any single line! Just skip below code and open [above link](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)!
+Remember, you can use any signaling implementation without modifying a single line! Just skip below code and open [above link](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)!
 
 =
 
