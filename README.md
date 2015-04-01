@@ -194,6 +194,9 @@ You don't need to modify any single line to use it. No single installation or mo
 | Manual session establishment + extra data transmission + video conferencing | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/manual-session-establishment-plus-extra-data-transmission-plus-videoconferencing.html) |
 | takeSnapshot i.e. Take Snapshot of Local/Remote streams | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/takeSnapshot.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/takeSnapshot.html) |
 | Audio/Video/Screen sharing and recording | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/audio-video-screen-sharing-recording.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/audio-video-screen-sharing-recording.html) |
+| Broadcast Multiple-Cameras | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/Broadcast-Multiple-Cameras.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Broadcast-Multiple-Cameras.html) |
+| Remote Stream Forwarding | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/remote-stream-forwarding.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/remote-stream-forwarding.html) |
+| WebRTC Scalable Broadcast | Socketio/Nodejs | [Source](https://github.com/muaz-khan/WebRTC-Scalable-Broadcast) |
 
 ## [Demos](https://www.webrtc-experiment.com/Conversationjs/) using [Conversation.js](https://github.com/muaz-khan/Conversation.js)
 
@@ -239,12 +242,14 @@ You don't need to modify any single line to use it. No single installation or mo
 
 =
 
-## [ffmpeg-asm.js Demos](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ffmpeg)
+## [ffmpeg-asm.js && Ffmpeg Demos](https://github.com/muaz-khan/Ffmpeg.js)
 
-1. [Transcoding WAV into Ogg](https://www.webrtc-experiment.com/ffmpeg/wav-to-ogg.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/wav-to-ogg.html)
-2. [Transcoding WebM into mp4](https://www.webrtc-experiment.com/ffmpeg/wav-to-ogg.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/webm-to-mp4.html)
-3. [Transcoding WebM into mp4; then merging WAV+mp4 into single mp4](https://www.webrtc-experiment.com/ffmpeg/merging-wav-and-webm-into-mp4.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/merging-wav-and-webm-into-mp4.html)
-4. [Recording Audio+Canvas and merging in single mp4](https://www.webrtc-experiment.com/ffmpeg/audio-plus-canvas-recording.html) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/audio-plus-canvas-recording.html)
+| Demo Name        | Live Demo           | Source Code |
+| ------------- |-------------|-------------|
+| Transcoding WAV into Ogg | [Live Demo](https://www.webrtc-experiment.com/ffmpeg/wav-to-ogg.html)  | [Source Code](https://github.com/muaz-khan/Ffmpeg.js/blob/master/wav-to-ogg.html) |
+| Transcoding WebM into mp4 | [Live Demo](https://www.webrtc-experiment.com/ffmpeg/webm-to-mp4.html)  | [Source Code](https://github.com/muaz-khan/Ffmpeg.js/blob/master/webm-to-mp4.html) |
+| Transcoding WebM into mp4; then merging WAV+mp4 into single mp4 | [Live Demo](https://www.webrtc-experiment.com/ffmpeg/merging-wav-and-webm-into-mp4.html)  | [Source Code](https://github.com/muaz-khan/Ffmpeg.js/blob/master/merging-wav-and-webm-into-mp4.html) |
+| Recording Audio+Canvas and merging in single mp4 | [Live Demo](https://www.webrtc-experiment.com/ffmpeg/audio-plus-canvas-recording.html)  | [Source Code](https://github.com/muaz-khan/Ffmpeg.js/blob/master/audio-plus-canvas-recording.html) |
 
 =
 
@@ -467,7 +472,8 @@ getScreenId(function (error, sourceId, screen_constraints) {
 3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
 4. Google+: https://plus.google.com/+WebRTC-Experiment
 5. Facebook: https://www.facebook.com/WebRTC
+6. Blog: http://muaz-khan.blogspot.com
 
 # License
 
-All [WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+All [WebRTC Experiments](https://github.com/muaz-khan/WebRTC-Experiment) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.muazkhan.com/).

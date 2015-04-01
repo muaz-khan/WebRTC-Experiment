@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>RecordRTC WebM to mp4 using ffmpeg-asm.js ® Muaz Khan</title>
+        <title>RecordRTC Merging WebM/WAV into mp4 using ffmpeg-asm.js ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -56,13 +56,12 @@
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a> WebM to mp4 using <a href="http://bgrins.github.io/videoconverter.js/">ffmpeg-asm.js</a>!
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a> Merging WebM/WAV into mp4 using <a href="http://bgrins.github.io/videoconverter.js/">ffmpeg-asm.js</a>!
                 </h1>            
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
                     <span> &copy; </span>
                     <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
-                    
                     .
                     <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
                     
@@ -70,10 +69,10 @@
                     <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
                     
                     .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    <a href="https://github.com/muaz-khan/Ffmpeg.js/issues?state=open" target="_blank">Latest issues</a>
                     
                     .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                    <a href="https://github.com/muaz-khan/Ffmpeg.js/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
 
@@ -83,13 +82,17 @@
                 <h2 class="header">Logs</h2>
                 <ol id="logs-preview">
                     <li>
-                        <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a> experiment converting WebM to mp4 inside the browser!
+                        <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a> experiment converting Merging WebM/WAV into mp4 inside the browser!
+                    </li>
+                    
+                    <li>
+                        <strong>ffmpeg-asm.js</strong> is integrated with <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a> by <strong>Gregory McGee</strong>!
                     </li>
                 </ol>
             </section>
             
             <section class="experiment">  
-                <h2 class="header">Record Video and convert into "mp4" using <a href="https://cdn.webrtc-experiment.com/ffmpeg_asm.js" download="ffmpeg-asm.js">ffmpeg-asm.js</a>!</h2>
+                <h2 class="header">Record audio/video and convert/merge into "mp4"!</h2>
 			
                 <div class="inner">
                     <video id="video-preview" controls></video>
@@ -98,7 +101,7 @@
                 </div>
             </section>
             <script>
-                var recordVideo;
+                var recordVideo, recordAudio;
                 var videoPreview = document.getElementById('video-preview');
                 var inner = document.querySelector('.inner');
                 var videoFile = !!navigator.mozGetUserMedia ? 'video.gif' : 'video.webm';
@@ -106,16 +109,24 @@
                 document.querySelector('#record-video').onclick = function() {
                     this.disabled = true;
                     navigator.getUserMedia({
+                            audio: true,
                             video: true
                         }, function(stream) {
                             videoPreview.src = window.URL.createObjectURL(stream);
                             videoPreview.play();
 
-                            recordVideo = RecordRTC(stream, {
-                                type: 'video'
+                            recordAudio = RecordRTC(stream, {
+                                // bufferSize: 16384,
+                                onAudioProcessStarted: function() {
+                                    recordVideo.startRecording();
+                                }
                             });
 
-                            recordVideo.startRecording();
+                            recordVideo = RecordRTC(stream, {
+                                type: videoFile.indexOf('gif') == -1 ? 'video' : 'gif'
+                            });
+
+                            recordAudio.startRecording();
                         }, function(error) { throw error;});
                     document.querySelector('#stop-recording-video').disabled = false;
                 };
@@ -123,17 +134,17 @@
                 document.querySelector('#stop-recording-video').onclick = function() {
                     this.disabled = true;
 
-                    recordVideo.stopRecording(function(url) {
-                        videoPreview.src = url;
-                        videoPreview.download = videoFile;
-                        
-                        log('<a href="'+ workerPath +'" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file download started. It is about 18MB in size; please be patient!');
-                        convertStreams(recordVideo.getBlob());
+                    recordAudio.stopRecording(function() {
+                        recordVideo.stopRecording(function() {
+                            convertStreams(recordVideo.getBlob(), recordAudio.getBlob());
+
+                            log('<a href="'+ workerPath +'" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file download started. It is about 18MB in size; please be patient!');
+                        });
                     });
                 };
 
                 // var workerPath = location.href.replace(location.href.split('/').pop(), '') + 'ffmpeg_asm.js';
-                var workerPath = 'https://cdn.webrtc-experiment.com/ffmpeg_asm.js';
+                var workerPath = 'https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.googledrive.com/host/0B6GWd_dUUTT8WjhzNlloZmZtdzA/ffmpeg_asm.js';
 
                 function processInWebWorker() {
                     var blob = URL.createObjectURL(new Blob(['importScripts("' + workerPath + '");var now = Date.now;function print(text) {postMessage({"type" : "stdout","data" : text});};onmessage = function(event) {var message = event.data;if (message.type === "command") {var Module = {print: print,printErr: print,files: message.files || [],arguments: message.arguments || [],TOTAL_MEMORY: message.TOTAL_MEMORY || false};postMessage({"type" : "start","data" : Module.arguments.join(" ")});postMessage({"type" : "stdout","data" : "Received command: " +Module.arguments.join(" ") +((Module.TOTAL_MEMORY) ? ".  Processing with " + Module.TOTAL_MEMORY + " bits." : "")});var time = now();var result = ffmpeg_run(Module);var totalTime = now() - time;postMessage({"type" : "stdout","data" : "Finished processing (took " + totalTime + "ms)"});postMessage({"type" : "done","data" : result,"time" : totalTime});}};postMessage({"type" : "ready"});'], {
@@ -147,18 +158,32 @@
 
                 var worker;
 
-                function convertStreams(videoBlob) {
+                function convertStreams(videoBlob, audioBlob) {
+                    var vab;
                     var aab;
                     var buffersReady;
                     var workerReady;
-                    var posted;
+                    var posted = false;
 
-                    var fileReader = new FileReader();
-                    fileReader.onload = function() {
-                        aab = this.result;
-                        postMessage();
+                    var fileReader1 = new FileReader();
+                    fileReader1.onload = function() {
+                        vab = this.result;
+
+                        if (aab) buffersReady = true;
+
+                        if (buffersReady && workerReady && !posted) postMessage();
                     };
-                    fileReader.readAsArrayBuffer(videoBlob);
+                    var fileReader2 = new FileReader();
+                    fileReader2.onload = function() {
+                        aab = this.result;
+
+                        if (vab) buffersReady = true;
+
+                        if (buffersReady && workerReady && !posted) postMessage();
+                    };
+
+                    fileReader1.readAsArrayBuffer(videoBlob);
+                    fileReader2.readAsArrayBuffer(audioBlob);
 
                     if (!worker) {
                         worker = processInWebWorker();
@@ -168,7 +193,6 @@
                         var message = event.data;
                         if (message.type == "ready") {
                             log('<a href="'+ workerPath +'" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file has been loaded.');
-
                             workerReady = true;
                             if (buffersReady)
                                 postMessage();
@@ -198,14 +222,21 @@
                             type: 'command',
                             arguments: [
                                 '-i', videoFile, 
+                                '-i', 'audio.wav', 
                                 '-c:v', 'mpeg4', 
+                                '-c:a', 'vorbis', 
                                 '-b:v', '6400k', 
+                                '-b:a', '4800k', 
                                 '-strict', 'experimental', 'output.mp4'
                             ],
                             files: [
                                 {
-                                    data: new Uint8Array(aab),
+                                    data: new Uint8Array(vab),
                                     name: videoFile
+                                },
+                                {
+                                    data: new Uint8Array(aab),
+                                    name: "audio.wav"
                                 }
                             ]
                         });
@@ -265,18 +296,18 @@
             
             <section class="experiment">
                 <p style="margin-top: 0;">
-                    RecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">Documentation</a>
+                    RecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">Documentation</a>
                 </p>
             </section>
 			
             <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/Ffmpeg.js/commits/master" target="_blank">Latest Updates</a></h2>
                 <div id="github-commits"></div>
             </section>  
         </article>
         
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ffmpeg" class="fork-right"></a>
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" class="fork-left"></a>
+        <a href="https://github.com/muaz-khan/Ffmpeg.js" class="fork-right"></a>
+        <a href="https://github.com/muaz-khan/RecordRTC" class="fork-left"></a>
         
         <footer>
             <p>
@@ -287,7 +318,7 @@
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
-        <script src="https://cdn.webrtc-experiment.com/ffmpeg_asm.js" async> </script>
+        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script> 
+        <script src="https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.googledrive.com/host/0B6GWd_dUUTT8WjhzNlloZmZtdzA/ffmpeg_asm.js" async> </script>
     </body>
 </html>

@@ -44,7 +44,7 @@
         };
 
         function setupSignalingChannel() {
-            var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
+            var SIGNALING_SERVER = 'https://signaling-muazkh.c9.io:443/';
             self.openSignalingChannel = function(config) {
                 var channel = config.channel || this.channel || 'default-namespace';
                 var sender = Math.round(Math.random() * 9999999999) + 9999999999;

@@ -1,12 +1,12 @@
 {
     "name" : "Tab Capturing & Sharing",
     "author": "Muaz Khan",
-    "version" : "1.4",
+    "version" : "1.5",
     "manifest_version" : 2,
     "description" : "Capture & Share any tab privately with multiple users!",
     "homepage_url": "https://www.webrtc-experiment.com/",
     "background": {
-        "scripts": ["RTCMultiConnection.js", "tab-capturing.js"],
+        "scripts": ["websocket.js", "RTCMultiConnection.js", "tab-capturing.js"],
 		"persistent": false
     },
     "permissions": [

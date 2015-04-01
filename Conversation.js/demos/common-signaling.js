@@ -1,4 +1,4 @@
-var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
+var SIGNALING_SERVER = 'https://signaling-muazkh.c9.io:443/';
 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
 var sender = Math.round(Math.random() * 9999999999) + 9999999999;

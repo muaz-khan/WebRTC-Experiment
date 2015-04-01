@@ -62,7 +62,7 @@
                     config = config || {};
 
                     channel = config.channel || self.channel || 'default-channel';
-                    var socket = new window.Firebase('https://' + (self.firebase || 'chat') + '.firebaseIO.com/' + channel);
+                    var socket = new window.Firebase('https://' + (self.firebase || 'webrtc-experiment') + '.firebaseIO.com/' + channel);
                     socket.channel = channel;
 
                     socket.on('child_added', function (data) {
@@ -266,7 +266,7 @@
         if (self.automatic) {
             if (window.Firebase) {
                 console.debug('checking presence of the room..');
-                new window.Firebase('https://' + (extras.firebase || self.firebase || 'chat') + '.firebaseIO.com/' + self.channel).once('value', function (data) {
+                new window.Firebase('https://' + (extras.firebase || self.firebase || 'webrtc-experiment') + '.firebaseIO.com/' + self.channel).once('value', function (data) {
                     console.debug('room is present?', data.val() != null);
                     self.openNewSession(data.val() == null);
                 });

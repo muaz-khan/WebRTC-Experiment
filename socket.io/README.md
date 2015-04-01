@@ -9,7 +9,7 @@ It supports any socket.io signaling gateway. Socket.io over Node.js is preferred
 First of all; link following library:
 
 ```javascript
-http://www.webrtc-experiment.com/socket.io/PeerConnection.js
+http://cdn.webrtc-experiment.com/socket.io/PeerConnection.js
 ```
 
 =

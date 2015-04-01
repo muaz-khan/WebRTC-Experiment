@@ -107,8 +107,8 @@
                     src: URL.createObjectURL(stream)
                 });
                 
-                video.width = resolution_x;
-                video.height = resolution_y;
+                //video.width = resolution_x;
+                //video.height = resolution_y;
                 
                 video.addEventListener('loadedmetadata', function() {
                     multiStreamRecorder = new MultiStreamRecorder(stream);

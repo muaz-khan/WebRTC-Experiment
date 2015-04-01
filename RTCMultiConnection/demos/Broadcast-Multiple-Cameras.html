@@ -72,7 +72,7 @@ connection.DetectRTC.load(function() {
 
 // signaling implementation
 // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs
-var SIGNALING_SERVER = 'wss://wsnodejs.nodejitsu.com:443';
+var SIGNALING_SERVER = 'wss://ws-muazkh.c9.io:443';
 connection.openSignalingChannel = function(config) {
     config.channel = config.channel || this.channel;
     var websocket = new WebSocket(SIGNALING_SERVER);

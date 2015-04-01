@@ -26,11 +26,18 @@ function MediaStreamRecorder(mediaStream) {
         mediaRecorder = new Recorder(mediaStream);
         mediaRecorder.ondataavailable = this.ondataavailable;
         mediaRecorder.onstop = this.onstop;
+        mediaRecorder.onStartedDrawingNonBlankFrames = this.onStartedDrawingNonBlankFrames;
 
         // Merge all data-types except "function"
         mediaRecorder = mergeProps(mediaRecorder, this);
 
         mediaRecorder.start(timeSlice);
+    };
+
+    this.onStartedDrawingNonBlankFrames = function() {};
+    this.clearOldRecordedFrames = function() {
+        if (!mediaRecorder) return;
+        mediaRecorder.clearOldRecordedFrames();
     };
 
     this.stop = function() {

@@ -12,9 +12,11 @@ function StereoAudioRecorder(mediaStream, root) {
     var recordingLength = 0;
     var volume;
     var audioInput;
-    var sampleRate = 44100;
+    var sampleRate = root.sampleRate || 44100; // range: 22050 to 96000
     var audioContext;
     var context;
+
+    var numChannels = root.audioChannels || 2;
 
     this.record = function() {
         recording = true;
@@ -22,30 +24,34 @@ function StereoAudioRecorder(mediaStream, root) {
         leftchannel.length = rightchannel.length = 0;
         recordingLength = 0;
     };
-    
+
     this.requestData = function() {
-        if(recordingLength == 0) {
+        if (recordingLength == 0) {
             requestDataInvoked = false;
             return;
         }
-        
+
         requestDataInvoked = true;
         // clone stuff
         var internal_leftchannel = leftchannel.slice(0);
         var internal_rightchannel = rightchannel.slice(0);
         var internal_recordingLength = recordingLength;
-        
+
         // reset the buffers for the new recording
         leftchannel.length = rightchannel.length = [];
         recordingLength = 0;
         requestDataInvoked = false;
-        
+
         // we flat the left and right channels down
         var leftBuffer = mergeBuffers(internal_leftchannel, internal_recordingLength);
         var rightBuffer = mergeBuffers(internal_leftchannel, internal_recordingLength);
-        
+
         // we interleave both channels together
-        var interleaved = interleave(leftBuffer, rightBuffer);
+        if (numChannels === 2) {
+            var interleaved = interleave(leftBuffer, rightBuffer);
+        } else {
+            var interleaved = leftBuffer;
+        }
 
         // we create our wav file
         var buffer = new ArrayBuffer(44 + interleaved.length * 2);
@@ -60,10 +66,10 @@ function StereoAudioRecorder(mediaStream, root) {
         view.setUint32(16, 16, true);
         view.setUint16(20, 1, true);
         // stereo (2 channels)
-        view.setUint16(22, 2, true);
+        view.setUint16(22, numChannels, true);
         view.setUint32(24, sampleRate, true);
         view.setUint32(28, sampleRate * 4, true);
-        view.setUint16(32, 4, true);
+        view.setUint16(32, numChannels * 2, true);
         view.setUint16(34, 16, true);
         // data sub-chunk
         writeUTFBytes(view, 36, 'data');
@@ -79,7 +85,11 @@ function StereoAudioRecorder(mediaStream, root) {
         }
 
         // our final binary blob
-        var blob = new Blob([view], { type: 'audio/wav' });
+        var blob = new Blob([view], {
+            type: 'audio/wav'
+        });
+
+        console.debug('audio recorded blob size:', bytesToSize(blob.size));
 
         root.ondataavailable(blob);
     };
@@ -124,7 +134,7 @@ function StereoAudioRecorder(mediaStream, root) {
     }
 
     // creates the audio context
-    
+
     // creates the audio context
     var audioContext = ObjectStore.AudioContext;
 
@@ -145,7 +155,7 @@ function StereoAudioRecorder(mediaStream, root) {
 
     // creates an audio node from the microphone incoming stream
     var audioInput = ObjectStore.AudioInput;
-    
+
     // connect the stream to the gain node
     audioInput.connect(volume);
 
@@ -154,35 +164,47 @@ function StereoAudioRecorder(mediaStream, root) {
     Lower values for buffer size will result in a lower (better) latency.
     Higher values will be necessary to avoid audio breakup and glitches 
     Legal values are 256, 512, 1024, 2048, 4096, 8192, and 16384.*/
-    var bufferSize = 2048;
+    var bufferSize = root.bufferSize || 2048;
+    if (root.bufferSize == 0) bufferSize = 0;
+
     if (context.createJavaScriptNode) {
-        scriptprocessornode = context.createJavaScriptNode(bufferSize, 2, 2);
+        scriptprocessornode = context.createJavaScriptNode(bufferSize, numChannels, numChannels);
     } else if (context.createScriptProcessor) {
-        scriptprocessornode = context.createScriptProcessor(bufferSize, 2, 2);
+        scriptprocessornode = context.createScriptProcessor(bufferSize, numChannels, numChannels);
     } else {
         throw 'WebAudio API has no support on this browser.';
     }
 
+    bufferSize = scriptprocessornode.bufferSize;
+
+    console.debug('using audio buffer-size:', bufferSize);
+
     var requestDataInvoked = false;
-    
+
     // sometimes "scriptprocessornode" disconnects from he destination-node
     // and there is no exception thrown in this case.
     // and obviously no further "ondataavailable" events will be emitted.
     // below global-scope variable is added to debug such unexpected but "rare" cases.
     window.scriptprocessornode = scriptprocessornode;
-    
+
+    if (numChannels == 1) {
+        console.debug('All right-channels are skipped.');
+    }
+
     // http://webaudio.github.io/web-audio-api/#the-scriptprocessornode-interface
     scriptprocessornode.onaudioprocess = function(e) {
         if (!recording || requestDataInvoked) return;
-        
+
         var left = e.inputBuffer.getChannelData(0);
-        var right = e.inputBuffer.getChannelData(1);
-        // we clone the samples
         leftchannel.push(new Float32Array(left));
-        rightchannel.push(new Float32Array(right));
+
+        if (numChannels == 2) {
+            var right = e.inputBuffer.getChannelData(1);
+            rightchannel.push(new Float32Array(right));
+        }
         recordingLength += bufferSize;
     };
-    
+
     volume.connect(scriptprocessornode);
     scriptprocessornode.connect(context.destination);
 }

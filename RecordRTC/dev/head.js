@@ -1,4 +1,4 @@
-// Last time updated at Feb 12, 2015, 08:32:23
+// Last time updated at March 13, 2015, 08:32:23
 
 // links:
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
@@ -11,6 +11,7 @@
 // updates?
 /*
 -. Fixed echo.
+-. CanvasRecorder fixed.
 -. You can pass "recorderType" - RecordRTC(stream, { recorderType: window.WhammyRecorder });
 -. If MediaStream is suddenly stopped in Firefox.
 -. Added "disableLogs"         - RecordRTC(stream, { disableLogs: true });

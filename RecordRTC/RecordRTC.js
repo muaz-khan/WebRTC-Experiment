@@ -1,4 +1,4 @@
-// Last time updated at Feb 12, 2015, 08:32:23
+// Last time updated at March 13, 2015, 08:32:23
 
 // links:
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
@@ -11,6 +11,7 @@
 // updates?
 /*
 -. Fixed echo.
+-. CanvasRecorder fixed.
 -. You can pass "recorderType" - RecordRTC(stream, { recorderType: window.WhammyRecorder });
 -. If MediaStream is suddenly stopped in Firefox.
 -. Added "disableLogs"         - RecordRTC(stream, { disableLogs: true });
@@ -172,7 +173,7 @@ function RecordRTC(mediaStream, config) {
                 callback(url);
             }
 
-            if (!config.disableLogs) {
+            if (blob && !config.disableLogs) {
                 console.debug(blob.type, '->', bytesToSize(blob.size));
             }
 
@@ -1798,6 +1799,8 @@ function CanvasRecorder(htmlElement) {
      */
     this.stop = function(callback) {
         isRecording = false;
+        
+        var that = this;
 
         /**
          * @property {Blob} blob - Recorded frames in video/webm blob.
@@ -1807,11 +1810,19 @@ function CanvasRecorder(htmlElement) {
          *     var blob = recorder.blob;
          * });
          */
-        this.blob = whammy.compile();
-
-        if (callback) {
-            callback(this.blob);
-        }
+        whammy.compile(function(blob) {
+            that.blob = blob;
+            
+            if (that.blob.forEach) {
+                that.blob = new Blob([], {
+                    type: 'video/webm'
+                });
+            }
+            
+            if (callback) {
+                callback(that.blob);
+            }
+        });
     };
 
     var isPausedRecording = false;

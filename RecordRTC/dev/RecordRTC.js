@@ -118,7 +118,7 @@ function RecordRTC(mediaStream, config) {
                 callback(url);
             }
 
-            if (!config.disableLogs) {
+            if (blob && !config.disableLogs) {
                 console.debug(blob.type, '->', bytesToSize(blob.size));
             }
 

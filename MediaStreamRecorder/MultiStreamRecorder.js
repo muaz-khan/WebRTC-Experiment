@@ -35,9 +35,9 @@ function MultiStreamRecorder(mediaStream) {
 
             audioVideoBlobs[recordingInterval].audio = blob;
 
-            if (audioVideoBlobs[recordingInterval].video && !audioVideoBlobs[recordingInterval].posted) {
-                audioVideoBlobs[recordingInterval].posted = true;
-                postToServer(audioVideoBlobs[recordingInterval]);
+            if (audioVideoBlobs[recordingInterval].video && !audioVideoBlobs[recordingInterval].onDataAvailableEventFired) {
+                audioVideoBlobs[recordingInterval].onDataAvailableEventFired = true;
+                fireOnDataAvailableEvent(audioVideoBlobs[recordingInterval]);
             }
         };
 
@@ -55,15 +55,14 @@ function MultiStreamRecorder(mediaStream) {
 
             audioVideoBlobs[recordingInterval].video = blob;
 
-            if (audioVideoBlobs[recordingInterval].audio && !audioVideoBlobs[recordingInterval].posted) {
-                audioVideoBlobs[recordingInterval].posted = true;
-                postToServer(audioVideoBlobs[recordingInterval]);
+            if (audioVideoBlobs[recordingInterval].audio && !audioVideoBlobs[recordingInterval].onDataAvailableEventFired) {
+                audioVideoBlobs[recordingInterval].onDataAvailableEventFired = true;
+                fireOnDataAvailableEvent(audioVideoBlobs[recordingInterval]);
             }
         };
 
-        function postToServer(blobs) {
+        function fireOnDataAvailableEvent(blobs) {
             recordingInterval++;
-
             self.ondataavailable(blobs);
         }
 
@@ -72,10 +71,15 @@ function MultiStreamRecorder(mediaStream) {
         };
 
         if (!isFirefox) {
-            audioRecorder.start(timeSlice);
+            // to make sure both audio/video are synced.
+            videoRecorder.onStartedDrawingNonBlankFrames = function() {
+                videoRecorder.clearOldRecordedFrames();
+                audioRecorder.start(timeSlice);
+            };
+            videoRecorder.start(timeSlice);
+        } else {
+            videoRecorder.start(timeSlice);
         }
-
-        videoRecorder.start(timeSlice);
     };
 
     this.stop = function() {

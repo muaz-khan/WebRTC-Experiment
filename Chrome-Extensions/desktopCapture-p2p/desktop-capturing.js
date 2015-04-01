@@ -200,29 +200,35 @@ function contextMenuSuccessCallback() {
 
     // using websockets for signaling
 
-    var webSocketURI = 'wss://wsnodejs.nodejitsu.com:443';
-    // var webSocketURI = 'ws://localhost:8888';
-
     function openSignalingChannel(config) {
         config.channel = config.channel || this.channel;
-        var websocket = new WebSocket(webSocketURI);
+
+        var pub = 'pub-c-3c0fc243-9892-4858-aa38-1445e58b4ecb';
+        var sub = 'sub-c-d0c386c6-7263-11e2-8b02-12313f022c90';
+        
+        WebSocket  = PUBNUB.ws;
+
+        var websocket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + config.channel);
+
+        websocket.channel = config.channel;
+
         websocket.onopen = function() {
-            websocket.push(JSON.stringify({
-                open: true,
-                channel: config.channel
-            }));
-            if (config.callback) config.callback(websocket);
+            if (config.callback) {
+                config.callback(websocket);
+            }
         };
+
         websocket.onerror = function() {
             setDefaults();
             chrome.windows.create({
-                url: "data:text/html,<h1>Unable to connect to " + webSocketURI + "</h1>",
+                url: "data:text/html,<h1>Unable to connect to pubsub.pubnub.com.</h1>",
                 type: 'popup',
                 width: screen.width / 2,
                 height: 170
             });
             chrome.runtime.reload();
         };
+        
         websocket.onclose = function() {
             setDefaults();
             chrome.windows.create({
@@ -233,15 +239,14 @@ function contextMenuSuccessCallback() {
             });
             chrome.runtime.reload();
         };
+        
         websocket.onmessage = function(event) {
             config.onmessage(JSON.parse(event.data));
         };
+        
         websocket.push = websocket.send;
         websocket.send = function(data) {
-            websocket.push(JSON.stringify({
-                data: data,
-                channel: config.channel
-            }));
+            websocket.push(JSON.stringify(data));
         };
     }
 

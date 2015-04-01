@@ -1,0 +1,104 @@
+<title>Audio+ScreenSharing</title>
+<h1>Audio+ScreenSharing</h1>
+<style>
+video {
+    object-fit: fill;
+    width: 30%;
+}
+
+button, input, select {
+    font-family: Myriad, Arial, Verdana;
+    font-weight: normal;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    padding: 2px 4px;
+    text-decoration: none;
+    color: rgb(27, 26, 26);
+    display: inline-block;
+    box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+    text-shadow: none;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
+    font-size: 16px;
+    border: 1px solid red;
+    outline:none;
+}
+button:active, input:active, select:active, button:focus, input:focus, select:focus, input[type=text] {
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
+    border: 1px solid rgb(142, 142, 142);
+}
+
+button[disabled], input[disabled], select[disabled] {
+    background: rgb(249, 249, 249);
+    border: 1px solid rgb(218, 207, 207);
+    color: rgb(197, 189, 189);
+}
+</style>
+<hr>
+<input type="text" id="room-id" value="abcdef">
+<button id="open-room">Open Room</button>
+<button id="join-room">Join Room</button>
+<button id="open-or-join-room">Auto Open Or Join Room</button>
+<hr>
+
+<script src="/RTCPeerConnection.js"></script>        <!-- required -->
+<script src="/RTCMultiConnection.js"></script>       <!-- required -->
+<script src="/globals.js"></script>                  <!-- required -->
+<script src="/MultiPeersHandler.js"></script>        <!-- required -->
+<script src="/OnIceCandidateHandler.js"></script>    <!-- required -->
+<script src="/IceServersHandler.js"></script>        <!-- required -->
+<script src="/Plugin.EveryWhere.js"></script>        <!-- optional -->
+<script src="/getUserMedia.js"></script>             <!-- optional -->
+<script src="/BandwidthHandler.js"></script>         <!-- optional -->
+<script src="/DetectRTC.js"></script>                <!-- optional -->
+<script src="/FileBufferReader.js"></script>         <!-- optional -->
+<script src="/TextSenderReceiver.js"></script>       <!-- optional -->
+<script src="/MediaStreamRecorder.js"></script>      <!-- optional -->
+<script src="/StreamsHandler.js"></script>           <!-- optional -->
+<script src="/RecordingHandler.js"></script>         <!-- optional -->
+<script src="/Screen-Capturing.js"></script>         <!-- optional -->
+
+<!-- socket.io for signaling -->
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+// ......................................................
+// .......................UI Code........................
+// ......................................................
+
+document.getElementById('open-room').onclick = function() {
+    this.disabled = true;
+    connection.open(document.getElementById('room-id').value);
+};
+
+document.getElementById('join-room').onclick = function() {
+    this.disabled = true;
+    connection.join(document.getElementById('room-id').value);
+};
+
+document.getElementById('open-or-join-room').onclick = function() {
+    this.disabled = true;
+    connection.openOrJoin(document.getElementById('room-id').value);
+};
+
+// ......................................................
+// ..................RTCMultiConnection Code.............
+// ......................................................
+
+var connection = new RTCMultiConnection();
+
+connection.session = {
+    audio: 'two-way',
+    screen: 'one-way'
+};
+
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: false
+};
+
+connection.onstream = function(event) {
+    document.body.appendChild(event.mediaElement);
+};
+</script>

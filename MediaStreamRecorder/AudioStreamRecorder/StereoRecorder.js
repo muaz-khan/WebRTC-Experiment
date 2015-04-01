@@ -23,8 +23,7 @@ function StereoRecorder(mediaStream) {
         }
     };
 
-    this.ondataavailable = function() {
-    };
+    this.ondataavailable = function() {};
 
     // Reference to "StereoAudioRecorder" object
     var mediaRecorder;

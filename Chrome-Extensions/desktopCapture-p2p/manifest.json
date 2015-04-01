@@ -1,13 +1,13 @@
 {
 	"name" : "WebRTC Desktop Sharing",
     "author": "Muaz Khan",
-	"version" : "1.5",
+	"version" : "1.6",
 	"manifest_version" : 2,
     "minimum_chrome_version": "34",
 	"description" : "Share screen of any application or entire screen or screen of any chrome tab. It is private, full-HD screen sharing.",
     "homepage_url": "https://www.webrtc-experiment.com/",
 	"background": {
-		"scripts": ["RTCMultiConnection-v2.1.9.js", "desktop-capturing.js"],
+		"scripts": ["websocket.js", "RTCMultiConnection-v2.1.9.js", "desktop-capturing.js"],
 		"persistent": false
 	},
 	"browser_action" : {

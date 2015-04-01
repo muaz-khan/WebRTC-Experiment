@@ -48,6 +48,8 @@ function CanvasRecorder(htmlElement) {
     this.stop = function(callback) {
         isRecording = false;
 
+        var that = this;
+
         /**
          * @property {Blob} blob - Recorded frames in video/webm blob.
          * @memberof CanvasRecorder
@@ -56,11 +58,19 @@ function CanvasRecorder(htmlElement) {
          *     var blob = recorder.blob;
          * });
          */
-        this.blob = whammy.compile();
+        whammy.compile(function(blob) {
+            that.blob = blob;
 
-        if (callback) {
-            callback(this.blob);
-        }
+            if (that.blob.forEach) {
+                that.blob = new Blob([], {
+                    type: 'video/webm'
+                });
+            }
+
+            if (callback) {
+                callback(that.blob);
+            }
+        });
     };
 
     var isPausedRecording = false;

@@ -2,6 +2,11 @@
 
 ## WebRTC Library  [![npm](https://img.shields.io/npm/v/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master)](https://travis-ci.org/muaz-khan/RTCMultiConnection)
 
+```
+# RTCMultiConnection-v3.0 is latest Beta
+npm install rtcmulticonnection-v3
+```
+
 Quick-Demos for newbies: 
 
 1. <a href="http://jsfiddle.net/zar6fg60/">http://jsfiddle.net/zar6fg60/</a> (simplest)
@@ -235,6 +240,14 @@ document.getElementById('joinRoom').onclick = function() {
 ## Credits & Contributors
 
 * [CONTRIBUTING.md](https://github.com/muaz-khan/RTCMultiConnection/blob/master/CONTRIBUTING.md)
+
+## Related Projects
+
+* [Moodle Plugin](https://moodle.org/plugins/view/mod_webrtcexperiments) / [Source code](https://github.com/danielneis/moodle-mod_webrtcexperiments)
+* [MultiRTC](https://www.npmjs.com/package/multirtc)
+* [Meteo Plugin](https://atmospherejs.com/mrt/rtcmulticonnection) / [Source code](https://github.com/fishdude/meteor-RTCMultiConnection)
+
+If you've additional plugins, you can update this list.
 
 ## License
 

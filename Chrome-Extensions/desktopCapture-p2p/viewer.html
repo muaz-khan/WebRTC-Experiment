@@ -11,6 +11,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
 <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection-v2.1.9.js"> </script>
+<script src="https://cdn.webrtc-experiment.com/view/websocket.js"> </script>
 
 <style>
 body,
@@ -146,33 +147,6 @@ button[disabled] {
     window.params = params;
 })();
 
-// using websockets for signaling
-function openSignalingChannel(config) {
-    config.channel = config.channel || this.channel;
-    var websocket = new WebSocket('wss://wsnodejs.nodejitsu.com:443');
-    // var websocket = new WebSocket('ws://localhost:8888');
-    websocket.onopen = function() {
-        websocket.push(JSON.stringify({
-            open: true,
-            channel: config.channel
-        }));
-        if (config.callback) config.callback(websocket);
-    };
-    websocket.onerror = function() {
-        location.reload();
-    };
-    websocket.onmessage = function(event) {
-        config.onmessage(JSON.parse(event.data));
-    };
-    websocket.push = websocket.send;
-    websocket.send = function(data) {
-        websocket.push(JSON.stringify({
-            data: data,
-            channel: config.channel
-        }));
-    };
-}
-
 function setBandwidth(connection) {
     // www.RTCMultiConnection.org/docs/bandwidth/
     connection.bandwidth = {
@@ -270,7 +244,42 @@ connection.ondisconnected = function(event) {
 
 // using websockets as signaling medium
 // http://www.rtcmulticonnection.org/docs/openSignalingChannel/
-connection.openSignalingChannel = openSignalingChannel;
+// using websockets for signaling
+connection.openSignalingChannel = function(config) {
+    config.channel = config.channel || this.channel;
+
+    var pub = 'pub-c-3c0fc243-9892-4858-aa38-1445e58b4ecb';
+    var sub = 'sub-c-d0c386c6-7263-11e2-8b02-12313f022c90';
+    
+    WebSocket  = PUBNUB.ws;
+
+    var websocket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + config.channel);
+
+    websocket.channel = config.channel;
+
+    websocket.onopen = function() {
+        if (config.callback) {
+            config.callback(websocket);
+        }
+    };
+
+    websocket.onerror = function() {
+      	//location.reload();
+    };
+
+    websocket.onclose = function() {
+        //location.reload();
+    };
+
+    websocket.onmessage = function(event) {
+        config.onmessage(JSON.parse(event.data));
+    };
+
+    websocket.push = websocket.send;
+    websocket.send = function(data) {
+        websocket.push(JSON.stringify(data));
+    };
+}
 </script>
 
 <script>

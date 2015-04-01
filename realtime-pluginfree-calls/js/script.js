@@ -18,8 +18,8 @@ var chatSection = getElement('.chat-section'),
 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 var sender = Math.round(Math.random() * 999999999) + 999999999;
 
-var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
-// var SIGNALING_SERVER = 'https://www.webrtc-experiment.com:8000/';
+var SIGNALING_SERVER = 'https://signaling-muazkh.c9.io:443/';
+
 io.connect(SIGNALING_SERVER).emit('new-channel', {
     channel: channel,
     sender: sender

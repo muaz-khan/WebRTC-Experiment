@@ -1,4 +1,4 @@
-// Last time updated at Jan 21, 2015, 08:32:23
+// Last time updated at March 06, 2015, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/screen.js
 
@@ -72,7 +72,7 @@
                 !signaler && initSignaler(roomid);
                 signaler.broadcast({
                     roomid: (roomid && roomid.length) || self.channel,
-                    userid: screen.userid
+                    userid: self.userid
                 });
             });
         };
@@ -335,7 +335,7 @@
                 if (message.userid != userid) {
                     if (!message.leaving) signaler.onmessage(message);
                     else {
-                        root.onuserleft(data.userid);
+                        root.onuserleft(message.userid);
                         numberOfParticipants--;
                         if (root.onNumberOfParticipantsChnaged) root.onNumberOfParticipantsChnaged(numberOfParticipants);
                     }

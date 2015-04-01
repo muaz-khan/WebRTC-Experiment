@@ -45,10 +45,14 @@
         <div>
             <label for="time-interval">Time Interval (milliseconds):</label>
             <input type="text" id="time-interval" value="5000">ms
+            
+            <input id="left-channel" type="checkbox" checked>
+            <label for="left-channel">Only Left Channel?</label>
 
             <button id="start-recording">Start Recording</button>
             <button id="stop-recording" disabled>Stop Recording</button>
         </div>
+        
         <div id="audios-container">
         </div>
         <script>
@@ -80,6 +84,7 @@
 
                 mediaRecorder = new MediaStreamRecorder(stream);
                 mediaRecorder.mimeType = 'audio/ogg';
+                mediaRecorder.audioChannels = !!document.getElementById('left-channel').checked ? 1 : 2;
                 mediaRecorder.ondataavailable = function(blob) {
                     var a = document.createElement('a');
                     a.target = '_blank';

@@ -33,10 +33,10 @@ function MediaRecorderWrapper(mediaStream) {
     // "Reading Thread" are used to prevent main-thread blocking scenarios
     this.start = function(mTimeSlice) {
         mTimeSlice = mTimeSlice || 1000;
-
         isStopRecording = false;
+
         function startRecording() {
-            if(isStopRecording) return;
+            if (isStopRecording) return;
 
             mediaRecorder = new MediaRecorder(mediaStream);
 
@@ -114,7 +114,7 @@ function MediaRecorderWrapper(mediaStream) {
     this.stop = function() {
         isStopRecording = true;
 
-        if(self.onstop) {
+        if (self.onstop) {
             self.onstop({});
         }
     };

@@ -29,6 +29,12 @@ function WhammyRecorder(mediaStream) {
         }
     };
 
+    this.clearOldRecordedFrames = function() {
+        if (mediaRecorder) {
+            mediaRecorder.clearOldRecordedFrames();
+        }
+    };
+
     this.ondataavailable = function() {};
 
     // Reference to "WhammyRecorder" object

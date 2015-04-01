@@ -13,7 +13,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
         
         <style>
             audio, video {
@@ -60,8 +60,8 @@
         </script>
         
         <!-- scripts used for peers connection -->
-        <script src="//www.webrtc-experiment.com/socket.io.js"> </script>
-        <script src="//www.webrtc-experiment.com/socket.io/PeerConnection.js"> </script>
+        <script src="//cdn.webrtc-experiment.com/socket.io.js"> </script>
+        <script src="//cdn.webrtc-experiment.com/socket.io/PeerConnection.js"> </script>
     </head>
 
     <body>
@@ -75,14 +75,21 @@
                     <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
                 </h1>            
                 <p>
-                    <span>Copyright © 2013</span>
-                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;</span>
-                    »
-                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTC Experiments</a>
-                    »
-                    <a href="https://plus.google.com/106306286430656356034/posts" target="_blank" title="Google+ page for WebRTC Experiments">Google+</a>
-                    »
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues" target="_blank">What's New?</a>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
 
@@ -110,11 +117,10 @@
                 // MIT License   - https://www.webrtc-experiment.com/licence/
                 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io
 
-                
                 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
                 var sender = Math.round(Math.random() * 999999999) + 999999999;
                 
-                var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
+                var SIGNALING_SERVER = 'https://signaling-muazkh.c9.io:443/';
                 io.connect(SIGNALING_SERVER).emit('new-channel', {
                     channel: channel,
                     sender: sender
@@ -278,24 +284,11 @@
                     <li>It is one-to-one peers connection</li>
                 </ol>
             </section>
-        
-            <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-                <div id="github-commits"></div>
-            </section>
-        
-            <section class="experiment">
-                <h2 class="header" id="feedback">Feedback</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
-            </section>
             
             <section class="experiment">
                 <h2 class="header">How to use PeerConnection.js?</h2>
                 <pre>
-// http://www.webrtc-experiment.com/socket.io/PeerConnection.js
+// http://cdn.webrtc-experiment.com/socket.io/PeerConnection.js
 
 var peer = new <strong>PeerConnection</strong>('<strong class="highlight">http://domain:port</strong>');
 peer.<strong title="local or remote stream">onStreamAdded</strong> = function(e) {
@@ -389,7 +382,7 @@ function getUserMedia(callback) {
 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 var sender = Math.round(Math.random() * 999999999) + 999999999;
 
-var SIGNALING_SERVER = 'http://webrtc-signaling.jit.su:80/';
+var SIGNALING_SERVER = 'https://signaling-muazkh.c9.io:443/';
 io.connect(SIGNALING_SERVER).emit('new-channel', {
     channel: channel,
     sender: sender
@@ -411,19 +404,32 @@ var peer = new PeerConnection(socket);
                 Check <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md" target="_blank">other signaling examples</a>.
             </p>
             </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
         </article>
+        
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io" class="fork-left"></a>
+        
         <footer>
             <p>
                 <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
-                ©
-                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
-                <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
-                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
-                <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
             </p>
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

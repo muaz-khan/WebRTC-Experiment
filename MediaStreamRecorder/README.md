@@ -89,6 +89,8 @@ navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
 
 function onMediaSuccess(stream) {
     var multiStreamRecorder = new MultiStreamRecorder(stream);
+    multiStreamRecorder.video = yourVideoElement; // to get maximum accuracy
+    multiStreamRecorder.audioChannels = 1;
     multiStreamRecorder.ondataavailable = function (blobs) {
         // blobs.audio
         // blobs.video
@@ -118,6 +120,7 @@ navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
 function onMediaSuccess(stream) {
     var mediaRecorder = new MediaStreamRecorder(stream);
     mediaRecorder.mimeType = 'audio/ogg';
+    mediaRecorder.audioChannels = 1;
     mediaRecorder.ondataavailable = function (blob) {
         // POST/PUT "Blob" using FormData/XHR2
         var blobURL = URL.createObjectURL(blob);
@@ -218,6 +221,134 @@ function xhr(url, data, callback) {
     request.open('POST', url);
     request.send(data);
 }
+```
+
+# API Documentation
+
+## audioChannels
+
+It is an integer value that accepts either 1 or 2. "1" means record only left-channel and skip right-one. The default value is "2".
+
+```javascript
+mediaRecorder.audioChannels = 1;
+```
+
+## bufferSize
+
+You can set following audio-bufferSize values: 0, 256, 512, 1024, 2048, 4096, 8192, and 16384. "0" means: let chrome decide the device's default bufferSize. Default value is "2048".
+
+```javascript
+mediaRecorder.bufferSize = 0;
+```
+
+## sampleRate
+
+Default "sampleRate" value is "44100". Currently you can't modify sample-rate in windows that's why this property isn't yet exposed to public API.
+
+It accepts values only in range: 22050 to 96000
+
+```javascript
+// set sampleRate for NON-windows systems
+mediaRecorder.sampleRate = 96000;
+```
+
+## video
+
+It is recommended to pass your HTMLVideoElement to get most accurate result.
+
+```javascript
+videoRecorder.video = yourHTMLVideoElement;
+videoRecorder.onStartedDrawingNonBlankFrames = function() {
+    // record audio here to fix sync issues
+    // Note: MultiStreamRecorder auto handles audio sync issues.
+    videoRecorder.clearOldRecordedFrames(); // clear all blank frames
+    audioRecorder.start(interval);
+};
+```
+
+## canvas
+
+Using this property, you can pass video resolutions:
+
+```javascript
+mediaRecorder.canvas = {
+    width: 1280,
+    height: 720
+};
+```
+
+## videoWidth and videoHeight
+
+You can stretch video to specific width/height:
+
+```javascript
+mediaRecorder.videoWidth  = 1280;
+mediaRecorder.videoHeight = 720;
+```
+
+## clearOldRecordedFrames
+
+This method allows you clear current video-frames. You can use it to remove blank-frames.
+
+```javascript
+videoRecorder.video = yourHTMLVideoElement;
+videoRecorder.onStartedDrawingNonBlankFrames = function() {
+    videoRecorder.clearOldRecordedFrames(); // clear all blank frames
+    audioRecorder.start(interval);
+};
+```
+
+## stop
+
+This method allows you stop entire recording process.
+
+```javascript
+mediaRecorder.stop();
+```
+
+## start
+
+This method takes "interval" as the only argument and it starts recording process:
+
+```javascript
+mediaRecorder.start(5 * 1000); // it takes milliseconds
+```
+
+## ondataavailable
+
+This event is fired according to your interval and "stop" method.
+
+```javascript
+mediaRecorder.ondataavailable = function(blob) {
+    POST_to_Server(blob);
+};
+```
+
+## onstop
+
+This event is fired when recording is stopped, either by invoking "stop" method or in case of any unexpected error:
+
+```javascript
+mediaRecorder.onstop = function() {
+    // recording has been stopped.
+};
+```
+
+## mimeType
+
+This property allows you set output media type:
+
+```javascript
+// video:
+videoRecorder.mimeType = 'video/webm';
+videoRecorder.mimeType = 'video/mp4';
+
+// audio:
+audioRecorder.mimeType = 'audio/ogg';
+audioRecorder.mimeType = 'audio/wav';
+
+// gif:
+gifRecorder.mimeType = 'image/gif';
 ```
 
 ## Browser Support

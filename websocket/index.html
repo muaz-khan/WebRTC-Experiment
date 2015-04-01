@@ -60,7 +60,8 @@
         </script>
         
         <!-- scripts used for peers connection -->
-        <script src="https://www.webrtc-experiment.com/websocket/PeerConnection.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/websocket/PeerConnection.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/view/websocket.js"> </script>
     </head>
 
     <body>
@@ -115,30 +116,29 @@
                 // Muaz Khan     - https://github.com/muaz-khan
                 // MIT License   - https://www.webrtc-experiment.com/licence/
                 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket
+                
                 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-                var websocket = new WebSocket('wss://wsnodejs.nodejitsu.com:443');
-                // var websocket = new WebSocket('wss://www.webrtc-experiment.com:8563');
-                websocket.onopen = function() {
-                    websocket.push(JSON.stringify({
-                        open: true,
-                        channel: channel
-                    }));
+                
+                var pub = 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0';
+                var sub = 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a';
+                
+                WebSocket  = PUBNUB.ws;
+
+                var websocket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + channel);
+
+                websocket.onerror = function() {
+                    //location.reload();
                 };
+
+                websocket.onclose = function() {
+                    //location.reload();
+                };
+
                 websocket.push = websocket.send;
                 websocket.send = function(data) {
-                    if (websocket.readyState != 1) {
-                        console.warn('websocket connection is not opened yet.');
-                        return setTimeout(function() {
-                            websocket.send(data);
-                        }, 1000);
-                    }
-
-                    websocket.push(JSON.stringify({
-                        data: data,
-                        channel: channel
-                    }));
+                    websocket.push(JSON.stringify(data));
                 };
-
+                
                 var peer = new PeerConnection(websocket);
                 peer.onUserFound = function(userid) {
                     if (document.getElementById(userid)) return;
@@ -308,7 +308,7 @@
             <section class="experiment">
                 <h2 class="header">How to use PeerConnection.js?</h2>
                 <pre>
-// http://www.webrtc-experiment.com/websocket/PeerConnection.js
+// http://cdn.webrtc-experiment.com/websocket/PeerConnection.js
 
 var peer = new <strong>PeerConnection</strong>('<strong class="highlight">ws://domain:port</strong>');
 peer.<strong title="local or remote stream">onStreamAdded</strong> = function(e) {
@@ -435,6 +435,6 @@ var peer = new PeerConnection(websocket);
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

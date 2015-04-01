@@ -24,118 +24,85 @@ var Whammy = (function() {
 
         var CLUSTER_MAX_DURATION = 30000;
 
-        var EBML = [
-            {
-                "id": 0x1a45dfa3, // EBML
-                "data": [
-                    {
+        var EBML = [{
+            "id": 0x1a45dfa3, // EBML
+            "data": [{
+                "data": 1,
+                "id": 0x4286 // EBMLVersion
+            }, {
+                "data": 1,
+                "id": 0x42f7 // EBMLReadVersion
+            }, {
+                "data": 4,
+                "id": 0x42f2 // EBMLMaxIDLength
+            }, {
+                "data": 8,
+                "id": 0x42f3 // EBMLMaxSizeLength
+            }, {
+                "data": "webm",
+                "id": 0x4282 // DocType
+            }, {
+                "data": 2,
+                "id": 0x4287 // DocTypeVersion
+            }, {
+                "data": 2,
+                "id": 0x4285 // DocTypeReadVersion
+            }]
+        }, {
+            "id": 0x18538067, // Segment
+            "data": [{
+                "id": 0x1549a966, // Info
+                "data": [{
+                    "data": 1e6, //do things in millisecs (num of nanosecs for duration scale)
+                    "id": 0x2ad7b1 // TimecodeScale
+                }, {
+                    "data": "whammy",
+                    "id": 0x4d80 // MuxingApp
+                }, {
+                    "data": "whammy",
+                    "id": 0x5741 // WritingApp
+                }, {
+                    "data": doubleToString(info.duration),
+                    "id": 0x4489 // Duration
+                }]
+            }, {
+                "id": 0x1654ae6b, // Tracks
+                "data": [{
+                    "id": 0xae, // TrackEntry
+                    "data": [{
                         "data": 1,
-                        "id": 0x4286 // EBMLVersion
-                    },
-                    {
+                        "id": 0xd7 // TrackNumber
+                    }, {
                         "data": 1,
-                        "id": 0x42f7 // EBMLReadVersion
-                    },
-                    {
-                        "data": 4,
-                        "id": 0x42f2 // EBMLMaxIDLength
-                    },
-                    {
-                        "data": 8,
-                        "id": 0x42f3 // EBMLMaxSizeLength
-                    },
-                    {
-                        "data": "webm",
-                        "id": 0x4282 // DocType
-                    },
-                    {
-                        "data": 2,
-                        "id": 0x4287 // DocTypeVersion
-                    },
-                    {
-                        "data": 2,
-                        "id": 0x4285 // DocTypeReadVersion
-                    }
-                ]
-            },
-            {
-                "id": 0x18538067, // Segment
-                "data": [
-                    {
-                        "id": 0x1549a966, // Info
-                        "data": [
-                            {
-                                "data": 1e6, //do things in millisecs (num of nanosecs for duration scale)
-                                "id": 0x2ad7b1 // TimecodeScale
-                            },
-                            {
-                                "data": "whammy",
-                                "id": 0x4d80 // MuxingApp
-                            },
-                            {
-                                "data": "whammy",
-                                "id": 0x5741 // WritingApp
-                            },
-                            {
-                                "data": doubleToString(info.duration),
-                                "id": 0x4489 // Duration
-                            }
-                        ]
-                    },
-                    {
-                        "id": 0x1654ae6b, // Tracks
-                        "data": [
-                            {
-                                "id": 0xae, // TrackEntry
-                                "data": [
-                                    {
-                                        "data": 1,
-                                        "id": 0xd7 // TrackNumber
-                                    },
-                                    {
-                                        "data": 1,
-                                        "id": 0x63c5 // TrackUID
-                                    },
-                                    {
-                                        "data": 0,
-                                        "id": 0x9c // FlagLacing
-                                    },
-                                    {
-                                        "data": "und",
-                                        "id": 0x22b59c // Language
-                                    },
-                                    {
-                                        "data": "V_VP8",
-                                        "id": 0x86 // CodecID
-                                    },
-                                    {
-                                        "data": "VP8",
-                                        "id": 0x258688 // CodecName
-                                    },
-                                    {
-                                        "data": 1,
-                                        "id": 0x83 // TrackType
-                                    },
-                                    {
-                                        "id": 0xe0,  // Video
-                                        "data": [
-                                            {
-                                                "data": info.width,
-                                                "id": 0xb0 // PixelWidth
-                                            },
-                                            {
-                                                "data": info.height,
-                                                "id": 0xba // PixelHeight
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        ];
+                        "id": 0x63c5 // TrackUID
+                    }, {
+                        "data": 0,
+                        "id": 0x9c // FlagLacing
+                    }, {
+                        "data": "und",
+                        "id": 0x22b59c // Language
+                    }, {
+                        "data": "V_VP8",
+                        "id": 0x86 // CodecID
+                    }, {
+                        "data": "VP8",
+                        "id": 0x258688 // CodecName
+                    }, {
+                        "data": 1,
+                        "id": 0x83 // TrackType
+                    }, {
+                        "id": 0xe0, // Video
+                        "data": [{
+                            "data": info.width,
+                            "id": 0xb0 // PixelWidth
+                        }, {
+                            "data": info.height,
+                            "id": 0xba // PixelHeight
+                        }]
+                    }]
+                }]
+            }]
+        }];
 
         //Generate clusters (max duration)
         var frameNumber = 0;
@@ -153,12 +120,10 @@ var Whammy = (function() {
             var clusterCounter = 0;
             var cluster = {
                 "id": 0x1f43b675, // Cluster
-                "data": [
-                    {
-                        "data": clusterTimecode,
-                        "id": 0xe7 // Timecode
-                    }
-                ].concat(clusterFrames.map(function(webp) {
+                "data": [{
+                    "data": clusterTimecode,
+                    "id": 0xe7 // Timecode
+                }].concat(clusterFrames.map(function(webp) {
                     var block = makeSimpleBlock({
                         discardable: 0,
                         frame: webp.data.slice(4),
@@ -248,7 +213,9 @@ var Whammy = (function() {
             ebml.push(data);
         }
 
-        return new Blob(ebml, { type: "video/webm" });
+        return new Blob(ebml, {
+            type: "video/webm"
+        });
     }
 
     function toBinStr_old(bits) {
@@ -319,7 +286,7 @@ var Whammy = (function() {
 
     function parseRIFF(string) {
         var offset = 0;
-        var chunks = { };
+        var chunks = {};
 
         while (offset < string.length) {
             var id = string.substr(offset, 4);
@@ -343,8 +310,8 @@ var Whammy = (function() {
     function doubleToString(num) {
         return [].slice.call(
             new Uint8Array((new Float64Array([num])).buffer), 0).map(function(e) {
-                return String.fromCharCode(e);
-            }).reverse().join('');
+            return String.fromCharCode(e);
+        }).reverse().join('');
     }
 
     // a more abstract-ish API
@@ -364,7 +331,7 @@ var Whammy = (function() {
             frame = frame.toDataURL('image/webp', this.quality);
         }
 
-        if (!( /^data:image\/webp;base64,/ig ).test(frame)) {
+        if (!(/^data:image\/webp;base64,/ig).test(frame)) {
             throw "Input must be formatted properly as a base64 encoded DataURI of type image/webp";
         }
         this.frames.push({

@@ -11,7 +11,7 @@
 
 var setupOffer = document.getElementById('setup-offer'), innerHTML;
 
-var SIGNALING_URI = 'wss://wsnodejs.nodejitsu.com:443';
+var SIGNALING_URI = 'wss://ws-muazkh.c9.io:443';
 
 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 var websocket = new WebSocket(SIGNALING_URI);
