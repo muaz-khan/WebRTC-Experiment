@@ -106,15 +106,21 @@
     DetectRTC.MediaDevices = [];
 
     if (!navigator.getMediaDevices) {
-        console.warn('navigator.getMediaDevices API are not available.');
+        if (window.console && typeof window.console.warn !== 'undefined') {
+            console.warn('navigator.getMediaDevices API are not available.');
+        }
     }
 
     if (!navigator.enumerateDevices) {
-        console.warn('navigator.enumerateDevices API are not available.');
+        if (window.console && typeof window.console.warn !== 'undefined') {
+            console.warn('navigator.enumerateDevices API are not available.');
+        }
     }
 
     if (!window.MediaStreamTrack || !window.MediaStreamTrack.getSources) {
-        console.warn('MediaStreamTrack.getSources are not available.');
+        if (window.console && typeof window.console.warn !== 'undefined') {
+            console.warn('MediaStreamTrack.getSources are not available.');
+        }
     }
 
     // http://dev.w3.org/2011/webrtc/editor/getusermedia.html#mediadevices
@@ -141,7 +147,9 @@
 
         // if still no 'getMediaDevices'; it MUST be Firefox!
         if (!navigator.getMediaDevices) {
-            console.warn('navigator.getMediaDevices is undefined.');
+            if (window.console && typeof window.console.warn !== 'undefined') {
+                console.warn('navigator.getMediaDevices is undefined.');
+            }
             // assuming that it is older chrome or chromium implementation
             if (isChrome) {
                 DetectRTC.hasMicrophone = true;
@@ -318,7 +326,9 @@
                 grepSDP(offerDesc.sdp);
                 rtc.setLocalDescription(offerDesc);
             }, function(e) {
-                console.warn('offer failed', e);
+                if (window.console && typeof window.console.warn !== 'undefined') {
+                    console.warn('offer failed', e);
+                }
             }, {
                 mandatory: {
                     OfferToReceiveAudio: false,

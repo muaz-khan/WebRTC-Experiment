@@ -1,11 +1,15 @@
 {
   "name": "detectrtc",
-  "version": "1.0.1",
+  "version": "1.0.2,
   "authors": [
         {
             "name": "Muaz Khan",
             "email": "muazkh@gmail.com",
             "homepage": "http://www.muazkhan.com/"
+        },
+        {
+			"name": "Kenneth Miles",
+			"email": "tommymcguiver@gmail.com"
         }
    ],
   "homepage": "https://github.com/muaz-khan/DetectRTC",
