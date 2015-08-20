@@ -6,8 +6,8 @@ Remember, there are some built-in implementations:
 2. [DataChanel.js and Reliable Signaling](https://github.com/muaz-khan/Reliable-Signaler/tree/master/datachannel-client)
 1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs)
 2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs)
-3. [WebSync for Signaling](https://github.com/muaz-khan/WebSync-Signaling) — useful only for .NET developers
-4. [XHR/XMLHttpRequest Signaling](https://github.com/muaz-khan/XHR-Signaling) — useful for both .NET and PHP developers!
+3. [WebSync for Signaling](https://github.com/muaz-khan/WebSync-Signaling) â€” useful only for .NET developers
+4. [XHR/XMLHttpRequest Signaling](https://github.com/muaz-khan/XHR-Signaling) â€” useful for both .NET and PHP developers!
 
 If you wanna understand basics of WebRTC signaling; then scroll to bottom and check [this section](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md#a-few-other-resources).
 
@@ -497,7 +497,7 @@ var socket = io.connect('/');
 
 socket.on('presence', function (isChannelPresent) {
     if (!isChannelPresent)
-        connection.opne(connection.sessionid);
+        connection.open(connection.sessionid);
     else
         connection.join(connection.sessionid);
 });
