@@ -26,6 +26,7 @@
         transition: all 1s ease;
         vertical-align: top;
     }
+    
     input {
         border: 1px solid #d9d9d9;
         border-radius: 1px;
@@ -33,6 +34,7 @@
         margin: .2em;
         width: 30%;
     }
+    
     .setup {
         border-bottom-left-radius: 0;
         border-top-left-radius: 0;
@@ -42,9 +44,11 @@
         margin-top: 8px;
         position: absolute;
     }
+    
     p {
         padding: 1em;
     }
+    
     li {
         border-bottom: 1px solid rgb(189, 189, 189);
         border-left: 1px solid rgb(189, 189, 189);
@@ -148,7 +152,7 @@
             sessions[session.sessionid] = session;
 
             var tr = document.createElement('tr');
-            tr.innerHTML = '<td><strong>' + session.extra['session-name'] + '</strong> is running a conference!</td>' +
+            tr.innerHTML = '<td><strong>' + session.sessionid + '</strong> is running a conference!</td>' +
                 '<td><button class="join">Join</button></td>';
             roomsList.insertBefore(tr, roomsList.firstChild);
 
@@ -171,10 +175,7 @@
 
         document.getElementById('setup-new-conference').onclick = function() {
             this.disabled = true;
-            connection.extra = {
-                'session-name': document.getElementById('conference-name').value || 'Anonymous'
-            };
-            connection.open();
+            connection.open(document.getElementById('conference-name').value || 'Anonymous');
         };
 
         // setup signaling to search existing sessions

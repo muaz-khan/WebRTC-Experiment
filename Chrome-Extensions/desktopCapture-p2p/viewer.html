@@ -1,16 +1,17 @@
-﻿<title>WebRTC Desktop Viewer ® Muaz Khan</title>
+﻿
+<title>WebRTC Desktop Viewer ® Muaz Khan</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 
-<meta name="description" content="AppRTC like RTCMultiConnection demo where styles and layout is taken from AppRTC demo." />
-<meta name="keywords" content="AppRTC,RTCMultiConnection,AppRTC-Look,WebRTC" />
+<meta name="description" content="This WebRTC Experiment page shows privately shared screens, desktops, and parts of the screens." />
+<meta name="keywords" content="WebRTC,Desktop-Sharing,Screen-Sharing,RTCWeb,WebRTC-Experiment,WebRTC-Demo" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
 <meta name="author" content="Muaz Khan">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection-v2.1.9.js"> </script>
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
 <script src="https://cdn.webrtc-experiment.com/view/websocket.js"> </script>
 
 <style>
@@ -209,7 +210,7 @@ function setBandwidth(connection) {
 }
 
 // http://www.rtcmulticonnection.org/docs/constructor/
-var connection = new RTCMultiConnection(params.sessionid);
+var connection = new RTCMultiConnection(params.s);
 
 setBandwidth(connection);
 
@@ -241,45 +242,6 @@ connection.ondisconnected = function(event) {
     infoBar.style.display = 'block';
     location.reload();
 };
-
-// using websockets as signaling medium
-// http://www.rtcmulticonnection.org/docs/openSignalingChannel/
-// using websockets for signaling
-connection.openSignalingChannel = function(config) {
-    config.channel = config.channel || this.channel;
-
-    var pub = 'pub-c-3c0fc243-9892-4858-aa38-1445e58b4ecb';
-    var sub = 'sub-c-d0c386c6-7263-11e2-8b02-12313f022c90';
-    
-    WebSocket  = PUBNUB.ws;
-
-    var websocket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + config.channel);
-
-    websocket.channel = config.channel;
-
-    websocket.onopen = function() {
-        if (config.callback) {
-            config.callback(websocket);
-        }
-    };
-
-    websocket.onerror = function() {
-      	//location.reload();
-    };
-
-    websocket.onclose = function() {
-        //location.reload();
-    };
-
-    websocket.onmessage = function(event) {
-        config.onmessage(JSON.parse(event.data));
-    };
-
-    websocket.push = websocket.send;
-    websocket.send = function(data) {
-        websocket.push(JSON.stringify(data));
-    };
-}
 </script>
 
 <script>
@@ -323,6 +285,14 @@ var infoBar = document.getElementById('info-bar');
 
 connection.onstatechange = function(state) {
     infoBar.innerHTML = state.name + ': ' + state.reason;
+
+    if(state.name == 'request-rejected' && params.p) {
+        infoBar.innerHTML = 'Password (' + params.p + ') did not match with broadcaster, that is why your participation request has been rejected.<br>Please contact him and ask for valid password.';
+    }
+
+    if(state.name === 'room-not-available') {
+        infoBar.innerHTML = 'Screen share session is closed or paused. You will join automatically when share session is resumed.';
+    }
 };
 
 connection.onstreamid = function(event) {
@@ -336,6 +306,8 @@ connection.onstream = function(e) {
         attachMediaStream(remoteVideo, e.stream);
         waitForRemoteVideo();
         remoteVideo.setAttribute('data-id', e.userid);
+        
+        websocket.send('received-your-screen');
     }
 };
 // if user left
@@ -397,20 +369,90 @@ function enterFullScreen() {
 </script>
 
 <script>
-var sessionDescription = {
-    userid: params.sessionid,
-    extra: {},
-    session: {
-        video: true,
-        oneway: true
-    },
-    sessionid: params.sessionid
+// using websockets as signaling medium
+// http://www.rtcmulticonnection.org/docs/openSignalingChannel/
+// using websockets for signaling
+// www.RTCMultiConnection.org/docs/openSignalingChannel/
+var onMessageCallbacks = {};
+var pub = 'pub-c-3c0fc243-9892-4858-aa38-1445e58b4ecb';
+var sub = 'sub-c-d0c386c6-7263-11e2-8b02-12313f022c90';
+
+WebSocket = PUBNUB.ws;
+var websocket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + connection.channel);
+
+websocket.onmessage = function(e) {
+    data = JSON.parse(e.data);
+
+    if (data.sender == connection.userid) return;
+
+    if (onMessageCallbacks[data.channel]) {
+        onMessageCallbacks[data.channel](data.message);
+    };
 };
 
-if (params.sessionid) {
-    infoBar.innerHTML = 'Joining session: ' + params.sessionid;
-    
-    // http://www.rtcmulticonnection.org/docs/join/
-    connection.join(sessionDescription);
-}
+websocket.push = websocket.send;
+websocket.send = function(data) {
+    data.sender = connection.userid;
+    websocket.push(JSON.stringify(data));
+};
+
+// overriding "openSignalingChannel" method
+connection.openSignalingChannel = function(config) {
+    var channel = config.channel || this.channel;
+    onMessageCallbacks[channel] = config.onmessage;
+
+    if (config.onopen) setTimeout(config.onopen, 1000);
+
+    // directly returning socket object using "return" statement
+    return {
+        send: function(message) {
+            websocket.send({
+                sender: connection.userid,
+                channel: channel,
+                message: message
+            });
+        },
+        channel: channel
+    };
+};
+
+websocket.onerror = function() {
+    if(connection.numberOfConnectedUsers <= 0) {
+        location.reaload();
+    }
+};
+
+websocket.onclose = function() {
+    if(connection.numberOfConnectedUsers <= 0) {
+        location.reaload();
+    }
+};
+
+infoBar.innerHTML = 'Connecting WebSockets server.';
+
+websocket.onopen = function() {
+    infoBar.innerHTML = 'WebSockets connection is opened.';
+
+    var sessionDescription = {
+        userid: params.s,
+        extra: {},
+        session: {
+            video: true,
+            oneway: true
+        },
+        sessionid: params.s
+    };
+
+    if (params.s) {
+        infoBar.innerHTML = 'Joining session: ' + params.s;
+        
+        if(params.p) {
+            // it seems a password protected room.
+            connection.extra.password = params.p;
+        }
+
+        // http://www.rtcmulticonnection.org/docs/join/
+        connection.join(sessionDescription);
+    }
+};
 </script>

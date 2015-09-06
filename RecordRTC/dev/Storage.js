@@ -8,6 +8,10 @@
  * @property {webkitAudioContext} AudioContext - Keeps a reference to AudioContext object.
  */
 
-var Storage = {
-    AudioContext: window.AudioContext || window.webkitAudioContext
-};
+var Storage = {};
+
+if (typeof AudioContext !== 'undefined') {
+    Storage.AudioContext = AudioContext;
+} else if (typeof webkitAudioContext !== 'undefined') {
+    Storage.AudioContext = webkitAudioContext;
+}

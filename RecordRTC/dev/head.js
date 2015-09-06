@@ -1,18 +1,27 @@
-// Last time updated at March 13, 2015, 08:32:23
+// Last time updated at September 06, 2015, 08:32:23
 
 // links:
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
-// http://cdn.WebRTC-Experiment.com/RecordRTC.js
-// http://www.WebRTC-Experiment.com/RecordRTC.js (for China users)
-// http://RecordRTC.org/latest.js (for China users)
+// https://cdn.WebRTC-Experiment.com/RecordRTC.js
+// https://www.WebRTC-Experiment.com/RecordRTC.js
 // npm install recordrtc
 // http://recordrtc.org/
 
 // updates?
 /*
+-. fixed Firefox save-as dialog i.e. recordRTC.save('filen-name')
+-. "indexedDB" bug fixed for Firefox.
+-. numberOfAudioChannels:1 can be passed to reduce WAV size in Chrome.
+-. StereoRecorder.js is removed. It was redundant. Now RecordRTC is directly using: StereoAudioRecorder.js
+-. mergeProps is removed. It was redundant.
+-. reformatProps is removed. Now plz pass exact frameRate/sampleRate instead of frame-rate/sample-rate
+-. Firefox supports remote-audio-recording since v28 - RecordRTC(remoteStream, { recorderType: StereoAudioRecorder });
+-. added 3 methods: initRecorder, setRecordingDuration and clearRecordedData
+-. Microsoft Edge support added (only-audio-yet).
+-. bowserify/nodejs support added.
 -. Fixed echo.
 -. CanvasRecorder fixed.
--. You can pass "recorderType" - RecordRTC(stream, { recorderType: window.WhammyRecorder });
+-. You can pass "recorderType" - RecordRTC(stream, { recorderType: StereoAudioRecorder });
 -. If MediaStream is suddenly stopped in Firefox.
 -. Added "disableLogs"         - RecordRTC(stream, { disableLogs: true });
 -. You can pass "bufferSize:0" - RecordRTC(stream, { bufferSize: 0 });
@@ -31,6 +40,7 @@
 // Android (Chrome) [ only video ]
 // Android (Opera) [ only video ]
 // Android (Firefox) [ only video ]
+// Microsoft Edge (Only Audio & Gif)
 
 //------------------------------------
 // Muaz Khan     - www.MuazKhan.com
@@ -43,7 +53,6 @@
 // 3. Cross-Browser-Declarations.js
 // 4. Storage.js
 // 5. MediaStreamRecorder.js
-// 6. StereoRecorder.js
 // 7. StereoAudioRecorder.js
 // 8. CanvasRecorder.js
 // 9. WhammyRecorder.js

@@ -1,0 +1,51 @@
+{
+  "name": "datachannel",
+  "preferGlobal": false,
+  "version": "1.0.0",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "http://www.muazkhan.com/"
+  },
+  "description": "DataChannel.js is a JavaScript library useful to write many-to-many i.e. group file/data sharing or text chat applications. Its syntax is easier to use and understand. It highly simplifies complex tasks like any or all user rejection/ejection; direct messages delivery; and more.",
+  "scripts": {
+    "start": "node DataChannel.js"
+  },
+  "main": "./DataChannel.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/DataChannel.git"
+  },
+  "keywords": [
+    "webrtc",
+    "datachannel",
+    "file-sharing",
+    "data-sharing",
+    "text-chat",
+    "chat",
+    "p2p-streaming",
+    "data"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/muaz-khan/DataChannel/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://www.webrtc-experiment.com/DataChannel/",
+  "_id": "datachannel@",
+  "_from": "datachannel@",
+  "devDependencies": {
+    "grunt": "latest",
+    "grunt-cli": "latest",
+    "load-grunt-tasks": "latest",
+    "grunt-contrib-concat": "latest",
+    "grunt-contrib-csslint": "latest",
+    "grunt-contrib-jshint": "latest",
+    "grunt-contrib-uglify": "latest",
+    "grunt-htmlhint": "latest",
+    "grunt-jsbeautifier": "latest",
+    "grunt-bump": "latest"
+  }
+}

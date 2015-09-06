@@ -7,8 +7,8 @@ function WhammyRecorderHelper(mediaStream, root) {
         if (!this.height) this.height = 240;
 
         if (this.video && this.video instanceof HTMLVideoElement) {
-            if (!this.width) this.width = video.videoWidth || 320;
-            if (!this.height) this.height = video.videoHeight || 240;
+            if (!this.width) this.width = video.videoWidth || video.clientWidth || 320;
+            if (!this.height) this.height = video.videoHeight || video.clientHeight || 240;
         }
 
         if (!this.video) {
@@ -18,7 +18,7 @@ function WhammyRecorderHelper(mediaStream, root) {
             };
         }
 
-        if (!this.canvas) {
+        if (!this.canvas || !this.canvas.width || !this.canvas.height) {
             this.canvas = {
                 width: this.width,
                 height: this.height

@@ -1,4 +1,4 @@
-// Last time updated at Feb 07, 2015, 08:32:23
+// Last time updated at May 31, 2015, 08:32:23
 
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
@@ -6350,36 +6350,126 @@
             }
         }
     };
-    // http://goo.gl/6ScAV9
-    var DetectRTC = {};
-
     (function() {
 
-        DetectRTC.hasMicrophone = false;
-        DetectRTC.hasSpeakers = false;
-        DetectRTC.hasWebcam = false;
+        function warn(log) {
+            if (window.console && typeof window.console.warn !== 'undefined') {
+                console.warn(log);
+            }
+        }
+
+        // detect node-webkit
+        var browser = getBrowserInfo();
+
+        // is this a chromium browser (opera or chrome)
+        var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+        var isFirefox = typeof InstallTrigger !== 'undefined';
+        var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+        var isChrome = !!window.chrome && !isOpera;
+        var isIE = !!document.documentMode;
+
+        var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
+
+        // detect node-webkit
+        var isNodeWebkit = !!(window.process && (typeof window.process === 'object') && window.process.versions && window.process.versions['node-webkit']);
+
+        var isHTTPs = location.protocol === 'https:';
+
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+            // Firefox 38+ seems having support of enumerateDevices
+            // Thanks @xdumaine/enumerateDevices
+            navigator.enumerateDevices = function(callback) {
+                navigator.mediaDevices.enumerateDevices().then(callback);
+            };
+        }
+
+        window.DetectRTC = {
+            browser: browser,
+            hasMicrophone: navigator.getMediaDevices || navigator.enumerateDevices ? false : 'unable to detect',
+            hasSpeakers: navigator.getMediaDevices || navigator.enumerateDevices ? false : 'unable to detect',
+            hasWebcam: navigator.getMediaDevices || navigator.enumerateDevices ? false : 'unable to detect',
+
+            isWebRTCSupported: !!window.webkitRTCPeerConnection || !!window.mozRTCPeerConnection,
+            isAudioContextSupported: (!!window.AudioContext && !!window.AudioContext.prototype.createMediaStreamSource) || (!!window.webkitAudioContext && !!window.webkitAudioContext.prototype.createMediaStreamSource),
+
+            isScreenCapturingSupported: (isFirefox && browser.version >= 33) ||
+                (isChrome && browser.version >= 26 && (isNodeWebkit ? true : location.protocol === 'https:')),
+
+            isDesktopCapturingSupported: isHTTPs && ((isFirefox && browser.version >= 33) || (isChrome && browser.version >= 34) || isNodeWebkit || false),
+
+            isSctpDataChannelsSupported: isFirefox || (isChrome && browser.version >= 25),
+            isRtpDataChannelsSupported: isChrome && browser.version >= 31,
+            isMobileDevice: !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i),
+            isWebSocketsSupported: 'WebSocket' in window && 2 === window.WebSocket.CLOSING
+        };
+
+        if (!isHTTPs) {
+            window.DetectRTC.isScreenCapturingSupported =
+                window.DetectRTC.isDesktopCapturingSupported = 'Requires HTTPs.';
+        }
+
+        DetectRTC.browser = {
+            isFirefox: isFirefox,
+            isChrome: isChrome,
+            isMobileDevice: isMobileDevice,
+            isNodeWebkit: isNodeWebkit,
+            isSafari: isSafari,
+            isIE: isIE,
+            isOpera: isOpera,
+            name: browser.name,
+            version: browser.version
+        };
+
+        var osName = 'Unknown OS';
+
+        if (navigator.appVersion.indexOf('Win') !== -1) {
+            osName = 'Windows';
+        }
+
+        if (navigator.appVersion.indexOf('Mac') !== -1) {
+            osName = 'MacOS';
+        }
+
+        if (navigator.appVersion.indexOf('X11') !== -1) {
+            osName = 'UNIX';
+        }
+
+        if (navigator.appVersion.indexOf('Linux') !== -1) {
+            osName = 'Linux';
+        }
+
+        DetectRTC.osName = osName;
 
         DetectRTC.MediaDevices = [];
 
-        // http://goo.gl/UVQRKk
+        if (!navigator.getMediaDevices) {
+            warn('navigator.getMediaDevices API are not available.');
+        }
+
+        if (!navigator.enumerateDevices) {
+            warn('navigator.enumerateDevices API are not available.');
+        }
+
+        if (!window.MediaStreamTrack || !window.MediaStreamTrack.getSources) {
+            warn('MediaStreamTrack.getSources are not available.');
+        }
+
+        // http://dev.w3.org/2011/webrtc/editor/getusermedia.html#mediadevices
         // todo: switch to enumerateDevices when landed in canary.
         function CheckDeviceSupport(callback) {
             // This method is useful only for Chrome!
 
-            // Firefox seems having no support of enumerateDevices feature yet.
-            if ((isPluginRTC || isFirefox) && callback) {
-                callback();
-                return;
+            if (!navigator.getMediaDevices && window.MediaStreamTrack && window.MediaStreamTrack.getSources) {
+                navigator.getMediaDevices = window.MediaStreamTrack.getSources.bind(window.MediaStreamTrack);
             }
 
-            // if "getSources" is available; prefer it over "getMediaDevices"
-            if (MediaStreamTrack && MediaStreamTrack.getSources) {
-                navigator.getMediaDevices = MediaStreamTrack.getSources.bind(MediaStreamTrack);
+            if (!navigator.getMediaDevices && navigator.enumerateDevices) {
+                navigator.getMediaDevices = navigator.enumerateDevices.bind(navigator);
             }
 
-            // if still no "getMediaDevices"; it MUST be Firefox!
+            // if still no 'getMediaDevices'; it MUST be Firefox!
             if (!navigator.getMediaDevices) {
-                log('navigator.getMediaDevices is undefined.');
+                warn('navigator.getMediaDevices is undefined.');
                 // assuming that it is older chrome or chromium implementation
                 if (isChrome) {
                     DetectRTC.hasMicrophone = true;
@@ -6393,9 +6483,25 @@
                 return;
             }
 
+            DetectRTC.MediaDevices = [];
             navigator.getMediaDevices(function(devices) {
-                DetectRTC.MediaDevices = [];
-                devices.forEach(function(device) {
+                devices.forEach(function(_device) {
+                    var device = {};
+                    for (var d in _device) {
+                        device[d] = _device[d];
+                    }
+
+                    var skip;
+                    DetectRTC.MediaDevices.forEach(function(d) {
+                        if (d.id === device.id) {
+                            skip = true;
+                        }
+                    });
+
+                    if (skip) {
+                        return;
+                    }
+
                     // if it is MediaStreamTrack.getSources
                     if (device.kind === 'audio') {
                         device.kind = 'audioinput';
@@ -6413,7 +6519,9 @@
                         device.id = device.deviceId;
                     }
 
-                    DetectRTC.MediaDevices.push(device);
+                    if (!device.label) {
+                        device.label = 'Please invoke getUserMedia once.';
+                    }
 
                     if (device.kind === 'audioinput' || device.kind === 'audio') {
                         DetectRTC.hasMicrophone = true;
@@ -6427,7 +6535,9 @@
                         DetectRTC.hasWebcam = true;
                     }
 
-                    // there is no "videoouput" in the spec.
+                    // there is no 'videoouput' in the spec.
+
+                    DetectRTC.MediaDevices.push(device);
                 });
 
                 if (callback) {
@@ -6436,123 +6546,186 @@
             });
         }
 
-        DetectRTC.isWebRTCSupported = !!window.webkitRTCPeerConnection || !!window.mozRTCPeerConnection;
-        DetectRTC.isAudioContextSupported = (!!window.AudioContext || !!window.webkitAudioContext) && !!AudioContext.prototype.createMediaStreamSource;
-        DetectRTC.isScreenCapturingSupported = (isFirefox && firefoxVersion >= 33 && location.protocol === 'https:') || (isChrome && chromeVersion >= 26 && (isNodeWebkit ? true : location.protocol === 'https:'));
-
-        DetectRTC.isSctpDataChannelsSupported = !!navigator.mozGetUserMedia || (isChrome && chromeVersion >= 25);
-        DetectRTC.isRtpDataChannelsSupported = isChrome && chromeVersion >= 31;
-
         // check for microphone/camera support!
         new CheckDeviceSupport();
         DetectRTC.load = CheckDeviceSupport;
 
-        var screenCallback;
+        function getBrowserInfo() {
+            var nAgt = navigator.userAgent;
+            var browserName = navigator.appName;
+            var fullVersion = '' + parseFloat(navigator.appVersion);
+            var majorVersion = parseInt(navigator.appVersion, 10);
+            var nameOffset, verOffset, ix;
 
-        DetectRTC.screen = {
-            chromeMediaSource: 'screen',
-            extensionid: ReservedExtensionID,
-            getSourceId: function(callback) {
-                if (!callback) {
-                    throw '"callback" parameter is mandatory.';
+            // In Opera, the true version is after 'Opera' or after 'Version'
+            if ((verOffset = nAgt.indexOf('Opera')) !== -1) {
+                browserName = 'Opera';
+                fullVersion = nAgt.substring(verOffset + 6);
+
+                if ((verOffset = nAgt.indexOf('Version')) !== -1) {
+                    fullVersion = nAgt.substring(verOffset + 8);
                 }
-
-                // make sure that chrome extension is installed.
-                if (!!DetectRTC.screen.status) {
-                    onstatus(DetectRTC.screen.status);
-                } else {
-                    DetectRTC.screen.getChromeExtensionStatus(onstatus);
-                }
-
-                function onstatus(status) {
-                    if (status === 'installed-enabled') {
-                        screenCallback = callback;
-                        window.postMessage('get-sourceId', '*');
-                        return;
-                    }
-
-                    DetectRTC.screen.chromeMediaSource = 'screen';
-                    callback('No-Response'); // chrome extension isn't available
-                }
-            },
-            onMessageCallback: function(data) {
-                if (!(isString(data) || !!data.sourceId)) {
-                    return;
-                }
-
-                log('chrome message', data);
-
-                // "cancel" button is clicked
-                if (data === 'PermissionDeniedError') {
-                    DetectRTC.screen.chromeMediaSource = 'PermissionDeniedError';
-                    if (screenCallback) {
-                        return screenCallback('PermissionDeniedError');
-                    } else {
-                        throw new Error('PermissionDeniedError');
-                    }
-                }
-
-                // extension notified his presence
-                if (data === 'rtcmulticonnection-extension-loaded') {
-                    DetectRTC.screen.chromeMediaSource = 'desktop';
-                    if (DetectRTC.screen.onScreenCapturingExtensionAvailable) {
-                        DetectRTC.screen.onScreenCapturingExtensionAvailable();
-
-                        // make sure that this event isn't fired multiple times
-                        DetectRTC.screen.onScreenCapturingExtensionAvailable = null;
-                    }
-                }
-
-                // extension shared temp sourceId
-                if (data.sourceId) {
-                    DetectRTC.screen.sourceId = data.sourceId;
-                    if (screenCallback) {
-                        screenCallback(DetectRTC.screen.sourceId);
-                    }
-                }
-            },
-            getChromeExtensionStatus: function(extensionid, callback) {
-                function _callback(status) {
-                    DetectRTC.screen.status = status;
-                    callback(status);
-                }
-
-                if (isFirefox) {
-                    return _callback('not-chrome');
-                }
-
-                if (arguments.length !== 2) {
-                    callback = extensionid;
-                    extensionid = this.extensionid;
-                }
-
-                var image = document.createElement('img');
-                image.src = 'chrome-extension://' + extensionid + '/icon.png';
-                image.onload = function() {
-                    DetectRTC.screen.chromeMediaSource = 'screen';
-                    window.postMessage('are-you-there', '*');
-                    setTimeout(function() {
-                        if (DetectRTC.screen.chromeMediaSource === 'screen') {
-                            _callback(
-                                DetectRTC.screen.chromeMediaSource === 'desktop' ? 'installed-enabled' : 'installed-disabled' /* if chrome extension isn't permitted for current domain, then it will be installed-disabled all the time even if extension is enabled. */
-                            );
-                        } else {
-                            _callback('installed-enabled');
-                        }
-                    }, 2000);
-                };
-                image.onerror = function() {
-                    _callback('not-installed');
-                };
             }
-        };
-    })();
+            // In MSIE, the true version is after 'MSIE' in userAgent
+            else if ((verOffset = nAgt.indexOf('MSIE')) !== -1) {
+                browserName = 'IE';
+                fullVersion = nAgt.substring(verOffset + 5);
+            }
+            // In Chrome, the true version is after 'Chrome' 
+            else if ((verOffset = nAgt.indexOf('Chrome')) !== -1) {
+                browserName = 'Chrome';
+                fullVersion = nAgt.substring(verOffset + 7);
+            }
+            // In Safari, the true version is after 'Safari' or after 'Version' 
+            else if ((verOffset = nAgt.indexOf('Safari')) !== -1) {
+                browserName = 'Safari';
+                fullVersion = nAgt.substring(verOffset + 7);
 
-    window.addEventListener('message', function(event) {
-        if (event.origin !== window.location.origin) {
-            return;
+                if ((verOffset = nAgt.indexOf('Version')) !== -1) {
+                    fullVersion = nAgt.substring(verOffset + 8);
+                }
+            }
+            // In Firefox, the true version is after 'Firefox' 
+            else if ((verOffset = nAgt.indexOf('Firefox')) !== -1) {
+                browserName = 'Firefox';
+                fullVersion = nAgt.substring(verOffset + 8);
+            }
+            // In most other browsers, 'name/version' is at the end of userAgent 
+            else if ((nameOffset = nAgt.lastIndexOf(' ') + 1) < (verOffset = nAgt.lastIndexOf('/'))) {
+                browserName = nAgt.substring(nameOffset, verOffset);
+                fullVersion = nAgt.substring(verOffset + 1);
+
+                if (browserName.toLowerCase() === browserName.toUpperCase()) {
+                    browserName = navigator.appName;
+                }
+            }
+            // trim the fullVersion string at semicolon/space if present
+            if ((ix = fullVersion.indexOf(';')) !== -1) {
+                fullVersion = fullVersion.substring(0, ix);
+            }
+
+            if ((ix = fullVersion.indexOf(' ')) !== -1) {
+                fullVersion = fullVersion.substring(0, ix);
+            }
+
+            majorVersion = parseInt('' + fullVersion, 10);
+
+            if (isNaN(majorVersion)) {
+                fullVersion = '' + parseFloat(navigator.appVersion);
+                majorVersion = parseInt(navigator.appVersion, 10);
+            }
+
+            return {
+                fullVersion: fullVersion,
+                version: majorVersion,
+                name: browserName
+            };
         }
 
-        DetectRTC.screen.onMessageCallback(event.data);
-    });
+        // via: https://github.com/diafygi/webrtc-ips
+        DetectRTC.DetectLocalIPAddress = function(callback) {
+            getIPs(function(ip) {
+                //local IPs
+                if (ip.match(/^(192\.168\.|169\.254\.|10\.|172\.(1[6-9]|2\d|3[01]))/)) {
+                    callback('Local: ' + ip);
+                }
+
+                //assume the rest are public IPs
+                else {
+                    callback('Public: ' + ip);
+                }
+            });
+        };
+
+        //get the IP addresses associated with an account
+        function getIPs(callback) {
+            var ipDuplicates = {};
+
+            //compatibility for firefox and chrome
+            var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+            var useWebKit = !!window.webkitRTCPeerConnection;
+
+            // bypass naive webrtc blocking using an iframe
+            if (!RTCPeerConnection) {
+                var iframe = document.getElementById('iframe');
+                if (!iframe) {
+                    //<iframe id="iframe" sandbox="allow-same-origin" style="display: none"></iframe>
+                    throw 'NOTE: you need to have an iframe in the page right above the script tag.';
+                }
+                var win = iframe.contentWindow;
+                RTCPeerConnection = win.RTCPeerConnection || win.mozRTCPeerConnection || win.webkitRTCPeerConnection;
+                useWebKit = !!win.webkitRTCPeerConnection;
+            }
+
+            //minimal requirements for data connection
+            var mediaConstraints = {
+                optional: [{
+                    RtpDataChannels: true
+                }]
+            };
+
+            //firefox already has a default stun server in about:config
+            //    media.peerconnection.default_iceservers =
+            //    [{"url": "stun:stun.services.mozilla.com"}]
+            var servers;
+
+            //add same stun server for chrome
+            if (useWebKit) {
+                servers = {
+                    iceServers: [{
+                        urls: 'stun:stun.services.mozilla.com'
+                    }]
+                };
+            }
+
+            //construct a new RTCPeerConnection
+            var pc = new RTCPeerConnection(servers, mediaConstraints);
+
+            function handleCandidate(candidate) {
+                //match just the IP address
+                var ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
+                var ipAddress = ipRegex.exec(candidate)[1];
+
+                //remove duplicates
+                if (ipDuplicates[ipAddress] === undefined) {
+                    callback(ipAddress);
+                }
+
+                ipDuplicates[ipAddress] = true;
+            }
+
+            //listen for candidate events
+            pc.onicecandidate = function(ice) {
+                //skip non-candidate events
+                if (ice.candidate) {
+                    handleCandidate(ice.candidate.candidate);
+                }
+            };
+
+            //create a bogus data channel
+            pc.createDataChannel('');
+
+            //create an offer sdp
+            pc.createOffer(function(result) {
+
+                //trigger the stun server request
+                pc.setLocalDescription(result, function() {}, function() {});
+
+            }, function() {});
+
+            //wait for a while to let everything done
+            setTimeout(function() {
+                //read candidate info from local description
+                var lines = pc.localDescription.sdp.split('\n');
+
+                lines.forEach(function(line) {
+                    if (line.indexOf('a=candidate:') === 0) {
+                        handleCandidate(line);
+                    }
+                });
+            }, 1000);
+        }
+    })();
+
+    var DetectRTC = window.DetectRTC;
 })();

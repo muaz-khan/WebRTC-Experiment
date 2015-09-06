@@ -1,29 +1,35 @@
-// Last time updated at Feb 05, 2015, 08:32:23
-
+// Last time updated at May 23, 2015, 08:32:23
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getStats.js
-
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
 // Source Code   - https://github.com/muaz-khan/getStats
-
 // ___________
 // getStats.js
-
 // an abstraction layer runs top over RTCPeerConnection.getStats API
 // cross-browser compatible solution
 // http://dev.w3.org/2011/webrtc/editor/webrtc.html#dom-peerconnection-getstats
-
 /*
-rtcPeerConnection.getStats(function(result) {
+getStats(function(result) {
     result.connectionType.remote.ipAddress
     result.connectionType.remote.candidateType
     result.connectionType.transport
 });
 */
-
 (function() {
-    RTCPeerConnection = window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-    window.getStats = function(mediaStreamTrack, callback, interval) {
+    var RTCPeerConnection;
+    if (typeof webkitRTCPeerConnection !== 'undefined') {
+        RTCPeerConnection = webkitRTCPeerConnection;
+    }
+
+    if (typeof mozRTCPeerConnection !== 'undefined') {
+        RTCPeerConnection = mozRTCPeerConnection;
+    }
+
+    if (typeof MediaStreamTrack === 'undefined') {
+        MediaStreamTrack = {}; // todo?
+    }
+
+    function getStats(mediaStreamTrack, callback, interval) {
         var peer = this;
 
         if (arguments[0] instanceof RTCPeerConnection) {
@@ -32,10 +38,10 @@ rtcPeerConnection.getStats(function(result) {
             callback = arguments[2];
             interval = arguments[3];
 
-            if (!(mediaStreamTrack instanceof window.MediaStreamTrack) && !!navigator.mozGetUserMedia) {
+            if (!(mediaStreamTrack instanceof MediaStreamTrack) && !!navigator.mozGetUserMedia) {
                 throw '2nd argument is not instance of MediaStreamTrack.';
             }
-        } else if (!(mediaStreamTrack instanceof window.MediaStreamTrack) && !!navigator.mozGetUserMedia) {
+        } else if (!(mediaStreamTrack instanceof MediaStreamTrack) && !!navigator.mozGetUserMedia) {
             throw '1st argument is not instance of MediaStreamTrack.';
         }
 
@@ -46,9 +52,7 @@ rtcPeerConnection.getStats(function(result) {
 
         var nomore = false;
 
-        getPrivateStats();
-
-        function getPrivateStats() {
+        (function getPrivateStats() {
             _getStats(function(results) {
                 var result = {
                     audio: {},
@@ -62,7 +66,7 @@ rtcPeerConnection.getStats(function(result) {
                 for (var i = 0; i < results.length; ++i) {
                     var res = results[i];
 
-                    if (res.googCodecName == 'opus') {
+                    if (res.googCodecName == 'opus' && res.bytesSent) {
                         if (!globalObject.audio.prevBytesSent)
                             globalObject.audio.prevBytesSent = res.bytesSent;
 
@@ -151,7 +155,7 @@ rtcPeerConnection.getStats(function(result) {
                     typeof interval != undefined && interval && setTimeout(getPrivateStats, interval || 1000);
                 }
             });
-        }
+        })();
 
         // a wrapper around getStats which hides the differences (where possible)
         // following code-snippet is taken from somewhere on the github
@@ -197,5 +201,13 @@ rtcPeerConnection.getStats(function(result) {
             mergein[item] = mergeto[item];
         }
         return mergein;
+    }
+
+    if (typeof module !== 'undefined'/* && !!module.exports*/) {
+        module.exports = getStats;
+    }
+    
+    if(typeof window !== 'undefined') {
+        window.getStats = getStats;
     }
 })();

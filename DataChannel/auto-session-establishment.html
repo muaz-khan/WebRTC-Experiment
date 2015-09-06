@@ -9,7 +9,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
         <script>
             var hash = window.location.hash.replace('#', '');
             if (!hash.length) {
@@ -40,8 +40,8 @@
             document.createElement('footer');
         </script>
 
-        <script src="//cdn.webrtc-experiment.com/DataChannel.js"> </script>
-        <script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/DataChannel.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/firebase.js"> </script>
     </head>
 
     <body>
@@ -51,7 +51,7 @@
                 WEBRTC EXPERIMENTS</a>
 
 
-            <h1>Auto Session Establishment using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel"
+            <h1>Auto Session Establishment using <a href="https://github.com/muaz-khan/DataChannel"
                                                     target="_blank">DataChannel.js</a>
             
             </h1>
@@ -70,10 +70,10 @@
                     <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
                     
                     .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    <a href="https://github.com/muaz-khan/DataChannel/issues?state=open" target="_blank">Latest issues</a>
                     
                     .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                    <a href="https://github.com/muaz-khan/DataChannel/commits/master" target="_blank">What's New?</a>
                 </p>
             
             <table style="border-left: 1px solid black; width: 100%;">
@@ -98,7 +98,7 @@
             </table>
             <script>
                 var channel = new DataChannel(location.hash.substr(1) || 'auto-session-establishment', {
-                    firebase: 'webrtc'
+                    firebase: 'webrtc-experiment'
                 });
 
                 channel.onmessage = function(data, userid, latency) {
@@ -184,10 +184,10 @@
             <br/>
             <br/>
 
-            <h2>Getting started with WebRTC <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel"
+            <h2>Getting started with WebRTC <a href="https://github.com/muaz-khan/DataChannel"
                                                target="_blank">DataChannel</a></h2>
             <pre>
-&lt;script src="//cdn.webrtc-experiment.com/DataChannel.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.webrtc-experiment.com/DataChannel.js"&gt;&lt;/script&gt;
 &lt;script&gt;
     var channel = new <strong>DataChannel</strong>('default-channel');
 
@@ -340,7 +340,7 @@ channel.leave();        // close your own entire data session
             </section>
         </article>
         
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" class="fork-left"></a>
+        <a href="https://github.com/muaz-khan/DataChannel" class="fork-left"></a>
         
         <footer>
             <p>
@@ -349,6 +349,6 @@ channel.leave();        // close your own entire data session
                 <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
             </p>
         </footer>
-        <script src="//cdn.webrtc-experiment.com/commits.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js"> </script>
     </body>
 </html>

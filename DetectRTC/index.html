@@ -16,7 +16,7 @@
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         
-        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
         
         <style>
             audio {
@@ -56,14 +56,14 @@
         </script>
         
         <!-- script used to detect WebRTC features! -->
-        <script src="//cdn.webrtc-experiment.com/DetectRTC.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
     </head>
 
     <body>
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC">DetectRTC.js</a>: Detect <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC</a> features! ® 
+                    <a href="https://github.com/muaz-khan/DetectRTC">DetectRTC.js</a>: Detect <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC</a> features! ® 
                     <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
                 </h1>            
                 <p>
@@ -78,10 +78,10 @@
                     <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
                     
                     .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    <a href="https://github.com/muaz-khan/DetectRTC/issues?state=open" target="_blank">Latest issues</a>
                     
                     .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                    <a href="https://github.com/muaz-khan/DetectRTC/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
 
@@ -94,56 +94,67 @@
                 <img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
             </section>
             
+            <!-- dirty trick to bypass webrtc blockers -->
+            <iframe id="iframe" sandbox="allow-same-origin" style="display: none"></iframe>
+            
             <script>
                 var browserFeaturesTable = document.querySelector('#browser-features');
+
                 function appendTR(firstValue, secondValue) {
                     var tr = document.createElement('tr');
                     tr.innerHTML = '<td>' + firstValue + '</td><td>' + secondValue + '</td>';
                     browserFeaturesTable.appendChild(tr);
                 }
-                
+
                 function printVal(value) {
                     return value == true ? 'Yep' : value == false ? 'Nope' : value;
                 }
-                
-                    DetectRTC.load(function() {
-                        appendTR('System has Speakers?', printVal(DetectRTC.hasSpeakers));
-                        appendTR('System has Microphone?', printVal(DetectRTC.hasMicrophone));
-                        appendTR('System has Webcam?', printVal(DetectRTC.hasWebcam));
-                        
-                        appendTR('Browser Supports WebRTC?', printVal(DetectRTC.isWebRTCSupported));
-                        appendTR('Browser Supports WebAudio API?', printVal(DetectRTC.isAudioContextSupported));
-                        appendTR('Browser Supports SCTP Data Channels?', printVal(DetectRTC.isSctpDataChannelsSupported));
-                        appendTR('Browser Supports RTP Data Channels?', printVal(DetectRTC.isRtpDataChannelsSupported));
-                       
-                        appendTR('This page Supports desktopCapture API?', printVal(DetectRTC.isDesktopCapturingSupported));
-                        appendTR('This page Supports Screen Capturing API?', printVal(DetectRTC.isScreenCapturingSupported));
-                        appendTR('Is it a mobile device?', printVal(DetectRTC.isMobileDevice));
-                        appendTR('Browser Supports WebSockets?', printVal(DetectRTC.isWebSocketsSupported));
-                        
-                        document.getElementById('welcome').innerHTML = DetectRTC.osName + ': ' + DetectRTC.browser.name + ' (version: ' + DetectRTC.browser.version + ')';
-                    
-                        var rightSide = '';
-                        var audioDevices = [];
-                        var videoDevices = [];
-                        DetectRTC.MediaDevices.forEach(function(device) {
-                            if(device.kind == 'audio' && audioDevices.indexOf(device.label) == -1) {
-                                audioDevices.push(device.label || 'unable to detect');
-                            }
-                            if(device.kind == 'video' && videoDevices.indexOf(device.label) == -1) {
-                                videoDevices.push(device.label || 'unable to detect');
-                            }
-                        });
-                        
-                        rightSide += '<h2>Audio Devices</h2><br>' + audioDevices.join('<br>');
-                        rightSide += '<br><br><h2>Video Devices</h2><br>' + videoDevices.join('<br>');
-                        
-                        appendTR(audioDevices.length + ' audio and ' + videoDevices.length + ' video devices', rightSide);
-                        
-                        DetectRTC.DetectLocalIPAddress(function(ipAddress) {
-                            appendTR('Your Local IP Address', ipAddress);
-                        });
+
+                DetectRTC.load(function() {
+                    appendTR('System has Speakers?', printVal(DetectRTC.hasSpeakers));
+                    appendTR('System has Microphone?', printVal(DetectRTC.hasMicrophone));
+                    appendTR('System has Webcam?', printVal(DetectRTC.hasWebcam));
+
+                    appendTR('Browser Supports WebRTC?', printVal(DetectRTC.isWebRTCSupported));
+                    appendTR('Browser Supports WebAudio API?', printVal(DetectRTC.isAudioContextSupported));
+                    appendTR('Browser Supports SCTP Data Channels?', printVal(DetectRTC.isSctpDataChannelsSupported));
+                    appendTR('Browser Supports RTP Data Channels?', printVal(DetectRTC.isRtpDataChannelsSupported));
+
+                    appendTR('This page Supports desktopCapture API?', printVal(DetectRTC.isDesktopCapturingSupported));
+                    appendTR('This page Supports Screen Capturing API?', printVal(DetectRTC.isScreenCapturingSupported));
+                    appendTR('Is it a mobile device?', printVal(DetectRTC.isMobileDevice));
+                    appendTR('Browser Supports WebSockets?', printVal(DetectRTC.isWebSocketsSupported));
+
+                    document.getElementById('welcome').innerHTML = DetectRTC.osName + ': ' + DetectRTC.browser.name + ' (version: ' + DetectRTC.browser.version + ')';
+
+                    var rightSide = '';
+                    var audioDevices = [];
+                    var videoDevices = [];
+                    DetectRTC.MediaDevices.forEach(function(device) {
+                        if (device.kind.indexOf('audio') !== -1 && audioDevices.indexOf(device.label) == -1) {
+                            audioDevices.push(device.label || 'unable to detect');
+                        }
+                        if (device.kind.indexOf('video') !== -1 && videoDevices.indexOf(device.label) == -1) {
+                            videoDevices.push(device.label || 'unable to detect');
+                        }
                     });
+
+                    rightSide += '<h2>Audio Devices</h2><br>' + audioDevices.join('<br>');
+                    rightSide += '<br><br><h2>Video Devices</h2><br>' + videoDevices.join('<br>');
+
+                    appendTR(audioDevices.length + ' audio and ' + videoDevices.length + ' video devices', rightSide);
+
+                    appendTR('Is Browser Supports Video Capturing from Canvas?', printVal(DetectRTC.isVideoCaptureStreamSupported));
+                    appendTR('Is Browser Supports Stream Capturing from Video?', printVal(DetectRTC.isVideoCaptureStreamSupported));
+
+                    DetectRTC.DetectLocalIPAddress(function(ipAddress) {
+                        if (ipAddress.indexOf('Local') !== -1) {
+                            appendTR('Your <strong>Local</strong> IP Address', ipAddress);
+                        } else {
+                            appendTR('Your <strong>Public</strong> IP Address', ipAddress);
+                        }
+                    });
+                });
             </script>
         
             <section class="experiment">
@@ -209,6 +220,6 @@ DetectRTC.load(function() {
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

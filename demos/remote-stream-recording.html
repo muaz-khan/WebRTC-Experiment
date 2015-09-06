@@ -1,4 +1,5 @@
-﻿<title>Recording Remote Audio Streams / RecordRTC</title>
+﻿
+<title>Recording Remote Audio Streams / RecordRTC</title>
 <style>
 html{
     background: rgb(231, 241, 241);
@@ -79,7 +80,7 @@ navigator.webkitGetUserMedia({ audio: audioConstraints }, onSuccess, onFailure);
     </li>
 </ol>
 
-<script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
 
 <script>
     var offerer, answerer;
@@ -139,18 +140,28 @@ navigator.webkitGetUserMedia({ audio: audioConstraints }, onSuccess, onFailure);
         answerer.onaddstream = function (event) {
             console.debug('remote stream', event.stream);
             
-            var recorder = new RecordRTC(event.stream);
+            var recorder = new RecordRTC(event.stream, {
+                type: 'audio',
+                recorderType: StereoAudioRecorder // Force StereoAudioRecorder.js for Firefox!
+            });
             recorder.startRecording();
             setTimeout(function() {
                 recorder.stopRecording(function(url) {
-                    recorder.getDataURL(function(dataURL) {
-                        if(dataURL.indexOf('AAAAAAAAAAAA') != -1) {
-                            document.querySelector('h2').innerHTML = 'Unable to record remote audio stream.<br />It seems that WebAudio APIs are unable to read/process remote audio stream buffers out of single APM i.e. <a href="https://code.google.com/p/chromium/codesearch#chromium/src/content/renderer/media/media_stream_audio_processor.cc">MediaStreamAudioProcessor</a> / WebRtcAudioCapturer.<br /><textarea style="width:100%;height:100px;">' +dataURL + '</textarea>';
-                        }
-                        console.log('data-url', dataURL);
-                    });
+                    if(!!navigator.mozGetUserMedia) {
+                        // skip Firefox! Bcz it supports remote audio/video recordings!
+                        document.querySelector('h2').innerHTML = '<a target="_blank" href="https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html#comment-2217673960">Firefox supports remote audio recording using StereoAudioRecorder.js!</a>';
+                    }
+                    else {
+                        recorder.getDataURL(function(dataURL) {
+                            if(dataURL.indexOf('AAAAAAAAAAAA') != -1) {
+                                document.querySelector('h2').innerHTML = 'Unable to record remote audio stream.<br />It seems that WebAudio APIs are unable to read/process remote audio stream buffers out of single APM i.e. <a href="https://code.google.com/p/chromium/codesearch#chromium/src/content/renderer/media/media_stream_audio_processor.cc">MediaStreamAudioProcessor</a> / WebRtcAudioCapturer.<br /><textarea style="width:100%;height:100px;">' +dataURL + '</textarea>';
+                            }
+                            console.log('data-url', dataURL);
+                        });
+                    }
                     console.log('blob', recorder.getBlob());
                     console.log('virtual url', url);
+                    
                     var audio = document.createElement('audio');
                     audio.controls = true;
                     audio.src = url;
@@ -177,21 +188,11 @@ navigator.webkitGetUserMedia({ audio: audioConstraints }, onSuccess, onFailure);
 </script>
 <script>
     function getUserMedia(callback) {
-        var audioConstraints = {
-            optional: [],
-            mandatory: {
-                googEchoCancellation: true,
-                googAutoGainControl: true,
-                googNoiseSuppression: true,
-                googHighpassFilter: true,
-                googTypingNoiseDetection: true
-            }
-        };
-        navigator.getUserMedia({ audio: audioConstraints }, callback, onerror);
-
         function onerror(e) {
             console.error(e);
         }
+        
+        navigator.getUserMedia({ audio: true }, callback, onerror);
     }
     getUserMedia(offererPeer);
 </script>

@@ -15,9 +15,9 @@ You don't need to modify any single line to use it. No single installation or mo
 
 | Library Name        | Short Description           | Documentation | Demos |
 | ------------- |-------------|-------------|-------------|
-| `RecordRTC.js` | Supports cross-browser audio/video recordings! | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
-| `Translator.js` | Voice & Text Translator | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Translator.js) | [Demos](https://www.webrtc-experiment.com/Translator/) |
-| `RTCMultiConnection.js` | Single Library for Everything! Just imagine :) | [Documentation](http://www.RTCMultiConnection.org/docs/) | [Demos](https://www.webrtc-experiment.com/RTCMultiConnection/) |
+| `RecordRTC.js` | Supports cross-browser audio/video recordings! | [Documentation](https://github.com/muaz-khan/RecordRTC) | [Demos](https://www.webrtc-experiment.com/RecordRTC/) |
+| `Translator.js` | Voice & Text Translator | [Documentation](https://github.com/muaz-khan/Translator) | [Demos](https://www.webrtc-experiment.com/Translator/) |
+| `RTCMultiConnection.js` | Single Library for Everything! Just imagine :) | [Documentation](https://github.com/muaz-khan/RTCMultiConnection) | [Demos](https://www.webrtc-experiment.com/RTCMultiConnection/) |
 | `FileBufferReader.js` | File buffers reader & chunkifier | [Documentation](https://github.com/muaz-khan/FileBufferReader) | [Demos](https://www.WebRTC-Experiment.com/FileBufferReader/) |
 | `getScreenId.js` | Single chrome extension for all domains! Again, imagine :) | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js) | [Demos](https://www.webrtc-experiment.com/getScreenId/) |
 | `Conversation.js` | Enjoy Skype-like Conversations! Oops :) | [Documentation](https://github.com/muaz-khan/Conversation.js) | [Demos](https://www.webrtc-experiment.com/Conversationjs/) |
@@ -27,15 +27,21 @@ You don't need to modify any single line to use it. No single installation or mo
 | `Meeting.js` | A library for audio/video conferencing | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) | [Demos](https://www.webrtc-experiment.com/meeting/) |
 | `File.js` | A standalone library for file sharing functionalities | [Documentation](https://www.webrtc-experiment.com/docs/Share-Files-using-Filejs.html) | [Demos](https://www.webrtc-experiment.com/WebRTC-File-Sharing/) |
 | `getMediaElement.js` | A library for audio/video media elements' layout | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getMediaElement) | [Demos](https://www.webrtc-experiment.com/getMediaElement/) |
-| `DetectRTC.js` | A library for detecting WebRTC features | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC) | [Demos](https://www.webrtc-experiment.com/DetectRTC/) |
+| `DetectRTC.js` | A library for detecting WebRTC features | [Documentation](https://github.com/muaz-khan/DetectRTC) | [Demos](https://www.webrtc-experiment.com/DetectRTC/) |
 | `navigator.customGetUserMediaBar.js` | Keep your users Privacy! | [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/navigator.customGetUserMediaBar) | [Demos](https://www.webrtc-experiment.com/navigator.customGetUserMediaBar/) |
 | `ConcatenateBlobs.js` | Concatenate Array of Blobs | [Documentation](https://github.com/muaz-khan/ConcatenateBlobs) | [Demos](https://www.webrtc-experiment.com/ConcatenateBlobs/) |
 
 ## Other Repositories
 
 1. [RecordRTC.js](https://github.com/muaz-khan/RecordRTC)
+1. [Translator.js](https://github.com/muaz-khan/Translator)
 2. [RTCMultiConnection.js](https://github.com/muaz-khan/RTCMultiConnection)
 3. [Conversation.js](https://github.com/muaz-khan/Conversation.js)
+3. [Ffmpeg.js](https://github.com/muaz-khan/Ffmpeg.js)
+3. [DetectRTC.js](https://github.com/muaz-khan/DetectRTC)
+3. [getStats.js](https://github.com/muaz-khan/getStats)
+3. [DataChannel.js](https://github.com/muaz-khan/DataChannel)
+3. [MultiRTC Demos](https://github.com/muaz-khan/MultiRTC)
 4. [Collaborate Canvas Designer](https://github.com/muaz-khan/Canvas-Designer)
 5. [XHR-Signaling](https://github.com/muaz-khan/XHR-Signaling)
 6. [PluginRTC: IE/Safari Plugins compatible WebRTC-Experiments](https://github.com/muaz-khan/PluginRTC)
@@ -65,7 +71,7 @@ You don't need to modify any single line to use it. No single installation or mo
 | **file sharing** / multi-user (group) files hangout | [Demo](https://www.webrtc-experiment.com/file-hangout/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout) | [Demo](https://www.webrtc-experiment.com/file-sharing/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-sharing) |
 | **file sharing using SCTP data channels** | [Demo](https://www.webrtc-experiment.com/WebRTC-File-Sharing/) / -- | -- / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/WebRTC-File-Sharing) |
 | **text chat** / multi-user (group) text chat | [Demo](https://www.webrtc-experiment.com/chat-hangout/) / [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/chat-hangout) | [Demo](https://www.webrtc-experiment.com/text-chat/) / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/text-chat) |
-| **MultiRTC** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/) / -- | -- / [Source Code](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple) |
+| **MultiRTC** | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/) / -- | -- / [Source Code](https://github.com/muaz-khan/MultiRTC) |
 
 ## [Google Chrome Extensions](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions) for [WebRTC](https://www.webrtc-experiment.com/)!
 
@@ -132,12 +138,12 @@ You don't need to modify any single line to use it. No single installation or mo
 | **Video Recording** | [Demo](https://www.webrtc-experiment.com/msr/video-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/video-recorder.html) |
 | **Gif Recording** | [Demo](https://www.webrtc-experiment.com/msr/gif-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/gif-recorder.html) |
 
-## Demos using [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) library
+## Demos using [DataChannel.js](https://github.com/muaz-khan/DataChannel) library
 
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
-| **DataChannel basic demo** | [Demo](https://www.webrtc-experiment.com/DataChannel/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/DataChannel/index.html) |
-| **Auto Session Establishment** | [Demo](https://www.webrtc-experiment.com/DataChannel/auto-session-establishment.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/DataChannel/auto-session-establishment.html) |
+| **DataChannel basic demo** | [Demo](https://www.webrtc-experiment.com/DataChannel/) | [Source](https://github.com/muaz-khan/DataChannel/blob/master/index.html) |
+| **Auto Session Establishment** | [Demo](https://www.webrtc-experiment.com/DataChannel/auto-session-establishment.html) | [Source](https://github.com/muaz-khan/DataChannel/blob/master/auto-session-establishment.html) |
 | **Share part-of-screen using DataChannel.js** | [Demo](https://www.webrtc-experiment.com/part-of-screen-sharing/webrtc-data-channel/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing/webrtc-and-part-of-screen-sharing) |
 | **Private Chat** | [Demo](https://muazkh.appspot.com/privatechat/) | ---- |
 | **Text Chat using Pusher and DataChannel.js** | [Demo](http://webrtc-chat-demo.pusher.io/) | [Source](https://github.com/pusher/pusher-webrtc-chat-demo) |
@@ -155,7 +161,7 @@ You don't need to modify any single line to use it. No single installation or mo
 | Experiment Name        | Demo           | Source Code |
 | ------------- |-------------|-------------|
 | AppRTC like RTCMultiConnection demo! | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/AppRTC-Look.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/AppRTC-Look.html) |
-| MultiRTC! RTCMultiConnection all-in-one demo! | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/MultiRTC-simple) |
+| MultiRTC! RTCMultiConnection all-in-one demo! | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/) | [Source](https://github.com/muaz-khan/MultiRTC) |
 | Collaborative Canvas Designer | [Demo](https://www.webrtc-experiment.com/Canvas-Designer/) | [Source](https://github.com/muaz-khan/Canvas-Designer) |
 | Conversation.js - Skype like library | [Demo](https://www.webrtc-experiment.com/Conversationjs/) | [Source](https://github.com/muaz-khan/Conversation.js) |
 | All-in-One test | [Demo](https://www.webrtc-experiment.com/RTCMultiConnection/all-in-one.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/all-in-one.html) |
@@ -317,7 +323,7 @@ document.getElementById('joinRoom').onclick = function() {
 
 [RTCMultiConnection Documentation](http://www.RTCMultiConnection.org/docs/)
 
-## [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) / A library for RTCDataChannel APIs
+## [DataChannel.js](https://github.com/muaz-khan/DataChannel) / A library for RTCDataChannel APIs
 
 ```html
 <script src="//cdn.webrtc-experiment.com/DataChannel.js"> </script>
@@ -335,9 +341,9 @@ document.getElementById('joinRoom').onclick = function() {
 </script>
 ```
 
-[DataChannel Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel)
+[DataChannel Documentation](https://github.com/muaz-khan/DataChannel)
 
-## [Translator.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Translator.js) / [Demo](https://www.webrtc-experiment.com/Translator/)
+## [Translator.js](https://github.com/muaz-khan/Translator) / [Demo](https://www.webrtc-experiment.com/Translator/)
 
 Translator.js is a JavaScript library built top on Google Speech-Recognition & Translation API to transcript and translate voice and text. It supports many locales and brings globalization in <a href="https://www.webrtc-experiment.com/">WebRTC</a>!
 
@@ -465,14 +471,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
 ## Credits
 
-[Muaz Khan](https://github.com/muaz-khan):
-
-1. Personal Webpage: http://www.muazkhan.com
-2. Email: muazkh@gmail.com
-3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
-4. Google+: https://plus.google.com/+WebRTC-Experiment
-5. Facebook: https://www.facebook.com/WebRTC
-6. Blog: http://muaz-khan.blogspot.com
+* Muaz Khan - https://github.com/muaz-khan
 
 # License
 

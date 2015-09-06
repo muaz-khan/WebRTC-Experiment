@@ -297,7 +297,15 @@ function StereoRecorder(mediaStream) {
 // source code from: http://typedarray.org/wp-content/projects/WebAudioRecorder/script.js
 
 function StereoAudioRecorder(mediaStream, root) {
-    // variables
+
+    // variables    
+    var deviceSampleRate = 44100; // range: 22050 to 96000
+    
+    // check device sample rate
+    if(window.AudioContext){
+        deviceSampleRate = (new window.AudioContext()).sampleRate;
+    }
+
     var leftchannel = [];
     var rightchannel = [];
     var scriptprocessornode;
@@ -305,7 +313,7 @@ function StereoAudioRecorder(mediaStream, root) {
     var recordingLength = 0;
     var volume;
     var audioInput;
-    var sampleRate = root.sampleRate || 44100; // range: 22050 to 96000
+    var sampleRate = root.sampleRate || deviceSampleRate;
     var audioContext;
     var context;
 
@@ -391,6 +399,8 @@ function StereoAudioRecorder(mediaStream, root) {
         // we stop recording
         recording = false;
         this.requestData();
+
+        audioInput.disconnect();
     };
 
     function interleave(leftChannel, rightChannel) {
@@ -437,14 +447,12 @@ function StereoAudioRecorder(mediaStream, root) {
     var context = ObjectStore.AudioContextConstructor;
 
     // creates a gain node
-    if (!ObjectStore.VolumeGainNode)
-        ObjectStore.VolumeGainNode = context.createGain();
+    ObjectStore.VolumeGainNode = context.createGain();
 
     var volume = ObjectStore.VolumeGainNode;
 
     // creates an audio node from the microphone incoming stream
-    if (!ObjectStore.AudioInput)
-        ObjectStore.AudioInput = context.createMediaStreamSource(mediaStream);
+    ObjectStore.AudioInput = context.createMediaStreamSource(mediaStream);
 
     // creates an audio node from the microphone incoming stream
     var audioInput = ObjectStore.AudioInput;
@@ -511,8 +519,8 @@ function WhammyRecorderHelper(mediaStream, root) {
         if (!this.height) this.height = 240;
 
         if (this.video && this.video instanceof HTMLVideoElement) {
-            if (!this.width) this.width = video.videoWidth || 320;
-            if (!this.height) this.height = video.videoHeight || 240;
+            if (!this.width) this.width = video.videoWidth || video.clientWidth || 320;
+            if (!this.height) this.height = video.videoHeight || video.clientHeight || 240;
         }
 
         if (!this.video) {
@@ -522,7 +530,7 @@ function WhammyRecorderHelper(mediaStream, root) {
             };
         }
 
-        if (!this.canvas) {
+        if (!this.canvas || !this.canvas.width || !this.canvas.height) {
             this.canvas = {
                 width: this.width,
                 height: this.height

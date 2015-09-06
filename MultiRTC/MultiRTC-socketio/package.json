@@ -1,0 +1,65 @@
+{
+  "name": "multirtc",
+  "preferGlobal": true,
+  "version": "6.0.1",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com"
+  },
+  "description": "1) It is a skype-like demo using WebRTC for realtime connections! 2) It allows you enable/disable webcams; and join with or without webcams! 3) It allows you share screen using existing peer connections! 4) It allows you share files with preview and download links! 5) It allows you auto translate incoming messages in your own language! 6) It gives you full control over bandwidth and screen resolutions! 7) It allows you adjust file sharing speed yourself by setting chunk-size and chunk-intervals! 8) It allows you test all WebRTC features by enabling/disabling some check-boxes!: https://www.webrtc-experiment.com/RTCMultiConnection/MultiRTC/",
+  "contributors": [
+    {
+      "name": "Muaz Khan",
+      "email": "muazkh@gmail.com"
+    }
+  ],
+  "scripts": {
+    "start": "signaler.js"
+  },
+  "main": "signaler.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/MultiRTC.git"
+  },
+  "keywords": [
+    "webrtc",
+    "javascript",
+    "RTCMultiConnection",
+    "Node.js",
+    "Library",
+    "audio",
+    "video",
+    "audio-video",
+    "screen-sharing",
+    "file-sharing",
+    "file",
+    "renegotiation",
+    "skype",
+    "text-chat",
+    "multi-user",
+    "WebRTC-Experiment",
+    "video-conferencing",
+    "broadcasting",
+    "hangout",
+    "one-way",
+    "many-to-many",
+    "SCTP",
+    "RTP"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.6"
+  },
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "websocket": "1.0.x",
+    "node-static": "0.7.x"
+  },
+  "bugs": {
+    "url": "https://github.com/muaz-khan/MultiRTC/issues"
+  },
+  "homepage": "https://github.com/muaz-khan/MultiRTC",
+  "_id": "multirtc@",
+  "_from": "multirtc@"
+}

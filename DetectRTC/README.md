@@ -52,6 +52,9 @@ DetectRTC.load(function() {
     // DetectRTC.browser.isIE
     // DetectRTC.browser.isSafari
 
+    // isCanvasCaptureStreamSupported
+    // isVideoCaptureStreamSupported
+
     // DetectRTC.DetectLocalIPAddress(callback)
 });
 ```

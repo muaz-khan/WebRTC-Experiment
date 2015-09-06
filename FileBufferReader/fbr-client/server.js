@@ -14,8 +14,12 @@ var app = http.createServer(function (request, response) {
     
     filename = path.join(process.cwd() + (process.platform == 'linux'? '/node_modules' : '\\node_modules'), uri);
     
-    if (fs.statSync(filename).isDirectory()) {
+    if (fs.existsSync(filename) && fs.statSync(filename).isDirectory()) {
         filename = path.join(process.cwd(), uri);
+    }
+    
+    if(filename.indexOf('favicon.ico') !== -1) {
+        return;
     }
     
     fs.exists(filename, function (exists) {
@@ -56,6 +60,8 @@ var app = http.createServer(function (request, response) {
         });
     });
 }).listen(port);
+
+console.log('Listening port:', port);
 
 var io = require('socket.io')(app);
 io.on('connection', function(socket){

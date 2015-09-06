@@ -1,0 +1,35 @@
+{
+  "name": "datachannel",
+  "version": "1.0.0",
+  "authors": [
+        {
+            "name": "Muaz Khan",
+            "email": "muazkh@gmail.com",
+            "homepage": "http://www.muazkhan.com/"
+        }
+   ],
+  "homepage": "https://www.webrtc-experiment.com/DataChannel/",
+  "repository": {
+        "type": "git",
+        "url": "https://github.com/muaz-khan/DataChannel.git"
+   },
+  "description": "DataChannel.js is a JavaScript library useful to write many-to-many i.e. group file/data sharing or text chat applications. Its syntax is easier to use and understand. It highly simplifies complex tasks like any or all user rejection/ejection; direct messages delivery; and more.",
+  "main": "DataChannel.js",
+  "keywords": [
+    "webrtc",
+    "datachannel",
+    "file-sharing",
+    "data-sharing",
+    "text-chat",
+    "chat",
+    "p2p-streaming",
+    "data"
+  ],
+  "license": "MIT",
+  "ignore": [
+        "**/.*",
+        "node_modules",
+        "test",
+        "tests"
+   ]
+}

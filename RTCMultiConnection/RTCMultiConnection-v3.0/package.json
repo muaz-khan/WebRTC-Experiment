@@ -1,7 +1,7 @@
 {
   "name": "rtcmulticonnection-v3",
   "preferGlobal": true,
-  "version": "3.0.002",
+  "version": "3.1.3",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -9,9 +9,9 @@
   },
   "description": "RTCMultiConnection is a WebRTC JavaScript wrapper library runs top over RTCPeerConnection API to support all possible peer-to-peer features.",
   "scripts": {
-    "start": "node Signaling-Server.js"
+    "start": "node server.js"
   },
-  "main": "./Signaling-Server.js",
+  "main": "./server.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/muaz-khan/RTCMultiConnection.git"
@@ -29,7 +29,7 @@
     "firefox",
     "opera",
     "ie",
-    "internet-explorer",
+    "internet-explorer",		
     "android",
     "rtcweb",
     "rtcmulticonnection.js",
@@ -40,7 +40,7 @@
     "muaz-khan"
   ],
   "dependencies": {
-    "socket.io": "0.9.x"
+    "socket.io": "0.9.17"
   },
   "analyze": false,
   "license": "MIT",
@@ -49,6 +49,15 @@
     "url": "https://github.com/muaz-khan/RTCMultiConnection/issues",
     "email": "muazkh@gmail.com"
   },
-  "homepage": "http://www.rtcmulticonnection.org/changes-log/",
-  "_from": "rtcmulticonnection-v3@"
+  "homepage": "https://github.com/muaz-khan/RTCMultiConnection/tree/master/RTCMultiConnection-v3.0",
+  "_from": "rtcmulticonnection-v3@",
+  "devDependencies": {
+    "grunt": "latest",
+    "grunt-cli": "latest",
+    "load-grunt-tasks": "latest",
+    "grunt-contrib-concat": "latest",
+    "grunt-contrib-uglify": "latest",
+    "grunt-jsbeautifier": "latest",
+    "grunt-bump": "latest"
+  }
 }

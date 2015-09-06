@@ -31,15 +31,18 @@
  *     var blob = recorder.blob;
  * });
  * @param {MediaStream} mediaStream - MediaStream object fetched using getUserMedia API or generated using captureStreamUntilEnded or WebAudio API.
+ * @param {object} config - {disableLogs:true, initCallback: function, mimeType: "video/webm", onAudioProcessStarted: function}
  */
 
-function MediaStreamRecorder(mediaStream) {
+function MediaStreamRecorder(mediaStream, config) {
     var self = this;
+
+    config = config || {};
 
     // if user chosen only audio option; and he tried to pass MediaStream with
     // both audio and video tracks;
     // using a dirty workaround to generate audio-only stream so that we can get audio/ogg output.
-    if (self.mimeType && self.mimeType !== 'video/webm' && mediaStream.getVideoTracks && mediaStream.getVideoTracks().length) {
+    if (config.mimeType && config.mimeType !== 'video/webm' && mediaStream.getVideoTracks && mediaStream.getVideoTracks().length) {
         var context = new AudioContext();
         var mediaStreamSource = context.createMediaStreamSource(mediaStream);
 
@@ -65,16 +68,16 @@ function MediaStreamRecorder(mediaStream) {
 
         // starting a recording session; which will initiate "Reading Thread"
         // "Reading Thread" are used to prevent main-thread blocking scenarios
-        mediaRecorder = new window.MediaRecorder(mediaStream);
+        mediaRecorder = new MediaRecorder(mediaStream);
 
         // Dispatching OnDataAvailable Handler
         mediaRecorder.ondataavailable = function(e) {
-            if (dataAvailable) {
+            if (self.dontFireOnDataAvailableEvent || dataAvailable) {
                 return;
             }
 
             if (!e.data.size) {
-                if (!self.disableLogs) {
+                if (!config.disableLogs) {
                     console.warn('Recording of', e.data.type, 'failed.');
                 }
                 return;
@@ -91,7 +94,7 @@ function MediaStreamRecorder(mediaStream) {
              * });
              */
             self.blob = new Blob([e.data], {
-                type: e.data.type || self.mimeType || 'audio/ogg'
+                type: e.data.type || config.mimeType || 'audio/ogg'
             });
 
             if (self.callback) {
@@ -100,7 +103,7 @@ function MediaStreamRecorder(mediaStream) {
         };
 
         mediaRecorder.onerror = function(error) {
-            if (!self.disableLogs) {
+            if (!config.disableLogs) {
                 console.warn(error);
             }
 
@@ -125,8 +128,12 @@ function MediaStreamRecorder(mediaStream) {
         // raise a dataavailable event containing the Blob of collected data on every timeSlice milliseconds.
         // If timeSlice isn't provided, UA should call the RequestData to obtain the Blob data, also set the mTimeSlice to zero.
 
-        if (self.onAudioProcessStarted) {
-            self.onAudioProcessStarted();
+        if (config.onAudioProcessStarted) {
+            config.onAudioProcessStarted();
+        }
+
+        if (config.initCallback) {
+            config.initCallback();
         }
     };
 
@@ -146,6 +153,7 @@ function MediaStreamRecorder(mediaStream) {
         }
 
         this.callback = callback;
+
         // mediaRecorder.state === 'recording' means that media recorder is associated with "session"
         // mediaRecorder.state === 'stopped' means that media recorder is detached from the "session" ... in this case; "session" will also be deleted.
 
@@ -171,7 +179,7 @@ function MediaStreamRecorder(mediaStream) {
         if (mediaRecorder.state === 'recording') {
             mediaRecorder.pause();
 
-            if (!this.disableLogs) {
+            if (!config.disableLogs) {
                 console.debug('Paused recording.');
             }
         }
@@ -189,12 +197,41 @@ function MediaStreamRecorder(mediaStream) {
             return;
         }
 
+        if (this.dontFireOnDataAvailableEvent) {
+            this.dontFireOnDataAvailableEvent = false;
+            dataAvailable = false;
+            this.record();
+            return;
+        }
+
         if (mediaRecorder.state === 'paused') {
             mediaRecorder.resume();
 
-            if (!this.disableLogs) {
+            if (!config.disableLogs) {
                 console.debug('Resumed recording.');
             }
+        }
+    };
+
+    /**
+     * This method resets currently recorded data.
+     * @method
+     * @memberof MediaStreamRecorder
+     * @example
+     * recorder.clearRecordedData();
+     */
+    this.clearRecordedData = function() {
+        if (!mediaRecorder) {
+            return;
+        }
+
+        this.pause();
+
+        this.dontFireOnDataAvailableEvent = true;
+        this.stop();
+
+        if (!config.disableLogs) {
+            console.debug('Cleared old recorded data.');
         }
     };
 

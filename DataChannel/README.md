@@ -1,5 +1,14 @@
 # [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) : A JavaScript wrapper library for RTCDataChannel APIs / [Demos](https://www.webrtc-experiment.com/#DataChannel)
 
+[![npm](https://img.shields.io/npm/v/datachannel.svg)](https://npmjs.org/package/datachannel) [![downloads](https://img.shields.io/npm/dm/datachannel.svg)](https://npmjs.org/package/datachannel) [![Build Status: Linux](https://travis-ci.org/muaz-khan/DataChannel.png?branch=master)](https://travis-ci.org/muaz-khan/DataChannel)
+
+```
+npm install datachannel
+
+# or
+bower install datachannel
+```
+
 DataChannel.js is a JavaScript library useful to write many-to-many i.e. group file/data sharing or text chat applications. Its syntax is easier to use and understand. It highly simplifies complex tasks like any or all user rejection/ejection; direct messages delivery; and more.
 
 If you want all DataChannel.js functionalities along with media streaming and runtime additions/deletions then [RTCMultiConnection.js](http://www.rtcmulticonnection.org/) is a good chose with similar APIs/syntax.

@@ -497,7 +497,7 @@ var socket = io.connect('/');
 
 socket.on('presence', function (isChannelPresent) {
     if (!isChannelPresent)
-        connection.opne(connection.sessionid);
+        connection.open(connection.sessionid);
     else
         connection.join(connection.sessionid);
 });

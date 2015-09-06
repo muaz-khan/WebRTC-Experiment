@@ -2,8 +2,9 @@
 
 ## WebRTC Library  [![npm](https://img.shields.io/npm/v/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master)](https://travis-ci.org/muaz-khan/RTCMultiConnection)
 
+* [RTCMultiConnection-v3.0](https://github.com/muaz-khan/RTCMultiConnection/tree/master/RTCMultiConnection-v3.0) is latest Beta
+
 ```
-# RTCMultiConnection-v3.0 is latest Beta
 npm install rtcmulticonnection-v3
 ```
 
@@ -91,10 +92,6 @@ There are some other NPM packages regarding RTCMultiConnection:
 ## 1. Link The Library
 
 ```
-// latest file
-https://cdn.webrtc-experiment.com/RTCMultiConnection-v2.2.4.js
-
-// or a little bit more stable version: (v2.*.*)
 https://cdn.webrtc-experiment.com/RTCMultiConnection.js
 ```
 

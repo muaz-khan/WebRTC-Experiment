@@ -1,4 +1,4 @@
-// Last time updated at Sep 05, 2014, 05:46:23
+// Last time updated at August 14, 2015, 05:46:23
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -39,6 +39,10 @@ function Translator() {
         if (args.callback) args.callback(audio_url);
         else {
             var audio = document.createElement('audio');
+            audio.onerror = function(event) {
+                audio.onerror = null;
+                audio.src = 'https://translate.google.com/translate_tts?ie=UTF-8&total=1&idx=0&textlen=' + textToSpeak.length + '&tl=' + targetLanguage + '&q= ' + textToSpeak;
+            };
             audio.src = audio_url;
             audio.autoplay = true;
             audio.play();

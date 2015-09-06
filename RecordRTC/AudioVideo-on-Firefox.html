@@ -48,26 +48,8 @@
     <script>
         document.createElement('article');
         document.createElement('footer');
-        
-        function loadScript(src) {
-            var script = document.createElement('script');
-            script.async = true;
-            script.src = src;
-            script.onerror = function() {
-                if(src.indexOf('www.') !== -1) {
-                    loadScript(src.replace('www.', 'www.'));
-                }
-                else if(src.indexOf('www.webrtc-experiment.com') !== -1) {
-                    src = src.replace('https://www.webrtc-experiment.com/', 'https://sites.google.com/site/muazkh/') + '?attredirects=0&d=1';
-                    console.error(src);
-                    loadScript(src);
-                }
-                // else ---- alternate methods
-            };
-            document.documentElement.appendChild(script);
-        }
-        loadScript('https://cdn.webrtc-experiment.com/RecordRTC.js');
     </script>
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
 </head>
 
 <body>
@@ -165,6 +147,58 @@
             });
         }
         </script>
+
+        <section class="experiment">
+            <h2 class="header">
+                RecordRTC <a href="https://github.com/muaz-khan/RecordRTC">Sources Codes</a> / <a href="https://github.com/muaz-khan/RecordRTC/wiki">Wiki Pages</a>
+            </h2>
+            <ol>
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC Main Demo</a> (Records screen/video/audio in all browsers!)
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/">Canvas Recording!</a> (Web-Page Recording)
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/">MRecordRTC and writeToDisk/getFromDisk!</a>
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html">Audio+Video Recording on Firefox</a>
+                </li>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/PHP-and-FFmpeg">
+                        RecordRTC / PHP / FFmpeg
+                    </a>
+                    (Syncing/Merging audio/video in single file!)
+                </li>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs">RecordRTC-to-Nodejs</a> 
+                    (used ffmpeg to merge wav/webm in single WebM container)
+                </li>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-PHP">RecordRTC-to-PHP</a> 
+                    (audio/video recording and uploading to server)
+                </li>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-ASPNETMVC">RecordRTC-to-ASP.NET MVC</a> 
+                    (audio/video recording and uploading to server)
+                </li>
+                
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-over-Socketio">RecordRTC-to-Socket.io</a> 
+                    (used ffmpeg to merge wav/webm in single WebM container)
+                </li>
+
+                <li><a href="https://www.webrtc-experiment.com/ffmpeg/">RecordRTC and ffmpeg-asm.js</a> (ffmpeg inside the browser!)</li>
+            </ol>
+        </section>
 
         <section class="experiment">
             <h2 class="header">Firefox and RecordRTC...</h2>

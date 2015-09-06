@@ -1,0 +1,73 @@
+﻿<style>
+body: { 
+    padding: 10px;
+}
+
+h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+select {
+    font-size: 1.2em;
+    border: 1px solid;
+    padding: 0;
+    outline: none!important;
+    border: 1px solid black !important;
+}
+
+select option {
+    padding: 2px 5px;
+    border-bottom: 1px solid black;
+}
+
+select option:last-child {
+    border-bottom: 0;
+}
+
+label {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+select[disabled] {
+    background-color: rgba(232, 229, 229, 0.17);
+    color: rgb(84, 82, 82);
+}
+</style>
+
+<h2>Select Screen Resolutions:</h2>
+<select id="resolutions" size="4">
+    <option value="fit-screen" selected>Fit Screen</option>
+    <option value="1080p">Full-HD (1080p)</option>
+    <option value="720p">HD (720p)</option>
+    <option value="360p">SD (360p)</option>
+</select>
+<hr>
+<h2>Set Bandwidth:</h2>
+<label for="min_bandwidth">Minimum Bandwidth</label>
+<input type="text" id="min_bandwidth" value="512" style="width: 40px;">kbps
+<br><br>
+<label for="max_bandwidth">Maximum Bandwidth</label>
+<input type="text" id="max_bandwidth" value="1048" style="width: 40px;">kbps
+<hr>
+<h2>Password Protected Room?</h2>
+<label for="room_password">Set Password</label>
+<input type="password" id="room_password" value="">
+<br>
+<small>Keep empty for NO password.</small>
+<hr>
+<h2>Set Your Own Room ID:</h2>
+<label for="room_id">Set Room ID</label>
+<input type="text" id="room_id" value="">
+<br>
+<small>
+    It will use your room-id instead of generating random string.
+    <br>
+    E.g. You can always share this with screen viewers:
+    <br>
+    https://www.webrtc-experiment.com/!/?s=your_room_id
+</small>
+<hr>
+
+<script src="options.js"></script>

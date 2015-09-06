@@ -13,9 +13,13 @@
  *     video.src = URL.createObjectURL(blob);
  * });
  * @param {MediaStream} mediaStream - MediaStream object fetched using getUserMedia API or generated using captureStreamUntilEnded or WebAudio API.
+ * @param {object} config - {disableLogs: true, initCallback: function, video: HTMLVideoElement, etc.}
  */
 
-function WhammyRecorder(mediaStream) {
+function WhammyRecorder(mediaStream, config) {
+
+    config = config || {};
+
     /**
      * This method records video.
      * @method
@@ -24,42 +28,57 @@ function WhammyRecorder(mediaStream) {
      * recorder.record();
      */
     this.record = function() {
-        if (!this.width) {
-            this.width = 320;
+        if (!config.width) {
+            config.width = 320;
         }
 
-        if (!this.height) {
-            this.height = 240;
+        if (!config.height) {
+            config.height = 240;
         }
 
-        if (!this.video) {
-            this.video = {
-                width: this.width,
-                height: this.height
+        if (!config.video) {
+            config.video = {
+                width: config.width,
+                height: config.height
             };
         }
 
-        if (!this.canvas) {
-            this.canvas = {
-                width: this.width,
-                height: this.height
+        if (!config.canvas) {
+            config.canvas = {
+                width: config.width,
+                height: config.height
             };
         }
 
-        canvas.width = this.canvas.width;
-        canvas.height = this.canvas.height;
+        canvas.width = config.canvas.width;
+        canvas.height = config.canvas.height;
 
         context = canvas.getContext('2d');
 
         // setting defaults
-        if (this.video && this.video instanceof HTMLVideoElement) {
-            video = this.video.cloneNode();
+        if (config.video && config.video instanceof HTMLVideoElement) {
+            video = config.video.cloneNode();
+
+            if (config.initCallback) {
+                config.initCallback();
+            }
         } else {
             video = document.createElement('video');
-            video.src = URL.createObjectURL(mediaStream);
 
-            video.width = this.video.width;
-            video.height = this.video.height;
+            if (typeof video.srcObject !== 'undefined') {
+                video.srcObject = mediaStream;
+            } else {
+                video.src = URL.createObjectURL(mediaStream);
+            }
+
+            video.onloadedmetadata = function() { // "onloadedmetadata" may NOT work in FF?
+                if (config.initCallback) {
+                    config.initCallback();
+                }
+            };
+
+            video.width = config.video.width;
+            video.height = config.video.height;
         }
 
         video.muted = true;
@@ -68,7 +87,7 @@ function WhammyRecorder(mediaStream) {
         lastTime = new Date().getTime();
         whammy = new Whammy.Video();
 
-        if (!this.disableLogs) {
+        if (!config.disableLogs) {
             console.log('canvas resolutions', canvas.width, '*', canvas.height);
             console.log('video width/height', video.width || canvas.width, '*', video.height || canvas.height);
         }
@@ -216,8 +235,8 @@ function WhammyRecorder(mediaStream) {
             whammy.frames = dropBlackFrames(whammy.frames, -1);
 
             // to display advertisement images!
-            if (this.advertisement && this.advertisement.length) {
-                whammy.frames = this.advertisement.concat(whammy.frames);
+            if (config.advertisement && config.advertisement.length) {
+                whammy.frames = config.advertisement.concat(whammy.frames);
             }
 
             /**
@@ -256,7 +275,7 @@ function WhammyRecorder(mediaStream) {
     this.pause = function() {
         isPausedRecording = true;
 
-        if (!this.disableLogs) {
+        if (!config.disableLogs) {
             console.debug('Paused recording.');
         }
     };
@@ -271,9 +290,22 @@ function WhammyRecorder(mediaStream) {
     this.resume = function() {
         isPausedRecording = false;
 
-        if (!this.disableLogs) {
+        if (!config.disableLogs) {
             console.debug('Resumed recording.');
         }
+    };
+
+    /**
+     * This method resets currently recorded data.
+     * @method
+     * @memberof WhammyRecorder
+     * @example
+     * recorder.clearRecordedData();
+     */
+    this.clearRecordedData = function() {
+        this.pause();
+
+        whammy.frames = [];
     };
 
     var canvas = document.createElement('canvas');

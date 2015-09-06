@@ -14,7 +14,9 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+        
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+        
         <style>
             #chat-output div, #file-progress div {
                 border: 1px solid black;
@@ -43,16 +45,17 @@
             document.createElement('footer');
         </script>
 		
-        <!-- DataChannel.js library -->
-        <script src="//cdn.webrtc-experiment.com/DataChannel.js"> </script>
-        <script src="//cdn.webrtc-experiment.com/socket.io.js"> </script>
+        <!-- DataChannel.js library-->
+        
+        <script src="https://cdn.webrtc-experiment.com/DataChannel.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/firebase.js"> </script>
     </head>
 
     <body>
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a>
+                    <a href="https://github.com/muaz-khan/DataChannel" target="_blank">DataChannel.js</a>
                     » A WebRTC Library for Data Sharing
                 </h1>            
                 <p>
@@ -67,10 +70,10 @@
                     <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
                     
                     .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    <a href="https://github.com/muaz-khan/DataChannel/issues?state=open" target="_blank">Latest issues</a>
                     
                     .
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                    <a href="https://github.com/muaz-khan/DataChannel/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
 
@@ -104,6 +107,8 @@
 		
             <script>
                 var channel = new DataChannel(); // DataChannel.js
+                
+                channel.firebase = 'webrtc-experiment';
 
                 // "ondatachannel" is fired for each new data channel
                 channel.ondatachannel = function(channel00) {
@@ -128,35 +133,6 @@
 
                         channelsList.style.display = 'none';
                     };
-                };
-
-                // overriding "openSignalingChannel" to use WebSockets as signaling gateway!
-                channel.openSignalingChannel = function(config) {
-                    var SIGNALING_SERVER = 'https://signaling-muazkh.c9.io:443/';
-                    
-                    var channel = config.channel || this.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-                    var sender = Math.round(Math.random() * 9999999999) + 9999999999;
-
-                    io.connect(SIGNALING_SERVER).emit('new-channel', {
-                        channel: channel,
-                        sender: sender
-                    });
-
-                    var socket = io.connect(SIGNALING_SERVER + channel);
-                    socket.channel = channel;
-
-                    socket.on('connect', function() {
-                        if (config.callback) config.callback(socket);
-                    });
-
-                    socket.send = function(message) {
-                        socket.emit('message', {
-                            sender: sender,
-                            data: message
-                        });
-                    };
-
-                    socket.on('message', config.onmessage);
                 };
 
                 // a text message or data
@@ -229,32 +205,15 @@
 
                 var channelsList = document.getElementById('channels-list');
 
-                // data-channel name to uniquely identify your connection
-                var channel_name = location.hash.substr(1) || 'data-channel';
-
                 document.getElementById('open-channel').onclick = function() {
                     this.disabled = true;
 
-                    // opening new data channel
-                    channel.open(channel_name);
+                    channel.open();
                 };
 
                 // searching for existing channels
-                channel.connect(channel_name);
+                channel.connect();
             </script>
-		
-            <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-                <div id="github-commits"></div>
-            </section>
-		
-            <section class="experiment">
-                <h2 class="header" id="feedback">Feedback</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
-            </section>
 			
             <section class="experiment">
                 <h2 class="header">DataChannel.js Features:</h2>
@@ -275,7 +234,7 @@
             <section class="experiment">
                 <h2 class="header">How to use DataChannel.js?</h2>
                 <pre>
-&lt;script src="//cdn.webrtc-experiment.com/DataChannel.js"&gt; &lt;/script&gt;
+&lt;script src="https://cdn.webrtc-experiment.com/DataChannel.js"&gt; &lt;/script&gt;
 
 &lt;input type="text" id="chat-input" disabled 
        style="font-size: 2em; width: 98%;"&gt;&lt;br /&gt;
@@ -314,9 +273,43 @@
 &lt;/script&gt;
 </pre>
             </section>
+            
+            <section class="experiment">
+                <h2 class="header">Use your own socket.io for signaling</h2>
+            <pre>
+&lt;script&gt;
+    // by default <a href="http://firebase.com" target="_blank" rel="nofollow">Firebase</a> is used for signaling; you can override it
+    channel.<strong>openSignalingChannel</strong> = function(config) {
+        var socket = io.connect('http://your-site:8888');
+        socket.channel = config.channel || this.channel || 'default-channel';
+        socket.on('message', config.onmessage);
+
+        socket.send = function (data) {
+            socket.emit('message', data);
+        };
+
+        if (config.onopen) setTimeout(config.onopen, 1);
+        return socket;
+    }
+&lt;/script&gt;
+</pre>
+            </section>
+            
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+		
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
         </article>
         
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" class="fork-left"></a>
+        <a href="https://github.com/muaz-khan/DataChannel" class="fork-left"></a>
         
         <footer>
             <p>
@@ -327,6 +320,6 @@
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

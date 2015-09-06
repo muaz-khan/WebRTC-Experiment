@@ -32,9 +32,9 @@ To use it:
 <script src="./node_modules/fbr/FileBufferReader.js"></script>
 ```
 
-## fbr-client
+## [fbr-client](https://github.com/muaz-khan/FileBufferReader/tree/master/fbr-client)
 
-You can even try socket.io file sharing client:
+You can even try [socket.io file sharing client](https://github.com/muaz-khan/FileBufferReader/tree/master/fbr-client):
 
 ```
 npm install fbr-client
@@ -46,7 +46,7 @@ Then run the server:
 node ./node_modules/fbr-client/server.js
 ```
 
-Then open: `http://localhost:8888/` or `http://local-ip:8888/`.
+Then open: `http://localhost:8888/` or `http://127.0.0.1:8888/`.
 
 ## FileBufferReader API
 
@@ -57,6 +57,7 @@ Then open: `http://localhost:8888/` or `http://local-ip:8888/`.
 5. `addChunk` method. It allows you store all received chunks in an array until entire file is received.
 6. `convertToObject` method. FileBufferReader assumes that you're sending ArrayBuffer using WebRTC data channels. It means that you'll be getting ArrayBuffer type in the `onmessage` event. `convertToObject` method allows you convert ArrayBuffer into JavaScript object type, which is helpful to check type of message.
 7. `convertToArrayBuffer` method. You can pass javascript object or any data-type, and this method will return `ArrayBuffer`.
+8. `setMultipleUsers` method. You can use it to pass array of known list of users. It allows you share same file with multiple users. It'll show multiple progress-bars.
 
 ## 1. Link The Library
 
@@ -209,20 +210,62 @@ fileBufferReader.onProgress = FileHelper.onProgress;
 fileBufferReader.onEnd      = FileHelper.onEnd;
 ```
 
+## Sharing with multiple users?
+
+```javascript
+fbr.readAsArrayBuffer(file, function(uuid) {
+    fbr.setMultipleUsers(uuid, ['first-user', 'second-user', 'third-user']);
+    
+    ['first-user', 'second-user', 'third-user'].forEach(function(userid) {
+        fbr.getNextChunk(uuid, function(nextChunk, isLastChunk) {
+            specific_datachannel.send(nextChunk);
+        }, userid);
+    });
+});
+
+datachannel.onmessage = function(event) {
+    fbr.getNextChunk(message.uuid, function(nextChunk, isLastChunk) {
+        specific_datachannel.send(nextChunk);
+    }, specific_userid);
+};
+```
+
+1. Invoke `setMultipleUsers` method where 2nd argument MUST be list of known userids.
+2. Pass specific-userid as 3rd argument over `getNextChunk` method.
+
+To uniquely identify progress-bars for each user, watch for `remoteUserId` object:
+
+```javascript
+FileHelper.onBegin = function(file) {
+    if(file.remoteUserId) {
+        // file is being shared with multiple users
+    }
+};
+
+FileHelper.onEnd = function(file) {
+    if(file.remoteUserId) {
+        // file is being shared with multiple users
+    }
+};
+
+FileHelper.onProgress = function(chunk) {
+    if(chunk.remoteUserId) {
+        // file is being shared with multiple users
+    }
+};
+```
+
 ## Applications using FileBufferReader
 
 1. [RTCMultiConnection.js](http://www.RTCMultiConnection.org/)
 
 ## Credits
 
-[Muaz Khan](https://github.com/muaz-khan):
+[Muaz Khan](https://github.com/muaz-khan) ( muazkh@gmail.com ):
 
 1. Personal Webpage: http://www.muazkhan.com
-2. Email: muazkh@gmail.com
-3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
-4. Google+: https://plus.google.com/+WebRTC-Experiment
-5. Facebook: https://www.facebook.com/WebRTC
+2. Twitter: [@muazkh](https://twitter.com/muazkh) and [@WebRTCWeb](https://twitter.com/WebRTCWeb)
 
 ## License
 
-[FileBufferReader.js](https://github.com/muaz-khan/FileBufferReader) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[FileBufferReader.js](https://github.com/muaz-khan/FileBufferReader) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.muazkhan.com/).

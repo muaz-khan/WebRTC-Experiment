@@ -29,6 +29,11 @@ recorder.getBlob(function(blobs) {
    blobs.video --- video blob
    blobs.gif   --- gif blob
 });
+// or
+var blobs = recorder.getBlob();
+var audioBlob = blobs.audio;
+var videoBlob = blobs.video;
+var gifBlob = blobs.gif;
 
 // invoke save-as dialog
 // for all recorded blobs
@@ -92,6 +97,12 @@ recorder.getBlob(function(blobs) {
    blobs.video --- video blob
    blobs.gif   --- gif blob
 });
+
+// or
+var blobs = recorder.getBlob();
+var audioBlob = blobs.audio;
+var videoBlob = blobs.video;
+var gifBlob = blobs.gif;
 ```
 
 =

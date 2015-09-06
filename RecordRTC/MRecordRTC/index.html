@@ -21,10 +21,12 @@
         vertical-align: bottom;
         width: 10em;
     }
+    
     video {
         max-width: 100%;
         vertical-align: top;
     }
+    
     input {
         border: 1px solid #d9d9d9;
         border-radius: 1px;
@@ -32,15 +34,18 @@
         margin: .2em;
         width: 30%;
     }
+    
     p,
     .inner {
         padding: 1em;
     }
+    
     li {
         border-bottom: 1px solid rgb(189, 189, 189);
         border-left: 1px solid rgb(189, 189, 189);
         padding: .5em;
     }
+    
     label {
         display: inline-block;
         width: 8em;
@@ -58,13 +63,16 @@
     </script>
     <script src="//cdn.webrtc-experiment.com/getMediaElement.js">
     </script>
+
+    <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
+    <script src="https://cdn.rawgit.com/webrtc/adapter/master/adapter.js"></script>
 </head>
 
 <body>
     <article>
         <header style="text-align: center;">
             <h1>
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC">MRecordRTC</a>: <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC</a> audio+video recording ®
+                <a href="https://github.com/muaz-khan/RecordRTC/tree/master/MRecordRTC">MRecordRTC</a>: <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC</a> audio+video recording ®
                 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
             </h1>
             <p>
@@ -91,27 +99,56 @@
 
         <section class="experiment">
             <h2 class="header">
-                Try <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a>
+                RecordRTC <a href="https://github.com/muaz-khan/RecordRTC">Sources Codes</a> / <a href="https://github.com/muaz-khan/RecordRTC/wiki">Wiki Pages</a>
             </h2>
             <ol>
                 <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC Main Demo</a> (Records screen/video/audio in all browsers!)
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/">Canvas Recording!</a> (Web-Page Recording)
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/">MRecordRTC and writeToDisk/getFromDisk!</a>
+                </li>
+
+                <li>
                     <a href="https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html">Audio+Video Recording on Firefox</a>
                 </li>
+
                 <li>
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/PHP-and-FFmpeg">RecordRTC / PHP / FFmpeg</a> (synced audio/video in single file!)
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/PHP-and-FFmpeg">
+                        RecordRTC / PHP / FFmpeg
+                    </a> (Syncing/Merging audio/video in single file!)
                 </li>
-                <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs" target="_blank">RecordRTC-to-Nodejs</a> (used ffmpeg to merge wav/webm in single WebM container)</li>
-                <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP" target="_blank">RecordRTC-to-PHP</a> (audio/video recording and uploading to server)</li>
-                <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC" target="_blank">RecordRTC-to-ASP.NET MVC</a> (audio/video recording and uploading to server)</li>
-                <li><a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/" target="_blank">Canvas Recording!</a> (webpage recording)</li>
-                <li><a href="https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/" target="_blank">MRecordRTC and writeToDisk/getFromDisk!</a>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs">RecordRTC-to-Nodejs</a> (used ffmpeg to merge wav/webm in single WebM container)
                 </li>
-                <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio" target="_blank">RecordRTC-to-Socket.io</a> (used ffmpeg to merge wav/webm in single WebM container)</li>
-                <li><a href="https://www.webrtc-experiment.com/ffmpeg/" target="_blank">RecordRTC and ffmpeg-asm.js</a> (ffmpeg inside the browser!)</li>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-PHP">RecordRTC-to-PHP</a> (audio/video recording and uploading to server)
+                </li>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-ASPNETMVC">RecordRTC-to-ASP.NET MVC</a> (audio/video recording and uploading to server)
+                </li>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-over-Socketio">RecordRTC-to-Socket.io</a> (used ffmpeg to merge wav/webm in single WebM container)
+                </li>
+
+                <li><a href="https://www.webrtc-experiment.com/ffmpeg/">RecordRTC and ffmpeg-asm.js</a> (ffmpeg inside the browser!)</li>
             </ol>
         </section>
 
         <script>
+        function captureUserMedia(mediaConstraints, successCallback, errorCallback) {
+            navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
+        }
+
         var videosContainer = document.getElementById('videos-container');
 
         var mRecordRTC = new MRecordRTC();
@@ -119,17 +156,30 @@
             audio: true,
             video: true
         };
+
+        if (webrtcDetectedBrowser === 'edge') {
+            // Microsoft Edge currently supports only audio and gif recording
+            mRecordRTC.mediaType = {
+                audio: true
+            };
+        }
         //mRecordRTC.bufferSize = 16384;
 
         document.querySelector('#start').onclick = function() {
             this.disabled = true;
 
-            navigator.getUserMedia({
+            captureUserMedia({
                 audio: true,
                 video: true
             }, function(stream) {
                 var video = document.createElement('video');
-                video.src = URL.createObjectURL(stream);
+
+                if (webrtcDetectedBrowser === 'edge') {
+                    video.srcObject = stream;
+                } else {
+                    video.src = URL.createObjectURL(stream);
+                }
+
                 video.play();
                 var mediaElement = getMediaElement(video, {
                     buttons: [],
@@ -147,7 +197,7 @@
 
                 mRecordRTC.addStream(stream);
                 mRecordRTC.startRecording();
-            }, function(error) {
+            }, function(errro) {
                 alert(JSON.stringify(error));
             });
         };
@@ -158,6 +208,14 @@
             mRecordRTC.stopRecording(function(url, type) {
                 document.querySelector(type).src = url;
                 document.querySelector(type).play();
+
+                // fixing firefox playback issue
+                if (!!navigator.mozGetUserMedia) {
+                    document.querySelector(type).onended = function() {
+                        document.querySelector(type).src = URL.createObjectURL(mRecordRTC.getBlob()[type]);
+                        document.querySelector(type).play();
+                    };
+                }
 
                 mRecordRTC.writeToDisk();
                 save.disabled = false;
@@ -242,21 +300,21 @@
 
         <section class="experiment">
             <h2 class="header">
-                How to use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC">MRecordRTC</a>?</h2>
+                How to use <a href="https://github.com/muaz-khan/RecordRTC/tree/master/MRecordRTC">MRecordRTC</a>?</h2>
             <pre>
                 &lt;script src="//cdn.webrtc-experiment.com/RecordRTC.js"&gt;&lt;/script&gt;
             </pre>
         </section>
         <section class="experiment">
             <pre>
-                var recorder = new MRecordRTC(); recorder.addStream(MediaStream); recorder.mediaType = { audio: true, video: true, gif: true }; recorder.startRecording(); recorder.stopRecording(function(url, type) { document.querySelector(type).src = url; }); recorder.getBlob(function(blobs) { blobs.audio --- audio blob blobs.video --- video blob blobs.gif --- gif blob }); // invoke save-as dialog // for all recorded blobs recorder.save(); recorder.writeToDisk(); // get all blobs from disk MRecordRTC.getFromDisk('all', function(dataURL, type) { type == 'audio' type == 'video' type == 'gif' }); // or get just single blob MRecordRTC.getFromDisk('audio', function(dataURL) { // only audio blob is returned from disk! });
+                var recorder = new MRecordRTC(); recorder.addStream(MediaStream); recorder.mediaType = { audio: true, video: true, gif: true }; recorder.startRecording(); recorder.stopRecording(function(url, type) { document.querySelector(type).src = url; }); recorder.getBlob(function(blobs) { blobs.audio --- audio blob blobs.video --- video blob blobs.gif --- gif blob }); // or var blobs = recorder.getBlob(); var audioBlob = blobs.audio; var videoBlob = blobs.video; var gifBlob = blobs.gif; // invoke save-as dialog // for all recorded blobs recorder.save(); recorder.writeToDisk(); // get all blobs from disk MRecordRTC.getFromDisk('all', function(dataURL, type) { type == 'audio' type == 'video' type == 'gif' }); // or get just single blob MRecordRTC.getFromDisk('audio', function(dataURL) { // only audio blob is returned from disk! });
             </pre>
 
         </section>
 
         <section class="experiment">
             <p style="margin-top: 0;">
-                MRecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC">Documentation</a>
+                MRecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/RecordRTC/tree/master/MRecordRTC">Documentation</a>
             </p>
         </section>
 
@@ -276,7 +334,7 @@
         </section>
     </article>
 
-    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC" class="fork-left"></a>
+    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/MRecordRTC" class="fork-left"></a>
 
     <footer>
         <p>
