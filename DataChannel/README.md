@@ -17,8 +17,8 @@ If you want all DataChannel.js functionalities along with media streaming and ru
 
 ## Features
 
-1. Direct messages — to any user using his `user-id`
-2. Eject/Reject any user — using his `user-id`
+1. Direct messages â€” to any user using their `user-id`
+2. Eject/Reject any user â€” using their `user-id`
 3. Leave any room (i.e. data session) or close entire session using `leave` method
 4. File size is limitless!
 5. Text message length is limitless!
