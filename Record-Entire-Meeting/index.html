@@ -1,0 +1,28 @@
+<button>Start Recording</button>
+
+<script src="Browser-Recording-Helper.js"></script>
+<script>
+alert('This application is NOT functional yet.');
+
+document.querySelector('button').onclick = function() {
+    this.disabled = true;
+    navigator.getUserMedia({
+        audio: true,
+        video: true
+    }, function(stream) {
+        RecorderHelper.StartRecording({
+            MediaStream: stream,
+            Socket: SocketIo_Reference,
+            HTMLVideoElement: document.querySelector('video'),
+            FileName: 'recording', // it is ignored, though.
+            roomId: 'room-xyz',
+            userId: 'user-' + (Math.random() * 1000).toString().replace('.', ''),
+            UploadInterval: 300, // 300 milliseconds blobs
+            VideoWidth: 320,
+            VideoHeight: 240
+        });
+    }, function(error) {
+        alert(JSON.stringify(error));
+    });
+}
+</script>

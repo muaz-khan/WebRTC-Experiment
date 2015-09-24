@@ -6,19 +6,65 @@ Scalable WebRTC peer-to-peer broadcasting demo.
 
 This module simply initializes socket.io and configures it in a way that single broadcast can be relayed over unlimited users without any bandwidth/CPU usage issues. Everything happens peer-to-peer!
 
+![WebRTC Scalable Broadcast](https://cdn.webrtc-experiment.com/images/WebRTC-Scalable-Broadcast.png)
+
+In the image, you can see that each NEW-peer is getting stream from most-recent peer instead of getting stream directly from the moderator.
+
 ```
 npm install webrtc-scalable-broadcast
 
-node .\node_modules\webrtc-scalable-broadcast\server.js
+# goto node_modules>webrtc-scalable-broadcast
+cd node_modules
+cd webrtc-scalable-broadcast
+
+# and run the server.js file
+node server.js
 ```
 
-And now open: `http://localhost:8888`.
+Or install using WGet:
+
+```
+mkdir webrtc-scalable-broadcast && cd webrtc-scalable-broadcast
+wget http://dl.webrtc-experiment.com/webrtc-scalable-broadcast.tar.gz
+tar -zxvf webrtc-scalable-broadcast.tar.gz
+ls -a
+node server.js
+```
+
+Or directly download the TAR/archive on windows:
+
+* http://dl.webrtc-experiment.com/webrtc-scalable-broadcast.tar.gz
+
+And now open: `http://localhost:8888` or '127.0.0.1:8888'.
+
+If `server.js` fails to run:
+
+```
+# if fails,
+lsof -n -i4TCP:8888 | grep LISTEN
+kill process-ID
+
+# and try again
+node server.js
+```
+
+## Is stream keeps quality?
+
+Obviously "nope". It will have minor side-effects (e.g. latency in milliseconds/etc.).
+
+If you'll be testing across tabs on the same system, then you'll obviously notice quality lost; however it will NOT happen if you test across different systems.
+
+## What I can share?
+
+You can share screen (using Firefox/Chrome screen-capturing APIs), video (using getUserMedia API), stream (using video.captureStream and canvas.captureStream API).
+
+Currently you can't share audio in Chrome of of [this big](https://www.webrtc-experiment.com/demos/remote-stream-recording.html).
 
 ## How it works?
 
-This demo runs top over [RTCMultiConnection.js](http://www.RTCMultiConnection.org/). Though, you can use it in any other [WebRTC Experiment](https://www.webrtc-experiment.com/).
+Above image showing terminal logs explains it better.
 
-It following technique mentioned here:
+For more details, to understand how this broadcasting technique works:
 
 * https://github.com/muaz-khan/WebRTC-Experiment/issues/2
 
@@ -93,4 +139,4 @@ This demo works only in Chrome; no Firefox support yet. Because Firefox isn't su
 
 ## License
 
-[Scalable WebRTC Broadcasting Demo](https://github.com/muaz-khan/WebRTC-Scalable-Broadcast) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[Scalable WebRTC Broadcasting Demo](https://github.com/muaz-khan/WebRTC-Scalable-Broadcast) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).

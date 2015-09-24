@@ -1,10 +1,10 @@
-// Last time updated at Sep 07, 2014, 08:32:23
+// Last time updated at Sep 19, 2015, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getScreenId.js
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
-// Documentation     - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js
+// Documentation     - https://github.com/muaz-khan/getScreenId.
 
 // ______________
 // getScreenId.js
@@ -79,6 +79,11 @@ getScreenId(function (error, sourceId, screen_constraints) {
     }
 
     function postMessage() {
+        if (!iframe) {
+            loadIFrame(postMessage);
+            return;
+        }
+
         if (!iframe.isLoaded) {
             setTimeout(postMessage, 100);
             return;
@@ -89,11 +94,32 @@ getScreenId(function (error, sourceId, screen_constraints) {
         }, '*');
     }
 
-    var iframe = document.createElement('iframe');
-    iframe.onload = function() {
-        iframe.isLoaded = true;
+    function loadIFrame(loadCallback) {
+        if (iframe) {
+            loadCallback();
+            return;
+        }
+
+        iframe = document.createElement('iframe');
+        iframe.onload = function() {
+            iframe.isLoaded = true;
+
+            loadCallback();
+        };
+        iframe.src = 'https://www.webrtc-experiment.com/getSourceId/'; // https://wwww.yourdomain.com/getScreenId.html
+        iframe.style.display = 'none';
+        (document.body || document.documentElement).appendChild(iframe);
+    }
+
+    var iframe;
+
+    // this function is used in v3.0
+    window.getScreenConstraints = function(callback) {
+        loadIFrame(function() {
+            getScreenId(function(error, sourceId, screen_constraints) {
+                callback(error, screen_constraints.video);
+            });
+        });
     };
-    iframe.src = 'https://www.webrtc-experiment.com/getSourceId/';
-    iframe.style.display = 'none';
-    (document.body || document.documentElement).appendChild(iframe);
 })();
+

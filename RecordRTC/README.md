@@ -51,6 +51,7 @@ Please check [dev](https://github.com/muaz-khan/RecordRTC/tree/master/dev) direc
 10. [Record Audio and upload to Nodejs server](https://www.npmjs.org/package/record-audio)
 11. [ConcatenateBlobs.js](https://github.com/muaz-khan/ConcatenateBlobs) - Concatenate multiple recordings in single Blob!
 12. [Remote stream recording](https://www.webrtc-experiment.com/demos/remote-stream-recording.html)
+13. [Mp3 or Wav Recording](https://www.webrtc-experiment.com/RecordRTC/Record-Mp3-or-Wav.html)
 
 ## How to link?
 
@@ -129,7 +130,7 @@ navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catc
 btnStopRecording.onclick = function () {
     recordRTC.stopRecording(function (audioVideoWebMURL) {
         video.src = audioVideoWebMURL;
-        
+
         var recordedBlob = recordRTC.getBlob();
         recordRTC.getDataURL(function(dataURL) { });
     });
@@ -145,7 +146,7 @@ var recordRTC = RecordRTC(mediaStream);
 recordRTC.startRecording();
 recordRTC.stopRecording(function(audioURL) {
     audio.src = audioURL;
-   
+
     var recordedBlob = recordRTC.getBlob();
     recordRTC.getDataURL(function(dataURL) { });
 });
@@ -196,13 +197,14 @@ Everything is optional except `type:'video'`:
 
 ```javascript
 var options = {
-   type: 'video'
+   type: 'video',
+   frameInterval: 20 // minimum time between pushing frames to Whammy (in milliseconds)
 };
 var recordRTC = RecordRTC(mediaStream, options);
 recordRTC.startRecording();
 recordRTC.stopRecording(function(videoURL) {
     video.src = videoURL;
-   
+
     var recordedBlob = recordRTC.getBlob();
     recordRTC.getDataURL(function(dataURL) { });
 });
@@ -221,7 +223,7 @@ var options = {
    frameRate: 200,
    quality: 10
 };
-var recordRTC = RecordRTC(mediaStream, options);
+var recordRTC = RecordRTC(mediaStream || canvas || context, options);
 recordRTC.startRecording();
 recordRTC.stopRecording(function(gifURL) {
    mediaElement.src = gifURL;
@@ -245,7 +247,7 @@ var recordRTC = RecordRTC(elementToShare, {
 recordRTC.startRecording();
 recordRTC.stopRecording(function(videoURL) {
     video.src = videoURL;
-   
+
     var recordedBlob = recordRTC.getBlob();
     recordRTC.getDataURL(function(dataURL) { });
 });
@@ -262,12 +264,10 @@ It is a function that can be used to initiate recorder however skip getting reco
 
 ```javascript
 var audioRecorder = RecordRTC(mediaStream, {
-  type: 'audio',
   recorderType: StereoAudioRecorder
 });
 
 var videoRecorder = RecordRTC(mediaStream, {
-  type: 'video',
   recorderType: WhammyRecorder
 });
 
@@ -306,7 +306,6 @@ navigator.mediaDevices.getUserMedia({
     video: true
 }).then(function(stream) {
     var recordRTC = RecordRTC(stream, {
-        type: 'video',
         recorderType: WhammyRecorder
     });
 
@@ -332,11 +331,12 @@ recorder.clearRecordedData();
 
 ## `recorderType`
 
+If you're using `recorderType` then you don't need to use `type`. Second one will be redundant i.e. skipped.
+
 You can force any Recorder by passing this object over RecordRTC constructor:
 
 ```javascript
 var audioRecorder = RecordRTC(mediaStream, {
-  type: 'audio',
   recorderType: StereoAudioRecorder
 })
 ```
@@ -346,6 +346,35 @@ It means that ALL_BROWSERS will be using [StereoAudioRecorder](http://RecordRTC.
 This feature brings remote audio recording support in Firefox, and local audio recording support in Microsoft Edge.
 
 You can even force `WhammyRecorder` on Firefox however webp format isn't yet supported in standard Firefox builds. It simply means that, you're skipping MediaRecorder API in Firefox.
+
+## `type`
+
+If you are NOT using `recorderType` parameter then `type` parameter can be used to ask RecordRTC choose best recorder-type for recording.
+
+```javascript
+// if it is Firefox, then RecordRTC will be using MediaStreamRecorder.js
+// if it is Chrome or Opera, then RecordRTC will be using WhammyRecorder.js
+var recordVideo = RecordRTC(mediaStream, {
+  type: 'video'
+});
+
+// if it is Firefox, then RecordRTC will be using MediaStreamRecorder.js
+// if it is Chrome or Opera or Edge, then RecordRTC will be using StereoAudioRecorder.js
+var recordVideo = RecordRTC(mediaStream, {
+  type: 'audio'
+});
+```
+
+## `frameInterval`
+
+Set minimum interval (in milliseconds) between each time we push a frame to Whammy recorder.
+
+```javascript
+var whammyRecorder = RecordRTC(videoStream, {
+  recorderType: WhammyRecorder,
+  frameInterval: 1   // setTimeout interval
+});
+```
 
 ## `disableLogs`
 
@@ -363,7 +392,6 @@ You can force [StereoAudioRecorder](http://RecordRTC.org/StereoAudioRecorder.htm
 
 ```javascript
 var audioRecorder = RecordRTC(audioStream, {
-  type: 'audio',
   recorderType: StereoAudioRecorder,
   numberOfAudioChannels: 1 // or leftChannel:true
 });
@@ -446,16 +474,16 @@ recordRTC.save('File Name');
 Here is how to customize Buffer-Size for audio recording?
 
 ```javascript
-// From the spec: This value controls how frequently the audioprocess event is 
-// dispatched and how many sample-frames need to be processed each call. 
-// Lower values for buffer size will result in a lower (better) latency. 
+// From the spec: This value controls how frequently the audioprocess event is
+// dispatched and how many sample-frames need to be processed each call.
+// Lower values for buffer size will result in a lower (better) latency.
 // Higher values will be necessary to avoid audio breakup and glitches
 // bug: how to minimize wav size?
 // workaround? obviously ffmpeg!
-// The size of the buffer (in sample-frames) which needs to 
-// be processed each time onprocessaudio is called. 
+// The size of the buffer (in sample-frames) which needs to
+// be processed each time onprocessaudio is called.
 
-// Legal values are (256, 512, 1024, 2048, 4096, 8192, 16384). 
+// Legal values are (256, 512, 1024, 2048, 4096, 8192, 16384).
 
 var options = {
    bufferSize: 16384
@@ -476,15 +504,15 @@ If you passed invalid value then you'll get blank audio.
 Here is jow to customize Sample-Rate for audio recording?
 
 ```javascript
-// The sample rate (in sample-frames per second) at which the 
-// AudioContext handles audio. It is assumed that all AudioNodes 
-// in the context run at this rate. In making this assumption, 
-// sample-rate converters or "varispeed" processors are not supported 
+// The sample rate (in sample-frames per second) at which the
+// AudioContext handles audio. It is assumed that all AudioNodes
+// in the context run at this rate. In making this assumption,
+// sample-rate converters or "varispeed" processors are not supported
 // in real-time processing.
-// The sampleRate parameter describes the sample-rate of the 
-// linear PCM audio data in the buffer in sample-frames per second. 
+// The sampleRate parameter describes the sample-rate of the
+// linear PCM audio data in the buffer in sample-frames per second.
 
-// An implementation must support sample-rates in at least 
+// An implementation must support sample-rates in at least
 // the range 22050 to 96000.
 
 var options = {
@@ -520,8 +548,8 @@ recordAudio.startRecording();
 ```
 
 `onAudioProcessStarted` fixes shared/exclusive audio gap (a little bit). Because shared audio sometimes causes 100ms delay...
-sometime about 400-to-500 ms delay. 
-Delay depends upon number of applications concurrently requesting same audio devices and CPU/Memory available. 
+sometime about 400-to-500 ms delay.
+Delay depends upon number of applications concurrently requesting same audio devices and CPU/Memory available.
 Shared mode is the only mode currently available on 90% of windows systems especially on windows 7.
 
 ## `autoWriteToDisk`

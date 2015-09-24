@@ -1,0 +1,345 @@
+
+<!--
+> Muaz Khan     - www.MuazKhan.com
+> MIT License   - www.WebRTC-Experiment.com/licence
+> Documentation - github.com/muaz-khan/RecordRTC
+> and           - RecordRTC.org
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Record Mp3/Wav using RecordRTC ® Muaz Khan</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+
+    <style>
+    audio {
+        vertical-align: bottom;
+        width: 10em;
+    }
+    video {
+        max-width: 100%;
+        vertical-align: top;
+    }
+    input {
+        border: 1px solid #d9d9d9;
+        border-radius: 1px;
+        font-size: 2em;
+        margin: .2em;
+        width: 30%;
+    }
+    p,
+    .inner {
+        padding: 1em;
+    }
+    li {
+        border-bottom: 1px solid rgb(189, 189, 189);
+        border-left: 1px solid rgb(189, 189, 189);
+        padding: .5em;
+    }
+    label {
+        display: inline-block;
+        width: 8em;
+    }
+    </style>
+    
+    <style>
+        #recordmp3-container label {
+            font-size: inherit;
+            width: auto;
+        }
+        #recordmp3-container input {
+            font-family: Myriad, Arial, Verdana;
+            font-weight: normal;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+            padding: 4px 12px;
+            text-decoration: none;
+            color: rgb(27, 26, 26);
+            display: inline-block;
+            box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+            text-shadow: none;
+            background: white;
+            border: 1px solid red;
+            outline:none;
+            width: auto;
+            font-size: inherit;
+        }
+        #recordmp3-container input:active {
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
+            border: 1px solid rgb(142, 142, 142);
+        }
+        #recordmp3-container input[disabled] {
+            background: rgb(249, 249, 249);
+            border: 1px solid rgb(218, 207, 207);
+            color: rgb(197, 189, 189);
+        }
+    </style>
+    
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+</head>
+
+<body>
+    <article>
+        <header style="text-align: center;">
+            <h1>
+                Record Mp3/Wav using <a href="https://github.com/muaz-khan/RecordRTC">RecordRTC</a>  ®
+                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+            </h1>
+            <p>
+                <a href="https://www.webrtc-experiment.com/RecordRTC/">HOME</a>
+                <span> &copy; </span>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
+                <a href="https://github.com/muaz-khan/RecordRTC/issues?state=open" target="_blank">Latest issues</a> .
+                <a href="https://github.com/muaz-khan/RecordRTC/commits/master" target="_blank">What's New?</a>
+            </p>
+        </header>
+
+        <div class="github-stargazers"></div>
+        
+        <section id="recordmp3-container" class="experiment recordrtc">
+            <h2 class="header">Select Mp3/Wav from your disk:</h2><input id="local-file" type="file">
+
+            <br>
+
+            <label for="load-mp3-url">Load Mp3 from URL:</label><input type="url" id="load-mp3-url" placeholder="cors mp3 returns zero-data">
+            <small><a href="http://www.maninblack.org/demos.html" target="_blank" rel="nofollow">You can try demo mp3 files</a></small>
+            <hr>
+        </section>
+        
+        <script>
+            var recordMp3Container = document.getElementById('recordmp3-container');
+
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            var context = new AudioContext();
+            var gainNode = context.createGain();
+            gainNode.connect(context.destination);
+            gainNode.gain.value = 0; // don't play for self
+
+            // read & record mp3 file from local system
+            document.getElementById('local-file').onchange = function() {
+                this.disabled = true;
+                var reader = new FileReader();
+                reader.file = this.files[0];
+                reader.onload = (function(e) {
+                    // Import callback function
+                    // provides PCM audio data decoded as an audio buffer
+                    context.decodeAudioData(e.target.result, createSoundSource);
+                });
+                reader.readAsArrayBuffer(reader.file);
+            };
+
+            function createSoundSource(buffer) {
+                var soundSource = context.createBufferSource();
+                soundSource.buffer = buffer;
+                soundSource.start(0, 0 / 1000);
+                soundSource.connect(gainNode);
+                var destination = context.createMediaStreamDestination();
+                soundSource.connect(destination);
+                
+                // durtion=second*1000 (milliseconds)
+                recordMp3Stream(destination.stream, buffer.duration * 1000);
+            }
+
+            var recordAudio;
+
+            // using RecordRTC.js to record mp3 stream
+            function recordMp3Stream(stream, duration) {
+                if (!duration) duration = 3 * 1000;
+                duration = parseInt(duration);
+
+                var p = document.createElement('p');
+                recordMp3Container.appendChild(p);
+                recordMp3Container.appendChild(document.createElement('hr'));
+
+                var remaining = duration;
+                (function recordingInProgress() {
+                    p.innerHTML = 'Please wait <b>' + (remaining / 1000) + '</b> seconds.';
+                    p.innerHTML += '<br> Recording Duration: <b>' + duration + '</b>' 
+                                + ' milliseconds (i.e. <b>' + (duration / 1000) + '</b> seconds)';
+
+                    remaining -= 1000;
+
+                    if(remaining > 0) {
+                        setTimeout(recordingInProgress, 1000);
+                    }
+                })();
+
+                recordAudio = RecordRTC(stream, {
+                    type: 'audio',
+                    recorderType: StereoAudioRecorder
+                });
+
+                // duration should be in milliseconds
+                // RecordRTC will auto stop recording after provided duration
+                recordAudio.setRecordingDuration(duration)
+                           .onRecordingStopped(stoppedCallback);
+                
+                recordAudio.startRecording();
+            }
+
+            // RecordRTC auto stopped recording after provided duration
+            function stoppedCallback(url) {
+                var audio = new Audio();
+                audio.controls = true;
+                audio.src = URL.createObjectURL(recordAudio.blob);
+                recordMp3Container.appendChild(audio);
+                audio.play();
+
+                recordMp3Container.appendChild(document.createElement('hr'));
+            }
+
+            // You can get mp3 from any URL but don't forget that
+            // Chrome (even Firefox) returns zero-data if you tried to
+            // use cross-origin mp3 file
+            // so, use mp3 from same-origin
+            // you can even use XMLHttpReqhest in that case.
+            // XMLHttpReqeust returns buffers
+            // which means that you can call this method:
+            // createSoundSource( xhmlHttpRequest.response );
+            function getMp3FromUrl(mp3URL) {
+                var audio = new Audio();
+                audio.volume = 0;
+                audio.addEventListener("canplay", function() {
+                    var context2 = new AudioContext();
+                    var source = context2.createMediaElementSource(audio);
+                    source.connect(context2.destination);
+
+                    var destination = context2.createMediaStreamDestination();
+                    source.connect(destination);
+                    recordMp3Stream(destination.stream, audio.duration * 1000);
+                });
+                audio.onerror = function() {
+                    alert('Failed to load: ' + mp3URL);
+                    document.getElementById('load-mp3-url').value = '';
+                };
+                
+                // this demo is using <audio> instead of XMLHttpRequest
+                // to fix cross-origin erros
+                // however we are still unable to read cross-origin mp3 files
+                // Chrome returns zeros-data for CORS-mp3 file.
+                audio.src = mp3URL;
+            }
+
+            document.getElementById('load-mp3-url').onblur = function() {
+                if (!this.value) return;
+
+                this.disabled = true;
+                getMp3FromUrl(this.value);
+            }
+        </script>
+
+        <section class="experiment" style="padding: 5px;">
+            <a href="https://github.com/muaz-khan/RecordRTC">RecordRTC</a> can record both LIVE-microphone as well as pre-recorded (AOD) Mp3/WAV files.
+            
+            <br><br>
+
+            You can download Mp3 files from this URL: <a href="http://www.dr-lex.be/software/testsounds.html" target="_blank" rel="nofollow">http://www.dr-lex.be/software/testsounds.html</a>
+
+            <br><br>
+            Source code of this demo is <a href="https://github.com/muaz-khan/RecordRTC/blob/master/Record-Mp3-or-Wav.html">available here</a>.
+        </section>
+
+        <section class="experiment">
+            <h2 class="header">
+                RecordRTC <a href="https://github.com/muaz-khan/RecordRTC">Sources Codes</a> / <a href="https://github.com/muaz-khan/RecordRTC/wiki">Wiki Pages</a>
+            </h2>
+            <ol>
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC Main Demo</a> (Records screen/video/audio in all browsers!)
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/">Canvas Recording!</a> (Web-Page Recording)
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/Record-Mp3-or-Wav.html">Record Mp3 or Wav</a> (Pre-recorded audio) i.e. (Audio on Demand)
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/">MRecordRTC and writeToDisk/getFromDisk!</a>
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html">Audio+Video Recording on Firefox</a>
+                </li>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/PHP-and-FFmpeg">
+                        RecordRTC / PHP / FFmpeg
+                    </a>
+                    (Syncing/Merging audio/video in single file!)
+                </li>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs">RecordRTC-to-Nodejs</a> 
+                    (used ffmpeg to merge wav/webm in single WebM container)
+                </li>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-PHP">RecordRTC-to-PHP</a> 
+                    (audio/video recording and uploading to server)
+                </li>
+
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-ASPNETMVC">RecordRTC-to-ASP.NET MVC</a> 
+                    (audio/video recording and uploading to server)
+                </li>
+                
+                <li>
+                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-over-Socketio">RecordRTC-to-Socket.io</a> 
+                    (used ffmpeg to merge wav/webm in single WebM container)
+                </li>
+
+                <li><a href="https://www.webrtc-experiment.com/ffmpeg/">RecordRTC and ffmpeg-asm.js</a> (ffmpeg inside the browser!)</li>
+            </ol>
+        </section>
+
+        <section class="experiment">
+            <h2 class="header" id="feedback">Feedback</h2>
+            <div>
+                <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+            </div>
+            <button id="send-message" style="font-size: 1em;">Send Message</button>
+            <small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+        </section>
+
+        <section class="experiment">
+            <p style="margin-top: 0;">
+                RecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">Documentation</a>
+            </p>
+        </section>
+
+        <section class="experiment own-widgets latest-commits">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RecordRTC/commits/master" target="_blank">Latest Updates</a>
+            </h2>
+            <div id="github-commits"></div>
+        </section>
+    </article>
+
+    <a href="https://github.com/muaz-khan/RecordRTC" class="fork-left"></a>
+
+    <footer>
+        <p>
+            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+        </p>
+    </footer>
+
+    <!-- commits.js is useless for you! -->
+    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+</body>
+
+</html>

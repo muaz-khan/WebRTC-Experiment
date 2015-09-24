@@ -3,13 +3,13 @@
 <hr>
 This module simply initializes socket.io and configures it in a way that single broadcast can be relayed over unlimited users without any <a href="https://www.webrtc-experiment.com/docs/RTP-usage.html">bandwidth/CPU usage issues</a>. Everything happens peer-to-peer!
 <hr>
-<input type="text" id="broadcast-id" placeholder="broadcast-id">
+<input type="text" id="broadcast-id" placeholder="broadcast-id" value="room-xyz">
 <select id="broadcast-options">
     <option disabled>Audio+Video</option>
     <option disabled>Audio+Screen</option>
     <option disabled>Audio</option>
     <option>Video</option>
-    <option>Screen</option>
+    <option title="Screen capturing requries HTTPs. Please run this demo on HTTPs to make sure it can capture your screens.">Screen</option>
 </select>
 <button id="open-or-join">Open or Join Broadcast</button>
 <hr>
@@ -101,6 +101,8 @@ function initRTCMultiConnection(userid) {
 
 // this RTCMultiConnection object is used to connect with existing users
 var connection = initRTCMultiConnection();
+
+connection.getExternalIceServers = false;
 
 connection.onstream = function(event) {
     connection.body.appendChild(event.mediaElement);

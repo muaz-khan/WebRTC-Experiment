@@ -1,22 +1,22 @@
-// ================
+// ==================
 // MediaRecorder.js
 
 /**
-* Implementation of https://dvcs.w3.org/hg/dap/raw-file/default/media-stream-capture/MediaRecorder.html
-* The MediaRecorder accepts a mediaStream as input source passed from UA. When recorder starts,
-* a MediaEncoder will be created and accept the mediaStream as input source.
-* Encoder will get the raw data by track data changes, encode it by selected MIME Type, then store the encoded in EncodedBufferCache object.
-* The encoded data will be extracted on every timeslice passed from Start function call or by RequestData function.
-* Thread model:
-* When the recorder starts, it creates a "Media Encoder" thread to read data from MediaEncoder object and store buffer in EncodedBufferCache object.
-* Also extract the encoded data and create blobs on every timeslice passed from start function or RequestData function called by UA.
-*/
+ * Implementation of https://dvcs.w3.org/hg/dap/raw-file/default/media-stream-capture/MediaRecorder.html
+ * The MediaRecorder accepts a mediaStream as input source passed from UA. When recorder starts,
+ * a MediaEncoder will be created and accept the mediaStream as input source.
+ * Encoder will get the raw data by track data changes, encode it by selected MIME Type, then store the encoded in EncodedBufferCache object.
+ * The encoded data will be extracted on every timeslice passed from Start function call or by RequestData function.
+ * Thread model:
+ * When the recorder starts, it creates a "Media Encoder" thread to read data from MediaEncoder object and store buffer in EncodedBufferCache object.
+ * Also extract the encoded data and create blobs on every timeslice passed from start function or RequestData function called by UA.
+ */
 
 function MediaRecorderWrapper(mediaStream) {
     // if user chosen only audio option; and he tried to pass MediaStream with
     // both audio and video tracks;
     // using a dirty workaround to generate audio-only stream so that we can get audio/ogg output.
-    if (this.type == 'audio' && mediaStream.getVideoTracks && mediaStream.getVideoTracks().length && !navigator.mozGetUserMedia) {
+    if (this.type === 'audio' && mediaStream.getVideoTracks && mediaStream.getVideoTracks().length && !navigator.mozGetUserMedia) {
         var context = new AudioContext();
         var mediaStreamSource = context.createMediaStreamSource(mediaStream);
 
@@ -36,14 +36,21 @@ function MediaRecorderWrapper(mediaStream) {
         isStopRecording = false;
 
         function startRecording() {
-            if (isStopRecording) return;
+            if (isStopRecording) {
+                return;
+            }
+
+            if (isPaused) {
+                setTimeout(startRecording, 500);
+                return;
+            }
 
             mediaRecorder = new MediaRecorder(mediaStream);
 
             mediaRecorder.ondataavailable = function(e) {
                 console.log('ondataavailable', e.data.type, e.data.size, e.data);
-                // mediaRecorder.state == 'recording' means that media recorder is associated with "session"
-                // mediaRecorder.state == 'stopped' means that media recorder is detached from the "session" ... in this case; "session" will also be deleted.
+                // mediaRecorder.state === 'recording' means that media recorder is associated with "session"
+                // mediaRecorder.state === 'stopped' means that media recorder is detached from the "session" ... in this case; "session" will also be deleted.
 
                 if (!e.data.size) {
                     console.warn('Recording of', e.data.type, 'failed.');
@@ -116,6 +123,32 @@ function MediaRecorderWrapper(mediaStream) {
 
         if (self.onstop) {
             self.onstop({});
+        }
+    };
+
+    var isPaused = false;
+
+    this.pause = function() {
+        if (!mediaRecorder) {
+            return;
+        }
+
+        isPaused = true;
+
+        if (mediaRecorder.state === 'recording') {
+            mediaRecorder.pause();
+        }
+    };
+
+    this.resume = function() {
+        if (!mediaRecorder) {
+            return;
+        }
+
+        isPaused = false;
+
+        if (mediaRecorder.state === 'paused') {
+            mediaRecorder.resume();
         }
     };
 

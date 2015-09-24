@@ -1,4 +1,6 @@
-# [DetectRTC.js](https://github.com/muaz-khan/DetectRTC) / [Demo](https://www.webrtc-experiment.com/DetectRTC/) [![npm](https://img.shields.io/npm/v/detectrtc.svg)](https://npmjs.org/package/detectrtc) [![downloads](https://img.shields.io/npm/dm/detectrtc.svg)](https://npmjs.org/package/detectrtc)  [![Build Status: Linux](https://travis-ci.org/muaz-khan/DetectRTC.png?branch=master)](https://travis-ci.org/muaz-khan/DetectRTC)
+# [DetectRTC.js](https://github.com/muaz-khan/DetectRTC) / [Try LIVE Demo](https://www.webrtc-experiment.com/DetectRTC/)
+
+[![npm](https://img.shields.io/npm/v/detectrtc.svg)](https://npmjs.org/package/detectrtc) [![downloads](https://img.shields.io/npm/dm/detectrtc.svg)](https://npmjs.org/package/detectrtc)  [![Build Status: Linux](https://travis-ci.org/muaz-khan/DetectRTC.png?branch=master)](https://travis-ci.org/muaz-khan/DetectRTC)
 
 A tiny JavaScript library that can be used to detect WebRTC features e.g. system having speakers, microphone or webcam, screen capturing is supported, number of audio/video devices etc.
 
@@ -9,6 +11,32 @@ npm install detectrtc
 
 # or
 bower install detectrtc
+```
+
+# Proposed NEW API
+
+```javascript
+DetectRTC.isSetSinkIdSupported                  // (implemented)
+DetectRTC.isRTPSenderReplaceTracksSupported     // (implemented)
+DetectRTC.isORTCSupported                       // (implemented)
+DetectRTC.isRemoteStreamProcessingSupported     // (implemented)
+
+# Below API are NOT implemented yet
+DetectRTC.browser.googSupportedFlags.googDAEEchoCancellation
+DetecRTC.browser.googSupportedFlags.echoCancellation
+DetectRTC.isMediaHintsSupportsNewSyntax
+```
+
+# Test in LocalHost
+
+```javascript
+node server.js    
+
+// and open:   
+127.0.0.1:9001 
+
+// or 
+http://localhost:9001
 ```
 
 To use it:
@@ -44,31 +72,48 @@ DetectRTC.load(function() {
     
     // DetectRTC.osName
     
-    // DetectRTC.browser.name
+    // DetectRTC.browser.name === 'Edge' || 'Chrome' || 'Firefox'
     // DetectRTC.browser.version
     // DetectRTC.browser.isChrome
     // DetectRTC.browser.isFirefox
     // DetectRTC.browser.isOpera
     // DetectRTC.browser.isIE
     // DetectRTC.browser.isSafari
+    // DetectRTC.browser.isEdge
 
-    // isCanvasCaptureStreamSupported
-    // isVideoCaptureStreamSupported
+    // DetectRTC.isCanvasSupportsStreamCapturing
+    // DetectRTC.isVideoSupportsStreamCapturing
 
     // DetectRTC.DetectLocalIPAddress(callback)
 });
 ```
 
-## Why `load` method?
+# Why `load` method?
 
 If you're not detecting audio/video input/outupt devices then you can skip this method.
 
 `DetectRTC.load` simply makes sure that all devices are captured and valid result is set for relevant properties.
 
-# Demo
+<img src="https://i.imgur.com/YXehckT.jpg?1" />
 
-* https://www.webrtc-experiment.com/DetectRTC/
+# Rules to Contribute
+
+```
+git clone --depth=50 --branch=development git://github.com/muaz-khan/DetectRTC.git muaz-khan/DetectRTC
+
+# install all dependencies
+[sudo] npm install
+
+# install grunt for code style verifications
+[sudo] npm install grunt-cli
+[sudo] npm install grunt
+
+# verify your changes
+npm test  # or "grunt"
+
+# Success? Make a pull request!
+```
 
 # License
 
-[DetectRTC.js](https://github.com/muaz-khan/DetectRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[DetectRTC.js](https://github.com/muaz-khan/DetectRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).

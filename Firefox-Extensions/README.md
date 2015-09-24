@@ -1,18 +1,15 @@
 # [Firefox Extensions](https://github.com/muaz-khan/Firefox-Extensions)
 
-Enable screen capturing in Firefox (for https://www.webrtc-experiment.com demos only):
+> Enable screen capturing in Firefox for both localhost/127.0.0.1 and `https://www.webrtc-experiment.com` pages.
 
-* [enable-screen-capturing.xpi](https://www.webrtc-experiment.com/store/firefox-extension/enable-screen-capturing.xpi)
+# Install
 
-## Credits
+* [https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/](https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/)
 
-[Muaz Khan](https://github.com/muaz-khan):
+# Simplest Demo
 
-1. Personal Webpage: http://www.muazkhan.com
-2. Email: muazkh@gmail.com
-3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
-4. Google+: https://plus.google.com/+WebRTC-Experiment
+* [https://www.webrtc-experiment.com/getScreenId/](https://www.webrtc-experiment.com/getScreenId/)
 
 ## License
 
-[Firefox-Extensions](https://github.com/muaz-khan/Firefox-Extensions) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[Firefox-Extensions](https://github.com/muaz-khan/Firefox-Extensions) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).

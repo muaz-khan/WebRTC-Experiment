@@ -7,7 +7,7 @@
  * @typedef CanvasRecorder
  * @class
  * @example
- * var recorder = new CanvasRecorder(htmlElement);
+ * var recorder = new CanvasRecorder(htmlElement, { disableLogs: true });
  * recorder.record();
  * recorder.stop(function(blob) {
  *     video.src = URL.createObjectURL(blob);
@@ -153,7 +153,7 @@ function CanvasRecorder(htmlElement, config) {
                 });
 
                 if (isRecording) {
-                    requestAnimationFrame(drawCanvasFrame);
+                    setTimeout(drawCanvasFrame, 0);
                 }
             }
         });

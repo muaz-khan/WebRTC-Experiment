@@ -1,4 +1,4 @@
-// Last time updated at July 06, 2014, 08:32:23
+// Last time updated at Sep 10, 2015, 08:32:23
 
 // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.webrtc-experiment.com/licence/
@@ -1933,6 +1933,18 @@ _html2canvas.Parse = function (images, options) {
         renderListItem(element, stack, backgroundBounds);
         break;
       case "VIDEO":
+        // custom code written by Muaz Khan (www.muazkhan.com)
+        // to support <video> screenshots!
+        var tempCanvas = document.createElement('canvas');
+        tempCanvas.width = element.videoWidth || element.clientWidth || 320;
+        tempCanvas.height = element.videoHeight || element.clientHeight || 240;
+        var tempContext = tempCanvas.getContext('2d');
+        tempContext.drawImage(element, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+        renderImage(ctx, tempCanvas, tempCanvas, bounds, borders);
+        break;
+
+      case "IMG":
         // custom code written by Muaz Khan (www.muazkhan.com)
         // to support <video> screenshots!
         var tempCanvas = document.createElement('canvas');

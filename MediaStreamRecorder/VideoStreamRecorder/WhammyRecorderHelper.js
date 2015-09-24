@@ -1,14 +1,22 @@
-// =======================
+// ==========================
 // WhammyRecorderHelper.js
 
 function WhammyRecorderHelper(mediaStream, root) {
     this.record = function(timeSlice) {
-        if (!this.width) this.width = 320;
-        if (!this.height) this.height = 240;
+        if (!this.width) {
+            this.width = 320;
+        }
+        if (!this.height) {
+            this.height = 240;
+        }
 
         if (this.video && this.video instanceof HTMLVideoElement) {
-            if (!this.width) this.width = video.videoWidth || video.clientWidth || 320;
-            if (!this.height) this.height = video.videoHeight || video.clientHeight || 240;
+            if (!this.width) {
+                this.width = video.videoWidth || video.clientWidth || 320;
+            }
+            if (!this.height) {
+                this.height = video.videoHeight || video.clientHeight || 240;
+            }
         }
 
         if (!this.video) {
@@ -30,6 +38,7 @@ function WhammyRecorderHelper(mediaStream, root) {
 
         // setting defaults
         if (this.video && this.video instanceof HTMLVideoElement) {
+            this.isHTMLObject = true;
             video = this.video.cloneNode();
         } else {
             video = document.createElement('video');
@@ -52,55 +61,77 @@ function WhammyRecorderHelper(mediaStream, root) {
     };
 
     this.clearOldRecordedFrames = function() {
-        frames = [];
+        whammy.frames = [];
     };
 
     var requestDataInvoked = false;
     this.requestData = function() {
-        if (!frames.length) {
+        if (isPaused) {
+            return;
+        }
+
+        if (!whammy.frames.length) {
             requestDataInvoked = false;
             return;
         }
 
         requestDataInvoked = true;
         // clone stuff
-        var internal_frames = frames.slice(0);
+        var internalFrames = whammy.frames.slice(0);
 
         // reset the frames for the new recording
-        frames = [];
 
-        whammy.frames = dropBlackFrames(internal_frames, -1);
+        whammy.frames = dropBlackFrames(internalFrames, -1);
 
-        var WebM_Blob = whammy.compile();
-        root.ondataavailable(WebM_Blob);
+        whammy.compile(function(whammyBlob) {
+            root.ondataavailable(whammyBlob);
+            console.debug('video recorded blob size:', bytesToSize(whammyBlob.size));
+        });
 
-        console.debug('video recorded blob size:', bytesToSize(WebM_Blob.size));
+        whammy.frames = [];
 
         requestDataInvoked = false;
     };
 
-    var frames = [];
-
     var isOnStartedDrawingNonBlankFramesInvoked = false;
 
     function drawFrames() {
-        if (isStopDrawing) return;
+        if (isPaused) {
+            lastTime = new Date().getTime();
+            setTimeout(drawFrames, 500);
+            return;
+        }
 
-        if (requestDataInvoked) return setTimeout(drawFrames, 100);
+        if (isStopDrawing) {
+            return;
+        }
+
+        if (requestDataInvoked) {
+            return setTimeout(drawFrames, 100);
+        }
 
         var duration = new Date().getTime() - lastTime;
-        if (!duration) return drawFrames();
+        if (!duration) {
+            return drawFrames();
+        }
 
         // via webrtc-experiment#206, by Jack i.e. @Seymourr
         lastTime = new Date().getTime();
 
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        !isStopDrawing && frames.push({
-            duration: duration,
-            image: canvas.toDataURL('image/webp')
-        });
+        if (!self.isHTMLObject && video.paused) {
+            video.play(); // Android
+        }
 
-        if (!isOnStartedDrawingNonBlankFramesInvoked && !isBlankFrame(frames[frames.length - 1])) {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        if (!isStopDrawing) {
+            whammy.frames.push({
+                duration: duration,
+                image: canvas.toDataURL('image/webp')
+            });
+        }
+
+        if (!isOnStartedDrawingNonBlankFramesInvoked && !isBlankFrame(whammy.frames[whammy.frames.length - 1])) {
             isOnStartedDrawingNonBlankFramesInvoked = true;
             root.onStartedDrawingNonBlankFrames();
         }
@@ -252,4 +283,14 @@ function WhammyRecorderHelper(mediaStream, root) {
 
         return resultFrames;
     }
+
+    var isPaused = false;
+
+    this.pause = function() {
+        isPaused = true;
+    };
+
+    this.resume = function() {
+        isPaused = false;
+    };
 }

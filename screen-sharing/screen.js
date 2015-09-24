@@ -1,11 +1,8 @@
-// Last time updated at March 06, 2015, 08:32:23
-
+// Last time updated at Sep 23, 2015, 08:32:23
 // Latest file can be found here: https://cdn.webrtc-experiment.com/screen.js
-
 // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.webrtc-experiment.com/licence/
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing
-
 (function() {
 
     // a middle-agent between public API and the Signaler object
@@ -98,6 +95,10 @@
         // unique identifier for the current user
         var userid = root.userid || getToken();
 
+        if (!root.userid) {
+            root.userid = userid;
+        }
+
         // self instance
         var signaler = this;
 
@@ -115,14 +116,15 @@
             if (message.roomid == roomid && message.broadcasting && !signaler.sentParticipationRequest)
                 root.onscreen(message);
 
-            else
-            // for pretty logging
+            else {
+                // for pretty logging
                 console.debug(JSON.stringify(message, function(key, value) {
-                if (value.sdp) {
-                    console.log(value.sdp.type, '————', value.sdp.sdp);
-                    return '';
-                } else return value;
-            }, '————'));
+                    if (value.sdp) {
+                        console.log(value.sdp.type, '————', value.sdp.sdp);
+                        return '';
+                    } else return value;
+                }, '————'));
+            }
 
             // if someone shared SDP
             if (message.sdp && message.to == userid)
@@ -147,7 +149,7 @@
 
         // if someone shared SDP
         this.onsdp = function(message) {
-            var sdp = message.sdp;
+            var sdp = JSON.parse(message.sdp);
 
             if (sdp.type == 'offer') {
                 var _options = options;
@@ -164,6 +166,8 @@
 
         // if someone shared ICE
         this.onice = function(message) {
+            message.candidate = JSON.parse(message.candidate);
+
             var peer = peers[message.userid];
             if (!peer) {
                 var candidate = candidates[message.userid];
@@ -185,14 +189,16 @@
         // it is passed over Offer/Answer objects for reusability
         var options = {
             onsdp: function(sdp, to) {
+                console.log('local-sdp', JSON.stringify(sdp.sdp, null, '\t'));
+
                 signaler.signal({
-                    sdp: sdp,
+                    sdp: JSON.stringify(sdp),
                     to: to
                 });
             },
             onicecandidate: function(candidate, to) {
                 signaler.signal({
-                    candidate: candidate,
+                    candidate: JSON.stringify(candidate),
                     to: to
                 });
             },
@@ -211,10 +217,10 @@
                 video.play();
 
                 function onRemoteStreamStartsFlowing() {
-                    if(isMobileDevice) {
+                    if (isMobileDevice) {
                         return afterRemoteStreamStartedFlowing();
                     }
-                    
+
                     if (!(video.readyState <= HTMLMediaElement.HAVE_CURRENT_DATA || video.paused || video.currentTime <= 0)) {
                         afterRemoteStreamStartedFlowing();
                     } else
@@ -305,11 +311,27 @@
             socket = new window.Firebase('https://' + (root.firebase || 'signaling') + '.firebaseIO.com/' + root.channel);
             socket.on('child_added', function(snap) {
                 var data = snap.val();
-                if (data.userid != userid) {
+
+                var isRemoteMessage = false;
+                if (typeof userid === 'number' && parseInt(data.userid) != userid) {
+                    isRemoteMessage = true;
+                }
+                if (typeof userid === 'string' && data.userid + '' != userid) {
+                    isRemoteMessage = true;
+                }
+
+                if (isRemoteMessage) {
+                    if (data.to) {
+                        if (typeof userid == 'number') data.to = parseInt(data.to);
+                        if (typeof userid == 'string') data.to = data.to + '';
+                    }
+
                     if (!data.leaving) signaler.onmessage(data);
                     else {
                         numberOfParticipants--;
-                        if (root.onNumberOfParticipantsChnaged) root.onNumberOfParticipantsChnaged(numberOfParticipants);
+                        if (root.onNumberOfParticipantsChnaged) {
+                            root.onNumberOfParticipantsChnaged(numberOfParticipants);
+                        }
 
                         root.onuserleft(data.userid);
                     }
@@ -319,7 +341,7 @@
                 // that's why data is removed from firebase servers 
                 // as soon as it is received
                 // data.userid != userid && 
-                if (data.userid != userid) snap.ref().remove();
+                if (isRemoteMessage) snap.ref().remove();
             });
 
             // method to signal the data
@@ -332,7 +354,21 @@
             // e.g. WebSocket, Socket.io, SignalR, WebSycn, XMLHttpRequest, Long-Polling etc.
             socket = root.openSignalingChannel(function(message) {
                 message = JSON.parse(message);
-                if (message.userid != userid) {
+
+                var isRemoteMessage = false;
+                if (typeof userid === 'number' && parseInt(message.userid) != userid) {
+                    isRemoteMessage = true;
+                }
+                if (typeof userid === 'string' && message.userid + '' != userid) {
+                    isRemoteMessage = true;
+                }
+
+                if (isRemoteMessage) {
+                    if (message.to) {
+                        if (typeof userid == 'number') message.to = parseInt(message.to);
+                        if (typeof userid == 'string') message.to = message.to + '';
+                    }
+
                     if (!message.leaving) signaler.onmessage(message);
                     else {
                         root.onuserleft(message.userid);
@@ -445,7 +481,7 @@
             OfferToReceiveVideo: false
         }
     };
-    
+
     var Offer = {
         createOffer: function(config) {
             var peer = new RTCPeerConnection(iceServers, optionalArgument);
@@ -513,17 +549,36 @@
         },
         addIceCandidate: function(candidate) {
             console.log('adding ice', candidate.candidate);
-        
+
             this.peer.addIceCandidate(new RTCIceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
             }));
         }
     };
-    
+
     function setBandwidth(sdp) {
         if (isFirefox) return sdp;
         if (isMobileDevice) return sdp;
+
+        // https://cdn.rawgit.com/muaz-khan/RTCMultiConnection/master/RTCMultiConnection-v3.0/dev/BandwidthHandler.js
+        if (typeof BandwidthHandler !== 'undefined') {
+            window.isMobileDevice = isMobileDevice;
+            window.isFirefox = isFirefox;
+
+            var bandwidth = {
+                screen: 300, // 300kbits minimum
+                video: 256 // 256kbits (both min-max)
+            };
+            var isScreenSharing = false;
+
+            sdp = BandwidthHandler.setApplicationSpecificBandwidth(sdp, bandwidth, isScreenSharing);
+            sdp = BandwidthHandler.setVideoBitrates(sdp, {
+                min: bandwidth.video,
+                max: bandwidth.video
+            });
+            return sdp;
+        }
 
         // removing existing bandwidth lines
         sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');

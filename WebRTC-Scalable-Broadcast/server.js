@@ -2,14 +2,21 @@
 // MIT License - www.WebRTC-Experiment.com/licence
 // Source Code - https://github.com/muaz-khan/WebRTC-Scalable-Broadcast
 
-var path = require("path"),
-    fs = require("fs");
+var fs = require("fs");
+var path = require('path');
 
 var app = require('http').createServer(function (request, response) {
     var uri = require('url').parse(request.url).pathname,
         filename = path.join(process.cwd(), uri);
 
-    path.exists(filename, function (exists) {
+    var isWin = !!process.platform.match(/^win/);
+
+    if (fs.statSync(filename).isDirectory()) {
+        if(!isWin) filename += '/index.html';
+        else filename += '\\index.html';
+    }
+
+    fs.exists(filename, function (exists) {
         if (!exists) {
             response.writeHead(404, {
                 "Content-Type": "text/plain"
@@ -18,8 +25,6 @@ var app = require('http').createServer(function (request, response) {
             response.end();
             return;
         }
-
-        if (fs.statSync(filename).isDirectory()) filename += '/index.html';
 
         fs.readFile(filename, 'binary', function (err, file) {
             if (err) {
@@ -38,6 +43,9 @@ var app = require('http').createServer(function (request, response) {
     });
 });
 
-app.listen(8888);
+app = app.listen(process.env.PORT || 8888, process.env.IP || "0.0.0.0", function() {
+    var addr = app.address();
+    console.log("Server listening at", addr.address + ":" + addr.port);
+});
 
 require('./WebRTC-Scalable-Broadcast.js')(app);

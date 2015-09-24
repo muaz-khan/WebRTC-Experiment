@@ -15,9 +15,15 @@ module.exports = exports = WebRTC_Scalable_Broadcast;
 
 function WebRTC_Scalable_Broadcast(app) {
     var io = require('socket.io').listen(app, {
-        log: true,
+        log: false,
         origins: '*:*'
     });
+
+    io.set('transports', [
+        'websocket', // 'disconnect' EVENT will work only with 'websocket'
+        'xhr-polling',
+        'jsonp-polling'
+    ]);
 
     var listOfBroadcasts = {};
     
@@ -38,10 +44,14 @@ function WebRTC_Scalable_Broadcast(app) {
             if(firstAvailableBroadcaster) {
                 listOfBroadcasts[user.broadcastid].broadcasters[firstAvailableBroadcaster.userid].numberOfViewers++;
                 socket.emit('join-broadcaster', firstAvailableBroadcaster);
+
+                console.log('User <', user.userid, '> is trying to get stream from user <', firstAvailableBroadcaster.userid, '>');
             }
             else {
                 currentUser.isInitiator = true;
                 socket.emit('start-broadcasting');
+
+                console.log('User <', user.userid, '> will be next to serve broadcast.');
             }
             
             listOfBroadcasts[user.broadcastid].broadcasters[user.userid] = user;

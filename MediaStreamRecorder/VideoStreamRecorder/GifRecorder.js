@@ -1,11 +1,11 @@
-// Muaz Khan     - https://github.com/muaz-khan 
-// neizerth      - https://github.com/neizerth
-// MIT License   - https://www.webrtc-experiment.com/licence/
-// Documentation - https://github.com/streamproc/MediaStreamRecorder
-// ==========================================================
+// --------------
 // GifRecorder.js
 
 function GifRecorder(mediaStream) {
+    if (typeof GIFEncoder === 'undefined') {
+        throw 'Please link: https://cdn.webrtc-experiment.com/gif-recorder.js';
+    }
+
     // void start(optional long timeSlice)
     // timestamp to fire "ondataavailable"
     this.start = function(timeSlice) {
@@ -47,6 +47,11 @@ function GifRecorder(mediaStream) {
         startTime = Date.now();
 
         function drawVideoFrame(time) {
+            if (isPaused) {
+                setTimeout(drawVideoFrame, 500, time);
+                return;
+            }
+
             lastAnimationFrame = requestAnimationFrame(drawVideoFrame);
 
             if (typeof lastFrameTime === undefined) {
@@ -54,7 +59,13 @@ function GifRecorder(mediaStream) {
             }
 
             // ~10 fps
-            if (time - lastFrameTime < 90) return;
+            if (time - lastFrameTime < 90) {
+                return;
+            }
+
+            if (video.paused) {
+                video.play(); // Android
+            }
 
             context.drawImage(video, 0, 0, imageWidth, imageHeight);
 
@@ -81,7 +92,7 @@ function GifRecorder(mediaStream) {
 
         // todo: find a way to clear old recorded blobs
         gifEncoder.stream().bin = [];
-    };
+    }
 
     this.stop = function() {
         if (lastAnimationFrame) {
@@ -89,6 +100,16 @@ function GifRecorder(mediaStream) {
             clearTimeout(timeout);
             doneRecording();
         }
+    };
+
+    var isPaused = false;
+
+    this.pause = function() {
+        isPaused = true;
+    };
+
+    this.resume = function() {
+        isPaused = false;
     };
 
     this.ondataavailable = function() {};

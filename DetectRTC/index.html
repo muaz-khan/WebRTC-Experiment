@@ -57,6 +57,7 @@
         
         <!-- script used to detect WebRTC features! -->
         <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/screenshot.js"></script>
     </head>
 
     <body>
@@ -87,11 +88,10 @@
 
             <div class="github-stargazers"></div>
             
-            <section class="experiment">
+            <section class="experiment" id="detectrtc-output">
+                <button id="save" style="float:right;">Print & Save As Image</button>
                 <h2 id="welcome">Detect WebRTC!</h2>
                 <table id="browser-features"></table>
-                
-                <img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
             </section>
             
             <!-- dirty trick to bypass webrtc blockers -->
@@ -111,16 +111,30 @@
                 }
 
                 DetectRTC.load(function() {
+                    browserFeaturesTable.innerHTML = '';
+
                     appendTR('System has Speakers?', printVal(DetectRTC.hasSpeakers));
                     appendTR('System has Microphone?', printVal(DetectRTC.hasMicrophone));
                     appendTR('System has Webcam?', printVal(DetectRTC.hasWebcam));
 
-                    appendTR('Browser Supports WebRTC?', printVal(DetectRTC.isWebRTCSupported));
+                    
+                    appendTR('Browser allows getUserMedia on this page?', printVal(DetectRTC.isGetUserMediaSupported));
+
+                    appendTR('Can you change output audio devices?', printVal(DetectRTC.isSetSinkIdSupported));
+
+                    appendTR('Browser Supports WebRTC (Either 1.0 or 1.1)?', printVal(DetectRTC.isWebRTCSupported));
+                    appendTR('Browser Supports ORTC (WebRTC 1.1)?', printVal(DetectRTC.isORTCSupported));
+
+                    appendTR('Can you replace tracks without renegotiating peers?', printVal(DetectRTC.isRTPSenderReplaceTracksSupported));
+
+                    appendTR('Can your browser record remote audio or process remote audio stream in WebAudio API?', printVal(DetectRTC.isRemoteStreamProcessingSupported));
+
+                    appendTR('Browser Supports WebSockets API?', printVal(DetectRTC.isWebSocketsSupported));
+                    appendTR('Your system blocked WebSockets protocol or WebSockets server is not accessible?', printVal(DetectRTC.isWebSocketsBlocked));
+
                     appendTR('Browser Supports WebAudio API?', printVal(DetectRTC.isAudioContextSupported));
                     appendTR('Browser Supports SCTP Data Channels?', printVal(DetectRTC.isSctpDataChannelsSupported));
                     appendTR('Browser Supports RTP Data Channels?', printVal(DetectRTC.isRtpDataChannelsSupported));
-
-                    appendTR('This page Supports desktopCapture API?', printVal(DetectRTC.isDesktopCapturingSupported));
                     appendTR('This page Supports Screen Capturing API?', printVal(DetectRTC.isScreenCapturingSupported));
                     appendTR('Is it a mobile device?', printVal(DetectRTC.isMobileDevice));
                     appendTR('Browser Supports WebSockets?', printVal(DetectRTC.isWebSocketsSupported));
@@ -144,8 +158,8 @@
 
                     appendTR(audioDevices.length + ' audio and ' + videoDevices.length + ' video devices', rightSide);
 
-                    appendTR('Is Browser Supports Video Capturing from Canvas?', printVal(DetectRTC.isVideoCaptureStreamSupported));
-                    appendTR('Is Browser Supports Stream Capturing from Video?', printVal(DetectRTC.isVideoCaptureStreamSupported));
+                    appendTR('Is Browser Supports Video Capturing from Canvas?', printVal(DetectRTC.isVideoSupportsStreamCapturing));
+                    appendTR('Is Browser Supports Stream Capturing from Video?', printVal(DetectRTC.isVideoSupportsStreamCapturing));
 
                     DetectRTC.DetectLocalIPAddress(function(ipAddress) {
                         if (ipAddress.indexOf('Local') !== -1) {
@@ -155,7 +169,85 @@
                         }
                     });
                 });
+
+                document.getElementById('save').onclick = function() {
+                    this.parentNode.removeChild(this);
+
+                    html2canvas(browserFeaturesTable.parentNode, {
+                        grabMouse: false,
+                        onrendered: function(canvas) {
+                            var image = canvas.toDataURL('image/jpeg');
+                            // document.write('<img src="' + image +'">');
+                            SaveToDisk(image);
+                        }
+                    });
+                };
+
+                function SaveToDisk(dataURL) {
+                    if (DetectRTC.browser.isEdge) {
+                        var blob = dataURLToBlob(dataURL);
+                        if (typeof navigator.msSaveOrOpenBlob !== 'undefined') {
+                            return navigator.msSaveOrOpenBlob(blob, 'DetectRTC.jpg');
+                        } else if (typeof navigator.msSaveBlob !== 'undefined') {
+                            return navigator.msSaveBlob(blob, 'DetectRTC.jpg');
+                        }
+                    }
+
+                    var hyperlink = document.createElement('a');
+                    hyperlink.href = dataURL;
+                    hyperlink.target = '_blank';
+                    hyperlink.download = 'DetectRTC.jpg';
+
+                    if (DetectRTC.browser.name === 'Firefox') {
+                        hyperlink.onclick = function() {
+                            (document.body || document.documentElement).removeChild(hyperlink);
+                        };
+                        (document.body || document.documentElement).appendChild(hyperlink);
+                    }
+
+                    var evt = new MouseEvent('click', {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true
+                    });
+
+                    hyperlink.dispatchEvent(evt);
+
+                    if (DetectRTC.browser.name === 'Firefox') {
+                        URL.revokeObjectURL(hyperlink.href);
+                    }
+                }
+
+                function dataURLToBlob(dataURL) {
+                    var BASE64_MARKER = ';base64,';
+                    if (dataURL.indexOf(BASE64_MARKER) == -1) {
+                        var parts = dataURL.split(',');
+                        var contentType = parts[0].split(':')[1];
+                        var raw = decodeURIComponent(parts[1]);
+
+                        return new Blob([raw], {
+                            type: contentType
+                        });
+                    }
+
+                    var parts = dataURL.split(BASE64_MARKER);
+                    var contentType = parts[0].split(':')[1];
+                    var raw = window.atob(parts[1]);
+                    var rawLength = raw.length;
+
+                    var uInt8Array = new Uint8Array(rawLength);
+
+                    for (var i = 0; i < rawLength; ++i) {
+                        uInt8Array[i] = raw.charCodeAt(i);
+                    }
+
+                    return new Blob([uInt8Array], {
+                        type: contentType
+                    });
+                }
             </script>
+
+            <section class="experiment"><img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" /></section>
         
             <section class="experiment">
                 <h2 class="header" id="feedback">Feedback</h2>
@@ -219,7 +311,7 @@ DetectRTC.load(function() {
             </p>
         </footer>
     
-        <!-- commits.js is useless for you! -->
+        <!-- commits.js is useless for you!  -->
         <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

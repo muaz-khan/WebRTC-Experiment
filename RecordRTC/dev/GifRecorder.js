@@ -2,17 +2,17 @@
 // GifRecorder.js
 
 /**
- * GifRecorder is standalone calss used by {@link RecordRTC} to record video as animated gif image.
+ * GifRecorder is standalone calss used by {@link RecordRTC} to record video or canvas into animated gif.
  * @typedef GifRecorder
  * @class
  * @example
- * var recorder = new GifRecorder(mediaStream);
+ * var recorder = new GifRecorder(mediaStream || canvas || context, { width: 1280, height: 720, frameRate: 200, quality: 10 });
  * recorder.record();
  * recorder.stop(function(blob) {
  *     img.src = URL.createObjectURL(blob);
  * });
- * @param {MediaStream} mediaStream - MediaStream object fetched using getUserMedia API or generated using captureStreamUntilEnded or WebAudio API.
- * @param {object} config - {disableLogs:true, initcallback: function, width: 320, height: 240, frameRate: 200, quality: 10}
+ * @param {MediaStream} mediaStream - MediaStream object or HTMLCanvasElement or CanvasRenderingContext2D.
+ * @param {object} config - {disableLogs:true, initCallback: function, width: 320, height: 240, frameRate: 200, quality: 10}
  */
 
 function GifRecorder(mediaStream, config) {
@@ -22,6 +22,8 @@ function GifRecorder(mediaStream, config) {
 
     config = config || {};
 
+    var isHTMLObject = mediaStream instanceof CanvasRenderingContext2D || mediaStream instanceof HTMLCanvasElement;
+
     /**
      * This method records MediaStream.
      * @method
@@ -30,33 +32,35 @@ function GifRecorder(mediaStream, config) {
      * recorder.record();
      */
     this.record = function() {
-        if (!config.width) {
-            config.width = video.offsetWidth || 320;
+        if (!isHTMLObject) {
+            if (!config.width) {
+                config.width = video.offsetWidth || 320;
+            }
+
+            if (!this.height) {
+                config.height = video.offsetHeight || 240;
+            }
+
+            if (!config.video) {
+                config.video = {
+                    width: config.width,
+                    height: config.height
+                };
+            }
+
+            if (!config.canvas) {
+                config.canvas = {
+                    width: config.width,
+                    height: config.height
+                };
+            }
+
+            canvas.width = config.canvas.width;
+            canvas.height = config.canvas.height;
+
+            video.width = config.video.width;
+            video.height = config.video.height;
         }
-
-        if (!this.height) {
-            config.height = video.offsetHeight || 240;
-        }
-
-        if (!config.video) {
-            config.video = {
-                width: config.width,
-                height: config.height
-            };
-        }
-
-        if (!config.canvas) {
-            config.canvas = {
-                width: config.width,
-                height: config.height
-            };
-        }
-
-        canvas.width = config.canvas.width;
-        canvas.height = config.canvas.height;
-
-        video.width = config.video.width;
-        video.height = config.video.height;
 
         // external library to record as GIF images
         gifEncoder = new GIFEncoder();
@@ -107,7 +111,7 @@ function GifRecorder(mediaStream, config) {
                 return;
             }
 
-            if (video.paused) {
+            if (!isHTMLObject && video.paused) {
                 // via: https://github.com/muaz-khan/WebRTC-Experiment/pull/316
                 // Tweak for Android Chrome
                 video.play();
@@ -219,17 +223,27 @@ function GifRecorder(mediaStream, config) {
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
 
-    var video = document.createElement('video');
-    video.muted = true;
-    video.autoplay = true;
-
-    if (typeof video.srcObject !== 'undefined') {
-        video.srcObject = mediaStream;
-    } else {
-        video.src = URL.createObjectURL(mediaStream);
+    if (isHTMLObject) {
+        if (mediaStream instanceof CanvasRenderingContext2D) {
+            context = mediaStream;
+        } else if (mediaStream instanceof HTMLCanvasElement) {
+            context = mediaStream.getContext('2d');
+        }
     }
 
-    video.play();
+    if (!isHTMLObject) {
+        var video = document.createElement('video');
+        video.muted = true;
+        video.autoplay = true;
+
+        if (typeof video.srcObject !== 'undefined') {
+            video.srcObject = mediaStream;
+        } else {
+            video.src = URL.createObjectURL(mediaStream);
+        }
+
+        video.play();
+    }
 
     var lastAnimationFrame = null;
     var startTime, endTime, lastFrameTime;

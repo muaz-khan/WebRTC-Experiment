@@ -1,12 +1,10 @@
-// Muaz Khan     - www.MuazKhan.com
-// MIT License   - www.webrtc-experiment.com/licence
-// Documentation - github.com/streamproc/MediaStreamRecorder
-
 // ______________________
 // MultiStreamRecorder.js
 
 function MultiStreamRecorder(mediaStream) {
-    if (!mediaStream) throw 'MediaStream is mandatory.';
+    if (!mediaStream) {
+        throw 'MediaStream is mandatory.';
+    }
 
     var self = this;
     var isFirefox = !!navigator.mozGetUserMedia;
@@ -83,8 +81,12 @@ function MultiStreamRecorder(mediaStream) {
     };
 
     this.stop = function() {
-        if (audioRecorder) audioRecorder.stop();
-        if (videoRecorder) videoRecorder.stop();
+        if (audioRecorder) {
+            audioRecorder.stop();
+        }
+        if (videoRecorder) {
+            videoRecorder.stop();
+        }
     };
 
     this.ondataavailable = function(blob) {
@@ -93,6 +95,24 @@ function MultiStreamRecorder(mediaStream) {
 
     this.onstop = function(error) {
         console.warn('stopped..', error);
+    };
+
+    this.pause = function() {
+        if (audioRecorder) {
+            audioRecorder.pause();
+        }
+        if (videoRecorder) {
+            videoRecorder.pause();
+        }
+    };
+
+    this.resume = function() {
+        if (audioRecorder) {
+            audioRecorder.resume();
+        }
+        if (videoRecorder) {
+            videoRecorder.resume();
+        }
     };
 
     var audioRecorder;

@@ -20,6 +20,14 @@ function WhammyRecorder(mediaStream, config) {
 
     config = config || {};
 
+    if (!config.frameInterval) {
+        config.frameInterval = 10;
+    }
+
+    if (!config.disableLogs) {
+        console.log('Using frames-interval:', config.frameInterval);
+    }
+
     /**
      * This method records video.
      * @method
@@ -92,13 +100,19 @@ function WhammyRecorder(mediaStream, config) {
             console.log('video width/height', video.width || canvas.width, '*', video.height || canvas.height);
         }
 
-        drawFrames();
+        drawFrames(config.frameInterval);
     };
 
-    function drawFrames() {
+    /**
+     * Draw and push frames to Whammy
+     * @param {integer} frameInterval - set minimum interval (in milliseconds) between each time we push a frame to Whammy
+     */
+    function drawFrames(frameInterval) {
+        frameInterval = typeof frameInterval !== 'undefined' ? frameInterval : 10;
+
         var duration = new Date().getTime() - lastTime;
         if (!duration) {
-            return setTimeout(drawFrames, 10);
+            return setTimeout(drawFrames, frameInterval, frameInterval);
         }
 
         if (isPausedRecording) {
@@ -122,7 +136,7 @@ function WhammyRecorder(mediaStream, config) {
         });
 
         if (!isStopDrawing) {
-            setTimeout(drawFrames, 10);
+            setTimeout(drawFrames, frameInterval, frameInterval);
         }
     }
 

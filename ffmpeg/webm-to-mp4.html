@@ -59,7 +59,7 @@
                     <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a> WebM to mp4 using <a href="http://bgrins.github.io/videoconverter.js/">ffmpeg-asm.js</a>!
                 </h1>            
                 <p>
-                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <a href="https://www.webrtc-experiment.com/ffmpeg/">HOME</a>
                     <span> &copy; </span>
                     <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
                     
@@ -92,9 +92,11 @@
                 <h2 class="header">Record Video and convert into "mp4" using <a href="https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.googledrive.com/host/0B6GWd_dUUTT8WjhzNlloZmZtdzA/ffmpeg_asm.js" download="ffmpeg-asm.js">ffmpeg-asm.js</a>!</h2>
 			
                 <div class="inner">
-                    <video id="video-preview" controls></video>
                     <button id="record-video">Record</button>
                     <button id="stop-recording-video" disabled>Stop</button>
+                    <br>
+                    <video id="video-preview" controls></video>
+                    <br>
                 </div>
             </section>
             <script>
@@ -213,13 +215,26 @@
                 }
 
                 function PostBlob(blob) {
+                    var video = document.createElement('video');
+                    video.controls = true;
+                    
+                    var source = document.createElement('source');
+                    source.src = URL.createObjectURL(blob);
+                    source.type = 'video/mp4; codecs=mpeg4';
+                    video.appendChild(source);
+                    
+                    video.download = 'Play mp4 in VLC Player.mp4';
+
                     inner.appendChild(document.createElement('hr'));
                     var h2 = document.createElement('h2');
-                    h2.innerHTML = '<a href="' + URL.createObjectURL(blob) + '" target="_blank" download="Converted Video.mp4">Download Converted mp4 and play in VLC player!</a>';
+                    h2.innerHTML = '<a href="' + source.src + '" target="_blank" download="Play mp4 in VLC Player.mp4">Download Converted mp4 and play in VLC player!</a>';
                     inner.appendChild(h2);
+                    h2.style.display = 'block';
+                    inner.appendChild(video);
 
-                    h2.tabIndex = 0;
-                    h2.focus();
+                    video.tabIndex = 0;
+                    video.focus();
+                    video.play();
 
                     document.querySelector('#record-video').disabled = false;
                 }
@@ -234,6 +249,10 @@
                     li.tabIndex = 0;
                     li.focus();
                 }
+
+                window.onbeforeunload = function() {
+                    document.querySelector('#record-video').disabled = false;
+                };
             </script>
         
             <section class="experiment">

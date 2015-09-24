@@ -4,6 +4,12 @@ Enable screen capturing using Firefox (for https://www.webrtc-experiment.com dem
 
 * [enable-screen-capturing.xpi](https://www.webrtc-experiment.com/store/firefox-extension/enable-screen-capturing.xpi)
 
+# To Install
+
+1. type `about:config` into the URL bar in Firefox
+2. in the Search box type `xpinstall.signatures.required`
+3. double-click the preference, or right-click and select **"Toggle"**, to set it to `false`.
+
 To use in your own domains:
 
 Modify `bootstrap.js` file, line 18:

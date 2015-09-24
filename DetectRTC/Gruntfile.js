@@ -14,11 +14,19 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 stripBanners: true,
-                separator: ''
+                separator: '\n'
             },
             dist: {
                 src: [
-                    'DetectRTC.js'
+                    'dev/head.js',
+                    'dev/common.js',
+                    'dev/getBrowserInfo.js',
+                    'dev/isMobile.js',
+                    'dev/detectOSName.js',
+                    'dev/detectCaptureStream.js',
+                    'dev/DetectLocalIPAddress.js',
+                    'dev/CheckDeviceSupport.js',
+                    'dev/DetectRTC.js'
                 ],
                 dest: 'DetectRTC.js',
             },

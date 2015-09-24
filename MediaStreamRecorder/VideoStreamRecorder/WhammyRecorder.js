@@ -1,4 +1,4 @@
-// =================
+// ===================
 // WhammyRecorder.js
 
 function WhammyRecorder(mediaStream) {
@@ -33,6 +33,22 @@ function WhammyRecorder(mediaStream) {
         if (mediaRecorder) {
             mediaRecorder.clearOldRecordedFrames();
         }
+    };
+
+    this.pause = function() {
+        if (!mediaRecorder) {
+            return;
+        }
+
+        mediaRecorder.pause();
+    };
+
+    this.resume = function() {
+        if (!mediaRecorder) {
+            return;
+        }
+
+        mediaRecorder.resume();
     };
 
     this.ondataavailable = function() {};

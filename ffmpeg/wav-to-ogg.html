@@ -56,7 +56,7 @@
                     <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC</a> WAV to Ogg using <a href="http://bgrins.github.io/videoconverter.js/">ffmpeg-asm.js</a>!
                 </h1>            
                 <p>
-                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <a href="https://www.webrtc-experiment.com/ffmpeg/">HOME</a>
                     <span> &copy; </span>
                     <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
                     
@@ -89,9 +89,11 @@
                 <h2 class="header">Record Audio and convert into "Ogg" using <a href="https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.googledrive.com/host/0B6GWd_dUUTT8WjhzNlloZmZtdzA/ffmpeg_asm.js" download="ffmpeg-asm.js">ffmpeg-asm.js</a>!</h2>
 			
                 <div class="inner">
-                    <audio id="audio-preview" controls></audio>
+                    <audio id="audio-preview" controls muted></audio>
+                    <br>
                     <button id="record-audio">Record</button>
                     <button id="stop-recording-audio" disabled>Stop</button>
+                    <br>
                 </div>
             </section>
             <script>
@@ -108,7 +110,8 @@
                             audioPreview.play();
 
                             recordAudio = RecordRTC(stream, {
-                                bufferSize: 16384
+                                bufferSize: 16384,
+                                // recorderType: StereoAudioRecorder      // uncomment this line if you still want to use ffmpeg-asm.js in Firefox.
                             });
 
                             recordAudio.startRecording();
@@ -120,6 +123,21 @@
                     this.disabled = true;
 
                     recordAudio.stopRecording(function(url) {
+                        if(!!navigator.mozGetUserMedia) { // remove this if-block if you still want to use ffmpeg-asm.js in Firefox.
+                            log('We do not need to use ffmpeg-asm.js in Firefox.');
+                            log('If you are still interested to use ffmpeg-asm.js in Firefox then set <a href="https://github.com/muaz-khan/RecordRTC#recordertype">this recorderType</a> parameter.');
+                            log('E.g. <code>recordAudio = RecordRTC(stream, { recordertype: StereoAudioRecorder });</code>');
+
+                            var blob = new Blob([recordAudio.blob], {
+                                type:' audio/ogg'
+                            });
+                            audioPreview.src = URL.createObjectURL(blob);
+                            audioPreview.download = 'Orignal.ogg';
+
+                            PostBlob(blob);
+                            return;
+                        }
+
                         audioPreview.src = url;
                         audioPreview.download = 'Orignal.wav';
                         
@@ -221,12 +239,14 @@
 
                     inner.appendChild(document.createElement('hr'));
                     var h2 = document.createElement('h2');
-                    h2.innerHTML = '<a href="' + audio.src + '" target="_blank" download="Converted Audio.ogg">Converted Ogg:</a>';
+                    h2.innerHTML = '<a href="' + source.src + '" target="_blank" download="Converted Audio.ogg">Converted Ogg:</a>';
                     inner.appendChild(h2);
+                    h2.style.display = 'block';
                     inner.appendChild(audio);
 
                     audio.tabIndex = 0;
                     audio.focus();
+                    audio.play();
 
                     document.querySelector('#record-audio').disabled = false;
                 }
@@ -241,6 +261,10 @@
                     li.tabIndex = 0;
                     li.focus();
                 }
+
+                window.onbeforeunload = function() {
+                    document.querySelector('#record-audio').disabled = false;
+                };
             </script>
         
             <section class="experiment">

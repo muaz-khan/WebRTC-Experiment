@@ -59,5 +59,17 @@
     "email": "muazkh@gmail.com"
   },
   "homepage": "https://www.webrtc-experiment.com/msr/",
-  "_from": "msr@"
+  "_from": "msr@",
+  "devDependencies": {
+    "grunt": "latest",
+    "grunt-cli": "latest",
+    "load-grunt-tasks": "latest",
+    "grunt-contrib-concat": "latest",
+    "grunt-contrib-csslint": "latest",
+    "grunt-contrib-jshint": "latest",
+    "grunt-contrib-uglify": "latest",
+    "grunt-htmlhint": "latest",
+    "grunt-jsbeautifier": "latest",
+    "grunt-bump": "latest"
+  }
 }

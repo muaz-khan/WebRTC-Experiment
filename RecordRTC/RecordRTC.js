@@ -1,4 +1,4 @@
-// Last time updated at September 06, 2015, 08:32:23
+// Last time updated at September 18, 2015
 
 // links:
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
@@ -9,6 +9,9 @@
 
 // updates?
 /*
+-. GifRecorder.js can now record HTMLCanvasElement|CanvasRenderingContext2D as well.
+-. added: frameInterval:20 for WhammyRecorder.js
+-. chrome issue  audio plus 720p-video recording can be fixed by setting bufferSize:16384
 -. fixed Firefox save-as dialog i.e. recordRTC.save('filen-name')
 -. "indexedDB" bug fixed for Firefox.
 -. numberOfAudioChannels:1 can be passed to reduce WAV size in Chrome.
@@ -18,17 +21,14 @@
 -. Firefox supports remote-audio-recording since v28 - RecordRTC(remoteStream, { recorderType: StereoAudioRecorder });
 -. added 3 methods: initRecorder, setRecordingDuration and clearRecordedData
 -. Microsoft Edge support added (only-audio-yet).
--. bowserify/nodejs support added.
--. Fixed echo.
--. CanvasRecorder fixed.
 -. You can pass "recorderType" - RecordRTC(stream, { recorderType: StereoAudioRecorder });
 -. If MediaStream is suddenly stopped in Firefox.
 -. Added "disableLogs"         - RecordRTC(stream, { disableLogs: true });
 -. You can pass "bufferSize:0" - RecordRTC(stream, { bufferSize: 0 });
 -. You can set "leftChannel"   - RecordRTC(stream, { leftChannel: true });
--. Fixed MRecordRTC.
 -. Added functionality for analyse black frames and cut them - pull#293
 -. if you're recording GIF, you must link: https://cdn.webrtc-experiment.com/gif-recorder.js
+-. You can set "frameInterval" for video - RecordRTC(stream, { type: 'video', frameInterval: 100 });
 */
 
 //------------------------------------
@@ -92,6 +92,26 @@ function RecordRTC(mediaStream, config) {
         throw 'MediaStream is mandatory.';
     }
 
+    if (config.recorderType && !config.type) {
+        if (config.recorderType === WhammyRecorder || config.recorderType === CanvasRecorder) {
+            config.type = 'video';
+        } else if (config.recorderType === GifRecorder) {
+            config.type = 'gif';
+        } else if (config.recorderType === StereoAudioRecorder) {
+            config.type = 'audio';
+        } else if (config.recorderType === MediaStreamRecorder) {
+            if (mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
+                config.type = 'video';
+            } else if (mediaStream.getAudioTracks().length && !mediaStream.getVideoTracks().length) {
+                config.type = 'audio';
+            } else if (!mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
+                config.type = 'audio';
+            } else {
+                // config.type = 'UnKnown';
+            }
+        }
+    }
+
     // consider default type=audio
     if (!config.type) {
         config.type = 'audio';
@@ -110,18 +130,14 @@ function RecordRTC(mediaStream, config) {
             mediaRecorder.resume();
 
             if (self.recordingDuration) {
-                setTimeout(function() {
-                    stopRecording(self.onRecordingStopped);
-                }, self.recordingDuration);
+                handleRecordingDuration();
             }
             return self;
         }
 
         initRecorder(function() {
             if (self.recordingDuration) {
-                setTimeout(function() {
-                    stopRecording(self.onRecordingStopped);
-                }, self.recordingDuration);
+                handleRecordingDuration();
             }
         });
 
@@ -137,18 +153,18 @@ function RecordRTC(mediaStream, config) {
 
         // StereoAudioRecorder can work with all three: Edge, Firefox and Chrome
         // todo: detect if it is Edge, then auto use: StereoAudioRecorder
-        if (typeof StereoAudioRecorder !== 'undefined' && isChrome) {
+        if (typeof StereoAudioRecorder !== 'undefined' && (isChrome || isEdge || isOpera)) {
             // Media Stream Recording API has not been implemented in chrome yet;
             // That's why using WebAudio API to record stereo audio in WAV format
             Recorder = StereoAudioRecorder;
         }
 
-        if (typeof MediaStreamRecorder !== 'undefined' && !isChrome) {
+        if (typeof MediaStreamRecorder !== 'undefined' && typeof MediaRecorder !== 'undefined' && 'requestData' in MediaRecorder.prototype) {
             Recorder = MediaStreamRecorder;
         }
 
         // video recorder (in WebM format)
-        if (config.type === 'video' && isChrome) {
+        if (config.type === 'video' && (isChrome || isOpera)) {
             if (typeof WhammyRecorder !== 'undefined') {
                 Recorder = WhammyRecorder;
             } else {
@@ -314,6 +330,12 @@ function RecordRTC(mediaStream, config) {
             URL.revokeObjectURL(blob);
             return worker;
         }
+    }
+
+    function handleRecordingDuration() {
+        setTimeout(function() {
+            stopRecording(self.onRecordingStopped);
+        }, self.recordingDuration);
     }
 
     var WARNING = 'It seems that "startRecording" is not invoked for ' + config.type + ' recorder.';
@@ -1082,7 +1104,9 @@ if (typeof URL === 'undefined' && typeof webkitURL !== 'undefined') {
     var URL = webkitURL;
 }
 
-var isChrome = true;
+var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveBlob || !!navigator.msSaveOrOpenBlob);
+var isOpera = !!window.opera || navigator.userAgent.indexOf('OPR/') !== -1;
+var isChrome = !isOpera && !isEdge && !!navigator.webkitGetUserMedia;
 
 if (typeof navigator !== 'undefined') {
     if (typeof navigator.webkitGetUserMedia !== 'undefined') {
@@ -1092,8 +1116,6 @@ if (typeof navigator !== 'undefined') {
     if (typeof navigator.mozGetUserMedia !== 'undefined') {
         navigator.getUserMedia = navigator.mozGetUserMedia;
     }
-
-    isChrome = typeof navigator.webkitGetUserMedia !== 'undefined';
 } else {
     /*global navigator:true */
     var navigator = {
@@ -1457,8 +1479,6 @@ function MediaStreamRecorder(mediaStream, config) {
  * @param {object} config - {sampleRate: 44100, bufferSize: 4096, numberOfAudioChannels: 1, etc.}
  */
 
-var __stereoAudioRecorderJavacriptNode;
-
 function StereoAudioRecorder(mediaStream, config) {
     if (!mediaStream.getAudioTracks().length) {
         throw 'Your stream has no audio tracks.';
@@ -1473,6 +1493,7 @@ function StereoAudioRecorder(mediaStream, config) {
     var rightchannel = [];
     var recording = false;
     var recordingLength = 0;
+    var jsAudioNode;
 
     var numberOfAudioChannels = 2;
 
@@ -1655,20 +1676,23 @@ function StereoAudioRecorder(mediaStream, config) {
 
         webWorker.onmessage = function(event) {
             callback(event.data.buffer, event.data.view);
+
+            // release memory
+            URL.revokeObjectURL(webWorker.workerURL);
         };
 
         webWorker.postMessage(config);
     }
 
     function processInWebWorker(_function) {
-        var blob = URL.createObjectURL(new Blob([_function.toString(),
-            'this.onmessage =  function (e) {' + _function.name + '(e.data);}'
+        var workerURL = URL.createObjectURL(new Blob([_function.toString(),
+            ';this.onmessage =  function (e) {' + _function.name + '(e.data);}'
         ], {
             type: 'application/javascript'
         }));
 
-        var worker = new Worker(blob);
-        URL.revokeObjectURL(blob);
+        var worker = new Worker(workerURL);
+        worker.workerURL = workerURL;
         return worker;
     }
 
@@ -1751,17 +1775,6 @@ function StereoAudioRecorder(mediaStream, config) {
     // creates an audio node from the microphone incoming stream
     var audioInput = context.createMediaStreamSource(mediaStream);
 
-    if (context.createJavaScriptNode) {
-        __stereoAudioRecorderJavacriptNode = context.createJavaScriptNode(bufferSize, numberOfAudioChannels, numberOfAudioChannels);
-    } else if (context.createScriptProcessor) {
-        __stereoAudioRecorderJavacriptNode = context.createScriptProcessor(bufferSize, numberOfAudioChannels, numberOfAudioChannels);
-    } else {
-        throw 'WebAudio API has no support on this browser.';
-    }
-
-    // connect the stream to the gain node
-    audioInput.connect(__stereoAudioRecorderJavacriptNode);
-
     var legalBufferValues = [0, 256, 512, 1024, 2048, 4096, 8192, 16384];
 
     /**
@@ -1789,10 +1802,20 @@ function StereoAudioRecorder(mediaStream, config) {
         }
     }
 
-    if (!config.bufferSize) {
-        bufferSize = __stereoAudioRecorderJavacriptNode.bufferSize; // device buffer-size
+    if (context.createJavaScriptNode) {
+        jsAudioNode = context.createJavaScriptNode(bufferSize, numberOfAudioChannels, numberOfAudioChannels);
+    } else if (context.createScriptProcessor) {
+        jsAudioNode = context.createScriptProcessor(bufferSize, numberOfAudioChannels, numberOfAudioChannels);
+    } else {
+        throw 'WebAudio API has no support on this browser.';
     }
 
+    // connect the stream to the gain node
+    audioInput.connect(jsAudioNode);
+
+    if (!config.bufferSize) {
+        bufferSize = jsAudioNode.bufferSize; // device buffer-size
+    }
 
     /**
      * The sample rate (in sample-frames per second) at which the
@@ -1876,7 +1899,7 @@ function StereoAudioRecorder(mediaStream, config) {
 
     var isAudioProcessStarted = false;
 
-    __stereoAudioRecorderJavacriptNode.onaudioprocess = function(e) {
+    function onAudioProcessDataAvailable(e) {
         if (isPaused) {
             return;
         }
@@ -1884,12 +1907,12 @@ function StereoAudioRecorder(mediaStream, config) {
         // if MediaStream().stop() or MediaStreamTrack.stop() is invoked.
         if ('active' in mediaStream) {
             if (!mediaStream.active) {
-                __stereoAudioRecorderJavacriptNode.onaudioprocess = function() {};
+                jsAudioNode.onaudioprocess = function() {};
                 recording = false;
             }
         } else if ('ended' in mediaStream) { // old hack
             if (mediaStream.ended) {
-                __stereoAudioRecorderJavacriptNode.onaudioprocess = function() {};
+                jsAudioNode.onaudioprocess = function() {};
                 recording = false;
             }
         }
@@ -1919,7 +1942,6 @@ function StereoAudioRecorder(mediaStream, config) {
 
         var left = e.inputBuffer.getChannelData(0);
 
-
         // we clone the samples
         leftchannel.push(new Float32Array(left));
 
@@ -1929,10 +1951,12 @@ function StereoAudioRecorder(mediaStream, config) {
         }
 
         recordingLength += bufferSize;
-    };
+    }
+
+    jsAudioNode.onaudioprocess = onAudioProcessDataAvailable;
 
     // to prevent self audio to be connected with speakers
-    __stereoAudioRecorderJavacriptNode.connect(context.destination);
+    jsAudioNode.connect(context.destination);
 }
 // _________________
 // CanvasRecorder.js
@@ -1943,7 +1967,7 @@ function StereoAudioRecorder(mediaStream, config) {
  * @typedef CanvasRecorder
  * @class
  * @example
- * var recorder = new CanvasRecorder(htmlElement);
+ * var recorder = new CanvasRecorder(htmlElement, { disableLogs: true });
  * recorder.record();
  * recorder.stop(function(blob) {
  *     video.src = URL.createObjectURL(blob);
@@ -2089,7 +2113,7 @@ function CanvasRecorder(htmlElement, config) {
                 });
 
                 if (isRecording) {
-                    requestAnimationFrame(drawCanvasFrame);
+                    setTimeout(drawCanvasFrame, 0);
                 }
             }
         });
@@ -2120,6 +2144,14 @@ function CanvasRecorder(htmlElement, config) {
 function WhammyRecorder(mediaStream, config) {
 
     config = config || {};
+
+    if (!config.frameInterval) {
+        config.frameInterval = 10;
+    }
+
+    if (!config.disableLogs) {
+        console.log('Using frames-interval:', config.frameInterval);
+    }
 
     /**
      * This method records video.
@@ -2193,13 +2225,19 @@ function WhammyRecorder(mediaStream, config) {
             console.log('video width/height', video.width || canvas.width, '*', video.height || canvas.height);
         }
 
-        drawFrames();
+        drawFrames(config.frameInterval);
     };
 
-    function drawFrames() {
+    /**
+     * Draw and push frames to Whammy
+     * @param {integer} frameInterval - set minimum interval (in milliseconds) between each time we push a frame to Whammy
+     */
+    function drawFrames(frameInterval) {
+        frameInterval = typeof frameInterval !== 'undefined' ? frameInterval : 10;
+
         var duration = new Date().getTime() - lastTime;
         if (!duration) {
-            return setTimeout(drawFrames, 10);
+            return setTimeout(drawFrames, frameInterval, frameInterval);
         }
 
         if (isPausedRecording) {
@@ -2223,7 +2261,7 @@ function WhammyRecorder(mediaStream, config) {
         });
 
         if (!isStopDrawing) {
-            setTimeout(drawFrames, 10);
+            setTimeout(drawFrames, frameInterval, frameInterval);
         }
     }
 
@@ -2441,7 +2479,7 @@ var Whammy = (function() {
     function WhammyVideo(duration) {
         this.frames = [];
         this.duration = duration || 1;
-        this.quality = 100;
+        this.quality = 0.8;
     }
 
     /**
@@ -3034,17 +3072,17 @@ var DiskStorage = {
 // GifRecorder.js
 
 /**
- * GifRecorder is standalone calss used by {@link RecordRTC} to record video as animated gif image.
+ * GifRecorder is standalone calss used by {@link RecordRTC} to record video or canvas into animated gif.
  * @typedef GifRecorder
  * @class
  * @example
- * var recorder = new GifRecorder(mediaStream);
+ * var recorder = new GifRecorder(mediaStream || canvas || context, { width: 1280, height: 720, frameRate: 200, quality: 10 });
  * recorder.record();
  * recorder.stop(function(blob) {
  *     img.src = URL.createObjectURL(blob);
  * });
- * @param {MediaStream} mediaStream - MediaStream object fetched using getUserMedia API or generated using captureStreamUntilEnded or WebAudio API.
- * @param {object} config - {disableLogs:true, initcallback: function, width: 320, height: 240, frameRate: 200, quality: 10}
+ * @param {MediaStream} mediaStream - MediaStream object or HTMLCanvasElement or CanvasRenderingContext2D.
+ * @param {object} config - {disableLogs:true, initCallback: function, width: 320, height: 240, frameRate: 200, quality: 10}
  */
 
 function GifRecorder(mediaStream, config) {
@@ -3054,6 +3092,8 @@ function GifRecorder(mediaStream, config) {
 
     config = config || {};
 
+    var isHTMLObject = mediaStream instanceof CanvasRenderingContext2D || mediaStream instanceof HTMLCanvasElement;
+
     /**
      * This method records MediaStream.
      * @method
@@ -3062,33 +3102,35 @@ function GifRecorder(mediaStream, config) {
      * recorder.record();
      */
     this.record = function() {
-        if (!config.width) {
-            config.width = video.offsetWidth || 320;
+        if (!isHTMLObject) {
+            if (!config.width) {
+                config.width = video.offsetWidth || 320;
+            }
+
+            if (!this.height) {
+                config.height = video.offsetHeight || 240;
+            }
+
+            if (!config.video) {
+                config.video = {
+                    width: config.width,
+                    height: config.height
+                };
+            }
+
+            if (!config.canvas) {
+                config.canvas = {
+                    width: config.width,
+                    height: config.height
+                };
+            }
+
+            canvas.width = config.canvas.width;
+            canvas.height = config.canvas.height;
+
+            video.width = config.video.width;
+            video.height = config.video.height;
         }
-
-        if (!this.height) {
-            config.height = video.offsetHeight || 240;
-        }
-
-        if (!config.video) {
-            config.video = {
-                width: config.width,
-                height: config.height
-            };
-        }
-
-        if (!config.canvas) {
-            config.canvas = {
-                width: config.width,
-                height: config.height
-            };
-        }
-
-        canvas.width = config.canvas.width;
-        canvas.height = config.canvas.height;
-
-        video.width = config.video.width;
-        video.height = config.video.height;
 
         // external library to record as GIF images
         gifEncoder = new GIFEncoder();
@@ -3139,7 +3181,7 @@ function GifRecorder(mediaStream, config) {
                 return;
             }
 
-            if (video.paused) {
+            if (!isHTMLObject && video.paused) {
                 // via: https://github.com/muaz-khan/WebRTC-Experiment/pull/316
                 // Tweak for Android Chrome
                 video.play();
@@ -3251,17 +3293,27 @@ function GifRecorder(mediaStream, config) {
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
 
-    var video = document.createElement('video');
-    video.muted = true;
-    video.autoplay = true;
-
-    if (typeof video.srcObject !== 'undefined') {
-        video.srcObject = mediaStream;
-    } else {
-        video.src = URL.createObjectURL(mediaStream);
+    if (isHTMLObject) {
+        if (mediaStream instanceof CanvasRenderingContext2D) {
+            context = mediaStream;
+        } else if (mediaStream instanceof HTMLCanvasElement) {
+            context = mediaStream.getContext('2d');
+        }
     }
 
-    video.play();
+    if (!isHTMLObject) {
+        var video = document.createElement('video');
+        video.muted = true;
+        video.autoplay = true;
+
+        if (typeof video.srcObject !== 'undefined') {
+            video.srcObject = mediaStream;
+        } else {
+            video.src = URL.createObjectURL(mediaStream);
+        }
+
+        video.play();
+    }
 
     var lastAnimationFrame = null;
     var startTime, endTime, lastFrameTime;

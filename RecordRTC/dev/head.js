@@ -1,4 +1,4 @@
-// Last time updated at September 06, 2015, 08:32:23
+// Last time updated at September 18, 2015
 
 // links:
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
@@ -9,6 +9,9 @@
 
 // updates?
 /*
+-. GifRecorder.js can now record HTMLCanvasElement|CanvasRenderingContext2D as well.
+-. added: frameInterval:20 for WhammyRecorder.js
+-. chrome issue  audio plus 720p-video recording can be fixed by setting bufferSize:16384
 -. fixed Firefox save-as dialog i.e. recordRTC.save('filen-name')
 -. "indexedDB" bug fixed for Firefox.
 -. numberOfAudioChannels:1 can be passed to reduce WAV size in Chrome.
@@ -18,17 +21,14 @@
 -. Firefox supports remote-audio-recording since v28 - RecordRTC(remoteStream, { recorderType: StereoAudioRecorder });
 -. added 3 methods: initRecorder, setRecordingDuration and clearRecordedData
 -. Microsoft Edge support added (only-audio-yet).
--. bowserify/nodejs support added.
--. Fixed echo.
--. CanvasRecorder fixed.
 -. You can pass "recorderType" - RecordRTC(stream, { recorderType: StereoAudioRecorder });
 -. If MediaStream is suddenly stopped in Firefox.
 -. Added "disableLogs"         - RecordRTC(stream, { disableLogs: true });
 -. You can pass "bufferSize:0" - RecordRTC(stream, { bufferSize: 0 });
 -. You can set "leftChannel"   - RecordRTC(stream, { leftChannel: true });
--. Fixed MRecordRTC.
 -. Added functionality for analyse black frames and cut them - pull#293
 -. if you're recording GIF, you must link: https://cdn.webrtc-experiment.com/gif-recorder.js
+-. You can set "frameInterval" for video - RecordRTC(stream, { type: 'video', frameInterval: 100 });
 */
 
 //------------------------------------

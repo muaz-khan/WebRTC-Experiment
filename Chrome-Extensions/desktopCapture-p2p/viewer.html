@@ -318,6 +318,7 @@ connection.onleave = function(e) {
 connection.onSessionClosed = function() {
     infoBar.innerHTML = 'Screen sharing has been closed.';
     infoBar.style.display = 'block';
+    location.reload();
 };
 
 connection.onstreamended = function() {};

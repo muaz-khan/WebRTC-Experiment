@@ -1,0 +1,183 @@
+'use strict';
+
+module.exports = function(grunt) {
+    require('load-grunt-tasks')(grunt, {
+        pattern: 'grunt-*',
+        config: 'package.json',
+        scope: 'devDependencies'
+    });
+
+    // configure project
+    grunt.initConfig({
+        // make node configurations available
+        pkg: grunt.file.readJSON('package.json'),
+        concat: {
+            options: {
+                stripBanners: true,
+                separator: '\n'
+            },
+            dist: {
+                src: [
+                    'common/head.js',
+                    'common/MediaStreamRecorder.js',
+                    'common/MultiStreamRecorder.js',
+                    'common/Cross-Browser-Declarations.js',
+                    'common/ObjectStore.js',
+                    'AudioStreamRecorder/MediaRecorderWrapper.js',
+                    'AudioStreamRecorder/StereoAudioRecorder.js',
+                    'AudioStreamRecorder/StereoAudioRecorderHelper.js',
+                    'VideoStreamRecorder/WhammyRecorder.js',
+                    'VideoStreamRecorder/WhammyRecorderHelper.js',
+                    'VideoStreamRecorder/GifRecorder.js',
+                    'VideoStreamRecorder/lib/whammy.js'
+                ],
+                dest: 'MediaStreamRecorder.js'
+            },
+        },
+        htmlhint: {
+            html1: {
+                src: [
+                    './demos/*.html'
+                ],
+                options: {
+                    'tag-pair': true
+                }
+            }
+        },
+        jshint: {
+            options: {
+
+                globals: {
+                    webkitIndexedDB: true,
+                    mozIndexedDB: true,
+                    OIndexedDB: true,
+                    msIndexedDB: true,
+                    indexedDB: true,
+                    FileReaderSync: true,
+                    postMessage: true,
+                    Whammy: true,
+                    WhammyRecorder: true,
+                    MediaStreamRecorder: true,
+                    StereoAudioRecorder: true,
+                    URL: true,
+                    webkitURL: true,
+                    DiskStorage: true,
+                    requestAnimationFrame: true,
+                    cancelAnimationFrame: true,
+                    webkitRequestAnimationFrame: true,
+                    webkitCancelAnimationFrame: true,
+                    mozRequestAnimationFrame: true,
+                    mozCancelAnimationFrame: true,
+                    MediaStream: true,
+                    webkitMediaStream: true,
+                    html2canvas: true,
+                    GifRecorder: true,
+                    GIFEncoder: true,
+                    MediaRecorder: true,
+                    webkitAudioContext: true,
+                    mozAudioContext: true,
+                    AudioContext: true,
+                    JSON: true,
+                    typeof: true,
+                    define: true
+                },
+                browser: true,
+                browserify: true,
+                node: true,
+                camelcase: true,
+                curly: true,
+                devel: true,
+                eqeqeq: true,
+                forin: false,
+                globalstrict: true,
+                quotmark: true,
+                undef: true,
+                //es5: true,
+                funcscope: true,
+                shadow: true, //----should be false?
+                typed: true,
+                worker: true
+            },
+            files: ['MediaStreamRecorder.js'],
+            ignore_warning: {
+                options: {
+                    '-W015': true
+                }
+            }
+        },
+        uglify: {
+            options: {
+                mangle: false
+            },
+            my_target: {
+                files: {
+                    'MediaStreamRecorder.min.js': ['MediaStreamRecorder.js']
+                }
+            }
+        },
+        jsbeautifier: {
+            files: [
+                './AudioStreamRecorder/*.js',
+                './VideoStreamRecorder/*.js',
+                './common/*.js',
+                'Gruntfile.js'
+            ],
+            options: {
+                js: {
+                    braceStyle: "collapse",
+                    breakChainedMethods: false,
+                    e4x: false,
+                    evalCode: false,
+                    indentChar: " ",
+                    indentLevel: 0,
+                    indentSize: 4,
+                    indentWithTabs: false,
+                    jslintHappy: false,
+                    keepArrayIndentation: false,
+                    keepFunctionIndentation: false,
+                    maxPreserveNewlines: 10,
+                    preserveNewlines: true,
+                    spaceBeforeConditional: true,
+                    spaceInParen: false,
+                    unescapeStrings: false,
+                    wrapLineLength: 0
+                },
+                html: {
+                    braceStyle: "collapse",
+                    indentChar: " ",
+                    indentScripts: "keep",
+                    indentSize: 4,
+                    maxPreserveNewlines: 10,
+                    preserveNewlines: true,
+                    unformatted: ["a", "sub", "sup", "b", "i", "u"],
+                    wrapLineLength: 0
+                },
+                css: {
+                    indentChar: " ",
+                    indentSize: 4
+                }
+            }
+        },
+        bump: {
+            options: {
+                files: ['package.json', 'bower.json'],
+                updateConfigs: [],
+                commit: true,
+                commitMessage: 'v%VERSION%',
+                commitFiles: ['package.json', 'bower.json'],
+                createTag: true,
+                tagName: '%VERSION%',
+                tagMessage: '%VERSION%',
+                push: false,
+                pushTo: 'upstream',
+                gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
+            }
+        }
+    });
+
+    // enable plugins
+
+    // set default tasks to run when grunt is called without parameters
+    // http://gruntjs.com/api/grunt.task
+    grunt.registerTask('default', ['concat', 'jsbeautifier', 'htmlhint', 'jshint', 'uglify']);
+};

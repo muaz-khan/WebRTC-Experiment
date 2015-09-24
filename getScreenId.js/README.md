@@ -1,25 +1,42 @@
-<h1>
-    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js">getScreenId.js</a>: Use <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">single chrome extension</a> for all domains!
-</h1>
+# `getScreenId.js` / [LIVE Demo](https://www.webrtc-experiment.com/getScreenId/)
 
-Simply use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js">getScreenId.js</a> and enjoy screen capturing from any domain. You don't need to deploy chrome extension yourself. You can refer your users to install <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">this chrome extension</a> instead. Also, <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js">getScreenId.js</a> auto-fallbacks to command-line based screen capturing if chrome extension isn't installed or disabled. <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js">getScreenId.js</a> throws clear exceptions which is helpful for end-user experiences.
-
-Demo: https://www.webrtc-experiment.com/getScreenId/
-
-**Firefox?** [Install Firefox Extension](https://www.webrtc-experiment.com/store/firefox-extension/enable-screen-capturing.xpi) / [Source Code](https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing)
-
-=
-
-### Browser Support: Both Firefox and Chrome
-
-=
-
-<h2>
-    How to use <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js" target="_blank">getScreenId.js</a>?
-</h2>
+## Hacking to use single chrome-extension on any domain!
 
 ```html
-<script src="//cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+<!--
+* This script is a hack used to support single chrome extension usage on any domain.
+
+* This script has issues, though.
+* It uses "postMessage" mechanism which fails to work if someone is using it from inside an <iframe>.
+* The only solution for such cases is, use WebSockets or external servers to pass "source-ids".
+-->
+```
+
+> You don't need to PUBLISH/deploy your own chrome-extension when using this script!
+
+# Chrome Extension
+
+* [https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk)
+
+# How it works?
+
+* Your script will make a `postMessage` request to `getScreenId.js`
+* `getScreenId.js` will connect with chrome-extension using an internal `<iframe>`.
+* That `<iframe>` is loaded from domain: `https://www.webrtc-experiment.com/`
+* That `<iframe>` can connect with chrome-extension. It can send/receive `postMessage` data.
+* Same `postMessage` API are used to pass `screen-id` back to your script.
+
+# Firefox
+
+* [https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing](https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing)
+
+# How to use?
+
+```html
+<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+
+<!-- or -->
+<script src="https://cdn.rawgit.com/muaz-khan/RecordRTC/master/RecordRTC.js"></script>
 ```
 
 ```javascript
@@ -73,8 +90,10 @@ getScreenId(function (error, sourceId, screen_constraints) {
 });
 ```
 
-=
+# Deploy extension yourself?
 
-##### License
+* [https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture)
 
-[getScreenId.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+# License
+
+[getScreenId.js](https://github.com/muaz-khan/getScreenId) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).

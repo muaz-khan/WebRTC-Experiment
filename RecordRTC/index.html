@@ -244,7 +244,8 @@
                         if(error.name === 'PermissionDeniedError' && !!navigator.mozGetUserMedia) {
                             InstallTrigger.install({
                                 'Foo': {
-                                    URL: 'https://www.webrtc-experiment.com/store/firefox-extension/enable-screen-capturing.xpi',
+                                    // https://addons.mozilla.org/firefox/downloads/latest/655146/addon-655146-latest.xpi?src=dp-btn-primary
+                                    URL: 'https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/',
                                     toString: function () {
                                         return this.URL; 
                                     }
@@ -266,19 +267,32 @@
                             canvas: {
                                 width: params.canvas_width || recordingPlayer.clientWidth,
                                 height: params.canvas_height || recordingPlayer.clientHeight
-                            }
+                            },
+                            frameInterval: params.frameInterval !== 'undefined' ? parseInt(params.frameInterval) : 20 // minimum time between pushing frames to Whammy (in milliseconds)
                         });
                         
                         button.recordingEndedCallback = function(url) {
+                            recordingPlayer.src = null;
+                            recordingPlayer.srcObject = null;
+
                             if(mediaContainerFormat.value === 'Gif') {
-                                recordingPlayer.src = null;
                                 recordingPlayer.pause();
                                 recordingPlayer.poster = url;
+
+                                recordingPlayer.onended = function() {
+                                    recordingPlayer.pause();
+                                    recordingPlayer.poster = URL.createObjectURL(button.recordRTC.blob);
+                                };
                                 return;
                             }
                             
                             recordingPlayer.src = url;
                             recordingPlayer.play();
+
+                            recordingPlayer.onended = function() {
+                                recordingPlayer.pause();
+                                recordingPlayer.src = URL.createObjectURL(button.recordRTC.blob);
+                            };
                         };
                         
                         button.recordRTC.startRecording();
@@ -302,11 +316,15 @@
                             var audio = new Audio();
                             audio.src = url;
                             audio.controls = true;
-                            audio.autoplay = true;
                             recordingPlayer.parentNode.appendChild(document.createElement('hr'));
                             recordingPlayer.parentNode.appendChild(audio);
 
                             if(audio.paused) audio.play();
+
+                            audio.onended = function() {
+                                audio.pause();
+                                audio.src = URL.createObjectURL(button.recordRTC.blob);
+                            };
                         };
                         
                         button.recordRTC.startRecording();
@@ -318,8 +336,13 @@
                     
                     button.mediaCapturedCallback = function() {
 
-                        if(webrtcDetectedBrowser === 'chrome') {
+                        if(webrtcDetectedBrowser !== 'firefox') { // opera or chrome etc.
                             button.recordRTC = [];
+
+                            if(!params.bufferSize) {
+                                // it fixes audio issues whilst recording 720p
+                                params.bufferSize = 16384;
+                            }
 
                             var audioRecorder = RecordRTC(button.stream, {
                                 type: 'audio',
@@ -336,7 +359,8 @@
                                 canvas: {
                                     width: params.canvas_width || recordingPlayer.clientWidth,
                                     height: params.canvas_height || recordingPlayer.clientHeight
-                                }
+                                },
+                                frameInterval: params.frameInterval !== 'undefined' ? parseInt(params.frameInterval) : 20 // minimum time between pushing frames to Whammy (in milliseconds)
                             });
 
                             // to sync audio/video playbacks in browser!
@@ -376,8 +400,15 @@
                         });
                         
                         button.recordingEndedCallback = function(url) {
+                            recordingPlayer.srcObject = null;
+                            recordingPlayer.muted = false;
                             recordingPlayer.src = url;
                             recordingPlayer.play();
+
+                            recordingPlayer.onended = function() {
+                                recordingPlayer.pause();
+                                recordingPlayer.src = URL.createObjectURL(button.recordRTC.blob);
+                            };
                         };
                         
                         button.recordRTC.startRecording();
@@ -398,10 +429,16 @@
                         });
                         
                         button.recordingEndedCallback = function(url) {
+                            recordingPlayer.src = null;
+                            recordingPlayer.srcObject = null;
+
                             if(mediaContainerFormat.value === 'Gif') {
-                                recordingPlayer.src = null;
                                 recordingPlayer.pause();
                                 recordingPlayer.poster = url;
+                                recordingPlayer.onended = function() {
+                                    recordingPlayer.pause();
+                                    recordingPlayer.poster = URL.createObjectURL(button.recordRTC.blob);
+                                };
                                 return;
                             }
                             
@@ -425,8 +462,15 @@
                         });
                         
                         button.recordingEndedCallback = function(url) {
+                            recordingPlayer.srcObject = null;
+                            recordingPlayer.muted = false;
                             recordingPlayer.src = url;
                             recordingPlayer.play();
+
+                            recordingPlayer.onended = function() {
+                                recordingPlayer.pause();
+                                recordingPlayer.src = URL.createObjectURL(button.recordRTC.blob);
+                            };
                         };
                         
                         button.recordRTC.startRecording();
@@ -635,6 +679,7 @@
 
 // VIDEO
 <a href="https://www.webrtc-experiment.com/RecordRTC/?canvas_width=1280&canvas_height=720">?canvas_width=1280&canvas_height=720</a>
+<a href="https://www.webrtc-experiment.com/RecordRTC/?frameInterval=10">?frameInterval=10</a>
 </pre>
         </section>
         
@@ -649,6 +694,10 @@
 
                 <li>
                     <a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/">Canvas Recording!</a> (Web-Page Recording)
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/Record-Mp3-or-Wav.html">Record Mp3 or Wav</a> (Pre-recorded audio) i.e. (Audio on Demand)
                 </li>
 
                 <li>

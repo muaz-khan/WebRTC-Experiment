@@ -1,7 +1,7 @@
 {
   "name": "rtcmulticonnection",
   "preferGlobal": true,
-  "version": "2.2.4",
+  "version": "2.2.5",
   "author": "Muaz Khan <muazkh@gmail.com> (http://www.muazkhan.com/)",
   "description": "RTCMultiConnection is a WebRTC JavaScript wrapper library runs top over RTCPeerConnection API to provide multi-session establishment scenarios.",
   "scripts": {
@@ -47,7 +47,6 @@
     "load-grunt-tasks": "latest",
     "grunt-contrib-concat": "latest",
     "grunt-contrib-csslint": "latest",
-    "grunt-contrib-jshint": "latest",
     "grunt-contrib-uglify": "latest",
     "grunt-htmlhint": "latest",
     "grunt-jsbeautifier": "latest",

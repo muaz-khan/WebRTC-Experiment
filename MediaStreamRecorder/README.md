@@ -1,4 +1,6 @@
-## [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) - [Demos](https://www.webrtc-experiment.com/msr/) -   [![npm](https://img.shields.io/npm/v/msr.svg)](https://npmjs.org/package/msr) [![downloads](https://img.shields.io/npm/dm/msr.svg)](https://npmjs.org/package/msr)
+# [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) - [Demos](https://www.webrtc-experiment.com/msr/)
+
+[![npm](https://img.shields.io/npm/v/msr.svg)](https://npmjs.org/package/msr) [![downloads](https://img.shields.io/npm/dm/msr.svg)](https://npmjs.org/package/msr) [![Build Status: Linux](https://travis-ci.org/streamproc/MediaStreamRecorder.png?branch=master)](https://travis-ci.org/streamproc/MediaStreamRecorder)
 
 A cross-browser implementation to record audio/video streams:
 
@@ -18,7 +20,7 @@ MediaStreamRecorder is useful in scenarios where you're planning to submit/uploa
 
 ----
 
-There is a similar project: **RecordRTC**! [Demo](https://www.webrtc-experiment.com/RecordRTC/) - [Documentation](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC)
+There is a similar project: **RecordRTC**! [Demo](https://www.webrtc-experiment.com/RecordRTC/) - [Documentation](https://github.com/muaz-khan/RecordRTC)
 
 ## How to link scripts?
 
@@ -38,11 +40,11 @@ Then link single/standalone "MediaStreamRecorder.js" file:
 
 ```html
 <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
+
+<!-- or -->
+
+https://cdn.rawgit.com/streamproc/MediaStreamRecorder/master/MediaStreamRecorder.js
 ```
-
-## Otherwise, you can link specific files:
-
-* https://github.com/streamproc/MediaStreamRecorder/blob/master/How-to-Link-Specific-Files.md
 
 ## Record audio+video in Firefox in single WebM
 
@@ -175,6 +177,28 @@ function onMediaError(e) {
 mediaRecorder.stop();
 ```
 
+## How to pause recordings?
+
+```javascript
+mediaRecorder.pause();
+```
+
+## How to resume recordings?
+
+```javascript
+mediaRecorder.resume();
+```
+
+## How to save recordings?
+
+```javascript
+// invoke save-as dialog for all recorded blobs
+mediaRecorder.save();
+
+// or pass external blob/file
+mediaRecorder.save(YourExternalBlob, 'FileName.webm');
+```
+
 ## How to upload recorded files using PHP?
 
 **PHP code:**
@@ -225,7 +249,31 @@ function xhr(url, data, callback) {
 
 # API Documentation
 
-## audioChannels
+## `recorderType`
+
+You can force StereoAudioRecorder or WhammyRecorder or similar recorders on Firefox or Edge; even on Chrome and Opera.
+
+All browsers will be using your specified recorder:
+
+```javascript
+// force WebAudio API on all browsers
+// it allows you record remote audio-streams in Firefox
+// it also works in Microsoft Edge
+mediaRecorder.recorderType = StereoAudioRecorder;
+
+// force webp based webm encoder on all browsers
+mediaRecorder.recorderType = WhammyRecorder;
+
+// force MediaRecorder API on all browsers
+// Chrome is going to implement MediaRecorder API soon;
+// so this property allows you force MediaRecorder in Chrome.
+mediaRecorder.recorderType = MediaRecorderWrapper;
+
+// force GifRecorder in all browsers. Both WhammyRecorder and MediaRecorder API will be ignored.
+mediaRecorder.recorderType = GifRecorder;
+```
+
+## `audioChannels`
 
 It is an integer value that accepts either 1 or 2. "1" means record only left-channel and skip right-one. The default value is "2".
 
@@ -233,7 +281,7 @@ It is an integer value that accepts either 1 or 2. "1" means record only left-ch
 mediaRecorder.audioChannels = 1;
 ```
 
-## bufferSize
+## `bufferSize`
 
 You can set following audio-bufferSize values: 0, 256, 512, 1024, 2048, 4096, 8192, and 16384. "0" means: let chrome decide the device's default bufferSize. Default value is "2048".
 
@@ -241,7 +289,7 @@ You can set following audio-bufferSize values: 0, 256, 512, 1024, 2048, 4096, 81
 mediaRecorder.bufferSize = 0;
 ```
 
-## sampleRate
+## `sampleRate`
 
 Default "sampleRate" value is "44100". Currently you can't modify sample-rate in windows that's why this property isn't yet exposed to public API.
 
@@ -252,7 +300,7 @@ It accepts values only in range: 22050 to 96000
 mediaRecorder.sampleRate = 96000;
 ```
 
-## video
+## `video`
 
 It is recommended to pass your HTMLVideoElement to get most accurate result.
 
@@ -264,6 +312,42 @@ videoRecorder.onStartedDrawingNonBlankFrames = function() {
     videoRecorder.clearOldRecordedFrames(); // clear all blank frames
     audioRecorder.start(interval);
 };
+```
+
+## `stop`
+
+This method allows you stop recording.
+
+```javascript
+mediaRecorder.stop();
+```
+
+## `pause`
+
+This method allows you pause recording.
+
+```javascript
+mediaRecorder.pause();
+```
+
+## `resume`
+
+This method allows you resume recording.
+
+```javascript
+mediaRecorder.resume();
+```
+
+## `save`
+
+This method allows you save recording to disk (via save-as dialog).
+
+```javascript
+// invoke save-as dialog for all recorded blobs
+mediaRecorder.save();
+
+// or pass external blob/file
+mediaRecorder.save(YourExternalBlob, 'FileName.webm');
 ```
 
 ## canvas
@@ -359,6 +443,7 @@ gifRecorder.mimeType = 'image/gif';
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
 | Opera | [Stable](http://www.opera.com/) / [NEXT](http://www.opera.com/computer/next)  |
 | Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) / [Opera](https://play.google.com/store/apps/details?id=com.opera.browser) |
+| Microsoft Edge | [Normal Build](https://www.microsoft.com/en-us/windows/microsoft-edge) |
 
 ## Contributors
 

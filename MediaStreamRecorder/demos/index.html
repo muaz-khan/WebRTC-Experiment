@@ -1,0 +1,61 @@
+<h1>MediaStreamRecorder.js Demos</h1>
+
+<oL>
+    <li>
+        It is open-sourced here: <a href="https://github.com/streamproc/MediaStreamRecorder">https://github.com/streamproc/MediaStreamRecorder</a>
+    </li>
+    <li>
+        <a href="audio-recorder.html">Audio Recording</a>
+    </li>
+
+    <li>
+        <a href="video-recorder.html">Video Recording</a>
+    </li>
+
+    <li>
+        <a href="MultiStreamRecorder.html">Audio + Video Recording</a>
+    </li>
+
+    <li>
+        <a href="gif-recorder.html">Gif Recording</a>
+    </li>
+</ol>
+
+<style>
+ol {
+    list-style-type: upper-roman;
+    margin-left: 2em;
+}
+label {
+    display: inline-block;
+    width: 100px;
+}
+ol {
+    margin: 0 2.25em;
+    counter-reset: numbering;
+    width: 60%;
+}
+ol li {
+    padding: 0.75em 0;
+    position: relative;
+    list-style-type: none;
+    counter-increment: numbering;
+}
+ol li:before {
+    content: counter(numbering);
+    position: absolute;
+    left: -2.25em;
+    top: 0.55em;
+    height: 25px;
+    width: 25px;
+    padding-top: 2px;
+    border: 1px solid #146783;
+    border-radius: 50%;
+    color: #23718B;
+    text-align: center;
+}
+ol img {
+    margin-top: 1em;
+    max-width: 100%;
+}
+</style>

@@ -7,129 +7,214 @@
 -->
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>WebRTC Video Recording using MediaStreamRecorder</title>
-        
-        <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"></script>
-        
-        <style>
-            input {
-                border: 1px solid rgb(46, 189, 235);
-                border-radius: 3px;
-                font-size: 1em;
-                outline: none;
-                padding: .2em .4em;
-                width: 60px;
-                text-align: center;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>
-            <a href="https://www.webrtc-experiment.com/">WebRTC</a> Video Recording using <a href="https://github.com/streamproc/MediaStreamRecorder"
-                                     target="_blank">MediaStreamRecorder</a>
-        </h1>
-		
-        <div>
-            <label for="time-interval">Time Interval (milliseconds):</label>
-            <input type="text" id="time-interval" value="5000">
-            
-            <label for="video-width">Video Width:</label>
-            <input type="text" id="video-width" value="320">
-            
-            <label for="video-height">Video Height:</label>
-            <input type="text" id="video-height" value="240">
-            
-            <button id="start-recording">Start Recording</button>
-            <button id="stop-recording" disabled>Stop Recording</button>
-        </div>
-        <div id="videos-container">
-        </div>
-        <script>
-            var mediaConstraints = { audio: !!navigator.mozGetUserMedia, video: true };
-            
-            document.querySelector('#start-recording').onclick = function() {
-                this.disabled = true;
-                navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
-            };
-            
-            document.querySelector('#stop-recording').onclick = function() {
-                this.disabled = true;
-                mediaRecorder.stop();
-            };
-            
-            var mediaRecorder;
 
-            function onMediaSuccess(stream) {
-                var video = document.createElement('video');
+<head>
+    <title>WebRTC Video Recording using MediaStreamRecorder</title>
 
-                var videoWidth = document.getElementById('video-width').value || 320;
-                var videoHeight = document.getElementById('video-height').value || 240;
+    <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"></script>
+    <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
+    <script src="https://cdn.rawgit.com/webrtc/adapter/master/adapter.js"></script>
 
-                video = mergeProps(video, {
-                    controls: true,
-                    width: videoWidth,
-                    height: videoHeight,
-                    src: URL.createObjectURL(stream)
-                });
-                video.play();
+    <style>
+    input {
+        border: 1px solid rgb(46, 189, 235);
+        border-radius: 3px;
+        font-size: 1em;
+        outline: none;
+        padding: .2em .4em;
+        width: 60px;
+        text-align: center;
+    }
 
-                videosContainer.appendChild(video);
-                videosContainer.appendChild(document.createElement('hr'));
+    button, select {
+        font-family: Myriad, Arial, Verdana;
+        font-weight: normal;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+        padding: 4px 12px;
+        text-decoration: none;
+        color: rgb(27, 26, 26);
+        display: inline-block;
+        box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+        text-shadow: none;
+        background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
+        font-size: 20px;
+        border: 1px solid red;
+        outline:none;
+    }
+    button:active, button:focus, select:active {
+        background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
+        border: 1px solid rgb(142, 142, 142);
+    }
+    button[disabled], select[disabled] {
+        background: rgb(249, 249, 249);
+        border: 1px solid rgb(218, 207, 207);
+        color: rgb(197, 189, 189);
+    }
+    blockquote {
+        font-size: 20px;
+        color: rgb(172, 10, 10);
+        border: 1px solid rgb(172, 10, 10);
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin: 9px 10px;
+    }
+    span {
+        border: 1px dotted red;
+        background: yellow;
+        padding: 0 5px;
+    }
+    </style>
+</head>
 
-                mediaRecorder = new MediaStreamRecorder(stream);
-                mediaRecorder.mimeType = 'video/webm'; // this line is mandatory
-                mediaRecorder.videoWidth  = videoWidth;
-                mediaRecorder.videoHeight = videoHeight;
-                mediaRecorder.ondataavailable = function(blob) {
-                    var a = document.createElement('a');
-                    a.target = '_blank';
-                    a.innerHTML = 'Open Recorded Video No. ' + (index++) + ' (Size: ' + bytesToSize(blob.size) + ') Time Length: ' + getTimeLength(timeInterval);
+<body>
+    <h1>
+        <a href="https://www.webrtc-experiment.com/">WebRTC</a> Video Recording using <a href="https://github.com/streamproc/MediaStreamRecorder" target="_blank">MediaStreamRecorder</a>
+    </h1>
 
-                    a.href = URL.createObjectURL(blob);
+    <div>
+        <label for="time-interval">Time Interval (milliseconds):</label>
+        <input type="text" id="time-interval" value="5000">
 
-                    videosContainer.appendChild(a);
-                    videosContainer.appendChild(document.createElement('hr'));
-                };
-                
-                var timeInterval = document.querySelector('#time-interval').value;
-                if(timeInterval) timeInterval = parseInt(timeInterval);
-                else timeInterval = 5 * 1000;
+        <button id="start-recording">Start</button>
+        <button id="stop-recording" disabled>Stop</button>
 
-                // get blob after specific time interval
-                mediaRecorder.start(timeInterval);
-                
-                document.querySelector('#stop-recording').disabled = false;
-            }
+        <button id="pause-recording" disabled>Pause</button>
+        <button id="resume-recording" disabled>Resume</button>
 
-            function onMediaError(e) {
-                console.error('media error', e);
-            }
+        <button id="save-recording" disabled>Save</button>
 
-            var videosContainer = document.getElementById('videos-container');
-            var index = 1;
-            
-            // below function via: http://goo.gl/B3ae8c
-            function bytesToSize(bytes) {
-               var k = 1000;
-               var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-               if (bytes === 0) return '0 Bytes';
-               var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)),10);
-               return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
-            }
-            
-            // below function via: http://goo.gl/6QNDcI
-            function getTimeLength(milliseconds) {
-                var data = new Date(milliseconds);
-                return data.getUTCHours()+" hours, "+data.getUTCMinutes()+" minutes and "+data.getUTCSeconds()+" second(s)";
-            }
-            
-            window.onbeforeunload = function() {
-                document.querySelector('#start-recording').disabled = false;
-            };
-        </script>
-        
-        <pre style="border-left: 2px solid red; margin-left:2em; padding-left: 1em;">
+        <br><br>
+
+        <label for="video-width">Video Width:</label>
+        <input type="text" id="video-width" value="320">
+
+        <label for="video-height">Video Height:</label>
+        <input type="text" id="video-height" value="240">
+    </div>
+    <div id="videos-container">
+    </div>
+    <script>
+    function captureUserMedia(mediaConstraints, successCallback, errorCallback) {
+        navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
+    }
+
+    var mediaConstraints = {
+        audio: !IsChrome && !IsOpera && !IsEdge, // record both audio/video in Firefox
+        video: true
+    };
+
+    document.querySelector('#start-recording').onclick = function() {
+        this.disabled = true;
+        captureUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
+    };
+
+    document.querySelector('#stop-recording').onclick = function() {
+        this.disabled = true;
+        mediaRecorder.stop();
+        mediaRecorder.stream.stop();
+
+        document.querySelector('#pause-recording').disabled = true;
+        document.querySelector('#start-recording').disabled = false;
+    };
+
+    document.querySelector('#pause-recording').onclick = function() {
+        this.disabled = true;
+        mediaRecorder.pause();
+
+        document.querySelector('#resume-recording').disabled = false;
+    };
+
+    document.querySelector('#resume-recording').onclick = function() {
+        this.disabled = true;
+        mediaRecorder.resume();
+
+        document.querySelector('#pause-recording').disabled = false;
+    };
+
+    document.querySelector('#save-recording').onclick = function() {
+        this.disabled = true;
+        mediaRecorder.save();
+    };
+
+    var mediaRecorder;
+
+    function onMediaSuccess(stream) {
+        var video = document.createElement('video');
+
+        var videoWidth = document.getElementById('video-width').value || 320;
+        var videoHeight = document.getElementById('video-height').value || 240;
+
+        video = mergeProps(video, {
+            controls: true,
+            muted: true,
+            width: videoWidth,
+            height: videoHeight,
+            src: URL.createObjectURL(stream)
+        });
+        video.play();
+
+        videosContainer.appendChild(video);
+        videosContainer.appendChild(document.createElement('hr'));
+
+        mediaRecorder = new MediaStreamRecorder(stream);
+        mediaRecorder.stream = stream;
+        mediaRecorder.mimeType = 'video/webm'; // this line is mandatory
+        mediaRecorder.videoWidth = videoWidth;
+        mediaRecorder.videoHeight = videoHeight;
+        mediaRecorder.ondataavailable = function(blob) {
+            var a = document.createElement('a');
+            a.target = '_blank';
+            a.innerHTML = 'Open Recorded Video No. ' + (index++) + ' (Size: ' + bytesToSize(blob.size) + ') Time Length: ' + getTimeLength(timeInterval);
+
+            a.href = URL.createObjectURL(blob);
+
+            videosContainer.appendChild(a);
+            videosContainer.appendChild(document.createElement('hr'));
+        };
+
+        var timeInterval = document.querySelector('#time-interval').value;
+        if (timeInterval) timeInterval = parseInt(timeInterval);
+        else timeInterval = 5 * 1000;
+
+        // get blob after specific time interval
+        mediaRecorder.start(timeInterval);
+
+        document.querySelector('#stop-recording').disabled = false;
+        document.querySelector('#pause-recording').disabled = false;
+        document.querySelector('#save-recording').disabled = false;
+    }
+
+    function onMediaError(e) {
+        console.error('media error', e);
+    }
+
+    var videosContainer = document.getElementById('videos-container');
+    var index = 1;
+
+    // below function via: http://goo.gl/B3ae8c
+    function bytesToSize(bytes) {
+        var k = 1000;
+        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        if (bytes === 0) return '0 Bytes';
+        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+        return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+    }
+
+    // below function via: http://goo.gl/6QNDcI
+    function getTimeLength(milliseconds) {
+        var data = new Date(milliseconds);
+        return data.getUTCHours() + " hours, " + data.getUTCMinutes() + " minutes and " + data.getUTCSeconds() + " second(s)";
+    }
+
+    window.onbeforeunload = function() {
+        document.querySelector('#start-recording').disabled = false;
+    };
+    </script>
+
+<pre style="border-left: 2px solid red; margin-left:2em; padding-left: 1em;">
 // cdn.webrtc-experiment.com/MediaStreamRecorder.js
 
 var mediaConstraints = {
@@ -145,7 +230,7 @@ function onMediaSuccess(stream) {
     mediaRecorder.ondataavailable = function (blob) {
         // POST/PUT "Blob" using FormData/XHR2
         var blobURL = URL.createObjectURL(blob);
-        document.write('&lt;a href="' + blobURL + '"&gt;' + blobURL + '&lt;/a&gt;');
+        document.write('<a href="' + blobURL + '">' + blobURL + '</a>');
     };
     mediaRecorder.start(3000);
 }
@@ -154,7 +239,8 @@ function onMediaError(e) {
     console.error('media error', e);
 }
 </pre>
-        
-        <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">← WebRTC Experiments</a>
-    </body>
+
+    <a href="https://www.webrtc-experiment.com/msr/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">MediaStreamRecorder Demos</a>
+</body>
+
 </html>

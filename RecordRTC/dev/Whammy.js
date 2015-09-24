@@ -23,7 +23,7 @@ var Whammy = (function() {
     function WhammyVideo(duration) {
         this.frames = [];
         this.duration = duration || 1;
-        this.quality = 100;
+        this.quality = 0.8;
     }
 
     /**

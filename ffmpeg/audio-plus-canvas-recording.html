@@ -90,7 +90,8 @@
 <script>
 var elementToShare = document.getElementById('elementToShare');
 var canvasRecorder = RecordRTC(elementToShare, {
-    type: 'canvas'
+    type: 'canvas',
+    recorderType: CanvasRecorder
 });
 
 var recordAudio;
@@ -99,12 +100,15 @@ document.getElementById('start').onclick = function() {
     this.disabled = true;
     navigator.getUserMedia({ audio: true }, function(stream) {
         recordAudio = RecordRTC(stream, {
-            // bufferSize: 16384.
-            onAudioProcessStarted: function() {
-                canvasRecorder.startRecording();
-            }
+            type: 'audio',
+            recorderType: StereoAudioRecorder // force WebAudio for all browsers even for Firefox/MS-Edge
         });
-        recordAudio.startRecording();
+
+        recordAudio.initRecorder(function() {
+            canvasRecorder.startRecording();
+            recordAudio.startRecording();
+        });
+
         document.getElementById('stop').disabled = false;
     }, function(error) { log( JSON.stringify ( error ) ); });
 };
@@ -112,7 +116,7 @@ document.getElementById('stop').onclick = function() {
     this.disabled = true;
     recordAudio.stopRecording(function() {
         canvasRecorder.stopRecording(function() {
-        convertStreams(canvasRecorder.getBlob(), recordAudio.getBlob());
+            convertStreams(canvasRecorder.blob, recordAudio.blob);
             log('<a href="'+ workerPath +'" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file download started. It is about 18MB in size; please be patient!');
         });
     });
@@ -233,6 +237,6 @@ function log(message) {
     console.log(message);
 }
 </script>
-<a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←WebRTC Experiments Homepage</a>
+<a href="https://www.webrtc-experiment.com/ffmpeg/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←Try other Ffmpeg.js and RecordRTC demos</a>
 
 <script src="https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.googledrive.com/host/0B6GWd_dUUTT8WjhzNlloZmZtdzA/ffmpeg_asm.js" async> </script>
