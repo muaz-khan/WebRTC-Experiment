@@ -2,7 +2,7 @@
 // usually page-URL is used as channel-id
 // you can always override it!
 // www.RTCMultiConnection.org/docs/channel-id/
-window.RMCDefaultChannel = location.href.replace(/\/|:|#|\?|\$|\^|%|\.|`|~|!|@|\[|\||]|\|*. /g, '').split('\n').join('').split('\r').join('');
+window.RMCDefaultChannel = location.href.replace(/\/|:|#|\?|\$|\^|%|\.|`|~|!|\+|@|\[|\||]|\|*. /g, '').split('\n').join('').split('\r').join('');
 
 // www.RTCMultiConnection.org/docs/constructor/
 window.RTCMultiConnection = function(channel) {

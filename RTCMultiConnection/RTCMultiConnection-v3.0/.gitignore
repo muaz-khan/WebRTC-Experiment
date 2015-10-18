@@ -3,3 +3,5 @@ node_modules
 
 # bower
 bower_components
+
+*.tar.gz

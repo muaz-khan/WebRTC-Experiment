@@ -13,6 +13,12 @@ npm install detectrtc
 bower install detectrtc
 ```
 
+# Check all releases
+
+* https://github.com/muaz-khan/DetectRTC/releases
+
+Latest stable release is: [1.0.9](https://github.com/muaz-khan/DetectRTC/releases/tag/1.0.9)
+
 # Proposed NEW API
 
 ```javascript
@@ -47,10 +53,6 @@ To use it:
 <!-- or CDN link -->
 <script src="//cdn.webrtc-experiment.com/DetectRTC.js"></script>
 ```
-
-**Check all releases:**
-
-* https://github.com/muaz-khan/DetectRTC/releases
 
 <img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
 

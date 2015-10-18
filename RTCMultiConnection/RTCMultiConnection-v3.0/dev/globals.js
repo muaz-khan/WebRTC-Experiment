@@ -74,44 +74,26 @@ function setHarkEvents(connection, streamEvent) {
 
 function setMuteHandlers(connection, streamEvent) {
     streamEvent.stream.addEventListener('mute', function(event) {
-        streamEvent.session = {
-            audio: event.type === 'audio' || event.type === 'both' || event.type === null,
-            video: event.type === 'video' || event.type === 'both' || event.ype === null
+        event = connection.streamEvents[event.target.streamid];
+
+        event.session = {
+            audio: event.muteType === 'audio',
+            video: event.muteType === 'video'
         };
-        if (connection.onmute) {
-            connection.onmute(streamEvent);
-        }
+
+        connection.onmute(event);
     }, false);
 
     streamEvent.stream.addEventListener('unmute', function(event) {
-        streamEvent.session = {
-            audio: event.type === 'audio' || event.type === 'both' || event.type === null,
-            video: event.type === 'video' || event.type === 'both' || event.type === null
+        event = connection.streamEvents[event.target.streamid];
+
+        event.session = {
+            audio: event.unmuteType === 'audio',
+            video: event.unmuteType === 'video'
         };
-        if (connection.onunmute) {
-            connection.onunmute(streamEvent);
-        }
+
+        connection.onunmute(event);
     }, false);
-
-    connection.onmute = function(e) {
-        if (e.stream.isVideo && e.mediaElement) {
-            e.mediaElement.pause();
-            e.mediaElement.setAttribute('poster', e.snapshot || 'https://cdn.webrtc-experiment.com/images/muted.png');
-        }
-        if (e.stream.isAudio && e.mediaElement) {
-            e.mediaElement.muted = true;
-        }
-    };
-
-    connection.onunmute = function(e) {
-        if (e.stream.isVideo && e.mediaElement) {
-            e.mediaElement.play();
-            e.mediaElement.removeAttribute('poster');
-        }
-        if (e.stream.isAudio && e.mediaElement) {
-            e.mediaElement.muted = false;
-        }
-    };
 }
 
 function getRandomString() {
@@ -240,4 +222,23 @@ function isNull(obj) {
 
 function isString(obj) {
     return typeof obj === 'string';
+}
+
+var MediaStream = window.MediaStream;
+
+if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+    MediaStream = webkitMediaStream;
+}
+
+/*global MediaStream:true */
+if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
+    MediaStream.prototype.stop = function() {
+        this.getAudioTracks().forEach(function(track) {
+            track.stop();
+        });
+
+        this.getVideoTracks().forEach(function(track) {
+            track.stop();
+        });
+    };
 }

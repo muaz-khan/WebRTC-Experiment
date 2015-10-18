@@ -27,9 +27,9 @@ function setSdpConstraints(config) {
     return sdpConstraints;
 }
 
-var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 var MediaStreamTrack = window.MediaStreamTrack;
 
 var Plugin = {};
@@ -101,10 +101,10 @@ function PeerInitiator(config) {
     });
 
     if (!renegotiatingPeer) {
-        peer = new RTCPeerConnection({
+        peer = new RTCPeerConnection(navigator.onLine ? {
             iceServers: config.iceServers,
             iceTransports: 'all'
-        }, config.optionalArgument);
+        } : null, config.optionalArgument);
     } else {
         peer = config.peerRef;
 

@@ -1,4 +1,4 @@
-// Last time updated at Sep 24, 2015, 08:32:23
+// Last time updated at Sep 25, 2015, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/DetectRTC.js
 
@@ -584,3 +584,21 @@ if (DetectRTC.browser.isFirefox && DetectRTC.browser.version > 38) {
     isRemoteStreamProcessingSupported = true;
 }
 DetectRTC.isRemoteStreamProcessingSupported = isRemoteStreamProcessingSupported;
+
+//-------
+var isApplyConstraintsSupported = false;
+
+/*global MediaStreamTrack:true */
+if (typeof MediaStreamTrack !== 'undefined' && 'applyConstraints' in MediaStreamTrack.prototype) {
+    isApplyConstraintsSupported = true;
+}
+DetectRTC.isApplyConstraintsSupported = isApplyConstraintsSupported;
+
+//-------
+var isMultiMonitorScreenCapturingSupported = false;
+if (DetectRTC.browser.isFirefox && DetectRTC.browser.version >= 43) {
+    // version 43 merely supports platforms for multi-monitors
+    // version 44 will support exact multi-monitor selection i.e. you can select any monitor for screen capturing.
+    isMultiMonitorScreenCapturingSupported = true;
+}
+DetectRTC.isMultiMonitorScreenCapturingSupported = isMultiMonitorScreenCapturingSupported;

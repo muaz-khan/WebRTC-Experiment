@@ -538,3 +538,22 @@ if (isPluginRTC) {
     loadScript('https://cdn.webrtc-experiment.com/Plugin.EveryWhere.js');
     // loadScript('https://cdn.webrtc-experiment.com/Plugin.Temasys.js');
 }
+
+var MediaStream = window.MediaStream;
+
+if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+    MediaStream = webkitMediaStream;
+}
+
+/*global MediaStream:true */
+if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
+    MediaStream.prototype.stop = function() {
+        this.getAudioTracks().forEach(function(track) {
+            track.stop();
+        });
+
+        this.getVideoTracks().forEach(function(track) {
+            track.stop();
+        });
+    };
+}

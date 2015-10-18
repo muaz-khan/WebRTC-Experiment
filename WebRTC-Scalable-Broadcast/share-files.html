@@ -1,0 +1,318 @@
+<title>WebRTC Scalable Broadcast using RTCMultiConnection</title>
+<h1><a href="https://github.com/muaz-khan/WebRTC-Scalable-Broadcast">WebRTC Scalable Broadcast</a> using <a href="https://github.com/muaz-khan/RTCMultiConnection">RTCMultiConnection</a></h1>
+<hr>
+This module simply initializes socket.io and configures it in a way that single file can be shared/relayed over unlimited users without any <a href="https://www.webrtc-experiment.com/docs/RTP-usage.html">bandwidth/CPU usage issues</a>. Everything happens peer-to-peer!
+<hr>
+<input type="text" id="broadcast-id" placeholder="broadcast-id" value="room-xyz">
+<button id="open-or-join">Open or Join Broadcast</button>
+<hr>
+<input type="file" disabled>
+<div id="files-container"></div>
+<style>
+button, input, select {
+    font-family: Myriad, Arial, Verdana;
+    font-weight: normal;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    padding: 4px 12px;
+    text-decoration: none;
+    color: rgb(27, 26, 26);
+    display: inline-block;
+    box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+    text-shadow: none;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
+    font-size: 20px;
+    border: 1px solid red;
+    outline:none;
+}
+button:active, input:active, select:active, button:focus, input:focus, select:focus {
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
+    border: 1px solid rgb(142, 142, 142);
+}
+button[disabled], iput[disabled], select[disabled] {
+    background: rgb(249, 249, 249);
+    border: 1px solid rgb(218, 207, 207);
+    color: rgb(197, 189, 189);
+}
+input, input:focus, input:active {
+    background: white;    
+}
+</style>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/RTCMultiConnection.js"></script>
+<script>
+var socket = io.connect();
+
+// using single socket for RTCMultiConnection signaling
+var onMessageCallbacks = {};
+socket.on('message', function(data) {
+    if (data.sender == connection.userid) return;
+    if (onMessageCallbacks[data.channel]) {
+        onMessageCallbacks[data.channel](data.message);
+    };
+});
+
+// initializing RTCMultiConnection constructor.
+function initRTCMultiConnection(userid) {
+    var connection = new RTCMultiConnection();
+    connection.body = connection.filesContainer = document.getElementById('files-container');
+    connection.channel = connection.sessionid = connection.userid = userid || connection.userid;
+    connection.sdpConstraints.mandatory = {
+        OfferToReceiveAudio: false,
+        OfferToReceiveVideo: false
+    };
+    // using socket.io for signaling
+    connection.openSignalingChannel = function(config) {
+        var channel = config.channel || this.channel;
+        onMessageCallbacks[channel] = config.onmessage;
+        if (config.onopen) setTimeout(config.onopen, 1000);
+        return {
+            send: function(message) {
+                socket.emit('message', {
+                    sender: connection.userid,
+                    channel: channel,
+                    message: message
+                });
+            },
+            channel: channel
+        };
+    };
+    connection.onMediaError = function(error) {
+        alert(JSON.stringify(error));
+    };
+    return connection;
+}
+
+// this RTCMultiConnection object is used to connect with existing users
+var connection = initRTCMultiConnection();
+
+connection.getExternalIceServers = false;
+
+connection.onopen = function(event) {
+    document.querySelector('h1').innerHTML = 'Remote user <b>' + event.userid + '</b> is connected.';
+
+    if(connection.isInitiator) {
+        document.querySelector('input[type=file]').disabled = false;
+    }
+
+    if (connection.isInitiator == false && !connection.broadcastingConnection) {
+        // "connection.broadcastingConnection" global-level object is used
+        // instead of using a closure object, i.e. "privateConnection"
+        // because sometimes out of browser-specific bugs, browser 
+        // can emit "onaddstream" event even if remote user didn't attach any stream.
+        // such bugs happen often in chrome.
+        // "connection.broadcastingConnection" prevents multiple initializations.
+
+        // if current user is broadcast viewer
+        // he should create a separate RTCMultiConnection object as well.
+        // because node.js server can allot him other viewers for
+        // remote-stream-broadcasting.
+        connection.broadcastingConnection = initRTCMultiConnection(connection.userid);
+        connection.broadcastingConnection.onopen = function() {
+            document.querySelector('h1').innerHTML = 'Remote user <b>' + event.userid + '</b> is connected.';
+
+            // share old received files with new users!
+            if(connection.broadcastingConnection.isInitiator && connection.lastFile) {
+                setTimeout(function() {
+                    connection.broadcastingConnection.send(connection.lastFile);
+                }, 2000);
+            }
+        };
+        connection.broadcastingConnection.body = connection.broadcastingConnection.filesContainer = document.getElementById('files-container');
+        FileProgressBarHandler.handle(connection.broadcastingConnection);
+        connection.broadcastingConnection.session = connection.session;
+
+        // forwarder should always use this!
+        connection.broadcastingConnection.sdpConstraints.mandatory = {
+            OfferToReceiveVideo: false,
+            OfferToReceiveAudio: false
+        };
+
+        connection.broadcastingConnection.open({
+            dontTransmit: true
+        });
+    }
+};
+
+// ask node.js server to look for a broadcast
+// if broadcast is available, simply join it. i.e. "join-broadcaster" event should be emitted.
+// if broadcast is absent, simply create it. i.e. "start-broadcasting" event should be fired.
+document.getElementById('open-or-join').onclick = function() {
+    var broadcastid = document.getElementById('broadcast-id').value;
+    if (broadcastid.replace(/^\s+|\s+$/g, '').length <= 0) {
+        alert('Please enter broadcast-id');
+        document.getElementById('broadcast-id').focus();
+        return;
+    }
+
+    this.disabled = true;
+
+    connection.session = {
+        data: true,
+        oneway: true
+    };
+
+    socket.emit('join-broadcast', {
+        broadcastid: broadcastid,
+        userid: connection.userid,
+        typeOfStreams: connection.session
+    });
+};
+
+// this event is emitted when a broadcast is already created.
+socket.on('join-broadcaster', function(broadcaster, typeOfStreams) {
+    connection.session = typeOfStreams;
+    connection.channel = connection.sessionid = broadcaster.userid;
+
+    connection.sdpConstraints.mandatory = {
+        OfferToReceiveVideo: !!connection.session.video,
+        OfferToReceiveAudio: !!connection.session.audio
+    };
+
+    connection.join({
+        sessionid: broadcaster.userid,
+        userid: broadcaster.userid,
+        extra: {},
+        session: connection.session
+    });
+});
+
+// this event is emitted when a broadcast is absent.
+socket.on('start-broadcasting', function(typeOfStreams) {
+    // host i.e. sender should always use this!
+    connection.sdpConstraints.mandatory = {
+        OfferToReceiveVideo: false,
+        OfferToReceiveAudio: false
+    };
+    connection.session = typeOfStreams;
+    connection.open({
+        dontTransmit: true
+    });
+
+    if (connection.broadcastingConnection) {
+        // if new person is given the initiation/host/moderation control
+        connection.broadcastingConnection.close();
+        connection.broadcastingConnection = null;
+    }
+});
+
+window.onbeforeunload = function() {
+    // Firefox is weird!
+    document.getElementById('open-or-join').disabled = false;
+    document.querySelector('input[type=file]').disabled = true;
+};
+
+var FileProgressBarHandler = (function() {
+    function handle(connection) {
+        var progressHelper = {};
+
+        // www.RTCMultiConnection.org/docs/onFileStart/
+        connection.onFileStart = function(file) {
+            var div = document.createElement('div');
+            div.title = file.name;
+            div.innerHTML = '<label>0%</label> <progress></progress>';
+
+            if (file.remoteUserId) {
+                div.innerHTML += ' (Sharing with:' + file.remoteUserId + ')';
+            }
+
+            connection.filesContainer.insertBefore(div, connection.filesContainer.firstChild);
+
+            if (!file.remoteUserId) {
+                progressHelper[file.uuid] = {
+                    div: div,
+                    progress: div.querySelector('progress'),
+                    label: div.querySelector('label')
+                };
+                progressHelper[file.uuid].progress.max = file.maxChunks;
+                return;
+            }
+
+            if (!progressHelper[file.uuid]) {
+                progressHelper[file.uuid] = {};
+            }
+
+            progressHelper[file.uuid][file.remoteUserId] = {
+                div: div,
+                progress: div.querySelector('progress'),
+                label: div.querySelector('label')
+            };
+            progressHelper[file.uuid][file.remoteUserId].progress.max = file.maxChunks;
+        };
+
+        // www.RTCMultiConnection.org/docs/onFileProgress/
+        connection.onFileProgress = function(chunk) {
+            var helper = progressHelper[chunk.uuid];
+            if (!helper) {
+                return;
+            }
+            if (chunk.remoteUserId) {
+                helper = progressHelper[chunk.uuid][chunk.remoteUserId];
+                if (!helper) {
+                    return;
+                }
+            }
+
+            helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
+            updateLabel(helper.progress, helper.label);
+        };
+
+        // www.RTCMultiConnection.org/docs/onFileEnd/
+        connection.onFileEnd = function(file) {
+            var helper = progressHelper[file.uuid];
+            if (!helper) {
+                console.error('No such progress-helper element exists.', file);
+                return;
+            }
+
+            if (file.remoteUserId) {
+                helper = progressHelper[file.uuid][file.remoteUserId];
+                if (!helper) {
+                    return;
+                }
+            }
+
+            var div = helper.div;
+            if (file.type.indexOf('image') != -1) {
+                div.innerHTML = '<a href="' + file.url + '" download="' + file.name + '">Download <strong style="color:red;">' + file.name + '</strong> </a><br /><img src="' + file.url + '" title="' + file.name + '" style="max-width: 80%;">';
+            } else if (file.type.indexOf('video/') != -1) {
+                div.innerHTML = '<a href="' + file.url + '" download="' + file.name + '">Download <strong style="color:red;">' + file.name + '</strong> </a><br /><video src="' + file.url + '" title="' + file.name + '" style="max-width: 80%;" controls></video>';
+            } else if (file.type.indexOf('audio/') != -1) {
+                div.innerHTML = '<a href="' + file.url + '" download="' + file.name + '">Download <strong style="color:red;">' + file.name + '</strong> </a><br /><audio src="' + file.url + '" title="' + file.name + '" style="max-width: 80%;" controls></audio>';
+            } else {
+                div.innerHTML = '<a href="' + file.url + '" download="' + file.name + '">Download <strong style="color:red;">' + file.name + '</strong> </a><br /><iframe src="' + file.url + '" title="' + file.name + '" style="width: 80%;border: 0;height: inherit;margin-top:1em;"></iframe>';
+            }
+
+            if(connection.broadcastingConnection && connection.broadcastingConnection.numberOfConnectedUsers > 0) {
+                connection.broadcastingConnection.send(file);
+            }
+
+            connection.lastFile = file;
+        };
+
+        function updateLabel(progress, label) {
+            if (progress.position === -1) {
+                return;
+            }
+
+            var position = +progress.position.toFixed(2).split('.')[1] || 100;
+            label.innerHTML = position + '%';
+        }
+    }
+
+    return {
+        handle: handle
+    };
+})();
+
+FileProgressBarHandler.handle(connection);
+
+document.querySelector('input[type=file]').onchange = function() {
+    var file = this.files[0];
+    if(connection.isInitiator && connection.numberOfConnectedUsers > 0) {
+        connection.send(file);
+    }
+};
+</script>

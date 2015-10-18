@@ -1,10 +1,14 @@
-#### [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP) / [Demo](https://www.webrtc-experiment.com/RecordRTC/PHP/)
+## [RecordRTC to PHP](https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-PHP) / [Try LIVE Demo](https://www.webrtc-experiment.com/RecordRTC/PHP/)
 
-This documentation explains how to POST recorded audio/video files to PHP server. It captures `Blob` and POST them using XHR2/FormData.
+> This demo allows you record and upload to PHP server. Files on PHP server are auto-deleted as soon as you leave this page. 
+> 
+> This demo runs top over RecordRTC: [https://github.com/muaz-khan/RecordRTC](https://github.com/muaz-khan/RecordRTC)
+>
+> This demo works in Chrome, Firefox, Opera and Microsoft Edge. It even works on Android devices.
 
-=
+Following snippets explains how to POST recorded audio/video files to PHP server. It captures `Blob` and POST them using XHR2/FormData.
 
-##### PHP code
+# PHP code
 
 ```php
 <?php
@@ -24,9 +28,7 @@ foreach(array('video', 'audio') as $type) {
 ?>
 ```
 
-=
-
-##### JavaScript code
+# JavaScript code
 
 ```javascript
 var fileType = 'video'; // or "audio"
@@ -52,6 +54,8 @@ function xhr(url, data, callback) {
 }
 ```
 
+## RecordRTC Demos
+
 1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
 2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
 3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
@@ -59,19 +63,26 @@ function xhr(url, data, callback) {
 5. [MRecordRTC i.e. Multi-RecordRTC!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC)
 6. [RecordRTC on Ruby!](https://github.com/cbetta/record-rtc-experiment)
 7. [RecordRTC over Socket.io](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio)
+8. [ffmpeg-asm.js and RecordRTC! Audio/Video Merging & Transcoding!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/ffmpeg)
+9. [RecordRTC / PHP / FFmpeg](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/PHP-and-FFmpeg)
+10. [Record Audio and upload to Nodejs server](https://www.npmjs.org/package/record-audio)
+11. [ConcatenateBlobs.js](https://github.com/muaz-khan/ConcatenateBlobs) - Concatenate multiple recordings in single Blob!
+12. [Remote stream recording](https://www.webrtc-experiment.com/demos/remote-stream-recording.html)
+13. [Mp3 or Wav Recording](https://www.webrtc-experiment.com/RecordRTC/Record-Mp3-or-Wav.html)
 
-=
+## RecordRTC Documentation
 
-#### Want to recording only audio?
+1. [RecordRTC API Reference](http://RecordRTC.org/RecordRTC.html)
+2. [MRecordRTC API Reference](http://RecordRTC.org/MRecordRTC.html)
+3. [MediaStreamRecorder API Reference](http://RecordRTC.org/MediaStreamRecorder.html)
+5. [StereoAudioRecorder API Reference](http://RecordRTC.org/StereoAudioRecorder.html)
+6. [WhammyRecorder API Reference](http://RecordRTC.org/WhammyRecorder.html)
+7. [Whammy API Reference](http://RecordRTC.org/Whammy.html)
+8. [CanvasRecorder API Reference](http://RecordRTC.org/CanvasRecorder.html)
+9. [GifRecorder API Reference](http://RecordRTC.org/GifRecorder.html)
+10. [Global API Reference](http://RecordRTC.org/global.html)
 
-```
-// if you want to record only audio on chrome
-// then simply set "isFirefox=true"
-var isFirefox = true;
-```
 
-=
+## License
 
-##### License
-
-[RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[RecordRTC.js](https://github.com/muaz-khan/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com).

@@ -5,6 +5,8 @@ var IceServersHandler = (function(connection) {
     function getIceServers(iceServers) {
         iceServers = iceServers || [];
 
+        // Firefox <= 37 doesn't understands "urls"
+
         iceServers.push({
             urls: 'stun:stun.l.google.com:19302'
         });

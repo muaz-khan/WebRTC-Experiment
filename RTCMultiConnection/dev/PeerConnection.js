@@ -1,6 +1,6 @@
-var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
 function setSdpConstraints(config) {
     var sdpConstraints;

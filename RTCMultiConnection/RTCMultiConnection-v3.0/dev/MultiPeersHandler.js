@@ -222,6 +222,22 @@ function MultiPeers(connection) {
         connection.peers[remoteUserId] = new PeerInitiator(localConfig);
     };
 
+    this.replaceTrack = function(track, remoteUserId) {
+        if (!connection.peers[remoteUserId]) {
+            throw 'This peer (' + remoteUserId + ') does not exists.';
+        }
+
+        var peer = connection.peers[remoteUserId].peer;
+
+        if (!!peer.getSenders && typeof peer.getSenders === 'function' && peer.getSenders()[0] && peer.getSenders()[0].replaceTrack) {
+            peer.getSenders()[0].replaceTrack(track);
+            return;
+        }
+
+        console.warn('RTPSender.replaceTrack is NOT supported.');
+        this.renegotiatePeer(remoteUserId);
+    };
+
     this.onNegotiationNeeded = function(message, remoteUserId) {};
     this.addNegotiatedMessage = function(message, remoteUserId) {
         if (message.type && message.sdp) {
@@ -241,6 +257,10 @@ function MultiPeers(connection) {
 
         if (message.candidate) {
             connection.peers[remoteUserId].addRemoteCandidate(message);
+
+            if (connection.enableLogs) {
+                console.log('Remote peer\'s candidate pairs:', message.candidate);
+            }
             return;
         }
 
@@ -306,7 +326,7 @@ function MultiPeers(connection) {
     this.onRemovingRemoteMedia = function(stream, remoteUserId) {};
     this.onGettingLocalMedia = function(localStream) {};
     this.onLocalMediaError = function(error) {
-        console.error('onLocalMediaError', error);
+        console.error('onLocalMediaError', JSON.stringify(error, null, '\t'));
         connection.onMediaError(error);
     };
 
@@ -325,7 +345,7 @@ function MultiPeers(connection) {
         };
     }
 
-    this.shareFile = function(file) {
+    this.shareFile = function(file, remoteUserId) {
         if (!connection.enableFileSharing) {
             throw '"connection.enableFileSharing" is false.';
         }
@@ -333,15 +353,25 @@ function MultiPeers(connection) {
         initFileBufferReader();
 
         fbr.readAsArrayBuffer(file, function(uuid) {
-            fbr.setMultipleUsers(uuid, connection.getAllParticipants());
+            var arrayOfUsers = connection.getAllParticipants();
 
-            connection.getAllParticipants().forEach(function(participant) {
+            if (remoteUserId) {
+                arrayOfUsers = [remoteUserId];
+            }
+
+            fbr.setMultipleUsers(uuid, arrayOfUsers);
+
+            arrayOfUsers.forEach(function(participant) {
                 fbr.getNextChunk(uuid, function(nextChunk, isLastChunk) {
                     connection.peers[participant].channels.forEach(function(channel) {
                         channel.send(nextChunk);
                     });
                 }, participant);
             });
+        }, {
+            userid: connection.userid,
+            // extra: connection.extra,
+            chunkSize: connection.chunkSize || 0
         });
     };
 

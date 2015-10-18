@@ -1,5 +1,3 @@
-// Last time updated at Sep 21, 2015, 08:32:23
-
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
 

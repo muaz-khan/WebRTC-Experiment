@@ -127,6 +127,18 @@
             </section>
         
             <script>
+                function intallFirefoxScreenCapturingExtension() {
+                    InstallTrigger.install({
+                        'Foo': {
+                            // URL: 'https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/',
+                            URL: 'https://addons.mozilla.org/firefox/downloads/file/355418/enable_screen_capturing_in_firefox-1.0.006-fx.xpi?src=cb-dl-hotness',
+                            toString: function() {
+                                return this.URL;
+                            }
+                        }
+                    });
+                }
+            
                 // Muaz Khan     - https://github.com/muaz-khan
                 // MIT License   - https://www.webrtc-experiment.com/licence/
                 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing
@@ -506,21 +518,18 @@
             </script>
 
             <section class="experiment">
-                <h2 id="prerequisites">
-                    <a href="#prerequisites">Prerequisites</a>
-                </h2>
+                <h2>Prerequisites</h2>
                 <ol>
                     <li>
                         Chrome? 
-                        <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Install chrome extension</a>.
-                        <button onclick="!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk', function() {location.reload();})" id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
-                            <img src="https://www.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
-                        </button>
-                         / <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture">Source Code</a>
+                        <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Store</a>
+                        / <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture">Source Code</a>
+                        / 
+                        <button onclick="!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk', function() {location.reload();})" id="install-button" style="font-size:inherit; padding-bottom:0;">Click to Install</button>
                     </li>
                     
                     <li>
-                        Firefox? <a href="https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/">Install Firefox Extension</a> / <a href="https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing">Source Code</a>
+                        Firefox? <a href="https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/">Store</a> / <a href="https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing">Source Code</a> / <button onclick="intallFirefoxScreenCapturingExtension(); this.disabled = true;" style="font-size:inherit; padding-bottom:0;">Click to Install</button>
                     </li>
                 </ol>
             </section>

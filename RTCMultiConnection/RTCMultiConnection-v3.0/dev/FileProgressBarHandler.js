@@ -76,17 +76,6 @@ var FileProgressBarHandler = (function() {
             } else {
                 div.innerHTML = '<a href="' + file.url + '" download="' + file.name + '">Download <strong style="color:red;">' + file.name + '</strong> </a><br /><iframe src="' + file.url + '" title="' + file.name + '" style="width: 80%;border: 0;height: inherit;margin-top:1em;"></iframe>';
             }
-
-            // for backward compatibility
-            if (connection.onFileSent || connection.onFileReceived) {
-                if (connection.onFileSent) {
-                    connection.onFileSent(file, file.uuid);
-                }
-
-                if (connection.onFileReceived) {
-                    connection.onFileReceived(file.name, file);
-                }
-            }
         };
 
         function updateLabel(progress, label) {

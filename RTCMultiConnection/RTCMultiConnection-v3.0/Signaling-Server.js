@@ -1,3 +1,11 @@
+/*
+require('./Signaling-Server.js')(app, function(socket) {
+    socket.on('custom-event', function(data) {
+        socket.broadcast.emit('custom-event', data);
+    });
+});
+*/
+
 module.exports = exports = function(app, socketCallback) {
     var io = require('socket.io').listen(app, {
         log: false,
@@ -40,16 +48,18 @@ module.exports = exports = function(app, socketCallback) {
             }
         });
 
-        socket.on('changed-uuid', function(uuid) {
+        socket.on('changed-uuid', function(newUserId) {
             if (listOfUsers[socket.userid]) {
+                if(newUserId === socket.userid) return;
+
                 var oldUserId = socket.userid;
-                listOfUsers[uuid] = listOfUsers[oldUserId];
-                listOfUsers[uuid].socket.userid = socket.userid = uuid;
+                listOfUsers[newUserId] = listOfUsers[oldUserId];
+                listOfUsers[newUserId].socket.userid = socket.userid = newUserId;
                 delete listOfUsers[oldUserId];
                 return;
             }
 
-            socket.userid = uuid;
+            socket.userid = newUserId;
             listOfUsers[socket.userid] = {
                 socket: socket,
                 connectedWith: {},
@@ -184,15 +194,6 @@ module.exports = exports = function(app, socketCallback) {
             }
         });
 
-        socket.on('change-userid', function(obj) {
-            if (!listOfUsers[obj.oldUserId]) return;
-
-            listOfUsers[obj.newUserId] = listOfUsers[obj.oldUserId];
-            delete listOfUsers[obj.oldUserId];
-            listOfUsers[obj.newUserId].socket.userid = obj.newUserId;
-            socket.userid = obj.newUserId;
-        });
-
         socket.on('disconnect', function() {
             var message = shiftedModerationControls[socket.userid];
 
@@ -221,3 +222,4 @@ module.exports = exports = function(app, socketCallback) {
         }
     });
 };
+

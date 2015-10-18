@@ -4,8 +4,8 @@
 /**
  * {@link https://github.com/muaz-khan/RecordRTC|RecordRTC} is a JavaScript-based media-recording library for modern web-browsers (supporting WebRTC getUserMedia API). It is optimized for different devices and browsers to bring all client-side (pluginfree) recording solutions in single place.
  * @summary JavaScript audio/video recording library runs top over WebRTC getUserMedia API.
- * @license {@link https://www.webrtc-experiment.com/licence/|MIT}
- * @author {@link https://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
+ * @author {@link http://www.MuazKhan.com|Muaz Khan}
  * @typedef RecordRTC
  * @class
  * @example
@@ -22,36 +22,11 @@
  */
 
 function RecordRTC(mediaStream, config) {
-    config = config || {};
-
     if (!mediaStream) {
         throw 'MediaStream is mandatory.';
     }
 
-    if (config.recorderType && !config.type) {
-        if (config.recorderType === WhammyRecorder || config.recorderType === CanvasRecorder) {
-            config.type = 'video';
-        } else if (config.recorderType === GifRecorder) {
-            config.type = 'gif';
-        } else if (config.recorderType === StereoAudioRecorder) {
-            config.type = 'audio';
-        } else if (config.recorderType === MediaStreamRecorder) {
-            if (mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
-                config.type = 'video';
-            } else if (mediaStream.getAudioTracks().length && !mediaStream.getVideoTracks().length) {
-                config.type = 'audio';
-            } else if (!mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
-                config.type = 'audio';
-            } else {
-                // config.type = 'UnKnown';
-            }
-        }
-    }
-
-    // consider default type=audio
-    if (!config.type) {
-        config.type = 'audio';
-    }
+    config = new RecordRTCConfiguration(mediaStream, config);
 
     // a reference to user's recordRTC object
     var self = this;
@@ -85,57 +60,14 @@ function RecordRTC(mediaStream, config) {
             console.debug('initializing ' + config.type + ' stream recorder.');
         }
 
-        var Recorder;
-
-        // StereoAudioRecorder can work with all three: Edge, Firefox and Chrome
-        // todo: detect if it is Edge, then auto use: StereoAudioRecorder
-        if (typeof StereoAudioRecorder !== 'undefined' && (isChrome || isEdge || isOpera)) {
-            // Media Stream Recording API has not been implemented in chrome yet;
-            // That's why using WebAudio API to record stereo audio in WAV format
-            Recorder = StereoAudioRecorder;
-        }
-
-        if (typeof MediaStreamRecorder !== 'undefined' && typeof MediaRecorder !== 'undefined' && 'requestData' in MediaRecorder.prototype) {
-            Recorder = MediaStreamRecorder;
-        }
-
-        // video recorder (in WebM format)
-        if (config.type === 'video' && (isChrome || isOpera)) {
-            if (typeof WhammyRecorder !== 'undefined') {
-                Recorder = WhammyRecorder;
-            } else {
-                throw 'WhammyRecorder.js seems NOT linked.';
-            }
-        }
-
-        // video recorder (in Gif format)
-        if (config.type === 'gif') {
-            if (typeof GifRecorder !== 'undefined') {
-                Recorder = GifRecorder;
-            } else {
-                throw 'GifRecorder.js seems NOT linked.';
-            }
-        }
-
-        // html2canvas recording!
-        if (config.type === 'canvas') {
-            if (typeof CanvasRecorder !== 'undefined') {
-                Recorder = CanvasRecorder;
-            } else {
-                throw 'CanvasRecorder.js seems NOT linked.';
-            }
-        }
-
-        if (config.recorderType) {
-            Recorder = config.recorderType;
-        }
-
         if (initCallback) {
             config.initCallback = function() {
                 initCallback();
                 initCallback = config.initCallback = null; // recordRTC.initRecorder should be call-backed once.
             };
         }
+
+        var Recorder = new GetRecorderType(mediaStream, config);
 
         mediaRecorder = new Recorder(mediaStream, config);
         mediaRecorder.record();
@@ -198,11 +130,10 @@ function RecordRTC(mediaStream, config) {
             return console.warn(WARNING);
         }
 
-        // not all libs yet having  this method
-        if (mediaRecorder.pause) {
-            mediaRecorder.pause();
-        } else if (!config.disableLogs) {
-            console.warn('This recording library is having no "pause" method.');
+        mediaRecorder.pause();
+
+        if (!config.disableLogs) {
+            console.debug('Paused recording.');
         }
     }
 
@@ -212,10 +143,10 @@ function RecordRTC(mediaStream, config) {
         }
 
         // not all libs yet having  this method
-        if (mediaRecorder.resume) {
-            mediaRecorder.resume();
-        } else if (!config.disableLogs) {
-            console.warn('This recording library is having no "resume" method.');
+        mediaRecorder.resume();
+
+        if (!config.disableLogs) {
+            console.debug('Resumed recording.');
         }
     }
 
@@ -374,6 +305,10 @@ function RecordRTC(mediaStream, config) {
             }
 
             mediaRecorder.clearRecordedData();
+
+            if (!config.disableLogs) {
+                console.debug('Cleared old recorded data.');
+            }
         },
 
         /**

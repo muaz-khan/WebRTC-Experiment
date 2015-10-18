@@ -2,7 +2,11 @@
 
 var BandwidthHandler = (function() {
     function setBAS(sdp, bandwidth, isScreen) {
-        if (isMobileDevice || isFirefox || !bandwidth) {
+        if (!bandwidth) {
+            return sdp;
+        }
+
+        if (typeof isFirefox !== 'undefined' && isFirefox) {
             return sdp;
         }
 

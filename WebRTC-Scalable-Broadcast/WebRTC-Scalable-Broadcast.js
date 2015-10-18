@@ -26,49 +26,49 @@ function WebRTC_Scalable_Broadcast(app) {
     ]);
 
     var listOfBroadcasts = {};
-    
+
     io.on('connection', function(socket) {
         var currentUser;
         socket.on('join-broadcast', function(user) {
             currentUser = user;
-            
+
             user.numberOfViewers = 0;
-            if(!listOfBroadcasts[user.broadcastid]) {
+            if (!listOfBroadcasts[user.broadcastid]) {
                 listOfBroadcasts[user.broadcastid] = {
                     broadcasters: {},
-                    allusers: {}
+                    allusers: {},
+                    typeOfStreams: user.typeOfStreams // object-booleans: audio, video, screen
                 };
             }
-            
+
             var firstAvailableBroadcaster = getFirstAvailableBraodcater(user);
-            if(firstAvailableBroadcaster) {
+            if (firstAvailableBroadcaster) {
                 listOfBroadcasts[user.broadcastid].broadcasters[firstAvailableBroadcaster.userid].numberOfViewers++;
-                socket.emit('join-broadcaster', firstAvailableBroadcaster);
+                socket.emit('join-broadcaster', firstAvailableBroadcaster, listOfBroadcasts[user.broadcastid].typeOfStreams);
 
                 console.log('User <', user.userid, '> is trying to get stream from user <', firstAvailableBroadcaster.userid, '>');
-            }
-            else {
+            } else {
                 currentUser.isInitiator = true;
-                socket.emit('start-broadcasting');
+                socket.emit('start-broadcasting', listOfBroadcasts[user.broadcastid].typeOfStreams);
 
                 console.log('User <', user.userid, '> will be next to serve broadcast.');
             }
-            
+
             listOfBroadcasts[user.broadcastid].broadcasters[user.userid] = user;
             listOfBroadcasts[user.broadcastid].allusers[user.userid] = user;
         });
-        
+
         socket.on('message', function(message) {
             socket.broadcast.emit('message', message);
         });
-        
+
         socket.on('disconnect', function() {
-            if(!currentUser) return;
-            if(!listOfBroadcasts[currentUser.broadcastid]) return;
-            if(!listOfBroadcasts[currentUser.broadcastid].broadcasters[currentUser.userid]) return;
-            
+            if (!currentUser) return;
+            if (!listOfBroadcasts[currentUser.broadcastid]) return;
+            if (!listOfBroadcasts[currentUser.broadcastid].broadcasters[currentUser.userid]) return;
+
             delete listOfBroadcasts[currentUser.broadcastid].broadcasters[currentUser.userid];
-            if(currentUser.isInitiator) {
+            if (currentUser.isInitiator) {
                 delete listOfBroadcasts[currentUser.broadcastid];
             }
         });
@@ -77,12 +77,11 @@ function WebRTC_Scalable_Broadcast(app) {
     function getFirstAvailableBraodcater(user) {
         var broadcasters = listOfBroadcasts[user.broadcastid].broadcasters;
         var firstResult;
-        for(var userid in broadcasters) {
-            if(broadcasters[userid].numberOfViewers <= 3) {
+        for (var userid in broadcasters) {
+            if (broadcasters[userid].numberOfViewers <= 3) {
                 firstResult = broadcasters[userid];
                 continue;
-            }
-            else delete listOfBroadcasts[user.broadcastid].broadcasters[userid];
+            } else delete listOfBroadcasts[user.broadcastid].broadcasters[userid];
         }
         return firstResult;
     }

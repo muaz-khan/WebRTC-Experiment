@@ -50,6 +50,8 @@
         document.createElement('footer');
     </script>
     <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+    <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
+    <script src="https://cdn.rawgit.com/webrtc/adapter/master/adapter.js"></script>
 </head>
 
 <body>
@@ -72,9 +74,9 @@
         <div class="github-stargazers"></div>
 
         <blockquote>
-            This <a href="https://www.webrtc-experiment.com/">WebRTC</a> experiment records both audio/video in single WebM/mp4 container/format using MediaRecorder API! It currently works only on Firefox &gt;= 29.
+            This <a href="https://www.webrtc-experiment.com/">WebRTC</a> experiment records both audio/video in single WebM/mp4 container/format using MediaRecorder API! It currently works only on Firefox &gt;= 29. This demo records only video tracks if you're testing in Chrome.
             <br />
-            <br /> For chrome, please try <a href="https://www.webrtc-experiment.com/RecordRTC/">https://www.webrtc-experiment.com/RecordRTC/</a>.
+            <br /> Main demo is available here: <a href="https://www.webrtc-experiment.com/RecordRTC/">https://www.webrtc-experiment.com/RecordRTC/</a>.
         </blockquote>
 
         <div class="github-stargazers"></div>
@@ -93,6 +95,10 @@
         </section>
 
         <script>
+        function captureUserMedia(mediaConstraints, successCallback, errorCallback) {
+            navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
+        }
+
         var videoElement = document.getElementById('video');
         var downloadURL = document.getElementById('download-url');
 
@@ -105,7 +111,7 @@
 
             captureUserMedia(function(stream) {
                 window.audioVideoRecorder = window.RecordRTC(stream, {
-                    type: 'video' // don't forget this; otherwise you'll get video/webm instead of audio/ogg
+                    type: 'video'
                 });
                 window.audioVideoRecorder.startRecording();
             });
@@ -116,7 +122,7 @@
             startRecording.disabled = false;
 
             window.audioVideoRecorder.stopRecording(function(url) {
-                downloadURL.innerHTML = '<a href="' + url + '" download="RecordRTC.webm" target="_blank">Save RecordRTC.webm to Disk!</a>';
+                downloadURL.innerHTML = '<a href="' + url + '" download="RecordRTC.webm" target="_blank">Save RecordRTC.webm to Disk!</a><hr>';
                 videoElement.src = url;
                 videoElement.muted = false;
                 videoElement.play();
@@ -131,8 +137,7 @@
         };
 
         function captureUserMedia(callback) {
-            navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-            navigator.getUserMedia({
+            captureUserMedia({
                 audio: true,
                 video: true
             }, function(stream) {
@@ -143,7 +148,7 @@
 
                 callback(stream);
             }, function(error) {
-                console.error(error);
+                alert(JSON.stringify(error));
             });
         }
         </script>
@@ -155,6 +160,11 @@
             <ol>
                 <li>
                     <a href="https://www.webrtc-experiment.com/RecordRTC/">RecordRTC Main Demo</a> (Records screen/video/audio in all browsers!)
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/PHP/">RecordRTC-to-PHP</a> 
+                    (audio/video recording and uploading to server)
                 </li>
 
                 <li>
@@ -183,11 +193,6 @@
                 <li>
                     <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs">RecordRTC-to-Nodejs</a> 
                     (used ffmpeg to merge wav/webm in single WebM container)
-                </li>
-
-                <li>
-                    <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-PHP">RecordRTC-to-PHP</a> 
-                    (audio/video recording and uploading to server)
                 </li>
 
                 <li>
@@ -231,6 +236,12 @@
             </ol>
         </section>
 
+        <section class="experiment own-widgets">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RecordRTC/issues" target="_blank">RecordRTC Issues</a>
+            </h2>
+            <div id="github-issues"></div>
+        </section>
+
         <section class="experiment">
             <h2 class="header" id="feedback">Feedback</h2>
             <div>
@@ -247,7 +258,7 @@
         </section>
 
         <section class="experiment own-widgets latest-commits">
-            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a>
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RecordRTC/commits/master" target="_blank">Latest Updates</a>
             </h2>
             <div id="github-commits"></div>
         </section>
@@ -263,6 +274,9 @@
     </footer>
 
     <!-- commits.js is useless for you! -->
+    <script>
+        window.useThisGithubPath = 'muaz-khan/RecordRTC';
+    </script>
     <script src="//cdn.webrtc-experiment.com/commits.js" async>
     </script>
 </body>

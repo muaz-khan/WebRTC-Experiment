@@ -2,6 +2,10 @@
 
 var StreamsHandler = (function() {
     function handleType(type) {
+        if (!type) {
+            return;
+        }
+
         if (typeof type === 'string' || typeof type === 'undefined') {
             return type;
         }
@@ -18,10 +22,10 @@ var StreamsHandler = (function() {
             return 'video';
         }
 
-        return undefined;
+        return;
     }
 
-    function setHandlers(stream, syncAction) {
+    function setHandlers(stream, syncAction, connection) {
         stream.mute = function(type) {
             type = handleType(type);
 
@@ -40,6 +44,8 @@ var StreamsHandler = (function() {
             if (typeof syncAction == 'undefined' || syncAction == true) {
                 StreamsHandler.onSyncNeeded(stream.streamid, 'mute', type);
             }
+
+            connection.streamEvents[stream.streamid].muteType = type;
 
             fireEvent(stream, 'mute', type);
         };
@@ -65,10 +71,16 @@ var StreamsHandler = (function() {
                 StreamsHandler.onSyncNeeded(stream.streamid, 'unmute', type);
             }
 
+            connection.streamEvents[stream.streamid].unmuteType = type;
+
             fireEvent(stream, 'unmute', type);
         };
 
         function graduallyIncreaseVolume() {
+            if (!stream.mediaElement) {
+                return;
+            }
+
             var mediaElement = stream.mediaElement;
             mediaElement.volume = 0;
             afterEach(200, 5, function() {

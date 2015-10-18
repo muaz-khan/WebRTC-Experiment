@@ -1,6 +1,6 @@
-var useFakeKeys = !(!!process.env.PORT || !!process.env.IP);
+var isUseHTTPs = !(!!process.env.PORT || !!process.env.IP);
 
-var server = require(useFakeKeys ? 'https' : 'http'),
+var server = require(isUseHTTPs ? 'https' : 'http'),
     url = require('url'),
     path = require('path'),
     fs = require('fs');
@@ -60,7 +60,7 @@ function serverHandler(request, response) {
 
 var app;
 
-if (useFakeKeys) {
+if (isUseHTTPs) {
     var options = {
         key: fs.readFileSync('fake-keys/privatekey.pem'),
         cert: fs.readFileSync('fake-keys/certificate.pem')
@@ -81,7 +81,7 @@ require('./Signaling-Server.js')(app, function(socket) {
     // var socket = connection.getSocket();
     // socket.emit('custom-event', { test: true });
 
-    socket.on('custom-event', function(data) {
-        socket.emit('custom-event', data);
+    socket.on('custom-message', function(message) {
+        socket.broadcast.emit('custom-message', message);
     });
 });

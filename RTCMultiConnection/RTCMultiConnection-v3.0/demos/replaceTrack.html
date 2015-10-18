@@ -1,0 +1,105 @@
+<title>connection.replaceTrack</title>
+<h1>connection.replaceTrack</h1>
+<style>
+video {
+    object-fit: fill;
+    width: 30%;
+}
+
+button, input, select {
+    font-family: Myriad, Arial, Verdana;
+    font-weight: normal;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    padding: 2px 4px;
+    text-decoration: none;
+    color: rgb(27, 26, 26);
+    display: inline-block;
+    box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+    text-shadow: none;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
+    font-size: 16px;
+    border: 1px solid red;
+    outline:none;
+}
+button:active, input:active, select:active, button:focus, input:focus, select:focus, input[type=text] {
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
+    border: 1px solid rgb(142, 142, 142);
+}
+
+button[disabled], input[disabled], select[disabled] {
+    background: rgb(249, 249, 249);
+    border: 1px solid rgb(218, 207, 207);
+    color: rgb(197, 189, 189);
+}
+</style>
+<hr>
+<input type="text" id="room-id" value="abcdef">
+<button id="open-room">Open Room</button>
+<button id="join-room">Join Room</button>
+<button id="open-or-join-room">Auto Open Or Join Room</button>
+<hr>
+<button id="replace-video-with-screen">Click to replace your video with Screen Track!</button>
+<hr>
+
+<script src="/RTCMultiConnection.js"></script>
+<script src="/dev/getScreenId.js"></script>
+
+<!-- socket.io for signaling -->
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+// ......................................................
+// .......................UI Code........................
+// ......................................................
+
+document.getElementById('open-room').onclick = function() {
+    this.disabled = true;
+    connection.open(document.getElementById('room-id').value);
+};
+
+document.getElementById('join-room').onclick = function() {
+    this.disabled = true;
+    connection.join(document.getElementById('room-id').value);
+};
+
+document.getElementById('open-or-join-room').onclick = function() {
+    this.disabled = true;
+    connection.openOrJoin(document.getElementById('room-id').value);
+};
+
+// ......................................................
+// ..................RTCMultiConnection Code.............
+// ......................................................
+
+var connection = new RTCMultiConnection();
+
+connection.enableFileSharing = true; // by default, it is "false".
+
+connection.session = {
+    audio: true,
+    video: true
+};
+
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true
+};
+
+connection.onstream = function(event) {
+    document.body.appendChild(event.mediaElement);
+};
+// ......................................................
+// ..................replaceTrack Code...................
+// ......................................................
+
+document.getElementById('replace-video-with-screen').onclick = function() {
+    this.disabled = true;
+    connection.replaceTrack({
+        screen: true,
+        oneway: true
+    });
+};
+</script>

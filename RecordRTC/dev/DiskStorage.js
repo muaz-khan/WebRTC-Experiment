@@ -4,6 +4,8 @@
 /**
  * DiskStorage is a standalone object used by {@link RecordRTC} to store recorded blobs in IndexedDB storage.
  * @summary Writing blobs into IndexedDB.
+ * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
+ * @author {@link http://www.MuazKhan.com|Muaz Khan}
  * @example
  * DiskStorage.Store({
  *     audioBlob: yourAudioBlob,
@@ -22,6 +24,7 @@
  * @property {function} Store - This method stores blobs in IndexedDB.
  * @property {function} onError - This function is invoked for any known/unknown error.
  * @property {string} dataStoreName - Name of the ObjectStore created in IndexedDB storage.
+ * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
  */
 
 

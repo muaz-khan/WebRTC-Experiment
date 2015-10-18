@@ -82,6 +82,8 @@
             </header>
 
         <div class="github-stargazers"></div>
+
+        <section class="experiment">
         
         <section class="section-divider">
             <h2>Convert From</h2><br><br>
@@ -189,7 +191,18 @@
 
             </section>
 
-            <br><br>
+            </section>
+
+            <section class="experiment own-widgets">
+                    <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/Translator/issues" target="_blank">Translator Issues</a>
+                    </h2>
+                    <div id="github-issues"></div>
+                </section>
+            <section class="experiment own-widgets latest-commits">
+                    <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/Translator/commits/master" target="_blank">Latest Updates</a>
+                    </h2>
+                    <div id="github-commits"></div>
+            </section>
 
             <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
                 <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Want to ask a Question?</h2>
@@ -321,6 +334,8 @@
     </script>
 
     <!-- commits.js is useless for you! -->
-    
+    <script>
+        window.useThisGithubPath = 'muaz-khan/Translator';
+    </script>
     <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
 </html>

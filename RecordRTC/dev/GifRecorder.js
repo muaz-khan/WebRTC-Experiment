@@ -3,6 +3,8 @@
 
 /**
  * GifRecorder is standalone calss used by {@link RecordRTC} to record video or canvas into animated gif.
+ * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
+ * @author {@link http://www.MuazKhan.com|Muaz Khan}
  * @typedef GifRecorder
  * @class
  * @example
@@ -11,6 +13,7 @@
  * recorder.stop(function(blob) {
  *     img.src = URL.createObjectURL(blob);
  * });
+ * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
  * @param {MediaStream} mediaStream - MediaStream object or HTMLCanvasElement or CanvasRenderingContext2D.
  * @param {object} config - {disableLogs:true, initCallback: function, width: 320, height: 240, frameRate: 200, quality: 10}
  */
@@ -178,10 +181,6 @@ function GifRecorder(mediaStream, config) {
      */
     this.pause = function() {
         isPausedRecording = true;
-
-        if (!config.disableLogs) {
-            console.debug('Paused recording.');
-        }
     };
 
     /**
@@ -193,10 +192,6 @@ function GifRecorder(mediaStream, config) {
      */
     this.resume = function() {
         isPausedRecording = false;
-
-        if (!config.disableLogs) {
-            console.debug('Resumed recording.');
-        }
     };
 
     /**
@@ -214,10 +209,6 @@ function GifRecorder(mediaStream, config) {
         this.pause();
 
         gifEncoder.stream().bin = [];
-
-        if (!config.disableLogs) {
-            console.debug('Cleared old recorded data.');
-        }
     };
 
     var canvas = document.createElement('canvas');

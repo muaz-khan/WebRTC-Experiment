@@ -6,6 +6,8 @@
 /**
  * StereoAudioRecorder is a standalone class used by {@link RecordRTC} to bring "stereo" audio-recording in chrome.
  * @summary JavaScript standalone object for stereo audio recording.
+ * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
+ * @author {@link http://www.MuazKhan.com|Muaz Khan}
  * @typedef StereoAudioRecorder
  * @class
  * @example
@@ -17,6 +19,7 @@
  * recorder.stop(function(blob) {
  *     video.src = URL.createObjectURL(blob);
  * });
+ * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
  * @param {MediaStream} mediaStream - MediaStream object fetched using getUserMedia API or generated using captureStreamUntilEnded or WebAudio API.
  * @param {object} config - {sampleRate: 44100, bufferSize: 4096, numberOfAudioChannels: 1, etc.}
  */
@@ -52,6 +55,18 @@ function StereoAudioRecorder(mediaStream, config) {
         console.debug('StereoAudioRecorder is set to record number of channels: ', numberOfAudioChannels);
     }
 
+    function isMediaStreamActive() {
+        if ('active' in mediaStream) {
+            if (!mediaStream.active) {
+                return false;
+            }
+        } else if ('ended' in mediaStream) { // old hack
+            if (mediaStream.ended) {
+                return false;
+            }
+        }
+    }
+
     /**
      * This method records MediaStream.
      * @method
@@ -60,10 +75,22 @@ function StereoAudioRecorder(mediaStream, config) {
      * recorder.record();
      */
     this.record = function() {
+        if (isMediaStreamActive() === false) {
+            throw 'Please make sure MediaStream is active.';
+        }
+
         // reset the buffers for the new recording
         leftchannel.length = rightchannel.length = 0;
         recordingLength = 0;
 
+        if (audioInput) {
+            audioInput.connect(jsAudioNode);
+        }
+
+        // to prevent self audio to be connected with speakers
+        // jsAudioNode.connect(context.destination);
+
+        isAudioProcessStarted = isPaused = false;
         recording = true;
     };
 
@@ -400,10 +427,6 @@ function StereoAudioRecorder(mediaStream, config) {
      */
     this.pause = function() {
         isPaused = true;
-
-        if (!config.disableLogs) {
-            console.debug('Paused recording.');
-        }
     };
 
     /**
@@ -414,11 +437,19 @@ function StereoAudioRecorder(mediaStream, config) {
      * recorder.resume();
      */
     this.resume = function() {
-        isPaused = false;
-
-        if (!config.disableLogs) {
-            console.debug('Resumed recording.');
+        if (isMediaStreamActive() === false) {
+            throw 'Please make sure MediaStream is active.';
         }
+
+        if (!recording) {
+            if (!config.disableLogs) {
+                console.info('Seems recording has been restarted.');
+            }
+            this.record();
+            return;
+        }
+
+        isPaused = false;
     };
 
     /**
@@ -433,10 +464,6 @@ function StereoAudioRecorder(mediaStream, config) {
 
         leftchannel.length = rightchannel.length = 0;
         recordingLength = 0;
-
-        if (!config.disableLogs) {
-            console.debug('Cleared old recorded data.');
-        }
     };
 
     var isAudioProcessStarted = false;
@@ -446,17 +473,12 @@ function StereoAudioRecorder(mediaStream, config) {
             return;
         }
 
-        // if MediaStream().stop() or MediaStreamTrack.stop() is invoked.
-        if ('active' in mediaStream) {
-            if (!mediaStream.active) {
-                jsAudioNode.onaudioprocess = function() {};
-                recording = false;
+        if (isMediaStreamActive() === false) {
+            if (!config.disableLogs) {
+                console.error('MediaStream seems stopped.');
             }
-        } else if ('ended' in mediaStream) { // old hack
-            if (mediaStream.ended) {
-                jsAudioNode.onaudioprocess = function() {};
-                recording = false;
-            }
+            jsAudioNode.disconnect();
+            recording = false;
         }
 
         if (!recording) {

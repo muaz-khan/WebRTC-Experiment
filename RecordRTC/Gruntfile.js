@@ -14,12 +14,15 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 stripBanners: true,
-                separator: ''
+                separator: '\n',
+                banner: '// Last time updated at <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> \n\n'
             },
             dist: {
                 src: [
                     'dev/head.js',
                     'dev/RecordRTC.js',
+                    'dev/RecordRTC-Configuration.js',
+                    'dev/GetRecorderType.js',
                     'dev/MRecordRTC.js',
                     'dev/Cross-Browser-Declarations.js',
                     'dev/Storage.js',
@@ -42,7 +45,8 @@ module.exports = function(grunt) {
                     './PHP-and-FFmpeg/*.html',
                     './RecordRTC-over-Socketio/*.html',
                     './RecordRTC-to-Nodejs/static/*.html',
-                    './RecordRTC-to-PHP/*.html'
+                    './RecordRTC-to-PHP/*.html',
+                    './*.html'
                 ],
                 options: {
                     'tag-pair': true
@@ -126,13 +130,7 @@ module.exports = function(grunt) {
             files: [
                 // 'RecordRTC.js',
                 'dev/*.js',
-                'Gruntfile.js',
-                './Canvas-Recording/*.html',
-                './MRecordRTC/*.html',
-                './PHP-and-FFmpeg/*.html',
-                './RecordRTC-over-Socketio/*.html',
-                './RecordRTC-to-Nodejs/static/*.html',
-                './RecordRTC-to-PHP/*.html'
+                'Gruntfile.js'
             ],
             options: {
                 js: {

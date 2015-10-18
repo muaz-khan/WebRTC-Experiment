@@ -1,4 +1,6 @@
-## [RTCMultiConnection-v3.0](https://github.com/muaz-khan/RTCMultiConnection/tree/master/RTCMultiConnection-v3.0) (Beta)  [![npm](https://img.shields.io/npm/v/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master)](https://travis-ci.org/muaz-khan/RTCMultiConnection)
+## [RTCMultiConnection-v3.0](https://github.com/muaz-khan/RTCMultiConnection/tree/master/RTCMultiConnection-v3.0) (Beta)  
+
+[![npm](https://img.shields.io/npm/v/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master)](https://travis-ci.org/muaz-khan/RTCMultiConnection)
 
 Fetch latest code:
 
@@ -157,7 +159,168 @@ socket.on('custom-event', function(data) {
 });
 ```
 
-PS. v3.0 documentation is still incomplete. Need to expand this section for more features or backward compatibility hacks.
+# API
+
+### `applyConstraints`
+
+This method allows you change video resolutions or audio sources without making a new getUserMedia request i.e. it modifies your existing MediaStream:
+
+```javascript
+var width = 1280;
+var height = 720;
+
+var supports = navigator.mediaDevices.getSupportedConstraints();
+
+var constraints = {};
+if (supports.width && supports.height) {
+    constraints = {
+        width: width,
+        height: height
+    };
+}
+
+connection.applyConstraints({
+    video: constraints
+});
+```
+
+`applyConstraints` access `mediaConstraints` object, defined here:
+
+* [http://www.rtcmulticonnection.org/docs/mediaConstraints/](http://www.rtcmulticonnection.org/docs/mediaConstraints/)
+
+### `replaceTrack`
+
+This method allows you replace your front-camera video with back-camera video or replace video with screen or replace older low-quality video with new high quality video.
+
+```javascript
+// here is its simpler usage
+connection.replaceTrack({
+	screen: true,
+	oneway: true
+});
+```
+
+You can even pass `MediaStreamTrack` object:
+
+```javascript
+var videoTrack = yourVideoStream.getVideoTracks()[0];
+connection.replaceTrack(videoTrack);
+```
+
+You can even pass `MediaStream` object:
+
+```javascript
+connection.replaceTrack(yourVideoStream);
+```
+
+You can even force to replace tracks only with a single user:
+
+```javascript
+var remoteUserId = 'single-remote-userid';
+
+var videoTrack = yourVideoStream.getVideoTracks()[0];
+connection.replaceTrack(videoTrack, remoteUserId);
+```
+
+### `onUserStatusChanged`
+
+This even allows you show online/offline statuses of the user:
+
+```javascript
+connection.onUserStatusChanged = function(status) {
+	document.getElementById(event.userid).src = status === 'online' ? 'online.gif' : 'offline.gif';
+};
+```
+
+### `getSocket`
+
+This method allows you get the `socket` object used for signaling (handshake/presence-detection/etc.):
+
+```javascript
+var socket = connection.getSocket();
+socket.emit('custom-event', 'hi there');
+socket.on('custom-event', function(message) {
+	alert(message);
+});
+```
+
+If socket isn't connected yet, then above method will auto-connect it. It is using `connectSocket` to connect socket. See below section.
+
+### `connectSocket`
+
+It is same like old RTCMultiConnection `connect` method:
+
+* [http://www.rtcmulticonnection.org/docs/connect/](http://www.rtcmulticonnection.org/docs/connect/)
+
+`connectSocket` method simply initializes socket.io server so that you can send custom-messages before creating/joining rooms:
+
+```javascript
+connection.connectSocket(function(socket) {
+	socket.on('custom-message', function(message) {
+		alert(message);
+
+		// custom message
+		if(message.joinMyRoom) {
+			connection.join(message.roomid);
+		}
+	});
+
+	socket.emit('custom-message', 'hi there');
+
+	connection.open('room-id');
+});
+```
+
+### `getUserMediaHandler`
+
+This object allows you capture audio/video stream yourself. RTCMultiConnection will NEVER know about your stream until you add it yourself, manually:
+
+```javascript
+var options = {
+	localMediaConstraints: {
+		audio: true,
+		video: true
+	},
+	onGettingLocalMedia: function(stream) {},
+	onLocalMediaError: function(error) {}
+};
+connection.getUserMediaHandler(options);
+```
+
+Its defined here:
+
+* [getUserMedia.js#L20](https://github.com/muaz-khan/RTCMultiConnection/blob/master/RTCMultiConnection-v3.0/dev/getUserMedia.js#L20)
+
+## Firebase?
+
+If you are willing to use Firebase instead of Socket.io there, open [GruntFile.js](https://github.com/muaz-khan/RTCMultiConnection/blob/master/RTCMultiConnection-v3.0/Gruntfile.js) and replace `SocketConnection.js` with `FirebaseConnection.js`.
+
+Then use `grunt` to recompile RTCMultiConnection.js.
+
+**Otherwise** if you don't want to modify RTCMultiConnection:
+
+```html
+<script src="/dev/globals.js"></script>
+<script src="/dev/FirebaseConnection.js"></script>
+<script>
+var connection = new RTCMultiConnection();
+
+connection.firebase = 'your-firebase-account';
+
+// below line replaces FirebaseConnection
+connection.setCustomSocketHandler(FirebaseConnection);
+</script>
+```
+
+Demo: [https://cdn.rawgit.com/muaz-khan/RTCMultiConnection/master/RTCMultiConnection-v3.0/demos/Firebase-Demo.html](https://cdn.rawgit.com/muaz-khan/RTCMultiConnection/master/RTCMultiConnection-v3.0/demos/Firebase-Demo.html)
+
+## PubNub?
+
+Follow above all "firebase" steps and use `PubNubConnection.js` instead.
+
+Please don't forget to use your own PubNub keys.
+
+Demo: [https://cdn.rawgit.com/muaz-khan/RTCMultiConnection/master/RTCMultiConnection-v3.0/demos/PubNub-Demo.html](https://cdn.rawgit.com/muaz-khan/RTCMultiConnection/master/RTCMultiConnection-v3.0/demos/PubNub-Demo.html)
 
 ## Configure v3.0
 

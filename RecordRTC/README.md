@@ -6,7 +6,9 @@
 
 > [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is a JavaScript-based media-recording library for modern web-browsers (supporting WebRTC getUserMedia API). It is optimized for different devices and browsers to bring all client-side (pluginfree) recording solutions in single place.
 
+# Check all releases:
 
+* https://github.com/muaz-khan/RecordRTC/releases
 
 Please check [dev](https://github.com/muaz-khan/RecordRTC/tree/master/dev) directory for development files.
 
@@ -115,6 +117,12 @@ var recordRTC;
 function successCallback(stream) {
     // RecordRTC usage goes here
 
+    var options = {
+      mimeType: 'video/webm', // or video/mp4 or audio/ogg
+      audioBitsPerSecond: 128000,
+      videoBitsPerSecond: 128000,
+      bitsPerSecond: 128000 // if this line is provided, skip above two
+    };
     recordRTC = RecordRTC(MediaStream);
     recordRTC.startRecording();
 }
@@ -526,6 +534,58 @@ Values for sample-rate must be greater than or equal to 22050 and less than or e
 If you passed invalid value then you'll get blank audio.
 
 You can pass custom sample-rate values only on Mac (or additionally maybe on Windows 10).
+
+## `mimeType`
+
+This option allows you set MediaRecorder output format (currently works only in Firefox; Chrome support coming soon):
+
+```javascript
+var options = {
+  mimeType 'video/webm', // or video/mp4 or audio/ogg
+  bitsPerSecond: 128000
+};
+var recorder = RecordRTC(mediaStream, options);
+```
+
+Note: For chrome, it will simply auto-set `type:audio or video` parameters to keep supporting `StereoAudioRecorder.js` and `WhammyRecorder.js`.
+
+That is, you can skip passing `type:audio` parameter when you're using `mimeType` parameter.
+
+## `bitsPerSecond`
+
+The chosen bitrate for the audio and video components of the media. If this is specified along with one or the other of the above properties, this will be used for the one that isn't specified.
+
+```javascript
+var options = {
+  mimeType 'video/webm', // or video/mp4 or audio/ogg
+  bitsPerSecond: 128000
+};
+var recorder = RecordRTC(mediaStream, options);
+```
+
+## `audioBitsPerSecond`
+
+The chosen bitrate for the audio component of the media.
+
+```javascript
+var options = {
+  mimeType 'audio/ogg',
+  audioBitsPerSecond: 128000
+};
+var recorder = RecordRTC(mediaStream, options);
+```
+
+## `videooBitsPerSecond`
+
+The chosen bitrate for the video component of the media.
+
+```javascript
+var options = {
+  mimeType 'video/webm', // or video/mp4
+  videooBitsPerSecond: 128000
+};
+var recorder = RecordRTC(mediaStream, options);
+```
 
 ## `onAudioProcessStarted`
 

@@ -1,9 +1,9 @@
-// Last time updated at August 14, 2015, 05:46:23
+// Last time updated at Oct 15, 2015, 05:46:23
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
 
-// Source Code    - github.com/muaz-khan/WebRTC-Experiment/tree/master/Translator.js
+// Source Code    - github.com/muaz-khan/Translator
 // Demo           - www.webrtc-experiment.com/Translator
 
 function Translator() {
@@ -99,11 +99,23 @@ function Translator() {
         };
 
         recognition.onend = function() {
+            if(recognition.dontReTry === true) {
+                return;
+            }
+
             initTranscript(callback, language);
         };
 
         recognition.onerror = function(e) {
-            console.error(e);
+            if(e.error === 'audio-capture') {
+                recognition.dontReTry = true;
+                alert('Failed capturing audio i.e. microphone. Please check console-logs for hints to fix this issue.');
+                console.error('No microphone was found. Ensure that a microphone is installed and that microphone settings are configured correctly. https://support.google.com/chrome/bin/answer.py?hl=en&answer=1407892');
+                console.error('Original', e.type, e.message.length || e);
+                return;
+            }
+
+            console.error(e.type, e.error, e.message);
         };
 
         recognition.start();

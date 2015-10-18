@@ -1,4 +1,4 @@
-// Last time updated at Sep 21, 2015, 08:32:23
+// Last time updated at Wednesday, October 14th, 2015, 1:31:55 PM 
 
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
@@ -21,7 +21,7 @@
     // usually page-URL is used as channel-id
     // you can always override it!
     // www.RTCMultiConnection.org/docs/channel-id/
-    window.RMCDefaultChannel = location.href.replace(/\/|:|#|\?|\$|\^|%|\.|`|~|!|@|\[|\||]|\|*. /g, '').split('\n').join('').split('\r').join('');
+    window.RMCDefaultChannel = location.href.replace(/\/|:|#|\?|\$|\^|%|\.|`|~|!|\+|@|\[|\||]|\|*. /g, '').split('\n').join('').split('\r').join('');
 
     // www.RTCMultiConnection.org/docs/constructor/
     window.RTCMultiConnection = function(channel) {
@@ -3672,6 +3672,25 @@
         // loadScript('https://cdn.webrtc-experiment.com/Plugin.Temasys.js');
     }
 
+    var MediaStream = window.MediaStream;
+
+    if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+        MediaStream = webkitMediaStream;
+    }
+
+    /*global MediaStream:true */
+    if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
+        MediaStream.prototype.stop = function() {
+            this.getAudioTracks().forEach(function(track) {
+                track.stop();
+            });
+
+            this.getVideoTracks().forEach(function(track) {
+                track.stop();
+            });
+        };
+    }
+
     var defaultConstraints = {
         mandatory: {},
         optional: []
@@ -3898,9 +3917,9 @@
         }
     }
 
-    var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-    var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-    var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+    var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+    var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+    var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
     function setSdpConstraints(config) {
         var sdpConstraints;

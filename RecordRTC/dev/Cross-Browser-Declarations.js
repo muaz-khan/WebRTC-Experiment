@@ -2,46 +2,56 @@
 // Cross-Browser-Declarations.js
 
 // animation-frame used in WebM recording
+
+/*jshint -W079 */
+var requestAnimationFrame = window.requestAnimationFrame;
 if (typeof requestAnimationFrame === 'undefined') {
     if (typeof webkitRequestAnimationFrame !== 'undefined') {
         /*global requestAnimationFrame:true */
-        var requestAnimationFrame = webkitRequestAnimationFrame;
+        requestAnimationFrame = webkitRequestAnimationFrame;
     }
 
     if (typeof mozRequestAnimationFrame !== 'undefined') {
         /*global requestAnimationFrame:true */
-        var requestAnimationFrame = mozRequestAnimationFrame;
+        requestAnimationFrame = mozRequestAnimationFrame;
     }
 }
 
+/*jshint -W079 */
+var cancelAnimationFrame = window.cancelAnimationFrame;
 if (typeof cancelAnimationFrame === 'undefined') {
     if (typeof webkitCancelAnimationFrame !== 'undefined') {
         /*global cancelAnimationFrame:true */
-        var cancelAnimationFrame = webkitCancelAnimationFrame;
+        cancelAnimationFrame = webkitCancelAnimationFrame;
     }
 
     if (typeof mozCancelAnimationFrame !== 'undefined') {
         /*global cancelAnimationFrame:true */
-        var cancelAnimationFrame = mozCancelAnimationFrame;
+        cancelAnimationFrame = mozCancelAnimationFrame;
     }
 }
 
 // WebAudio API representer
+var AudioContext = window.AudioContext;
+
 if (typeof AudioContext === 'undefined') {
     if (typeof webkitAudioContext !== 'undefined') {
         /*global AudioContext:true */
-        var AudioContext = webkitAudioContext;
+        AudioContext = webkitAudioContext;
     }
 
     if (typeof mozAudioContext !== 'undefined') {
         /*global AudioContext:true */
-        var AudioContext = mozAudioContext;
+        AudioContext = mozAudioContext;
     }
 }
 
+/*jshint -W079 */
+var URL = window.URL;
+
 if (typeof URL === 'undefined' && typeof webkitURL !== 'undefined') {
     /*global URL:true */
-    var URL = webkitURL;
+    URL = webkitURL;
 }
 
 var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveBlob || !!navigator.msSaveOrOpenBlob);
@@ -63,8 +73,23 @@ if (typeof navigator !== 'undefined') {
     };
 }
 
-if (typeof webkitMediaStream !== 'undefined') {
-    var MediaStream = webkitMediaStream;
+var MediaStream = window.MediaStream;
+
+if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+    MediaStream = webkitMediaStream;
+}
+
+/*global MediaStream:true */
+if (!('stop' in MediaStream.prototype)) {
+    MediaStream.prototype.stop = function() {
+        this.getAudioTracks().forEach(function(track) {
+            track.stop();
+        });
+
+        this.getVideoTracks().forEach(function(track) {
+            track.stop();
+        });
+    };
 }
 
 if (typeof location !== 'undefined') {
@@ -79,6 +104,7 @@ if (typeof location !== 'undefined') {
  * @returns {string} - formafted string
  * @example
  * bytesToSize(1024*1024*5) === '5 GB'
+ * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
  */
 function bytesToSize(bytes) {
     var k = 1000;
@@ -90,6 +116,13 @@ function bytesToSize(bytes) {
     return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
 }
 
+/**
+ * @param {Blob} file - File or Blob object. This parameter is required.
+ * @param {string} fileName - Optional file name e.g. "Recorded-Video.webm"
+ * @example
+ * invokeSaveAsDialog(blob or file, [optional] fileName);
+ * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
+ */
 function invokeSaveAsDialog(file, fileName) {
     if (!file) {
         throw 'Blob object is required.';

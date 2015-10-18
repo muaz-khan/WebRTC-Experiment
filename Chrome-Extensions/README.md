@@ -10,6 +10,7 @@
 * [Screen Capturing in Chrome](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture)
 * [Tab Capturing in Chrome](https://github.com/muaz-khan/Chrome-Extensions/tree/master/tabCapture)
 * [Screen Capturing in Firefox](https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing)
+* [WebRTC File Sharing Chrome Extension](https://github.com/muaz-khan/Chrome-Extensions/tree/master/file-sharing)
 
 # Third Party Extensions
 
@@ -24,6 +25,7 @@
 1. [desktopCapture - simple](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk)
 2. [desktopCapture with p2p streaming](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg)
 3. [tabCapture with p2p streaming](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk)
+4. [WebRTC File Sharing Chrome Extension](https://chrome.google.com/webstore/detail/webrtc-file-sharing/nbnncbdkhpmbnkfngmkdbepoemljbnfo)
 
 ## Third Parties
 

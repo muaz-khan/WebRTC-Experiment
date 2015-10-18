@@ -38,6 +38,10 @@ var OnIceCandidateHandler = (function() {
             return;
         }
 
+        if (connection.enableLogs) {
+            console.debug('Your candidate pairs:', candidate);
+        }
+
         return {
             candidate: candidate,
             sdpMid: icePair.sdpMid,

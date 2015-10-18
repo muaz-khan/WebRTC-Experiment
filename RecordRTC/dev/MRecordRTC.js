@@ -4,8 +4,8 @@
 /**
  * MRecordRTC runs top over {@link RecordRTC} to bring multiple recordings in single place, by providing simple API.
  * @summary MRecordRTC stands for "Multiple-RecordRTC".
- * @license {@link https://www.webrtc-experiment.com/licence/|MIT}
- * @author {@link https://www.MuazKhan.com|Muaz Khan}
+ * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
+ * @author {@link http://www.MuazKhan.com|Muaz Khan}
  * @typedef MRecordRTC
  * @class
  * @example
@@ -19,6 +19,7 @@
  * recorder.startRecording();
  * @see For further information:
  * @see {@link https://github.com/muaz-khan/RecordRTC/tree/master/MRecordRTC|MRecordRTC Source Code}
+ * @param {MediaStream} mediaStream - MediaStream object fetched using getUserMedia API or generated using captureStreamUntilEnded or WebAudio API.
  */
 
 function MRecordRTC(mediaStream) {

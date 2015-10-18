@@ -14,12 +14,14 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 stripBanners: true,
-                separator: '\n'
+                separator: '\n',
+                banner: '// Last time updated at <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> \n\n'
             },
             dist: {
                 src: [
                     'dev/head.js',
                     'dev/RTCMultiConnection.js',
+                    'dev/SocketConnection.js', // You can replace it with: FirebaseConnection.js || PubNubConnection.js
                     'dev/MultiPeersHandler.js',
 
                     'dev/globals.js',
@@ -33,7 +35,7 @@ module.exports = function(grunt) {
                     'dev/StreamsHandler.js',
 
                     'dev/DetectRTC.js',
-                    'dev/getScreenId.js',
+                    'dev/Screen-Capturing.js',
                     'dev/Plugin.EveryWhere.js',
 
                     'dev/TextSenderReceiver.js',

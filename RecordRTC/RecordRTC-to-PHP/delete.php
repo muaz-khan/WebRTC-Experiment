@@ -1,10 +1,10 @@
 <?php
 // Muaz Khan     - www.MuazKhan.com 
 // MIT License   - https://www.webrtc-experiment.com/licence/
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+// Documentation - https://github.com/muaz-khan/RecordRTC
 if (isset($_POST['delete-file'])) {
     $fileName = 'uploads/'.$_POST['delete-file'];
-    if(!unlink($fileName.'.webm') || !unlink($fileName.'.wav')) {
+    if(!unlink($fileName)) {
         echo(' problem deleting files.');
     }
     else {

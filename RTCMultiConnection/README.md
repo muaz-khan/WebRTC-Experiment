@@ -5,13 +5,17 @@
 * [RTCMultiConnection-v3.0](https://github.com/muaz-khan/RTCMultiConnection/tree/master/RTCMultiConnection-v3.0) is latest Beta [![npm](https://img.shields.io/npm/v/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3)
 
 ```
+# v3.0 is highly recommended to users
+# who can afford node.js on their servers!
+# it is many times reliable comparing v2.2.2 and earlier
+
 npm install rtcmulticonnection-v3
 ```
 
-Quick-Demos for newbies: 
+### Quick-Demos for newbies:
 
-1. <a href="http://jsfiddle.net/zar6fg60/">http://jsfiddle.net/zar6fg60/</a> (simplest)
-2. <a href="http://jsfiddle.net/c46de0L8/">http://jsfiddle.net/c46de0L8/</a> (simple)
+1. Simplest: [https://jsfiddle.net/zar6fg60/](https://jsfiddle.net/zar6fg60/)
+2. A little bit advance but simple: [https://jsfiddle.net/c46de0L8/](https://jsfiddle.net/c46de0L8/)
 
 <table style="font-size:18px; font-weight:bold; margin:0; padding:0; margin-left:auto; margin-right:auto; text-align:center;">
     <tr>

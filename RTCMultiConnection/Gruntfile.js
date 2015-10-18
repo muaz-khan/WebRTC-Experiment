@@ -14,7 +14,8 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 stripBanners: true,
-                separator: '\n'
+                separator: '\n',
+                banner: '// Last time updated at <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> \n\n'
             },
             dist: {
                 src: [

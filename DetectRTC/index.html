@@ -122,6 +122,8 @@
 
                     appendTR('Can you change output audio devices?', printVal(DetectRTC.isSetSinkIdSupported));
 
+                    appendTR('Can you change camera resolutions without making new getUserMedia request?', printVal(DetectRTC.isApplyConstraintsSupported));
+
                     appendTR('Browser Supports WebRTC (Either 1.0 or 1.1)?', printVal(DetectRTC.isWebRTCSupported));
                     appendTR('Browser Supports ORTC (WebRTC 1.1)?', printVal(DetectRTC.isORTCSupported));
 
@@ -136,6 +138,10 @@
                     appendTR('Browser Supports SCTP Data Channels?', printVal(DetectRTC.isSctpDataChannelsSupported));
                     appendTR('Browser Supports RTP Data Channels?', printVal(DetectRTC.isRtpDataChannelsSupported));
                     appendTR('This page Supports Screen Capturing API?', printVal(DetectRTC.isScreenCapturingSupported));
+
+                    appendTR('Is this browser supports multi-monitor selection & capturing screen of any monitor?', printVal(DetectRTC.isMultiMonitorScreenCapturingSupported));
+
+
                     appendTR('Is it a mobile device?', printVal(DetectRTC.isMobileDevice));
                     appendTR('Browser Supports WebSockets?', printVal(DetectRTC.isWebSocketsSupported));
 
@@ -248,6 +254,12 @@
             </script>
 
             <section class="experiment"><img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" /></section>
+
+            <section class="experiment own-widgets">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/DetectRTC/issues" target="_blank">DetectRTC Issues</a>
+                </h2>
+                <div id="github-issues"></div>
+            </section>
         
             <section class="experiment">
                 <h2 class="header" id="feedback">Feedback</h2>
@@ -312,6 +324,9 @@ DetectRTC.load(function() {
         </footer>
     
         <!-- commits.js is useless for you!  -->
+        <script>
+            window.useThisGithubPath = 'muaz-khan/DetectRTC';
+        </script>
         <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>
