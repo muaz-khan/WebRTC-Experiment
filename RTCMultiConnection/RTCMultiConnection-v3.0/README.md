@@ -1,4 +1,4 @@
-## [RTCMultiConnection-v3.0](https://github.com/muaz-khan/RTCMultiConnection/tree/master/RTCMultiConnection-v3.0) (Beta)  
+## [RTCMultiConnection-v3.0](https://github.com/muaz-khan/RTCMultiConnection/tree/master/RTCMultiConnection-v3.0) (Beta) / [LIVE Demo](https://rtcmulticonnection.herokuapp.com/)  
 
 [![npm](https://img.shields.io/npm/v/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master)](https://travis-ci.org/muaz-khan/RTCMultiConnection)
 
@@ -17,6 +17,9 @@ ls -a
 To TEST:
 
 ```
+npm start
+
+# or
 node server.js
 
 # if fails,
@@ -45,6 +48,17 @@ You can link multiple files from "dev" directory.
 
 ## Set different socket URL
 
+Either via `config.json` file:
+
+```json
+{
+  "socketURL": "/",
+  "socketMessageEvent": "RTCMultiConnection-Message"
+}
+```
+
+or override in your HTML code:
+
 ```javascript
 connection.socketURL = 'http://yourdomain.com:8080/';
 
@@ -52,6 +66,25 @@ connection.socketURL = 'http://yourdomain.com:8080/';
 // then you can use something else, unique.
 connection.socketMessageEvent = 'unique-message';
 ```
+
+**For testing purpose**, you can use this as well:
+
+```json
+{
+  "socketURL": "https://rtcmulticonnection.herokuapp.com:443/",
+  "socketMessageEvent": "RTCMultiConnection-Message"
+}
+```
+
+or
+
+```javascript
+connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+```
+
+Here is a demo explaining how to use above `socketURL`:
+
+* [https://jsfiddle.net/zd9Lsdfk/](https://jsfiddle.net/zd9Lsdfk/)
 
 ## Integrate in your own applications?
 

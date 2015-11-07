@@ -48,8 +48,14 @@ span {
 <button id="share-file" disabled>Share File</button>
 <hr />
 
+<div id="files-container"></div>
+
+<hr>
+
 <script src="/socket.io/socket.io.js" autoplay> </script>
 <script src="/fbr/FileBufferReader.js" autoplay> </script>
+
+<script src="https://cdn.rawgit.com/muaz-khan/RTCMultiConnection/master/RTCMultiConnection-v3.0/dev/FileProgressBarHandler.js"></script>
 
 <script>
 var socket = io.connect();
@@ -117,50 +123,13 @@ function onBufferStream(chunk) {
     });
 }
 
-var progressHelper = {};
-var outputPanel = document.body;
+fileBufferReader.filesContainer = document.getElementById('files-container');
 
-var FileHelper = {
-    onBegin: function(file) {
-        // if you passed "extra-data", you can access it here:
-        // file.extra.senderUserName or whatever else
+FileProgressBarHandler.handle(fileBufferReader);
 
-        var li = document.createElement('li');
-        li.title = file.name;
-        li.innerHTML = '<label>0%</label> <progress></progress>';
-        outputPanel.insertBefore(li, outputPanel.firstChild);
-        progressHelper[file.uuid] = {
-            li: li,
-            progress: li.querySelector('progress'),
-            label: li.querySelector('label')
-        };
-        progressHelper[file.uuid].progress.max = file.maxChunks;
-    },
-    onEnd: function(file) {
-        // if you passed "extra-data", you can access it here:
-        // file.extra.senderUserName or whatever else
-
-        progressHelper[file.uuid].li.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
-    },
-    onProgress: function(chunk) {
-        // if you passed "extra-data", you can access it here:
-        // chunk.extra.senderUserName or whatever else
-
-        var helper = progressHelper[chunk.uuid];
-        helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
-        updateLabel(helper.progress, helper.label);
-    }
-};
-
-function updateLabel(progress, label) {
-    if (progress.position == -1) return;
-    var position = +progress.position.toFixed(2).split('.')[1] || 100;
-    label.innerHTML = position + '%';
-}
-
-fileBufferReader.onBegin    = FileHelper.onBegin;
-fileBufferReader.onProgress = FileHelper.onProgress;
-fileBufferReader.onEnd      = FileHelper.onEnd;
+fileBufferReader.onBegin    = fileBufferReader.onFileStart;
+fileBufferReader.onProgress = fileBufferReader.onFileProgress;
+fileBufferReader.onEnd      = fileBufferReader.onFileEnd;
 </script>
 
 <h2>How to use?</h2>

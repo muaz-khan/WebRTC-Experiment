@@ -1,15 +1,64 @@
-function SocketConnection(connection, connectCallback) {
-    var socket = io.connect((connection.socketURL || '/') + '?userid=' + connection.userid + '&msgEvent=' + connection.socketMessageEvent);
+function PubNubConnection(connection, connectCallback) {
+    var channelId = connection.channel;
+
+    var pub = 'pub-c-3c0fc243-9892-4858-aa38-1445e58b4ecb';
+    var sub = 'sub-c-d0c386c6-7263-11e2-8b02-12313f022c90';
+
+    WebSocket = PUBNUB.ws;
+    var socket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + channelId);
+
+    socket.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+
+        if (data.eventName === connection.socketMessageEvent) {
+            onMessagesCallback(data.data);
+        }
+
+        if (data.eventName === 'presence') {
+            data = data.data;
+            if (data.userid === connection.userid) return;
+            connection.onUserStatusChanged({
+                userid: data.userid,
+                status: data.isOnline === true ? 'online' : 'offline',
+                extra: connection.peers[data.userid] ? connection.peers[data.userid].extra : {}
+            });
+        }
+    };
+
+    socket.onerror = function() {
+        console.error('Socket connection is failed.');
+    };
+
+    socket.onclose = function() {
+        console.warn('Socket connection is closed.');
+    };
+
+    socket.onopen = function() {
+        // if connection.enableLogs
+        console.info('socket.io connection is opened.');
+        if (connectCallback) connectCallback(socket);
+
+        socket.emit('presence', {
+            userid: connection.userid,
+            isOnline: true
+        });
+    };
+
+    socket.emit = function(eventName, data, callback) {
+        socket.send(JSON.stringify({
+            eventName: eventName,
+            data: data
+        }));
+    };
 
     var mPeer = connection.multiPeersHandler;
 
-    socket.on('extra-data-updated', function(remoteUserId, extra) {
-        if (!connection.peers[remoteUserId]) return;
-        connection.peers[remoteUserId].extra = extra;
-    });
-
-    socket.on(connection.socketMessageEvent, function(message) {
+    function onMessagesCallback(message) {
         if (message.remoteUserId != connection.userid) return;
+
+        if (connection.enableLogs) {
+            console.debug(message.sender, message.message);
+        }
 
         if (connection.peers[message.sender] && connection.peers[message.sender].extra != message.extra) {
             connection.peers[message.sender].extra = message.extra;
@@ -167,74 +216,14 @@ function SocketConnection(connection, connectCallback) {
         }
 
         mPeer.addNegotiatedMessage(message.message, message.sender);
-    });
+    }
 
-    socket.on('user-left', function(userid) {
-        onUserLeft(userid);
-
-        connection.onUserStatusChanged({
-            userid: userid,
-            status: 'offline',
-            extra: connection.peers[userid] ? connection.peers[userid].extra || {} : {}
+    window.addEventListener('beforeunload', function() {
+        socket.emit('presence', {
+            userid: connection.userid,
+            isOnline: false
         });
+    }, false);
 
-        // todo: ???
-        connection.onleave({
-            userid: userid
-        });
-    });
-
-    socket.on('connect', function() {
-        console.info('socket.io connection is opened.');
-        socket.emit('extra-data-updated', connection.extra);
-        if (connectCallback) connectCallback(socket);
-    });
-
-    socket.on('disconnect', function() {
-        if (!!connection.autoReDialOnFailure) {
-            socket = new SocketConnection(connection, connectCallback);
-        }
-    });
-
-    socket.on('join-with-password', function(remoteUserId) {
-        connection.onJoinWithPassword(remoteUserId);
-    });
-
-    socket.on('invalid-password', function(remoteUserId, oldPassword) {
-        connection.onInvalidPassword(remoteUserId, oldPassword);
-    });
-
-    socket.on('password-max-tries-over', function(remoteUserId) {
-        connection.onPasswordMaxTriesOver(remoteUserId);
-    });
-
-    socket.on('user-disconnected', function(remoteUserId) {
-        if (remoteUserId === connection.userid) {
-            return;
-        }
-
-        connection.onUserStatusChanged({
-            userid: remoteUserId,
-            status: 'offline',
-            extra: connection.peers[remoteUserId] ? connection.peers[remoteUserId].extra || {} : {}
-        });
-
-        if (connection.peers[remoteUserId] && connection.peers[remoteUserId].peer) {
-            connection.peers[remoteUserId].peer.close();
-            delete connection.peers[remoteUserId];
-        }
-    });
-
-    socket.on('user-connected', function(userid) {
-        if (userid === connection.userid) {
-            return;
-        }
-
-        connection.onUserStatusChanged({
-            userid: userid,
-            status: 'online',
-            extra: connection.peers[userid] ? connection.peers[userid].extra || {} : {}
-        });
-    });
     return socket;
 }

@@ -1,6 +1,16 @@
-var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
 var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
 var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
+
+var RTCPeerConnection;
+if (typeof mozRTCPeerConnection !== 'undefined') {
+    RTCPeerConnection = mozRTCPeerConnection;
+} else if (typeof webkitRTCPeerConnection !== 'undefined') {
+    RTCPeerConnection = webkitRTCPeerConnection;
+} else if (typeof window.RTCPeerConnection !== 'undefined') {
+    RTCPeerConnection = window.RTCPeerConnection;
+} else {
+    throw 'WebRTC 1.0 (RTCPeerConnection) API are NOT available in this browser.';
+}
 
 function setSdpConstraints(config) {
     var sdpConstraints;
@@ -88,13 +98,6 @@ function PeerConnection() {
             sdp = this.processSdp(sdp);
 
             if (isFirefox) return sdp;
-
-            if (this.renegotiate) {
-                // sdp = sdp.replace(/a=rtpmap:.* rtx.*\r\n/gi, '');
-                // sdp = sdp.replace(/a=fmtp:.* apt=.*\r\n/gi, '');
-                // sdp = sdp.replace(/a=rtcp-fb.*\r\n/gi, '');
-                // sdp = sdp.replace(/a=candidate:.*\r\n/gi, '');
-            }
 
             if (this.session.inactive && !this.holdMLine) {
                 this.hold = true;
@@ -529,12 +532,9 @@ function PeerConnection() {
             }
         },
         recreateOffer: function(renegotiate, callback) {
-            // if(isFirefox) this.create(this.type, this);
-
             log('recreating offer');
 
             this.type = 'offer';
-            this.renegotiate = true;
             this.session = renegotiate;
 
             // todo: make sure this doesn't affect renegotiation scenarios
@@ -556,7 +556,6 @@ function PeerConnection() {
             log('recreating answer');
 
             this.type = 'answer';
-            this.renegotiate = true;
             this.session = session;
 
             // todo: make sure this doesn't affect renegotiation scenarios

@@ -106,10 +106,14 @@ function RTCMultiConnection(roomid) {
         delete connection.peers[remoteUserId];
     }
     mPeer.onUserLeft = onUserLeft;
-    mPeer.disconnectWith = function(remoteUserId) {
-        socket.emit('disconnect-with', remoteUserId);
+    mPeer.disconnectWith = function(remoteUserId, callback) {
+        socket.emit('disconnect-with', remoteUserId, callback || function() {});
 
         if (connection.peers[remoteUserId]) {
+            if (connection.peers[remoteUserId].peer) {
+                connection.peers[remoteUserId].peer.close();
+            }
+
             delete connection.peers[remoteUserId];
         }
     };
@@ -439,12 +443,15 @@ function RTCMultiConnection(roomid) {
     window.addEventListener('beforeunload', beforeUnload, false);
 
     connection.userid = getRandomString();
+    connection.changeUserId = function(newUserId) {
+        connection.userid = newUserId || getRandomString();
+        socket.emit('changed-uuid', connection.userid);
+    };
+
     connection.extra = {};
     if (Object.observe) {
         Object.observe(connection.extra, function(changes) {
-            changes.forEach(function(change) {
-                socket.emit('extra-data-updated', connection.extra);
-            });
+            socket.emit('extra-data-updated', connection.extra);
         });
     }
 
@@ -458,15 +465,39 @@ function RTCMultiConnection(roomid) {
     connection.mediaConstraints = {
         audio: {
             mandatory: {},
-            optional: [{
-                chromeRenderToAssociatedSink: true
-            }]
+            optional: []
         },
         video: {
             mandatory: {},
             optional: []
         }
     };
+
+    DetectRTC.load(function() {
+        // it will force RTCMultiConnection to capture default devices
+        var firstAudioDevice, firstVideoDevice;
+        DetectRTC.MediaDevices.forEach(function(device) {
+            if (!firstAudioDevice && device.kind === 'audioinput') {
+                firstAudioDevice = device;
+                connection.mediaConstraints.audio = {
+                    optional: [{
+                        sourceId: device.id
+                    }],
+                    mandatory: {}
+                };
+            }
+
+            if (!firstVideoDevice && device.kind === 'videoinput') {
+                firstVideoDevice = device;
+                connection.mediaConstraints.video = {
+                    optional: [{
+                        sourceId: device.id
+                    }],
+                    mandatory: {}
+                };
+            }
+        })
+    });
 
     connection.sdpConstraints = {
         mandatory: {
@@ -992,8 +1023,8 @@ function RTCMultiConnection(roomid) {
         },
         selectAll: function() {}
     };
-    connection.socketURL = '/';
-    connection.socketMessageEvent = 'RTCMultiConnection-Message';
+    connection.socketURL = '@@socketURL'; // generated via config.json
+    connection.socketMessageEvent = '@@socketMessageEvent'; // generated via config.json
     connection.DetectRTC = DetectRTC;
 
     connection.onUserStatusChanged = function(event) {
@@ -1012,4 +1043,7 @@ function RTCMultiConnection(roomid) {
     // default value is 15k because Firefox's receiving limit is 16k!
     // however 64k works chrome-to-chrome
     connection.chunkSize = 15 * 1000;
+
+    // eject or leave single user
+    connection.disconnectWith = mPeer.disconnectWith;
 }

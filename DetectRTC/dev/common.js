@@ -1,3 +1,6 @@
+/*global navigator:true */
+var navigator = window.navigator;
+
 if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
     // Firefox 38+ seems having support of enumerateDevices
     // Thanks @xdumaine/enumerateDevices
@@ -15,8 +18,7 @@ if (typeof navigator !== 'undefined') {
         navigator.getUserMedia = navigator.mozGetUserMedia;
     }
 } else {
-    /*global navigator:true */
-    var navigator = {
-        getUserMedia: {}
+    navigator = {
+        getUserMedia: function() { }
     };
 }

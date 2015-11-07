@@ -1,6 +1,4 @@
-var isUseHTTPs = !(!!process.env.PORT || !!process.env.IP);
-
-var server = require(isUseHTTPs ? 'https' : 'http'),
+var server = require('http'),
     url = require('url'),
     path = require('path'),
     fs = require('fs');
@@ -21,12 +19,17 @@ function serverHandler(request, response) {
         response.end();
         return;
     }
+    
     if (fs.statSync(filename).isDirectory()) {
-        if (filename.indexOf('/demos/') !== -1) {
-            filename = filename.replace('/demos/', '');
-        }
+        filename += '/index.html';
+        
+    }
 
-        filename += '/demos/index.html';
+    var contentType;
+    if(filename.indexOf('.html') !== -1) {
+        contentType = {
+            'Content-Type': 'text/html'
+        };
     }
 
 
@@ -40,36 +43,15 @@ function serverHandler(request, response) {
             return;
         }
 
-        response.writeHead(200);
+        response.writeHead(200, contentType);
         response.write(file, 'binary');
         response.end();
     });
 }
 
-var app;
-
-if (isUseHTTPs) {
-    var options = {
-        key: fs.readFileSync(path.join(__dirname, 'fake-keys/privatekey.pem')),
-        cert: fs.readFileSync(path.join(__dirname, 'fake-keys/certificate.pem'))
-    };
-    app = server.createServer(options, serverHandler);
-} else app = server.createServer(serverHandler);
+var app = server.createServer(serverHandler);
 
 app = app.listen(process.env.PORT || 9001, process.env.IP || "0.0.0.0", function() {
     var addr = app.address();
     console.log("Server listening at", addr.address + ":" + addr.port);
-});
-
-require('./Signaling-Server.js')(app, function(socket) {
-    // "socket" object is totally in your own hands!
-    // do whatever you want!
-
-    // in your HTML page, you can access socket as following:
-    // var socket = connection.getSocket();
-    // socket.emit('custom-event', { test: true });
-
-    socket.on('custom-message', function(message) {
-        socket.broadcast.emit('custom-message', message);
-    });
 });

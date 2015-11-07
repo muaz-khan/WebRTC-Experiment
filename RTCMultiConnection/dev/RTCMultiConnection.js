@@ -348,7 +348,10 @@ window.RTCMultiConnection = function(channel) {
 
             // Firefox is supporting audio+screen from single getUserMedia request
             // audio+video+screen will become audio+screen for Firefox
-            // because Firefox isn't supporting multi-streams feature
+            // because Firefox isn't supporting multi-streams feature version < 38
+            // version >38 supports multi-stream sharing.
+            // we can use:  firefoxVersion < 38
+            // however capturing audio and screen using single getUserMedia is a better option
             if (constraints.audio /* && !session.video */ ) {
                 screen_constraints.audio = true;
                 constraints = {};
@@ -874,29 +877,6 @@ window.RTCMultiConnection = function(channel) {
 
         if (!streamid) streamid = 'all';
         if (!isString(streamid) || streamid.search(/all|audio|video|screen/gi) != -1) {
-            for (var stream in connection.streams) {
-                if (connection._skip.indexOf(stream) == -1) {
-                    _stream = connection.streams[stream];
-
-                    if (streamid == 'all') _detachStream(_stream, {
-                        audio: true,
-                        video: true,
-                        screen: true
-                    });
-
-                    else if (isString(streamid)) {
-                        // connection.removeStream('screen');
-                        var config = {};
-                        config[streamid] = true;
-                        _detachStream(_stream, config);
-                    } else _detachStream(_stream, streamid);
-                }
-            }
-
-            if (!dontRenegotiate && connection.detachStreams.length) {
-                connection.renegotiate();
-            }
-
             function _detachStream(_stream, config) {
                 if (config.local && _stream.type != 'local') return;
                 if (config.remote && _stream.type != 'remote') return;
@@ -930,6 +910,30 @@ window.RTCMultiConnection = function(channel) {
                     }
                 }
             }
+
+            for (var stream in connection.streams) {
+                if (connection._skip.indexOf(stream) == -1) {
+                    _stream = connection.streams[stream];
+
+                    if (streamid == 'all') _detachStream(_stream, {
+                        audio: true,
+                        video: true,
+                        screen: true
+                    });
+
+                    else if (isString(streamid)) {
+                        // connection.removeStream('screen');
+                        var config = {};
+                        config[streamid] = true;
+                        _detachStream(_stream, config);
+                    } else _detachStream(_stream, streamid);
+                }
+            }
+
+            if (!dontRenegotiate && connection.detachStreams.length) {
+                connection.renegotiate();
+            }
+
             return;
         }
 

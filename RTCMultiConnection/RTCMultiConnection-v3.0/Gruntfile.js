@@ -35,7 +35,7 @@ module.exports = function(grunt) {
                     'dev/StreamsHandler.js',
 
                     'dev/DetectRTC.js',
-                    'dev/Screen-Capturing.js',
+                    'dev/getScreenId.js', // or Screen-Capturing.js
                     'dev/Plugin.EveryWhere.js',
 
                     'dev/TextSenderReceiver.js',
@@ -44,9 +44,25 @@ module.exports = function(grunt) {
                     'dev/TranslationHandler.js',
                     'dev/tail.js'
                 ],
-                dest: 'RTCMultiConnection.js',
+                dest: './temp/RTCMultiConnection.js',
             },
         },
+        replace: {
+            dist: {
+                options: {
+                    patterns: [{
+                        json: grunt.file.readJSON('config.json')
+                    }]
+                },
+                files: [{
+                    expand: true,
+                    flatten: true,
+                    src: ['./temp/RTCMultiConnection.js'],
+                    dest: './'
+                }]
+            }
+        },
+        clean: ['./temp'],
         uglify: {
             options: {
                 mangle: false
@@ -58,7 +74,7 @@ module.exports = function(grunt) {
             }
         },
         jsbeautifier: {
-            files: ['RTCMultiConnection.js', 'dev/*.js', 'Gruntfile.js'],
+            files: ['RTCMultiConnection.js', 'dev/*.js', 'Gruntfile.js', 'Signaling-Server.js', 'server.js'],
             options: {
                 js: {
                     braceStyle: "collapse",
@@ -116,5 +132,5 @@ module.exports = function(grunt) {
 
     // set default tasks to run when grunt is called without parameters
     // http://gruntjs.com/api/grunt.task
-    grunt.registerTask('default', ['concat', 'jsbeautifier', 'uglify']);
+    grunt.registerTask('default', ['concat', 'replace', 'jsbeautifier', 'uglify', 'clean']);
 };

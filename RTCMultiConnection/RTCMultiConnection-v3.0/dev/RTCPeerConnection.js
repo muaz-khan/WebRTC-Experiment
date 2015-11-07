@@ -27,7 +27,17 @@ function setSdpConstraints(config) {
     return sdpConstraints;
 }
 
-var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+var RTCPeerConnection;
+if (typeof mozRTCPeerConnection !== 'undefined') {
+    RTCPeerConnection = mozRTCPeerConnection;
+} else if (typeof webkitRTCPeerConnection !== 'undefined') {
+    RTCPeerConnection = webkitRTCPeerConnection;
+} else if (typeof window.RTCPeerConnection !== 'undefined') {
+    RTCPeerConnection = window.RTCPeerConnection;
+} else {
+    throw 'WebRTC 1.0 (RTCPeerConnection) API are NOT available in this browser.';
+}
+
 var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
 var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 var MediaStreamTrack = window.MediaStreamTrack;

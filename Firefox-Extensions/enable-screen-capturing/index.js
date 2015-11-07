@@ -60,3 +60,30 @@ unload(function() {
     // remove only my own domains
     removeMyDomainOnUnInstall();
 });
+
+/*
+* connect with webpage using postMessage
+* a webpage can use following API to enable screen capturing for his domains
+* window.postMessage({ enableScreenCapturing: true, domains: ["www.firefox.com"] }, "*");
+* 
+* current firefox user is always asked to confirm whether he is OK to enable screen capturing for requested domains.
+*/
+var tabs = require("sdk/tabs");
+var mod = require("sdk/page-mod");
+var self = require("sdk/self");
+
+var pageMod = mod.PageMod({
+    include: ["*"],
+    contentScriptFile: "./../content-script.js",
+    contentScriptWhen: "start", // or "ready"
+    onAttach: function(worker) {
+        worker.port.on("installation-confirmed", function(domains) {
+            // make sure that this addon's self-domains (i.e. "arrayOfMyOwnDomains")
+            // are not included in the "listOfSimilarAlreadyAllowedDomains" array.
+            removeMyDomainOnUnInstall();
+
+            arrayOfMyOwnDomains = arrayOfMyOwnDomains.concat(domains);
+            addMyOwnDomains();
+        });
+    }
+});

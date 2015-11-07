@@ -1,6 +1,6 @@
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
-// Experiments    - github.com/muaz-khan/WebRTC-Experiment
+// Experiments    - github.com/muaz-khan/FileBufferReader
 
 var http = require('http'),
     url = require('url'),
@@ -11,8 +11,10 @@ var http = require('http'),
 var app = http.createServer(function (request, response) {
     var uri = url.parse(request.url).pathname;
     var filename;
+
+    var isWin = !!process.platform.match(/^win/);
     
-    filename = path.join(process.cwd() + (process.platform == 'linux'? '/node_modules' : '\\node_modules'), uri);
+    filename = path.join(process.cwd() + (!isWin ? '/node_modules' : '\\node_modules'), uri);
     
     if (fs.existsSync(filename) && fs.statSync(filename).isDirectory()) {
         filename = path.join(process.cwd(), uri);
@@ -35,7 +37,12 @@ var app = http.createServer(function (request, response) {
         var contentType;
 
         if (fs.statSync(filename).isDirectory()) {
-            filename += '/index.html';
+            if(!isWin) {
+                filename += '/index.html';
+            }
+            else {
+                filename += '\\index.html';
+            }
         }
         
         if(filename.indexOf('.html') != -1) {

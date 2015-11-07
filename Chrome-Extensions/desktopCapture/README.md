@@ -2,6 +2,40 @@
 
 This chrome extension simply captures content of your screen. It returns `source-id` to callee; and that `source-id` can be used as `chromeMediaSourceId` in WebRTC applications to capture screen's MediaStream.
 
+```
+# Step #1:
+# Download this entire directory
+https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
+
+# Step #2:
+# Change this single line and add your own domain:
+https://github.com/muaz-khan/Chrome-Extensions/blob/master/desktopCapture/manifest.json#L17
+
+# E.g.
+# "matches": ["*://www.eshop4deal.com/*"]
+
+# Step #3:
+# Make ZIP of the entire directory.
+# Using Mac, you can right-click to Compress the directory.
+# Using windows, you can use either WinRAR or 7Zip tools.
+
+# Step #4:
+# Add a "new item" here:
+https://chrome.google.com/webstore/developer/dashboard
+
+# Above link will ask you link "ZIP" file.
+# Then it will navigate you to publisher page
+# Where you can use "Publish" button (bottom of the page) to publish your
+# extension to Google App Store.
+# Usually it takes 20-to-60 minutes for first deployment
+
+# When extension will be published, you can install the extension
+# And reload your page and NOW Screen Capturing will/should work.
+
+# Google guys also explained steps to deploy a chrome extension:
+https://developer.chrome.com/webstore/publish
+```
+
 List of applications that are using same extension:
 
 1. [getScreenId.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js) - a tinny javascript library that be used in any domain, application or WebRTC wrapper library.

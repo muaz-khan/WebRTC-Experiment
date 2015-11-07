@@ -267,10 +267,10 @@
                             type: mediaContainerFormat.value === 'Gif' ? 'gif' : 'video',
                             disableLogs: params.disableLogs || false,
                             canvas: {
-                                width: params.canvas_width || recordingPlayer.clientWidth,
-                                height: params.canvas_height || recordingPlayer.clientHeight
+                                width: params.canvas_width || 320,
+                                height: params.canvas_height || 240
                             },
-                            frameInterval: params.frameInterval !== 'undefined' ? parseInt(params.frameInterval) : 20 // minimum time between pushing frames to Whammy (in milliseconds)
+                            frameInterval: typeof params.frameInterval !== 'undefined' ? parseInt(params.frameInterval) : 20 // minimum time between pushing frames to Whammy (in milliseconds)
                         });
                         
                         button.recordingEndedCallback = function(url) {
@@ -359,10 +359,10 @@
                                 type: 'video',
                                 disableLogs: params.disableLogs || false,
                                 canvas: {
-                                    width: params.canvas_width || recordingPlayer.clientWidth,
-                                    height: params.canvas_height || recordingPlayer.clientHeight
+                                    width: params.canvas_width || 320,
+                                    height: params.canvas_height || 240
                                 },
-                                frameInterval: params.frameInterval !== 'undefined' ? parseInt(params.frameInterval) : 20 // minimum time between pushing frames to Whammy (in milliseconds)
+                                frameInterval: typeof params.frameInterval !== 'undefined' ? parseInt(params.frameInterval) : 20 // minimum time between pushing frames to Whammy (in milliseconds)
                             });
 
                             // to sync audio/video playbacks in browser!
@@ -425,8 +425,8 @@
                             type: mediaContainerFormat.value === 'Gif' ? 'gif' : 'video',
                             disableLogs: params.disableLogs || false,
                             canvas: {
-                                width: params.canvas_width || recordingPlayer.clientWidth,
-                                height: params.canvas_height || recordingPlayer.clientHeight
+                                width: params.canvas_width || 320,
+                                height: params.canvas_height || 240
                             }
                         });
                         

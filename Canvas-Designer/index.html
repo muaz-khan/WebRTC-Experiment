@@ -5,7 +5,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0, user-scalable=no">
 
-	<title>Canvas Designer ® Muaz Khan</title>    
+	<title>Canvas Designer supporting Collaboration | HTML5, WebRTC</title>    
 	<meta name="description" content="HTML5 Canvas Designer ® Muaz Khan – A tool aimed to give you a full-fledged drawing surface and also auto generate appropriate code for you in different formats! Generator/Tool/Editor – 2D API/Context">
 
 	<meta name="author" content="Muaz Khan">
@@ -13,8 +13,10 @@
 </head>
 <body>
 <script src="canvas-designer-widget.js"></script>
-<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
-<script src="https://cdn.webrtc-experiment.com/firebase.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/RTCMultiConnection.js"></script>
+
+<!-- socket.io for signaling -->
+<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
 
 <style>
 * {
@@ -105,16 +107,15 @@ document.getElementById('open-room').onclick = function() {
     
     this.disabled = true;
     
-    connection.channel = connection.userid = roomid;
-    connection.open({
-        dontTransmit: true,
-        sessionid: roomid
-    });
+    connection.open(roomid);
     
     this.parentNode.innerHTML = '<a href="#' + roomid + '" target="_blank">Please share this link</a>';
 };
 
 var connection = new RTCMultiConnection();
+
+connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
 connection.enableFileSharing = false;
 connection.session = {
     data: true
@@ -125,17 +126,23 @@ connection.sdpConstraints.mandatory = {
 };
 if(location.hash.replace('#', '').length) {
     var roomid = location.hash.replace('#', '');
-    connection.channel = roomid;
-    connection.join({
-        userid: roomid,
-        sessionid: roomid,
-        extra: {},
-        session: connection.session
-    });
+    connection.join(roomid);
 }
 
-connection.onopen = function() {
-    document.getElementById('hide-on-datachannel-opened').style.display = 'none';
+connection.onUserStatusChanged = function(event) {
+    var infoBar = document.getElementById('hide-on-datachannel-opened');
+    if(event.status == 'online') {
+        infoBar.innerHTML = event.userid + ' is <b>online</b>.';
+    }
+
+    if(event.status == 'offline') {
+        infoBar.innerHTML = event.userid + ' is <b>offline</b>.';
+    }
+};
+
+connection.onopen = function(event) {
+    var infoBar = document.getElementById('hide-on-datachannel-opened');
+    infoBar.innerHTML = '<b>' + event.userid + '</b> is ready to collaborate with you.';
 };
 
 connection.onmessage = function(event) {

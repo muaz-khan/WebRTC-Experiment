@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Remote Screen Control using RTCMultiConnection</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/firebase.js"></script>
+</head>
+
+<body>
+    <h1>
+        Remote Screen Control using <a href="http://www.RTCMultiConnection.org/">RTCMultiConnection</a>
+    </h1>
+    <p>
+        Remote user can get full control over remote pages e.g. scroll remote pages, click any link or button, edit text in remote pages, move mouse etc.
+    </p>
+
+    <div id="edit-panel">
+        <div>
+            <label for="x">X</label>
+            <input type="number" name="x" id="x" value="0" />
+        </div>
+        <div>
+            <label for="y">Y</label>
+            <input type="number" name="y" id="y" value="0" />
+        </div>
+        <div>
+            <label for="w">Width (-1 = Full size)</label>
+            <input type="number" name="w" id="w" value="-1" />
+        </div>
+        <div>
+            <label for="h">Height (-1 = Full size)</label>
+            <input type="number" name="h" id="h" value="-1" />
+        </div>
+        <div>
+            <button id="update">Update</button>
+        </div>
+    </div>
+
+    <h2>Remote Screen:</h2>
+    <div id="LocalVideo"></div>
+
+    <script>
+    // this script tag is taken from: https://github.com/andersevenrud/webrtc-screenshare-crop-demo
+    var CROP_X = 10;
+    var CROP_Y = 20;
+    var CROP_W = 320; // default width
+    var CROP_H = 240; // default height
+    var VIDEO_WIDTH = 0;
+    var VIDEO_HEIGHT = 0;
+    var MAX_VIDEO_WIDTH = 1920;
+    var MAX_VIDEO_HEIGHT = 1080;
+    var _canvas;
+    var _context;
+
+    function updateScreenCoordinates() {
+        var x = CROP_X;
+        var y = CROP_Y;
+        var w = CROP_W;
+        var h = CROP_H;
+
+        if (x >= 0) {
+            CROP_X = x;
+        }
+        if (y >= 0) {
+            CROP_Y = y;
+        }
+
+        CROP_W = w || 0;
+        CROP_H = h || 0;
+
+        if (_canvas) {
+            if (_canvas.parentNode) {
+                _canvas.parentNode.removeChild(_canvas);
+            }
+            _canvas = null;
+            _context = null;
+        }
+
+        connection.send({
+            CROP_X: CROP_X,
+            CROP_Y: CROP_Y,
+            CROP_W: CROP_W,
+            CROP_H: CROP_H
+        });
+    }
+
+    /**
+     * Crops a video frame and shows it to the user
+     */
+    function CropFrame(ev, stream, video, callback) {
+        if (!_canvas) {
+            if (CROP_X < 0) {
+                CROP_X = 0;
+            }
+            if (CROP_Y < 0) {
+                CROP_Y = 0;
+            }
+            if (CROP_W <= 0) {
+                CROP_W = VIDEO_WIDTH;
+            }
+            if (CROP_H <= 0) {
+                CROP_H = VIDEO_HEIGHT;
+            }
+            if (CROP_W > MAX_VIDEO_WIDTH) {
+                CROP_W = MAX_VIDEO_WIDTH;
+            }
+            if (CROP_H > MAX_VIDEO_HEIGHT) {
+                CROP_W = MAX_VIDEO_HEIGHT;
+            }
+
+            _canvas = document.createElement('canvas');
+            _canvas.width = CROP_W;
+            _canvas.height = CROP_H;
+            _context = _canvas.getContext('2d');
+
+            document.getElementById("LocalVideo").appendChild(_canvas);
+        }
+
+        _context.drawImage(video, CROP_X, CROP_Y, CROP_W, CROP_H, 0, 0, CROP_W, CROP_H);
+
+        // We need to scale down the image or else we get HTTP 414 Errors
+        // Also we scale down because of RTC message length restriction
+        var scanvas = document.createElement('canvas');
+        scanvas.width = _canvas.width;
+        scanvas.height = _canvas.height;
+
+        var wRatio = _canvas.width / 320;
+        var hRatio = _canvas.height / 240;
+        var maxRatio = Math.max(wRatio, hRatio);
+        if (maxRatio > 1) {
+            scanvas.width = _canvas.width / maxRatio;
+            scanvas.height = _canvas.height / maxRatio;
+        }
+        scanvas.getContext('2d').drawImage(_canvas, 0, 0, scanvas.width, scanvas.height);
+
+        callback(scanvas.toDataURL("image/jpeg"));
+    }
+    </script>
+
+    <script>
+    (function() {
+        var params = {},
+            r = /([^&=]+)=?([^&]*)/g;
+
+        function d(s) {
+            return decodeURIComponent(s.replace(/\+/g, ' '));
+        }
+
+        var match, search = window.location.search;
+        while (match = r.exec(search.substring(1)))
+            params[d(match[1])] = d(match[2]);
+
+        window.params = params;
+    })();
+
+    var connection = new RTCMultiConnection();
+
+    connection.session = {
+        screen: true,
+        data: true,
+        oneway: true
+    };
+
+    connection.onmessage = function(event) {
+        CROP_X = event.data.CROP_X;
+        CROP_Y = event.data.CROP_Y;
+        CROP_W = event.data.CROP_W;
+        CROP_H = event.data.CROP_H;
+
+        if (!_canvas) return;
+        _canvas.width = CROP_W;
+        _canvas.height = CROP_H;
+    };
+
+    connection.onstream = function(event) {
+        var inited = false;
+
+        event.mediaElement.addEventListener('timeupdate', function(ev) {
+            if (!inited) {
+                VIDEO_WIDTH = event.mediaElement.offsetWidth;
+                VIDEO_HEIGHT = event.mediaElement.offsetHeight;
+
+                event.mediaElement.style.display = 'none';
+                event.mediaElement.style.visibility = 'hidden';
+
+                inited = true;
+            }
+
+            CropFrame(ev, event.stream, event.mediaElement);
+        });
+    };
+
+    if (params.sessionid) {
+        // for participants
+        connection.channel = connection.sessionid = params.sessionid;
+        connection.join({
+            sessionid: params.sessionid,
+            userid: params.sessionid,
+            extra: {},
+            session: connection.session
+        });
+    } else {
+        // for initiator
+        connection.channel = connection.sessionid = connection.userid;
+        connection.open({
+            dontTransmit: true,
+            onMediaCaptured: function() {
+                var domain = 'https://www.webrtc-experiment.com';
+                var resultingURL = domain + '/RTCMultiConnection/remote-screen-control.html?sessionid=' + connection.sessionid;
+
+                document.querySelector('h1').innerHTML = '<a href="' + resultingURL + '" target="_blank">Share this private room URL</a>';
+            }
+        });
+    }
+    </script>
+</body>
+
+</html>

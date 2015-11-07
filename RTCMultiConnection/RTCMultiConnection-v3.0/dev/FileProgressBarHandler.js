@@ -14,6 +14,10 @@ var FileProgressBarHandler = (function() {
                 div.innerHTML += ' (Sharing with:' + file.remoteUserId + ')';
             }
 
+            if (!connection.filesContainer) {
+                connection.filesContainer = document.body || document.documentElement;
+            }
+
             connection.filesContainer.insertBefore(div, connection.filesContainer.firstChild);
 
             if (!file.remoteUserId) {

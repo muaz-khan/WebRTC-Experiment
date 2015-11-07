@@ -2,12 +2,15 @@
   "title": "Enable Screen Capturing in Firefox",
   "name": "enable-screen-capturing",
   "id": "{3ef085b0-fe60-11df-8cff-0800200c9a66}",
-  "version": "1.0.006",
+  "version": "1.0.007",
   "description": "This firefox extension enables screen capturing support in Firefox for https://www.webrtc-experiment.com pages.",
   "main": "index.js",
   "author": "Muaz Khan <muazkh@gmail.com>",
   "engines": {
     "firefox": ">=38.0a1"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "permissions": {
+    "unsafe-content-script": true
+  }
 }

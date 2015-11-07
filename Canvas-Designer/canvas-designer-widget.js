@@ -24,7 +24,7 @@ var CanvasDesigner = (function() {
 
     var syncDataListener = function(data) {};
     
-    function onMessage() {
+    function onMessage(event) {
         if (!event.data || !event.data.canvasDesignerSyncData) return;
         syncDataListener(event.data.canvasDesignerSyncData);
     }

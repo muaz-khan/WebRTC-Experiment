@@ -109,7 +109,7 @@
             startRecording.disabled = true;
             stopRecording.disabled = false;
 
-            captureUserMedia(function(stream) {
+            captureUserMedia00(function(stream) {
                 window.audioVideoRecorder = window.RecordRTC(stream, {
                     type: 'video'
                 });
@@ -136,7 +136,7 @@
             });
         };
 
-        function captureUserMedia(callback) {
+        function captureUserMedia00(callback) {
             captureUserMedia({
                 audio: true,
                 video: true

@@ -1136,13 +1136,8 @@ function setDefaults(connection) {
         if (!event.peer.numOfRetries) event.peer.numOfRetries = 0;
         event.peer.numOfRetries++;
 
-        if (isFirefox || event.targetuser.browser == 'firefox') {
-            error('ICE connectivity check is failed. Re-establishing peer connection.');
-            event.peer.numOfRetries < 2 && event.peer.redial();
-        } else {
-            error('ICE connectivity check is failed. Renegotiating peer connection.');
-            event.peer.numOfRetries < 2 && event.peer.renegotiate();
-        }
+        error('ICE connectivity check is failed. Renegotiating peer connection.');
+        event.peer.numOfRetries < 2 && event.peer.renegotiate();
 
         if (event.peer.numOfRetries >= 2) event.peer.numOfRetries = 0;
     };

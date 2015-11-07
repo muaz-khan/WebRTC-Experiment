@@ -13,7 +13,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
         
         <style>
             audio, video {
@@ -56,6 +56,8 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
+
+        <script src="https://cdn.rawgit.com/webrtc/adapter/master/adapter.js"></script>
     </head>
 
     <body>
@@ -83,125 +85,206 @@
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
+
+            <div class="github-stargazers"></div>
             
-            <section class="experiment"></section>
+            <section class="experiment">
+                <table id="output-table"></table>
+                <video id="hidden-video" muted volume=0 style="display:none;"></video>
+            </section>
 <script>
-if (!MediaStreamTrack) document.body.innerHTML = '<h1>Incompatible Browser Detected. Try <strong style="color:red;">Chrome Canary</strong> instead.</h1>';
+if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+    // Firefox 38+, Microsoft Edge, and Chrome 44+ seems having support of enumerateDevices
+    navigator.enumerateDevices = function(callback) {
+        navigator.mediaDevices.enumerateDevices().then(callback);
+    };
+}
 
-var experiments = document.querySelector('.experiment');
-MediaStreamTrack.getSources(function (media_sources) {
-    var sources = [];
-    for (var i = 0; i < media_sources.length; i++) {
-        sources.push(media_sources[i]);
+function getAllAudioVideoDevices(successCallback, failureCallback) {
+    if (!navigator.enumerateDevices && window.MediaStreamTrack && window.MediaStreamTrack.getSources) {
+        navigator.enumerateDevices = window.MediaStreamTrack.getSources.bind(window.MediaStreamTrack);
     }
 
-    getAllUserMedias(sources);
-});
-
-var devicesFetched = {};
-var index = 0;
-
-function getAllUserMedias(media_sources) {
-    var media_source = media_sources[index];
-    if (!media_source) return;
-
-    // to prevent duplicated devices to be fetched.
-    if (devicesFetched[media_source.id]) {
-        index++;
-        return getAllUserMedias(media_sources);
-    }
-    devicesFetched[media_source.id] = media_source;
-
-    var constraints = {};
-
-    if (media_source.kind == 'audio') {
-        constraints.audio = {
-            optional: [{
-                sourceId: media_source.id
-            }]
-        };
+    if (!navigator.enumerateDevices && navigator.mediaDevices.enumerateDevices) {
+        navigator.enumerateDevices = navigator.mediaDevices.enumerateDevices.bind(navigator);
     }
 
-    if (media_source.kind == 'video') {
-        constraints.video = {
-            optional: [{
-                sourceId: media_source.id
-            }]
-        };
+    if (!navigator.enumerateDevices) {
+        failureCallback(null, 'Neither navigator.mediaDevices.enumerateDevices NOR MediaStreamTrack.getSources are available.');
+        return;
     }
 
-    navigator.webkitGetUserMedia(constraints, function (stream) {
-        experiments.appendChild(document.createElement('br'));
-        experiments.appendChild(document.createElement('br'));
-        
-        var h2 = document.createElement('h2');
-        experiments.appendChild(h2);
+    var allMdiaDevices = [];
+    var allAudioDevices = [];
+    var allVideoDevices = [];
 
-        experiments.appendChild(document.createElement('br'));
-        experiments.appendChild(document.createElement('br'));
+    var audioInputDevices = [];
+    var audioOutputDevices = [];
+    var videoInputDevices = [];
+    var videoOutputDevices = [];
 
-        if (media_source.kind === 'audio') {
-            h2.innerHTML = media_source.label || 'microphone ' + index;
-        } else if (media_source.kind === 'video') {
-            h2.innerHTML = media_source.label || 'camera ' + index;
-        } else {
-            h2.innerHTML = 'Some other kind of source: ' + JSON.stringify(media_source, null, '&nbsp;');
+    navigator.enumerateDevices(function(devices) {
+        devices.forEach(function(_device) {
+            var device = {};
+            for (var d in _device) {
+                device[d] = _device[d];
+            }
+
+            // make sure that we are not fetching duplicate devics
+            var skip;
+            allMdiaDevices.forEach(function(d) {
+                if (d.id === device.id) {
+                    skip = true;
+                }
+            });
+
+            if (skip) {
+                return;
+            }
+
+            // if it is MediaStreamTrack.getSources
+            if (device.kind === 'audio') {
+                device.kind = 'audioinput';
+            }
+
+            if (device.kind === 'video') {
+                device.kind = 'videoinput';
+            }
+
+            if (!device.deviceId) {
+                device.deviceId = device.id;
+            }
+
+            if (!device.id) {
+                device.id = device.deviceId;
+            }
+
+            if (!device.label) {
+                device.label = 'Please invoke getUserMedia once.';
+            }
+
+            if (device.kind === 'audioinput' || device.kind === 'audio') {
+                audioInputDevices.push(device);
+            }
+
+            if (device.kind === 'audiooutput') {
+                audioOutputDevices.push(device);
+            }
+
+            if (device.kind === 'videoinput' || device.kind === 'video') {
+                videoInputDevices.push(device);
+            }
+
+            if (device.kind.indexOf('audio') !== -1) {
+                allAudioDevices.push(device);
+            }
+
+            if (device.kind.indexOf('video') !== -1) {
+                allVideoDevices.push(device);
+            }
+
+            // there is no 'videoouput' in the spec.
+            // so videoOutputDevices will always be [empty]
+
+            allMdiaDevices.push(device);
+        });
+
+        if (successCallback) {
+            successCallback({
+                allMdiaDevices: allMdiaDevices,
+                allVideoDevices: allVideoDevices,
+                allAudioDevices: allAudioDevices,
+                videoInputDevices: videoInputDevices,
+                audioInputDevices: audioInputDevices,
+                audioOutputDevices: audioOutputDevices
+            });
+        }
+    });
+}
+
+var outputTable = document.getElementById('output-table');
+function showOutput(td1Text, td2Text) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>'+td1Text+'</td><td>'+td2Text+'</td>';
+    outputTable.appendChild(tr);
+}
+
+function captureUserMedia(mediaConstraints, successCallback, errorCallback) {
+    navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
+}
+
+captureUserMedia({audio: true, video: true}, function(stream) {
+    getAllAudioVideoDevices(function(result) {
+        if (result.allMdiaDevices.length) {
+            showOutput('Number of audio/video devices available:', result.allMdiaDevices.length);
         }
 
-        var mediaElement = document.createElement(media_source.kind);
-        mediaElement.src = window.URL.createObjectURL(stream);
-        experiments.appendChild(mediaElement);
-        mediaElement.controls = true;
-        mediaElement.play();
-    }, function (e) {
-        experiments.appendChild(document.createElement('br'));
-        var h2 = document.createElement('h2');
-        h2.innerHTML = JSON.stringify(e);
-        experiments.appendChild(h2);
+        if (result.allVideoDevices.length) {
+            showOutput('Number of video devices available:', result.allVideoDevices.length);
+        }
+
+        if (result.allAudioDevices.length) {
+            showOutput('Number of audio devices available:', result.allAudioDevices.length);
+        }
+
+        if (result.videoInputDevices.length) {
+            showOutput('Number of video-input devices available:', result.videoInputDevices.length);
+        }
+
+        if (result.audioInputDevices.length) {
+            showOutput('Number of audio-input devices available:', result.audioInputDevices.length);
+        }
+
+        if (result.audioOutputDevices.length) {
+            showOutput('Number of audio-output devices available:', result.audioOutputDevices.length);
+        }
+
+        if (result.allMdiaDevices.length && result.allMdiaDevices[0].label === 'Please invoke getUserMedia once.') {
+            showOutput('It seems you did not invoke navigator-getUserMedia before using these API.', 'warning');
+        }
+
+        var text = '<h2>All audio input devices:</h2><br><ol>';
+        result.audioInputDevices.forEach(function(device) {
+            text += '<li>'+ device.label + ' (Kind: ' + device.kind +')</li>';
+        });
+        text += '</ol>';
+        showOutput(text, 'audio-input');
+
+        text = '<h2>All audio output devices:</h2><br><ol>';
+        result.audioOutputDevices.forEach(function(device) {
+            text += '<li>'+ device.label + ' (Kind: ' + device.kind +')</li>';
+        });
+        text += '</ol>';
+        showOutput(text, 'audio-output');
+
+        text = '<h2>All video input devices:</h2><br><ol>';
+        result.videoInputDevices.forEach(function(device) {
+            text += '<li>'+ device.label + ' (Kind: ' + device.kind +')</li>';
+        });
+        text += '</ol>';
+        showOutput(text, 'video-input');
+    }, function(error) {
+        alert(error);
     });
 
-    index++;
-    getAllUserMedias(media_sources);
-}
+    document.getElementById('hidden-video').srcObject = stream;
+}, function(error){
+    alert(JSON.stringify(error));
+});
 </script>
 
             <section class="experiment">
-                <h2>How to use?</h2>
-
-<pre style="border-left:2px solid red;margin-left:2em;padding-left:1em;">
-MediaStreamTrack.getSources(function (media_sources) {
-    for (var i = 0; i < media_sources.length; i++) {
-        var media_source = media_sources[i];
-        var constraints = {};
-
-        // if audio device
-        if (media_source.kind == 'audio') {
-            constraints.audio = {
-                optional: [{
-                    sourceId: media_source.id
-                }]
-            };
-        }
-
-        // if video device
-        if (media_source.kind == 'video') {
-            constraints.video = {
-                optional: [{
-                    sourceId: media_source.id
-                }]
-            };
-        }
-
-
-        // invoke getUserMedia to capture this device
-        navigator.webkitGetUserMedia(constraints, function (stream) {
-            console.log(stream.id, stream);
-        });
-    }
-});
-</pre>
+                <h2>How to use in your own webpages?</h2>
+                <p>
+                    Please check this Stackoverflow answer: <a href="http://stackoverflow.com/a/20087996/552182" target="_blank">http://stackoverflow.com/a/20087996/552182</a> 
+                </p>
             </section>
             
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
             <section class="experiment">
                 <h2 class="header" id="feedback">Feedback</h2>
                 <div>
@@ -211,17 +294,17 @@ MediaStreamTrack.getSources(function (media_sources) {
             </section>
         </article>
         
-        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-right"></a>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/MediaStreamTrack.getSources.html" class="fork-left"></a>
         
         <footer>
             <p>
                 <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
-                &copy; <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
                 <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
             </p>
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="//www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

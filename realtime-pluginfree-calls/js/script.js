@@ -6,10 +6,7 @@
 // MIT License   - www.webrtc-experiment.com/licence
 // Experiments   - github.com/muaz-khan/WebRTC-Experiment
 
-// loading larger images as data-URLs across domains.
-var imageURL = getBackgroundImage();
-var imgElephant = document.getElementById("images-video-container-png");
-imgElephant.setAttribute('src', imageURL);
+var imageURL = document.getElementById('images-video-container-png').src;
 
 var chatSection = getElement('.chat-section'),
     chatOutput = getElement('.chat-output'),
@@ -18,7 +15,7 @@ var chatSection = getElement('.chat-section'),
 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 var sender = Math.round(Math.random() * 999999999) + 999999999;
 
-var SIGNALING_SERVER = 'https://signaling-muazkh.c9.io:443/';
+var SIGNALING_SERVER = 'https://socketio-signaling.herokuapp.com:443/';
 
 io.connect(SIGNALING_SERVER).emit('new-channel', {
     channel: channel,

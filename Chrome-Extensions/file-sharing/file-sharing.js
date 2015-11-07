@@ -2,6 +2,38 @@
 // MIT License   - https://www.WebRTC-Experiment.com/licence/
 // Source Code   - https://github.com/muaz-khan/Chrome-Extensions
 
+var iframe = document.querySelector('iframe');
+
+var btnSelectFile = document.querySelector('.btn-select-file');
+
+btnSelectFile.onclick = function() {
+    var fileSelector = new FileSelector();
+    fileSelector.selectSingleFile(function(file) {
+        btnSelectFile.style.left = '5px';
+        btnSelectFile.style.right = 'auto';
+        btnSelectFile.style.zIndex = 10;
+        btnSelectFile.style.top = '5px';
+        btnSelectFile.style.outline = 'none';
+
+        document.querySelector('.overlay').style.display = 'none';
+        iframe.style.display = 'block';
+
+        if(file.type.match(/image|video|audio|pdf|txt|js|css|php|py/g)) {
+            iframe.src = URL.createObjectURL(file);
+        }
+        else {
+            iframe.src = 'images/unknown.png';
+        }
+
+        iframe.onload = function() {
+            iframe.contentWindow.document.body.style.textAlign = 'center';
+            iframe.contentWindow.document.body.style.background = 'black';
+        };
+
+        onFileSelected(file);
+    });
+};
+
 var connection;
 var lastSelectedFile;
 
@@ -17,6 +49,8 @@ function setupWebRTCConnection() {
 
     // www.RTCMultiConnection.org/docs/
     connection = new RTCMultiConnection();
+
+    connection.setCustomSocketHandler(PubNubConnection);
     
     connection.chunkSize = chunk_size;
 
@@ -54,10 +88,7 @@ function setupWebRTCConnection() {
     setFileProgressBarHandlers(connection);
 
     connection.onUserStatusChanged = function(user) {
-        if(!document.getElementById(user.userid)) {
-            appendUser(user);
-        }
-        setUserStatus(user);
+        incrementOrDecrementUsers(user);
     };
 
     connection.onleave = function(user) {
@@ -67,9 +98,9 @@ function setupWebRTCConnection() {
 
     connection.open(connection.channel);
 
-    var resultingURL = 'https://www.webrtc-experiment.com/!!/?r=' + connection.channel;
+    var resultingURL = 'https://www.webrtc-experiment.com/file-receiver/file-receiver.html?r=' + connection.channel;
 
-    document.querySelector('h1').innerHTML = "<a href='" + resultingURL + "' target=_blank style='font-size: 20px;'>Right-click to copy & share this private URL!</a>";
+    document.querySelector('header').innerHTML = "<a href='" + resultingURL + "' target=_blank style='font-size: 20px;'>Right-click to copy & share this private URL!</a>";
 }
 
 function setFileProgressBarHandlers(connection) {
@@ -158,27 +189,8 @@ function bytesToSize(bytes) {
     return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
 }
 
-document.getElementById('file').onchange = function() {
-    var file = this.files[0];
-
-    if (!file || !file.size) return;
-
-    var innerHTML = 'File info: <b>' + file.name + '</b> ( ' + bytesToSize(file.size) + ' )<br>';
-    var url = URL.createObjectURL(file);
-    if (file.type.indexOf('image') != -1) {
-        innerHTML += '<img src="' + url + '" title="' + file.name + '" style="max-width: 80%;">';
-    } else if (file.type.indexOf('video/') != -1) {
-        innerHTML += '<video src="' + url + '" title="' + file.name + '" controls></video>';
-    }
-
-    else if (file.type.indexOf('audio/') != -1) {
-        innerHTML += '<audio src="' + url + '" title="' + file.name + '" controls></audio>';
-    }
-
-    else if (file.type.indexOf('video/') == -1 && file.type.indexOf('audio/') == -1) {
-        innerHTML += '<iframe src="' + url + '" title="' + file.name + '" style="width: 80%;border: 0;height: inherit;margin-top:1em;"></iframe>';
-    }
-
+function onFileSelected(file) {
+    var innerHTML = 'You selected:<br><b>' + file.name + '</b><br><small>' + bytesToSize(file.size) + '</small>';
     appendLog(innerHTML);
 
     lastSelectedFile = file;
@@ -186,32 +198,27 @@ document.getElementById('file').onchange = function() {
     if (connection) {
         connection.shareFile(file);
     }
-};
+}
 
-var listOfUsers = document.getElementById('list-of-users');
-function appendUser(user) {
-    if(document.getElementById(user.userid)) {
-        setUserStatus(user);
+var numberOfUsers = document.getElementById('number-of-users');
+function incrementOrDecrementUsers(user) {
+    if(!numberOfUsers.getAttribute('data-users')) {
+        numberOfUsers.setAttribute('data-users', '');
+    }
+    if(numberOfUsers.getAttribute('data-users').indexOf(user.userid) !== -1 && user.status === 'offline') {
+        numberOfUsers.innerHTML = parseInt(numberOfUsers.innerHTML) -1;
         return;
     }
 
-    var tr = document.createElement('tr');
-    tr.id = user.userid;
-    tr.innerHTML = '<td><img src="' + user.status +'.png"></td><td>' + user.userid + ' </td>';
-    listOfUsers.insertBefore(tr, listOfUsers.firstChild);
-}
-
-function setUserStatus(user) {
-    var tr = document.getElementById(user.userid);
-    if(!tr) return;
-    tr.querySelector('img').src = user.status  + '.png';
+    numberOfUsers.innerHTML = parseInt(numberOfUsers.innerHTML) + 1;
+    numberOfUsers.setAttribute('data-users', numberOfUsers.getAttribute('data-users') + ',' + user.userid);
 }
 
 var logsDiv = document.getElementById('logs');
 
 function appendLog(html) {
     var div = document.createElement('div');
-    div.innerHTML = '<hr>' + html;
+    div.innerHTML = '<p>' + html + '</p>';
     logsDiv.insertBefore(div, logsDiv.firstChild);
 }
 
@@ -226,5 +233,3 @@ chrome.storage.sync.get(null, function(items) {
 
     setupWebRTCConnection();
 });
-
-document.body.style['min-height'] = innerHeight + 'px';

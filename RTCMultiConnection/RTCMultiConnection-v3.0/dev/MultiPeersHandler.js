@@ -359,10 +359,8 @@ function MultiPeers(connection) {
                 arrayOfUsers = [remoteUserId];
             }
 
-            fbr.setMultipleUsers(uuid, arrayOfUsers);
-
             arrayOfUsers.forEach(function(participant) {
-                fbr.getNextChunk(uuid, function(nextChunk, isLastChunk) {
+                fbr.getNextChunk(uuid, function(nextChunk) {
                     connection.peers[participant].channels.forEach(function(channel) {
                         channel.send(nextChunk);
                     });

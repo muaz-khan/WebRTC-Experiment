@@ -1,5 +1,3 @@
-// Last time updated at Sep 25, 2015, 08:32:23
-
 // Latest file can be found here: https://cdn.webrtc-experiment.com/DetectRTC.js
 
 // Muaz Khan     - www.MuazKhan.com
@@ -11,5 +9,7 @@
 // DetectRTC.hasWebcam (has webcam device!)
 // DetectRTC.hasMicrophone (has microphone device!)
 // DetectRTC.hasSpeakers (has speakers!)
+
+(function() {
 
 'use strict';

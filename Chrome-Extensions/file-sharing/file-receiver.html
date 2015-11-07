@@ -80,6 +80,11 @@
             margin-left: 8px;
         }
     </style>
+
+    <script src="https://cdn.webrtc-experiment.com/file-receiver/FileBufferReader.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/file-receiver/RTCMultiConnection.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/file-receiver/PubNubConnection.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/view/websocket.js"></script>
 </head>
 <body>
     <div style="float:right;font-size:.6em;">
@@ -91,10 +96,6 @@
         <h1>File Receiving Client</h1>
 
         <div id="logs" style="margin-top: 10px;"></div>
-
-        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/FileBufferReader.js"></script>
-        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/!!/RTCMultiConnection.js"></script>
-        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/view/websocket.js"></script>
 
         <script>
 (function() {
@@ -132,7 +133,8 @@ connection.sdpConstraints.mandatory = {
     OfferToReceiveVideo: false
 };
 
-// connection.setCustomSocketHandler(PubNubConnection);
+connection.setCustomSocketHandler(PubNubConnection);
+
 connection.enableFileSharing = true; // by default, it is "false".
 
 connection.session = {
@@ -246,8 +248,8 @@ function setFileProgressBarHandlers() {
             innerHTML += '<audio src="' + url + '" title="' + file.name + '" controls autoplay></audio>';
         }
 
-        else if (file.type.indexOf('video/') == -1 && file.type.indexOf('audio/') == -1) {
-            innerHTML += '<iframe src="' + url + '" title="' + file.name + '" style="width: 80%;border: 0;height: inherit;margin-top:1em;"></iframe>';
+        else if (file.type.match(/image|video|audio|pdf|txt|js|css|php|py/g)) {
+            innerHTML += '<iframe src="' + url + '" title="' + file.name + '" style="width: 100%;border: 0;height: 500px;margin-top:1em;border:0;outline:0;"></iframe>';
         }
 
         appendLog(innerHTML);

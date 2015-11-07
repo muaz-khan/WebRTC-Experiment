@@ -28,6 +28,7 @@ module.exports = function(grunt) {
                     'dev/FilesHandler.js',
                     'dev/DataMessagingHandler.js',
                     'dev/DetectRTC.js',
+                    'dev/DetectRTC-Extender.js',
                     'dev/setDefaults.js',
                     'dev/tail.js'
                 ],

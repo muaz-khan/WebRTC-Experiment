@@ -273,13 +273,13 @@
                         button.recordRTC = RecordRTC(button.stream, {
                             type: mediaContainerFormat.value === 'Gif' ? 'gif' : 'video',
                             recorderType: isChrome && mediaContainerFormat.value !== 'Gif' && typeof MediaRecorder !== 'undefined' ? MediaStreamRecorder : null,
-                            mimeType: mimeType,
+                            mimeType: isChrome ? null: mimeType,
                             disableLogs: params.disableLogs || false,
                             canvas: {
-                                width: params.canvas_width || recordingPlayer.clientWidth,
-                                height: params.canvas_height || recordingPlayer.clientHeight
+                                width: params.canvas_width || 320,
+                                height: params.canvas_height || 240
                             },
-                            frameInterval: params.frameInterval !== 'undefined' ? parseInt(params.frameInterval) : 20 // minimum time between pushing frames to Whammy (in milliseconds)
+                            frameInterval: typeof params.frameInterval !== 'undefined' ? parseInt(params.frameInterval) : 20 // minimum time between pushing frames to Whammy (in milliseconds)
                         });
                         
                         button.recordingEndedCallback = function(url) {
@@ -370,10 +370,10 @@
                                 // recorderType: isChrome && typeof MediaRecorder !== 'undefined' ? MediaStreamRecorder : null,
                                 disableLogs: params.disableLogs || false,
                                 canvas: {
-                                    width: params.canvas_width || recordingPlayer.clientWidth,
-                                    height: params.canvas_height || recordingPlayer.clientHeight
+                                    width: params.canvas_width || 320,
+                                    height: params.canvas_height || 240
                                 },
-                                frameInterval: params.frameInterval !== 'undefined' ? parseInt(params.frameInterval) : 20 // minimum time between pushing frames to Whammy (in milliseconds)
+                                frameInterval: typeof params.frameInterval !== 'undefined' ? parseInt(params.frameInterval) : 20 // minimum time between pushing frames to Whammy (in milliseconds)
                             });
 
                             // to sync audio/video playbacks in browser!
@@ -439,8 +439,8 @@
                             recorderType: isChrome && mediaContainerFormat.value !== 'Gif' && typeof MediaRecorder !== 'undefined' ? MediaStreamRecorder : null,
                             disableLogs: params.disableLogs || false,
                             canvas: {
-                                width: params.canvas_width || recordingPlayer.clientWidth,
-                                height: params.canvas_height || recordingPlayer.clientHeight
+                                width: params.canvas_width || 320,
+                                height: params.canvas_height || 240
                             }
                         });
                         
@@ -875,8 +875,6 @@
                     
                     DetectRTC.screen.onMessageCallback(event.data);
                 });
-                
-                console.log('current chromeMediaSource', DetectRTC.screen.chromeMediaSource);
             </script>
             
             <section class="experiment">

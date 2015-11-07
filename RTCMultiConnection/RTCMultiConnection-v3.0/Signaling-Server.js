@@ -50,7 +50,7 @@ module.exports = exports = function(app, socketCallback) {
 
         socket.on('changed-uuid', function(newUserId) {
             if (listOfUsers[socket.userid]) {
-                if(newUserId === socket.userid) return;
+                if (newUserId === socket.userid) return;
 
                 var oldUserId = socket.userid;
                 listOfUsers[newUserId] = listOfUsers[oldUserId];
@@ -69,21 +69,24 @@ module.exports = exports = function(app, socketCallback) {
         });
 
         socket.on('set-password', function(password) {
-            listOfUsers[socket.userid].password = password;
+            if (listOfUsers[socket.userid]) {
+                listOfUsers[socket.userid].password = password;
+            }
         });
 
-        socket.on('disconnect-with', function(remoteUserId) {
-            if (listOfUsers[socket.userid].connectedWith[remoteUserId]) {
+        socket.on('disconnect-with', function(remoteUserId, callback) {
+            if (listOfUsers[socket.userid] && listOfUsers[socket.userid].connectedWith[remoteUserId]) {
                 delete listOfUsers[socket.userid].connectedWith[remoteUserId];
                 socket.emit('user-disconnected', remoteUserId);
             }
 
-            if (!listOfUsers[remoteUserId]) return;
+            if (!listOfUsers[remoteUserId]) return callback();
 
             if (listOfUsers[remoteUserId].connectedWith[socket.userid]) {
                 delete listOfUsers[remoteUserId].connectedWith[socket.userid];
                 listOfUsers[remoteUserId].socket.emit('user-disconnected', socket.userid);
             }
+            callback();
         });
 
         function onMessageCallback(message) {
@@ -222,4 +225,3 @@ module.exports = exports = function(app, socketCallback) {
         }
     });
 };
-

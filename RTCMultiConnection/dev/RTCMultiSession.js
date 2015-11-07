@@ -216,7 +216,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             onaddstream: function(stream, session) {
                 session = session || _config.renegotiate || connection.session;
 
-                // if it is Firefox; then return.
+                // if it is data-only connection; then return.
                 if (isData(session)) return;
 
                 if (session.screen && (session.audio || session.video)) {
@@ -1178,9 +1178,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                 connection.captureUserMedia(function(stream) {
                     _config.capturing = false;
 
-                    if (isChrome || (isFirefox && !peer.connection.getLocalStreams().length)) {
-                        peer.addStream(stream);
-                    }
+                    peer.addStream(stream);
 
                     connection.renegotiatedSessions[JSON.stringify(_config.renegotiate)] = {
                         session: _config.renegotiate,
@@ -1194,15 +1192,6 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             }
 
             function createAnswer() {
-                // because Firefox has no support of renegotiation yet;
-                // so both chrome and firefox should redial instead of renegotiate!
-                if (isFirefox || _config.userinfo.browser == 'firefox') {
-                    if (connection.peers[_config.userid]) {
-                        connection.peers[_config.userid].redial();
-                    }
-                    return;
-                }
-
                 peer.recreateAnswer(sdp, session, function(_sdp, streaminfo) {
                     sendsdp({
                         sdp: _sdp,
@@ -1947,25 +1936,18 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
             var peer = _peer.peer;
 
             if (e.stream) {
-                peer.attachStreams = [e.stream];
+                if (!peer.attachStreams) {
+                    peer.attachStreams = [];
+                }
+
+                peer.attachStreams.push(e.stream);
             }
 
             // detaching old streams
             detachMediaStream(connection.detachStreams, peer.connection);
 
             if (e.stream && (session.audio || session.video || session.screen)) {
-                // removeStream is not yet implemented in Firefox
-                // if(isFirefox) peer.connection.removeStream(e.stream);
-
-                if (isChrome || (isFirefox && !peer.connection.getLocalStreams().length)) {
-                    peer.addStream(e.stream);
-                }
-            }
-
-            // because Firefox has no support of renegotiation yet;
-            // so both chrome and firefox should redial instead of renegotiate!
-            if (isFirefox || _peer.userinfo.browser == 'firefox') {
-                return _peer.redial();
+                peer.addStream(e.stream);
             }
 
             peer.recreateOffer(session, function(sdp, streaminfo) {
