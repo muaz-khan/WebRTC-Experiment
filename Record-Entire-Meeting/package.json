@@ -1,0 +1,43 @@
+{
+  "name": "record-entire-meeting",
+  "preferGlobal": true,
+  "version": "1.0.1",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "http://www.muazkhan.com/"
+  },
+  "description": "Record Longer Streams (Single or Multiple) using MediaStreamRecorder and Nodejs.",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/streamproc/Record-Entire-Meeting.git"
+  },
+  "keywords": [
+    "mediarecorder",
+    "mediastreamrecorder",
+    "record",
+    "recorder",
+    "record-video",
+    "record-audio",
+    "record-screen",
+    "record-webrtc",
+    "recordrtc",
+    "webrtc-experiment",
+    "javascript-library",
+    "muaz",
+    "muaz-khan"
+  ],
+  "dependencies": {
+    "socket.io": "latest",
+    "mkdirp": "latest"
+  },
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/streamproc/Record-Entire-Meeting/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://github.com/streamproc/Record-Entire-Meeting"
+}

@@ -175,6 +175,14 @@ function setBandwidth(connection) {
             rtxPayload = getCodecPayloadType(sdpLines[rtxIndex]);
         }
 
+        if (!rtxPayload) {
+            return sdp;
+        }
+
+        if (!vp8Payload) {
+            return sdp;
+        }
+
         var rtxFmtpLineIndex = findLine(sdpLines, 'a=fmtp:' + rtxPayload.toString());
         if (rtxFmtpLineIndex !== null) {
             var appendrtxNext = '\r\n';

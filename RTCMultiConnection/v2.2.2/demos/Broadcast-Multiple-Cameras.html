@@ -1,0 +1,135 @@
+<title>Broadcast Multiple-Cameras using RTCMultiConnection.js</title>
+<h1>Broadcast Multiple-Cameras using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection.js</a>
+</h1>
+<style>
+video {
+    width: 30%
+}
+
+button {
+    font-family: Myriad, Arial, Verdana;
+    font-weight: normal;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    padding: 4px 12px;
+    text-decoration: none;
+    color: rgb(27, 26, 26);
+    display: inline-block;
+    box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+    text-shadow: none;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
+    font-size: 20px;
+    border: 1px solid red;
+}
+
+button[disabled] {
+    background: rgba(216, 205, 205, 0.2);
+    border: 1px solid rgb(233, 224, 224);
+    outline: none;
+    box-shadow: none;
+}
+
+blockquote {
+    font-size: 20px;
+    color: rgb(172, 10, 10);
+    border: 1px solid rgb(172, 10, 10);
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin: 9px 10px;
+}
+</style>
+<hr />
+<div id="buttons-container">
+    <button id="broadcast-all-cameras" disabled>Broadcast All Cameras</button>
+</div>
+<blockquote>
+    This demo is using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection.js</a>. This demo enumerates over all available video devices, and appends &lt;button&gt; for each device. You can click any button to capture relevant webcam. Then you can click "Broadcast All Cameras" button to broadcast your "multiple-cameras" over multiple users.
+</blockquote>
+<hr />
+
+<div id="videos-container"></div>
+
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection-v2.2.1.js"></script>
+<script src="https://cdn.webrtc-experiment.com/firebase.js"></script>
+<script>
+var connection = new RTCMultiConnection();
+
+connection.onNewSession = function(session) {
+    connection.join(session);
+};
+
+// connection.getExternalIceServers = false; // optional--remove it.
+// connection.iceServers.length = 1;         // optional--remove it.
+
+connection.dontCaptureUserMedia = true;
+
+// Parent <div> for videos
+connection.body = document.getElementById('videos-container');
+
+connection.session = {
+    audio: true,
+    video: true
+};
+
+connection.direction = 'one-way';
+
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true
+};
+
+var buttonsContainer = document.getElementById('buttons-container');
+// DetectRTC.load --- to make sure all devices are captured
+// connection.enumerateDevices --- to get list of all captured devices
+connection.DetectRTC.load(function() {
+    connection.enumerateDevices(function(devices) {
+        // iterate over devices-array
+        devices.forEach(function(device) {
+            // skip audio devices
+            if (device.kind.indexOf('audio') != -1) return;
+
+            var button = document.createElement('button');
+            button.id = device.deviceId;
+            button.innerHTML = device.label || device.deviceId;
+            button.onclick = function() {
+                this.disabled = true;
+
+                connection.selectDevices(this.id);
+                connection.dontCaptureUserMedia = false;
+                connection.captureUserMedia(function(stream) {
+                    connection.attachStreams.push(stream);
+                    connection.dontCaptureUserMedia = true;
+
+                    if (document.getElementById('broadcast-all-cameras').disabled == true) {
+                        document.getElementById('broadcast-all-cameras').disabled = false;
+                        // document.getElementById('broadcast-all-cameras').style.background = '-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(143, 231, 253)), to(rgb(255, 255, 255)))';
+
+                        document.getElementById('broadcast-all-cameras').style.background = '-webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(195, 35, 56)), to(rgb(255, 15, 15)))';
+                        document.getElementById('broadcast-all-cameras').style.color = 'white';
+                    }
+
+                    alert('Please do not forget to click "Broadcast All Cameras" red-button.');
+                });
+            };
+            buttonsContainer.appendChild(button);
+        });
+    });
+});
+
+connection.connect();
+
+document.getElementById('broadcast-all-cameras').onclick = function() {
+    this.disabled = true;
+    this.style.background = 'rgba(216, 205, 205, 0.2)';
+    this.style.color = 'rgb(27, 26, 26)';
+
+    connection.sdpConstraints.mandatory = {
+        OfferToReceiveAudio: false,
+        OfferToReceiveVideo: false
+    };
+
+    connection.open();
+};
+</script>

@@ -1,8 +1,11 @@
 var exec = require('child_process').exec;
 var fs = require('fs');
 var isWindows = !!process.platform.match(/^win/);
+var socket;
 
-module.exports = exports = function(files) {
+module.exports = exports = function(files, _socket) {
+    socket = _socket;
+
     if(isWindows) {
         concatenateInWindows(files);
         return;
@@ -43,6 +46,7 @@ function concatenateInLinuxOrMac(files, times, fileNotExistsTries) {
     }
 
     if (isAnySingleFileStillInProgress) {
+        /*
         console.log('-------------------------------');
         console.log('isAnySingleFileStillInProgress');
         console.log('-------------------------------');
@@ -57,6 +61,7 @@ function concatenateInLinuxOrMac(files, times, fileNotExistsTries) {
             concatenateInLinuxOrMac(files, times, fileNotExistsTries);
         }, 2000);
         return;
+        */
     }
 
     mergelist = mergelist.substr(0, mergelist.length - 1);
@@ -105,8 +110,11 @@ function concatenateInLinuxOrMac(files, times, fileNotExistsTries) {
                     // remove all user files
                     unlink_merged_files(uploadsFolder + files.fileName, lastIndex);
 
+                    // tell browser is file is successfully uploaded.
+                    socket.emit('complete', files.userId + '.webm');
+
                     // if requested:
-                    // var ScaleRecordings = require('Scale-Recordings.js');
+                    // var ScaleRecordings = require('./Scale-Recordings.js');
                     // ScaleRecordings(files, times);
                 }
             });
@@ -141,6 +149,7 @@ function concatenateInWindows(files, times, fileNotExistsTries) {
     }
 
     if (isAnySingleFileStillInProgress) {
+        /*
         setTimeout(function() {
             fileNotExistsTries = fileNotExistsTries || 0;
             fileNotExistsTries++;
@@ -152,6 +161,7 @@ function concatenateInWindows(files, times, fileNotExistsTries) {
             concatenateInWindows(files, times, fileNotExistsTries);
         }, 2000);
         return;
+        */
     }
 
     mergelist = mergelist.substr(0, mergelist.length - 1);
@@ -159,6 +169,11 @@ function concatenateInWindows(files, times, fileNotExistsTries) {
     // this TEXT file is used to be invoked in ffmpeg
     // ffmpeg reads it, and merges all files accordingly
     var mergelist_file_txt = uploadsFolder + files.fileName + '-mergelist.txt';
+
+    console.log('----------------------------');
+    console.log(mergelist_file_txt);
+    console.log(mergelist);
+    console.log('----------------------------');
 
     // if TEXT file already exists, remove it.
     if (fs.existsSync(mergelist_file_txt)) {
@@ -201,10 +216,32 @@ function concatenateInWindows(files, times, fileNotExistsTries) {
                     unlink_merged_files(uploadsFolder + files.fileName, lastIndex);
 
                     /// if requested:
-                    // var ScaleRecordings = require('Scale-Recordings.js');
+                    // var ScaleRecordings = require('./Scale-Recordings.js');
                     // ScaleRecordings(files, times);
                 }
             });
         }
     });
+}
+
+// delete all files from specific user
+function unlink_merged_files(fileName, lastIndex, index) {
+    function unlink_file(_index) {
+        fs.unlink(fileName + '-' + _index + "-merged.webm", function(error) {
+            if (error) {
+                setTimeout(function() {
+                    unlink_merged_files(fileName, lastIndex, _index);
+                }, 5000);
+            }
+        });
+    }
+
+    if (index) {
+        unlink_file(index);
+        return;
+    }
+
+    for (var i = 1; i < lastIndex; i++) {
+        unlink_file(i);
+    }
 }

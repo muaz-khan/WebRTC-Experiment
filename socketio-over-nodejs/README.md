@@ -1,4 +1,6 @@
-#### [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) / [Demo](http://webrtc-signaling.jit.su/) [![npm](https://img.shields.io/npm/v/socketio-over-nodejs.svg)](https://npmjs.org/package/socketio-over-nodejs) [![downloads](https://img.shields.io/npm/dm/socketio-over-nodejs.svg)](https://npmjs.org/package/socketio-over-nodejs)
+# [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) / [Demo](https://socketio-signaling.herokuapp.com/) 
+
+[![npm](https://img.shields.io/npm/v/socketio-over-nodejs.svg)](https://npmjs.org/package/socketio-over-nodejs) [![downloads](https://img.shields.io/npm/dm/socketio-over-nodejs.svg)](https://npmjs.org/package/socketio-over-nodejs)
 
 **socket.io over node.js** for webrtc-signaling!
 
@@ -40,7 +42,7 @@ mkdir socketio-over-nodejs
 cd socketio-over-nodejs
 
 # get package
-wget http://cdn.webrtc-experiment.com/packages/socketio-over-nodejs.tar
+wget http://dl.webrtc-experiment.com/socketio-over-nodejs.tar
 
 # extract package
 tar -xf socketio-over-nodejs.tar
@@ -117,31 +119,13 @@ Otherwise, follow these steps:
 
 Then open `http://localhost:8888/`.
 
-=
-
-#### If you want to deploy your application
-
-1. Create an account at `nodejitsu`
-2. Use same **Node.js command prompt** window
-3. Type `jitsu deploy` 
-
-and you're done!
-
-**Remember:** `jitsu deploy` command will deploy the entire directory containing all all files including `node_modules` (i.e. dependencies).
-
-=
-
-#### How to use?
+# How to use?
 
 In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
 
 ```javascript
-// http://socketio-over-nodejs.hp.af.cm/
-// http://socketio-over-nodejs.jit.su:80/
-// http://webrtc-signaling.jit.su:80/
-
-var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
-connection.openSignalingChannel = function(config) {   
+var SIGNALING_SERVER = 'https://socketio-signaling.herokuapp.com:443/';
+connection.openSignalingChannel = function(config) {
    var channel = config.channel || this.channel || 'default-namespace';
    var sender = Math.round(Math.random() * 9999999999) + 9999999999;
    
@@ -170,18 +154,12 @@ connection.openSignalingChannel = function(config) {
 
 `io.connect(URL).emit('new-channel')` starts a new namespace that is used privately or publicly to transmit/exchange appropriate stuff e.g. room-details, participation-requests, SDP, ICE, etc.
 
-=
-
-#### `openSocket`
+# `openSocket`
 
 ```javascript
 var config = {
     openSocket: function (config) {
-        // http://socketio-over-nodejs.hp.af.cm/
-        // http://socketio-over-nodejs.nodejitsu.com:80/
-        // http://webrtc-signaling.nodejitsu.com:80/
-
-        var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
+        var SIGNALING_SERVER = 'https://socketio-signaling.herokuapp.com:443/';
 
         config.channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
         var sender = Math.round(Math.random() * 999999999) + 999999999;
@@ -210,18 +188,12 @@ var config = {
 
 ```
 
-=
-
-#### Presence Detection
+# Presence Detection
 
 You can detect presence of a room like this:
 
 ```javascript
-// http://socketio-over-nodejs.hp.af.cm/
-// http://socketio-over-nodejs.jit.su:80/
-// http://webrtc-signaling.jit.su:80/
-
-var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
+var SIGNALING_SERVER = 'https://socketio-signaling.herokuapp.com:443/';
 function testChannelPresence(channel) {
     var socket = io.connect(SIGNALING_SERVER);
     socket.on('presence', function (isChannelPresent) {
@@ -235,33 +207,15 @@ function testChannelPresence(channel) {
 testChannelPresence('default-channel');
 ```
 
-=
-
-#### What is `cd folder-location`?
+# What is `cd folder-location`?
 
 Using this command; you can open project's directory (i.e. folder).
 
-=
-
-#### What is `node signaler`?
+# What is `node signaler`?
 
 This command runs node.js server via `signaler.js` file. That file handles socket.io relevant stuff.
 
-=
-
-#### What is `jitsu deploy`?
-
-This command deploys the **entire directory** (i.e. project, including all `node_modules` dependencies) over `nodejitsu` servers. You will be able to access your deployed project using URL like this:
-
-```javascript
-https://username.nodejitsu.com/
-```
-
-See the demo URL: https://webrtc-signaling.nodejitsu.com/
-
-=
-
-#### Note
+# Note
 
 Each experiment is using something like this:
 
@@ -277,29 +231,14 @@ It is strongly recommended to use absolute URL including port number:
 var SIGNALING_SERVER = 'http://domain.com:8888/';
 ```
 
-=
-
-#### Are you beginner or totally novice?
-
-1. To **run socket.io on your computer**; you need to [download](http://nodejs.org/download/) `node.js` software from `nodejs.org`.
-2. If you're using windows; in the `Start Menus`; you can type `node` in the search-box. `Node.js command prompt` will be listed on the top.
-3. You can use same command prompt to run any `node.js` file; also you can write `nodejitsu` commands in the same place e.g. `jitsu deploy` or `jitsu login` etc.
-4. Default port `8888` is used for this experiment. You can manually open this URL: `http://localhost:8888/`
-
-=
-
-#### Signaling Concepts
+# Signaling Concepts
 
 Interested to understand WebRTC Signaling Concepts? Read [this document](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs/Signaling-Concepts.md).
 
-=
-
-#### SSL/TLS/HTTPS/Socket.io/Node.js ??
+# SSL/TLS/HTTPS/Socket.io/Node.js ??
 
 https://github.com/muaz-khan/WebRTC-Experiment/issues/62
 
-=
-
-#### License
+# License
 
 [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/socketio-over-nodejs) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

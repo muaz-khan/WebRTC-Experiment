@@ -17,8 +17,12 @@ To use it:
 ## Link the library
 
 ```html
-<script src="//cdn.webrtc-experiment.com/getStats.js"></script>
+<script src="https://cdn.webrtc-experiment.com/getStats.js"></script>
 ```
+
+Or link specific build:
+
+* https://github.com/muaz-khan/getStats/releases
 
 ## window.getStats
 

@@ -1,5 +1,13 @@
 // via: https://github.com/diafygi/webrtc-ips
 function DetectLocalIPAddress(callback) {
+    if (!DetectRTC.isWebRTCSupported) {
+        return;
+    }
+
+    if (DetectRTC.isORTCSupported) {
+        return;
+    }
+
     getIPs(function(ip) {
         //local IPs
         if (ip.match(/^(192\.168\.|169\.254\.|10\.|172\.(1[6-9]|2\d|3[01]))/)) {
@@ -33,6 +41,11 @@ function getIPs(callback) {
         useWebKit = !!win.webkitRTCPeerConnection;
     }
 
+    // if still no RTCPeerConnection then it is not supported by the browser so just return
+    if (!RTCPeerConnection) {
+        return;
+    }
+
     //minimal requirements for data connection
     var mediaConstraints = {
         optional: [{
@@ -53,7 +66,7 @@ function getIPs(callback) {
             }]
         };
 
-        if(typeof DetectRTC !== 'undefined' && DetectRTC.browser.isFirefox && DetectRTC.browser.version <= 38) {
+        if (typeof DetectRTC !== 'undefined' && DetectRTC.browser.isFirefox && DetectRTC.browser.version <= 38) {
             servers[0] = {
                 url: servers[0].urls
             };
@@ -66,7 +79,12 @@ function getIPs(callback) {
     function handleCandidate(candidate) {
         //match just the IP address
         var ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
-        var ipAddress = ipRegex.exec(candidate)[1];
+        var match = ipRegex.exec(candidate);
+        if (!match) {
+            console.warn('Could not match IP address in', candidate);
+            return;
+        }
+        var ipAddress = match[1];
 
         //remove duplicates
         if (ipDuplicates[ipAddress] === undefined) {

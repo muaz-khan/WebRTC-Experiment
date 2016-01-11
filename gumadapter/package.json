@@ -1,0 +1,33 @@
+{
+  "name": "gumadapter",
+  "preferGlobal": false,
+  "version": "1.0.0",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "http://www.muazkhan.com/"
+  },
+  "description": "getUserMedia shim/polyfill via: https://github.com/webrtc/adapter",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/gumadapter.git"
+  },
+  "keywords": [
+    "webrtc",
+    "recordrtc",
+    "gumadapter",
+    "getusermedia",
+    "shim",
+    "polyfill"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/muaz-khan/gumadapter/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://github.com/muaz-khan/gumadapter",
+  "_id": "gumadapter@",
+  "_from": "gumadapter@"
+}

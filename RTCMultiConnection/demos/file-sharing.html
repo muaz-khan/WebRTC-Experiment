@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+<head>
+    <title>File Sharing using RTCMultiConnection-v3.0</title>
+
+    <meta name="description" content="Share files with multiple users using RTCMultiConnection v3.0" />
+    <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
+
+    <script>
+        if(!location.hash.replace('#', '').length) {
+            location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+            location.reload();
+        }
+    </script>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,600' rel='stylesheet' type='text/css'>
+
+    <style>
+        *{margin:0;padding:0;}
+        html, body
+        {
+            background-color: white;
+            font-family: 'Open Sans', 'Segoe UI Light','Segoe UI',Verdana,Arial;
+            font-size: 1.1em;
+            overflow: hidden;
+        }
+
+        .overlay {
+            position: absolute;
+            top:0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: black;
+            z-index: 1;
+        }
+
+        .btn-select-file {
+            position: absolute;
+            z-index: 2;
+            left: 40%;
+            top: 40%;
+            width: 100px;
+            height: 100px;
+            -webkit-user-select: none;
+            border-radius: 50%;
+            text-shadow: 2px 2px white;
+            border: 2px solid #E8E8E8;
+            background-color: #D5D8D8;
+            cursor: pointer;
+            background-image: url(https://i.imgur.com/fReHd0P.png?1);
+            outline: none;
+        }
+
+        .btn-select-file:hover {
+            background-color: #BBBBBB;
+        }
+
+        .btn-select-file:active {
+            background-color: #7F7B7B;
+        }
+
+        iframe {
+            position: absolute;
+            width: 80%;
+            height: 96%;
+            top: 40px;
+            left: 0;
+            right: 20;
+            bottom: 0;
+            border: 0;
+            outline: 0;
+            z-index: 5;
+            display: none;
+        }
+
+        #logs {
+            position: absolute;
+            background: white;
+            border-left: 1px solid black;
+            width: 20%;
+            top: 40px;
+            right: 0;
+            bottom: 0;
+            z-index: 6;
+            font-size: medium;
+            overflow: auto;
+            height: 100%;
+        }
+
+        #logs p {
+            padding: 2px 4px;
+            border-bottom: 1px solid black;
+        }
+
+        header {
+            position: absolute;
+            background: white;
+            text-align: center;
+            border-bottom: 1px solid black;
+            width: 100%;
+            height: 40px;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 7;
+        }
+
+        #number-of-users {
+            position: absolute;
+            right: 1px;
+            top: 1px;
+            width: 36px;
+            height: 30px;
+            -webkit-user-select: none;
+            border-radius: 50%;
+            border: 1px solid #1D1C1C;
+            background-color: #E4FFDD;
+            z-index: 8;
+            text-align: center;
+            padding-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+    <button class="btn-select-file"></button>
+
+    <iframe></iframe>
+
+    <header></header>
+    <div id="number-of-users" title="Number of online users.">0</div>
+    <div id="logs"></div>
+
+    <script src="/RTCMultiConnection.min.js"></script>
+    <script src="/dev/FileBufferReader.js"></script>
+
+    <!-- socket.io for signaling -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Muaz Khan     - https://github.com/muaz-khan
+        // MIT License   - https://www.WebRTC-Experiment.com/licence/
+        // Source Code   - https://github.com/muaz-khan/RTCMultiConnection
+        var iframe = document.querySelector('iframe');
+
+        var btnSelectFile = document.querySelector('.btn-select-file');
+
+        btnSelectFile.onclick = function() {
+            var fileSelector = new FileSelector();
+            fileSelector.selectSingleFile(function(file) {
+                previewFile(file);
+
+                onFileSelected(file);
+            });
+        };
+
+        var connection;
+        var lastSelectedFile;
+
+        var room_id = '';
+
+        // 60k -- assuming receiving client is chrome
+        var chunk_size = 60 * 1000;
+
+        function setupWebRTCConnection() {
+            if (connection) {
+                return;
+            }
+
+            // www.RTCMultiConnection.org/docs/
+            connection = new RTCMultiConnection();
+
+            // to make sure, "connection-reconnect" doesn't sends files again
+            connection.fileReceived = {};
+
+            connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+            connection.socketMessageEvent = 'file-sharing';
+
+            connection.chunkSize = chunk_size;
+
+            connection.sdpConstraints.mandatory = {
+                OfferToReceiveAudio: false,
+                OfferToReceiveVideo: false
+            };
+
+            connection.enableFileSharing = true;
+
+            if (room_id && room_id.length) {
+                connection.userid = room_id;
+            }
+
+            connection.channel = connection.sessionid = location.hash.replace('#', '');
+
+            connection.session = {
+                data: true,
+                // oneway: true --- to make it one-to-many
+            };
+
+            connection.filesContainer = logsDiv;
+
+            connection.connectedWith = {};
+
+            connection.onopen = function(e) {
+                if(connection.connectedWith[e.userid]) return;
+                connection.connectedWith[e.userid] = true;
+
+                var message = '<b>' + e.userid + '</b><br>is connected.';
+                appendLog(message);
+
+                if (!lastSelectedFile) return;
+
+                // already shared the file
+
+                var file = lastSelectedFile;
+                setTimeout(function() {
+                    appendLog('Sharing file<br><b>' + file.name + '</b>Size: <b>' + bytesToSize(file.size) + '<b><br>With <b>' + connection.getAllParticipants().length + '</b> users');
+                    connection.shareFile(file);
+                }, 500);
+            };
+
+            connection.onclose = function(e) {
+                incrementOrDecrementUsers();
+
+                if(connection.connectedWith[e.userid]) return;
+
+                appendLog('Data connection has been closed between you and <b>' + e.userid + '</b>. Re-Connecting..');
+            };
+
+            connection.onerror = function(e) {
+                if(connection.connectedWith[e.userid]) return;
+
+                appendLog('Data connection failed. between you and <b>' + e.userid + '</b>. Retrying..');
+            };
+
+            setFileProgressBarHandlers(connection);
+
+            connection.onUserStatusChanged = function(user) {
+                incrementOrDecrementUsers();
+            };
+
+            connection.onleave = function(user) {
+                user.status = 'offline';
+                connection.onUserStatusChanged(user);
+                incrementOrDecrementUsers();
+            };
+
+            var message = 'Connecting room:<br><b>' + connection.channel + '</b>';
+            appendLog(message);
+
+            connection.openOrJoin(connection.channel, function(isRoomExists, roomid) {
+                var message = 'Successfully connected to room:<br><b>' + roomid + '</b>';
+                // if (isRoomEists) { }
+                appendLog(message);
+            });
+
+            var resultingURL = location.href;
+
+            document.querySelector('header').innerHTML = "<a href='" + resultingURL + "' target=_blank style='font-size: 20px;'>Right-click to copy & share this private URL!</a>";
+        }
+
+        function setFileProgressBarHandlers(connection) {
+            var progressHelper = {};
+
+            // www.RTCMultiConnection.org/docs/onFileStart/
+            connection.onFileStart = function(file) {
+                if(connection.fileReceived[file.name]) return;
+
+                var div = document.createElement('div');
+                div.id = file.uuid;
+                div.title = file.name;
+                div.innerHTML = '<label>0%</label> <progress></progress>';
+
+                if (file.userid == connection.userid) {
+                    div.innerHTML += ' (Sharing with:' + file.remoteUserId + ')';
+                }
+                else {
+                    div.innerHTML += ' (Receiving from:' + file.remoteUserId + ')';
+                }
+
+                connection.filesContainer.insertBefore(div, connection.filesContainer.firstChild);
+
+                if (!file.remoteUserId) {
+                    progressHelper[file.uuid] = {
+                        div: div,
+                        progress: div.querySelector('progress'),
+                        label: div.querySelector('label')
+                    };
+                    progressHelper[file.uuid].progress.max = file.maxChunks;
+                    return;
+                }
+
+                if (!progressHelper[file.uuid]) {
+                    progressHelper[file.uuid] = {};
+                }
+
+                progressHelper[file.uuid][file.remoteUserId] = {
+                    div: div,
+                    progress: div.querySelector('progress'),
+                    label: div.querySelector('label')
+                };
+                progressHelper[file.uuid][file.remoteUserId].progress.max = file.maxChunks;
+            };
+
+            // www.RTCMultiConnection.org/docs/onFileProgress/
+            connection.onFileProgress = function(chunk) {
+                if(connection.fileReceived[chunk.name]) return;
+
+                var helper = progressHelper[chunk.uuid];
+                if (!helper) {
+                    return;
+                }
+                if (chunk.remoteUserId) {
+                    helper = progressHelper[chunk.uuid][chunk.remoteUserId];
+                    if (!helper) {
+                        return;
+                    }
+                }
+
+                helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
+                updateLabel(helper.progress, helper.label);
+            };
+
+            // www.RTCMultiConnection.org/docs/onFileEnd/
+            connection.onFileEnd = function(file) {
+                if(connection.fileReceived[file.name]) return;
+
+                var div = document.getElementById(file.uuid);
+                if (div) {
+                    div.parentNode.removeChild(div);
+                }
+
+                if (file.remoteUserId === connection.userid) {
+                    previewFile(file);
+
+                    connection.fileReceived[file.name] = file;
+
+                    var message = 'Successfully received file';
+                    message += '<br><b>' + file.name + '</b>.';
+                    message += '<br>Size: <b>' + bytesToSize(file.size) + '</b>.';
+                    message += '<br><a href="' + file.url + '" target="_blank" download="' + file.name + '">Download</a>';
+                    appendLog(message);
+                    return;
+                }
+
+                var message = 'Successfully shared file';
+                message += '<br><b>' + file.name + '</b>.';
+                message += '<br>With: <b>' + file.remoteUserId + '</b>.';
+                message += '<br>Size: <b>' + bytesToSize(file.size) + '</b>.';
+                appendLog(message);
+            };
+
+            function updateLabel(progress, label) {
+                if (progress.position === -1) {
+                    return;
+                }
+
+                var position = +progress.position.toFixed(2).split('.')[1] || 100;
+                label.innerHTML = position + '%';
+            }
+        }
+
+        function bytesToSize(bytes) {
+            var k = 1000;
+            var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            if (bytes === 0) {
+                return '0 Bytes';
+            }
+            var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+            return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+        }
+
+        function onFileSelected(file) {
+            var innerHTML = 'You selected:<br><b>' + file.name + '</b><br>Size: <b>' + bytesToSize(file.size) + '</b>';
+            appendLog(innerHTML);
+
+            lastSelectedFile = file;
+
+            if (connection) {
+                connection.shareFile(file);
+            }
+        }
+
+        var numberOfUsers = document.getElementById('number-of-users');
+
+        function incrementOrDecrementUsers() {
+            numberOfUsers.innerHTML = connection ? connection.getAllParticipants().length : 0;
+        }
+
+        var logsDiv = document.getElementById('logs');
+
+        function appendLog(html) {
+            var div = document.createElement('div');
+            div.innerHTML = '<p>' + html + '</p>';
+            logsDiv.insertBefore(div, logsDiv.firstChild);
+        }
+
+        function previewFile(file) {
+            btnSelectFile.style.left = '5px';
+            btnSelectFile.style.right = 'auto';
+            btnSelectFile.style.zIndex = 10;
+            btnSelectFile.style.top = '5px';
+            btnSelectFile.style.outline = 'none';
+
+            document.querySelector('.overlay').style.display = 'none';
+            iframe.style.display = 'block';
+
+            if (file.type.match(/image|video|audio|pdf|txt|javascript|css|php|py/g)) {
+                iframe.src = URL.createObjectURL(file);
+            } else {
+                iframe.src = 'https://i.imgur.com/2SUIhbf.png?1';
+            }
+
+            iframe.onload = function() {
+                Array.prototype.slice.call(iframe.contentWindow.document.body.querySelectorAll('*')).forEach(function(element) {
+                    element.style.maxWidth = '100%';
+                });
+                
+                if (file.type.match(/image|video|audio|pdf/g)) {
+                    iframe.contentWindow.document.body.style.textAlign = 'center';
+                    iframe.contentWindow.document.body.style.background = 'black';
+                    iframe.contentWindow.document.body.style.color = 'white';
+                    return;
+                }
+                iframe.contentWindow.document.body.style.textAlign = 'left';
+                iframe.contentWindow.document.body.style.background = 'white';
+                iframe.contentWindow.document.body.style.color = 'black';
+            };
+        }
+
+        setupWebRTCConnection();
+    </script>
+</body>
+</html>

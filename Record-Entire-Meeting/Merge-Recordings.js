@@ -1,37 +1,17 @@
 var exec = require('child_process').exec;
 var fs = require('fs');
-var isWindows = !!process.platform.match(/^win/);j
-var ConcatenateRecordings = require('Concatenate-Recordings.js');
+var isWindows = !!process.platform.match(/^win/);
+var socket;
 
-module.exports = exports = function(files) {
+module.exports = exports = function(files, _socket) {
+    socket = _socket;
+
     if(isWindows) {
         mergeForWindows(files);
         return;
     }
     mergeForLinuxOrMac(files);
 };
-
-// delete all files from specific user
-function unlink_merged_files(fileName, lastIndex, index) {
-    function unlink_file(_index) {
-        fs.unlink(fileName + '-' + _index + "-merged.webm", function(error) {
-            if (error) {
-                setTimeout(function() {
-                    unlink_merged_files(fileName, lastIndex, _index);
-                }, 5000);
-            }
-        });
-    }
-
-    if (index) {
-        unlink_file(index);
-        return;
-    }
-
-    for (var i = 1; i < lastIndex; i++) {
-        unlink_file(i);
-    }
-}
 
 // linux to merge WAV/WebM info single WebM
 function mergeForLinuxOrMac(files, times) {
@@ -71,14 +51,6 @@ function mergeForLinuxOrMac(files, times) {
             fs.unlink(videoFile);
 
             console.log('dev-logs', 'Successfully merged WAV/WebM files from recording interval ' + files.interval + '.');
-
-            // concatenate-all-blobs
-            // this one is NO MORE used
-            // it is handled in "disconnect" event instead
-            if (files.lastIndex) {
-                ConcatenateRecordings(files);
-                return;
-            }
         }
     });
 }
@@ -119,14 +91,6 @@ function mergeForWindows(files, times) {
             fs.unlink(videoFile);
 
             console.log('dev-logs', 'Successfully merged WAV/WebM files from recording interval ' + files.interval + '.');
-
-            // concatenate-all-blobs
-            // this one is NO MORE used
-            // it is handled in "disconnect" event instead
-            if (files.lastIndex) {
-                ConcatenateRecordings(files);
-                return;
-            }
         }
     });
 }

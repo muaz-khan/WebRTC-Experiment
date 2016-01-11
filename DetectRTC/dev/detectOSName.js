@@ -1,21 +1,10 @@
 var osName = 'Unknown OS';
+var osVersion = 'Unknown OS Version';
 
-if(isMobile.any()) {
-    osName = isMobile.getOsName();}
-else {
-    if (navigator.appVersion.indexOf('Win') !== -1) {
-        osName = 'Windows';
-    }
-
-    if (navigator.appVersion.indexOf('Mac') !== -1) {
-        osName = 'MacOS';
-    }
-
-    if (navigator.appVersion.indexOf('X11') !== -1) {
-        osName = 'UNIX';
-    }
-
-    if (navigator.appVersion.indexOf('Linux') !== -1) {
-        osName = 'Linux';
-    }
+if (isMobile.any()) {
+    osName = isMobile.getOsName();
+} else {
+    var osInfo = detectDesktopOS();
+    osName = osInfo.osName;
+    osVersion = osInfo.osVersion;
 }

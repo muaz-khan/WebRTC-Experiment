@@ -19,23 +19,23 @@ var isMobile = {
     },
     getOsName: function() {
         var osName = 'Unknown OS';
-        if(isMobile.Android()) {
+        if (isMobile.Android()) {
             osName = 'Android';
         }
 
-        if(isMobile.BlackBerry()) {
+        if (isMobile.BlackBerry()) {
             osName = 'BlackBerry';
         }
 
-        if(isMobile.iOS()) {
+        if (isMobile.iOS()) {
             osName = 'iOS';
         }
 
-        if(isMobile.Opera()) {
+        if (isMobile.Opera()) {
             osName = 'Opera Mini';
         }
 
-        if(isMobile.Windows()) {
+        if (isMobile.Windows()) {
             osName = 'Windows';
         }
 

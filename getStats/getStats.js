@@ -1,4 +1,4 @@
-// Last time updated at May 23, 2015, 08:32:23
+// Last time updated at Jan 07, 2016, 08:32:23
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getStats.js
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
@@ -9,7 +9,7 @@
 // cross-browser compatible solution
 // http://dev.w3.org/2011/webrtc/editor/webrtc.html#dom-peerconnection-getstats
 /*
-getStats(function(result) {
+getStats(rtcPeerConnection, function(result) {
     result.connectionType.remote.ipAddress
     result.connectionType.remote.candidateType
     result.connectionType.transport
@@ -34,9 +34,12 @@ getStats(function(result) {
 
         if (arguments[0] instanceof RTCPeerConnection) {
             peer = arguments[0];
-            mediaStreamTrack = arguments[1];
-            callback = arguments[2];
-            interval = arguments[3];
+            
+            if(!!navigator.mozGetUserMedia) {
+                mediaStreamTrack = arguments[1];
+                callback = arguments[2];
+                interval = arguments[3];
+            }
 
             if (!(mediaStreamTrack instanceof MediaStreamTrack) && !!navigator.mozGetUserMedia) {
                 throw '2nd argument is not instance of MediaStreamTrack.';

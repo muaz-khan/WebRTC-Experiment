@@ -13,10 +13,10 @@
 </head>
 <body>
 <script src="canvas-designer-widget.js"></script>
-<script src="https://rtcmulticonnection.herokuapp.com/RTCMultiConnection.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/RTCMultiConnection.min.js"></script>
 
 <!-- socket.io for signaling -->
-<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
+<script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
 
 <style>
 * {
@@ -33,6 +33,48 @@ input[type=text] {
     -ms-user-select: initial;
     user-select: initial;
 }
+
+button, input {
+    font-family: Myriad, Arial, Verdana;
+    font-weight: normal;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    padding: 4px 12px;
+    text-decoration: none;
+    color: rgb(27, 26, 26);
+    display: inline-block;
+    box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+    text-shadow: none;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
+    font-size: 20px;
+    border: 1px solid red;
+    outline:none;
+}
+button:hover, button:hover, input:focus {
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
+    border: 1px solid rgb(142, 142, 142);
+}
+button[disabled], input[disabled] {
+    background: rgb(249, 249, 249);
+    border: 1px solid rgb(218, 207, 207);
+    color: rgb(197, 189, 189);
+}
+
+input {
+    background: white;
+}
+
+.extra-controls {
+    position: absolute;
+    right: 21%;
+}
+
+#room-id {
+    width: 55%;
+    margin-right: 2px;
+}
 </style>
 
 <div id="widget-container" style="position: fixed;bottom: 0;right: 20%;left: 20%;height: 100%;border: 1px solid black; border-top:0; border-bottom: 0;"></div>
@@ -47,33 +89,51 @@ input[type=text] {
     
     <input type="checkbox" id="text" checked>
     <label for="text">text</label><br>
+
+    <input type="checkbox" id="image" checked>
+    <label for="image">image</label><br>
     
-    <input type="checkbox" id="line">
+    <input type="checkbox" id="line" checked>
     <label for="line">line</label><br>
     
-    <input type="checkbox" id="dragSingle">
+    <input type="checkbox" id="dragSingle" checked>
     <label for="dragSingle">dragSingle</label><br>
     
-    <input type="checkbox" id="dragMultiple">
+    <input type="checkbox" id="dragMultiple" checked>
     <label for="dragMultiple">dragMultiple</label><br>
     
-    <input type="checkbox" id="arc">
+    <input type="checkbox" id="arc" checked>
     <label for="arc">arc</label><br>
     
-    <input type="checkbox" id="rectangle">
+    <input type="checkbox" id="rectangle" checked>
     <label for="rectangle">rectangle</label><br>
     
-    <input type="checkbox" id="quadratic">
+    <input type="checkbox" id="quadratic" checked>
     <label for="quadratic">quadratic</label><br>
     
-    <input type="checkbox" id="bezier">
+    <input type="checkbox" id="bezier" checked>
     <label for="bezier">bezier</label><br><br>
     
     <hr>
-    <div id="hide-on-datachannel-opened">
-    You can open a private WebRTC room to sync dashboard with private users.
-    <input type="text" id="room-id" placeholder="room-id"><button id="open-room">Open</button>
+    <div>
+        Number of users connected with you: <b id="number-of-connected-users">0</b>
+
+        <br><br>
+
+        <div id="hide-on-datachannel-opened">
+            You can open a private WebRTC room to sync dashboard with private users.
+
+            <br><br>
+
+            <input type="text" id="room-id" placeholder="room-id">
+            <button id="open-room">Open</button>
+        </div>
     </div>
+</div>
+
+<div class="extra-controls">
+    <button id="export-as-png">Export as PNG</button>
+    <button id="undo-shapes">Undo</button>
 </div>
 
 <div style="position: fixed; right: 0; width: 19%; padding: 1%;top:0; text-align: center;">
@@ -88,16 +148,46 @@ input[type=text] {
     <h2>How to use in your own site?</h2>
     
     <ol style="text-align: left;">
-        <li>Take all code from <a href="https://github.com/muaz-khan/Canvas-Designer">this link</a> and upload somewhere on your site.</li>
-        <li>Target directly will be having this file: <a href="https://github.com/muaz-khan/Canvas-Designer/blob/master/canvas-designer-widget.js">canvas-designer-widget.js</a>. Link this file in your HTML/PHP page.</li>
+        <li>
+            Download <a href="https://github.com/muaz-khan/Canvas-Designer/blob/master/canvas-designer-widget.js">canvas-designer-widget.js</a>.
+            <br><br>
+            Then add &lt;script&gt; tag for "canvas-designer-widget.js" in your PHP/HTML/ASPX page.
+        </li>
+
+        <li>
+            Set <a href="https://github.com/muaz-khan/Canvas-Designer#widgethtmlurl">widgetHtmlURL</a> and <a href="https://github.com/muaz-khan/Canvas-Designer#widgetjsurl">widgetJsURL</a> in your HTML file.
+        </li>
+
         <li>
             Use this command to append widget in your HTML page:<br>
             
-            <code>CanvasDesigner.appendTo(<br>document.documentElement<br>);</code>
+            <code>CanvasDesigner.<a href="https://github.com/muaz-khan/Canvas-Designer#appendto">appendTo</a>(
+                <br>
+                    &nbsp;&nbsp;document.body
+                <br>);
+            </code>
             <br><br>
             <a href="https://github.com/muaz-khan/Canvas-Designer#how-to-use">Read more here</a>.
         </li>
     </ol>
+
+    <div style="text-align:center;">
+        <a href="https://www.npmjs.com/package/canvas-designer" target="_blank">
+            <img src="https://img.shields.io/npm/v/canvas-designer.svg">
+        </a>
+
+        <br>
+
+        <a href="https://www.npmjs.com/package/canvas-designer" target="_blank">
+            <img src="https://img.shields.io/npm/dm/canvas-designer.svg">
+        </a>
+        
+        <br>
+
+        <a href="https://travis-ci.org/muaz-khan/Canvas-Designer">
+            <img src="https://travis-ci.org/muaz-khan/Canvas-Designer.png?branch=master">
+        </a>
+    </div>
 </div>
 
 <script>
@@ -115,6 +205,7 @@ document.getElementById('open-room').onclick = function() {
 var connection = new RTCMultiConnection();
 
 connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+connection.socketMessageEvent = 'canvas-designer';
 
 connection.enableFileSharing = false;
 connection.session = {
@@ -138,19 +229,43 @@ connection.onUserStatusChanged = function(event) {
     if(event.status == 'offline') {
         infoBar.innerHTML = event.userid + ' is <b>offline</b>.';
     }
+
+    numberOfConnectedUsers.innerHTML = connection.getAllParticipants().length;
 };
 
+var numberOfConnectedUsers = document.getElementById('number-of-connected-users');
 connection.onopen = function(event) {
     var infoBar = document.getElementById('hide-on-datachannel-opened');
     infoBar.innerHTML = '<b>' + event.userid + '</b> is ready to collaborate with you.';
+
+    if(CanvasDesigner.pointsLength <= 0) {
+        // make sure that remote user gets all drawings synced.
+        setTimeout(function() {
+            connection.send('plz-sync-points');
+        }, 1000);
+    }
+
+    numberOfConnectedUsers.innerHTML = connection.getAllParticipants().length;
+};
+
+connection.onclose = connection.onerror = connection.onleave = function() {
+    numberOfConnectedUsers.innerHTML = connection.getAllParticipants().length;
 };
 
 connection.onmessage = function(event) {
+    if(event.data === 'plz-sync-points') {
+        CanvasDesigner.sync();
+        return;
+    }
+
     CanvasDesigner.syncData( event.data );
 };
 </script>
 
 <script>
+// you can place widget.html anywhere
+CanvasDesigner.widgetHTML = 'widget.html';
+
 CanvasDesigner.addSyncListener(function(data) {
     connection.send(data);
 });
@@ -160,7 +275,15 @@ CanvasDesigner.setSelected('pencil');
 CanvasDesigner.setTools({
     pencil: true,
     text: true,
-    eraser: true
+    image: true,
+    eraser: true,
+    line: true,
+    dragSingle: true,
+    dragMultiple: true,
+    arc: true,
+    rectangle: true,
+    quadratic: true,
+    bezier: true
 });
 
 CanvasDesigner.appendTo(document.getElementById('widget-container'));
@@ -183,6 +306,16 @@ Array.prototype.slice.call(document.getElementById('action-controls').querySelec
         CanvasDesigner.appendTo(document.getElementById('widget-container'));
     };
 });
+
+document.getElementById('export-as-png').onclick = function() {
+    CanvasDesigner.toDataURL('image/png', function(dataURL) {
+       window.open(dataURL)
+    });
+};
+
+document.getElementById('undo-shapes').onclick = function() {
+    CanvasDesigner.undo();
+};
 </script>
 </body>
 </html>

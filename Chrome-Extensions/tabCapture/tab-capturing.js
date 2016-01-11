@@ -1,275 +1,398 @@
-﻿// Muaz Khan          - https://github.com/muaz-khan
-// MIT License        - https://www.WebRTC-Experiment.com/licence/
-// ==============================================================
-// Chrome Extensions  - https://github.com/muaz-khan/Chrome-Extensions
+﻿// Muaz Khan     - https://github.com/muaz-khan
+// MIT License   - https://www.WebRTC-Experiment.com/licence/
+// Source Code   - https://github.com/muaz-khan/Chrome-Extensions
 
-var contextMenuID = '45634656563';
-
-chrome.contextMenus.create({
-    title: 'Share Tab!',
-    id: contextMenuID
-}, contextMenuSuccessCallback);
-
-function contextMenuSuccessCallback() {
-    chrome.contextMenus.onClicked.addListener(captureTab);
-    chrome.browserAction.onClicked.addListener(captureTab);
-
-    function captureTab() {
-        if (connection && connection.attachStreams[0]) {
-            connection.attachStreams[0].stop();
-            setDefaults();
-        }
-
-        chrome.tabs.getSelected(null, function(tab) {
-            var MediaStreamConstraint = {
-                audio: false,
-                video: true,
-                videoConstraints: {
-                    mandatory: {
-                        chromeMediaSource: 'tab',
-                        maxWidth: screen.width > 1920 ? screen.width : 1920,
-                        maxHeight: screen.height > 1080 ? screen.height : 1080,
-                        minFrameRate: 30,
-                        maxFrameRate: 64,
-                        minAspectRatio: 1.77,
-                        googLeakyBucket: true,
-                        googTemporalLayeredScreencast: true
-                    }
-                }
-            };
-
-            function callback(stream) {
-                if (!stream) {
-                    console.error('Unable to capture the tab. Note that Chrome internal pages cannot be captured.');
-                    return;
-                }
-
-                onAccessApproved(stream);
-
-                // as it is reported that if you drag chrome screen's status-bar
-                // and scroll up/down the screen-viewer page.
-                // chrome auto-stops the screen without firing any 'onended' event.
-                // chrome also hides screen status bar.
-                chrome.windows.create({
-                    url: chrome.extension.getURL('_generated_background_page.html'),
-                    type: 'popup',
-                    focused: false,
-                    width: 20,
-                    height: 20,
-                    top: screen.height * 2,
-                    left: screen.width * 2
-                }, function(win) {
-                    background_page_id = win.id;
-                });
-
-                chrome.contextMenus.update(contextMenuID, {
-                    title: 'Stop sharing Tab'
-                });
-
-                console.log('Tab sharing started...');
-            }
-
-            chrome.tabCapture.capture(MediaStreamConstraint, callback);
-        });
+chrome.browserAction.onClicked.addListener(function() {
+    if (connection && connection.attachStreams[0]) {
+        setDefaults();
+        connection.attachStreams[0].stop();
+        return;
     }
 
-    function onAccessApproved(stream) {
+    chrome.browserAction.setTitle({
+        title: 'Capturing Tab'
+    });
+
+    chrome.tabs.getSelected(null, function(tab) {
+        captureTab();
+    });
+});
+
+var constraints;
+var min_bandwidth = 512;
+var max_bandwidth = 1048;
+var room_password = '';
+var room_id = '';
+
+function captureTab() {
+    chrome.storage.sync.get(null, function(items) {
+        var resolutions = {};
+
+        if (items['min_bandwidth']) {
+            min_bandwidth = parseInt(items['min_bandwidth']);
+        }
+
+        if (items['max_bandwidth']) {
+            max_bandwidth = parseInt(items['max_bandwidth']);
+        }
+
+        if (items['room_password']) {
+            room_password = items['room_password'];
+        }
+
+        if (items['room_id']) {
+            room_id = items['room_id'];
+        }
+
+        var _resolutions = items['resolutions'];
+        if (!_resolutions) {
+            resolutions = {
+                maxWidth: screen.width > 1920 ? screen.width : 1920,
+                maxHeight: screen.height > 1080 ? screen.height : 1080
+            }
+
+            chrome.storage.sync.set({
+                resolutions: '1080p'
+            }, function() {});
+        }
+
+        if (_resolutions === 'fit-screen') {
+            resolutions.maxWidth = screen.width;
+            resolutions.maxHeight = screen.height;
+        }
+
+        if (_resolutions === '1080p') {
+            resolutions.maxWidth = 1920;
+            resolutions.maxHeight = 1080;
+        }
+
+        if (_resolutions === '720p') {
+            resolutions.maxWidth = 1280;
+            resolutions.maxHeight = 720;
+        }
+
+        if (_resolutions === '360p') {
+            resolutions.maxWidth = 640;
+            resolutions.maxHeight = 360;
+        }
+
+        constraints = {
+            audio: false,
+            video: true,
+            videoConstraints: {
+                mandatory: {
+                    chromeMediaSource: 'tab',
+                    maxWidth: resolutions.maxWidth,
+                    maxHeight: resolutions.maxHeight,
+                    minFrameRate: 30,
+                    maxFrameRate: 64,
+                    minAspectRatio: 1.77,
+                    googLeakyBucket: true,
+                    googTemporalLayeredScreencast: true
+                }
+            }
+        };
+
+        chrome.tabCapture.capture(constraints, gotStream);
+    });
+
+    function gotStream(stream) {
         if (!stream) {
-            alert('Unable to capture Tab. Note that Chrome internal pages cannot be captured.');
+            setDefaults();
+            chrome.windows.create({
+                url: "data:text/html,<h1>Internal error occurred while capturing the screen.</h1>",
+                type: 'popup',
+                width: screen.width / 2,
+                height: 170
+            });
             return;
         }
 
-        chrome.tabCapture.onStatusChanged.addListener(function(status) {
-            console.debug('tabCapture-status', status);
-
-            if (status === 'stopped' || status === 'error') {
-                stream.onended();
-            }
+        chrome.browserAction.setTitle({
+            title: 'Connecting to WebSockets server.'
         });
+
+        chrome.browserAction.disable();
 
         stream.onended = function() {
             setDefaults();
-            if (background_page_id) {
-                chrome.windows.remove(background_page_id);
-                background_page_id = null;
-            }
             chrome.runtime.reload();
-            console.error('Tab capturing stream is stopped.');
         };
 
+        // as it is reported that if you drag chrome screen's status-bar
+        // and scroll up/down the screen-viewer page.
+        // chrome auto-stops the screen without firing any 'onended' event.
+        // chrome also hides screen status bar.
+        chrome.windows.create({
+            url: chrome.extension.getURL('_generated_background_page.html'),
+            type: 'popup',
+            focused: false,
+            width: 1,
+            height: 1,
+            top: parseInt(screen.height),
+            left: parseInt(screen.width)
+        }, function(win) {
+            var background_page_id = win.id;
+
+            setTimeout(function() {
+                chrome.windows.remove(background_page_id);
+            }, 3000);
+        });
+
         setupRTCMultiConnection(stream);
+
         chrome.browserAction.setIcon({
             path: 'images/pause22.png'
         });
     }
+}
 
-    // RTCMultiConnection - www.RTCMultiConnection.org
-    var connection;
+// RTCMultiConnection - www.RTCMultiConnection.org
+var connection;
+var popup_id;
 
-    var background_page_id;
+function setBadgeText(text) {
+    /*
+    chrome.browserAction.setBadgeBackgroundColor({
+        color: [255, 0, 0, 255]
+    });
+    */
 
-    var popup_id;
+    chrome.browserAction.setBadgeText({
+        text: text + ''
+    });
 
-    function setupRTCMultiConnection(stream) {
-        // www.RTCMultiConnection.org/docs/
-        connection = new RTCMultiConnection();
+    chrome.browserAction.setTitle({
+        title: text + ' users are viewing your screen!'
+    });
+}
 
-        connection.optionalArgument = {
-            optional: [{
-                DtlsSrtpKeyAgreement: true
-            }, {
-                googImprovedWifiBwe: true
-            }, {
-                googScreencastMinBitrate: 300
-            }, {
-                googIPv6: true
-            }, {
-                googDscp: true
-            }, {
-                googCpuUnderuseThreshold: 55
-            }, {
-                googCpuOveruseThreshold: 85
-            }, {
-                googSuspendBelowMinBitrate: true
-            }, {
-                googCpuOveruseDetection: true
-            }],
-            mandatory: {}
+function setupRTCMultiConnection(stream) {
+    // www.RTCMultiConnection.org/docs/
+    connection = new RTCMultiConnection();
+
+    connection.optionalArgument = {
+        optional: [{
+            DtlsSrtpKeyAgreement: true
+        }, {
+            googImprovedWifiBwe: true
+        }, {
+            googScreencastMinBitrate: 300
+        }, {
+            googIPv6: true
+        }, {
+            googDscp: true
+        }, {
+            googCpuUnderuseThreshold: 55
+        }, {
+            googCpuOveruseThreshold: 85
+        }, {
+            googSuspendBelowMinBitrate: true
+        }, {
+            googCpuOveruseDetection: true
+        }],
+        mandatory: {}
+    };
+
+    connection.channel = connection.sessionid = connection.userid;
+
+    if (room_id && room_id.length) {
+        connection.channel = connection.sessionid = connection.userid = room_id;
+    }
+
+    connection.autoReDialOnFailure = true;
+    connection.getExternalIceServers = false;
+
+    setBandwidth(connection);
+
+    // www.RTCMultiConnection.org/docs/session/
+    connection.session = {
+        video: true,
+        oneway: true
+    };
+
+    // www.rtcmulticonnection.org/docs/sdpConstraints/
+    connection.sdpConstraints.mandatory = {
+        OfferToReceiveAudio: false,
+        OfferToReceiveVideo: false
+    };
+
+    // www.RTCMultiConnection.org/docs/dontCaptureUserMedia/
+    connection.dontCaptureUserMedia = true;
+
+    // www.RTCMultiConnection.org/docs/attachStreams/
+    connection.attachStreams.push(stream);
+
+    if (room_password && room_password.length) {
+        connection.onRequest = function(request) {
+            if (request.extra.password !== room_password) {
+                connection.reject(request);
+                chrome.windows.create({
+                    url: "data:text/html,<h1>A user tried to join your room with invalid password. His request is rejected. He tried password: " + request.extra.password + " </h2>",
+                    type: 'popup',
+                    width: screen.width / 2,
+                    height: 170
+                });
+                return;
+            }
+
+            connection.accept(request);
         };
+    }
 
-        connection.channel = connection.sessionid = connection.userid;
+    // www.RTCMultiConnection.org/docs/openSignalingChannel/
+    var onMessageCallbacks = {};
+    var pub = 'pub-c-3c0fc243-9892-4858-aa38-1445e58b4ecb';
+    var sub = 'sub-c-d0c386c6-7263-11e2-8b02-12313f022c90';
 
-        connection.autoReDialOnFailure = true;
-        connection.getExternalIceServers = false;
+    WebSocket = PUBNUB.ws;
+    var websocket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + connection.channel);
 
-        setBandwidth(connection);
+    var connectedUsers = 0;
+    connection.ondisconnected = function() {
+        connectedUsers--;
+        setBadgeText(connectedUsers);
+    };
 
-        // www.RTCMultiConnection.org/docs/session/
-        connection.session = {
-            video: true,
-            oneway: true
+    websocket.onmessage = function(e) {
+        data = JSON.parse(e.data);
+
+        if (data === 'received-your-screen') {
+            connectedUsers++;
+            setBadgeText(connectedUsers);
+        }
+
+        if (data.sender == connection.userid) return;
+
+        if (onMessageCallbacks[data.channel]) {
+            onMessageCallbacks[data.channel](data.message);
         };
+    };
 
-        // www.rtcmulticonnection.org/docs/sdpConstraints/
-        connection.sdpConstraints.mandatory = {
-            OfferToReceiveAudio: false,
-            OfferToReceiveVideo: false
+    websocket.push = websocket.send;
+    websocket.send = function(data) {
+        data.sender = connection.userid;
+        websocket.push(JSON.stringify(data));
+    };
+
+    // overriding "openSignalingChannel" method
+    connection.openSignalingChannel = function(config) {
+        var channel = config.channel || this.channel;
+        onMessageCallbacks[channel] = config.onmessage;
+
+        if (config.onopen) setTimeout(config.onopen, 1000);
+
+        // directly returning socket object using "return" statement
+        return {
+            send: function(message) {
+                websocket.send({
+                    sender: connection.userid,
+                    channel: channel,
+                    message: message
+                });
+            },
+            channel: channel
         };
+    };
 
-        // www.RTCMultiConnection.org/docs/openSignalingChannel/
-        connection.openSignalingChannel = openSignalingChannel;
+    websocket.onerror = function() {
+        if (connection && connection.numberOfConnectedUsers > 0) {
+            return;
+        }
 
-        // www.RTCMultiConnection.org/docs/dontCaptureUserMedia/
-        connection.dontCaptureUserMedia = true;
+        chrome.windows.create({
+            url: "data:text/html,<h1>Failed connecting the WebSockets server. Please click screen icon to try again.</h1>",
+            type: 'popup',
+            width: screen.width / 2,
+            height: 170
+        });
 
-        // www.RTCMultiConnection.org/docs/attachStreams/
-        connection.attachStreams.push(stream);
+        setDefaults();
+        chrome.runtime.reload();
+    };
+
+    websocket.onclose = function() {
+        if (connection && connection.numberOfConnectedUsers > 0) {
+            return;
+        }
+
+        chrome.windows.create({
+            url: "data:text/html,<p style='font-size:25px;'>WebSocket connection seems closed. It is not possible to share your screen without using a medium like WebSockets. Please click screen icon to share again.</p>",
+            type: 'popup',
+            width: screen.width / 2,
+            height: 150
+        });
+
+        setDefaults();
+        chrome.runtime.reload();
+    };
+
+    websocket.onopen = function() {
+        chrome.browserAction.enable();
+
+        setBadgeText(0);
+
+        console.info('WebSockets connection is opened.');
 
         // www.RTCMultiConnection.org/docs/open/
         var sessionDescription = connection.open({
             dontTransmit: true
         });
 
-        var domain = 'https://www.webrtc-experiment.com';
-        var resultingURL = domain + '/view/?sessionid=' + connection.sessionid;
+        var resultingURL = 'https://www.webrtc-experiment.com/!/?s=' + connection.sessionid;
+
+        if (room_password && room_password.length) {
+            resultingURL += '&p=' + room_password;
+        }
+
+        var popup_width = 600;
+        var popup_height = 170;
 
         chrome.windows.create({
-            url: "data:text/html,<h1>Copy Following Private URL:</h1><input type='text' value='" + resultingURL + "' style='width:100%;font-size:1.2em;'><br>You can share this private-session URI with fellows using email or social networks.",
+            url: "data:text/html,<title>Unique Room URL</title><h1 style='text-align:center'>Copy following private URL:</h1><input type='text' value='" + resultingURL + "' style='text-align:center;width:100%;font-size:1.2em;'><p style='text-align:center'>You can share this private-session URI with fellows using email or social networks.</p>",
             type: 'popup',
-            width: screen.width / 2,
-            height: 170
+            width: popup_width,
+            height: popup_height,
+            top: parseInt((screen.height / 2) - (popup_height / 2)),
+            left: parseInt((screen.width / 2) - (popup_width / 2)),
+            focused: true
         }, function(win) {
             popup_id = win.id;
         });
+    };
+}
+
+function setDefaults() {
+    if (connection) {
+        connection.close();
+        connection.attachStreams = [];
     }
 
-    // using websockets for signaling
+    chrome.browserAction.setIcon({
+        path: 'images/tabCapture22.png'
+    });
 
-    function openSignalingChannel(config) {
-        config.channel = config.channel || this.channel;
+    if (popup_id) {
+        try {
+            chrome.windows.remove(popup_id);
+        } catch (e) {}
 
-        var pub = 'pub-c-3c0fc243-9892-4858-aa38-1445e58b4ecb';
-        var sub = 'sub-c-d0c386c6-7263-11e2-8b02-12313f022c90';
-        
-        WebSocket  = PUBNUB.ws;
-
-        var websocket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + config.channel);
-
-        websocket.channel = config.channel;
-
-        websocket.onopen = function() {
-            if (config.callback) {
-                config.callback(websocket);
-            }
-        };
-
-        websocket.onerror = function() {
-            setDefaults();
-            chrome.windows.create({
-                url: "data:text/html,<h1>Unable to connect to pubsub.pubnub.com.</h1>",
-                type: 'popup',
-                width: screen.width / 2,
-                height: 170
-            });
-            chrome.runtime.reload();
-        };
-        
-        websocket.onclose = function() {
-            setDefaults();
-            chrome.windows.create({
-                url: "data:text/html,<h1>WebSocket connection is closed.</h1>",
-                type: 'popup',
-                width: screen.width / 2,
-                height: 170
-            });
-            chrome.runtime.reload();
-        };
-        
-        websocket.onmessage = function(event) {
-            config.onmessage(JSON.parse(event.data));
-        };
-        
-        websocket.push = websocket.send;
-        websocket.send = function(data) {
-            websocket.push(JSON.stringify(data));
-        };
+        popup_id = null;
     }
 
-    function setDefaults() {
-        if (connection) {
-            connection.close();
-            connection.attachStreams = [];
-        }
+    chrome.browserAction.setTitle({
+        title: 'Share this tab!'
+    });
 
-        chrome.browserAction.setIcon({
-            path: 'images/tabCapture22.png'
-        });
-
-        chrome.contextMenus.update(contextMenuID, {
-            title: 'Share Tab'
-        });
-
-        console.log('Tab sharing stopped...');
-
-        if (background_page_id) {
-            chrome.windows.remove(background_page_id);
-            background_page_id = null;
-        }
-
-        if (popup_id) {
-            try {
-                chrome.windows.remove(popup_id);
-            } catch (e) {}
-
-            popup_id = null;
-        }
-    }
+    chrome.browserAction.setBadgeText({
+        text: ''
+    });
 }
 
 function setBandwidth(connection) {
     // www.RTCMultiConnection.org/docs/bandwidth/
     connection.bandwidth = {
-        screen: 300 // 300kbps
+        screen: min_bandwidth // 300kbps
     };
 
     connection.processSdp = function(sdp) {
@@ -288,15 +411,29 @@ function setBandwidth(connection) {
         }
 
         var rtxIndex = findLine(sdpLines, 'a=rtpmap', 'rtx/90000');
+
         var rtxPayload;
         if (rtxIndex) {
             rtxPayload = getCodecPayloadType(sdpLines[rtxIndex]);
         }
 
+        if (!rtxPayload) {
+            return sdp;
+        }
+
+        if (!vp8Payload) {
+            return sdp;
+        }
+
         var rtxFmtpLineIndex = findLine(sdpLines, 'a=fmtp:' + rtxPayload.toString());
         if (rtxFmtpLineIndex !== null) {
             var appendrtxNext = '\r\n';
-            appendrtxNext += 'a=fmtp:' + vp8Payload + ' x-google-min-bitrate=300; x-google-max-bitrate=300';
+
+            if (max_bandwidth < min_bandwidth) {
+                max_bandwidth = min_bandwidth;
+            }
+
+            appendrtxNext += 'a=fmtp:' + vp8Payload + ' x-google-min-bitrate=' + min_bandwidth + '; x-google-max-bitrate=' + max_bandwidth;
             sdpLines[rtxFmtpLineIndex] = sdpLines[rtxFmtpLineIndex].concat(appendrtxNext);
             sdp = sdpLines.join('\r\n');
         }

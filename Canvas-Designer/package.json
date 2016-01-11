@@ -1,0 +1,43 @@
+{
+  "name": "canvas-designer",
+  "preferGlobal": false,
+  "version": "1.0.0",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "http://www.muazkhan.com/"
+  },
+  "description": "Collaborative, extendable, JavaScript Canvas2D drawing tool, supporting dozens of builtin tools, as well as generates JavaScript code for 2D animations.",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/Canvas-Designer.git"
+  },
+  "keywords": [
+    "canvas-designer",
+    "drawing",
+    "tool",
+    "canvas2d",
+    "javascript",
+    "muaz",
+    "muaz-khan"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/muaz-khan/Canvas-Designer/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://www.webrtc-experiment.com/Canvas-Designer/",
+  "_from": "canvas-designer@",
+  "devDependencies": {
+    "grunt": "latest",
+    "grunt-cli": "latest",
+    "load-grunt-tasks": "latest",
+    "grunt-contrib-concat": "latest",
+    "grunt-contrib-uglify": "latest",
+    "grunt-jsbeautifier": "latest",
+    "grunt-bump": "latest"
+  }
+}

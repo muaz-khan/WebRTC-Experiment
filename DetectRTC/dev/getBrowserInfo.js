@@ -1,6 +1,12 @@
 var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
 var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob);
 
+var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+var isFirefox = typeof window.InstallTrigger !== 'undefined';
+var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+var isChrome = !!window.chrome && !isOpera;
+var isIE = !!document.documentMode && !isEdge;
+
 // this one can also be used:
 // https://www.websocket.org/js/stuff.js (DetectBrowser.js)
 
@@ -13,26 +19,31 @@ function getBrowserInfo() {
     var nameOffset, verOffset, ix;
 
     // In Opera, the true version is after 'Opera' or after 'Version'
-    if ((verOffset = nAgt.indexOf('Opera')) !== -1) {
+    if (isOpera) {
         browserName = 'Opera';
-        fullVersion = nAgt.substring(verOffset + 6);
-
-        if ((verOffset = nAgt.indexOf('Version')) !== -1) {
-            fullVersion = nAgt.substring(verOffset + 8);
+        try {
+            fullVersion = navigator.userAgent.split('OPR/')[1].split(' ')[0];
+            majorVersion = fullVersion.split('.')[0];
+        } catch (e) {
+            fullVersion = '0.0.0.0';
+            majorVersion = 0;
         }
     }
     // In MSIE, the true version is after 'MSIE' in userAgent
-    else if ((verOffset = nAgt.indexOf('MSIE')) !== -1) {
+    else if (isIE) {
+        verOffset = nAgt.indexOf('MSIE');
         browserName = 'IE';
         fullVersion = nAgt.substring(verOffset + 5);
     }
     // In Chrome, the true version is after 'Chrome' 
-    else if ((verOffset = nAgt.indexOf('Chrome')) !== -1) {
+    else if (isChrome) {
+        verOffset = nAgt.indexOf('Chrome');
         browserName = 'Chrome';
         fullVersion = nAgt.substring(verOffset + 7);
     }
     // In Safari, the true version is after 'Safari' or after 'Version' 
-    else if ((verOffset = nAgt.indexOf('Safari')) !== -1) {
+    else if (isSafari) {
+        verOffset = nAgt.indexOf('Safari');
         browserName = 'Safari';
         fullVersion = nAgt.substring(verOffset + 7);
 
@@ -41,7 +52,8 @@ function getBrowserInfo() {
         }
     }
     // In Firefox, the true version is after 'Firefox' 
-    else if ((verOffset = nAgt.indexOf('Firefox')) !== -1) {
+    else if (isFirefox) {
+        verOffset = nAgt.indexOf('Firefox');
         browserName = 'Firefox';
         fullVersion = nAgt.substring(verOffset + 8);
     }
@@ -59,7 +71,7 @@ function getBrowserInfo() {
     if (isEdge) {
         browserName = 'Edge';
         // fullVersion = navigator.userAgent.split('Edge/')[1];
-        fullVersion = parseInt(navigator.userAgent.match(/Edge\/(\d+).(\d+)$/)[2], 10);
+        fullVersion = parseInt(navigator.userAgent.match(/Edge\/(\d+).(\d+)$/)[2], 10).toString();
     }
 
     // trim the fullVersion string at semicolon/space if present
@@ -81,6 +93,7 @@ function getBrowserInfo() {
     return {
         fullVersion: fullVersion,
         version: majorVersion,
-        name: browserName
+        name: browserName,
+        isPrivateBrowsing: false
     };
 }

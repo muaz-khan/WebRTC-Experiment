@@ -1,17 +1,13 @@
 {
     "name": "detectrtc",
-    "preferGlobal": true,
-    "version": "1.0.8",
+    "preferGlobal": false,
+    "version": "1.2.7",
     "author": {
         "name": "Muaz Khan",
         "email": "muazkh@gmail.com",
         "url": "http://www.muazkhan.com/"
     },
     "description": "A tiny JavaScript library that can be used to detect WebRTC features e.g. system having speakers, microphone or webcam, screen capturing is supported, number of audio/video devices etc.",
-    "scripts": {
-        "start": "node DetectRTC.js"
-    },
-    "main": "./DetectRTC.js",
     "repository": {
         "type": "git",
         "url": "https://github.com/muaz-khan/DetectRTC.git"

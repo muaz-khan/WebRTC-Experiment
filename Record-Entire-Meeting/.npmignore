@@ -1,0 +1,5 @@
+node_modules
+lib-cov
+npm-debug.log
+*.tar.gz
+uploads

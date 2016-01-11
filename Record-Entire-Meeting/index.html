@@ -1,28 +1,63 @@
-<button>Start Recording</button>
+<h1><a href="https://github.com/streamproc/Record-Entire-Meeting">https://github.com/streamproc/Record-Entire-Meeting</a></h1>
 
-<script src="Browser-Recording-Helper.js"></script>
+<button id="start-recording">Start Recording</button>
+<button id="stop-recording" disabled>Stop Recording</button>
+<hr>
+<video controls autoplay width=320 height=240></video>
+
+<script src="/MediaStreamRecorder.js"></script>
+<script src="/Browser-Recording-Helper.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 <script>
-alert('This application is NOT functional yet.');
+var video = document.querySelector('video');
 
-document.querySelector('button').onclick = function() {
+document.querySelector('#start-recording').onclick = function() {
     this.disabled = true;
+
+    var socket = io();
+
+    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
     navigator.getUserMedia({
         audio: true,
         video: true
     }, function(stream) {
+        video.src = URL.createObjectURL(stream);
+
+        var randomString = (Math.random() * 1000).toString().replace('.', '');
+
         RecorderHelper.StartRecording({
             MediaStream: stream,
-            Socket: SocketIo_Reference,
-            HTMLVideoElement: document.querySelector('video'),
+            Socket: socket,
+            HTMLVideoElement: video,
             FileName: 'recording', // it is ignored, though.
-            roomId: 'room-xyz',
-            userId: 'user-' + (Math.random() * 1000).toString().replace('.', ''),
-            UploadInterval: 300, // 300 milliseconds blobs
+            roomId: 'room-' + randomString,
+            userId: 'user-' + randomString,
+            UploadInterval: 500, // 500ms blobs
             VideoWidth: 320,
             VideoHeight: 240
         });
+
+        RecorderHelper.OnComplete = function(fileName) {
+            // --- /uploads/roomid/userid.webm
+            var src = '/uploads'
+                        + '/room-' + randomString 
+                        + '/user-' + randomString + '.webm';
+            video.src = src;
+            video.play();
+
+            stream.stop();
+
+            console.debug('File is uploaded; concatenated; merged; and saved:', src);
+        };
+
+        document.querySelector('#stop-recording').disabled = false;
     }, function(error) {
         alert(JSON.stringify(error));
     });
-}
+};
+
+document.querySelector('#stop-recording').onclick = function() {
+    this.disabled = true;
+    RecorderHelper.StopRecording();
+};
 </script>

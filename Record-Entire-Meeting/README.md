@@ -1,10 +1,18 @@
 # Record Entire Meeting using Pure JavaScript API!
 
+[![npm](https://img.shields.io/npm/v/record-entire-meeting.svg)](https://npmjs.org/package/record-entire-meeting) [![downloads](https://img.shields.io/npm/dm/record-entire-meeting.svg)](https://npmjs.org/package/record-entire-meeting)
+
+```
+npm install record-entire-meeting
+
+node server.js
+# https://127.0.0.1:9001/
+# https://localhost:9001/
+```
+
 This application runs top over `MediaStreamRecorder.js`:
 
 * https://github.com/streamproc/MediaStreamRecorder
-
-> It is NOT functional yet.
 
 # Goals
 
@@ -12,10 +20,6 @@ This application runs top over `MediaStreamRecorder.js`:
 * Record all videos from all the participants.
 * Merge/Mux then Concatenate using Ffmpeg on Node.js server
 * Scale videos at the end into a single grid-like stream so that later viewers are given single file containing all the videos and audios.
-
-# Again, it is NOT functional yet.
-
-> It is very close to single-person longest possible video recording. However please wait for new updates!
 
 # Helper Scripts
 

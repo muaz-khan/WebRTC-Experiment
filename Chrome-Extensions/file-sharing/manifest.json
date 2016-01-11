@@ -1,10 +1,10 @@
 {
 	"name" : "WebRTC File Sharing",
     "author": "Muaz Khan",
-	"version" : "1.4",
+	"version" : "1.9",
 	"manifest_version" : 2,
     "minimum_chrome_version": "34",
-	"description" : "Instantly/Privately share files with multiple users without uploading to server!",
+	"description" : "Instantly/Privately/Reliably share files with single or multiple users without uploading to server!",
     "homepage_url": "https://www.webrtc-experiment.com/",
 	"background": {
 		"scripts": ["background.js"],

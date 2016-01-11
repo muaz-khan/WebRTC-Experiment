@@ -1,80 +1,92 @@
-// http://127.0.0.1:9001
-// http://localhost:9001
+// Muaz Khan      - www.MuazKhan.com
+// MIT License    - www.WebRTC-Experiment.com/licence
+// Documentation  - github.com/muaz-khan/RTCMultiConnection
 
-var server = require('http'),
+var isUseHTTPs = !(!!process.env.PORT || !!process.env.IP);
+
+var server = require(isUseHTTPs ? 'https' : 'http'),
     url = require('url'),
     path = require('path'),
     fs = require('fs');
 
-var isWin = !!process.platform.match(/^win/);
-
 function serverHandler(request, response) {
-    var uri = url.parse(request.url).pathname;
+    var uri = url.parse(request.url).pathname,
+        filename = path.join(process.cwd(), uri);
 
-    if(isWin) {
-        filename = path.join(process.cwd() + '\\demos\\', uri);
-    }
-    else {
-        filename = path.join(process.cwd() + '/demos/', uri);
+    var stats;
+
+    try {
+        stats = fs.lstatSync(filename);
+    } catch (e) {
+        response.writeHead(404, {
+            'Content-Type': 'text/plain'
+        });
+        response.write('404 Not Found: ' + path.join('/', uri) + '\n');
+        response.end();
+        return;
     }
 
-    fs.exists(filename, function(exists) {
-        if (!exists) {
-            response.writeHead(404, {
+    if (fs.statSync(filename).isDirectory()) {
+        if (filename.indexOf('/demos/') !== -1) {
+            filename = filename.replace('/demos/', '');
+            filename += '/demos/index.html';
+        } else {
+            filename += '/demos/index.html';
+        }
+    }
+
+
+    fs.readFile(filename, 'binary', function(err, file) {
+        if (err) {
+            response.writeHead(500, {
                 'Content-Type': 'text/plain'
             });
-            response.write('404 Not Found: ' + filename + '\n');
+            response.write('404 Not Found: ' + path.join('/', uri) + '\n');
             response.end();
             return;
         }
 
-        if (filename.indexOf('favicon.ico') !== -1) {
-            return;
-        }
-
-        if (fs.statSync(filename).isDirectory() && !isWin) {
-            filename += '/all-in-one.html';
-        } else if (fs.statSync(filename).isDirectory() && !!isWin) {
-            filename += '\\all-in-one.html';
-        }
-
-        fs.readFile(filename, 'binary', function(err, file) {
-            if (err) {
-                response.writeHead(500, {
-                    'Content-Type': 'text/plain'
-                });
-                response.write(err + '\n');
-                response.end();
-                return;
-            }
-
-            var contentType;
-
-            if (filename.indexOf('.html') !== -1) {
-                contentType = 'text/html';
-            }
-
-            if (filename.indexOf('.js') !== -1) {
-                contentType = 'application/javascript';
-            }
-
-            if (contentType) {
-                response.writeHead(200, {
-                    'Content-Type': contentType
-                });
-            } else response.writeHead(200);
-
-            response.write(file, 'binary');
-            response.end();
-        });
+        response.writeHead(200);
+        response.write(file, 'binary');
+        response.end();
     });
 }
 
 var app;
 
-app = server.createServer(serverHandler);
+if (isUseHTTPs) {
+    var options = {
+        key: fs.readFileSync(path.join(__dirname, 'fake-keys/privatekey.pem')),
+        cert: fs.readFileSync(path.join(__dirname, 'fake-keys/certificate.pem'))
+    };
+    app = server.createServer(options, serverHandler);
+} else app = server.createServer(serverHandler);
 
 app = app.listen(process.env.PORT || 9001, process.env.IP || "0.0.0.0", function() {
     var addr = app.address();
     console.log("Server listening at", addr.address + ":" + addr.port);
+});
+
+require('./Signaling-Server.js')(app, function(socket) {
+    try {
+        var params = socket.handshake.query;
+
+        // "socket" object is totally in your own hands!
+        // do whatever you want!
+
+        // in your HTML page, you can access socket as following:
+        // connection.socketCustomEvent = 'custom-message';
+        // var socket = connection.getSocket();
+        // socket.emit(connection.socketCustomEvent, { test: true });
+
+        if (!params.socketCustomEvent) {
+            params.socketCustomEvent = 'custom-message';
+        }
+
+        socket.on(params.socketCustomEvent, function(message) {
+            try {
+                socket.broadcast.emit(params.socketCustomEvent, message);
+            } catch (e) {}
+        });
+    } catch (e) {}
 });

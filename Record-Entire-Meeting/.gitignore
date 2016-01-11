@@ -1,0 +1,10 @@
+# Node
+node_modules
+
+# bower
+bower_components
+
+npm-debug.log
+*.tar.gz
+
+uploads

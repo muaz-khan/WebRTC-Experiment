@@ -21,33 +21,52 @@ module.exports = function(grunt) {
                 src: [
                     'dev/head.js',
                     'dev/RTCMultiConnection.js',
-                    'dev/RTCMultiSession.js',
+                    'dev/SocketConnection.js', // You can replace it with: FirebaseConnection.js || PubNubConnection.js
+                    'dev/MultiPeersHandler.js',
+
                     'dev/globals.js',
+                    'dev/Plugin.EveryWhere.js',
+
+                    'dev/RTCPeerConnection.js',
+                    'dev/OnIceCandidateHandler.js',
+                    'dev/IceServersHandler.js',
+                    'dev/BandwidthHandler.js',
+
                     'dev/getUserMedia.js',
-                    'dev/PeerConnection.js',
-                    'dev/FilesHandler.js',
-                    'dev/DataMessagingHandler.js',
+                    'dev/StreamsHandler.js',
+
                     'dev/DetectRTC.js',
-                    'dev/DetectRTC-Extender.js',
-                    'dev/setDefaults.js',
+                    'dev/getScreenId.js', // or Screen-Capturing.js
+
+                    'dev/TextSenderReceiver.js',
+                    'dev/FileProgressBarHandler.js',
+
+                    'dev/TranslationHandler.js',
                     'dev/tail.js'
                 ],
-                dest: 'RTCMultiConnection.js',
+                dest: './temp/RTCMultiConnection.js',
             },
         },
-        htmlhint: {
-            html1: {
-                src: [
-                    'demos/*.html'
-                ],
+        replace: {
+            dist: {
                 options: {
-                    'tag-pair': true
-                }
+                    patterns: [{
+                        json: grunt.file.readJSON('config.json')
+                    }]
+                },
+                files: [{
+                    expand: true,
+                    flatten: true,
+                    src: ['./temp/RTCMultiConnection.js'],
+                    dest: './'
+                }]
             }
         },
+        clean: ['./temp'],
         uglify: {
             options: {
-                mangle: false
+                mangle: false,
+                banner: '// Last time updated at <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> \n\n'
             },
             my_target: {
                 files: {
@@ -56,7 +75,7 @@ module.exports = function(grunt) {
             }
         },
         jsbeautifier: {
-            files: ['RTCMultiConnection.js', 'dev/*.js', 'Gruntfile.js'],
+            files: ['RTCMultiConnection.js', 'dev/*.js', 'Gruntfile.js', 'Signaling-Server.js', 'server.js'],
             options: {
                 js: {
                     braceStyle: "collapse",
@@ -114,5 +133,5 @@ module.exports = function(grunt) {
 
     // set default tasks to run when grunt is called without parameters
     // http://gruntjs.com/api/grunt.task
-    grunt.registerTask('default', ['concat', 'jsbeautifier', 'htmlhint', 'uglify']);
+    grunt.registerTask('default', ['concat', 'replace', 'jsbeautifier', 'uglify', 'clean']);
 };

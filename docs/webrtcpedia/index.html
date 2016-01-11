@@ -6,14 +6,14 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>webrtcpedia! ® Muaz Khan</title>
+        <title>WebRTCPedia! the Encyclopedia! ® Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="//www.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
         
         <style>
             p { padding: .8em; }
@@ -28,18 +28,27 @@
                 color: red;
                 font-family: inherit;
             }
+
+            .image img {
+            	width: 100%;
+            }
         </style>
         <script>
             document.createElement('article');
             document.createElement('footer');
         </script>
+
+        <script src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js" type="text/javascript"> </script>
+	    <script src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js" type="text/javascript"> </script>
+	    <script src="https://cdn.webrtc-experiment.com/syntax/sh_html.min.js" type="text/javascript"> </script>
+	    <link href="https://cdn.webrtc-experiment.com/syntax/sh_style.css" type="text/css" rel="stylesheet">
     </head>
 
-    <body>
+    <body onload="sh_highlightDocument();">
         <article>
             <header style="text-align: center;">
                 <h1>
-                    webrtcpedia! ® 
+                    WebRTCPedia! the Encyclopedia! ® 
                     <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
                 </h1>            
                 <p>
@@ -62,6 +71,319 @@
             </header>
 
             <div class="github-stargazers"></div>
+
+            <section class="experiment" id="mediastream-stop-hack">
+            	<h2>
+            		<a href="#mediastream-stop-hack">MediaStream.stop is obsolete or removed; how to fix it?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+var MediaStream = window.MediaStream;
+
+if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+    MediaStream = webkitMediaStream;
+}
+
+if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
+    MediaStream.prototype.stop = function() {
+        this.getAudioTracks().forEach(function(track) {
+            track.stop();
+        });
+
+        this.getVideoTracks().forEach(function(track) {
+            track.stop();
+        });
+    };
+}
+</pre>
+				<h2>Now, feel free to use <code>stream.stop</code>:</h2>
+
+				<pre class="sh_javascript">
+stream.addEventListener('ended', function() {
+    alert('Stream is stopped.');
+}, false);
+
+stream.stop();
+</pre>
+				<small>via: <a href="http://stackoverflow.com/a/11646945/552182" target="_blank">http://stackoverflow.com/a/11646945/552182</a></small>
+            </section>
+
+            <section class="experiment" id="camera-mic-already-allowed">
+            	<h2>
+            		<a href="#camera-mic-already-allowed">How to check if website already has privileges to access camera/microphone?</a>
+            	</h2>
+<pre class="sh_javascript">
+// link: https://cdn.webrtc-experiment.com/DetectRTC/checkDevicesSupport.js
+
+// check for microphone/camera support!
+checkDeviceSupport(function() {
+    document.write('hasWebCam: ', hasWebcam, '&lt;br&gt;');
+    document.write('hasMicrophone: ', hasMicrophone, '&lt;br&gt;');
+    document.write('isWebsiteHasWebcamPermissions: ', isWebsiteHasWebcamPermissions, '&lt;br&gt;');
+    document.write('isWebsiteHasMicrophonePermissions: ', isWebsiteHasMicrophonePermissions, '&lt;br&gt;');
+});
+</pre>
+				<small>via: <a href="http://stackoverflow.com/a/30047627/552182" target="_blank">http://stackoverflow.com/a/30047627/552182</a></small>
+            </section>
+
+            <section class="experiment" id="manage-bitrates">
+            	<h2>
+            		<a href="#manage-bitrates">How to manage audio/video bitrates?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+// Link this Library:
+// https://cdn.webrtc-experiment.com/BandwidthHandler.js
+
+// here is how to use it
+var bandwidth = {
+    screen: 300, // 300kbits minimum
+    audio: 50, // 50kbits  minimum
+    video: 256 // 256kbits (both min-max)
+};
+var isScreenSharing = false;
+
+sdp = BandwidthHandler.setApplicationSpecificBandwidth(sdp, bandwidth, isScreenSharing);
+sdp = BandwidthHandler.setVideoBitrates(sdp, {
+    min: bandwidth.video,
+    max: bandwidth.video
+});
+sdp = BandwidthHandler.setOpusAttributes(sdp);
+</pre>
+
+				<h2 id="audio-sdp-parameters"><a href="#audio-sdp-parameters">How to set audio sdp parameters?</a></h2>
+				<pre class="sh_javascript">
+sdp = BandwidthHandler.setOpusAttributes(sdp, {
+    'stereo': 0, // to disable stereo (to force mono audio)
+    'sprop-stereo': 1,
+    'maxaveragebitrate': 500 * 1024 * 8, // 500 kbits
+    'maxplaybackrate': 500 * 1024 * 8, // 500 kbits
+    'cbr': 0, // disable cbr
+    'useinbandfec': 1, // use inband fec
+    'usedtx': 1, // use dtx
+    'maxptime': 3
+});
+</pre>
+				<small>via: <a href="http://stackoverflow.com/a/16868123/552182" target="_blank">http://stackoverflow.com/a/16868123/552182</a></small>
+            </section>
+
+            <section class="experiment" id="chrome-camera-mic-issues">
+            	<h2>
+            		<a href="#chrome-camera-mic-issues">How to fix Chrome camera/microphone failures?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+# open this page
+chrome://settings/content#media-stream-mic
+</pre>
+
+				<div class="image">
+					<a href="https://i.stack.imgur.com/wVXyT.png" target="_blank">
+						<img src="https://i.stack.imgur.com/wVXyT.png">
+					</a>
+				</div>
+				<small>via: <a href="http://stackoverflow.com/a/14617402/552182" target="_blank">http://stackoverflow.com/a/14617402/552182</a></small>
+            </section>
+
+            <section class="experiment" id="detect-local-remote-stream">
+            	<h2>
+            		<a href="#detect-local-remote-stream">How to detect local or remote stream?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+// chrome 48+
+var isRemoteAudioStream = false;
+stream.getAudioTracks().forEach(function(track) {
+    if (track.remote === true) {
+        isRemoteAudioStream = true;
+    }
+});
+
+var isRemoteVideoStream = false;
+stream.getVideoTracks().forEach(function(track) {
+    if (track.remote === true) {
+        isRemoteVideoStream = true;
+    }
+});
+
+alert('Remote audio stream? ' + isRemoteAudioStream);
+alert('Remote video stream? ' + isRemoteVideoStream);
+</pre>
+            </section>
+
+            <section class="experiment" id="single-audio-screen-stream">
+            	<h2>
+            		<a href="#single-audio-screen-stream">How to capture audio+screen in a single getUserMedia request?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+// firefox 38+
+var screen = {
+    mediaSource: 'monitor' // monitor or window
+};
+
+var constraints = {
+    video: screen,
+    audio: true
+};
+
+navigator.mozGetUserMedia(constraints, successCallback, failureCallback);
+</pre>
+            </section>
+
+            <section class="experiment" id="htmlvideo-poster">
+                <h2>
+                    <a href="#htmlvideo-poster">How to display HTMLVideoElement poster?</a>
+                </h2>
+
+                <pre class="sh_javascript">
+htmlVideoElement.src = null;
+htmlVideoElement.pause();
+
+// above two lines are mandatory
+htmlVideoElement.poster = '/muted.png';
+</pre>
+            </section>
+
+            <section class="experiment" id="datachannel-data-send-trick">
+                <h2>
+                    <a href="#datachannel-data-send-trick">Before sending data over RTC-data-channels</a>
+                </h2>
+
+                <pre class="sh_javascript">
+// define below snippet as soon as you invoked "peer.createDataChannel" method
+
+// first step: take a reference to original "send" method
+channel.internalSend = channel.send;
+
+// define your own "send" wrapper
+channel.send = function(data) {
+    // check for "readyState==open"
+    if(channel.readyState !== 'open') {
+        // make sure that peer is NOT closed
+        if(peer.iceConnectionState.search(/disconnected|closed|failed/gi) !== -1) {
+            return;
+        }
+
+        // retry after 1-second
+        setTimeout(function() {
+            channels.send(data);
+        }, 1000);
+
+        return;
+    }
+
+    // send data using real data-channel object
+    channel.internalSend(data);
+};
+</pre>
+            </section>
+
+            <section class="experiment" id="modify-streams">
+                <h2>
+                    <a href="#modify-streams">Modify streams without "remaking" getUserMedia request</a>
+                </h2>
+
+                <pre class="sh_javascript">
+// supported only in firefox 43+
+
+var originalStream = window.yourOrigianlStream;
+
+// change from 360p to 720p
+function changeVideoStreamTo720p() {
+    var videoConstraints = {
+        width: { min: 1280 },
+        height: { min: 720 }
+    };
+
+    originalStream.getVideoTracks().forEach(function(track) {
+        track.applyConstraints(videoConstraints);
+    });
+}
+
+function showFrontCamera() {
+    var videoConstraints = {
+        facingMode: { exact: 'user' }
+    };
+
+    originalStream.getVideoTracks().forEach(function(track) {
+        track.applyConstraints(videoConstraints);
+    });
+}
+
+function showRearCamera() {
+    var videoConstraints = {
+        facingMode: { exact: 'environment' }
+    };
+
+    originalStream.getVideoTracks().forEach(function(track) {
+        track.applyConstraints(videoConstraints);
+    });
+}
+</pre>
+            </section>
+
+            <section class="experiment" id="rear-or-front-camera">
+                <h2>
+                    <a href="#rear-or-front-camera">Capture Rear or Front Camera</a>
+                </h2>
+
+                <pre class="sh_javascript">
+// supported only in firefox 43+
+
+#1 capture rear camera
+var videoConstraints = {
+    facingMode: { exact: 'environment' }
+};
+navigator.mozGetUserMedia({ video: videoConstraints }, onSuccessCallback, onFailureCallback);
+
+#1 capture front camera
+var videoConstraints = {
+    facingMode: { exact: 'user' }
+};
+navigator.mozGetUserMedia({ video: videoConstraints }, onSuccessCallback, onFailureCallback);
+</pre>
+            </section>
+
+            <section class="experiment" id="select-secondary-camera">
+                <h2>
+                    <a href="#select-secondary-camera">Select Secondary (2nd) Camera</a>
+                </h2>
+
+                <pre class="sh_javascript">
+function selectSecondaryCamera() {
+    // link: https://cdn.webrtc-experiment.com/DetectRTC/checkDeviceSupport.js
+
+    // LIVE Demo for this function
+    // <a href="https://jsfiddle.net/cf90az9q/" target="_blank">https://jsfiddle.net/cf90az9q/</a>
+
+    checkDeviceSupport(function() {
+        var secondDevice = videoInputDevices[1];
+        if(!secondDevice) return alert('Secondary webcam is NOT available.');
+
+        var videoConstraints = {
+            deviceId: secondDevice.deviceId
+        };
+
+        if(!!navigator.webkitGetUserMedia) {
+            videoConstraints = {
+                mandatory: {},
+                optional: [{
+                    sourceId: secondDevice.deviceId
+                }]
+            }
+        }
+
+        navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+        navigator.getUserMedia({ video: videoConstraints }, function(stream) {
+            // 
+        }, function(error) {
+            alert(JSON.stringify(error));
+        });
+    });
+}
+</pre>
+            </section>
 		
             <section class="experiment">
                 <ol>
@@ -296,6 +618,7 @@ https://github.com/mozilla/mozilla-central/blob/master/media/webrtc/signaling/te
             </section>
             
         </article>
+
         <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
         
         <footer>
@@ -307,6 +630,6 @@ https://github.com/mozilla/mozilla-central/blob/master/media/webrtc/signaling/te
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="//www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

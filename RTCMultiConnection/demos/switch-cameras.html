@@ -1,67 +1,56 @@
-<!--
-> Muaz Khan     - github.com/muaz-khan 
-> MIT License   - www.webrtc-experiment.com/licence
-> Documentation - www.RTCMultiConnection.org
--->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <title>Switch Cameras in a Live Conference using RTCMultiConnection ® Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-    <meta name="author" content="Muaz Khan">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
-    <style>
-    audio,
-    video {
-        -moz-transition: all 1s ease;
-        -ms-transition: all 1s ease;
-        -o-transition: all 1s ease;
-        -webkit-transition: all 1s ease;
-        transition: all 1s ease;
-        vertical-align: top;
-        width: 40%;
-    }
-    
-    input {
-        border: 1px solid #d9d9d9;
-        border-radius: 1px;
-        font-size: 2em;
-        margin: .2em;
-        width: 20%;
-    }
-    
-    p {
-        padding: 1em;
-    }
-    
-    li {
-        border-bottom: 1px solid rgb(189, 189, 189);
-        border-left: 1px solid rgb(189, 189, 189);
-        padding: .5em;
-    }
-    </style>
-    <script>
-    document.createElement('article');
-    document.createElement('footer');
-    </script>
+    <title>Switch+Cameras using RTCMultiConnection-v3.0</title>
 
-    <!-- currently only v2+ are supporting "enumerateDevices" method. -->
-    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+    <meta name="description" content="Switch/Change Cameras in a live conference using RTCMultiConnection v3.0" />
+    <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
+
+    <style>
+        video {
+            width: 100%;
+        }
+        button,
+        input,
+        select {
+            font-weight: normal;
+            padding: 2px 4px;
+            text-decoration: none;
+            display: inline-block;
+            text-shadow: none;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .make-center {
+            text-align: center;
+            padding: 5px 10px;
+        }
+
+        .video-parent-container {
+            display: inline-block;
+            border: 2px solid black;
+            margin: 2px 5px;
+            border-radius: 5px;
+            object-fit: fill;
+            width: 42%;
+            background: black;
+        }
+    </style>
 </head>
 
 <body>
     <article>
+
         <header style="text-align: center;">
-            <h1>Switch Cameras in a Live Conference using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection.js</a>!</h1>
+            <h1>Switch+Cameras using RTCMultiConnection-v3.0</h1>
             <p>
-                <a href="https://www.webrtc-experiment.com/">HOME</a>
+                <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
                 <span> &copy; </span>
                 <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
                 <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
@@ -71,186 +60,311 @@
             </p>
         </header>
 
+
         <div class="github-stargazers"></div>
 
-        <!-- just copy this <section> and next script -->
         <section class="experiment">
-            <h2>Select Media Device</h2>
-            <br />
-            <br />
-            <select id="audio-devices"></select>
-            <select id="video-devices"></select>
-            <br />
-            <br />
-            <button id="select-device">Select device and start a meeting</button>
-            <br />
+            <div class="make-center">
+                <input type="text" id="room-id" value="abcdef">
+                <button id="open-room">Open Room</button>
+                <button id="join-room">Join Room</button>
+                <button id="open-or-join-room">Auto Open Or Join Room</button>
 
-            <div id="videos"></div>
+                <br><br>
+                <label for="audio-devices">Audio Devices:</label>
+                <select id="audio-devices" disabled></select>
+                <br>
+                <label for="video-devices">Video Devices:</label>
+                <select id="video-devices" disabled></select>
+                <br>
+                <button id="switch-camera" disabled>Switch Webcam</button>
+                <button id="switch-microphone" disabled>Switch Microphone</button>
+            </div>
+
+            <div id="videos-container"></div>
         </section>
 
+        <script src="/RTCMultiConnection.min.js"></script>
+
+        <!-- socket.io for signaling -->
+        <script src="/socket.io/socket.io.js"></script>
+
         <script>
-        var connection = new RTCMultiConnection();
-        connection.setDefaultEventsForMediaElement = false;
+            // ......................................................
+            // .......................UI Code........................
+            // ......................................................
 
-        connection.enumerateDevices(function(devices) {
-            devices.forEach(appendOption);
+            document.getElementById('open-room').onclick = function() {
+                this.disabled = true;
+                connection.open(document.getElementById('room-id').value);
+            };
 
-            function appendOption(device) {
-                var option = document.createElement('option');
-                option.innerHTML = device.label || (device.kind + ': ' + device.deviceId);
-                option.value = device.deviceId;
+            document.getElementById('join-room').onclick = function() {
+                this.disabled = true;
+                connection.join(document.getElementById('room-id').value);
+            };
 
-                if (device.kind.indexOf('audio') !== -1) {
-                    selectAudioDevices.appendChild(option);
-                } else selectVideoDevices.appendChild(option);
+            document.getElementById('open-or-join-room').onclick = function() {
+                this.disabled = true;
+                connection.openOrJoin(document.getElementById('room-id').value);
+            };
+
+            var chatContainer = document.querySelector('.chat-output');
+
+            function appendDIV(event) {
+                var div = document.createElement('div');
+                div.innerHTML = event.data || event;
+                chatContainer.insertBefore(div, chatContainer.firstChild);
+                div.tabIndex = 0;
+                div.focus();
+
+                document.getElementById('input-text-chat').focus();
             }
-        });
 
-        var deviceSelectionButton = document.getElementById('select-device');
+            // ......................................................
+            // ..................RTCMultiConnection Code.............
+            // ......................................................
 
-        deviceSelectionButton.onclick = function() {
-            deviceSelectionButton.disabled = true;
-            selectAudioDevices.disabled = selectVideoDevices.disabled = true;
+            var connection = new RTCMultiConnection();
 
-            // connection.selectDevices(selectAudioDevices.value, selectVideoDevices.value);
+            connection.socketCustomEvent = connection.channel;
 
-            var videoConstraints = {
-                mandatory: {
-                    maxWidth: 1920,
-                    maxHeight: 1080,
-                    minAspectRatio: 1.77,
-                    minFrameRate: 3,
-                    maxFrameRate: 64
-                },
-                optional: [{
-                    sourceId: selectVideoDevices.value
-                }]
+            document.getElementById('room-id').value = connection.token();
+
+            connection.session = {
+                audio: true,
+                video: true
             };
 
-            var audioConstraints = {
-                mandatory: {},
-                optional: [{
-                    sourceId: selectAudioDevices.value
-                }]
+            connection.sdpConstraints.mandatory = {
+                OfferToReceiveAudio: true,
+                OfferToReceiveVideo: true
             };
 
-            connection.mediaConstraints = {
-                video: videoConstraints,
-                audio: audioConstraints
-            };
+            function receiveCustomMessages() {
+                connection.connectSocket(function(socket) {
+                    socket.on(connection.socketCustomEvent, function(message) {
+                        if(message.remoteUserId !== connection.userid) return;
 
-            if(deviceSelectionButton.innerHTML === 'Switch Camera') {
-                /*
-                var localStreamObject = connection.streams.selectFirst({local: true});
-                localStreamObject.stream.onended = function() {};
+                        if(!message.reloadVideo) return;
 
-                if(localStreamObject.sockets) {
-                    localStreamObject.sockets.forEach(function(socket) {
-                        socket.send({
-                            streamid: localStreamObject.streamid,
-                            stopped: true
+                        var streamEvent = connection.streamEvents[message.streamid];
+                        if(!streamEvent) return;
+
+                        var videoParentNode = document.getElementById(message.userid);
+                        if(!videoParentNode) return;
+
+                        setTimeout(function() {
+                            videoParentNode.querySelector('video').src = URL.createObjectURL(streamEvent.stream);
+                            videoParentNode.querySelector('video').play();
+                        }, 2000);
+                    });
+                });
+            }
+
+            var videosContainer = document.getElementById('videos-container');
+            connection.onstream = function(event) {
+                if(event.mediaElement) {
+                    event.mediaElement.muted = true;
+                    delete event.mediaElement;
+                }
+
+                if(event.stream.mediaElement) {
+                    event.stream.mediaElement.muted = true;
+                    delete event.stream.mediaElement;
+                }
+
+                var videoParentNode = document.getElementById(event.userid);
+                if(videoParentNode && event.type == 'local') {
+                    var oldStream;
+                    connection.attachStreams.forEach(function(stream) {
+                        if(stream.streamid !== event.stream.streamid) {
+                            oldStream = stream;
+                        }
+                    });
+
+                    if(!oldStream) {
+                        oldStream = connection.attachStreams[0];
+
+                        if(!oldStream) return;
+                    }
+
+                    if(event.stream.getAudioTracks().length) {
+                        oldStream.addTrack(event.stream.getAudioTracks()[0]);
+                    }
+
+                    if(event.stream.getVideoTracks().length) {
+                        oldStream.addTrack(event.stream.getVideoTracks()[0]);
+                    }
+
+                    connection.attachStreams = [oldStream];
+
+                    videoParentNode.querySelector('video').src = URL.createObjectURL(oldStream);
+                    videoParentNode.querySelector('video').play();
+
+                    connection.renegotiate();
+                    connection.connectSocket(function(socket) {
+                        connection.getAllParticipants().forEach(function(participantId) {
+                            socket.emit(connection.socketCustomEvent, {
+                                remoteUserId: participantId,
+                                reloadVideo: true,
+                                userid: connection.userid,
+                                streamid: oldStream.streamid
+                            });
                         });
                     });
+                    return;
                 }
 
-                connection.onstreamended(localStreamObject);
-                localStreamObject.stream.stop();
+                videoParentNode = document.createElement('div');
+                videoParentNode.id = event.userid;
+                videoParentNode.className = 'video-parent-container';
 
-                connection.attachStreams = [];
-                */
+                var video = document.createElement('video');
+                video.src = URL.createObjectURL(event.stream);
+                video.controls = true;
+                videoParentNode.appendChild(video);
+                video.play();
 
-                connection.switchStream({
-                    video: true,
-                    audio: true
+                videosContainer.appendChild(videoParentNode);
+
+                if(event.type === 'remote' && !connection.alreadyHandlingRemoteMessages) {
+                    connection.alreadyHandlingRemoteMessages = true;
+                    receiveCustomMessages();
+
+                    document.getElementById('switch-camera').disabled = false;
+                    document.getElementById('switch-microphone').disabled = false;
+
+                    videoDevices.disabled = false;
+                    audioDevices.disabled = false;
+                }
+            };
+
+            var videoDevices = document.getElementById('video-devices');
+            var audioDevices = document.getElementById('audio-devices');
+
+            connection.DetectRTC.load(function() {
+                connection.DetectRTC.MediaDevices.forEach(function(device) {
+                    if(document.getElementById(device.id)) {
+                        return;
+                    }
+
+                    if(device.kind === 'audioinput') {
+                        var option = document.createElement('option');
+                        option.id = device.id;
+                        option.innerHTML = device.label || device.id;
+                        option.value = device.id;
+                        audioDevices.appendChild(option);
+
+                        if(connection.mediaConstraints.audio.optional.length && connection.mediaConstraints.audio.optional[0].sourceId === device.id) {
+                            option.selected = true;
+                        }
+                    }
+
+                    if(device.kind.indexOf('video') !== -1) {
+                        var option = document.createElement('option');
+                        option.id = device.id;
+                        option.innerHTML = device.label || device.id;
+                        option.value = device.id;
+                        videoDevices.appendChild(option);
+
+                        if(connection.mediaConstraints.video.optional.length && connection.mediaConstraints.video.optional[0].sourceId === device.id) {
+                            option.selected = true;
+                        }
+                    }
                 });
-                return;
-            }
-
-            connection.captureUserMedia(function() {
-                if(deviceSelectionButton.innerHTML.indexOf('start') !== -1) {
-                    var session = connection.open();
-                    // alert(session.sessionid);
-                }
-                else {
-                    connection.join(deviceSelectionButton.sessionid);
-                    // connection.join(connection.sessionDescriptions[deviceSelectionButton.sessionid]);
-                }
             });
-        };
 
-        var selectAudioDevices = document.getElementById('audio-devices');
-        var selectVideoDevices = document.getElementById('video-devices');
+            document.getElementById('switch-camera').onclick = function() {
+                var videoSourceId = videoDevices.value;
 
-        connection.onconnected = function(event) {
-            deviceSelectionButton.disabled = false;
-            selectAudioDevices.disabled = selectVideoDevices.disabled = false;
+                if(connection.mediaConstraints.video.optional.length && connection.attachStreams.length) {
+                    if(connection.mediaConstraints.video.optional[0].sourceId === videoSourceId) {
+                        alert('Selected video device is already selected.');
+                        return;
+                    }
+                }
 
-            deviceSelectionButton.innerHTML = 'Switch Camera';
-        };
+                connection.attachStreams.forEach(function(stream) {
+                    stream.getVideoTracks().forEach(function(track) {
+                        stream.removeTrack(track);
 
-        var videos = document.querySelector('#videos');
+                        if(track.stop) {
+                            track.stop();
+                        }
+                    });
+                });
 
-        connection.onstream = function(e) {
-            videos.appendChild(e.mediaElement);
-        };
+                connection.mediaConstraints.video.optional = [{
+                    sourceId: videoSourceId
+                }];
 
-        connection.onNewSession = function(session) {
-            if(deviceSelectionButton.sessionid) return;
-            deviceSelectionButton.sessionid = session.sessionid;
-            deviceSelectionButton.innerHTML = 'Select device and join an exiting meeting room';
-        };
+                connection.captureUserMedia();
+            };
 
-        connection.connect();
+            document.getElementById('switch-microphone').onclick = function() {
+                var audioSourceId = audioDevices.value;
+
+                if(connection.mediaConstraints.audio.optional.length && connection.attachStreams.length) {
+                    if(connection.mediaConstraints.audio.optional[0].sourceId === audioSourceId) {
+                        alert('Selected audio device is already selected.');
+                        return;
+                    }
+                }
+
+                connection.attachStreams.forEach(function(stream) {
+                    stream.getAudioTracks().forEach(function(track) {
+                        stream.removeTrack(track);
+
+                        if(track.stop) {
+                            track.stop();
+                        }
+                    });
+                });
+
+                connection.mediaConstraints.audio.optional = [{
+                    sourceId: videoSourceId
+                }];
+
+                connection.captureUserMedia();
+            };
         </script>
 
-        <section class="experiment">
-            <h2>Reference Links</h2>
-            <ol>
-                <li>
-                    <a href="http://www.rtcmulticonnection.org/docs/getDevices/">http://www.rtcmulticonnection.org/docs/getDevices/</a>
-                </li>
-
-                <li>
-                    <a href="http://www.rtcmulticonnection.org/docs/selectDevices/">http://www.rtcmulticonnection.org/docs/selectDevices/</a>
-                </li>
-            </ol>
+        <section class="experiment own-widgets latest-commits">
+            <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master">Latest Updates</a></h2>
+            <div id="github-commits"></div>
         </section>
 
         <section class="experiment own-widgets">
             <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/issues">Latest Issues</a></h2>
             <div id="github-issues"></div>
         </section>
-        
-        <section class="experiment own-widgets latest-commits">
-            <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master">Latest Updates</a></h2>
-            <div id="github-commits"></div>
-        </section>
 
         <section class="experiment">
             <h2 class="header" id="feedback">Feedback</h2>
             <div>
-                <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
             </div>
-            <button id="send-message" style="font-size: 1em;">Send Message</button>
-            <small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
         </section>
+
+        <a href="https://github.com/muaz-khan/RTCMultiConnection" class="fork-left"></a>
+
+        <script>
+            window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
+        </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+
     </article>
 
-    <a href="https://github.com/muaz-khan/RTCMultiConnection" class="fork-left"></a>
-
     <footer>
-        <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a> and
-        <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection.js</a> ©
-        <a href="mailto:muazkh@gmail.com" target="_blank">Muaz Khan</a>:
-        <a href="https://twitter.com/WebRTCWeb" target="_blank">@WebRTCWeb</a>
+        <p>
+            <a href="https://www.webrtc-experiment.com">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+            <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+        </p>
     </footer>
 
-    <!-- commits.js is useless for you! -->
-    <script>
-        window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
-    </script>
-    <script src="https://cdn.webrtc-experiment.com/commits.js" async>
-    </script>
 </body>
 
 </html>

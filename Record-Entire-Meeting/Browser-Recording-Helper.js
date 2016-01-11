@@ -15,11 +15,7 @@ var RecorderHelper = (function() {
         // listen for "ended" event
         // works only in Chrome
         MediaStream.addEventListener('ended', function() {
-            // LET server know recording process is stopped
-            // todo???? maybe ask server to wait for 5-10 minutes
-            //          then invoke merge/concatenate functions??
-            socket.emit('stream-stopped');
-            multiStreamRecorder.stop();
+            RecorderHelper.StopRecording();
         }, false);
 
         multiStreamRecorder = new MultiStreamRecorder(MediaStream);
@@ -49,6 +45,10 @@ var RecorderHelper = (function() {
             onDataAvailable(blobs.audio, blobs.video);
         };
         multiStreamRecorder.start(UploadInterval);
+
+        socket.on('complete', function(fileName) {
+            RecorderHelper.OnComplete(fileName);
+        });
     }
 
     // this variable is used to detect if all pending are uploaded
@@ -280,6 +280,28 @@ var RecorderHelper = (function() {
 
             // Starting Recording
             initRecorder(obj.MediaStream, obj.HTMLVideoElement);
+
+            this.alreadyStopped = false;
+        },
+
+        StopRecording: function() {
+            if(this.alreadyStopped) return;
+            this.alreadyStopped = true;
+
+            // LET server know recording process is stopped
+            // todo???? maybe ask server to wait for 5-10 minutes
+            //          then invoke merge/concatenate functions??
+            
+            socket.emit('stream-stopped');
+            multiStreamRecorder.stop();
+            multiStreamRecorder = null;
+            // socket.disconnect();
+
+            // location.reload();
+        },
+
+        OnComplete: function(fileName) {
+            console.debug('File saved at: /uploads/' + roomId + '/' + fileName);
         }
     };
 })();

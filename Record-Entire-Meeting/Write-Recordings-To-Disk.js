@@ -1,8 +1,11 @@
 var fs = require('fs');
 var isWindows = !!process.platform.match(/^win/);
-var MergeRecordings = require('Merge-Recordings');
+var MergeRecordings = require('./Merge-Recordings.js');
+var socket;
 
-module.exports = exports = function(files) {
+module.exports = exports = function(files, _socket) {
+    socket = _socket;
+
     writeToDisk(files);
 };
 
@@ -46,7 +49,7 @@ function writeToDisk(files) {
         writeToDiskInternal(files.video, function() {
             // merge WAV/WebM into single WebM
             // todo???? handle it in "disconnect" event instead???
-            MergeRecordings(files);
+            MergeRecordings(files, socket);
         });
     });
 }

@@ -1,2 +1,0 @@
-window.RTCMultiConnection = RTCMultiConnection;
-})();
