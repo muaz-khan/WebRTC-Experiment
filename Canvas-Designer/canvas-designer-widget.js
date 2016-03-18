@@ -39,8 +39,6 @@ var CanvasDesigner = (function() {
         }
     }
 
-    window.addEventListener('message', onMessage, false);
-
     return {
         appendTo: function(parentNode) {
             iframe = document.createElement('iframe');
@@ -49,6 +47,9 @@ var CanvasDesigner = (function() {
             iframe.style.height = '100%';
             iframe.style.border = 0;
             parentNode.appendChild(iframe);
+
+            window.removeEventListener('message', onMessage);
+            window.addEventListener('message', onMessage, false);
         },
         destroy: function() {
             if(iframe) {

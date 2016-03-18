@@ -32,7 +32,7 @@
     foreach($OSList as $CurrOS=>$Match)
     {
         // Find a match
-        if (eregi($Match, $_SERVER['HTTP_USER_AGENT']))
+        if (preg_match("/".$Match."/i", $_SERVER['HTTP_USER_AGENT']))
         {
             // We found the correct match
             break;

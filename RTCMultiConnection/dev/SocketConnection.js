@@ -7,10 +7,16 @@ function SocketConnection(connection, connectCallback) {
 
     if (connection.enableScalableBroadcast) {
         parameters += '&enableScalableBroadcast=true';
-        parameters += '&singleBroadcastAttendees=' + connection.singleBroadcastAttendees;
+        parameters += '&maxRelayLimitPerUser=' + (connection.maxRelayLimitPerUser || 2);
     }
 
-    var socket = io.connect((connection.socketURL || '/') + parameters, connection.socketOptions);
+    var socket;
+
+    try {
+        socket = io((connection.socketURL || '/') + parameters);
+    } catch (e) {
+        socket = io.connect((connection.socketURL || '/') + parameters, connection.socketOptions);
+    }
 
     var mPeer = connection.multiPeersHandler;
 
@@ -43,7 +49,7 @@ function SocketConnection(connection, connectCallback) {
 
             var action = message.message.action;
 
-            if (action === 'ended') {
+            if (action === 'ended' || action === 'stream-removed') {
                 connection.onstreamended(stream);
                 return;
             }
@@ -59,7 +65,7 @@ function SocketConnection(connection, connectCallback) {
             }
 
             mPeer.onNegotiationNeeded({
-                allParticipants: connection.peers.getAllParticipants(message.sender)
+                allParticipants: connection.getAllParticipants(message.sender)
             }, message.sender);
             return;
         }
@@ -73,11 +79,7 @@ function SocketConnection(connection, connectCallback) {
         }
 
         if (message.message === 'dropPeerConnection') {
-            if (connection.peers[message.sender]) {
-                connection.peers[message.sender].peer.close();
-                connection.peers[message.sender].peer = null;
-                delete connection.peers[message.sender];
-            }
+            connection.deletePeer(message.sender);
             return;
         }
 
@@ -128,11 +130,7 @@ function SocketConnection(connection, connectCallback) {
 
         if (message.message.newParticipationRequest && message.sender !== connection.userid) {
             if (connection.peers[message.sender]) {
-                if (connection.peers[message.sender].peer) {
-                    connection.peers[message.sender].peer.close();
-                    connection.peers[message.sender].peer = null;
-                }
-                delete connection.peers[message.sender];
+                connection.deletePeer(message.sender);
             }
 
             var userPreferences = {
@@ -246,10 +244,7 @@ function SocketConnection(connection, connectCallback) {
             extra: connection.peers[remoteUserId] ? connection.peers[remoteUserId].extra || {} : {}
         });
 
-        if (connection.peers[remoteUserId] && connection.peers[remoteUserId].peer) {
-            connection.peers[remoteUserId].peer.close();
-            delete connection.peers[remoteUserId];
-        }
+        connection.deletePeer(remoteUserId);
     });
 
     socket.on('user-connected', function(userid) {
@@ -263,6 +258,22 @@ function SocketConnection(connection, connectCallback) {
             extra: connection.peers[userid] ? connection.peers[userid].extra || {} : {}
         });
     });
+
+    socket.on('closed-entire-session', function(sessionid, extra) {
+        connection.leave();
+        connection.onEntireSessionClosed({
+            sessionid: sessionid,
+            userid: sessionid,
+            extra: extra
+        });
+    });
+
+    socket.on('userid-already-taken', function(useridAlreadyTaken, yourNewUserId) {
+        connection.isInitiator = false;
+        connection.userid = yourNewUserId;
+
+        connection.onUserIdAlreadyTaken(useridAlreadyTaken, yourNewUserId);
+    })
 
     socket.on('logs', function(log) {
         if (!connection.enableLogs) return;

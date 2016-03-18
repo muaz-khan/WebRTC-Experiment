@@ -1,7 +1,7 @@
 ﻿<!--
 > Muaz Khan     - www.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
-> Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/ffmpeg
+> Documentation - github.com/muaz-khan/Ffmpeg.js
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -328,6 +328,12 @@
                     document.querySelector('#record-video').disabled = false;
                 };
             </script>
+
+            <section class="experiment own-widgets">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/Ffmpeg.js/issues" target="_blank">Ffmpeg.js Issues</a>
+                </h2>
+                <div id="github-issues"></div>
+            </section>
         
             <section class="experiment">
                 <h2 class="header" id="feedback">Feedback</h2>
@@ -380,6 +386,9 @@
         </footer>
     
         <!-- commits.js is useless for you! -->
+        <script>
+            window.useThisGithubPath = 'muaz-khan/Ffmpeg.js';
+        </script>
         <script src="//cdn.webrtc-experiment.com/commits.js" async> </script> 
         <script src="https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.googledrive.com/host/0B6GWd_dUUTT8WjhzNlloZmZtdzA/ffmpeg_asm.js" async> </script>
     </body>

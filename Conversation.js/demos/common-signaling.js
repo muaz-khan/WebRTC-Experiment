@@ -1,29 +1,30 @@
-var SIGNALING_SERVER = 'https://signaling-muazkh.c9.io:443/';
-var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+var SIGNALING_SERVER = 'wss://webrtc-signaling.herokuapp.com:443/ws/';
+var channel = window.RMCDefaultChannel;
 
-var sender = Math.round(Math.random() * 9999999999) + 9999999999;
-io.connect(SIGNALING_SERVER).emit('new-channel', {
-    channel: channel,
-    sender : sender
-});
+var websocket = new WebSocket(SIGNALING_SERVER);
 
-var socket = io.connect(SIGNALING_SERVER + channel);
-
-socket.send = function (message) {
-    socket.emit('message', {
-        sender: sender,
-        data  : message
-    });
+websocket.push = websocket.send;
+websocket.send = function(data) {
+    websocket.push(JSON.stringify({
+        channel: channel,
+        data: data
+    }));
 };
 
-socket.on('message', function(data) {
-    signaler.emit('message', data);
+var signaler = new Signaler();
+signaler.on('message', function(data) {
+    websocket.send(data);
 });
 
-var signaler = new Signaler();
-signaler.on('message', function(message) {
-    socket.emit('message', {
-        sender: sender,
-        data  : message
+websocket.onmessage = function(event) {
+    var data = JSON.parse(event.data);
+    signaler.emit('message', data);
+};
+
+websocket.onopen = function(){
+    console.info('WebSocket connection is opened');
+
+    websocket.send({
+        channel: channel
     });
-});
+};

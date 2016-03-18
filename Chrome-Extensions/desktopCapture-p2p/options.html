@@ -30,6 +30,10 @@ label {
     font-weight: bold;
 }
 
+label, input {
+    vertical-align: middle;
+}
+
 select[disabled] {
     background-color: rgba(232, 229, 229, 0.17);
     color: rgb(84, 82, 82);
@@ -51,6 +55,8 @@ select[disabled] {
 <label for="max_bandwidth">Maximum Bandwidth</label>
 <input type="text" id="max_bandwidth" value="1048" style="width: 40px;">kbps
 <hr>
+<input type="checkbox" id="is_audio"> <label for="is_audio">Enable audio+tab sharing?</label>
+<hr>
 <h2>Password Protected Room?</h2>
 <label for="room_password">Set Password</label>
 <input type="password" id="room_password" value="">
@@ -66,8 +72,8 @@ select[disabled] {
     <br>
     E.g. You can always share this with screen viewers:
     <br>
+    https://rtcxp.com/screen?s=your_room_id<br>or<br>
     https://www.webrtc-experiment.com/!/?s=your_room_id
 </small>
-<hr>
 
 <script src="options.js"></script>

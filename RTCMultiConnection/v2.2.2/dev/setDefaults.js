@@ -689,7 +689,11 @@ function setDefaults(connection) {
 
             if (isFirefox) {
                 // firefox supports both audio/video recording in single webm file
-                if (session.video) {
+                if (self.stream.getAudioTracks().length && self.stream.getVideoTracks().length) {
+                    self.videoRecorder = RecordRTC(self.stream, {
+                        type: 'video'
+                    });
+                } else if (session.video) {
                     self.videoRecorder = RecordRTC(self.stream, {
                         type: 'video'
                     });
@@ -699,17 +703,36 @@ function setDefaults(connection) {
                     });
                 }
             } else if (isChrome) {
-                // chrome supports recording in two separate files: WAV and WebM
-                if (session.video) {
+                // chrome >= 48 supports MediaRecorder API
+                // MediaRecorder API can record remote audio+video streams as well!
+
+                if (isMediaRecorderCompatible() && connection.DetectRTC.browser.version >= 50 && self.stream.getAudioTracks().length && self.stream.getVideoTracks().length) {
                     self.videoRecorder = RecordRTC(self.stream, {
                         type: 'video'
                     });
-                }
+                } else if (isMediaRecorderCompatible() && connection.DetectRTC.browser.version >= 50) {
+                    if (session.video) {
+                        self.videoRecorder = RecordRTC(self.stream, {
+                            type: 'video'
+                        });
+                    } else if (session.audio) {
+                        self.audioRecorder = RecordRTC(self.stream, {
+                            type: 'audio'
+                        });
+                    }
+                } else {
+                    // chrome supports recording in two separate files: WAV and WebM
+                    if (session.video) {
+                        self.videoRecorder = RecordRTC(self.stream, {
+                            type: 'video'
+                        });
+                    }
 
-                if (session.audio) {
-                    self.audioRecorder = RecordRTC(self.stream, {
-                        type: 'audio'
-                    });
+                    if (session.audio) {
+                        self.audioRecorder = RecordRTC(self.stream, {
+                            type: 'audio'
+                        });
+                    }
                 }
             }
 

@@ -3,22 +3,31 @@
 // Documentation  - github.com/muaz-khan/RTCMultiConnection
 
 module.exports = exports = function(app, socketCallback) {
-    var io = require('socket.io').listen(app, {
-        log: false,
-        origins: '*:*'
-    });
-
-    io.set('transports', [
-        'websocket', // 'disconnect' EVENT will work only with 'websocket'
-        'xhr-polling',
-        'jsonp-polling'
-    ]);
-
     var listOfUsers = {};
     var shiftedModerationControls = {};
     var ScalableBroadcast;
 
-    io.sockets.on('connection', function(socket) {
+    var io = require('socket.io');
+
+    try {
+        io = io(app);
+        io.on('connection', onConnection);
+    } catch (e) {
+        io = io.listen(app, {
+            log: false,
+            origins: '*:*'
+        });
+
+        io.set('transports', [
+            'websocket', // 'disconnect' EVENT will work only with 'websocket'
+            'xhr-polling',
+            'jsonp-polling'
+        ]);
+
+        io.sockets.on('connection', onConnection);
+    }
+
+    function onConnection(socket) {
         var params = socket.handshake.query;
         var socketMessageEvent = params.msgEvent || 'RTCMultiConnection-Message';
 
@@ -26,12 +35,19 @@ module.exports = exports = function(app, socketCallback) {
             if (!ScalableBroadcast) {
                 ScalableBroadcast = require('./Scalable-Broadcast.js');
             }
-            var singleBroadcastAttendees = params.singleBroadcastAttendees;
-            ScalableBroadcast(socket, singleBroadcastAttendees);
+            ScalableBroadcast(socket, params.maxRelayLimitPerUser);
+        }
+
+        // temporarily disabled
+        if (false && !!listOfUsers[params.userid]) {
+            params.dontUpdateUserId = true;
+
+            var useridAlreadyTaken = params.userid;
+            params.userid = (Math.random() * 1000).toString().replace('.', '');
+            socket.emit('userid-already-taken', useridAlreadyTaken, params.userid);
         }
 
         socket.userid = params.userid;
-
         listOfUsers[socket.userid] = {
             socket: socket,
             connectedWith: {},
@@ -57,6 +73,13 @@ module.exports = exports = function(app, socketCallback) {
             } catch (e) {}
         });
 
+        socket.on('dont-make-me-moderator', function() {
+            try {
+                if (!listOfUsers[socket.userid]) return;
+                listOfUsers[socket.userid].isPublic = false;
+            } catch (e) {}
+        });
+
         socket.on('get-public-moderators', function(userIdStartsWith, callback) {
             try {
                 userIdStartsWith = userIdStartsWith || '';
@@ -75,7 +98,12 @@ module.exports = exports = function(app, socketCallback) {
             } catch (e) {}
         });
 
-        socket.on('changed-uuid', function(newUserId) {
+        socket.on('changed-uuid', function(newUserId, callback) {
+            if (params.dontUpdateUserId) {
+                delete params.dontUpdateUserId;
+                return;
+            }
+
             try {
                 if (listOfUsers[socket.userid] && listOfUsers[socket.userid].socket.id == socket.userid) {
                     if (newUserId === socket.userid) return;
@@ -84,6 +112,8 @@ module.exports = exports = function(app, socketCallback) {
                     listOfUsers[newUserId] = listOfUsers[oldUserId];
                     listOfUsers[newUserId].socket.userid = socket.userid = newUserId;
                     delete listOfUsers[oldUserId];
+
+                    callback();
                     return;
                 }
 
@@ -94,6 +124,8 @@ module.exports = exports = function(app, socketCallback) {
                     isPublic: false,
                     extra: {}
                 };
+
+                callback();
             } catch (e) {}
         });
 
@@ -122,6 +154,24 @@ module.exports = exports = function(app, socketCallback) {
             } catch (e) {}
         });
 
+        socket.on('close-entire-session', function(callback) {
+            try {
+                var connectedWith = listOfUsers[socket.userid].connectedWith;
+                Object.keys(connectedWith).forEach(function(key) {
+                    if (connectedWith[key] && connectedWith[key].emit) {
+                        try {
+                            connectedWith[key].emit('closed-entire-session', socket.userid, listOfUsers[socket.userid].extra);
+                        } catch (e) {}
+                    }
+                });
+
+                delete shiftedModerationControls[socket.userid];
+                callback();
+            } catch (e) {
+                throw e;
+            }
+        });
+
         function onMessageCallback(message) {
             try {
                 if (!listOfUsers[message.sender]) {
@@ -129,7 +179,7 @@ module.exports = exports = function(app, socketCallback) {
                     return;
                 }
 
-                if (!listOfUsers[message.sender].connectedWith[message.remoteUserId] && !!listOfUsers[message.remoteUserId]) {
+                if (!message.message.userLeft && !listOfUsers[message.sender].connectedWith[message.remoteUserId] && !!listOfUsers[message.remoteUserId]) {
                     listOfUsers[message.sender].connectedWith[message.remoteUserId] = listOfUsers[message.remoteUserId].socket;
                     listOfUsers[message.sender].socket.emit('user-connected', message.remoteUserId);
 
@@ -245,6 +295,13 @@ module.exports = exports = function(app, socketCallback) {
             try {
                 var message = shiftedModerationControls[socket.userid];
 
+                if (message) {
+                    delete shiftedModerationControls[message.userid];
+                    onMessageCallback(message);
+                }
+            } catch (e) {}
+
+            try {
                 // inform all connected users
                 if (listOfUsers[socket.userid]) {
                     for (var s in listOfUsers[socket.userid].connectedWith) {
@@ -256,18 +313,13 @@ module.exports = exports = function(app, socketCallback) {
                         }
                     }
                 }
-
-                if (message) {
-                    onMessageCallback(message);
-                    delete shiftedModerationControls[message.userid];
-                }
-
-                delete listOfUsers[socket.userid];
             } catch (e) {}
+
+            delete listOfUsers[socket.userid];
         });
 
         if (socketCallback) {
             socketCallback(socket);
         }
-    });
+    }
 };

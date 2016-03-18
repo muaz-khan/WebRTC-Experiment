@@ -6,13 +6,26 @@ var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Const
 var isChrome = !!window.chrome && !isOpera;
 var isIE = !!document.documentMode;
 
-var isPluginRTC = isSafari || isIE;
-
 var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
+
+if (typeof cordova !== 'undefined') {
+    isMobileDevice = true;
+    isChrome = true;
+}
+
+if (navigator && navigator.userAgent && navigator.userAgent.indexOf('Crosswalk') !== -1) {
+    isMobileDevice = true;
+    isChrome = true;
+}
+
+var isPluginRTC = !isMobileDevice && (isSafari || isIE);
+
+if (isPluginRTC && typeof URL !== 'undefined') {
+    URL.createObjectURL = function() {};
+}
 
 // detect node-webkit
 var isNodeWebkit = !!(window.process && (typeof window.process === 'object') && window.process.versions && window.process.versions['node-webkit']);
-
 
 var chromeVersion = 50;
 var matchArray = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
@@ -73,6 +86,8 @@ function setHarkEvents(connection, streamEvent) {
 }
 
 function setMuteHandlers(connection, streamEvent) {
+    if (!streamEvent.stream || !streamEvent.stream.addEventListener) return;
+
     streamEvent.stream.addEventListener('mute', function(event) {
         event = connection.streamEvents[event.target.streamid];
 
@@ -111,19 +126,19 @@ function getRandomString() {
 
 // Get HTMLAudioElement/HTMLVideoElement accordingly
 
-function getRMCMediaElement(stream, callback) {
+function getRMCMediaElement(stream, callback, connection) {
     var isAudioOnly = false;
-    if (!stream.getVideoTracks().length) {
+    if (!!stream.getVideoTracks && !stream.getVideoTracks().length) {
         isAudioOnly = true;
     }
 
     var mediaElement = document.createElement(isAudioOnly ? 'audio' : 'video');
 
-    if (isPluginRTC) {
+    if (isPluginRTC && window.PluginRTC) {
         connection.videosContainer.insertBefore(mediaElement, connection.videosContainer.firstChild);
 
         setTimeout(function() {
-            Plugin.attachMediaStream(mediaElement, stream);
+            window.PluginRTC.attachMediaStream(mediaElement, stream);
             callback(mediaElement);
         }, 1000);
 
@@ -132,17 +147,42 @@ function getRMCMediaElement(stream, callback) {
 
     // "mozSrcObject" is always preferred over "src"!!
     mediaElement[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.URL.createObjectURL(stream);
-
     mediaElement.controls = true;
 
     // http://goo.gl/WZ5nFl
     // Firefox don't yet support onended for any stream (remote/local)
     if (isFirefox) {
         mediaElement.addEventListener('ended', function() {
-            if (stream.onended) {
-                stream.onended();
+            // fireEvent(stream, 'ended', stream);
+            currentUserMediaRequest.remove(stream.idInstance);
+
+            if (stream.type === 'local') {
+                StreamsHandler.onSyncNeeded(stream.streamid, 'ended');
+
+                connection.attachStreams.forEach(function(aStream, idx) {
+                    if (stream.streamid === aStream.streamid) {
+                        delete connection.attachStreams[idx];
+                    }
+                });
+
+                var newStreamsArray = [];
+                connection.attachStreams.forEach(function(aStream) {
+                    if (aStream) {
+                        newStreamsArray.push(aStream);
+                    }
+                });
+                connection.attachStreams = newStreamsArray;
+
+                var streamEvent = connection.streamEvents[stream.streamid];
+
+                if (streamEvent) {
+                    connection.onstreamended(streamEvent);
+                    return;
+                }
+                if (this.parentNode) {
+                    this.parentNode.removeChild(this);
+                }
             }
-            fireEvent(stream, 'ended', stream.type);
         }, false);
     }
 
@@ -199,16 +239,50 @@ if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefine
 }
 
 /*global MediaStream:true */
-if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
-    MediaStream.prototype.stop = function() {
-        this.getAudioTracks().forEach(function(track) {
-            track.stop();
-        });
+if (typeof MediaStream !== 'undefined') {
+    if (!('getVideoTracks' in MediaStream.prototype)) {
+        MediaStream.prototype.getVideoTracks = function() {
+            if (!this.getTracks) {
+                return [];
+            }
 
-        this.getVideoTracks().forEach(function(track) {
-            track.stop();
-        });
+            var tracks = [];
+            this.getTracks.forEach(function(track) {
+                if (track.kind.toString().indexOf('video') !== -1) {
+                    tracks.push(track);
+                }
+            });
+            return tracks;
+        };
 
-        fireEvent(this, 'ended');
-    };
+        MediaStream.prototype.getAudioTracks = function() {
+            if (!this.getTracks) {
+                return [];
+            }
+
+            var tracks = [];
+            this.getTracks.forEach(function(track) {
+                if (track.kind.toString().indexOf('audio') !== -1) {
+                    tracks.push(track);
+                }
+            });
+            return tracks;
+        };
+    }
+
+    if (!('stop' in MediaStream.prototype)) {
+        MediaStream.prototype.stop = function() {
+            this.getAudioTracks().forEach(function(track) {
+                if (!!track.stop) {
+                    track.stop();
+                }
+            });
+
+            this.getVideoTracks().forEach(function(track) {
+                if (!!track.stop) {
+                    track.stop();
+                }
+            });
+        };
+    }
 }

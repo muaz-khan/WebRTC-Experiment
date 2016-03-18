@@ -1,4 +1,4 @@
-// Last time updated at Nov 18, 2014, 08:32:23
+// Last time updated at May 23, 2015, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/ConcatenateBlobs.js
 
@@ -14,7 +14,7 @@
 // This javascript library will concatenate all blobs in single "Blob" object.
 
 (function() {
-    window.ConcatenateBlobs = function(blobs, type, callback) {
+    function ConcatenateBlobs (blobs, type, callback) {
         var buffers = [];
 
         var index = 0;
@@ -58,5 +58,13 @@
 
             callback(blob);
         }
-    };
+    }
+
+    if(typeof modules !== 'undefined') {
+        modules.export = ConcatenateBlobs;
+    }
+
+    if(typeof window !== 'undefined') {
+        window.ConcatenateBlobs = ConcatenateBlobs;
+    }
 })();

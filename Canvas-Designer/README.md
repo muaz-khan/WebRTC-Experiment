@@ -70,14 +70,14 @@ E.g. (Please don't forget replacing `1.0.0` with latest version)
 
 ```html
 <!-- 1st step -->
-<script src="https://github.com/muaz-khan/Canvas-Designer/releases/download/1.0.0/canvas-designer-widget.js"></script>
+<script src="https://github.com/muaz-khan/Canvas-Designer/releases/download/1.0.2/canvas-designer-widget.js"></script>
 
 <!-- 2nd step -->
 <script>
 // both links are mandatory
 // widget.html will internally use widget.js
-CanvasDesigner.widgetHtmlURL = 'https://github.com/muaz-khan/Canvas-Designer/releases/download/1.0.0/widget.html'; // you can place this file anywhere
-CanvasDesigner.widgetJsURL = 'https://github.com/muaz-khan/Canvas-Designer/releases/download/1.0.0/widget.js';     // you can place this file anywhere
+CanvasDesigner.widgetHtmlURL = 'https://github.com/muaz-khan/Canvas-Designer/releases/download/1.0.2/widget.html'; // you can place this file anywhere
+CanvasDesigner.widgetJsURL = 'https://github.com/muaz-khan/Canvas-Designer/releases/download/1.0.2/widget.js';     // you can place this file anywhere
 </script>
 
 <!-- 3rd i.e. last step -->

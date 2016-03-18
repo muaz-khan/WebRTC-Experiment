@@ -5,6 +5,11 @@
 <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
 <meta name="author" content="Muaz Khan">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
 <style>
 body {
     overflow-x: hidden;
@@ -83,19 +88,32 @@ a:focus {
 a:active {
     color: #000;
 }
+
+img, textarea, input, video {
+    vertical-align: top;
+}
+textarea {
+    resize: verticalz;
+}
 </style>
 
 <div id="elementToShare" contenteditable style="margin-top: 3px;">
     <h2>Welcome to <a href="https://www.webrtc-experiment.com/RecordRTC/" contenteditable="false">RecordRTC</a> Canvas/HTML Recorder!</h2>
-    <h3>Content is edit-able.</h3>
     <input type="text" value="Type Text!" />
+    <textarea>resize textarea</textarea><br>
+    You can resize image or above header and drag/move video:<br>
+    <img src="WebRTC.png" style="max-width:100%;position:absolute;left:0;background-color:black;">
+    <video controls style="width:33%;position:absolute;right:100px; top:150px;background-color:black;" poster="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTaNXZNkyP2h2vTVJ6MNzQ-qjN8CkmPgtXmNwgMDm4U79frY2j4mQ"></video>
     <br />
-    <textarea>resize textarea</textarea>
-    <br />
+
+    <div id="other-demo-hints">There is another demo, that allows you <a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html">record drawings</a>!</div>
+
+    <br>
 
     <pre>
 var recorder = RecordRTC(document.documentElement, {
-    type: 'canvas'
+    type: 'canvas',
+    showMousePointer: true
 });
 recorder.startRecording();
 recorder.stopRecording(function(url) {
@@ -109,33 +127,36 @@ recorder.stopRecording(function(url) {
     <button id="stop" disabled contenteditable="false">Stop</button>
 </div>
 
-<script src="https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.googledrive.com/host/0B6GWd_dUUTT8WjhzNlloZmZtdzA/screenshot.js"></script>
-<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
-
-<!--
-<script src="/libs/screenshot-dev.js"></script>
-<script src="/RecordRTC.js"></script>
--->
+<script src="https://cdn.webrtc-experiment.com/screenshot.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC/Whammy.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC/CanvasRecorder.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC/MediaStreamRecorder.js"></script>
+<script src="https://cdn.WebRTC-Experiment.com/gumadapter.js"></script>
 
 <script>
+$( 'img' ).css('cursor', 'move').draggable().resizable();
+$('video, h2, #other-demo-hints').css('cursor', 'move').draggable();
+
 var elementToShare = document.getElementById('elementToShare');
-var recorder = RecordRTC(elementToShare, {
-    recorderType: CanvasRecorder
+var recorder = new CanvasRecorder(elementToShare, {
+    disableLogs: false
 });
 
 document.getElementById('start').onclick = function() {
-    recorder.startRecording();
-
     document.getElementById('start').disabled = true;
-    setTimeout(function() {
-        document.getElementById('stop').disabled = false;
-    }, 1000);
+
+    playVideo(function() {
+        recorder.record();    
+        setTimeout(function() {
+            document.getElementById('stop').disabled = false;
+        }, 1000);
+    });
 };
 document.getElementById('stop').onclick = function() {
     this.disabled = true;
-    recorder.stopRecording(function(url) {
+    recorder.stop(function(blob) {
         var video = document.createElement('video');
-        video.src = url;
+        video.src = URL.createObjectURL(blob);
         video.setAttribute('style', 'height: 100%; position: absolute; top:0;');
         document.body.appendChild(video);
         video.controls = true;
@@ -147,5 +168,27 @@ window.onbeforeunload = function() {
     document.getElementById('start').disabled = false;
     document.getElementById('stop').disabled = true;
 };
+
+webrtcUtils.enableLogs = false;
+
+var videoElement = document.querySelector('video');
+function playVideo(callback) {
+    function successCallback(stream) {
+        videoElement.onloadedmetadata = function() {
+            callback();
+        };
+        videoElement.srcObject = stream;
+        videoElement.play();
+    }
+
+    function errorCallback(error) {
+        console.error('get-user-media error', error);
+        callback();
+    }
+
+    var mediaConstraints = { video: true };
+
+    navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
+}
 </script>
 <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←WebRTC Experiments Homepage</a>

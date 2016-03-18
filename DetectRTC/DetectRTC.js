@@ -1,4 +1,4 @@
-// Last time updated at Friday, January 8th, 2016, 10:57:13 PM 
+// Last time updated: 2016-02-26 11:47:17 AM UTC
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/DetectRTC.js
 
@@ -901,7 +901,7 @@
         if ('getSenders' in mozRTCPeerConnection.prototype) {
             isRTPSenderReplaceTracksSupported = true;
         }
-    } else if (DetectRTC.browser.isChrome) {
+    } else if (DetectRTC.browser.isChrome && typeof webkitRTCPeerConnection !== 'undefined') {
         /*global webkitRTCPeerConnection:true */
         if ('getSenders' in webkitRTCPeerConnection.prototype) {
             isRTPSenderReplaceTracksSupported = true;

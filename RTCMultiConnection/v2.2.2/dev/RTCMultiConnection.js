@@ -308,12 +308,29 @@ window.RTCMultiConnection = function(channel) {
                 sourceId: connection._mediaSources.audio
             });
         }
+        if (connection._mediaSources.audiooutput) {
+            constraints.audio.optional.push({
+                sourceId: connection._mediaSources.audiooutput
+            });
+        }
+        if (connection._mediaSources.audioinput) {
+            constraints.audio.optional.push({
+                sourceId: connection._mediaSources.audioinput
+            });
+        }
 
         // if custom video device is selected
         if (connection._mediaSources.video) {
             constraints.video = {
                 optional: [{
                     sourceId: connection._mediaSources.video
+                }]
+            };
+        }
+        if (connection._mediaSources.videoinput) {
+            constraints.video = {
+                optional: [{
+                    sourceId: connection._mediaSources.videoinput
                 }]
             };
         }
@@ -341,10 +358,10 @@ window.RTCMultiConnection = function(channel) {
             }
             warn(Firefox_Screen_Capturing_Warning);
 
-            screen_constraints.video = merge(screen_constraints.video.mandatory, {
+            screen_constraints.video = {
                 mozMediaSource: 'window', // mozMediaSource is redundant here
                 mediaSource: 'window' // 'screen' || 'window'
-            });
+            };
 
             // Firefox is supporting audio+screen from single getUserMedia request
             // audio+video+screen will become audio+screen for Firefox

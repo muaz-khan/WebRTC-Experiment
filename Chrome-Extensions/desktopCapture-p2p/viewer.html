@@ -12,6 +12,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
 <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection/CodecsHandler.js"></script>
 <script src="https://cdn.webrtc-experiment.com/view/websocket.js"> </script>
 
 <style>
@@ -150,71 +151,29 @@ button[disabled] {
 
 function setBandwidth(connection) {
     // www.RTCMultiConnection.org/docs/bandwidth/
-    connection.bandwidth = {
-        screen: 300 // 300kbps
-    };
+    connection.bandwidth = {};
+    connection.bandwidth.video = connection.bandwidth.screen = 512;
+    connection.bandwidth = 128;
 
     connection.processSdp = function(sdp) {
-        sdp = setSendBandwidth(sdp);
+        if (DetectRTC.isMobileDevice || DetectRTC.browser.name === 'Firefox') {
+            return sdp;
+        }
+
+        sdp = CodecsHandler.setApplicationSpecificBandwidth(sdp, connection.bandwidth, !!connection.session.screen);
+        sdp = CodecsHandler.setVideoBitrates(sdp, {
+            min: connection.bandwidth.video * 8 * 1024,
+            max: connection.bandwidth.video * 8 * 1024
+        });
+        sdp = CodecsHandler.setOpusAttributes(sdp, {
+            maxaveragebitrate: connection.bandwidth.audio * 8 * 1024,
+            maxplaybackrate: connection.bandwidth.audio * 8 * 1024,
+            stereo: 1,
+            maxptime: 3
+        });
+        sdp = CodecsHandler.preferVP9(sdp);
         return sdp;
     };
-
-    function setSendBandwidth(sdp) {
-        var sdpLines = sdp.split('\r\n');
-
-        // VP8
-        var vp8Index = findLine(sdpLines, 'a=rtpmap', 'VP8/90000');
-        var vp8Payload;
-        if (vp8Index) {
-            vp8Payload = getCodecPayloadType(sdpLines[vp8Index]);
-        }
-
-        var rtxIndex = findLine(sdpLines, 'a=rtpmap', 'rtx/90000');
-        var rtxPayload;
-        if (rtxIndex) {
-            rtxPayload = getCodecPayloadType(sdpLines[rtxIndex]);
-        }
-
-        if (!rtxPayload) {
-            return sdp;
-        }
-
-        if (!vp8Payload) {
-            return sdp;
-        }
-
-        var rtxFmtpLineIndex = findLine(sdpLines, 'a=fmtp:' + rtxPayload.toString());
-        if (rtxFmtpLineIndex !== null) {
-            var appendrtxNext = '\r\n';
-            appendrtxNext += 'a=fmtp:' + vp8Payload + ' x-google-min-bitrate=300; x-google-max-bitrate=300';
-            sdpLines[rtxFmtpLineIndex] = sdpLines[rtxFmtpLineIndex].concat(appendrtxNext);
-            sdp = sdpLines.join('\r\n');
-        }
-        return sdp;
-    }
-
-    function findLine(sdpLines, prefix, substr) {
-        return findLineInRange(sdpLines, 0, -1, prefix, substr);
-    }
-
-    function findLineInRange(sdpLines, startLine, endLine, prefix, substr) {
-        var realEndLine = endLine !== -1 ? endLine : sdpLines.length;
-        for (var i = startLine; i < realEndLine; ++i) {
-            if (sdpLines[i].indexOf(prefix) === 0) {
-                if (!substr ||
-                    sdpLines[i].toLowerCase().indexOf(substr.toLowerCase()) !== -1) {
-                    return i;
-                }
-            }
-        }
-        return null;
-    }
-
-    function getCodecPayloadType(sdpLine) {
-        var pattern = new RegExp('a=rtpmap:(\\d+) \\w+\\/\\d+');
-        var result = sdpLine.match(pattern);
-        return (result && result.length === 2) ? result[1] : null;
-    }
 }
 
 // http://www.rtcmulticonnection.org/docs/constructor/
@@ -228,7 +187,7 @@ connection.optionalArgument = {
     }, {
         googImprovedWifiBwe: true
     }, {
-        googScreencastMinBitrate: 300
+        googScreencastMinBitrate: 300 * 8 * 1024
     }, {
         googIPv6: true
     }, {
@@ -243,12 +202,6 @@ connection.optionalArgument = {
         googCpuOveruseDetection: true
     }],
     mandatory: {}
-};
-
-connection.ondisconnected = function(event) {
-    infoBar.innerHTML = 'Screen sharing has been closed.';
-    infoBar.style.display = 'block';
-    location.reload();
 };
 </script>
 
@@ -321,15 +274,21 @@ connection.onstream = function(e) {
 // if user left
 connection.onleave = function(e) {
     transitionToWaiting();
+    connection.onSessionClosed();
 };
 
 connection.onSessionClosed = function() {
     infoBar.innerHTML = 'Screen sharing has been closed.';
     infoBar.style.display = 'block';
-    location.reload();
+    connection.close();
+    websocket.onopen();
+    
+    remoteVideo.pause();
+    remoteVideo.src = 'https://cdn.webrtc-experiment.com/images/muted.png';
 };
 
-connection.onstreamended = function() {};
+connection.ondisconnected = connection.onSessionClosed;
+connection.onstreamended = connection.onSessionClosed;
 
 function waitForRemoteVideo() {
     // Call the getVideoTracks method via adapter.js.
@@ -427,13 +386,13 @@ connection.openSignalingChannel = function(config) {
 
 websocket.onerror = function() {
     if(connection.numberOfConnectedUsers <= 0) {
-        location.reaload();
+        location.reload();
     }
 };
 
 websocket.onclose = function() {
     if(connection.numberOfConnectedUsers <= 0) {
-        location.reaload();
+        location.reload();
     }
 };
 
@@ -464,4 +423,13 @@ websocket.onopen = function() {
         connection.join(sessionDescription);
     }
 };
+
+window.addEventListener('offline', function() {
+    infoBar.innerHTML = 'You seems offLine.';
+}, false);
+
+window.addEventListener('online', function() {
+    infoBar.innerHTML = 'You seems onLine. Reloading the page..';
+    location.reload();
+}, false);
 </script>

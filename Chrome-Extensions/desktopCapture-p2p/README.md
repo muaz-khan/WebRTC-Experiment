@@ -4,7 +4,20 @@ This chrome extension not only captures content of screen, but also provides mul
 
 ## How to install?
 
+<a target="_blank" href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg"><img alt="Try it now" src="https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png" title="Click here to install this sample from the Chrome Web Store"></img></a>
+
 * https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg
+
+## How to view screen?
+
+Try any of the below URL. Replace `your_room_id` with real room-id:
+
+```
+https://rtcxp.com/screen?s=your_room_id
+https://www.webrtc-experiment.com/!/?s=your_room_id
+https://cdn.webrtc-experiment.com/!/?s=your_room_id
+https://cdn.rawgit.com/muaz-khan/Chrome-Extensions/master/desktopCapture-p2p/viewer.html
+```
 
 ## How to publish yourself?
 

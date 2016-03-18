@@ -1,9 +1,5 @@
-// -------------------------------------------------------------
-
 var canvas = tempContext.canvas,
     isTouch = 'createTouch' in document;
-
-// -------------------------------------------------------------
 
 addEvent(canvas, isTouch ? 'touchstart' : 'mousedown', function(e) {
     if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
@@ -27,8 +23,6 @@ addEvent(canvas, isTouch ? 'touchstart' : 'mousedown', function(e) {
     drawHelper.redraw();
 });
 
-// -------------------------------------------------------------
-
 addEvent(canvas, isTouch ? 'touchend' : 'mouseup', function(e) {
     if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
         pageX: 0,
@@ -51,8 +45,6 @@ addEvent(canvas, isTouch ? 'touchend' : 'mouseup', function(e) {
     drawHelper.redraw();
 });
 
-// -------------------------------------------------------------
-
 addEvent(canvas, isTouch ? 'touchmove' : 'mousemove', function(e) {
     if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
         pageX: 0,
@@ -73,14 +65,17 @@ addEvent(canvas, isTouch ? 'touchmove' : 'mousemove', function(e) {
     else if (cache.isImage) imageHandler.mousemove(e);
 });
 
-// -------------------------------------------------------------
-
 var keyCode;
 
-// -------------------------------------------------------------
-
 function onkeydown(e) {
-    keyCode = e.keyCode;
+    keyCode = e.which || e.keyCode || 0;
+
+    if (keyCode == 8 || keyCode == 46) {
+        if (isBackKey(e, keyCode)) {
+            // back key pressed
+        }
+        return;
+    }
 
     if (e.metaKey) {
         isControlKeyPressed = true;
@@ -92,9 +87,32 @@ function onkeydown(e) {
     }
 }
 
-addEvent(document, 'keydown', onkeydown);
+function isBackKey(e, keyCode) {
+    var doPrevent = false;
+    var d = e.srcElement || e.target;
+    if ((d.tagName.toUpperCase() === 'INPUT' &&
+            (
+                d.type.toUpperCase() === 'TEXT' ||
+                d.type.toUpperCase() === 'PASSWORD' ||
+                d.type.toUpperCase() === 'FILE' ||
+                d.type.toUpperCase() === 'SEARCH' ||
+                d.type.toUpperCase() === 'EMAIL' ||
+                d.type.toUpperCase() === 'NUMBER' ||
+                d.type.toUpperCase() === 'DATE')
+        ) ||
+        d.tagName.toUpperCase() === 'TEXTAREA') {
+        doPrevent = d.readOnly || d.disabled;
+    } else {
+        doPrevent = true;
+    }
 
-// -------------------------------------------------------------
+    if (doPrevent) {
+        e.preventDefault();
+    }
+    return doPrevent;
+}
+
+addEvent(document, 'keydown', onkeydown);
 
 function onkeyup(e) {
     if (e.which == null && (e.charCode != null || e.keyCode != null)) {
@@ -103,8 +121,14 @@ function onkeyup(e) {
 
     keyCode = e.which || e.keyCode || 0;
 
-    /*-------------------------- Ctrl + Z --------------------------*/
+    if (keyCode == 8 || keyCode == 46) {
+        if (isBackKey(e, keyCode)) {
+            textHandler.writeText(textHandler.lastKeyPress, true);
+        }
+        return;
+    }
 
+    // Ctrl + Z
     if (isControlKeyPressed && keyCode === 90) {
         if (points.length) {
             points.length = points.length - 1;
@@ -112,8 +136,7 @@ function onkeyup(e) {
         }
     }
 
-    /*-------------------------- Ctrl + A --------------------------*/
-
+    // Ctrl + A
     if (isControlKeyPressed && keyCode === 65) {
         dragHelper.global.startingIndex = 0;
 
@@ -122,19 +145,17 @@ function onkeyup(e) {
         setSelection(find('drag-all-paths'), 'DragAllPaths');
     }
 
-    /*-------------------------- Ctrl + C --------------------------*/
-
+    // Ctrl + C
     if (isControlKeyPressed && keyCode === 67 && points.length) {
         copy();
     }
 
-    /*-------------------------- Ctrl + V --------------------------*/
+    // Ctrl + V
     if (isControlKeyPressed && keyCode === 86 && copiedStuff.length) {
         paste();
     }
 
-    /*-------------------------- Ending the Control Key --------------------------*/
-
+    // Ending the Control Key
     if (typeof e.metaKey !== 'undefined' && e.metaKey === false) {
         isControlKeyPressed = false;
         keyCode = 17;
@@ -147,4 +168,17 @@ function onkeyup(e) {
 
 addEvent(document, 'keyup', onkeyup);
 
-// -------------------------------------------------------------
+function onkeypress(e) {
+    if (e.which == null && (e.charCode != null || e.keyCode != null)) {
+        e.which = e.charCode != null ? e.charCode : e.keyCode;
+    }
+
+    keyCode = e.which || e.keyCode || 0;
+
+    var inp = String.fromCharCode(keyCode);
+    if (/[a-zA-Z0-9-_ !?|\/'",.=:;(){}\[\]`~@#$%^&*+-]/.test(inp)) {
+        textHandler.writeText(String.fromCharCode(keyCode));
+    }
+}
+
+addEvent(document, 'keypress', onkeypress);

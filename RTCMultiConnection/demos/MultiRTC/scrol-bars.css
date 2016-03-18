@@ -1,0 +1,82 @@
+/*
+// Muaz Khan         - www.MuazKhan.com
+// MIT License       - www.WebRTC-Experiment.com/licence
+// Experiments       - github.com/muaz-khan/RTCMultiConnection
+*/
+
+textarea,input {
+    font-size: 1em;
+}
+
+script {
+    height: 0;
+    width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+a,a:visited,a.cdchrm:visited {
+    text-decoration: none;
+    color: #0044cc;
+}
+
+a:hover,a.cdchrm:hover {
+    text-decoration: underline;
+}
+
+img {
+    border-width: 0;
+}
+
+hr {
+    color: #ccc;
+    background-color: #ccc;
+    height: 1px;
+    border-bottom-width: 0px;
+    border-top-width: 0px;
+    margin-bottom: 7px;
+}
+
+* {
+    scrollbar-base-color: white;
+    scrollbar-track-color: white;
+    scrollbar-darkshadow-color: white;
+    scrollbar-3dlight-color: white;
+    scrollbar-arrow-color: #757778;
+    scrollbar-shadow-color: #bec1c4;
+    scrollbar-highlight-color: #bec1c4;
+}
+
+::-webkit-scrollbar {
+    width: 15px;
+    height: 15px;
+}
+
+::-webkit-scrollbar-track-piece {
+    background-color: white;
+}
+
+::-webkit-scrollbar-button:start:decrement,::-webkit-scrollbar-button:end:increment,::-webkit-scrollbar-thumb {
+    background-color: white;
+    border: solid 1px #bec1c4;
+}
+
+::-webkit-scrollbar-button:vertical:start:decrement {
+    background-image: url('images/scrollbar_arrow_up.gif');
+    background-position: center;
+}
+
+::-webkit-scrollbar-button:vertical:end:increment {
+    background-image: url('images/scrollbar_arrow_down.gif');
+    background-position: center;
+}
+
+::-webkit-scrollbar-button:horizontal:start:decrement {
+    background-image: url('images/scrollbar_arrow_left.gif');
+    background-position: center;
+}
+
+::-webkit-scrollbar-button:horizontal:end:increment {
+    background-image: url('images/scrollbar_arrow_right.gif');
+    background-position: center;
+}

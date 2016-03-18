@@ -1,5 +1,9 @@
 ## [MRecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC) i.e. Multi-RecordRTC! / [Demo](https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/)
 
+[RecordRTC Documentation](http://RecordRTC.org/) / [RecordRTC Wiki Pages](https://github.com/muaz-khan/RecordRTC/wiki) / [RecordRTC Demo](https://www.webrtc-experiment.com/RecordRTC/) / [WebRTC Experiments](https://www.webrtc-experiment.com/)
+
+[![npm](https://img.shields.io/npm/v/recordrtc.svg)](https://npmjs.org/package/recordrtc) [![downloads](https://img.shields.io/npm/dm/recordrtc.svg)](https://npmjs.org/package/recordrtc) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RecordRTC.png?branch=master)](https://travis-ci.org/muaz-khan/RecordRTC)
+
 This [WebRTC](https://www.webrtc-experiment.com/) experiment is using [RecordRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) to record multiple audio/video/gif streams.
 
 1. It simplifies coding for multi-streams recording i.e. audio+video recording
@@ -10,14 +14,20 @@ This [WebRTC](https://www.webrtc-experiment.com/) experiment is using [RecordRTC
 =
 
 ```html
-<script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
 <script>
 var recorder = new MRecordRTC();
 recorder.addStream(MediaStream);
 recorder.mediaType = {
-   audio: true,
-   video: true,
-   gif: true
+   audio: true, // or StereoAudioRecorder
+   video: true, // or WhammyRecorder
+   gif: true    // or GifRecorder
+};
+// mimeType is optional and should be set only in advance cases.
+recorder.mimeType = {
+    audio: 'audio/wav',
+    video: 'video/webm',
+    gif:   'image/gif'
 };
 recorder.startRecording();
 recorder.stopRecording(function(url, type) {
@@ -53,6 +63,39 @@ MRecordRTC.getFromDisk('audio', function(dataURL) {
    // only audio blob is returned from disk!
 });
 </script>
+```
+
+=
+
+#### `mediaType`
+
+```javascript
+// normally
+recorder.mediaType = {
+   audio: true,
+   video: true,
+   gif: true
+};
+
+// or advance cases:
+recorder.mediaType = {
+   audio: StereoAudioRecorder, // or MediaStreamRecorder
+   video: WhammyRecorder, // or MediaStreamRecorder
+   gif: GifRecorder // or TRUE
+};
+```
+
+=
+
+#### `mimeType`
+
+```javascript
+// mimeType is optional and should be set only in advance cases.
+recorder.mimeType = {
+    audio: 'audio/wav',  // audio/ogg or audio/webm or audio/wav
+    video: 'video/webm', // video/webm or video/vp8
+    gif:   'image/gif'
+};
 ```
 
 =
@@ -172,18 +215,6 @@ recorder.video = recorder.canvas = {
 
 =
 
-[RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is a server-less (entire client-side) JavaScript library can be used to record WebRTC audio/video media streams. It supports cross-browser audio/video recording.
-
-1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
-2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
-3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
-4. [RecordRTC & HTML-2-Canvas i.e. Canvas/HTML Recording!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/Canvas-Recording)
-5. [MRecordRTC i.e. Multi-RecordRTC!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC)
-6. [RecordRTC on Ruby!](https://github.com/cbetta/record-rtc-experiment)
-7. [RecordRTC over Socket.io](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio)
-
-=
-
 ## License
 
-[RecordRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[RecordRTC.js](https://github.com/muaz-khan/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://www.MuazKhan.com/).

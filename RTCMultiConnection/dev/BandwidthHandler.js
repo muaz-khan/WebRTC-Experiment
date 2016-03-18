@@ -1,12 +1,25 @@
 // BandwidthHandler.js
 
 var BandwidthHandler = (function() {
+    var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
+    if (typeof cordova !== 'undefined') {
+        isMobileDevice = true;
+    }
+
+    if (navigator && navigator.userAgent && navigator.userAgent.indexOf('Crosswalk') !== -1) {
+        isMobileDevice = true;
+    }
+
     function setBAS(sdp, bandwidth, isScreen) {
         if (!bandwidth) {
             return sdp;
         }
 
         if (typeof isFirefox !== 'undefined' && isFirefox) {
+            return sdp;
+        }
+
+        if (isMobileDevice) {
             return sdp;
         }
 
@@ -69,6 +82,10 @@ var BandwidthHandler = (function() {
     }
 
     function setVideoBitrates(sdp, params) {
+        if (isMobileDevice) {
+            return sdp;
+        }
+
         params = params || {};
         var xgoogle_min_bitrate = params.min;
         var xgoogle_max_bitrate = params.max;
@@ -108,6 +125,10 @@ var BandwidthHandler = (function() {
     }
 
     function setOpusAttributes(sdp, params) {
+        if (isMobileDevice) {
+            return sdp;
+        }
+
         params = params || {};
 
         var sdpLines = sdp.split('\r\n');

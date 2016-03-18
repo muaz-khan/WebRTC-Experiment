@@ -1,14 +1,7 @@
-// -------------------------------------------------------------
 var rectHandler = {
-
-    // -------------------------------------------------------------
-
     ismousedown: false,
     prevX: 0,
     prevY: 0,
-
-    // -------------------------------------------------------------
-
     mousedown: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop;
@@ -20,9 +13,6 @@ var rectHandler = {
 
         t.ismousedown = true;
     },
-
-    // -------------------------------------------------------------
-
     mouseup: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop;
@@ -35,9 +25,6 @@ var rectHandler = {
         }
 
     },
-
-    // -------------------------------------------------------------
-
     mousemove: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop;
@@ -49,8 +36,4 @@ var rectHandler = {
             drawHelper.rect(tempContext, [t.prevX, t.prevY, x - t.prevX, y - t.prevY]);
         }
     }
-
-    // -------------------------------------------------------------
-
 };
-// -------------------------------------------------------------

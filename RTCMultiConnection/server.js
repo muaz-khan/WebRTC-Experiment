@@ -27,7 +27,14 @@ function serverHandler(request, response) {
     }
 
     if (fs.statSync(filename).isDirectory()) {
-        if (filename.indexOf('/demos/') !== -1) {
+        response.writeHead(404, {
+            'Content-Type': 'text/html'
+        });
+
+        if (filename.indexOf('/demos/MultiRTC/') !== -1) {
+            filename = filename.replace('/demos/MultiRTC/', '');
+            filename += '/demos/MultiRTC/index.html';
+        } else if (filename.indexOf('/demos/') !== -1) {
             filename = filename.replace('/demos/', '');
             filename += '/demos/index.html';
         } else {

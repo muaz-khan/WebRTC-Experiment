@@ -7,6 +7,20 @@
 
 chrome.browserAction.onClicked.addListener(captureDesktop);
 
+window.addEventListener('offline', function() {
+    if(!connection || !connection.attachStreams.length) return;
+
+    setDefaults();
+    chrome.runtime.reload();
+}, false);
+
+window.addEventListener('online', function() {
+    if(!connection) return;
+
+    setDefaults();
+    chrome.runtime.reload();
+}, false);
+
 function captureDesktop() {
     if (connection && connection.attachStreams[0]) {
         setDefaults();
@@ -18,7 +32,22 @@ function captureDesktop() {
         title: 'Capturing Desktop'
     });
 
-    var desktop_id = chrome.desktopCapture.chooseDesktopMedia(['screen', 'window'], onAccessApproved);
+    chrome.storage.sync.get(null, function(items) {
+        if (items['is_audio'] && items['is_audio'] === 'true' && chromeVersion >= 50) {
+            isAudio = true;
+        }
+
+        var sources = ['window', 'screen'];
+        if (chromeVersion >= 50) {
+            if (isAudio) {
+                sources = ['tab', 'audio'];
+            } else {
+                sources = ['tab'].concat(sources);
+            }
+        }
+
+        var desktop_id = chrome.desktopCapture.chooseDesktopMedia(sources, onAccessApproved);
+    });
 }
 
 var constraints;
@@ -26,6 +55,7 @@ var min_bandwidth = 512;
 var max_bandwidth = 1048;
 var room_password = '';
 var room_id = '';
+var isAudio = false;
 
 function onAccessApproved(chromeMediaSourceId) {
     if (!chromeMediaSourceId) {
@@ -100,13 +130,25 @@ function onAccessApproved(chromeMediaSourceId) {
                     maxHeight: resolutions.maxHeight,
                     minFrameRate: 30,
                     maxFrameRate: 64,
-                    minAspectRatio: 1.77,
-                    googLeakyBucket: true,
-                    googTemporalLayeredScreencast: true
+                    minAspectRatio: 1.77
                 },
-                optional: []
+                optional: [{
+                    bandwidth: resolutions.maxWidth * 8 * 1024
+                }]
             }
         };
+
+        if (isAudio && chromeVersion >= 50) {
+            constraints.audio = {
+                mandatory: {
+                    chromeMediaSource: 'desktop',
+                    chromeMediaSourceId: chromeMediaSourceId,
+                },
+                optional: [{
+                    bandwidth: resolutions.maxWidth * 8 * 1024
+                }]
+            };
+        }
 
         navigator.webkitGetUserMedia(constraints, gotStream, getUserMediaError);
     });
@@ -133,6 +175,35 @@ function onAccessApproved(chromeMediaSourceId) {
             setDefaults();
             chrome.runtime.reload();
         };
+
+        stream.getVideoTracks()[0].onended = stream.onended;
+        if (stream.getAudioTracks().length) {
+            stream.getAudioTracks()[0].onended = stream.onended;
+        }
+
+        function isMediaStreamActive() {
+            if ('active' in stream) {
+                if (!stream.active) {
+                    return false;
+                }
+            } else if ('ended' in stream) { // old hack
+                if (stream.ended) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // this method checks if media stream is stopped
+        // or any track is ended.
+        (function looper() {
+            if (isMediaStreamActive() === false) {
+                stream.onended();
+                return;
+            }
+
+            setTimeout(looper, 1000); // check every second
+        })();
 
         // as it is reported that if you drag chrome screen's status-bar
         // and scroll up/down the screen-viewer page.
@@ -177,11 +248,9 @@ var connection;
 var popup_id;
 
 function setBadgeText(text) {
-    /*
     chrome.browserAction.setBadgeBackgroundColor({
         color: [255, 0, 0, 255]
     });
-    */
 
     chrome.browserAction.setBadgeText({
         text: text + ''
@@ -193,6 +262,10 @@ function setBadgeText(text) {
 }
 
 function setupRTCMultiConnection(stream) {
+    if (!stream.getAudioTracks().length) {
+        isAudio = false;
+    }
+
     // www.RTCMultiConnection.org/docs/
     connection = new RTCMultiConnection();
 
@@ -202,7 +275,7 @@ function setupRTCMultiConnection(stream) {
         }, {
             googImprovedWifiBwe: true
         }, {
-            googScreencastMinBitrate: 300
+            googScreencastMinBitrate: 300 * 8 * 1024
         }, {
             googIPv6: true
         }, {
@@ -232,14 +305,22 @@ function setupRTCMultiConnection(stream) {
 
     // www.RTCMultiConnection.org/docs/session/
     connection.session = {
+        audio: !!isAudio && chromeVersion >= 50,
         video: true,
         oneway: true
     };
 
     // www.rtcmulticonnection.org/docs/sdpConstraints/
     connection.sdpConstraints.mandatory = {
-        OfferToReceiveAudio: false,
-        OfferToReceiveVideo: false
+        OfferToReceiveAudio: true,
+        OfferToReceiveVideo: true
+    };
+
+    connection.onstream = connection.onstreamended = function(event) {
+        try {
+            event.mediaElement.pause();
+            delete event.mediaElement;
+        } catch (e) {}
     };
 
     // www.RTCMultiConnection.org/docs/dontCaptureUserMedia/
@@ -272,6 +353,27 @@ function setupRTCMultiConnection(stream) {
 
     WebSocket = PUBNUB.ws;
     var websocket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + connection.channel);
+
+    var text = '-';
+    (function looper() {
+        if(!connection) {
+            setBadgeText('');
+            return;
+        }
+
+        if(connection.isInitiator) {
+            setBadgeText('0');
+            return;
+        }
+
+        text += ' -';
+        if(text.length > 6) {
+            text = '-';
+        }
+
+        setBadgeText(text);
+        setTimeout(looper, 500);
+    })();
 
     var connectedUsers = 0;
     connection.ondisconnected = function() {
@@ -321,32 +423,28 @@ function setupRTCMultiConnection(stream) {
     };
 
     websocket.onerror = function() {
-        if(connection && connection.numberOfConnectedUsers > 0) {
-            return;
+        if (!!connection && connection.attachStreams.length) {
+            chrome.windows.create({
+                url: "data:text/html,<h1>Failed connecting the WebSockets server. Please click screen icon to try again.</h1>",
+                type: 'popup',
+                width: screen.width / 2,
+                height: 170
+            });
         }
-
-        chrome.windows.create({
-            url: "data:text/html,<h1>Failed connecting the WebSockets server. Please click screen icon to try again.</h1>",
-            type: 'popup',
-            width: screen.width / 2,
-            height: 170
-        });
 
         setDefaults();
         chrome.runtime.reload();
     };
 
     websocket.onclose = function() {
-        if(connection && connection.numberOfConnectedUsers > 0) {
-            return;
+        if (!!connection && connection.attachStreams.length) {
+            chrome.windows.create({
+                url: "data:text/html,<p style='font-size:25px;'><span style='color:red;'>Unable to reach the WebSockets server</span>. WebSockets is required/used to help opening media ports between your system and target users' systems (for p2p-streaming).<br><br>Please <span style='color:green;'>click screen icon</span> to share again.</p>",
+                type: 'popup',
+                width: screen.width / 2,
+                height: 200
+            });
         }
-
-        chrome.windows.create({
-            url: "data:text/html,<p style='font-size:25px;'>WebSocket connection seems closed. It is not possible to share your screen without using a medium like WebSockets. Please click screen icon to share again.</p>",
-            type: 'popup',
-            width: screen.width / 2,
-            height: 150
-        });
 
         setDefaults();
         chrome.runtime.reload();
@@ -364,7 +462,7 @@ function setupRTCMultiConnection(stream) {
             dontTransmit: true
         });
 
-        var resultingURL = 'https://www.webrtc-experiment.com/!/?s=' + connection.sessionid;
+        var resultingURL = 'https://rtcxp.com/screen?s=' + connection.sessionid;
 
         if (room_password && room_password.length) {
             resultingURL += '&p=' + room_password;
@@ -416,75 +514,42 @@ function setDefaults() {
 
 function setBandwidth(connection) {
     // www.RTCMultiConnection.org/docs/bandwidth/
-    connection.bandwidth = {
-        screen: min_bandwidth // 300kbps
-    };
+    connection.bandwidth = {};
+    connection.bandwidth.video = connection.bandwidth.screen = max_bandwidth;
+    connection.bandwidth.audio = 128;
 
     connection.processSdp = function(sdp) {
-        sdp = setSendBandwidth(sdp);
+        if (DetectRTC.isMobileDevice || DetectRTC.browser.name === 'Firefox') {
+            return sdp;
+        }
+
+        sdp = CodecsHandler.setApplicationSpecificBandwidth(sdp, connection.bandwidth, !!connection.session.screen);
+        sdp = CodecsHandler.setVideoBitrates(sdp, {
+            min: connection.bandwidth.video * 8 * 1024,
+            max: connection.bandwidth.video * 8 * 1024
+        });
+        sdp = CodecsHandler.setOpusAttributes(sdp, {
+            maxaveragebitrate: connection.bandwidth.audio * 8 * 1024,
+            maxplaybackrate: connection.bandwidth.audio * 8 * 1024,
+            stereo: 1,
+            maxptime: 3
+        });
+        sdp = CodecsHandler.preferVP9(sdp);
         return sdp;
     };
-
-    function setSendBandwidth(sdp) {
-        var sdpLines = sdp.split('\r\n');
-
-        // VP8
-        var vp8Index = findLine(sdpLines, 'a=rtpmap', 'VP8/90000');
-        var vp8Payload;
-        if (vp8Index) {
-            vp8Payload = getCodecPayloadType(sdpLines[vp8Index]);
-        }
-
-        var rtxIndex = findLine(sdpLines, 'a=rtpmap', 'rtx/90000');
-
-        var rtxPayload;
-        if (rtxIndex) {
-            rtxPayload = getCodecPayloadType(sdpLines[rtxIndex]);
-        }
-
-        if (!rtxPayload) {
-            return sdp;
-        }
-
-        if (!vp8Payload) {
-            return sdp;
-        }
-
-        var rtxFmtpLineIndex = findLine(sdpLines, 'a=fmtp:' + rtxPayload.toString());
-        if (rtxFmtpLineIndex !== null) {
-            var appendrtxNext = '\r\n';
-            
-            if(max_bandwidth < min_bandwidth) {
-                max_bandwidth = min_bandwidth;
-            }
-            
-            appendrtxNext += 'a=fmtp:' + vp8Payload + ' x-google-min-bitrate=' + min_bandwidth + '; x-google-max-bitrate=' + max_bandwidth;
-            sdpLines[rtxFmtpLineIndex] = sdpLines[rtxFmtpLineIndex].concat(appendrtxNext);
-            sdp = sdpLines.join('\r\n');
-        }
-        return sdp;
-    }
-
-    function findLine(sdpLines, prefix, substr) {
-        return findLineInRange(sdpLines, 0, -1, prefix, substr);
-    }
-
-    function findLineInRange(sdpLines, startLine, endLine, prefix, substr) {
-        var realEndLine = endLine !== -1 ? endLine : sdpLines.length;
-        for (var i = startLine; i < realEndLine; ++i) {
-            if (sdpLines[i].indexOf(prefix) === 0) {
-                if (!substr ||
-                    sdpLines[i].toLowerCase().indexOf(substr.toLowerCase()) !== -1) {
-                    return i;
-                }
-            }
-        }
-        return null;
-    }
-
-    function getCodecPayloadType(sdpLine) {
-        var pattern = new RegExp('a=rtpmap:(\\d+) \\w+\\/\\d+');
-        var result = sdpLine.match(pattern);
-        return (result && result.length === 2) ? result[1] : null;
-    }
 }
+
+var chromeVersion = 49;
+var matchArray = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+if (matchArray && matchArray[2]) {
+    chromeVersion = parseInt(matchArray[2], 10);
+}
+
+// Check whether new version is installed
+chrome.runtime.onInstalled.addListener(function(details){
+    if(details.reason == 'install'){
+        chrome.tabs.create({
+            url: 'chrome://extensions/?options=' + chrome.runtime.id
+          });
+    }
+});

@@ -7,6 +7,8 @@ module.exports = function(grunt) {
         scope: 'devDependencies'
     });
 
+    var banner = '// Last time updated: <%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %>\n\n';
+
     // configure project
     grunt.initConfig({
         // make node configurations available
@@ -15,7 +17,7 @@ module.exports = function(grunt) {
             options: {
                 stripBanners: true,
                 separator: '\n',
-                banner: '// Last time updated at <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> \n\n'
+                banner: banner
             },
             dist: {
                 src: [
@@ -25,18 +27,21 @@ module.exports = function(grunt) {
                     'dev/MultiPeersHandler.js',
 
                     'dev/globals.js',
-                    'dev/Plugin.EveryWhere.js',
+                    // 'dev/Plugin.EveryWhere.js',
+                    'dev/DetectRTC.js',
 
+                    'dev/ios-hacks.js', // to support ios
                     'dev/RTCPeerConnection.js',
+                    'dev/CodecsHandler.js', // to force H264 or codecs other than opus
+
                     'dev/OnIceCandidateHandler.js',
                     'dev/IceServersHandler.js',
-                    'dev/BandwidthHandler.js',
 
+                    'dev/gumadapter.js',
                     'dev/getUserMedia.js',
                     'dev/StreamsHandler.js',
 
-                    'dev/DetectRTC.js',
-                    'dev/getScreenId.js', // or Screen-Capturing.js
+                    'dev/getScreenId.js', // or getScreenId.js or Screen-Capturing.js
 
                     'dev/TextSenderReceiver.js',
                     'dev/FileProgressBarHandler.js',
@@ -66,13 +71,26 @@ module.exports = function(grunt) {
         uglify: {
             options: {
                 mangle: false,
-                banner: '// Last time updated at <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> \n\n'
+                banner: banner
             },
             my_target: {
                 files: {
-                    'RTCMultiConnection.min.js': ['RTCMultiConnection.js']
+                    'RTCMultiConnection.min.js': ['RTCMultiConnection.js'],
+                    'dist/rmc3.min.js': ['RTCMultiConnection.js'],
+                    'dist/rmc3.fbr.min.js': ['dev/FileBufferReader.js'],
                 }
             }
+        },
+        copy: {
+            main: {
+                options: {
+                    flatten: true
+                },
+                files: {
+                    'dist/rmc3.js': ['RTCMultiConnection.js'],
+                    'dist/rmc3.fbr.js': ['dev/FileBufferReader.js'],
+                },
+            },
         },
         jsbeautifier: {
             files: ['RTCMultiConnection.js', 'dev/*.js', 'Gruntfile.js', 'Signaling-Server.js', 'server.js'],
@@ -133,5 +151,5 @@ module.exports = function(grunt) {
 
     // set default tasks to run when grunt is called without parameters
     // http://gruntjs.com/api/grunt.task
-    grunt.registerTask('default', ['concat', 'replace', 'jsbeautifier', 'uglify', 'clean']);
+    grunt.registerTask('default', ['concat', 'replace', 'jsbeautifier', 'uglify', 'clean', 'copy']);
 };

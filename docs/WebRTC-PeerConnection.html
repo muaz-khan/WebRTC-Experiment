@@ -13,7 +13,7 @@
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">        
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">        
         <style>
             p {
                 padding: .8em;
@@ -33,10 +33,10 @@
             document.createElement('footer');
         </script>
 		
-        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_main.min.js"> </script>
-        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_javascript.min.js"> </script>
-        <script type="text/javascript" src="https://www.webrtc-experiment.com/syntax/sh_html.min.js"> </script>
-        <link type="text/css" rel="stylesheet" href="https://www.webrtc-experiment.com/syntax/sh_style.css">
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js"> </script>
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js"> </script>
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_html.min.js"> </script>
+        <link type="text/css" rel="stylesheet" href="https://cdn.webrtc-experiment.com/syntax/sh_style.css">
     </head>
 
     <body onload="sh_highlightDocument();">
@@ -124,7 +124,7 @@ var connection = new [webkit|moz]RTCPeerConnection(
 
 connection.createOffer(getOfferSDP, onfailure, <a href="#sdpConstraints">sdpConstraints</a>);
 function getOfferSDP(offerSDP) {
-    connection.setLocalDescription(offerSDP);
+    connection.setLocalDescription(offerSDP [, successCallback, failureCallback]);
     
     console.log('offer sdp', offerSDP.sdp);
     console.log('type',      offerSDP.type);
@@ -143,7 +143,7 @@ var connection = new [webkit|moz]RTCPeerConnection(
 
 // "setRemoteDescription" is quickly called for answerer
 var remoteSessionDescription = new RTCSessionDescription(offerSDP);
-connection.setRemoteDescription(remoteSessionDescription);
+connection.setRemoteDescription(remoteSessionDescription, successCallback, failureCallback);
 
 connection.createAnswer(getAnswerSDP, onfailure, <a href="#sdpConstraints">sdpConstraints</a>);
 function getAnswerSDP(answerSDP) {
@@ -163,7 +163,7 @@ function getAnswerSDP(answerSDP) {
 // it will complete the offer/answer handshake
 
 var remoteSessionDescription = new RTCSessionDescription(answerSDP);
-connection.setRemoteDescription(remoteSessionDescription);
+connection.setRemoteDescription(remoteSessionDescription, successCallback, failureCallback);
 </pre>
             </section>
             
@@ -211,17 +211,14 @@ button.onclick = function() {
                 </p>
                 
                 <pre class="sh_javascript">
-var isChrome = !!navigator.webkitGetUserMedia;
-
 var STUN = {
-    url: isChrome 
-       ? 'stun:stun.l.google.com:19302' 
-       : 'stun:23.21.150.121'
+    urls: 'stun:stun.l.google.com:19302'
 };
 
 var TURN = {
-    url: 'turn:homeo@turn.bistri.com:80',
-    credential: 'homeo'
+    urls: 'turn:turn.bistri.com:80',
+    credential: 'homeo',
+    username: 'homeo'
 };
 
 var iceServers = {
@@ -291,6 +288,9 @@ peer.onicecandidate = function(event) {
                 </p>
                 
                 <pre class="sh_javascript">
+// it is suggested to use gumadapter.js instead:
+// <a href="https://github.com/muaz-khan/gumadapter">https://github.com/muaz-khan/gumadapter</a>
+
 navigator.webkitGetUserMedia(MediaConstraints, OnMediaSuccess, OnMediaError);
 var MediaConstraints = {
     audio: true,
@@ -332,6 +332,8 @@ var button = document.getElementById('start-peer-connection');
 button.onclick = function() {
     this.disabled = true;
     
+    // it is suggested to use gumadapter.js instead:
+    // <a href="https://github.com/muaz-khan/gumadapter">https://github.com/muaz-khan/gumadapter</a>
     navigator.webkitGetUserMedia(MediaConstraints, OnMediaSuccess, OnMediaError);
     var MediaConstraints = {
         audio: true,
@@ -362,7 +364,7 @@ button.onclick = function() {
         };
         
         peer.createOffer(function(offerSDP) {
-            peer.setLocalDescription(offerSDP);
+            peer.setLocalDescription(offerSDP, successCallback, failureCallback);
             socket.send({
                 targetUser: 'target-user-id',
                 offerSDP: offerSDP
@@ -371,17 +373,14 @@ button.onclick = function() {
     }
 };
 
-var isChrome = !!navigator.webkitGetUserMedia;
-
 var STUN = {
-    url: isChrome 
-       ? 'stun:stun.l.google.com:19302' 
-       : 'stun:23.21.150.121'
+    urls: 'stun:stun.l.google.com:19302'
 };
 
 var TURN = {
-    url: 'turn:homeo@turn.bistri.com:80',
-    credential: 'homeo'
+    urls: 'turn:turn.bistri.com:80',
+    credential: 'homeo',
+    username: 'homeo'
 };
 
 var iceServers = {
@@ -418,6 +417,8 @@ socket.onmessage =  function(e) {
     }
 };
 function createAnswer(offerSDP) {
+    // it is suggested to use gumadapter.js instead:
+    // <a href="https://github.com/muaz-khan/gumadapter">https://github.com/muaz-khan/gumadapter</a>
     navigator.webkitGetUserMedia(MediaConstraints, OnMediaSuccess, OnMediaError);
     var MediaConstraints = {
         audio: true,
@@ -450,10 +451,10 @@ function createAnswer(offerSDP) {
         // remote-descriptions should be set earlier
         // using offer-sdp provided by the offerer
         var remoteDescription = new RTCSessionDescription(offerSDP);
-        peer.setRemoteDescription(remoteDescription);
+        peer.setRemoteDescription(remoteDescription, successCallback, failureCallback);
 		
         peer.createAnswer(function(answerSDP) {
-            peer.setLocalDescription(answerSDP);
+            peer.setLocalDescription(answerSDP, successCallback, failureCallback);
             socket.send({
                 targetUser: 'target-user-id',
                 answerSDP: answerSDP
@@ -473,7 +474,7 @@ socket.onmessage =  function(e) {
     if(data.targetUser !== self && data.answerSDP) {
         // completing the handshake; this code is for offerer
         var remoteDescription = new RTCSessionDescription(answerSDP);
-        peer.setRemoteDescription(remoteDescription);
+        peer.setRemoteDescription(remoteDescription, successCallback, failureCallback);
     }
 };
 </pre>
@@ -505,7 +506,7 @@ socket.onmessage =  function(e) {
         peer.addIceCandidate(new [moz]RTCIceCandidate({
             sdpMLineIndex: sdpMLineIndex,
             candidate    : candidate
-        }));
+        }), successCallback, failureCallback);
     }
 };
 </pre>
@@ -580,13 +581,20 @@ socket.send({
             <section class="experiment">
                 <h2 class="header" id="sdpConstraints">sdpConstraints?</h2>
                 <pre class="sh_javascript">
+// for Chrome:
 var sdpConstraints = {
-        optional: [],
-        mandatory: {
-            OfferToReceiveAudio: true,
-            OfferToReceiveVideo: true
-        }
-    };
+    optional: [],
+    mandatory: {
+        OfferToReceiveAudio: true,
+        OfferToReceiveVideo: true
+    }
+};
+
+// for Firefox:
+var sdpConstraints = {
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true
+};
 </pre>
             </section>
 			
@@ -601,7 +609,7 @@ var sdpConstraints = {
             <section class="experiment">
                 <h2 class="header">Simplest Demo using socket.io</h2>
                 <pre class="sh_javascript">
-// http://www.webrtc-experiment.com/socket.io/PeerConnection.js
+// http://cdn.webrtc-experiment.com/socket.io/PeerConnection.js
 
 var offerer = new <strong title="Constructor takes three arguments.
 1) websocket url
@@ -650,6 +658,6 @@ answerer.<strong title="Ask other user to establish peer connection with you!">s
         </footer>
     
         <!-- commits.js is useless for you! -->
-        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

@@ -1,9 +1,4 @@
-// -------------------------------------------------------------
-
 var quadraticHandler = {
-
-    // -------------------------------------------------------------
-
     global: {
         ismousedown: false,
         prevX: 0,
@@ -13,9 +8,6 @@ var quadraticHandler = {
         isFirstStep: true,
         isLastStep: false
     },
-
-    // -------------------------------------------------------------
-
     mousedown: function(e) {
         var g = this.global;
 
@@ -33,9 +25,6 @@ var quadraticHandler = {
             this.end(x, y);
         }
     },
-
-    // -------------------------------------------------------------
-
     mouseup: function(e) {
         var g = this.global;
 
@@ -50,9 +39,6 @@ var quadraticHandler = {
             g.isLastStep = true;
         }
     },
-
-    // -------------------------------------------------------------
-
     mousemove: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop;
@@ -69,9 +55,6 @@ var quadraticHandler = {
             drawHelper.quadratic(tempContext, [g.prevX, g.prevY, g.controlPointX, g.controlPointY, x, y]);
         }
     },
-
-    // -------------------------------------------------------------
-
     end: function(x, y) {
         var g = this.global;
 
@@ -87,9 +70,4 @@ var quadraticHandler = {
 
         points[points.length] = ['quadratic', [g.prevX, g.prevY, g.controlPointX, g.controlPointY, x, y], drawHelper.getOptions()];
     }
-
-    // -------------------------------------------------------------
-
 };
-
-// -------------------------------------------------------------

@@ -9,6 +9,12 @@ It is <a href="https://www.webrtc-experiment.com/licence/">MIT Licenced</a>, whi
 
 ```
 npm install concatenateblobs
+
+# to use in nodejs
+var ConcatenateBlobs = require('concatenateblobs');
+ConcatenateBlobs(array_of_blobs, blob_type, function(resultingBlob) {
+	console.log(resultingBlob);
+});
 ```
 
 To use it:
@@ -45,4 +51,4 @@ ConcatenateBlobs([arrayOfBlobs], 'audio/wav', function(resultingBlob) {
 
 ## License
 
-[ConcatenateBlobs.js](https://github.com/muaz-khan/ConcatenateBlobs) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[ConcatenateBlobs.js](https://github.com/muaz-khan/ConcatenateBlobs) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).

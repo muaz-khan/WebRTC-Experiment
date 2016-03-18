@@ -1,4 +1,4 @@
-// Last time updated at Monday, January 11th, 2016, 1:38:19 PM 
+// Last time updated: 2016-03-13 12:46:10 PM UTC
 
 // _______________
 // Canvas-Designer
@@ -9,7 +9,6 @@
 
 (function() {
 
-    // -------------------------------------------------------------
     var is = {
         isLine: false,
         isArc: false,
@@ -31,8 +30,6 @@
         }
     };
 
-    // -------------------------------------------------------------
-
     function addEvent(element, eventType, callback) {
         if (element.addEventListener) {
             element.addEventListener(eventType, callback, !1);
@@ -42,13 +39,9 @@
         return this;
     }
 
-    // -------------------------------------------------------------
-
     function find(selector) {
         return document.getElementById(selector);
     }
-
-    // -------------------------------------------------------------
 
     var points = [],
         textarea = find('code-text'),
@@ -60,8 +53,6 @@
         lineCap = 'butt',
         font = '15px Verdana',
         lineJoin = 'miter';
-
-    // -------------------------------------------------------------
 
     function getContext(id) {
         var canv = find(id),
@@ -78,18 +69,10 @@
         return ctx;
     }
 
-    // -------------------------------------------------------------
-
     var context = getContext('main-canvas'),
         tempContext = getContext('temp-canvas');
 
-
-    // -------------------------------------------------------------
-
     var common = {
-
-        // -------------------------------------------------------------
-
         updateTextArea: function() {
             var c = common,
                 toFixed = c.toFixed,
@@ -103,15 +86,9 @@
             if (!isAbsolutePoints && isShortenCode) c.relativeShortened(toFixed, getPoint);
             if (!isAbsolutePoints && !isShortenCode) c.relativeNOTShortened(toFixed, getPoint);
         },
-
-        // -------------------------------------------------------------
-
         toFixed: function(input) {
             return Number(input).toFixed(1);
         },
-
-        // -------------------------------------------------------------
-
         getPoint: function(pointToCompare, compareWith, prefix) {
             if (pointToCompare > compareWith) pointToCompare = prefix + ' + ' + (pointToCompare - compareWith);
             else if (pointToCompare < compareWith) pointToCompare = prefix + ' - ' + (compareWith - pointToCompare);
@@ -119,13 +96,7 @@
 
             return pointToCompare;
         },
-
-
-
-        // -------------------------------------------------------------
-
         absoluteShortened: function() {
-
             var output = '',
                 length = points.length,
                 i = 0,
@@ -140,9 +111,6 @@
 
             this.prevProps = null;
         },
-
-        // -------------------------------------------------------------
-
         absoluteNOTShortened: function(toFixed) {
             var tempArray = [],
                 i, point, p;
@@ -188,9 +156,6 @@
 
             this.prevProps = null;
         },
-
-        // -------------------------------------------------------------
-
         relativeShortened: function(toFixed, getPoint) {
             var i = 0,
                 point, p, length = points.length,
@@ -296,9 +261,6 @@
 
             this.prevProps = null;
         },
-
-        // -------------------------------------------------------------
-
         relativeNOTShortened: function(toFixed, getPoint) {
             var i, point, p, length = points.length,
                 output = '',
@@ -371,69 +333,60 @@
 
             this.prevProps = null;
         },
+        forLoop: 'for(i; i < length; i++) {\n' + '    p = points[i];\n' + '    point = p[1];\n' + '    context.beginPath();\n\n'
 
-        // -------------------------------------------------------------
+        // globals
+            + '    if(p[2]) { \n' + '       context.lineWidth = p[2][0];\n' + '       context.strokeStyle = p[2][1];\n' + '       context.fillStyle = p[2][2];\n'
 
-        forLoop: 'for(i; i < length; i++) {\n' + '\t p = points[i];\n' + '\t point = p[1];\n' + '\t context.beginPath();\n\n'
+            + '       context.globalAlpha = p[2][3];\n' + '       context.globalCompositeOperation = p[2][4];\n' + '       context.lineCap = p[2][5];\n' + '       context.lineJoin = p[2][6];\n' + '       context.font = p[2][7];\n' + '    }\n\n'
 
-        // -------------------------------------------------------------
-            + '\t if(p[2]) { \n' + '\t\t context.lineWidth = p[2][0];\n' + '\t\t context.strokeStyle = p[2][1];\n' + '\t\t context.fillStyle = p[2][2];\n'
+        // line
 
-            + '\t\t context.globalAlpha = p[2][3];\n' + '\t\t context.globalCompositeOperation = p[2][4];\n' + '\t\t context.lineCap = p[2][5];\n' + '\t\t context.lineJoin = p[2][6];\n' + '\t\t context.font = p[2][7];\n' + '\t }\n\n'
+            + '    if(p[0] === "line") { \n' + '       context.moveTo(point[0], point[1]);\n' + '       context.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
-        // -------------------------------------------------------------
+        // pencil
 
-            + '\t if(p[0] === "line") { \n' + '\t\t context.moveTo(point[0], point[1]);\n' + '\t\t context.lineTo(point[2], point[3]);\n' + '\t }\n\n'
+            + '    if(p[0] === "pencil") { \n' + '       context.moveTo(point[0], point[1]);\n' + '       context.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
-        // -------------------------------------------------------------
+        // text
 
-            + '\t if(p[0] === "pencil") { \n' + '\t\t context.moveTo(point[0], point[1]);\n' + '\t\t context.lineTo(point[2], point[3]);\n' + '\t }\n\n'
+            + '    if(p[0] === "text") { \n' + '       context.fillText(point[0], point[1], point[2]);\n' + '    }\n\n'
 
-        // -------------------------------------------------------------
+        // eraser
 
-            + '\t if(p[0] === "text") { \n' + '\t\t context.fillText(point[0], point[1], point[2]);\n' + '\t }\n\n'
+            + '    if(p[0] === "eraser") { \n' + '       context.moveTo(point[0], point[1]);\n' + '       context.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
+        // arc
 
-        // -------------------------------------------------------------
+            + '    if(p[0] === "arc") context.arc(point[0], point[1], point[2], point[3], 0, point[4]); \n\n'
 
-            + '\t if(p[0] === "eraser") { \n' + '\t\t context.moveTo(point[0], point[1]);\n' + '\t\t context.lineTo(point[2], point[3]);\n' + '\t }\n\n'
+        // rect
 
-        // -------------------------------------------------------------
+            + '    if(p[0] === "rect") {\n' + '       context.strokeRect(point[0], point[1], point[2], point[3]);\n' + '       context.fillRect(point[0], point[1], point[2], point[3]);\n'
 
-            + '\t if(p[0] === "arc") context.arc(point[0], point[1], point[2], point[3], 0, point[4]); \n\n'
+            + '    }\n\n'
 
-        // -------------------------------------------------------------
+        // quadratic
 
-            + '\t if(p[0] === "rect") {\n' + '\t\t context.strokeRect(point[0], point[1], point[2], point[3]);\n' + '\t\t context.fillRect(point[0], point[1], point[2], point[3]);\n'
+            + '    if(p[0] === "quadratic") {\n' + '       context.moveTo(point[0], point[1]);\n' + '       context.quadraticCurveTo(point[2], point[3], point[4], point[5]);\n' + '    }\n\n'
 
-            + '\t }\n\n'
+        // bezier
 
-        // -------------------------------------------------------------
+            + '    if(p[0] === "bezier") {\n' + '       context.moveTo(point[0], point[1]);\n' + '       context.bezierCurveTo(point[2], point[3], point[4], point[5], point[6], point[7]);\n' + '    }\n\n'
 
-            + '\t if(p[0] === "quadratic") {\n' + '\t\t context.moveTo(point[0], point[1]);\n' + '\t\t context.quadraticCurveTo(point[2], point[3], point[4], point[5]);\n' + '\t }\n\n'
+        // end-fill
 
-        // -------------------------------------------------------------
-
-            + '\t if(p[0] === "bezier") {\n' + '\t\t context.moveTo(point[0], point[1]);\n' + '\t\t context.bezierCurveTo(point[2], point[3], point[4], point[5], point[6], point[7]);\n' + '\t }\n\n'
-
-        // -------------------------------------------------------------
-
-            + '\t context.stroke();\n' + '\t context.fill();\n'
+            + '    context.stroke();\n' + '    context.fill();\n'
 
             + '}',
 
-        // -------------------------------------------------------------
+        strokeFillText: '\n\nfunction strokeOrFill(lineWidth, strokeStyle, fillStyle, globalAlpha, globalCompositeOperation, lineCap, lineJoin, font) { \n' + '    if(lineWidth) { \n' + '       context.globalAlpha = globalAlpha;\n' + '       context.globalCompositeOperation = globalCompositeOperation;\n' + '       context.lineCap = lineCap;\n' + '       context.lineJoin = lineJoin;\n'
 
-        strokeFillText: '\n\nfunction strokeOrFill(lineWidth, strokeStyle, fillStyle, globalAlpha, globalCompositeOperation, lineCap, lineJoin, font) { \n' + '\t if(lineWidth) { \n' + '\t\t context.globalAlpha = globalAlpha;\n' + '\t\t context.globalCompositeOperation = globalCompositeOperation;\n' + '\t\t context.lineCap = lineCap;\n' + '\t\t context.lineJoin = lineJoin;\n'
+            + '       context.lineWidth = lineWidth;\n' + '       context.strokeStyle = strokeStyle;\n' + '       context.fillStyle = fillStyle;\n' + '       context.font = font;\n' + '    } \n\n'
 
-            + '\t\t context.lineWidth = lineWidth;\n' + '\t\t context.strokeStyle = strokeStyle;\n' + '\t\t context.fillStyle = fillStyle;\n' + '\t\t context.font = font;\n' + '\t } \n\n'
-
-            + '\t context.stroke();\n' + '\t context.fill();\n'
+            + '    context.stroke();\n' + '    context.fill();\n'
 
             + '}',
-
-        // -------------------------------------------------------------
-
         strokeOrFill: function(p) {
             if (!this.prevProps || this.prevProps !== p.join(',')) {
                 this.prevProps = p.join(',');
@@ -443,8 +396,6 @@
 
             return 'strokeOrFill();';
         },
-
-        // -------------------------------------------------------------
         prevProps: null,
         shortenHelper: function(name, p1, p2) {
             var result = '["' + name + '", [' + p1.join(', ') + ']';
@@ -456,12 +407,7 @@
 
             return result + '], ';
         }
-
-        // -------------------------------------------------------------
-
     };
-
-    // -------------------------------------------------------------
 
     function endLastPath() {
         var cache = is;
@@ -473,12 +419,8 @@
         drawHelper.redraw();
     }
 
-    // -------------------------------------------------------------
-
     var copiedStuff = [],
         isControlKeyPressed;
-
-    // -------------------------------------------------------------
 
     function copy() {
         endLastPath();
@@ -493,8 +435,6 @@
             setSelection(find('drag-all-paths'), 'DragAllPaths');
         }
     }
-
-    // -------------------------------------------------------------
 
     function paste() {
         endLastPath();
@@ -520,9 +460,6 @@
         }
     }
 
-    // -------------------------------------------------------------
-
-    // -------------------------------------------------------------
     var tools = {
         line: true,
         pencil: true,
@@ -533,7 +470,8 @@
         arc: true,
         bezier: true,
         quadratic: true,
-        text: true
+        text: true,
+        image: true
     };
 
     if (params.tools) {
@@ -552,8 +490,6 @@
         element.className += ' selected-shape';
     }
 
-    // -------------------------------------------------------------
-
     (function() {
 
         var cache = {};
@@ -561,16 +497,12 @@
         var lineCapSelect = find('lineCap-select');
         var lineJoinSelect = find('lineJoin-select');
 
-        // -------------------------------------------------------------
-
         function getContext(id) {
             var context = find(id).getContext('2d');
             context.lineWidth = 2;
             context.strokeStyle = '#6c96c8';
             return context;
         }
-
-        // -------------------------------------------------------------
 
         function bindEvent(context, shape) {
             if (shape === 'Pencil') {
@@ -586,6 +518,25 @@
             } else is.set('Pencil');
 
             addEvent(context.canvas, 'click', function() {
+                if (textHandler.text.length) {
+                    points[points.length] = ['text', ['"' + textHandler.text + '"', textHandler.x, textHandler.y], drawHelper.getOptions()];
+                }
+
+                if (shape === 'Text') {
+                    tempContext.canvas.style.cursor = 'text';
+                    textHandler.x = textHandler.y = 0;
+                    textHandler.text = '';
+                } else {
+                    textHandler.text = '';
+                    tempContext.canvas.style.cursor = 'default';
+                    if (typeof textHandler.blinkCursorInterval !== 'undefined') {
+                        clearInterval(textHandler.blinkCursorInterval);
+                    }
+                }
+
+                if (shape === 'Pencil') {
+                    lineCap = lineJoin = 'round';
+                }
 
                 dragHelper.global.startingIndex = 0;
 
@@ -647,13 +598,8 @@
             });
         }
 
-        // -------------------------------------------------------------
-
         var toolBox = find('tool-box');
         toolBox.style.height = (innerHeight /* - toolBox.offsetTop - 77 */ ) + 'px';
-
-        // -------------------------------------------------------------
-
 
         function decorateDragLastPath() {
             var context = getContext('drag-last-path');
@@ -695,8 +641,6 @@
             decorateDragLastPath();
         } else document.getElementById('drag-last-path').style.display = 'none';
 
-        // -------------------------------------------------------------
-
         function decorateDragAllPaths() {
             var context = getContext('drag-all-paths');
 
@@ -737,8 +681,6 @@
             decorateDragAllPaths();
         } else document.getElementById('drag-all-paths').style.display = 'none';
 
-        // -------------------------------------------------------------
-
         function decorateLine() {
             var context = getContext('line');
 
@@ -756,8 +698,6 @@
         if (tools.line === true) {
             decorateLine();
         } else document.getElementById('line').style.display = 'none';
-
-        // -------------------------------------------------------------
 
         function decoratePencil() {
             var context = getContext('pencil-icon');
@@ -779,8 +719,6 @@
             decoratePencil();
         } else document.getElementById('pencil-icon').style.display = 'none';
 
-        // -------------------------------------------------------------
-
         function decorateEraser() {
             var context = getContext('eraser-icon');
 
@@ -801,8 +739,6 @@
             decorateEraser();
         } else document.getElementById('eraser-icon').style.display = 'none';
 
-        // -------------------------------------------------------------
-
         function decorateText() {
             var context = getContext('text-icon');
 
@@ -815,8 +751,6 @@
         if (tools.text === true) {
             decorateText();
         } else document.getElementById('text-icon').style.display = 'none';
-
-        // -------------------------------------------------------------
 
         function decorateImage() {
             var context = getContext('image-icon');
@@ -832,8 +766,6 @@
         if (tools.image === true) {
             decorateImage();
         } else document.getElementById('image-icon').style.display = 'none';
-
-        // -------------------------------------------------------------
 
         function decorateArc() {
             var context = getContext('arc');
@@ -852,8 +784,6 @@
             decorateArc();
         } else document.getElementById('arc').style.display = 'none';
 
-        // -------------------------------------------------------------
-
         function decorateRect() {
             var context = getContext('rectangle');
 
@@ -869,8 +799,6 @@
         if (tools.rectangle === true) {
             decorateRect();
         } else document.getElementById('rectangle').style.display = 'none';
-
-        // -------------------------------------------------------------
 
         function decorateQuadratic() {
             var context = getContext('quadratic-curve');
@@ -889,8 +817,6 @@
         if (tools.quadratic === true) {
             decorateQuadratic();
         } else document.getElementById('quadratic-curve').style.display = 'none';
-
-        // -------------------------------------------------------------
 
         function decorateBezier() {
             var context = getContext('bezier-curve');
@@ -913,8 +839,6 @@
         if (tools.bezier === true) {
             decorateBezier();
         } else document.getElementById('bezier-curve').style.display = 'none';
-
-        // -------------------------------------------------------------
 
         function tempStrokeTheLine(context, width, mx, my, lx, ly) {
             context.beginPath();
@@ -960,7 +884,6 @@
 
         decorateLineWidth();
 
-        // -------------------------------------------------------------
         function decorateColors() {
             var context = getContext('colors');
 
@@ -999,7 +922,6 @@
 
         decorateColors();
 
-        // -------------------------------------------------------------
         function decorateAdditionalOptions() {
             var context = getContext('additional');
 
@@ -1038,12 +960,8 @@
 
         decorateAdditionalOptions();
 
-        // -------------------------------------------------------------
-
         var designPreview = find('design-preview'),
             codePreview = find('code-preview');
-
-        // -------------------------------------------------------------
 
         // todo: use this function in share-drawings.js
         // to sync buttons' states
@@ -1064,8 +982,6 @@
             }
         };
 
-        // -------------------------------------------------------------
-
         addEvent(designPreview, 'click', function() {
             selectBtn(designPreview);
             btnDesignerPreviewClicked();
@@ -1078,8 +994,6 @@
             hideContainers();
             endLastPath();
         }
-
-        // -------------------------------------------------------------
 
         addEvent(codePreview, 'click', function() {
             selectBtn(codePreview);
@@ -1099,12 +1013,8 @@
             endLastPath();
         }
 
-        // -------------------------------------------------------------
-
         var codeText = find('code-text'),
             optionsContainer = find('options-container');
-
-        // -------------------------------------------------------------
 
         function setHeightForCodeAndOptionsContainer() {
             codeText.style.width = (innerWidth - optionsContainer.clientWidth - 30) + 'px';
@@ -1114,19 +1024,13 @@
             optionsContainer.style.height = (innerHeight) + 'px';
         }
 
-        // -------------------------------------------------------------
-
         var isAbsolute = find('is-absolute-points'),
             isShorten = find('is-shorten-code');
 
         addEvent(isShorten, 'change', common.updateTextArea);
         addEvent(isAbsolute, 'change', common.updateTextArea);
 
-        // -------------------------------------------------------------
-
     })();
-
-    // -------------------------------------------------------------
 
     function hideContainers() {
         var additionalContainer = find('additional-container'),
@@ -1136,13 +1040,7 @@
         additionalContainer.style.display = colorsContainer.style.display = lineWidthContainer.style.display = 'none';
     }
 
-    // -------------------------------------------------------------
-
-    // -------------------------------------------------------------
     var drawHelper = {
-
-        // -------------------------------------------------------------
-
         redraw: function(skipSync) {
             tempContext.clearRect(0, 0, innerWidth, innerHeight);
             context.clearRect(0, 0, innerWidth, innerHeight);
@@ -1157,15 +1055,9 @@
                 syncPoints();
             }
         },
-
-        // -------------------------------------------------------------
-
         getOptions: function() {
             return [lineWidth, strokeStyle, fillStyle, globalAlpha, globalCompositeOperation, lineCap, lineJoin, font];
         },
-
-        // -------------------------------------------------------------
-
         handleOptions: function(context, opt, isNoFillStroke) {
             opt = opt || this.getOptions();
 
@@ -1184,9 +1076,6 @@
                 context.fill();
             }
         },
-
-        // -------------------------------------------------------------
-
         line: function(context, point, options) {
             context.beginPath();
             context.moveTo(point[0], point[1]);
@@ -1194,9 +1083,6 @@
 
             this.handleOptions(context, options);
         },
-
-        // -------------------------------------------------------------
-
         text: function(context, point, options) {
             var oldFillStyle = fillStyle;
             context.fillStyle = fillStyle === 'transparent' || fillStyle === 'White' ? 'Black' : fillStyle;
@@ -1206,27 +1092,18 @@
 
             this.handleOptions(context, options);
         },
-
-        // -------------------------------------------------------------
-
         arc: function(context, point, options) {
             context.beginPath();
             context.arc(point[0], point[1], point[2], point[3], 0, point[4]);
 
             this.handleOptions(context, options);
         },
-
-        // -------------------------------------------------------------
-
         rect: function(context, point, options) {
             this.handleOptions(context, options, true);
 
             context.strokeRect(point[0], point[1], point[2], point[3]);
             context.fillRect(point[0], point[1], point[2], point[3]);
         },
-
-        // -------------------------------------------------------------
-
         image: function(context, point, options) {
             this.handleOptions(context, options, true);
 
@@ -1248,9 +1125,6 @@
 
             context.drawImage(image, point[1], point[2], point[3], point[4]);
         },
-
-        // -------------------------------------------------------------
-
         quadratic: function(context, point, options) {
             context.beginPath();
             context.moveTo(point[0], point[1]);
@@ -1258,9 +1132,6 @@
 
             this.handleOptions(context, options);
         },
-
-        // -------------------------------------------------------------
-
         bezier: function(context, point, options) {
             context.beginPath();
             context.moveTo(point[0], point[1]);
@@ -1268,16 +1139,9 @@
 
             this.handleOptions(context, options);
         }
-
-        // -------------------------------------------------------------
     };
-    // -------------------------------------------------------------
 
-    // -------------------------------------------------------------
     var dragHelper = {
-
-        // -------------------------------------------------------------
-
         global: {
             prevX: 0,
             prevY: 0,
@@ -1285,20 +1149,12 @@
             pointsToMove: 'all',
             startingIndex: 0
         },
-
-        // -------------------------------------------------------------
-
         mousedown: function(e) {
-
-            // -------------------------------------------------------------
-
             if (isControlKeyPressed) {
                 copy();
                 paste();
                 isControlKeyPressed = false;
             }
-
-            // -------------------------------------------------------------
 
             var dHelper = dragHelper,
                 g = dHelper.global;
@@ -1401,9 +1257,6 @@
 
             g.ismousedown = true;
         },
-
-        // -------------------------------------------------------------
-
         mouseup: function() {
             var g = this.global;
 
@@ -1415,9 +1268,6 @@
 
             g.ismousedown = false;
         },
-
-        // -------------------------------------------------------------
-
         mousemove: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop,
@@ -1431,9 +1281,6 @@
 
             if (is.isDragLastPath) this.init();
         },
-
-        // -------------------------------------------------------------
-
         init: function() {
             if (!points.length) return;
 
@@ -1519,15 +1366,9 @@
                 tempContext.fill();
             }
         },
-
-        // -------------------------------------------------------------
-
         isPointInPath: function(x, y, first, second) {
             return x > first - 10 && x < first + 10 && y > second - 10 && y < second + 10;
         },
-
-        // -------------------------------------------------------------
-
         getPoint: function(point, prev, otherPoint) {
             if (point > prev) {
                 point = otherPoint + (point - prev);
@@ -1537,9 +1378,6 @@
 
             return point;
         },
-
-        // -------------------------------------------------------------
-
         getXYWidthHeight: function(x, y, prevX, prevY, oldPoints) {
             if (oldPoints.pointsToMove == 'stretch-first') {
                 if (x > prevX) {
@@ -1593,9 +1431,6 @@
 
             return oldPoints;
         },
-
-        // -------------------------------------------------------------
-
         dragShape: function(x, y) {
             if (!this.global.ismousedown) return;
 
@@ -1614,9 +1449,6 @@
             g.prevX = x;
             g.prevY = y;
         },
-
-        // -------------------------------------------------------------
-
         end: function() {
             if (!points.length) return;
 
@@ -1625,9 +1457,6 @@
             var point = points[points.length - 1];
             drawHelper[point[0]](context, point[1], point[2]);
         },
-
-        // -------------------------------------------------------------
-
         dragAllPaths: function(x, y) {
             var g = this.global,
                 prevX = g.prevX,
@@ -1728,9 +1557,6 @@
                 }
             }
         },
-
-        // -------------------------------------------------------------
-
         dragLastPath: function(x, y) {
             var g = this.global,
                 prevX = g.prevX,
@@ -1934,24 +1760,12 @@
                 points[points.length - 1] = [p[0], point, p[2]];
             }
         }
-
-        // -------------------------------------------------------------
-
     };
-    // -------------------------------------------------------------
-
-    // -------------------------------------------------------------
 
     var pencilHandler = {
-
-        // -------------------------------------------------------------
-
         ismousedown: false,
         prevX: 0,
         prevY: 0,
-
-        // -------------------------------------------------------------
-
         mousedown: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -1973,15 +1787,9 @@
             t.prevX = x;
             t.prevY = y;
         },
-
-        // -------------------------------------------------------------
-
         mouseup: function(e) {
             this.ismousedown = false;
         },
-
-        // -------------------------------------------------------------
-
         mousemove: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -1998,25 +1806,12 @@
                 t.prevY = y;
             }
         }
-
-        // -------------------------------------------------------------
-
     };
-
-    // -------------------------------------------------------------
-
-    // -------------------------------------------------------------
 
     var eraserHandler = {
-
-        // -------------------------------------------------------------
-
         ismousedown: false,
         prevX: 0,
         prevY: 0,
-
-        // -------------------------------------------------------------
-
         mousedown: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2028,8 +1823,6 @@
 
             t.ismousedown = true;
 
-            // make sure that pencil is drawing shapes even 
-            // if mouse is down but mouse isn't moving
             tempContext.lineCap = 'round';
             drawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
 
@@ -2038,15 +1831,9 @@
             t.prevX = x;
             t.prevY = y;
         },
-
-        // -------------------------------------------------------------
-
         mouseup: function(e) {
             this.ismousedown = false;
         },
-
-        // -------------------------------------------------------------
-
         mousemove: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2063,98 +1850,63 @@
                 t.prevY = y;
             }
         }
-
-        // -------------------------------------------------------------
-
     };
-
-    // -------------------------------------------------------------
-
-    // -------------------------------------------------------------
-    var textInput = document.getElementById('text-input');
-    textInput.onkeyup = function(e) {
-        if (e.keyCode != 13) return;
-
-        // ENTER key goes to new line
-        fillText();
-
-        textHandler.isTextPending = true;
-
-        textHandler.y += 20;
-        textHandler.pageY += 20;
-
-        textInput.style.top = (textHandler.pageY - 10) + 'px';
-        textInput.style.left = (textHandler.pageX - 10) + 'px';
-        textInput.style.color = fillStyle == 'transparent' ? 'Black' : fillStyle;
-
-        setTimeout(function() {
-            textInput.focus();
-        }, 200);
-    };
-
-    textInput.onblur = function(e) {
-        if (textInput.value.length) {
-            fillText();
-            return;
-        }
-        //textInput.style.top = '-100000px';
-        //textInput.style.left = '-100000px';
-        //textHandler.isTextPending = false;
-    };
-
-    function fillText() {
-        if (!textHandler.isTextPending) return;
-        textHandler.isTextPending = false;
-
-        var oldFillStyle = fillStyle;
-        var oldFont = font;
-
-        fillStyle = 'Black';
-        font = '15px Verdana';
-
-        points[points.length] = ['text', ['"' + textInput.value + '"', textHandler.x, textHandler.y], drawHelper.getOptions()];
-
-        fillStyle = oldFillStyle;
-        font = oldFont;
-
-        textInput.style.top = '-100000px';
-        textInput.style.left = '-100000px';
-        textInput.value = '';
-
-        drawHelper.redraw();
-    }
 
     var textHandler = {
-        isTextPending: false,
+        text: '',
+        writeText: function(keyPressed, isBackKeyPressed) {
+            if (isBackKeyPressed) {
+                textHandler.text = textHandler.text.substr(0, textHandler.text.length - 1);
+                textHandler.fillText(textHandler.text);
+                return;
+            }
+
+            textHandler.text += keyPressed;
+            textHandler.fillText(textHandler.text);
+        },
+        fillText: function(text) {
+            tempContext.clearRect(0, 0, tempContext.canvas.width, tempContext.canvas.height);
+
+            tempContext.fillStyle = 'black';
+            tempContext.font = font;
+            tempContext.fillText(text, textHandler.x, textHandler.y);
+        },
+        blinkCursorInterval: null,
+        index: 0,
+        blinkCursor: function() {
+            textHandler.index++;
+            if (textHandler.index % 2 == 0) {
+                textHandler.fillText(textHandler.text + '|');
+            } else {
+                textHandler.fillText(textHandler.text);
+            }
+        },
         mousedown: function(e) {
-            if (textHandler.isTextPending) fillText();
-            textHandler.isTextPending = true;
+            if (textHandler.text.length) {
+                points[points.length] = ['text', ['"' + textHandler.text + '"', textHandler.x, textHandler.y], drawHelper.getOptions()];
+            }
+
+            textHandler.x = textHandler.y = 0;
+            textHandler.text = '';
 
             textHandler.pageX = e.pageX;
             textHandler.pageY = e.pageY;
 
-            textHandler.x = e.pageX - canvas.offsetLeft - 10;
-            textHandler.y = e.pageY - canvas.offsetTop + 5;
+            textHandler.x = e.pageX - canvas.offsetLeft - 5;
+            textHandler.y = e.pageY - canvas.offsetTop + 10;
 
-            textInput.style.top = (e.pageY - 10) + 'px';
-            textInput.style.left = (e.pageX - 10) + 'px';
-            textInput.style.color = fillStyle == 'transparent' ? 'Black' : fillStyle;
+            if (typeof textHandler.blinkCursorInterval !== 'undefined') {
+                clearInterval(textHandler.blinkCursorInterval);
+            }
 
-            setTimeout(function() {
-                textInput.focus();
-            }, 200);
+            textHandler.blinkCursor();
+            textHandler.blinkCursorInterval = setInterval(textHandler.blinkCursor, 700);
         },
         mouseup: function(e) {},
         mousemove: function(e) {}
     };
-    // -------------------------------------------------------------
-
-    // -------------------------------------------------------------
 
     var arcHandler = {
-
-        // -------------------------------------------------------------
-
         global: {
             ismousedown: false,
             prevX: 0,
@@ -2166,9 +1918,6 @@
             arcRangeContainer: null,
             arcRange: null
         },
-
-        // -------------------------------------------------------------
-
         mousedown: function(e) {
             var g = this.global;
 
@@ -2180,9 +1929,6 @@
 
             g.ismousedown = true;
         },
-
-        // -------------------------------------------------------------
-
         mouseup: function(e) {
             var g = this.global;
 
@@ -2226,9 +1972,6 @@
 
             this.fixAllPoints();
         },
-
-        // -------------------------------------------------------------
-
         mousemove: function(e) {
             var g = this.global;
 
@@ -2251,9 +1994,6 @@
                 }
             }
         },
-
-        // -------------------------------------------------------------
-
         fixAllPoints: function() {
             var toFixed = this.toFixed;
 
@@ -2268,9 +2008,6 @@
                 }
             }
         },
-
-        // -------------------------------------------------------------
-
         init: function() {
             var markIsClockwise = find('is-clockwise'),
                 g = this.global;
@@ -2299,9 +2036,6 @@
             addEvent(arcRange, 'keydown', this.arcRangeHandler);
             addEvent(arcRange, 'focus', this.arcRangeHandler);
         },
-
-        // -------------------------------------------------------------
-
         arcRangeHandler: function(e) {
             var g = arcHandler.global,
                 arcRange = g.arcRange;
@@ -2325,15 +2059,9 @@
                 }
             }
         },
-
-        // -------------------------------------------------------------
-
         toFixed: function(input) {
             return Number(input).toFixed(1);
         },
-
-        // -------------------------------------------------------------
-
         end: function() {
             var g = this.global;
 
@@ -2345,26 +2073,14 @@
 
             drawHelper.redraw();
         }
-
-        // -------------------------------------------------------------
     };
 
     arcHandler.init();
 
-    // -------------------------------------------------------------
-
-    // -------------------------------------------------------------
-
     var lineHandler = {
-
-        // -------------------------------------------------------------
-
         ismousedown: false,
         prevX: 0,
         prevY: 0,
-
-        // -------------------------------------------------------------
-
         mousedown: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2376,9 +2092,6 @@
 
             t.ismousedown = true;
         },
-
-        // -------------------------------------------------------------
-
         mouseup: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2390,9 +2103,6 @@
                 t.ismousedown = false;
             }
         },
-
-        // -------------------------------------------------------------
-
         mousemove: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2405,23 +2115,12 @@
                 drawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
             }
         }
-
-        // -------------------------------------------------------------
-
     };
-    // -------------------------------------------------------------
 
-    // -------------------------------------------------------------
     var rectHandler = {
-
-        // -------------------------------------------------------------
-
         ismousedown: false,
         prevX: 0,
         prevY: 0,
-
-        // -------------------------------------------------------------
-
         mousedown: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2433,9 +2132,6 @@
 
             t.ismousedown = true;
         },
-
-        // -------------------------------------------------------------
-
         mouseup: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2448,9 +2144,6 @@
             }
 
         },
-
-        // -------------------------------------------------------------
-
         mousemove: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2462,18 +2155,9 @@
                 drawHelper.rect(tempContext, [t.prevX, t.prevY, x - t.prevX, y - t.prevY]);
             }
         }
-
-        // -------------------------------------------------------------
-
     };
-    // -------------------------------------------------------------
-
-    // -------------------------------------------------------------
 
     var quadraticHandler = {
-
-        // -------------------------------------------------------------
-
         global: {
             ismousedown: false,
             prevX: 0,
@@ -2483,9 +2167,6 @@
             isFirstStep: true,
             isLastStep: false
         },
-
-        // -------------------------------------------------------------
-
         mousedown: function(e) {
             var g = this.global;
 
@@ -2503,9 +2184,6 @@
                 this.end(x, y);
             }
         },
-
-        // -------------------------------------------------------------
-
         mouseup: function(e) {
             var g = this.global;
 
@@ -2520,9 +2198,6 @@
                 g.isLastStep = true;
             }
         },
-
-        // -------------------------------------------------------------
-
         mousemove: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2539,9 +2214,6 @@
                 drawHelper.quadratic(tempContext, [g.prevX, g.prevY, g.controlPointX, g.controlPointY, x, y]);
             }
         },
-
-        // -------------------------------------------------------------
-
         end: function(x, y) {
             var g = this.global;
 
@@ -2557,12 +2229,101 @@
 
             points[points.length] = ['quadratic', [g.prevX, g.prevY, g.controlPointX, g.controlPointY, x, y], drawHelper.getOptions()];
         }
-
-        // -------------------------------------------------------------
-
     };
 
-    // -------------------------------------------------------------
+    var bezierHandler = {
+        global: {
+            ismousedown: false,
+            prevX: 0,
+            prevY: 0,
+
+            firstControlPointX: 0,
+            firstControlPointY: 0,
+            secondControlPointX: 0,
+            secondControlPointY: 0,
+
+            isFirstStep: true,
+            isSecondStep: false,
+            isLastStep: false
+        },
+        mousedown: function(e) {
+            var g = this.global;
+
+            var x = e.pageX - canvas.offsetLeft,
+                y = e.pageY - canvas.offsetTop;
+
+            if (!g.isLastStep && !g.isSecondStep) {
+                g.prevX = x;
+                g.prevY = y;
+            }
+
+            g.ismousedown = true;
+
+            if (g.isLastStep && g.ismousedown) {
+                this.end(x, y);
+            }
+
+            if (g.ismousedown && g.isSecondStep) {
+                g.secondControlPointX = x;
+                g.secondControlPointY = y;
+
+                g.isSecondStep = false;
+                g.isLastStep = true;
+            }
+        },
+        mouseup: function(e) {
+            var g = this.global;
+
+            var x = e.pageX - canvas.offsetLeft,
+                y = e.pageY - canvas.offsetTop;
+
+            if (g.ismousedown && g.isFirstStep) {
+                g.firstControlPointX = x;
+                g.firstControlPointY = y;
+
+                g.isFirstStep = false;
+                g.isSecondStep = true;
+            }
+        },
+        mousemove: function(e) {
+            var x = e.pageX - canvas.offsetLeft,
+                y = e.pageY - canvas.offsetTop;
+
+            var g = this.global;
+
+            tempContext.clearRect(0, 0, innerWidth, innerHeight);
+
+            if (g.ismousedown && g.isFirstStep) {
+                drawHelper.bezier(tempContext, [g.prevX, g.prevY, x, y, x, y, x, y]);
+            }
+
+            if (g.ismousedown && g.isSecondStep) {
+                drawHelper.bezier(tempContext, [g.prevX, g.prevY, g.firstControlPointX, g.firstControlPointY, x, y, x, y]);
+            }
+
+            if (g.isLastStep) {
+                drawHelper.bezier(tempContext, [g.prevX, g.prevY, g.firstControlPointX, g.firstControlPointY, g.secondControlPointX, g.secondControlPointY, x, y]);
+            }
+        },
+        end: function(x, y) {
+            var g = this.global;
+
+            if (!g.ismousedown) return;
+
+            g.isLastStep = g.isSecondStep = false;
+
+            g.isFirstStep = true;
+            g.ismousedown = false;
+
+            g.secondControlPointX = g.secondControlPointX || g.firstControlPointX;
+            g.secondControlPointY = g.secondControlPointY || g.firstControlPointY;
+
+            x = x || g.secondControlPointX;
+            y = y || g.secondControlPointY;
+
+            points[points.length] = ['bezier', [g.prevX, g.prevY, g.firstControlPointX, g.firstControlPointY, g.secondControlPointX, g.secondControlPointY, x, y], drawHelper.getOptions()];
+        }
+    };
 
     var FileSelector = function() {
         var selector = this;
@@ -2618,11 +2379,7 @@
         }
     };
 
-    // -------------------------------------------------------------
     var imageHandler = {
-
-        // -------------------------------------------------------------
-
         lastImageURL: null,
         lastImageIndex: 0,
         images: [],
@@ -2630,9 +2387,6 @@
         ismousedown: false,
         prevX: 0,
         prevY: 0,
-
-        // -------------------------------------------------------------
-
         mousedown: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2644,9 +2398,6 @@
 
             t.ismousedown = true;
         },
-
-        // -------------------------------------------------------------
-
         mouseup: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2659,9 +2410,6 @@
             }
 
         },
-
-        // -------------------------------------------------------------
-
         mousemove: function(e) {
             var x = e.pageX - canvas.offsetLeft,
                 y = e.pageY - canvas.offsetTop;
@@ -2673,18 +2421,10 @@
                 drawHelper.image(tempContext, [imageHandler.lastImageURL, t.prevX, t.prevY, x - t.prevX, y - t.prevY, imageHandler.lastImageIndex]);
             }
         }
-
-        // -------------------------------------------------------------
-
     };
-    // -------------------------------------------------------------
-
-    // -------------------------------------------------------------
 
     var canvas = tempContext.canvas,
         isTouch = 'createTouch' in document;
-
-    // -------------------------------------------------------------
 
     addEvent(canvas, isTouch ? 'touchstart' : 'mousedown', function(e) {
         if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
@@ -2708,8 +2448,6 @@
         drawHelper.redraw();
     });
 
-    // -------------------------------------------------------------
-
     addEvent(canvas, isTouch ? 'touchend' : 'mouseup', function(e) {
         if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
             pageX: 0,
@@ -2732,8 +2470,6 @@
         drawHelper.redraw();
     });
 
-    // -------------------------------------------------------------
-
     addEvent(canvas, isTouch ? 'touchmove' : 'mousemove', function(e) {
         if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
             pageX: 0,
@@ -2754,14 +2490,17 @@
         else if (cache.isImage) imageHandler.mousemove(e);
     });
 
-    // -------------------------------------------------------------
-
     var keyCode;
 
-    // -------------------------------------------------------------
-
     function onkeydown(e) {
-        keyCode = e.keyCode;
+        keyCode = e.which || e.keyCode || 0;
+
+        if (keyCode == 8 || keyCode == 46) {
+            if (isBackKey(e, keyCode)) {
+                // back key pressed
+            }
+            return;
+        }
 
         if (e.metaKey) {
             isControlKeyPressed = true;
@@ -2773,9 +2512,32 @@
         }
     }
 
-    addEvent(document, 'keydown', onkeydown);
+    function isBackKey(e, keyCode) {
+        var doPrevent = false;
+        var d = e.srcElement || e.target;
+        if ((d.tagName.toUpperCase() === 'INPUT' &&
+                (
+                    d.type.toUpperCase() === 'TEXT' ||
+                    d.type.toUpperCase() === 'PASSWORD' ||
+                    d.type.toUpperCase() === 'FILE' ||
+                    d.type.toUpperCase() === 'SEARCH' ||
+                    d.type.toUpperCase() === 'EMAIL' ||
+                    d.type.toUpperCase() === 'NUMBER' ||
+                    d.type.toUpperCase() === 'DATE')
+            ) ||
+            d.tagName.toUpperCase() === 'TEXTAREA') {
+            doPrevent = d.readOnly || d.disabled;
+        } else {
+            doPrevent = true;
+        }
 
-    // -------------------------------------------------------------
+        if (doPrevent) {
+            e.preventDefault();
+        }
+        return doPrevent;
+    }
+
+    addEvent(document, 'keydown', onkeydown);
 
     function onkeyup(e) {
         if (e.which == null && (e.charCode != null || e.keyCode != null)) {
@@ -2784,8 +2546,14 @@
 
         keyCode = e.which || e.keyCode || 0;
 
-        /*-------------------------- Ctrl + Z --------------------------*/
+        if (keyCode == 8 || keyCode == 46) {
+            if (isBackKey(e, keyCode)) {
+                textHandler.writeText(textHandler.lastKeyPress, true);
+            }
+            return;
+        }
 
+        // Ctrl + Z
         if (isControlKeyPressed && keyCode === 90) {
             if (points.length) {
                 points.length = points.length - 1;
@@ -2793,8 +2561,7 @@
             }
         }
 
-        /*-------------------------- Ctrl + A --------------------------*/
-
+        // Ctrl + A
         if (isControlKeyPressed && keyCode === 65) {
             dragHelper.global.startingIndex = 0;
 
@@ -2803,19 +2570,17 @@
             setSelection(find('drag-all-paths'), 'DragAllPaths');
         }
 
-        /*-------------------------- Ctrl + C --------------------------*/
-
+        // Ctrl + C
         if (isControlKeyPressed && keyCode === 67 && points.length) {
             copy();
         }
 
-        /*-------------------------- Ctrl + V --------------------------*/
+        // Ctrl + V
         if (isControlKeyPressed && keyCode === 86 && copiedStuff.length) {
             paste();
         }
 
-        /*-------------------------- Ending the Control Key --------------------------*/
-
+        // Ending the Control Key
         if (typeof e.metaKey !== 'undefined' && e.metaKey === false) {
             isControlKeyPressed = false;
             keyCode = 17;
@@ -2828,13 +2593,24 @@
 
     addEvent(document, 'keyup', onkeyup);
 
-    // -------------------------------------------------------------
+    function onkeypress(e) {
+        if (e.which == null && (e.charCode != null || e.keyCode != null)) {
+            e.which = e.charCode != null ? e.charCode : e.keyCode;
+        }
 
-    // -------------------------------------------------------------
+        keyCode = e.which || e.keyCode || 0;
+
+        var inp = String.fromCharCode(keyCode);
+        if (/[a-zA-Z0-9-_ !?|\/'",.=:;(){}\[\]`~@#$%^&*+-]/.test(inp)) {
+            textHandler.writeText(String.fromCharCode(keyCode));
+        }
+    }
+
+    addEvent(document, 'keypress', onkeypress);
+
     // scripts on this page directly touches DOM-elements
     // removing or altering anything may cause failures in the UI event handlers
     // it is used only to bring collaboration for canvas-surface
-    // -------------------------------------------------------------
     var lastPoint = [];
     var selfId = (Math.random() * 10000).toString().replace('.', '');
 

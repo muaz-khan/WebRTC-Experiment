@@ -106,16 +106,29 @@
             This module simply initializes socket.io and configures it in a way that single file can be shared/relayed over unlimited users without any <a href="https://www.webrtc-experiment.com/docs/RTP-usage.html">bandwidth/CPU usage issues</a>. Everything happens peer-to-peer!
 
             <br><br>
-            Share camera with unlimited users using p2p methods! <a href="/demos/Video-Scalable-Broadcast.html">Video Scalable Broadcast</a>
+            Share camera with unlimited users using p2p methods! <a href="/demos/Video-Scalable-Broadcast.html">Video Scalable Broadcast</a> or <a href="/demos/Scalable-Broadcast.html">all-in-one scalable broadcast</a>.
         </blockquote>
 
         <script src="/socket.io/socket.io.js"></script>
-        <script src="/RTCMultiConnection.min.js"></script>
-        <script src="/dev/FileBufferReader.js"></script>
+        <!-- <script src="/RTCMultiConnection.min.js"></script> -->
+        <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
+        
+        <!-- <script src="/dev/FileBufferReader.js"></script> -->
+        <script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
+        
         <script>
             var connection = new RTCMultiConnection();
+
+            // by default, socket.io server is assumed to be deployed on your own URL
+            connection.socketURL = '/';
+
+            // comment-out below line if you do not have your own socket.io server
+            // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+            connection.socketMessageEvent = 'files-scalable-broadcast-demo';
+
             connection.enableScalableBroadcast = true;
-            connection.singleBroadcastAttendees = 1;
+            connection.maxRelayLimitPerUser = 1;
 
             connection.fileReceived = {};
             connection.enableFileSharing = true;
@@ -127,7 +140,6 @@
                 OfferToReceiveAudio: false,
                 OfferToReceiveVideo: false
             };
-            connection.socketMessageEvent = 'main-connection';
 
             connection.onopen = function(event) {
                 if (connection.isInitiator) {
@@ -153,8 +165,8 @@
             // if broadcast is available, simply join it. i.e. "join-broadcaster" event should be emitted.
             // if broadcast is absent, simply create it. i.e. "start-broadcasting" event should be fired.
             document.getElementById('open-or-join').onclick = function() {
-                var broadcastid = document.getElementById('broadcast-id').value;
-                if (broadcastid.replace(/^\s+|\s+$/g, '').length <= 0) {
+                var broadcastId = document.getElementById('broadcast-id').value;
+                if (broadcastId.replace(/^\s+|\s+$/g, '').length <= 0) {
                     alert('Please enter broadcast-id');
                     document.getElementById('broadcast-id').focus();
                     return;
@@ -168,7 +180,7 @@
                 };
 
                 connection.socket.emit('join-broadcast', {
-                    broadcastid: broadcastid,
+                    broadcastId: broadcastId,
                     userid: connection.userid,
                     typeOfStreams: connection.session
                 });
@@ -179,14 +191,14 @@
                 document.getElementById('open-or-join').disabled = false;
 
                 // this event is emitted when a broadcast is already created.
-                connection.socket.on('join-broadcaster', function(broadcaster, typeOfStreams) {
-                    connection.session = typeOfStreams;
+                connection.socket.on('join-broadcaster', function(hintsToJoinBroadcast) {
+                    connection.session = hintsToJoinBroadcast.typeOfStreams;
                     connection.sdpConstraints.mandatory = {
                         OfferToReceiveVideo: !!connection.session.video,
                         OfferToReceiveAudio: !!connection.session.audio
                     };
 
-                    connection.join(broadcaster.userid);
+                    connection.join(hintsToJoinBroadcast.userid);
                 });
 
                 // this event is emitted when a broadcast is absent.

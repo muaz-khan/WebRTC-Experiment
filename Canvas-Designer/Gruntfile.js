@@ -7,6 +7,8 @@ module.exports = function(grunt) {
         scope: 'devDependencies'
     });
 
+    var banner = '// Last time updated: <%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %>\n\n';
+
     // configure project
     grunt.initConfig({
         // make node configurations available
@@ -15,7 +17,7 @@ module.exports = function(grunt) {
             options: {
                 stripBanners: true,
                 separator: '\n',
-                banner: '// Last time updated at <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> \n\n'
+                banner: banner
             },
             dist: {
                 src: [
@@ -32,7 +34,7 @@ module.exports = function(grunt) {
                     'dev/line-handler.js',
                     'dev/rect-handler.js',
                     'dev/quadratic-handler.js',
-                    'bezier-handler.js',
+                    'dev/bezier-handler.js',
                     'dev/file-selector.js',
                     'dev/image-handler.js',
                     'dev/events-handler.js',
@@ -48,7 +50,7 @@ module.exports = function(grunt) {
         uglify: {
             options: {
                 mangle: false,
-                banner: '// Last time updated at <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> \n\n'
+                banner: banner
             },
             my_target: {
                 files: {

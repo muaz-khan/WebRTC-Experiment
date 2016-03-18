@@ -1,15 +1,7 @@
-// -------------------------------------------------------------
-
 var lineHandler = {
-
-    // -------------------------------------------------------------
-
     ismousedown: false,
     prevX: 0,
     prevY: 0,
-
-    // -------------------------------------------------------------
-
     mousedown: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop;
@@ -21,9 +13,6 @@ var lineHandler = {
 
         t.ismousedown = true;
     },
-
-    // -------------------------------------------------------------
-
     mouseup: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop;
@@ -35,9 +24,6 @@ var lineHandler = {
             t.ismousedown = false;
         }
     },
-
-    // -------------------------------------------------------------
-
     mousemove: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop;
@@ -50,8 +36,4 @@ var lineHandler = {
             drawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
         }
     }
-
-    // -------------------------------------------------------------
-
 };
-// -------------------------------------------------------------

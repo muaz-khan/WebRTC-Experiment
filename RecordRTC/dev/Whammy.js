@@ -390,10 +390,6 @@ var Whammy = (function() {
             return webp;
         }));
 
-        if (!!navigator.mozGetUserMedia) {
-            return webm;
-        }
-
         postMessage(webm);
     }
 
@@ -409,10 +405,6 @@ var Whammy = (function() {
      * });
      */
     WhammyVideo.prototype.compile = function(callback) {
-        if (!!navigator.mozGetUserMedia) {
-            callback(whammyInWebWorker(this.frames));
-            return;
-        }
         var webWorker = processInWebWorker(whammyInWebWorker);
 
         webWorker.onmessage = function(event) {

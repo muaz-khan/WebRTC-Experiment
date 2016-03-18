@@ -12,9 +12,15 @@
  * var recorder = new MRecordRTC();
  * recorder.addStream(MediaStream);
  * recorder.mediaType = {
- *     audio: true,
- *     video: true,
- *     gif: true
+ *     audio: true, // or StereoAudioRecorder or MediaStreamRecorder
+ *     video: true, // or WhammyRecorder or MediaStreamRecorder
+ *     gif: true    // or GifRecorder
+ * };
+ * // mimeType is optional and should be set only in advance cases.
+ * recorder.mimeType = {
+ *     audio: 'audio/wav',
+ *     video: 'video/webm',
+ *     gif:   'image/gif'
  * };
  * recorder.startRecording();
  * @see For further information:
@@ -45,9 +51,9 @@ function MRecordRTC(mediaStream) {
      * @example
      * var recorder = new MRecordRTC();
      * recorder.mediaType = {
-     *     audio: true,
-     *     video: true,
-     *     gif  : true
+     *     audio: true, // TRUE or StereoAudioRecorder or MediaStreamRecorder
+     *     video: true, // TRUE or WhammyRecorder or MediaStreamRecorder
+     *     gif  : true  // TRUE or GifRecorder
      * };
      */
     this.mediaType = {
@@ -63,34 +69,99 @@ function MRecordRTC(mediaStream) {
      * recorder.startRecording();
      */
     this.startRecording = function() {
-        if (!isChrome && mediaStream && mediaStream.getAudioTracks && mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
+        var mediaType = this.mediaType;
+        var recorderType;
+        var mimeType = this.mimeType || {
+            audio: null,
+            video: null,
+            gif: null
+        };
+
+        if (typeof mediaType.audio !== 'function' && isMediaRecorderCompatible() && mediaStream && mediaStream.getAudioTracks && mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
             // Firefox is supporting both audio/video in single blob
             this.mediaType.audio = false;
         }
 
-        if (this.mediaType.audio) {
+        if (!!mediaType.audio) {
+            recorderType = null;
+            if (typeof mediaType.audio === 'function') {
+                recorderType = mediaType.audio;
+            }
             this.audioRecorder = new RecordRTC(mediaStream, {
                 type: 'audio',
                 bufferSize: this.bufferSize,
-                sampleRate: this.sampleRate
+                sampleRate: this.sampleRate,
+                numberOfAudioChannels: this.numberOfAudioChannels || 2,
+                disableLogs: this.disableLogs,
+                recorderType: recorderType,
+                mimeType: mimeType.audio
             });
-            this.audioRecorder.startRecording();
+            if (!mediaType.video) {
+                this.audioRecorder.startRecording();
+            }
         }
 
-        if (this.mediaType.video) {
-            this.videoRecorder = new RecordRTC(mediaStream, {
+        if (!!mediaType.video) {
+            recorderType = null;
+            if (typeof mediaType.video === 'function') {
+                recorderType = mediaType.video;
+            }
+
+            var newStream = mediaStream;
+
+            if (isMediaRecorderCompatible() && !!mediaType.audio && typeof mediaType.audio === 'function') {
+                var videoTrack = mediaStream.getVideoTracks()[0];
+
+                if (!!navigator.mozGetUserMedia) {
+                    newStream = new MediaStream();
+                    newStream.addTrack(videoTrack);
+
+                    if (recorderType && recorderType === WhammyRecorder) {
+                        // Firefox is NOT supporting webp-encoding yet
+                        recorderType = MediaStreamRecorder;
+                    }
+                } else {
+                    newStream = new MediaStream([videoTrack]);
+                }
+            }
+
+            this.videoRecorder = new RecordRTC(newStream, {
                 type: 'video',
                 video: this.video,
-                canvas: this.canvas
+                canvas: this.canvas,
+                frameInterval: this.frameInterval || 10,
+                disableLogs: this.disableLogs,
+                recorderType: recorderType,
+                mimeType: mimeType.video
             });
-            this.videoRecorder.startRecording();
+            if (!mediaType.audio) {
+                this.videoRecorder.startRecording();
+            }
         }
 
-        if (this.mediaType.gif) {
+        if (!!mediaType.audio && !!mediaType.video) {
+            var self = this;
+            self.videoRecorder.initRecorder(function() {
+                self.audioRecorder.initRecorder(function() {
+                    // Both recorders are ready to record things accurately
+                    self.videoRecorder.startRecording();
+                    self.audioRecorder.startRecording();
+                });
+            });
+        }
+
+        if (!!mediaType.gif) {
+            recorderType = null;
+            if (typeof mediaType.gif === 'function') {
+                recorderType = mediaType.gif;
+            }
             this.gifRecorder = new RecordRTC(mediaStream, {
                 type: 'gif',
                 frameRate: this.frameRate || 200,
-                quality: this.quality || 10
+                quality: this.quality || 10,
+                disableLogs: this.disableLogs,
+                recorderType: recorderType,
+                mimeType: mimeType.gif
             });
             this.gifRecorder.startRecording();
         }

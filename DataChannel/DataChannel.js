@@ -1,4 +1,4 @@
-// Last time updated at April 27, 2015, 08:32:23
+// Last time updated at Feb 10, 2016, 08:32:23
 
 // Muaz Khan         - www.MuazKhan.com
 // MIT License       - www.WebRTC-Experiment.com/licence
@@ -14,7 +14,7 @@
             this.automatic = true;
         }
 
-        this.channel = channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+        this.roomid = this.channel = channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
         extras = extras || {};
 
@@ -199,6 +199,7 @@
         }
 
         this.open = function(_channel) {
+            this.roomid = _channel;
             self.joinedARoom = true;
 
             if (self.socket) {
@@ -224,6 +225,8 @@
                 self.channel = _channel;
             }
 
+            this.roomid = _channel;
+
             prepareInit(init);
         };
 
@@ -232,6 +235,8 @@
             if (!room.id || !room.owner) {
                 throw 'Invalid room info passed.';
             }
+
+            this.roomid = room.id;
 
             if (!dataConnector) {
                 init();
@@ -425,7 +430,8 @@
                 if (root.direction === 'many-to-many' && isbroadcaster && channels.split('--').length > 3 && defaultSocket) {
                     defaultSocket.send({
                         newParticipant: socket.channel,
-                        userToken: self.userToken
+                        userToken: self.userToken,
+                        roomToken: root.roomid
                     });
                 }
 
@@ -656,7 +662,7 @@
                     config.ondatachannel(response);
                 }
 
-                if (response.newParticipant) {
+                if (response.newParticipant && response.roomToken === root.roomid) {
                     onNewParticipant(response.newParticipant);
                 }
 

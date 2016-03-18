@@ -1,4 +1,5 @@
-// Last time updated at Jan 07, 2016, 08:32:23
+// Last time updated at Feb 08, 2016, 08:32:23
+
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getStats.js
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
@@ -15,7 +16,8 @@ getStats(rtcPeerConnection, function(result) {
     result.connectionType.transport
 });
 */
-(function() {
+
+;(function() {
     var RTCPeerConnection;
     if (typeof webkitRTCPeerConnection !== 'undefined') {
         RTCPeerConnection = webkitRTCPeerConnection;
@@ -69,57 +71,69 @@ getStats(rtcPeerConnection, function(result) {
                 for (var i = 0; i < results.length; ++i) {
                     var res = results[i];
 
+                    if(res.datachannelid && res.type === 'datachannel') {
+                        result.datachannel = {
+                            state: res.state // open or connecting
+                        }
+                    }
+
+                    if(res.type === 'googLibjingleSession') {
+                        result.isOfferer = res.googInitiator;
+                    }
+
+                    if(res.type == 'googCertificate') {
+                        result.encryption = res.googFingerprintAlgorithm;
+                    }
+
                     if (res.googCodecName == 'opus' && res.bytesSent) {
-                        if (!globalObject.audio.prevBytesSent)
+                        var kilobytes = 0;
+                        if(!!res.bytesSent) {
+                            if (!globalObject.audio.prevBytesSent) {
+                                globalObject.audio.prevBytesSent = res.bytesSent;
+                            }
+
+                            var bytes = res.bytesSent - globalObject.audio.prevBytesSent;
                             globalObject.audio.prevBytesSent = res.bytesSent;
 
-                        var bytes = res.bytesSent - globalObject.audio.prevBytesSent;
-                        globalObject.audio.prevBytesSent = res.bytesSent;
+                            kilobytes = bytes / 1024;
+                        }
 
-                        var kilobytes = bytes / 1024;
-
-                        result.audio = merge(result.audio, {
-                            availableBandwidth: kilobytes.toFixed(1),
-                            inputLevel: res.audioInputLevel,
-                            packetsLost: res.packetsLost,
-                            rtt: res.googRtt,
-                            packetsSent: res.packetsSent,
-                            bytesSent: res.bytesSent
-                        });
+                        if(!result.audio) {
+                            result.audio = res;
+                        }
+                        
+                        result.audio.availableBandwidth = kilobytes.toFixed(1);
                     }
 
                     if (res.googCodecName == 'VP8') {
-                        if (!globalObject.video.prevBytesSent)
+                        // if(!globalObject.)
+                        // bytesReceived
+                        // packetsReceived
+                        // timestamp
+                        var kilobytes = 0;
+                        if(!!res.bytesSent) {
+                            if (!globalObject.video.prevBytesSent) {
+                                globalObject.video.prevBytesSent = res.bytesSent;
+                            }
+
+                            var bytes = res.bytesSent - globalObject.video.prevBytesSent;
                             globalObject.video.prevBytesSent = res.bytesSent;
 
-                        var bytes = res.bytesSent - globalObject.video.prevBytesSent;
-                        globalObject.video.prevBytesSent = res.bytesSent;
+                            kilobytes = bytes / 1024;
+                        }
 
-                        var kilobytes = bytes / 1024;
+                        if(!result.video) {
+                            result.video = res;
+                        }
 
-                        result.video = merge(result.video, {
-                            availableBandwidth: kilobytes.toFixed(1),
-                            googFrameHeightInput: res.googFrameHeightInput,
-                            googFrameWidthInput: res.googFrameWidthInput,
-                            googCaptureQueueDelayMsPerS: res.googCaptureQueueDelayMsPerS,
-                            rtt: res.googRtt,
-                            packetsLost: res.packetsLost,
-                            packetsSent: res.packetsSent,
-                            googEncodeUsagePercent: res.googEncodeUsagePercent,
-                            googCpuLimitedResolution: res.googCpuLimitedResolution,
-                            googNacksReceived: res.googNacksReceived,
-                            googFrameRateInput: res.googFrameRateInput,
-                            googPlisReceived: res.googPlisReceived,
-                            googViewLimitedResolution: res.googViewLimitedResolution,
-                            googCaptureJitterMs: res.googCaptureJitterMs,
-                            googAvgEncodeMs: res.googAvgEncodeMs,
-                            googFrameHeightSent: res.googFrameHeightSent,
-                            googFrameRateSent: res.googFrameRateSent,
-                            googBandwidthLimitedResolution: res.googBandwidthLimitedResolution,
-                            googFrameWidthSent: res.googFrameWidthSent,
-                            googFirsReceived: res.googFirsReceived,
-                            bytesSent: res.bytesSent
-                        });
+                        result.video.availableBandwidth = kilobytes.toFixed(1);
+
+                        if(res.googFrameHeightReceived && res.googFrameWidthReceived) {
+                            result.resolutions = {
+                                width: res.googFrameWidthReceived,
+                                height: res.googFrameHeightReceived
+                            };
+                        }
                     }
 
                     if (res.type == 'VideoBwe') {
@@ -149,6 +163,50 @@ getStats(rtcPeerConnection, function(result) {
                             transport: res.googTransportType
                         };
                     }
+
+                    var systemNetworkType = ((navigator.connection || {}).type || 'unknown').toString().toLowerCase();
+
+                    if(res.type === 'localcandidate') {
+                        if(!result.connectionType) {
+                            result.connectionType = {};
+                        }
+
+                        result.connectionType.local = {
+                            candidateType: res.candidateType,
+                            ipAddress: res.ipAddress + ':' + res.portNumber,
+                            networkType: res.networkType/* || systemNetworkType */ || 'unknown',
+                            transport: res.transport
+                        }
+                    }
+
+                    if(res.type === 'remotecandidate') {
+                        if(!result.connectionType) {
+                            result.connectionType = {};
+                        }
+                        
+                        result.connectionType.local = {
+                            candidateType: res.candidateType,
+                            ipAddress: res.ipAddress + ':' + res.portNumber,
+                            networkType: res.networkType || systemNetworkType,
+                            transport: res.transport
+                        }
+                    }
+                }
+
+                try {
+                    if(peer.iceConnectionState.search(/failed|closed/gi) !== -1) {
+                        nomore = true;
+                    }
+                }
+                catch(e) {
+                    nomore = true;
+                }
+
+                if(nomore === true) {
+                    if(result.datachannel) {
+                        result.datachannel.state = 'close';
+                    }
+                    result.ended = true;
                 }
 
                 callback(result);

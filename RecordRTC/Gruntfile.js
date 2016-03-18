@@ -7,6 +7,8 @@ module.exports = function(grunt) {
         scope: 'devDependencies'
     });
 
+    var banner = '\'use strict\';\n\n// Last time updated: <%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %>\n\n';
+
     // configure project
     grunt.initConfig({
         // make node configurations available
@@ -15,7 +17,7 @@ module.exports = function(grunt) {
             options: {
                 stripBanners: true,
                 separator: '\n',
-                banner: '// Last time updated at <%= grunt.template.today("dddd, mmmm dS, yyyy, h:MM:ss TT") %> \n\n'
+                banner: banner
             },
             dist: {
                 src: [
@@ -26,6 +28,7 @@ module.exports = function(grunt) {
                     'dev/MRecordRTC.js',
                     'dev/Cross-Browser-Declarations.js',
                     'dev/Storage.js',
+                    'dev/isMediaRecorderCompatible.js',
                     'dev/MediaStreamRecorder.js',
                     'dev/StereoAudioRecorder.js',
                     'dev/CanvasRecorder.js',
@@ -37,25 +40,8 @@ module.exports = function(grunt) {
                 dest: 'RecordRTC.js',
             },
         },
-        htmlhint: {
-            html1: {
-                src: [
-                    './Canvas-Recording/*.html',
-                    './MRecordRTC/*.html',
-                    './PHP-and-FFmpeg/*.html',
-                    './RecordRTC-over-Socketio/*.html',
-                    './RecordRTC-to-Nodejs/static/*.html',
-                    './RecordRTC-to-PHP/*.html',
-                    './*.html'
-                ],
-                options: {
-                    'tag-pair': true
-                }
-            }
-        },
         jshint: {
             options: {
-
                 globals: {
                     webkitIndexedDB: true,
                     mozIndexedDB: true,
@@ -109,16 +95,12 @@ module.exports = function(grunt) {
                 typed: true,
                 worker: true
             },
-            files: ['RecordRTC.js'],
-            ignore_warning: {
-                options: {
-                    '-W015': true
-                }
-            }
+            files: ['RecordRTC.js']
         },
         uglify: {
             options: {
-                mangle: false
+                mangle: false,
+                banner: banner
             },
             my_target: {
                 files: {
@@ -189,5 +171,5 @@ module.exports = function(grunt) {
 
     // set default tasks to run when grunt is called without parameters
     // http://gruntjs.com/api/grunt.task
-    grunt.registerTask('default', ['concat', 'jsbeautifier', 'htmlhint', 'jshint', 'uglify']);
+    grunt.registerTask('default', ['concat', 'jsbeautifier', 'jshint', 'uglify']);
 };

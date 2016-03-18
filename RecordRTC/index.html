@@ -84,7 +84,7 @@
     <script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script>
 
     <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
-    <script src="https://cdn.rawgit.com/webrtc/adapter/master/adapter.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/gumadapter.js"></script>
 </head>
 
 <body>
@@ -94,7 +94,7 @@
                 <a href="https://github.com/muaz-khan/RecordRTC">RecordRTC</a>: <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC</a> audio/video recording ®
                 <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
             </h1>
-            <p>
+            <p style="margin:0;margin-bottom:-30px;">
                 <a href="https://www.webrtc-experiment.com/">HOME</a>
                 <span> &copy; </span>
                 <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
@@ -102,6 +102,12 @@
                 <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
                 <a href="https://github.com/muaz-khan/RecordRTC/issues?state=open" target="_blank">Latest issues</a> .
                 <a href="https://github.com/muaz-khan/RecordRTC/commits/master" target="_blank">What's New?</a>
+
+                <br>
+
+                <a href="https://www.npmjs.com/package/recordrtc"><img src="https://img.shields.io/npm/v/recordrtc.svg"></a>
+                <a href="https://www.npmjs.com/package/recordrtc"><img src="https://img.shields.io/npm/dm/recordrtc.svg"></a>
+                <a href="https://travis-ci.org/muaz-khan/RecordRTC"><img src="https://travis-ci.org/muaz-khan/RecordRTC.png?branch=master"></a>
             </p>
         </header>
 
@@ -272,7 +278,6 @@
                     button.mediaCapturedCallback = function() {
                         button.recordRTC = RecordRTC(button.stream, {
                             type: mediaContainerFormat.value === 'Gif' ? 'gif' : 'video',
-                            recorderType: isChrome && mediaContainerFormat.value !== 'Gif' && typeof MediaRecorder !== 'undefined' ? MediaStreamRecorder : null,
                             mimeType: isChrome ? null: mimeType,
                             disableLogs: params.disableLogs || false,
                             canvas: {
@@ -284,7 +289,6 @@
                         
                         button.recordingEndedCallback = function(url) {
                             recordingPlayer.src = null;
-                            recordingPlayer.srcObject = null;
 
                             if(mediaContainerFormat.value === 'Gif') {
                                 recordingPlayer.pause();
@@ -314,7 +318,7 @@
                     captureAudio(commonConfig);
                     
                     button.mediaCapturedCallback = function() {
-                        button.recordRTC = RecordRTC(button.stream, {
+                        var options = {
                             type: 'audio',
                             mimeType: mimeType,
                             bufferSize: typeof params.bufferSize == 'undefined' ? 0 : parseInt(params.bufferSize),
@@ -322,7 +326,13 @@
                             leftChannel: params.leftChannel || false,
                             disableLogs: params.disableLogs || false,
                             recorderType: webrtcDetectedBrowser === 'edge' ? StereoAudioRecorder : null
-                        });
+                        };
+
+                        if(typeof params.sampleRate == 'undefined') {
+                            delete options.sampleRate;
+                        }
+
+                        button.recordRTC = RecordRTC(button.stream, options);
                         
                         button.recordingEndedCallback = function(url) {
                             var audio = new Audio();
@@ -348,7 +358,7 @@
                     
                     button.mediaCapturedCallback = function() {
 
-                        if(webrtcDetectedBrowser !== 'firefox') { // opera or chrome etc.
+                        if(typeof MediaRecorder === 'undefined') { // opera or chrome etc.
                             button.recordRTC = [];
 
                             if(!params.bufferSize) {
@@ -356,18 +366,23 @@
                                 params.bufferSize = 16384;
                             }
 
-                            var audioRecorder = RecordRTC(button.stream, {
+                            var options = {
                                 type: 'audio',
                                 bufferSize: typeof params.bufferSize == 'undefined' ? 0 : parseInt(params.bufferSize),
                                 sampleRate: typeof params.sampleRate == 'undefined' ? 44100 : parseInt(params.sampleRate),
                                 leftChannel: params.leftChannel || false,
                                 disableLogs: params.disableLogs || false,
                                 recorderType: webrtcDetectedBrowser === 'edge' ? StereoAudioRecorder : null
-                            });
+                            };
+
+                            if(typeof params.sampleRate == 'undefined') {
+                                delete options.sampleRate;
+                            }
+
+                            var audioRecorder = RecordRTC(button.stream, options);
 
                             var videoRecorder = RecordRTC(button.stream, {
                                 type: 'video',
-                                // recorderType: isChrome && typeof MediaRecorder !== 'undefined' ? MediaStreamRecorder : null,
                                 disableLogs: params.disableLogs || false,
                                 canvas: {
                                     width: params.canvas_width || 320,
@@ -409,13 +424,13 @@
                             type: 'video',
                             mimeType: mimeType,
                             disableLogs: params.disableLogs || false,
-                            // we can't pass bitrates or framerates here
-                            // Firefox MediaRecorder API lakes these features
+                            // bitsPerSecond: 25 * 8 * 1025 // 25 kbits/s
+                            getNativeBlob: false // enable it for longer recordings
                         });
                         
                         button.recordingEndedCallback = function(url) {
-                            recordingPlayer.srcObject = null;
                             recordingPlayer.muted = false;
+                            recordingPlayer.removeAttribute('muted');
                             recordingPlayer.src = url;
                             recordingPlayer.play();
 
@@ -436,7 +451,6 @@
                         button.recordRTC = RecordRTC(button.stream, {
                             type: mediaContainerFormat.value === 'Gif' ? 'gif' : 'video',
                             mimeType: mimeType,
-                            recorderType: isChrome && mediaContainerFormat.value !== 'Gif' && typeof MediaRecorder !== 'undefined' ? MediaStreamRecorder : null,
                             disableLogs: params.disableLogs || false,
                             canvas: {
                                 width: params.canvas_width || 320,
@@ -446,7 +460,6 @@
                         
                         button.recordingEndedCallback = function(url) {
                             recordingPlayer.src = null;
-                            recordingPlayer.srcObject = null;
 
                             if(mediaContainerFormat.value === 'Gif') {
                                 recordingPlayer.pause();
@@ -466,6 +479,8 @@
                     };
                 }
 
+                // note: audio+tab is supported in Chrome 50+
+                // todo: add audio+tab recording
                 if(recordingMedia.value === 'record-audio-plus-screen') {
                     captureAudioPlusScreen(commonConfig);
                     
@@ -474,13 +489,13 @@
                             type: 'video',
                             mimeType: mimeType,
                             disableLogs: params.disableLogs || false,
-                            // we can't pass bitrates or framerates here
-                            // Firefox MediaRecorder API lakes these features
+                            // bitsPerSecond: 25 * 8 * 1025 // 25 kbits/s
+                            getNativeBlob: false // enable it for longer recordings
                         });
                         
                         button.recordingEndedCallback = function(url) {
-                            recordingPlayer.srcObject = null;
                             recordingPlayer.muted = false;
+                            recordingPlayer.removeAttribute('muted');
                             recordingPlayer.src = url;
                             recordingPlayer.play();
 
@@ -526,7 +541,12 @@
             }
 
             function captureAudioPlusVideo(config) {
-                captureUserMedia({video: true, audio: true}, function(audioVideoStream) {
+                captureUserMedia({video: {
+                    mandatory: {
+                        minWidth: 1920,
+                        minHeight: 1080
+                    }
+                }, audio: true}, function(audioVideoStream) {
                     recordingPlayer.srcObject = audioVideoStream;
                     recordingPlayer.play();
                     
@@ -559,6 +579,7 @@
                         return;
                     }
 
+                    delete screenConstraints.video.mozMediaSource;
                     captureUserMedia(screenConstraints, function(screenStream) {
                         recordingPlayer.srcObject = screenStream;
                         recordingPlayer.play();
@@ -595,6 +616,7 @@
 
                     screenConstraints.audio = true;
 
+                    delete screenConstraints.video.mozMediaSource;
                     captureUserMedia(screenConstraints, function(screenStream) {
                         recordingPlayer.srcObject = screenStream;
                         recordingPlayer.play();
@@ -680,7 +702,10 @@
             if(webrtcDetectedBrowser === 'chrome') {
                 recordingMedia.innerHTML = '<option value="record-audio-plus-video">Audio+Video</option>' 
                                             + recordingMedia.innerHTML;
-                console.info('This RecordRTC demo merely tries to playback recorded audio/video sync inside the browser. It still generates two separate files (WAV/WebM).');
+
+                if(typeof MediaRecorder === 'undefined') {
+                    console.info('This RecordRTC demo merely tries to playback recorded audio/video sync inside the browser. It still generates two separate files (WAV/WebM).');
+                }
             }
             
             function saveToDiskOrOpenNewTab(recordRTC) {
@@ -730,6 +755,10 @@
 
                 <li>
                     <a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/">Canvas Recording!</a> (Web-Page Recording)
+                </li>
+
+                <li>
+                    <a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html">Record Canvas2D Drawings</a> (Huge collection of 2D drawings!)
                 </li>
 
                 <li>

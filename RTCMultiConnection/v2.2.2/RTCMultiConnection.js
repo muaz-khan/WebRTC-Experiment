@@ -1,4 +1,4 @@
-// Last time updated at Tuesday, December 22nd, 2015, 4:53:01 PM 
+// Last time updated at Wednesday, March 16th, 2016, 11:18:45 AM 
 
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
@@ -327,12 +327,29 @@
                     sourceId: connection._mediaSources.audio
                 });
             }
+            if (connection._mediaSources.audiooutput) {
+                constraints.audio.optional.push({
+                    sourceId: connection._mediaSources.audiooutput
+                });
+            }
+            if (connection._mediaSources.audioinput) {
+                constraints.audio.optional.push({
+                    sourceId: connection._mediaSources.audioinput
+                });
+            }
 
             // if custom video device is selected
             if (connection._mediaSources.video) {
                 constraints.video = {
                     optional: [{
                         sourceId: connection._mediaSources.video
+                    }]
+                };
+            }
+            if (connection._mediaSources.videoinput) {
+                constraints.video = {
+                    optional: [{
+                        sourceId: connection._mediaSources.videoinput
                     }]
                 };
             }
@@ -360,10 +377,10 @@
                 }
                 warn(Firefox_Screen_Capturing_Warning);
 
-                screen_constraints.video = merge(screen_constraints.video.mandatory, {
+                screen_constraints.video = {
                     mozMediaSource: 'window', // mozMediaSource is redundant here
                     mediaSource: 'window' // 'screen' || 'window'
-                });
+                };
 
                 // Firefox is supporting audio+screen from single getUserMedia request
                 // audio+video+screen will become audio+screen for Firefox
@@ -6040,7 +6057,11 @@
 
                 if (isFirefox) {
                     // firefox supports both audio/video recording in single webm file
-                    if (session.video) {
+                    if (self.stream.getAudioTracks().length && self.stream.getVideoTracks().length) {
+                        self.videoRecorder = RecordRTC(self.stream, {
+                            type: 'video'
+                        });
+                    } else if (session.video) {
                         self.videoRecorder = RecordRTC(self.stream, {
                             type: 'video'
                         });
@@ -6050,17 +6071,36 @@
                         });
                     }
                 } else if (isChrome) {
-                    // chrome supports recording in two separate files: WAV and WebM
-                    if (session.video) {
+                    // chrome >= 48 supports MediaRecorder API
+                    // MediaRecorder API can record remote audio+video streams as well!
+
+                    if (isMediaRecorderCompatible() && connection.DetectRTC.browser.version >= 50 && self.stream.getAudioTracks().length && self.stream.getVideoTracks().length) {
                         self.videoRecorder = RecordRTC(self.stream, {
                             type: 'video'
                         });
-                    }
+                    } else if (isMediaRecorderCompatible() && connection.DetectRTC.browser.version >= 50) {
+                        if (session.video) {
+                            self.videoRecorder = RecordRTC(self.stream, {
+                                type: 'video'
+                            });
+                        } else if (session.audio) {
+                            self.audioRecorder = RecordRTC(self.stream, {
+                                type: 'audio'
+                            });
+                        }
+                    } else {
+                        // chrome supports recording in two separate files: WAV and WebM
+                        if (session.video) {
+                            self.videoRecorder = RecordRTC(self.stream, {
+                                type: 'video'
+                            });
+                        }
 
-                    if (session.audio) {
-                        self.audioRecorder = RecordRTC(self.stream, {
-                            type: 'audio'
-                        });
+                        if (session.audio) {
+                            self.audioRecorder = RecordRTC(self.stream, {
+                                type: 'audio'
+                            });
+                        }
                     }
                 }
 

@@ -1,5 +1,4 @@
 // IceServersHandler.js
-// note: "urls" doesn't works in old-firefox.
 
 var iceFrame, loadedIceFrame;
 
@@ -18,8 +17,6 @@ function loadIceFrame(callback, skip) {
         function iFrameLoaderCallback(event) {
             if (!event.data || !event.data.iceServers) return;
             callback(event.data.iceServers);
-
-            // this event listener is no more needed
             window.removeEventListener('message', iFrameLoaderCallback);
         }
 
@@ -30,7 +27,7 @@ function loadIceFrame(callback, skip) {
     (document.body || document.documentElement).appendChild(iframe);
 }
 
-if (typeof window.getExternalIceServers === 'undefined' || window.getExternalIceServers == true) {
+if (typeof window.getExternalIceServers !== 'undefined' && window.getExternalIceServers == true) {
     loadIceFrame(function(externalIceServers) {
         if (!externalIceServers || !externalIceServers.length) return;
         window.RMCExternalIceServers = externalIceServers;
@@ -41,46 +38,64 @@ if (typeof window.getExternalIceServers === 'undefined' || window.getExternalIce
     });
 }
 
+function getSTUNObj(stunStr) {
+    var urlsParam = 'urls';
+    if (isPluginRTC) {
+        urlsParam = 'url';
+    }
+
+    var obj = {};
+    obj[urlsParam] = stunStr;
+    return obj;
+}
+
+function getTURNObj(turnStr, username, credential) {
+    var urlsParam = 'urls';
+    if (isPluginRTC) {
+        urlsParam = 'url';
+    }
+
+    var obj = {
+        username: username,
+        credential: credential
+    };
+    obj[urlsParam] = turnStr;
+    return obj;
+}
+
+function getExtenralIceFormatted() {
+    var iceServers;
+    window.RMCExternalIceServers.forEach(function(ice) {
+        if (!ice.urls) {
+            ice.urls = ice.url;
+        }
+
+        if (ice.urls.search('stun|stuns') !== -1) {
+            iceServers.push(getSTUNObj(ice.urls));
+        }
+
+        if (ice.urls.search('turn|turns') !== -1) {
+            iceServers.push(getTURNObj(ice.urls, ice.username, ice.credential));
+        }
+    });
+    return iceServers;
+}
+
 var IceServersHandler = (function() {
     function getIceServers(connection) {
         var iceServers = [];
 
-        // Firefox <= 37 doesn't understands "urls"
-
-        iceServers.push({
-            urls: 'stun:stun.l.google.com:19302'
-        });
-
-        iceServers.push({
-            urls: 'stun:stun.anyfirewall.com:3478'
-        });
-
-        iceServers.push({
-            urls: 'turn:turn.bistri.com:80',
-            credential: 'homeo',
-            username: 'homeo'
-        });
-
-        iceServers.push({
-            urls: 'turn:turn.anyfirewall.com:443?transport=tcp',
-            credential: 'webrtc',
-            username: 'webrtc'
-        });
+        iceServers.push(getSTUNObj('stun:stun.l.google.com:19302'));
+        iceServers.push(getTURNObj('turn:turn.bistri.com:80', 'homeo', 'homeo'));
+        iceServers.push(getTURNObj('turn:turn.anyfirewall.com:443', 'webrtc', 'webrtc'));
 
         if (window.RMCExternalIceServers) {
-            iceServers = window.RMCExternalIceServers.concat(iceServers);
+            iceServers = iceServers.concat(getExtenralIceFormatted());
+        } else if (typeof window.getExternalIceServers !== 'undefined' && window.getExternalIceServers == true) {
             connection.iceServers = iceServers;
-        } else if (typeof window.getExternalIceServers === 'undefined' || window.getExternalIceServers == true) {
             window.iceServersLoadCallback = function() {
-                iceServers = window.RMCExternalIceServers.concat(iceServers);
-                connection.iceServers = iceServers;
+                connection.iceServers = connection.iceServers.concat(getExtenralIceFormatted());
             };
-        } else {
-            iceServers.push({
-                urls: 'turn:turn.anyfirewall.com:443?transport=udp',
-                credential: 'webrtc',
-                username: 'webrtc'
-            });
         }
 
         return iceServers;

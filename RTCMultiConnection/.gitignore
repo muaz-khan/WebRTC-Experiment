@@ -1,6 +1,8 @@
 node_modules
 bower_components
 
+make-tar.sh
+
 *.tar.gz
 lib-cov
 

@@ -1,15 +1,7 @@
-// -------------------------------------------------------------
-
 var pencilHandler = {
-
-    // -------------------------------------------------------------
-
     ismousedown: false,
     prevX: 0,
     prevY: 0,
-
-    // -------------------------------------------------------------
-
     mousedown: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop;
@@ -31,15 +23,9 @@ var pencilHandler = {
         t.prevX = x;
         t.prevY = y;
     },
-
-    // -------------------------------------------------------------
-
     mouseup: function(e) {
         this.ismousedown = false;
     },
-
-    // -------------------------------------------------------------
-
     mousemove: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop;
@@ -56,9 +42,4 @@ var pencilHandler = {
             t.prevY = y;
         }
     }
-
-    // -------------------------------------------------------------
-
 };
-
-// -------------------------------------------------------------

@@ -1,249 +1,469 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
 <head>
-	<title>WebRTC File Sharing Client</title>
+    <title>WebRTC File Sharing Client</title>
+
+    <meta name="description" content="Share files with multiple users using RTCMultiConnection v3.0" />
+    <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-	
+    
     <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
 
     <style>
-		*{margin:0;padding:0;}
+        * {
+          margin: 0;
+          padding: 0;
+        }
 
-		/* cyrillic-ext */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 300;
-		  src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTQ7aC6SjiAOpAWOKfJDfVRY.woff2) format('woff2');
-		  unicode-range: U+0460-052F, U+20B4, U+2DE0-2DFF, U+A640-A69F;
-		}
-		/* cyrillic */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 300;
-		  src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTRdwxCXfZpKo5kWAx_74bHs.woff2) format('woff2');
-		  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-		}
-		/* greek-ext */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 300;
-		  src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTZ6vnaPZw6nYDxM4SVEMFKg.woff2) format('woff2');
-		  unicode-range: U+1F00-1FFF;
-		}
-		/* greek */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 300;
-		  src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTfy1_HTwRwgtl1cPga3Fy3Y.woff2) format('woff2');
-		  unicode-range: U+0370-03FF;
-		}
-		/* vietnamese */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 300;
-		  src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTfgrLsWo7Jk1KvZser0olKY.woff2) format('woff2');
-		  unicode-range: U+0102-0103, U+1EA0-1EF1, U+20AB;
-		}
-		/* latin-ext */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 300;
-		  src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTYjoYw3YTyktCCer_ilOlhE.woff2) format('woff2');
-		  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
-		}
-		/* latin */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 300;
-		  src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTRampu5_7CjHW5spxoeN3Vs.woff2) format('woff2');
-		  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
-		}
-		/* cyrillic-ext */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 600;
-		  src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNSg7aC6SjiAOpAWOKfJDfVRY.woff2) format('woff2');
-		  unicode-range: U+0460-052F, U+20B4, U+2DE0-2DFF, U+A640-A69F;
-		}
-		/* cyrillic */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 600;
-		  src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNShdwxCXfZpKo5kWAx_74bHs.woff2) format('woff2');
-		  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-		}
-		/* greek-ext */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 600;
-		  src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNSp6vnaPZw6nYDxM4SVEMFKg.woff2) format('woff2');
-		  unicode-range: U+1F00-1FFF;
-		}
-		/* greek */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 600;
-		  src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNSvy1_HTwRwgtl1cPga3Fy3Y.woff2) format('woff2');
-		  unicode-range: U+0370-03FF;
-		}
-		/* vietnamese */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 600;
-		  src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNSvgrLsWo7Jk1KvZser0olKY.woff2) format('woff2');
-		  unicode-range: U+0102-0103, U+1EA0-1EF1, U+20AB;
-		}
-		/* latin-ext */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 600;
-		  src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNSojoYw3YTyktCCer_ilOlhE.woff2) format('woff2');
-		  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
-		}
-		/* latin */
-		@font-face {
-		  font-family: 'Open Sans';
-		  font-style: normal;
-		  font-weight: 600;
-		  src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNShampu5_7CjHW5spxoeN3Vs.woff2) format('woff2');
-		  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
-		}
+        /* cyrillic-ext */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 300;
+          src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTQ7aC6SjiAOpAWOKfJDfVRY.woff2) format('woff2');
+          unicode-range: U+0460-052F, U+20B4, U+2DE0-2DFF, U+A640-A69F;
+        }
+        /* cyrillic */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 300;
+          src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTRdwxCXfZpKo5kWAx_74bHs.woff2) format('woff2');
+          unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+        }
+        /* greek-ext */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 300;
+          src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTZ6vnaPZw6nYDxM4SVEMFKg.woff2) format('woff2');
+          unicode-range: U+1F00-1FFF;
+        }
+        /* greek */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 300;
+          src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTfy1_HTwRwgtl1cPga3Fy3Y.woff2) format('woff2');
+          unicode-range: U+0370-03FF;
+        }
+        /* vietnamese */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 300;
+          src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTfgrLsWo7Jk1KvZser0olKY.woff2) format('woff2');
+          unicode-range: U+0102-0103, U+1EA0-1EF1, U+20AB;
+        }
+        /* latin-ext */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 300;
+          src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTYjoYw3YTyktCCer_ilOlhE.woff2) format('woff2');
+          unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+        }
+        /* latin */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 300;
+          src: local('Open Sans Light'), local('OpenSans-Light'), url(fonts/DXI1ORHCpsQm3Vp6mXoaTRampu5_7CjHW5spxoeN3Vs.woff2) format('woff2');
+          unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+        }
+        /* cyrillic-ext */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 600;
+          src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNSg7aC6SjiAOpAWOKfJDfVRY.woff2) format('woff2');
+          unicode-range: U+0460-052F, U+20B4, U+2DE0-2DFF, U+A640-A69F;
+        }
+        /* cyrillic */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 600;
+          src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNShdwxCXfZpKo5kWAx_74bHs.woff2) format('woff2');
+          unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+        }
+        /* greek-ext */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 600;
+          src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNSp6vnaPZw6nYDxM4SVEMFKg.woff2) format('woff2');
+          unicode-range: U+1F00-1FFF;
+        }
+        /* greek */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 600;
+          src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNSvy1_HTwRwgtl1cPga3Fy3Y.woff2) format('woff2');
+          unicode-range: U+0370-03FF;
+        }
+        /* vietnamese */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 600;
+          src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNSvgrLsWo7Jk1KvZser0olKY.woff2) format('woff2');
+          unicode-range: U+0102-0103, U+1EA0-1EF1, U+20AB;
+        }
+        /* latin-ext */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 600;
+          src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNSojoYw3YTyktCCer_ilOlhE.woff2) format('woff2');
+          unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+        }
+        /* latin */
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 600;
+          src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(fonts/MTP_ySUJH_bn48VBG8sNShampu5_7CjHW5spxoeN3Vs.woff2) format('woff2');
+          unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+        }
 
-        html, body
-        {
-            background-color: white;
-            font-family: 'Open Sans', 'Segoe UI Light','Segoe UI',Verdana,Arial;
-            font-size: 1.1em;
-            overflow: hidden;
+        ::-webkit-scrollbar {
+          height: 0;
+          overflow: visible;
+          width: 10px;  
+          border-left:1px solid rgb(229, 229, 229);
+        }
+        ::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, .2);
+          background-clip: padding-box;    
+          min-height: 28px;
+          padding: 100px 0 0;
+          box-shadow: inset 1px 1px 0 rgba(0,0,0,.1),inset 0 -1px 0 rgba(0,0,0,.07);
+          border-width: 1px 1px 1px 6px;
+        }
+        ::-webkit-scrollbar-button {
+          height: 0;
+          width: 0;
+        }
+        ::-webkit-scrollbar-track {
+          background-clip: padding-box;
+          border: solid transparent;
+          border-width: 0 0 0 4px;
+        }
+        ::-webkit-scrollbar-corner {
+          background: transparent;
+        }
+
+        html, body {
+          background-color: black;
+          font-family: 'Open Sans', 'Segoe UI Light','Segoe UI',Verdana,Arial;
+          font-size: 1.1em;
+          overflow: hidden;
         }
 
         .overlay {
-            position: absolute;
-            top:0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: black;
-            z-index: 1;
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: black;
+          z-index: 1;
         }
 
         .btn-select-file {
-            position: absolute;
-            z-index: 2;
-            left: 40%;
-            top: 40%;
-            width: 100px;
-            height: 100px;
-            -webkit-user-select: none;
-            border-radius: 50%;
-            text-shadow: 2px 2px white;
-            border: 2px solid #E8E8E8;
-            background-color: #D5D8D8;
-            cursor: pointer;
-            background-image: url(https://i.imgur.com/fReHd0P.png?1);
-            outline: none;
+          position: absolute;
+          z-index: 2;
+          left: 40%;
+          top: 40%;
+          width: 100px;
+          height: 100px;
+          -webkit-user-select: none;
+          border-radius: 50%;
+          text-shadow: 2px 2px white;
+          border: 1px solid #1B1B1B;
+          background-color: #D5D8D8;
+          cursor: pointer;
+          background-image: url(https://cdn.webrtc-experiment.com/images/btn-select-file.png);
+          outline: none;
         }
 
         .btn-select-file:hover {
-            background-color: #BBBBBB;
+          background-color: #BBBBBB;
         }
 
         .btn-select-file:active {
-            background-color: #7F7B7B;
+          background-color: #7F7B7B;
         }
 
         iframe {
-            position: absolute;
-            width: 80%;
-            height: 96%;
-            top: 40px;
-            left: 0;
-            right: 20;
-            bottom: 0;
-            border: 0;
-            outline: 0;
-            z-index: 5;
-            display: none;
+          position: absolute;
+          width: 80%;
+          height: 96%;
+          top: 87px;
+          left: 0;
+          right: 20;
+          bottom: 0;
+          border: 0;
+          outline: 0;
+          z-index: 5;
+          display: none;
         }
 
         #logs {
-            position: absolute;
-            background: white;
-            border-left: 1px solid black;
-            width: 20%;
-            top: 40px;
-            right: 0;
-            bottom: 0;
-            z-index: 6;
-            font-size: medium;
-            overflow: auto;
-            height: 100%;
+          position: absolute;
+          background: white;
+          border-left: 1px solid black;
+          width: 20%;
+          top: 87px;
+          right: 0;
+          bottom: 0;
+          z-index: 6;
+          font-size: medium;
+          overflow: auto;
+          height: 100%;
+          border-top-left-radius: 5px;
+          font-size: 22px;
+
+          background: #a8a1a1;
+         background: -webkit-gradient(linear, left top, left bottom, from(#a8a1a1), to(#4d4d4d));
+         background: -webkit-linear-gradient(top, #a8a1a1, #4d4d4d);
+         background: -moz-linear-gradient(top, #a8a1a1, #4d4d4d);
+         background: -ms-linear-gradient(top, #a8a1a1, #4d4d4d);
+         background: -o-linear-gradient(top, #a8a1a1, #4d4d4d);
+         background-image: -ms-linear-gradient(top, #a8a1a1 0%, #4d4d4d 100%);
+         -webkit-box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
+         -moz-box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
+         box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
         }
 
         #logs p {
-            padding: 2px 4px;
-            border-bottom: 1px solid black;
+          padding: 2px 4px;
+          border-bottom: 1px solid black;
         }
 
         header {
-            position: absolute;
-            background: white;
-            text-align: center;
-            border-bottom: 1px solid black;
-            width: 100%;
-            height: 40px;
-            top: 0;
-            right: 0;
-            left: 0;
-            z-index: 7;
+          position: absolute;
+          text-align: center;
+          width: 100%;
+          height: 32px;
+          top: 0;
+          right: 0;
+          left: 0;
+          z-index: 7;
+          padding-top: 8px;
         }
 
         #number-of-users {
-            position: absolute;
-            right: 1px;
-            top: 1px;
-            width: 36px;
-            height: 30px;
-            -webkit-user-select: none;
-            border-radius: 50%;
-            border: 1px solid #1D1C1C;
-            background-color: #E4FFDD;
-            z-index: 8;
-            text-align: center;
-            padding-top: 6px;
+          position: absolute;
+          right: 60px;
+          top: 16px;
+          width: 36px;
+          height: 30px;
+          -webkit-user-select: none;
+          border-radius: 5px;
+          border: 1px solid #FFFFFF;
+          background-color: #E83930;
+          z-index: 8;
+          text-align: center;
+          padding-top: 6px;
+          color: white;
+        }
+
+        #room-id {
+          outline: none;
+          border: 1px solid black;
+          padding: 1px 3px;
+          font-size: 100%;
+          background: rgba(255, 255, 255, 0.28);
+          border-top-left-radius: 5px;
+          border-bottom-left-radius: 5px;
+        }
+
+        #join-room {
+          border: 1px solid black;
+          background: rgba(255, 255, 255, 0.28);
+          padding: 1px 3px;
+          border-left: 0;
+          font-size: 100%;
+          border-top-right-radius: 5px;
+          border-bottom-right-radius: 5px;
+        }
+
+        .ribbon {
+         width: 94%;
+         position: absolute;
+         text-align: center;
+         font-size: 20px!important;
+         background: #a8a1a1;
+         background: -webkit-gradient(linear, left top, left bottom, from(#a8a1a1), to(#4d4d4d));
+         background: -webkit-linear-gradient(top, #a8a1a1, #4d4d4d);
+         background: -moz-linear-gradient(top, #a8a1a1, #4d4d4d);
+         background: -ms-linear-gradient(top, #a8a1a1, #4d4d4d);
+         background: -o-linear-gradient(top, #a8a1a1, #4d4d4d);
+         background-image: -ms-linear-gradient(top, #a8a1a1 0%, #4d4d4d 100%);
+         -webkit-box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
+         -moz-box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
+         box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
+         font-family: 'Open Sans', 'Helvetica Neue',Helvetica, sans-serif;
+         margin-left: 40px;
+         }
+      .ribbon h1, .ribbon h1 a {
+         font-size: 32px!important;
+         color: #000000;
+         text-shadow: #b0b0b0 0 1px 0;
+         margin:0px;
+         padding: 6px 6px;
+         }
+      .ribbon:before, .ribbon:after {
+         content: '';
+         position: absolute;
+         display: block;
+         bottom: -1em;
+         border: 1.5em solid #595959;
+         z-index: -1;
+         }
+      .ribbon:before {
+         left: -2em;
+         border-right-width: 1.5em;
+         border-left-color: transparent;
+         -webkit-box-shadow: rgba(000,000,000,0.4) 1px 1px 1px;
+         -moz-box-shadow: rgba(000,000,000,0.4) 1px 1px 1px;
+         box-shadow: rgba(000,000,000,0.4) 1px 1px 1px;
+         }
+      .ribbon:after {
+         right: -2em;
+         border-left-width: 1.5em;
+         border-right-color: transparent;
+         -webkit-box-shadow: rgba(000,000,000,0.4) -1px 1px 1px;
+         -moz-box-shadow: rgba(000,000,000,0.4) -1px 1px 1px;
+         box-shadow: rgba(000,000,000,0.4) -1px 1px 1px;
+         }
+      .ribbon .ribbon-content:before, .ribbon .ribbon-content:after {
+         border-color: #292929 transparent transparent transparent;
+         position: absolute;
+         display: block;
+         border-style: solid;
+         bottom: -1em;
+         content: '';
+         }
+      .ribbon .ribbon-content:before {
+         left: 0;
+         border-width: 1em 0 0 1em;
+         }
+      .ribbon .ribbon-content:after {
+         right: 0;
+         border-width: 1em 1em 0 0;
+         }
+      .ribbon-stitches-top {
+         margin-top:2px;
+         border-top: 0px dashed rgba(0, 0, 0, 0.2);
+         -moz-box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5);
+         -webkit-box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5);
+         box-shadow: 0px 0px 2px rgba(255, 255, 255, 0.5);
+         }
+      .ribbon-stitches-bottom {
+         margin-bottom:2px;
+         border-top: 0px dashed rgba(0, 0, 0, 0.2);
+         -moz-box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+         -webkit-box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+         box-shadow: 0px 0px 2px rgba(255, 255, 255, 0.3);
+         }
+
+         .android-app-icon {
+           background-repeat: no-repeat;
+           background-position: center center;
+           background-size: 64px 64px;
+           background-image: url(https://cdn.webrtc-experiment.com/images/android-app-icon.png);
+           width: 64px;
+           height: 64px;
+           position: absolute;
+           bottom: 5px;
+           right: 5px;
+           z-index: 9999;
+         }
+
+
+        @media all and (max-width: 500px) {
+          #logs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            top: auto;
+            height: 40%;
+            border-left: 0;
+            border-top: 1px solid black;
+            font-size: 18px;
+          }
+
+          .btn-select-file {
+            top: 20%;
+            left: 40%;
+          }
+
+          #room-id {
+            width: 40%;
+          }
+
+          .ribbon{
+            height: 150%;
+            width: 80%;
+          }
+
+          .ribbon h1 {
+            font-size: 20px!important;
+          }
+
+          #number-of-users {
+            right: 50px;
+          }
+
+          .android-app-icon {
+            display: none;
+          }
         }
     </style>
 </head>
 <body>
+    <div class="overlay"></div>
+    <button class="btn-select-file"></button>
 
-	<div class="overlay"></div>
-	<button class="btn-select-file"></button>
+    <iframe></iframe>
 
-	<iframe></iframe>
+    <header>
+        <div class="ribbon">
+            <div class="ribbon-stitches-top"></div>
+            <strong class="ribbon-content">
 
-	<header></header>
-	<div id="number-of-users" title="Number of online users.">0</div>
-	<div id="logs"></div>
+                <h1>Share Files privately & securely</h1>
+            </strong><div class="ribbon-stitches-bottom"></div>
+        </div>
+    </header>
 
-	<script type="text/javascript" src="FileBufferReader.js"></script>
-	<script type="text/javascript" src="RTCMultiConnection.min.js"></script>
-	<script type="text/javascript" src="socket.io.js"></script>
-	<script type="text/javascript" src="file-sharing.js"></script>
+    <div id="number-of-users" title="Number of online users.">0</div>
+    <div id="logs">
+      <p>
+        Peer-to-Peer (private) file sharing.
+      </p>
+      <p>
+        You can share/receive files from any platform/device e.g. destkop operating systems, Android, iOS etc.
+      </p>
+      <p>
+        Create or join a room & select file using "+" button.
+      </p>
+    </div>
+    <a class="android-app-icon" href="https://play.google.com/store/apps/details?id=com.webrtc.experiment" target="_blank" title="Install Android App"></a>
+
+    <!-- <script src="/RTCMultiConnection.min.js"></script> -->
+    <script src="getExternalIceServers.js"></script>
+    <script src="rmc3.fbr.min.js"></script>
+    <script src="rmc3.min.js"></script>
+    <script src="socket.io.js"></script>
+    <script src="file-sharing.js"></script>
 </body>
 </html>

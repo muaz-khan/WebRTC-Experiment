@@ -1,4 +1,6 @@
-## [getStats.js](https://github.com/muaz-khan/getStats) [![npm](https://img.shields.io/npm/v/getstats.svg)](https://npmjs.org/package/getstats) [![downloads](https://img.shields.io/npm/dm/getstats.svg)](https://npmjs.org/package/getstats)
+# [getStats.js](https://github.com/muaz-khan/getStats) / [Demo](https://www.webrtc-experiment.com/getStats/)
+
+[![npm](https://img.shields.io/npm/v/getstats.svg)](https://npmjs.org/package/getstats) [![downloads](https://img.shields.io/npm/dm/getstats.svg)](https://npmjs.org/package/getstats)
 
 A tiny JavaScript library using [WebRTC getStats API](http://dev.w3.org/2011/webrtc/editor/webrtc.html#dom-peerconnection-getstats) to return peer connection stats i.e. bandwidth usage, packets lost, local/remote ip addresses and ports, type of connection etc.
 
@@ -6,6 +8,13 @@ It is <a href="https://www.webrtc-experiment.com/licence/">MIT Licenced</a>, whi
 
 ```
 npm install getstats
+
+cd node_modules
+cd getstats
+node server.js
+
+# and open:
+# http://localhost:9999/
 ```
 
 To use it:
@@ -14,7 +23,7 @@ To use it:
 <script src="./node_modules/getstats/getStats.js"></script>
 ```
 
-## Link the library
+# Link the library
 
 ```html
 <script src="https://cdn.webrtc-experiment.com/getStats.js"></script>
@@ -24,7 +33,11 @@ Or link specific build:
 
 * https://github.com/muaz-khan/getStats/releases
 
-## window.getStats
+```html
+<script src="https://github.com/muaz-khan/getStats/releases/download/1.0.4/getStats.js"></script>
+```
+
+# `window.getStats`
 
 To invoke directly:
 
@@ -32,7 +45,7 @@ To invoke directly:
 getStats(peer, callback, interval);
 ```
 
-## RTCPeerConnection.prototype.getPeerStats
+# RTCPeerConnection.prototype.getPeerStats
 
 Or, to setup an instance method:
 
@@ -62,10 +75,10 @@ RTCPeerConnection.prototype.getStats = window.getStats;
 RTCPeerConnection.prototype.intanceMethodNamae = window.getStats;
 ```
 
-## Usage
+# Usage
 
 ```javascript
-var rtcPeerConnection = new RTCPeerConnection(iceServers);
+var rtcPeerConnection = new RTCPeerConnection(rtcConfig);
 
 var repeatInterval = 2000; // 2000 ms == 2 seconds
 rtcPeerConnection.getPeerStats(function(result) {
@@ -85,7 +98,7 @@ rtcPeerConnection.getPeerStats(function(result) {
 }, repeatInterval);
 ```
 
-## Firefox?
+# Firefox?
 
 ```javascript
 peer.getStats(peer.getLocalStreams()[0].getAudioTracks()[0], function(results) {
@@ -93,61 +106,85 @@ peer.getStats(peer.getLocalStreams()[0].getAudioTracks()[0], function(results) {
 }, 5 * 1000);
 ```
 
-## result.audio
+# `result.datachannel`
 
-1. availableBandwidth
-2. inputLevel
-3. packetsLost
-3. rtt
-4. packetsSent
-5. bytesSent
+```javascript
+// states => open or close
+alert(result.datachannel.state === 'open');
+```
 
-## result.video
+# `result.isOfferer`
 
-1. availableBandwidth
-2. googFrameHeightInput
-3. googFrameWidthInput
-4. googCaptureQueueDelayMsPerS
-5. rtt
-6. packetsLost
-7. packetsSent
-8. googEncodeUsagePercent
-9. googCpuLimitedResolution
-10. googNacksReceived
-11. googFrameRateInput
-12. googPlisReceived
-13. googViewLimitedResolution
-14. googCaptureJitterMs
-15. googAvgEncodeMs
-16. googFrameHeightSent
-17. googFrameRateSent
-18. googBandwidthLimitedResolution
-19. googFrameWidthSent
-20. googFirsReceived
-21. bytesSent
+Offerer is the person who invoked `createOffer` method.
 
-## result.connectionType
+# `result.encryption`
 
-1. local.candidateType
-2. local.ipAddress
-3. remote.candidateType
-4. remote.ipAddress
-5. transport
+To detect which tech is used to encrypt your connections.
 
-## result.results
+```javascript
+alert(result.encryption === 'sha-256');
+```
+
+# `result.nomore()`
+
+This function can be used to ask to stop invoking getStats API.
+
+```javascript
+btnStopGetStats.onclick  = function() {
+    getStatsResult.nomore();
+};
+```
+
+# `result.audio`
+
+1. `result.audio.availableBandwidth`
+2. `result.audio.inputLevel`
+3. `result.audio.packetsLost`
+3. `result.audio.rtt`
+4. `result.audio.packetsSent`
+5. `result.audio.bytesSent`
+
+# `result.video`
+
+1. `result.video.availableBandwidth`
+2. `result.video.googFrameHeightInput`
+3. `result.video.googFrameWidthInput`
+4. `result.video.googCaptureQueueDelayMsPerS`
+5. `result.video.rtt`
+6. `result.video.packetsLost`
+7. `result.video.packetsSent`
+8. `result.video.googEncodeUsagePercent`
+9. `result.video.googCpuLimitedResolution`
+10. `result.video.googNacksReceived`
+11. `result.video.googFrameRateInput`
+12. `result.video.googPlisReceived`
+13. `result.video.googViewLimitedResolution`
+14. `result.video.googCaptureJitterMs`
+15. `result.video.googAvgEncodeMs`
+16. `result.video.googFrameHeightSent`
+17. `result.video.googFrameRateSent`
+18. `result.video.googBandwidthLimitedResolution`
+19. `result.video.googFrameWidthSent`
+20. `result.video.googFirsReceived`
+21. `result.video.bytesSent`
+
+# `result.connectionType`
+
+1. `result.connectionType.local.candidateType`
+2. `result.connectionType.local.ipAddress`
+3. `result.connectionType.local.networkType`
+4. `result.connectionType.remote.candidateType`
+5. `result.connectionType.remote.ipAddress`
+6. `result.connectionType.transport`
+
+# `result.results`
 
 It is an array that is returned by browser's native PeerConnection API.
 
-## Credits
-
-[Muaz Khan](https://github.com/muaz-khan):
-
-1. Personal Webpage: http://www.muazkhan.com
-2. Email: muazkh@gmail.com
-3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
-4. Google+: https://plus.google.com/+WebRTC-Experiment
-5. Facebook: https://www.facebook.com/WebRTC
+```javascript
+console.log(result.results);
+```
 
 ## License
 
-[getStats.js](https://github.com/muaz-khan/getStats) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[getStats.js](https://github.com/muaz-khan/getStats) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).

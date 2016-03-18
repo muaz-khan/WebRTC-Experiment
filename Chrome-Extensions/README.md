@@ -5,30 +5,23 @@
 > hiding & blocking WebRTC ip-addresses, 
 > bluetooth based handshake, controlling UDP connections etc.
 
-# Our Extensions
+# Extensions
 
-* [Screen Capturing in Chrome](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture)
-* [Tab Capturing in Chrome](https://github.com/muaz-khan/Chrome-Extensions/tree/master/tabCapture)
+| Extension Name        | Source Code           | Google App Store |
+| ------------- |-------------|-------------|
+| WebRTC Desktop Sharing | [github/desktopCapture-p2p](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture-p2p) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg) |
+| Screen Capturing in Chrome | [github/desktopCapture](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) |
+| Tab Capturing in Chrome | [gitjub/tabCapture](https://github.com/muaz-khan/Chrome-Extensions/tree/master/tabCapture) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk) |
+| WebRTC File Sharing Chrome Extension | [ github/file-sharing ](https://github.com/muaz-khan/Chrome-Extensions/tree/master/file-sharing) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/webrtc-file-sharing/nbnncbdkhpmbnkfngmkdbepoemljbnfo) |
+
+Firefox addon:
+
 * [Screen Capturing in Firefox](https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing)
-* [WebRTC File Sharing Chrome Extension](https://github.com/muaz-khan/Chrome-Extensions/tree/master/file-sharing)
 
 # Third Party Extensions
 
 * [WebRTC Network Limiter in Chrome](https://github.com/webrtc/samples/tree/master/src/content/extensions/multipleroutes/src)
 * [Etc.](https://github.com/webrtc/samples/tree/master/src/content/extensions)
-
-
-# Extensions that are deployed on Google AppStore
-
-## Ours
-
-1. [desktopCapture - simple](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk)
-2. [desktopCapture with p2p streaming](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg)
-3. [tabCapture with p2p streaming](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk)
-4. [WebRTC File Sharing Chrome Extension](https://chrome.google.com/webstore/detail/webrtc-file-sharing/nbnncbdkhpmbnkfngmkdbepoemljbnfo)
-
-## Third Parties
-
 * WebRTC Block & [WebRTC Leak Prevent](https://chrome.google.com/webstore/detail/webrtc-network-limiter/npeicpdbkakmehahjeeohfdhnlpdklia?hl=en)
 
 ----

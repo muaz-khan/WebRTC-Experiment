@@ -56,10 +56,6 @@ function RecordRTC(mediaStream, config) {
     }
 
     function initRecorder(initCallback) {
-        if (!config.disableLogs) {
-            console.debug('initializing ' + config.type + ' stream recorder.');
-        }
-
         if (initCallback) {
             config.initCallback = function() {
                 initCallback();
@@ -71,6 +67,10 @@ function RecordRTC(mediaStream, config) {
 
         mediaRecorder = new Recorder(mediaStream, config);
         mediaRecorder.record();
+
+        if (!config.disableLogs) {
+            console.debug('Initialized recorderType:', mediaRecorder.constructor.name, 'for output-type:', config.type);
+        }
     }
 
     function stopRecording(callback) {
@@ -150,6 +150,10 @@ function RecordRTC(mediaStream, config) {
         }
     }
 
+    function readFile(_blob) {
+        postMessage(new FileReaderSync().readAsDataURL(_blob));
+    }
+
     function getDataURL(callback, _mediaRecorder) {
         if (!callback) {
             throw 'Pass a callback function over getDataURL.';
@@ -168,10 +172,8 @@ function RecordRTC(mediaStream, config) {
             return;
         }
 
-        if (typeof Worker !== 'undefined') {
-            var webWorker = processInWebWorker(function readFile(_blob) {
-                postMessage(new FileReaderSync().readAsDataURL(_blob));
-            });
+        if (typeof Worker !== 'undefined' && !navigator.mozGetUserMedia) {
+            var webWorker = processInWebWorker(readFile);
 
             webWorker.onmessage = function(event) {
                 callback(event.data);

@@ -1,7 +1,7 @@
 {
   "name": "getstats",
   "preferGlobal": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -9,9 +9,9 @@
   },
   "description": "A tiny JavaScript library using WebRTC getStats API to return peer connection stats i.e. bandwidth usage, packets lost, local/remote ip addresses and ports, type of connection etc.",
   "scripts": {
-    "start": "node getStats.js"
+    "start": "node server.js"
   },
-  "main": "./getStats.js",
+  "main": "./server.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/muaz-khan/getStats.git"

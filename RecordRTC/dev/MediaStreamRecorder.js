@@ -25,9 +25,10 @@
  * @example
  * var options = {
  *     mimeType: 'video/mp4', // audio/ogg or video/webm
- *     audioBitsPerSecond : 128000,
- *     videoBitsPerSecond : 2500000,
- *     bitsPerSecond: 2500000  // if this is provided, skip above two
+ *     audioBitsPerSecond : 256 * 8 * 1024,
+ *     videoBitsPerSecond : 256 * 8 * 1024,
+ *     bitsPerSecond: 256 * 8 * 1024,  // if this is provided, skip above two
+ *     getNativeBlob: true // by default it is false
  * }
  * var recorder = new MediaStreamRecorder(MediaStream, options);
  * recorder.record();
@@ -43,31 +44,30 @@
  */
 
 function MediaStreamRecorder(mediaStream, config) {
+    var self = this;
+
     config = config || {
-        bitsPerSecond: 128000,
+        // bitsPerSecond: 256 * 8 * 1024,
         mimeType: 'video/webm'
     };
 
-    // if user chosen only audio option; and he tried to pass MediaStream with
-    // both audio and video tracks;
-    // using a dirty workaround to generate audio-only stream so that we can get audio/ogg output.
-    if (!isChrome && config.type && config.type === 'audio') {
-        if (mediaStream.getVideoTracks && mediaStream.getVideoTracks().length) {
-            var context = new AudioContext();
-            var mediaStreamSource = context.createMediaStreamSource(mediaStream);
-
-            var destination = context.createMediaStreamDestination();
-            mediaStreamSource.connect(destination);
-
-            mediaStream = destination.stream;
+    if (config.type === 'audio') {
+        if (mediaStream.getVideoTracks().length && mediaStream.getAudioTracks().length) {
+            var stream;
+            if (!!navigator.mozGetUserMedia) {
+                stream = new MediaStream();
+                stream.addTrack(mediaStream.getAudioTracks()[0]);
+            } else {
+                // webkitMediaStream
+                stream = new MediaStream(mediaStream.getAudioTracks());
+            }
+            mediaStream = stream;
         }
 
         if (!config.mimeType || config.mimeType.indexOf('audio') === -1) {
-            config.mimeType = 'audio/ogg';
+            config.mimeType = isChrome ? 'audio/webm' : 'audio/ogg';
         }
     }
-
-    var recordedBuffers = [];
 
     /**
      * This method records MediaStream.
@@ -77,16 +77,9 @@ function MediaStreamRecorder(mediaStream, config) {
      * recorder.record();
      */
     this.record = function() {
+        self.blob = null;
+
         var recorderHints = config;
-
-        if (isChrome) {
-            if (!recorderHints || typeof recorderHints !== 'string') {
-                recorderHints = 'video/vp8';
-
-                // chrome currently supports only video recording
-                mediaStream = new MediaStream(mediaStream.getVideoTracks());
-            }
-        }
 
         if (!config.disableLogs) {
             console.log('Passing following config over MediaRecorder API.', recorderHints);
@@ -95,6 +88,11 @@ function MediaStreamRecorder(mediaStream, config) {
         if (mediaRecorder) {
             // mandatory to make sure Firefox doesn't fails to record streams 3-4 times without reloading the page.
             mediaRecorder = null;
+        }
+
+        if (isChrome && !isMediaRecorderCompatible()) {
+            // to support video-only recording on stable
+            recorderHints = 'video/vp8';
         }
 
         // http://dxr.mozilla.org/mozilla-central/source/content/media/MediaRecorder.cpp
@@ -117,16 +115,29 @@ function MediaStreamRecorder(mediaStream, config) {
 
         // Dispatching OnDataAvailable Handler
         mediaRecorder.ondataavailable = function(e) {
-            if (this.dontFireOnDataAvailableEvent) {
+            if (self.dontFireOnDataAvailableEvent) {
                 return;
             }
 
-            if (isChrome && e.data && !('size' in e.data)) {
-                e.data.size = e.data.length || e.data.byteLength || 0;
+            if (!e.data || !e.data.size || e.data.size < 100 || self.blob) {
+                return;
             }
 
-            if (e.data && e.data.size) {
-                recordedBuffers.push(e.data);
+            /**
+             * @property {Blob} blob - Recorded frames in video/webm blob.
+             * @memberof MediaStreamRecorder
+             * @example
+             * recorder.stop(function() {
+             *     var blob = recorder.blob;
+             * });
+             */
+            self.blob = config.getNativeBlob ? e.data : new Blob([e.data], {
+                type: config.mimeType || 'video/webm'
+            });
+
+            if (self.recordingCallback) {
+                self.recordingCallback(self.blob);
+                self.recordingCallback = null;
             }
         };
 
@@ -156,7 +167,6 @@ function MediaStreamRecorder(mediaStream, config) {
             if (mediaRecorder.state !== 'inactive' && mediaRecorder.state !== 'stopped') {
                 mediaRecorder.stop();
             }
-            // self.record(0);
         };
 
         // void start(optional long mTimeSlice)
@@ -164,7 +174,7 @@ function MediaStreamRecorder(mediaStream, config) {
         // handler. "mTimeSlice < 0" means Session object does not push encoded data to
         // onDataAvailable, instead, it passive wait the client side pull encoded data
         // by calling requestData API.
-        mediaRecorder.start(1);
+        mediaRecorder.start(3.6e+6);
 
         // Start recording. If timeSlice has been provided, mediaRecorder will
         // raise a dataavailable event containing the Blob of collected data on every timeSlice milliseconds.
@@ -204,28 +214,6 @@ function MediaStreamRecorder(mediaStream, config) {
             mediaRecorder.requestData();
             mediaRecorder.stop();
         }
-
-        if (recordedBuffers.length) {
-            this.onRecordingFinished();
-        }
-    };
-
-    this.onRecordingFinished = function() {
-        /**
-         * @property {Blob} blob - Recorded frames in video/webm blob.
-         * @memberof MediaStreamRecorder
-         * @example
-         * recorder.stop(function() {
-         *     var blob = recorder.blob;
-         * });
-         */
-        this.blob = new Blob(recordedBuffers, {
-            type: config.mimeType || 'video/webm'
-        });
-
-        this.recordingCallback();
-
-        recordedBuffers = [];
     };
 
     /**
@@ -255,7 +243,11 @@ function MediaStreamRecorder(mediaStream, config) {
     this.resume = function() {
         if (this.dontFireOnDataAvailableEvent) {
             this.dontFireOnDataAvailableEvent = false;
+
+            var disableLogs = config.disableLogs;
+            config.disableLogs = true;
             this.record();
+            config.disableLogs = disableLogs;
             return;
         }
 
@@ -299,6 +291,7 @@ function MediaStreamRecorder(mediaStream, config) {
                 return false;
             }
         }
+        return true;
     }
 
     var self = this;

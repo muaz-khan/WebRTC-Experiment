@@ -1,4 +1,4 @@
-// Last time updated at Monday, January 4th, 2016, 1:17:50 PM 
+// Last time updated: 2016-02-26 11:47:17 AM UTC
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/DetectRTC.js
 
@@ -377,22 +377,28 @@
         var osVersion = unknown;
 
         if (/Windows/.test(os)) {
-            osVersion = /Windows (.*)/.exec(os)[1];
+            if (/Windows (.*)/.test(os)) {
+                osVersion = /Windows (.*)/.exec(os)[1];
+            }
             os = 'Windows';
         }
 
         switch (os) {
             case 'Mac OS X':
-                osVersion = /Mac OS X (10[\.\_\d]+)/.exec(nAgt)[1];
+                if (/Mac OS X (10[\.\_\d]+)/.test(nAgt)) {
+                    osVersion = /Mac OS X (10[\.\_\d]+)/.exec(nAgt)[1];
+                }
                 break;
-
             case 'Android':
-                osVersion = /Android ([\.\_\d]+)/.exec(nAgt)[1];
+                if (/Android ([\.\_\d]+)/.test(nAgt)) {
+                    osVersion = /Android ([\.\_\d]+)/.exec(nAgt)[1];
+                }
                 break;
-
             case 'iOS':
-                osVersion = /OS (\d+)_(\d+)_?(\d+)?/.exec(nVer);
-                osVersion = osVersion[1] + '.' + osVersion[2] + '.' + (osVersion[3] | 0);
+                if (/OS (\d+)_(\d+)_?(\d+)?/.test(nAgt)) {
+                    osVersion = /OS (\d+)_(\d+)_?(\d+)?/.exec(nVer);
+                    osVersion = osVersion[1] + '.' + osVersion[2] + '.' + (osVersion[3] | 0);
+                }
                 break;
         }
 
@@ -652,7 +658,9 @@
                 if (!device.label) {
                     device.label = 'Please invoke getUserMedia once.';
                     if (location.protocol !== 'https:') {
-                        device.label = 'HTTPs is required to get label of this ' + device.kind + ' device.';
+                        if (document.domain.search && document.domain.search(/localhost|127.0./g) === -1) {
+                            device.label = 'HTTPs is required to get label of this ' + device.kind + ' device.';
+                        }
                     }
                 } else {
                     if (device.kind === 'videoinput' && !isWebsiteHasWebcamPermissions) {
@@ -893,7 +901,7 @@
         if ('getSenders' in mozRTCPeerConnection.prototype) {
             isRTPSenderReplaceTracksSupported = true;
         }
-    } else if (DetectRTC.browser.isChrome) {
+    } else if (DetectRTC.browser.isChrome && typeof webkitRTCPeerConnection !== 'undefined') {
         /*global webkitRTCPeerConnection:true */
         if ('getSenders' in webkitRTCPeerConnection.prototype) {
             isRTPSenderReplaceTracksSupported = true;

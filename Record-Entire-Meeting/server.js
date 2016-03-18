@@ -1,3 +1,7 @@
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.webrtc-experiment.com/licence
+// Documentation - github.com/streamproc/MediaStreamRecorder
+
 var isUseHTTPs = !(!!process.env.PORT || !!process.env.IP);
 
 var server = require(isUseHTTPs ? 'https' : 'http'),
@@ -22,8 +26,14 @@ function serverHandler(request, response) {
         return;
     }
 
+    var contentType = {};
+
     if (fs.statSync(filename).isDirectory()) {
         filename += '/index.html';
+
+        contentType = {
+            'Content-Type': 'text/html'
+        };
     }
 
 
@@ -37,7 +47,7 @@ function serverHandler(request, response) {
             return;
         }
 
-        response.writeHead(200);
+        response.writeHead(200, contentType);
         response.write(file, 'binary');
         response.end();
     });
@@ -58,7 +68,11 @@ app = app.listen(process.env.PORT || 9001, process.env.IP || "0.0.0.0", function
     console.log("Server listening at", addr.address + ":" + addr.port);
 });
 
-require('./Nodejs-Recording-Handler.js')(app, function(socket) {
-    // do extra stuff with "socket"!
+var NodeJsRecordingHandler = require('./Nodejs-Recording-Handler.js');
+
+var io = require('socket.io').listen(app, {
+    log: false,
+    origins: '*:*'
 });
 
+io.on('connection', NodeJsRecordingHandler);

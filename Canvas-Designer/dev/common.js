@@ -1,4 +1,3 @@
-// -------------------------------------------------------------
 var is = {
     isLine: false,
     isArc: false,
@@ -20,8 +19,6 @@ var is = {
     }
 };
 
-// -------------------------------------------------------------
-
 function addEvent(element, eventType, callback) {
     if (element.addEventListener) {
         element.addEventListener(eventType, callback, !1);
@@ -31,13 +28,9 @@ function addEvent(element, eventType, callback) {
     return this;
 }
 
-// -------------------------------------------------------------
-
 function find(selector) {
     return document.getElementById(selector);
 }
-
-// -------------------------------------------------------------
 
 var points = [],
     textarea = find('code-text'),
@@ -49,8 +42,6 @@ var points = [],
     lineCap = 'butt',
     font = '15px Verdana',
     lineJoin = 'miter';
-
-// -------------------------------------------------------------
 
 function getContext(id) {
     var canv = find(id),
@@ -67,18 +58,10 @@ function getContext(id) {
     return ctx;
 }
 
-// -------------------------------------------------------------
-
 var context = getContext('main-canvas'),
     tempContext = getContext('temp-canvas');
 
-
-// -------------------------------------------------------------
-
 var common = {
-
-    // -------------------------------------------------------------
-
     updateTextArea: function() {
         var c = common,
             toFixed = c.toFixed,
@@ -92,15 +75,9 @@ var common = {
         if (!isAbsolutePoints && isShortenCode) c.relativeShortened(toFixed, getPoint);
         if (!isAbsolutePoints && !isShortenCode) c.relativeNOTShortened(toFixed, getPoint);
     },
-
-    // -------------------------------------------------------------
-
     toFixed: function(input) {
         return Number(input).toFixed(1);
     },
-
-    // -------------------------------------------------------------
-
     getPoint: function(pointToCompare, compareWith, prefix) {
         if (pointToCompare > compareWith) pointToCompare = prefix + ' + ' + (pointToCompare - compareWith);
         else if (pointToCompare < compareWith) pointToCompare = prefix + ' - ' + (compareWith - pointToCompare);
@@ -108,13 +85,7 @@ var common = {
 
         return pointToCompare;
     },
-
-
-
-    // -------------------------------------------------------------
-
     absoluteShortened: function() {
-
         var output = '',
             length = points.length,
             i = 0,
@@ -129,9 +100,6 @@ var common = {
 
         this.prevProps = null;
     },
-
-    // -------------------------------------------------------------
-
     absoluteNOTShortened: function(toFixed) {
         var tempArray = [],
             i, point, p;
@@ -177,9 +145,6 @@ var common = {
 
         this.prevProps = null;
     },
-
-    // -------------------------------------------------------------
-
     relativeShortened: function(toFixed, getPoint) {
         var i = 0,
             point, p, length = points.length,
@@ -285,9 +250,6 @@ var common = {
 
         this.prevProps = null;
     },
-
-    // -------------------------------------------------------------
-
     relativeNOTShortened: function(toFixed, getPoint) {
         var i, point, p, length = points.length,
             output = '',
@@ -360,69 +322,60 @@ var common = {
 
         this.prevProps = null;
     },
+    forLoop: 'for(i; i < length; i++) {\n' + '    p = points[i];\n' + '    point = p[1];\n' + '    context.beginPath();\n\n'
 
-    // -------------------------------------------------------------
+    // globals
+        + '    if(p[2]) { \n' + '       context.lineWidth = p[2][0];\n' + '       context.strokeStyle = p[2][1];\n' + '       context.fillStyle = p[2][2];\n'
 
-    forLoop: 'for(i; i < length; i++) {\n' + '\t p = points[i];\n' + '\t point = p[1];\n' + '\t context.beginPath();\n\n'
+        + '       context.globalAlpha = p[2][3];\n' + '       context.globalCompositeOperation = p[2][4];\n' + '       context.lineCap = p[2][5];\n' + '       context.lineJoin = p[2][6];\n' + '       context.font = p[2][7];\n' + '    }\n\n'
 
-    // -------------------------------------------------------------
-        + '\t if(p[2]) { \n' + '\t\t context.lineWidth = p[2][0];\n' + '\t\t context.strokeStyle = p[2][1];\n' + '\t\t context.fillStyle = p[2][2];\n'
+    // line
 
-        + '\t\t context.globalAlpha = p[2][3];\n' + '\t\t context.globalCompositeOperation = p[2][4];\n' + '\t\t context.lineCap = p[2][5];\n' + '\t\t context.lineJoin = p[2][6];\n' + '\t\t context.font = p[2][7];\n' + '\t }\n\n'
+        + '    if(p[0] === "line") { \n' + '       context.moveTo(point[0], point[1]);\n' + '       context.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
-    // -------------------------------------------------------------
+    // pencil
 
-        + '\t if(p[0] === "line") { \n' + '\t\t context.moveTo(point[0], point[1]);\n' + '\t\t context.lineTo(point[2], point[3]);\n' + '\t }\n\n'
+        + '    if(p[0] === "pencil") { \n' + '       context.moveTo(point[0], point[1]);\n' + '       context.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
-    // -------------------------------------------------------------
+    // text
 
-        + '\t if(p[0] === "pencil") { \n' + '\t\t context.moveTo(point[0], point[1]);\n' + '\t\t context.lineTo(point[2], point[3]);\n' + '\t }\n\n'
+        + '    if(p[0] === "text") { \n' + '       context.fillText(point[0], point[1], point[2]);\n' + '    }\n\n'
 
-    // -------------------------------------------------------------
+    // eraser
 
-        + '\t if(p[0] === "text") { \n' + '\t\t context.fillText(point[0], point[1], point[2]);\n' + '\t }\n\n'
+        + '    if(p[0] === "eraser") { \n' + '       context.moveTo(point[0], point[1]);\n' + '       context.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
+    // arc
 
-    // -------------------------------------------------------------
+        + '    if(p[0] === "arc") context.arc(point[0], point[1], point[2], point[3], 0, point[4]); \n\n'
 
-        + '\t if(p[0] === "eraser") { \n' + '\t\t context.moveTo(point[0], point[1]);\n' + '\t\t context.lineTo(point[2], point[3]);\n' + '\t }\n\n'
+    // rect
 
-    // -------------------------------------------------------------
+        + '    if(p[0] === "rect") {\n' + '       context.strokeRect(point[0], point[1], point[2], point[3]);\n' + '       context.fillRect(point[0], point[1], point[2], point[3]);\n'
 
-        + '\t if(p[0] === "arc") context.arc(point[0], point[1], point[2], point[3], 0, point[4]); \n\n'
+        + '    }\n\n'
 
-    // -------------------------------------------------------------
+    // quadratic
 
-        + '\t if(p[0] === "rect") {\n' + '\t\t context.strokeRect(point[0], point[1], point[2], point[3]);\n' + '\t\t context.fillRect(point[0], point[1], point[2], point[3]);\n'
+        + '    if(p[0] === "quadratic") {\n' + '       context.moveTo(point[0], point[1]);\n' + '       context.quadraticCurveTo(point[2], point[3], point[4], point[5]);\n' + '    }\n\n'
 
-        + '\t }\n\n'
+    // bezier
 
-    // -------------------------------------------------------------
+        + '    if(p[0] === "bezier") {\n' + '       context.moveTo(point[0], point[1]);\n' + '       context.bezierCurveTo(point[2], point[3], point[4], point[5], point[6], point[7]);\n' + '    }\n\n'
 
-        + '\t if(p[0] === "quadratic") {\n' + '\t\t context.moveTo(point[0], point[1]);\n' + '\t\t context.quadraticCurveTo(point[2], point[3], point[4], point[5]);\n' + '\t }\n\n'
+    // end-fill
 
-    // -------------------------------------------------------------
-
-        + '\t if(p[0] === "bezier") {\n' + '\t\t context.moveTo(point[0], point[1]);\n' + '\t\t context.bezierCurveTo(point[2], point[3], point[4], point[5], point[6], point[7]);\n' + '\t }\n\n'
-
-    // -------------------------------------------------------------
-
-        + '\t context.stroke();\n' + '\t context.fill();\n'
+        + '    context.stroke();\n' + '    context.fill();\n'
 
         + '}',
 
-    // -------------------------------------------------------------
+    strokeFillText: '\n\nfunction strokeOrFill(lineWidth, strokeStyle, fillStyle, globalAlpha, globalCompositeOperation, lineCap, lineJoin, font) { \n' + '    if(lineWidth) { \n' + '       context.globalAlpha = globalAlpha;\n' + '       context.globalCompositeOperation = globalCompositeOperation;\n' + '       context.lineCap = lineCap;\n' + '       context.lineJoin = lineJoin;\n'
 
-    strokeFillText: '\n\nfunction strokeOrFill(lineWidth, strokeStyle, fillStyle, globalAlpha, globalCompositeOperation, lineCap, lineJoin, font) { \n' + '\t if(lineWidth) { \n' + '\t\t context.globalAlpha = globalAlpha;\n' + '\t\t context.globalCompositeOperation = globalCompositeOperation;\n' + '\t\t context.lineCap = lineCap;\n' + '\t\t context.lineJoin = lineJoin;\n'
+        + '       context.lineWidth = lineWidth;\n' + '       context.strokeStyle = strokeStyle;\n' + '       context.fillStyle = fillStyle;\n' + '       context.font = font;\n' + '    } \n\n'
 
-        + '\t\t context.lineWidth = lineWidth;\n' + '\t\t context.strokeStyle = strokeStyle;\n' + '\t\t context.fillStyle = fillStyle;\n' + '\t\t context.font = font;\n' + '\t } \n\n'
-
-        + '\t context.stroke();\n' + '\t context.fill();\n'
+        + '    context.stroke();\n' + '    context.fill();\n'
 
         + '}',
-
-    // -------------------------------------------------------------
-
     strokeOrFill: function(p) {
         if (!this.prevProps || this.prevProps !== p.join(',')) {
             this.prevProps = p.join(',');
@@ -432,8 +385,6 @@ var common = {
 
         return 'strokeOrFill();';
     },
-
-    // -------------------------------------------------------------
     prevProps: null,
     shortenHelper: function(name, p1, p2) {
         var result = '["' + name + '", [' + p1.join(', ') + ']';
@@ -445,12 +396,7 @@ var common = {
 
         return result + '], ';
     }
-
-    // -------------------------------------------------------------
-
 };
-
-// -------------------------------------------------------------
 
 function endLastPath() {
     var cache = is;
@@ -462,12 +408,8 @@ function endLastPath() {
     drawHelper.redraw();
 }
 
-// -------------------------------------------------------------
-
 var copiedStuff = [],
     isControlKeyPressed;
-
-// -------------------------------------------------------------
 
 function copy() {
     endLastPath();
@@ -482,8 +424,6 @@ function copy() {
         setSelection(find('drag-all-paths'), 'DragAllPaths');
     }
 }
-
-// -------------------------------------------------------------
 
 function paste() {
     endLastPath();
@@ -508,5 +448,3 @@ function paste() {
         setSelection(find('drag-all-paths'), 'DragAllPaths');
     }
 }
-
-// -------------------------------------------------------------

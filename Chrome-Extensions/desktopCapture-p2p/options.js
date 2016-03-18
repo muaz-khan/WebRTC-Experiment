@@ -17,6 +17,14 @@
         }, function() {});
     }
 
+    if (items['is_audio']) {
+        document.getElementById('is_audio').checked = items['is_audio'] === 'true';
+    } else {
+        chrome.storage.sync.set({
+            is_audio: 'false'
+        }, function() {});
+    }
+
     if (items['max_bandwidth']) {
         document.getElementById('max_bandwidth').value = items['max_bandwidth'];
     } else {
@@ -41,6 +49,16 @@ document.getElementById('resolutions').onchange = function() {
         resolutions: this.value
     }, function() {
         document.getElementById('resolutions').disabled = false;
+    });
+};
+
+document.getElementById('is_audio').onchange = function() {
+    this.disabled = true;
+
+    chrome.storage.sync.set({
+        is_audio: this.checked ? 'true' : 'false'
+    }, function() {
+        document.getElementById('is_audio').disabled = false;
     });
 };
 

@@ -1,5 +1,9 @@
 // getUserMediaHandler.js
 
+if (typeof webrtcUtils !== 'undefined') {
+    webrtcUtils.enableLogs = false;
+}
+
 function setStreamType(constraints, stream) {
     if (constraints.mandatory && constraints.mandatory.chromeMediaSource) {
         stream.isScreen = true;
@@ -11,10 +15,31 @@ function setStreamType(constraints, stream) {
         stream.isAudio = true;
     }
 }
+
 var currentUserMediaRequest = {
     streams: [],
     mutex: false,
-    queueRequests: []
+    queueRequests: [],
+    remove: function(idInstance) {
+        this.mutex = false;
+
+        var stream = this.streams[idInstance];
+        if (!stream) {
+            return;
+        }
+
+        stream = stream.stream;
+
+        var options = stream.currentUserMediaRequestOptions;
+
+        if (this.queueRequests.indexOf(options)) {
+            delete this.queueRequests[this.queueRequests.indexOf(options)];
+            this.queueRequests = removeNullEntries(this.queueRequests);
+        }
+
+        this.streams[idInstance].stream = null;
+        delete this.streams[idInstance];
+    }
 };
 
 function getUserMediaHandler(options) {
@@ -54,9 +79,9 @@ function getUserMediaHandler(options) {
     if (currentUserMediaRequest.streams[idInstance]) {
         streaming(currentUserMediaRequest.streams[idInstance].stream, true);
     } else {
-        if (isPluginRTC) {
+        if (isPluginRTC && window.PluginRTC) {
             var mediaElement = document.createElement('video');
-            Plugin.getUserMedia({
+            window.PluginRTC.getUserMedia({
                 audio: true,
                 video: true
             }, function(stream) {
@@ -67,22 +92,11 @@ function getUserMediaHandler(options) {
             return;
         }
 
-        navigator.getMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-
-        if (typeof DetectRTC !== 'undefined') {
-            if (!DetectRTC.hasMicrophone) {
-                options.localMediaConstraints.audio = false;
-            }
-
-            if (!DetectRTC.hasWebcam) {
-                options.localMediaConstraints.video = false;
-            }
-        }
-
-        navigator.getMedia(options.localMediaConstraints, function(stream) {
-            stream.streamid = stream.id || getRandomString();
+        navigator.mediaDevices.getUserMedia(options.localMediaConstraints).then(function(stream) {
+            stream.streamid = stream.streamid || stream.id || getRandomString();
+            stream.idInstance = idInstance;
             streaming(stream);
-        }, function(error) {
+        }).catch(function(error) {
             options.onLocalMediaError(error, options.localMediaConstraints);
         });
     }

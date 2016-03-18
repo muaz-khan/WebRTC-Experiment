@@ -36,7 +36,7 @@
 <script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
 
 <!-- or -->
-<script src="https://cdn.rawgit.com/muaz-khan/RecordRTC/master/RecordRTC.js"></script>
+<script src="https://cdn.rawgit.com/muaz-khan/getScreenId/master/getScreenId.js"></script>
 ```
 
 ```javascript

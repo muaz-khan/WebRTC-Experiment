@@ -1,4 +1,9 @@
-## HTML2Canvas & RecordRTC / [Demo](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/)
+## Record Entire WebPage or Canvas2D
+
+Demos:
+
+1. [Record entire DIV including video, image, textarea, input, drag/move/resize, everything](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/)
+2. [Record canvas 2D drawings, lines, shapes, texts, images, drag/resize/enlarge/move via a huge drawing tool!](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html)
 
 This [WebRTC](https://www.webrtc-experiment.com/) experiment is using [RecordRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) to record HTML/Canvas into webm; where [html2canvas.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing) is used to capture HTML-snapshots. Those snapshots are encoded in webp; and then encoded again in webm.
 
@@ -11,13 +16,14 @@ You can say it: "HTML/Canvas Recording using RecordRTC"!
 =
 
 ```html
-<script src="//www.WebRTC-Experiment.com/RecordRTC.js"></script>
-<script src="//www.webrtc-experiment.com/screenshot.js"></script>
+<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="https://cdn.webrtc-experiment.com/screenshot.js"></script>
 <div id="elementToShare" style="width:100%;height:100%;background:green;"></div>
 <script>
 var elementToShare = document.getElementById('elementToShare');
 var recorder = RecordRTC(elementToShare, {
-    type: 'canvas'
+    type: 'canvas',
+    showMousePointer: true
 });
 recorder.startRecording();
 recorder.stopRecording(function(url) {
@@ -25,6 +31,37 @@ recorder.stopRecording(function(url) {
 });
 </script>
 ```
+
+=
+
+## Record `<canvas>`
+
+```html
+<script src="https://cdn.webrtc-experiment.com/RecordRTC/Whammy.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC/CanvasRecorder.js"></script>
+<canvas></canvas>
+<script>
+var canvas = document.querySelector('canvas');
+var recorder = new CanvasRecorder(window.canvasElementToBeRecorded, {
+    disableLogs: false
+});
+
+// start recording <canvas> drawings
+recorder.record();
+
+// a few minutes later
+recorder.stop(function(blob) {
+    var url = URL.createObjectURL(blob);
+    window.open(url);
+});
+</script>
+```
+
+Live Demo:
+
+* https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html
+
+Watch a video: https://vimeo.com/152119435
 
 =
 

@@ -1,7 +1,7 @@
 <!--
 > Muaz Khan     - www.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
-> Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC
+> Documentation - github.com/muaz-khan/RecordRTC/tree/master/MRecordRTC
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +14,7 @@
     <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
     <style>
     audio {
@@ -57,15 +57,12 @@
     </script>
 
     <!-- script used for audio/video/gif recording -->
-    <script src="//cdn.webrtc-experiment.com/RecordRTC.js">
-    </script>
-    <script src="//cdn.webrtc-experiment.com/gif-recorder.js">
-    </script>
-    <script src="//cdn.webrtc-experiment.com/getMediaElement.js">
-    </script>
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/gif-recorder.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
 
     <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
-    <script src="https://cdn.rawgit.com/webrtc/adapter/master/adapter.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/gumadapter.js"></script>
 </head>
 
 <body>
@@ -153,17 +150,17 @@
 
         var mRecordRTC = new MRecordRTC();
         mRecordRTC.mediaType = {
-            audio: true,
-            video: true
+            audio: true, // or StereoAudioRecorder or MediaStreamRecorder
+            video: true  // or WhammyRecorder      or MediaStreamRecorder
         };
 
         if (webrtcDetectedBrowser === 'edge') {
             // Microsoft Edge currently supports only audio and gif recording
             mRecordRTC.mediaType = {
-                audio: true
+                audio: StereoAudioRecorder
             };
         }
-        //mRecordRTC.bufferSize = 16384;
+        // mRecordRTC.bufferSize = 16384;
 
         document.querySelector('#start').onclick = function() {
             this.disabled = true;
@@ -197,7 +194,7 @@
 
                 mRecordRTC.addStream(stream);
                 mRecordRTC.startRecording();
-            }, function(errro) {
+            }, function(error) {
                 alert(JSON.stringify(error));
             });
         };
@@ -302,13 +299,58 @@
             <h2 class="header">
                 How to use <a href="https://github.com/muaz-khan/RecordRTC/tree/master/MRecordRTC">MRecordRTC</a>?</h2>
             <pre>
-                &lt;script src="//cdn.webrtc-experiment.com/RecordRTC.js"&gt;&lt;/script&gt;
-            </pre>
+&lt;script src="https://cdn.webrtc-experiment.com/RecordRTC.js"&gt;&lt;/script&gt;
+</pre>
         </section>
         <section class="experiment">
             <pre>
-                var recorder = new MRecordRTC(); recorder.addStream(MediaStream); recorder.mediaType = { audio: true, video: true, gif: true }; recorder.startRecording(); recorder.stopRecording(function(url, type) { document.querySelector(type).src = url; }); recorder.getBlob(function(blobs) { blobs.audio --- audio blob blobs.video --- video blob blobs.gif --- gif blob }); // or var blobs = recorder.getBlob(); var audioBlob = blobs.audio; var videoBlob = blobs.video; var gifBlob = blobs.gif; // invoke save-as dialog // for all recorded blobs recorder.save(); recorder.writeToDisk(); // get all blobs from disk MRecordRTC.getFromDisk('all', function(dataURL, type) { type == 'audio' type == 'video' type == 'gif' }); // or get just single blob MRecordRTC.getFromDisk('audio', function(dataURL) { // only audio blob is returned from disk! });
-            </pre>
+var recorder = new MRecordRTC();
+recorder.addStream(MediaStream);
+recorder.mediaType = {
+   audio: true,
+   video: true,
+   gif: true
+};
+// mimeType is optional and should be set only in advance cases.
+recorder.mimeType = {
+    audio: 'audio/wav',
+    video: 'video/webm',
+    gif:   'image/gif'
+};
+recorder.startRecording();
+recorder.stopRecording(function(url, type) {
+    document.querySelector(type).src = url;
+});
+
+recorder.getBlob(function(blobs) {
+   blobs.audio --- audio blob
+   blobs.video --- video blob
+   blobs.gif   --- gif blob
+});
+// or
+var blobs = recorder.getBlob();
+var audioBlob = blobs.audio;
+var videoBlob = blobs.video;
+var gifBlob = blobs.gif;
+
+// invoke save-as dialog
+// for all recorded blobs
+recorder.save();
+
+recorder.writeToDisk();
+
+// get all blobs from disk
+MRecordRTC.getFromDisk('all', function(dataURL, type) {
+   type == 'audio'
+   type == 'video'
+   type == 'gif'
+});
+
+// or get just single blob
+MRecordRTC.getFromDisk('audio', function(dataURL) {
+   // only audio blob is returned from disk!
+});
+</pre>
 
         </section>
 
@@ -316,6 +358,12 @@
             <p style="margin-top: 0;">
                 MRecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/RecordRTC/tree/master/MRecordRTC">Documentation</a>
             </p>
+        </section>
+
+        <section class="experiment own-widgets">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RecordRTC/issues" target="_blank">RecordRTC Issues</a>
+            </h2>
+            <div id="github-issues"></div>
         </section>
 
         <section class="experiment">
@@ -328,7 +376,7 @@
         </section>
 
         <section class="experiment own-widgets latest-commits">
-            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a>
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RecordRTC/commits/master" target="_blank">Latest Updates</a>
             </h2>
             <div id="github-commits"></div>
         </section>
@@ -344,8 +392,10 @@
     </footer>
 
     <!-- commits.js is useless for you! -->
-    <script src="//cdn.webrtc-experiment.com/commits.js" async>
+    <script>
+        window.useThisGithubPath = 'muaz-khan/RecordRTC';
     </script>
+    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
 </body>
 
 </html>

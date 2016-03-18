@@ -64,6 +64,8 @@
                 <br><br>
                 <input type="text" id="input-text-chat" placeholder="Enter Text Chat" disabled>
                 <button id="share-file" disabled>Share File</button>
+                <br><br>
+                <button id="btn-leave-room" disabled>Leave /or close the room</button>
             </div>
 
             <div id="chat-container">
@@ -74,8 +76,11 @@
             <div id="videos-container"></div>
         </section>
 
-        <script src="/RTCMultiConnection.min.js"></script>
-        <script src="/dev/FileBufferReader.js"></script>
+        <!-- <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script> -->
+        <script src="/dist/rmc3.min.js"></script>
+        
+        <!-- <script src="/dev/FileBufferReader.js"></script> -->
+        <script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
 
         <!-- socket.io for signaling -->
         <script src="/socket.io/socket.io.js"></script>
@@ -98,6 +103,21 @@
             document.getElementById('open-or-join-room').onclick = function() {
                 this.disabled = true;
                 connection.openOrJoin(document.getElementById('room-id').value);
+            };
+
+            document.getElementById('btn-leave-room').onclick = function() {
+                this.disabled = true;
+
+                if(connection.isInitiator) {
+                    // use this method if you did NOT set "autoCloseEntireSession===true"
+                    // for more info: https://github.com/muaz-khan/RTCMultiConnection#closeentiresession
+                    connection.closeEntireSession(function() {
+                        document.querySelector('h1').innerHTML = 'Entire session has been closed.';
+                    });
+                }
+                else {
+                    connection.leave();
+                }
             };
 
             // ......................................................
@@ -141,7 +161,25 @@
 
             var connection = new RTCMultiConnection();
 
-            document.getElementById('room-id').value = connection.token();
+            // by default, socket.io server is assumed to be deployed on your own URL
+            connection.socketURL = '/';
+
+            // comment-out below line if you do not have your own socket.io server
+            // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+            connection.socketMessageEvent = 'audio-video-file-chat-demo';
+
+            var roomid = '';
+            if(localStorage.getItem('rmc-room-id')) {
+                roomid = localStorage.getItem('rmc-room-id');
+            }
+            else {
+                roomid = connection.token();
+            }
+            document.getElementById('room-id').value = roomid;
+            document.getElementById('room-id').onkeyup = function() {
+                localStorage.setItem('rmc-room-id', this.value);
+            };
 
             connection.enableFileSharing = true; // by default, it is "false".
 
@@ -156,9 +194,13 @@
                 OfferToReceiveVideo: true
             };
 
-            var videosContainer = document.getElementById('videos-container');
+            connection.videosContainer = document.getElementById('videos-container');
             connection.onstream = function(event) {
-                videosContainer.appendChild(event.mediaElement);
+                connection.videosContainer.appendChild(event.mediaElement);
+                event.mediaElement.play();
+                setTimeout(function() {
+                    event.mediaElement.play();
+                }, 5000);
             };
 
             connection.onmessage = appendDIV;
@@ -167,6 +209,42 @@
             connection.onopen = function() {
                 document.getElementById('share-file').disabled = false;
                 document.getElementById('input-text-chat').disabled = false;
+                document.getElementById('btn-leave-room').disabled = false;
+
+                document.querySelector('h1').innerHTML = 'You are connected with: ' + connection.getAllParticipants().join(', ');
+            };
+
+            connection.onclose = function() {
+                if(connection.getAllParticipants().length) {
+                    document.querySelector('h1').innerHTML = 'You are still connected with: ' + connection.getAllParticipants().join(', ');
+                }
+                else {
+                    document.querySelector('h1').innerHTML = 'Seems session has been closed or all participants left.';
+                }
+            };
+
+            connection.onEntireSessionClosed = function(event) {
+                document.getElementById('share-file').disabled = true;
+                document.getElementById('input-text-chat').disabled = true;
+                document.getElementById('btn-leave-room').disabled = true;
+
+                document.getElementById('open-or-join-room').disabled = false;
+                document.getElementById('open-room').disabled = false;
+                document.getElementById('join-room').disabled = false;
+                document.getElementById('room-id').disabled = false;
+
+                connection.attachStreams.forEach(function(stream) {
+                    stream.stop();
+                });
+
+                // don't display alert for moderator
+                if(connection.userid === event.userid) return;
+                document.querySelector('h1').innerHTML = 'Entire session has been closed by the moderator: ' + event.userid;
+            };
+
+            connection.onUserIdAlreadyTaken = function(useridAlreadyTaken, yourNewUserId) {
+                // seems room is already opened
+                connection.join(useridAlreadyTaken);
             };
         </script>
 

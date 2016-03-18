@@ -1,8 +1,4 @@
-// -------------------------------------------------------------
 var dragHelper = {
-
-    // -------------------------------------------------------------
-
     global: {
         prevX: 0,
         prevY: 0,
@@ -10,20 +6,12 @@ var dragHelper = {
         pointsToMove: 'all',
         startingIndex: 0
     },
-
-    // -------------------------------------------------------------
-
     mousedown: function(e) {
-
-        // -------------------------------------------------------------
-
         if (isControlKeyPressed) {
             copy();
             paste();
             isControlKeyPressed = false;
         }
-
-        // -------------------------------------------------------------
 
         var dHelper = dragHelper,
             g = dHelper.global;
@@ -126,9 +114,6 @@ var dragHelper = {
 
         g.ismousedown = true;
     },
-
-    // -------------------------------------------------------------
-
     mouseup: function() {
         var g = this.global;
 
@@ -140,9 +125,6 @@ var dragHelper = {
 
         g.ismousedown = false;
     },
-
-    // -------------------------------------------------------------
-
     mousemove: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop,
@@ -156,9 +138,6 @@ var dragHelper = {
 
         if (is.isDragLastPath) this.init();
     },
-
-    // -------------------------------------------------------------
-
     init: function() {
         if (!points.length) return;
 
@@ -244,15 +223,9 @@ var dragHelper = {
             tempContext.fill();
         }
     },
-
-    // -------------------------------------------------------------
-
     isPointInPath: function(x, y, first, second) {
         return x > first - 10 && x < first + 10 && y > second - 10 && y < second + 10;
     },
-
-    // -------------------------------------------------------------
-
     getPoint: function(point, prev, otherPoint) {
         if (point > prev) {
             point = otherPoint + (point - prev);
@@ -262,9 +235,6 @@ var dragHelper = {
 
         return point;
     },
-
-    // -------------------------------------------------------------
-
     getXYWidthHeight: function(x, y, prevX, prevY, oldPoints) {
         if (oldPoints.pointsToMove == 'stretch-first') {
             if (x > prevX) {
@@ -318,9 +288,6 @@ var dragHelper = {
 
         return oldPoints;
     },
-
-    // -------------------------------------------------------------
-
     dragShape: function(x, y) {
         if (!this.global.ismousedown) return;
 
@@ -339,9 +306,6 @@ var dragHelper = {
         g.prevX = x;
         g.prevY = y;
     },
-
-    // -------------------------------------------------------------
-
     end: function() {
         if (!points.length) return;
 
@@ -350,9 +314,6 @@ var dragHelper = {
         var point = points[points.length - 1];
         drawHelper[point[0]](context, point[1], point[2]);
     },
-
-    // -------------------------------------------------------------
-
     dragAllPaths: function(x, y) {
         var g = this.global,
             prevX = g.prevX,
@@ -453,9 +414,6 @@ var dragHelper = {
             }
         }
     },
-
-    // -------------------------------------------------------------
-
     dragLastPath: function(x, y) {
         var g = this.global,
             prevX = g.prevX,
@@ -659,8 +617,4 @@ var dragHelper = {
             points[points.length - 1] = [p[0], point, p[2]];
         }
     }
-
-    // -------------------------------------------------------------
-
 };
-// -------------------------------------------------------------

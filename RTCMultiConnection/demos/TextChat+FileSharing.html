@@ -72,8 +72,11 @@
             </div>
         </section>
 
-        <script src="/RTCMultiConnection.min.js"></script>
-        <script src="/dev/FileBufferReader.js"></script>
+        <!-- <script src="/RTCMultiConnection.min.js"></script> -->
+        <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
+        
+        <!-- <script src="/dev/FileBufferReader.js"></script> -->
+        <script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
 
         <!-- socket.io for signaling -->
         <script src="/socket.io/socket.io.js"></script>
@@ -139,7 +142,24 @@
 
             var connection = new RTCMultiConnection();
 
-            document.getElementById('room-id').value = connection.token();
+            // by default, socket.io server is assumed to be deployed on your own URL
+            connection.socketURL = '/';
+
+            // comment-out below line if you do not have your own socket.io server
+            // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+            connection.socketMessageEvent = 'textchat-plus-fileshare-demo';
+
+            var roomid = '';
+            if (localStorage.getItem('rmc-room-id')) {
+                roomid = localStorage.getItem('rmc-room-id');
+            } else {
+                roomid = connection.token();
+            }
+            document.getElementById('room-id').value = roomid;
+            document.getElementById('room-id').onkeyup = function() {
+                localStorage.setItem('rmc-room-id', this.value);
+            };
 
             connection.enableFileSharing = true; // by default, it is "false".
 

@@ -86,21 +86,15 @@ function MultiPeers(connection) {
 
         return {
             streamsToShare: userPreferences.streamsToShare || {},
-            session: connection.session,
             rtcMultiConnection: connection,
             connectionDescription: userPreferences.connectionDescription,
-            remoteUserId: remoteUserId,
+            userid: remoteUserId,
             localPeerSdpConstraints: userPreferences.localPeerSdpConstraints,
             remotePeerSdpConstraints: userPreferences.remotePeerSdpConstraints,
             dontGetRemoteStream: !!userPreferences.dontGetRemoteStream,
             dontAttachLocalStream: !!userPreferences.dontAttachLocalStream,
-            optionalArgument: connection.optionalArgument,
-            iceServers: connection.iceServers,
             renegotiatingPeer: !!userPreferences.renegotiatingPeer,
             peerRef: userPreferences.peerRef,
-            enableDataChannels: !!connection.session.data,
-            localStreams: connection.attachStreams,
-            removeStreams: connection.removeStreams,
             onLocalSdp: function(localSdp) {
                 self.onNegotiationNeeded(localSdp, remoteUserId);
             },
@@ -153,15 +147,12 @@ function MultiPeers(connection) {
             onRemoteStream: function(stream) {
                 connection.peers[remoteUserId].streams.push(stream);
 
-                if (isPluginRTC) {
+                if (isPluginRTC && window.PluginRTC) {
                     var mediaElement = document.createElement('video');
-                    var body = (document.body || document.documentElement);
+                    var body = connection.videosContainer;
                     body.insertBefore(mediaElement, body.firstChild);
-
                     setTimeout(function() {
-                        Plugin.attachMediaStream(mediaElement, stream);
-
-                        self.onGettingRemoteMedia(mediaElement, remoteUserId);
+                        window.PluginRTC.attachMediaStream(mediaElement, stream);
                     }, 3000);
                     return;
                 }
@@ -186,8 +177,7 @@ function MultiPeers(connection) {
                     self.onUserLeft(remoteUserId);
                     self.disconnectWith(remoteUserId);
                 }
-            },
-            processSdp: connection.processSdp
+            }
         };
     };
 
@@ -207,14 +197,14 @@ function MultiPeers(connection) {
             return;
         }
 
-        userPreferences = connection.setUserPreferences(userPreferences);
+        userPreferences = connection.setUserPreferences(userPreferences, remoteUserId);
 
         var localConfig = this.getLocalConfig(null, remoteUserId, userPreferences);
         connection.peers[remoteUserId] = new PeerInitiator(localConfig);
     };
 
     this.createAnsweringPeer = function(remoteSdp, remoteUserId, userPreferences) {
-        userPreferences = connection.setUserPreferences(userPreferences || {});
+        userPreferences = connection.setUserPreferences(userPreferences || {}, remoteUserId);
 
         var localConfig = this.getLocalConfig(remoteSdp, remoteUserId, userPreferences);
         connection.peers[remoteUserId] = new PeerInitiator(localConfig);
@@ -222,7 +212,10 @@ function MultiPeers(connection) {
 
     this.renegotiatePeer = function(remoteUserId, userPreferences, remoteSdp) {
         if (!connection.peers[remoteUserId]) {
-            throw 'This peer (' + remoteUserId + ') does not exists.';
+            if (connection.enableLogs) {
+                console.error('This peer (' + remoteUserId + ') does not exists. Renegotiation skipped.');
+            }
+            return;
         }
 
         if (!userPreferences) {
@@ -247,10 +240,12 @@ function MultiPeers(connection) {
         if (!!peer.getSenders && typeof peer.getSenders === 'function' && peer.getSenders().length) {
             peer.getSenders().forEach(function(rtpSender) {
                 if (isVideoTrack && rtpSender.track instanceof VideoStreamTrack) {
+                    connection.peers[remoteUserId].peer.lastVideoTrack = rtpSender.track;
                     rtpSender.replaceTrack(track);
                 }
 
                 if (!isVideoTrack && rtpSender.track instanceof AudioStreamTrack) {
+                    connection.peers[remoteUserId].peer.lastAudioTrack = rtpSender.track;
                     rtpSender.replaceTrack(track);
                 }
             });
@@ -296,7 +291,7 @@ function MultiPeers(connection) {
         }
 
         if (message.enableMedia) {
-            if (connection.attachStreams.length) {
+            if (connection.attachStreams.length || connection.dontCaptureUserMedia) {
                 var streamsToShare = {};
                 connection.attachStreams.forEach(function(stream) {
                     streamsToShare[stream.streamid] = {
@@ -324,34 +319,7 @@ function MultiPeers(connection) {
                 localMediaConstraints.video = connection.mediaConstraints.video;
             }
 
-            getUserMediaHandler({
-                onGettingLocalMedia: function(localStream) {
-                    self.onGettingLocalMedia(localStream);
-
-                    var streamsToShare = {};
-                    connection.attachStreams.forEach(function(stream) {
-                        streamsToShare[stream.streamid] = {
-                            isAudio: !!stream.isAudio,
-                            isVideo: !!stream.isVideo,
-                            isScreen: !!stream.isScreen
-                        };
-                    });
-                    message.userPreferences.streamsToShare = streamsToShare;
-
-                    self.onNegotiationNeeded({
-                        readyForOffer: true,
-                        userPreferences: message.userPreferences
-                    }, remoteUserId);
-                },
-                onLocalMediaError: function(error) {
-                    self.onLocalMediaError(error);
-                    self.onNegotiationNeeded({
-                        readyForOffer: true,
-                        userPreferences: message.userPreferences
-                    }, remoteUserId);
-                },
-                localMediaConstraints: localMediaConstraints
-            });
+            invokeGetUserMedia(localMediaConstraints, message, remoteUserId);
         }
 
         if (message.readyForOffer) {
@@ -359,14 +327,77 @@ function MultiPeers(connection) {
         }
     };
 
+    function invokeGetUserMedia(mediaConstraints, message, remoteUserId) {
+        getUserMediaHandler({
+            onGettingLocalMedia: function(localStream) {
+                self.onGettingLocalMedia(localStream);
+
+                var streamsToShare = {};
+                connection.attachStreams.forEach(function(stream) {
+                    streamsToShare[stream.streamid] = {
+                        isAudio: !!stream.isAudio,
+                        isVideo: !!stream.isVideo,
+                        isScreen: !!stream.isScreen
+                    };
+                });
+                message.userPreferences.streamsToShare = streamsToShare;
+
+                self.onNegotiationNeeded({
+                    readyForOffer: true,
+                    userPreferences: message.userPreferences
+                }, remoteUserId);
+            },
+            onLocalMediaError: function(error, constraints) {
+                self.onLocalMediaError(error, constraints);
+
+                if (constraints.audio && constraints.video && (error.name || '').toString().indexOf('DevicesNotFound') !== -1) {
+                    constraints.video = false;
+                    invokeGetUserMedia(constraints, message, remoteUserId);
+                    return;
+                }
+
+                self.onNegotiationNeeded({
+                    readyForOffer: true,
+                    userPreferences: message.userPreferences
+                }, remoteUserId);
+            },
+            localMediaConstraints: mediaConstraints
+        });
+    }
+
+
+    this.connectNewParticipantWithAllBroadcasters = function(newParticipantId, userPreferences, broadcastersList) {
+        broadcastersList = broadcastersList.split('|-,-|');
+        if (!broadcastersList.length) {
+            return;
+        }
+
+        var firstBroadcaster = broadcastersList[0];
+
+        self.onNegotiationNeeded({
+            newParticipant: newParticipantId,
+            userPreferences: userPreferences || false
+        }, firstBroadcaster);
+
+        delete broadcastersList[0];
+
+        var array = [];
+        broadcastersList.forEach(function(broadcaster) {
+            if (broadcaster) {
+                array.push(broadcaster);
+            }
+        });
+
+        setTimeout(function() {
+            self.connectNewParticipantWithAllBroadcasters(newParticipantId, userPreferences, array.join('|-,-|'));
+        }, 10 * 1000);
+    };
+
     this.onGettingRemoteMedia = function(stream, remoteUserId) {};
     this.onRemovingRemoteMedia = function(stream, remoteUserId) {};
     this.onGettingLocalMedia = function(localStream) {};
-    this.onLocalMediaError = function(error) {
-        if (!!connection.enableLogs) {
-            console.error('onLocalMediaError', JSON.stringify(error, null, '\t'));
-        }
-        connection.onMediaError(error);
+    this.onLocalMediaError = function(error, constraints) {
+        connection.onMediaError(error, constraints);
     };
 
     var fbr;
@@ -408,7 +439,7 @@ function MultiPeers(connection) {
         }, {
             userid: connection.userid,
             // extra: connection.extra,
-            chunkSize: connection.chunkSize || 0
+            chunkSize: isFirefox ? 15 * 1000 : connection.chunkSize || 0
         });
     };
 
@@ -433,6 +464,11 @@ function MultiPeers(connection) {
     };
 
     this.onDataChannelOpened = function(channel, remoteUserId) {
+        // keep last channel only; we are not expecting parallel/channels channels
+        if (connection.peers[remoteUserId].channels.length) {
+            return;
+        }
+
         connection.peers[remoteUserId].channels.push(channel);
         connection.onopen({
             userid: remoteUserId,
@@ -442,11 +478,7 @@ function MultiPeers(connection) {
     };
 
     this.onPeerStateChanged = function(state) {
-        if (connection.enableLogs) {
-            if (state.iceConnectionState.search(/disconnected|closed|failed/gi) !== -1) {
-                console.error('Peer connection is closed between you & ', state.userid, state.extra, 'state:', state.iceConnectionState);
-            }
-        }
+        connection.onPeerStateChanged(state);
     };
 
     this.onNegotiationStarted = function(remoteUserId, states) {};

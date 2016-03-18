@@ -1,9 +1,4 @@
-// -------------------------------------------------------------
-
 var bezierHandler = {
-
-    // -------------------------------------------------------------
-
     global: {
         ismousedown: false,
         prevX: 0,
@@ -18,9 +13,6 @@ var bezierHandler = {
         isSecondStep: false,
         isLastStep: false
     },
-
-    // -------------------------------------------------------------
-
     mousedown: function(e) {
         var g = this.global;
 
@@ -46,9 +38,6 @@ var bezierHandler = {
             g.isLastStep = true;
         }
     },
-
-    // -------------------------------------------------------------
-
     mouseup: function(e) {
         var g = this.global;
 
@@ -63,9 +52,6 @@ var bezierHandler = {
             g.isSecondStep = true;
         }
     },
-
-    // -------------------------------------------------------------
-
     mousemove: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop;
@@ -86,9 +72,6 @@ var bezierHandler = {
             drawHelper.bezier(tempContext, [g.prevX, g.prevY, g.firstControlPointX, g.firstControlPointY, g.secondControlPointX, g.secondControlPointY, x, y]);
         }
     },
-
-    // -------------------------------------------------------------
-
     end: function(x, y) {
         var g = this.global;
 
@@ -107,9 +90,4 @@ var bezierHandler = {
 
         points[points.length] = ['bezier', [g.prevX, g.prevY, g.firstControlPointX, g.firstControlPointY, g.secondControlPointX, g.secondControlPointY, x, y], drawHelper.getOptions()];
     }
-
-    // -------------------------------------------------------------
-
 };
-
-// -------------------------------------------------------------

@@ -4,6 +4,10 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
     <title>Video Conferencing using RTCMultiConnection-v3.0</title>
@@ -12,6 +16,9 @@
     <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
 
     <style>
+        * {
+            word-wrap:break-word;
+        }
         video {
             object-fit: fill;
             width: 30%;
@@ -31,6 +38,16 @@
         .make-center {
             text-align: center;
             padding: 5px 10px;
+        }
+
+        img, input, textarea {
+          max-width: 100%
+        }
+
+        @media all and (max-width: 500px) {
+            .fork-left, .fork-right, .github-stargazers {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -56,7 +73,7 @@
 
         <section class="experiment">
             <div class="make-center">
-                <input type="text" id="room-id" value="abcdef">
+                <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
                 <button id="open-room">Open Room</button>
                 <button id="join-room">Join Room</button>
                 <button id="open-or-join-room">Auto Open Or Join Room</button>
@@ -65,7 +82,8 @@
             <div id="videos-container"></div>
         </section>
 
-        <script src="/RTCMultiConnection.min.js"></script>
+        <!-- <script src="/dist/rmc3.min.js"></script> -->
+        <script src="/dist/rmc3.min.js"></script>
 
         <!-- socket.io for signaling -->
         <script src="/socket.io/socket.io.js"></script>
@@ -78,16 +96,22 @@
             document.getElementById('open-room').onclick = function() {
                 this.disabled = true;
                 connection.open(document.getElementById('room-id').value);
+
+                document.getElementById('room-id').onkeyup();
             };
 
             document.getElementById('join-room').onclick = function() {
                 this.disabled = true;
                 connection.join(document.getElementById('room-id').value);
+
+                document.getElementById('room-id').onkeyup();
             };
 
             document.getElementById('open-or-join-room').onclick = function() {
                 this.disabled = true;
                 connection.openOrJoin(document.getElementById('room-id').value);
+
+                document.getElementById('room-id').onkeyup();
             };
 
             // ......................................................
@@ -96,7 +120,25 @@
 
             var connection = new RTCMultiConnection();
 
-            document.getElementById('room-id').value = connection.token();
+            // by default, socket.io server is assumed to be deployed on your own URL
+            connection.socketURL = '/';
+
+            // comment-out below line if you do not have your own socket.io server
+            // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+            connection.socketMessageEvent = 'video-conference-demo';
+
+            var roomid = '';
+            if(localStorage.getItem('rmc-room-id')) {
+                roomid = localStorage.getItem('rmc-room-id');
+            }
+            else {
+                roomid = connection.token();
+            }
+            document.getElementById('room-id').value = roomid;
+            document.getElementById('room-id').onkeyup = function() {
+                localStorage.setItem('rmc-room-id', this.value);
+            };
 
             connection.session = {
                 audio: true,
@@ -108,9 +150,13 @@
                 OfferToReceiveVideo: true
             };
 
-            var videosContainer = document.getElementById('videos-container');
+            connection.videosContainer = document.getElementById('videos-container');
             connection.onstream = function(event) {
-                videosContainer.appendChild(event.mediaElement);
+                connection.videosContainer.appendChild(event.mediaElement);
+                event.mediaElement.play();
+                setTimeout(function() {
+                    event.mediaElement.play();
+                }, 5000);
             };
         </script>
 

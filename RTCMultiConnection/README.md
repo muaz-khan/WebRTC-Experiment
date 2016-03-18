@@ -2,12 +2,51 @@
 
 ## RTCMultiConnection - WebRTC JavaScript Library
 
-* [RTCMultiConnection v3.0 Live Demos](https://rtcmulticonnection.herokuapp.com/)
+* [RTCMultiConnection v3 Live Demos](https://rtcmulticonnection.herokuapp.com/)
 * [RTCMultiConnection v2.2.2 Live Demos](https://www.webrtc-experiment.com/RTCMultiConnection/)
 
 [![npm](https://img.shields.io/npm/v/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master)](https://travis-ci.org/muaz-khan/RTCMultiConnection)
 
+> v3 has its own built-in socket.io server. It has pubnub/firebase demos as well; however [reliable-signaler](https://github.com/muaz-khan/Reliable-Signaler/tree/master/rtcmulticonnection-client) or [socketio-over-nodejs](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs) or similar codes can NOT be used with v3. Please use [`Signaling-Server.js`](https://github.com/muaz-khan/RTCMultiConnection/blob/master/Signaling-Server.js) instead.
+>
+> v3 can use XHR/XMPP/etc. signaling implementations as well. Please check [PubNubConnection.js](https://github.com/muaz-khan/RTCMultiConnection/blob/master/dev/PubNubConnection.js) to see how to configure it for 3rd party signaling implementations. You simply have to modify top few lines.
+
+| DemoTitle        | TestLive           | ViewSource |
+| ------------- |-------------|-------------|
+| Audio+Video+File+Text | [Demo](https://rtcmulticonnection.herokuapp.com/demos/) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio+Video+TextChat+FileSharing.html) |
+| FileSharing | [Demo](https://rtcmulticonnection.herokuapp.com/demos/file-sharing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/file-sharing.html) |
+| Scalable Audio/Video Broadcast | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Scalable-Broadcast.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Broadcast.html) |
+| Scalable Video Broadcast | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Video-Scalable-Broadcast.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Video-Scalable-Broadcast.html) |
+| Scalable File Sharing | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Files-Scalable-Broadcast.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Files-Scalable-Broadcast.html) |
+| Video Conferencing | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Video-Conferencing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Video-Conferencing.html) |
+| Audio Conferencing | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Audio-Conferencing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio-Conferencing.html) |
+| Video Broadcasting | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Video-Broadcasting.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Video-Broadcasting.html) |
+| TextChat+FileSharing | [Demo](https://rtcmulticonnection.herokuapp.com/demos/TextChat+FileSharing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/TextChat+FileSharing.html) |
+| addStream in a Chat room | [Demo](https://rtcmulticonnection.herokuapp.com/demos/addStream-in-Chat-room.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/addStream-in-Chat-room.html) |
+| Part-of-Screen Sharing | [Demo](https://rtcmulticonnection.herokuapp.com/demos/share-part-of-screen.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/share-part-of-screen.html) |
+| Share Audio+Screen | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Audio+ScreenSharing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio+ScreenSharing.html) |
+| Screen Sharing | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Screen-Sharing.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Screen-Sharing.html) |
+| Disconnect/Rejoin rooms | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Disconnect+Rejoin.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Disconnect+Rejoin.html) |
+| Password Protected Rooms | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Password-Protected-Rooms.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Password-Protected-Rooms.html) |
+| replaceTrack in Firefox | [Demo](https://rtcmulticonnection.herokuapp.com/demos/replaceTrack.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/replaceTrack.html) |
+| applyConstraints in Firefox | [Demo](https://rtcmulticonnection.herokuapp.com/demos/applyConstraints.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/applyConstraints.html) |
+| Firebase-Demo | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Firebase-Demo.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Firebase-Demo.html) |
+| PubNub Demo | [Demo](https://rtcmulticonnection.herokuapp.com/demos/PubNub-Demo.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/PubNub-Demo.html) |
+| Socket.io Custom-Messaging | [Demo](https://rtcmulticonnection.herokuapp.com/demos/custom-socket-event.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/custom-socket-event.html) |
+| Check Rooms Presence | [Demo](https://rtcmulticonnection.herokuapp.com/demos/checkPresence.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/checkPresence.html) |
+| getPublicModerators | [Demo](https://rtcmulticonnection.herokuapp.com/demos/getPublicModerators.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/getPublicModerators.html) |
+| Change Cameras/Microphonea | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Switch-Cameras.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Switch-Cameras.html) |
+| MultiRTC: Skype-like app | [Demo](https://rtcmulticonnection.herokuapp.com/demos/MultiRTC/) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/MultiRTC/) |
+
 Fetch latest code:
+
+```
+git clone https://github.com/muaz-khan/RTCMultiConnection.git ./RTCMultiConnection
+cd RTCMultiConnection
+sudo npm install --save-dev
+```
+
+Or:
 
 **Download via Github** (as `ZIP` or `.js`): [https://github.com/muaz-khan/RTCMultiConnection/releases](https://github.com/muaz-khan/RTCMultiConnection/releases)
 
@@ -15,9 +54,16 @@ Or:
 
 ```
 sudo npm install rtcmulticonnection-v3
+cd node_modules
+cd rtcmulticonnection-v3 # you MUST go to this directory
+node server.js
+```
 
-# or MOST preferred one
-mkdir RTCMultiConnection-v3.0 && cd RTCMultiConnection-v3.0
+Or MOST preferred one:
+
+```
+mkdir RTCMultiConnection-v3
+cd RTCMultiConnection-v3
 wget http://dl.webrtc-experiment.com/rtcmulticonnection-v3.tar.gz
 tar -zxvf rtcmulticonnection-v3.tar.gz
 ls -a
@@ -25,20 +71,24 @@ ls -a
 
 * [rtcmulticonnection-v3.tar.gz](http://dl.webrtc-experiment.com/rtcmulticonnection-v3.tar.gz)
 
+Windows users can use 7Zip or WinRAR to extract the TAR file.
+
 To TEST:
 
 ```
-npm start
-
-# or
 node server.js
+```
 
-# if fails,
+If fails:
+
+```
 lsof -n -i4TCP:9001 | grep LISTEN
 kill process-ID
+```
 
-# or kill specific port
-# it may require "sudo" privileges
+Or kill specific port. It may require "sudo" privileges:
+
+```
 fuser -vk 9001/tcp
 ```
 
@@ -50,38 +100,74 @@ Now open: `https://localhost:9001/`
 nohup nodejs server.js > /dev/null 2>&1 &
 ```
 
-## Link Single File
+Or:
+
+```
+nohup nodejs server.js &
+```
+
+Or use `forever`:
+
+```
+npm install forever -g
+forever start server.js
+```
+
+To auto-start `server.js` on system-reboot (i.e. when Mac/Linux system shuts down or reboots):
+
+```
+npm install forever-service
+forever-service start server.js
+```
+
+## Link Script Files
+
+All files from `/dist` directory are available on CDN: `https://cdn.webrtc-experiment.com:443/`
 
 ```html
-<script src="/RTCMultiConnection.js"></script>
-
-<!-- or minified file -->
 <script src="/RTCMultiConnection.min.js"></script>
+
+<!-- or -->
+<script src="/dist/rmc3.min.js"></script>
+
+<!-- CDN non-minified or minified -->
+<script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
+
+<!-- or specific version -->
+<script src="https://github.com/muaz-khan/RTCMultiConnection/releases/download/3.2.95/rmc3.min.js"></script>
 ```
 
 If you're sharing files, you also need to link:
 
 ```html
 <script src="/dev/FileBufferReader.js"></script>
+
+<!-- or CDN -->
+<script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
+
+<!-- or specific version -->
+<script src="https://github.com/muaz-khan/RTCMultiConnection/releases/download/3.2.95/rmc3.fbr.min.js"></script>
 ```
 
-You can link multiple files from "dev" directory.
+> You can link multiple files from `dev` directory. Order doesn't matters.
 
 ## Set different socket URL
 
-Either via `config.json` file:
+By default, RTCMultiConnection uses default port of your domain.
+
+You can use custom ports either via `config.json` file:
 
 ```json
 {
-  "socketURL": "/",
+  "socketURL": "http:s//yourdomain.com:9001/",
   "socketMessageEvent": "RTCMultiConnection-Message"
 }
 ```
 
-or override in your HTML code:
+Or simply override in your HTML code:
 
 ```javascript
-connection.socketURL = 'http://yourdomain.com:8080/';
+connection.socketURL = 'http:s//yourdomain.com:9001/';
 
 // if your server is already having "message" event
 // then you can use something else, unique.
@@ -97,7 +183,7 @@ connection.socketMessageEvent = 'unique-message';
 }
 ```
 
-or
+Or:
 
 ```javascript
 connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
@@ -112,6 +198,26 @@ Here is a demo explaining how to use above `socketURL`:
 ```javascript
 // node.js code
 require('./Signaling-Server.js')(httpServerHandlerOrPort);
+```
+
+If you're using [express.js](http://stackoverflow.com/a/35985109/552182):
+
+```javascript
+var fs = require('fs');
+
+var options = {
+    key: fs.readFileSync('fake-keys/privatekey.pem'),
+    cert: fs.readFileSync('fake-keys/certificate.pem')
+};
+
+var express = require("express"),
+    http = require("https"), // Use HTTPs here -------------
+    app = express(),
+    server = http.createServer(options, app);
+
+server.listen(3000);
+
+require('./Signaling-Server.js')(server);
 ```
 
 ## Migrating from older versions?
@@ -234,13 +340,65 @@ var videoTrack = yourVideoStream.getVideoTracks()[0];
 connection.replaceTrack(videoTrack, remoteUserId);
 ```
 
+### `resetTrack`
+
+If you replaced a video or audio track, RTCMultiConnection keeps record of old track, and allows you move-back-to previous track:
+
+```javascript
+connection.resetTrack(null, true);
+```
+
+It takes following arguments:
+
+1. `[Array of user-ids]` or `"single-user-id"` or `null`
+2. Is video track (boolean): Either `true` or `false`. `null` means replace all last tracks.
+
+```javascript
+// with single user
+connection.resetTrack('specific-userid', true);
+
+// with multiple users
+connection.resetTrack(['first-user', 'second-user'], true);
+
+// NULL means all users
+connection.resetTrack(null, true);
+
+// reset only audio
+connection.resetTrack(null, false);
+
+// to reset all last-tracks (both audio and video)
+connection.resetTrack();
+```
+
+> Means that you can reset all tracks that are replaced recently.
+
 ### `onUserStatusChanged`
 
-This even allows you show online/offline statuses of the user:
+This event allows you show online/offline statuses of the user:
 
 ```javascript
 connection.onUserStatusChanged = function(status) {
 	document.getElementById(event.userid).src = status === 'online' ? 'online.gif' : 'offline.gif';
+};
+```
+
+You can even manually call above method from `onopen`, `onstream` and similar events to get the most accurate result possible:
+
+```javascript
+connection.onopen = connection.stream = function(event) {
+    connection.onUserStatusChanged({
+        userid: event.userid,
+        extra: event.extra,
+        status: 'online'
+    });
+};
+
+connection.onleave = connection.streamended = connection.onclose = function(event) {
+    connection.onUserStatusChanged({
+        userid: event.userid,
+        extra: event.extra,
+        status: 'offline'
+    });
 };
 ```
 
@@ -301,7 +459,7 @@ connection.getUserMediaHandler(options);
 
 Its defined here:
 
-* [getUserMedia.js#L20](https://github.com/muaz-khan/RTCMultiConnection/blob/master/RTCMultiConnection-v3.0/dev/getUserMedia.js#L20)
+* [getUserMedia.js#L20](https://github.com/muaz-khan/RTCMultiConnection/tree/master/dev/getUserMedia.js#L20)
 
 ## `becomePublicModerator`
 
@@ -413,7 +571,7 @@ connection.checkPresence('roomid', function(isRoomEists, roomid) {
 
 ## `onReadyForOffer`
 
-This even is fired as soon as callee says "I am ready for offer. I enabled camera. Please create offer and share.".
+This event is fired as soon as callee says "I am ready for offer. I enabled camera. Please create offer and share.".
 
 ```javascript
 connection.onReadyForOffer = function(remoteUserId, userPreferences) {
@@ -492,8 +650,8 @@ connection.getAllParticipants().forEach(function(remoteUserId) {
 	var user = connection.peers[remoteUserId];
 	console.log(user.extra);
 
-	user.peer.connection.close();
-	alert(user.peer.connection === webkitRTCPeerConnection);
+	user.peer.close();
+	alert(user.peer === webkitRTCPeerConnection);
 });
 ```
 
@@ -515,7 +673,7 @@ This method allows you skip Socket.io and force Firebase or PubNub or WebSockets
 connection.setCustomSocketHandler(FirebaseConnection);
 ```
 
-Please check [`FirebaseConnection`](https://github.com/muaz-khan/RTCMultiConnection/blob/master/RTCMultiConnection-v3.0/dev/FirebaseConnection.js) or [`PubNubConnection.js`](https://github.com/muaz-khan/RTCMultiConnection/blob/master/RTCMultiConnection-v3.0/dev/PubNubConnection.js) to understand how it works.
+Please check [`FirebaseConnection`](https://github.com/muaz-khan/RTCMultiConnection/tree/master/dev/FirebaseConnection.js) or [`PubNubConnection.js`](https://github.com/muaz-khan/RTCMultiConnection/tree/master/dev/PubNubConnection.js) to understand how it works.
 
 ## `enableLogs`
 
@@ -785,6 +943,11 @@ Change userid and update userid among all connected peers:
 
 ```javascript
 connection.changeUserId('new-userid');
+
+// or callback to check if userid is successfully changed
+connection.changeUserId('new-userid', function() {
+    alert('Your userid is successfully changed to: ' + connection.userid);
+});
 ```
 
 ## `closeBeforeUnload`
@@ -795,6 +958,56 @@ It is `true` by default. If you are handling `window.onbeforeunload` yourself, t
 connection.closeBeforeUnload = false;
 window.onbeforeunlaod = function() {
 	connection.close();
+};
+```
+
+## `closeEntireSession`
+
+You can skip using `autoCloseEntireSession`. You can keep session/room opened whenever/wherever required and dynamically close the entire room using this method.
+
+```javascript
+connection.closeEntireSession();
+
+// or callback
+connection.closeEntireSession(function() {
+    alert('Entire session has been closed.');
+});
+
+// or before leaving a page
+connection.closeBeforeUnload = false;
+window.onbeforeunlaod = function() {
+    connection.closeEntireSession();
+};
+```
+
+## `onUserIdAlreadyTaken`
+
+This event is fired if two users tries to open same room.
+
+```javascript
+connection.onUserIdAlreadyTaken = function(useridAlreadyTaken, yourNewUserId) {
+    if (connection.enableLogs) {
+        console.warn('Userid already taken.', useridAlreadyTaken, 'Your new userid:', yourNewUserId);
+    }
+
+    connection.join(useridAlreadyTaken);
+};
+```
+
+Above event gets fired out of this code:
+
+```javascript
+moderator1.open('same-roomid');
+moderator2.open('same-roomid');
+```
+
+## `onEntireSessionClosed`
+
+You can tell users that room-moderator closed entire session:
+
+```javascript
+connection.onEntireSessionClosed = function(event) {
+    console.info('Entire session is closed: ', event.sessionid, event.extra);
 };
 ```
 
@@ -876,9 +1089,66 @@ By default, it is `false`. Which means that RTCMultiConnection will always get r
 connection.dontGetRemoteStream = true;
 ```
 
+## `getScreenConstraints`
+
+This method allows you get full control over screen-parameters:
+
+```javascript
+connection.__getScreenConstraints = connection.getScreenConstraints;
+connection.getScreenConstraints = function(callback) {
+    connection.__getScreenConstraints(function(error, screen_constraints) {
+        if (connection.DetectRTC.browser.name === 'Chrome') {
+            delete screen_constraints.mandatory.minAspectRatio;
+            delete screen_constraints.mandatory.googLeakyBucket;
+            delete screen_constraints.mandatory.googTemporalLayeredScreencast;
+            delete screen_constraints.mandatory.maxWidth;
+            delete screen_constraints.mandatory.maxHeight;
+            delete screen_constraints.mandatory.minFrameRate;
+            delete screen_constraints.mandatory.maxFrameRate;
+        }
+        callback(error, screen_constraints);
+    });
+};
+```
+
+Or to more simplify it:
+
+```javascript
+connection.__getScreenConstraints = connection.getScreenConstraints;
+connection.getScreenConstraints = function(callback) {
+    connection.__getScreenConstraints(function(error, screen_constraints) {
+        if (connection.DetectRTC.browser.name === 'Chrome') {
+            screen_constraints.mandatory = {
+                chromeMediaSource: screen_constraints.mandatory.chromeMediaSource,
+                chromeMediaSourceId: screen_constraints.mandatory.chromeMediaSourceId
+            };
+        }
+        callback(error, screen_constraints);
+    });
+};
+```
+
+You can even delete width/height for Firefox:
+
+```javascript
+connection.__getScreenConstraints = connection.getScreenConstraints;
+connection.getScreenConstraints = function(callback) {
+    connection.__getScreenConstraints(function(error, screen_constraints) {
+        if (connection.DetectRTC.browser.name === 'Chrome') {
+            delete screen_constraints.mandatory.minAspectRatio;
+        }
+        if (connection.DetectRTC.browser.name === 'Firefox') {
+            delete screen_constraints.width;
+            delete screen_constraints.height;
+        }
+        callback(error, screen_constraints);
+    });
+};
+```
+
 ## Firebase?
 
-If you are willing to use Firebase instead of Socket.io there, open [GruntFile.js](https://github.com/muaz-khan/RTCMultiConnection/blob/master/RTCMultiConnection-v3.0/Gruntfile.js) and replace `SocketConnection.js` with `FirebaseConnection.js`.
+If you are willing to use Firebase instead of Socket.io there, open [GruntFile.js](https://github.com/muaz-khan/RTCMultiConnection/blob/master/Gruntfile.js#L26) and replace `SocketConnection.js` with `FirebaseConnection.js`.
 
 Then use `grunt` to recompile RTCMultiConnection.js.
 
@@ -907,14 +1177,9 @@ Please don't forget to use your own PubNub keys.
 
 Demo: [https://rtcmulticonnection.herokuapp.com/demos/PubNub-Demo.html](https://rtcmulticonnection.herokuapp.com/demos/PubNub-Demo.html)
 
-## Configure v3.0
-
-* [wiki/Configure-v3.0](https://github.com/muaz-khan/RTCMultiConnection/wiki/Configure-v3.0)
-
-
 ## Scalable Broadcasting
 
-v3.0 now supports WebRTC scalable broadcasting. Two new API are introduced: `enableScalableBroadcast` and `singleBroadcastAttendees`.
+v3 now supports WebRTC scalable broadcasting. Two new API are introduced: `enableScalableBroadcast` and `singleBroadcastAttendees`.
 
 ```javascript
 connection.enableScalableBroadcast = true; // by default, it is false.
@@ -923,6 +1188,7 @@ connection.singleBroadcastAttendees = 3;   // how many users are handled by each
 
 Live Demos:
 
+* [All-in-One Scalable Broadcast](https://rtcmulticonnection.herokuapp.com/demos/Scalable-Broadcast.html)
 * [Files-Scalable-Broadcast.html](https://rtcmulticonnection.herokuapp.com/demos/Files-Scalable-Broadcast.html)
 * [Video-Scalable-Broadcast.html](https://rtcmulticonnection.herokuapp.com/demos/Video-Scalable-Broadcast.html)
 
@@ -973,6 +1239,325 @@ connection.multiPeersHandler.onPeerStateChanged = function(state) {
         return;
     }
 };
+```
+
+## How to mute/unmute?
+
+You can compare `muteType` for `onmute` event; and `unmuteType` for `onunmute` event.
+
+```javascript
+connection.onmute = function(e) {
+    if (!e.mediaElement) {
+        return;
+    }
+
+    if (e.muteType === 'both' || e.muteType === 'video') {
+        e.mediaElement.src = null;
+        e.mediaElement.pause();
+        e.mediaElement.poster = e.snapshot || 'https://cdn.webrtc-experiment.com/images/muted.png';
+    } else if (e.muteType === 'audio') {
+        e.mediaElement.muted = true;
+    }
+};
+
+connection.onunmute = function(e) {
+    if (!e.mediaElement) {
+        return;
+    }
+
+    if (e.unmuteType === 'both' || e.unmuteType === 'video') {
+        e.mediaElement.poster = null;
+        e.mediaElement.src = URL.createObjectURL(e.stream);
+        e.mediaElement.play();
+    } else if (e.unmuteType === 'audio') {
+        e.mediaElement.muted = false;
+    }
+};
+```
+
+## HD Streaming
+
+```javascript
+connection.bandwidth = {
+    audio: 128,
+    video: 1024,
+    screen: 1024
+};
+
+var videoConstraints = {
+    mandatory: {
+        maxWidth: 1920,
+        maxHeight: 1080,
+        minAspectRatio: 1.77,
+        minFrameRate: 3,
+        maxFrameRate: 64
+    },
+    optional: []
+};
+
+connection.mediaConstraints.video = videoConstraints;
+```
+
+For low-latency audio:
+
+* https://twitter.com/WebRTCWeb/status/499102787733450753
+
+## Default devices?
+
+By default, RTCMultiConnection tries to use last available microphone and camera. However you can disable this behavior and ask to use default devices instead:
+
+```javascript
+// pass second parameter to force options
+var connection = new RTCMultiConnection(roomId, {
+    useDefaultDevices: true
+});
+```
+
+## Auto open or join?
+
+By default, you always have to call `open` or `join` or `openOrJoin` methods manually. However you can force RTCMultiConnection to auto open/join room as soon as constructor is initialized.
+
+```javascript
+// pass second parameter to force options
+var connection = new RTCMultiConnection(roomId, {
+    autoOpenOrJoin: true
+});
+```
+
+## Wanna use H264 for video?
+
+```javascript
+connection.codecs.video = 'H264';
+```
+
+## Disable Video NACK
+
+```html
+<script src="/dev/CodecsHandler.js"></script>
+<script>
+// in your HTML file
+connection.processSdp = function(sdp) {
+    // Disable NACK to test IDR recovery
+    sdp = CodecsHandler.disableNACK(sdp);
+    return sdp;
+};
+</script>
+```
+
+## Wanna use VP8 for video?
+
+```javascript
+connection.codecs.video = 'VP8';
+```
+
+## Wanna use G722 for audio?
+
+```javascript
+connection.codecs.audio = 'G722';
+```
+
+## Prioritize Codecs
+
+```html
+<script src="/dev/CodecsHandler.js"></script>
+<script>
+// in your HTML file
+if(connection.DetectRTC.browser.name === 'Firefox') {
+    connection.getAllParticipants().forEach(function(p) {
+        var peer = connection.peers[p].peer;
+
+        CodecsHandler.prioritize('audio/opus', peer);
+    });
+}
+</script>
+```
+
+## Tips & Tricks
+
+`Object.observe` has been removed since `v3.2.95`. So you've to manually update-extra-data or set stream-end-handlers:
+
+```javascript
+connection.extra.something = 'something';
+connection.updateExtraData();
+```
+
+When attaching external streams:
+
+```javascript
+connection.attachStreams.push(yourExternalStrea);
+connection.setStreamEndHandler(yourExternalStrea);
+```
+
+Change userid using this method:
+
+```javascript
+connection.changeUserId('your-new-userid');
+```
+
+## iOS/Android
+
+RTCMultiConnection-v3 supports `cordova` based iOS/android apps.
+
+Copy/paste entire [`rmc3.min.js`](https://github.com/muaz-khan/RTCMultiConnection/tree/master/dist/rmc3.min.js) file inside `deviceready` callback:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CordovaApp using RTCMultiConnection-v3</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <!-- your UI code -->
+
+    <!-- scripts are placed on footer -->
+    <script src="cordova.js"></script>
+
+    <!-- NEVER link rmc3.min.js here -->
+    <!-- instead copy/paste code from rmc3.min.js into below "index.js" file -->
+    <script src="js/index.js"></script>
+</body>
+</html>
+```
+
+`www/js/index.js`:
+
+
+```javascript
+// please read below comments:
+document.addEventListener('deviceready', function() {
+    // copy/paste entire/all code from "rmc3.min.js" file
+    // here --- exact here
+    // paste inside this callback
+    // if you will NOT do this, RTCMultiConnection will fail on cordova-based apps
+    // again, you MUST NOT link rmc3.min.js
+    // instead copy/paste all the codes here
+
+    // you can put your custom-ui-codes here
+    // e.g.
+    // var connection = new RTCMultiConnection();
+}, false);
+```
+
+Installations:
+
+```
+sudo npm install cordova -g
+sudo npm install xcode -g
+
+cordova create ./mobileApp org.mobileApp mobileApp
+cd mobileApp
+
+cordova plugin add cordova-plugin-iosrtc
+cd hooks
+wget https://raw.githubusercontent.com/eface2face/cordova-plugin-iosrtc/master/extra/hooks/iosrtc-swift-support.js
+
+sudo chmod +x iosrtc-swift-support.js
+
+cd ..
+```
+
+Now modify `config.xml` for this section:
+
+```xml
+<platform name="ios">
+    <hook type="after_platform_add" src="hooks/iosrtc-swift-support.js" />
+</platform>
+```
+
+Further commands:
+
+```
+cordova platform add ios@3.9.2
+
+cordova build ios
+cordova build android
+```
+
+Prerequisites:
+
+1. xcode `7.2.1` (required)
+2. cordova android plugin `5.1.0` (suggested)
+3. cordova ios plugin `3.9.2` --- note: MUST be this version (don't use newer ones)
+
+Check xcode-build-version: `xcodebuild -version`
+
+Make sure that terminal is using latest xcode:
+
+```
+xcode-select --print-path
+
+sudo xcode-select -switch /Applications/Xcode5.1.1/Xcode.app
+```
+
+`config.xml` hints:
+
+Modify `platform/android/AndroidManifest.xml` for `<uses-permission android:name="android.permission.CAMERA"/>`. Now getUserMedia API will work in Android.
+
+An example `AndroidManifest.xml` file:
+
+```xml
+<?xml version='1.0' encoding='utf-8'?>
+<manifest android:hardwareAccelerated="true" android:versionCode="1" android:versionName="0.0.1" package="com.yourApp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <supports-screens android:anyDensity="true" android:largeScreens="true" android:normalScreens="true" android:resizeable="true" android:smallScreens="true" android:xlargeScreens="true" />
+    <application android:hardwareAccelerated="true" android:icon="@drawable/icon" android:label="@string/app_name" android:supportsRtl="true">
+        <activity android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale" android:label="@string/activity_name" android:launchMode="singleTop" android:name="MainActivity" android:theme="@android:style/Theme.DeviceDefault.NoActionBar" android:windowSoftInputMode="adjustResize">
+            <intent-filter android:label="@string/launcher_name">
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="23" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+</manifest>
+```
+
+An example `config.xml` file (make sure that `icon.png` has valid path):
+
+```xml
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.yourApp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>yourApp</name>
+    <icon src="www/icon.png" />
+    <description>yourApp</description>
+    <author email="yourApp@gmail.com" href="http://www.yourApp.com">You</author>
+    <content src="index.html" />
+    <plugin name="cordova-plugin-whitelist" spec="1" />
+    <access uri="*" subdomains="true" origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    <allow-navigation href="https://*/*" />
+    <platform name="android">
+        <allow-intent href="market:*" />
+    </platform>
+    <platform name="ios">
+        <allow-intent href="itms:*" />
+        <allow-intent href="itms-apps:*" />
+        <hook type="after_platform_add" src="hooks/iosrtc-swift-support.js" />
+        <config-file target="*-Info.plist" parent="CFBundleURLTypes">
+            <array>
+                <key>NSAppTransportSecurity</key>
+                <dict><key>NSAllowsArbitraryLoads</key><true/></dict>
+            </array>
+        </config-file>
+    </platform>
+    <preference name="xwalkVersion" value="16+" />
+    <preference name="xwalkCommandLine" value="--disable-pull-to-refresh-effect --allow-file-access-from-files --disable-web-security" />
+    <preference name="xwalkMode" value="embedded" />
+    <preference name="xwalkMultipleApk" value="true" />
+    <preference name="BackgroundColor" value="0xFFFF0000" />
+    <preference name="xwalkUserAgent" value="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36" />
+    <preference name="AndroidPersistentFileLocation" value="Internal" />
+</widget>
 ```
 
 ## RTCMultiConnection v2.2.2 Demos
@@ -1027,6 +1612,27 @@ connection.multiPeersHandler.onPeerStateChanged = function(state) {
 v2.2.2 is available here:
 
 * https://github.com/muaz-khan/RTCMultiConnection/tree/master/v2.2.2
+
+# [Wiki Pages](https://github.com/muaz-khan/RTCMultiConnection/wiki)
+
+* [List of Breaking Changes](https://github.com/muaz-khan/RTCMultiConnection/wiki/Breaking-Changes)
+* [Coding Tricks](https://github.com/muaz-khan/RTCMultiConnection/wiki/Coding-Tricks)
+* [Switch Between Cameras](https://github.com/muaz-khan/RTCMultiConnection/wiki/Switch-between-cameras)
+* [Bandwidth Management](https://github.com/muaz-khan/RTCMultiConnection/wiki/Bandwidth-Management)
+* [Channels and Sessions Management](https://github.com/muaz-khan/RTCMultiConnection/wiki/Channels-and-Sessions)
+* [How to send Custom/Private messages?](https://github.com/muaz-khan/RTCMultiConnection/wiki/Custom-Messages)
+* [Custom Private Servers](https://github.com/muaz-khan/RTCMultiConnection/wiki/Custom-Private-Servers)
+* [How to link RTCMultiConnection.js?](https://github.com/muaz-khan/RTCMultiConnection/wiki/How-to-link-RTCMultiConnection.js%3F)
+* [How to fix echo?](https://github.com/muaz-khan/RTCMultiConnection/wiki/How-to-fix-echo%3F)
+* [How to share Part-of-Screen?](https://github.com/muaz-khan/RTCMultiConnection/wiki/Part-of-Screen-Sharing)
+* [How to detect Presence of the users & sessions?](https://github.com/muaz-khan/RTCMultiConnection/wiki/Presence-Detection)
+* [How to share screen?](https://github.com/muaz-khan/RTCMultiConnection/wiki/Screen-Sharing)
+* [How to secure your RTCMultiConnection codes?](https://github.com/muaz-khan/RTCMultiConnection/wiki/Security)
+* [Use WebSync Signaling Server in any RTCMultiConnection demo](https://github.com/muaz-khan/RTCMultiConnection/wiki/WebSync-Signaling-Server)
+
+## Twitter
+
+* https://twitter.com/WebRTCWeb i.e. @WebRTCWeb
 
 ## License
 

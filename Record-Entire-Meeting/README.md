@@ -14,6 +14,11 @@ This application runs top over `MediaStreamRecorder.js`:
 
 * https://github.com/streamproc/MediaStreamRecorder
 
+# Browser Support
+
+1. Canary with `chrome://flags/#enable-experimental-web-platform-features`
+2. Firefox
+
 # Goals
 
 * Record both audio/video from each user participating in a meeting room.
@@ -21,31 +26,22 @@ This application runs top over `MediaStreamRecorder.js`:
 * Merge/Mux then Concatenate using Ffmpeg on Node.js server
 * Scale videos at the end into a single grid-like stream so that later viewers are given single file containing all the videos and audios.
 
-# Helper Scripts
+# Use in your own applications
 
-[Browser-Recording-Helper.js](https://github.com/streamproc/Record-Entire-Meeting/blob/master/Browser-Recording-Helper.js):
+```javascript
+// 1st step
+var NodeJsRecordingHandler = require('./Nodejs-Recording-Handler.js');
 
-> This script provides browser public API.
+io.on('connection', function(socket) {
+    // 2nd & last step:
+    // call below line for each socket connection
+    // it will never affect your other socket.io events or objects
+    NodeJsRecordingHandler(socket);
 
-[Write-Recordings-To-Disk.js](https://github.com/streamproc/Record-Entire-Meeting/blob/master/Write-Recordings-To-Disk.js):
+    // your custom socket.io code goes here
+});
+```
 
-> This script helps writing both audio/video files to nodejs disk.
-
-[Merge-Recordings.js](https://github.com/streamproc/Record-Entire-Meeting/blob/master/Merge-Recordings.js):
-
-> This script helps merging/muxing both WAV/WebM into single WebM.
-
-[Concatenate-Recordings.js](https://github.com/streamproc/Record-Entire-Meeting/blob/master/Concatenate-Recordings.js)
-
-> This script helps concatenating all interval based recordings into single WebM file. It runs in node.js server.
-
-[Scale-Recordings.js](https://github.com/streamproc/Record-Entire-Meeting/blob/master/Scale-Recordings.js):
-
-> This script is currently optional. It helps increasing audio/video quality.
-
-[MediaStreamRecorder.js](https://github.com/streamproc/Record-Entire-Meeting/blob/master/MediaStreamRecorder.js):
-
-> It is a javascript library support cross-browser intervals-based audio/video/gif recordings.
 
 ## License
 

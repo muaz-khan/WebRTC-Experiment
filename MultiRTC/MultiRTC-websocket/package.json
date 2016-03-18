@@ -1,7 +1,7 @@
 {
   "name": "multirtc-websocket",
   "preferGlobal": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com"

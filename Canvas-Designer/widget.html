@@ -12,8 +12,7 @@
 	<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
 
 	<style>
-		/* Muaz Khan (@muazkh) */
-		/*-------------------------------------------------------------*/
+		/* Muaz Khan (@muazkh/@WebRTCWeb) */
 		textarea::::-webkit-scrollbar {
 		    width: 0;
 		    height: 0;
@@ -44,13 +43,11 @@
 		textarea::-webkit-scrollbar-corner {
 		  background: transparent;
 		}
-		/*-------------------------------------------------------------*/
 		::selection, ::-moz-selection {
 		    background: #00A2E8;
 		    color: #fff;
 		    text-shadow: none;
 		}
-		/*-------------------------------------------------------------*/
 		html, body, input, textarea, h1, h2 {
 		    margin: 0;
 		    padding: 0;
@@ -76,7 +73,7 @@
 		    color:  Gray;
 		    overflow: hidden;
 		}
-		/*-------------------------------------------------------------*/
+		/* header */
 
 		h1, .line-width-done, .colors-done, .additional-close
 		{
@@ -89,7 +86,7 @@
 		    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
 		}
 
-		/*-------------------------------------------------------------*/
+		/* links */
 
 		a {
 		    color: #0b7aff;
@@ -100,7 +97,7 @@
 		    color: #043877;
 		}
 
-		/*-------------------------------------------------------------*/
+		/* design-surface */
 		.design-surface
 		{
 		    background-color: white;
@@ -111,7 +108,7 @@
 		.design-surface canvas:last-child {
 		    position: static;
 		}
-		/*-------------------------------------------------------------*/
+		/* toolbox */
 		.tool-box
 		{
 		    border-right: 1px solid #E5E5E5;
@@ -136,7 +133,7 @@
 		{
 		    box-shadow: inset 0 0 10px rgba(0, 0, 0, .1);
 		}
-		/*-------------------------------------------------------------*/
+		/* surface */
 		.preview-panel
 		{
 		    position: absolute;
@@ -171,7 +168,7 @@
 		    color: white;
 		}
 
-		/*-------------------------------------------------------------*/
+		/* input */
 		input, select
 		{
 		    -webkit-border-radius: 1px;
@@ -190,14 +187,14 @@
 		input:focus {
 		    border: 1px solid #043877;
 		}
-		/*-------------------------------------------------------------*/
+		/* select */
 		.allow-select
 		{
 		    -webkit-user-select: initial;
 		    -moz-user-select: initial;
 		    user-select: initial
 		}
-		/*-------------------------------------------------------------*/
+		/* arc */
 		.arc-range-container
 		{
 		    position: absolute;
@@ -216,7 +213,7 @@
 		    margin-top: 10px;
 		    color:#C5C5C5;
 		}
-		/*-------------------------------------------------------------*/
+		/* code viewer */
 		.code-container
 		{
 		    position: absolute;
@@ -236,7 +233,7 @@
 		    font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;
 		    color: #666;
 		}
-		/*-------------------------------------------------------------*/
+		/* options */
 		.options-container
 		{
 		    position: absolute;
@@ -257,7 +254,7 @@
 		    border-bottom: 0;
 		}
 
-		/*-------------------------------------------------------------*/
+		/* context menu */
 
 		.context-popup {
 		    position: absolute;
@@ -292,7 +289,7 @@
 		  box-shadow: inset 0 0 52px white;
 		}
 
-		/*-------------------------------------------------------------*/
+		/* colors */
 
 		.colors-container label {
 		    width: 100px;
@@ -308,7 +305,7 @@
 		    margin-bottom: 5px;
 		}
 
-		/*-------------------------------------------------------------*/
+		/* additional controls */
 
 		.additional-container label, .additional-container select {
 		    width: 200px;
@@ -326,7 +323,7 @@
 		<canvas id="main-canvas"></canvas>
 	</section>
 	
-	<!------------------------------------------>
+	<!-- toolbox -->
 
 	<section id="tool-box" class="tool-box">
         <canvas id="pencil-icon" width="40" height="40"></canvas>
@@ -348,7 +345,7 @@
 		<canvas id="additional" width="40" height="40"></canvas>
 	</section>
 	
-	<!------------------------------------------>
+	<!-- arc -->
 
 	<section id="arc-range-container" class="arc-range-container">
 		<input id="arc-range" class="arc-range" type="text" value="2">
@@ -357,7 +354,7 @@
 		<div class="arc-range-container-guide">Use arrow keys ↑↓</div>
 	</section>
 	
-	<!------------------------------------------>
+	<!-- generated code -->
 
 	<section class="code-container">
 		<textarea id="code-text" class="code-text allow-select"></textarea>
@@ -368,7 +365,7 @@
 		<div id="code-preview">Code</div>
 	</section>
 	
-	<!------------------------------------------>
+	<!-- options -->
 	
 	<section id="options-container" class="options-container">
 		<div>
@@ -381,7 +378,7 @@
 		</div>
 	</section>
 	
-	<!------------------------------------------>
+	<!-- line-width -->
 
 	<section id="line-width-container" class="context-popup">
 		<label for="line-width-text">Line Width:</label>
@@ -390,7 +387,7 @@
 		<div id="line-width-done" class="done">Done</div>
 	</section>
 	
-	<!------------------------------------------>
+	<!-- colors selector -->
 	
 	<section id="colors-container" class="context-popup colors-container">
 		<div class="input-div">
@@ -406,7 +403,7 @@
 		<div id="colors-done" class="done">Done</div>
 	</section>
 	
-	<!------------------------------------------>
+	<!-- copy paths -->
 
 	<section id="copy-container" class="context-popup">
 		<div>
@@ -419,7 +416,7 @@
 		</div>
 	</section>
 	
-	<!------------------------------------------>
+	<!-- additional controls -->
 	
 	<section id="additional-container" class="context-popup additional-container">
 		<div>
@@ -476,16 +473,12 @@
 		
 		<div id="additional-close" class="done">Done</div>
 	</section>
-
-    <!------------------------------------------>
-    
-    <input type="text" id="text-input" style="position: absolute; top: -100000px; left: -100000px; z-index: 1000000;border:0;outline:none; font-size: 15px;padding:0;margin:0; background: transparent; width: 100%;">
 	
-	<!------------------------------------------>
+	<!-- fade -->
 
 	<div id="fade"></div>
     
-    <!------------------------------------------>
+    <!-- url-parameters -->
     <script>
     	(function() {
 		    var params = {},

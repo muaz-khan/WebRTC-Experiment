@@ -1,53 +1,74 @@
 <h1><a href="https://github.com/streamproc/Record-Entire-Meeting">https://github.com/streamproc/Record-Entire-Meeting</a></h1>
 
+<style>b{color:red;}</style>
+
 <button id="start-recording">Start Recording</button>
+Recording duration: <b id="time-preview">00:00</b>
 <button id="stop-recording" disabled>Stop Recording</button>
+<hr>
+Ffmpeg progress: <b id="progress-preview">00:00</b> remaining
 <hr>
 <video controls autoplay width=320 height=240></video>
 
+<!--
 <script src="/MediaStreamRecorder.js"></script>
+-->
+<script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 <script src="/Browser-Recording-Helper.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
 var video = document.querySelector('video');
+var timePreview = document.querySelector('#time-preview');
+var progressPreview = document.querySelector('#progress-preview');
+
+var refToMediaStream;
+var startTime;
+
+var socket = io.connect('/');
 
 document.querySelector('#start-recording').onclick = function() {
     this.disabled = true;
-
-    var socket = io();
 
     navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia;
     navigator.getUserMedia({
         audio: true,
         video: true
     }, function(stream) {
+        refToMediaStream = stream;
         video.src = URL.createObjectURL(stream);
 
         var randomString = (Math.random() * 1000).toString().replace('.', '');
 
+        video.ontimeupdate = function() {
+            var duration = formatSecondsAsTime(this.currentTime);
+            startTime = duration;
+            timePreview.innerHTML = duration;
+        };
+
         RecorderHelper.StartRecording({
             MediaStream: stream,
             Socket: socket,
-            HTMLVideoElement: video,
-            FileName: 'recording', // it is ignored, though.
+            FileName: randomString,
             roomId: 'room-' + randomString,
             userId: 'user-' + randomString,
-            UploadInterval: 500, // 500ms blobs
-            VideoWidth: 320,
-            VideoHeight: 240
+            UploadInterval: 3 * 1000
         });
 
         RecorderHelper.OnComplete = function(fileName) {
-            // --- /uploads/roomid/userid.webm
-            var src = '/uploads'
-                        + '/room-' + randomString 
-                        + '/user-' + randomString + '.webm';
+            var src = '/uploads' + '/room-' + randomString + '/user-' + randomString + '.webm';
             video.src = src;
             video.play();
 
             stream.stop();
+            progressPreview.innerHTML = '00:00';
+        };
 
-            console.debug('File is uploaded; concatenated; merged; and saved:', src);
+        RecorderHelper.OnProgress = function(response) {
+            var timetrack = response.progress.timemark;
+            var values = timetrack.split(':').slice(1);
+
+            var endTime = values[0] + ':' + values[1];
+            progressPreview.innerHTML = getTime(startTime, endTime);
         };
 
         document.querySelector('#stop-recording').disabled = false;
@@ -56,8 +77,51 @@ document.querySelector('#start-recording').onclick = function() {
     });
 };
 
+function getTime(intime, out) {
+    // var intime = '00:15';
+    // var out = '00:02';
+
+    function toSeconds(s) {
+        var p = s.split(':');
+        return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+    }
+
+    function fill(s, digits) {
+        s = s.toString();
+        while (s.length < digits) s = '0' + s;
+        return s;
+    }
+
+    var sec = toSeconds(intime) - toSeconds(out);
+
+    var result = fill(Math.floor(sec / 60) % 60, 2) + ':' + fill(sec % 60, 2);
+
+    return result;
+}
+
+function formatSecondsAsTime(secs) {
+    var hr = Math.floor(secs / 3600);
+    var min = Math.floor((secs - (hr * 3600)) / 60);
+    var sec = Math.floor(secs - (hr * 3600) - (min * 60));
+
+    if (min < 10) {
+        min = "0" + min;
+    }
+    if (sec < 10) {
+        sec = "0" + sec;
+    }
+
+    return min + ':' + sec;
+}
+
 document.querySelector('#stop-recording').onclick = function() {
     this.disabled = true;
     RecorderHelper.StopRecording();
+
+    video.src = null;
+
+    if (true || !refToMediaStream) return;
+    refToMediaStream.stop();
+    refToMediaStream = null;
 };
 </script>

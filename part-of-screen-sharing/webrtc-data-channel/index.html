@@ -63,6 +63,7 @@
 		
         <!-- DataChannel.js library -->
         <script src="https://cdn.webrtc-experiment.com/DataChannel.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/firebase.js"> </script>
 		<script src="https://cdn.webrtc-experiment.com/screenshot.js"> </script>
     </head>
 
@@ -287,33 +288,6 @@
                         });
                         
                         channelsList.style.display = 'none';
-                    };
-                };
-
-                // overriding "openSignalingChannel" to use WebSockets as signaling gateway!
-                channel.openSignalingChannel = function(config) {
-                    config.channel = config.channel || this.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-                    var websocket = new WebSocket('wss://wsnodejs.nodejitsu.com:443/');
-                    websocket.channel = config.channel;
-                    websocket.onopen = function() {
-                        websocket.push(JSON.stringify({
-                            open: true,
-                            channel: config.channel
-                        }));
-                        if (config.callback) config.callback(websocket);
-                    };
-                    websocket.onerror = function() {
-                        alert('WebSocket connection has issues. Signaling is failed.');
-                    };
-                    websocket.onmessage = function(event) {
-                        config.onmessage(JSON.parse(event.data));
-                    };
-                    websocket.push = websocket.send;
-                    websocket.send = function(data) {
-                        websocket.push(JSON.stringify({
-                            data: data,
-                            channel: config.channel
-                        }));
                     };
                 };
 

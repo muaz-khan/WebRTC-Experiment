@@ -119,23 +119,23 @@
             This module simply initializes socket.io and configures it in a way that single audio/video/screen stream can be shared/relayed over unlimited users without any <a href="https://www.webrtc-experiment.com/docs/RTP-usage.html">bandwidth/CPU usage issues</a>. Everything happens peer-to-peer!
 
             <br><br>
-            Share files with unlimited users using p2p methods! <a href="/demos/Files-Scalable-Broadcast.html">Files Scalable Broadcast</a>
+            Share files with unlimited users using p2p methods! <a href="/demos/Files-Scalable-Broadcast.html">Files Scalable Broadcast</a> or <a href="/demos/Scalable-Broadcast.html">all-in-one scalable broadcast</a>.
         </blockquote>
 
         <script src="/socket.io/socket.io.js"></script>
         <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
         <script>
-            var singleBroadcastAttendees = 2;
+            var maxRelayLimitPerUser = 2;
             var parameters = '';
 
             parameters += '?enableScalableBroadcast=true';
-            parameters += '&singleBroadcastAttendees=' + singleBroadcastAttendees;
+            parameters += '&maxRelayLimitPerUser=' + maxRelayLimitPerUser;
 
             var socket = io.connect('/' + parameters);
 
             // using single socket for RTCMultiConnection signaling
             var onMessageCallbacks = {};
-            socket.on('message', function(data) {
+            socket.on('scalable-broadcast-message', function(data) {
                 if (data.sender == connection.userid) return;
                 if (onMessageCallbacks[data.channel]) {
                     onMessageCallbacks[data.channel](data.message);
@@ -163,7 +163,7 @@
                     if (config.onopen) setTimeout(config.onopen, 1000);
                     return {
                         send: function(message) {
-                            socket.emit('message', {
+                            socket.emit('scalable-broadcast-message', {
                                 sender: connection.userid,
                                 channel: channel,
                                 message: message
@@ -247,9 +247,9 @@
             };
 
             // this event is emitted when a broadcast is already created.
-            socket.on('join-broadcaster', function(broadcaster, typeOfStreams) {
-                connection.session = typeOfStreams;
-                connection.channel = connection.sessionid = broadcaster.userid;
+            socket.on('join-broadcaster', function(hintsToJoinBroadcast) {
+                connection.session = hintsToJoinBroadcast.typeOfStreams;
+                connection.channel = connection.sessionid = hintsToJoinBroadcast.userid;
 
                 connection.sdpConstraints.mandatory = {
                     OfferToReceiveVideo: !!connection.session.video,
@@ -257,8 +257,8 @@
                 };
 
                 connection.join({
-                    sessionid: broadcaster.userid,
-                    userid: broadcaster.userid,
+                    sessionid: hintsToJoinBroadcast.userid,
+                    userid: hintsToJoinBroadcast.userid,
                     extra: {},
                     session: connection.session
                 });

@@ -1,180 +1,98 @@
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.webrtc-experiment.com/licence
+// Documentation - github.com/streamproc/MediaStreamRecorder
 var RecorderHelper = (function() {
-    var isFirefox = !!navigator.mozGetUserMedia;
     var socket; // socket.io
     var roomId;
     var userId;
-    var UploadInterval = 2000; // default, 2 seconds
+    var UploadInterval = 5 * 1000;
 
-    // default: 240p
-    var VideoWidth = 320;
-    var VideoHeight = 240;
+    var mediaStreamRecorder;
 
-    var multiStreamRecorder;
-
-    function initRecorder(MediaStream, video) {
-        // listen for "ended" event
-        // works only in Chrome
-        MediaStream.addEventListener('ended', function() {
-            RecorderHelper.StopRecording();
+    function initRecorder(mediaStream, video) {
+        mediaStream.addEventListener('ended', function() {
+            // RecorderHelper.StopRecording();
         }, false);
 
-        multiStreamRecorder = new MultiStreamRecorder(MediaStream);
+        mediaStreamRecorder = new MediaStreamRecorder(mediaStream);
 
-        // resolutions are passed here
-        multiStreamRecorder.canvas = {
-            width: VideoWidth,
-            height: VideoHeight
+        mediaStreamRecorder.mimeType = 'video/webm';
+
+        mediaStreamRecorder.ondataavailable = function(blobs) {
+            onDataAvailable(blobs);
         };
-
-        // LET Chrome decide "best" buffer-size value
-        // todo???? YOU can use HARD-CODED value here
-        // need to use bufferSize=16384 when recording 720p to make sure audio is NOT affected.
-        multiStreamRecorder.bufferSize = 0;
-
-        // RECORD only LEFT channel
-        // https://github.com/streamproc/MediaStreamRecorder#audiochannelss
-        multiStreamRecorder.audioChannels = 1;
-
-        // HTMLVideoElement
-        // https://github.com/streamproc/MediaStreamRecorder#video
-        multiStreamRecorder.video = video;
-
-
-        multiStreamRecorder.ondataavailable = function(blobs) {
-            // WAV/WebM blobs
-            onDataAvailable(blobs.audio, blobs.video);
-        };
-        multiStreamRecorder.start(UploadInterval);
+        mediaStreamRecorder.start(UploadInterval);
 
         socket.on('complete', function(fileName) {
             RecorderHelper.OnComplete(fileName);
         });
-    }
 
-    // this variable is used to detect if all pending are uploaded
-    var isStopPending = false;
-
-    // handler to detect if user is leaving
-    window.addEventListener('beforeunload', function(event) {
-        if (multiStreamRecorder) {
-            // this code quickly stops recording
-            // in first confirm-box
-            multiStreamRecorder.stop();
-            multiStreamRecorder = null;
-        }
-
-        // if some of the pending blobs are still there
-        if (Object.keys(socketPendingMessages).length) {
-            isStopPending = true;
-            event.returnValue = 'Still some recording intervals are pending.';
-        } else {
-            // otherwise, let server know that stream is finally stopped.
-            socket.emit('stream-stopped');
-        }
-    }, false);
-
-    function onDataAvailable(audioBlob, videoBlob) {
-        // todo: DataURL process is too slow.
-        // UPload ArrayBuffer or Blob to the server.
-
-        // DataURL is uploaded to server instead of Blobs
-        // This process is 60-80 times slow comparing direct blob uploading
-        // Because we need to wait for FileReader to read DataURLs
-        getDataURL(audioBlob, function(audioDataURL) {
-            // this object containers audio DataURL
-            var audio = {
-                blob: audioBlob,
-                dataURL: audioDataURL
-            };
-
-            // Firefox will be MERELY having single audio DataURL
-            // that DataURL is actually WebM file containing both audio and video
-            if (isFirefox) {
-                postFiles(audio);
-                return;
-            }
-
-            // read video DataURL for Chrome
-            getDataURL(videoBlob, function(videoDataURL) {
-                // this object contains video DataURL
-                var video = {
-                    blob: videoBlob,
-                    dataURL: videoDataURL
-                };
-
-                // upload both audio and video DataURLs to server
-                postFiles(audio, video);
-            });
+        socket.on('ffmpeg-progress', function(response) {
+            RecorderHelper.OnProgress(response);
         });
     }
 
-    // each user is having unique file-name-string
-    // this is exactly name that is stored on server like this:
-    // file-1.wav
-    // file-1.webm
-    // file-2.wav
-    // file-2.webm
+    window.addEventListener('beforeunload', function(event) {
+        if (mediaStreamRecorder) {
+            mediaStreamRecorder.stop();
+            mediaStreamRecorder = null;
+        }
+
+        if (Object.keys(socketPendingMessages).length) {
+            event.returnValue = 'Still some recording intervals are pending.';
+        }
+    }, false);
+
+    function onDataAvailable(blob) {
+        getDataURL(blob, function(dataURL) {
+            var data = {
+                blob: blob,
+                dataURL: dataURL
+            };
+
+            postFiles(data);
+        });
+    }
+
     var fileNameString;
     var index = 1;
 
-    function postFiles(audio, video) {
+    function postFiles(data) {
         var interval = index;
 
-        // exact file name that is uploaded to server
         fileName = fileNameString + '-' + index;
 
-        index++; // increment interval
+        index++;
 
-        // single object that contains both audio/video DataURls
         var files = {
-            interval: interval, // currently uploading interval
-            isFirefox: !!isFirefox,
-            roomId: roomId || generatefileNameString(), // unique roomid
-            userId: userId || generatefileNameString(), // unique userid
-            fileName: fileNameString // file-name-string
+            interval: interval,
+            roomId: roomId || generatefileNameString(),
+            userId: userId || generatefileNameString(),
+            fileName: fileNameString
         };
 
-        // audio DataURL
-        files.audio = {
-            name: fileName + '.' + audio.blob.type.split('/')[1],
-            type: audio.blob.type,
-            contents: audio.dataURL,
+        files.data = {
+            name: fileName + '.' + data.blob.type.split('/')[1],
+            type: data.blob.type,
+            contents: data.dataURL,
             interval: interval
         };
 
-        if (!isFirefox) {
-            // video DataURL for Chrome
-            files.video = {
-                name: fileName + '.' + video.blob.type.split('/')[1],
-                type: video.blob.type,
-                contents: video.dataURL,
-                interval: interval
-            };
-        }
-
-        // if socket.io is in progress
         if (isSocketBusy) {
-            // store recordings in a global object
-            // it is named as "pending-data"
             socketPendingMessages[interval] = {
-                files: files, // the actual pending data
-
-                // this method is invoke to upload "pending-data"
+                files: files,
                 emit: function() {
                     isSocketBusy = true;
 
                     console.info('emitting', interval);
 
-                    // uploading to server
                     socket.emit('recording-message', JSON.stringify(files), function() {
                         isSocketBusy = false;
 
-                        // if there are still some pending-data
                         if (socketPendingMessages[interval + 1]) {
                             socketPendingMessages[interval + 1].emit();
                             delete socketPendingMessages[interval + 1];
-                        } else if (isStopPending) {
-                            // otherwise, let server know that all pending DataURLs are uploaded
+                        } else if(!mediaStreamRecorder) {
                             socket.emit('stream-stopped');
                         }
                     });
@@ -186,28 +104,23 @@ var RecorderHelper = (function() {
         isSocketBusy = true;
         console.info('emitting', interval);
 
-        // uploading to server
         socket.emit('recording-message', JSON.stringify(files), function() {
             isSocketBusy = false;
 
-            // if there are still some pending-data
+            console.info('emitting', interval);
+
             if (socketPendingMessages[interval + 1]) {
                 socketPendingMessages[interval + 1].emit();
                 delete socketPendingMessages[interval + 1];
-            } else if (isStopPending) {
-                // otherwise, let server know that all pending DataURLs are uploaded
+            } else if(!mediaStreamRecorder) {
                 socket.emit('stream-stopped');
             }
         });
     }
 
-    // this global variable is used to detect if socket.io is busy
     var isSocketBusy = false;
-
-    // this global object stores all pending-blobs
     var socketPendingMessages = {};
 
-    // simply generates random string
     function generatefileNameString() {
         if (window.crypto) {
             var a = window.crypto.getRandomValues(new Uint32Array(3)),
@@ -219,9 +132,6 @@ var RecorderHelper = (function() {
         }
     }
 
-    // reads DataURL in WebWorker
-    // todo: single WebWorker can be used to read all recordings
-    //       it'll reduce RAM usage as well as speed-up reading process (a bit).
     function getDataURL(blob, callback) {
         if (!!window.Worker) {
             var webWorker = processInWebWorker(function readFile(_blob) {
@@ -244,7 +154,6 @@ var RecorderHelper = (function() {
 
     var worker;
 
-    // this function generates WebWorker code on the fly.
     function processInWebWorker(_function) {
         if (worker) {
             return worker;
@@ -262,46 +171,36 @@ var RecorderHelper = (function() {
     }
 
     return {
-        // public API
-        // RecorderHelper.StartRecording(config);
         StartRecording: function(obj) {
             index = 1;
 
-            // make sure that file name is uniqe for each user
-            fileNameString = /* obj.FileName || */ generatefileNameString();
+            fileNameString = obj.FileName || generatefileNameString();
 
-            roomId = obj.roomId; // getting value from config
-            userId = obj.userId; // getting value from config
-            UploadInterval = obj.UploadInterval; // getting value from config
-            VideoWidth = obj.VideoWidth; // getting value from config
-            VideoHeight = obj.VideoHeight; // getting value from config
+            roomId = obj.roomId;
+            userId = obj.userId;
+            UploadInterval = obj.UploadInterval;
 
-            socket = obj.Socket; // getting value from config
+            socket = obj.Socket;
 
-            // Starting Recording
             initRecorder(obj.MediaStream, obj.HTMLVideoElement);
 
             this.alreadyStopped = false;
         },
 
         StopRecording: function() {
-            if(this.alreadyStopped) return;
+            if (this.alreadyStopped) return;
             this.alreadyStopped = true;
 
-            // LET server know recording process is stopped
-            // todo???? maybe ask server to wait for 5-10 minutes
-            //          then invoke merge/concatenate functions??
-            
-            socket.emit('stream-stopped');
-            multiStreamRecorder.stop();
-            multiStreamRecorder = null;
-            // socket.disconnect();
-
-            // location.reload();
+            mediaStreamRecorder.stop();
+            mediaStreamRecorder = null;
         },
 
         OnComplete: function(fileName) {
             console.debug('File saved at: /uploads/' + roomId + '/' + fileName);
+        },
+
+        OnProgress: function(response) {
+            console.info('ffmpeg progress', response.progress, response);
         }
     };
 })();

@@ -1,9 +1,4 @@
-// -------------------------------------------------------------
-
 var arcHandler = {
-
-    // -------------------------------------------------------------
-
     global: {
         ismousedown: false,
         prevX: 0,
@@ -15,9 +10,6 @@ var arcHandler = {
         arcRangeContainer: null,
         arcRange: null
     },
-
-    // -------------------------------------------------------------
-
     mousedown: function(e) {
         var g = this.global;
 
@@ -29,9 +21,6 @@ var arcHandler = {
 
         g.ismousedown = true;
     },
-
-    // -------------------------------------------------------------
-
     mouseup: function(e) {
         var g = this.global;
 
@@ -75,9 +64,6 @@ var arcHandler = {
 
         this.fixAllPoints();
     },
-
-    // -------------------------------------------------------------
-
     mousemove: function(e) {
         var g = this.global;
 
@@ -100,9 +86,6 @@ var arcHandler = {
             }
         }
     },
-
-    // -------------------------------------------------------------
-
     fixAllPoints: function() {
         var toFixed = this.toFixed;
 
@@ -117,9 +100,6 @@ var arcHandler = {
             }
         }
     },
-
-    // -------------------------------------------------------------
-
     init: function() {
         var markIsClockwise = find('is-clockwise'),
             g = this.global;
@@ -148,9 +128,6 @@ var arcHandler = {
         addEvent(arcRange, 'keydown', this.arcRangeHandler);
         addEvent(arcRange, 'focus', this.arcRangeHandler);
     },
-
-    // -------------------------------------------------------------
-
     arcRangeHandler: function(e) {
         var g = arcHandler.global,
             arcRange = g.arcRange;
@@ -174,15 +151,9 @@ var arcHandler = {
             }
         }
     },
-
-    // -------------------------------------------------------------
-
     toFixed: function(input) {
         return Number(input).toFixed(1);
     },
-
-    // -------------------------------------------------------------
-
     end: function() {
         var g = this.global;
 
@@ -194,10 +165,6 @@ var arcHandler = {
 
         drawHelper.redraw();
     }
-
-    // -------------------------------------------------------------
 };
 
 arcHandler.init();
-
-// -------------------------------------------------------------

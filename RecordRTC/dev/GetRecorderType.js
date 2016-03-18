@@ -47,17 +47,18 @@ function GetRecorderType(mediaStream, config) {
     }
 
     // todo: enable below block when MediaRecorder in Chrome gets out of flags; and it also supports audio recording.
-    if (false && isChrome && recorder === WhammyRecorder && typeof MediaRecorder !== 'undefined' && 'requestData' in MediaRecorder.prototype) {
+    if (isMediaRecorderCompatible() && isChrome && recorder !== CanvasRecorder && recorder !== GifRecorder && typeof MediaRecorder !== 'undefined' && 'requestData' in MediaRecorder.prototype) {
         if (mediaStream.getVideoTracks().length) {
             recorder = MediaStreamRecorder;
-            if (!config.disableLogs) {
-                console.debug('Using MediaRecorder API in chrome!');
-            }
         }
     }
 
     if (config.recorderType) {
         recorder = config.recorderType;
+    }
+
+    if (!config.disableLogs && !!recorder && !!recorder.name) {
+        console.debug('Using recorderType:', recorder.name || recorder.constructor.name);
     }
 
     return recorder;

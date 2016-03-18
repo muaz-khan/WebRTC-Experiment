@@ -1,4 +1,3 @@
-// -------------------------------------------------------------
 var tools = {
     line: true,
     pencil: true,
@@ -9,7 +8,8 @@ var tools = {
     arc: true,
     bezier: true,
     quadratic: true,
-    text: true
+    text: true,
+    image: true
 };
 
 if (params.tools) {
@@ -28,8 +28,6 @@ function setSelection(element, prop) {
     element.className += ' selected-shape';
 }
 
-// -------------------------------------------------------------
-
 (function() {
 
     var cache = {};
@@ -37,16 +35,12 @@ function setSelection(element, prop) {
     var lineCapSelect = find('lineCap-select');
     var lineJoinSelect = find('lineJoin-select');
 
-    // -------------------------------------------------------------
-
     function getContext(id) {
         var context = find(id).getContext('2d');
         context.lineWidth = 2;
         context.strokeStyle = '#6c96c8';
         return context;
     }
-
-    // -------------------------------------------------------------
 
     function bindEvent(context, shape) {
         if (shape === 'Pencil') {
@@ -62,6 +56,25 @@ function setSelection(element, prop) {
         } else is.set('Pencil');
 
         addEvent(context.canvas, 'click', function() {
+            if (textHandler.text.length) {
+                points[points.length] = ['text', ['"' + textHandler.text + '"', textHandler.x, textHandler.y], drawHelper.getOptions()];
+            }
+
+            if (shape === 'Text') {
+                tempContext.canvas.style.cursor = 'text';
+                textHandler.x = textHandler.y = 0;
+                textHandler.text = '';
+            } else {
+                textHandler.text = '';
+                tempContext.canvas.style.cursor = 'default';
+                if (typeof textHandler.blinkCursorInterval !== 'undefined') {
+                    clearInterval(textHandler.blinkCursorInterval);
+                }
+            }
+
+            if (shape === 'Pencil') {
+                lineCap = lineJoin = 'round';
+            }
 
             dragHelper.global.startingIndex = 0;
 
@@ -123,13 +136,8 @@ function setSelection(element, prop) {
         });
     }
 
-    // -------------------------------------------------------------
-
     var toolBox = find('tool-box');
     toolBox.style.height = (innerHeight /* - toolBox.offsetTop - 77 */ ) + 'px';
-
-    // -------------------------------------------------------------
-
 
     function decorateDragLastPath() {
         var context = getContext('drag-last-path');
@@ -171,8 +179,6 @@ function setSelection(element, prop) {
         decorateDragLastPath();
     } else document.getElementById('drag-last-path').style.display = 'none';
 
-    // -------------------------------------------------------------
-
     function decorateDragAllPaths() {
         var context = getContext('drag-all-paths');
 
@@ -213,8 +219,6 @@ function setSelection(element, prop) {
         decorateDragAllPaths();
     } else document.getElementById('drag-all-paths').style.display = 'none';
 
-    // -------------------------------------------------------------
-
     function decorateLine() {
         var context = getContext('line');
 
@@ -232,8 +236,6 @@ function setSelection(element, prop) {
     if (tools.line === true) {
         decorateLine();
     } else document.getElementById('line').style.display = 'none';
-
-    // -------------------------------------------------------------
 
     function decoratePencil() {
         var context = getContext('pencil-icon');
@@ -255,8 +257,6 @@ function setSelection(element, prop) {
         decoratePencil();
     } else document.getElementById('pencil-icon').style.display = 'none';
 
-    // -------------------------------------------------------------
-
     function decorateEraser() {
         var context = getContext('eraser-icon');
 
@@ -277,8 +277,6 @@ function setSelection(element, prop) {
         decorateEraser();
     } else document.getElementById('eraser-icon').style.display = 'none';
 
-    // -------------------------------------------------------------
-
     function decorateText() {
         var context = getContext('text-icon');
 
@@ -291,8 +289,6 @@ function setSelection(element, prop) {
     if (tools.text === true) {
         decorateText();
     } else document.getElementById('text-icon').style.display = 'none';
-
-    // -------------------------------------------------------------
 
     function decorateImage() {
         var context = getContext('image-icon');
@@ -308,8 +304,6 @@ function setSelection(element, prop) {
     if (tools.image === true) {
         decorateImage();
     } else document.getElementById('image-icon').style.display = 'none';
-
-    // -------------------------------------------------------------
 
     function decorateArc() {
         var context = getContext('arc');
@@ -328,8 +322,6 @@ function setSelection(element, prop) {
         decorateArc();
     } else document.getElementById('arc').style.display = 'none';
 
-    // -------------------------------------------------------------
-
     function decorateRect() {
         var context = getContext('rectangle');
 
@@ -345,8 +337,6 @@ function setSelection(element, prop) {
     if (tools.rectangle === true) {
         decorateRect();
     } else document.getElementById('rectangle').style.display = 'none';
-
-    // -------------------------------------------------------------
 
     function decorateQuadratic() {
         var context = getContext('quadratic-curve');
@@ -365,8 +355,6 @@ function setSelection(element, prop) {
     if (tools.quadratic === true) {
         decorateQuadratic();
     } else document.getElementById('quadratic-curve').style.display = 'none';
-
-    // -------------------------------------------------------------
 
     function decorateBezier() {
         var context = getContext('bezier-curve');
@@ -389,8 +377,6 @@ function setSelection(element, prop) {
     if (tools.bezier === true) {
         decorateBezier();
     } else document.getElementById('bezier-curve').style.display = 'none';
-
-    // -------------------------------------------------------------
 
     function tempStrokeTheLine(context, width, mx, my, lx, ly) {
         context.beginPath();
@@ -436,7 +422,6 @@ function setSelection(element, prop) {
 
     decorateLineWidth();
 
-    // -------------------------------------------------------------
     function decorateColors() {
         var context = getContext('colors');
 
@@ -475,7 +460,6 @@ function setSelection(element, prop) {
 
     decorateColors();
 
-    // -------------------------------------------------------------
     function decorateAdditionalOptions() {
         var context = getContext('additional');
 
@@ -514,12 +498,8 @@ function setSelection(element, prop) {
 
     decorateAdditionalOptions();
 
-    // -------------------------------------------------------------
-
     var designPreview = find('design-preview'),
         codePreview = find('code-preview');
-
-    // -------------------------------------------------------------
 
     // todo: use this function in share-drawings.js
     // to sync buttons' states
@@ -540,8 +520,6 @@ function setSelection(element, prop) {
         }
     };
 
-    // -------------------------------------------------------------
-
     addEvent(designPreview, 'click', function() {
         selectBtn(designPreview);
         btnDesignerPreviewClicked();
@@ -554,8 +532,6 @@ function setSelection(element, prop) {
         hideContainers();
         endLastPath();
     }
-
-    // -------------------------------------------------------------
 
     addEvent(codePreview, 'click', function() {
         selectBtn(codePreview);
@@ -575,12 +551,8 @@ function setSelection(element, prop) {
         endLastPath();
     }
 
-    // -------------------------------------------------------------
-
     var codeText = find('code-text'),
         optionsContainer = find('options-container');
-
-    // -------------------------------------------------------------
 
     function setHeightForCodeAndOptionsContainer() {
         codeText.style.width = (innerWidth - optionsContainer.clientWidth - 30) + 'px';
@@ -590,19 +562,13 @@ function setSelection(element, prop) {
         optionsContainer.style.height = (innerHeight) + 'px';
     }
 
-    // -------------------------------------------------------------
-
     var isAbsolute = find('is-absolute-points'),
         isShorten = find('is-shorten-code');
 
     addEvent(isShorten, 'change', common.updateTextArea);
     addEvent(isAbsolute, 'change', common.updateTextArea);
 
-    // -------------------------------------------------------------
-
 })();
-
-// -------------------------------------------------------------
 
 function hideContainers() {
     var additionalContainer = find('additional-container'),
@@ -611,5 +577,3 @@ function hideContainers() {
 
     additionalContainer.style.display = colorsContainer.style.display = lineWidthContainer.style.display = 'none';
 }
-
-// -------------------------------------------------------------

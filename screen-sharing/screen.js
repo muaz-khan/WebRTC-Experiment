@@ -56,7 +56,7 @@
                         alert(Firefox_Screen_Capturing_Warning);
                     }
 
-                    console.error(e);
+                    console.error(error);
                 });
             });
         }

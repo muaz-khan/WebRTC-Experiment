@@ -1,7 +1,7 @@
 {
   "name": "record-entire-meeting",
   "preferGlobal": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -29,8 +29,9 @@
     "muaz-khan"
   ],
   "dependencies": {
-    "socket.io": "latest",
-    "mkdirp": "latest"
+    "socket.io": "0.9.17",
+    "mkdirp": "0.5.1",
+    "fluent-ffmpeg" : "2.0.1"
   },
   "analyze": false,
   "license": "MIT",

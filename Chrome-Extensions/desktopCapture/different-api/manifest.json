@@ -1,0 +1,25 @@
+{
+    "name" : "Screen Capturing",
+    "author": "Muaz Khan",
+    "version" : "3.4",
+    "manifest_version" : 2,
+    "minimum_chrome_version": "40",
+    "description" : "Capture full-screen or specific application's screen on any HTTPs domain!",
+    "homepage_url": "https://github.com/muaz-khan/Chrome-Extensions",
+    "background": {
+        "scripts": ["background-script.js"],
+        "persistent": false
+    },
+    "externally_connectable": [ {
+       "matches": ["https://19c071b13c664960e187d8a909253d4613e0572c.googledrive.com/*"]
+    }],
+    "icons" : {
+        "48" : "icon.png"
+    },
+    "permissions": [
+        "desktopCapture"
+    ],
+    "web_accessible_resources": [
+        "icon.png"
+    ]
+}

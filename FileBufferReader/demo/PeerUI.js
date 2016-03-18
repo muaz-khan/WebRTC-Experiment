@@ -1,4 +1,4 @@
-// Last time updated at Sep 07, 2014, 08:32:23
+// Last time updated at Feb 15, 2016, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/FileBufferReader.js
 
@@ -11,7 +11,7 @@
 
 var setupOffer = document.getElementById('setup-offer'), innerHTML;
 
-var SIGNALING_URI = 'wss://wsnodejs.nodejitsu.com:443';
+var SIGNALING_URI = 'wss://webrtc-signaling.herokuapp.com:443/ws/';
 
 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 var websocket = new WebSocket(SIGNALING_URI);

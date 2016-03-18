@@ -1,0 +1,629 @@
+﻿<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0, user-scalable=no">
+
+	<title>RecordRTC and Canvas Designer ® Muaz Khan</title>    
+	<meta name="description" content="RecordRTC and HTML5 Canvas Designer ® Muaz Khan – A tool aimed to give you a full-fledged drawing surface and also auto generate appropriate code for you in different formats! Generator/Tool/Editor – 2D API/Context">
+
+	<meta name="author" content="Muaz Khan">
+	<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+
+	<style>
+		/* Muaz Khan (@muazkh) */
+		/*-------------------------------------------------------------*/
+		textarea::::-webkit-scrollbar {
+		    width: 0;
+		    height: 0;
+		}
+		textarea::-webkit-scrollbar {
+		  height: 0;
+		  overflow: visible;
+		  width: 10px;  
+		  border-left:1px solid rgb(229, 229, 229);
+		}
+		textarea::-webkit-scrollbar-thumb {
+		  background-color: rgba(0, 0, 0, .2);
+		  background-clip: padding-box;    
+		  min-height: 28px;
+		  padding: 100px 0 0;
+		  box-shadow: inset 1px 1px 0 rgba(0,0,0,.1),inset 0 -1px 0 rgba(0,0,0,.07);
+		  border-width: 1px 1px 1px 6px;
+		}
+		textarea::-webkit-scrollbar-button {
+		  height: 0;
+		  width: 0;
+		}
+		textarea::-webkit-scrollbar-track {
+		  background-clip: padding-box;
+		  border: solid transparent;
+		  border-width: 0 0 0 4px;
+		}
+		textarea::-webkit-scrollbar-corner {
+		  background: transparent;
+		}
+		/*-------------------------------------------------------------*/
+		::selection, ::-moz-selection {
+		    background: #00A2E8;
+		    color: #fff;
+		    text-shadow: none;
+		}
+		/*-------------------------------------------------------------*/
+		html, body, input, textarea, h1, h2 {
+		    margin: 0;
+		    padding: 0;
+
+		    word-wrap: break-word;
+
+		    -o-text-overflow: ellipsis;
+		    -ms-text-overflow: ellipsis;
+		    text-overflow: ellipsis;
+
+		    -webkit-user-select: none;
+		    -moz-user-select: none;
+		    -ms-user-select: none;
+		    user-select: none;
+
+		    font-family: Verdana, arial, helvetica, sans-serif
+		}
+		html, body {
+		    background-color: #FBFBFB;
+		    font-size: 13px;
+		    height:100%;
+		    cursor: default;
+		    color:  Gray;
+		    overflow: hidden;
+		}
+		/*-------------------------------------------------------------*/
+
+		h1, .line-width-done, .colors-done, .additional-close
+		{
+		    background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(243,243,243,1) 97%, rgba(237,237,237,1) 97%, rgba(255,255,255,1) 100%); /* FF3.6+ */
+		    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(97%,rgba(243,243,243,1)), color-stop(97%,rgba(237,237,237,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
+		    background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
+		    background: -o-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* Opera 11.10+ */
+		    background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* IE10+ */
+		    background: linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* W3C */
+		    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+		}
+
+		/*-------------------------------------------------------------*/
+
+		a {
+		    color: #0b7aff;
+		    text-decoration: none;
+		}
+
+		a:hover {
+		    color: #043877;
+		}
+
+		/*-------------------------------------------------------------*/
+		.design-surface
+		{
+		    background-color: white;
+		}
+		.design-surface canvas {
+		    position: absolute;
+		}
+		.design-surface canvas:last-child {
+		    position: static;
+		}
+		/*-------------------------------------------------------------*/
+		.tool-box
+		{
+		    border-right: 1px solid #E5E5E5;
+		    position: absolute;
+		    top: 0;
+		    width: 40px;
+		    background-color: #FBFBFB;
+		    overflow: hidden;
+		}
+		.tool-box canvas
+		{
+		    border-bottom: 1px solid #E5E5E5;
+		    border-radius: 2px;
+		    margin-top: -4px;
+		}
+		.tool-box canvas:first-child, .tool-box canvas:first-child:hover
+		{
+		    margin-top: 0;
+		    border-top:0;
+		}
+		.selected-shape, .tool-box canvas:hover
+		{
+		    box-shadow: inset 0 0 10px rgba(0, 0, 0, .1);
+		}
+		/*-------------------------------------------------------------*/
+		.preview-panel
+		{
+		    position: absolute;
+		    right: 10px;
+		    background-color: #FBFBFB;
+		    bottom: 0;
+		}
+		.preview-panel div, .start-top-recording button
+		{
+		    border: 1px solid #E5E5E5;
+		    display: inline-block;
+		    padding: 5px 10px;
+		}
+
+		.start-top-recording button {
+			font-size: 13px!important;
+			background: transparent;
+		}
+
+		.preview-panel #code-preview, .start-top-recording #stop
+		{
+		    margin-left: -6px;
+		}
+		.preview-panel div, .start-top-recording button
+		{
+		    border: 1px solid #E5E5E5;
+		}
+		.preview-panel div:not(.preview-selected) {
+		}
+		.preview-panel div, .start-top-recording button
+		{
+		    border: 1px solid rgb(9, 159, 243);
+		}
+
+		.preview-selected, .start-top-recording button {
+		    margin-top: -4px;
+		    background-color: rgb(6, 205, 255);
+		    color: white;
+		}
+
+		.start-top-recording button[disabled] {
+			background-color: rgb(222, 222, 222)!important;
+		    color: #BDBDBD!important;
+		    border: 1px solid #D8D4D4!important;
+		}
+
+		/*-------------------------------------------------------------*/
+		input, select
+		{
+		    -webkit-border-radius: 1px;
+		    -moz-border-radius: 1px;
+		    border-radius: 1px;
+		    border: 1px solid #D9D9D9;
+
+		    -webkit-user-select: initial;
+		    -moz-user-select: initial;
+		    -ms-user-select: initial;
+		    user-select: initial;
+		    
+		    outline: none;
+		}
+
+		input:focus {
+		    border: 1px solid #043877;
+		}
+		/*-------------------------------------------------------------*/
+		.allow-select
+		{
+		    -webkit-user-select: initial;
+		    -moz-user-select: initial;
+		    user-select: initial
+		}
+		/*-------------------------------------------------------------*/
+		.arc-range-container
+		{
+		    position: absolute;
+		    z-index: 1000;
+		    display: none;
+		}
+		.arc-range
+		{
+		    font-size: 18px;
+		    padding: 2px 16px;
+		    text-align: center;
+		    width: 40px;
+		}
+		.arc-range-container-guide
+		{
+		    margin-top: 10px;
+		    color:#C5C5C5;
+		}
+		/*-------------------------------------------------------------*/
+		.code-container
+		{
+		    position: absolute;
+		    top: 0;
+		    width: 100%;
+		    display: none;
+		}
+		.code-text
+		{
+		    resize: none;
+		    width:99%;
+		    height: 300px;
+		    padding: 15px;
+		    outline: 0;
+		    border:0;
+		    border-top: 1px solid #E5E5E5;
+		    font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;
+		    color: #666;
+		}
+		/*-------------------------------------------------------------*/
+		.options-container
+		{
+		    position: absolute;
+		    top: 0;
+		    left: 0;
+		    border: 1px solid #E5E5E5;
+		    border-left: 0;
+		    background-color: #FBFBFB;
+		    display: none;
+		}
+		.options-container div
+		{
+		    border-bottom: 1px solid #E5E5E5;
+		    padding: 5px;
+		}
+		.options-container div:last-child
+		{
+		    border-bottom: 0;
+		}
+
+		/*-------------------------------------------------------------*/
+
+		.context-popup {
+		    position: absolute;
+		    display: none;
+		    padding: 5px;
+		    border: 1px solid #E5E5E5;
+		    border-left: 0;
+		    background-color: #FBFBFB;
+		    box-shadow: inset 0 0 14px rgb(229, 229, 229);
+		}
+
+		.line-width-text, .colors-container input {
+		    width: 25px;
+		    padding: 2px 5px;
+		    text-align: center;
+		}
+
+		.done
+		{
+		    border: 1px solid #E5E5E5;    
+		    display: inline-block;    
+		    padding: 4px 10px;
+		    border-radius: 3px;
+		}
+		.done:hover
+		{
+		    box-shadow: inset 0 0 12px white;
+		}
+
+		.done:active
+		{
+		  box-shadow: inset 0 0 52px white;
+		}
+
+		/*-------------------------------------------------------------*/
+
+		.colors-container label {
+		    width: 100px;
+		    display: inline-block;
+		}
+
+		.colors-container input {
+		    width: 100px;
+		    text-align: left;
+		}
+
+		.colors-container .input-div {
+		    margin-bottom: 5px;
+		}
+
+		/*-------------------------------------------------------------*/
+
+		.additional-container label, .additional-container select {
+		    width: 200px;
+		    display: inline-block;
+		}
+		.additional-container select {
+		    width: 120px;
+		}
+
+		input[type=number] {
+			font-size: 13px!important;
+		    border: 1px solid rgb(9, 159, 243);
+		    padding: 5px 10px;
+		}
+
+	</style>
+</head>
+<body>
+	<section class="design-surface">
+		<canvas id="temp-canvas"></canvas>
+		<canvas id="main-canvas" opacity=0></canvas>
+	</section>
+	
+	<!------------------------------------------>
+
+	<section id="tool-box" class="tool-box">
+        <canvas id="pencil-icon" width="40" height="40"></canvas>
+        <canvas id="eraser-icon" width="40" height="40"></canvas>
+        <canvas id="text-icon" width="40" height="40"></canvas>
+        <canvas id="image-icon" width="40" height="40"></canvas>
+
+		<canvas id="drag-last-path" width="40" height="40"></canvas>
+		<canvas id="drag-all-paths" width="40" height="40"></canvas>
+
+		<canvas id="line" class="selected-shape" width="40" height="40"></canvas>
+		<canvas id="arc" width="40" height="40"></canvas>
+		<canvas id="rectangle" width="40" height="40"></canvas>
+		<canvas id="quadratic-curve" width="40" height="40"></canvas>
+		<canvas id="bezier-curve" width="40" height="40"></canvas>
+
+		<canvas id="line-width" width="40" height="40"></canvas>
+		<canvas id="colors" width="40" height="40"></canvas>
+		<canvas id="additional" width="40" height="40"></canvas>
+	</section>
+	
+	<!------------------------------------------>
+
+	<section id="arc-range-container" class="arc-range-container">
+		<input id="arc-range" class="arc-range" type="text" value="2">
+		<input type="checkbox" id="is-clockwise" checked="" class="allow-select">
+		<label for="is-clockwise">Clockwise?</label>
+		<div class="arc-range-container-guide">Use arrow keys ↑↓</div>
+	</section>
+	
+	<!------------------------------------------>
+
+	<section class="code-container">
+		<textarea id="code-text" class="code-text allow-select"></textarea>
+	</section>
+	
+	<section class="preview-panel" style="display:none;">
+		<div id="design-preview" class="preview-selected">Preview</div>
+		<div id="code-preview">Code</div>
+	</section>
+	
+	<!------------------------------------------>
+	
+	<section id="options-container" class="options-container">
+		<div>
+			<input type="checkbox" id="is-absolute-points" checked="">
+			<label for="is-absolute-points">Absolute Points</label>
+		</div>
+		<div>
+			<input type="checkbox" id="is-shorten-code" checked="">
+			<label for="is-shorten-code">Shorten Code</label>
+		</div>
+	</section>
+	
+	<!------------------------------------------>
+
+	<section id="line-width-container" class="context-popup">
+		<label for="line-width-text">Line Width:</label>
+		<input id="line-width-text" class="line-width-text" type="text" value="2">
+		
+		<div id="line-width-done" class="done">Done</div>
+	</section>
+	
+	<!------------------------------------------>
+	
+	<section id="colors-container" class="context-popup colors-container">
+		<div class="input-div">
+			<label for="stroke-style">Stroke Style:</label>
+			<input id="stroke-style" type="color" value="#6c96c8">
+		</div>
+		
+		<div class="input-div">
+			<label for="fill-style">Fill Style:</label>
+			<input id="fill-style" type="color" value="transparent">
+		</div>
+		
+		<div id="colors-done" class="done">Done</div>
+	</section>
+	
+	<!------------------------------------------>
+
+	<section id="copy-container" class="context-popup">
+		<div>
+			<input type="checkbox" id="copy-last" checked=""/>
+			<label for="copy-last">Copy last path</label>
+		</div>
+		<div style="margin-top: 5px;">
+			<input type="checkbox" id="copy-all"/>
+			<label for="copy-all">Copy all paths</label>
+		</div>
+	</section>
+	
+	<!------------------------------------------>
+	
+	<section id="additional-container" class="context-popup additional-container">
+		<div>
+			<label for="lineCap-select">Line Cap:</label>
+			<select id="lineCap-select">
+				<option>butt</option>
+				<option>round</option>
+				<option>square</option>
+			</select>
+		</div>
+		
+		<div>
+			<label for="lineJoin-select">Line Join:</label>
+			<select id="lineJoin-select">
+				<option>bevel</option>
+				<option>round</option>
+				<option>miter</option>
+			</select>
+		</div>
+		
+		<div>
+			<label for="globalAlpha-select">globalAlpha:</label>
+			<select id="globalAlpha-select">
+				<option>1.0</option>
+				<option>0.9</option>
+				<option>0.8</option>
+				<option>0.7</option>
+				<option>0.6</option>
+				<option>0.5</option>
+				<option>0.4</option>
+				<option>0.3</option>
+				<option>0.2</option>
+				<option>0.1</option>
+				<option>0.0</option>
+			</select>
+		</div>
+		
+		<div>
+			<label for="globalCompositeOperation-select">globalCompositeOperation:</label>
+			<select id="globalCompositeOperation-select">
+				<option>source-atop</option>
+				<option>source-in</option>
+				<option>source-out</option>
+				<option selected="">source-over</option>
+				<option>destination-atop</option>
+				<option>destination-in</option>
+				<option>destination-out</option>
+				<option>destination-over</option>
+				<option>lighter</option>
+				<option>copy</option>
+				<option>xor</option>
+			</select>
+		</div>
+		
+		<div id="additional-close" class="done">Done</div>
+	</section>
+
+    <!------------------------------------------>
+    
+    <input type="text" id="text-input" style="position: absolute; top: -100000px; left: -100000px; z-index: 1000000;border:0;outline:none; font-size: 15px;padding:0;margin:0; background: transparent; width: 100%;">
+	
+	<!------------------------------------------>
+
+	<div id="fade"></div>
+    
+    <!------------------------------------------>
+    <script>
+    	var params = {
+    		tools: JSON.stringify({
+    			pencil: true,
+    			// dragMultiple: true,
+    			eraser: true,
+    			text: true
+    			/*image: true,
+		        line: true,
+		        dragSingle: true,
+		        rectangle: true,
+		        arc: true,
+		        bezier: true,
+		        quadratic: true,
+		        */
+    		}),
+	        selectedIcon: 'pencil'
+    	}
+    </script>
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC/Canvas-Recording/canvas-designer.js"></script>
+	<script src="https://cdn.webrtc-experiment.com/RecordRTC/Whammy.js"></script>
+	<script src="https://cdn.webrtc-experiment.com/RecordRTC/CanvasRecorder.js"></script>
+	<script src="https://cdn.webrtc-experiment.com/RecordRTC/MediaStreamRecorder.js"></script>
+	<script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script>
+
+	<div class="start-top-recording" style="position: absolute;top: 3px;right: 20px;z-index: 9;">
+		<button id="capture-screen" style="margin-right:40px;">Add Screen</button>
+		<span style="vertical-align:middle;">Fps: </span><input type="number" id="fps" value="10" min="0" max="1000">
+	    <button id="start">Start Canvas Recording</button>
+	    <button id="stop" disabled>Stop</button>
+	</div>
+
+	<script>
+	if(!!navigator.mozGetUserMedia) {
+		alert('This demo seems NOT supported in Firefox.');
+	}
+
+	var recorder;
+
+	document.getElementById('start').onclick = function() {
+	    document.getElementById('start').disabled = true;
+
+	    recorder = new CanvasRecorder(window.canvasElementToBeRecorded, {
+			frameInterval: document.getElementById('fps').value || 10, // 10 frames per second
+		    disableLogs: false,
+		    onEncodingCallback: function(framesRemaining, numberOfFrames) {
+		    	// console.log(framesRemaining, ' remaining out of ', numberOfFrames);
+		    }
+		});
+
+	    recorder.record();    
+	    setTimeout(function() {
+	         document.getElementById('stop').disabled = false;
+	    }, 1000);
+	};
+	document.getElementById('stop').onclick = function() {
+	   this.disabled = true;
+
+	   document.body.innerHTML = '<h1 style="font-size:30px;text-align:center;margin:15px;color:red;font-weight:normal;">Please check page title for the encoding progress.<br><br>Frames are being encoded to generate a HD smooth WebM!<br><br><small>Please never click "kill" button; otherwise the entire encoding process will be crashed.</small></h1>';
+	    
+	   setTimeout(function() {
+		   	recorder.stop(function(blob) {
+		    	var video = document.createElement('video');
+		        video.src = URL.createObjectURL(blob);
+		        video.setAttribute('style', 'height: 100%; position: absolute; top:0; left:0;z-index:9999;width:100%;');
+		        document.body.appendChild(video);
+		        video.controls = true;
+		        video.play();
+		    });
+		}, 100);
+	};
+
+	document.getElementById('capture-screen').onclick = function() {
+		this.disabled = true;
+
+		getScreenId(function (error, sourceId, screen_constraints) {
+			if(error) {
+				alert(error);
+				return;
+			}
+
+			if(sourceId === 'firefox') {
+				screen_constraints.video.width = screen.width;
+				screen_constraints.video.height = screen.height;
+			}
+			else {
+				screen_constraints.video.mandatory.maxWidth =
+				screen_constraints.video.mandatory.minWidth = screen.width;
+
+				screen_constraints.video.mandatory.maxHeight =
+				screen_constraints.video.mandatory.minHeight = screen.height;
+
+				screen_constraints.video.mandatory.minAspectRatio = 1.77;
+			}
+
+		    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+		    navigator.getUserMedia(screen_constraints, function (stream) {
+		    	window.screenVideoElement = document.createElement('video');
+		    	screenVideoElement.onloadedmetadata = function() {
+			    	window.canvasElementToBeRecorded.getContext('2d').drawImage(
+			    		screenVideoElement, 0, -50, 
+			    		window.canvasElementToBeRecorded.width, 
+			    		window.canvasElementToBeRecorded.height);
+
+			    	document.getElementById('capture-screen').disabled = false;
+			    	stream.stop();
+			    };
+
+			    screenVideoElement.src = URL.createObjectURL(stream);
+		    	screenVideoElement.play();
+		    }, function (error) {
+		        alert(JSON.stringify(error));
+		    });
+		});
+	};
+
+	window.onbeforeunload = function() {
+	    document.getElementById('start').disabled = false;
+	    document.getElementById('stop').disabled = true;
+	};
+	</script>
+</body>
+</html>
