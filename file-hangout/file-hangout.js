@@ -191,7 +191,8 @@ var FileSender = {
             }
 
             // WebRTC-DataChannels.send(data, privateDataChannel)
-            channel.send(JSON.stringify(data));
+            if (!channel.send(JSON.stringify(data)))
+                return;//all data channels have been cancelled
 
             textToTransfer = text.slice(data.message.length);
 
@@ -584,13 +585,24 @@ function hangout(config) {
             });
         },
         send: function(data) {
+            //console.log('hangout.send');
             var length = RTCDataChannels.length;
             if (!length) return;
-            for (var i = 0; i < length; i++) {
-                if (RTCDataChannels[i].readyState == 'open') {
-                    RTCDataChannels[i].send(data);
+            for (var i = length - 1; i >= 0; i--) {
+                switch (RTCDataChannels[i].readyState) {
+                    case 'open':
+                        RTCDataChannels[i].send(data);
+                        break;
+                    case 'closed':
+                        RTCDataChannels.splice(i, 1);
+                        if (RTCDataChannels.length == 0)
+                            return false;//all data channels have been cancelled
+                        break;
+                    default:
+                        console.error('RTCDataChannels[' + i + '].readyState = ' + RTCDataChannels[i].readyState);
                 }
             }
+            return true;
         }
     };
 }
