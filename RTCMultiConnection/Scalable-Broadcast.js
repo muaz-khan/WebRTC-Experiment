@@ -214,5 +214,5 @@ function getFirstAvailableBraodcater(broadcastId, maxRelayLimitPerUser) {
 function consoleLog() {
     // return; // comment this line for development testings
 
-    console.log(arguments);
+    // console.log(arguments);
 }

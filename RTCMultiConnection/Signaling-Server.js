@@ -27,6 +27,22 @@ module.exports = exports = function(app, socketCallback) {
         io.sockets.on('connection', onConnection);
     }
 
+    function appendUser(socket) {
+        var alreadyExists = listOfUsers[socket.userid];
+        var extra = {};
+
+        if (alreadyExists && alreadyExists.extra) {
+            extra = alreadyExists.extra;
+        }
+
+        listOfUsers[socket.userid] = {
+            socket: socket,
+            connectedWith: {},
+            isPublic: false, // means: isPublicModerator
+            extra: extra || {}
+        };
+    }
+
     function onConnection(socket) {
         var params = socket.handshake.query;
         var socketMessageEvent = params.msgEvent || 'RTCMultiConnection-Message';
@@ -48,12 +64,7 @@ module.exports = exports = function(app, socketCallback) {
         }
 
         socket.userid = params.userid;
-        listOfUsers[socket.userid] = {
-            socket: socket,
-            connectedWith: {},
-            isPublic: false, // means: isPublicModerator
-            extra: {}
-        };
+        appendUser(socket);
 
         socket.on('extra-data-updated', function(extra) {
             try {
@@ -63,21 +74,27 @@ module.exports = exports = function(app, socketCallback) {
                 for (var user in listOfUsers[socket.userid].connectedWith) {
                     listOfUsers[user].socket.emit('extra-data-updated', socket.userid, extra);
                 }
-            } catch (e) {}
+            } catch (e) {
+                pushLogs('extra-data-updated', e);
+            }
         });
 
         socket.on('become-a-public-moderator', function() {
             try {
                 if (!listOfUsers[socket.userid]) return;
                 listOfUsers[socket.userid].isPublic = true;
-            } catch (e) {}
+            } catch (e) {
+                pushLogs('become-a-public-moderator', e);
+            }
         });
 
         socket.on('dont-make-me-moderator', function() {
             try {
                 if (!listOfUsers[socket.userid]) return;
                 listOfUsers[socket.userid].isPublic = false;
-            } catch (e) {}
+            } catch (e) {
+                pushLogs('dont-make-me-moderator', e);
+            }
         });
 
         socket.on('get-public-moderators', function(userIdStartsWith, callback) {
@@ -95,10 +112,14 @@ module.exports = exports = function(app, socketCallback) {
                 }
 
                 callback(allPublicModerators);
-            } catch (e) {}
+            } catch (e) {
+                pushLogs('get-public-moderators', e);
+            }
         });
 
         socket.on('changed-uuid', function(newUserId, callback) {
+            callback = callback || function() {};
+
             if (params.dontUpdateUserId) {
                 delete params.dontUpdateUserId;
                 return;
@@ -118,15 +139,12 @@ module.exports = exports = function(app, socketCallback) {
                 }
 
                 socket.userid = newUserId;
-                listOfUsers[socket.userid] = {
-                    socket: socket,
-                    connectedWith: {},
-                    isPublic: false,
-                    extra: {}
-                };
+                appendUser(socket);
 
                 callback();
-            } catch (e) {}
+            } catch (e) {
+                pushLogs('changed-uuid', e);
+            }
         });
 
         socket.on('set-password', function(password) {
@@ -134,7 +152,9 @@ module.exports = exports = function(app, socketCallback) {
                 if (listOfUsers[socket.userid]) {
                     listOfUsers[socket.userid].password = password;
                 }
-            } catch (e) {}
+            } catch (e) {
+                pushLogs('set-password', e);
+            }
         });
 
         socket.on('disconnect-with', function(remoteUserId, callback) {
@@ -151,7 +171,9 @@ module.exports = exports = function(app, socketCallback) {
                     listOfUsers[remoteUserId].socket.emit('user-disconnected', socket.userid);
                 }
                 callback();
-            } catch (e) {}
+            } catch (e) {
+                pushLogs('disconnect-with', e);
+            }
         });
 
         socket.on('close-entire-session', function(callback) {
@@ -168,8 +190,22 @@ module.exports = exports = function(app, socketCallback) {
                 delete shiftedModerationControls[socket.userid];
                 callback();
             } catch (e) {
-                throw e;
+                pushLogs('close-entire-session', e);
             }
+        });
+
+        socket.on('check-presence', function(userid, callback) {
+            if (userid === socket.userid && !!listOfUsers[userid]) {
+                callback(false, socket.userid, listOfUsers[userid].extra);
+                return;
+            }
+
+            var extra = {};
+            if (listOfUsers[userid]) {
+                extra = listOfUsers[userid].extra;
+            }
+
+            callback(!!listOfUsers[userid], userid, extra);
         });
 
         function onMessageCallback(message) {
@@ -203,7 +239,9 @@ module.exports = exports = function(app, socketCallback) {
                     message.extra = listOfUsers[socket.userid].extra;
                     listOfUsers[message.sender].connectedWith[message.remoteUserId].emit(socketMessageEvent, message);
                 }
-            } catch (e) {}
+            } catch (e) {
+                pushLogs('onMessageCallback', e);
+            }
         }
 
         var numberOfPasswordTries = 0;
@@ -244,6 +282,7 @@ module.exports = exports = function(app, socketCallback) {
                     return;
                 }
 
+                // for v3 backward compatibility; >v3.3.3 no more uses below block
                 if (message.remoteUserId == 'system') {
                     if (message.message.detectPresence) {
                         if (message.message.userid === socket.userid) {
@@ -288,10 +327,18 @@ module.exports = exports = function(app, socketCallback) {
                 }
 
                 onMessageCallback(message);
-            } catch (e) {}
+            } catch (e) {
+                pushLogs('on-socketMessageEvent', e);
+            }
         });
 
         socket.on('disconnect', function() {
+            try {
+                delete socket.namespace.sockets[this.id];
+            } catch (e) {
+                pushLogs('disconnect', e);
+            }
+
             try {
                 var message = shiftedModerationControls[socket.userid];
 
@@ -299,7 +346,9 @@ module.exports = exports = function(app, socketCallback) {
                     delete shiftedModerationControls[message.userid];
                     onMessageCallback(message);
                 }
-            } catch (e) {}
+            } catch (e) {
+                pushLogs('disconnect', e);
+            }
 
             try {
                 // inform all connected users
@@ -313,7 +362,9 @@ module.exports = exports = function(app, socketCallback) {
                         }
                     }
                 }
-            } catch (e) {}
+            } catch (e) {
+                pushLogs('disconnect', e);
+            }
 
             delete listOfUsers[socket.userid];
         });
@@ -323,3 +374,72 @@ module.exports = exports = function(app, socketCallback) {
         }
     }
 };
+
+var enableLogs = false;
+
+try {
+    var _enableLogs = require('./config.json').enableLogs;
+
+    if (_enableLogs) {
+        enableLogs = true;
+    }
+} catch (e) {
+    enableLogs = false;
+}
+
+var fs = require('fs');
+
+function pushLogs() {
+    if (!enableLogs) return;
+
+    var logsFile = process.cwd() + '/logs.json';
+
+    var utcDateString = (new Date).toUTCString().replace(/ |-|,|:|\./g, '');
+
+    // uncache to fetch recent (up-to-dated)
+    uncache(logsFile);
+
+    var logs = {};
+
+    try {
+        logs = require(logsFile);
+    } catch (e) {}
+
+    if (arguments[1] && arguments[1].stack) {
+        arguments[1] = arguments[1].stack;
+    }
+
+    try {
+        logs[utcDateString] = JSON.stringify(arguments, null, '\t');
+        fs.writeFileSync(logsFile, JSON.stringify(logs, null, '\t'));
+    } catch (e) {
+        logs[utcDateString] = arguments.toString();
+    }
+}
+
+// removing JSON from cache
+function uncache(jsonFile) {
+    searchCache(jsonFile, function(mod) {
+        delete require.cache[mod.id];
+    });
+
+    Object.keys(module.constructor._pathCache).forEach(function(cacheKey) {
+        if (cacheKey.indexOf(jsonFile) > 0) {
+            delete module.constructor._pathCache[cacheKey];
+        }
+    });
+}
+
+function searchCache(jsonFile, callback) {
+    var mod = require.resolve(jsonFile);
+
+    if (mod && ((mod = require.cache[mod]) !== undefined)) {
+        (function run(mod) {
+            mod.children.forEach(function(child) {
+                run(child);
+            });
+
+            callback(mod);
+        })(mod);
+    }
+}

@@ -1,4 +1,4 @@
-// Last time updated at 26 Feb 2014, 08:32:23
+// Last time updated at 05 June 2016, 08:32:23
 
 // Muaz Khan     - github.com/muaz-khan
 // MIT License   - www.WebRTC-Experiment.com/licence
@@ -72,11 +72,6 @@ function RTCPeerConnection(options) {
         optional.optional = [{
             DtlsSrtpKeyAgreement: true
         }];
-
-        if (options.onChannelMessage)
-            optional.optional = [{
-                RtpDataChannels: true
-            }];
     }
 
     console.debug('optional-arguments', JSON.stringify(optional.optional, null, '\t'));
@@ -191,28 +186,17 @@ function RTCPeerConnection(options) {
     var channel;
 
     function openOffererChannel() {
-        if (!options.onChannelMessage || (moz && !options.onOfferSDP))
+        if (!options.onChannelMessage)
             return;
 
         _openOffererChannel();
-
-        if (!moz) return;
-        navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function(stream) {
-                peer.addStream(stream);
-                createOffer();
-            }, useless);
     }
 
     function _openOffererChannel() {
-        channel = peer.createDataChannel(options.channel || 'RTCDataChannel', moz ? { } : {
-            reliable: false // Deprecated
-        });
-
-        if (moz) channel.binaryType = 'blob';
-
+        // protocol: 'text/chat', preset: true, stream: 16
+        // maxRetransmits:0 && ordered:false
+        var dataChannelDict = { };
+        channel = peer.createDataChannel(options.channel || 'sctp-channel', dataChannelDict);
         setChannelEvents();
     }
 
@@ -236,24 +220,15 @@ function RTCPeerConnection(options) {
         };
     }
 
-    if (options.onAnswerSDP && moz && options.onChannelMessage)
+    if (options.onAnswerSDP && options.onChannelMessage) {
         openAnswererChannel();
+    }
 
     function openAnswererChannel() {
         peer.ondatachannel = function(event) {
             channel = event.channel;
-            channel.binaryType = 'blob';
             setChannelEvents();
         };
-
-        if (!moz) return;
-        navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function(stream) {
-                peer.addStream(stream);
-                createAnswer();
-            }, useless);
     }
 
     // fake:true is also available on chrome under a flag!

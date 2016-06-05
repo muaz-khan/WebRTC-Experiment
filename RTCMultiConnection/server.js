@@ -4,6 +4,16 @@
 
 var isUseHTTPs = !(!!process.env.PORT || !!process.env.IP);
 
+var port = process.env.PORT || 9001;
+
+try {
+    var _port = require('./config.json').port;
+
+    if (_port && _port.toString() !== '9001') {
+        port = parseInt(_port);
+    }
+} catch (e) {}
+
 var server = require(isUseHTTPs ? 'https' : 'http'),
     url = require('url'),
     path = require('path'),
@@ -43,7 +53,7 @@ function serverHandler(request, response) {
     }
 
 
-    fs.readFile(filename, 'binary', function(err, file) {
+    fs.readFile(filename, 'utf8', function(err, file) {
         if (err) {
             response.writeHead(500, {
                 'Content-Type': 'text/plain'
@@ -53,8 +63,25 @@ function serverHandler(request, response) {
             return;
         }
 
+        try {
+            var demos = (fs.readdirSync('demos') || []);
+
+            if (demos.length) {
+                var h2 = '<h2 style="text-align:center;display:block;"><a href="https://www.npmjs.com/package/rtcmulticonnection-v3"><img src="https://img.shields.io/npm/v/rtcmulticonnection-v3.svg"></a><a href="https://www.npmjs.com/package/rtcmulticonnection-v3"><img src="https://img.shields.io/npm/dm/rtcmulticonnection-v3.svg"></a><a href="https://travis-ci.org/muaz-khan/RTCMultiConnection"><img src="https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master"></a></h2>';
+                var otherDemos = '<section class="experiment" id="demos"><details><summary style="text-align:center;">Check ' + (demos.length - 1) + ' other RTCMultiConnection-v3 demos</summary>' + h2 + '<ol>';
+                demos.forEach(function(f) {
+                    if (f && f !== 'index.html' && f.indexOf('.html') !== -1) {
+                        otherDemos += '<li><a href="/demos/' + f + '">' + f + '</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/' + f + '">Source</a>)</li>';
+                    }
+                });
+                otherDemos += '<ol></details></section><section class="experiment own-widgets latest-commits">';
+
+                file = file.replace('<section class="experiment own-widgets latest-commits">', otherDemos);
+            }
+        } catch (e) {}
+
         response.writeHead(200);
-        response.write(file, 'binary');
+        response.write(file, 'utf8');
         response.end();
     });
 }
@@ -69,9 +96,9 @@ if (isUseHTTPs) {
     app = server.createServer(options, serverHandler);
 } else app = server.createServer(serverHandler);
 
-app = app.listen(process.env.PORT || 9001, process.env.IP || "0.0.0.0", function() {
+app = app.listen(port, process.env.IP || '0.0.0.0', function() {
     var addr = app.address();
-    console.log("Server listening at", addr.address + ":" + addr.port);
+    console.log('Server listening at', addr.address + ':' + addr.port);
 });
 
 require('./Signaling-Server.js')(app, function(socket) {

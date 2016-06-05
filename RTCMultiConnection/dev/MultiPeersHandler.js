@@ -62,6 +62,15 @@ function MultiPeers(connection) {
             if (remoteUserId) {
                 var remoteUser = connection.peers[remoteUserId];
                 if (remoteUser) {
+                    if (!remoteUser.channels.length) {
+                        connection.peers[remoteUserId].createDataChannel();
+                        connection.renegotiate(remoteUserId);
+                        setTimeout(function() {
+                            that.send(data, remoteUserId);
+                        }, 3000);
+                        return;
+                    }
+
                     remoteUser.channels.forEach(function(channel) {
                         channel.send(data);
                     });
@@ -70,6 +79,17 @@ function MultiPeers(connection) {
             }
 
             this.getAllParticipants().forEach(function(participant) {
+                if (!that[participant].channels.length) {
+                    connection.peers[participant].createDataChannel();
+                    connection.renegotiate(participant);
+                    setTimeout(function() {
+                        that[participant].channels.forEach(function(channel) {
+                            channel.send(data);
+                        });
+                    }, 3000);
+                    return;
+                }
+
                 that[participant].channels.forEach(function(channel) {
                     channel.send(data);
                 });
@@ -95,6 +115,7 @@ function MultiPeers(connection) {
             dontAttachLocalStream: !!userPreferences.dontAttachLocalStream,
             renegotiatingPeer: !!userPreferences.renegotiatingPeer,
             peerRef: userPreferences.peerRef,
+            channels: userPreferences.channels || [],
             onLocalSdp: function(localSdp) {
                 self.onNegotiationNeeded(localSdp, remoteUserId);
             },
@@ -106,7 +127,7 @@ function MultiPeers(connection) {
             },
             remoteSdp: remoteSdp,
             onDataChannelMessage: function(message) {
-                if (!fbr && connection.enableFileSharing) initFileBufferReader();
+                if (!connection.fbr && connection.enableFileSharing) initFileBufferReader();
 
                 if (typeof message == 'string' || !connection.enableFileSharing) {
                     self.onDataChannelMessage(message, remoteUserId);
@@ -116,14 +137,14 @@ function MultiPeers(connection) {
                 var that = this;
 
                 if (message instanceof ArrayBuffer || message instanceof DataView) {
-                    fbr.convertToObject(message, function(object) {
+                    connection.fbr.convertToObject(message, function(object) {
                         that.onDataChannelMessage(object);
                     });
                     return;
                 }
 
                 if (message.readyForNextChunk) {
-                    fbr.getNextChunk(message.uuid, function(nextChunk, isLastChunk) {
+                    connection.fbr.getNextChunk(message.uuid, function(nextChunk, isLastChunk) {
                         connection.peers[remoteUserId].channels.forEach(function(channel) {
                             channel.send(nextChunk);
                         });
@@ -131,7 +152,7 @@ function MultiPeers(connection) {
                     return;
                 }
 
-                fbr.addChunk(message, function(promptNextChunk) {
+                connection.fbr.addChunk(message, function(promptNextChunk) {
                     connection.peers[remoteUserId].peer.channel.send(promptNextChunk);
                 });
             },
@@ -188,6 +209,12 @@ function MultiPeers(connection) {
 
         userPreferences = userPreferences || {};
 
+        if (connection.isInitiator && !!connection.session.audio && connection.session.audio === 'two-way' && !userPreferences.streamsToShare) {
+            userPreferences.isOneWay = false;
+            userPreferences.isDataOnly = false;
+            userPreferences.session = connection.session;
+        }
+
         if (!userPreferences.isOneWay && !userPreferences.isDataOnly) {
             userPreferences.isOneWay = true;
             this.onNegotiationNeeded({
@@ -224,6 +251,7 @@ function MultiPeers(connection) {
 
         userPreferences.renegotiatingPeer = true;
         userPreferences.peerRef = connection.peers[remoteUserId].peer;
+        userPreferences.channels = connection.peers[remoteUserId].channels;
 
         var localConfig = this.getLocalConfig(remoteSdp, remoteUserId, userPreferences);
 
@@ -319,52 +347,54 @@ function MultiPeers(connection) {
                 localMediaConstraints.video = connection.mediaConstraints.video;
             }
 
-            invokeGetUserMedia(localMediaConstraints, message, remoteUserId);
+            var session = userPreferences.session || connection.session;
+
+            if (session.oneway && session.audio && session.audio === 'two-way') {
+                session = {
+                    audio: true
+                };
+            }
+
+            if (session.audio || session.video || session.screen) {
+                if (session.screen) {
+                    connection.getScreenConstraints(function(error, screen_constraints) {
+                        connection.invokeGetUserMedia({
+                            audio: isAudioPlusTab(connection) ? getAudioScreenConstraints(screen_constraints) : false,
+                            video: screen_constraints,
+                            isScreen: true
+                        }, (session.audio || session.video) && !isAudioPlusTab(connection) ? connection.invokeGetUserMedia(null, cb) : cb);
+                    });
+                } else if (session.audio || session.video) {
+                    connection.invokeGetUserMedia(null, cb, session);
+                }
+            }
         }
 
         if (message.readyForOffer) {
             connection.onReadyForOffer(remoteUserId, message.userPreferences);
         }
+
+        function cb(stream) {
+            gumCallback(stream, message, remoteUserId);
+        }
     };
 
-    function invokeGetUserMedia(mediaConstraints, message, remoteUserId) {
-        getUserMediaHandler({
-            onGettingLocalMedia: function(localStream) {
-                self.onGettingLocalMedia(localStream);
-
-                var streamsToShare = {};
-                connection.attachStreams.forEach(function(stream) {
-                    streamsToShare[stream.streamid] = {
-                        isAudio: !!stream.isAudio,
-                        isVideo: !!stream.isVideo,
-                        isScreen: !!stream.isScreen
-                    };
-                });
-                message.userPreferences.streamsToShare = streamsToShare;
-
-                self.onNegotiationNeeded({
-                    readyForOffer: true,
-                    userPreferences: message.userPreferences
-                }, remoteUserId);
-            },
-            onLocalMediaError: function(error, constraints) {
-                self.onLocalMediaError(error, constraints);
-
-                if (constraints.audio && constraints.video && (error.name || '').toString().indexOf('DevicesNotFound') !== -1) {
-                    constraints.video = false;
-                    invokeGetUserMedia(constraints, message, remoteUserId);
-                    return;
-                }
-
-                self.onNegotiationNeeded({
-                    readyForOffer: true,
-                    userPreferences: message.userPreferences
-                }, remoteUserId);
-            },
-            localMediaConstraints: mediaConstraints
+    function gumCallback(stream, message, remoteUserId) {
+        var streamsToShare = {};
+        connection.attachStreams.forEach(function(stream) {
+            streamsToShare[stream.streamid] = {
+                isAudio: !!stream.isAudio,
+                isVideo: !!stream.isVideo,
+                isScreen: !!stream.isScreen
+            };
         });
-    }
+        message.userPreferences.streamsToShare = streamsToShare;
 
+        self.onNegotiationNeeded({
+            readyForOffer: true,
+            userPreferences: message.userPreferences
+        }, remoteUserId);
+    }
 
     this.connectNewParticipantWithAllBroadcasters = function(newParticipantId, userPreferences, broadcastersList) {
         broadcastersList = broadcastersList.split('|-,-|');
@@ -400,17 +430,15 @@ function MultiPeers(connection) {
         connection.onMediaError(error, constraints);
     };
 
-    var fbr;
-
     function initFileBufferReader() {
-        fbr = new FileBufferReader();
-        fbr.onProgress = function(chunk) {
+        connection.fbr = new FileBufferReader();
+        connection.fbr.onProgress = function(chunk) {
             connection.onFileProgress(chunk);
         };
-        fbr.onBegin = function(file) {
+        connection.fbr.onBegin = function(file) {
             connection.onFileStart(file);
         };
-        fbr.onEnd = function(file) {
+        connection.fbr.onEnd = function(file) {
             connection.onFileEnd(file);
         };
     }
@@ -422,7 +450,7 @@ function MultiPeers(connection) {
 
         initFileBufferReader();
 
-        fbr.readAsArrayBuffer(file, function(uuid) {
+        connection.fbr.readAsArrayBuffer(file, function(uuid) {
             var arrayOfUsers = connection.getAllParticipants();
 
             if (remoteUserId) {
@@ -430,7 +458,7 @@ function MultiPeers(connection) {
             }
 
             arrayOfUsers.forEach(function(participant) {
-                fbr.getNextChunk(uuid, function(nextChunk) {
+                connection.fbr.getNextChunk(uuid, function(nextChunk) {
                     connection.peers[participant].channels.forEach(function(channel) {
                         channel.send(nextChunk);
                     });
@@ -466,6 +494,7 @@ function MultiPeers(connection) {
     this.onDataChannelOpened = function(channel, remoteUserId) {
         // keep last channel only; we are not expecting parallel/channels channels
         if (connection.peers[remoteUserId].channels.length) {
+            connection.peers[remoteUserId].channels = [channel];
             return;
         }
 

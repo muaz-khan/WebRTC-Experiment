@@ -59,7 +59,7 @@ function CanvasRecorder(htmlElement, config) {
         globalContext = globalCanvas.getContext('2d');
     } else if (!!navigator.mozGetUserMedia) {
         if (!config.disableLogs) {
-            alert('Canvas recording is NOT supported in Firefox.');
+            console.error('Canvas recording is NOT supported in Firefox.');
         }
     }
 
@@ -122,7 +122,9 @@ function CanvasRecorder(htmlElement, config) {
         var framesLength = whammy.frames.length;
         whammy.frames.forEach(function(frame, idx) {
             var framesRemaining = framesLength - idx;
-            document.title = framesRemaining + '/' + framesLength + ' frames remaining';
+            if (!config.disableLogs) {
+                console.debug(framesRemaining + '/' + framesLength + ' frames remaining');
+            }
 
             if (config.onEncodingCallback) {
                 config.onEncodingCallback(framesRemaining, framesLength);
@@ -132,7 +134,9 @@ function CanvasRecorder(htmlElement, config) {
             whammy.frames[idx].image = webp;
         });
 
-        document.title = 'Generating WebM';
+        if (!config.disableLogs) {
+            console.debug('Generating WebM');
+        }
 
         callback();
     };
@@ -175,7 +179,9 @@ function CanvasRecorder(htmlElement, config) {
              * });
              */
             whammy.compile(function(blob) {
-                document.title = 'Recording finished!';
+                if (!config.disableLogs) {
+                    console.debug('Recording finished!');
+                }
 
                 that.blob = blob;
 
@@ -216,6 +222,10 @@ function CanvasRecorder(htmlElement, config) {
      */
     this.resume = function() {
         isPausedRecording = false;
+
+        if (!isRecording) {
+            this.record();
+        }
     };
 
     /**
@@ -294,4 +304,8 @@ function CanvasRecorder(htmlElement, config) {
     var lastTime = new Date().getTime();
 
     var whammy = new Whammy.Video(100);
+}
+
+if (typeof RecordRTC !== 'undefined') {
+    RecordRTC.CanvasRecorder = CanvasRecorder;
 }

@@ -45,3 +45,7 @@ function StereoAudioRecorder(mediaStream) {
     var mediaRecorder;
     var timeout;
 }
+
+if (typeof MediaStreamRecorder !== 'undefined') {
+    MediaStreamRecorder.StereoAudioRecorder = StereoAudioRecorder;
+}

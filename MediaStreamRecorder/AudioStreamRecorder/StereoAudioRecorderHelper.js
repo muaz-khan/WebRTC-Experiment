@@ -228,3 +228,7 @@ function StereoAudioRecorderHelper(mediaStream, root) {
     volume.connect(scriptprocessornode);
     scriptprocessornode.connect(context.destination);
 }
+
+if (typeof MediaStreamRecorder !== 'undefined') {
+    MediaStreamRecorder.StereoAudioRecorderHelper = StereoAudioRecorderHelper;
+}

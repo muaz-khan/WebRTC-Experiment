@@ -6,7 +6,22 @@ Scalable WebRTC peer-to-peer broadcasting demo.
 
 This module simply initializes socket.io and configures it in a way that single broadcast can be relayed over unlimited users without any bandwidth/CPU usage issues. Everything happens peer-to-peer!
 
+## RTCMultiConnection v3 and Scalable Broadcast
+
+RTCMultiConnection v3 now naively supports scalable-broadcast:
+
+| DemoTitle        | TestLive           | ViewSource |
+| ------------- |-------------|-------------|
+| Scalable Audio/Video Broadcast | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Scalable-Broadcast.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Broadcast.html) |
+| Scalable Screen Broadcast | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Scalable-Screen-Broadcast.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Screen-Broadcast.html) |
+| Scalable Video Broadcast | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Video-Scalable-Broadcast.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Video-Scalable-Broadcast.html) |
+| Scalable File Sharing | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Files-Scalable-Broadcast.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Files-Scalable-Broadcast.html) |
+
+* https://github.com/muaz-khan/RTCMultiConnection#scalable-broadcasting
+
 ## Demos
+
+> Note: These (below) are old demos. Above (RTCMultiConnection-v3) demos are preferred (and up-to-dated).
 
 1. [`index.html`](https://github.com/muaz-khan/WebRTC-Scalable-Broadcast/blob/master/index.html) - share video or screen or audio over unlimited users using p2p methods.
 2. [`share-files.html`](https://github.com/muaz-khan/WebRTC-Scalable-Broadcast/blob/master/share-files.html) - share files with unlimited users using p2p methods!

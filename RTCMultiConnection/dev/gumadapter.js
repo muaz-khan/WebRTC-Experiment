@@ -62,34 +62,6 @@ if (typeof window === 'object') {
         });
     }
 
-    // chrome 50+ supports promises over "play" method
-    HTMLMediaElement.prototype.nativePlay = HTMLMediaElement.prototype.play;
-    HTMLMediaElement.prototype.play = function() {
-        var myself = this;
-        var promise = myself.nativePlay();
-        if (promise) {
-            promise.then(function() {
-                // maybe it is Android
-                setTimeout(function() {
-                    myself.nativePlay().then(function() {
-                        // skip
-                    }).catch(function() {
-                        alert('Video requires manual action to start the player.');
-                    });
-                }, 1000);
-            }).catch(function() {
-                // maybe it is iOS webview
-                setTimeout(function() {
-                    myself.nativePlay().then(function() {
-                        // skip
-                    }).catch(function() {
-                        alert('Video requires manual action to start the player.');
-                    });
-                }, 1000);
-            });
-        }
-    };
-
     // Proxy existing globals
     getUserMedia = window.navigator && window.navigator.getUserMedia;
 }

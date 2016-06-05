@@ -1,6 +1,8 @@
 var tools = {
     line: true,
+    arrow: true,
     pencil: true,
+    marker: true,
     dragSingle: true,
     dragMultiple: true,
     eraser: true,
@@ -13,7 +15,10 @@ var tools = {
 };
 
 if (params.tools) {
-    tools = JSON.parse(params.tools);
+    try {
+        var t = JSON.parse(params.tools);
+        tools = t;
+    } catch (e) {}
 }
 
 function setSelection(element, prop) {
@@ -25,11 +30,37 @@ function setSelection(element, prop) {
     var selected = document.getElementsByClassName('selected-shape')[0];
     if (selected) selected.className = selected.className.replace(/selected-shape/g, '');
 
+    if (!element.className) {
+        element.className = '';
+    }
+
     element.className += ' selected-shape';
 }
 
-(function() {
+/* Default: setting default selected shape!! */
+is.set(window.selectedIcon);
 
+window.addEventListener('load', function() {
+    var toolBox = document.getElementById('tool-box');
+    var canvasElements = toolBox.getElementsByTagName('canvas');
+    var shape = window.selectedIcon.toLowerCase();
+
+
+    var firstMatch;
+    for (var i = 0; i < canvasElements.length; i++) {
+        if (!firstMatch && (canvasElements[i].id || '').indexOf(shape) !== -1) {
+            firstMatch = canvasElements[i];
+        }
+    }
+    if (!firstMatch) {
+        window.selectedIcon = 'Pencil';
+        firstMatch = document.getElementById('pencil-icon');
+    }
+
+    setSelection(firstMatch, window.selectedIcon);
+}, false);
+
+(function() {
     var cache = {};
 
     var lineCapSelect = find('lineCap-select');
@@ -43,36 +74,22 @@ function setSelection(element, prop) {
     }
 
     function bindEvent(context, shape) {
-        if (shape === 'Pencil') {
+        if (shape === 'Pencil' || shape === 'Marker') {
             lineCap = lineJoin = 'round';
         }
 
-        /* Default: setting default selected shape!! */
-        if (params.selectedIcon) {
-            params.selectedIcon = params.selectedIcon.split('')[0].toUpperCase() + params.selectedIcon.replace(params.selectedIcon.split('').shift(1), '');
-            if (params.selectedIcon === shape) {
-                is.set(params.selectedIcon);
-            }
-        } else is.set('Pencil');
-
         addEvent(context.canvas, 'click', function() {
             if (textHandler.text.length) {
-                points[points.length] = ['text', ['"' + textHandler.text + '"', textHandler.x, textHandler.y], drawHelper.getOptions()];
+                textHandler.appendPoints();
             }
 
             if (shape === 'Text') {
-                tempContext.canvas.style.cursor = 'text';
-                textHandler.x = textHandler.y = 0;
-                textHandler.text = '';
+                textHandler.onShapeSelected();
             } else {
-                textHandler.text = '';
-                tempContext.canvas.style.cursor = 'default';
-                if (typeof textHandler.blinkCursorInterval !== 'undefined') {
-                    clearInterval(textHandler.blinkCursorInterval);
-                }
+                textHandler.onShapeUnSelected();
             }
 
-            if (shape === 'Pencil') {
+            if (shape === 'Pencil' || shape === 'Marker') {
                 lineCap = lineJoin = 'round';
             }
 
@@ -110,7 +127,7 @@ function setSelection(element, prop) {
                 });
             }
 
-            if (this.id === 'pencil-icon' || this.id === 'eraser-icon') {
+            if (this.id === 'pencil-icon' || this.id === 'eraser-icon' || this.id === 'marker-icon') {
                 cache.lineCap = lineCap;
                 cache.lineJoin = lineJoin;
 
@@ -222,8 +239,8 @@ function setSelection(element, prop) {
     function decorateLine() {
         var context = getContext('line');
 
-        context.moveTo(0, 0);
-        context.lineTo(40, 40);
+        context.moveTo(10, 15);
+        context.lineTo(30, 35);
         context.stroke();
 
         context.fillStyle = 'Gray';
@@ -236,6 +253,38 @@ function setSelection(element, prop) {
     if (tools.line === true) {
         decorateLine();
     } else document.getElementById('line').style.display = 'none';
+
+    function decorateArrow() {
+        var context = getContext('arrow');
+
+        var x = 10;
+        var y = 35;
+
+        context.beginPath();
+        context.moveTo(x, y);
+        context.lineTo(x + 20, y - 20);
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(x + 15, y - 5);
+        context.lineTo(x + 20, y - 20);
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(x + 5, y - 15);
+        context.lineTo(x + 20, y - 20);
+        context.stroke();
+
+        context.fillStyle = 'Gray';
+        context.font = '9px Verdana';
+        context.fillText('Arrow', 5, 12);
+
+        bindEvent(context, 'Arrow');
+    }
+
+    if (tools.arrow === true) {
+        decorateArrow();
+    } else document.getElementById('arrow').style.display = 'none';
 
     function decoratePencil() {
         var context = getContext('pencil-icon');
@@ -256,6 +305,101 @@ function setSelection(element, prop) {
     if (tools.pencil === true) {
         decoratePencil();
     } else document.getElementById('pencil-icon').style.display = 'none';
+
+    function decorateMarker() {
+        function hexToRGBA(h, alpha) {
+            return 'rgba(' + hexToRGB(h).join(',') + ',' + alpha + ')';
+        }
+
+        function doneHandler() {
+            markerContainer.style.display = 'none';
+
+            markerLineWidth = strokeStyleText.value;
+            markerStrokeStyle = hexToRGBA(fillStyleText.value, alpha);
+        }
+
+        var colors = [
+            ['FFFFFF', '006600', '000099', 'CC0000', '8C4600'],
+            ['CCCCCC', '00CC00', '6633CC', 'FF0000', 'B28500'],
+            ['666666', '66FFB2', '006DD9', 'FF7373', 'FF9933'],
+            ['333333', '26FF26', '6699FF', 'CC33FF', 'FFCC99'],
+            ['000000', 'CCFF99', 'BFDFFF', 'FFBFBF', 'FFFF33']
+        ];
+
+        var context = getContext('marker-icon');
+
+        context.lineWidth = 9;
+        context.lineCap = 'round';
+        context.strokeStyle = 'green';
+        context.moveTo(35, 20);
+        context.lineTo(5, 25);
+        context.stroke();
+
+        context.fillStyle = 'Gray';
+        context.font = '9px Verdana';
+        context.fillText('Marker', 6, 12);
+
+        bindEvent(context, 'Marker');
+
+        var markerContainer = find('marker-container'),
+            strokeStyleText = find('marker-stroke-style'),
+            markerColorsList = find("marker-colors-list"),
+            fillStyleText = find('marker-fill-style'),
+            btnMarkerDone = find('marker-done'),
+            canvas = context.canvas,
+            alpha = 0.2;
+
+        // START INIT MARKER
+
+        markerStrokeStyle = hexToRGBA(fillStyleText.value, alpha);
+
+        var html = '';
+        colors.forEach(function(colorRow) {
+            var row = '<tr>';
+
+            colorRow.forEach(function(color) {
+                row += '<td style="background-color:#' + color + '" data-color="' + color + '"></td>';
+            })
+            row += '</tr>';
+
+            html += row;
+        });
+
+        markerColorsList.innerHTML = html;
+
+        // console.log(markerColorsList.getElementsByTagName('td'))
+        Array.prototype.slice.call(markerColorsList.getElementsByTagName('td')).forEach(function(td) {
+            addEvent(td, 'mouseover', function() {
+                var elColor = td.getAttribute('data-color');
+                fillStyleText.value = elColor
+            });
+
+            addEvent(td, 'click', function() {
+                var elColor = td.getAttribute('data-color');
+                fillStyleText.value = elColor;
+
+                doneHandler();
+            });
+        });
+
+        // END INIT MARKER
+
+        addEvent(canvas, 'click', function() {
+            hideContainers();
+
+            markerContainer.style.display = 'block';
+            markerContainer.style.top = (canvas.offsetTop + 1) + 'px';
+            markerContainer.style.left = (canvas.offsetLeft + canvas.clientWidth) + 'px';
+
+            fillStyleText.focus();
+        });
+
+        addEvent(btnMarkerDone, 'click', doneHandler);
+    }
+
+    if (tools.marker === true) {
+        decorateMarker();
+    } else document.getElementById('marker-icon').style.display = 'none';
 
     function decorateEraser() {
         var context = getContext('eraser-icon');
@@ -567,13 +711,16 @@ function setSelection(element, prop) {
 
     addEvent(isShorten, 'change', common.updateTextArea);
     addEvent(isAbsolute, 'change', common.updateTextArea);
-
 })();
 
 function hideContainers() {
     var additionalContainer = find('additional-container'),
         colorsContainer = find('colors-container'),
+        markerContainer = find('marker-container'),
         lineWidthContainer = find('line-width-container');
 
-    additionalContainer.style.display = colorsContainer.style.display = lineWidthContainer.style.display = 'none';
+    additionalContainer.style.display =
+        colorsContainer.style.display =
+        markerContainer.style.display =
+        lineWidthContainer.style.display = 'none';
 }

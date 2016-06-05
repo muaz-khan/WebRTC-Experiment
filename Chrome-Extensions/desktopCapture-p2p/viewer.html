@@ -153,7 +153,7 @@ function setBandwidth(connection) {
     // www.RTCMultiConnection.org/docs/bandwidth/
     connection.bandwidth = {};
     connection.bandwidth.video = connection.bandwidth.screen = 512;
-    connection.bandwidth = 128;
+    connection.bandwidth.audio = 128;
 
     connection.processSdp = function(sdp) {
         if (DetectRTC.isMobileDevice || DetectRTC.browser.name === 'Firefox') {

@@ -1,15 +1,8 @@
-// Last time updated at September 19, 2015
-
 // links:
 // Open-Sourced: https://github.com/streamproc/MediaStreamRecorder
 // https://cdn.WebRTC-Experiment.com/MediaStreamRecorder.js
 // https://www.WebRTC-Experiment.com/MediaStreamRecorder.js
 // npm install msr
-
-// updates?
-/*
--. this.recorderType = StereoAudioRecorder;
-*/
 
 //------------------------------------
 
@@ -26,5 +19,3 @@
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
 //------------------------------------
-
-'use strict';

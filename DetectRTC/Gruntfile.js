@@ -32,6 +32,7 @@ module.exports = function(grunt) {
                     'dev/DetectLocalIPAddress.js',
                     'dev/checkDeviceSupport.js',
                     'dev/DetectRTC.js',
+                    'dev/Objects.js',
                     'dev/tail.js'
                 ],
                 dest: 'DetectRTC.js',

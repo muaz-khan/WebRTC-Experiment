@@ -183,6 +183,18 @@
 
             connection.getExternalIceServers = false;
 
+            var broadcastId = '';
+            if(localStorage.getItem('rmc-broadcast-id')) {
+                broadcastId = localStorage.getItem('rmc-broadcast-id');
+            }
+            else {
+                broadcastId = connection.token();
+            }
+            document.getElementById('broadcast-id').value = broadcastId;
+            document.getElementById('broadcast-id').onkeyup = function() {
+                localStorage.setItem('rmc-broadcast-id', this.value);
+            };
+
             connection.onstream = function(event) {
                 connection.body.appendChild(event.mediaElement);
 

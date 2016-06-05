@@ -9,18 +9,26 @@ function MediaStreamRecorder(mediaStream) {
     // void start(optional long timeSlice)
     // timestamp to fire "ondataavailable"
     this.start = function(timeSlice) {
-        // Media Stream Recording API has not been implemented in chrome yet;
-        // That's why using WebAudio API to record stereo audio in WAV format
-        var Recorder = IsChrome || IsEdge || IsOpera ? window.StereoAudioRecorder || IsEdge || IsOpera : window.MediaRecorderWrapper;
+        var Recorder;
 
-        // video recorder (in WebM format)
-        if (this.mimeType.indexOf('video') !== -1) {
-            Recorder = IsChrome || IsEdge || IsOpera ? window.WhammyRecorder : window.MediaRecorderWrapper;
+        if (typeof MediaRecorder !== 'undefined') {
+            Recorder = MediaRecorderWrapper;
+        } else if (IsChrome || IsOpera || IsEdge) {
+            if (this.mimeType.indexOf('video') !== -1) {
+                Recorder = WhammyRecorder;
+            } else if (this.mimeType.indexOf('audio') !== -1) {
+                Recorder = StereoAudioRecorder;
+            }
         }
 
         // video recorder (in GIF format)
         if (this.mimeType === 'image/gif') {
-            Recorder = window.GifRecorder;
+            Recorder = GifRecorder;
+        }
+
+        // audio/wav is supported only via StereoAudioRecorder
+        if (this.mimeType === 'audio/wav') {
+            Recorder = StereoAudioRecorder;
         }
 
         // allows forcing StereoAudioRecorder.js on Edge/Firefox
@@ -74,11 +82,9 @@ function MediaStreamRecorder(mediaStream) {
                 return;
             }
 
-            var bigBlob = new Blob(mediaRecorder.blobs, {
-                type: mediaRecorder.blobs[0].type || this.mimeType
+            ConcatenateBlobs(mediaRecorder.blobs, mediaRecorder.blobs[0].type, function(concatenatedBlob) {
+                invokeSaveAsDialog(concatenatedBlob);
             });
-
-            invokeSaveAsDialog(bigBlob);
             return;
         }
         invokeSaveAsDialog(file, fileName);
@@ -100,7 +106,14 @@ function MediaStreamRecorder(mediaStream) {
         console.log('Resumed recording.', this.mimeType || mediaRecorder.mimeType);
     };
 
-    this.recorderType = null; // StereoAudioRecorder || WhammyRecorder || MediaRecorderWrapper || GifRecorder
+    // StereoAudioRecorder || WhammyRecorder || MediaRecorderWrapper || GifRecorder
+    this.recorderType = null;
+
+    // video/webm or audio/webm or audio/ogg or audio/wav
+    this.mimeType = 'video/webm';
+
+    // logs are enabled by default
+    this.disableLogs = false;
 
     // Reference to "MediaRecorder.js"
     var mediaRecorder;

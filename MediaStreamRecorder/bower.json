@@ -1,0 +1,69 @@
+{
+    "name": "msr",
+    "version": "1.3.2",
+    "authors": [
+        {
+            "name": "Muaz Khan",
+            "email": "muazkh@gmail.com",
+            "homepage": "http://www.muazkhan.com/"
+        }
+    ],
+    "homepage": "https://github.com/streamproc/MediaStreamRecorder",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/streamproc/MediaStreamRecorder.git"
+    },
+    "description": "Cross-Browser recording of audio/video media streams; targets WebRTC/getUserMedia/WebAudio/etc.",
+    "main": "MediaStreamRecorder.js",
+    "keywords": [
+        "recorder",
+        "audio-recorder",
+        "video-recorder",
+        "audio-recording",
+        "video-recording",
+        "recording",
+        "record",
+        "audio-video-recorder",
+        "gif-recorder",
+        "audio",
+        "video",
+        "gif",
+        "mediarecorder",
+        "media",
+        "client-side",
+        "webrtc",
+        "mediastreamrecorder",
+        "webrtc-library",
+        "library",
+        "javascript",
+        "chrome",
+        "firefox",
+        "opera",
+        "mediastreamrecorder.js",
+        "webrtc-experiment",
+        "javascript-library",
+        "muaz",
+        "muaz-khan",
+        "stereorecorder",
+        "mediarecorder",
+        "whammyrecorder",
+        "gifrecorder",
+        "multistreamrecorder"
+    ],
+    "license": "MIT",
+    "ignore": [
+        "**/.*",
+        "node_modules"
+    ],
+    "devDependencies": {
+        "grunt": "0.4.5",
+        "grunt-cli": "0.1.13",
+        "load-grunt-tasks": "3.2.0",
+        "grunt-contrib-concat": "0.5.1",
+        "grunt-contrib-csslint": "0.4.0",
+        "grunt-contrib-uglify": "0.9.1",
+        "grunt-htmlhint": "0.9.13",
+        "grunt-jsbeautifier": "0.2.10",
+        "grunt-bump": "0.3.1"
+      }
+}

@@ -9,6 +9,18 @@ module.exports = function(grunt) {
 
     var banner = '// Last time updated: <%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %>\n\n';
 
+    banner += '// _____________________\n';
+    banner += '// RTCMultiConnection-v3\n\n';
+
+    banner += '// Open-Sourced: https://github.com/muaz-khan/RTCMultiConnection\n\n';
+
+    banner += '// --------------------------------------------------\n';
+    banner += '// Muaz Khan     - www.MuazKhan.com\n';
+    banner += '// MIT License   - www.WebRTC-Experiment.com/licence\n';
+    banner += '// --------------------------------------------------\n\n';
+
+    banner += '\'use strict\';\n\n';
+
     // configure project
     grunt.initConfig({
         // make node configurations available
@@ -22,6 +34,8 @@ module.exports = function(grunt) {
             dist: {
                 src: [
                     'dev/head.js',
+                    // 'dev/amd.js',
+
                     'dev/RTCMultiConnection.js',
                     'dev/SocketConnection.js', // You can replace it with: FirebaseConnection.js || PubNubConnection.js
                     'dev/MultiPeersHandler.js',
@@ -41,7 +55,7 @@ module.exports = function(grunt) {
                     'dev/getUserMedia.js',
                     'dev/StreamsHandler.js',
 
-                    'dev/getScreenId.js', // or getScreenId.js or Screen-Capturing.js
+                    'dev/Screen-Capturing.js',
 
                     'dev/TextSenderReceiver.js',
                     'dev/FileProgressBarHandler.js',

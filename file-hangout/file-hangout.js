@@ -779,19 +779,10 @@ function RTCPeerConnection(options) {
     var channel;
 
     function openOffererChannel() {
-        if (!options.onChannelMessage || !options.onOfferSDP)
+        if (!options.onChannelMessage)
             return;
 
         _openOffererChannel();
-
-        if (!moz) return;
-        navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function(stream) {
-                peer.addStream(stream);
-                createOffer();
-            }, useless);
     }
 
     function _openOffererChannel() {
@@ -831,15 +822,6 @@ function RTCPeerConnection(options) {
             channel = event.channel;
             setChannelEvents();
         };
-
-        if (!moz) return;
-        navigator.mozGetUserMedia({
-                audio: true,
-                fake: true
-            }, function(stream) {
-                peer.addStream(stream);
-                createAnswer();
-            }, useless);
     }
 
     // fake:true is also available on chrome under a flag!

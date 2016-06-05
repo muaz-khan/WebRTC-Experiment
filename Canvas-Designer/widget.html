@@ -63,7 +63,7 @@
 		    -ms-user-select: none;
 		    user-select: none;
 
-		    font-family: Verdana, arial, helvetica, sans-serif
+		    font-family: Verdana, arial, helvetica, sans-serif;
 		}
 		html, body {
 		    background-color: #FBFBFB;
@@ -129,9 +129,15 @@
 		    margin-top: 0;
 		    border-top:0;
 		}
-		.selected-shape, .tool-box canvas:hover
+		.tool-box canvas:hover
 		{
-		    box-shadow: inset 0 0 10px rgba(0, 0, 0, .1);
+		    box-shadow: none;
+    		background: rgb(255, 247, 103);
+		}
+		.selected-shape
+		{
+		    box-shadow: inset 0px 0px 4px 1px rgb(193, 164, 19)!important;
+    		background: rgb(255, 247, 103)!important;
 		}
 		/* surface */
 		.preview-panel
@@ -272,23 +278,6 @@
 		    text-align: center;
 		}
 
-		.done
-		{
-		    border: 1px solid #E5E5E5;    
-		    display: inline-block;    
-		    padding: 4px 10px;
-		    border-radius: 3px;
-		}
-		.done:hover
-		{
-		    box-shadow: inset 0 0 12px white;
-		}
-
-		.done:active
-		{
-		  box-shadow: inset 0 0 52px white;
-		}
-
 		/* colors */
 
 		.colors-container label {
@@ -315,6 +304,115 @@
 		    width: 120px;
 		}
 
+		.btn-007 {
+		    font-family: Verdana, arial, helvetica, sans-serif;
+		    font-weight: normal;
+		    border-top-left-radius: 3px;
+		    border-top-right-radius: 3px;
+		    border-bottom-right-radius: 3px;
+		    border-bottom-left-radius: 3px;
+		    padding: 2px 3px;
+		    text-decoration: none;
+		    color: rgb(27, 26, 26);
+		    display: inline-block;
+		    box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+		    text-shadow: none;
+		    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
+		    font-size: 13px;
+		    border: 1px solid red;
+		    outline:none;
+		}
+		.btn-007:hover, .btn-007:focus {
+		    background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
+		    border: 1px solid rgb(142, 142, 142);
+		}
+		.btn-007[disabled] {
+		    background: rgb(249, 249, 249);
+		    border: 1px solid rgb(218, 207, 207);
+		    color: rgb(197, 189, 189);
+		}
+
+		.fontSelect {
+			position: relative;
+			padding: 3px;
+			height: 28px;
+			line-height: 28px;
+			cursor: pointer;
+			margin: 3px;
+
+			width: 200px;
+
+			background-image: -webkit-linear-gradient(top, #f9f9f9, #f0f0f0);
+			background-image: -moz-linear-gradient(top, #f9f9f9, #f0f0f0);
+			background-image: -o-linear-gradient(top, #f9f9f9, #f0f0f0);
+			background-image: -ms-linear-gradient(top, #f9f9f9, #f0f0f0);
+			background-image: linear-gradient(top, #f9f9f9, #f0f0f0);
+			filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='$from', EndColorStr='$to');
+			-webkit-border-radius: 4px;
+			-moz-border-radius: 4px;
+			border-radius: 4px;
+			border: 1px solid #cecece;
+		}
+
+		.fontSelect span {
+			overflow: hidden;
+			margin-left: 5px;
+		}
+
+		.fontSelect .arrow-down {
+			position: absolute;
+			right: 10px;
+			top: 14px;
+			border-left: 6px solid transparent;
+			border-right: 6px solid transparent;
+
+			border-top: 6px solid #AAA;
+		}
+
+		.fontSelectUl, .fontSizeUl {
+			list-style: none;
+			width: 200px;
+			background: #f9f9f9;
+			position: absolute;
+			left: 0;
+			top: 35px;
+			padding: 0;
+		}
+
+		.fontSelectUl {
+			padding-left: 5px;
+		}
+
+		.fontSelectUl li, .fontSizeUl li {
+			height: 24px;
+			line-height: 24px;
+			overflow: hidden;
+			cursor: pointer;
+			padding: 0 10px;
+
+			font-size: 14px;
+
+			border-left: 1px solid #f0f0f0;
+			border-right: 1px solid #f0f0f0;
+		}
+
+		.fontSelectUl li:last-child, .fontSizeUl li:last-child {
+			-webkit-border-radius: 0 0 4px 4px;
+			-moz-border-radius: 0 0 4px 4px;
+			border-radius: 0 0 4px 4px;
+
+			border-bottom: 1px solid #EEEEEE;
+		}
+
+		.fontSelectUl li:hover, .fontSizeUl li:hover {
+			background: #DDD;
+		}
+
+		.fontSelectUl li.font-family-selected, .fontSizeUl li.font-size-selected {
+			background: rgb(6, 205, 255)!important;
+			color: white!important;
+		}
+
 	</style>
 </head>
 <body>
@@ -327,6 +425,8 @@
 
 	<section id="tool-box" class="tool-box">
         <canvas id="pencil-icon" width="40" height="40"></canvas>
+        <canvas id="marker-icon" width="40" height="40"></canvas>
+
         <canvas id="eraser-icon" width="40" height="40"></canvas>
         <canvas id="text-icon" width="40" height="40"></canvas>
         <canvas id="image-icon" width="40" height="40"></canvas>
@@ -334,7 +434,9 @@
 		<canvas id="drag-last-path" width="40" height="40"></canvas>
 		<canvas id="drag-all-paths" width="40" height="40"></canvas>
 
-		<canvas id="line" class="selected-shape" width="40" height="40"></canvas>
+		<canvas id="line" width="40" height="40"></canvas>
+		<canvas id="arrow" width="40" height="40"></canvas>
+
 		<canvas id="arc" width="40" height="40"></canvas>
 		<canvas id="rectangle" width="40" height="40"></canvas>
 		<canvas id="quadratic-curve" width="40" height="40"></canvas>
@@ -384,7 +486,7 @@
 		<label for="line-width-text">Line Width:</label>
 		<input id="line-width-text" class="line-width-text" type="text" value="2">
 		
-		<div id="line-width-done" class="done">Done</div>
+		<div id="line-width-done" class="btn-007">Done</div>
 	</section>
 	
 	<!-- colors selector -->
@@ -397,10 +499,32 @@
 		
 		<div class="input-div">
 			<label for="fill-style">Fill Style:</label>
-			<input id="fill-style" type="color" value="transparent">
+			<input id="fill-style" type="color" value="#ffffff">
 		</div>
 		
-		<div id="colors-done" class="done">Done</div>
+		<div id="colors-done" class="btn-007">Done</div>
+	</section>
+
+	<!-- marker selector -->
+	
+	<section id="marker-container" class="context-popup marker-container">
+		Line Width:
+		<input type="text" id="marker-stroke-style" style="width:90px;border:1px solid #ece7e7;" value="10">
+		
+		<table style="width:173px;height:150px;">
+			<tbody id="marker-colors-list"></tbody>
+		</table>
+
+		Fill Style:
+		<input type="text" id="marker-fill-style" style="width:90px;border:1px solid #ece7e7;" value="000000">
+		
+		<br>
+
+		<div id="marker-done" class="btn-007" style="margin-top:5px;">Done</div>
+	</section>
+
+	<!-- marker selector -->
+		
 	</section>
 	
 	<!-- copy paths -->
@@ -422,8 +546,8 @@
 		<div>
 			<label for="lineCap-select">Line Cap:</label>
 			<select id="lineCap-select">
-				<option>butt</option>
 				<option>round</option>
+				<option>butt</option>
 				<option>square</option>
 			</select>
 		</div>
@@ -431,8 +555,8 @@
 		<div>
 			<label for="lineJoin-select">Line Join:</label>
 			<select id="lineJoin-select">
-				<option>bevel</option>
 				<option>round</option>
+				<option>bevel</option>
 				<option>miter</option>
 			</select>
 		</div>
@@ -471,12 +595,41 @@
 			</select>
 		</div>
 		
-		<div id="additional-close" class="done">Done</div>
+		<div id="additional-close" class="btn-007">Done</div>
 	</section>
 	
 	<!-- fade -->
 
 	<div id="fade"></div>
+
+	<!-- text font/family/color -->
+
+	<ul class="fontSelectUl" style="display: none; position: absolute; top: 0; left: 0; width: 166px;">
+	   <li>Arial</li>
+	   <li>Arial Black</li>
+	   <li>Comic Sans MS</li>
+	   <li>Courier New</li>
+	   <li>Georgia</li>
+	   <li>Tahoma</li>
+	   <li>Times New Roman</li>
+	   <li>Trebuchet MS</li>
+	   <li>Verdana</li>
+	</ul>
+
+	<ul class="fontSizeUl" style="display: none; position: absolute; top: 0; left: 0; width: 50px; text-align: center;">
+	   <li>15</li>
+	   <li>17</li>
+	   <li>19</li>
+	   <li>20</li>
+	   <li>22</li>
+	   <li>25</li>
+	   <li>30</li>
+	   <li>35</li>
+	   <li>42</li>
+	   <li>48</li>
+	   <li>60</li>
+	   <li>72</li>
+	</ul>
     
     <!-- url-parameters -->
     <script>
@@ -495,8 +648,21 @@
 		    window.params = params;
 		})();
 
+		window.selectedIcon = params.selectedIcon;
+
+		if (window.selectedIcon) {
+            try {
+            	window.selectedIcon = window.selectedIcon.split('')[0].toUpperCase() + window.selectedIcon.replace(window.selectedIcon.split('').shift(1), '');
+            }
+            catch(e) {
+            	window.selectedIcon = 'Pencil';
+            }
+        } else {
+        	window.selectedIcon = 'Pencil';
+        }
+
 		var script = document.createElement('script');
-		script.src = params.widgetJsURL;
+		script.src = params.widgetJsURL || 'https://cdn.webrtc-experiment.com/Canvas-Designer/widget.js';
 		(document.body || document.documentElement).appendChild(script);
     </script>
 </body>

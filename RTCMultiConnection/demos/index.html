@@ -12,17 +12,49 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
-    <title>RTCMultiConnection-v3 Demos</title>
+    <title>RTCMultiConnection Demos & Experiments</title>
     
     <meta name="description" content="A javascript wrapper library supporting approximately all possible peer-to-peer features. It is having approximately all kinds of demo-applications." />
     <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
+
+    <style>
+        .search-container {
+                text-align: left;
+                margin: -2em 5%;
+                margin-top: 0;
+            }
+            .search-container input {
+                background-color: transparent;
+            }
+            
+            .search-container td {
+                border: 0;
+                vertical-align: top;
+                padding: 0;
+                border-top: none;
+                border-right: none;
+            }
+    </style>
+    <link rel="alternate" type="application/rss+xml" title="Muaz Khan Feed" href="http://feeds.feedburner.com/muazkh">
+        <script type="application/ld+json">
+        {
+           "@context": "http://schema.org",
+           "@type": "WebSite",
+           "url": "https://www.webrtc-experiment.com/",
+           "potentialAction": {
+             "@type": "SearchAction",             
+             "target": "https://www.google.com/cse?q=WebRTC&r=m&cx=010995979085537571634%3Auujpel__q7e#gsc.tab=0&gsc.q={search_term_string}&gsc.page=1",
+             "query-input": "required name=search_term_string"
+           }
+        }
+    </script>
 </head>
 
 <body>
     <article>
 
         <header style="text-align: center;">
-            <h1><a href="https://github.com/muaz-khan/RTCMultiConnection">RTCMultiConnection-v3</a>  Demos / <a href="https://rtcmulticonnection.herokuapp.com/">LIVE Demos</a></h1>
+            <h1><a href="https://github.com/muaz-khan/RTCMultiConnection">RTCMultiConnection</a>  Demos & Experiments / <a href="https://rtcmulticonnection.herokuapp.com/">LIVE Demos</a></h1>
             <p>
                 <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
                 <span> &copy; </span>
@@ -32,6 +64,10 @@
                 <a href="https://github.com/muaz-khan/RTCMultiConnection/issues?state=open" target="_blank">Latest issues</a> .
                 <a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master" target="_blank">What's New?</a>
             </p>
+
+            <div class="search-container">
+                <gcse:search></gcse:search>
+            </div>
         </header>
 
         <div class="github-stargazers"></div>
@@ -58,11 +94,15 @@
                 </li>
 
                 <li>
-                    <a href="/demos/Video-Scalable-Broadcast.html">Scalable OneWay Video Broadcasting</a>
+                    <a href="/demos/Scalable-Screen-Broadcast.html">Scalable Screen Broadcast over Unlimited users!</a>
                 </li>
 
                 <li>
-                    <a href="/demos/Files-Scalable-Broadcast.html">Scalable OneWay File Sharing</a>
+                    <a href="/demos/Scalable-Screen-plus-Audio-Broadcast.html">Scalable Screen+Audio Broadcast over Unlimited users!</a>
+                </li>
+
+                <li>
+                    <a href="/demos/admin-guest.html">Admin/Guest demo</a>
                 </li>
 
                 <li>
@@ -90,11 +130,15 @@
                 </li>
 
                 <li>
-                    <a href="/demos/Audio+ScreenSharing.html">TwoWay Audio & OneWay Screen Sharing</a> (NOT-Functional YET)
+                    <a href="/demos/Audio+ScreenSharing.html">Audio+ScreenSharing</a>
                 </li>
 
                 <li>
                     <a href="/demos/Screen-Sharing.html">Share Screen in OneWay among multiple users</a>
+                </li>
+
+                <li>
+                    <a href="/demos/Cross-Domain-Screen-Capturing.html">Capture & Share Screen from any domain!</a>
                 </li>
 
                 <li>
@@ -107,6 +151,10 @@
 
                 <li>
                     <a href="/demos/replaceTrack.html">Test RTPSender.replaceTrack API (only in Firefox)</a>
+                </li>
+
+                <li>
+                    <a href="/demos/change-resolutions.html">Change Video Resolutions in your Live Sessions</a>
                 </li>
 
                 <li>
@@ -138,7 +186,19 @@
                 </li>
 
                 <li>
+                    <a href="/demos/StreamHasData.html">Check if StreamHasData</a>
+                </li>
+
+                <li>
                     <a href="/demos/MultiRTC/">MultiRTC / Skype-like app</a>
+                </li>
+
+                <li>
+                    <a href="/demos/Video-Scalable-Broadcast.html">Scalable OneWay Video Broadcasting</a>
+                </li>
+
+                <li>
+                    <a href="/demos/Files-Scalable-Broadcast.html">Scalable OneWay File Sharing</a>
                 </li>
             </ol>
 
@@ -202,6 +262,33 @@ node server.js
             <a href="https://github.com/muaz-khan" target="_blank">Github</a>
         </p>
     </footer>
+
+    <script>
+      (function() {
+        var cx = '010995979085537571634:okwrck5_p9q';
+        var gcse = document.createElement('script');
+        gcse.type = 'text/javascript';
+        gcse.async = true;
+        gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+            '//cse.google.com/cse.js?cx=' + cx;
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(gcse, s);
+      })();
+    </script>
+
+    <style>
+        .gsc-result .gs-title {
+            height: 1.4em!important;
+        }
+        input.gsc-search-button, input.gsc-search-button:hover, input.gsc-search-button:focus {
+            border-color: #090808!important;
+            background-color: #413E3E!important;
+            margin-left: -13px!important;
+            margin-top: 8px!important;
+            border-left: 0!important;
+            border-radius: 0!important;
+        }
+    </style>
 
 </body>
 

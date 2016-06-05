@@ -86,10 +86,10 @@ function setHarkEvents(connection, streamEvent) {
 }
 
 function setMuteHandlers(connection, streamEvent) {
-    if (!streamEvent.stream || !streamEvent.stream.addEventListener) return;
+    if (!streamEvent.stream || !streamEvent.stream || !streamEvent.stream.addEventListener) return;
 
     streamEvent.stream.addEventListener('mute', function(event) {
-        event = connection.streamEvents[event.target.streamid];
+        event = connection.streamEvents[streamEvent.streamid];
 
         event.session = {
             audio: event.muteType === 'audio',
@@ -100,7 +100,7 @@ function setMuteHandlers(connection, streamEvent) {
     }, false);
 
     streamEvent.stream.addEventListener('unmute', function(event) {
-        event = connection.streamEvents[event.target.streamid];
+        event = connection.streamEvents[streamEvent.streamid];
 
         event.session = {
             audio: event.unmuteType === 'audio',
@@ -285,4 +285,42 @@ if (typeof MediaStream !== 'undefined') {
             });
         };
     }
+}
+
+function isAudioPlusTab(connection, audioPlusTab) {
+    if (connection.session.audio && connection.session.audio === 'two-way') {
+        return false;
+    }
+
+    if (isFirefox && audioPlusTab !== false) {
+        return true;
+    }
+
+    if (!isChrome || chromeVersion < 50) return false;
+
+    if (typeof audioPlusTab === true) {
+        return true;
+    }
+
+    if (typeof audioPlusTab === 'undefined' && connection.session.audio && connection.session.screen && !connection.session.video) {
+        audioPlusTab = true;
+        return true;
+    }
+
+    return false;
+}
+
+function getAudioScreenConstraints(screen_constraints) {
+    if (isFirefox) {
+        return true;
+    }
+
+    if (!isChrome) return false;
+
+    return {
+        mandatory: {
+            chromeMediaSource: screen_constraints.mandatory.chromeMediaSource,
+            chromeMediaSourceId: screen_constraints.mandatory.chromeMediaSourceId
+        }
+    };
 }

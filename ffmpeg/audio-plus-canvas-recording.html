@@ -84,8 +84,8 @@
     <button id="stop" disabled contenteditable="false">Stop</button>
 </div>
 
-<script src="//cdn.webrtc-experiment.com/screenshot.js"> </script>
-<script src="//cdn.webrtc-experiment.com/RecordRTC.js"> </script>
+<script src="https://cdn.webrtc-experiment.com/screenshot.js"> </script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"> </script>
 
 <script>
 var elementToShare = document.getElementById('elementToShare');
@@ -101,7 +101,7 @@ document.getElementById('start').onclick = function() {
     navigator.getUserMedia({ audio: true }, function(stream) {
         recordAudio = RecordRTC(stream, {
             type: 'audio',
-            recorderType: StereoAudioRecorder // force WebAudio for all browsers even for Firefox/MS-Edge
+            recorderType: !!navigator.mozGetUserMedia ? MediaStreamRecorder : StereoAudioRecorder
         });
 
         recordAudio.initRecorder(function() {

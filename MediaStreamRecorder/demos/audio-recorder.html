@@ -11,213 +11,200 @@
 <head>
     <title>WebRTC Audio Recording using MediaStreamRecorder</title>
 
-    <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"></script>
+    <script src="https://cdn.WebRTC-Experiment.com/MediaStreamRecorder.js"></script>
+    
     <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
-    <script src="https://cdn.rawgit.com/webrtc/adapter/master/adapter.js"></script>
+    <script src="https://cdn.WebRTC-Experiment.com/gumadapter.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
     <style>
-    input {
-        border: 1px solid rgb(46, 189, 235);
-        border-radius: 3px;
-        font-size: 1em;
-        outline: none;
-        padding: .2em .4em;
-        width: 60px;
-        text-align: center;
-    }
-
-    button, select {
-        font-family: Myriad, Arial, Verdana;
-        font-weight: normal;
-        border-top-left-radius: 3px;
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
-        border-bottom-left-radius: 3px;
-        padding: 4px 12px;
-        text-decoration: none;
-        color: rgb(27, 26, 26);
-        display: inline-block;
-        box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
-        text-shadow: none;
-        background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
-        font-size: 20px;
-        border: 1px solid red;
-        outline:none;
-    }
-    button:active, button:focus, select:active {
-        background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
-        border: 1px solid rgb(142, 142, 142);
-    }
-    button[disabled], select[disabled] {
-        background: rgb(249, 249, 249);
-        border: 1px solid rgb(218, 207, 207);
-        color: rgb(197, 189, 189);
-    }
-    blockquote {
-        font-size: 20px;
-        color: rgb(172, 10, 10);
-        border: 1px solid rgb(172, 10, 10);
-        padding: 5px 10px;
-        border-radius: 5px;
-        margin: 9px 10px;
-    }
-    span {
-        border: 1px dotted red;
-        background: yellow;
-        padding: 0 5px;
-    }
+        input {
+            border: 1px solid rgb(46, 189, 235);
+            border-radius: 3px;
+            font-size: 1em;
+            outline: none;
+            padding: .2em .4em;
+            width: 60px;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
-    <h1>
-        <a href="https://www.webrtc-experiment.com/">WebRTC</a> Audio Recording using <a href="https://github.com/streamproc/MediaStreamRecorder" target="_blank">MediaStreamRecorder</a>
-    </h1>
+    <article>
+        <header style="text-align: center;">
+            <h1>
+                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> Audio Recording using <a href="https://github.com/streamproc/MediaStreamRecorder" target="_blank">MediaStreamRecorder</a>
+                </h1>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">HOME</a>
+                <span> &copy; </span>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
+                <a href="https://github.com/streamproc/MediaStreamRecorder/issues?state=open" target="_blank">Latest issues</a> .
+                <a href="https://github.com/streamproc/MediaStreamRecorder/commits/master" target="_blank">What's New?</a>
+            </p>
+        </header>
 
-    <div>
-        <label for="time-interval">Time Interval (milliseconds):</label>
-        <input type="text" id="time-interval" value="5000">ms
+        <div class="github-stargazers"></div>
 
-        <button id="start-recording">Start</button>
-        <button id="stop-recording" disabled>Stop</button>
+        <section class="experiment" style="padding: 5px;">
+            <label for="time-interval">Time Interval (milliseconds):</label>
+            <input type="text" id="time-interval" value="5000">ms
 
-        <button id="pause-recording" disabled>Pause</button>
-        <button id="resume-recording" disabled>Resume</button>
+            <br>
 
-        <button id="save-recording" disabled>Save</button>
+            <select id="audio-mimeType" style="font-size:22px;vertical-align: middle;margin-right: 5px;">
+                <option>audio/webm</option>
+                <option>audio/wav</option>
+            </select>
 
-        <br><br>
+            <button id="start-recording">Start</button>
+            <button id="stop-recording" disabled>Stop</button>
 
-        <input id="left-channel" type="checkbox" checked style="width:auto;">
-        <label for="left-channel">Only Left Channel?</label>
-    </div>
+            <button id="pause-recording" disabled>Pause</button>
+            <button id="resume-recording" disabled>Resume</button>
 
-    <div id="audios-container"></div>
+            <button id="save-recording" disabled>Save</button>
 
-    <script>
-    function captureUserMedia(mediaConstraints, successCallback, errorCallback) {
-        navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
-    }
+            <br>
+            <br>
 
-    var mediaConstraints = {
-        audio: true
-    };
+            <input id="left-channel" type="checkbox" checked style="width:auto;">
+            <label for="left-channel">Only Left Channel?</label>
+        </section>
 
-    document.querySelector('#start-recording').onclick = function() {
-        this.disabled = true;
-        captureUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
-    };
+        <section class="experiment">
+            <div id="audios-container"></div>
+        </section>
 
-    document.querySelector('#stop-recording').onclick = function() {
-        this.disabled = true;
-        mediaRecorder.stop();
-        mediaRecorder.stream.stop();
+        <script>
+            function captureUserMedia(mediaConstraints, successCallback, errorCallback) {
+                navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
+            }
 
-        document.querySelector('#pause-recording').disabled = true;
-        document.querySelector('#start-recording').disabled = false;
-    };
+            var mediaConstraints = {
+                audio: true
+            };
 
-    document.querySelector('#pause-recording').onclick = function() {
-        this.disabled = true;
-        mediaRecorder.pause();
+            document.querySelector('#start-recording').onclick = function() {
+                this.disabled = true;
+                captureUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
+            };
 
-        document.querySelector('#resume-recording').disabled = false;
-    };
+            document.querySelector('#stop-recording').onclick = function() {
+                this.disabled = true;
+                mediaRecorder.stop();
+                mediaRecorder.stream.stop();
 
-    document.querySelector('#resume-recording').onclick = function() {
-        this.disabled = true;
-        mediaRecorder.resume();
+                document.querySelector('#pause-recording').disabled = true;
+                document.querySelector('#start-recording').disabled = false;
+            };
 
-        document.querySelector('#pause-recording').disabled = false;
-    };
+            document.querySelector('#pause-recording').onclick = function() {
+                this.disabled = true;
+                mediaRecorder.pause();
 
-    document.querySelector('#save-recording').onclick = function() {
-        this.disabled = true;
-        mediaRecorder.save();
-    };
+                document.querySelector('#resume-recording').disabled = false;
+            };
 
-    var mediaRecorder;
+            document.querySelector('#resume-recording').onclick = function() {
+                this.disabled = true;
+                mediaRecorder.resume();
 
-    function onMediaSuccess(stream) {
-        var audio = document.createElement('audio');
+                document.querySelector('#pause-recording').disabled = false;
+            };
 
-        audio = mergeProps(audio, {
-            controls: true,
-            muted: true,
-            src: URL.createObjectURL(stream)
-        });
-        audio.play();
+            document.querySelector('#save-recording').onclick = function() {
+                this.disabled = true;
+                mediaRecorder.save();
 
-        audiosContainer.appendChild(audio);
-        audiosContainer.appendChild(document.createElement('hr'));
+                // alert('Drop WebM file on Chrome or Firefox. Both can play entire file. VLC player or other players may not work.');
+            };
 
-        mediaRecorder = new MediaStreamRecorder(stream);
-        mediaRecorder.stream = stream;
-        mediaRecorder.mimeType = 'audio/ogg';
-        mediaRecorder.audioChannels = !!document.getElementById('left-channel').checked ? 1 : 2;
-        mediaRecorder.ondataavailable = function(blob) {
-            var a = document.createElement('a');
-            a.target = '_blank';
-            a.innerHTML = 'Open Recorded Audio No. ' + (index++) + ' (Size: ' + bytesToSize(blob.size) + ') Time Length: ' + getTimeLength(timeInterval);
+            var mediaRecorder;
 
-            a.href = URL.createObjectURL(blob);
+            function onMediaSuccess(stream) {
+                var audio = document.createElement('audio');
 
-            audiosContainer.appendChild(a);
-            audiosContainer.appendChild(document.createElement('hr'));
-        };
+                audio = mergeProps(audio, {
+                    controls: true,
+                    muted: true,
+                    src: URL.createObjectURL(stream)
+                });
+                audio.play();
 
-        var timeInterval = document.querySelector('#time-interval').value;
-        if (timeInterval) timeInterval = parseInt(timeInterval);
-        else timeInterval = 5 * 1000;
+                audiosContainer.appendChild(audio);
+                audiosContainer.appendChild(document.createElement('hr'));
 
-        // get blob after specific time interval
-        mediaRecorder.start(timeInterval);
+                mediaRecorder = new MediaStreamRecorder(stream);
+                mediaRecorder.stream = stream;
+                mediaRecorder.mimeType = document.getElementById('audio-mimeType').value;
+                mediaRecorder.audioChannels = !!document.getElementById('left-channel').checked ? 1 : 2;
+                mediaRecorder.ondataavailable = function(blob) {
+                    var a = document.createElement('a');
+                    a.target = '_blank';
+                    a.innerHTML = 'Open Recorded Audio No. ' + (index++) + ' (Size: ' + bytesToSize(blob.size) + ') Time Length: ' + getTimeLength(timeInterval);
 
-        document.querySelector('#stop-recording').disabled = false;
-        document.querySelector('#pause-recording').disabled = false;
-        document.querySelector('#save-recording').disabled = false;
-    }
+                    a.href = URL.createObjectURL(blob);
 
-    function onMediaError(e) {
-        console.error('media error', e);
-    }
+                    audiosContainer.appendChild(a);
+                    audiosContainer.appendChild(document.createElement('hr'));
+                };
 
-    var audiosContainer = document.getElementById('audios-container');
-    var index = 1;
+                var timeInterval = document.querySelector('#time-interval').value;
+                if (timeInterval) timeInterval = parseInt(timeInterval);
+                else timeInterval = 5 * 1000;
 
-    // below function via: http://goo.gl/B3ae8c
-    function bytesToSize(bytes) {
-        var k = 1000;
-        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-        if (bytes === 0) return '0 Bytes';
-        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
-        return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
-    }
+                // get blob after specific time interval
+                mediaRecorder.start(timeInterval);
 
-    // below function via: http://goo.gl/6QNDcI
-    function getTimeLength(milliseconds) {
-        var data = new Date(milliseconds);
-        return data.getUTCHours() + " hours, " + data.getUTCMinutes() + " minutes and " + data.getUTCSeconds() + " second(s)";
-    }
+                document.querySelector('#stop-recording').disabled = false;
+                document.querySelector('#pause-recording').disabled = false;
+                document.querySelector('#save-recording').disabled = false;
+            }
 
-    window.onbeforeunload = function() {
-        document.querySelector('#start-recording').disabled = false;
-    };
-    </script>
+            function onMediaError(e) {
+                console.error('media error', e);
+            }
 
-<pre style="border-left: 2px solid red; margin-left:2em; padding-left: 1em;">
+            var audiosContainer = document.getElementById('audios-container');
+            var index = 1;
+
+            // below function via: http://goo.gl/B3ae8c
+            function bytesToSize(bytes) {
+                var k = 1000;
+                var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                if (bytes === 0) return '0 Bytes';
+                var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+                return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+            }
+
+            // below function via: http://goo.gl/6QNDcI
+            function getTimeLength(milliseconds) {
+                var data = new Date(milliseconds);
+                return data.getUTCHours() + " hours, " + data.getUTCMinutes() + " minutes and " + data.getUTCSeconds() + " second(s)";
+            }
+
+            window.onbeforeunload = function() {
+                document.querySelector('#start-recording').disabled = false;
+            };
+        </script>
+
+        <pre style="border-left: 2px solid red; margin-left:2em; padding-left: 1em;">
 // cdn.webrtc-experiment.com/MediaStreamRecorder.js
 
 var mediaConstraints = {
-    audio: !!navigator.mozGetUserMedia, // if firefox (don't use for chrome)
-    video: true  // if firefox or chrome
+    audio: true
 };
 
 navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
 
 function onMediaSuccess(stream) {
     var mediaRecorder = new MediaStreamRecorder(stream);
-    mediaRecorder.mimeType = 'video/webm';
+    mediaRecorder.mimeType = 'audio/webm'; // audio/webm or audio/ogg or audio/wav
     mediaRecorder.ondataavailable = function (blob) {
         // POST/PUT "Blob" using FormData/XHR2
         var blobURL = URL.createObjectURL(blob);
@@ -231,7 +218,48 @@ function onMediaError(e) {
 }
 </pre>
 
-    <a href="https://www.webrtc-experiment.com/msr/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">MediaStreamRecorder Demos</a>
+        <a href="https://www.webrtc-experiment.com/msr/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">MediaStreamRecorder Demos</a>
+
+        <section class="experiment own-widgets latest-commits">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/streamproc/MediaStreamRecorder/commits/master" target="_blank">Latest Updates</a>
+            </h2>
+            <div id="github-commits"></div>
+        </section>
+
+        <section class="experiment own-widgets">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/streamproc/MediaStreamRecorder/commits/master" target="_blank">Latest Issues</a>
+            </h2>
+            <div id="github-issues"></div>
+        </section>
+
+        <section class="experiment">
+            <h2 class="header" id="feedback">Feedback</h2>
+            <div>
+                <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+            </div>
+            <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
+        </section>
+
+        <section class="experiment own-widgets latest-commits">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/streamproc/MediaStreamRecorder/commits/master" target="_blank">Latest Updates</a>
+            </h2>
+            <div id="github-commits"></div>
+        </section>
+
+        <script>
+            window.useThisGithubPath = 'streamproc/MediaStreamRecorder';
+        </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+    </article>
+
+    <a href="https://github.com/streamproc/MediaStreamRecorder" class="fork-left"></a>
+
+    <footer>
+        <p>
+            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+        </p>
+    </footer>
 </body>
 
 </html>

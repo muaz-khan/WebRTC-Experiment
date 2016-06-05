@@ -1,0 +1,33 @@
+{
+	"name" : "RecordRTC",
+	"short_name" : "RecordRTC",
+    "author": "Muaz Khan",
+	"version" : "2.0",
+	"manifest_version" : 2,
+    "minimum_chrome_version": "34",
+	"description" : "Record screen, audio+screen, all-audios+tab, entire conference, and more!",
+    "homepage_url": "https://www.WebRTC-Experiment.com/RecordRTC/",
+    "background": {
+	    "scripts": ["background.js", "RecordRTC.min.js"],
+	    "persistent": false
+	},
+	"browser_action" : {
+		"default_icon" : "images/main-icon.png",
+		"default_title" : "Record Screen"
+	},
+	"icons" : {
+		"16" : "images/main-icon.png",
+		"22" : "images/main-icon.png",
+		"32" : "images/main-icon.png",
+		"48" : "images/main-icon.png",
+		"128": "images/main-icon.png"
+	},
+	"permissions": ["desktopCapture", "storage", "tabs", "<all_urls>"],
+	"web_accessible_resources": [
+		"images/main-icon.png"
+	],
+	"options_ui": {
+       "page": "options.html",
+       "chrome_style": false
+    }
+}

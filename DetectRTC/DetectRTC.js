@@ -1,4 +1,4 @@
-// Last time updated: 2016-02-26 11:47:17 AM UTC
+// Last time updated: 2016-05-24 2:44:27 PM UTC
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/DetectRTC.js
 
@@ -16,6 +16,53 @@
 
     'use strict';
 
+    var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko) Fake/12.3.4567.89 Fake/123.45';
+
+    (function(that) {
+        if (typeof window !== 'undefined') {
+            return;
+        }
+
+        if (typeof window === 'undefined' && typeof global !== 'undefined') {
+            global.navigator = {
+                userAgent: browserFakeUserAgent,
+                getUserMedia: function() {}
+            };
+
+            /*global window:true */
+            that.window = global;
+        } else if (typeof window === 'undefined') {
+            // window = this;
+        }
+
+        if (typeof document === 'undefined') {
+            /*global document:true */
+            that.document = {};
+
+            document.createElement = document.captureStream = document.mozCaptureStream = function() {
+                return {};
+            };
+        }
+
+        if (typeof location === 'undefined') {
+            /*global location:true */
+            that.location = {
+                protocol: 'file:',
+                href: '',
+                hash: ''
+            };
+        }
+
+        if (typeof screen === 'undefined') {
+            /*global screen:true */
+            that.screen = {
+                width: 0,
+                height: 0
+            };
+        }
+    })(typeof global !== 'undefined' ? global : window);
+
+    /*global navigator:true */
     var navigator = window.navigator;
 
     if (typeof navigator !== 'undefined') {
@@ -29,11 +76,12 @@
     } else {
         navigator = {
             getUserMedia: function() {},
-            userAgent: 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko) Fake/12.3.4567.89 Fake/123.45'
+            userAgent: browserFakeUserAgent
         };
     }
 
-    var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
+    var isMobileDevice = !!(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(navigator.userAgent || ''));
+
     var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob);
 
     var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
@@ -569,11 +617,13 @@
         // Firefox 38+ seems having support of enumerateDevices
         // Thanks @xdumaine/enumerateDevices
         navigator.enumerateDevices = function(callback) {
-            navigator.mediaDevices.enumerateDevices().then(callback);
+            navigator.mediaDevices.enumerateDevices().then(callback).catch(function() {
+                callback([]);
+            });
         };
     }
 
-    // ---------- Media Devices detection
+    // Media Devices detection
     var canEnumerate = false;
 
     /*global MediaStreamTrack:true */
@@ -591,13 +641,13 @@
     var isWebsiteHasWebcamPermissions = false;
 
     // http://dev.w3.org/2011/webrtc/editor/getusermedia.html#mediadevices
-    // todo: switch to enumerateDevices when landed in canary.
     function checkDeviceSupport(callback) {
         if (!canEnumerate) {
+            if (callback) {
+                callback();
+            }
             return;
         }
-
-        // This method is useful only for Chrome!
 
         if (!navigator.enumerateDevices && window.MediaStreamTrack && window.MediaStreamTrack.getSources) {
             navigator.enumerateDevices = window.MediaStreamTrack.getSources.bind(window.MediaStreamTrack);
@@ -896,7 +946,7 @@
 
     // -----
     var isRTPSenderReplaceTracksSupported = false;
-    if (DetectRTC.browser.isFirefox /*&& DetectRTC.browser.version > 39*/ ) {
+    if (DetectRTC.browser.isFirefox && typeof mozRTCPeerConnection !== 'undefined' /*&& DetectRTC.browser.version > 39*/ ) {
         /*global mozRTCPeerConnection:true */
         if ('getSenders' in mozRTCPeerConnection.prototype) {
             isRTPSenderReplaceTracksSupported = true;
@@ -934,6 +984,41 @@
     }
     DetectRTC.isMultiMonitorScreenCapturingSupported = isMultiMonitorScreenCapturingSupported;
 
+    DetectRTC.isPromisesSupported = !!('Promise' in window);
+
+    if (typeof DetectRTC === 'undefined') {
+        window.DetectRTC = {};
+    }
+
+    var MediaStream = window.MediaStream;
+
+    if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+        MediaStream = webkitMediaStream;
+    }
+
+    if (typeof MediaStream !== 'undefined') {
+        DetectRTC.MediaStream = Object.keys(MediaStream.prototype);
+    } else DetectRTC.MediaStream = false;
+
+    if (typeof MediaStreamTrack !== 'undefined') {
+        DetectRTC.MediaStreamTrack = Object.keys(MediaStreamTrack.prototype);
+    } else DetectRTC.MediaStreamTrack = false;
+
+    var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+
+    if (typeof RTCPeerConnection !== 'undefined') {
+        DetectRTC.RTCPeerConnection = Object.keys(RTCPeerConnection.prototype);
+    } else DetectRTC.RTCPeerConnection = false;
+
     window.DetectRTC = DetectRTC;
 
+    if (typeof module !== 'undefined' /* && !!module.exports*/ ) {
+        module.exports = DetectRTC;
+    }
+
+    if (typeof define === 'function' && define.amd) {
+        define('DetectRTC', [], function() {
+            return DetectRTC;
+        });
+    }
 })();

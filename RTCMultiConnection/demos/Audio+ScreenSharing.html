@@ -6,15 +6,15 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
-    <title>Audio + ScreenSharing using RTCMultiConnection-v3.0</title>
+    <title>Audio+ScreenSharing using RTCMultiConnection</title>
 
-    <meta name="description" content="Share audio along with screen using RTCMultiConnection v3.0" />
+    <meta name="description" content="OneWay Screen Sharing using RTCMultiConnection" />
     <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
 
     <style>
         video {
             object-fit: fill;
-            width: 30%;
+            width: 100%
         }
         button,
         input,
@@ -39,7 +39,7 @@
     <article>
 
         <header style="text-align: center;">
-            <h1>Audio + ScreenSharing using RTCMultiConnection-v3.0</h1>
+            <h1>Audio+ScreenSharing using RTCMultiConnection</h1>
             <p>
                 <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
                 <span> &copy; </span>
@@ -51,8 +51,15 @@
             </p>
         </header>
 
-
         <div class="github-stargazers"></div>
+
+        <blockquote>
+            Only organizer/initiator shares his screen.<br>
+            Screen is one-way; however audio is two-way.<br>
+            Organizer can speak with all users.<br>
+            All users can NOT only view organizer's screen; but also they can talk with him.<br>
+            Users can NOT hear/talk each other. It is one-to-many kind of topology; it is NOT mesh or many-to-many.
+        </blockquote>
 
         <section class="experiment">
             <div class="make-center">
@@ -60,13 +67,28 @@
                 <button id="open-room">Open Room</button>
                 <button id="join-room">Join Room</button>
                 <button id="open-or-join-room">Auto Open Or Join Room</button>
+
+                <br><br>
+                <button id="btn-add-video" disabled>Add Video</button>
+
+                <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
             </div>
 
             <div id="videos-container"></div>
+            <div id="audios-container"></div>
+
+            <br><br>
+            (Install <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Chrome</a> / or / <a href="https://www.webrtc-experiment.com/store/firefox-extension/enable-screen-capturing.xpi" target="_blank">Firefox</a> extension) - Extensions are <a href="https://github.com/muaz-khan?tab=repositories">open-sourced</a>!
         </section>
 
-        <!-- <script src="/RTCMultiConnection.min.js"></script> -->
+        <!-- <script src="/dist/rmc3.min.js"></script> -->
         <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
+
+        <!-- capture screen from any HTTPs domain! -->
+        <script src="https://cdn.webrtc-experiment.com:443/getScreenId.js"></script>
+
+        <!-- custom layout for HTML5 audio/video elements -->
+        <script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
 
         <!-- socket.io for signaling -->
         <script src="/socket.io/socket.io.js"></script>
@@ -77,18 +99,24 @@
             // ......................................................
 
             document.getElementById('open-room').onclick = function() {
-                this.disabled = true;
-                connection.open(document.getElementById('room-id').value);
+                disableInputButtons();
+                connection.open(document.getElementById('room-id').value, function() {
+                    showRoomURL(connection.sessionid);
+                });
             };
 
             document.getElementById('join-room').onclick = function() {
-                this.disabled = true;
+                disableInputButtons();
                 connection.join(document.getElementById('room-id').value);
             };
 
             document.getElementById('open-or-join-room').onclick = function() {
-                this.disabled = true;
-                connection.openOrJoin(document.getElementById('room-id').value);
+                disableInputButtons();
+                connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExists, roomid) {
+                    if(!isRoomExists) {
+                        showRoomURL(roomid);
+                    }
+                });
             };
 
             // ......................................................
@@ -103,37 +131,154 @@
             // comment-out below line if you do not have your own socket.io server
             // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-            connection.socketMessageEvent = 'audio-plus-screen-demo';
+            connection.socketMessageEvent = 'audio-plus-screen-sharing-demo';
+
+            connection.session = {
+                audio: 'two-way', // merely audio will be two-way, rest of the streams will be oneway
+                screen: true,
+                oneway: true
+            };
+
+            connection.sdpConstraints.mandatory = {
+                OfferToReceiveAudio: true,
+                OfferToReceiveVideo: true
+            };
+
+            connection.videosContainer = document.getElementById('videos-container');
+            connection.audiosContainer = document.getElementById('audios-container');
+
+            connection.onstream = function(event) {
+                if(event.type === 'remote' && !connection.session.video) {
+                    document.getElementById('btn-add-video').disabled = false;
+                }
+
+                var width = event.mediaElement.clientWidth || connection.videosContainer.clientWidth;
+                var mediaElement = getMediaElement(event.mediaElement, {
+                    title: event.userid,
+                    buttons: ['full-screen'],
+                    width: width,
+                    showOnMouseEnter: false
+                });
+
+                if(event.stream.isScreen) {
+                    connection.videosContainer.appendChild(mediaElement);
+                }
+                else {
+                    connection.audiosContainer.appendChild(mediaElement);
+                }
+
+                setTimeout(function() {
+                    mediaElement.media.play();
+                }, 5000);
+
+                mediaElement.id = event.streamid;
+            };
+
+            connection.onstreamended = function(event) {
+                var mediaElement = document.getElementById(event.streamid);
+                if(mediaElement) {
+                    mediaElement.parentNode.removeChild(mediaElement);
+                }
+            };
+
+            document.getElementById('btn-add-video').onclick = function() {
+                this.disabled = true;
+                connection.session.video = true;
+                connection.addStream({
+                    video: true,
+                    oneway: true
+                });
+            };
+
+            // Using getScreenId.js to capture screen from any domain
+            // You do NOT need to deploy Chrome Extension YOUR-Self!!
+            connection.getScreenConstraints = function(callback) {
+                getScreenConstraints(function(error, screen_constraints) {
+                    if (!error) {
+                        screen_constraints = connection.modifyScreenConstraints(screen_constraints);
+                        callback(error, screen_constraints);
+                        return;
+                    }
+                    throw error;
+                });
+            };
+
+            function disableInputButtons() {
+                document.getElementById('open-or-join-room').disabled = true;
+                document.getElementById('open-room').disabled = true;
+                document.getElementById('join-room').disabled = true;
+                document.getElementById('room-id').disabled = true;
+            }
+
+            // ......................................................
+            // ......................Handling Room-ID................
+            // ......................................................
+
+            function showRoomURL(roomid) {
+                var roomHashURL = '#' + roomid;
+                var roomQueryStringURL = '?roomid=' + roomid;
+
+                var html = '<h2>Unique URL for your room:</h2><br>';
+
+                html += 'Hash URL: <a href="' + roomHashURL + '" target="_blank">' + roomHashURL + '</a>';
+                html += '<br>';
+                html += 'QueryString URL: <a href="' + roomQueryStringURL + '" target="_blank">' + roomQueryStringURL + '</a>';
+
+                var roomURLsDiv = document.getElementById('room-urls');
+                roomURLsDiv.innerHTML = html;
+
+                roomURLsDiv.style.display = 'block';
+            }
+
+            (function() {
+                var params = {},
+                    r = /([^&=]+)=?([^&]*)/g;
+
+                function d(s) {
+                    return decodeURIComponent(s.replace(/\+/g, ' '));
+                }
+                var match, search = window.location.search;
+                while (match = r.exec(search.substring(1)))
+                    params[d(match[1])] = d(match[2]);
+                window.params = params;
+            })();
 
             var roomid = '';
-            if (localStorage.getItem('rmc-room-id')) {
-                roomid = localStorage.getItem('rmc-room-id');
+            if (localStorage.getItem(connection.socketMessageEvent)) {
+                roomid = localStorage.getItem(connection.socketMessageEvent);
             } else {
                 roomid = connection.token();
             }
             document.getElementById('room-id').value = roomid;
             document.getElementById('room-id').onkeyup = function() {
-                localStorage.setItem('rmc-room-id', this.value);
+                localStorage.setItem(connection.socketMessageEvent, this.value);
             };
+            
+            var hashString = location.hash.replace('#', '');
 
-            connection.session = {
-                audio: 'two-way',
-                screen: 'one-way'
-            };
+            var roomid = params.roomid;
+            if(!roomid && hashString.length) {
+                roomid = hashString;
+            }
 
-            connection.sdpConstraints.mandatory = {
-                OfferToReceiveAudio: true,
-                OfferToReceiveVideo: false
-            };
+            if(roomid && roomid.length) {
+                document.getElementById('room-id').value = roomid;
+                localStorage.setItem(connection.socketMessageEvent, roomid);
 
-            connection.videosContainer = document.getElementById('videos-container');
-            connection.onstream = function(event) {
-                connection.videosContainer.appendChild(event.mediaElement);
-                event.mediaElement.play();
-                setTimeout(function() {
-                    event.mediaElement.play();
-                }, 5000);
-            };
+                // auto-join-room
+                (function reCheckRoomPresence() {
+                    connection.checkPresence(roomid, function(isRoomExists) {
+                        if(isRoomExists) {
+                            connection.join(roomid);
+                            return;
+                        }
+
+                        setTimeout(reCheckRoomPresence, 5000);
+                    });
+                })();
+
+                disableInputButtons();
+            }
         </script>
 
         <section class="experiment own-widgets latest-commits">

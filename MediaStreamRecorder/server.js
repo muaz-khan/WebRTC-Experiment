@@ -1,7 +1,9 @@
 // http://127.0.0.1:9001
 // http://localhost:9001
 
-var server = require('http'),
+var isUseHTTPs = !(!!process.env.PORT || !!process.env.IP);
+
+var server = require(isUseHTTPs ? 'https' : 'http'),
     url = require('url'),
     path = require('path'),
     fs = require('fs');
@@ -13,9 +15,17 @@ function serverHandler(request, response) {
 
     if(isWin) {
         filename = path.join(process.cwd() + '\\demos\\', uri);
+
+        if(filename.indexOf('MediaStreamRecorder.js') !== -1) {
+            filename = filename.replace('\\demos\\', '\\');
+        }
     }
     else {
         filename = path.join(process.cwd() + '/demos/', uri);
+
+        if(filename.indexOf('MediaStreamRecorder.js') !== -1) {
+            filename = filename.replace('/demos/', '/');
+        }
     }
 
     fs.exists(filename, function(exists) {
@@ -72,7 +82,13 @@ function serverHandler(request, response) {
 
 var app;
 
-app = server.createServer(serverHandler);
+if (isUseHTTPs) {
+    var options = {
+        key: fs.readFileSync(path.join(__dirname, 'fake-keys/privatekey.pem')),
+        cert: fs.readFileSync(path.join(__dirname, 'fake-keys/certificate.pem'))
+    };
+    app = server.createServer(options, serverHandler);
+} else app = server.createServer(serverHandler);
 
 app = app.listen(process.env.PORT || 9001, process.env.IP || "0.0.0.0", function() {
     var addr = app.address();

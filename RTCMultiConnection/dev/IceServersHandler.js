@@ -64,7 +64,7 @@ function getTURNObj(turnStr, username, credential) {
 }
 
 function getExtenralIceFormatted() {
-    var iceServers;
+    var iceServers = [];
     window.RMCExternalIceServers.forEach(function(ice) {
         if (!ice.urls) {
             ice.urls = ice.url;
@@ -86,8 +86,8 @@ var IceServersHandler = (function() {
         var iceServers = [];
 
         iceServers.push(getSTUNObj('stun:stun.l.google.com:19302'));
-        iceServers.push(getTURNObj('turn:turn.bistri.com:80', 'homeo', 'homeo'));
-        iceServers.push(getTURNObj('turn:turn.anyfirewall.com:443', 'webrtc', 'webrtc'));
+        iceServers.push(getTURNObj('turn:webrtcweb.com:80', 'muazkh', 'muazkh'));
+        iceServers.push(getTURNObj('turn:webrtcweb.com:443', 'muazkh', 'muazkh'));
 
         if (window.RMCExternalIceServers) {
             iceServers = iceServers.concat(getExtenralIceFormatted());

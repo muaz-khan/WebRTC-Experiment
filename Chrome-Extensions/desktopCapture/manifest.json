@@ -1,11 +1,11 @@
 {
     "name" : "Screen Capturing",
     "author": "Muaz Khan",
-    "version" : "3.3",
+    "version" : "3.4",
     "manifest_version" : 2,
     "minimum_chrome_version": "34",
-    "description" : "This WebRTC screen capturing extension can be used within any WebRTC library/application! Use getScreenId.js!",
-    "homepage_url": "https://www.webrtc-experiment.com/getScreenId/",
+    "description" : "Capture full-screen or specific application's screen on any HTTPs domain!",
+    "homepage_url": "https://www.webrtc-experiment.com/",
     "background": {
         "scripts": ["background-script.js"],
         "persistent": false
@@ -13,8 +13,8 @@
     "content_scripts": [ {
        "js": [ "content-script.js" ],
        "all_frames": true,
-       "run_at": "document_start",
-       "matches": ["*://www.webrtc-experiment.com/*"]
+       "run_at": "document_end",
+       "matches": ["https://www.webrtc-experiment.com/*"]
     }],
     "icons" : {
         "48" : "icon.png"

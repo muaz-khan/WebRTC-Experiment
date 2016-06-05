@@ -1342,4 +1342,6 @@ GIFEncoder = function() {
 
 };
 
-
+if(typeof MediaStreamRecorder !== 'undefined') {
+    MediaStreamRecorder.GIFEncoder = GIFEncoder;
+}

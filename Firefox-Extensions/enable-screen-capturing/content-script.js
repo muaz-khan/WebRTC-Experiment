@@ -1,4 +1,8 @@
-﻿// window.postMessage({ enableScreenCapturing: true, domains: ["www.firefox.com"] }, "*");
+﻿// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// Github        - github.com/muaz-khan/Firefox-Extensions
+
+// window.postMessage({ enableScreenCapturing: true, domains: ["www.firefox.com"] }, "*");
 
 window.addEventListener("message", function(event) {
     var addonMessage = event.data;
@@ -25,5 +29,13 @@ window.addEventListener("message", function(event) {
                 reason: 'user-rejected'
             }, '*');
         }
+    }
+
+    if(addonMessage && addonMessage.checkIfScreenCapturingEnabled && addonMessage.domains && addonMessage.domains.length) {
+        self.port.on('is-screen-capturing-enabled-response', function(response) {
+            window.postMessage(response, '*');
+        });
+
+        self.port.emit('is-screen-capturing-enabled', addonMessage.domains);
     }
 }, false);

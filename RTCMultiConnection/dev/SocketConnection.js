@@ -10,17 +10,19 @@ function SocketConnection(connection, connectCallback) {
         parameters += '&maxRelayLimitPerUser=' + (connection.maxRelayLimitPerUser || 2);
     }
 
-    var socket;
+    try {
+        io.sockets = {};
+    } catch (e) {};
 
     try {
-        socket = io((connection.socketURL || '/') + parameters);
+        connection.socket = io((connection.socketURL || '/') + parameters);
     } catch (e) {
-        socket = io.connect((connection.socketURL || '/') + parameters, connection.socketOptions);
+        connection.socket = io.connect((connection.socketURL || '/') + parameters, connection.socketOptions);
     }
 
     var mPeer = connection.multiPeersHandler;
 
-    socket.on('extra-data-updated', function(remoteUserId, extra) {
+    connection.socket.on('extra-data-updated', function(remoteUserId, extra) {
         if (!connection.peers[remoteUserId]) return;
         connection.peers[remoteUserId].extra = extra;
 
@@ -30,7 +32,7 @@ function SocketConnection(connection, connectCallback) {
         });
     });
 
-    socket.on(connection.socketMessageEvent, function(message) {
+    connection.socket.on(connection.socketMessageEvent, function(message) {
         if (message.remoteUserId != connection.userid) return;
 
         if (connection.peers[message.sender] && connection.peers[message.sender].extra != message.extra) {
@@ -189,7 +191,7 @@ function SocketConnection(connection, connectCallback) {
         mPeer.addNegotiatedMessage(message.message, message.sender);
     });
 
-    socket.on('user-left', function(userid) {
+    connection.socket.on('user-left', function(userid) {
         onUserLeft(userid);
 
         connection.onUserStatusChanged({
@@ -204,36 +206,46 @@ function SocketConnection(connection, connectCallback) {
         });
     });
 
-    socket.on('connect', function() {
+    connection.socket.on('connect', function() {
+        if (!connection.socketAutoReConnect) {
+            connection.socket = null;
+            return;
+        }
+
         if (connection.enableLogs) {
             console.info('socket.io connection is opened.');
         }
 
-        socket.emit('extra-data-updated', connection.extra);
+        connection.socket.emit('extra-data-updated', connection.extra);
 
-        if (connectCallback) connectCallback(socket);
+        if (connectCallback) connectCallback(connection.socket);
     });
 
-    socket.on('disconnect', function() {
+    connection.socket.on('disconnect', function() {
+        if (!connection.socketAutoReConnect) {
+            connection.socket = null;
+            return;
+        }
+
         if (connection.enableLogs) {
             console.info('socket.io connection is closed');
             console.warn('socket.io reconnecting');
         }
     });
 
-    socket.on('join-with-password', function(remoteUserId) {
+    connection.socket.on('join-with-password', function(remoteUserId) {
         connection.onJoinWithPassword(remoteUserId);
     });
 
-    socket.on('invalid-password', function(remoteUserId, oldPassword) {
+    connection.socket.on('invalid-password', function(remoteUserId, oldPassword) {
         connection.onInvalidPassword(remoteUserId, oldPassword);
     });
 
-    socket.on('password-max-tries-over', function(remoteUserId) {
+    connection.socket.on('password-max-tries-over', function(remoteUserId) {
         connection.onPasswordMaxTriesOver(remoteUserId);
     });
 
-    socket.on('user-disconnected', function(remoteUserId) {
+    connection.socket.on('user-disconnected', function(remoteUserId) {
         if (remoteUserId === connection.userid) {
             return;
         }
@@ -247,7 +259,7 @@ function SocketConnection(connection, connectCallback) {
         connection.deletePeer(remoteUserId);
     });
 
-    socket.on('user-connected', function(userid) {
+    connection.socket.on('user-connected', function(userid) {
         if (userid === connection.userid) {
             return;
         }
@@ -259,7 +271,7 @@ function SocketConnection(connection, connectCallback) {
         });
     });
 
-    socket.on('closed-entire-session', function(sessionid, extra) {
+    connection.socket.on('closed-entire-session', function(sessionid, extra) {
         connection.leave();
         connection.onEntireSessionClosed({
             sessionid: sessionid,
@@ -268,17 +280,15 @@ function SocketConnection(connection, connectCallback) {
         });
     });
 
-    socket.on('userid-already-taken', function(useridAlreadyTaken, yourNewUserId) {
+    connection.socket.on('userid-already-taken', function(useridAlreadyTaken, yourNewUserId) {
         connection.isInitiator = false;
         connection.userid = yourNewUserId;
 
         connection.onUserIdAlreadyTaken(useridAlreadyTaken, yourNewUserId);
     })
 
-    socket.on('logs', function(log) {
+    connection.socket.on('logs', function(log) {
         if (!connection.enableLogs) return;
         console.debug('server-logs', log);
     });
-
-    return socket;
 }

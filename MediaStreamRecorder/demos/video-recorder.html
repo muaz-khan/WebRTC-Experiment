@@ -11,214 +11,196 @@
 <head>
     <title>WebRTC Video Recording using MediaStreamRecorder</title>
 
-    <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"></script>
+    <script src="https://cdn.WebRTC-Experiment.com/MediaStreamRecorder.js"></script>
+
     <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
-    <script src="https://cdn.rawgit.com/webrtc/adapter/master/adapter.js"></script>
+    <script src="https://cdn.WebRTC-Experiment.com/gumadapter.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
     <style>
-    input {
-        border: 1px solid rgb(46, 189, 235);
-        border-radius: 3px;
-        font-size: 1em;
-        outline: none;
-        padding: .2em .4em;
-        width: 60px;
-        text-align: center;
-    }
-
-    button, select {
-        font-family: Myriad, Arial, Verdana;
-        font-weight: normal;
-        border-top-left-radius: 3px;
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
-        border-bottom-left-radius: 3px;
-        padding: 4px 12px;
-        text-decoration: none;
-        color: rgb(27, 26, 26);
-        display: inline-block;
-        box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
-        text-shadow: none;
-        background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
-        font-size: 20px;
-        border: 1px solid red;
-        outline:none;
-    }
-    button:active, button:focus, select:active {
-        background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
-        border: 1px solid rgb(142, 142, 142);
-    }
-    button[disabled], select[disabled] {
-        background: rgb(249, 249, 249);
-        border: 1px solid rgb(218, 207, 207);
-        color: rgb(197, 189, 189);
-    }
-    blockquote {
-        font-size: 20px;
-        color: rgb(172, 10, 10);
-        border: 1px solid rgb(172, 10, 10);
-        padding: 5px 10px;
-        border-radius: 5px;
-        margin: 9px 10px;
-    }
-    span {
-        border: 1px dotted red;
-        background: yellow;
-        padding: 0 5px;
-    }
+        input {
+            border: 1px solid rgb(46, 189, 235);
+            border-radius: 3px;
+            font-size: 1em;
+            outline: none;
+            padding: .2em .4em;
+            width: 60px;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
-    <h1>
-        <a href="https://www.webrtc-experiment.com/">WebRTC</a> Video Recording using <a href="https://github.com/streamproc/MediaStreamRecorder" target="_blank">MediaStreamRecorder</a>
-    </h1>
+    <article>
+        <header style="text-align: center;">
+            <h1>
+                <a href="https://www.webrtc-experiment.com/">WebRTC</a> Video Recording using <a href="https://github.com/streamproc/MediaStreamRecorder" target="_blank">MediaStreamRecorder</a>
+            </h1>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">HOME</a>
+                <span> &copy; </span>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
+                <a href="https://github.com/streamproc/MediaStreamRecorder/issues?state=open" target="_blank">Latest issues</a> .
+                <a href="https://github.com/streamproc/MediaStreamRecorder/commits/master" target="_blank">What's New?</a>
+            </p>
+        </header>
 
-    <div>
-        <label for="time-interval">Time Interval (milliseconds):</label>
-        <input type="text" id="time-interval" value="5000">
+        <div class="github-stargazers"></div>
 
-        <button id="start-recording">Start</button>
-        <button id="stop-recording" disabled>Stop</button>
+        <section class="experiment" style="padding: 5px;">
+            <label for="time-interval">Time Interval (milliseconds):</label>
+            <input type="text" id="time-interval" value="5000">
 
-        <button id="pause-recording" disabled>Pause</button>
-        <button id="resume-recording" disabled>Resume</button>
+            <button id="start-recording">Start</button>
+            <button id="stop-recording" disabled>Stop</button>
 
-        <button id="save-recording" disabled>Save</button>
+            <button id="pause-recording" disabled>Pause</button>
+            <button id="resume-recording" disabled>Resume</button>
 
-        <br><br>
+            <button id="save-recording" disabled>Save</button>
 
-        <label for="video-width">Video Width:</label>
-        <input type="text" id="video-width" value="320">
+            <br>
+            <br>
 
-        <label for="video-height">Video Height:</label>
-        <input type="text" id="video-height" value="240">
-    </div>
-    <div id="videos-container">
-    </div>
-    <script>
-    function captureUserMedia(mediaConstraints, successCallback, errorCallback) {
-        navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
-    }
+            <label for="video-width">Video Width:</label>
+            <input type="text" id="video-width" value="320">
 
-    var mediaConstraints = {
-        audio: !IsChrome && !IsOpera && !IsEdge, // record both audio/video in Firefox
-        video: true
-    };
+            <label for="video-height">Video Height:</label>
+            <input type="text" id="video-height" value="240">
+        </section>
 
-    document.querySelector('#start-recording').onclick = function() {
-        this.disabled = true;
-        captureUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
-    };
+        <section class="experiment">
+            <div id="videos-container">
+            </div>
+        </section>
+        <script>
+            function captureUserMedia(mediaConstraints, successCallback, errorCallback) {
+                navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
+            }
 
-    document.querySelector('#stop-recording').onclick = function() {
-        this.disabled = true;
-        mediaRecorder.stop();
-        mediaRecorder.stream.stop();
+            var mediaConstraints = {
+                audio: !IsOpera && !IsEdge, // record both audio/video in Firefox/Chrome
+                video: true
+            };
 
-        document.querySelector('#pause-recording').disabled = true;
-        document.querySelector('#start-recording').disabled = false;
-    };
+            document.querySelector('#start-recording').onclick = function() {
+                this.disabled = true;
+                captureUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
+            };
 
-    document.querySelector('#pause-recording').onclick = function() {
-        this.disabled = true;
-        mediaRecorder.pause();
+            document.querySelector('#stop-recording').onclick = function() {
+                this.disabled = true;
+                mediaRecorder.stop();
+                mediaRecorder.stream.stop();
 
-        document.querySelector('#resume-recording').disabled = false;
-    };
+                document.querySelector('#pause-recording').disabled = true;
+                document.querySelector('#start-recording').disabled = false;
+            };
 
-    document.querySelector('#resume-recording').onclick = function() {
-        this.disabled = true;
-        mediaRecorder.resume();
+            document.querySelector('#pause-recording').onclick = function() {
+                this.disabled = true;
+                mediaRecorder.pause();
 
-        document.querySelector('#pause-recording').disabled = false;
-    };
+                document.querySelector('#resume-recording').disabled = false;
+            };
 
-    document.querySelector('#save-recording').onclick = function() {
-        this.disabled = true;
-        mediaRecorder.save();
-    };
+            document.querySelector('#resume-recording').onclick = function() {
+                this.disabled = true;
+                mediaRecorder.resume();
 
-    var mediaRecorder;
+                document.querySelector('#pause-recording').disabled = false;
+            };
 
-    function onMediaSuccess(stream) {
-        var video = document.createElement('video');
+            document.querySelector('#save-recording').onclick = function() {
+                this.disabled = true;
+                mediaRecorder.save();
 
-        var videoWidth = document.getElementById('video-width').value || 320;
-        var videoHeight = document.getElementById('video-height').value || 240;
+                // alert('Drop WebM file on Chrome or Firefox. Both can play entire file. VLC player or other players may not work.');
+            };
 
-        video = mergeProps(video, {
-            controls: true,
-            muted: true,
-            width: videoWidth,
-            height: videoHeight,
-            src: URL.createObjectURL(stream)
-        });
-        video.play();
+            var mediaRecorder;
 
-        videosContainer.appendChild(video);
-        videosContainer.appendChild(document.createElement('hr'));
+            function onMediaSuccess(stream) {
+                var video = document.createElement('video');
 
-        mediaRecorder = new MediaStreamRecorder(stream);
-        mediaRecorder.stream = stream;
-        mediaRecorder.mimeType = 'video/webm'; // this line is mandatory
-        mediaRecorder.videoWidth = videoWidth;
-        mediaRecorder.videoHeight = videoHeight;
-        mediaRecorder.ondataavailable = function(blob) {
-            var a = document.createElement('a');
-            a.target = '_blank';
-            a.innerHTML = 'Open Recorded Video No. ' + (index++) + ' (Size: ' + bytesToSize(blob.size) + ') Time Length: ' + getTimeLength(timeInterval);
+                var videoWidth = document.getElementById('video-width').value || 320;
+                var videoHeight = document.getElementById('video-height').value || 240;
 
-            a.href = URL.createObjectURL(blob);
+                video = mergeProps(video, {
+                    controls: true,
+                    muted: true,
+                    width: videoWidth,
+                    height: videoHeight,
+                    src: URL.createObjectURL(stream)
+                });
+                video.play();
 
-            videosContainer.appendChild(a);
-            videosContainer.appendChild(document.createElement('hr'));
-        };
+                videosContainer.appendChild(video);
+                videosContainer.appendChild(document.createElement('hr'));
 
-        var timeInterval = document.querySelector('#time-interval').value;
-        if (timeInterval) timeInterval = parseInt(timeInterval);
-        else timeInterval = 5 * 1000;
+                mediaRecorder = new MediaStreamRecorder(stream);
+                mediaRecorder.stream = stream;
+                mediaRecorder.mimeType = 'video/webm'; // this line is mandatory
+                mediaRecorder.videoWidth = videoWidth;
+                mediaRecorder.videoHeight = videoHeight;
+                mediaRecorder.ondataavailable = function(blob) {
+                    var a = document.createElement('a');
+                    a.target = '_blank';
+                    a.innerHTML = 'Open Recorded Video No. ' + (index++) + ' (Size: ' + bytesToSize(blob.size) + ') Time Length: ' + getTimeLength(timeInterval);
 
-        // get blob after specific time interval
-        mediaRecorder.start(timeInterval);
+                    a.href = URL.createObjectURL(blob);
 
-        document.querySelector('#stop-recording').disabled = false;
-        document.querySelector('#pause-recording').disabled = false;
-        document.querySelector('#save-recording').disabled = false;
-    }
+                    videosContainer.appendChild(a);
+                    videosContainer.appendChild(document.createElement('hr'));
+                };
 
-    function onMediaError(e) {
-        console.error('media error', e);
-    }
+                var timeInterval = document.querySelector('#time-interval').value;
+                if (timeInterval) timeInterval = parseInt(timeInterval);
+                else timeInterval = 5 * 1000;
 
-    var videosContainer = document.getElementById('videos-container');
-    var index = 1;
+                // get blob after specific time interval
+                mediaRecorder.start(timeInterval);
 
-    // below function via: http://goo.gl/B3ae8c
-    function bytesToSize(bytes) {
-        var k = 1000;
-        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-        if (bytes === 0) return '0 Bytes';
-        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
-        return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
-    }
+                document.querySelector('#stop-recording').disabled = false;
+                document.querySelector('#pause-recording').disabled = false;
+                document.querySelector('#save-recording').disabled = false;
+            }
 
-    // below function via: http://goo.gl/6QNDcI
-    function getTimeLength(milliseconds) {
-        var data = new Date(milliseconds);
-        return data.getUTCHours() + " hours, " + data.getUTCMinutes() + " minutes and " + data.getUTCSeconds() + " second(s)";
-    }
+            function onMediaError(e) {
+                console.error('media error', e);
+            }
 
-    window.onbeforeunload = function() {
-        document.querySelector('#start-recording').disabled = false;
-    };
-    </script>
+            var videosContainer = document.getElementById('videos-container');
+            var index = 1;
 
-<pre style="border-left: 2px solid red; margin-left:2em; padding-left: 1em;">
+            // below function via: http://goo.gl/B3ae8c
+            function bytesToSize(bytes) {
+                var k = 1000;
+                var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                if (bytes === 0) return '0 Bytes';
+                var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+                return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+            }
+
+            // below function via: http://goo.gl/6QNDcI
+            function getTimeLength(milliseconds) {
+                var data = new Date(milliseconds);
+                return data.getUTCHours() + " hours, " + data.getUTCMinutes() + " minutes and " + data.getUTCSeconds() + " second(s)";
+            }
+
+            window.onbeforeunload = function() {
+                document.querySelector('#start-recording').disabled = false;
+            };
+        </script>
+
+        <pre style="border-left: 2px solid red; margin-left:2em; padding-left: 1em;">
 // cdn.webrtc-experiment.com/MediaStreamRecorder.js
 
 var mediaConstraints = {
-    audio: !!navigator.mozGetUserMedia, // if firefox (don't use for chrome)
+    audio: true,
     video: true  // if firefox or chrome
 };
 
@@ -240,7 +222,48 @@ function onMediaError(e) {
 }
 </pre>
 
-    <a href="https://www.webrtc-experiment.com/msr/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">MediaStreamRecorder Demos</a>
+        <a href="https://www.webrtc-experiment.com/msr/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">MediaStreamRecorder Demos</a>
+
+        <section class="experiment own-widgets latest-commits">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/streamproc/MediaStreamRecorder/commits/master" target="_blank">Latest Updates</a>
+            </h2>
+            <div id="github-commits"></div>
+        </section>
+
+        <section class="experiment own-widgets">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/streamproc/MediaStreamRecorder/commits/master" target="_blank">Latest Issues</a>
+            </h2>
+            <div id="github-issues"></div>
+        </section>
+
+        <section class="experiment">
+            <h2 class="header" id="feedback">Feedback</h2>
+            <div>
+                <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+            </div>
+            <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
+        </section>
+
+        <section class="experiment own-widgets latest-commits">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/streamproc/MediaStreamRecorder/commits/master" target="_blank">Latest Updates</a>
+            </h2>
+            <div id="github-commits"></div>
+        </section>
+
+        <script>
+            window.useThisGithubPath = 'streamproc/MediaStreamRecorder';
+        </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+    </article>
+
+    <a href="https://github.com/streamproc/MediaStreamRecorder" class="fork-left"></a>
+
+    <footer>
+        <p>
+            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+        </p>
+    </footer>
 </body>
 
 </html>

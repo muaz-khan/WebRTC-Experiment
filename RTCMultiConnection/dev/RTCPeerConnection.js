@@ -61,10 +61,10 @@ function PeerInitiator(config) {
     this.extra = config.remoteSdp ? config.remoteSdp.extra : connection.extra;
     this.userid = config.userid;
     this.streams = [];
-    this.channels = [];
+    this.channels = config.channels || [];
     this.connectionDescription = config.connectionDescription;
 
-    var that = this;
+    var self = this;
 
     if (config.remoteSdp) {
         this.connectionDescription = config.remoteSdp.connectionDescription;
@@ -86,46 +86,24 @@ function PeerInitiator(config) {
 
     var localStreams = [];
     connection.attachStreams.forEach(function(stream) {
-        if (!!stream) localStreams.push(stream);
+        if (!!stream) {
+            localStreams.push(stream);
+        }
     });
 
     if (!renegotiatingPeer) {
+        var iceTransports = 'all';
+        if (connection.candidates.turn || connection.candidates.relay) {
+            if (!connection.candidates.stun && !connection.candidates.reflexive && !connection.candidates.host) {
+                iceTransports = 'relay';
+            }
+        }
         peer = new RTCPeerConnection(navigator.onLine ? {
             iceServers: connection.iceServers,
-            iceTransports: 'all'
+            iceTransports: iceTransports
         } : null, window.PluginRTC ? null : connection.optionalArgument);
     } else {
         peer = config.peerRef;
-
-        peer.getLocalStreams().forEach(function(stream) {
-            localStreams.forEach(function(localStream, index) {
-                if (stream == localStream) {
-                    delete localStreams[index];
-                }
-            });
-
-            connection.removeStreams.forEach(function(streamToRemove, index) {
-                if (stream === streamToRemove) {
-                    stream = connection.beforeRemovingStream(stream);
-                    if (stream && !!peer.removeStream) {
-                        peer.removeStream(stream);
-                    }
-
-                    localStreams.forEach(function(localStream, index) {
-                        if (streamToRemove == localStream) {
-                            delete localStreams[index];
-                        }
-                    });
-                }
-            });
-        });
-    }
-
-    if (connection.DetectRTC.browser.name === 'Firefox') {
-        peer.removeStream = function(stream) {
-            stream.mute();
-            connection.StreamsHandler.onSyncNeeded(stream.streamid, 'stream-removed');
-        };
     }
 
     peer.onicecandidate = function(event) {
@@ -137,7 +115,7 @@ function PeerInitiator(config) {
                     sdp: localSdp.sdp,
                     remotePeerSdpConstraints: config.remotePeerSdpConstraints || false,
                     renegotiatingPeer: !!config.renegotiatingPeer || false,
-                    connectionDescription: that.connectionDescription,
+                    connectionDescription: self.connectionDescription,
                     dontGetRemoteStream: !!config.dontGetRemoteStream,
                     extra: connection ? connection.extra : {},
                     streamsToShare: streamsToShare,
@@ -170,15 +148,24 @@ function PeerInitiator(config) {
         }
 
         localStream = connection.beforeAddingStream(localStream);
+
+        if (!localStream) return;
+
+        peer.getLocalStreams().forEach(function(stream) {
+            if (stream.id == localStream.id) {
+                localStream = null;
+            }
+        });
+
         if (localStream) {
             peer.addStream(localStream);
         }
     });
 
     peer.oniceconnectionstatechange = peer.onsignalingstatechange = function() {
-        var extra = that.extra;
-        if (connection.peers[that.userid]) {
-            extra = connection.peers[that.userid].extra || extra;
+        var extra = self.extra;
+        if (connection.peers[self.userid]) {
+            extra = connection.peers[self.userid].extra || extra;
         }
 
         if (!peer) {
@@ -190,7 +177,7 @@ function PeerInitiator(config) {
             iceGatheringState: peer.iceGatheringState,
             signalingState: peer.signalingState,
             extra: extra,
-            userid: that.userid
+            userid: self.userid
         });
     };
 
@@ -243,9 +230,9 @@ function PeerInitiator(config) {
         peer.addIceCandidate(new RTCIceCandidate(remoteCandidate));
     };
 
-    this.addRemoteSdp = function(remoteSdp) {
+    this.addRemoteSdp = function(remoteSdp, cb) {
         remoteSdp.sdp = connection.processSdp(remoteSdp.sdp);
-        peer.setRemoteDescription(new RTCSessionDescription(remoteSdp), function() {}, function(error) {
+        peer.setRemoteDescription(new RTCSessionDescription(remoteSdp), cb || function() {}, function(error) {
             if (!!connection.enableLogs) {
                 console.error(JSON.stringify(error, null, '\t'), '\n', remoteSdp.type, remoteSdp.sdp);
             }
@@ -258,8 +245,20 @@ function PeerInitiator(config) {
         isOfferer = false;
     }
 
-    if (connection.session.data === true) {
-        createDataChannel();
+    this.createDataChannel = function() {
+        var channel = peer.createDataChannel('sctp', {});
+        setChannelEvents(channel);
+    };
+
+    if (connection.session.data === true && !renegotiatingPeer) {
+        if (!isOfferer) {
+            peer.ondatachannel = function(event) {
+                var channel = event.channel;
+                setChannelEvents(channel);
+            };
+        } else {
+            this.createDataChannel();
+        }
     }
 
     if (config.remoteSdp) {
@@ -268,19 +267,6 @@ function PeerInitiator(config) {
         }
         defaults.sdpConstraints = setSdpConstraints(sdpConstraints);
         this.addRemoteSdp(config.remoteSdp);
-    }
-
-    function createDataChannel() {
-        if (!isOfferer) {
-            peer.ondatachannel = function(event) {
-                var channel = event.channel;
-                setChannelEvents(channel);
-            };
-            return;
-        }
-
-        var channel = peer.createDataChannel('RTCDataChannel', {});
-        setChannelEvents(channel);
     }
 
     function setChannelEvents(channel) {
@@ -341,7 +327,7 @@ function PeerInitiator(config) {
             sdp: localSdp.sdp,
             remotePeerSdpConstraints: config.remotePeerSdpConstraints || false,
             renegotiatingPeer: !!config.renegotiatingPeer || false,
-            connectionDescription: that.connectionDescription,
+            connectionDescription: self.connectionDescription,
             dontGetRemoteStream: !!config.dontGetRemoteStream,
             extra: connection ? connection.extra : {},
             streamsToShare: streamsToShare,
@@ -369,7 +355,7 @@ function PeerInitiator(config) {
         } catch (e) {}
 
         peer = null;
-        that.peer = null;
+        self.peer = null;
     };
 
     this.peer = peer;

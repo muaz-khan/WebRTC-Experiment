@@ -13,7 +13,7 @@
 </head>
 <body>
 <script src="canvas-designer-widget.js"></script>
-<script src="https://rtcmulticonnection.herokuapp.com/RTCMultiConnection.min.js"></script>
+<script src="https://cdn.webrtc-experiment.com/rmc3.min.js"></script>
 
 <!-- socket.io for signaling -->
 <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
@@ -75,14 +75,94 @@ input {
     width: 55%;
     margin-right: 2px;
 }
+
+/* popup box */
+.black_overlay {
+    display: none;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index:1001;
+    -moz-opacity: 0.8;
+    opacity:.80;
+    filter: alpha(opacity=80);
+}
+.white_content {
+    display: none;
+    position: absolute;
+    top: 30%;
+    left: 40%;
+    width: 16%;
+    height: 15%;
+    padding: 16px;
+    border: 10px solid rgb(9, 159, 243);
+    background-color: rgba(255, 255, 255, 0.94);
+    z-index:1002;
+    overflow: hidden;
+    border-radius: 5px;
+    min-width: 300px;
+    min-height: 120px;
+}
+
+.white_content hr {
+    border-top: 4px solid rgb(9, 159, 243);
+    margin: 9px -20px;
+}
+
+#btn-undo, #btn-close-undo-popup, #btn-close-dataURL-popup, #btn-getDataURL {
+    font-size: 1.2em;
+    padding: 2px 9px;
+}
+
+#btn-close-undo-popup, #btn-close-dataURL-popup {
+    padding: 0 6px;
+    border-radius: 50%;
+    padding-bottom: 1px;
+    color: red;
+}
+
+.white_content select {
+    font-size: 1.2em;
+    border: 1px solid;
+    padding: 0;
+    outline: none!important;
+    border: 1px solid black !important;
+    float: left;
+}
+.white_content select option {
+    padding: 2px 5px;
+    border-bottom: 1px solid black;
+}
+.white_content select option:last-child {
+    border-bottom: 0;
+}
+
+.white_content option:checked, .white_content option[selected] {
+    background-color: #06CDFF!important;
+    background:linear-gradient(#06CDFF, #06CDFF)!important;
+    color: white!important;
+}
+
+.white_content select[disabled] {
+    background-color: rgba(232, 229, 229, 0.17);
+    color: rgb(84, 82, 82);
+}
 </style>
 
 <div id="widget-container" style="position: fixed;bottom: 0;right: 20%;left: 20%;height: 100%;border: 1px solid black; border-top:0; border-bottom: 0;"></div>
 
+<div id="fade" class="black_overlay"></div>
+
 <div id="action-controls" style="width: 19%; padding: 1%;position: absolute;left:0;">
-    <h2>Select Icons</h2>
+    <h2>Select Tools</h2>
     <input type="checkbox" id="pencil" checked>
     <label for="pencil">pencil</label><br>
+
+    <input type="checkbox" id="marker" checked>
+    <label for="marker">marker</label><br>
     
     <input type="checkbox" id="eraser" checked>
     <label for="eraser">eraser</label><br>
@@ -95,6 +175,9 @@ input {
     
     <input type="checkbox" id="line" checked>
     <label for="line">line</label><br>
+
+    <input type="checkbox" id="arrow" checked>
+    <label for="arrow">arrow</label><br>
     
     <input type="checkbox" id="dragSingle" checked>
     <label for="dragSingle">dragSingle</label><br>
@@ -129,11 +212,54 @@ input {
             <button id="open-room">Open</button>
         </div>
     </div>
+
+    <hr>
+    <h2>Shortcut Keys</h2>
+    ctrl+t (to display text-fonts box)<br>
+    ctrl+z (to undo last-single shape)<br>
+    ctrl+a (to select all shapes)<br>
+    ctrl+c (copy last-selected shape)<br>
+    ctrl+v (paste last-copied shape)
 </div>
 
 <div class="extra-controls">
-    <button id="export-as-png">Export as PNG</button>
-    <button id="undo-shapes">Undo</button>
+    <button id="export-as-image">Export as Image</button>
+    <button id="btn-display-undo-popup">Undo</button>
+</div>
+
+<div id="light" class="white_content">
+    <button id="btn-close-undo-popup" style="float:right;">x</button>
+
+    <select id="undo-options" size="4">
+        <option>Last Shape</option>
+        <option>All Shapes</option>
+        <option>Last Multiple</option>
+        <option disabled>Specific Range</option>
+    </select>
+
+    <div style="display: none;margin-top: 20px;margin-bottom: 20px;margin-right: 12px;float: right;">
+        Digit/Number:<br>
+        <input type="text" id="number-of-shapes-to-undo" style="padding: 0;width: 90px;text-align: center;border-radius: 0;margin-top: 6px;">
+    </div>
+
+    <br><br><br><br><br>
+
+    <button id="btn-undo" style="float:right;">Undo</button>
+</div>
+
+<div id="dataURL-popup" class="white_content">
+    <button id="btn-close-dataURL-popup" style="float:right;">x</button>
+
+    <select id="data-url-format" size="4">
+        <option>image/png</option>
+        <option>image/jpeg</option>
+        <option>image/gif</option>
+        <option>image/webp</option>
+    </select>
+
+    <br><br><br><br><br>
+
+    <button id="btn-getDataURL" style="float:right;">Get DataURL</button>
 </div>
 
 <div style="position: fixed; right: 0; width: 19%; padding: 1%;top:0; text-align: center;">
@@ -145,31 +271,13 @@ input {
     Author: <a href="https://github.com/muaz-khan">Muaz Khan</a>
     
     <hr>
-    <h2>How to use in your own site?</h2>
+    <h2><a href="https://github.com/muaz-khan/Canvas-Designer#how-to-use">How to use in your own site?</a></h2>
     
-    <ol style="text-align: left;">
-        <li>
-            Download <a href="https://github.com/muaz-khan/Canvas-Designer/blob/master/canvas-designer-widget.js">canvas-designer-widget.js</a>.
-            <br><br>
-            Then add &lt;script&gt; tag for "canvas-designer-widget.js" in your PHP/HTML/ASPX page.
-        </li>
+    <hr>
 
-        <li>
-            Set <a href="https://github.com/muaz-khan/Canvas-Designer#widgethtmlurl">widgetHtmlURL</a> and <a href="https://github.com/muaz-khan/Canvas-Designer#widgetjsurl">widgetJsURL</a> in your HTML file.
-        </li>
+    <h2><a href="multiple.html">Try multiple designers!</a></h2>
 
-        <li>
-            Use this command to append widget in your HTML page:<br>
-            
-            <code>CanvasDesigner.<a href="https://github.com/muaz-khan/Canvas-Designer#appendto">appendTo</a>(
-                <br>
-                    &nbsp;&nbsp;document.body
-                <br>);
-            </code>
-            <br><br>
-            <a href="https://github.com/muaz-khan/Canvas-Designer#how-to-use">Read more here</a>.
-        </li>
-    </ol>
+    <hr>
 
     <div style="text-align:center;">
         <a href="https://www.npmjs.com/package/canvas-designer" target="_blank">
@@ -191,6 +299,14 @@ input {
 </div>
 
 <script>
+document.getElementById('room-id').onkeyup = document.getElementById('room-id').onblur = function() {
+    localStorage.setItem('canvas-designer-roomid', this.value);
+};
+
+if(localStorage.getItem('canvas-designer-roomid')) {
+    document.getElementById('room-id').value = localStorage.getItem('canvas-designer-roomid');
+}
+
 document.getElementById('open-room').onclick = function() {
     var roomid = document.getElementById('room-id').value;
     if(!roomid.length) return alert('Please enter roomid.');
@@ -238,7 +354,7 @@ connection.onopen = function(event) {
     var infoBar = document.getElementById('hide-on-datachannel-opened');
     infoBar.innerHTML = '<b>' + event.userid + '</b> is ready to collaborate with you.';
 
-    if(CanvasDesigner.pointsLength <= 0) {
+    if(designer.pointsLength <= 0) {
         // make sure that remote user gets all drawings synced.
         setTimeout(function() {
             connection.send('plz-sync-points');
@@ -254,45 +370,50 @@ connection.onclose = connection.onerror = connection.onleave = function() {
 
 connection.onmessage = function(event) {
     if(event.data === 'plz-sync-points') {
-        CanvasDesigner.sync();
+        designer.sync();
         return;
     }
 
-    CanvasDesigner.syncData( event.data );
+    designer.syncData( event.data );
 };
 </script>
 
 <script>
-// you can place widget.html anywhere
-CanvasDesigner.widgetHTML = 'widget.html';
+var designer = new CanvasDesigner();
 
-CanvasDesigner.addSyncListener(function(data) {
+// you can place widget.html anywhere
+designer.widgetHTML = 'widget.html';
+designer.widgetJsURL = 'widget.min.js'
+
+designer.addSyncListener(function(data) {
     connection.send(data);
 });
 
-CanvasDesigner.setSelected('pencil');
+designer.setSelected('pencil');
 
-CanvasDesigner.setTools({
+designer.setTools({
     pencil: true,
     text: true,
     image: true,
     eraser: true,
     line: true,
+    arrow: true,
     dragSingle: true,
     dragMultiple: true,
     arc: true,
     rectangle: true,
     quadratic: true,
-    bezier: true
+    bezier: true,
+    marker: true
 });
 
-CanvasDesigner.appendTo(document.getElementById('widget-container'));
+designer.appendTo(document.getElementById('widget-container'));
 
 Array.prototype.slice.call(document.getElementById('action-controls').querySelectorAll('input[type=checkbox]')).forEach(function(checkbox) {
     checkbox.onchange = function() {
-        CanvasDesigner.destroy();
+        designer.destroy();
         
-        CanvasDesigner.addSyncListener(function(data) {
+        designer.addSyncListener(function(data) {
             connection.send(data);
         });
         
@@ -302,19 +423,115 @@ Array.prototype.slice.call(document.getElementById('action-controls').querySelec
                 tools[checkbox2.id] = true;
             }
         });
-        CanvasDesigner.setTools(tools);
-        CanvasDesigner.appendTo(document.getElementById('widget-container'));
+        designer.setTools(tools);
+        designer.appendTo(document.getElementById('widget-container'));
     };
 });
 
-document.getElementById('export-as-png').onclick = function() {
-    CanvasDesigner.toDataURL('image/png', function(dataURL) {
-       window.open(dataURL)
-    });
+var undoOptions = document.getElementById('undo-options');
+
+document.getElementById('btn-display-undo-popup').onclick = function() {
+    document.getElementById('light').style.display='block';
+    document.getElementById('fade').style.display='block';
 };
 
-document.getElementById('undo-shapes').onclick = function() {
-    CanvasDesigner.undo();
+var txtNumberOfShapesToUndo = document.getElementById('number-of-shapes-to-undo');
+txtNumberOfShapesToUndo.onkeyup = function() {
+    localStorage.setItem('number-of-shapes-to-undo', txtNumberOfShapesToUndo.value);
+}
+
+if(localStorage.getItem('number-of-shapes-to-undo')){ 
+    txtNumberOfShapesToUndo.value = localStorage.getItem('number-of-shapes-to-undo');
+    txtNumberOfShapesToUndo.onkeyup();
+}
+
+undoOptions.onchange = function() {
+    txtNumberOfShapesToUndo.parentNode.style.display = 'none';
+
+    if(undoOptions.value === 'Specific Range') {
+        // 
+    }
+    else if(undoOptions.value === 'Last Multiple') {
+        txtNumberOfShapesToUndo.parentNode.style.display = 'block';
+    }
+
+    localStorage.setItem('undo-options', undoOptions.value);
+};
+
+undoOptions.onclick = undoOptions.onchange;
+
+if(localStorage.getItem('undo-options')) {
+    undoOptions.value = localStorage.getItem('undo-options');
+    undoOptions.onchange();
+}
+
+document.getElementById('btn-undo').onclick = function() {
+    if(undoOptions.value === 'All Shapes') {
+        designer.undo('all');
+    }
+    else if(undoOptions.value === 'Specific Range') {
+        designer.undo({
+            specificRange: {
+                start: -1,
+                end: -1
+            }
+        });
+    }
+    else if(undoOptions.value === 'Last Shape') {
+        designer.undo(-1);
+    }
+    else if(undoOptions.value === 'Last Multiple') {
+        var numberOfLastShapes = txtNumberOfShapesToUndo.value;
+        numberOfLastShapes = parseInt(numberOfLastShapes || 0) || 0;
+        designer.undo({
+            numberOfLastShapes: numberOfLastShapes
+        });
+    }
+
+    closeUndoPopup();
+};
+
+function closeUndoPopup() {
+    document.getElementById('light').style.display='none';
+    document.getElementById('fade').style.display='none';
+
+    undoOptions.onchange();
+}
+document.getElementById('btn-close-undo-popup').onclick = closeUndoPopup;
+
+function closeDataURLPopup() {
+    document.getElementById('dataURL-popup').style.display='none';
+    document.getElementById('fade').style.display='none';
+
+    dataURLFormat.onchange();
+}
+document.getElementById('btn-close-dataURL-popup').onclick = closeDataURLPopup;
+
+document.getElementById('export-as-image').onclick = function() {
+    document.getElementById('dataURL-popup').style.display='block';
+    document.getElementById('fade').style.display='block';
+};
+
+var dataURLFormat = document.getElementById('data-url-format');
+
+dataURLFormat.onchange = function() {
+    localStorage.setItem('data-url-format', dataURLFormat.value);
+};
+dataURLFormat.onclick = dataURLFormat.onchange;
+
+if(localStorage.getItem('data-url-format')) {
+    dataURLFormat.value = localStorage.getItem('data-url-format');
+    dataURLFormat.onchange();
+}
+
+document.getElementById('btn-getDataURL').onclick = function() {
+    var format = dataURLFormat.value;
+
+    designer.toDataURL(format || 'image/png', function(dataURL) {
+       window.open(dataURL)
+    });
+
+    closeDataURLPopup();
 };
 </script>
 </body>

@@ -1,7 +1,7 @@
 {
   "name": "rtcmulticonnection-v3",
   "preferGlobal": false,
-  "version": "3.2.95",
+  "version": "3.3.6",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -13,6 +13,10 @@
     "type": "git",
     "url": "https://github.com/muaz-khan/RTCMultiConnection.git"
   },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "main": "RTCMultiConnection.js",
   "keywords": [
     "peer-to-peer",
     "peer2peer",
@@ -58,7 +62,6 @@
     "grunt-contrib-uglify": "0.11.0",
     "grunt-jsbeautifier": "0.2.10",
     "grunt-replace": "0.11.0",
-    "load-grunt-tasks": "3.4.0",
-    "socket.io": "^0.9.17"
+    "load-grunt-tasks": "3.4.0"
   }
 }

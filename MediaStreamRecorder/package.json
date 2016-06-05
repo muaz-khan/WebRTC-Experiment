@@ -1,17 +1,17 @@
 {
   "name": "msr",
-  "preferGlobal": true,
-  "version": "1.2.8",
+  "preferGlobal": false,
+  "version": "1.3.2",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
     "url": "http://www.muazkhan.com/"
   },
-  "description": "Cross-Browser recording of audio/video media streams; targets WebRTC/getUserMedia/WebAudio/etc. Works both on Chrome/Firefox/Opera on desktop & android.",
+  "description": "Cross-Browser recording of audio/video media streams; targets WebRTC/getUserMedia/WebAudio/etc.",
   "scripts": {
-    "start": "node MediaStreamRecorder.js"
+    "start": "node server.js"
   },
-  "main": "./MediaStreamRecorder.js",
+  "main": "MediaStreamRecorder.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/streamproc/MediaStreamRecorder.git"
@@ -59,17 +59,17 @@
     "email": "muazkh@gmail.com"
   },
   "homepage": "https://www.webrtc-experiment.com/msr/",
+  "tonicExampleFilename": "npm-test.js",
   "_from": "msr@",
   "devDependencies": {
-    "grunt": "latest",
-    "grunt-cli": "latest",
-    "load-grunt-tasks": "latest",
-    "grunt-contrib-concat": "latest",
-    "grunt-contrib-csslint": "latest",
-    "grunt-contrib-jshint": "latest",
-    "grunt-contrib-uglify": "latest",
-    "grunt-htmlhint": "latest",
-    "grunt-jsbeautifier": "latest",
-    "grunt-bump": "latest"
+    "grunt": "0.4.5",
+    "grunt-cli": "0.1.13",
+    "load-grunt-tasks": "3.2.0",
+    "grunt-contrib-concat": "0.5.1",
+    "grunt-contrib-csslint": "0.4.0",
+    "grunt-contrib-uglify": "0.9.1",
+    "grunt-htmlhint": "0.9.13",
+    "grunt-jsbeautifier": "0.2.10",
+    "grunt-bump": "0.3.1"
   }
 }

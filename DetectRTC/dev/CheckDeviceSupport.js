@@ -8,11 +8,13 @@ if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
     // Firefox 38+ seems having support of enumerateDevices
     // Thanks @xdumaine/enumerateDevices
     navigator.enumerateDevices = function(callback) {
-        navigator.mediaDevices.enumerateDevices().then(callback);
+        navigator.mediaDevices.enumerateDevices().then(callback).catch(function() {
+            callback([]);
+        });
     };
 }
 
-// ---------- Media Devices detection
+// Media Devices detection
 var canEnumerate = false;
 
 /*global MediaStreamTrack:true */
@@ -30,13 +32,13 @@ var isWebsiteHasMicrophonePermissions = false;
 var isWebsiteHasWebcamPermissions = false;
 
 // http://dev.w3.org/2011/webrtc/editor/getusermedia.html#mediadevices
-// todo: switch to enumerateDevices when landed in canary.
 function checkDeviceSupport(callback) {
     if (!canEnumerate) {
+        if (callback) {
+            callback();
+        }
         return;
     }
-
-    // This method is useful only for Chrome!
 
     if (!navigator.enumerateDevices && window.MediaStreamTrack && window.MediaStreamTrack.getSources) {
         navigator.enumerateDevices = window.MediaStreamTrack.getSources.bind(window.MediaStreamTrack);

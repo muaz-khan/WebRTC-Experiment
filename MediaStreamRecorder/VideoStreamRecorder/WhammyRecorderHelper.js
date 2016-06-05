@@ -52,7 +52,7 @@ function WhammyRecorderHelper(mediaStream, root) {
         video.play();
 
         lastTime = new Date().getTime();
-        whammy = new Whammy.Video();
+        whammy = new Whammy.Video(root.speed, root.quality);
 
         console.log('canvas resolutions', canvas.width, '*', canvas.height);
         console.log('video width/height', video.width || canvas.width, '*', video.height || canvas.height);
@@ -293,4 +293,8 @@ function WhammyRecorderHelper(mediaStream, root) {
     this.resume = function() {
         isPaused = false;
     };
+}
+
+if (typeof MediaStreamRecorder !== 'undefined') {
+    MediaStreamRecorder.WhammyRecorderHelper = WhammyRecorderHelper;
 }

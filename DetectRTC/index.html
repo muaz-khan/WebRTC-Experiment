@@ -238,27 +238,14 @@
                     appendTR('Is it a mobile device?', printVal(DetectRTC.isMobileDevice));
                     appendTR('Browser Supports WebSockets?', printVal(DetectRTC.isWebSocketsSupported));
                     
-                    var rightSide = '';
-
-                    // you can even use "DetectRTC.audioInputDevices", "audioOutputDevices" and "videoInputDevices"
-                    var audioDevices = [];
-                    var videoDevices = [];
-                    DetectRTC.MediaDevices.forEach(function(device) {
-                        if (device.kind.indexOf('audio') !== -1 && audioDevices.indexOf(device.label) == -1) {
-                            audioDevices.push(device.label || 'unable to detect');
-                        }
-                        if (device.kind.indexOf('video') !== -1 && videoDevices.indexOf(device.label) == -1) {
-                            videoDevices.push(device.label || 'unable to detect');
-                        }
-                    });
-
-                    rightSide += '<h2>Audio Devices</h2><br>' + audioDevices.join('<br>');
-                    rightSide += '<br><br><h2>Video Devices</h2><br>' + videoDevices.join('<br>');
-
-                    appendTR(audioDevices.length + ' audio and ' + videoDevices.length + ' video devices', rightSide);
-
                     appendTR('Is Browser Supports Stream Capturing from Canvas?', printVal(DetectRTC.isVideoSupportsStreamCapturing));
                     appendTR('Is Browser Supports Stream Capturing from Video?', printVal(DetectRTC.isVideoSupportsStreamCapturing));
+
+                    appendTR('Is Browser Supports Promises?', printVal(DetectRTC.isPromisesSupported));
+
+                    appendTR('<strong>MediaStream.prototype:</strong><br>' + DetectRTC.MediaStream.toString().split(',').join(', '), DetectRTC.MediaStream === false ? 'Nope' : 'Yep');
+                    appendTR('<strong>MediaStreamTrack.prototype:</strong><br>' + DetectRTC.MediaStreamTrack.toString().split(',').join(', '), DetectRTC.MediaStreamTrack === false ? 'Nope' : 'Yep');
+                    appendTR('<strong>RTCPeerConnection.prototype:</strong><br>' + DetectRTC.RTCPeerConnection.toString().split(',').join(', '), DetectRTC.RTCPeerConnection === false ? 'Nope' : 'Yep');
 
                     /*
                     DetectRTC.DetectLocalIPAddress(function(ipAddress) {
@@ -338,6 +325,8 @@ rtpSenders.replaceTrack(newTrack);';
                 }
 
                 DetectRTC.load(function() {
+                    reloadDetectRTC();
+
                     if(DetectRTC.MediaDevices[0] && DetectRTC.MediaDevices[0].label === 'Please invoke getUserMedia once.') {
                         navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(reloadDetectRTC).catch(reloadDetectRTC);
                         return;

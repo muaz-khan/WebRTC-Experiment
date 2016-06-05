@@ -18,3 +18,7 @@ if (typeof AudioContext !== 'undefined') {
 } else if (typeof webkitAudioContext !== 'undefined') {
     Storage.AudioContext = webkitAudioContext;
 }
+
+if (typeof RecordRTC !== 'undefined') {
+    RecordRTC.Storage = Storage;
+}

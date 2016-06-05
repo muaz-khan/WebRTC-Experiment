@@ -331,6 +331,10 @@ function WhammyRecorder(mediaStream, config) {
      */
     this.resume = function() {
         isPausedRecording = false;
+
+        if (isStopDrawing) {
+            this.record();
+        }
     };
 
     /**
@@ -351,4 +355,8 @@ function WhammyRecorder(mediaStream, config) {
     var video;
     var lastTime;
     var whammy;
+}
+
+if (typeof RecordRTC !== 'undefined') {
+    RecordRTC.WhammyRecorder = WhammyRecorder;
 }

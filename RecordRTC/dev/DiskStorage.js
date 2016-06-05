@@ -45,22 +45,6 @@ var DiskStorage = {
             return;
         }
 
-        if (typeof webkitIndexedDB !== 'undefined') {
-            indexedDB = webkitIndexedDB;
-        }
-
-        if (typeof mozIndexedDB !== 'undefined') {
-            indexedDB = mozIndexedDB;
-        }
-
-        if (typeof OIndexedDB !== 'undefined') {
-            indexedDB = OIndexedDB;
-        }
-
-        if (typeof msIndexedDB !== 'undefined') {
-            indexedDB = msIndexedDB;
-        }
-
         var dbVersion = 1;
         var dbName = this.dbName || location.href.replace(/\/|:|#|%|\.|\[|\]/g, ''),
             db;
@@ -185,3 +169,7 @@ var DiskStorage = {
     dataStoreName: 'recordRTC',
     dbName: null
 };
+
+if (typeof RecordRTC !== 'undefined') {
+    RecordRTC.DiskStorage = DiskStorage;
+}

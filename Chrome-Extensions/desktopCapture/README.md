@@ -2,41 +2,48 @@
 
 This chrome extension simply captures content of your screen. It returns `source-id` to callee; and that `source-id` can be used as `chromeMediaSourceId` in WebRTC applications to capture screen's MediaStream.
 
+| Extension Name        | Source Code           | Google App Store |
+| ------------- |-------------|-------------|
+| WebRTC Screen Capturing | [ github/desktopCapture ](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) |
+
+## How to use?
+
+1. Download [ZIP](http://dl.webrtc-experiment.com/desktopCapture.zip) or [TAR](http://dl.webrtc-experiment.com/desktopCapture.tar.gz)
+2. Windows users can use WinZip/WinRAR/7Zip however MacOSX/Linux users can use `tar -zxvf desktopCapture.tar.gz` to extract the archive
+3. Add your own domain [here at line #17](https://github.com/muaz-khan/Chrome-Extensions/blob/master/desktopCapture/manifest.json#L17)
+4. LocalHost users can test directly by adding `unpacked extension..` via `chrome://extensions/`
+5. Otherwise you can make ZIP of the entire directory and upload at [Google dashboard](https://chrome.google.com/webstore/developer/dashboard)
+
+Here is how to modify `allowed-domains` in `manifest.json` file:
+
 ```
-# Step #1:
-# Download this entire directory
-https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
-
-# Step #2:
-# Change this single line and add your own domain:
-https://github.com/muaz-khan/Chrome-Extensions/blob/master/desktopCapture/manifest.json#L17
-
-# E.g.
-# "matches": ["*://www.eshop4deal.com/*"]
-
-# Step #3:
-# Make ZIP of the entire directory.
-# Using Mac, you can right-click to Compress the directory.
-# Using windows, you can use either WinRAR or 7Zip tools.
-
-# Step #4:
-# Add a "new item" here:
-https://chrome.google.com/webstore/developer/dashboard
-
-# Above link will ask you link "ZIP" file.
-# Then it will navigate you to publisher page
-# Where you can use "Publish" button (bottom of the page) to publish your
-# extension to Google App Store.
-# Usually it takes 20-to-60 minutes for first deployment
-
-# When extension will be published, you can install the extension
-# And reload your page and NOW Screen Capturing will/should work.
-
-# Google guys also explained steps to deploy a chrome extension:
-https://developer.chrome.com/webstore/publish
+{
+    "content_scripts": [ {
+       "js": [ "content-script.js" ],
+       "all_frames": true,
+       "run_at": "document_end",
+       "matches": ["https://www.domain.com/*"]
+    }]
+}
 ```
 
-List of applications that are using same extension:
+Learn more about how to publish a chrome extension in Google App Store:
+
+* https://developer.chrome.com/webstore/publish
+
+## For more information
+
+For additional information, click [this link](https://github.com/muaz-khan/WebRTC-Experiment/blob/7cd04a81b30cdca2db159eb746e2714307640767/Chrome-Extensions/desktopCapture/README.md).
+
+## Other Extensions
+
+| Extension Name        | Source Code           | Google App Store |
+| ------------- |-------------|-------------|
+| WebRTC Desktop Sharing | [github/desktopCapture-p2p](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture-p2p) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg) |
+| Tab Capturing in Chrome | [gitjub/tabCapture](https://github.com/muaz-khan/Chrome-Extensions/tree/master/tabCapture) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk) |
+| WebRTC File Sharing Chrome Extension | [ github/file-sharing ](https://github.com/muaz-khan/Chrome-Extensions/tree/master/file-sharing) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/webrtc-file-sharing/nbnncbdkhpmbnkfngmkdbepoemljbnfo) |
+
+### List of applications that are using same extension:
 
 1. [getScreenId.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js) - a tinny javascript library that be used in any domain, application or WebRTC wrapper library.
 2. [RTCMultiConnection.js](https://github.com/muaz-khan/RTCMultiConnection) - a WebRTC wrapper library providing approximately all possible WebRTC p2p-mesh-based features.
@@ -48,7 +55,7 @@ List of applications that are using same extension:
 It is recommended to use `getScreenId.js` to capture screen. In that case, you don't need to publish this chrome extension yourself in Google App Store.
 
 ```html
-<script src="//cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
 <video controls autoplay></video>
 <script>
 getScreenId(function (error, sourceId, screen_constraints) {
@@ -61,91 +68,6 @@ getScreenId(function (error, sourceId, screen_constraints) {
 });
 </script>
 ```
-
-## How to install?
-
-* https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk
-
-## How to publish yourself?
-
-First step: modify `allowed-domains` in `manifest.json` file:
-
-```
-{
-    "content_scripts": [ {
-       "js": [ "content-script.js" ],
-       "all_frames": true,
-       "run_at": "document_start",
-       "matches": ["*://www.domain.com/*"]
-    }]
-}
-```
-
-To test locally, you can add `*://localhost:*/*` in the `matches` list.
-
-Second step: make ZIP of the directory.
-
-Third step: navigate to [Chrome WebStore Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard) and click **Add New Item** blue button.
-
-To learn more about how to publish a chrome extension in Google App Store:
-
-* https://developer.chrome.com/webstore/publish
-
-## How to add inline-install button?
-
-**Make sure that you added and verified your webpage/domain using Google WebMaster tools.** Additional instructions available [here](https://support.google.com/webmasters/answer/35179?hl=en).
-
-```html
-<!DOCTYPE html>
-<html>
-    <head>
-        <!-- head; this <link> tag MUST be in <head> section -->
-        <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/your-chrome-extension-id">
-    </head>
-    <body>
-        <!-- body; the button element that is used to invoke inline installation -->
-        <button onclick="" id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
-            <img src="https://www.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
-        </button>
-        
-        <script>
-            document.querySelector('#inline-install').onclick = function() {
-                !!navigator.webkitGetUserMedia 
-                    && !!window.chrome 
-                    && !!chrome.webstore 
-                    && !!chrome.webstore.install && 
-                chrome.webstore.install(
-                    'https://chrome.google.com/webstore/detail/your-chrome-extension-id', 
-                    successCallback, 
-                    failureCallback
-                );
-            };
-            
-            function successCallback() {
-                location.reload();
-            }
-            
-            function failureCallback(error) {
-                alert(error);
-            }
-        </script>
-    </body>
-</html>
-```
-
-## For more information
-
-For additional information, click [this link](https://github.com/muaz-khan/WebRTC-Experiment/blob/7cd04a81b30cdca2db159eb746e2714307640767/Chrome-Extensions/desktopCapture/README.md).
-
-## Credits
-
-[Muaz Khan](https://github.com/muaz-khan):
-
-1. Personal Webpage: http://www.muazkhan.com
-2. Email: muazkh@gmail.com
-3. Twitter: https://twitter.com/muazkh and https://twitter.com/WebRTCWeb
-4. Google+: https://plus.google.com/+WebRTC-Experiment
-5. Facebook: https://www.facebook.com/WebRTC
 
 ## License
 

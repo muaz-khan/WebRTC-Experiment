@@ -8,9 +8,29 @@
 
 ## How to reuse same addon for your own domains?
 
-Means that, you **don't need to publish your own addon**, you can reuse above link in your own domains/applications!
+> Means that, you **don't need to publish your own addon**, you can reuse above link in your own domains/applications!
 
-You should copy/paste following code in your own webpage/domain (HTML/PHP/Python/etc.):
+## `FirefoxScreenAddon.js`
+
+`FirefoxScreenAddon.js` file exposes `FirefoxScreenAddon` function; which can be used on any webpage, as following:
+
+```javascript
+// to check if screen capturing is enabled for your domains
+FirefoxScreenAddon.checkIfScreenCapturingEnabled(['yourdomain.com'], function(response) {
+    if (response.isScreenCapturingEnabled) {
+        alert('Yep. Screen capturing is enabled for: ' + response.domains.join(','));
+    } else alert('Nope. Screen capturing is NOT enabled for: ' + response.domains.join(','));
+});
+
+// to ask addon to enable screen for your domains
+FirefoxScreenAddon.enableScreenCapturing(['yourdomain.com'], function(response) {
+    if (response.enabledScreenCapturing) {
+        alert('Yep. Screen capturing is enabled for: ' + response.domains.join(','));
+    } else alert('Failed: ' + response.reason);
+});
+```
+
+If you don't want to use `FirefoxScreenAddon.js` file:
 
 ```javascript
 // request addon to enable screen capturing for your domains
@@ -28,8 +48,7 @@ window.addEventListener("message", function(event) {
 	if(!addonMessage || typeof addonMessage.enabledScreenCapturing === 'undefined') return;
 
     if(addonMessage.enabledScreenCapturing === true) {
-    	// addonMessage.domains === [array-of-your-domains]
-    	alert(JSON.stringify(addonMessage.domains) + ' are enabled for screen capturing.');
+    	alert(JSON.stringify(addonMessage.domains) + '\n are enabled for screen capturing.');
     }
     else {
     	// reason === 'user-rejected'
@@ -38,7 +57,45 @@ window.addEventListener("message", function(event) {
 }, false);
 ```
 
-Note: If you'll use above script, you don't need to deploy Firefox addon yourself. You can reuse above linked addon for all your domains.
+**Check if screen capturing is enabled for your domains:**
+
+```javascript
+// ask addon to check if screen capturing enabled for specific domains
+window.postMessage({
+    checkIfScreenCapturingEnabled: true,
+    domains: ["www.yourdomain.com", "yourdomain.com"]
+}, "*");
+
+// watch addon's response
+// addon will return "isScreenCapturingEnabled=true|false"
+window.addEventListener("message", function(event) {
+    var addonMessage = event.data;
+
+    if(!addonMessage || typeof addonMessage.isScreenCapturingEnabled === 'undefined') return;
+
+    if(addonMessage.isScreenCapturingEnabled === true) {
+        alert(JSON.stringify(addonMessage.domains) + '\n are enabled for screen capturing.');
+    }
+    else {
+        alert(JSON.stringify(addonMessage.domains) + '\n are NOT enabled for screen capturing.');
+    }
+}, false);
+```
+
+**Insights:**
+
+Your requests to addon:
+
+1. `enableScreenCapturing` - ask addon to enable screen for specific domains.
+2. `checkIfScreenCapturingEnabled` - ask addon to check if screen is already enabled for specific domains.
+3. `domains` - pass array of domains
+
+Addon responses:
+
+1. `enabledScreenCapturing` - addon said: successfully enabled screen for specific domains.
+2. `isScreenCapturingEnabled` - Here `true` means domain is already enabled for specific domains.
+3. `reason` - if addon failed to enable screen for specific domains.
+4. `domains` - list of same domains that you passed to addon.
 
 ## Simplest Demo
 

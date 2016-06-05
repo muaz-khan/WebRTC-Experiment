@@ -39,6 +39,17 @@ var dragHelper = {
                 }
             }
 
+            if (p[0] === 'arrow') {
+
+                if (dHelper.isPointInPath(x, y, point[0], point[1])) {
+                    g.pointsToMove = 'head';
+                }
+
+                if (dHelper.isPointInPath(x, y, point[2], point[3])) {
+                    g.pointsToMove = 'tail';
+                }
+            }
+
             if (p[0] === 'rect') {
 
                 if (dHelper.isPointInPath(x, y, point[0], point[1])) {
@@ -172,6 +183,16 @@ var dragHelper = {
         }
 
         if (p[0] === 'line') {
+
+            tempContext.beginPath();
+
+            tempContext.arc(point[0], point[1], 10, Math.PI * 2, 0, !1);
+            tempContext.arc(point[2], point[3], 10, Math.PI * 2, 0, !1);
+
+            tempContext.fill();
+        }
+
+        if (p[0] === 'arrow') {
 
             tempContext.beginPath();
 
@@ -336,7 +357,17 @@ var dragHelper = {
                         getPoint(y, prevY, point[3])
                     ], p[2]
                 ];
+            }
 
+            if (p[0] === 'arrow') {
+                points[i] = [p[0],
+                    [
+                        getPoint(x, prevX, point[0]),
+                        getPoint(y, prevY, point[1]),
+                        getPoint(x, prevX, point[2]),
+                        getPoint(y, prevY, point[3])
+                    ], p[2]
+                ];
             }
 
             if (p[0] === 'text') {
@@ -425,6 +456,21 @@ var dragHelper = {
             isMoveAllPoints = g.pointsToMove === 'all';
 
         if (p[0] === 'line') {
+
+            if (g.pointsToMove === 'head' || isMoveAllPoints) {
+                point[0] = getPoint(x, prevX, point[0]);
+                point[1] = getPoint(y, prevY, point[1]);
+            }
+
+            if (g.pointsToMove === 'tail' || isMoveAllPoints) {
+                point[2] = getPoint(x, prevX, point[2]);
+                point[3] = getPoint(y, prevY, point[3]);
+            }
+
+            points[points.length - 1] = [p[0], point, p[2]];
+        }
+
+        if (p[0] === 'arrow') {
 
             if (g.pointsToMove === 'head' || isMoveAllPoints) {
                 point[0] = getPoint(x, prevX, point[0]);

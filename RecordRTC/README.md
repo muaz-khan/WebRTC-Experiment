@@ -6,6 +6,8 @@
 
 > [RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is a JavaScript-based media-recording library for modern web-browsers (supporting WebRTC getUserMedia API). It is optimized for different devices and browsers to bring all client-side (pluginfree) recording solutions in single place.
 
+* [Youtube Video Tutorial](https://www.youtube.com/watch?v=YrLzTgdJ-Kg)
+
 # Check all releases:
 
 * https://github.com/muaz-khan/RecordRTC/releases
@@ -28,8 +30,8 @@ Please check [dev](https://github.com/muaz-khan/RecordRTC/tree/master/dev) direc
 | ------------- |-------------|-------------|
 | Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) | Audio+Video (Both local/remote) |
 | Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) | Audio+Video (Both local/remote) |
-| Opera | [Stable](http://www.opera.com/) / [NEXT](http://www.opera.com/computer/next)  | Audio/Vidoe Separately |
-| Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) / [Opera](https://play.google.com/store/apps/details?id=com.opera.browser) | Audio/Vidoe Separately |
+| Opera | [Stable](http://www.opera.com/) / [NEXT](http://www.opera.com/computer/next)  | Audio/Video Separately |
+| Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) / [Opera](https://play.google.com/store/apps/details?id=com.opera.browser) | Audio/Video Separately |
 | Microsoft Edge | [Normal Build](https://www.microsoft.com/en-us/windows/microsoft-edge) | Only Audio |
 
 ## How RecordRTC encodes wav/webm?
@@ -55,48 +57,88 @@ Please check [dev](https://github.com/muaz-khan/RecordRTC/tree/master/dev) direc
 12. [Remote audio-stream recording](https://www.webrtc-experiment.com/demos/remote-stream-recording.html) or [a real p2p demo](https://www.webrtc-experiment.com/RTCMultiConnection/RecordRTC-and-RTCMultiConnection.html)
 13. [Mp3 or Wav Recording](https://www.webrtc-experiment.com/RecordRTC/Record-Mp3-or-Wav.html)
 
-## How to link?
+You can also try a chrome extension for screen recording:
+
+* https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp
+
+# How to link?
+
+## [NPM](https://www.npmjs.com/package/recordrtc) install
 
 ```
 npm install recordrtc
 
 # you can use with "require" (browserify/nodejs)
 var RecordRTC = require('recordrtc');
-var recorder = RecordRTC(mediaStream, { type: 'audio'});
+
+var recorder = RecordRTC({}, {
+    type: 'video',
+    recorderType: RecordRTC.WhammyRecorder
+});
+
+console.log('\n--------\nRecordRTC\n--------\n');
+console.log(recorder);
+
+console.log('\n--------\nstartRecording\n--------\n');
+recorder.startRecording();
+console.log('\n--------\nprocess.exit()\n--------\n');
+
+process.exit()
 ```
 
-or using [Bower](http://bower.io):
+* https://tonicdev.com/npm/recordrtc
 
-```
-bower install recordrtc
-```
+Here is how to use `require`:
 
-To use it:
+```javascript
+var RecordRTC = require('recordrtc');
+var Whammy = RecordRTC.Whammy;
+var WhammyRecorder = RecordRTC.WhammyRecorder;
+var StereoAudioRecorder = RecordRTC.StereoAudioRecorder;
+// and so on
+
+var video = new Whammy.Video(100);
+var recorder = new StereoAudioRecorder(stream, options);
+```
 
 ```html
+<!-- link npm package scripts -->
 <script src="./node_modules/recordrtc/RecordRTC.js"></script>
-
-<!-- or -->
-<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
-
-<!-- or -->
-<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
-```
-
-It is suggested to link specific release:
-
-* https://github.com/muaz-khan/RecordRTC/releases
-
-E.g.
-
-```html
-<!-- use 5.2.6 or any other version -->
-<script src="https://github.com/muaz-khan/RecordRTC/releases/download/5.3.0/RecordRTC.js"></script>
 ```
 
 There are some other NPM packages regarding RecordRTC:
 
 * [https://www.npmjs.org/search?q=RecordRTC](https://www.npmjs.org/search?q=RecordRTC)
+
+## [bower](http://bower.io) install
+
+```
+bower install recordrtc
+```
+
+```html
+<!-- link bower package scripts -->
+<script src="./bower_components/recordrtc/RecordRTC.js"></script>
+```
+
+## CDN
+
+```html
+<!-- CDN -->
+<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+
+<!-- non-CDN -->
+<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
+```
+
+## Releases
+
+You can even link specific [releases](https://github.com/muaz-khan/RecordRTC/releases):
+
+```html
+<!-- use 5.3.7 or any other version -->
+<script src="https://github.com/muaz-khan/RecordRTC/releases/download/5.3.76/RecordRTC.js"></script>
+```
 
 ## How to capture stream?
 
@@ -619,14 +661,14 @@ var options = {
 var recorder = RecordRTC(mediaStream, options);
 ```
 
-## `videooBitsPerSecond`
+## `videoBitsPerSecond`
 
 The chosen bitrate for the video component of the media.
 
 ```javascript
 var options = {
   mimeType 'video/webm', // or video/mp4
-  videooBitsPerSecond: 128000
+  videoBitsPerSecond: 128000
 };
 var recorder = RecordRTC(mediaStream, options);
 ```
@@ -714,6 +756,35 @@ recordRTC.getFromDisk(function(dataURL) {
 
 In the above example; you can see that `recordRTC` instance object is used instead of global `RecordRTC` object.
 
+## Promises
+
+```html
+<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+
+<!-- link this file as well -->
+<script src="/dev/RecordRTC.promises.js"></script>
+
+<script>
+// use "RecordRTCPromisesHandler" instead of "RecordRTC"
+var recorder = new RecordRTCPromisesHandler(mediaStream, options);
+recorder.startRecording().then(function() {
+
+}).catch(function(error) {
+    //
+});
+
+recorder.stopRecording().then(function(url) {
+    var blob = recorder.blob;
+
+    recorder.getDataURL().then(function(dataURL) {
+        //
+    }).catch(function(error) {})
+}).catch(function(error) {
+    //
+});
+</script>
+```
+
 ## Credits
 
 1. [Recorderjs](https://github.com/mattdiamond/Recorderjs) for audio recording
@@ -733,6 +804,13 @@ In the above example; you can see that `recordRTC` instance object is used inste
 The domain www.RecordRTC.org is open-sourced here:
 
 * https://github.com/muaz-khan/RecordRTC/tree/gh-pages
+
+## Issues/Questions?
+
+* Stackoverflow: http://stackoverflow.com/questions/tagged/recordrtc
+* Github: https://github.com/muaz-khan/RecordRTC/issues
+* Disqus: https://www.webrtc-experiment.com/RecordRTC/#ask
+* Email: muazkh@gmail.com
 
 ## License
 

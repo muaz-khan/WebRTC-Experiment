@@ -57,3 +57,7 @@ function WhammyRecorder(mediaStream) {
     var mediaRecorder;
     var timeout;
 }
+
+if (typeof MediaStreamRecorder !== 'undefined') {
+    MediaStreamRecorder.WhammyRecorder = WhammyRecorder;
+}

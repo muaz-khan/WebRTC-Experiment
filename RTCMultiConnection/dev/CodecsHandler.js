@@ -257,6 +257,32 @@ var CodecsHandler = (function() {
         return sdp.replace('SAVPF 100 101', 'SAVPF 101 100');
     }
 
+    // forceStereoAudio => via webrtcexample.com
+    // requires getUserMedia => echoCancellation:false
+    function forceStereoAudio(sdp) {
+        var sdpLines = sdp.split('\r\n');
+        var fmtpLineIndex = null;
+        for (var i = 0; i < sdpLines.length; i++) {
+            if (sdpLines[i].search('opus/48000') !== -1) {
+                var opusPayload = extractSdp(sdpLines[i], /:(\d+) opus\/48000/i);
+                break;
+            }
+        }
+        for (var i = 0; i < sdpLines.length; i++) {
+            if (sdpLines[i].search('a=fmtp') !== -1) {
+                var payload = extractSdp(sdpLines[i], /a=fmtp:(\d+)/);
+                if (payload === opusPayload) {
+                    fmtpLineIndex = i;
+                    break;
+                }
+            }
+        }
+        if (fmtpLineIndex === null) return sdp;
+        sdpLines[fmtpLineIndex] = sdpLines[fmtpLineIndex].concat('; stereo=1; sprop-stereo=1');
+        sdp = sdpLines.join('\r\n');
+        return sdp;
+    }
+
     return {
         removeVPX: removeVPX,
         disableNACK: disableNACK,
@@ -271,7 +297,8 @@ var CodecsHandler = (function() {
         setOpusAttributes: function(sdp, params) {
             return setOpusAttributes(sdp, params);
         },
-        preferVP9: preferVP9
+        preferVP9: preferVP9,
+        forceStereoAudio: forceStereoAudio
     };
 })();
 

@@ -6,9 +6,9 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
-    <title>Switch+Cameras using RTCMultiConnection-v3.0</title>
+    <title>Switch+Cameras using RTCMultiConnection</title>
 
-    <meta name="description" content="Switch/Change Cameras in a live conference using RTCMultiConnection v3.0" />
+    <meta name="description" content="Switch/Change Cameras in a live conference using RTCMultiConnection" />
     <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
 
     <style>
@@ -48,7 +48,7 @@
     <article>
 
         <header style="text-align: center;">
-            <h1>Switch+Cameras using RTCMultiConnection-v3.0</h1>
+            <h1>Switch+Cameras using RTCMultiConnection</h1>
             <p>
                 <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
                 <span> &copy; </span>
@@ -70,6 +70,8 @@
                 <button id="join-room">Join Room</button>
                 <button id="open-or-join-room">Auto Open Or Join Room</button>
 
+                <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
+
                 <br><br>
                 <label for="audio-devices">Audio Devices:</label>
                 <select id="audio-devices" disabled></select>
@@ -84,7 +86,7 @@
             <div id="videos-container"></div>
         </section>
 
-        <!-- <script src="/RTCMultiConnection.min.js"></script> -->
+        <!-- <script src="/dist/rmc3.min.js"></script> -->
         <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
 
         <!-- socket.io for signaling -->
@@ -96,18 +98,24 @@
             // ......................................................
 
             document.getElementById('open-room').onclick = function() {
-                this.disabled = true;
-                connection.open(document.getElementById('room-id').value);
+                disableInputButtons();
+                connection.open(document.getElementById('room-id').value, function() {
+                    showRoomURL(connection.sessionid);
+                });
             };
 
             document.getElementById('join-room').onclick = function() {
-                this.disabled = true;
+                disableInputButtons();
                 connection.join(document.getElementById('room-id').value);
             };
 
             document.getElementById('open-or-join-room').onclick = function() {
-                this.disabled = true;
-                connection.openOrJoin(document.getElementById('room-id').value);
+                disableInputButtons();
+                connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExists, roomid) {
+                    if(!isRoomExists) {
+                        showRoomURL(roomid);
+                    }
+                });
             };
 
             var chatContainer = document.querySelector('.chat-output');
@@ -137,17 +145,6 @@
             connection.socketMessageEvent = 'switch-cameras-demo';
 
             connection.socketCustomEvent = connection.channel;
-
-            var roomid = '';
-            if (localStorage.getItem('rmc-room-id')) {
-                roomid = localStorage.getItem('rmc-room-id');
-            } else {
-                roomid = connection.token();
-            }
-            document.getElementById('room-id').value = roomid;
-            document.getElementById('room-id').onkeyup = function() {
-                localStorage.setItem('rmc-room-id', this.value);
-            };
 
             connection.session = {
                 audio: true,
@@ -346,6 +343,83 @@
 
                 connection.captureUserMedia();
             };
+
+            function disableInputButtons() {
+                document.getElementById('open-or-join-room').disabled = true;
+                document.getElementById('open-room').disabled = true;
+                document.getElementById('join-room').disabled = true;
+                document.getElementById('room-id').disabled = true;
+            }
+
+            // ......................................................
+            // ......................Handling Room-ID................
+            // ......................................................
+
+            function showRoomURL(roomid) {
+                var roomHashURL = '#' + roomid;
+                var roomQueryStringURL = '?roomid=' + roomid;
+
+                var html = '<h2>Unique URL for your room:</h2><br>';
+
+                html += 'Hash URL: <a href="' + roomHashURL + '" target="_blank">' + roomHashURL + '</a>';
+                html += '<br>';
+                html += 'QueryString URL: <a href="' + roomQueryStringURL + '" target="_blank">' + roomQueryStringURL + '</a>';
+
+                var roomURLsDiv = document.getElementById('room-urls');
+                roomURLsDiv.innerHTML = html;
+
+                roomURLsDiv.style.display = 'block';
+            }
+
+            (function() {
+                var params = {},
+                    r = /([^&=]+)=?([^&]*)/g;
+
+                function d(s) {
+                    return decodeURIComponent(s.replace(/\+/g, ' '));
+                }
+                var match, search = window.location.search;
+                while (match = r.exec(search.substring(1)))
+                    params[d(match[1])] = d(match[2]);
+                window.params = params;
+            })();
+
+            var roomid = '';
+            if (localStorage.getItem(connection.socketMessageEvent)) {
+                roomid = localStorage.getItem(connection.socketMessageEvent);
+            } else {
+                roomid = connection.token();
+            }
+            document.getElementById('room-id').value = roomid;
+            document.getElementById('room-id').onkeyup = function() {
+                localStorage.setItem(connection.socketMessageEvent, this.value);
+            };
+            
+            var hashString = location.hash.replace('#', '');
+
+            var roomid = params.roomid;
+            if(!roomid && hashString.length) {
+                roomid = hashString;
+            }
+
+            if(roomid && roomid.length) {
+                document.getElementById('room-id').value = roomid;
+                localStorage.setItem(connection.socketMessageEvent, roomid);
+
+                // auto-join-room
+                (function reCheckRoomPresence() {
+                    connection.checkPresence(roomid, function(isRoomExists) {
+                        if(isRoomExists) {
+                            connection.join(roomid);
+                            return;
+                        }
+
+                        setTimeout(reCheckRoomPresence, 5000);
+                    });
+                })();
+
+                disableInputButtons();
+            }
         </script>
 
         <section class="experiment own-widgets latest-commits">

@@ -167,7 +167,7 @@ DetectRTC.isSetSinkIdSupported = isSetSinkIdSupported;
 
 // -----
 var isRTPSenderReplaceTracksSupported = false;
-if (DetectRTC.browser.isFirefox /*&& DetectRTC.browser.version > 39*/ ) {
+if (DetectRTC.browser.isFirefox && typeof mozRTCPeerConnection !== 'undefined' /*&& DetectRTC.browser.version > 39*/ ) {
     /*global mozRTCPeerConnection:true */
     if ('getSenders' in mozRTCPeerConnection.prototype) {
         isRTPSenderReplaceTracksSupported = true;
@@ -204,3 +204,5 @@ if (DetectRTC.browser.isFirefox && DetectRTC.browser.version >= 43) {
     isMultiMonitorScreenCapturingSupported = true;
 }
 DetectRTC.isMultiMonitorScreenCapturingSupported = isMultiMonitorScreenCapturingSupported;
+
+DetectRTC.isPromisesSupported = !!('Promise' in window);

@@ -7,17 +7,13 @@ function isMediaRecorderCompatible() {
         return true;
     }
 
-    if (!isChrome) {
-        return false;
-    }
-
     var nVer = navigator.appVersion;
     var nAgt = navigator.userAgent;
     var fullVersion = '' + parseFloat(navigator.appVersion);
     var majorVersion = parseInt(navigator.appVersion, 10);
     var nameOffset, verOffset, ix;
 
-    if (isChrome) {
+    if (isChrome || isOpera) {
         verOffset = nAgt.indexOf('Chrome');
         fullVersion = nAgt.substring(verOffset + 7);
     }

@@ -7,6 +7,8 @@ module.exports = function(grunt) {
         scope: 'devDependencies'
     });
 
+    var banner = '// Last time updated: <%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %>\n\n';
+
     // configure project
     grunt.initConfig({
         // make node configurations available
@@ -14,7 +16,8 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 stripBanners: true,
-                separator: '\n'
+                separator: '\n',
+                banner: banner
             },
             dist: {
                 src: [
@@ -29,7 +32,9 @@ module.exports = function(grunt) {
                     'VideoStreamRecorder/WhammyRecorder.js',
                     'VideoStreamRecorder/WhammyRecorderHelper.js',
                     'VideoStreamRecorder/GifRecorder.js',
-                    'VideoStreamRecorder/lib/whammy.js'
+                    'VideoStreamRecorder/lib/whammy.js',
+                    'common/ConcatenateBlobs.js',
+                    'common/amd.js'
                 ],
                 dest: 'MediaStreamRecorder.js'
             },
@@ -44,70 +49,10 @@ module.exports = function(grunt) {
                 }
             }
         },
-        jshint: {
-            options: {
-
-                globals: {
-                    webkitIndexedDB: true,
-                    mozIndexedDB: true,
-                    OIndexedDB: true,
-                    msIndexedDB: true,
-                    indexedDB: true,
-                    FileReaderSync: true,
-                    postMessage: true,
-                    Whammy: true,
-                    WhammyRecorder: true,
-                    MediaStreamRecorder: true,
-                    StereoAudioRecorder: true,
-                    URL: true,
-                    webkitURL: true,
-                    DiskStorage: true,
-                    requestAnimationFrame: true,
-                    cancelAnimationFrame: true,
-                    webkitRequestAnimationFrame: true,
-                    webkitCancelAnimationFrame: true,
-                    mozRequestAnimationFrame: true,
-                    mozCancelAnimationFrame: true,
-                    MediaStream: true,
-                    webkitMediaStream: true,
-                    html2canvas: true,
-                    GifRecorder: true,
-                    GIFEncoder: true,
-                    MediaRecorder: true,
-                    webkitAudioContext: true,
-                    mozAudioContext: true,
-                    AudioContext: true,
-                    JSON: true,
-                    typeof: true,
-                    define: true
-                },
-                browser: true,
-                browserify: true,
-                node: true,
-                camelcase: true,
-                curly: true,
-                devel: true,
-                eqeqeq: true,
-                forin: false,
-                globalstrict: true,
-                quotmark: true,
-                undef: true,
-                //es5: true,
-                funcscope: true,
-                shadow: true, //----should be false?
-                typed: true,
-                worker: true
-            },
-            files: ['MediaStreamRecorder.js'],
-            ignore_warning: {
-                options: {
-                    '-W015': true
-                }
-            }
-        },
         uglify: {
             options: {
-                mangle: false
+                mangle: false,
+                banner: banner
             },
             my_target: {
                 files: {
@@ -119,8 +64,10 @@ module.exports = function(grunt) {
             files: [
                 './AudioStreamRecorder/*.js',
                 './VideoStreamRecorder/*.js',
+                './VideoStreamRecorder/lib/whammy.js',
                 './common/*.js',
-                'Gruntfile.js'
+                'Gruntfile.js',
+                'MediaStreamRecorder.js'
             ],
             options: {
                 js: {
@@ -179,5 +126,5 @@ module.exports = function(grunt) {
 
     // set default tasks to run when grunt is called without parameters
     // http://gruntjs.com/api/grunt.task
-    grunt.registerTask('default', ['concat', 'jsbeautifier', 'htmlhint', 'jshint', 'uglify']);
+    grunt.registerTask('default', ['concat', 'jsbeautifier', 'htmlhint', 'uglify']);
 };

@@ -14,7 +14,7 @@
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         
-        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
         
         <style>
             video {
@@ -49,7 +49,7 @@
         </script>
         
         <!-- script used for audio/video/gif recording -->
-        <script src="//cdn.webrtc-experiment.com/RecordRTC.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"> </script>
 
         <script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script>
     </head>
@@ -105,18 +105,6 @@
                 </div>
             </section>
             <script>
-                if(!('stop' in MediaStream.prototype)) {
-                    MediaStream.prototype.stop = function() {
-                        this.getAudioTracks().forEach(function(track) {
-                            track.stop();
-                        });
-
-                        this.getVideoTracks().forEach(function(track) {
-                            track.stop();
-                        });
-                    };
-                }
-
                 var recordVideo, recordAudio;
                 var videoPreview = document.getElementById('video-preview');
                 var inner = document.querySelector('.inner');
@@ -179,7 +167,7 @@
                             recordAudio = RecordRTC(audioStream, {
                                 type: isFirefox ? 'video' : 'audio',
                                 // bufferSize: 16384,
-                                recorderType: isFirefox ? null : StereoAudioRecorder // force WebAudio for all browsers even for Firefox/MS-Edge
+                                recorderType: isFirefox ? MediaStreamRecorder : StereoAudioRecorder // force WebAudio for all browsers even for Firefox/MS-Edge
                             });
                             recordAudio.stream = audioStream;
 
@@ -188,7 +176,7 @@
                             // Need to construct a MediaStream that is having no audio tracks
                             recordVideo = RecordRTC(screenStream, {
                                 type: 'video',
-                                recorderType: isChrome && typeof MediaRecorder !== 'undefined' ? MediaStreamRecorder : null,
+                                recorderType: isFirefox ? MediaStreamRecorder : WhammyRecorder,
                                 canvas: {
                                     width: 360,
                                     height: 240
@@ -439,7 +427,7 @@
         <script>
             window.useThisGithubPath = 'muaz-khan/Ffmpeg.js';
         </script>
-        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script> 
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script> 
         <script src="https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.googledrive.com/host/0B6GWd_dUUTT8WjhzNlloZmZtdzA/ffmpeg_asm.js" async> </script>
     </body>
 </html>

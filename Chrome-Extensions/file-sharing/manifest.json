@@ -1,18 +1,20 @@
 {
 	"name" : "WebRTC File Sharing",
+	"short_name" : "FileSharing",
     "author": "Muaz Khan",
-	"version" : "2.1",
+	"version" : "2.3",
 	"manifest_version" : 2,
     "minimum_chrome_version": "34",
-	"description" : "Instantly/Privately/Reliably share files across all devices(mobile/desktop), among single or multiple users.",
+	"description" : "Instant/Private/Reliable file sharing across all devices(mobile/desktop), among single or multiple users.",
     "homepage_url": "https://rtcxp.com/fs",
-	"background": {
-		"scripts": ["background.js"],
-		"persistent": false
+    "background": {
+	    "scripts": ["background.js"],
+	    "persistent": false
 	},
 	"browser_action" : {
 		"default_icon" : "images/fileCapture22.png",
-		"default_title" : "Click to open file sharing page."
+		"default_title" : "File Sharing",
+		"default_popup": "popup.html"
 	},
 	"icons" : {
 		"16" : "images/fileCapture16.png",
@@ -21,7 +23,7 @@
 		"48" : "images/fileCapture48.png",
 		"128": "images/fileCapture128.png"
 	},
-	"permissions": ["tabs", "storage"],
+	"permissions": ["tabs", "storage", "<all_urls>"],
 	"web_accessible_resources": [
 		"images/fileCapture48.png"
 	],

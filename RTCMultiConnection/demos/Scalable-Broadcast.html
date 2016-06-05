@@ -101,6 +101,8 @@
             <div class="make-center">
                 <input type="text" id="broadcast-id" placeholder="broadcast-id" value="room-xyz">
                 <button id="open-or-join">Open or Join Broadcast</button>
+
+                <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
             </div>
 
             <video id="video-preview" controls loop></video>
@@ -120,16 +122,19 @@
             window.getExternalIceServers = false;
         </script>
         
-        <!-- <script src="/RTCMultiConnection.min.js"></script> -->
-        <script src="/dist/rmc3.min.js"></script>
+        <!-- <script src="/dist/rmc3.min.js"></script> -->
+        <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
 
         <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
         <script>
+            // recording is disabled because it is resulting for browser-crash
+            var enableRecordings = false;
+
             var connection = new RTCMultiConnection(null, {
                 useDefaultDevices: true // if we don't need to force selection of specific devices
             });
 
-            // its mandatory in v3.0
+            // its mandatory in v3
             connection.enableScalableBroadcast = true;
 
             // each relaying-user should serve only 1 users
@@ -206,7 +211,9 @@
                     // "open" method here will capture media-stream
                     // we can skip this function always; it is totally optional here.
                     // we can use "connection.getUserMediaHandler" instead
-                    connection.open(connection.userid);
+                    connection.open(connection.userid, function() {
+                        showRoomURL(connection.sessionid);
+                    });
                 });
             });
 
@@ -296,7 +303,7 @@
                     return;
                 }
 
-                this.disabled = true;
+                document.getElementById('open-or-join').disabled = true;
 
                 connection.session = {
                     audio: true,
@@ -359,6 +366,10 @@
             var allRecordedBlobs = [];
 
             function repeatedlyRecordStream(stream) {
+                if(!enableRecordings) {
+                    return;
+                }
+
                 connection.currentRecorder = RecordRTC(stream, {
                     type: 'video'
                 });
@@ -382,6 +393,81 @@
                     });
                 }, 30 * 1000); // 30-seconds
             };
+
+            function disableInputButtons() {
+                document.getElementById('open-or-join').disabled = true;
+                document.getElementById('broadcast-id').disabled = true;
+            }
+
+            // ......................................................
+            // ......................Handling broadcast-id................
+            // ......................................................
+
+            function showRoomURL(broadcastId) {
+                var roomHashURL = '#' + broadcastId;
+                var roomQueryStringURL = '?broadcastId=' + broadcastId;
+
+                var html = '<h2>Unique URL for your room:</h2><br>';
+
+                html += 'Hash URL: <a href="' + roomHashURL + '" target="_blank">' + roomHashURL + '</a>';
+                html += '<br>';
+                html += 'QueryString URL: <a href="' + roomQueryStringURL + '" target="_blank">' + roomQueryStringURL + '</a>';
+
+                var roomURLsDiv = document.getElementById('room-urls');
+                roomURLsDiv.innerHTML = html;
+
+                roomURLsDiv.style.display = 'block';
+            }
+
+            (function() {
+                var params = {},
+                    r = /([^&=]+)=?([^&]*)/g;
+
+                function d(s) {
+                    return decodeURIComponent(s.replace(/\+/g, ' '));
+                }
+                var match, search = window.location.search;
+                while (match = r.exec(search.substring(1)))
+                    params[d(match[1])] = d(match[2]);
+                window.params = params;
+            })();
+
+            var broadcastId = '';
+            if (localStorage.getItem(connection.socketMessageEvent)) {
+                broadcastId = localStorage.getItem(connection.socketMessageEvent);
+            } else {
+                broadcastId = connection.token();
+            }
+            document.getElementById('broadcast-id').value = broadcastId;
+            document.getElementById('broadcast-id').onkeyup = function() {
+                localStorage.setItem(connection.socketMessageEvent, this.value);
+            };
+            
+            var hashString = location.hash.replace('#', '');
+
+            var broadcastId = params.broadcastId;
+            if(!broadcastId && hashString.length) {
+                broadcastId = hashString;
+            }
+
+            if(broadcastId && broadcastId.length) {
+                document.getElementById('broadcast-id').value = broadcastId;
+                localStorage.setItem(connection.socketMessageEvent, broadcastId);
+
+                // auto-join-room
+                (function reCheckRoomPresence() {
+                    connection.checkPresence(broadcastId, function(isRoomExists) {
+                        if(isRoomExists) {
+                            document.getElementById('open-or-join').onclick();
+                            return;
+                        }
+
+                        setTimeout(reCheckRoomPresence, 5000);
+                    });
+                })();
+
+                disableInputButtons();
+            }
             
         </script>
 

@@ -5,9 +5,10 @@ function PubNubConnection(connection, connectCallback) {
     var sub = 'sub-c-d0c386c6-7263-11e2-8b02-12313f022c90';
 
     WebSocket = PUBNUB.ws;
-    var socket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + channelId);
 
-    socket.onmessage = function(e) {
+    connection.socket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + channelId);
+
+    connection.socket.onmessage = function(e) {
         var data = JSON.parse(e.data);
 
         if (data.eventName === connection.socketMessageEvent) {
@@ -25,40 +26,47 @@ function PubNubConnection(connection, connectCallback) {
         }
     };
 
-    socket.onerror = function() {
+    connection.socket.onerror = function() {
+        if (!connection.enableLogs) return;
         console.error('Socket connection is failed.');
     };
 
-    socket.onclose = function() {
+    connection.socket.onclose = function() {
+        if (!connection.enableLogs) return;
         console.warn('Socket connection is closed.');
     };
 
-    socket.onopen = function() {
-        // if connection.enableLogs
-        console.info('socket.io connection is opened.');
-        if (connectCallback) connectCallback(socket);
+    connection.socket.onopen = function() {
+        if (connection.enableLogs) {
+            console.info('PubNub connection is opened.');
+        }
 
-        socket.emit('presence', {
+        connection.socket.emit('presence', {
             userid: connection.userid,
             isOnline: true
         });
+
+        if (connectCallback) connectCallback(connection.socket);
     };
 
-    socket.emit = function(eventName, data, callback) {
-        socket.send(JSON.stringify({
+    connection.socket.emit = function(eventName, data, callback) {
+        if (eventName === 'changed-uuid') return;
+        if (data.message && data.message.shiftedModerationControl) return;
+
+        connection.socket.send(JSON.stringify({
             eventName: eventName,
             data: data
         }));
+
+        if (callback) {
+            callback();
+        }
     };
 
     var mPeer = connection.multiPeersHandler;
 
     function onMessagesCallback(message) {
         if (message.remoteUserId != connection.userid) return;
-
-        if (connection.enableLogs) {
-            console.debug(message.sender, message.message);
-        }
 
         if (connection.peers[message.sender] && connection.peers[message.sender].extra != message.extra) {
             connection.peers[message.sender].extra = message.extra;
@@ -76,7 +84,7 @@ function PubNubConnection(connection, connectCallback) {
 
             var action = message.message.action;
 
-            if (action === 'ended') {
+            if (action === 'ended' || action === 'stream-removed') {
                 connection.onstreamended(stream);
                 return;
             }
@@ -92,7 +100,7 @@ function PubNubConnection(connection, connectCallback) {
             }
 
             mPeer.onNegotiationNeeded({
-                allParticipants: connection.peers.getAllParticipants(message.sender)
+                allParticipants: connection.getAllParticipants(message.sender)
             }, message.sender);
             return;
         }
@@ -106,11 +114,7 @@ function PubNubConnection(connection, connectCallback) {
         }
 
         if (message.message === 'dropPeerConnection') {
-            if (connection.peers[message.sender]) {
-                connection.peers[message.sender].peer.close();
-                connection.peers[message.sender].peer = null;
-                delete connection.peers[message.sender];
-            }
+            connection.deletePeer(message.sender);
             return;
         }
 
@@ -155,17 +159,13 @@ function PubNubConnection(connection, connectCallback) {
             return;
         }
 
-        if (message.message.readyForOffer) {
+        if (message.message.readyForOffer || message.message.addMeAsBroadcaster) {
             connection.addNewBroadcaster(message.sender);
         }
 
-        if (message.message.newParticipationRequest) {
+        if (message.message.newParticipationRequest && message.sender !== connection.userid) {
             if (connection.peers[message.sender]) {
-                if (connection.peers[message.sender].peer) {
-                    connection.peers[message.sender].peer.close();
-                    connection.peers[message.sender].peer = null;
-                }
-                delete connection.peers[message.sender];
+                connection.deletePeer(message.sender);
             }
 
             var userPreferences = {
@@ -225,11 +225,9 @@ function PubNubConnection(connection, connectCallback) {
     }
 
     window.addEventListener('beforeunload', function() {
-        socket.emit('presence', {
+        connection.socket.emit('presence', {
             userid: connection.userid,
             isOnline: false
         });
     }, false);
-
-    return socket;
 }

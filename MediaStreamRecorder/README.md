@@ -28,32 +28,64 @@ You can [install scripts using NPM](https://www.npmjs.org/package/msr):
 
 ```javascript
 npm install msr
+
+# or via "bower"
+bower install msr
+```
+
+Now try `node server.js` and open `https://localhost:9001/`
+
+# Test on NPM
+
+```javascript
+var MediaStreamRecorder = require('msr');
+
+console.log('require-msr', MediaStreamRecorder);
+
+console.log('\n\n-------\n\n');
+
+var recorder = new MediaStreamRecorder({});
+console.log('MediaStreamRecorder', recorder);
+
+console.log('\n\n-------\n\n');
+
+var multiStreamRecorder = new MediaStreamRecorder.MultiStreamRecorder({});
+console.log('MultiStreamRecorder', multiStreamRecorder);
+```
+
+* Live NPM test: https://tonicdev.com/npm/msr
+
+Or try `npm-test.js`:
+
+```
+cd node_modules
+cd msr
+node npm-test.js
 ```
 
 Then link single/standalone "MediaStreamRecorder.js" file:
 
 ```html
 <script src="./node_modules/msr/MediaStreamRecorder.js"> </script>
-```
 
-## Otherwise, you can "directly" link standalone file from CDN:
+<!-- or bower -->
+<script src="./bower_components/msr/MediaStreamRecorder.js"></script>
 
-```html
+<!-- CDN -->
 <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 
-<!-- or -->
-
-https://cdn.rawgit.com/streamproc/MediaStreamRecorder/master/MediaStreamRecorder.js
+<!-- or link specific release -->
+<script src="https://github.com/streamproc/MediaStreamRecorder/releases/download/1.3.2/MediaStreamRecorder.js"></script>
 ```
 
-## Record audio+video in Firefox in single WebM
+## Record audio+video
 
 ```html
 <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 <script>
 var mediaConstraints = {
-    audio: !!navigator.mozGetUserMedia, // don't forget audio!
-    video: true                         // don't forget video!
+    audio: true,    // don't forget audio!
+    video: true     // don't forget video!
 };
 
 navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
@@ -75,44 +107,11 @@ function onMediaError(e) {
 </script>
 ```
 
-## Record audio+video in Chrome
-
-`MultiStreamRecorder.js` records both audio/video and returns both blobs in single `ondataavailable` event.
+## Record audio/wav
 
 ```html
 <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 <script>
-var mediaConstraints = {
-    audio: true,
-    video: true
-};
-
-navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
-
-function onMediaSuccess(stream) {
-    var multiStreamRecorder = new MultiStreamRecorder(stream);
-    multiStreamRecorder.video = yourVideoElement; // to get maximum accuracy
-    multiStreamRecorder.audioChannels = 1;
-    multiStreamRecorder.ondataavailable = function (blobs) {
-        // blobs.audio
-        // blobs.video
-    };
-    multiStreamRecorder.start(3 * 1000);
-}
-
-function onMediaError(e) {
-    console.error('media error', e);
-}
-</script>
-```
-
-## Record only audio in Chrome/Firefox
-
-```html
-<script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
-```
-
-```javascript
 var mediaConstraints = {
     audio: true
 };
@@ -121,42 +120,7 @@ navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
 
 function onMediaSuccess(stream) {
     var mediaRecorder = new MediaStreamRecorder(stream);
-    mediaRecorder.mimeType = 'audio/ogg';
-    mediaRecorder.audioChannels = 1;
-    mediaRecorder.ondataavailable = function (blob) {
-        // POST/PUT "Blob" using FormData/XHR2
-        var blobURL = URL.createObjectURL(blob);
-        document.write('<a href="' + blobURL + '">' + blobURL + '</a>');
-    };
-    mediaRecorder.start(3000);
-}
-
-function onMediaError(e) {
-    console.error('media error', e);
-}
-```
-
-## Record only-video in chrome
-
-```html
-<script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
-<script>
-var mediaConstraints = {
-    video: true
-};
-
-navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
-
-function onMediaSuccess(stream) {
-    var mediaRecorder = new MediaStreamRecorder(stream);
-    mediaRecorder.mimeType = 'video/webm';
-	
-    // for gif recording
-    // mediaRecorder.mimeType = 'image/gif';
-	
-    mediaRecorder.width = 320;
-    mediaRecorder.height = 240;
-	
+    mediaRecorder.mimeType = 'audio/wav'; // check this line for audio/wav
     mediaRecorder.ondataavailable = function (blob) {
         // POST/PUT "Blob" using FormData/XHR2
         var blobURL = URL.createObjectURL(blob);
@@ -265,7 +229,7 @@ mediaRecorder.recorderType = StereoAudioRecorder;
 mediaRecorder.recorderType = WhammyRecorder;
 
 // force MediaRecorder API on all browsers
-// Chrome is going to implement MediaRecorder API soon;
+// Chrome Canary/Dev already implemented MediaRecorder API however it is still behind a flag.
 // so this property allows you force MediaRecorder in Chrome.
 mediaRecorder.recorderType = MediaRecorderWrapper;
 
@@ -428,11 +392,33 @@ videoRecorder.mimeType = 'video/webm';
 videoRecorder.mimeType = 'video/mp4';
 
 // audio:
-audioRecorder.mimeType = 'audio/ogg';
-audioRecorder.mimeType = 'audio/wav';
+audioRecorder.mimeType = 'audio/webm'; // MediaRecorderWrapper
+audioRecorder.mimeType = 'audio/ogg'; // MediaRecorderWrapper
+audioRecorder.mimeType = 'audio/wav'; // StereoAudioRecorder
 
 // gif:
-gifRecorder.mimeType = 'image/gif';
+gifRecorder.mimeType = 'image/gif'; // GifRecorder
+```
+
+## bitsPerSecond
+
+```javascript
+// currently supported only in Firefox
+videoRecorder.bitsPerSecond = 12800;
+```
+
+## quality
+
+```javascript
+// only chrome---whilst using WhammyRecorder
+videoRecorder.quality = .8;
+```
+
+## speed
+
+```javascript
+// only chrome---whilst using WhammyRecorder
+videoRecorder.speed = 100;
 ```
 
 ## Browser Support
@@ -453,4 +439,4 @@ gifRecorder.mimeType = 'image/gif';
 
 ## License
 
-[MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) library is released under [MIT licence](https://www.webrtc-experiment.com/licence/).
+[MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) library is released under [MIT licence](https://github.com/streamproc/MediaStreamRecorder/blob/master/LICENSE).

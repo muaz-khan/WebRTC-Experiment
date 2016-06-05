@@ -1,7 +1,9 @@
 // RTCMultiConnection.js
 
 function RTCMultiConnection(roomid, forceOptions) {
-    forceOptions = forceOptions || {};
+    forceOptions = forceOptions || {
+        useDefaultDevices: true
+    };
 
     var connection = this;
 
@@ -93,7 +95,7 @@ function RTCMultiConnection(roomid, forceOptions) {
 
     mPeer.onNegotiationNeeded = function(message, remoteUserId, callback) {
         connectSocket(function() {
-            socket.emit(connection.socketMessageEvent, 'password' in message ? message : {
+            connection.socket.emit(connection.socketMessageEvent, 'password' in message ? message : {
                 remoteUserId: message.remoteUserId || remoteUserId,
                 message: message,
                 sender: connection.userid
@@ -107,8 +109,8 @@ function RTCMultiConnection(roomid, forceOptions) {
 
     mPeer.onUserLeft = onUserLeft;
     mPeer.disconnectWith = function(remoteUserId, callback) {
-        if (socket) {
-            socket.emit('disconnect-with', remoteUserId, callback || function() {});
+        if (connection.socket) {
+            connection.socket.emit('disconnect-with', remoteUserId, callback || function() {});
         }
 
         connection.deletePeer(remoteUserId);
@@ -122,12 +124,12 @@ function RTCMultiConnection(roomid, forceOptions) {
         'transport': 'polling' // fixing transport:unknown issues
     };
 
-    var socket;
-
     function connectSocket(connectCallback) {
-        if (socket) { // todo: check here readySate/etc. to make sure socket is still opened
+        connection.socketAutoReConnect = true;
+
+        if (connection.socket) { // todo: check here readySate/etc. to make sure socket is still opened
             if (connectCallback) {
-                connectCallback(socket);
+                connectCallback(connection.socket);
             }
             return;
         }
@@ -142,10 +144,9 @@ function RTCMultiConnection(roomid, forceOptions) {
             }
         }
 
-        socket = new SocketConnection(connection, function(s) {
-            socket = s;
+        new SocketConnection(connection, function(s) {
             if (connectCallback) {
-                connectCallback(socket);
+                connectCallback(connection.socket);
             }
         });
     }
@@ -196,10 +197,10 @@ function RTCMultiConnection(roomid, forceOptions) {
             connection.userid = connection.sessionid = localUserid || connection.sessionid;
             connection.userid += '';
 
-            socket.emit('changed-uuid', connection.userid);
+            connection.socket.emit('changed-uuid', connection.userid);
 
             if (password) {
-                socket.emit('set-password', password);
+                connection.socket.emit('set-password', password);
             }
 
             connection.isInitiator = true;
@@ -220,7 +221,7 @@ function RTCMultiConnection(roomid, forceOptions) {
         connection.isInitiator = true;
 
         connectSocket(function() {
-            socket.emit('changed-uuid', connection.userid);
+            connection.socket.emit('changed-uuid', connection.userid);
 
             if (isPublicModerator == true) {
                 connection.becomePublicModerator();
@@ -239,11 +240,11 @@ function RTCMultiConnection(roomid, forceOptions) {
 
     connection.becomePublicModerator = function() {
         if (!connection.isInitiator) return;
-        socket.emit('become-a-public-moderator');
+        connection.socket.emit('become-a-public-moderator');
     };
 
     connection.dontMakeMeModerator = function() {
-        socket.emit('dont-make-me-moderator');
+        connection.socket.emit('dont-make-me-moderator');
     };
 
     connection.deletePeer = function(remoteUserId) {
@@ -335,6 +336,13 @@ function RTCMultiConnection(roomid, forceOptions) {
         }
 
         options = options || {};
+
+        var cb = function() {};
+        if (typeof options === 'function') {
+            cb = options;
+            options = {};
+        }
+
         if (typeof options.localPeerSdpConstraints !== 'undefined') {
             localPeerSdpConstraints = options.localPeerSdpConstraints;
         }
@@ -371,6 +379,7 @@ function RTCMultiConnection(roomid, forceOptions) {
             }
 
             mPeer.onNegotiationNeeded(connectionDescription);
+            cb();
         });
 
         return connectionDescription;
@@ -393,13 +402,12 @@ function RTCMultiConnection(roomid, forceOptions) {
         });
     };
 
-    connection.getUserMedia = connection.captureUserMedia = function(callback, session) {
-        session = session || connection.session;
+    connection.getUserMedia = connection.captureUserMedia = function(callback, sessionForced) {
+        callback = callback || function() {};
+        var session = sessionForced || connection.session;
 
         if (connection.dontCaptureUserMedia || isData(session)) {
-            if (callback) {
-                callback();
-            }
+            callback();
             return;
         }
 
@@ -410,63 +418,27 @@ function RTCMultiConnection(roomid, forceOptions) {
                         throw error;
                     }
 
-                    invokeGetUserMedia({
+                    connection.invokeGetUserMedia({
+                        audio: isAudioPlusTab(connection) ? getAudioScreenConstraints(screen_constraints) : false,
                         video: screen_constraints,
                         isScreen: true
-                    }, session.audio || session.video ? invokeGetUserMedia : false);
+                    }, function(stream) {
+                        if ((session.audio || session.video) && !isAudioPlusTab(connection)) {
+                            var nonScreenSession = {};
+                            for (var s in session) {
+                                if (s !== 'screen') {
+                                    nonScreenSession[s] = session[s];
+                                }
+                            }
+                            connection.invokeGetUserMedia(sessionForced, callback, nonScreenSession);
+                            return;
+                        }
+                        callback(stream);
+                    });
                 });
             } else if (session.audio || session.video) {
-                invokeGetUserMedia();
+                connection.invokeGetUserMedia(sessionForced, callback, session);
             }
-        }
-
-        function invokeGetUserMedia(localMediaConstraints, getUserMedia_callback) {
-            var isScreen = false;
-            if (localMediaConstraints) {
-                isScreen = localMediaConstraints.isScreen;
-                delete localMediaConstraints.isScreen;
-            }
-
-            getUserMediaHandler({
-                onGettingLocalMedia: function(stream) {
-                    stream.isAudio = stream.isVideo = stream.isScreen = false;
-
-                    if (isScreen) {
-                        stream.isScreen = true;
-                    } else if (session.audio && session.video) {
-                        stream.isVideo = true;
-                    } else if (session.audio) {
-                        stream.isAudio = true;
-                    }
-
-                    mPeer.onGettingLocalMedia(stream);
-
-                    if (getUserMedia_callback) {
-                        return getUserMedia_callback();
-                    }
-
-                    if (callback) {
-                        callback(stream);
-                    }
-                },
-                onLocalMediaError: function(error, constraints) {
-                    mPeer.onLocalMediaError(error, constraints);
-
-                    if (constraints.audio && constraints.video && (error.name || '').toString().indexOf('DevicesNotFound') !== -1) {
-                        constraints.video = false;
-                        invokeGetUserMedia(constraints, getUserMedia_callback);
-                        return;
-                    }
-
-                    if (callback) {
-                        callback();
-                    }
-                },
-                localMediaConstraints: localMediaConstraints || {
-                    audio: !!session.audio ? connection.mediaConstraints.audio : false,
-                    video: !!session.video ? connection.mediaConstraints.video : false
-                }
-            });
         }
     };
 
@@ -505,12 +477,11 @@ function RTCMultiConnection(roomid, forceOptions) {
     connection.userid = getRandomString();
     connection.changeUserId = function(newUserId, callback) {
         connection.userid = newUserId || getRandomString();
-        socket.emit('changed-uuid', connection.userid, callback || function() {});
+        connection.socket.emit('changed-uuid', connection.userid, callback || function() {});
     };
 
     connection.extra = {};
     connection.attachStreams = [];
-    connection.removeStreams = [];
 
     connection.session = {
         audio: true,
@@ -577,9 +548,7 @@ function RTCMultiConnection(roomid, forceOptions) {
         video: {
             mandatory: {},
             optional: [{
-                bandwidth: connection.bandwidth.audio * 8 * 1024 || 128 * 8 * 1024
-            }, {
-                googLeakyBucket: true
+                bandwidth: connection.bandwidth.video * 8 * 1024 || 128 * 8 * 1024
             }, {
                 facingMode: 'user'
             }]
@@ -751,7 +720,7 @@ function RTCMultiConnection(roomid, forceOptions) {
 
     connection.closeEntireSession = function(callback) {
         callback = callback || function() {};
-        socket.emit('close-entire-session', function looper() {
+        connection.socket.emit('close-entire-session', function looper() {
             if (connection.getAllParticipants().length) {
                 setTimeout(looper, 100);
                 return;
@@ -811,12 +780,14 @@ function RTCMultiConnection(roomid, forceOptions) {
             return;
         }
 
-        if (connection.removeStreams.indexOf(stream) === -1) {
-            connection.removeStreams.push(stream);
-            connection.peers.getAllParticipants().forEach(function(participant) {
-                mPeer.renegotiatePeer(participant);
-            });
-        }
+        connection.peers.getAllParticipants().forEach(function(participant) {
+            var user = connection.peers[participant];
+            try {
+                user.peer.removeStream(stream);
+            } catch (e) {}
+        });
+
+        connection.renegotiate();
     };
 
     connection.addStream = function(session, remoteUserId) {
@@ -837,72 +808,72 @@ function RTCMultiConnection(roomid, forceOptions) {
             return;
         }
 
-        if (!session.audio || session.video || session.screen) {
+        if (session.audio || session.video || session.screen) {
             if (session.screen) {
                 connection.getScreenConstraints(function(error, screen_constraints) {
                     if (error) {
                         return alert(error);
                     }
 
-                    invokeGetUserMedia({
-                        video: screen_constraints
-                    }, session.audio || session.video ? invokeGetUserMedia : false);
+                    connection.invokeGetUserMedia({
+                        audio: isAudioPlusTab(connection) ? getAudioScreenConstraints(screen_constraints) : false,
+                        video: screen_constraints,
+                        isScreen: true
+                    }, (session.audio || session.video) && !isAudioPlusTab(connection) ? connection.invokeGetUserMedia(null, gumCallback) : gumCallback);
                 });
             } else if (session.audio || session.video) {
-                invokeGetUserMedia();
+                connection.invokeGetUserMedia(null, gumCallback);
             }
         }
 
-        function invokeGetUserMedia(localMediaConstraints, callback) {
-            getUserMediaHandler({
-                onGettingLocalMedia: function(stream) {
-                    var videoConstraints = localMediaConstraints ? localMediaConstraints.video : connection.mediaConstraints;
-                    if (videoConstraints) {
-                        if (videoConstraints.mediaSource || videoConstraints.mozMediaSource) {
-                            stream.isScreen = true;
-                        } else if (videoConstraints.mandatory && videoConstraints.mandatory.chromeMediaSource) {
-                            stream.isScreen = true;
-                        }
-                    }
+        function gumCallback(stream) {
+            if (session.streamCallback) {
+                session.streamCallback(stream);
+            }
 
-                    if (!stream.isScreen) {
-                        stream.isVideo = stream.getVideoTracks().length;
-                        stream.isAudio = !stream.isVideo && stream.getAudioTracks().length;
-                    }
-
-                    mPeer.onGettingLocalMedia(stream);
-
-                    if (session.streamCallback) {
-                        session.streamCallback(stream);
-                    }
-
-                    if (callback) {
-                        return callback();
-                    }
-
-                    connection.renegotiate(remoteUserId);
-                },
-                onLocalMediaError: function(error, constraints) {
-                    mPeer.onLocalMediaError(error, constraints);
-
-                    if (constraints.audio && constraints.video && (error.name || '').toString().indexOf('DevicesNotFound') !== -1) {
-                        constraints.video = false;
-                        invokeGetUserMedia(constraints, callback);
-                        return;
-                    }
-
-                    if (callback) {
-                        return callback();
-                    }
-
-                    connection.renegotiate(remoteUserId);
-                },
-                localMediaConstraints: localMediaConstraints || {
-                    audio: session.audio ? connection.mediaConstraints.audio : false,
-                    video: session.video ? connection.mediaConstraints.video : false
-                }
-            });
+            connection.renegotiate(remoteUserId);
         }
+    };
+
+    connection.invokeGetUserMedia = function(localMediaConstraints, callback, session) {
+        if (!session) {
+            session = connection.session;
+        }
+
+        if (!localMediaConstraints) {
+            localMediaConstraints = connection.mediaConstraints;
+        }
+
+        getUserMediaHandler({
+            onGettingLocalMedia: function(stream) {
+                var videoConstraints = localMediaConstraints.video;
+                if (videoConstraints) {
+                    if (videoConstraints.mediaSource || videoConstraints.mozMediaSource) {
+                        stream.isScreen = true;
+                    } else if (videoConstraints.mandatory && videoConstraints.mandatory.chromeMediaSource) {
+                        stream.isScreen = true;
+                    }
+                }
+
+                if (!stream.isScreen) {
+                    stream.isVideo = stream.getVideoTracks().length;
+                    stream.isAudio = !stream.isVideo && stream.getAudioTracks().length;
+                }
+
+                mPeer.onGettingLocalMedia(stream);
+
+                if (callback) {
+                    callback(stream);
+                }
+            },
+            onLocalMediaError: function(error, constraints) {
+                mPeer.onLocalMediaError(error, constraints);
+            },
+            localMediaConstraints: localMediaConstraints || {
+                audio: session.audio ? localMediaConstraints.audio : false,
+                video: session.video ? localMediaConstraints.video : false
+            }
+        });
     };
 
     function applyConstraints(stream, mediaConstraints) {
@@ -933,7 +904,7 @@ function RTCMultiConnection(roomid, forceOptions) {
         }
 
         if (streamid) {
-            var streams;
+            var stream;
             if (connection.streamEvents[streamid]) {
                 stream = connection.streamEvents[streamid].stream;
             }
@@ -986,51 +957,26 @@ function RTCMultiConnection(roomid, forceOptions) {
             return;
         }
 
-        if (!session.audio || session.video || session.screen) {
+        if (session.audio || session.video || session.screen) {
             if (session.screen) {
                 connection.getScreenConstraints(function(error, screen_constraints) {
                     if (error) {
                         return alert(error);
                     }
 
-                    invokeGetUserMedia({
-                        video: screen_constraints
-                    }, session.audio || session.video ? invokeGetUserMedia : false);
+                    connection.invokeGetUserMedia({
+                        audio: isAudioPlusTab(connection) ? getAudioScreenConstraints(screen_constraints) : false,
+                        video: screen_constraints,
+                        isScreen: true
+                    }, (session.audio || session.video) && !isAudioPlusTab(connection) ? connection.invokeGetUserMedia(null, gumCallback) : gumCallback);
                 });
             } else if (session.audio || session.video) {
-                invokeGetUserMedia();
+                connection.invokeGetUserMedia(null, gumCallback);
             }
         }
 
-        function invokeGetUserMedia(localMediaConstraints, callback) {
-            getUserMediaHandler({
-                onGettingLocalMedia: function(stream) {
-                    mPeer.onGettingLocalMedia(stream);
-
-                    if (callback) {
-                        return callback();
-                    }
-
-                    connection.replaceTrack(stream, remoteUserId, isVideoTrack || session.video || session.screen);
-                },
-                onLocalMediaError: function(error, constraints) {
-                    mPeer.onLocalMediaError(error, constraints);
-
-                    if (constraints.audio && constraints.video && (error.name || '').toString().indexOf('DevicesNotFound') !== -1) {
-                        constraints.video = false;
-                        invokeGetUserMedia(constraints, callback);
-                        return;
-                    }
-
-                    if (callback) {
-                        callback();
-                    }
-                },
-                localMediaConstraints: localMediaConstraints || {
-                    audio: session.audio ? connection.mediaConstraints.audio : false,
-                    video: session.video ? connection.mediaConstraints.video : false
-                }
-            });
+        function gumCallback(stream) {
+            connection.replaceTrack(stream, remoteUserId, isVideoTrack || session.video || session.screen);
         }
     };
 
@@ -1084,13 +1030,6 @@ function RTCMultiConnection(roomid, forceOptions) {
 
             if (!isRemote) {
                 delete connection.attachStreams[connection.attachStreams.indexOf(stream)];
-
-                if (connection.removeStreams.indexOf(stream) === -1) {
-                    connection.removeStreams.push(stream);
-                }
-
-                connection.attachStreams = removeNullEntries(connection.attachStreams);
-                connection.removeStreams = removeNullEntries(connection.removeStreams);
             }
 
             // connection.renegotiate();
@@ -1200,7 +1139,7 @@ function RTCMultiConnection(roomid, forceOptions) {
             }, participant);
         });
         connection.userid = sender;
-        socket.emit('changed-uuid', connection.userid);
+        connection.socket.emit('changed-uuid', connection.userid);
     };
 
     connection.shiftModerationControl = function(remoteUserId, existingBroadcasters, firedOnLeave) {
@@ -1227,8 +1166,8 @@ function RTCMultiConnection(roomid, forceOptions) {
             callback = userIdStartsWith;
         }
 
-        connectSocket(function(socket) {
-            socket.emit(
+        connectSocket(function() {
+            connection.socket.emit(
                 'get-public-moderators',
                 typeof userIdStartsWith === 'string' ? userIdStartsWith : '',
                 callback
@@ -1237,7 +1176,7 @@ function RTCMultiConnection(roomid, forceOptions) {
     };
 
     connection.onmute = function(e) {
-        if (!e.mediaElement) {
+        if (!e || !e.mediaElement) {
             return;
         }
 
@@ -1251,7 +1190,7 @@ function RTCMultiConnection(roomid, forceOptions) {
     };
 
     connection.onunmute = function(e) {
-        if (!e.mediaElement) {
+        if (!e || !e.mediaElement || !e.stream) {
             return;
         }
 
@@ -1302,22 +1241,31 @@ function RTCMultiConnection(roomid, forceOptions) {
         connectSocket(callback);
     };
 
+    connection.socketAutoReConnect = true;
     connection.closeSocket = function() {
-        if (!socket) return;
-        if (typeof socket.disconnect !== 'undefined') {
-            socket.disconnect();
+        try {
+            io.sockets = {};
+        } catch (e) {};
+
+        if (!connection.socket) return;
+
+        connection.socketAutoReConnect = false;
+
+        if (typeof connection.socket.disconnect === 'function') {
+            connection.socket.disconnect();
         }
-        socket = null;
+
+        connection.socket = null;
     };
 
     connection.getSocket = function(callback) {
-        if (!socket) {
+        if (!connection.socket) {
             connectSocket(callback);
         } else if (callback) {
-            callback(socket);
+            callback(connection.socket);
         }
 
-        return socket;
+        return connection.socket;
     };
 
     connection.getRemoteStreams = mPeer.getRemoteStreams;
@@ -1371,10 +1319,13 @@ function RTCMultiConnection(roomid, forceOptions) {
     connection.disconnectWith = mPeer.disconnectWith;
 
     connection.checkPresence = function(remoteUserId, callback) {
-        mPeer.onNegotiationNeeded({
-            detectPresence: true,
-            userid: (remoteUserId || connection.sessionid) + ''
-        }, 'system', callback);
+        if (!connection.socket) {
+            connection.connectSocket(function() {
+                connection.checkPresence(remoteUserId, callback);
+            });
+            return;
+        }
+        connection.socket.emit('check-presence', (remoteUserId || connection.sessionid) + '', callback);
     };
 
     connection.onReadyForOffer = function(remoteUserId, userPreferences) {
@@ -1394,7 +1345,7 @@ function RTCMultiConnection(roomid, forceOptions) {
     };
 
     connection.updateExtraData = function() {
-        socket.emit('extra-data-updated', connection.extra);
+        connection.socket.emit('extra-data-updated', connection.extra);
     };
 
     connection.enableScalableBroadcast = false;
@@ -1430,13 +1381,17 @@ function RTCMultiConnection(roomid, forceOptions) {
         connection.getChromeExtensionStatus = getChromeExtensionStatus;
     }
 
-    connection.getScreenConstraints = function(callback) {
+    connection.getScreenConstraints = function(callback, audioPlusTab) {
+        if (isAudioPlusTab(connection, audioPlusTab)) {
+            audioPlusTab = true;
+        }
+
         getScreenConstraints(function(error, screen_constraints) {
             if (!error) {
                 screen_constraints = connection.modifyScreenConstraints(screen_constraints);
                 callback(error, screen_constraints);
             }
-        });
+        }, audioPlusTab);
     };
 
     connection.modifyScreenConstraints = function(screen_constraints) {
@@ -1471,7 +1426,7 @@ function RTCMultiConnection(roomid, forceOptions) {
                 screen: 30
             };
 
-            if (connection.mediaConstraints.audio && connection.mediaConstraints.audio.optional.length) {
+            if (connection.mediaConstraints.audio && connection.mediaConstraints.audio.optional && connection.mediaConstraints.audio.optional.length) {
                 var newArray = [];
                 connection.mediaConstraints.audio.optional.forEach(function(opt) {
                     if (typeof opt.bandwidth === 'undefined') {
@@ -1481,7 +1436,7 @@ function RTCMultiConnection(roomid, forceOptions) {
                 connection.mediaConstraints.audio.optional = newArray;
             }
 
-            if (connection.mediaConstraints.video && connection.mediaConstraints.video.optional.length) {
+            if (connection.mediaConstraints.video && connection.mediaConstraints.video.optional && connection.mediaConstraints.video.optional.length) {
                 var newArray = [];
                 connection.mediaConstraints.video.optional.forEach(function(opt) {
                     if (typeof opt.bandwidth === 'undefined') {

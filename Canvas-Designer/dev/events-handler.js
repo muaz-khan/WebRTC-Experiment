@@ -19,6 +19,8 @@ addEvent(canvas, isTouch ? 'touchstart' : 'mousedown', function(e) {
     else if (cache.isEraser) eraserHandler.mousedown(e);
     else if (cache.isText) textHandler.mousedown(e);
     else if (cache.isImage) imageHandler.mousedown(e);
+    else if (cache.isArrow) arrowHandler.mousedown(e);
+    else if (cache.isMarker) markerHandler.mousedown(e);
 
     drawHelper.redraw();
 });
@@ -41,6 +43,8 @@ addEvent(canvas, isTouch ? 'touchend' : 'mouseup', function(e) {
     else if (cache.isEraser) eraserHandler.mouseup(e);
     else if (cache.isText) textHandler.mouseup(e);
     else if (cache.isImage) imageHandler.mouseup(e);
+    else if (cache.isArrow) arrowHandler.mouseup(e);
+    else if (cache.isMarker) markerHandler.mouseup(e);
 
     drawHelper.redraw();
 });
@@ -63,6 +67,8 @@ addEvent(canvas, isTouch ? 'touchmove' : 'mousemove', function(e) {
     else if (cache.isEraser) eraserHandler.mousemove(e);
     else if (cache.isText) textHandler.mousemove(e);
     else if (cache.isImage) imageHandler.mousemove(e);
+    else if (cache.isArrow) arrowHandler.mousemove(e);
+    else if (cache.isMarker) markerHandler.mousemove(e);
 });
 
 var keyCode;
@@ -121,6 +127,11 @@ function onkeyup(e) {
 
     keyCode = e.which || e.keyCode || 0;
 
+    if (keyCode === 13 && is.isText) {
+        textHandler.onReturnKeyPressed();
+        return;
+    }
+
     if (keyCode == 8 || keyCode == 46) {
         if (isBackKey(e, keyCode)) {
             textHandler.writeText(textHandler.lastKeyPress, true);
@@ -128,15 +139,23 @@ function onkeyup(e) {
         return;
     }
 
-    // Ctrl + Z
+    // Ctrl + t
+    if (isControlKeyPressed && keyCode === 84 && is.isText) {
+        textHandler.showTextTools();
+        return;
+    }
+
+    // Ctrl + z
     if (isControlKeyPressed && keyCode === 90) {
         if (points.length) {
             points.length = points.length - 1;
             drawHelper.redraw();
+
+            syncPoints(true);
         }
     }
 
-    // Ctrl + A
+    // Ctrl + a
     if (isControlKeyPressed && keyCode === 65) {
         dragHelper.global.startingIndex = 0;
 
@@ -145,12 +164,12 @@ function onkeyup(e) {
         setSelection(find('drag-all-paths'), 'DragAllPaths');
     }
 
-    // Ctrl + C
+    // Ctrl + c
     if (isControlKeyPressed && keyCode === 67 && points.length) {
         copy();
     }
 
-    // Ctrl + V
+    // Ctrl + v
     if (isControlKeyPressed && keyCode === 86 && copiedStuff.length) {
         paste();
     }
@@ -182,3 +201,18 @@ function onkeypress(e) {
 }
 
 addEvent(document, 'keypress', onkeypress);
+
+function onTextFromClipboard(e) {
+    if (!is.isText) return;
+    var pastedText = undefined;
+    if (window.clipboardData && window.clipboardData.getData) { // IE
+        pastedText = window.clipboardData.getData('Text');
+    } else if (e.clipboardData && e.clipboardData.getData) {
+        pastedText = e.clipboardData.getData('text/plain');
+    }
+    if (pastedText && pastedText.length) {
+        textHandler.writeText(pastedText);
+    }
+}
+
+addEvent(document, 'paste', onTextFromClipboard);

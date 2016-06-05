@@ -1,0 +1,145 @@
+﻿<link href='https://fonts.googleapis.com/css?family=Cutive+Mono' rel='stylesheet' type='text/css'>
+
+<style>
+* {
+    font-family: 'Cutive Mono'!important;
+    font-size: 20px;
+    -webkit-user-select:none;
+    -webkit-user-drag:none;
+}
+
+input {
+    -webkit-user-select:initial;
+}
+
+body { 
+    padding: 10px;
+    min-width: 500px;
+}
+
+hr {
+    border:0;
+    border-bottom: solid lightgray 1px;
+    margin: 0 -18px;
+}
+
+label, input {
+    vertical-align: middle;
+}
+
+label, input[type=checkbox] {
+    cursor: pointer;
+}
+
+select {
+    border: 1px solid black;
+    padding: 0;
+    outline:none!important;
+    border: 1px solid black !important;
+}
+
+option {
+    background: white;
+    color: black;
+    text-shadow: none;
+    outline:none!important;
+    padding: 2px 5px;
+    border-bottom: 1px solid black;
+}
+
+option:last-child {
+    border-bottom: 0;
+}
+
+input[disabled], label[disabled] {
+    cursor: not-allowed!important;
+    color: #bfbfbf!important;
+}
+
+.help-img {
+    vertical-align: middle;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+</style>
+
+<h1 id="applying-changes" style="position:absolute;right:10px;top:-10px;color:green;font-weight:normal;font-size:14px!important;display:none;">Applying Changes...</h1>
+
+<input type="checkbox" id="enableMicrophone"> <label for="enableMicrophone">Include Microphone?</label>
+<br>
+<small style="font-size:13px;margin-left:32px;display:block;">
+    Record your own voice using Microphone. <img id="enableMicrophone-help" src="images/help.png" class="help-img">
+</small>
+
+<br>
+<hr>
+<br>
+
+<input type="checkbox" id="enableTabAudio"> <label for="enableTabAudio">Enable audio+tab recording?</label>
+<br>
+<small style="font-size:13px;margin-left:32px;display:block;">
+    Record all-audios on a tab. Record entire conference!
+</small>
+
+<br>
+<hr>
+
+<h2>Select Resolutions:</h2>
+<select id="resolutions" size=5>
+    <option>Default (29999x8640)</option>
+    <option>4K UHD (3840x2160)</option>
+    <option>WQXGA (2560x1600)</option>
+    <option>WQHD (2560x1440)</option>
+    <option>WUXGA (1920x1200)</option>
+    <option>Full HD (1920x1080)</option>
+    <option>WSXGA+ (1680x1050)</option>
+    <option>UXGA (1600x1200)</option>
+    <option>HD+ (1600x900)</option>
+    <option>WXGA+ (1440x900)</option>
+    <option>HD (1366x768)</option>
+    <option>HD (1360x768)</option>
+    <option>SXGA (1280x1024)</option>
+    <option>WXGA (1280x800)</option>
+    <option>WXGA (1280x768)</option>
+    <option>WXGA (1280x720)</option>
+    <option>XGA+ (1152x864)</option>
+    <option>XGA (1024x768)</option>
+    <option>WSVGA (1024x600)</option>
+    <option>SVGA (800x600)</option>
+    <option>720p (1280x720)</option>
+    <option>360p (640x360)</option>
+</select>
+
+
+<br><br>
+<hr>
+
+<h2>Select Video Codecs:</h2>
+<select id="videoCodec" size=3>
+    <option>Default</option>
+    <option>VP8</option>
+    <option>VP9</option>
+</select>
+
+<br><br>
+
+<hr>
+<br>
+
+<label for="videoMaxFrameRates">Video Framerates</label>
+<input type="text" id="videoMaxFrameRates" value="" style="margin-bottom:5px;width:70px;"> fps
+
+<hr>
+<br>
+
+<label for="videoBitsPerSecond">Video Bitrates</label>
+<input type="text" id="videoBitsPerSecond" value="" style="margin-bottom:5px;width:70px;"> kbps
+
+<br>
+
+<label for="audioBitsPerSecond">Audio Bitrates</label>
+<input type="text" id="audioBitsPerSecond" value="" style="width:70px;"> kbps
+
+
+<script src="options.js"></script>

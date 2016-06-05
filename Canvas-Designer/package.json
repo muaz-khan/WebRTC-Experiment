@@ -1,7 +1,7 @@
 {
   "name": "canvas-designer",
   "preferGlobal": false,
-  "version": "1.0.2",
+  "version": "1.0.8",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -32,12 +32,12 @@
   "homepage": "https://www.webrtc-experiment.com/Canvas-Designer/",
   "_from": "canvas-designer@",
   "devDependencies": {
-    "grunt": "latest",
-    "grunt-cli": "latest",
-    "load-grunt-tasks": "latest",
-    "grunt-contrib-concat": "latest",
-    "grunt-contrib-uglify": "latest",
-    "grunt-jsbeautifier": "latest",
-    "grunt-bump": "latest"
+    "grunt": "0.4.5",
+    "grunt-cli": "0.1.13",
+    "load-grunt-tasks": "3.3.0",
+    "grunt-contrib-concat": "0.5.1",
+    "grunt-contrib-uglify": "0.9.2",
+    "grunt-jsbeautifier": "0.2.10",
+    "grunt-bump": "0.6.0"
   }
 }

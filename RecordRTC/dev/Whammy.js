@@ -431,3 +431,7 @@ var Whammy = (function() {
         Video: WhammyVideo
     };
 })();
+
+if (typeof RecordRTC !== 'undefined') {
+    RecordRTC.Whammy = Whammy;
+}

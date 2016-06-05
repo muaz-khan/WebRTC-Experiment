@@ -48,6 +48,28 @@ node server.js
 http://localhost:9001
 ```
 
+# Test on NPM
+
+```javascript
+var DetectRTC = require('detectrtc');
+
+console.log(DetectRTC.browser);
+
+DetectRTC.load(function() {
+    console.log(DetectRTC);
+});
+```
+
+* Live NPM test: https://tonicdev.com/npm/detectrtc
+
+Or try `npm-test.js`:
+
+```
+cd node_modules
+cd detectrtc
+node npm-test.js
+```
+
 # How to link?
 
 ```html
@@ -66,8 +88,7 @@ http://localhost:9001
 You can even link specific versions:
 
 ```html
-<!-- replace "1.2.5" with latest release/build -->
-<script src="https://github.com/muaz-khan/DetectRTC/releases/download/1.2.5/DetectRTC.js"></script>
+<script src="https://github.com/muaz-khan/DetectRTC/releases/download/1.3.1/DetectRTC.js"></script>
 ```
 
 <img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
@@ -75,6 +96,12 @@ You can even link specific versions:
 # How to use it?
 
 ```javascript
+// for node.js users
+var DetectRTC = require('detectrtc');
+
+// non-nodejs users can skip above line
+// below code will work for all users
+
 DetectRTC.load(function() {
     DetectRTC.hasWebcam (has webcam device!)
     DetectRTC.hasMicrophone (has microphone device!)

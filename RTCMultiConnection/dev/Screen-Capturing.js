@@ -1,4 +1,4 @@
-// Last time updated at Dec 01, 2015, 08:32:23
+// Last time updated at March 30, 2016, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/Screen-Capturing.js
 
@@ -10,21 +10,7 @@
 // ___________________
 // Screen-Capturing.js
 
-// Source code: https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
-// Google AppStore installation path: https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk
-
-// This JavaScript file is aimed to explain steps needed to integrate above chrome extension
-// in your own webpages
-
-// Usage:
-// getScreenConstraints(function(screen_constraints) {
-//    navigator.webkitGetUserMedia({ video: screen_constraints }, onSuccess, onFailure );
-// });
-
-// First Step: Download the extension, modify "manifest.json" and publish to Google AppStore
-//             https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture#how-to-publish-yourself
-
-// Second Step: Listen for postMessage handler
+// Listen for postMessage handler
 // postMessage is used to exchange "sourceId" between chrome extension and you webpage.
 // though, there are tons other options as well, e.g. XHR-signaling, websockets, etc.
 window.addEventListener('message', function(event) {
@@ -117,7 +103,7 @@ function isFirefoxExtensionAvailable(callback) {
 }
 
 // this function can be used to get "source-id" from the extension
-function getSourceId(callback) {
+function getSourceId(callback, audioPlusTab) {
     if (!callback) throw '"callback" parameter is mandatory.';
     if (sourceId) {
         callback(sourceId);
@@ -126,17 +112,18 @@ function getSourceId(callback) {
     }
 
     screenCallback = callback;
+
+    if (!!audioPlusTab) {
+        window.postMessage('audio-plus-tab', '*');
+        return;
+    }
     window.postMessage('get-sourceId', '*');
 }
-
-var isFirefox = typeof window.InstallTrigger !== 'undefined';
-var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
-var isChrome = !!window.chrome && !isOpera;
 
 function getChromeExtensionStatus(extensionid, callback) {
     if (arguments.length != 2) {
         callback = extensionid;
-        extensionid = 'ajhifddimkapgcifgcodmmfdlknahffk'; // default extension-id
+        extensionid = window.RMCExtensionID || 'ajhifddimkapgcifgcodmmfdlknahffk'; // default extension-id
     }
 
     if (isFirefox) return callback('not-chrome');
@@ -158,7 +145,7 @@ function getChromeExtensionStatus(extensionid, callback) {
 }
 
 // this function explains how to use above methods/objects
-function getScreenConstraints(callback) {
+function getScreenConstraints(callback, audioPlusTab) {
     var firefoxScreenConstraints = {
         mozMediaSource: 'window',
         mediaSource: 'window',
@@ -168,42 +155,39 @@ function getScreenConstraints(callback) {
 
     if (isFirefox) return callback(null, firefoxScreenConstraints);
 
-    getChromeExtensionStatus(function(status) {
-        isChromeExtensionAvailable(function(isAvailable) {
-            // this statement defines getUserMedia constraints
-            // that will be used to capture content of screen
-            var screen_constraints = {
-                mandatory: {
-                    chromeMediaSource: chromeMediaSource,
-                    maxWidth: 29999,
-                    maxHeight: 8640,
-                    minFrameRate: 30,
-                    maxFrameRate: 128,
-                    minAspectRatio: 1.77, // 2.39
-                    googLeakyBucket: true
-                },
-                optional: []
-            };
+    isChromeExtensionAvailable(function(isAvailable) {
+        // this statement defines getUserMedia constraints
+        // that will be used to capture content of screen
+        var screen_constraints = {
+            mandatory: {
+                chromeMediaSource: chromeMediaSource,
+                maxWidth: 29999,
+                maxHeight: 8640,
+                minFrameRate: 30,
+                maxFrameRate: 128,
+                minAspectRatio: 1.77 // 2.39
+            },
+            optional: []
+        };
 
-            // this statement verifies chrome extension availability
-            // if installed and available then it will invoke extension API
-            // otherwise it will fallback to command-line based screen capturing API
-            if (chromeMediaSource == 'desktop' && !sourceId) {
-                getSourceId(function() {
-                    screen_constraints.mandatory.chromeMediaSourceId = sourceId;
-                    callback(sourceId == 'PermissionDeniedError' ? sourceId : null, screen_constraints);
-                    sourceId = null;
-                });
-                return;
-            }
-
-            // this statement sets gets 'sourceId" and sets "chromeMediaSourceId" 
-            if (chromeMediaSource == 'desktop') {
+        // this statement verifies chrome extension availability
+        // if installed and available then it will invoke extension API
+        // otherwise it will fallback to command-line based screen capturing API
+        if (chromeMediaSource == 'desktop' && !sourceId) {
+            getSourceId(function() {
                 screen_constraints.mandatory.chromeMediaSourceId = sourceId;
-            }
+                callback(sourceId == 'PermissionDeniedError' ? sourceId : null, screen_constraints);
+                sourceId = null;
+            }, audioPlusTab);
+            return;
+        }
 
-            // now invoking native getUserMedia API
-            callback(null, screen_constraints);
-        })
+        // this statement sets gets 'sourceId" and sets "chromeMediaSourceId" 
+        if (chromeMediaSource == 'desktop') {
+            screen_constraints.mandatory.chromeMediaSourceId = sourceId;
+        }
+
+        // now invoking native getUserMedia API
+        callback(null, screen_constraints);
     });
 }

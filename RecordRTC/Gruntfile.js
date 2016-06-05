@@ -26,6 +26,7 @@ module.exports = function(grunt) {
                     'dev/RecordRTC-Configuration.js',
                     'dev/GetRecorderType.js',
                     'dev/MRecordRTC.js',
+                    'dev/amd.js',
                     'dev/Cross-Browser-Declarations.js',
                     'dev/Storage.js',
                     'dev/isMediaRecorderCompatible.js',

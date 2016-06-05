@@ -1,9 +1,9 @@
  <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
 <head>
-    <title>File Sharing using RTCMultiConnection-v3.0</title>
+    <title>File Sharing using RTCMultiConnection</title>
 
-    <meta name="description" content="Share files with multiple users using RTCMultiConnection v3.0" />
+    <meta name="description" content="Share files with multiple users using RTCMultiConnection" />
     <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -117,17 +117,6 @@
           height: 100%;
           border-top-left-radius: 5px;
           font-size: 22px;
-
-          background: #a8a1a1;
-         background: -webkit-gradient(linear, left top, left bottom, from(#a8a1a1), to(#4d4d4d));
-         background: -webkit-linear-gradient(top, #a8a1a1, #4d4d4d);
-         background: -moz-linear-gradient(top, #a8a1a1, #4d4d4d);
-         background: -ms-linear-gradient(top, #a8a1a1, #4d4d4d);
-         background: -o-linear-gradient(top, #a8a1a1, #4d4d4d);
-         background-image: -ms-linear-gradient(top, #a8a1a1 0%, #4d4d4d 100%);
-         -webkit-box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
-         -moz-box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
-         box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
         }
 
         #logs p {
@@ -139,12 +128,14 @@
           position: absolute;
           text-align: center;
           width: 100%;
-          height: 32px;
+          height: 61px;
           top: 0;
           right: 0;
           left: 0;
           z-index: 7;
           padding-top: 8px;
+          background: #EFEBEB;
+          border-bottom: 1px solid white;
         }
 
         #number-of-users {
@@ -183,86 +174,6 @@
           border-bottom-right-radius: 5px;
         }
 
-        .ribbon {
-         width: 94%;
-         position: absolute;
-         text-align: center;
-         font-size: 20px!important;
-         background: #a8a1a1;
-         background: -webkit-gradient(linear, left top, left bottom, from(#a8a1a1), to(#4d4d4d));
-         background: -webkit-linear-gradient(top, #a8a1a1, #4d4d4d);
-         background: -moz-linear-gradient(top, #a8a1a1, #4d4d4d);
-         background: -ms-linear-gradient(top, #a8a1a1, #4d4d4d);
-         background: -o-linear-gradient(top, #a8a1a1, #4d4d4d);
-         background-image: -ms-linear-gradient(top, #a8a1a1 0%, #4d4d4d 100%);
-         -webkit-box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
-         -moz-box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
-         box-shadow: rgba(000,000,000,0.3) 0 1px 1px;
-         font-family: 'Helvetica Neue',Helvetica, sans-serif;
-         margin-left: 40px;
-         }
-      .ribbon h1 {
-         font-size: 32px!important;
-         color: #000000;
-         text-shadow: #b0b0b0 0 1px 0;
-         margin:0px;
-         padding: 6px 6px;
-         }
-      .ribbon:before, .ribbon:after {
-         content: '';
-         position: absolute;
-         display: block;
-         bottom: -1em;
-         border: 1.5em solid #595959;
-         z-index: -1;
-         }
-      .ribbon:before {
-         left: -2em;
-         border-right-width: 1.5em;
-         border-left-color: transparent;
-         -webkit-box-shadow: rgba(000,000,000,0.4) 1px 1px 1px;
-         -moz-box-shadow: rgba(000,000,000,0.4) 1px 1px 1px;
-         box-shadow: rgba(000,000,000,0.4) 1px 1px 1px;
-         }
-      .ribbon:after {
-         right: -2em;
-         border-left-width: 1.5em;
-         border-right-color: transparent;
-         -webkit-box-shadow: rgba(000,000,000,0.4) -1px 1px 1px;
-         -moz-box-shadow: rgba(000,000,000,0.4) -1px 1px 1px;
-         box-shadow: rgba(000,000,000,0.4) -1px 1px 1px;
-         }
-      .ribbon .ribbon-content:before, .ribbon .ribbon-content:after {
-         border-color: #292929 transparent transparent transparent;
-         position: absolute;
-         display: block;
-         border-style: solid;
-         bottom: -1em;
-         content: '';
-         }
-      .ribbon .ribbon-content:before {
-         left: 0;
-         border-width: 1em 0 0 1em;
-         }
-      .ribbon .ribbon-content:after {
-         right: 0;
-         border-width: 1em 1em 0 0;
-         }
-      .ribbon-stitches-top {
-         margin-top:2px;
-         border-top: 0px dashed rgba(0, 0, 0, 0.2);
-         -moz-box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5);
-         -webkit-box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5);
-         box-shadow: 0px 0px 2px rgba(255, 255, 255, 0.5);
-         }
-      .ribbon-stitches-bottom {
-         margin-bottom:2px;
-         border-top: 0px dashed rgba(0, 0, 0, 0.2);
-         -moz-box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
-         -webkit-box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
-         box-shadow: 0px 0px 2px rgba(255, 255, 255, 0.3);
-         }
-
          .android-app-icon {
            background-repeat: no-repeat;
            background-position: center center;
@@ -272,7 +183,7 @@
            height: 64px;
            position: absolute;
            bottom: 5px;
-           right: 15px;
+           left: 15px;
            z-index: 9999;
          }
 
@@ -285,7 +196,7 @@
            height: 64px;
            position: absolute;
            bottom: 5px;
-           right: 90px;
+           left: 90px;
            z-index: 9999;
          }
 
@@ -330,6 +241,8 @@
           }
         }
 
+        hr {border:0;}
+
     </style>
 </head>
 <body>
@@ -362,19 +275,28 @@
 
     <a class="android-app-icon" href="https://play.google.com/store/apps/details?id=com.webrtc.experiment" target="_blank" title="Install Android App"></a>
 
-    <!-- <script src="/RTCMultiConnection.min.js"></script> -->
     <script>
       // to get STUN/TURN URIs from xirsys.com
       window.getExternalIceServers = true;
     </script>
-    <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
+    
+    <!-- <script src="/dist/rmc3.min.js"></script> -->
+        <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
     
     <!-- <script src="/dev/FileBufferReader.js"></script> -->
     <script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
 
     <!-- socket.io for signaling -->
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
     <script>
+        window.onerror = console.error = function() {
+            var error = JSON.stringify(arguments);
+            if(error.indexOf('Blocked a frame with origin') !== -1) {
+                return;
+            }
+            alert('Error:\n' + error);
+        };
+
         // Muaz Khan     - https://github.com/muaz-khan
         // MIT License   - https://www.WebRTC-Experiment.com/licence/
         // Source Code   - https://github.com/muaz-khan/RTCMultiConnection
@@ -390,8 +312,8 @@
                document.getElementById('room-id').value = location.hash.replace('#', '');
             }
 
-            document.getElementById('join-room').onclick = function() {
-                this.disabled = true;
+            document.getElementById('join-room').onclick = document.querySelector('.btn-select-file').onclick = function() {
+                document.getElementById('join-room').disabled = true;
                 document.getElementById('room-id').disabled = true;
 
                 var roomId = document.getElementById('room-id').value;
@@ -509,7 +431,7 @@
                         
                         connection.send({
                             doYouWannaReceiveThisFile: true,
-                            fileName: file.name
+                            fileName: file.size + file.name
                         });
                     }, 500);
                 };
@@ -545,7 +467,8 @@
                 appendLog(message);
 
                 connection.openOrJoin(connection.channel, function(isRoomExists, roomid) {
-                    var message = 'Successfully connected to room:<br><b>' + roomid + '</b>';
+                    var message = 'Successfully connected to room: <b>' + roomid + '</b><hr>Other users can join you on iPhone/Android using "' + roomid + '" or desktop (Windows/MacOSX/Ubuntu) users can join using this (secure/private) URL: <a href="./file-sharing.html#' + roomid + '" target="_blank">file-sharing.html#' + roomid + '</a>';
+
                     // if (isRoomEists) { }
                     appendLog(message);
 
@@ -557,6 +480,21 @@
                           document.getElementById('room-id').parentNode.innerHTML = 'Joined room:<br>' + roomid;
                         }
                     }
+
+                    var socket = connection.getSocket();
+                    socket.on('disconnect', function() {
+                       appendLog('Seems disconnected.', 'red');
+                    });
+                    socket.on('connect', function() {
+                       location.reload();
+                    });
+                    socket.on('error', function() {
+                       location.reload();
+                    });
+
+                    window.addEventListener('offline', function() {
+                      appendLog('Seems disconnected.', 'red');
+                    }, false);
                 });
 
                 window.connection = connection;
@@ -567,7 +505,7 @@
 
                 // www.RTCMultiConnection.org/docs/onFileStart/
                 connection.onFileStart = function(file) {
-                    if (connection.fileReceived[file.name]) return;
+                    if (connection.fileReceived[file.size + file.name]) return;
 
                     var div = document.createElement('div');
                     div.style.borderBottom = '1px solid black';
@@ -585,9 +523,30 @@
                     message += '<br>Size: <b>' + bytesToSize(file.size) + '</b>';
                     message += '<br><label>0%</label> <progress></progress>';
 
+                    if(file.userid !== connection.userid) {
+                        message += '<br><button id="resend">Receive Again?</button>';
+                    }
+
                     div.innerHTML = message;
 
                     connection.filesContainer.insertBefore(div, connection.filesContainer.firstChild);
+
+                    if(file.userid !== connection.userid && div.querySelector('#resend')) {
+                        div.querySelector('#resend').onclick = function(e) {
+                            e.preventDefault();
+                            this.onclick = function() {};
+
+                            if(connection.fileReceived[file.size + file.name]) {
+                                delete connection.fileReceived[file.size + file.name];
+                            }
+                            connection.send({
+                                yesIWannaReceive: true,
+                                fileName: file.name
+                            }, file.userid);
+
+                            div.parentNode.removeChild(div);
+                        };
+                    }
 
                     if (!file.remoteUserId) {
                         progressHelper[file.uuid] = {
@@ -613,7 +572,7 @@
 
                 // www.RTCMultiConnection.org/docs/onFileProgress/
                 connection.onFileProgress = function(chunk) {
-                    if (connection.fileReceived[chunk.name]) return;
+                    if (connection.fileReceived[chunk.size + chunk.name]) return;
 
                     var helper = progressHelper[chunk.uuid];
                     if (!helper) {
@@ -632,7 +591,7 @@
 
                 // www.RTCMultiConnection.org/docs/onFileEnd/
                 connection.onFileEnd = function(file) {
-                    if (connection.fileReceived[file.name]) return;
+                    if (connection.fileReceived[file.size + file.name]) return;
 
                     var div = document.getElementById(file.uuid);
                     if (div) {
@@ -642,7 +601,7 @@
                     if (file.remoteUserId === connection.userid) {
                         previewFile(file);
 
-                        connection.fileReceived[file.name] = file;
+                        connection.fileReceived[file.size + file.name] = file;
 
                         var message = 'Successfully received file';
                         message += '<br><b>' + file.name + '</b>.';
@@ -688,7 +647,7 @@
                 if (connection) {
                     connection.send({
                         doYouWannaReceiveThisFile: true,
-                        fileName: file.name
+                        fileName: file.size + file.name
                     });
                 }
             }
@@ -701,13 +660,25 @@
 
             var logsDiv = document.getElementById('logs');
 
-            function appendLog(html) {
+            function appendLog(html, color) {
                 var div = document.createElement('div');
                 div.innerHTML = '<p>' + html + '</p>';
                 logsDiv.insertBefore(div, logsDiv.firstChild);
 
+                if(color) {
+                  div.style.color = color;
+                }
+
                 return div;
             }
+
+            window.onerror = console.error = function() {
+                var error = JSON.stringify(arguments);
+                if(error.indexOf('Blocked a frame with origin') !== -1) {
+                  return;
+                }
+                appendLog('Error:<br>' + error, 'red')
+            };
 
             function previewFile(file) {
                 btnSelectFile.style.left = '5px';
@@ -719,7 +690,8 @@
                 document.querySelector('.overlay').style.display = 'none';
                 iframe.style.display = 'block';
 
-                if (file.type.match(/image|video|audio|pdf|txt|javascript|css|php|py/g)) {
+                var fileNameMatches = (file.name || '').match(/.3gp|.mp3|.mp4|.m4a|.m3u8|.ts|.wav|.ogg|.aac|.flac|.mid|.xmf|.mxmf|.rtx|.mkv|.flv|.jpg|.jpeg|.png|.gif|.webp|.bmp|.webm|.txt|.rtf|.doc|docx|.js|.css|.cs/g);
+                if (file.type.match(/image|video|audio|pdf|txt|javascript|css|php|py/g) || fileNameMatches) {
                     iframe.src = URL.createObjectURL(file);
                 } else {
                     iframe.src = 'https://cdn.webrtc-experiment.com/images/folder-icon.png';
@@ -730,7 +702,7 @@
                         element.style.maxWidth = '100%';
                     });
 
-                    if (file.type.match(/image|video|audio|pdf/g)) {
+                    if (!file.type || fileNameMatches || file.type.match(/image|video|audio|pdf/g) || iframe.src.indexOf('data:image/png') !== -1) {
                         iframe.contentWindow.document.body.style.textAlign = 'center';
                         iframe.contentWindow.document.body.style.background = 'black';
                         iframe.contentWindow.document.body.style.color = 'white';
@@ -744,6 +716,10 @@
 
             setupWebRTCConnection();
         }
+
+        window.addEventListener('online', function() {
+          location.reload();
+        }, false);
     </script>
 </body>
 </html>

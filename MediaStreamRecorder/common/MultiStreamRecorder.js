@@ -7,7 +7,7 @@ function MultiStreamRecorder(mediaStream) {
     }
 
     var self = this;
-    var isFirefox = !!navigator.mozGetUserMedia;
+    var isMediaRecorder = isMediaRecorderCompatible();
 
     this.stream = mediaStream;
 
@@ -40,7 +40,7 @@ function MultiStreamRecorder(mediaStream) {
         };
 
         videoRecorder.ondataavailable = function(blob) {
-            if (isFirefox) {
+            if (isMediaRecorder) {
                 return self.ondataavailable({
                     video: blob,
                     audio: blob
@@ -68,7 +68,7 @@ function MultiStreamRecorder(mediaStream) {
             self.onstop(error);
         };
 
-        if (!isFirefox) {
+        if (!isMediaRecorder) {
             // to make sure both audio/video are synced.
             videoRecorder.onStartedDrawingNonBlankFrames = function() {
                 videoRecorder.clearOldRecordedFrames();
@@ -120,4 +120,8 @@ function MultiStreamRecorder(mediaStream) {
 
     var audioVideoBlobs = {};
     var recordingInterval = 0;
+}
+
+if (typeof MediaStreamRecorder !== 'undefined') {
+    MediaStreamRecorder.MultiStreamRecorder = MultiStreamRecorder;
 }

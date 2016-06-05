@@ -20,10 +20,13 @@
 var Whammy = (function() {
     // a more abstract-ish API
 
-    function WhammyVideo(duration) {
+    function WhammyVideo(duration, quality) {
         this.frames = [];
-        this.duration = duration || 1;
-        this.quality = 0.8;
+        if (!duration) {
+            duration = 1;
+        }
+        this.duration = 1000 / duration;
+        this.quality = quality || 0.8;
     }
 
     /**
@@ -428,3 +431,7 @@ var Whammy = (function() {
         Video: WhammyVideo
     };
 })();
+
+if (typeof MediaStreamRecorder !== 'undefined') {
+    MediaStreamRecorder.Whammy = Whammy;
+}

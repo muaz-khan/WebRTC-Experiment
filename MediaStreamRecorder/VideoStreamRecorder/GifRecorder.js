@@ -29,7 +29,7 @@ function GifRecorder(mediaStream) {
         // Sets frame rate in frames per second.
         // Equivalent to setDelay(1000/fps).
         // Using "setDelay" instead of "setFrameRate"
-        gifEncoder.setDelay(this.frameRate || 200);
+        gifEncoder.setDelay(this.frameRate || this.speed || 200);
 
         // void setQuality(int quality)
         // Sets quality of color quantization (conversion of images to the
@@ -132,4 +132,8 @@ function GifRecorder(mediaStream) {
 
     var gifEncoder;
     var timeout;
+}
+
+if (typeof MediaStreamRecorder !== 'undefined') {
+    MediaStreamRecorder.GifRecorder = GifRecorder;
 }

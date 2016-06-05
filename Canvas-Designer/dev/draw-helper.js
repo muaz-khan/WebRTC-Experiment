@@ -10,11 +10,21 @@ var drawHelper = {
         }
 
         if (!skipSync && typeof syncPoints !== 'undefined') {
-            syncPoints();
+            syncPoints(is.isDragAllPaths || is.isDragLastPath ? true : false);
         }
     },
-    getOptions: function() {
-        return [lineWidth, strokeStyle, fillStyle, globalAlpha, globalCompositeOperation, lineCap, lineJoin, font];
+    getOptions: function(opt) {
+        opt = opt || {};
+        return [
+            opt.lineWidth || lineWidth,
+            opt.strokeStyle || strokeStyle,
+            opt.fillStyle || fillStyle,
+            opt.globalAlpha || globalAlpha,
+            opt.globalCompositeOperation || globalCompositeOperation,
+            opt.lineCap || lineCap,
+            opt.lineJoin || lineJoin,
+            opt.font || font
+        ];
     },
     handleOptions: function(context, opt, isNoFillStroke) {
         opt = opt || this.getOptions();
@@ -29,6 +39,8 @@ var drawHelper = {
         context.strokeStyle = opt[1];
         context.fillStyle = opt[2];
 
+        context.font = opt[7];
+
         if (!isNoFillStroke) {
             context.stroke();
             context.fill();
@@ -41,14 +53,47 @@ var drawHelper = {
 
         this.handleOptions(context, options);
     },
-    text: function(context, point, options) {
-        var oldFillStyle = fillStyle;
-        context.fillStyle = fillStyle === 'transparent' || fillStyle === 'White' ? 'Black' : fillStyle;
-        context.font = '15px Verdana';
-        context.fillText(point[0].substr(1, point[0].length - 2), point[1], point[2]);
-        fillStyle = oldFillStyle;
+    marker: function(context, point, options) {
+        context.beginPath();
+        context.moveTo(point[0], point[1]);
+        context.lineTo(point[2], point[3]);
 
         this.handleOptions(context, options);
+    },
+    arrow: function(context, point, options) {
+        var mx = point[0];
+        var my = point[1];
+
+        var lx = point[2];
+        var ly = point[3];
+
+        var arrowSize = arrowHandler.arrowSize;
+
+        if (arrowSize == 10) {
+            arrowSize = (options ? options[0] : lineWidth) * 5;
+        }
+
+        var angle = Math.atan2(ly - my, lx - mx);
+
+        context.beginPath();
+        context.moveTo(mx, my);
+        context.lineTo(lx, ly);
+
+        this.handleOptions(context, options);
+
+        context.beginPath();
+        context.moveTo(lx, ly);
+        context.lineTo(lx - arrowSize * Math.cos(angle - Math.PI / 7), ly - arrowSize * Math.sin(angle - Math.PI / 7));
+        context.lineTo(lx - arrowSize * Math.cos(angle + Math.PI / 7), ly - arrowSize * Math.sin(angle + Math.PI / 7));
+        context.lineTo(lx, ly);
+        context.lineTo(lx - arrowSize * Math.cos(angle - Math.PI / 7), ly - arrowSize * Math.sin(angle - Math.PI / 7));
+
+        this.handleOptions(context, options);
+    },
+    text: function(context, point, options) {
+        this.handleOptions(context, options);
+        context.fillStyle = textHandler.getFillColor(options[2]);
+        context.fillText(point[0].substr(1, point[0].length - 2), point[1], point[2]);
     },
     arc: function(context, point, options) {
         context.beginPath();
