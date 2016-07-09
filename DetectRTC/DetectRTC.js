@@ -833,9 +833,9 @@
 
     var displayResolution = '';
     if (screen.width) {
-        var width = (screen.width) ? screen.width : '';
-        var height = (screen.height) ? screen.height : '';
-        displayResolution += '' + width + ' x ' + height;
+        DetectRTC.displayResolutionWidth = (screen.width) ? screen.width : '';
+        DetectRTC.displayResolutionHeight = (screen.height) ? screen.height : '';
+        displayResolution += '' + DetectRTC.displayResolutionWidth + ' x ' + DetectRTC.displayResolutionHeight;
     }
     DetectRTC.displayResolution = displayResolution;
 
