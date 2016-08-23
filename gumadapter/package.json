@@ -12,6 +12,7 @@
     "type": "git",
     "url": "https://github.com/muaz-khan/gumadapter.git"
   },
+  "main": "gumadapter.js",
   "keywords": [
     "webrtc",
     "recordrtc",
