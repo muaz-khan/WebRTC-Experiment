@@ -2,8 +2,8 @@
 
 1. It is a repository of uniquely experimented WebRTC demos; written by <a href="https://github.com/muaz-khan">Muaz Khan</a>!
 2. No special requirement! Just WebRTC compatible web-browser (e.g. chrome/firefox/opera on desktop/android)
-3. These demos/experiments are entirely client-side; i.e. no server installation needed!
-4. You can use all these demos in PHP/Python/Ruby/ASP.NET/etc. everywhere!
+3. These demos/experiments are mostly client-side; i.e. no server installation needed!
+4. You can use all these demos in PHP/Python/Ruby/ASP.NET/etc. since they are only relying on JavaScript and 3rd party services!
 
 ## How to use?
 
