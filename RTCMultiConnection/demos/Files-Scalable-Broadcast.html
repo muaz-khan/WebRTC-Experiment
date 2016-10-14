@@ -51,7 +51,7 @@
             border: 1px solid red;
             outline:none;
         }
-        
+
         button:hover, input:hover, select:hover {
             background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
             border: 1px solid rgb(142, 142, 142);
@@ -67,7 +67,7 @@
             color: rgb(197, 189, 189);
         }
         input, input:focus, input:active {
-            background: white;    
+            background: white;
         }
     </style>
 </head>
@@ -112,13 +112,13 @@
         </blockquote>
 
         <script src="/socket.io/socket.io.js"></script>
-        
+
         <!-- <script src="/dist/rmc3.min.js"></script> -->
         <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
-        
+
         <!-- <script src="/dev/FileBufferReader.js"></script> -->
         <script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
-        
+
         <script>
             var connection = new RTCMultiConnection();
 
@@ -410,8 +410,11 @@
             document.getElementById('broadcast-id').onkeyup = function() {
                 localStorage.setItem(connection.socketMessageEvent, this.value);
             };
-            
+
             var hashString = location.hash.replace('#', '');
+            if(hashString.length && hashString.indexOf('comment-') == 0) {
+              hashString = '';
+            }
 
             var broadcastId = params.broadcastId;
             if(!broadcastId && hashString.length) {

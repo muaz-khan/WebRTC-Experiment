@@ -7,14 +7,18 @@
 <html lang="en">
 
 <head>
-    <title>WebRTC AudioConferencing using RTCMultiConnection ® Muaz Khan</title>
+    <title>Audio Conferencing using RTCMultiConnection</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+
+    <meta name="title" content="Audio Conferencing using RTCMultiConnection" />
+    <meta name="description" content="Audio Conferencing using RTCMultiConnection" />
+    <meta name="keywords" content="Audio Conference, WebRTC, RTCMultiConnection" />
 
     <style>
     audio {
@@ -60,9 +64,9 @@
     </script>
 
     <!-- scripts used for broadcasting -->
-    <script src="//cdn.webrtc-experiment.com/firebase.js">
+    <script src="https://cdn.webrtc-experiment.com/firebase.js">
     </script>
-    <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
+    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js">
     </script>
 </head>
 
@@ -70,21 +74,32 @@
     <article>
         <header style="text-align: center;">
             <h1>
-                <a href="https://www.webrtc-experiment.com/">WebRTC</a> AudioConferencing using
-                <a href="http://www.rtcmulticonnection.org/docs/" target="_blank">RTCMultiConnection</a>
+                Audio Conferencing using <a href="https://github.com/muaz-khan/RTCMultiConnection">RTCMultiConnection</a>
             </h1>
             <p>
-                <a href="https://www.webrtc-experiment.com/">HOME</a>
+                <a href="https://www.webrtc-experiment.com/RTCMultiConnection/">HOME</a>
                 <span> &copy; </span>
-                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
-                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
-                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a> .
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                .
+                <a href="https://github.com/muaz-khan/RTCMultiConnection/issues?state=open" target="_blank">Latest issues</a>
+                    
+                .
+                <a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master" target="_blank">What's New?</a>
             </p>
         </header>
 
         <div class="github-stargazers"></div>
+
+        <blockquote>
+            You can "also" try <a href="https://rtcmulticonnection.herokuapp.com/demos/Audio-Conferencing.html">Audio Conferencing using RTCMultiConnection v3</a>.
+        </blockquote>
 
         <!-- just copy this <section> and next script -->
         <section class="experiment">
@@ -171,6 +186,11 @@
         })();
         </script>
 
+        <section class="experiment own-widgets">
+            <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/issues">Latest Issues</a></h2>
+            <div id="github-issues"></div>
+        </section>
+
         <section class="experiment">
             <h2 class="header" id="feedback">Feedback</h2>
             <div>
@@ -197,7 +217,10 @@
     </footer>
 
     <!-- commits.js is useless for you! -->
-    <script src="//cdn.webrtc-experiment.com/commits.js" async>
+    <script>
+        window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
+    </script>
+    <script src="https://cdn.webrtc-experiment.com/commits.js" async>
     </script>
 </body>
 

@@ -1,4 +1,4 @@
-﻿// Muaz Khan     - https://github.com/muaz-khan
+﻿ // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.WebRTC-Experiment.com/licence/
 // Source Code   - https://github.com/muaz-khan/Chrome-Extensions
 
@@ -8,14 +8,14 @@
 chrome.browserAction.onClicked.addListener(captureDesktop);
 
 window.addEventListener('offline', function() {
-    if(!connection || !connection.attachStreams.length) return;
+    if (!connection || !connection.attachStreams.length) return;
 
     setDefaults();
     chrome.runtime.reload();
 }, false);
 
 window.addEventListener('online', function() {
-    if(!connection) return;
+    if (!connection) return;
 
     setDefaults();
     chrome.runtime.reload();
@@ -301,6 +301,18 @@ function setupRTCMultiConnection(stream) {
     connection.autoReDialOnFailure = true;
     connection.getExternalIceServers = false;
 
+    connection.iceServers.push({
+        urls: 'turn:webrtcweb.com:443',
+        username: 'muazkh',
+        credential: 'muazkh'
+    });
+
+    connection.iceServers.push({
+        urls: 'turn:webrtcweb.com:80',
+        username: 'muazkh',
+        credential: 'muazkh'
+    });
+
     setBandwidth(connection);
 
     // www.RTCMultiConnection.org/docs/session/
@@ -356,18 +368,18 @@ function setupRTCMultiConnection(stream) {
 
     var text = '-';
     (function looper() {
-        if(!connection) {
+        if (!connection) {
             setBadgeText('');
             return;
         }
 
-        if(connection.isInitiator) {
+        if (connection.isInitiator) {
             setBadgeText('0');
             return;
         }
 
         text += ' -';
-        if(text.length > 6) {
+        if (text.length > 6) {
             text = '-';
         }
 
@@ -546,10 +558,10 @@ if (matchArray && matchArray[2]) {
 }
 
 // Check whether new version is installed
-chrome.runtime.onInstalled.addListener(function(details){
-    if(details.reason == 'install'){
+chrome.runtime.onInstalled.addListener(function(details) {
+    if (details.reason == 'install') {
         chrome.tabs.create({
             url: 'chrome://extensions/?options=' + chrome.runtime.id
-          });
+        });
     }
 });

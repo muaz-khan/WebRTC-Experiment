@@ -27,7 +27,9 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
                     canRelay: false,
                     typeOfStreams: user.typeOfStreams || {audio: true, video: true},
                     socket: socket
-                }
+                };
+
+                notifyBroadcasterAboutNumberOfViewers(user.broadcastId);
             }
 
             var relayUser = getFirstAvailableBraodcater(user.broadcastId, maxRelayLimitPerUser);
@@ -40,7 +42,8 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
             if (relayUser && user.userid !== user.broadcastId) {
                 var hintsToJoinBroadcast = {
                     typeOfStreams: relayUser.typeOfStreams,
-                    userid: relayUser.userid
+                    userid: relayUser.userid,
+                    broadcastId: relayUser.broadcastId
                 };
 
                 users[user.userid].receivingFrom = relayUser.userid;
@@ -94,6 +97,53 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
         }
     });
 
+    socket.on('get-number-of-users-in-specific-broadcast', function(broadcastId, callback) {
+        try {
+            if(!broadcastId || !callback) return;
+
+            if(!users[broadcastId]) {
+                callback(0);
+                return;
+            }
+
+            callback(getNumberOfBroadcastViewers(broadcastId));
+        }
+        catch(e) {}
+    });
+
+    function getNumberOfBroadcastViewers(broadcastId) {
+        try {
+            var numberOfUsers = 0;
+            Object.keys(users).forEach(function(uid) {
+                var user = users[uid];
+                if(user.broadcastId === broadcastId) {
+                    numberOfUsers++;
+                }
+            });
+            return numberOfUsers - 1;
+        }
+        catch(e) {
+            return 0;
+        }
+    }
+
+    function notifyBroadcasterAboutNumberOfViewers(broadcastId, userLeft) {
+        try {
+            if(!broadcastId || !users[broadcastId] || !users[broadcastId].socket) return;
+            var numberOfBroadcastViewers = getNumberOfBroadcastViewers(broadcastId);
+            
+            if(userLeft === true) {
+                numberOfBroadcastViewers--;
+            } 
+
+            users[broadcastId].socket.emit('number-of-broadcast-viewers-updated', {
+                numberOfBroadcastViewers: numberOfBroadcastViewers,
+                broadcastId: broadcastId
+            });
+        }
+        catch(e) {}
+    }
+
     socket.on('disconnect', function() {
         try {
             if (!socket.isScalableBroadcastSocket) return;
@@ -101,6 +151,10 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
             var user = users[socket.userid];
 
             if(!user) return;
+
+            if(user.isBroadcastInitiator === false) {
+                notifyBroadcasterAboutNumberOfViewers(user.broadcastId, true);
+            }
 
             if(user.isBroadcastInitiator === true) {
                 consoleLog({

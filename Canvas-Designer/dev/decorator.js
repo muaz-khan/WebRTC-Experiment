@@ -307,17 +307,10 @@ window.addEventListener('load', function() {
     } else document.getElementById('pencil-icon').style.display = 'none';
 
     function decorateMarker() {
+
         function hexToRGBA(h, alpha) {
             return 'rgba(' + hexToRGB(h).join(',') + ',' + alpha + ')';
         }
-
-        function doneHandler() {
-            markerContainer.style.display = 'none';
-
-            markerLineWidth = strokeStyleText.value;
-            markerStrokeStyle = hexToRGBA(fillStyleText.value, alpha);
-        }
-
         var colors = [
             ['FFFFFF', '006600', '000099', 'CC0000', '8C4600'],
             ['CCCCCC', '00CC00', '6633CC', 'FF0000', 'B28500'],
@@ -342,18 +335,25 @@ window.addEventListener('load', function() {
         bindEvent(context, 'Marker');
 
         var markerContainer = find('marker-container'),
+            markerColorContainer = find('marker-fill-colors'),
             strokeStyleText = find('marker-stroke-style'),
             markerColorsList = find("marker-colors-list"),
             fillStyleText = find('marker-fill-style'),
+            markerSelectedColor = find('marker-selected-color'),
+            markerSelectedColor2 = find('marker-selected-color-2'),
             btnMarkerDone = find('marker-done'),
             canvas = context.canvas,
             alpha = 0.2;
 
         // START INIT MARKER
 
-        markerStrokeStyle = hexToRGBA(fillStyleText.value, alpha);
 
-        var html = '';
+
+        markerStrokeStyle = hexToRGBA(fillStyleText.value, alpha)
+
+        markerSelectedColor.style.backgroundColor =
+            markerSelectedColor2.style.backgroundColor = '#' + fillStyleText.value;
+
         colors.forEach(function(colorRow) {
             var row = '<tr>';
 
@@ -362,25 +362,28 @@ window.addEventListener('load', function() {
             })
             row += '</tr>';
 
-            html += row;
-        });
-
-        markerColorsList.innerHTML = html;
+            markerColorsList.innerHTML += row;
+        })
 
         // console.log(markerColorsList.getElementsByTagName('td'))
         Array.prototype.slice.call(markerColorsList.getElementsByTagName('td')).forEach(function(td) {
             addEvent(td, 'mouseover', function() {
                 var elColor = td.getAttribute('data-color');
+                markerSelectedColor2.style.backgroundColor = '#' + elColor;
                 fillStyleText.value = elColor
             });
 
             addEvent(td, 'click', function() {
                 var elColor = td.getAttribute('data-color');
+                markerSelectedColor.style.backgroundColor =
+                    markerSelectedColor2.style.backgroundColor = '#' + elColor;
+
                 fillStyleText.value = elColor;
 
-                doneHandler();
+
+                markerColorContainer.style.display = 'none';
             });
-        });
+        })
 
         // END INIT MARKER
 
@@ -394,7 +397,17 @@ window.addEventListener('load', function() {
             fillStyleText.focus();
         });
 
-        addEvent(btnMarkerDone, 'click', doneHandler);
+        addEvent(btnMarkerDone, 'click', function() {
+            markerContainer.style.display = 'none';
+            markerColorContainer.style.display = 'none';
+
+            markerLineWidth = strokeStyleText.value;
+            markerStrokeStyle = hexToRGBA(fillStyleText.value, alpha);
+        });
+
+        addEvent(markerSelectedColor, 'click', function() {
+            markerColorContainer.style.display = 'block';
+        });
     }
 
     if (tools.marker === true) {
@@ -717,10 +730,12 @@ function hideContainers() {
     var additionalContainer = find('additional-container'),
         colorsContainer = find('colors-container'),
         markerContainer = find('marker-container'),
+        markerColorContainer = find('marker-fill-colors'),
         lineWidthContainer = find('line-width-container');
 
     additionalContainer.style.display =
         colorsContainer.style.display =
+        markerColorContainer.style.display =
         markerContainer.style.display =
         lineWidthContainer.style.display = 'none';
 }

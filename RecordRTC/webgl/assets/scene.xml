@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<glge>
+
+  <!-- A plane. -->
+  <mesh id="groundmesh">
+    <positions>1,1,0,-1,1,0,-1,-1,0,1,1,0,-1,-1,0,1,-1,0</positions>
+    <normals>-0,0,1,-0,0,1,-0,0,1,0,-0,1,0,-0,1,0,-0,1</normals>;
+    <uv1>0,0,1,0,1,1,0,0,1,1,0,1</uv1>
+    <faces>0,1,2,3,4,5,</faces>
+  </mesh>
+
+  <!-- A magical, reflective water material. From the GLGE example. Scale has been tweaked.-->
+  <material id="water" specular="0.2" shininess="50" color="#aaf" emit="0.001">
+
+    <texture id="waterheight" src="waterheight.jpg" />
+    <material_layer texture="#waterheight" mapinput="UV1" frame_rate="25" height="0.07"
+      animation="#flow" mapto="M_HEIGHT" scale_x="2" scale_y="1" />
+
+    <texture id="waternormal" src="waternormal.jpg" />
+    <material_layer texture="#waternormal" mapinput="UV1" mapto="M_NOR"
+      scale_x="2" scale_y="1" />
+
+    <texture_camera camera="#maincamera" id="watercolor1" clip_axis="POS_ZAXIS"  />
+    <material_layer texture="#watercolor1" mapinput="MAP_VIEW" scale_x="2" d_rot_y="1.57"
+      mapto="M_COLOR" alpha="0.95" />
+
+    <texture_camera camera="#maincamera" id="watercolor2" clip_axis="NEG_ZAXIS"
+      mirror_axis="ZAXIS" />
+    <material_layer texture="#watercolor2" mapinput="MAP_VIEW"
+      mapto="M_COLOR" alpha="0.3" />
+
+  </material>
+
+  <!-- Water animation that moves the water bump map. -->
+  <animation_vector id="flow" frames="1000">
+    <animation_curve channel="OffsetY">
+      <linear_point x="0.0" y="-1" />
+      <linear_point x="1000.0" y="1.0" />
+    </animation_curve>
+  </animation_vector>
+
+  <!-- Animation which makes an object rock back and forth in the water. -->
+  <animation_vector id="bob" frames="120">
+    <animation_curve channel="DRotX">
+      <linear_point x="1" y="0" />
+      <linear_point x="30" y=".4" />
+      <linear_point x="60" y="0" />
+      <linear_point x="90" y=".4" />
+      <linear_point x="120" y="0" />
+    </animation_curve>
+    <animation_curve channel="LocZ">
+      <linear_point x="1" y="-.3" />
+      <linear_point x="30" y="0" />
+      <linear_point x="60" y="-.3" />
+      <linear_point x="90" y="0" />
+      <linear_point x="120" y="-.3" />
+    </animation_curve>
+  </animation_vector>
+
+  <!-- Animation used when ducks are collected. -->
+  <animation_vector id="disappear" frames="10">
+    <animation_curve channel="Scale">
+      <!-- Argh! These have to match up with the duck scale until I figure out why. -->
+      <linear_point x="0" y="0.01" />
+      <linear_point x="3" y="0.013" />
+      <linear_point x="10" y="0" />
+    </animation_curve>
+  </animation_vector>
+
+  <!-- A camera that's almost top-down but gives some perspective. -->
+  <camera id="maincamera"
+    fov_y="40"
+    rot_x="0.4"
+    loc_z="30" loc_x="0" loc_y="-12"
+    />
+
+  <!-- The initial scene with water. Can be creatd here or in JavaScript. -->
+  <scene id="mainscene" camera="#maincamera" ambient_color="#fff" background_color="#22738a">
+    <light id="mainlight" loc_y="5" type="L_POINT" />
+    <object id="ground" mesh="#groundmesh" material="#water"
+      scaleX="60" scaleY="30" loc_z=".2" />
+  </scene>
+
+</glge>

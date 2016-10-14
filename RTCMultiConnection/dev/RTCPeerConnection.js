@@ -28,12 +28,12 @@ function setSdpConstraints(config) {
 }
 
 var RTCPeerConnection;
-if (typeof mozRTCPeerConnection !== 'undefined') {
+if (typeof window.RTCPeerConnection !== 'undefined') {
+    RTCPeerConnection = window.RTCPeerConnection;
+} else if (typeof mozRTCPeerConnection !== 'undefined') {
     RTCPeerConnection = mozRTCPeerConnection;
 } else if (typeof webkitRTCPeerConnection !== 'undefined') {
     RTCPeerConnection = webkitRTCPeerConnection;
-} else if (typeof window.RTCPeerConnection !== 'undefined') {
-    RTCPeerConnection = window.RTCPeerConnection;
 }
 
 var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
@@ -106,6 +106,18 @@ function PeerInitiator(config) {
         peer = config.peerRef;
     }
 
+    function getLocalStreams() {
+        // if-block is temporarily disabled
+        if (false && 'getSenders' in peer && typeof peer.getSenders === 'function') {
+            var streamObject2 = new MediaStream();
+            peer.getSenders().forEach(function(sender) {
+                streamObject2.addTrack(sender.track);
+            });
+            return streamObject2;
+        }
+        return peer.getLocalStreams();
+    }
+
     peer.onicecandidate = function(event) {
         if (!event.candidate) {
             if (!connection.trickleIce) {
@@ -151,11 +163,13 @@ function PeerInitiator(config) {
 
         if (!localStream) return;
 
-        peer.getLocalStreams().forEach(function(stream) {
-            if (stream.id == localStream.id) {
-                localStream = null;
-            }
-        });
+        if (getLocalStreams().forEach) {
+            getLocalStreams().forEach(function(stream) {
+                if (localStream && stream.id == localStream.id) {
+                    localStream = null;
+                }
+            });
+        }
 
         if (localStream) {
             peer.addStream(localStream);
@@ -190,7 +204,37 @@ function PeerInitiator(config) {
 
     defaults.sdpConstraints = setSdpConstraints(sdpConstraints);
 
-    peer.onaddstream = function(event) {
+    var remoteStreamAddEvent = 'addstream';
+    if ('ontrack' in peer) {
+        // temporarily disabled
+        // remoteStreamAddEvent = 'track';
+    }
+
+    var streamObject;
+    peer.addEventListener(remoteStreamAddEvent, function(event) {
+        if (event.streams && event.streams.length && !event.stream) {
+            if (!streamObject) {
+                streamObject = new MediaStream();
+                return;
+            }
+
+            event.streams.forEach(function(stream) {
+                if (stream.getVideoTracks().length) {
+                    streamObject.addTrack(stream.getVideoTracks()[0]);
+                }
+                if (stream.getAudioTracks().length) {
+                    streamObject.addTrack(stream.getAudioTracks()[0]);
+                }
+            });
+            event.stream = streamObject;
+
+            if (connection.session.audio && connection.session.video && (!streamObject.getVideoTracks().length || !streamObject.getAudioTracks().length)) {
+                return;
+            }
+
+            streamObject = null;
+        }
+
         var streamsToShare = {};
         if (config.remoteSdp && config.remoteSdp.streamsToShare) {
             streamsToShare = config.remoteSdp.streamsToShare;
@@ -208,13 +252,18 @@ function PeerInitiator(config) {
         if (!event.stream.stop) {
             event.stream.stop = function() {
                 if (isFirefox) {
-                    fireEvent(this, 'ended');
+                    var streamEndedEvent = 'ended';
+
+                    if ('oninactive' in event.stream) {
+                        streamEndedEvent = 'inactive';
+                    }
+                    fireEvent(event.stream, streamEndedEvent);
                 }
             };
         }
         allRemoteStreams[event.stream.id] = event.stream;
         config.onRemoteStream(event.stream);
-    };
+    }, false);
 
     peer.onremovestream = function(event) {
         event.stream.streamid = event.stream.id;
@@ -266,7 +315,9 @@ function PeerInitiator(config) {
             sdpConstraints = config.remoteSdp.remotePeerSdpConstraints;
         }
         defaults.sdpConstraints = setSdpConstraints(sdpConstraints);
-        this.addRemoteSdp(config.remoteSdp);
+        this.addRemoteSdp(config.remoteSdp, function() {
+            createOfferOrAnswer('createAnswer');
+        });
     }
 
     function setChannelEvents(channel) {
@@ -309,35 +360,46 @@ function PeerInitiator(config) {
     }
 
     var streamsToShare = {};
-    peer.getLocalStreams().forEach(function(stream) {
-        streamsToShare[stream.streamid] = {
-            isAudio: !!stream.isAudio,
-            isVideo: !!stream.isVideo,
-            isScreen: !!stream.isScreen
-        };
-    });
-
-    peer[isOfferer ? 'createOffer' : 'createAnswer'](function(localSdp) {
-        localSdp.sdp = connection.processSdp(localSdp.sdp);
-        peer.setLocalDescription(localSdp);
-
-        if (!connection.trickleIce) return;
-        config.onLocalSdp({
-            type: localSdp.type,
-            sdp: localSdp.sdp,
-            remotePeerSdpConstraints: config.remotePeerSdpConstraints || false,
-            renegotiatingPeer: !!config.renegotiatingPeer || false,
-            connectionDescription: self.connectionDescription,
-            dontGetRemoteStream: !!config.dontGetRemoteStream,
-            extra: connection ? connection.extra : {},
-            streamsToShare: streamsToShare,
-            isFirefoxOffered: isFirefox
+    if (getLocalStreams().forEach) {
+        getLocalStreams().forEach(function(stream) {
+            streamsToShare[stream.streamid] = {
+                isAudio: !!stream.isAudio,
+                isVideo: !!stream.isVideo,
+                isScreen: !!stream.isScreen
+            };
         });
-    }, function(error) {
-        if (!!connection.enableLogs) {
-            console.error('sdp-error', error);
-        }
-    }, defaults.sdpConstraints);
+    }
+
+    function createOfferOrAnswer(_method) {
+        peer[_method](function(localSdp) {
+            localSdp.sdp = connection.processSdp(localSdp.sdp);
+            peer.setLocalDescription(localSdp, function() {
+                if (!connection.trickleIce) return;
+                config.onLocalSdp({
+                    type: localSdp.type,
+                    sdp: localSdp.sdp,
+                    remotePeerSdpConstraints: config.remotePeerSdpConstraints || false,
+                    renegotiatingPeer: !!config.renegotiatingPeer || false,
+                    connectionDescription: self.connectionDescription,
+                    dontGetRemoteStream: !!config.dontGetRemoteStream,
+                    extra: connection ? connection.extra : {},
+                    streamsToShare: streamsToShare,
+                    isFirefoxOffered: isFirefox
+                });
+            }, function(error) {
+                if (!connection.enableLogs) return;
+                console.error('setLocalDescription error', error);
+            });
+        }, function(error) {
+            if (!!connection.enableLogs) {
+                console.error('sdp-error', error);
+            }
+        }, defaults.sdpConstraints);
+    }
+
+    if (isOfferer) {
+        createOfferOrAnswer('createOffer');
+    }
 
     peer.nativeClose = peer.close;
     peer.close = function() {

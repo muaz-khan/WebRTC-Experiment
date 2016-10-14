@@ -3,7 +3,7 @@ var isMobile = {
         return navigator.userAgent.match(/Android/i);
     },
     BlackBerry: function() {
-        return navigator.userAgent.match(/BlackBerry/i);
+        return navigator.userAgent.match(/BlackBerry|BB10/i);
     },
     iOS: function() {
         return navigator.userAgent.match(/iPhone|iPad|iPod/i);

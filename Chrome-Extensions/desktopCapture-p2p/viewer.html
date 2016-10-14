@@ -91,7 +91,7 @@ button[disabled] {
 }
 #mini {
     /* -webkit-transform: scale(-1, 1); */
-    
+
     bottom: 0;
     height: 30%;
     opacity: 1.0;
@@ -129,7 +129,7 @@ button[disabled] {
             <video id="remoteVideo" autoplay="autoplay"></video>
         </div>
     </div>
-    
+
     <div id="info-bar"></div>
 </div>
 
@@ -178,6 +178,18 @@ function setBandwidth(connection) {
 
 // http://www.rtcmulticonnection.org/docs/constructor/
 var connection = new RTCMultiConnection(params.s);
+
+connection.iceServers.push({
+    urls: 'turn:webrtcweb.com:443',
+    username: 'muazkh',
+    credential: 'muazkh'
+});
+
+connection.iceServers.push({
+    urls: 'turn:webrtcweb.com:80',
+    username: 'muazkh',
+    credential: 'muazkh'
+});
 
 setBandwidth(connection);
 
@@ -267,7 +279,7 @@ connection.onstream = function(e) {
         attachMediaStream(remoteVideo, e.stream);
         waitForRemoteVideo();
         remoteVideo.setAttribute('data-id', e.userid);
-        
+
         websocket.send('received-your-screen');
     }
 };
@@ -282,7 +294,7 @@ connection.onSessionClosed = function() {
     infoBar.style.display = 'block';
     connection.close();
     websocket.onopen();
-    
+
     remoteVideo.pause();
     remoteVideo.src = 'https://cdn.webrtc-experiment.com/images/muted.png';
 };
@@ -413,7 +425,7 @@ websocket.onopen = function() {
 
     if (params.s) {
         infoBar.innerHTML = 'Joining session: ' + params.s;
-        
+
         if(params.p) {
             // it seems a password protected room.
             connection.extra.password = params.p;

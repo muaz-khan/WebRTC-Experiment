@@ -1,99 +1,190 @@
-# `getScreenId.js` / [LIVE Demo](https://www.webrtc-experiment.com/getScreenId/)
+# [getStats.js](https://github.com/muaz-khan/getStats) / [Demo](https://www.webrtc-experiment.com/getStats/)
 
-## Hacking to use single chrome-extension on any domain!
+[![npm](https://img.shields.io/npm/v/getstats.svg)](https://npmjs.org/package/getstats) [![downloads](https://img.shields.io/npm/dm/getstats.svg)](https://npmjs.org/package/getstats)
+
+A tiny JavaScript library using [WebRTC getStats API](http://dev.w3.org/2011/webrtc/editor/webrtc.html#dom-peerconnection-getstats) to return peer connection stats i.e. bandwidth usage, packets lost, local/remote ip addresses and ports, type of connection etc.
+
+It is <a href="https://www.webrtc-experiment.com/licence/">MIT Licenced</a>, which means that you can use it in any commercial/non-commercial product, free of cost.
+
+```
+npm install getstats
+
+cd node_modules
+cd getstats
+node server.js
+
+# and open:
+# http://localhost:9999/
+```
+
+To use it:
+
+```htm
+<script src="./node_modules/getstats/getStats.js"></script>
+```
+
+# Link the library
 
 ```html
-<!--
-* This script is a hack used to support single chrome extension usage on any domain.
-
-* This script has issues, though.
-* It uses "postMessage" mechanism which fails to work if someone is using it from inside an <iframe>.
-* The only solution for such cases is, use WebSockets or external servers to pass "source-ids".
--->
+<script src="https://cdn.webrtc-experiment.com/getStats.js"></script>
 ```
 
-> You don't need to PUBLISH/deploy your own chrome-extension when using this script!
+Or link specific build:
 
-# Chrome Extension
-
-* [https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk)
-
-# How it works?
-
-* Your script will make a `postMessage` request to `getScreenId.js`
-* `getScreenId.js` will connect with chrome-extension using an internal `<iframe>`.
-* That `<iframe>` is loaded from domain: `https://www.webrtc-experiment.com/`
-* That `<iframe>` can connect with chrome-extension. It can send/receive `postMessage` data.
-* Same `postMessage` API are used to pass `screen-id` back to your script.
-
-# Firefox
-
-* [https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing](https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing)
-
-# How to use?
+* https://github.com/muaz-khan/getStats/releases
 
 ```html
-<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
-
-<!-- or -->
-<script src="https://cdn.rawgit.com/muaz-khan/getScreenId/master/getScreenId.js"></script>
+<script src="https://github.com/muaz-khan/getStats/releases/download/1.0.4/getStats.js"></script>
 ```
 
-```javascript
-getScreenId(function (error, sourceId, screen_constraints) {
-    // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
-    // sourceId == null || 'string' || 'firefox'
+# `window.getStats`
 
-    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    navigator.getUserMedia(screen_constraints, function (stream) {
-        document.querySelector('video').src = URL.createObjectURL(stream);
-    }, function (error) {
-        console.error(error);
-    });
-});
+To invoke directly:
+
+```javascript
+getStats(peer, callback, interval);
 ```
 
-Or...
+# RTCPeerConnection.prototype.getPeerStats
+
+Or, to setup an instance method:
 
 ```javascript
-getScreenId(function (error, sourceId, screen_constraints) {
-    // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
-    // sourceId == null || 'string' || 'firefox'
+// if your code is encapsulated under a method
+(function() {
+    RTCPeerConnection.prototype.getPeerStats = window.getStats;
     
-    if(sourceId && sourceId != 'firefox') {
-        screen_constraints = {
-            video: {
-                mandatory: {
-                    chromeMediaSource: 'screen',
-                    maxWidth: 1920,
-                    maxHeight: 1080,
-                    minAspectRatio: 1.77
-                }
-            }
-        };
-
-        if (error === 'permission-denied') return alert('Permission is denied.');
-        if (error === 'not-chrome') return alert('Please use chrome.');
-
-        if (!error && sourceId) {
-            screen_constraints.video.mandatory.chromeMediaSource = 'desktop';
-            screen_constraints.video.mandatory.chromeMediaSourceId = sourceId;
-        }
-    }
-
-    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    navigator.getUserMedia(screen_constraints, function (stream) {
-        document.querySelector('video').src = URL.createObjectURL(stream);
-    }, function (error) {
-        console.error(error);
-    });
-});
+    // or
+    RTCPeerConnection.prototype.__getStats = window.getStats;
+    
+    // or
+    RTCPeerConnection.prototype.getConnectionStats = window.getStats;
+    
+    // or
+    RTCPeerConnection.prototype['your-choice'] = window.getStats;
+})();
 ```
 
-# Deploy extension yourself?
+**NEVER set/override `RTCPeerConnection.prototype.getStats`** because it is a reserved method.
 
-* [https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture)
+```javascript
+// following will fail
+RTCPeerConnection.prototype.getStats = window.getStats;
 
-# License
+// it should be
+RTCPeerConnection.prototype.intanceMethodNamae = window.getStats;
+```
 
-[getScreenId.js](https://github.com/muaz-khan/getScreenId) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).
+# Usage
+
+```javascript
+var rtcPeerConnection = new RTCPeerConnection(rtcConfig);
+
+var repeatInterval = 2000; // 2000 ms == 2 seconds
+rtcPeerConnection.getPeerStats(function(result) {
+    result.connectionType.remote.ipAddress
+    result.connectionType.remote.candidateType
+    result.connectionType.transport
+    
+    result.audio.availableBandwidth
+    result.audio.packetsSent
+    result.audio.packetsLost
+    result.audio.rtt
+    
+    // to access native "results" array
+    result.results.forEach(function(r) {
+        console.log(r);
+    });
+}, repeatInterval);
+```
+
+# Firefox?
+
+```javascript
+peer.getStats(peer.getLocalStreams()[0].getAudioTracks()[0], function(results) {
+    // rest goes here
+}, 5 * 1000);
+```
+
+# `result.datachannel`
+
+```javascript
+// states => open or close
+alert(result.datachannel.state === 'open');
+```
+
+# `result.isOfferer`
+
+Offerer is the person who invoked `createOffer` method.
+
+# `result.encryption`
+
+To detect which tech is used to encrypt your connections.
+
+```javascript
+alert(result.encryption === 'sha-256');
+```
+
+# `result.nomore()`
+
+This function can be used to ask to stop invoking getStats API.
+
+```javascript
+btnStopGetStats.onclick  = function() {
+    getStatsResult.nomore();
+};
+```
+
+# `result.audio`
+
+1. `result.audio.availableBandwidth`
+2. `result.audio.inputLevel`
+3. `result.audio.packetsLost`
+3. `result.audio.rtt`
+4. `result.audio.packetsSent`
+5. `result.audio.bytesSent`
+
+# `result.video`
+
+1. `result.video.availableBandwidth`
+2. `result.video.googFrameHeightInput`
+3. `result.video.googFrameWidthInput`
+4. `result.video.googCaptureQueueDelayMsPerS`
+5. `result.video.rtt`
+6. `result.video.packetsLost`
+7. `result.video.packetsSent`
+8. `result.video.googEncodeUsagePercent`
+9. `result.video.googCpuLimitedResolution`
+10. `result.video.googNacksReceived`
+11. `result.video.googFrameRateInput`
+12. `result.video.googPlisReceived`
+13. `result.video.googViewLimitedResolution`
+14. `result.video.googCaptureJitterMs`
+15. `result.video.googAvgEncodeMs`
+16. `result.video.googFrameHeightSent`
+17. `result.video.googFrameRateSent`
+18. `result.video.googBandwidthLimitedResolution`
+19. `result.video.googFrameWidthSent`
+20. `result.video.googFirsReceived`
+21. `result.video.bytesSent`
+
+# `result.connectionType`
+
+1. `result.connectionType.local.candidateType`
+2. `result.connectionType.local.ipAddress`
+3. `result.connectionType.local.networkType`
+4. `result.connectionType.remote.candidateType`
+5. `result.connectionType.remote.ipAddress`
+6. `result.connectionType.transport`
+
+# `result.results`
+
+It is an array that is returned by browser's native PeerConnection API.
+
+```javascript
+console.log(result.results);
+```
+
+## License
+
+[getStats.js](https://github.com/muaz-khan/getStats) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).

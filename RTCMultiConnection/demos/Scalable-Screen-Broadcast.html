@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
 
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css"> 
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
     <title>WebRTC Scalable Screen Broadcast using RTCMultiConnection</title>
 
@@ -58,7 +58,7 @@
             height: 35px;
             margin: 0 5px;
         }
-        
+
         button:hover, input:hover, select:hover {
             background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
             border: 1px solid rgb(142, 142, 142);
@@ -74,7 +74,7 @@
             color: rgb(197, 189, 189);
         }
         input, input:focus, input:active {
-            background: white;    
+            background: white;
         }
     </style>
 </head>
@@ -124,7 +124,7 @@
             // skipping xirsys servers
             window.getExternalIceServers = false;
         </script>
-        
+
         <!-- <script src="/dist/rmc3.min.js"></script> -->
         <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
 
@@ -135,7 +135,7 @@
         <script>
             // recording is disabled because it is resulting for browser-crash
             var enableRecordings = false;
-            
+
             var connection = new RTCMultiConnection(null, {
                 useDefaultDevices: true // if we don't need to force selection of specific devices
             });
@@ -458,8 +458,11 @@
             document.getElementById('broadcast-id').onkeyup = function() {
                 localStorage.setItem(connection.socketMessageEvent, this.value);
             };
-            
+
             var hashString = location.hash.replace('#', '');
+            if(hashString.length && hashString.indexOf('comment-') == 0) {
+              hashString = '';
+            }
 
             var broadcastId = params.broadcastId;
             if(!broadcastId && hashString.length) {
@@ -484,7 +487,7 @@
 
                 disableInputButtons();
             }
-            
+
         </script>
 
         <section class="experiment own-widgets latest-commits">

@@ -1,4 +1,4 @@
-// Last time updated at March 30, 2016, 08:32:23
+// Last time updated at Sep 01, 2016, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/Screen-Capturing.js
 
@@ -27,8 +27,11 @@ function onMessageCallback(data) {
     // "cancel" button is clicked
     if (data == 'PermissionDeniedError') {
         chromeMediaSource = 'PermissionDeniedError';
-        if (screenCallback) return screenCallback('PermissionDeniedError');
-        else throw new Error('PermissionDeniedError');
+        if (screenCallback) {
+            return screenCallback('PermissionDeniedError');
+        } else {
+            throw new Error('PermissionDeniedError: User rejected to share his screen.');
+        }
     }
 
     // extension notified his presence
@@ -182,7 +185,7 @@ function getScreenConstraints(callback, audioPlusTab) {
             return;
         }
 
-        // this statement sets gets 'sourceId" and sets "chromeMediaSourceId" 
+        // this statement sets gets 'sourceId" and sets "chromeMediaSourceId"
         if (chromeMediaSource == 'desktop') {
             screen_constraints.mandatory.chromeMediaSourceId = sourceId;
         }

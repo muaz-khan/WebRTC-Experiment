@@ -1,19 +1,25 @@
 function SignalRConnection(connection, connectCallback) {
+    var channelName = connection.channel || 'rmc3';
+
     connection.socket = {
         send: function(data) {
-            hub.server.send(JSON.stringify(data));
+            hub.server.sendToAll(channelName, JSON.stringify(data));
         }
     };
 
-    var hub = $.connection.webRtcHub3;
+    var hub = $.connection.geckoHub;
     $.support.cors = true;
 
     $.connection.hub.url = '/signalr/hubs';
 
-    hub.client.onMessageReceived = function(message) {
+    hub.client.broadcastMessage = function(chName, message) {
+        if (chName !== channelName) return;
+
         var data = JSON.parse(message);
+        console.log(data);
 
         if (data.eventName === connection.socketMessageEvent) {
+            console.log(connection.socketMessageEvent);
             onMessagesCallback(data.data);
         }
 
@@ -63,11 +69,11 @@ function SignalRConnection(connection, connectCallback) {
     function onMessagesCallback(message) {
         if (message.remoteUserId != connection.userid) return;
 
-        if (connection.peers[message.sender] && connection.peers[message.sender].extra != message.extra) {
-            connection.peers[message.sender].extra = message.extra;
+        if (connection.peers[message.sender] && connection.peers[message.sender].extra != message.message.extra) {
+            connection.peers[message.sender].extra = message.message.extra;
             connection.onExtraDataUpdated({
                 userid: message.sender,
-                extra: message.extra
+                extra: message.message.extra
             });
         }
 
@@ -164,7 +170,7 @@ function SignalRConnection(connection, connectCallback) {
             }
 
             var userPreferences = {
-                extra: message.extra || {},
+                extra: message.message.extra || {},
                 localPeerSdpConstraints: message.message.remotePeerSdpConstraints || {
                     OfferToReceiveAudio: connection.sdpConstraints.mandatory.OfferToReceiveAudio,
                     OfferToReceiveVideo: connection.sdpConstraints.mandatory.OfferToReceiveVideo

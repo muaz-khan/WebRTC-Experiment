@@ -21,7 +21,7 @@
 
 function CanvasRecorder(htmlElement, config) {
     if (typeof html2canvas === 'undefined' && htmlElement.nodeName.toLowerCase() !== 'canvas') {
-        throw 'Please link: //cdn.webrtc-experiment.com/screenshot.js';
+        throw 'Please link: https://cdn.webrtc-experiment.com/screenshot.js';
     }
 
     config = config || {};
@@ -37,26 +37,32 @@ function CanvasRecorder(htmlElement, config) {
         }
     });
 
-    if (!!window.webkitRTCPeerConnection || !!window.webkitGetUserMedia) {
+    var _isChrome = (!!window.webkitRTCPeerConnection || !!window.webkitGetUserMedia) && !!window.chrome;
+
+    var chromeVersion = 50;
+    var matchArray = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+    if (_isChrome && matchArray && matchArray[2]) {
+        chromeVersion = parseInt(matchArray[2], 10);
+    }
+
+    if (_isChrome && chromeVersion < 52) {
         isCanvasSupportsStreamCapturing = false;
     }
 
-    var globalCanvas, globalContext, mediaStreamRecorder;
+    var globalCanvas, mediaStreamRecorder;
 
     if (isCanvasSupportsStreamCapturing) {
         if (!config.disableLogs) {
             console.debug('Your browser supports both MediRecorder API and canvas.captureStream!');
         }
 
-        globalCanvas = document.createElement('canvas');
-
-        globalCanvas.width = htmlElement.clientWidth || window.innerWidth;
-        globalCanvas.height = htmlElement.clientHeight || window.innerHeight;
-
-        globalCanvas.style = 'top: -9999999; left: -99999999; visibility:hidden; position:absoluted; display: none;';
-        (document.body || document.documentElement).appendChild(globalCanvas);
-
-        globalContext = globalCanvas.getContext('2d');
+        if (htmlElement instanceof HTMLCanvasElement) {
+            globalCanvas = htmlElement;
+        } else if (htmlElement instanceof CanvasRenderingContext2D) {
+            globalCanvas = htmlElement.canvas;
+        } else {
+            throw 'Please pass either HTMLCanvasElement or CanvasRenderingContext2D.';
+        }
     } else if (!!navigator.mozGetUserMedia) {
         if (!config.disableLogs) {
             console.error('Canvas recording is NOT supported in Firefox.');
@@ -81,9 +87,9 @@ function CanvasRecorder(htmlElement, config) {
             if ('captureStream' in globalCanvas) {
                 canvasMediaStream = globalCanvas.captureStream(25); // 25 FPS
             } else if ('mozCaptureStream' in globalCanvas) {
-                canvasMediaStream = globalCanvas.captureStream(25);
+                canvasMediaStream = globalCanvas.mozCaptureStream(25);
             } else if ('webkitCaptureStream' in globalCanvas) {
-                canvasMediaStream = globalCanvas.captureStream(25);
+                canvasMediaStream = globalCanvas.webkitCaptureStream(25);
             }
 
             try {
@@ -157,15 +163,7 @@ function CanvasRecorder(htmlElement, config) {
         var that = this;
 
         if (isCanvasSupportsStreamCapturing && mediaStreamRecorder) {
-            var slef = this;
-            mediaStreamRecorder.stop(function() {
-                for (var prop in mediaStreamRecorder) {
-                    self[prop] = mediaStreamRecorder[prop];
-                }
-                if (callback) {
-                    callback(that.blob);
-                }
-            });
+            mediaStreamRecorder.stop(callback);
             return;
         }
 

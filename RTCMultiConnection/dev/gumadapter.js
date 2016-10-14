@@ -1,9 +1,9 @@
-// Last time updated at Fri Jan 08 2016 14:06
+// Last time updated at Sat Jun 25 2016 14:06
 
-// gumadapter.js
+// gumadapter.js => github.com/muaz-khan/gumadapter
 // https://cdn.webrtc-experiment.com/gumadapter.js
 
-// getUserMedia hacks from git/webrtc/adapter; 
+// getUserMedia hacks from git/webrtc/adapter;
 // removed redundant codes
 // A-to-Zee, all copyrights goes to:
 // https://github.com/webrtc/adapter/blob/master/LICENSE.md
@@ -39,6 +39,8 @@ if (!webrtcUtils.extractVersion) {
     };
 }
 
+var isBlackBerry = !!(/BB10|BlackBerry/i.test(navigator.userAgent || ''));
+
 if (typeof window === 'object') {
     if (window.HTMLMediaElement &&
         !('srcObject' in window.HTMLMediaElement.prototype)) {
@@ -62,12 +64,16 @@ if (typeof window === 'object') {
         });
     }
 
-    // Proxy existing globals
-    getUserMedia = window.navigator && window.navigator.getUserMedia;
+    if (!isBlackBerry) {
+        // Proxy existing globals
+        getUserMedia = window.navigator && window.navigator.getUserMedia;
+    }
 }
 
 if (typeof window === 'undefined' || !window.navigator) {
     webrtcDetectedBrowser = 'not a browser';
+} else if (isBlackBerry) {
+    // skip shim for Blackberry 10+
 } else if (navigator.mozGetUserMedia && window.mozRTCPeerConnection) {
     webrtcDetectedBrowser = 'firefox';
 

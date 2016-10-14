@@ -10,6 +10,10 @@ function SocketConnection(connection, connectCallback) {
         parameters += '&maxRelayLimitPerUser=' + (connection.maxRelayLimitPerUser || 2);
     }
 
+    if (connection.socketCustomParameters) {
+        parameters += connection.socketCustomParameters;
+    }
+
     try {
         io.sockets = {};
     } catch (e) {};
@@ -35,7 +39,7 @@ function SocketConnection(connection, connectCallback) {
     connection.socket.on(connection.socketMessageEvent, function(message) {
         if (message.remoteUserId != connection.userid) return;
 
-        if (connection.peers[message.sender] && connection.peers[message.sender].extra != message.extra) {
+        if (connection.peers[message.sender] && connection.peers[message.sender].extra != message.message.extra) {
             connection.peers[message.sender].extra = message.extra;
             connection.onExtraDataUpdated({
                 userid: message.sender,
@@ -51,13 +55,16 @@ function SocketConnection(connection, connectCallback) {
 
             var action = message.message.action;
 
-            if (action === 'ended' || action === 'stream-removed') {
+            if (action === 'ended' || action === 'inactive' || action === 'stream-removed') {
                 connection.onstreamended(stream);
                 return;
             }
 
             var type = message.message.type != 'both' ? message.message.type : null;
-            stream.stream[action](type);
+
+            if (typeof stream.stream[action] == 'function') {
+                stream.stream[action](type);
+            }
             return;
         }
 
@@ -206,30 +213,34 @@ function SocketConnection(connection, connectCallback) {
         });
     });
 
+    var alreadyConnected = false;
+
+    connection.socket.resetProps = function() {
+        alreadyConnected = false;
+    };
+
     connection.socket.on('connect', function() {
-        if (!connection.socketAutoReConnect) {
-            connection.socket = null;
+        if (alreadyConnected) {
             return;
         }
+        alreadyConnected = true;
 
         if (connection.enableLogs) {
             console.info('socket.io connection is opened.');
         }
 
-        connection.socket.emit('extra-data-updated', connection.extra);
+        setTimeout(function() {
+            connection.socket.emit('extra-data-updated', connection.extra);
 
-        if (connectCallback) connectCallback(connection.socket);
+            if (connectCallback) {
+                connectCallback(connection.socket);
+            }
+        }, 1000);
     });
 
     connection.socket.on('disconnect', function() {
-        if (!connection.socketAutoReConnect) {
-            connection.socket = null;
-            return;
-        }
-
         if (connection.enableLogs) {
-            console.info('socket.io connection is closed');
-            console.warn('socket.io reconnecting');
+            console.warn('socket.io connection is closed');
         }
     });
 
@@ -290,5 +301,9 @@ function SocketConnection(connection, connectCallback) {
     connection.socket.on('logs', function(log) {
         if (!connection.enableLogs) return;
         console.debug('server-logs', log);
+    });
+
+    connection.socket.on('number-of-broadcast-viewers-updated', function(data) {
+        connection.onNumberOfBroadcastViewersUpdated(data);
     });
 }

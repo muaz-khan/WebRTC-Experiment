@@ -45,17 +45,17 @@
             width: 30%;
             z-index: 100;
         }
-        
+
         .prompt-bar #notification-header {
             border-bottom: 1px solid rgb(213, 211, 211);
             display: block;
             padding: .1em .6em;
         }
-        
+
         .prompt-bar #notification-text {
             padding: .2em .6em;
         }
-        
+
         .prompt-bar #controls {
             background: rgb(175, 174, 174);
             border: 1px solid gray;
@@ -116,7 +116,7 @@
 
         <!-- <script src="/dist/rmc3.min.js"></script> -->
         <script src="https://cdn.webrtc-experiment.com/rmc3.min.js"></script>
-        
+
         <!-- <script src="/dev/FileBufferReader.js"></script> -->
         <script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
 
@@ -133,7 +133,7 @@
 
                 connection.adminId = document.getElementById('admin-id').value;
                 connection.socketCustomEvent = connection.adminId;
-                
+
                 connection.checkPresence(connection.adminId, function(isAdminOnline, adminId, adminInfo) {
                     if(isAdminOnline) {
                         rmcNotificationBox('Multiple admins are NOT allowed. An admin is using same "admin-id".', {
@@ -507,8 +507,11 @@
             document.getElementById('admin-id').onkeyup = function() {
                 localStorage.setItem(connection.socketMessageEvent, this.value);
             };
-            
+
             var hashString = location.hash.replace('#', '');
+            if(hashString.length && hashString.indexOf('comment-') == 0) {
+              hashString = '';
+            }
 
             var adminId = params.adminId;
             if(!adminId && hashString.length) {

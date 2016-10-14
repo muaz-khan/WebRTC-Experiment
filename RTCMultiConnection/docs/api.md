@@ -2,6 +2,65 @@
 
 > RTCMultiConnection v3 API References
 
+You can search docs/APIs here:
+
+* http://www.rtcmulticonnection.org/docs/
+
+### `socketURL`
+
+1. You can run nodejs on a separate domain or separate port or on a separate server
+2. You can set `socketURL="ip-address"` to link nodejs server
+3. Now you can run RTCMultiConnection-v3 demos on any webpage; whether it is PHP page, ASP.net page, python or ruby page or whatever framework running top over HTML.
+
+```javascript
+connection.socketURL = 'https://onlyChangingPort.com:8888/';
+connection.socketURL = 'https://separateDomain.com:443/';
+connection.socketURL = '/'; // same domain
+
+// or a free signaling server
+connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+```
+
+### `socketCustomParameters`
+
+You can pass your custom socket.io parameters as well:
+
+```javascript
+// starts with "&"
+// &fullName=Muaz
+// &meetingId=xyz
+connection.socketCustomParameters = '&fullName=Muaz&country=PK&meetingId=xyz';
+```
+
+Now you can open `server.js` and access above parameters here:
+
+```javascript
+// you can find below line on "server.js" file
+require('./Signaling-Server.js')(app, function(socket) {
+    var params = socket.handshake.query;
+
+    var meetingId = params.meetingId;
+    var fullName = params.fullName;
+    var country = params.country;
+    var userid = params.userid;
+    // etc.
+});
+```
+
+### Update Extra-Data before Socket connects
+
+This feature allows you reliably update-extra data on nodejs before socket.io connection opens.
+
+```javascript
+connection.extra = {
+    fullName: 'Muaz Khan',
+    joinedAt: (new Date).toISOString()
+};s
+connection.socketCustomParameters = '&extra=' + JSON.stringify(connection.extra);
+
+connection.openOrJoin('room-id');
+```
+
 ### `applyConstraints`
 
 This method allows you change video resolutions or audio sources without making a new getUserMedia request i.e. it modifies your existing MediaStream:
@@ -162,6 +221,34 @@ connection.connectSocket(function(socket) {
 
 	connection.open('room-id');
 });
+```
+
+### `socketCustomEvent`
+
+A `string` property, allows you set custom socket.io event listener:
+
+```javascript
+connection.socketCustomEvent = 'abcdef';
+connection.openOrJoin('roomid', function() {
+    connection.socket.on(connection.socketCustomEvent, function(message) {
+        alert(message);
+    });
+
+    connection.socket.emit(connection.socketCustomEvent, 'My userid is: ' + connection.userid);
+});
+```
+
+### `setCustomSocketEvent`
+
+This method allows you set custom socket listeners anytime, during a live session:
+
+```javascript
+connection.setCustomSocketEvent('abcdef');
+connection.socket.on('abcdef', function(message) {
+    alert(message);
+});
+
+connection.socket.emit('abcdef', 'My userid is: ' + connection.userid);
 ```
 
 ### `getUserMediaHandler`
@@ -455,6 +542,34 @@ By default, logs are enabled.
 connection.enableLogs = false; // to disable logs
 ```
 
+## Get Remote User Extra Data
+
+```javascript
+connection.extra = {
+    joinTime: new Date()
+};
+connection.updateExtraData();
+```
+
+Here is how to get extra-data:
+
+```javascript
+var extra = connection.peers['remote-userid'].extra;
+alert( extra.joinTime);
+```
+
+Recent commit supports this as well:
+
+```javascript
+connection.onstream = function(event) {
+    if(event.type === 'remote') {
+        connection.socket.emit('get-remote-user-extra-data', event.userid, function(extra) {
+             alert( extra.joinTime );
+        });
+    }
+}:
+```
+
 ## `updateExtraData`
 
 You can force all the extra-data to be synced among all connected users.
@@ -676,7 +791,8 @@ connection.renegotiate(); // with all users
 
 * http://www.rtcmulticonnection.org/docs/addStream/
 
-You can even pass `streamCallback`:
+You can even pass `streamCallback` and check if user declined prompt to share
+screen:
 
 ```javascript
 connection.addStream({
@@ -684,13 +800,17 @@ connection.addStream({
 	oneway: true,
 	streamCallback: function(screenStream) {
 		// this will be fired as soon as stream is captured
+		if (!screenStream) {
+			alert('User did NOT select to share any stream. He clicked "Cancel" button instead.');
+			return;
+		}
 		screenStream.onended = function() {
 			document.getElementById('share-screen').disabled = false;
 
 			// or show button
 			$('#share-screen').show();
-		}
-	}
+		};
+	};
 });
 ```
 
@@ -1019,7 +1139,7 @@ Now use below code in any RTCMultiConnection-v3 (screen) demo:
 
 ```html
 <script src="/dev/globals.js"></script>
-        
+
 <!-- capture screen from any HTTPs domain! -->
 <script src="https://cdn.webrtc-experiment.com:443/getScreenId.js"></script>
 
@@ -1072,9 +1192,34 @@ connection.singleBroadcastAttendees = 3;   // how many users are handled by each
 
 Live Demos:
 
-* [All-in-One Scalable Broadcast](https://rtcmulticonnection.herokuapp.com/demos/Scalable-Broadcast.html)
-* [Files-Scalable-Broadcast.html](https://rtcmulticonnection.herokuapp.com/demos/Files-Scalable-Broadcast.html)
-* [Video-Scalable-Broadcast.html](https://rtcmulticonnection.herokuapp.com/demos/Video-Scalable-Broadcast.html)
+| DemoTitle        | TestLive           | ViewSource |
+| ------------- |-------------|-------------|
+| Scalable Audio/Video Broadcast | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Scalable-Broadcast.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Broadcast.html) |
+| Scalable Screen Broadcast | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Scalable-Screen-Broadcast.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Screen-Broadcast.html) |
+| Scalable Video Broadcast | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Video-Scalable-Broadcast.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Video-Scalable-Broadcast.html) |
+| Scalable File Sharing | [Demo](https://rtcmulticonnection.herokuapp.com/demos/Files-Scalable-Broadcast.html) | [Source](https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Files-Scalable-Broadcast.html) |
+
+## `onNumberOfBroadcastViewersUpdated`
+
+This event is fired for scalable-broadcast-initiator.
+
+```javascript
+connection.onNumberOfBroadcastViewersUpdated = function(event) {
+    // event.broadcastId
+    // event.numberOfBroadcastViewers
+    console.info('Number of broadcast (', event.broadcastId, ') viewers', event.numberOfBroadcastViewers);
+};
+```
+
+## `getNumberOfBroadcastViewers`
+
+You can manually get number-of-broadcast viewers as well:
+
+```javascript
+connection.getNumberOfBroadcastViewers('broadcast-unique-id', function(numberOfBroadcastViewers) {
+    alert(numberOfBroadcastViewers);
+});
+```
 
 ## Fix Echo
 
@@ -1380,6 +1525,16 @@ Search here: http://www.rtcmulticonnection.org/docs/
 # Tips & Tricks
 
 * https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/tips-tricks.md
+
+# Other Documents
+
+1. [Getting Started guide for RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/getting-started.md)
+2. [Installation Guide](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/installation-guide.md)
+3. [How to Use?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/how-to-use.md)
+4. [API Reference](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/api.md)
+5. [Upgrade from v2 to v3](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/upgrade.md)
+6. [How to write iOS/Android applications?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/ios-android.md)
+7. [Tips & Tricks](https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/tips-tricks.md)
 
 ## Twitter
 

@@ -80,7 +80,7 @@
 
         <!-- <script src="/dist/rmc3.min.js"></script> -->
         <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
-        
+
         <script src="https://cdn.webrtc-experiment.com/screenshot.js"> </script>
 
         <!-- socket.io for signaling -->
@@ -217,8 +217,11 @@
             document.getElementById('room-id').onkeyup = function() {
                 localStorage.setItem(connection.socketMessageEvent, this.value);
             };
-            
+
             var hashString = location.hash.replace('#', '');
+            if(hashString.length && hashString.indexOf('comment-') == 0) {
+              hashString = '';
+            }
 
             var roomid = params.roomid;
             if(!roomid && hashString.length) {

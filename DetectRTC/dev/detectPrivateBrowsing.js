@@ -43,7 +43,6 @@ function detectPrivateMode(callback) {
                 isPrivate = false;
             },
             function(e) {
-                console.log(e);
                 isPrivate = true;
             }
         );
@@ -51,6 +50,9 @@ function detectPrivateMode(callback) {
         var db;
         try {
             db = window.indexedDB.open('test');
+            db.onerror = function() {
+                return true;
+            };
         } catch (e) {
             isPrivate = true;
         }

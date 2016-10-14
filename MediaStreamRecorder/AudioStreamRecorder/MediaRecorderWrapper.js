@@ -45,7 +45,6 @@ function MediaRecorderWrapper(mediaStream) {
             self.mimeType = IsChrome ? 'audio/webm' : 'audio/ogg';
         }
 
-        self.blob = null;
         self.dontFireOnDataAvailableEvent = false;
 
         var recorderHints = {
@@ -72,7 +71,13 @@ function MediaRecorderWrapper(mediaStream) {
 
         // starting a recording session; which will initiate "Reading Thread"
         // "Reading Thread" are used to prevent main-thread blocking scenarios
-        mediaRecorder = new MediaRecorder(mediaStream, recorderHints);
+        try {
+            mediaRecorder = new MediaRecorder(mediaStream, recorderHints);
+        } catch (e) {
+            // if someone passed NON_supported mimeType
+            // or if Firefox on Android
+            mediaRecorder = new MediaRecorder(mediaStream);
+        }
 
         if ('canRecordMimeType' in mediaRecorder && mediaRecorder.canRecordMimeType(self.mimeType) === false) {
             if (!self.disableLogs) {
@@ -84,15 +89,21 @@ function MediaRecorderWrapper(mediaStream) {
         // when video is resumed. E.g. yourStream.getVideoTracks()[0].muted = true; // it will auto-stop recording.
         mediaRecorder.ignoreMutedMedia = self.ignoreMutedMedia || false;
 
+        var firedOnDataAvailableOnce = false;
+
         // Dispatching OnDataAvailable Handler
         mediaRecorder.ondataavailable = function(e) {
             if (self.dontFireOnDataAvailableEvent) {
                 return;
             }
 
-            if (!e.data || !e.data.size || e.data.size < 100 || self.blob) {
+            // how to fix FF-corrupt-webm issues?
+            // should we leave this?          e.data.size < 26800
+            if (!e.data || !e.data.size || e.data.size < 26800 || firedOnDataAvailableOnce) {
                 return;
             }
+
+            firedOnDataAvailableOnce = true;
 
             var blob = self.getNativeBlob ? e.data : new Blob([e.data], {
                 type: self.mimeType || 'video/webm'
@@ -101,7 +112,10 @@ function MediaRecorderWrapper(mediaStream) {
             self.ondataavailable(blob);
 
             self.dontFireOnDataAvailableEvent = true;
-            mediaRecorder.stop();
+
+            if (!!mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
             mediaRecorder = null;
 
             // record next interval
@@ -131,7 +145,7 @@ function MediaRecorderWrapper(mediaStream) {
             // if the timeSlice value is small. Callers should 
             // consider timeSlice as a minimum value
 
-            if (mediaRecorder.state !== 'inactive' && mediaRecorder.state !== 'stopped') {
+            if (!!mediaRecorder && mediaRecorder.state !== 'inactive' && mediaRecorder.state !== 'stopped') {
                 mediaRecorder.stop();
             }
         };
@@ -141,7 +155,11 @@ function MediaRecorderWrapper(mediaStream) {
         // handler. "mTimeSlice < 0" means Session object does not push encoded data to
         // onDataAvailable, instead, it passive wait the client side pull encoded data
         // by calling requestData API.
-        mediaRecorder.start(3.6e+6);
+        try {
+            mediaRecorder.start(3.6e+6);
+        } catch (e) {
+            mediaRecorder = null;
+        }
 
         setTimeout(function() {
             if (!mediaRecorder) {
@@ -184,7 +202,7 @@ function MediaRecorderWrapper(mediaStream) {
 
             setTimeout(function() {
                 self.dontFireOnDataAvailableEvent = true;
-                if (mediaRecorder.state === 'recording') {
+                if (!!mediaRecorder && mediaRecorder.state === 'recording') {
                     mediaRecorder.stop();
                 }
                 mediaRecorder = null;

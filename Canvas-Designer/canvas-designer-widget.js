@@ -75,7 +75,7 @@ function CanvasDesigner() {
         designer.iframe.style.width = '100%';
         designer.iframe.style.height = '100%';
         designer.iframe.style.border = 0;
-        
+
         window.removeEventListener('message', onMessage);
         window.addEventListener('message', onMessage, false);
 
@@ -108,7 +108,7 @@ function CanvasDesigner() {
 
     designer.toDataURL = function(format, callback) {
         dataURLListener = callback;
-        
+
         if (!designer.iframe) return;
         designer.postMessage({
             genDataURL: true,

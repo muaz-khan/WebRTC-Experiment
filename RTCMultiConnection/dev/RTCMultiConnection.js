@@ -812,6 +812,15 @@ function RTCMultiConnection(roomid, forceOptions) {
             if (session.screen) {
                 connection.getScreenConstraints(function(error, screen_constraints) {
                     if (error) {
+                        if (error === 'PermissionDeniedError') {
+                            if (session.streamCallback) {
+                                session.streamCallback(null);
+                            }
+                            if (connection.enableLogs) {
+                                console.error('User rejected to share his screen.');
+                            }
+                            return;
+                        }
                         return alert(error);
                     }
 
@@ -1023,7 +1032,13 @@ function RTCMultiConnection(roomid, forceOptions) {
         }
         stream.alreadySetEndHandler = true;
 
-        stream.addEventListener('ended', function() {
+        var streamEndedEvent = 'ended';
+
+        if ('oninactive' in stream) {
+            streamEndedEvent = 'inactive';
+        }
+
+        stream.addEventListener(streamEndedEvent, function() {
             if (stream.idInstance) {
                 currentUserMediaRequest.remove(stream.idInstance);
             }
@@ -1241,7 +1256,6 @@ function RTCMultiConnection(roomid, forceOptions) {
         connectSocket(callback);
     };
 
-    connection.socketAutoReConnect = true;
     connection.closeSocket = function() {
         try {
             io.sockets = {};
@@ -1249,10 +1263,12 @@ function RTCMultiConnection(roomid, forceOptions) {
 
         if (!connection.socket) return;
 
-        connection.socketAutoReConnect = false;
-
         if (typeof connection.socket.disconnect === 'function') {
             connection.socket.disconnect();
+        }
+
+        if (typeof connection.socket.resetProps === 'function') {
+            connection.socket.resetProps();
         }
 
         connection.socket = null;
@@ -1293,6 +1309,29 @@ function RTCMultiConnection(roomid, forceOptions) {
     connection.socketMessageEvent = '@@socketMessageEvent'; // generated via config.json
     connection.socketCustomEvent = '@@socketCustomEvent'; // generated via config.json
     connection.DetectRTC = DetectRTC;
+
+    connection.setCustomSocketEvent = function(customEvent) {
+        if (customEvent) {
+            connection.socketCustomEvent = customEvent;
+        }
+
+        if (!connection.socket) {
+            return;
+        }
+
+        connection.socket.emit('set-custom-socket-event-listener', connection.socketCustomEvent);
+    };
+
+    connection.getNumberOfBroadcastViewers = function(broadcastId, callback) {
+        if (!connection.socket || !broadcastId || !callback) return;
+
+        connection.socket.emit('get-number-of-users-in-specific-broadcast', broadcastId, callback);
+    };
+
+    connection.onNumberOfBroadcastViewersUpdated = function(event) {
+        if (!connection.enableLogs || !connection.isInitiator) return;
+        console.info('Number of broadcast (', event.broadcastId, ') viewers', event.numberOfBroadcastViewers);
+    };
 
     connection.onUserStatusChanged = function(event, dontWriteLogs) {
         if (!!connection.enableLogs && !dontWriteLogs) {

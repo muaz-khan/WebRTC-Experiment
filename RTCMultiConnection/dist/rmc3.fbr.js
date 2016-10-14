@@ -449,7 +449,9 @@ function FileBufferReceiver(fbr) {
         if (!mergeto) return mergein;
 
         for (var item in mergeto) {
-            mergein[item] = mergeto[item];
+            try {
+                mergein[item] = mergeto[item];
+            } catch (e) {}
         }
         return mergein;
     }

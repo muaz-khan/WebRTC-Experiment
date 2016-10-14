@@ -2,6 +2,20 @@
 
 > RTCMultiConnection v3 tips and tricks for advance users!
 
+## If WebRTC fails
+
+```html
+<script>
+// add this script before loading "rmc3.min.js"
+window.getExternalIceServers = true;
+</script>
+<script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
+```
+
+Now you will get maximum WebRTC success across all devices.
+
+> `window.getExternalIceServers` boolean variable tries to load STUN+TURN servers from xirsys.com. It is `disabled` by default.
+
 ## `Object.observe`
 
 `Object.observe` has been removed since `v3.2.95`. So you've to manually update-extra-data or set stream-end-handlers:
@@ -208,6 +222,16 @@ v3 users can get list of existing public-rooms using this API (`connection.getPu
 * https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/api.md#getpublicmoderators
 
 However v2 users can use `connection.onNewSession` event: http://www.rtcmulticonnection.org/docs/onNewSession/
+
+# Other Documents
+
+1. [Getting Started guide for RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/getting-started.md)
+2. [Installation Guide](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/installation-guide.md)
+3. [How to Use?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/how-to-use.md)
+4. [API Reference](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/api.md)
+5. [Upgrade from v2 to v3](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/upgrade.md)
+6. [How to write iOS/Android applications?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/ios-android.md)
+7. [Tips & Tricks](https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/tips-tricks.md)
 
 ## Twitter
 

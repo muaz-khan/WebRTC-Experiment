@@ -63,13 +63,15 @@ stream.mute('both'); // mute both video and audio tracks
 stream.mute(); // mute both video and audio tracks
 ```
 
-# RTCMultiConnection [Documentation](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/)
+# Other Documents
 
-1. [Installation Guide](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/installation-guide.md)
-2. [How to Use?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/how-to-use.md)
-3. [API Reference](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/api.md)
-4. [Upgrade from v2 to v3](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/upgrade.md)
-5. [How to write iOS/Android applications?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/ios-android.md)
+1. [Getting Started guide for RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/getting-started.md)
+2. [Installation Guide](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/installation-guide.md)
+3. [How to Use?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/how-to-use.md)
+4. [API Reference](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/api.md)
+5. [Upgrade from v2 to v3](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/upgrade.md)
+6. [How to write iOS/Android applications?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/ios-android.md)
+7. [Tips & Tricks](https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/tips-tricks.md)
 
 ## Twitter
 

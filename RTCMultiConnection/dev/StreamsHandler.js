@@ -29,8 +29,14 @@ var StreamsHandler = (function() {
         if (!stream || !stream.addEventListener) return;
 
         if (typeof syncAction == 'undefined' || syncAction == true) {
-            stream.addEventListener('ended', function() {
-                StreamsHandler.onSyncNeeded(this.streamid, 'ended');
+            var streamEndedEvent = 'ended';
+
+            if ('oninactive' in stream) {
+                streamEndedEvent = 'inactive';
+            }
+
+            stream.addEventListener(streamEndedEvent, function() {
+                StreamsHandler.onSyncNeeded(this.streamid, streamEndedEvent);
             }, false);
         }
 

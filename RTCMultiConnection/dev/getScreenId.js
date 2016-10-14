@@ -1,4 +1,4 @@
-// Last time updated at Oct 24, 2015, 08:32:23
+// Last time updated at Sep 01, 2016, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getScreenId.js
 
@@ -11,9 +11,9 @@
 
 /*
 getScreenId(function (error, sourceId, screen_constraints) {
-    // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
+    // error    == null || 'PermissionDeniedError || 'not-installed' || 'installed-disabled' || 'not-chrome'
     // sourceId == null || 'string' || 'firefox'
-    
+
     if(sourceId == 'firefox') {
         navigator.mozGetUserMedia(screen_constraints, onSuccess, onFailure);
     }
@@ -45,7 +45,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
             if (event.data.chromeMediaSourceId) {
                 if (event.data.chromeMediaSourceId === 'PermissionDeniedError') {
-                    callback('permission-denied');
+                    callback('PermissionDeniedError');
                 } else callback(null, event.data.chromeMediaSourceId, getScreenConstraints(null, event.data.chromeMediaSourceId));
             }
 
@@ -117,14 +117,14 @@ getScreenId(function (error, sourceId, screen_constraints) {
     window.getScreenConstraints = function(callback) {
         loadIFrame(function() {
             getScreenId(function(error, sourceId, screen_constraints) {
-                callback(error, screen_constraints.video);
+                callback(error, (screen_constraints || {}).video);
             });
         });
     };
 })();
 
 (function() {
-    if(document.domain.indexOf('webrtc-experiment.com') === -1) {
+    if (document.domain.indexOf('webrtc-experiment.com') === -1) {
         return;
     }
 
@@ -223,7 +223,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
     window.getScreenConstraints = function(callback) {
         loadIFrame(function() {
             getScreenId(function(error, sourceId, screen_constraints) {
-                callback(error, screen_constraints.video);
+                callback(error, (screen_constraints || {}).video);
             });
         });
     };

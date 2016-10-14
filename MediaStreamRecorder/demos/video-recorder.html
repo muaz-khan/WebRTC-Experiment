@@ -1,10 +1,11 @@
 <!--
-> Muaz Khan     - https://github.com/muaz-khan
-> MIT License   - https://www.webrtc-experiment.com/licence/
-> Documentation - https://github.com/streamproc/MediaStreamRecorder
-> =================================================================
-> video-recorder.html
+. Muaz Khan     - https://github.com/muaz-khan
+. MIT License   - https://www.webrtc-experiment.com/licence/
+. Documentation - https://github.com/streamproc/MediaStreamRecorder
+. =================================================================
+. video-recorder.html
 -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,6 +19,13 @@
 
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
     <style>
         input {
             border: 1px solid rgb(46, 189, 235);
@@ -27,6 +35,15 @@
             padding: .2em .4em;
             width: 60px;
             text-align: center;
+        }
+
+        select {
+            vertical-align: middle;
+            line-height: 1;
+            padding: 2px 5px;
+            height: auto;
+            font-size: inherit;
+            margin: 0;
         }
     </style>
 </head>
@@ -53,6 +70,18 @@
         <section class="experiment" style="padding: 5px;">
             <label for="time-interval">Time Interval (milliseconds):</label>
             <input type="text" id="time-interval" value="5000">
+
+            <br>
+            <br> recorderType:
+
+            <select id="video-recorderType" style="font-size:22px;vertical-align: middle;margin-right: 5px;">
+                <option value="[Best Available Recorder]">[Best Available Recorder]</option>
+                <option value="MediaRecorder API">MediaRecorder API</option>
+                <option value="WebP encoding into WebM">WebP encoding into WebM</option>
+            </select>
+
+            <br>
+            <br>
 
             <button id="start-recording">Start</button>
             <button id="stop-recording" disabled>Stop</button>
@@ -143,7 +172,21 @@
 
                 mediaRecorder = new MediaStreamRecorder(stream);
                 mediaRecorder.stream = stream;
-                mediaRecorder.mimeType = 'video/webm'; // this line is mandatory
+
+                var recorderType = document.getElementById('video-recorderType').value;
+
+                if (recorderType === 'MediaRecorder API') {
+                    mediaRecorder.recorderType = MediaRecorderWrapper;
+                }
+
+                if (recorderType === 'WebP encoding into WebM') {
+                    mediaRecorder.recorderType = WhammyRecorder;
+                }
+
+                // don't force any mimeType; use above "recorderType" instead.
+                // mediaRecorder.mimeType = 'video/webm'; // video/webm or video/mp4
+
+
                 mediaRecorder.videoWidth = videoWidth;
                 mediaRecorder.videoHeight = videoHeight;
                 mediaRecorder.ondataavailable = function(blob) {

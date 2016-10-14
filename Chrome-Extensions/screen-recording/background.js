@@ -12,7 +12,7 @@ chrome.browserAction.setIcon({
 chrome.browserAction.onClicked.addListener(getUserConfigs);
 
 function captureDesktop() {
-    if (recorder) {
+    if (recorder && recorder.stream && recorder.stream.onended) {
         recorder.stream.onended();
         return;
     }
@@ -22,15 +22,14 @@ function captureDesktop() {
     });
 
     var screenSources = ['window', 'screen'];
-    
-    if(enableTabAudio) {
+
+    if (enableTabAudio) {
         screenSources = ['tab', 'audio'];
     }
 
     try {
         chrome.desktopCapture.chooseDesktopMedia(screenSources, onAccessApproved);
-    }
-    catch(e) {
+    } catch (e) {
         getUserMediaError();
     }
 }
@@ -38,7 +37,13 @@ function captureDesktop() {
 var recorder;
 
 function onAccessApproved(chromeMediaSourceId) {
-    if (!chromeMediaSourceId) {
+    if (!chromeMediaSourceId || !chromeMediaSourceId.toString().length) {
+        if (getChromeVersion() < 53) {
+            getUserMediaError();
+            return;
+        }
+
+        askToStopExternalStreams();
         setDefaults();
         chrome.runtime.reload();
         return;
@@ -55,25 +60,25 @@ function onAccessApproved(chromeMediaSourceId) {
         }
     };
 
-    if(aspectRatio) {
+    if (aspectRatio) {
         constraints.video.mandatory.minAspectRatio = aspectRatio;
     }
 
-    if(videoMaxFrameRates && videoMaxFrameRates.toString().length) {
+    if (videoMaxFrameRates && videoMaxFrameRates.toString().length) {
         videoMaxFrameRates = parseInt(videoMaxFrameRates);
 
         // 30 fps seems max-limit in Chrome?
-        if(videoMaxFrameRates /* && videoMaxFrameRates <= 30 */) {
+        if (videoMaxFrameRates /* && videoMaxFrameRates <= 30 */ ) {
             constraints.video.maxFrameRate = videoMaxFrameRates;
         }
     }
 
-    if(resolutions.maxWidth && resolutions.maxHeight) {
+    if (resolutions.maxWidth && resolutions.maxHeight) {
         constraints.video.mandatory.maxWidth = resolutions.maxWidth;
         constraints.video.mandatory.maxHeight = resolutions.maxHeight;
     }
 
-    if(enableTabAudio) {
+    if (enableTabAudio) {
         constraints.audio = {
             mandatory: {
                 chromeMediaSource: 'desktop',
@@ -92,7 +97,7 @@ function onAccessApproved(chromeMediaSourceId) {
             recorderType: MediaStreamRecorder // StereoAudioRecorder
         };
 
-        if(videoCodec && videoCodec !== 'Default') {
+        if (videoCodec && videoCodec !== 'Default') {
             // chrome 49+= supports vp8+vp9 (30 fps) and opus 48khz
             // firefox 30+ VP8 + vorbis 44.1 khz
 
@@ -100,47 +105,56 @@ function onAccessApproved(chromeMediaSourceId) {
             options.mimeType = 'video/webm; codecs=' + videoCodec.toLowerCase();
         }
 
-        if(getChromeVersion() >= 52) {
-            if(audioBitsPerSecond) {
+        if (getChromeVersion() >= 52) {
+            if (audioBitsPerSecond) {
                 audioBitsPerSecond = parseInt(audioBitsPerSecond);
-                if(!audioBitsPerSecond || audioBitsPerSecond > 128) { // 128000
+                if (!audioBitsPerSecond || audioBitsPerSecond > 128) { // 128000
                     audioBitsPerSecond = 128;
                 }
-                if(!audioBitsPerSecond || audioBitsPerSecond < 6) {
+                if (!audioBitsPerSecond || audioBitsPerSecond < 6) {
                     audioBitsPerSecond = 6; // opus (smallest 6kbps, maximum 128kbps)
                 }
             }
 
-            if(videoBitsPerSecond) {
+            if (videoBitsPerSecond) {
                 videoBitsPerSecond = parseInt(videoBitsPerSecond);
-                if(!videoBitsPerSecond || videoBitsPerSecond < 100) {
+                if (!videoBitsPerSecond || videoBitsPerSecond < 100) {
                     videoBitsPerSecond = 100; // vp8 (smallest 100kbps)
                 }
             }
 
-            if(enableTabAudio || enableMicrophone) {
-                if(audioBitsPerSecond) {
+            if (enableTabAudio || enableMicrophone) {
+                if (audioBitsPerSecond) {
                     options.audioBitsPerSecond = audioBitsPerSecond * 1000;
                 }
-                if(videoBitsPerSecond) {
+                if (videoBitsPerSecond) {
                     options.videoBitsPerSecond = videoBitsPerSecond * 1000;
                 }
-            }
-            else if(videoBitsPerSecond) {
+            } else if (videoBitsPerSecond) {
                 options.bitsPerSecond = videoBitsPerSecond * 1000;
             }
         }
 
-        if(audioStream && audioStream.getAudioTracks && audioStream.getAudioTracks().length) {
+        if (audioStream && audioStream.getAudioTracks && audioStream.getAudioTracks().length) {
             audioPlayer = document.createElement('audio');
             audioPlayer.src = URL.createObjectURL(audioStream);
+
+            audioPlayer.onended = function() {
+                console.warn('Audio player is stopped.');
+            };
+
+            audioPlayer.onpause = function() {
+                console.warn('Audio player is paused.');
+            };
+
+            audioPlayer.play();
 
             context = new AudioContext();
 
             var gainNode = context.createGain();
             gainNode.connect(context.destination);
             gainNode.gain.value = 0; // don't play for self
-            
+
             mediaStremSource = context.createMediaStreamSource(audioStream);
             mediaStremSource.connect(gainNode);
 
@@ -151,12 +165,11 @@ function onAccessApproved(chromeMediaSourceId) {
         }
 
         recorder = RecordRTC(stream, options);
-        
+
         try {
             recorder.startRecording();
             alreadyHadGUMError = false;
-        }
-        catch(e) {
+        } catch (e) {
             getUserMediaError();
         }
 
@@ -166,17 +179,31 @@ function onAccessApproved(chromeMediaSourceId) {
         onRecording();
 
         recorder.stream.onended = function() {
-            recorder.stream.onended = function() {};
+            if (recorder && recorder.stream) {
+                recorder.stream.onended = function() {};
+            }
+
             stopScreenRecording();
         };
 
         recorder.stream.getVideoTracks()[0].onended = function() {
-            recorder.stream.onended();
+            if (recorder && recorder.stream && recorder.stream.onended) {
+                recorder.stream.onended();
+            }
         };
 
         initialTime = Date.now()
         timer = setInterval(checkTime, 100);
     }
+}
+
+function askToStopExternalStreams() {
+    try {
+        runtimePort.postMessage({
+            stopStream: true,
+            messageFromContentScript1234: true
+        });
+    } catch (e) {}
 }
 
 var peer;
@@ -192,19 +219,12 @@ function stopScreenRecording() {
             chrome.runtime.reload();
         }, 1000);
 
-        try {
-            runtimePort.postMessage({
-                stopStream: true,
-                messageFromContentScript1234: true
-            });
-        }
-        catch(e) {}
+        askToStopExternalStreams();
 
         try {
             peer.close();
             peer = null;
-        }
-        catch(e) {}
+        } catch (e) {}
 
         try {
             audioPlayer.src = null;
@@ -212,8 +232,7 @@ function stopScreenRecording() {
             mediaStremSource.disconnect();
             context.disconnect();
             context = null;
-        }
-        catch(e) {}
+        } catch (e) {}
     });
 
     if (timer) {
@@ -233,7 +252,9 @@ function setDefaults() {
 
     if (recorder && recorder.stream) {
         recorder.stream.stop();
-        recorder.stream.onended();
+        if (recorder && recorder.stream && recorder.stream.onended) {
+            recorder.stream.onended();
+        }
     }
 
     recorder = null;
@@ -308,18 +329,18 @@ function convertTime(miliseconds) {
     minutes += '';
     seconds += '';
 
-    if(minutes.length === 1) {
+    if (minutes.length === 1) {
         // minutes = '0' + minutes;
     }
 
-    if(seconds.length === 1) {
+    if (seconds.length === 1) {
         seconds = '0' + seconds;
     }
 
     return minutes + ':' + seconds;
 }
 
-function getChromeVersion () {     
+function getChromeVersion() {
     var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
     return raw ? parseInt(raw[2], 10) : 52;
 }
@@ -329,8 +350,8 @@ var resolutions = {
     maxHeight: 8640
 };
 var aspectRatio = 1.77;
-var audioBitsPerSecond = 128;
-var videoBitsPerSecond = 4000;
+var audioBitsPerSecond = 0;
+var videoBitsPerSecond = 0;
 
 var enableTabAudio = false;
 var enableMicrophone = false;
@@ -341,11 +362,11 @@ var videoMaxFrameRates = '';
 
 function getUserConfigs() {
     chrome.storage.sync.get(null, function(items) {
-        if (items['audioBitsPerSecond']) {
+        if (items['audioBitsPerSecond'] && items['audioBitsPerSecond'].toString().length) {
             audioBitsPerSecond = parseInt(items['audioBitsPerSecond']);
         }
 
-        if (items['videoBitsPerSecond']) {
+        if (items['videoBitsPerSecond'] && items['videoBitsPerSecond'].toString().length) {
             videoBitsPerSecond = parseInt(items['videoBitsPerSecond']);
         }
 
@@ -361,8 +382,8 @@ function getUserConfigs() {
             videoCodec = items['videoCodec'];
         }
 
-        if (items['videoMaxFrameRates']) {
-            videoMaxFrameRates = items['videoMaxFrameRates'];
+        if (items['videoMaxFrameRates'] && items['videoMaxFrameRates'].toString().length) {
+            videoMaxFrameRates = parseInt(items['videoMaxFrameRates']);
         }
 
         var _resolutions = items['resolutions'];
@@ -545,9 +566,9 @@ function getUserConfigs() {
             resolutions.maxHeight = 360;
         }
 
-        if(enableMicrophone) {
+        if (enableMicrophone) {
             lookupForHTTPsTab(function(notification) {
-                if(notification === 'no-https-tab') {
+                if (notification === 'no-https-tab') {
                     // skip microphone
                     captureDesktop();
                 }
@@ -560,8 +581,9 @@ function getUserConfigs() {
 }
 
 var alreadyHadGUMError = false;
+
 function getUserMediaError() {
-    if(!alreadyHadGUMError) {
+    if (!alreadyHadGUMError) {
         // retry with default values
         resolutions = {};
         aspectRatio = false;
@@ -582,19 +604,20 @@ function getUserMediaError() {
         return;
     }
 
+    askToStopExternalStreams();
     setDefaults();
     chrome.runtime.reload();
 }
 
 // Check whether new version is installed
-chrome.runtime.onInstalled.addListener(function(details){
-    if(details.reason.search(/install/g) === -1) return;
+chrome.runtime.onInstalled.addListener(function(details) {
+    if (details.reason.search(/install/g) === -1) return;
     chrome.runtime.openOptionsPage();
 });
 
 // Check for updates
-chrome.runtime.onUpdateAvailable.addListener(function(details){
-    chrome.runtime.reload();
+chrome.runtime.onUpdateAvailable.addListener(function(details) {
+    // alert('RecordRTC chrome-extension has new updates. Please update the extension.');
 });
 
 var runtimePort;
@@ -607,15 +630,13 @@ chrome.runtime.onConnect.addListener(function(port) {
             return;
         }
 
-        if(message.sdp){
+        if (message.sdp) {
             createAnswer(message.sdp);
         }
     });
-
-    runtimePort.onDisconnect.addListener(function() {
-        chrome.runtime.reload();
-    });
 });
+
+var alreadyTriedToOpenAnHTTPsPage = false;
 
 function lookupForHTTPsTab(callback) {
     chrome.tabs.query({
@@ -624,22 +645,23 @@ function lookupForHTTPsTab(callback) {
     }, function(tabs) {
         var tabFound;
         tabs.forEach(function(tab) {
-            if(!tabFound && tab.url.length && tab.url.indexOf('https:') === 0 && !tab.incognito) {
+            if (!tabFound && tab.url.length && tab.url.indexOf('https:') === 0 && !tab.incognito) {
                 tabFound = tab;
             }
 
-            if(tab.active && tab.selected && tab.url.length && tab.url.indexOf('https:') === 0 && !tab.incognito) {
+            if (tab.active && tab.selected && tab.url.length && tab.url.indexOf('https:') === 0 && !tab.incognito) {
                 tabFound = tab;
             }
         });
 
-        if(tabFound) {
+        if (tabFound) {
             executeScript(tabFound.id);
-        }
-        else {
+        } else if (!alreadyTriedToOpenAnHTTPsPage) {
+            alreadyTriedToOpenAnHTTPsPage = true;
+
             // create new HTTPs tab and try again
             chrome.tabs.create({
-               url: 'https://rtcxp.com'
+                url: 'https://rtcxp.com'
             }, function() {
                 lookupForHTTPsTab(callback);
             });
@@ -648,7 +670,9 @@ function lookupForHTTPsTab(callback) {
 }
 
 function executeScript(tabId) {
-    chrome.tabs.update(tabId, {active: true});
+    chrome.tabs.update(tabId, {
+        active: true
+    });
     chrome.tabs.executeScript(tabId, {
         file: 'content-script.js'
     });
@@ -665,8 +689,15 @@ function createAnswer(sdp) {
                 sdp: peer.localDescription,
                 messageFromContentScript1234: true
             });
-        }
-        catch(e) {}
+        } catch (e) {}
+    };
+
+    peer.oniceconnectionstatechange = function() {
+        peer && console.debug('ice-state', {
+            iceConnectionState: peer.iceConnectionState,
+            iceGatheringState: peer.iceGatheringState,
+            signalingState: peer.signalingState
+        });
     };
 
     peer.onaddstream = function(event) {
@@ -688,7 +719,3 @@ function createAnswer(sdp) {
 }
 
 var audioPlayer, context, mediaStremSource, mediaStremDestination;
-
-// for testing purpose only
-// function setDefaults() {}
-// chrome.runtime.reload = function() {};

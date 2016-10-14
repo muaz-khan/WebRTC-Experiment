@@ -96,7 +96,7 @@ function RecordRTC(mediaStream, config) {
             _callback();
         }
 
-        function _callback() {
+        function _callback(__blob) {
             for (var item in mediaRecorder) {
                 if (self) {
                     self[item] = mediaRecorder[item];
@@ -108,6 +108,15 @@ function RecordRTC(mediaStream, config) {
             }
 
             var blob = mediaRecorder.blob;
+
+            if (!blob) {
+                if (__blob) {
+                    mediaRecorder.blob = blob = __blob;
+                } else {
+                    throw 'Recording failed.';
+                }
+            }
+
             if (callback) {
                 var url = URL.createObjectURL(blob);
                 callback(url);

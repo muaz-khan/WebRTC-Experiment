@@ -524,9 +524,7 @@
     	}
     </script>
     <script src="https://cdn.webrtc-experiment.com/RecordRTC/Canvas-Recording/canvas-designer.js"></script>
-	<script src="https://cdn.webrtc-experiment.com/RecordRTC/Whammy.js"></script>
-	<script src="https://cdn.webrtc-experiment.com/RecordRTC/CanvasRecorder.js"></script>
-	<script src="https://cdn.webrtc-experiment.com/RecordRTC/MediaStreamRecorder.js"></script>
+	<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
 	<script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script>
 
 	<div class="start-top-recording" style="position: absolute;top: 3px;right: 20px;z-index: 9;">
@@ -537,24 +535,17 @@
 	</div>
 
 	<script>
-	if(!!navigator.mozGetUserMedia) {
-		alert('This demo seems NOT supported in Firefox.');
-	}
-
 	var recorder;
 
 	document.getElementById('start').onclick = function() {
 	    document.getElementById('start').disabled = true;
 
-	    recorder = new CanvasRecorder(window.canvasElementToBeRecorded, {
-			frameInterval: document.getElementById('fps').value || 10, // 10 frames per second
-		    disableLogs: false,
-		    onEncodingCallback: function(framesRemaining, numberOfFrames) {
-		    	// console.log(framesRemaining, ' remaining out of ', numberOfFrames);
-		    }
+	    recorder = new RecordRTC(window.canvasElementToBeRecorded, {
+			type: 'canvas',
+		    disableLogs: false
 		});
 
-	    recorder.record();    
+	    recorder.startRecording();    
 	    setTimeout(function() {
 	         document.getElementById('stop').disabled = false;
 	    }, 1000);
@@ -565,7 +556,9 @@
 	   document.body.innerHTML = '<h1 style="font-size:30px;text-align:center;margin:15px;color:red;font-weight:normal;">Please check page title for the encoding progress.<br><br>Frames are being encoded to generate a HD smooth WebM!<br><br><small>Please never click "kill" button; otherwise the entire encoding process will be crashed.</small></h1>';
 	    
 	   setTimeout(function() {
-		   	recorder.stop(function(blob) {
+		   	recorder.stopRecording(function() {
+		   		var blob = recorder.getBlob();
+
 		    	var video = document.createElement('video');
 		        video.src = URL.createObjectURL(blob);
 		        video.setAttribute('style', 'height: 100%; position: absolute; top:0; left:0;z-index:9999;width:100%;');

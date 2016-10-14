@@ -1,7 +1,7 @@
 {
   "name": "gumadapter",
   "preferGlobal": false,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -12,6 +12,7 @@
     "type": "git",
     "url": "https://github.com/muaz-khan/gumadapter.git"
   },
+  "main": "gumadapter.js",
   "keywords": [
     "webrtc",
     "recordrtc",

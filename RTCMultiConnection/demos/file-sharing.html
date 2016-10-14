@@ -9,7 +9,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    
+
     <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
 
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,600' rel='stylesheet' type='text/css'>
@@ -23,12 +23,12 @@
         ::-webkit-scrollbar {
           height: 0;
           overflow: visible;
-          width: 10px;  
+          width: 10px;
           border-left:1px solid rgb(229, 229, 229);
         }
         ::-webkit-scrollbar-thumb {
           background-color: rgba(0, 0, 0, .2);
-          background-clip: padding-box;    
+          background-clip: padding-box;
           min-height: 28px;
           padding: 100px 0 0;
           box-shadow: inset 1px 1px 0 rgba(0,0,0,.1),inset 0 -1px 0 rgba(0,0,0,.07);
@@ -279,10 +279,10 @@
       // to get STUN/TURN URIs from xirsys.com
       window.getExternalIceServers = true;
     </script>
-    
+
     <!-- <script src="/dist/rmc3.min.js"></script> -->
         <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
-    
+
     <!-- <script src="/dev/FileBufferReader.js"></script> -->
     <script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
 
@@ -329,21 +329,26 @@
             }
         });
 
+        var btnSelectFile = document.querySelector('.btn-select-file');
+        var connection;
+
         function joinARoom(roomId) {
             var iframe = document.querySelector('iframe');
 
-            var btnSelectFile = document.querySelector('.btn-select-file');
+            btnSelectFile.onclick = function(file) {
+                if(file && (file instanceof File || file instanceof Blob) && file.size) {
+                  previewFile(file);
+                  onFileSelected(file);
+                  return;
+                }
 
-            btnSelectFile.onclick = function() {
                 var fileSelector = new FileSelector();
                 fileSelector.selectSingleFile(function(file) {
                     previewFile(file);
-
                     onFileSelected(file);
                 });
             };
 
-            var connection;
             var lastSelectedFile;
 
             var room_id = '';
@@ -428,7 +433,7 @@
                     var file = lastSelectedFile;
                     setTimeout(function() {
                         appendLog('Sharing file<br><b>' + file.name + '</b><br>Size: <b>' + bytesToSize(file.size) + '<b><br>With <b>' + connection.getAllParticipants().length + '</b> users');
-                        
+
                         connection.send({
                             doYouWannaReceiveThisFile: true,
                             fileName: file.size + file.name
@@ -719,6 +724,30 @@
 
         window.addEventListener('online', function() {
           location.reload();
+        }, false);
+
+        // drag-drop support
+        document.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.dataTransfer.dropEffect = 'copy';
+        }, false);
+
+        document.addEventListener('drop', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          if(!e.dataTransfer.files || !e.dataTransfer.files.length) {
+            return;
+          }
+
+          var file = e.dataTransfer.files[0];
+
+          if(!connection) {
+            document.getElementById('join-room').onclick();
+          }
+
+          btnSelectFile.onclick(file);
         }, false);
     </script>
 </body>

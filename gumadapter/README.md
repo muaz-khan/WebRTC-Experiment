@@ -28,7 +28,7 @@ E.g.
 
 ```html
 <!-- use 5.2.4 or any other version -->
-<script src="https://github.com/muaz-khan/gumadapter/releases/download/1.0.0/gumadapter.js"></script>
+<script src="https://github.com/muaz-khan/gumadapter/releases/download/1.0.1/gumadapter.js"></script>
 ```
 
 # How to use?

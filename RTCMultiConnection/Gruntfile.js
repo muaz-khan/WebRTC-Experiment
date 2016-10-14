@@ -51,7 +51,7 @@ module.exports = function(grunt) {
                     'dev/OnIceCandidateHandler.js',
                     'dev/IceServersHandler.js',
 
-                    'dev/gumadapter.js',
+                    // 'dev/gumadapter.js',
                     'dev/getUserMedia.js',
                     'dev/StreamsHandler.js',
 

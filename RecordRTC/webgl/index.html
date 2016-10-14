@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+
+<head lang="en-us">
+
+    <title>WebGL video recording using RecordRTC</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" />
+
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+
+</head>
+
+<body>
+
+    <div class="github-stargazers" style="top:5px;right:5px;"></div>
+
+    <img src="assets/icon.png" id="icon" alt="icon for image scrapers" />
+
+    <canvas id="canvas" width="1024" height="768"></canvas>
+
+    <div id="preloader">
+        <span class="outer">
+        <span class="inner">&nbsp;</span>
+        </span>
+    </div>
+
+    <div id="menu" class="modal">
+        <div class="inner">
+            <div class="wobble"><img src="assets/duck.png" />
+            </div>
+            <h1 class="wobble2">Ducks!</h1>
+            <h3>
+          WebGL video recording using <a href="https://github.com/muaz-khan/RecordRTC">RecordRTC</a>
+        </h3>
+            <h4>
+          Record 10-seconds video. It will auto stop after 10 seconds.
+        </h4>
+            <div class="padded">
+                <button id="btn-start-recording">Start Recording</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scorecard" class="modal">
+        <div class="inner">
+            <h3>Nice job! Your time:</h3>
+            <h1 class="wobble time"><!-- 15 seconds --></h1>
+            <h3>Your rank:</h3>
+            <h2 class="rank"><!-- Friendly Mallard --></h2>
+            <h3 class="byline"><!-- (That's pretty good) --></h3>
+            <div class="padded">
+                <button>Play again!</button>
+            </div>
+            <p class="info">
+                <!-- We'll populate this element from the p.info above. -->
+            </p>
+        </div>
+    </div>
+
+    <div id="debug"></div>
+
+    <script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/screenshot.js"></script>
+
+    <script src="vendor/glge-compiled.js"></script>
+    <script src="vendor/jquery-1.7.1.min.js"></script>
+    <script src="vendor/underscore-min.js"></script>
+    <script src="vendor/backbone-min.js"></script>
+    <script src="vendor/buzz.js"></script>
+
+    <script src="logic.js"></script>
+    <script src="view.js"></script>
+
+    <div style="position: absolute;right: 0;bottom: 0;z-index: 99999999999;background: #48b8dc;border-top-left-radius: 8px;padding: 5px 10px;padding-bottom: 0;">
+        WebGL demo is taken from:
+        <br><a href="https://github.com/statico/webgl-demos" target="_blank">statico/webgl-demos</a>
+    </div>
+
+    <a href="https://github.com/muaz-khan/RecordRTC" class="fork-left"></a>
+
+    <section id="ask" class="experiment">
+        <h2 class="header" id="feedback">Feedback</h2>
+        <div>
+            <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+        </div>
+        <button id="send-message" style="font-size: 1em;">Send Message</button>
+        <small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+    </section>
+
+    <!-- commits.js is useless for you! -->
+    <script>
+        window.useThisGithubPath = 'muaz-khan/RecordRTC';
+    </script>
+    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+
+</body>
+
+</html>

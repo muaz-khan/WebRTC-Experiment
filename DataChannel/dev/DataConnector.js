@@ -153,6 +153,12 @@ function DataConnector(root, config) {
             }
 
             if (response.candidate && !gotstream && peer) {
+                if (!inner.firstPart || !inner.secondPart || !inner.thirdPart) {
+                    return setTimeout(function() {
+                        socketResponse(response);
+                    }, 400);
+                }
+
                 peer.addICE({
                     sdpMLineIndex: response.candidate.sdpMLineIndex,
                     candidate: JSON.parse(response.candidate.candidate)

@@ -227,29 +227,28 @@
 
     <!-- below section handles RecordRTC and WhammyRecorder -->
     
-    <script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
 
     <script>
         document.getElementById('btn-record-webm').onclick = function() {
             this.disabled = true;
 
-            var video = new Whammy.Video(100);
             var canvas = document.getElementById('canvas');
 
-            var stop = false;
-            var lastTime = (new Date).getTime();
-            (function looper() {
-                var currentTime = (new Date).getTime();
-                video.frames.push({
-                    duration: currentTime - lastTime,
-                    image: canvas.toDataURL('image/webp', 1)
-                });
-                lastTime = currentTime;
+            var recorder = RecordRTC(canvas, {
+                type: 'canvas'
+            });
 
+            recorder.startRecording();
+
+            var stop = false;
+            
+            (function looper() {
                 if(stop) {
-                    video.compile(function(blob) {
+                    recorder.stopRecording(function() {
+                        var blob = recorder.getBlob();
                         document.body.innerHTML = '<video controls src="' + URL.createObjectURL(blob) + '" autoplay loop></video>';
-                    })
+                    });
                     return;
                 }
                 setTimeout(looper, 100);
@@ -258,7 +257,9 @@
             var seconds = 15;
             var interval = setInterval(function() {
                 seconds--;
-                document.querySelector('h1').innerHTML = seconds + ' seconds remaining.';
+                if(document.querySelector('h1')) {
+                    document.querySelector('h1').innerHTML = seconds + ' seconds remaining.';
+                }
             }, 1000);
 
             setTimeout(function() {

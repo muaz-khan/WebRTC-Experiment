@@ -1,9 +1,5 @@
 // getUserMediaHandler.js
 
-if (typeof webrtcUtils !== 'undefined') {
-    webrtcUtils.enableLogs = false;
-}
-
 function setStreamType(constraints, stream) {
     if (constraints.mandatory && constraints.mandatory.chromeMediaSource) {
         stream.isScreen = true;
@@ -56,7 +52,12 @@ function getUserMediaHandler(options) {
         setStreamType(options.localMediaConstraints, stream);
         options.onGettingLocalMedia(stream, returnBack);
 
-        stream.addEventListener('ended', function() {
+        var streamEndedEvent = 'ended';
+
+        if ('oninactive' in stream) {
+            streamEndedEvent = 'inactive';
+        }
+        stream.addEventListener(streamEndedEvent, function() {
             delete currentUserMediaRequest.streams[idInstance];
 
             currentUserMediaRequest.mutex = false;
@@ -89,6 +90,19 @@ function getUserMediaHandler(options) {
                 streaming(stream);
             }, function(error) {});
 
+            return;
+        }
+
+        var isBlackBerry = !!(/BB10|BlackBerry/i.test(navigator.userAgent || ''));
+        if (isBlackBerry || typeof navigator.mediaDevices === 'undefined' || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+            navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            navigator.getUserMedia(options.localMediaConstraints, function(stream) {
+                stream.streamid = stream.streamid || stream.id || getRandomString();
+                stream.idInstance = idInstance;
+                streaming(stream);
+            }, function(error) {
+                options.onLocalMediaError(error, options.localMediaConstraints);
+            });
             return;
         }
 

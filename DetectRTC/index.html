@@ -140,9 +140,14 @@
             <script>
                 var browserFeaturesTable = document.querySelector('#browser-features');
 
+                var screenWidth00 = innerWidth;
+                if(document.querySelector('article')) {
+                    screenWidth00 = document.querySelector('article').clientWidth;
+                }
+
                 function appendTR(firstValue, secondValue) {
                     var tr = document.createElement('tr');
-                    tr.innerHTML = '<td style="padding:5px;max-width:' + (parseInt(innerWidth / 2) -  180) + 'px; overflow:hidden;">' + firstValue + '</td><td style="padding:5px;">' + secondValue + '</td>';
+                    tr.innerHTML = '<td style="padding:5px;width:' + (parseInt(screenWidth00 / 2) -  180) + 'px!important; overflow:hidden;">' + firstValue + '</td><td style="padding:5px;">' + secondValue + '</td>';
                     browserFeaturesTable.appendChild(tr);
                     return tr;
                 }
@@ -339,6 +344,7 @@ rtpSenders.replaceTrack(newTrack);';
                     this.parentNode.removeChild(this);
 
                     html2canvas(browserFeaturesTable.parentNode, {
+                        background :'#FFFFFF',
                         grabMouse: false,
                         onrendered: function(canvas) {
                             var image = canvas.toDataURL('image/jpeg');

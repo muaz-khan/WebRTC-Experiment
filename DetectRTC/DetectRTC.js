@@ -1,4 +1,4 @@
-// Last time updated: 2016-05-24 2:44:27 PM UTC
+// Last time updated: 2016-10-12 6:16:40 AM UTC
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/DetectRTC.js
 
@@ -80,7 +80,7 @@
         };
     }
 
-    var isMobileDevice = !!(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(navigator.userAgent || ''));
+    var isMobileDevice = !!(/Android|webOS|iPhone|iPad|iPod|BB10|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(navigator.userAgent || ''));
 
     var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob);
 
@@ -226,7 +226,6 @@
                     isPrivate = false;
                 },
                 function(e) {
-                    console.log(e);
                     isPrivate = true;
                 }
             );
@@ -234,6 +233,9 @@
             var db;
             try {
                 db = window.indexedDB.open('test');
+                db.onerror = function() {
+                    return true;
+                };
             } catch (e) {
                 isPrivate = true;
             }
@@ -287,7 +289,7 @@
             return navigator.userAgent.match(/Android/i);
         },
         BlackBerry: function() {
-            return navigator.userAgent.match(/BlackBerry/i);
+            return navigator.userAgent.match(/BlackBerry|BB10/i);
         },
         iOS: function() {
             return navigator.userAgent.match(/iPhone|iPad|iPod/i);

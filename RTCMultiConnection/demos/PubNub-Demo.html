@@ -51,7 +51,7 @@
         </header>
 
         <div class="github-stargazers"></div>
-        
+
         <section class="experiment">
             <div class="make-center">
                 <input type="text" id="room-id" value="abcdef">
@@ -75,7 +75,7 @@
 
         <!-- <script src="/dist/rmc3.min.js"></script> -->
         <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
-        
+
         <!-- <script src="/dev/FileBufferReader.js"></script> -->
         <script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
 
@@ -226,8 +226,11 @@
             document.getElementById('room-id').onkeyup = function() {
                 localStorage.setItem(connection.socketMessageEvent, this.value);
             };
-            
+
             var hashString = location.hash.replace('#', '');
+            if(hashString.length && hashString.indexOf('comment-') == 0) {
+              hashString = '';
+            }
 
             var roomid = params.roomid;
             if(!roomid && hashString.length) {

@@ -27,7 +27,8 @@ function MediaStreamRecorder(mediaStream) {
         }
 
         // audio/wav is supported only via StereoAudioRecorder
-        if (this.mimeType === 'audio/wav') {
+        // audio/pcm (int16) is supported only via StereoAudioRecorder
+        if (this.mimeType === 'audio/wav' || this.mimeType === 'audio/pcm') {
             Recorder = StereoAudioRecorder;
         }
 

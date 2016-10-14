@@ -42,9 +42,9 @@ DetectRTC.isMediaHintsSupportsNewSyntax
 node server.js
 
 # and open:
-127.0.0.1:9001 
+127.0.0.1:9001
 
-# or 
+# or
 http://localhost:9001
 ```
 
@@ -88,7 +88,7 @@ node npm-test.js
 You can even link specific versions:
 
 ```html
-<script src="https://github.com/muaz-khan/DetectRTC/releases/download/1.3.1/DetectRTC.js"></script>
+<script src="https://github.com/muaz-khan/DetectRTC/releases/download/1.3.2/DetectRTC.js"></script>
 ```
 
 <img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
@@ -124,10 +124,10 @@ DetectRTC.load(function() {
     DetectRTC.audioInputDevices    // microphones
     DetectRTC.audioOutputDevices   // speakers
     DetectRTC.videoInputDevices    // cameras
-    
+
     DetectRTC.osName
     DetectRTC.osVersion
-    
+
     DetectRTC.browser.name === 'Edge' || 'Chrome' || 'Firefox'
     DetectRTC.browser.version
     DetectRTC.browser.isChrome
@@ -179,7 +179,7 @@ function selectSecondaryCamera() {
 
         navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
         navigator.getUserMedia({ video: videoConstraints }, function(stream) {
-            // 
+            //
         }, function(error) {
             alert(JSON.stringify(error));
         });

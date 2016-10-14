@@ -35,6 +35,19 @@ module.exports = exports = function(app, socketCallback) {
             extra = alreadyExists.extra;
         }
 
+        var params = socket.handshake.query;
+
+        if (params.extra) {
+            try {
+                if (typeof params.extra === 'string') {
+                    params.extra = JSON.parse(params.extra);
+                }
+                extra = params.extra;
+            } catch (e) {
+                extra = params.extra;
+            }
+        }
+
         listOfUsers[socket.userid] = {
             socket: socket,
             connectedWith: {},
@@ -79,6 +92,15 @@ module.exports = exports = function(app, socketCallback) {
             }
         });
 
+        socket.on('get-remote-user-extra-data', function(remoteUserId, callback) {
+            callback = callback || function() {};
+            if (!remoteUserId || !listOfUsers[remoteUserId]) {
+                callback('remoteUserId (' + remoteUserId + ') does NOT exists.');
+                return;
+            }
+            callback(listOfUsers[remoteUserId].extra);
+        });
+
         socket.on('become-a-public-moderator', function() {
             try {
                 if (!listOfUsers[socket.userid]) return;
@@ -86,6 +108,18 @@ module.exports = exports = function(app, socketCallback) {
             } catch (e) {
                 pushLogs('become-a-public-moderator', e);
             }
+        });
+
+        var dontDuplicateListeners = {};
+        socket.on('set-custom-socket-event-listener', function(customEvent) {
+            if (dontDuplicateListeners[customEvent]) return;
+            dontDuplicateListeners[customEvent] = customEvent;
+
+            socket.on(customEvent, function(message) {
+                try {
+                    socket.broadcast.emit(customEvent, message);
+                } catch (e) {}
+            });
         });
 
         socket.on('dont-make-me-moderator', function() {

@@ -2,6 +2,8 @@
 
 > Please make sure you've [installed](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/installation-guide.md) RTCMultiConnection.
 
+* [Getting Started guide for RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/getting-started.md)
+
 All files from `/dist` directory are available on CDN: `https://cdn.webrtc-experiment.com:443/`
 
 ```html
@@ -14,7 +16,7 @@ All files from `/dist` directory are available on CDN: `https://cdn.webrtc-exper
 <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
 
 <!-- or specific version -->
-<script src="https://github.com/muaz-khan/RTCMultiConnection/releases/download/3.3.6/rmc3.min.js"></script>
+<script src="https://github.com/muaz-khan/RTCMultiConnection/releases/download/3.3.9/rmc3.min.js"></script>
 ```
 
 If you're sharing files, you also need to link:
@@ -26,7 +28,7 @@ If you're sharing files, you also need to link:
 <script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
 
 <!-- or specific version -->
-<script src="https://github.com/muaz-khan/RTCMultiConnection/releases/download/3.3.6/rmc3.fbr.min.js"></script>
+<script src="https://github.com/muaz-khan/RTCMultiConnection/releases/download/3.3.9/rmc3.fbr.min.js"></script>
 ```
 
 > You can link multiple files from `dev` directory. Order doesn't matters.
@@ -100,13 +102,14 @@ server.listen(3000);
 require('./Signaling-Server.js')(server);
 ```
 
-# RTCMultiConnection [Documentation](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/)
+# Other Documents
 
 1. [Installation Guide](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/installation-guide.md)
 2. [How to Use?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/how-to-use.md)
 3. [API Reference](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/api.md)
 4. [Upgrade from v2 to v3](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/upgrade.md)
 5. [How to write iOS/Android applications?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/ios-android.md)
+6. [Tips & Tricks](https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/tips-tricks.md)
 
 ## Twitter
 

@@ -1,4 +1,4 @@
-// Last time updated: 2016-06-02 5:43:06 PM UTC
+// Last time updated: 2016-07-01 7:33:53 PM UTC
 
 // _______________
 // Canvas-Designer
@@ -314,31 +314,36 @@
                 if (p[0] === 'arc') {
                     output += 'context.beginPath();\n' + 'context.arc(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ', ' + point[2] + ', ' + point[3] + ', 0, ' + point[4] + ');\n'
 
-                    + this.strokeOrFill(p[2]);
+                    +
+                    this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'pencil') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n'
 
-                    + this.strokeOrFill(p[2]);
+                    +
+                    this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'marker') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n'
 
-                    + this.strokeOrFill(p[2]);
+                    +
+                    this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'eraser') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n'
 
-                    + this.strokeOrFill(p[2]);
+                    +
+                    this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'line') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n'
 
-                    + this.strokeOrFill(p[2]);
+                    +
+                    this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'arrow') {
@@ -356,13 +361,15 @@
                 if (p[0] === 'quadratic') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.quadraticCurveTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ', ' + getPoint(point[4], x, 'x') + ', ' + getPoint(point[5], y, 'y') + ');\n'
 
-                    + this.strokeOrFill(p[2]);
+                    +
+                    this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'bezier') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.bezierCurveTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ', ' + getPoint(point[4], x, 'x') + ', ' + getPoint(point[5], y, 'y') + ', ' + getPoint(point[6], x, 'x') + ', ' + getPoint(point[7], y, 'y') + ');\n'
 
-                    + this.strokeOrFill(p[2]);
+                    +
+                    this.strokeOrFill(p[2]);
                 }
 
                 if (i !== length - 1) output += '\n\n';
@@ -374,66 +381,84 @@
         forLoop: 'for(i; i < length; i++) {\n' + '    p = points[i];\n' + '    point = p[1];\n' + '    context.beginPath();\n\n'
 
         // globals
-            + '    if(p[2]) { \n' + '\tcontext.lineWidth = p[2][0];\n' + '\tcontext.strokeStyle = p[2][1];\n' + '\tcontext.fillStyle = p[2][2];\n'
+            +
+            '    if(p[2]) { \n' + '\tcontext.lineWidth = p[2][0];\n' + '\tcontext.strokeStyle = p[2][1];\n' + '\tcontext.fillStyle = p[2][2];\n'
 
-            + '\tcontext.globalAlpha = p[2][3];\n' + '\tcontext.globalCompositeOperation = p[2][4];\n' + '\tcontext.lineCap = p[2][5];\n' + '\tcontext.lineJoin = p[2][6];\n' + '\tcontext.font = p[2][7];\n' + '    }\n\n'
+            +
+            '\tcontext.globalAlpha = p[2][3];\n' + '\tcontext.globalCompositeOperation = p[2][4];\n' + '\tcontext.lineCap = p[2][5];\n' + '\tcontext.lineJoin = p[2][6];\n' + '\tcontext.font = p[2][7];\n' + '    }\n\n'
 
         // line
 
-            + '    if(p[0] === "line") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
+            +
+            '    if(p[0] === "line") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
         // arrow
 
-            + '    if(p[0] === "arrow") { \n' + '\tdrawArrow(point[0], point[1], point[2], point[3], p[2]);\n' + '    }\n\n'
+            +
+            '    if(p[0] === "arrow") { \n' + '\tdrawArrow(point[0], point[1], point[2], point[3], p[2]);\n' + '    }\n\n'
 
         // pencil
 
-            + '    if(p[0] === "pencil") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
+            +
+            '    if(p[0] === "pencil") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
         // marker
 
-            + '    if(p[0] === "marker") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
+            +
+            '    if(p[0] === "marker") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
 
         // text
 
-            + '    if(p[0] === "text") { \n' + '\tcontext.fillText(point[0], point[1], point[2]);\n' + '    }\n\n'
+            +
+            '    if(p[0] === "text") { \n' + '\tcontext.fillText(point[0], point[1], point[2]);\n' + '    }\n\n'
 
         // eraser
 
-            + '    if(p[0] === "eraser") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
+            +
+            '    if(p[0] === "eraser") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
         // arc
 
-            + '    if(p[0] === "arc") context.arc(point[0], point[1], point[2], point[3], 0, point[4]); \n\n'
+            +
+            '    if(p[0] === "arc") context.arc(point[0], point[1], point[2], point[3], 0, point[4]); \n\n'
 
         // rect
 
-            + '    if(p[0] === "rect") {\n' + '\tcontext.strokeRect(point[0], point[1], point[2], point[3]);\n' + '\tcontext.fillRect(point[0], point[1], point[2], point[3]);\n'
+            +
+            '    if(p[0] === "rect") {\n' + '\tcontext.strokeRect(point[0], point[1], point[2], point[3]);\n' + '\tcontext.fillRect(point[0], point[1], point[2], point[3]);\n'
 
-            + '    }\n\n'
+            +
+            '    }\n\n'
 
         // quadratic
 
-            + '    if(p[0] === "quadratic") {\n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.quadraticCurveTo(point[2], point[3], point[4], point[5]);\n' + '    }\n\n'
+            +
+            '    if(p[0] === "quadratic") {\n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.quadraticCurveTo(point[2], point[3], point[4], point[5]);\n' + '    }\n\n'
 
         // bezier
 
-            + '    if(p[0] === "bezier") {\n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.bezierCurveTo(point[2], point[3], point[4], point[5], point[6], point[7]);\n' + '    }\n\n'
+            +
+            '    if(p[0] === "bezier") {\n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.bezierCurveTo(point[2], point[3], point[4], point[5], point[6], point[7]);\n' + '    }\n\n'
 
         // end-fill
 
-            + '    context.stroke();\n' + '    context.fill();\n'
+            +
+            '    context.stroke();\n' + '    context.fill();\n'
 
-            + '}',
+            +
+            '}',
 
         strokeFillText: '\n\nfunction strokeOrFill(lineWidth, strokeStyle, fillStyle, globalAlpha, globalCompositeOperation, lineCap, lineJoin, font) { \n' + '    if(lineWidth) { \n' + '\tcontext.globalAlpha = globalAlpha;\n' + '\tcontext.globalCompositeOperation = globalCompositeOperation;\n' + '\tcontext.lineCap = lineCap;\n' + '\tcontext.lineJoin = lineJoin;\n'
 
-            + '\tcontext.lineWidth = lineWidth;\n' + '\tcontext.strokeStyle = strokeStyle;\n' + '\tcontext.fillStyle = fillStyle;\n' + '\tcontext.font = font;\n' + '    } \n\n'
+            +
+            '\tcontext.lineWidth = lineWidth;\n' + '\tcontext.strokeStyle = strokeStyle;\n' + '\tcontext.fillStyle = fillStyle;\n' + '\tcontext.font = font;\n' + '    } \n\n'
 
-            + '    context.stroke();\n' + '    context.fill();\n'
+            +
+            '    context.stroke();\n' + '    context.fill();\n'
 
-            + '}',
+            +
+            '}',
         strokeOrFill: function(p) {
             if (!this.prevProps || this.prevProps !== p.join(',')) {
                 this.prevProps = p.join(',');
@@ -878,17 +903,10 @@
         } else document.getElementById('pencil-icon').style.display = 'none';
 
         function decorateMarker() {
+
             function hexToRGBA(h, alpha) {
                 return 'rgba(' + hexToRGB(h).join(',') + ',' + alpha + ')';
             }
-
-            function doneHandler() {
-                markerContainer.style.display = 'none';
-
-                markerLineWidth = strokeStyleText.value;
-                markerStrokeStyle = hexToRGBA(fillStyleText.value, alpha);
-            }
-
             var colors = [
                 ['FFFFFF', '006600', '000099', 'CC0000', '8C4600'],
                 ['CCCCCC', '00CC00', '6633CC', 'FF0000', 'B28500'],
@@ -913,18 +931,25 @@
             bindEvent(context, 'Marker');
 
             var markerContainer = find('marker-container'),
+                markerColorContainer = find('marker-fill-colors'),
                 strokeStyleText = find('marker-stroke-style'),
                 markerColorsList = find("marker-colors-list"),
                 fillStyleText = find('marker-fill-style'),
+                markerSelectedColor = find('marker-selected-color'),
+                markerSelectedColor2 = find('marker-selected-color-2'),
                 btnMarkerDone = find('marker-done'),
                 canvas = context.canvas,
                 alpha = 0.2;
 
             // START INIT MARKER
 
-            markerStrokeStyle = hexToRGBA(fillStyleText.value, alpha);
 
-            var html = '';
+
+            markerStrokeStyle = hexToRGBA(fillStyleText.value, alpha)
+
+            markerSelectedColor.style.backgroundColor =
+                markerSelectedColor2.style.backgroundColor = '#' + fillStyleText.value;
+
             colors.forEach(function(colorRow) {
                 var row = '<tr>';
 
@@ -933,25 +958,28 @@
                 })
                 row += '</tr>';
 
-                html += row;
-            });
-
-            markerColorsList.innerHTML = html;
+                markerColorsList.innerHTML += row;
+            })
 
             // console.log(markerColorsList.getElementsByTagName('td'))
             Array.prototype.slice.call(markerColorsList.getElementsByTagName('td')).forEach(function(td) {
                 addEvent(td, 'mouseover', function() {
                     var elColor = td.getAttribute('data-color');
+                    markerSelectedColor2.style.backgroundColor = '#' + elColor;
                     fillStyleText.value = elColor
                 });
 
                 addEvent(td, 'click', function() {
                     var elColor = td.getAttribute('data-color');
+                    markerSelectedColor.style.backgroundColor =
+                        markerSelectedColor2.style.backgroundColor = '#' + elColor;
+
                     fillStyleText.value = elColor;
 
-                    doneHandler();
+
+                    markerColorContainer.style.display = 'none';
                 });
-            });
+            })
 
             // END INIT MARKER
 
@@ -965,7 +993,17 @@
                 fillStyleText.focus();
             });
 
-            addEvent(btnMarkerDone, 'click', doneHandler);
+            addEvent(btnMarkerDone, 'click', function() {
+                markerContainer.style.display = 'none';
+                markerColorContainer.style.display = 'none';
+
+                markerLineWidth = strokeStyleText.value;
+                markerStrokeStyle = hexToRGBA(fillStyleText.value, alpha);
+            });
+
+            addEvent(markerSelectedColor, 'click', function() {
+                markerColorContainer.style.display = 'block';
+            });
         }
 
         if (tools.marker === true) {
@@ -1288,10 +1326,12 @@
         var additionalContainer = find('additional-container'),
             colorsContainer = find('colors-container'),
             markerContainer = find('marker-container'),
+            markerColorContainer = find('marker-fill-colors'),
             lineWidthContainer = find('line-width-container');
 
         additionalContainer.style.display =
             colorsContainer.style.display =
+            markerColorContainer.style.display =
             markerContainer.style.display =
             lineWidthContainer.style.display = 'none';
     }
@@ -2173,9 +2213,9 @@
             // make sure that pencil is drawing shapes even 
             // if mouse is down but mouse isn't moving
             tempContext.lineCap = 'round';
-            markerDrawHelper.marker(tempContext, [t.prevX, t.prevY, x, y]);
+            markerDrawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
 
-            points[points.length] = ['marker', [t.prevX, t.prevY, x, y], markerDrawHelper.getOptions()];
+            points[points.length] = ['line', [t.prevX, t.prevY, x, y], markerDrawHelper.getOptions()];
 
             t.prevX = x;
             t.prevY = y;
@@ -2191,59 +2231,15 @@
 
             if (t.ismousedown) {
                 tempContext.lineCap = 'round';
-                markerDrawHelper.marker(tempContext, [t.prevX, t.prevY, x, y]);
+                markerDrawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
 
-                points[points.length] = ['marker', [t.prevX, t.prevY, x, y], markerDrawHelper.getOptions()];
+                points[points.length] = ['line', [t.prevX, t.prevY, x, y], markerDrawHelper.getOptions()];
 
                 t.prevX = x;
                 t.prevY = y;
             }
         }
     }
-
-    var eraserHandler = {
-        ismousedown: false,
-        prevX: 0,
-        prevY: 0,
-        mousedown: function(e) {
-            var x = e.pageX - canvas.offsetLeft,
-                y = e.pageY - canvas.offsetTop;
-
-            var t = this;
-
-            t.prevX = x;
-            t.prevY = y;
-
-            t.ismousedown = true;
-
-            tempContext.lineCap = 'round';
-            drawHelper.marker(tempContext, [t.prevX, t.prevY, x, y]);
-
-            points[points.length] = ['marker', [t.prevX, t.prevY, x, y], drawHelper.getOptions()];
-
-            t.prevX = x;
-            t.prevY = y;
-        },
-        mouseup: function(e) {
-            this.ismousedown = false;
-        },
-        mousemove: function(e) {
-            var x = e.pageX - canvas.offsetLeft,
-                y = e.pageY - canvas.offsetTop;
-
-            var t = this;
-
-            if (t.ismousedown) {
-                tempContext.lineCap = 'round';
-                drawHelper.marker(tempContext, [t.prevX, t.prevY, x, y]);
-
-                points[points.length] = ['marker', [t.prevX, t.prevY, x, y], drawHelper.getOptions()];
-
-                t.prevX = x;
-                t.prevY = y;
-            }
-        }
-    };
 
     function clone(obj) {
         if (obj === null || typeof(obj) !== 'object' || 'isActiveClone' in obj)

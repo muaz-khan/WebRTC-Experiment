@@ -1,0 +1,138 @@
+* {
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #ccc;
+  overflow: hidden;
+  font-family: sans-serif;
+}
+
+canvas {
+  z-index: 1;
+}
+
+#preloader {
+  z-index: 10;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: #22738a;
+  text-align: center;
+  padding-top: 20%;
+}
+#preloader .outer {
+  position: relative;
+  display: inline-block;
+  border-radius: 5px;
+  width: 300px;
+  height: 20px;
+  border: 4px solid #fff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.75);
+}
+#preloader .inner {
+  position: absolute;
+  display: inline-block;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: #fff;
+}
+
+/* http://stackoverflow.com/questions/1776915/ */
+.modal {
+  z-index: 5;
+  position: absolute;
+  left: 50%;
+  top: 15%;
+  display: none;
+}
+.modal .inner {
+  position: relative;
+  left: -50%;
+  width: 300px;
+  padding: 20px;
+  text-align: center;
+  background: rgba(0, 0, 0, .75);
+  color: #ff0;
+  border-radius: 15px;
+}
+.modal h1 {
+  font-size: 400%;
+}
+.modal h2 {
+  font-size: 250%;
+}
+.modal h3 {
+  font-size: 160%;
+}
+.modal button {
+  font-size: 200%;
+  padding: .2em 1em;
+  border: 2px solid white;
+  border-radius: 20px;
+  box-shadow: inset 0px 0px 1px #000;
+  background: #ff0;
+  background: -moz-linear-gradient(top, #ffc 0%, #ff0);
+  background: -webkit-gradient( linear, left top, left bottom, from(#ffc), to(#ff0));
+  color: #000;
+  border-image: initial;
+}
+.modal p {
+  font-size: 60%;
+}
+.modal a {
+  color: #cf0;
+}
+.modal .padded {
+  margin: 20px auto;
+}
+
+h1, h2, h3, button {
+  font-family: 'Bubblegum Sans', sans-serif;
+  font-weight: 400;
+}
+button {
+  cursor: pointer;
+}
+
+#debug {
+  display: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 3px;
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  font-family: monospace;
+  min-width: 300px;
+}
+
+#icon {
+  display: none;
+}
+
+.wobble {
+  -webkit-animation: wobble 1s infinite;
+}
+@-webkit-keyframes wobble {
+  0%   { -webkit-transform: rotateZ(-9deg); }
+  50%  { -webkit-transform: rotateZ(-3deg); }
+  100% { -webkit-transform: rotateZ(-9deg); }
+}
+
+.wobble2 {
+  -webkit-animation: wobble2 1s infinite;
+}
+@-webkit-keyframes wobble2 {
+  0%   { -webkit-transform: rotateZ(-3deg); }
+  50%  { -webkit-transform: rotateZ(-9deg); }
+  100% { -webkit-transform: rotateZ(-3deg); }
+}

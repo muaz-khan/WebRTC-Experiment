@@ -14,7 +14,7 @@ input {
 
 body { 
     padding: 10px;
-    min-width: 500px;
+    min-width: 520px;
 }
 
 hr {
@@ -69,18 +69,21 @@ input[disabled], label[disabled] {
 <input type="checkbox" id="enableMicrophone"> <label for="enableMicrophone">Include Microphone?</label>
 <br>
 <small style="font-size:13px;margin-left:32px;display:block;">
-    Record your own voice using Microphone. <img id="enableMicrophone-help" src="images/help.png" class="help-img">
+    Record Microphone + (full screen or tab or any app's screen).
 </small>
 
 <br>
 <hr>
 <br>
 
-<input type="checkbox" id="enableTabAudio"> <label for="enableTabAudio">Enable audio+tab recording?</label>
-<br>
-<small style="font-size:13px;margin-left:32px;display:block;">
-    Record all-audios on a tab. Record entire conference!
-</small>
+<div>
+    <input type="checkbox" id="enableTabAudio"> <label for="enableTabAudio">Record all audios on a tab?</label>
+    <br>
+    <small style="font-size:13px;margin-left:32px;display:block;">
+        Record all-audios on a tab. Record entire conference!
+    </small>
+</div>
+
 
 <br>
 <hr>

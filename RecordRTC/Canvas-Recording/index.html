@@ -1,194 +1,181 @@
-<title>RecordRTC Canvas/HTML Recorder</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-<meta name="author" content="Muaz Khan">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<!--
+> Muaz Khan     - www.MuazKhan.com
+> MIT License   - www.WebRTC-Experiment.com/licence
+> Documentation - github.com/muaz-khan/RecordRTC
+> and           - RecordRTC.org
+-->
+<!DOCTYPE html>
+<html lang="en">
 
-<style>
-body {
-    overflow-x: hidden;
-    background: rgb(233, 233, 233);
-}
+<head>
+    <title>Canvas Recording using RecordRTC ® Muaz Khan</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
-#elementToShare {
-    background: rgb(233, 233, 233);
-    font-size: 2em;
-    height: 100%;
-    left: 0;
-    padding: 0 1em;
-    position: absolute;
-    top: 0;
-    width: 100%;
-}
-
-input,
-textarea {
-    border: 1px solid red;
-    font-size: 1em;
-    outline: none;
-    padding: .3em .8em;
-}
-
-button,
-input[type=button] {
-    -moz-border-radius: 3px;
-    -moz-transition: none;
-    -webkit-transition: none;
-    background: #0370ea;
-    background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
-    background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
-    border: 1px solid #076bd2;
-    border-radius: 3px;
-    color: #fff;
-    display: inline-block;
-    font-family: inherit;
-    font-size: .8em;
-    font-size: 1.5em;
-    line-height: 1.3;
-    padding: 5px 12px;
-    text-align: center;
-    text-shadow: 1px 1px 1px #076bd2;
-}
-
-button:hover,
-input[type=button]:hover {
-    background: rgb(9, 147, 240);
-}
-
-button:active,
-input[type=button]:active {
-    background: rgb(10, 118, 190);
-}
-
-button[disabled],
-input[type=button][disabled] {
-    background: none;
-    border: 1px solid rgb(187, 181, 181);
-    color: gray;
-    text-shadow: none;
-}
-
-a {
-    color: #2844FA;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-a:hover,
-a:focus {
-    color: #1B29A4;
-}
-
-a:active {
-    color: #000;
-}
-
-img, textarea, input, video {
-    vertical-align: top;
-}
-textarea {
-    resize: verticalz;
-}
-</style>
-
-<div id="elementToShare" contenteditable style="margin-top: 3px;">
-    <h2>Welcome to <a href="https://www.webrtc-experiment.com/RecordRTC/" contenteditable="false">RecordRTC</a> Canvas/HTML Recorder!</h2>
-    <input type="text" value="Type Text!" />
-    <textarea>resize textarea</textarea><br>
-    You can resize image or above header and drag/move video:<br>
-    <img src="WebRTC.png" style="max-width:100%;position:absolute;left:0;background-color:black;">
-    <video controls style="width:33%;position:absolute;right:100px; top:150px;background-color:black;" poster="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTaNXZNkyP2h2vTVJ6MNzQ-qjN8CkmPgtXmNwgMDm4U79frY2j4mQ"></video>
-    <br />
-
-    <div id="other-demo-hints">There is another demo, that allows you <a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html">record drawings</a>!</div>
-
-    <br>
-
-    <pre>
-var recorder = RecordRTC(document.documentElement, {
-    type: 'canvas',
-    showMousePointer: true
-});
-recorder.startRecording();
-recorder.stopRecording(function(url) {
-    window.open(url);
-});
-</pre>
-</div>
-
-<div style="position: fixed;left: 20%;right: 20%;text-align: center;">
-    <button id="start" contenteditable="false">Start Canvas Recording</button>
-    <button id="stop" disabled contenteditable="false">Stop</button>
-</div>
-
-<script src="https://cdn.webrtc-experiment.com/screenshot.js"></script>
-<script src="https://cdn.webrtc-experiment.com/RecordRTC/Whammy.js"></script>
-<script src="https://cdn.webrtc-experiment.com/RecordRTC/CanvasRecorder.js"></script>
-<script src="https://cdn.webrtc-experiment.com/RecordRTC/MediaStreamRecorder.js"></script>
-<script src="https://cdn.WebRTC-Experiment.com/gumadapter.js"></script>
-
-<script>
-$( 'img' ).css('cursor', 'move').draggable().resizable();
-$('video, h2, #other-demo-hints').css('cursor', 'move').draggable();
-
-var elementToShare = document.getElementById('elementToShare');
-var recorder = new CanvasRecorder(elementToShare, {
-    disableLogs: false
-});
-
-document.getElementById('start').onclick = function() {
-    document.getElementById('start').disabled = true;
-
-    playVideo(function() {
-        recorder.record();    
-        setTimeout(function() {
-            document.getElementById('stop').disabled = false;
-        }, 1000);
-    });
-};
-document.getElementById('stop').onclick = function() {
-    this.disabled = true;
-    recorder.stop(function(blob) {
-        var video = document.createElement('video');
-        video.src = URL.createObjectURL(blob);
-        video.setAttribute('style', 'height: 100%; position: absolute; top:0;');
-        document.body.appendChild(video);
-        video.controls = true;
-        video.play();
-    });
-};
-
-window.onbeforeunload = function() {
-    document.getElementById('start').disabled = false;
-    document.getElementById('stop').disabled = true;
-};
-
-webrtcUtils.enableLogs = false;
-
-var videoElement = document.querySelector('video');
-function playVideo(callback) {
-    function successCallback(stream) {
-        videoElement.onloadedmetadata = function() {
-            callback();
-        };
-        videoElement.srcObject = stream;
-        videoElement.play();
+    <style>
+    audio {
+        vertical-align: bottom;
+        width: 10em;
     }
-
-    function errorCallback(error) {
-        console.error('get-user-media error', error);
-        callback();
+    video {
+        max-width: 100%;
+        vertical-align: top;
     }
+    input {
+        border: 1px solid #d9d9d9;
+        border-radius: 1px;
+        font-size: 2em;
+        margin: .2em;
+        width: 30%;
+    }
+    p,
+    .inner {
+        padding: 1em;
+    }
+    li {
+        border-bottom: 1px solid rgb(189, 189, 189);
+        border-left: 1px solid rgb(189, 189, 189);
+        padding: .5em;
+    }
+    label {
+        display: inline-block;
+        width: 8em;
+    }
+    </style>
+    
+    <style>
+        .recordrtc button {
+            font-size: inherit;
+        }
+        
+        .recordrtc button, .recordrtc select {
+            vertical-align: middle;
+            line-height: 1;
+            padding: 2px 5px;
+            height: auto;
+            font-size: inherit;
+            margin: 0;
+        }
+        
+        .recordrtc, .recordrtc .header {
+            display: block;
+            text-align: center;
+            padding-top: 0;
+        }
+        
+        .recordrtc video {
+            width: 70%;
+        }
+        
+        .recordrtc option[disabled] {
+            display: none;
+        }
+    </style>
+    
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/gif-recorder.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script>
 
-    var mediaConstraints = { video: true };
+    <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
+    <script src="https://cdn.webrtc-experiment.com/gumadapter.js"></script>
+</head>
 
-    navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
-}
-</script>
-<a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←WebRTC Experiments Homepage</a>
+<body>
+    <article>
+        <header style="text-align: center;">
+            <h1>
+                Canvas Recording using RecordRTC ®
+                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+            </h1>
+            <p style="margin:0;margin-bottom:-30px;">
+                <a href="https://www.webrtc-experiment.com/">HOME</a>
+                <span> &copy; </span>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
+                <a href="https://github.com/muaz-khan/RecordRTC/issues?state=open" target="_blank">Latest issues</a> .
+                <a href="https://github.com/muaz-khan/RecordRTC/commits/master" target="_blank">What's New?</a>
+
+                <br>
+
+                <a href="https://www.npmjs.com/package/recordrtc"><img src="https://img.shields.io/npm/v/recordrtc.svg"></a>
+                <a href="https://www.npmjs.com/package/recordrtc"><img src="https://img.shields.io/npm/dm/recordrtc.svg"></a>
+                <a href="https://travis-ci.org/muaz-khan/RecordRTC"><img src="https://travis-ci.org/muaz-khan/RecordRTC.png?branch=master"></a>
+            </p>
+        </header>
+
+        <div class="github-stargazers"></div>
+
+        <section class="experiment" id="other-demos">
+            <h2 class="header">
+                HTML5 Canvas2D Animation Recording
+            </h2>
+            <table style="border-collapse: collapse; border-spacing: 0px; margin-top: 0px; margin-bottom: 16px; display: block; width: 728px; overflow: auto; word-break: normal; color: rgb(51, 51, 51); font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif; font-size: 16px; line-height: 25.6000003814697px;"><thead><tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204);"><th style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">Experiment Name</th><th style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">Demo</th><th style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">Source</th></tr></thead>
+            <tbody>
+                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">WebPage+Canvas Recording</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/webpage-recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/Canvas-Recording/webpage-recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
+                </tr>
+
+                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">HTML5 Canvas Dashboard + 2D Animation Recording</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/Canvas-Recording/record-canvas-drawings.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
+                </tr>
+
+                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">HTML5 2D Animation Recording</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/Canvas-Animation-Recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/Canvas-Recording/Canvas-Animation-Recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
+                </tr>
+            </tbody>
+            </table>
+        </section>
+
+        <section class="experiment own-widgets">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RecordRTC/issues" target="_blank">RecordRTC Issues</a>
+            </h2>
+            <div id="github-issues"></div>
+        </section>
+
+        <section id="ask" class="experiment">
+            <h2 class="header" id="feedback">Feedback</h2>
+            <div>
+                <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+            </div>
+            <button id="send-message" style="font-size: 1em;">Send Message</button>
+            <small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+        </section>
+
+        <section class="experiment own-widgets latest-commits">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RecordRTC/commits/master" target="_blank">Latest Updates</a>
+            </h2>
+            <div id="github-commits"></div>
+        </section>
+    </article>
+
+    <a href="https://github.com/muaz-khan/RecordRTC" class="fork-left"></a>
+
+    <footer>
+        <p>
+            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+        </p>
+    </footer>
+
+    <!-- commits.js is useless for you! -->
+    <script>
+        window.useThisGithubPath = 'muaz-khan/RecordRTC';
+    </script>
+    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+</body>
+
+</html>

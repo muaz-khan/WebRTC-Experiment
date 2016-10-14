@@ -1,0 +1,131 @@
+<html>
+
+<head>
+    <title>Recording plotly WebGL diagrams using RecordRTC</title>
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/screenshot.js"></script>
+</head>
+
+<body>
+    <div class="github-stargazers" style="top:5px;right:5px;"></div>
+
+    <div class="recording-controls" style="text-align:center;">
+        <button type="button" id="startRecording" name="button">Start Recording</button>
+        <button type="button" id="stopRecording" name="button" disabled>Stop Recording</button>
+    </div>
+
+    <div>
+
+        <div id="myDiv" style="width:100%;height:100%"></div>
+    </div>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="text/javascript">
+        var trace1 = {
+            z: [
+                [2, 2, 0, 0, 5, 5, 6, 6, 6, 6],
+                [1, 1, 0, 0, 0, 5, 1, 0, 0, 0],
+                [1, 1, 0, 0, 0, 1, 1, 0, 0, 0],
+                [1, 2, 0, 0, 0, 3, 3, 5, 5, 5],
+                [5, 2, 2, 3, 1, 1, 3, 5, 5, 6],
+                [5, 2, 2, 3, 1, 1, 6, 5, 6, 6],
+                [3, 6, 6, 6, 6, 6, 6, 5, 5, 5],
+                [0, 6, 6, 6, 1, 1, 6, 2, 2, 5],
+                [0, 0, 2, 1, 1, 1, 2, 2, 2, 5],
+                [0, 2, 2, 1, 1, 2, 2, 2, 4, 4],
+            ],
+            cmax: 5,
+            cmin: 2,
+            colorscale: [
+                ["0", "#FF0000"],
+                ["0.25", "#FFFFFF"],
+                ["0.555555555556", "#0000ff"],
+                ["0.777777777778", "#6CCE59"],
+                ["1", "#FDE725"]
+            ],
+            // surfacecolor: [[0,"rgb(  0,  0,  0)"],[0.3,"rgb(230,  0,  0)"],[0.6,"rgb(255,210,  0)"],[1,"rgb(255,255,255)"]],
+            type: 'surface',
+            opacity: 1,
+            // autocolorscale : false,
+            name: "trace_name",
+            contours: {
+                y: {
+                    show: true,
+                }
+            },
+        };
+
+        var data = [trace1];
+        var layout = {
+            margin: {
+                l: 10,
+                r: 10,
+                b: 20,
+                t: 20
+            }
+        };
+
+        Plotly.newPlot('myDiv', data);
+    </script>
+
+    <script type="text/javascript">
+        /* JAVASCRIPT CODE GOES HERE */
+        var elementToShare = document.querySelector('canvas');
+        var recorder = RecordRTC(elementToShare, {
+            type: 'canvas',
+            showMousePointer: true
+        });
+
+        document.getElementById('startRecording').onclick = function() {
+            this.disabled = true;
+
+            isRecordingStarted = true;
+            isStoppedRecording = false;
+            recorder.startRecording();
+
+            document.getElementById('stopRecording').disabled = false;
+        };
+
+        document.getElementById('stopRecording').onclick = function() {
+            this.disabled = true;
+
+            isStoppedRecording = true;
+            recorder.stopRecording(function(url) {
+                var blob = recorder.getBlob();
+                console.log('blob', blob);
+
+                var video = document.createElement('video');
+                video.src = URL.createObjectURL(blob);
+                video.setAttribute('style', 'height: 100%; position: absolute; top:0;');
+                var body = document.querySelector('body');
+                body.innerHTML = '';
+                body.appendChild(video);
+                video.controls = true;
+                video.play();
+            });
+        };
+    </script>
+
+    <a href="https://github.com/muaz-khan/RecordRTC" class="fork-left"></a>
+
+    <section id="ask" class="experiment">
+        <h2 class="header" id="feedback">Feedback</h2>
+        <div>
+            <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+        </div>
+        <button id="send-message" style="font-size: 1em;">Send Message</button>
+        <small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+    </section>
+
+    <!-- commits.js is useless for you! -->
+    <script>
+        window.useThisGithubPath = 'muaz-khan/RecordRTC';
+    </script>
+    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+
+
+</body>
+
+</html>

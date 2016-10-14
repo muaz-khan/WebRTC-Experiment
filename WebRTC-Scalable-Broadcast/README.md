@@ -78,10 +78,13 @@ If you'll be testing across tabs on the same system, then you'll obviously notic
 
 In the image, you can see that each NEW-peer is getting stream from most-recent peer instead of getting stream directly from the moderator.
 
-```
+```sh
 npm install webrtc-scalable-broadcast
+```
 
-# goto node_modules>webrtc-scalable-broadcast
+Now, goto `node_modules>webrtc-scalable-broadcast`:
+
+```sh
 cd node_modules
 cd webrtc-scalable-broadcast
 
@@ -89,9 +92,16 @@ cd webrtc-scalable-broadcast
 node server.js
 ```
 
+Or:
+
+```sh
+cd ./node_modules/webrtc-scalable-broadcast/
+node ./server.js
+```
+
 Or install using WGet:
 
-```
+```sh
 mkdir webrtc-scalable-broadcast && cd webrtc-scalable-broadcast
 wget http://dl.webrtc-experiment.com/webrtc-scalable-broadcast.tar.gz
 tar -zxvf webrtc-scalable-broadcast.tar.gz

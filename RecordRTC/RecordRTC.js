@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2016-06-05 2:52:31 PM UTC
+// Last time updated: 2016-08-28 3:42:15 AM UTC
 
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
 
@@ -107,7 +107,7 @@ function RecordRTC(mediaStream, config) {
             _callback();
         }
 
-        function _callback() {
+        function _callback(__blob) {
             for (var item in mediaRecorder) {
                 if (self) {
                     self[item] = mediaRecorder[item];
@@ -119,6 +119,15 @@ function RecordRTC(mediaStream, config) {
             }
 
             var blob = mediaRecorder.blob;
+
+            if (!blob) {
+                if (__blob) {
+                    mediaRecorder.blob = blob = __blob;
+                } else {
+                    throw 'Recording failed.';
+                }
+            }
+
             if (callback) {
                 var url = URL.createObjectURL(blob);
                 callback(url);
@@ -1354,7 +1363,7 @@ if (typeof URL === 'undefined' && typeof webkitURL !== 'undefined') {
     URL = webkitURL;
 }
 
-if (typeof navigator !== 'undefined') { // maybe window.navigator?
+if (typeof navigator !== 'undefined' && typeof navigator.getUserMedia === 'undefined') { // maybe window.navigator?
     if (typeof navigator.webkitGetUserMedia !== 'undefined') {
         navigator.getUserMedia = navigator.webkitGetUserMedia;
     }
@@ -1630,8 +1639,13 @@ function MediaStreamRecorder(mediaStream, config) {
             mediaStream = stream;
         }
 
-        if (!config.mimeType || config.mimeType.indexOf('audio') === -1) {
+        if (!config.mimeType || config.mimeType.toString().toLowerCase().indexOf('audio') === -1) {
             config.mimeType = isChrome ? 'audio/webm' : 'audio/ogg';
+        }
+
+        if (config.mimeType && config.mimeType.toString().toLowerCase() !== 'audio/ogg' && !!navigator.mozGetUserMedia) {
+            // forcing better codecs on Firefox (via #166)
+            config.mimeType = 'audio/ogg';
         }
     }
 
@@ -1667,7 +1681,11 @@ function MediaStreamRecorder(mediaStream, config) {
 
         // starting a recording session; which will initiate "Reading Thread"
         // "Reading Thread" are used to prevent main-thread blocking scenarios
-        mediaRecorder = new MediaRecorder(mediaStream, recorderHints);
+        try {
+            mediaRecorder = new MediaRecorder(mediaStream, recorderHints);
+        } catch (e) {
+            mediaRecorder = new MediaRecorder(mediaStream);
+        }
 
         if ('canRecordMimeType' in mediaRecorder && mediaRecorder.canRecordMimeType(config.mimeType) === false) {
             if (!config.disableLogs) {
@@ -1770,14 +1788,20 @@ function MediaStreamRecorder(mediaStream, config) {
             return;
         }
 
-        this.recordingCallback = callback || function() {};
+        this.recordingCallback = function(blob) {
+            mediaRecorder = null;
+
+            if (callback) {
+                callback(blob);
+            }
+        };
 
         // mediaRecorder.state === 'recording' means that media recorder is associated with "session"
         // mediaRecorder.state === 'stopped' means that media recorder is detached from the "session" ... in this case; "session" will also be deleted.
 
         if (mediaRecorder.state === 'recording') {
             // "stop" method auto invokes "requestData"!
-            mediaRecorder.requestData();
+            // mediaRecorder.requestData();
             mediaRecorder.stop();
         }
     };
@@ -2438,7 +2462,7 @@ if (typeof RecordRTC !== 'undefined') {
 
 function CanvasRecorder(htmlElement, config) {
     if (typeof html2canvas === 'undefined' && htmlElement.nodeName.toLowerCase() !== 'canvas') {
-        throw 'Please link: //cdn.webrtc-experiment.com/screenshot.js';
+        throw 'Please link: https://cdn.webrtc-experiment.com/screenshot.js';
     }
 
     config = config || {};
@@ -2454,26 +2478,32 @@ function CanvasRecorder(htmlElement, config) {
         }
     });
 
-    if (!!window.webkitRTCPeerConnection || !!window.webkitGetUserMedia) {
+    var _isChrome = (!!window.webkitRTCPeerConnection || !!window.webkitGetUserMedia) && !!window.chrome;
+
+    var chromeVersion = 50;
+    var matchArray = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+    if (_isChrome && matchArray && matchArray[2]) {
+        chromeVersion = parseInt(matchArray[2], 10);
+    }
+
+    if (_isChrome && chromeVersion < 52) {
         isCanvasSupportsStreamCapturing = false;
     }
 
-    var globalCanvas, globalContext, mediaStreamRecorder;
+    var globalCanvas, mediaStreamRecorder;
 
     if (isCanvasSupportsStreamCapturing) {
         if (!config.disableLogs) {
             console.debug('Your browser supports both MediRecorder API and canvas.captureStream!');
         }
 
-        globalCanvas = document.createElement('canvas');
-
-        globalCanvas.width = htmlElement.clientWidth || window.innerWidth;
-        globalCanvas.height = htmlElement.clientHeight || window.innerHeight;
-
-        globalCanvas.style = 'top: -9999999; left: -99999999; visibility:hidden; position:absoluted; display: none;';
-        (document.body || document.documentElement).appendChild(globalCanvas);
-
-        globalContext = globalCanvas.getContext('2d');
+        if (htmlElement instanceof HTMLCanvasElement) {
+            globalCanvas = htmlElement;
+        } else if (htmlElement instanceof CanvasRenderingContext2D) {
+            globalCanvas = htmlElement.canvas;
+        } else {
+            throw 'Please pass either HTMLCanvasElement or CanvasRenderingContext2D.';
+        }
     } else if (!!navigator.mozGetUserMedia) {
         if (!config.disableLogs) {
             console.error('Canvas recording is NOT supported in Firefox.');
@@ -2498,9 +2528,9 @@ function CanvasRecorder(htmlElement, config) {
             if ('captureStream' in globalCanvas) {
                 canvasMediaStream = globalCanvas.captureStream(25); // 25 FPS
             } else if ('mozCaptureStream' in globalCanvas) {
-                canvasMediaStream = globalCanvas.captureStream(25);
+                canvasMediaStream = globalCanvas.mozCaptureStream(25);
             } else if ('webkitCaptureStream' in globalCanvas) {
-                canvasMediaStream = globalCanvas.captureStream(25);
+                canvasMediaStream = globalCanvas.webkitCaptureStream(25);
             }
 
             try {
@@ -2574,15 +2604,7 @@ function CanvasRecorder(htmlElement, config) {
         var that = this;
 
         if (isCanvasSupportsStreamCapturing && mediaStreamRecorder) {
-            var slef = this;
-            mediaStreamRecorder.stop(function() {
-                for (var prop in mediaStreamRecorder) {
-                    self[prop] = mediaStreamRecorder[prop];
-                }
-                if (callback) {
-                    callback(that.blob);
-                }
-            });
+            mediaStreamRecorder.stop(callback);
             return;
         }
 

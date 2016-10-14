@@ -152,12 +152,18 @@ function getRMCMediaElement(stream, callback, connection) {
     // http://goo.gl/WZ5nFl
     // Firefox don't yet support onended for any stream (remote/local)
     if (isFirefox) {
-        mediaElement.addEventListener('ended', function() {
+        var streamEndedEvent = 'ended';
+
+        if ('oninactive' in stream) {
+            streamEndedEvent = 'inactive';
+        }
+
+        mediaElement.addEventListener(streamEndedEvent, function() {
             // fireEvent(stream, 'ended', stream);
             currentUserMediaRequest.remove(stream.idInstance);
 
             if (stream.type === 'local') {
-                StreamsHandler.onSyncNeeded(stream.streamid, 'ended');
+                StreamsHandler.onSyncNeeded(stream.streamid, streamEndedEvent);
 
                 connection.attachStreams.forEach(function(aStream, idx) {
                     if (stream.streamid === aStream.streamid) {

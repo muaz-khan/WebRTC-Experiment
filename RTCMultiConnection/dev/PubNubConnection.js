@@ -68,11 +68,11 @@ function PubNubConnection(connection, connectCallback) {
     function onMessagesCallback(message) {
         if (message.remoteUserId != connection.userid) return;
 
-        if (connection.peers[message.sender] && connection.peers[message.sender].extra != message.extra) {
-            connection.peers[message.sender].extra = message.extra;
+        if (connection.peers[message.sender] && connection.peers[message.sender].extra != message.message.extra) {
+            connection.peers[message.sender].extra = message.message.extra;
             connection.onExtraDataUpdated({
                 userid: message.sender,
-                extra: message.extra
+                extra: message.message.extra
             });
         }
 
@@ -169,7 +169,7 @@ function PubNubConnection(connection, connectCallback) {
             }
 
             var userPreferences = {
-                extra: message.extra || {},
+                extra: message.message.extra || {},
                 localPeerSdpConstraints: message.message.remotePeerSdpConstraints || {
                     OfferToReceiveAudio: connection.sdpConstraints.mandatory.OfferToReceiveAudio,
                     OfferToReceiveVideo: connection.sdpConstraints.mandatory.OfferToReceiveVideo
