@@ -10,7 +10,7 @@ var http = require("http"),
     url = require("url"),
     path = require("path"),
     fs = require("fs"),
-    uuid = require('node-uuid'),
+    uuid = require('uuid'),
     port = process.argv[2] || 8888;
 
 var app = http.createServer(function (request, response) {
