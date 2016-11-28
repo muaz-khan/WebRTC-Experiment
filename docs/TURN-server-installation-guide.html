@@ -1,5 +1,5 @@
 ﻿<!--
-> Muaz Khan     - https://github.com/muaz-khan 
+> Muaz Khan     - https://github.com/muaz-khan
 > MIT License   - https://www.webrtc-experiment.com/licence/
 > Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
 -->
@@ -16,7 +16,7 @@
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
-	
+
         <style>
             p { padding: .8em; }
 
@@ -38,13 +38,75 @@
             }
 
             .image-parent img { width: 100%; }
-            
+
             .experiment h2 {
                 color: rgb(26, 86, 214);
             }
-            
+
             li h2 {
                 color: rgb(223, 32, 101)!important;
+            }
+
+            p {
+              margin-top: 0!important;
+              margin-bottom: 0!important;
+              padding: 10px 10px!important;
+            }
+
+            blockquote {
+              margin: 10px;
+              border-radius: 10px;
+              background: rgb(253, 253, 253);
+              padding: 8px 20px;
+              font-size: 25px;
+              font-weight: 200;
+              line-height: 1.5;
+              word-spacing: 5px;
+            }
+
+            section blockquote {
+              color: #EC008C;
+            }
+
+            h2, h1 {
+              font-size: 35px;
+              font-weight: 200;
+              padding: 5px 10px;
+              border-bottom: 1px dotted #EC008C;
+            }
+
+            h2 a {
+              color: #EC008C;
+            }
+
+            h1 {
+              font-size: 40px;
+              color: #EC008C;
+            }
+
+            pre {
+              border: 0;
+              background: #fbfbfb!important;
+              margin: 0 -10px!important;
+              margin-top: 20px!important;
+            }
+
+            pre code {
+                font-size: 16px!important;
+                margin-top: -25px!important;
+                margin-left: -11px!important;
+            }
+
+            .hljs, .hljs-subst {
+                color: #2592bf!important;
+            }
+
+            .hljs-comment {
+                color: #fb471a!important;
+            }
+
+            .hljs-built_in, .hljs-bullet, .hljs-code, .hljs-addition {
+                color: #e0951d!important;
             }
         </style>
         <!-- for HTML5 el styling -->
@@ -52,39 +114,34 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
-	
-        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js"> </script>
-        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js"> </script>
-        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_html.min.js"> </script>
-        <link type="text/css" rel="stylesheet" href="https://cdn.webrtc-experiment.com/syntax/sh_style.css">
     </head>
 
-    <body onload="sh_highlightDocument();">
+    <body>
         <article>
             <header style="text-align: center;">
                 <h1>TURN server installation Guide ® <a href="http://www.MuazKhan.com/">Muaz Khan</a></h1>
-            
+
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
                     <span> &copy; </span>
                     <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
-                        
+
                     .
                     <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
-                        
+
                     .
                     <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
-                        
+
                     .
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
-                        
+
                     .
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
-            
+
             <div class="github-stargazers"></div>
-            
+
             <blockquote class="inline" id="top">
                 This document is aimed to explain TURN server installation steps for different operating systems.
 
@@ -99,6 +156,10 @@
                     </li>
 
                     <li>
+                        <a href="#restund">restund installation on Ubuntu </a>
+                    </li>                    
+
+                    <li>
                         <a href="#centos">TURN installation on CentOS</a>
                     </li>
 
@@ -106,25 +167,471 @@
                         <a href="#windows">TURN installation on Windows </a>
                     </li>
                 </ol>
+
+                <p>
+                  You can test a TURN <a href="https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/" target="_blank">here LIVE</a> or use "apt-get install stun" and then "stun domain.com:port".
+                </p>
             </blockquote>
-            
+
+            <!-- for psql: https://rtcquickstart.org/guide/multi/turn-reTurnServer.html -->
+            <section class="experiment" id="reTurnServer">
+                <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
+                <h2>
+                    <a href="#reTurnServer">reTurnServer installation on Ubuntu</a>
+                </h2>
+
+                <ol>
+                    <li>
+                        <h2>First Step: Install reTurnServer:</h2>
+                        <pre><code class="bash">
+# Ubuntu
+apt-get install resiprocate-turn-server
+
+# CentOS
+yum install resiprocate-turn-server
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Second Step: Edit "/etc/reTurn/reTurnServer.config" file:</h2>
+                        <pre><code class="bash">
+TurnAddress = your-first-ip
+AltStunAddress = your-second-ip
+
+TurnPort = 3478
+AltStunPort = 5349
+
+AuthenticationRealm = domain.com
+
+UserDatabaseFile = /etc/reTurn/users.txt
+UserDatabaseHashedPasswords = true # required for HashString
+
+# for more info:
+# https://github.com/resiprocate/resiprocate/blob/master/reTurn/reTurnServer.config
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Next Step: Edit "/etc/reTurn/users.txt" file:</h2>
+                        <pre><code class="bash">
+# first of all, execute this command:
+# echo -n username:domain.com:password | md5sum
+
+# you will get a HASH string: 32 chars
+# domain.com must match "AuthenticationRealm" above "reTurnServer.config"
+username:AboveHashString:domain.com:authorized
+
+# more info:
+# https://github.com/resiprocate/resiprocate/blob/master/reTurn/users.txt
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Last Step: ReStart reTurnServer:</h2>
+                        <pre><code class="bash">
+service resiprocate-turn-server restart
+</code></pre>
+                    </li>
+
+                    <li>
+                        You can check ports and addresses reTurnServer is listenning on:
+                        <pre><code class="bash">
+netstat -nlp | grep reTurnServer
+</code></pre>
+                    </li>
+
+                    <li>
+                        In your HTML-JavaScript file, you will use original password, NOT the HashString:
+                        <pre><code class="bash">
+iceServer => {
+  urls: 'turn:domain.com:3478',
+  credential: 'orignal-password', // NOT Hash
+  username: 'username'
+}
+</code></pre>
+                    </li>
+                </ol>
+            </section>
+
+            <section class="experiment" id="restund">
+                <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
+                <h2>
+                    <a href="#restund">restund installation on Ubuntu</a> (<a href="https://www.html5rocks.com/en/tutorials/webrtc/infrastructure/#deploying-stun-and-turn-servers" target="_blank">via</a>)
+                </h2>
+
+                <p>
+                    "make" and "gcc" are required.
+                </p>
+
+                <ol>
+                    <li>
+                        <h2>Download "re":</h2>
+                        <pre><code class="bash">
+mkdir /home/restund
+cd /home/restund
+
+# via: http://creytiv.com/pub/
+wget http://creytiv.com/pub/re-latest.tar.gz
+tar zxvf re-latest.tar.gz
+make
+make install          # "sudo" is preferred
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Download "restund":</h2>
+                        <pre><code class="bash">
+# via: http://www.creytiv.com/restund.html
+# choose latest version
+# replace "0.4.12" with latesat version
+wget http://www.creytiv.com/pub/restund-0.4.12.tar.gz
+tar zxvf restund-0.4.12.tar.gz
+make
+make install          # "sudo" is preferred
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Modify "etc/restund.conf" file:</h2>
+                        <pre><code class="bash">
+# it will be located at:
+# /home/restund/etc/restund.conf
+
+udp_listen      your-ip:4455
+tcp_listen      your-ip:5544  # different port than UDP
+
+turn_relay_addr     your-ip
+
+debug           yes
+realm           yourdomain.com
+
+# you will get a HTTP server for stats
+# example stats:
+#       Version:    0.4.12
+#       Built:  Nov 10 2016 23:39:41
+#       Uptime: 21 hours 25 mins 56 secs
+
+status_udp_addr     your-ip
+status_udp_port     33000
+status_http_addr    your-ip
+status_http_port    4050
+
+# filedb (your username/password are stored in this file)
+filedb_path     /etc/restund.auth
+
+# modules (STUN messages are processed in module loading order)
+module_path     /usr/local/lib/restund/modules
+module          stat.so
+module          binding.so
+module          auth.so
+module          turn.so
+module          filedb.so
+module          syslog.so
+module          status.so
+
+syncinterval        600
+auth_nonce_expiry   3600
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Modify "etc/restund.auth" file:</h2>
+                        <p>
+                            It will be located at: /home/restund/etc/restund.auth
+                        </p>
+                        <pre><code class="bash">
+# remove default credentials
+</code></pre>
+
+                        <p>
+                            First of all, execute this command:
+                        </p>
+
+                        <pre><code class="bash">
+util/genha1.sh username yourdomain.com password
+</code></pre>
+                        <p>
+                            Above command will print something. Copy whatever is printed; and paste inside "etc/restund.auth":
+                        </p>
+
+                        <pre><code class="bash">
+# copy/paste inside the "restund.auth" file
+
+username:sha1
+</code></pre>
+
+                    </li>
+
+                    <li>
+                        <h2>Copy all "etc" files to "/etc/"</h2>
+                        <pre><code class="bash">
+# move .conf and .auth files to /etc/ directory
+cp ./etc/* /etc/
+
+# or use absolute path:
+# cp /home/restund/etc/ /etc/
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Run the "restund" server</h2>
+                        <pre><code class="bash">
+restund
+</code></pre>
+                        <p>
+                            Above command will print something like this:
+                        </p>
+
+                        <pre><code class="bash">
+udp listen: your-ip:4455
+tcp listen: your-ip:5544
+stat: module loaded
+binding: module loaded
+auth: module loaded (nonce_expiry=3600s)
+turn: lifetime=600 ext=your-ip ext6=::1 bsz=512
+filedb: module loaded (/etc/restund.auth)
+syslog: module loaded facility=24
+status: module loaded (udp=your-ip:33000 http=your-ip:4050)
+</code></pre>
+                        <p>
+                            You can open stats server here: http://your-ip:4050
+                        </p>
+                    </li>
+                </ol>
+            </section>
+
+            <section class="experiment" id="coturn">
+                <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
+                <h2>
+                    <a href="#coturn">CoTURN installation on Ubuntu</a>
+                </h2>
+                <br>
+
+                <ol>
+                    <li>
+                        Make sure that you're using latest up-to-dated Ubuntu (TLS 14+)
+                    </li>
+
+                    <li>
+                        <h2>Find a useful FTP link for your region.</h2><br><br>
+
+                        <pre><code class="bash">
+https://packages.debian.org/jessie/amd64/coturn/download
+</code></pre>
+                        <br>
+                        Simply copy the link. Don't try any command yet.
+                    </li>
+
+                    <li>
+                        <h2>Modify sources.list file:</h2><br><br>
+
+                        <pre><code class="bash">
+/etc/apt/sources.list
+</code></pre>
+                        <br>
+
+                        <h2>And add above FTP_domain in the sources-list. E.g.</h2><br><br>
+
+                        <pre><code class="bash">
+# at the bottom of the sources.list file
+
+# assuming that you found this domain:
+# http://ftp.hk.debian.org/debian
+
+deb http://ftp.hk.debian.org/debian jessie main
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Make sure you have installed "Aptitude":</h2><br><br>
+
+                        <pre><code class="bash">
+https://wiki.debian.org/Aptitude
+
+# update-to-latest version
+aptitude update
+</code></pre>
+                    </li>
+                    <li>
+                        <h2>Now install "coturn" package using "aptitude":</h2><br><br>
+
+                        <pre><code class="bash">
+# below command may require [sudo] privileges
+aptitude install coturn
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>If "aptitude install coturn" fails:</h2><br><br>
+
+                        <pre><code class="bash">
+# replace "8B48AD6246925553" and "7638D0442B90D010" with the error_key displayed on your OWN-screen
+
+# GPG error: http://ftp.hk.debian.org jessie Release:
+# The following signatures could not be verified because the public key is
+# not available: NO_PUBKEY 8B48AD6246925553 NO_PUBKEY 7638D0442B90D010 NO_PUBKEY CBF8D6FD518E17E1
+
+# execute below commands
+
+gpg --keyserver pgpkeys.mit.edu --recv-key  8B48AD6246925553
+gpg -a --export 8B48AD6246925553 | apt-key add -
+
+gpg --keyserver pgpkeys.mit.edu --recv-key  7638D0442B90D010
+gpg -a --export 7638D0442B90D010 | apt-key add -
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Modify following file after "coturn" installation:</h2><br><br>
+
+                        <pre><code class="bash">
+/etc/turnserver.conf
+</code></pre>
+                        <br>
+                        <h2>Remove all text from the file, and replace with this:</h2><br><br>
+
+                        <pre><code class="bash">
+# you can listen ports 3478 and 5349 instead of 80/443
+listening-port=80
+tls-listening-port=443
+
+listening-ip=your-ip-address
+
+relay-ip=your-ip-address
+external-ip=your-ip-address
+
+realm=yourdomain.com
+server-name=yourdomain.com
+
+lt-cred-mech
+userdb=/etc/turnuserdb.conf
+
+# use real-valid certificate/privatekey files
+cert=/etc/ssl/certificate.pem
+pkey=/etc/ssl/private.key
+
+no-stdout-log
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Modify following file after modifying above "turnserver.conf":</h2><br><br>
+
+                        <pre><code class="bash">
+/etc/turnuserdb.conf
+</code></pre>
+
+                        <br>
+                        <h2>Remove all text from the file, and replace with this:</h2>
+
+                        <br><br>
+
+                        <pre>
+yourName:yourPassword
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Now type following command:</h2><br><br>
+
+                        <pre><code class="bash">
+turnserver
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Try following if above "turnserver" command fails:</h2><br><br>
+
+                        <pre><code class="bash">
+# you can listen ports 3478 and 5349 instead of 80/443
+
+lsof -n -i4TCP:80 | grep LISTEN
+lsof -n -i4TCP:443 | grep LISTEN
+</code></pre>
+
+                        <br>
+                        <h2>Kill "existing" processes using this command:</h2><br><br>
+
+                        <pre>
+kill processId
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Now type following command again and it should work:</h2><br><br>
+
+                        <pre><code class="bash">
+turnserver
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Make sure that ports 80/443 (or 3478/5349) are opened in the firewall:</h2><br><br>
+
+                        <pre><code class="bash">
+# you can listen ports 3478 and 5349 instead of 80/443
+
+iptables -A INPUT -p udp --dport 80 -j ACCEPT
+iptables -A INPUT -p udp --dport 443 -j ACCEPT
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Run following command:</h2><br><br>
+
+                        <pre><code class="bash">
+nohup turnserver > /dev/null 2>&1 &
+
+# or simply
+nohup turnserver &
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Now check all UDP+TCP ports:</h2><br><br>
+
+                        <pre><code class="bash">
+# recommended
+netstat -tulpn
+
+# or
+netstat -nat | grep LISTEN
+</code></pre>
+
+                        <br>
+                        You will see that port 80/443 is listened by turnserver (both for UDP/TCP).
+                    </li>
+                </ol>
+
+                Otherwise:
+
+                    <pre><code class="bash">
+// Please follow this link:
+https://groups.google.com/d/msg/easyrtc/ypjJ5Yu3wZM/u5Lq6VNfabcJ
+</code></pre>
+            </section>
+
             <section class="experiment" id="centos">
                 <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
                 <h2>
                     <a href="#centos">TURN installation on CentOS</a>
                 </h2>
+                <blockquote>
+                    Use "sudo" if you see "permission-denied"  errors.
+                </blockquote>
+
                     <ol>
                         <li>
                             <h2>First Step: Download & Install Prerequisite for CentOS</h2>
-                            <pre class="sh_javascript">
+                            <pre><code class="bash">
 yum install -y make gcc cc gcc-c++ wget
 yum install -y openssl-devel libevent libevent-devel mysql-devel mysql-server
-</pre>
+</code></pre>
                         </li>
-					
+
                         <li>
                             <h2>Second Step: Download & Install LibEvent modules</h2>
-                            <pre class="sh_javascript">
+                            <pre><code class="bash">
 wget https://github.com/downloads/libevent/libevent/libevent-2.0.21-stable.tar.gz
 tar xvfz libevent-2.0.21-stable.tar.gz
 cd libevent-2.0.21-stable && ./configure
@@ -132,22 +639,22 @@ make && make install && cd ..
 
 # you can use "sudo" if permission-denied kind of erros occurred.
 # sudo make && sudo make install && cd ..
-</pre>
+</code></pre>
                         </li>
-					
+
                         <li>
                             <h2>Third Step: <a href="https://code.google.com/p/rfc5766-turn-server/wiki/newDownloadsSite" target="_blank">Download & Install</a> TURN modules</h2>
-                            <pre class="sh_javascript">
+                            <pre><code class="bash">
 wget http://turnserver.open-sys.org/downloads/v3.2.3.8/turnserver-3.2.3.8.tar.gz
 tar -xvzf turnserver-3.2.3.8.tar.gz
-cd turnserver-3.2.3.8
+cd turnserver-3.2.3.8 && ./configure
 make && make install
-</pre>
+</code></pre>
                         </li>
-					
+
                         <li>
                             <h2>Fifth Step: Configure "turnserver.conf" file</h2>
-                            <pre class="sh_javascript">
+                            <pre><code class="bash">
 vi /etc/turnserver/turnserver.conf
 
 # setting static accounts
@@ -164,7 +671,7 @@ listening-ip=127.1.1
 
 # if you don't want to save settings; and quite. Simply type:
 :q
-</pre>
+</code></pre>
                             You can:
                             <ol>
                                 <li>
@@ -173,297 +680,86 @@ listening-ip=127.1.1
                                 <li>
                                     Use Only TURN
                                 </li>
-                                
+
                                 <li>
                                     Use Both STUN and TURN
                                 </li>
-                                
+
                                 <li>
                                     Discard requests from all SSL/TLS version of protocols
                                 </li>
-                                
+
                                 <li>
                                     Use short-live credentials. Other authentication mechanisms coming soon in next few weeks.
                                 </li>
-                                
+
                                 <li>
                                     You can disable DTLS and TLS.
                                 </li>
-                                
+
                                 <li>
                                     You can set both static and dynamic accounts.
                                 </li>
-                                
+
                                 <li>
                                     You can give anonymous access to TURN server as well.
                                 </li>
-                                
+
                                 <li>
                                     You can set credentials for stun-only option as well; usually STUN-binding requests are anonymous.
                                 </li>
                             </ol>
                         </li>
-					
+
                         <li>
                             <h2>Sixth Step: Run TURN server instance</h2>
-                            <pre class="sh_javascript">
+                            <pre><code class="bash">
 cd /etc/turnserver/
 
 turnserver -v -r  ip:port -a -b turnuserdb.conf -c turnserver.conf -u turn-username -r ip:port -p turn-password
-</pre>
+</code></pre>
                             <ol>
                                 <li>
                                     Replace "ip:port" with yours! E.g. 127.1.1:2222:
                                 </li>
-							
+
                                 <li>
-                                    <pre class="sh_javascript">
+                                    <pre><code class="bash">
 turnserver -v -r  127.1.1:2222 -a -b turnuserdb.conf -c turnserver.conf -u turn-username -r 127.1.1:2222 -p turn-password
-</pre>
+</code></pre>
                                 </li>
-							
+
                                 <li>
                                     Replace "turn-username" with custom-username; and "turn-password" with custom-password.
                                 </li>
-							
+
                                 <li>
-                                    <pre class="sh_javascript">
+                                    <pre><code class="bash">
 turnserver -v -r  127.1.1:2222 -a -b turnuserdb.conf -c turnserver.conf -u custom-username -r 127.1.1:2222 -p custom-password
-</pre>
+</code></pre>
                                 </li>
                             </ol>
                         </li>
-					
+
                         <li>
                             <h2>Last Step: "Permanently" run TURN server instance</h2>
-                            <pre class="sh_javascript">
+                            <pre><code class="bash">
 nohup turnserver -v -r  ip:port -a -b turnuserdb.conf -c turnserver.conf -u turn-username -r ip:port -p turn-password &
-</pre>
+</code></pre>
 
                             <ol>
                                 <li>
                                     You can see that the entire TURN execution command is placed between "nohup" and "&".
                                 </li>
-							
+
                                 <li>
-                                    <pre class="sh_javascript">
+                                    <pre><code class="bash">
 <strong>nohup</strong> TURN-execution-command <strong>&</strong>
-</pre>
+</code></pre>
                                 </li>
                             </ol>
                         </li>
                     </ol>
-            </section>
-            
-            <section class="experiment" id="coturn">
-                <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
-                <h2>
-                    <a href="#coturn">CoTURN installation on Ubuntu</a>
-                </h2>
-                <br>
-                
-                <ol>
-                    <li>
-                        Make sure that you're using latest up-to-dated Ubuntu (TLS 14+)
-                    </li>
-
-                    <li>
-                        <h2>Find a useful FTP link for your region.</h2><br><br>
-
-                        <pre class="sh_javascript">
-https://packages.debian.org/jessie/amd64/coturn/download
-</pre>
-                        <br>
-                        Simply copy the link. Don't try any command yet.
-                    </li>
-
-                    <li>
-                        <h2>Modify sources.list file:</h2><br><br>
-
-                        <pre class="sh_javascript">
-/etc/apt/sources.list
-</pre>
-                        <br>
-
-                        <h2>And add above FTP_domain in the sources-list. E.g.</h2><br><br>
-
-                        <pre class="sh_javascript">
-# at the bottom of the sources.list file
-
-# assuming that you found this domain:
-# http://ftp.hk.debian.org/debian
-
-deb http://ftp.hk.debian.org/debian jessie main
-</pre>
-                    </li>
-
-                    <li>
-                        <h2>Make sure you have installed "Aptitude":</h2><br><br>
-
-                        <pre class="sh_javascript">
-https://wiki.debian.org/Aptitude
-
-# update-to-latest version
-aptitude update
-</pre>
-                    </li>
-                    <li>
-                        <h2>Now install "coturn" package using "aptitude":</h2><br><br>
-
-                        <pre class="sh_javascript">
-# below command may require [sudo] privileges
-aptitude install coturn
-</pre>
-                    </li>
-
-                    <li>
-                        <h2>If "aptitude install coturn" fails:</h2><br><br>
-
-                        <pre class="sh_javascript">
-# replace "8B48AD6246925553" and "7638D0442B90D010" with the error_key displayed on your OWN-screen
-
-# GPG error: http://ftp.hk.debian.org jessie Release: 
-# The following signatures could not be verified because the public key is 
-# not available: NO_PUBKEY 8B48AD6246925553 NO_PUBKEY 7638D0442B90D010 NO_PUBKEY CBF8D6FD518E17E1
-
-# execute below commands
-
-gpg --keyserver pgpkeys.mit.edu --recv-key  8B48AD6246925553
-gpg -a --export 8B48AD6246925553 | apt-key add -
-
-gpg --keyserver pgpkeys.mit.edu --recv-key  7638D0442B90D010
-gpg -a --export 7638D0442B90D010 | apt-key add -
-</pre>
-                    </li>
-
-                    <li>
-                        <h2>Modify following file after "coturn" installation:</h2><br><br>
-
-                        <pre class="sh_javascript">
-/etc/turnserver.conf
-</pre>
-                        <br>
-                        <h2>Remove all text from the file, and replace with this:</h2><br><br>
-
-                        <pre class="sh_javascript">
-# you can listen ports 3478 and 5349 instead of 80/443
-listening-port=80
-tls-listening-port=443
-
-listening-ip=your-ip-address
-
-relay-ip=your-ip-address
-external-ip=your-ip-address
-
-realm=yourdomain.com
-server-name=yourdomain.com
-
-lt-cred-mech    
-userdb=/etc/turnuserdb.conf
-
-# use real-valid certificate/privatekey files
-cert=/etc/ssl/certificate.pem
-pkey=/etc/ssl/private.key
-
-no-stdout-log
-</pre>
-                    </li>
-
-                    <li>
-                        <h2>Modify following file after modifying above "turnserver.conf":</h2><br><br>
-
-                        <pre class="sh_javascript">
-/etc/turnuserdb.conf
-</pre>
-
-                        <br>
-                        <h2>Remove all text from the file, and replace with this:</h2>
-
-                        <br><br>
-
-                        <pre>
-yourName:yourPassword
-</pre>
-                    </li>
-
-                    <li>
-                        <h2>Now type following command:</h2><br><br>
-
-                        <pre class="sh_javascript">
-turnserver
-</pre>
-                    </li>
-
-                    <li>
-                        <h2>Try following if above "turnserver" command fails:</h2><br><br>
-
-                        <pre class="sh_javascript">
-# you can listen ports 3478 and 5349 instead of 80/443
-
-lsof -n -i4TCP:80 | grep LISTEN
-lsof -n -i4TCP:443 | grep LISTEN
-</pre>
-
-                        <br>
-                        <h2>Kill "existing" processes using this command:</h2><br><br>
-
-                        <pre>
-kill processId
-</pre>
-                    </li>
-
-                    <li>
-                        <h2>Now type following command again and it should work:</h2><br><br>
-
-                        <pre class="sh_javascript">
-turnserver
-</pre>
-                    </li>
-
-                    <li>
-                        <h2>Make sure that ports 80/443 (or 3478/5349) are opened in the firewall:</h2><br><br>
-
-                        <pre class="sh_javascript">
-# you can listen ports 3478 and 5349 instead of 80/443
-
-iptables -A INPUT -p udp --dport 80 -j ACCEPT
-iptables -A INPUT -p udp --dport 443 -j ACCEPT
-</pre>
-                    </li>
-
-                    <li>
-                        <h2>Run following command:</h2><br><br>
-
-                        <pre class="sh_javascript">
-nohup turnserver > /dev/null 2>&1 &
-
-# or simply
-nohup turnserver &
-</pre>
-                    </li>
-
-                    <li>
-                        <h2>Now check all UDP+TCP ports:</h2><br><br>
-
-                        <pre class="sh_javascript">
-# recommended
-netstat -tulpn
-
-# or
-netstat -nat | grep LISTEN
-</pre>
-
-                        <br>
-                        You will see that port 80/443 is listened by turnserver (both for UDP/TCP).
-                    </li>
-                </ol>
-
-                Otherwise:
-
-                    <pre class="sh_javascript">
-// Please follow this link:
-https://groups.google.com/d/msg/easyrtc/ypjJ5Yu3wZM/u5Lq6VNfabcJ
-</pre>
             </section>
 
             <section class="experiment" id="windows">
@@ -471,114 +767,62 @@ https://groups.google.com/d/msg/easyrtc/ypjJ5Yu3wZM/u5Lq6VNfabcJ
                 <h2>
                     <a href="#windows">TURN installation on Windows</a>
                 </h2>
+                <blockquote>
+                  Others: <a href="http://www.stunprotocol.org/" target="_blank">STUNTMAN</a> or <a href="http://www.codeproject.com/Articles/18492/STUN-Client" target="_blank">C# Client</a>.
+                </blockquote>
                 <br />
                     <small>Note: Following section is taken from <a href="http://www.slideshare.net/amiteshawa/web-rtc-media-stra" target="_blank">slideshare</a>; and its credit goes to @amiteshawa!</small>
                     <ol>
                         <li>
                             Install "Cygwin" application
                         </li>
-                    
+
                         <li>
                             Follow all steps from above section. E.g. install all dependencies; LibEvent and TURN modules.
                         </li>
-                    
+
                         <li>
                             You'll face some issues when invoking "./configure" command for TURN configuration:
-                        
+
                             <ol>
                                 <li><strong>Missing libpq.a, hiredis, postgreSql</strong></li>
                                 <li>You can ignore them, because these modules are optional</li>
                             </ol>
                         </li>
-                    
+
                         <li>
                             During "make" command invocation; you'll face error like "<strong>error: 'struct sockaddr_in' has no member named 'sin_len'</strong>"
                         </li>
-                    
+
                         <li>
                             Edit "na_turn_ioaddr.c" and comment line number "169":
-                            <pre class="sh_javascript">
+                            <pre><code class="bash">
 vi /turnserver-1.8.4.0/src/client/na_turn_ioaddr.c
 
 # commenting line number #169
 # addr->s4.sin_len = sizeof(struct sockaddr_in);
-</pre>
+</code></pre>
                         </li>
-                    
+
                         <li>
                             Now, "make" and "make install" commands for TURN modules installation will work.
                         </li>
-                    
+
                         <li>
                             Then copy "turnserver.conf" file from "../examples/etc/" directory to "/usr/local/etc/":
                         </li>
-                    
+
                         <li>
-                            <pre class="sh_javascript">
+                            <pre><code class="bash">
 cp /turnserver-1.8.4.0/examples/etc/turnserver.conf /usr/local/etc/
-</pre>
+</code></pre>
                         </li>
-                    
+
                         <li>
                             Now, you can follow "fifth" step from previous section to edit "turnserver.conf" for setting "username", "password", "listening-port" and "listening-ip".
                         </li>
-                    
+
                     </ol>
-            </section>
-            
-            <section class="experiment" id="reTurnServer">
-                <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
-                <h2>
-                    <a href="#reTurnServer">reTurnServer installation on Ubuntu</a>
-                </h2><br />
-                <small>Below words are taken from <a href="http://www.rtcquickstart.org/ICE-STUN-TURN-server-installation" target="_blank">this link</a>.</small>
-                <blockquote class="inline">
-                    "<a href="http://www.resiprocate.org/ReTurn_Overview" target="_blank">reTurn</a> is a highly efficient C++ open-source STUN/TURN server and client library.  It is an implementation of the latest STUN/TURN RFCs:  <a rel="nofollow" class="external text" href="http://tools.ietf.org/html/rfc5389">RFC5389</a> (STUN), and <a rel="nofollow" class="external text" href="http://tools.ietf.org/html/rfc5766">RFC5766</a> (TURN)."
-                </blockquote>
-                <ol>
-                    <li>
-                        <h2>First Step: Install reTurnServer:</h2>
-                        <pre class="sh_javascript">
-# Install the package using the apt-get utility on Debian/Ubuntu:
-apt-get install resiprocate-turn-server
-
-# or using yum on Fedora:
-yum install resiprocate-turn-server
-</pre>
-                    </li>
-                    
-                    <li>
-                        <h2>Second Step: Edit <code>reTurnServer.config</code> file:</h2>
-                        <pre class="sh_javascript">
-# you can use "vi" or "vim"
-vim /etc/reTurnServer.config
-
-# your IP addresses go here:
-TurnAddress = your-first-ip
-AltStunAddress = your-second-ip
-
-# your domain goes here:
-AuthenticationRealm = your-domain
-
-# your desired password goes here:
-LongTermAuthPassword = your-password
-</pre>
-                    </li>
-                    
-                    <li>
-                        <h2>Last Step: ReStart reTurnServer:</h2>
-                        <pre class="sh_javascript">
-service resiprocate-turn-server restart
-</pre>
-                    </li>
-                    
-                    <li>
-                        You can check ports and addresses reTurnServer is listenning on:
-                        <pre class="sh_javascript">
-netstat -nlp | grep reTurnServer
-</pre>
-                    </li>
-                </ol>
             </section>
 
             <br />
@@ -589,15 +833,15 @@ netstat -nlp | grep reTurnServer
                 </div>
                 <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left: 1em;">You can include your email for private conversation!</small>
             </section>
-            
+
             <section class="experiment own-widgets latest-commits">
                 <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
                 <div id="github-commits"></div>
             </section>
         </article>
-    
+
         <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
-        
+
         <footer>
             <p>
                 <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
@@ -605,7 +849,11 @@ netstat -nlp | grep reTurnServer
                 <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
             </p>
         </footer>
-    
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/styles/default.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+
         <!-- commits.js is useless for you! -->
         <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
 
@@ -620,7 +868,7 @@ netstat -nlp | grep reTurnServer
                     $('html, body').animate({
                       scrollTop: target.offset().top
                     }, 1000);
-                    return false;
+                    // return false;
                   }
                 }
               });

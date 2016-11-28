@@ -1,9 +1,22 @@
-// Last time updated at Sep 23, 2015, 08:32:23
+// Last time updated at Nov 12, 2016, 08:32:23
+
 // Latest file can be found here: https://cdn.webrtc-experiment.com/screen.js
+
 // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.webrtc-experiment.com/licence/
+
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing
+
 (function() {
+
+    // via: https://bugs.chromium.org/p/chromium/issues/detail?id=487935#c17
+    // you can capture screen on Android Chrome >= 55 with flag: "Experimental ScreenCapture android"
+    window.IsAndroidChrome = false;
+    try {
+        if (navigator.userAgent.toLowerCase().indexOf("android") > -1 && /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)) {
+            window.IsAndroidChrome = true;
+        }
+    } catch (e) {}
 
     // a middle-agent between public API and the Signaler object
     window.Screen = function(channel) {
@@ -24,6 +37,21 @@
 
         function captureUserMedia(callback, extensionAvailable) {
             getScreenId(function(error, sourceId, screen_constraints) {
+                if (IsAndroidChrome) {
+                    screen_constraints = {
+                        mandatory: {
+                            chromeMediaSource: 'screen'
+                        },
+                        optional: []
+                    };
+
+                    screen_constraints = {
+                        video: screen_constraints
+                    };
+
+                    error = null;
+                }
+
                 console.log('screen_constraints', JSON.stringify(screen_constraints, null, '\t'));
                 navigator.getUserMedia(screen_constraints, function(stream) {
                     stream.onended = function() {
@@ -401,59 +429,48 @@
     var iceServers = [];
 
     iceServers.push({
-        url: 'stun:stun.l.google.com:19302'
+        urls: 'stun:stun.l.google.com:19302'
     });
 
     iceServers.push({
-        url: 'stun:stun.anyfirewall.com:3478'
+        urls: 'turn:webrtcweb.com:80',
+        credential: 'muazkh',
+        username: 'muazkh'
     });
 
     iceServers.push({
-        url: 'turn:turn.bistri.com:80',
-        credential: 'homeo',
-        username: 'homeo'
+        urls: 'turn:webrtcweb.com:443',
+        credential: 'muazkh',
+        username: 'muazkh'
     });
 
     iceServers.push({
-        url: 'turn:turn.anyfirewall.com:443?transport=tcp',
-        credential: 'webrtc',
-        username: 'webrtc'
+        urls: 'turn:webrtcweb.com:3344',
+        credential: 'muazkh',
+        username: 'muazkh'
+    });
+
+    iceServers.push({
+        urls: 'turn:webrtcweb.com:4433',
+        credential: 'muazkh',
+        username: 'muazkh'
+    });
+
+    iceServers.push({
+        urls: 'turn:webrtcweb.com:4455',
+        credential: 'muazkh',
+        username: 'muazkh'
+    });
+
+    iceServers.push({
+        urls: 'turn:webrtcweb.com:5544?transport=tcp',
+        credential: 'muazkh',
+        username: 'muazkh'
     });
 
     iceServers = {
         iceServers: iceServers
     };
-
-    var iceFrame, loadedIceFrame;
-
-    function loadIceFrame(callback, skip) {
-        if (loadedIceFrame) return;
-        if (!skip) return loadIceFrame(callback, true);
-
-        loadedIceFrame = true;
-
-        var iframe = document.createElement('iframe');
-        iframe.onload = function() {
-            iframe.isLoaded = true;
-
-            window.addEventListener('message', function(event) {
-                window.iceServers = event.data.iceServers;
-
-                if (!event.data || !event.data.iceServers) return;
-                callback(event.data.iceServers);
-            });
-
-            iframe.contentWindow.postMessage('get-ice-servers', '*');
-        };
-        iframe.src = 'https://cdn.webrtc-experiment.com/getIceServers/';
-        iframe.style.display = 'none';
-        (document.body || document.documentElement).appendChild(iframe);
-    };
-
-    loadIceFrame(function(_iceServers) {
-        iceServers.iceServers = iceServers.iceServers.concat(_iceServers);
-        console.log('iceServers', JSON.stringify(iceServers.iceServers, null, '\t'));
-    });
 
     var optionalArgument = {
         optional: [{
@@ -561,7 +578,7 @@
         if (isFirefox) return sdp;
         if (isMobileDevice) return sdp;
 
-        // https://cdn.rawgit.com/muaz-khan/RTCMultiConnection/master/RTCMultiConnection-v3.0/dev/BandwidthHandler.js
+        // https://github.com/muaz-khan/RTCMultiConnection/blob/master/dev/BandwidthHandler.js
         if (typeof BandwidthHandler !== 'undefined') {
             window.isMobileDevice = isMobileDevice;
             window.isFirefox = isFirefox;
@@ -589,7 +606,7 @@
         return sdp;
     }
 
-    // getScreenId.js - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getScreenId.js
+    // getScreenId.js - https://github.com/muaz-khan//getScreenId
 
     function loadScript(src, onload) {
         var script = document.createElement('script');

@@ -1,26 +1,34 @@
 ﻿<!--
-> Muaz Khan     - https://github.com/muaz-khan 
+> Muaz Khan     - https://github.com/muaz-khan
 > MIT License   - https://www.webrtc-experiment.com/licence/
 > Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing
 -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>WebRTC Screen Sharing | Plugin-free ® Muaz Khan</title>
+        <title>WebRTC Screen Sharing | Plugin-free</title>
+
+        <script>
+            if(!location.hash.replace('#', '').length) {
+                location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+                location.reload();
+            }
+        </script>
+
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        
-        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
-        
+
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+
         <style>
             video {
                 -moz-transition: all 1s ease;
                 -ms-transition: all 1s ease;
-                
+
                 -o-transition: all 1s ease;
                 -webkit-transition: all 1s ease;
                 transition: all 1s ease;
@@ -69,48 +77,45 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
-        
+
         <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk">
-        
+
         <!-- scripts used for screen-sharing -->
-        <script src='//cdn.webrtc-experiment.com/firebase.js'> </script>
-        <script src="//cdn.webrtc-experiment.com/Pluginfree-Screen-Sharing/conference.js"> </script>
+        <script src='https://cdn.webrtc-experiment.com/firebase.js'> </script>
+        <script src="https://cdn.webrtc-experiment.com/Pluginfree-Screen-Sharing/conference.js"> </script>
     </head>
 
     <body>
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> 
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing" target="_blank">Plugin-free Screen Sharing</a>
-                    ® 
-                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
-                </h1> 
+                    WebRTC Screen Sharing | Plugin-free
+                </h1>
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
                     <span> &copy; </span>
                     <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
-                    
+
                     .
                     <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
-                    
+
                     .
                     <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
-                    
+
                     .
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
-                    
+
                     .
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
 
             <div class="github-stargazers"></div>
-            
+
             <h2 id="number-of-participants" style="display: block;text-align: center;border:0;margin-bottom:0;">Its a full-HD (1080p) screen sharing application using <a href="https://www.webrtc-experiment.com/">WebRTC</a>!</h2>
-        
+
             <!-- just copy this <section> and next script -->
-            <section class="experiment">                
+            <section class="experiment">
                 <section>
                     <span>
                         Private ?? <a href="/Pluginfree-Screen-Sharing/" target="_blank" title="Open this link for private screen sharing!"><code><strong id="unique-token">#123456789</strong></code></a>
@@ -118,14 +123,14 @@
                     <input type="text" id="room-name" placeholder="Your Name" disabled>
                     <button id="share-screen" class="setup" disabled>Share Your Screen</button>
                 </section>
-                
+
                 <!-- list of all available broadcasting rooms -->
                 <table style="width: 100%;" id="rooms-list"></table>
-                
+
                 <!-- local/remote videos container -->
                 <div id="videos-container"></div>
             </section>
-        
+
             <script>
                 function intallFirefoxScreenCapturingExtension() {
                     InstallTrigger.install({
@@ -138,11 +143,11 @@
                         }
                     });
                 }
-            
+
                 // Muaz Khan     - https://github.com/muaz-khan
                 // MIT License   - https://www.webrtc-experiment.com/licence/
                 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing
-                
+
                 var isWebRTCExperimentsDomain = document.domain.indexOf('webrtc-experiment.com') != -1;
 
                 var config = {
@@ -176,7 +181,7 @@
                             });
                             return;
                         }
-                        
+
                         var alreadyExist = document.getElementById(room.broadcaster);
                         if (alreadyExist) return;
 
@@ -209,7 +214,7 @@
                         if(state == 'failed') {
                             alert('Failed to bypass Firewall rules. It seems that target user did not receive your screen. Please ask him reload the page and try again.');
                         }
-                        
+
                         if(state == 'connected') {
                             alert('A user successfully received your screen.');
                         }
@@ -218,7 +223,7 @@
 
                 function captureUserMedia(callback, extensionAvailable) {
                     console.log('captureUserMedia chromeMediaSource', DetectRTC.screen.chromeMediaSource);
-                    
+
                     var screen_constraints = {
                         mandatory: {
                             chromeMediaSource: DetectRTC.screen.chromeMediaSource,
@@ -240,18 +245,18 @@
                         });
                         return;
                     }
-                    
+
                     if(isChrome && isWebRTCExperimentsDomain && DetectRTC.screen.chromeMediaSource == 'desktop' && !DetectRTC.screen.sourceId) {
                         DetectRTC.screen.getSourceId(function(error) {
                             if(error && error == 'PermissionDeniedError') {
                                 alert('PermissionDeniedError: User denied to share content of his screen.');
                             }
-                            
+
                             captureUserMedia(callback);
                         });
                         return;
                     }
-                    
+
                     // for non-www.webrtc-experiment.com domains
                     if(isChrome && !isWebRTCExperimentsDomain && !DetectRTC.screen.sourceId) {
                         window.addEventListener('message', function (event) {
@@ -277,16 +282,16 @@
                         screenFrame.postMessage();
                         return;
                     }
-                    
+
                     if(isChrome && DetectRTC.screen.chromeMediaSource == 'desktop') {
                         screen_constraints.mandatory.chromeMediaSourceId = DetectRTC.screen.sourceId;
                     }
-                    
+
                     var constraints = {
                         audio: false,
                         video: screen_constraints
                     };
-                    
+
                     if(!!navigator.mozGetUserMedia) {
                         console.warn(Firefox_Screen_Capturing_Warning);
                         constraints.video = {
@@ -297,14 +302,14 @@
                             minAspectRatio: 1.77
                         };
                     }
-                    
+
                     console.log( JSON.stringify( constraints , null, '\t') );
-                    
+
                     var video = document.createElement('video');
                     video.setAttribute('autoplay', true);
                     video.setAttribute('controls', true);
                     videosContainer.insertBefore(video, videosContainer.firstChild);
-                    
+
                     getUserMedia({
                         video: video,
                         constraints: constraints,
@@ -359,14 +364,14 @@
                         if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
                         else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
                 })();
-                
+
                 var Firefox_Screen_Capturing_Warning = 'Make sure that you are using Firefox Nightly and you enabled: media.getusermedia.screensharing.enabled flag from about:config page. You also need to add your domain in "media.getusermedia.screensharing.allowed_domains" flag.';
 
             </script>
-            
+
             <script>
                 var screenFrame, loadedScreenFrame;
-                
+
                 function loadScreenFrame(skip) {
                     if(loadedScreenFrame) return;
                     if(!skip) return loadScreenFrame(true);
@@ -377,7 +382,7 @@
                     iframe.onload = function () {
                         iframe.isLoaded = true;
                         console.log('Screen Capturing frame is loaded.');
-                        
+
                         document.getElementById('share-screen').disabled = false;
                         document.getElementById('room-name').disabled = false;
                     };
@@ -398,7 +403,7 @@
                         }
                     };
                 };
-                
+
                 if(!isWebRTCExperimentsDomain) {
                     loadScreenFrame();
                 }
@@ -407,19 +412,19 @@
                     document.getElementById('room-name').disabled = false;
                 }
             </script>
-            
+
             <script>
                 // todo: need to check exact chrome browser because opera also uses chromium framework
                 var isChrome = !!navigator.webkitGetUserMedia;
-                
+
                 // DetectRTC.js - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
                 // Below code is taken from RTCMultiConnection-v1.8.js (http://www.rtcmulticonnection.org/changes-log/#v1.8)
                 var DetectRTC = {};
 
                 (function () {
-                    
+
                     var screenCallback;
-                    
+
                     DetectRTC.screen = {
                         chromeMediaSource: 'screen',
                         getSourceId: function(callback) {
@@ -429,12 +434,12 @@
                         },
                         isChromeExtensionAvailable: function(callback) {
                             if(!callback) return;
-                            
+
                             if(DetectRTC.screen.chromeMediaSource == 'desktop') return callback(true);
-                            
+
                             // ask extension if it is available
                             window.postMessage('are-you-there', '*');
-                            
+
                             setTimeout(function() {
                                 if(DetectRTC.screen.chromeMediaSource == 'screen') {
                                     callback(false);
@@ -444,16 +449,16 @@
                         },
                         onMessageCallback: function(data) {
                             if (!(typeof data == 'string' || !!data.sourceId)) return;
-                            
+
                             console.log('chrome message', data);
-                            
+
                             // "cancel" button is clicked
                             if(data == 'PermissionDeniedError') {
                                 DetectRTC.screen.chromeMediaSource = 'PermissionDeniedError';
                                 if(screenCallback) return screenCallback('PermissionDeniedError');
                                 else throw new Error('PermissionDeniedError');
                             }
-                            
+
                             // extension notified his presence
                             if(data == 'rtcmulticonnection-extension-loaded') {
                                 if(document.getElementById('install-button')) {
@@ -461,7 +466,7 @@
                                 }
                                 DetectRTC.screen.chromeMediaSource = 'desktop';
                             }
-                            
+
                             // extension shared temp sourceId
                             if(data.sourceId) {
                                 DetectRTC.screen.sourceId = data.sourceId;
@@ -470,7 +475,7 @@
                         },
                         getChromeExtensionStatus: function (callback) {
                             if (!!navigator.mozGetUserMedia) return callback('not-chrome');
-                            
+
                             var extensionid = 'ajhifddimkapgcifgcodmmfdlknahffk';
 
                             var image = document.createElement('img');
@@ -490,13 +495,13 @@
                             };
                         }
                     };
-                    
+
                     // check if desktop-capture extension installed.
                     if(window.postMessage && isChrome) {
                         DetectRTC.screen.isChromeExtensionAvailable();
                     }
                 })();
-                
+
                 DetectRTC.screen.getChromeExtensionStatus(function(status) {
                     if(status == 'installed-enabled') {
                         if(document.getElementById('install-button')) {
@@ -505,15 +510,15 @@
                         DetectRTC.screen.chromeMediaSource = 'desktop';
                     }
                 });
-                
+
                 window.addEventListener('message', function (event) {
                     if (event.origin != window.location.origin) {
                         return;
                     }
-                    
+
                     DetectRTC.screen.onMessageCallback(event.data);
                 });
-                
+
                 console.log('current chromeMediaSource', DetectRTC.screen.chromeMediaSource);
             </script>
 
@@ -521,19 +526,19 @@
                 <h2>Prerequisites</h2>
                 <ol>
                     <li>
-                        Chrome? 
+                        Chrome?
                         <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Store</a>
                         / <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture">Source Code</a>
-                        / 
+                        /
                         <button onclick="!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk', function() {location.reload();})" id="install-button" style="font-size:inherit; padding-bottom:0;">Click to Install</button>
                     </li>
-                    
+
                     <li>
                         Firefox? <a href="https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/">Store</a> / <a href="https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing">Source Code</a> / <button onclick="intallFirefoxScreenCapturingExtension(); this.disabled = true;" style="font-size:inherit; padding-bottom:0;">Click to Install</button>
                     </li>
                 </ol>
             </section>
-            
+
             <section class="experiment">
                 <h2 id="suggestions">
                     <a href="#suggestions">Suggestions</a>
@@ -542,7 +547,7 @@
                     <a href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg">There is a chrome-extension</a> for the same application; which allows you share any tab/screen any time without opening this page.
                 </blockquote>
             </section>
-            
+
             <section class="experiment">
                 <h2 id="advantages">
                     <a href="#advantages">Advantages</a>
@@ -559,7 +564,7 @@
                     </li>
                 </ol>
             </section>
-            
+
             <section class="experiment">
                 <h2 id="common-queries">
                     <a href="#common-queries">Common issues & queries</a>
@@ -570,14 +575,14 @@
                     <li>Remember, it is not desktop sharing! It is just a state-less screen sharing. Desktop sharing is possible only through native (C++) applications.</li>
                 </ol>
             </section>
-        
+
             <section class="experiment">
                 <h2 id="why-screen-fails">
                     <a href="#why-screen-fails">Why Screen Sharing Fails?</a>
                 </h2>
                 <ol>
                     <li>
-                        You've not used '<strong>chromeMediaSource</strong>' or '<strong>mediaSource</strong>' constraint: 
+                        You've not used '<strong>chromeMediaSource</strong>' or '<strong>mediaSource</strong>' constraint:
                         <pre>
 // for chrome
 mandatory: {chromeMediaSource: 'screen'}
@@ -594,25 +599,25 @@ video: {
                     <li>On chrome, you're not testing it on SSL origin (HTTPS domain) otherwise you didn't enable <code><a href="http://peter.sh/experiments/chromium-command-line-switches/#allow-http-screen-capture" target="_blank">--allow-http-screen-capture</a></code> command-line flag on canary. Firefox is supporting screen capturing from both HTTP and HTTPs domains.</li>
                     <li>You may used media constraints like min/max frameRate; bandwidth or min/max width/height like 2000*2000 that is "currently" not allowed.</li>
                 </ol>
-                
+
                 <p>
                     <strong><code>mandatory: {chromeMediaSource: 'tab'}</code></strong> is useful only in chrome extensions. See <a href="https://www.webrtc-experiment.com/screen-broadcast/">Tab sharing using tabCapture APIs</a>.
                 </p>
             </section>
-            
+
             <section class="experiment">
                 <h2 class="header">Bottom Lines</h2>
                 <ol>
                     <li>
                         <a href="http://www.RTCMultiConnection.org/" target="_blank">RTCMultiConnection.js</a> can be used for HD screen sharing; HD audio/video streaming; fastest file sharing; and writing entire skype-like app in the browser!
                     </li>
-                    
+
                     <li>
                         <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing" target="_blank">Screen.js</a> can be used for HD screen sharing; HD audio/video streaming; fastest file sharing!
                     </li>
                 </ol>
             </section>
-            
+
             <section class="experiment">
                 <h2 class="header" id="feedback">Feedback</h2>
                 <div>
@@ -620,16 +625,16 @@ video: {
                 </div>
                 <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
-            
+
             <section class="experiment own-widgets latest-commits">
                 <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
                 <div id="github-commits"></div>
             </section>
-            
+
         </article>
-        
+
         <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing" class="fork-left"></a>
-        
+
         <footer>
             <p>
                 <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
@@ -637,8 +642,8 @@ video: {
                 <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
             </p>
         </footer>
-    
+
         <!-- commits.js is useless for you! -->
-        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>
 </html>

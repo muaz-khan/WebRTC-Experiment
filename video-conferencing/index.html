@@ -6,7 +6,15 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Video Conferencing</title>
+        <title>WebRTC Video Conferencing</title>
+
+        <script>
+            if(!location.hash.replace('#', '').length) {
+                location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+                location.reload();
+            }
+        </script>
+
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -17,14 +25,14 @@
         <meta name="title" content="Video Conferencing" />
         <meta name="description" content="Video Conferencing using WebRTC." />
         <meta name="keywords" content="WebRTC, Video Conferencing, Demo, Example, Experiment" />
-        
+
         <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
-        
+
         <style>
             audio, video {
                 -moz-transition: all 1s ease;
                 -ms-transition: all 1s ease;
-                
+
                 -o-transition: all 1s ease;
                 -webkit-transition: all 1s ease;
                 transition: all 1s ease;
@@ -61,12 +69,12 @@
             document.createElement('article');
             document.createElement('footer');
         </script>
-        
+
         <!-- scripts used for video-conferencing -->
         <script src="https://cdn.webrtc-experiment.com/firebase.js"> </script>
         <script src="https://cdn.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
         <script src="https://cdn.webrtc-experiment.com/video-conferencing/conference.js"> </script>
-        
+
         <!-- script used to stylize video element -->
         <script src="https://cdn.webrtc-experiment.com/getMediaElement.min.js"> </script>
 
@@ -81,49 +89,47 @@
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing">Video Conferencing</a>
-                    - 
-                    <a href="https://github.com/muaz-khan">Muaz Khan</a>
-                </h1>            
+                    WebRTC Video Conferencing
+                </h1>
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
                     <span> &copy; </span>
                     <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
-                    
+
                     .
                     <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
-                    
+
                     .
                     <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
-                    
+
                     .
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
-                    
+
                     .
                     <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
                 </p>
             </header>
 
             <div class="github-stargazers"></div>
-        
+
             <!-- just copy this <section> and next script -->
-            <section class="experiment">                
+            <section class="experiment">
                 <section>
                     <span>
                         Private ?? <a href="/video-conferencing/" target="_blank" title="Open this link in new tab. Then your conference room will be private!"><code><strong id="unique-token">#123456789</strong></code></a>
                     </span>
-                    
+
                     <input type="text" id="conference-name">
                     <button id="setup-new-room" class="setup">Setup New Conference</button>
                 </section>
-                
+
                 <!-- list of all available conferencing rooms -->
                 <table style="width: 100%;" id="rooms-list"></table>
-                
+
                 <!-- local/remote videos container -->
                 <div id="videos-container"></div>
             </section>
-        
+
             <script>
                 // Muaz Khan     - https://github.com/muaz-khan
                 // MIT License   - https://www.webrtc-experiment.com/licence/
@@ -220,7 +226,7 @@
                             callback && callback();
 
                             video.setAttribute('muted', true);
-                            
+
                             var mediaElement = getMediaElement(video, {
                                 width: (videosContainer.clientWidth / 2) - 50,
                                 buttons: ['mute-audio', 'mute-video', 'full-screen', 'volume-slider']
@@ -291,7 +297,7 @@
                 window.onresize = scaleVideos;
 
             </script>
-            
+
             <section class="experiment">
                 <ol>
                     <li>This <a href="https://www.webrtc-experiment.com/">WebRTC</a> experiment is aimed to transmit audio/video streams in many-to-many style.</li>
@@ -302,7 +308,7 @@
                     <li>Maximum peer connections limit is 256 (on chrome). It means that 256 users can be interconnected!</li>
                 </ol>
             </section>
-        
+
             <section class="experiment">
                 <h2 class="header">Want to use video-conferencing in your own webpage?</h2>
                 <pre class="sh_html">
@@ -411,12 +417,12 @@ function captureUserMedia(callback) {
 }
 </pre>
             </section>
-            
+
             <section class="experiment own-widgets latest-commits">
                 <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
                 <div id="github-commits"></div>
             </section>
-        
+
             <section class="experiment">
                 <h2 class="header" id="feedback">Feedback</h2>
                 <div>
@@ -425,9 +431,9 @@ function captureUserMedia(callback) {
                 <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
             </section>
         </article>
-        
+
         <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing" class="fork-left"></a>
-        
+
         <footer>
             <p>
                 <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
@@ -435,7 +441,7 @@ function captureUserMedia(callback) {
                 <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
             </p>
         </footer>
-    
+
         <!-- commits.js is useless for you! -->
         <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>

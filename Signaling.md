@@ -6,9 +6,9 @@ Remember, there are some built-in implementations:
 2. [DataChanel.js and Reliable Signaling](https://github.com/muaz-khan/Reliable-Signaler/tree/master/datachannel-client)
 1. [Socket.io over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs)
 2. [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs)
-3. [WebSync for Signaling](https://github.com/muaz-khan/WebSync-Signaling) — useful only for .NET developers
-4. [XHR/XMLHttpRequest Signaling](https://github.com/muaz-khan/XHR-Signaling) — useful for both .NET and PHP developers!
-5. [RTCMultiConnection-v3.0](https://github.com/muaz-khan/RTCMultiConnection/tree/master/RTCMultiConnection-v3.0) / [Demo](https://rtcmulticonnection.herokuapp.com/)
+3. [WebSync for Signaling](https://github.com/muaz-khan/WebSync-Signaling) ï¿½ useful only for .NET developers
+4. [XHR/XMLHttpRequest Signaling](https://github.com/muaz-khan/XHR-Signaling) ï¿½ useful for both .NET and PHP developers!
+5. [RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection) / [Demo](https://rtcmulticonnection.herokuapp.com/)
 
 If you wanna understand basics of WebRTC signaling; then scroll to bottom and check [this section](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md#a-few-other-resources).
 
@@ -141,7 +141,7 @@ var socketio = io.connect('http://localhost:8888/');
 
 socketio.on('message', function(data) {
     if(data.sender == connection.userid) return;
-    
+
     if (onMessageCallbacks[data.channel]) {
         onMessageCallbacks[data.channel](data.message);
     };
@@ -176,7 +176,7 @@ var socketio = io.connect('http://localhost:8888/');
 
 socketio.on('message', function(data) {
     if(data.sender == currentUserUUID) return;
-    
+
     if (onMessageCallbacks[data.channel]) {
         onMessageCallbacks[data.channel](data.message);
     };
@@ -214,9 +214,9 @@ var websocket = new WebSocket('ws://localhost:8888/');
 
 websocket.onmessage =  function(e) {
     data = JSON.parse(e.data);
-    
+
     if(data.sender == currentUserUUID) return;
-    
+
     if (onMessageCallbacks[data.channel]) {
         onMessageCallbacks[data.channel](data.message);
     };
@@ -234,7 +234,7 @@ connection.openSignalingChannel = function (config) {
     onMessageCallbacks[channel] = config.onmessage;
 
     if (config.onopen) setTimeout(config.onopen, 1000);
-    
+
     // directly returning socket object using "return" statement
     return {
         send: function (message) {
@@ -257,7 +257,7 @@ connection.openSignalingChannel = function (config) {
 
    1. `send` method. Used to send data via signaling gateway.
    2. `channel` object. Used for video-conferencing. If you skip it; it will make one-to-many instead of many-to-many.
-   
+
 2. `onmessage` or `on('message', callback)` MUST have same code as you can see a few lines above.
 
 `openSocket` method can return `socket` object in three ways:
@@ -516,7 +516,7 @@ var websocket = new WebSocket(SIGNALING_SERVER);
 
 websocket.onmessage = function (event) {
     var data = JSON.parse(event.data);
-  
+
     if (data.isChannelPresent == false) {
         connection.open(connection.sessionid);
     } else {
@@ -539,7 +539,7 @@ WebSocket over Node.js demos can be found [here](https://github.com/muaz-khan/We
 ##### XHR/XMLHttpRequest for Signaling
 
 ```javascript
-// database has a single table; which has two columns: 
+// database has a single table; which has two columns:
 // 1) Message (required to store JSON data)
 // 2) ID (optional: as primary key)
 
