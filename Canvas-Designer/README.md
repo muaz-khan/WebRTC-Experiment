@@ -265,7 +265,8 @@ designer.setTools({
     bezier: true,
     quadratic: true,
     text: true,
-    image: true
+    image: true,
+    zoom: true
 });
 ```
 
@@ -308,7 +309,7 @@ designer.iframe.style.border = '5px solid red';
 
 ## `toDataURL`
 
-Get data-URL of your drawings! 
+Get data-URL of your drawings!
 
 ```javascript
 designer.toDataURL('image/png', function(dataURL) {
@@ -442,7 +443,7 @@ You merely need to set `isYourNewToolIconSelected:true` also `cache.isYourNewToo
 
 ## Fourth Step
 
-Create new file in the [`dev`](https://github.com/muaz-khan/Canvas-Designer/tree/master/dev) directory. Name this file as `yourNewToolIcon-handler.js`. 
+Create new file in the [`dev`](https://github.com/muaz-khan/Canvas-Designer/tree/master/dev) directory. Name this file as `yourNewToolIcon-handler.js`.
 
 This file MUST look like this:
 
@@ -453,11 +454,11 @@ var yourNewToolIconHandler = {
     mousedown: function(e) {
         this.ismousedown = true;
     },
-    
-    mouseup: function(e) { 
+
+    mouseup: function(e) {
         this.ismousedown = false;
     },
-    
+
     mousemove: function(e) {
         if(this.ismousedown) { ... }
     }

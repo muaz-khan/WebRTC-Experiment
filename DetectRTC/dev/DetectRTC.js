@@ -56,7 +56,7 @@ var webAudio = {
     if (item in window) {
         webAudio.isSupported = true;
 
-        if ('createMediaStreamSource' in window[item].prototype) {
+        if (window[item] && 'createMediaStreamSource' in window[item].prototype) {
             webAudio.isCreateMediaStreamSourceSupported = true;
         }
     }
@@ -113,6 +113,16 @@ DetectRTC.displayResolution = displayResolution;
 // ----------
 DetectRTC.isCanvasSupportsStreamCapturing = isCanvasSupportsStreamCapturing;
 DetectRTC.isVideoSupportsStreamCapturing = isVideoSupportsStreamCapturing;
+
+if (DetectRTC.browser.name == 'Chrome' && DetectRTC.browser.version >= 53) {
+    if (!DetectRTC.isCanvasSupportsStreamCapturing) {
+        DetectRTC.isCanvasSupportsStreamCapturing = 'Requires chrome flag: enable-experimental-web-platform-features';
+    }
+
+    if (!DetectRTC.isVideoSupportsStreamCapturing) {
+        DetectRTC.isVideoSupportsStreamCapturing = 'Requires chrome flag: enable-experimental-web-platform-features';
+    }
+}
 
 // ------
 DetectRTC.DetectLocalIPAddress = DetectLocalIPAddress;

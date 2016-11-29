@@ -5,7 +5,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0, user-scalable=no">
 
-	<title>Multiple Canvas Designers | HTML5, WebRTC</title>    
+	<title>Multiple Canvas Designers | HTML5, WebRTC</title>
 	<meta name="description" content="Multiple HTML5 Canvas Designer ® Muaz Khan – A tool aimed to give you a full-fledged drawing surface and also auto generate appropriate code for you in different formats! Generator/Tool/Editor – 2D API/Context">
 
 	<meta name="author" content="Muaz Khan">
@@ -13,10 +13,9 @@
 </head>
 <body>
 <script src="canvas-designer-widget.js"></script>
-<script src="https://cdn.webrtc-experiment.com/rmc3.min.js"></script>
 
-<!-- socket.io for signaling -->
-<script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
 
 <style>
 * {
@@ -165,40 +164,43 @@ input {
 
     <input type="checkbox" id="marker" checked>
     <label for="marker">marker</label><br>
-    
+
     <input type="checkbox" id="eraser" checked>
     <label for="eraser">eraser</label><br>
-    
+
     <input type="checkbox" id="text" checked>
     <label for="text">text</label><br>
 
     <input type="checkbox" id="image" checked>
     <label for="image">image</label><br>
-    
+
     <input type="checkbox" id="line" checked>
     <label for="line">line</label><br>
 
     <input type="checkbox" id="arrow" checked>
     <label for="arrow">arrow</label><br>
-    
+
+		<input type="checkbox" id="zoom" checked>
+    <label for="zoom">zoom</label><br>
+
     <input type="checkbox" id="dragSingle" checked>
     <label for="dragSingle">dragSingle</label><br>
-    
+
     <input type="checkbox" id="dragMultiple" checked>
     <label for="dragMultiple">dragMultiple</label><br>
-    
+
     <input type="checkbox" id="arc" checked>
     <label for="arc">arc</label><br>
-    
+
     <input type="checkbox" id="rectangle" checked>
     <label for="rectangle">rectangle</label><br>
-    
+
     <input type="checkbox" id="quadratic" checked>
     <label for="quadratic">quadratic</label><br>
-    
+
     <input type="checkbox" id="bezier" checked>
     <label for="bezier">bezier</label><br><br>
-    
+
     <hr>
     <div>
         Number of users connected with you: <b id="number-of-connected-users">0</b>
@@ -270,12 +272,12 @@ input {
     <h2>
         <a href="https://github.com/muaz-khan/Canvas-Designer">This tool is Open-Sourced!</a>
     </h2>
-    
+
     Author: <a href="https://github.com/muaz-khan">Muaz Khan</a>
-    
+
     <hr>
     <h2><a href="https://github.com/muaz-khan/Canvas-Designer#how-to-use">How to use in your own site?</a></h2>
-    
+
     <hr>
 
     <h2><a href="./">Try single designer!</a></h2>
@@ -293,7 +295,7 @@ input {
         <a href="https://www.npmjs.com/package/canvas-designer" target="_blank">
             <img src="https://img.shields.io/npm/dm/canvas-designer.svg">
         </a>
-        
+
         <br>
 
         <a href="https://travis-ci.org/muaz-khan/Canvas-Designer">
@@ -314,11 +316,11 @@ if(localStorage.getItem('canvas-designer-roomid')) {
 document.getElementById('open-room').onclick = function() {
     var roomid = document.getElementById('room-id').value;
     if(!roomid.length) return alert('Please enter roomid.');
-    
+
     this.disabled = true;
-    
+
     connection.open(roomid);
-    
+
     this.parentNode.innerHTML = '<a href="#' + roomid + '" target="_blank">Please share this link</a>';
 };
 
@@ -429,7 +431,8 @@ var tools = {
     rectangle: true,
     quadratic: true,
     bezier: true,
-    marker: true
+    marker: true,
+		zoom: true
 };
 
 designer1.setTools(tools);
@@ -442,7 +445,7 @@ Array.prototype.slice.call(document.getElementById('action-controls').querySelec
     checkbox.onchange = function() {
         designer1.destroy();
         designer2.destroy();
-        
+
         designer1.addSyncListener(function(data) {
             connection.send({
                 actualData: data,
@@ -455,7 +458,7 @@ Array.prototype.slice.call(document.getElementById('action-controls').querySelec
                 designer2: true
             });
         });
-        
+
         var tools = {};
         Array.prototype.slice.call(document.getElementById('action-controls').querySelectorAll('input[type=checkbox]')).forEach(function(checkbox2) {
             if(checkbox2.checked) {
@@ -482,7 +485,7 @@ txtNumberOfShapesToUndo.onkeyup = function() {
     localStorage.setItem('number-of-shapes-to-undo', txtNumberOfShapesToUndo.value);
 }
 
-if(localStorage.getItem('number-of-shapes-to-undo')){ 
+if(localStorage.getItem('number-of-shapes-to-undo')){
     txtNumberOfShapesToUndo.value = localStorage.getItem('number-of-shapes-to-undo');
     txtNumberOfShapesToUndo.onkeyup();
 }
@@ -491,7 +494,7 @@ undoOptions.onchange = function() {
     txtNumberOfShapesToUndo.parentNode.style.display = 'none';
 
     if(undoOptions.value === 'Specific Range') {
-        // 
+        //
     }
     else if(undoOptions.value === 'Last Multiple') {
         txtNumberOfShapesToUndo.parentNode.style.display = 'block';

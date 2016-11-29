@@ -311,14 +311,28 @@ function MRecordRTC(mediaStream) {
      */
     this.getDataURL = function(callback) {
         this.getBlob(function(blob) {
-            getDataURL(blob.audio, function(_audioDataURL) {
+            if (blob.audio && blob.video) {
+                getDataURL(blob.audio, function(_audioDataURL) {
+                    getDataURL(blob.video, function(_videoDataURL) {
+                        callback({
+                            audio: _audioDataURL,
+                            video: _videoDataURL
+                        });
+                    });
+                });
+            } else if (blob.audio) {
+                getDataURL(blob.audio, function(_audioDataURL) {
+                    callback({
+                        audio: _audioDataURL
+                    });
+                });
+            } else if (blob.video) {
                 getDataURL(blob.video, function(_videoDataURL) {
                     callback({
-                        audio: _audioDataURL,
                         video: _videoDataURL
                     });
                 });
-            });
+            }
         });
 
         function getDataURL(blob, callback00) {

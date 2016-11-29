@@ -189,7 +189,9 @@ function RTCMultiConnection(roomid, forceOptions) {
                     password: password || false
                 };
 
-                mPeer.onNegotiationNeeded(connectionDescription);
+                beforeJoin(connectionDescription.message, function() {
+                    mPeer.onNegotiationNeeded(connectionDescription);
+                });
                 return;
             }
 
@@ -372,18 +374,63 @@ function RTCMultiConnection(roomid, forceOptions) {
             password: false
         };
 
-        connectSocket(function() {
-            if (!!connection.peers[connection.sessionid]) {
-                // on socket disconnect & reconnect
-                return;
-            }
+        beforeJoin(connectionDescription.message, function() {
+            connectSocket(function() {
+                if (!!connection.peers[connection.sessionid]) {
+                    // on socket disconnect & reconnect
+                    return;
+                }
 
-            mPeer.onNegotiationNeeded(connectionDescription);
-            cb();
+                mPeer.onNegotiationNeeded(connectionDescription);
+                cb();
+            });
         });
-
         return connectionDescription;
     };
+
+    function beforeJoin(userPreferences, callback) {
+        if (connection.dontCaptureUserMedia || userPreferences.isDataOnly) {
+            callback();
+            return;
+        }
+
+        var localMediaConstraints = {};
+
+        if (userPreferences.localPeerSdpConstraints.OfferToReceiveAudio) {
+            localMediaConstraints.audio = connection.mediaConstraints.audio;
+        }
+
+        if (userPreferences.localPeerSdpConstraints.OfferToReceiveVideo) {
+            localMediaConstraints.video = connection.mediaConstraints.video;
+        }
+
+        var session = userPreferences.session || connection.session;
+
+        if (session.oneway && session.audio !== 'two-way' && session.video !== 'two-way' && session.screen !== 'two-way') {
+            callback();
+            return;
+        }
+
+        if (session.oneway && session.audio && session.audio === 'two-way') {
+            session = {
+                audio: true
+            };
+        }
+
+        if (session.audio || session.video || session.screen) {
+            if (session.screen) {
+                connection.getScreenConstraints(function(error, screen_constraints) {
+                    connection.invokeGetUserMedia({
+                        audio: isAudioPlusTab(connection) ? getAudioScreenConstraints(screen_constraints) : false,
+                        video: screen_constraints,
+                        isScreen: true
+                    }, (session.audio || session.video) && !isAudioPlusTab(connection) ? connection.invokeGetUserMedia(null, callback) : callback);
+                });
+            } else if (session.audio || session.video) {
+                connection.invokeGetUserMedia(null, callback, session);
+            }
+        }
+    }
 
     connection.connectWithAllParticipants = function(remoteUserId) {
         mPeer.onNegotiationNeeded('connectWithAllParticipants', remoteUserId || connection.sessionid);
@@ -649,6 +696,8 @@ function RTCMultiConnection(roomid, forceOptions) {
         }]
     };
 
+    connection.rtcpMuxPolicy = 'negotiate'; // or "required"
+    connection.iceTransportPolicy = null; // "relay" or "all"
     connection.optionalArgument = {
         optional: [{
             DtlsSrtpKeyAgreement: true
@@ -1044,7 +1093,14 @@ function RTCMultiConnection(roomid, forceOptions) {
             }
 
             if (!isRemote) {
-                delete connection.attachStreams[connection.attachStreams.indexOf(stream)];
+                // reset attachStreams
+                var streams = [];
+                connection.attachStreams.forEach(function(s) {
+                    if (s.id != stream.id) {
+                        streams.push(s);
+                    }
+                });
+                connection.attachStreams = streams;
             }
 
             // connection.renegotiate();
@@ -1059,6 +1115,18 @@ function RTCMultiConnection(roomid, forceOptions) {
                     extra: connection.extra,
                     mediaElement: connection.streamEvents[stream.streamid] ? connection.streamEvents[stream.streamid].mediaElement : null
                 };
+            }
+
+            if (isRemote && connection.peers[streamEvent.userid]) {
+                // reset remote "streams"
+                var peer = connection.peers[streamEvent.userid].peer;
+                var streams = [];
+                peer.getRemoteStreams().forEach(function(s) {
+                    if (s.id != stream.id) {
+                        streams.push(s);
+                    }
+                });
+                connection.peers[streamEvent.userid].streams = streams;
             }
 
             if (streamEvent.userid === connection.userid && streamEvent.type === 'remote') {
@@ -1078,6 +1146,10 @@ function RTCMultiConnection(roomid, forceOptions) {
     };
 
     connection.addNewBroadcaster = function(broadcasterId, userPreferences) {
+        if (connection.socket.isIO) {
+            return;
+        }
+
         if (connection.broadcasters.length) {
             setTimeout(function() {
                 mPeer.connectNewParticipantWithAllBroadcasters(broadcasterId, userPreferences, connection.broadcasters.join('|-,-|'));
@@ -1173,6 +1245,7 @@ function RTCMultiConnection(roomid, forceOptions) {
 
     connection.invokeSelectFileDialog = function(callback) {
         var selector = new FileSelector();
+        selector.accept = '*.*';
         selector.selectSingleFile(callback);
     };
 
@@ -1505,5 +1578,18 @@ function RTCMultiConnection(roomid, forceOptions) {
         connection.join(useridAlreadyTaken);
     };
 
+    connection.onRoomFull = function(roomid) {
+        if (connection.enableLogs) {
+            console.warn(roomid, 'is full.');
+        }
+    };
+
     connection.trickleIce = true;
+    connection.version = '@@version';
+
+    connection.onSettingLocalDescription = function(event) {
+        if (connection.enableLogs) {
+            console.info('Set local description for remote user', event.userid);
+        }
+    };
 }

@@ -16,9 +16,9 @@ var pencilHandler = {
         // make sure that pencil is drawing shapes even 
         // if mouse is down but mouse isn't moving
         tempContext.lineCap = 'round';
-        drawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
+        pencilDrawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
 
-        points[points.length] = ['line', [t.prevX, t.prevY, x, y], drawHelper.getOptions()];
+        points[points.length] = ['line', [t.prevX, t.prevY, x, y], pencilDrawHelper.getOptions()];
 
         t.prevX = x;
         t.prevY = y;
@@ -34,12 +34,21 @@ var pencilHandler = {
 
         if (t.ismousedown) {
             tempContext.lineCap = 'round';
-            drawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
+            pencilDrawHelper.line(tempContext, [t.prevX, t.prevY, x, y]);
 
-            points[points.length] = ['line', [t.prevX, t.prevY, x, y], drawHelper.getOptions()];
+            points[points.length] = ['line', [t.prevX, t.prevY, x, y], pencilDrawHelper.getOptions()];
 
             t.prevX = x;
             t.prevY = y;
         }
     }
-};
+}
+
+var pencilLineWidth = document.getElementById('pencil-stroke-style').value,
+    pencilStrokeStyle = '#' + document.getElementById('pencil-fill-style').value;
+
+var pencilDrawHelper = clone(drawHelper);
+
+pencilDrawHelper.getOptions = function() {
+    return [pencilLineWidth, pencilStrokeStyle, fillStyle, globalAlpha, globalCompositeOperation, lineCap, lineJoin, font];
+}

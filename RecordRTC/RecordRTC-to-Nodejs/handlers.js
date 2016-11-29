@@ -1,6 +1,6 @@
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
-// Source Code   - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs
+// Source Code   - github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs
 
 var config = require('./config'),
     fs = require('fs'),
@@ -123,10 +123,17 @@ function ifWin(response, files) {
             });
             response.end(files.audio.name.split('.')[0] + '-merged.webm');
 
-            fs.unlink(audioFile);
-            fs.unlink(videoFile);
+            unlinkFile(audioFile);
+            unlinkFile(videoFile);
         }
     });
+}
+
+function unlinkFile(path) {
+    try {
+        fs.unlink(path);
+    }
+    catch(e){}
 }
 
 function ifMac(response, files) {
@@ -157,8 +164,8 @@ function ifMac(response, files) {
             response.end(files.audio.name.split('.')[0] + '-merged.webm');
 
             // removing audio/video files
-            fs.unlink(audioFile);
-            fs.unlink(videoFile);
+            unlinkFile(audioFile);
+            unlinkFile(videoFile);
         }
 
     });

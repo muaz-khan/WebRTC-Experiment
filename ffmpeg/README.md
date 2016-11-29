@@ -8,7 +8,7 @@
 | Recording Audio+Canvas and merging in single mp4 | [Demo](https://www.webrtc-experiment.com/ffmpeg/audio-plus-canvas-recording.html)  | [Source](https://github.com/muaz-khan/Ffmpeg.js/blob/master/audio-plus-canvas-recording.html) |
 | Recording Audio+Screen and merging in single mp4 | [Demo](https://www.webrtc-experiment.com/ffmpeg/audio-plus-screen-recording.html)  | [Source](https://github.com/muaz-khan/Ffmpeg.js/blob/master/audio-plus-screen-recording.html) |
 
-Remember: [`ffmpeg-asm.js`](https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.googledrive.com/host/0B6GWd_dUUTT8WjhzNlloZmZtdzA/ffmpeg_asm.js)'s credit goes to: https://github.com/bgrins/videoconverter.js
+Remember: [`ffmpeg-asm.js`](https://archive.org/download/ffmpeg_asm/ffmpeg_asm.js)'s credit goes to: https://github.com/bgrins/videoconverter.js
 
 * [audo-plus-canvas-recording.gif](https://cdn.webrtc-experiment.com/images/audo-plus-canvas-recording.gif)
 
@@ -16,9 +16,8 @@ Remember: [`ffmpeg-asm.js`](https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.goo
 
 **It is suggested to download `ffmpeg-asm` file and try locally!**
 
-[`ffmpeg-asm.js`](https://4dbefa02675a4cdb7fc25d009516b060a84a3b4b.googledrive.com/host/0B6GWd_dUUTT8WjhzNlloZmZtdzA/ffmpeg_asm.js) file's default size is 18MB; however you can gzip it to make it about 6MB.
+[`ffmpeg-asm.js`](https://archive.org/download/ffmpeg_asm/ffmpeg_asm.js) file's default size is 18MB; however you can gzip it to make it about 6MB.
 
 # License
 
 [All these demos](https://github.com/muaz-khan/Ffmpeg.js) are released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).
-

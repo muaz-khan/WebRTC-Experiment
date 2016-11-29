@@ -4,33 +4,79 @@
 
 * Youtube Video: [NPM install](https://www.youtube.com/watch?v=EtsiYEW_T8Y) or [Other Videos](https://www.youtube.com/watch?v=EtsiYEW_T8Y&list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl)
 
-Or fetch latest code via github:
+# Fetch from Github
+
+> Github is strongly recommended. NPM or TAR are secondary options.
 
 ```sh
-git clone https://github.com/muaz-khan/RTCMultiConnection.git ./RTCMultiConnection
-cd RTCMultiConnection
-sudo npm install --save-dev
+git clone https://github.com/muaz-khan/RTCMultiConnection.git ./
+npm install --production
 ```
 
-Or wget/TAR:
+Or download ZIP:
+
+* https://github.com/muaz-khan/RTCMultiConnection/archive/master.zip
+
+Then call `npm install --production`.
+
+Use `--production` to skip `grunt` dependencies. You don't need `grunt` until you modify library itself.
+
+# Download TAR
 
 ```sh
-mkdir RTCMultiConnection-v3
-cd RTCMultiConnection-v3
-wget http://dl.webrtc-experiment.com/rtcmulticonnection-v3.tar.gz
-tar -zxvf rtcmulticonnection-v3.tar.gz
-ls -a
+wget http://webrtcweb.com/rtcmulticonnection-v3.tar.gz
+tar -xf rtcmulticonnection-v3.tar.gz
 ```
 
-* [rtcmulticonnection-v3.tar.gz](http://dl.webrtc-experiment.com/rtcmulticonnection-v3.tar.gz)
+# Install using NPM or Bower
 
-To TEST:
+
+```sh
+npm install rtcmulticonnection-v3 --production
+
+# or
+bower install rtcmulticonnection-v3
+```
+
+# Run `server.js`
 
 ```sh
 node server.js
 ```
 
-## Stop Old Processes
+Now open `http://localhost:9001/`.
+
+# Use HTTPs
+
+Open [server.js](https://github.com/muaz-khan/RTCMultiConnection/blob/master/server.js) and enable `isUseHTTPs`:
+
+```javascript
+var isUseHTTPs = true;
+```
+
+# Change Port
+
+Open [server.js](https://github.com/muaz-khan/RTCMultiConnection/blob/master/server.js) and set `port`:
+
+```javascript
+var port = 443;
+```
+
+See how to enable SSL certificates:
+
+* https://github.com/muaz-khan/WebRTC-Experiment/issues/62
+
+> Remember: HTTPs is requires for screen-capturing on both Chrome & Firefox.
+> 
+> Chrome requires HTTPs for normal camera/mic as well.
+
+# How to check if server is running correctly?
+
+Open this URL: `https://localhost:9001/socket.io/socket.io.js`
+
+If you can load `/socket.io/socket.io.js` on your server then it is working fine.
+
+# Stop Old Processes
 
 Check all processes running on port `9001` and stop process by `id`:
 
@@ -45,7 +91,7 @@ Or stop all processes on a specific port. (It may require `sudo` privileges):
 fuser -vk 9001/tcp
 ```
 
-Now open: `https://localhost:9001/`
+Now open: `http://localhost:9001/`
 
 ## Keep running server in background
 

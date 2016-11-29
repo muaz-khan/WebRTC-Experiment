@@ -17,7 +17,7 @@ Now search for `socket.io.js` file. You will find this:
 Replace above line with this one:
 
 ```html
-<script src="https://cdn.webrtc-experiment.com:443/socket.io.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
 ```
 
 Last step is: search for `connection.socketURL`. You will find these two lines:
@@ -45,8 +45,8 @@ You can use `jsfiddle.net` for testing purpose.
 First of all, add these two lines:
 
 ```html
-<script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
-<script src="https://cdn.webrtc-experiment.com:443/socket.io.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
 ```
 
 Now add two buttons:

@@ -1,16 +1,15 @@
 var drawHelper = {
-    redraw: function(skipSync) {
+    redraw: function() {
         tempContext.clearRect(0, 0, innerWidth, innerHeight);
         context.clearRect(0, 0, innerWidth, innerHeight);
 
         var i, point, length = points.length;
         for (i = 0; i < length; i++) {
             point = points[i];
-            this[point[0]](context, point[1], point[2]);
-        }
-
-        if (!skipSync && typeof syncPoints !== 'undefined') {
-            syncPoints(is.isDragAllPaths || is.isDragLastPath ? true : false);
+            if (point && point.length && this[point[0]]) {
+                this[point[0]](context, point[1], point[2]);
+            }
+            // else warn
         }
     },
     getOptions: function(opt) {

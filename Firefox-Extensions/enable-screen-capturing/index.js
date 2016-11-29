@@ -9,6 +9,9 @@ var configToEnableScreenCapturing = 'media.getusermedia.screensharing.enabled';
 
 // replace your own domains with below array
 var arrayOfMyOwnDomains = ['webrtc-experiment.com', 'www.webrtc-experiment.com', 'localhost', '127.0.0.1'];
+// Patterns to match the websites that may check whether ther add-on is installed.
+// See https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
+var patternsOfMyDomains = ['*.webrtc-experiment.com', /https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/.*/];
 
 // e.g. if 127.0.0.1 or localhost is already allowed by anyone else
 var listOfSimilarAlreadyAllowedDomains = [];
@@ -65,43 +68,38 @@ unload(function() {
     removeMyDomainOnUnInstall();
 });
 
-/*
-* connect with webpage using postMessage
-* a webpage can use following API to enable screen capturing for his domains
-* window.postMessage({ enableScreenCapturing: true, domains: ["www.firefox.com"] }, "*");
-* 
-* current firefox user is always asked to confirm whether he is OK to enable screen capturing for requested domains.
-*/
 var tabs = require("sdk/tabs");
 var mod = require("sdk/page-mod");
 var self = require("sdk/self");
 
 var pageMod = mod.PageMod({
-    include: ["*"],
+    include: patternsOfMyDomains,
     contentScriptFile: "./../content-script.js",
     contentScriptWhen: "start", // or "ready"
     onAttach: function(worker) {
-        worker.port.on("installation-confirmed", function(domains) {
-            // make sure that this addon's self-domains (i.e. "arrayOfMyOwnDomains")
-            // are not included in the "listOfSimilarAlreadyAllowedDomains" array.
-            removeMyDomainOnUnInstall();
-
-            arrayOfMyOwnDomains = arrayOfMyOwnDomains.concat(domains);
-            addMyOwnDomains();
-        });
-
-        worker.port.on("is-screen-capturing-enabled", function(domains) {
+        // webpages can verify if their domains are REALLY enabled or not.
+        worker.port.on("is-screen-capturing-enabled", function() {
             var isScreenCapturingEnabled = false;
 
+            var arrayOfEnabledDomains = [];
+
             prefService.get(configToReferListOfAllowedDomains).split(',').forEach(function(domain) {
-                if(domains.indexOf(domain) !== -1) {
+                if(arrayOfMyOwnDomains.indexOf(domain) !== -1) {
+                    // maybe we need to check whether all of, my own, domains are enabled?
                     isScreenCapturingEnabled = true;
+
+                    // we will pass this to the webpage
+                    // so webpage can understand which domain is enabled; and which is NOT.
+                    arrayOfEnabledDomains.push(domain);
                 }
             });
 
             worker.port.emit('is-screen-capturing-enabled-response', {
                 isScreenCapturingEnabled: isScreenCapturingEnabled,
-                domains: domains
+
+                // pass only those domains that are enabled for screen capturing
+                // however those domains MUST be our own
+                domains: arrayOfEnabledDomains
             });
         });
     }

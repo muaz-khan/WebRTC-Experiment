@@ -1,4 +1,4 @@
-// Last time updated at Sep 01, 2016, 08:32:23
+// Last time updated at Nov 07, 2016, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getScreenId.js
 
@@ -21,8 +21,35 @@ getScreenId(function (error, sourceId, screen_constraints) {
 });
 */
 
+// via: https://bugs.chromium.org/p/chromium/issues/detail?id=487935#c17
+// you can capture screen on Android Chrome >= 55 with flag: "Experimental ScreenCapture android"
+window.IsAndroidChrome = false;
+try {
+    if (navigator.userAgent.toLowerCase().indexOf("android") > -1 && /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)) {
+        window.IsAndroidChrome = true;
+    }
+} catch (e) {}
+
 (function() {
     window.getScreenId = function(callback) {
+        if (window.IsAndroidChrome) {
+            var screen_constraints = {
+                mandatory: {
+                    chromeMediaSource: 'screen',
+                    maxWidth: 29999,
+                    maxHeight: 8640,
+                    minFrameRate: 30,
+                    maxFrameRate: 128,
+                    minAspectRatio: 1.77 // 2.39
+                },
+                optional: []
+            };
+            callback(null, null, {
+                video: screen_constraints
+            });
+            return;
+        }
+
         // for Firefox:
         // sourceId == 'firefox'
         // screen_constraints = {...}
@@ -115,6 +142,22 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
     // this function is used in v3.0
     window.getScreenConstraints = function(callback) {
+        if (window.IsAndroidChrome) {
+            var screen_constraints = {
+                mandatory: {
+                    chromeMediaSource: 'screen',
+                    maxWidth: 29999,
+                    maxHeight: 8640,
+                    minFrameRate: 30,
+                    maxFrameRate: 128,
+                    minAspectRatio: 1.77 // 2.39
+                },
+                optional: []
+            };
+            callback(null, screen_constraints);
+            return;
+        }
+
         loadIFrame(function() {
             getScreenId(function(error, sourceId, screen_constraints) {
                 callback(error, (screen_constraints || {}).video);
@@ -221,6 +264,22 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
     // this function is used in v3.0
     window.getScreenConstraints = function(callback) {
+        if (window.IsAndroidChrome) {
+            var screen_constraints = {
+                mandatory: {
+                    chromeMediaSource: 'screen',
+                    maxWidth: 29999,
+                    maxHeight: 8640,
+                    minFrameRate: 30,
+                    maxFrameRate: 128,
+                    minAspectRatio: 1.77 // 2.39
+                },
+                optional: []
+            };
+            callback(null, screen_constraints);
+            return;
+        }
+
         loadIFrame(function() {
             getScreenId(function(error, sourceId, screen_constraints) {
                 callback(error, (screen_constraints || {}).video);

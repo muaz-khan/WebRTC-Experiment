@@ -85,7 +85,7 @@ window.addEventListener('message', function(event) {
     lastPointIndex = points.length;
 
     // redraw the <canvas> surfaces
-    drawHelper.redraw(true);
+    drawHelper.redraw();
 }, false);
 
 function syncPoints(isSyncAll) {

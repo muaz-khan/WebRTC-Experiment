@@ -6,10 +6,10 @@
 
 ```html
 <script>
-// add this script before loading "rmc3.min.js"
+// add this script before loading "RTCMultiConnection.min.js"
 window.getExternalIceServers = true;
 </script>
-<script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
 ```
 
 Now you will get maximum WebRTC success across all devices.

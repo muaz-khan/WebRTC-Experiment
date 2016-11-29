@@ -1,31 +1,29 @@
-
 <!--
 > Muaz Khan     - www.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
-> Documentation - github.com/muaz-khan/getStats
+> Documentation - github.com/muaz-khan/getScreenId
 -->
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <title>getScreenId | Capture Screen on Any Domain!</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-<head>
-    <title>getStats.js Demo ® Muaz Khan</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-    <meta name="author" content="Muaz Khan">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
-    <style>
-            audio, video {
-                -moz-transition: all 1s ease;
-                -ms-transition: all 1s ease;
-                
-                -o-transition: all 1s ease;
-                -webkit-transition: all 1s ease;
-                transition: all 1s ease;
+        <style>
+            audio {
+                vertical-align: bottom;
+                width: 10em;
+            }
+
+            video {
+                max-width: 100%;
                 vertical-align: top;
             }
 
@@ -37,317 +35,289 @@
                 width: 30%;
             }
 
-            .setup {
-                border-bottom-left-radius: 0;
-                border-top-left-radius: 0;
-                font-size: 102%;
-                height: 47px;
-                margin-left: -9px;
-                margin-top: 8px;
-                position: absolute;
-            }
-
-            p { padding: 1em; }
+            p, .inner { padding: 1em; }
 
             li {
                 border-bottom: 1px solid rgb(189, 189, 189);
                 border-left: 1px solid rgb(189, 189, 189);
                 padding: .5em;
             }
-            
-            .videos-container {
+
+            label {
                 display: inline-block;
-                border: 2px solid black;
-                padding: .1em;
-                border-radius: 0.2em;
-                margin: 2em .2em;
-                background: white;
-                vertical-align: top;
+                width: 8em;
             }
-            .videos-container h2 {
-                border: 0;
-                border-top: 1px solid black;
-                margin: 0;
-                text-align: center;
-                display:block;
+
+            p {
+              margin-top: 0!important;
+              margin-bottom: 0!important;
+              padding: 10px 10px!important;
             }
-            video {
-                width:20em;
-                height: 15em;
-                background: black;
+
+            blockquote {
+              margin: 10px;
+              border-radius: 10px;
+              background: rgb(253, 253, 253);
+              padding: 8px 20px;
+              font-size: 25px;
+              font-weight: 200;
+              line-height: 1.5;
+              word-spacing: 5px;
             }
-    </style>
 
-    <script src="/getStats.js"></script>
+            button {
+              font-size: 25px;
+              font-weight: 200;
+              line-height: 1.5;
+              word-spacing: 5px;
+            }
 
-    <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
-    <script src="https://cdn.webrtc-experiment.com/gumadapter.js"></script>
-</head>
+            section blockquote {
+              color: #EC008C;
+            }
 
-<body>
-    <article>
-        <header style="text-align: center;">
-            <h1>
-                getStats.js Demo ®
-                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
-            </h1>
-            <p>
-                <a href="https://www.webrtc-experiment.com/">HOME</a>
-                <span> &copy; </span>
-                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
-                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
-                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
-                <a href="https://github.com/muaz-khan/getStats/issues?state=open" target="_blank">Latest issues</a> .
-                <a href="https://github.com/muaz-khan/getStats/commits/master" target="_blank">What's New?</a>
-            </p>
-        </header>
+            .specific-h2, h1 {
+              font-size: 35px;
+              font-weight: 200;
+              padding: 5px 10px;
+              border-bottom: 1px dotted #EC008C;
+            }
 
-        <div class="github-stargazers"></div>
-        
-        <div style="text-align:center;">
-                <div class="videos-container">
-                    <video id="peer2-to-peer1" autoplay controls></video>
-                     <h2>Offerer-to-Answerer</h2>
+            .specific-h2 a {
+              color: #EC008C;
+            }
 
-                </div>
-                <div class="videos-container">
-                    <video id="peer1-to-peer2" autoplay controls></video>
-                     <h2>Answerer-to-Offerer</h2>
+            h1 {
+              font-size: 40px;
+              color: #EC008C;
+            }
+        </style>
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
 
-                </div>
-            </div>
-            <script>
-                 var mediaConstraints = {
-                    optional: [],
-                    mandatory: {
-                        OfferToReceiveAudio: true,
-                        OfferToReceiveVideo: true
-                    }
-                };
-            </script>
-            <script>
-                var offerer, answerer;
-                var offererToAnswerer = document.getElementById('peer1-to-peer2');
-                var answererToOfferer = document.getElementById('peer2-to-peer1');
+        <!-- script used to capture sourceId of the screen -->
+        <script src="https://cdn.webrtc-experiment.com/getScreenId.js"> </script>
+    </head>
 
-                window.RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-                window.RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-                window.RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+    <body>
+        <article>
+            <header style="text-align: center;">
+                <h1>
+                    getScreenId | Capture Screen on Any Domain!
+                </h1>
+                <p>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
 
-                var iceServers = [];
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
 
-                // Firefox <= 37 doesn't understands "urls"
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
 
-                iceServers.push({
-                    urls: 'stun:stun.l.google.com:19302'
-                });
+                    .
+                    <a href="https://github.com/muaz-khan/getScreenId/issues?state=open" target="_blank">Latest issues</a>
 
-                iceServers.push({
-                    urls: 'stun:stun.anyfirewall.com:3478'
-                });
+                    .
+                    <a href="https://github.com/muaz-khan/getScreenId/commits/master" target="_blank">What's New?</a>
+                </p>
+            </header>
 
-                iceServers.push({
-                    urls: 'turn:turn.bistri.com:80',
-                    credential: 'homeo',
-                    username: 'homeo'
-                });
+            <div class="github-stargazers"></div>
 
-                iceServers.push({
-                    urls: 'turn:turn.anyfirewall.com:443?transport=tcp',
-                    credential: 'webrtc',
-                    username: 'webrtc'
-                });
+            <blockquote>
+              YouTube video: <a href="https://www.youtube.com/watch?v=UHrsfe9RYAQ" target="_blank">https://www.youtube.com/watch?v=UHrsfe9RYAQ</a>
+            </blockquote>
 
-                iceServers = {
-                    iceServers: iceServers
-                };
-            </script>
-            <script>
-                /* offerer */
-
-                function offererPeer(video_stream) {
-                    offerer = new RTCPeerConnection(window.iceServers);
-                    offerer.id = 1;
-                    offerer.addStream(video_stream);
-
-                    offerer.onaddstream = function (event) {
-                        offererToAnswerer.srcObject = event.stream;
-                        offererToAnswerer.play();
-
-                        invokeGetStats(offerer);
-                    };
-
-                    offerer.onicecandidate = function (event) {
-                        if (!event || !event.candidate) return;
-                        answerer.addIceCandidate(event.candidate);
-                    };
-
-                    offerer.createOffer(function (offer) {
-                        offerer.setLocalDescription(offer);
-                        answererPeer(offer, video_stream);
-                    }, function() {}, mediaConstraints);
-                }
-            </script>
-            <script>
-                /* answerer */
-
-                function answererPeer(offer, video_stream) {
-                    answerer = new RTCPeerConnection(window.iceServers);
-                    answerer.id = 2;
-                    answerer.addStream(video_stream);
-
-                    answerer.onaddstream = function (event) {
-                        answererToOfferer.srcObject = event.stream;
-                        answererToOfferer.play();
-
-                        invokeGetStats(answerer);
-                    };
-
-                    answerer.onicecandidate = function (event) {
-                        if (!event || !event.candidate) return;
-                        offerer.addIceCandidate(event.candidate);
-                    };
-
-                    answerer.setRemoteDescription(offer);
-                    answerer.createAnswer(function (answer) {
-                        answerer.setLocalDescription(answer);
-                        offerer.setRemoteDescription(answer);
-                    }, function() {}, mediaConstraints);
-                }
-            </script>
-            <script>
-                var video_constraints = {
-                    mandatory: {},
-                    optional: []
-                };
-
-                function getUserMedia(successCallback) {
-                    function errorCallback(e) {
-                        alert(JSON.stringify(e, null, '\t'));
-                    }
-
-                    var mediaConstraints = { video: true, audio: true };
-
-                    navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
-                }
-            </script>
-            <script>
-                getUserMedia(function (video_stream) {
-                    offererPeer(video_stream);
-                });
-            </script>
-
-            <section class="experiment" style="margin-left:0; margin-right:0;width: 100%;overflow: auto;">
-                <h2>getStats.js Logs</h2><br>
-                <table>
-                    <thead>
-                        <th>PeerId</th>
-                        <th>IsOfferer</th>
-                        <th>ConnectionInfo</th>
-                        <th>DataChannel</th>
-                        <th>EncryptedAs</th>
-                        <th>AudioAvailBandwidth</th>
-                        <th>VideoAvailBandwidth</th>
-                    </thead>
-                    <tbody id="getStats-logs-container"></tbody>
-                </table>
+            <section class="experiment" style="text-align:center;">
+                <br><button id="capture-screen">Capture Your Own Screen</button><hr>
+                <video controls autoplay style="width: 100%;background-repeat: no-repeat;background-size: 100%;background-image: url(https://lh5.googleusercontent.com/6U-gmL_hG9bbquDZdW_ajiA-1bgkfSlHOkzR24aigkyPQzXWXNoRNfyLjXS3rqV92iwq395JSQ=s640-h400-e365-rw);"></video>
             </section>
 
             <script>
-                var getStatsLogsContainer = document.getElementById('getStats-logs-container');
-                function invokeGetStats(peer) {
-                    getStats(peer, function(result) {
-                        var tr = getStatsLogsContainer.querySelector('#peer-stats-' + peer.id);
-                        if (!tr) {
-                            tr = document.createElement('tr');
-                            tr.id = 'peer-stats-' + peer.id;
-                            getStatsLogsContainer.appendChild(tr);
+                // via: https://bugs.chromium.org/p/chromium/issues/detail?id=487935#c17
+                // you can capture screen on Android Chrome >= 55 with flag: "Experimental ScreenCapture android"
+                window.IsAndroidChrome = false;
+                try {
+                    if (navigator.userAgent.toLowerCase().indexOf("android") > -1 && /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)) {
+                        window.IsAndroidChrome = true;
+                    }
+                } catch (e) {}
+
+                document.getElementById('capture-screen').onclick = function() {
+                    document.getElementById('capture-screen').disabled = true;
+
+                    setTimeout(function() {
+                      if(document.getElementById('capture-screen').disabled && !document.querySelector('video').src) {
+                        document.getElementById('capture-screen').disabled = false;
+                      }
+                    }, 5000);
+
+                    getScreenId(function(error, sourceId, screen_constraints) {
+                        // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
+                        // sourceId == null || 'string' || 'firefox'
+                        // getUserMedia(screen_constraints, onSuccess, onFailure);
+
+                        document.getElementById('capture-screen').disabled = false;
+
+                        if (IsAndroidChrome) {
+                            screen_constraints = {
+                                mandatory: {
+                                    chromeMediaSource: 'screen'
+                                },
+                                optional: []
+                            };
+                            
+                            screen_constraints = {
+                                video: screen_constraints
+                            };
+
+                            error = null;
                         }
 
-                        var html = '<td>' + peer.id + '</td>';
-
-                        html += '<td>' + (result.isOfferer ? 'Offerer' : 'Answerer') + '</td>';
-
-                        html += '<td>';
-                        if (result.connectionType && result.connectionType.remote) {
-                            html += 'RemoteIceType (' + result.connectionType.remote.candidateType + '), ';
-
-                            if (result.connectionType.remote.networkType) {
-                                html += 'RemoteNetType (' + result.connectionType.remote.networkType + '), ';
-                            }
+                        if(error == 'not-installed') {
+                          alert('Please install Chrome extension. See the link below.');
+                          return;
                         }
 
-                        if (result.connectionType && result.connectionType.local) {
-                            html += 'LocalIceType (' + result.connectionType.local.candidateType + '), ';
-
-                            if (result.connectionType.local.networkType) {
-                                html += 'LocalNetType (' + result.connectionType.local.networkType + '), ';
-                            }
+                        if(error == 'installed-disabled') {
+                          alert('Please install or enable Chrome extension. Please check "chrome://extensions" page.');
+                          return;
                         }
 
-                        html += '</td>';
-                        html += '<td>' + (result.datachannel ? result.datachannel.state : 'not-created') + '</td>';
-
-                        if (result.encryption) {
-                            html += '<td>' + result.encryption + '</td>';
+                        if(error == 'permission-denied') {
+                          alert('Please make sure you are using HTTPs. Because HTTPs is required.');
+                          return;
                         }
 
-                        if(result.audio.availableBandwidth) {
-                            html += '<td>' + result.audio.availableBandwidth + ' kbps</td>';
-                        }
+                        console.info('getScreenId callback \n(error, sourceId, screen_constraints) =>\n', error, sourceId, screen_constraints);
 
-                        if(result.video.availableBandwidth) {
-                            html += '<td>' + result.video.availableBandwidth + ' kbps</td>';
-                        }
+                        document.getElementById('capture-screen').disabled = true;
+                        navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+                        navigator.getUserMedia(screen_constraints, function(stream) {
+                            // share this "MediaStream" object using RTCPeerConnection API
 
-                        tr.innerHTML = html;
+                            document.querySelector('video').src = URL.createObjectURL(stream);
 
-                        if (result.datachannel && result.datachannel.state === 'close') {
-                            tr.parentNode.removeChild(tr);
-                            result.nomore();
-                        }
+                            stream.oninactive = stream.onended = function() {
+                                document.querySelector('video').src = null;
+                                document.getElementById('capture-screen').disabled = false;
+                            };
 
-                        window.getStatsResult = result;
-                    }, 5 * 1000);
-                }
+                            document.getElementById('capture-screen').disabled = false;
+                        }, function(error) {
+                            console.error('getScreenId error', error);
+
+                            alert('Failed to capture your screen. Please check Chrome console logs for further information.');
+                        });
+                    });
+                };
             </script>
 
-        <section class="experiment own-widgets">
-            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/getStats/issues" target="_blank">getStats Issues</a>
-            </h2>
-            <div id="github-issues"></div>
-        </section>
+            <blockquote class="inline">
+                <ol>
+                  <li>
+                    Install this: <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk</a>
+                  </li>
 
-        <section class="experiment">
-            <h2 class="header" id="feedback">Feedback</h2>
-            <div>
-                <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-            </div>
-            <button id="send-message" style="font-size: 1em;">Send Message</button>
-            <small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
-        </section>
+                  <li>
+                    Now use below codes on any HTTPs domain.
+                  </li>
 
-        <section class="experiment own-widgets latest-commits">
-            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/getStats/commits/master" target="_blank">Latest Updates</a>
-            </h2>
-            <div id="github-commits"></div>
-        </section>
-    </article>
+                  <li>
+                    Remember, HTTPs is required.
+                  </li>
 
-    <a href="https://github.com/muaz-khan/getStats" class="fork-left"></a>
+                  <li>
+                    getScreenId gives you "MediaStream" object; you can share that object with other users using AppRTC demo, SimpleWebRTC or EasyRTC or PeerJs libraries, or any standalone peer-to-peer demo.
+                  </li>
 
-    <footer>
-        <p>
-            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
-            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
-        </p>
-    </footer>
+                  <li>
+                    In simple words, you have to use RTCPeerConnection API along with getScreenId to share screen with other users.
+                  </li>
+                </ol>
+            </blockquote>
 
-    <!-- commits.js is useless for you! -->
-    <script>
-        window.useThisGithubPath = 'muaz-khan/getStats';
-    </script>
-    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
-</body>
+            <section class="experiment">
+                <h2 class="header specific-h2">Prerequisites</h2>
+                <ol>
+                    <li>
+                        Chrome?
+                        <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Store</a>
+                        / <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture">Source Code</a>
+                    </li>
 
+                    <li>
+                        Firefox? <a href="https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/" target="_blank">Store</a> / <a href="https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing">Source Code</a>
+                    </li>
+                </ol>
+            </section>
+
+            <section class="experiment">
+              <h2 class="header specific-h2">
+                  How to use <a href="https://github.com/muaz-khan/getScreenId" target="_blank">getScreenId.js</a>?</h2>
+
+                <pre class="sh_javascript sh_html">
+&lt;script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+getScreenId(function (error, sourceId, screen_constraints) {
+    // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
+    // sourceId == null || 'string' || 'firefox'
+
+    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    navigator.getUserMedia(screen_constraints, function (stream) {
+        document.querySelector('video').src = URL.createObjectURL(stream);
+
+        // share this "MediaStream" object using RTCPeerConnection API
+    }, function (error) {
+        console.error(error);
+    });
+});
+&lt;/script&gt;
+</pre>
+
+            </section>
+
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        </article>
+
+        <a href="https://github.com/muaz-khan/getScreenId" class="fork-left"></a>
+
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+            </p>
+        </footer>
+
+        <!-- commits.js is useless for you! -->
+        <script>
+            window.useThisGithubPath = 'muaz-khan/getScreenId';
+        </script>
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
+
+        <script src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js" type="text/javascript"> </script>
+        <script src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js" type="text/javascript"> </script>
+        <script src="https://cdn.webrtc-experiment.com/syntax/sh_html.min.js" type="text/javascript"> </script>
+        <link href="https://cdn.webrtc-experiment.com/syntax/sh_style.css" type="text/css" rel="stylesheet">
+
+        <script>
+          sh_highlightDocument();
+        </script>
+    </body>
 </html>

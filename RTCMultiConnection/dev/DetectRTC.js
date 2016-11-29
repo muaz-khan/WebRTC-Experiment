@@ -1,4 +1,4 @@
-// Last time updated: 2016-09-04 3:03:44 AM UTC
+// Last time updated: 2016-11-12 6:02:08 AM UTC
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/DetectRTC.js
 
@@ -233,6 +233,9 @@
             var db;
             try {
                 db = window.indexedDB.open('test');
+                db.onerror = function() {
+                    return true;
+                };
             } catch (e) {
                 isPrivate = true;
             }
@@ -669,11 +672,22 @@
         audioOutputDevices = [];
         videoInputDevices = [];
 
+        // to prevent duplication
+        var alreadyUsedDevices = {};
+
         navigator.enumerateDevices(function(devices) {
             devices.forEach(function(_device) {
                 var device = {};
                 for (var d in _device) {
-                    device[d] = _device[d];
+                    try {
+                        if (typeof _device[d] !== 'function') {
+                            device[d] = _device[d];
+                        }
+                    } catch (e) {}
+                }
+
+                if (alreadyUsedDevices[device.deviceId]) {
+                    return;
                 }
 
                 // if it is MediaStreamTrack.getSources
@@ -683,17 +697,6 @@
 
                 if (device.kind === 'video') {
                     device.kind = 'videoinput';
-                }
-
-                var skip;
-                MediaDevices.forEach(function(d) {
-                    if (d.id === device.id && d.kind === device.kind) {
-                        skip = true;
-                    }
-                });
-
-                if (skip) {
-                    return;
                 }
 
                 if (!device.deviceId) {
@@ -746,10 +749,9 @@
                 }
 
                 // there is no 'videoouput' in the spec.
+                MediaDevices.push(device);
 
-                if (MediaDevices.indexOf(device) === -1) {
-                    MediaDevices.push(device);
-                }
+                alreadyUsedDevices[device.deviceId] = device;
             });
 
             if (typeof DetectRTC !== 'undefined') {
@@ -834,7 +836,7 @@
         if (item in window) {
             webAudio.isSupported = true;
 
-            if ('createMediaStreamSource' in window[item].prototype) {
+            if (window[item] && 'createMediaStreamSource' in window[item].prototype) {
                 webAudio.isCreateMediaStreamSourceSupported = true;
             }
         }
@@ -891,6 +893,16 @@
     // ----------
     DetectRTC.isCanvasSupportsStreamCapturing = isCanvasSupportsStreamCapturing;
     DetectRTC.isVideoSupportsStreamCapturing = isVideoSupportsStreamCapturing;
+
+    if (DetectRTC.browser.name == 'Chrome' && DetectRTC.browser.version >= 53) {
+        if (!DetectRTC.isCanvasSupportsStreamCapturing) {
+            DetectRTC.isCanvasSupportsStreamCapturing = 'Requires chrome flag: enable-experimental-web-platform-features';
+        }
+
+        if (!DetectRTC.isVideoSupportsStreamCapturing) {
+            DetectRTC.isVideoSupportsStreamCapturing = 'Requires chrome flag: enable-experimental-web-platform-features';
+        }
+    }
 
     // ------
     DetectRTC.DetectLocalIPAddress = DetectLocalIPAddress;

@@ -86,8 +86,20 @@ var IceServersHandler = (function() {
         var iceServers = [];
 
         iceServers.push(getSTUNObj('stun:stun.l.google.com:19302'));
-        iceServers.push(getTURNObj('turn:webrtcweb.com:80', 'muazkh', 'muazkh'));
-        iceServers.push(getTURNObj('turn:webrtcweb.com:443', 'muazkh', 'muazkh'));
+
+        iceServers.push(getTURNObj('stun:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+        iceServers.push(getTURNObj('turn:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+        iceServers.push(getTURNObj('turn:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+        iceServers.push(getTURNObj('turns:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+        iceServers.push(getTURNObj('turns:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+        // iceServers.push(getTURNObj('turn:webrtcweb.com:3344', 'muazkh', 'muazkh')); // resiprocate
+        // iceServers.push(getTURNObj('turn:webrtcweb.com:4433', 'muazkh', 'muazkh')); // resiprocate
+
+        iceServers.push(getTURNObj('stun:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+        iceServers.push(getTURNObj('turn:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+        iceServers.push(getTURNObj('turn:webrtcweb.com:5544?transport=tcp', 'muazkh', 'muazkh')); // restund
 
         if (window.RMCExternalIceServers) {
             iceServers = iceServers.concat(getExtenralIceFormatted());

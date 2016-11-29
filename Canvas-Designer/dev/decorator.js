@@ -11,7 +11,8 @@ var tools = {
     bezier: true,
     quadratic: true,
     text: true,
-    image: true
+    image: true,
+    zoom: true
 };
 
 if (params.tools) {
@@ -286,7 +287,44 @@ window.addEventListener('load', function() {
         decorateArrow();
     } else document.getElementById('arrow').style.display = 'none';
 
+    function decoreZoomUp() {
+        var context = getContext('zoom-up');
+        zoomHandler.icons.up(context);
+        addEvent(context.canvas, 'click', function() {
+            zoomHandler.up();
+        });
+    }
+
+    function decoreZoomDown() {
+        var context = getContext('zoom-down');
+        zoomHandler.icons.down(context);
+        addEvent(context.canvas, 'click', function() {
+            zoomHandler.down();
+        });
+    }
+
+    if (tools.zoom === true) {
+        decoreZoomUp();
+        decoreZoomDown();
+    } else {
+        document.getElementById('zoom-up').style.display = 'none';
+        document.getElementById('zoom-down').style.display = 'none';
+    }
+
     function decoratePencil() {
+
+        function hexToRGBA(h, alpha) {
+            return 'rgba(' + hexToRGB(h).join(',') + ',1)';
+        }
+
+        var colors = [
+            ['FFFFFF', '006600', '000099', 'CC0000', '8C4600'],
+            ['CCCCCC', '00CC00', '6633CC', 'FF0000', 'B28500'],
+            ['666666', '66FFB2', '006DD9', 'FF7373', 'FF9933'],
+            ['333333', '26FF26', '6699FF', 'CC33FF', 'FFCC99'],
+            ['000000', 'CCFF99', 'BFDFFF', 'FFBFBF', 'FFFF33']
+        ];
+
         var context = getContext('pencil-icon');
 
         context.lineWidth = 5;
@@ -300,6 +338,81 @@ window.addEventListener('load', function() {
         context.fillText('Pencil', 6, 12);
 
         bindEvent(context, 'Pencil');
+
+        var pencilContainer = find('pencil-container'),
+            pencilColorContainer = find('pencil-fill-colors'),
+            strokeStyleText = find('pencil-stroke-style'),
+            pencilColorsList = find("pencil-colors-list"),
+            fillStyleText = find('pencil-fill-style'),
+            pencilSelectedColor = find('pencil-selected-color'),
+            pencilSelectedColor2 = find('pencil-selected-color-2'),
+            btnPencilDone = find('pencil-done'),
+            canvas = context.canvas,
+            alpha = 0.2;
+
+        // START INIT PENCIL
+
+
+
+        pencilStrokeStyle = hexToRGBA(fillStyleText.value, alpha)
+
+        pencilSelectedColor.style.backgroundColor =
+            pencilSelectedColor2.style.backgroundColor = '#' + fillStyleText.value;
+
+        colors.forEach(function(colorRow) {
+            var row = '<tr>';
+
+            colorRow.forEach(function(color) {
+                row += '<td style="background-color:#' + color + '" data-color="' + color + '"></td>';
+            })
+            row += '</tr>';
+
+            pencilColorsList.innerHTML += row;
+        })
+
+        // console.log(pencilColorsList.getElementsByTagName('td'))
+        Array.prototype.slice.call(pencilColorsList.getElementsByTagName('td')).forEach(function(td) {
+            addEvent(td, 'mouseover', function() {
+                var elColor = td.getAttribute('data-color');
+                pencilSelectedColor2.style.backgroundColor = '#' + elColor;
+                fillStyleText.value = elColor
+            });
+
+            addEvent(td, 'click', function() {
+                var elColor = td.getAttribute('data-color');
+                pencilSelectedColor.style.backgroundColor =
+                    pencilSelectedColor2.style.backgroundColor = '#' + elColor;
+
+                fillStyleText.value = elColor;
+
+
+                pencilColorContainer.style.display = 'none';
+            });
+        })
+
+        // END INIT PENCIL
+
+        addEvent(canvas, 'click', function() {
+            hideContainers();
+
+            pencilContainer.style.display = 'block';
+            pencilContainer.style.top = (canvas.offsetTop + 1) + 'px';
+            pencilContainer.style.left = (canvas.offsetLeft + canvas.clientWidth) + 'px';
+
+            fillStyleText.focus();
+        });
+
+        addEvent(btnPencilDone, 'click', function() {
+            pencilContainer.style.display = 'none';
+            pencilColorContainer.style.display = 'none';
+
+            pencilLineWidth = strokeStyleText.value;
+            pencilStrokeStyle = hexToRGBA(fillStyleText.value, alpha);
+        });
+
+        addEvent(pencilSelectedColor, 'click', function() {
+            pencilColorContainer.style.display = 'block';
+        });
     }
 
     if (tools.pencil === true) {
@@ -731,11 +844,15 @@ function hideContainers() {
         colorsContainer = find('colors-container'),
         markerContainer = find('marker-container'),
         markerColorContainer = find('marker-fill-colors'),
+        pencilContainer = find('pencil-container'),
+        pencilColorContainer = find('pencil-fill-colors'),
         lineWidthContainer = find('line-width-container');
 
     additionalContainer.style.display =
         colorsContainer.style.display =
         markerColorContainer.style.display =
         markerContainer.style.display =
+        pencilColorContainer.style.display =
+        pencilContainer.style.display =
         lineWidthContainer.style.display = 'none';
 }

@@ -86,10 +86,7 @@
             <div id="videos-container"></div>
         </section>
 
-        <!-- <script src="/dist/rmc3.min.js"></script> -->
-        <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
-
-        <!-- socket.io for signaling -->
+        <script src="/dist/RTCMultiConnection.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
 
         <script>
@@ -179,6 +176,8 @@
 
             var videosContainer = document.getElementById('videos-container');
             connection.onstream = function(event) {
+                event.mediaElement.id = '';
+
                 if(event.mediaElement) {
                     event.mediaElement.muted = true;
                     delete event.mediaElement;
@@ -237,6 +236,7 @@
 
                 var video = document.createElement('video');
                 video.src = URL.createObjectURL(event.stream);
+
                 video.controls = true;
                 videoParentNode.appendChild(video);
                 video.play();
@@ -252,6 +252,34 @@
 
                     videoDevices.disabled = false;
                     audioDevices.disabled = false;
+                }
+            };
+
+            connection.onSettingLocalDescription = function(event) {
+                var tries = 0;
+                (function looper() {
+                    if(tries > 10) return; // try till 10 seconds
+                    tries++;
+
+                    connection.getAllParticipants().forEach(function(p) {
+                        var div = document.getElementById(p);
+                        if(!div) return;
+
+                        var video = div.querySelector('video');
+                        if(!video || !!video.currentTime) return;
+
+                        video.src = URL.createObjectURL(connection.peers[p].peer.getRemoteStreams()[0]);
+                        video.play();
+                    });
+
+                    setTimeout(looper, 1000);
+                })();
+            };
+
+            connection.onstreamended = function(event) {
+                var div = document.getElementById(event.userid);
+                if(div && div.parentNode) {
+                    div.parentNode.removeChild(div);
                 }
             };
 

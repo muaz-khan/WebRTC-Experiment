@@ -23,9 +23,12 @@ addEvent(canvas, isTouch ? 'touchstart' : 'mousedown', function(e) {
     else if (cache.isMarker) markerHandler.mousedown(e);
 
     drawHelper.redraw();
+
+    e.preventDefault();
+    e.stopPropagation();
 });
 
-addEvent(canvas, isTouch ? 'touchend' : 'mouseup', function(e) {
+addEvent(canvas, isTouch ? 'touchend touchcancel' : 'mouseup', function(e) {
     if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
         pageX: 0,
         pageY: 0
@@ -47,6 +50,11 @@ addEvent(canvas, isTouch ? 'touchend' : 'mouseup', function(e) {
     else if (cache.isMarker) markerHandler.mouseup(e);
 
     drawHelper.redraw();
+
+    syncPoints(is.isDragAllPaths || is.isDragLastPath ? true : false);
+
+    e.preventDefault();
+    e.stopPropagation();
 });
 
 addEvent(canvas, isTouch ? 'touchmove' : 'mousemove', function(e) {
@@ -69,6 +77,9 @@ addEvent(canvas, isTouch ? 'touchmove' : 'mousemove', function(e) {
     else if (cache.isImage) imageHandler.mousemove(e);
     else if (cache.isArrow) arrowHandler.mousemove(e);
     else if (cache.isMarker) markerHandler.mousemove(e);
+
+    e.preventDefault();
+    e.stopPropagation();
 });
 
 var keyCode;
@@ -151,7 +162,7 @@ function onkeyup(e) {
             points.length = points.length - 1;
             drawHelper.redraw();
 
-            syncPoints(true);
+            syncPoints(is.isDragAllPaths || is.isDragLastPath ? true : false);
         }
     }
 
@@ -172,6 +183,8 @@ function onkeyup(e) {
     // Ctrl + v
     if (isControlKeyPressed && keyCode === 86 && copiedStuff.length) {
         paste();
+
+        syncPoints(is.isDragAllPaths || is.isDragLastPath ? true : false);
     }
 
     // Ending the Control Key

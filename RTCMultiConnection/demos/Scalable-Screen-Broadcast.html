@@ -118,22 +118,16 @@
             Requirements: <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk">install this Chrome extension</a> or <a href="https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/">this Firefox extension</a>.
         </blockquote>
 
+        <script src="/dist/RTCMultiConnection.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
-
-        <script>
-            // skipping xirsys servers
-            window.getExternalIceServers = false;
-        </script>
-
-        <!-- <script src="/dist/rmc3.min.js"></script> -->
-        <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
 
         <!-- capture screen from any HTTPs domain! -->
         <script src="https://cdn.webrtc-experiment.com:443/getScreenId.js"></script>
 
-        <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+        <!-- <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script> -->
         <script>
             // recording is disabled because it is resulting for browser-crash
+            // if you enable below line, please also uncomment above "RecordRTC.js"
             var enableRecordings = false;
 
             var connection = new RTCMultiConnection(null, {

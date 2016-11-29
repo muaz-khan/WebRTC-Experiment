@@ -9,14 +9,14 @@
 <html lang="en">
 
 <head>
-    <title>RecordRTC: WebRTC audio/video recording ® Muaz Khan</title>
+    <title>RecordRTC | WebRTC Audio+Video+Screen Recording</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    
+
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
     <style>
@@ -49,12 +49,12 @@
         width: 8em;
     }
     </style>
-    
+
     <style>
         .recordrtc button {
             font-size: inherit;
         }
-        
+
         .recordrtc button, .recordrtc select {
             vertical-align: middle;
             line-height: 1;
@@ -63,22 +63,22 @@
             font-size: inherit;
             margin: 0;
         }
-        
+
         .recordrtc, .recordrtc .header {
             display: block;
             text-align: center;
             padding-top: 0;
         }
-        
+
         .recordrtc video {
             width: 70%;
         }
-        
+
         .recordrtc option[disabled] {
             display: none;
         }
     </style>
-    
+
     <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
     <script src="https://cdn.webrtc-experiment.com/gif-recorder.js"></script>
     <script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script>
@@ -91,8 +91,7 @@
     <article>
         <header style="text-align: center;">
             <h1>
-                <a href="https://github.com/muaz-khan/RecordRTC">RecordRTC</a>: <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC</a> audio/video recording ®
-                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+                RecordRTC | WebRTC Audio+Video+Screen Recording
             </h1>
             <p style="margin:0;margin-bottom:-30px;">
                 <a href="https://www.webrtc-experiment.com/">HOME</a>
@@ -112,7 +111,7 @@
         </header>
 
         <div class="github-stargazers"></div>
-        
+
         <section class="experiment recordrtc">
             <h2 class="header">
                 <select class="recording-media">
@@ -120,7 +119,7 @@
                     <option value="record-audio">Audio</option>
                     <option value="record-screen">Screen</option>
                 </select>
-                
+
                 into
                 <select class="media-container-format">
                     <option>WebM</option>
@@ -129,20 +128,20 @@
                     <option disabled>Ogg</option>
                     <option>Gif</option>
                 </select>
-                
+
                 <button>Start Recording</button>
             </h2>
-            
+
             <div style="text-align: center; display: none;">
                 <button id="save-to-disk">Save To Disk</button>
                 <button id="open-new-tab">Open New Tab</button>
             </div>
-            
+
             <br>
 
             <video controls muted></video>
         </section>
-        
+
         <script>
             (function() {
                 var params = {},
@@ -191,7 +190,7 @@
                 });
             }
         </script>
-        
+
         <script>
             function intallFirefoxScreenCapturingExtension() {
                 InstallTrigger.install({
@@ -209,13 +208,13 @@
             var recordingMedia = recordingDIV.querySelector('.recording-media');
             var recordingPlayer = recordingDIV.querySelector('video');
             var mediaContainerFormat = recordingDIV.querySelector('.media-container-format');
-            
+
             window.onbeforeunload = function() {
                 recordingDIV.querySelector('button').disabled = false;
                 recordingMedia.disabled = false;
                 mediaContainerFormat.disabled = false;
             };
-            
+
             recordingDIV.querySelector('button').onclick = function() {
                 var button = this;
 
@@ -226,7 +225,7 @@
                         button.disabled = false;
                         button.disableStateWaiting = false;
                     }, 2 * 1000);
-                    
+
                     button.innerHTML = 'Star Recording';
 
                     function stopStream() {
@@ -235,7 +234,7 @@
                             button.stream = null;
                         }
                     }
-                    
+
                     if(button.recordRTC) {
                         if(button.recordRTC.length) {
                             button.recordRTC[0].stopRecording(function(url) {
@@ -262,12 +261,12 @@
                             });
                         }
                     }
-                    
+
                     return;
                 }
-                
+
                 button.disabled = true;
-                
+
                 var commonConfig = {
                     onMediaCaptured: function(stream) {
                         button.stream = stream;
@@ -280,7 +279,7 @@
                     },
                     onMediaStopped: function() {
                         button.innerHTML = 'Start Recording';
-                        
+
                         if(!button.disableStateWaiting) {
                             button.disabled = false;
                         }
@@ -289,7 +288,7 @@
                         if(error.name === 'PermissionDeniedError' && !!navigator.mozGetUserMedia) {
                             intallFirefoxScreenCapturingExtension();
                         }
-                        
+
                         commonConfig.onMediaStopped();
                     }
                 };
@@ -298,10 +297,10 @@
                 if(mediaContainerFormat.value === 'Mp4') {
                     mimeType = 'video/mp4';
                 }
-                
+
                 if(recordingMedia.value === 'record-video') {
                     captureVideo(commonConfig);
-                    
+
                     button.mediaCapturedCallback = function() {
                         button.recordRTC = RecordRTC(button.stream, {
                             type: mediaContainerFormat.value === 'Gif' ? 'gif' : 'video',
@@ -313,7 +312,7 @@
                             },
                             frameInterval: typeof params.frameInterval !== 'undefined' ? parseInt(params.frameInterval) : 20 // minimum time between pushing frames to Whammy (in milliseconds)
                         });
-                        
+
                         button.recordingEndedCallback = function(url) {
                             recordingPlayer.src = null;
 
@@ -327,7 +326,7 @@
                                 };
                                 return;
                             }
-                            
+
                             recordingPlayer.src = url;
                             recordingPlayer.play();
 
@@ -336,14 +335,14 @@
                                 recordingPlayer.src = URL.createObjectURL(button.recordRTC.blob);
                             };
                         };
-                        
+
                         button.recordRTC.startRecording();
                     };
                 }
-                
+
                 if(recordingMedia.value === 'record-audio') {
                     captureAudio(commonConfig);
-                    
+
                     button.mediaCapturedCallback = function() {
                         var options = {
                             type: 'audio',
@@ -360,7 +359,7 @@
                         }
 
                         button.recordRTC = RecordRTC(button.stream, options);
-                        
+
                         button.recordingEndedCallback = function(url) {
                             var audio = new Audio();
                             audio.src = url;
@@ -375,14 +374,14 @@
                                 audio.src = URL.createObjectURL(button.recordRTC.blob);
                             };
                         };
-                        
+
                         button.recordRTC.startRecording();
                     };
                 }
 
                 if(recordingMedia.value === 'record-audio-plus-video') {
                     captureAudioPlusVideo(commonConfig);
-                    
+
                     button.mediaCapturedCallback = function() {
 
                         if(typeof MediaRecorder === 'undefined') { // opera or chrome etc.
@@ -454,7 +453,7 @@
                             // bitsPerSecond: 25 * 8 * 1025 // 25 kbits/s
                             getNativeBlob: false // enable it for longer recordings
                         });
-                        
+
                         button.recordingEndedCallback = function(url) {
                             recordingPlayer.muted = false;
                             recordingPlayer.removeAttribute('muted');
@@ -466,14 +465,14 @@
                                 recordingPlayer.src = URL.createObjectURL(button.recordRTC.blob);
                             };
                         };
-                        
+
                         button.recordRTC.startRecording();
                     };
                 }
-                
+
                 if(recordingMedia.value === 'record-screen') {
                     captureScreen(commonConfig);
-                    
+
                     button.mediaCapturedCallback = function() {
                         button.recordRTC = RecordRTC(button.stream, {
                             type: mediaContainerFormat.value === 'Gif' ? 'gif' : 'video',
@@ -484,7 +483,7 @@
                                 height: params.canvas_height || 240
                             }
                         });
-                        
+
                         button.recordingEndedCallback = function(url) {
                             recordingPlayer.src = null;
 
@@ -497,11 +496,11 @@
                                 };
                                 return;
                             }
-                            
+
                             recordingPlayer.src = url;
                             recordingPlayer.play();
                         };
-                        
+
                         button.recordRTC.startRecording();
                     };
                 }
@@ -510,7 +509,7 @@
                 // todo: add audio+tab recording
                 if(recordingMedia.value === 'record-audio-plus-screen') {
                     captureAudioPlusScreen(commonConfig);
-                    
+
                     button.mediaCapturedCallback = function() {
                         button.recordRTC = RecordRTC(button.stream, {
                             type: 'video',
@@ -519,7 +518,7 @@
                             // bitsPerSecond: 25 * 8 * 1025 // 25 kbits/s
                             getNativeBlob: false // enable it for longer recordings
                         });
-                        
+
                         button.recordingEndedCallback = function(url) {
                             recordingPlayer.muted = false;
                             recordingPlayer.removeAttribute('muted');
@@ -531,19 +530,19 @@
                                 recordingPlayer.src = URL.createObjectURL(button.recordRTC.blob);
                             };
                         };
-                        
+
                         button.recordRTC.startRecording();
                     };
                 }
             };
-            
+
             function captureVideo(config) {
                 captureUserMedia({video: true}, function(videoStream) {
                     recordingPlayer.srcObject = videoStream;
                     recordingPlayer.play();
-                    
+
                     config.onMediaCaptured(videoStream);
-                    
+
                     addStreamStopListener(videoStream, function() {
                         config.onMediaStopped();
                     });
@@ -551,14 +550,14 @@
                     config.onMediaCapturingFailed(error);
                 });
             }
-            
+
             function captureAudio(config) {
                 captureUserMedia({audio: true}, function(audioStream) {
                     recordingPlayer.srcObject = audioStream;
                     recordingPlayer.play();
-                    
+
                     config.onMediaCaptured(audioStream);
-                    
+
                     addStreamStopListener(audioStream, function() {
                         config.onMediaStopped();
                     });
@@ -571,9 +570,9 @@
                 captureUserMedia({video: true, audio: true}, function(audioVideoStream) {
                     recordingPlayer.srcObject = audioVideoStream;
                     recordingPlayer.play();
-                    
+
                     config.onMediaCaptured(audioVideoStream);
-                    
+
                     addStreamStopListener(audioVideoStream, function() {
                         config.onMediaStopped();
                     });
@@ -581,7 +580,7 @@
                     config.onMediaCapturingFailed(error);
                 });
             }
-            
+
             function captureScreen(config) {
                 getScreenId(function(error, sourceId, screenConstraints) {
                     if (error === 'not-installed') {
@@ -595,7 +594,7 @@
                     if (error === 'installed-disabled') {
                         alert('Please enable chrome screen capturing extension.');
                     }
-                    
+
                     if(error) {
                         config.onMediaCapturingFailed(error);
                         return;
@@ -605,9 +604,9 @@
                     captureUserMedia(screenConstraints, function(screenStream) {
                         recordingPlayer.srcObject = screenStream;
                         recordingPlayer.play();
-                        
+
                         config.onMediaCaptured(screenStream);
-                        
+
                         addStreamStopListener(screenStream, function() {
                             config.onMediaStopped();
                         });
@@ -630,7 +629,7 @@
                     if (error === 'installed-disabled') {
                         alert('Please enable chrome screen capturing extension.');
                     }
-                    
+
                     if(error) {
                         config.onMediaCapturingFailed(error);
                         return;
@@ -642,9 +641,9 @@
                     captureUserMedia(screenConstraints, function(screenStream) {
                         recordingPlayer.srcObject = screenStream;
                         recordingPlayer.play();
-                        
+
                         config.onMediaCaptured(screenStream);
-                        
+
                         addStreamStopListener(screenStream, function() {
                             config.onMediaStopped();
                         });
@@ -653,7 +652,7 @@
                     });
                 });
             }
-            
+
             function captureUserMedia(mediaConstraints, successCallback, errorCallback) {
                 var isBlackBerry = !!(/BB10|BlackBerry/i.test(navigator.userAgent || ''));
                 if(isBlackBerry && !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia)) {
@@ -664,19 +663,19 @@
 
                 navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
             }
-            
+
             function setMediaContainerFormat(arrayOfOptionsSupported) {
                 var options = Array.prototype.slice.call(
                     mediaContainerFormat.querySelectorAll('option')
                 );
-                
+
                 var selectedItem;
                 options.forEach(function(option) {
                     option.disabled = true;
-                    
+
                     if(arrayOfOptionsSupported.indexOf(option.value) !== -1) {
                         option.disabled = false;
-                        
+
                         if(!selectedItem) {
                             option.selected = true;
                             selectedItem = option;
@@ -684,7 +683,7 @@
                     }
                 });
             }
-            
+
             recordingMedia.onchange = function() {
                 var options = [];
                 if(webrtcDetectedBrowser === 'firefox') {
@@ -721,33 +720,33 @@
                 // Their MediaRecorder implementation supports both audio/video recording in single container format
                 // Remember, we can't currently pass bit-rates or frame-rates values over MediaRecorder API (their implementation lakes these features)
 
-                recordingMedia.innerHTML = '<option value="record-audio-plus-video">Audio+Video</option>' 
-                                            + '<option value="record-audio-plus-screen">Audio+Screen</option>' 
+                recordingMedia.innerHTML = '<option value="record-audio-plus-video">Audio+Video</option>'
+                                            + '<option value="record-audio-plus-screen">Audio+Screen</option>'
                                             + recordingMedia.innerHTML;
 
                 setMediaContainerFormat(['WebM', 'Mp4']);
             }
 
             if(webrtcDetectedBrowser === 'chrome') {
-                recordingMedia.innerHTML = '<option value="record-audio-plus-video">Audio+Video</option>' 
+                recordingMedia.innerHTML = '<option value="record-audio-plus-video">Audio+Video</option>'
                                             + recordingMedia.innerHTML;
 
                 if(typeof MediaRecorder === 'undefined') {
                     console.info('This RecordRTC demo merely tries to playback recorded audio/video sync inside the browser. It still generates two separate files (WAV/WebM).');
                 }
             }
-            
+
             function saveToDiskOrOpenNewTab(recordRTC) {
                 recordingDIV.querySelector('#save-to-disk').parentNode.style.display = 'block';
                 recordingDIV.querySelector('#save-to-disk').onclick = function() {
                     if(!recordRTC) return alert('No recording found.');
-                    
+
                     recordRTC.save();
                 };
-                
+
                 recordingDIV.querySelector('#open-new-tab').onclick = function() {
                     if(!recordRTC) return alert('No recording found.');
-                    
+
                     window.open(recordRTC.toURL());
                 };
             }
@@ -857,15 +856,15 @@
         <script>
                 // todo: need to check exact chrome browser because opera also uses chromium framework
                 var isChrome = !!navigator.webkitGetUserMedia;
-                
+
                 // DetectRTC.js - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DetectRTC
                 // Below code is taken from RTCMultiConnection-v1.8.js (http://www.rtcmulticonnection.org/changes-log/#v1.8)
                 var DetectRTC = {};
 
                 (function () {
-                    
+
                     var screenCallback;
-                    
+
                     DetectRTC.screen = {
                         chromeMediaSource: 'screen',
                         getSourceId: function(callback) {
@@ -875,12 +874,12 @@
                         },
                         isChromeExtensionAvailable: function(callback) {
                             if(!callback) return;
-                            
+
                             if(DetectRTC.screen.chromeMediaSource == 'desktop') return callback(true);
-                            
+
                             // ask extension if it is available
                             window.postMessage('are-you-there', '*');
-                            
+
                             setTimeout(function() {
                                 if(DetectRTC.screen.chromeMediaSource == 'screen') {
                                     callback(false);
@@ -890,16 +889,16 @@
                         },
                         onMessageCallback: function(data) {
                             if (!(typeof data == 'string' || !!data.sourceId)) return;
-                            
+
                             console.log('chrome message', data);
-                            
+
                             // "cancel" button is clicked
                             if(data == 'PermissionDeniedError') {
                                 DetectRTC.screen.chromeMediaSource = 'PermissionDeniedError';
                                 if(screenCallback) return screenCallback('PermissionDeniedError');
                                 else throw new Error('PermissionDeniedError');
                             }
-                            
+
                             // extension notified his presence
                             if(data == 'rtcmulticonnection-extension-loaded') {
                                 if(document.getElementById('install-button')) {
@@ -907,7 +906,7 @@
                                 }
                                 DetectRTC.screen.chromeMediaSource = 'desktop';
                             }
-                            
+
                             // extension shared temp sourceId
                             if(data.sourceId) {
                                 DetectRTC.screen.sourceId = data.sourceId;
@@ -916,7 +915,7 @@
                         },
                         getChromeExtensionStatus: function (callback) {
                             if (!!navigator.mozGetUserMedia) return callback('not-chrome');
-                            
+
                             var extensionid = 'ajhifddimkapgcifgcodmmfdlknahffk';
 
                             var image = document.createElement('img');
@@ -936,13 +935,13 @@
                             };
                         }
                     };
-                    
+
                     // check if desktop-capture extension installed.
                     if(window.postMessage && isChrome) {
                         DetectRTC.screen.isChromeExtensionAvailable();
                     }
                 })();
-                
+
                 DetectRTC.screen.getChromeExtensionStatus(function(status) {
                     if(status == 'installed-enabled') {
                         if(document.getElementById('install-button')) {
@@ -951,27 +950,27 @@
                         DetectRTC.screen.chromeMediaSource = 'desktop';
                     }
                 });
-                
+
                 window.addEventListener('message', function (event) {
                     if (event.origin != window.location.origin) {
                         return;
                     }
-                    
+
                     DetectRTC.screen.onMessageCallback(event.data);
                 });
             </script>
-            
+
             <section class="experiment">
                 <h2>Screen Capturing Prerequisites</h2>
                 <ol>
                     <li>
-                        Chrome? 
+                        Chrome?
                         <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Store</a>
                         / <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture">Source Code</a>
-                        / 
+                        /
                         <button onclick="!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk', function() {location.reload();})" id="install-button" style="font-size:inherit; padding-bottom:0;">Click to Install</button>
                     </li>
-                    
+
                     <li>
                         Firefox? <a href="https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/">Store</a> / <a href="https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing">Source Code</a> / <button onclick="intallFirefoxScreenCapturingExtension(); this.disabled = true;" style="font-size:inherit; padding-bottom:0;">Click to Install</button>
                     </li>
@@ -1068,17 +1067,17 @@
 &lt;script src="//cdn.webrtc-experiment.com/RecordRTC.js"&gt;&lt;/script&gt;
 </pre>
         </section>
-        
+
         <section class="experiment">
             <h2 class="header">
                 How to record audio using <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>?</h2>
             <pre>
 var recordRTC = <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, {
     <strong>recorderType</strong>: StereoAudioRecorder // optionally force WebAudio API to record audio
-}); 
-recordRTC.<strong>startRecording</strong>(); 
-recordRTC.<strong>stopRecording</strong>(function(<strong>audioURL</strong>) { 
-    mediaElement.src = audioURL; 
+});
+recordRTC.<strong>startRecording</strong>();
+recordRTC.<strong>stopRecording</strong>(function(<strong>audioURL</strong>) {
+    mediaElement.src = audioURL;
 });
 </pre>
         </section>
@@ -1093,12 +1092,12 @@ var options = {
     <strong>video</strong>: { width: 320, height: 240 },
     <strong>canvas</strong>: { width: 320, height: 240 },
     <strong>recorderType</strong>: WhammyRecorder // optional
-}; 
-    
-var recordRTC = <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, options); 
-recordRTC.<strong>startRecording</strong>(); 
-recordRTC.<strong>stopRecording</strong>(function(<strong>videoURL</strong>) { 
-    mediaElement.src = videoURL; 
+};
+
+var recordRTC = <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, options);
+recordRTC.<strong>startRecording</strong>();
+recordRTC.<strong>stopRecording</strong>(function(<strong>videoURL</strong>) {
+    mediaElement.src = videoURL;
 });
 </pre>
 
@@ -1116,9 +1115,9 @@ var options = {
     <strong>canvas</strong>: { width: 320, height: 240 },
     <strong>frameRate</strong>: 200,
     <strong>quality</strong>: 10
-}; 
-        
-var recordRTC = <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, options); 
+};
+
+var recordRTC = <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a>(mediaStream, options);
 recordRTC.<strong>startRecording</strong>(); recordRTC.
 <strong>stopRecording</strong>(function(<strong>gifURL</strong>) {
     mediaElement.src = gifURL;

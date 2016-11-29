@@ -1,4 +1,4 @@
-#### [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs) [![npm](https://img.shields.io/npm/v/recordrtc-nodejs.svg)](https://npmjs.org/package/recordrtc-nodejs) [![downloads](https://img.shields.io/npm/dm/recordrtc-nodejs.svg)](https://npmjs.org/package/recordrtc-nodejs)
+#### [RecordRTC to Node.js](https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs)
 
 <a href="https://nodei.co/npm/recordrtc-nodejs/">
     <img src="https://nodei.co/npm/recordrtc-nodejs.png">
@@ -107,14 +107,14 @@ brew install ffmpeg --with-libvpx --with-theora --whit-libogg --with-libvorbis
 <!--
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
-// Experiments   - github.com/muaz-khan/WebRTC-Experiment
+// Experiments   - github.com/muaz-khan/RecordRTC
 -->
 
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>RecordRTC over Node.js</title>
+        <title>RecordRTC to Node.js</title>
         <script>
             if (location.href.indexOf('file:') == 0) {
                 document.write('<h1 style="color:red;">Please load this HTML file on HTTP or HTTPS.</h1>');
@@ -123,7 +123,7 @@ brew install ffmpeg --with-libvpx --with-theora --whit-libogg --with-libvorbis
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
         <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
-        <script src="https://www.webrtc-experiment.com/RecordRTC.js"> </script>
+        
         <style>
             html { background-color: #f7f7f7; }
 
@@ -147,120 +147,115 @@ brew install ffmpeg --with-libvpx --with-theora --whit-libogg --with-libvorbis
             a:hover, a:focus { color: #1B29A4; }
 
             a:active { color: #000; }
+            
+            audio, video {
+                border: 1px solid rgb(15, 158, 238); width: 94%;
+            }
+            button[disabled], input[disabled] { background: rgba(216, 205, 205, 0.2); border: 1px solid rgb(233, 224, 224);}
         </style>
     </head>
     <body>
+        <h1>RecordRTC to Node.js</h1>
         <p>
-            <video id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></video> 
+            <video></video> 
         </p><hr />
+        
+        <div>
+            <label id="percentage">0%</label>
+            <progress id="progress-bar" value=0></progress><br />
+        </div>
+            
+        <hr />
 
         <div>
-            <button id="start-recording">Start Recording</button>
-            <button id="stop-recording" disabled="">Stop Recording</button>
+            <button id="btn-start-recording">Start Recording</button>
+            <button id="btn-stop-recording" disabled="">Stop Recording</button>
         </div>
-		
+
+        <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"> </script>
+        
         <script>
-            var startRecording = document.getElementById('start-recording');
-            var stopRecording = document.getElementById('stop-recording');
-            var cameraPreview = document.getElementById('camera-preview');
-
-            var audio = document.querySelector('audio');
-
-            var isFirefox = !!navigator.mozGetUserMedia;
-
-            var recordAudio, recordVideo;
-            startRecording.onclick = function() {
-                startRecording.disabled = true;
-                navigator.getUserMedia({
-                        audio: true,
-                        video: true
-                    }, function(stream) {
-                        cameraPreview.src = window.URL.createObjectURL(stream);
-                        cameraPreview.play();
-
-                        recordAudio = RecordRTC(stream, {
-                            bufferSize: 16384
-                        });
-
-                        if (!isFirefox) {
-                            recordVideo = RecordRTC(stream, {
-                                type: 'video'
-                            });
-                        }
-
-                        recordAudio.startRecording();
-
-                        if (!isFirefox) {
-                            recordVideo.startRecording();
-                        }
-
-                        stopRecording.disabled = false;
-                    }, function(error) {
-                        alert(JSON.stringify(error));
-                    });
-            };
-
-
-            stopRecording.onclick = function() {
-                startRecording.disabled = false;
-                stopRecording.disabled = true;
-
-                recordAudio.stopRecording(function() {
-                    if (isFirefox) onStopRecording();
-                });
-
-                if (!isFirefox) {
-                    recordVideo.stopRecording();
-                    onStopRecording();
-                }
-
-                function onStopRecording() {
-                    recordAudio.getDataURL(function(audioDataURL) {
-                        if (!isFirefox) {
-                            recordVideo.getDataURL(function(videoDataURL) {
-                                postFiles(audioDataURL, videoDataURL);
-                            });
-                        } else postFiles(audioDataURL);
-                    });
-                }
-            };
-
+            // fetching DOM references
+            var btnStartRecording = document.querySelector('#btn-start-recording');
+            var btnStopRecording  = document.querySelector('#btn-stop-recording');
+            
+            var videoElement      = document.querySelector('video');
+            
+            var progressBar = document.querySelector('#progress-bar');
+            var percentage = document.querySelector('#percentage');
+        </script>
+        
+        <script>
+            // global variables
+            var currentBrowser = !!navigator.mozGetUserMedia ? 'gecko' : 'chromium';
+            
             var fileName;
-
-            function postFiles(audioDataURL, videoDataURL) {
-                fileName = getRandomString();
+            var audioRecorder;
+            var videoRecorder;
+            
+            // Firefox can record both audio/video in single webm container
+            // Don't need to create multiple instances of the RecordRTC for Firefox
+            // You can even use below property to force recording only audio blob on chrome
+            // var isRecordOnlyAudio = true;
+            var isRecordOnlyAudio = !!navigator.mozGetUserMedia;
+            
+            // if recording only audio, we should replace "HTMLVideoElement" with "HTMLAudioElement"
+            if(isRecordOnlyAudio && currentBrowser == 'chromium') {
+                var parentNode = videoElement.parentNode;
+                parentNode.removeChild(videoElement);
+                
+                videoElement = document.createElement('audio');
+                videoElement.style.padding = '.4em';
+                videoElement.controls = true;
+                parentNode.appendChild(videoElement);
+            }
+        </script>
+        
+        <script>
+            // reusable helpers
+            
+            // this function submits both audio/video or single recorded blob to nodejs server
+            function postFiles(audio, video) {
+                // getting unique identifier for the file name
+                fileName = generateRandomString();
+                
+                // this object is used to allow submitting multiple recorded blobs
                 var files = { };
 
+                // recorded audio blob
                 files.audio = {
-                    name: fileName + (isFirefox ? '.webm' : '.wav'),
-                    type: isFirefox ? 'video/webm' : 'audio/wav',
-                    contents: audioDataURL
+                    name: fileName + '.' + audio.blob.type.split('/')[1], // MUST be wav or ogg
+                    type: audio.blob.type,
+                    contents: audio.dataURL
                 };
-
-                if (!isFirefox) {
+                
+                if(video) {
                     files.video = {
-                        name: fileName + '.webm',
-                        type: 'video/webm',
-                        contents: videoDataURL
+                        name: fileName + '.' + video.blob.type.split('/')[1], // MUST be webm or mp4
+                        type: video.blob.type,
+                        contents: video.dataURL
                     };
                 }
+                
+                files.uploadOnlyAudio = !video;
 
-                files.isFirefox = isFirefox;
-
-                cameraPreview.src = '';
-                cameraPreview.poster = '/ajax-loader.gif';
+                videoElement.src = '';
+                videoElement.poster = '/ajax-loader.gif';
 
                 xhr('/upload', JSON.stringify(files), function(_fileName) {
                     var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
-                    cameraPreview.src = href + 'uploads/' + _fileName;
-                    cameraPreview.play();
+                    videoElement.src = href + 'uploads/' + _fileName;
+                    videoElement.play();
+                    videoElement.muted = false;
+                    videoElement.controls = true;
 
-                    var h2 = document.createElement('h2');
-                    h2.innerHTML = '<a href="' + cameraPreview.src + '">' + cameraPreview.src + '</a>';
-                    document.body.appendChild(h2);
+                    document.querySelector('#footer-h2').innerHTML = '<a href="' + videoElement.src + '">' + videoElement.src + '</a>';
                 });
+                
+                if(mediaStream) mediaStream.stop();
             }
-
+            
+            // XHR2/FormData
             function xhr(url, data, callback) {
                 var request = new XMLHttpRequest();
                 request.onreadystatechange = function() {
@@ -268,15 +263,23 @@ brew install ffmpeg --with-libvpx --with-theora --whit-libogg --with-libvorbis
                         callback(request.responseText);
                     }
                 };
+                        
+                request.upload.onprogress = function(event) {
+                    progressBar.max = event.total;
+                    progressBar.value = event.loaded;
+                    progressBar.innerHTML = 'Upload Progress ' + Math.round(event.loaded / event.total * 100) + "%";
+                };
+                        
+                request.upload.onload = function() {
+                    percentage.style.display = 'none';
+                    progressBar.style.display = 'none';
+                };
                 request.open('POST', url);
                 request.send(data);
             }
 
-            window.onbeforeunload = function() {
-                startRecording.disabled = false;
-            };
-
-            function getRandomString() {
+            // generating random string
+            function generateRandomString() {
                 if (window.crypto) {
                     var a = window.crypto.getRandomValues(new Uint32Array(3)),
                         token = '';
@@ -286,7 +289,135 @@ brew install ffmpeg --with-libvpx --with-theora --whit-libogg --with-libvorbis
                     return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
                 }
             }
+            
+            // when btnStopRecording is clicked
+            function onStopRecording() {
+                audioRecorder.getDataURL(function(audioDataURL) {
+                    var audio = {
+                        blob: audioRecorder.getBlob(),
+                        dataURL: audioDataURL
+                    };
+                    
+                    // if record both wav and webm
+                    if(!isRecordOnlyAudio) {
+                        audio.blob = new File([audio.blob], 'audio.wav', {
+                            type: 'audio/wav'
+                        });
+                        
+                        videoRecorder.getDataURL(function(videoDataURL) {
+                            var video = {
+                                blob: videoRecorder.getBlob(),
+                                dataURL: videoDataURL
+                            };
+                            
+                            postFiles(audio, video);
+                        });
+                        return;
+                    }
+                    
+                    // if record only audio (either wav or ogg)
+                    if (isRecordOnlyAudio) postFiles(audio);
+                });
+            }
         </script>
+        
+        <script>
+            var mediaStream = null;
+            // reusable getUserMedia
+            function captureUserMedia(success_callback) {
+                var session = {
+                    audio: true,
+                    video: true
+                };
+                
+                navigator.getUserMedia(session, success_callback, function(error) {
+                    alert( JSON.stringify(error) );
+                });
+            }
+        </script>
+        
+        <script>
+            // UI events handling
+            btnStartRecording.onclick = function() {
+                btnStartRecording.disabled = true;
+                
+                captureUserMedia(function(stream) {
+                    mediaStream = stream;
+                    
+                    videoElement.src = window.URL.createObjectURL(stream);
+                    videoElement.play();
+                    videoElement.muted = true;
+                    videoElement.controls = false;
+                    
+                    // it is second parameter of the RecordRTC
+                    var audioConfig = {};
+
+                    if(currentBrowser == 'chromium') {
+                        audioConfig.recorderType = StereoAudioRecorder;
+                    }
+
+                    if(!isRecordOnlyAudio) {
+                        audioConfig.onAudioProcessStarted = function() {
+                            // invoke video recorder in this callback
+                            // to get maximum sync
+                            videoRecorder.startRecording();
+                        };
+                    }
+                    
+                    audioRecorder = RecordRTC(stream, audioConfig);
+                    
+                    if(!isRecordOnlyAudio) {
+                        // it is second parameter of the RecordRTC
+                        var videoConfig = { type: 'video' };
+
+                        if(currentBrowser == 'chromium') {
+                            audioConfig.recorderType = WhammyRecorder;
+                        }
+
+                        videoRecorder = RecordRTC(stream, videoConfig);
+                        videoRecorder.startRecording();
+                    }
+                    
+                    audioRecorder.startRecording();
+                    
+                    // enable stop-recording button
+                    btnStopRecording.disabled = false;
+                });
+            };
+
+
+            btnStopRecording.onclick = function() {
+                btnStartRecording.disabled = false;
+                btnStopRecording.disabled = true;
+                
+                if(isRecordOnlyAudio) {
+                    audioRecorder.stopRecording(onStopRecording);
+                    return;
+                }
+
+                if(!isRecordOnlyAudio) {
+                    audioRecorder.stopRecording(function() {
+                        videoRecorder.stopRecording(function() {
+                            onStopRecording();
+                        });
+                    });
+                }
+            };
+        </script>
+        
+        <script>
+            window.onbeforeunload = function() {
+                startRecording.disabled = false;
+            };
+        </script>
+        <footer style="width:100%;position: fixed; right: 0; text-align: center;color:red;">
+            <h2 id="footer-h2"></h2>
+            Questions?? <a href="mailto:muazkh@gmail.com">muazkh@gmail.com</a>
+
+            <br><br>
+            Open-Sourced here:<br>
+            <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs">https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs</a>
+        </footer>
     </body>
 </html>
 ```
@@ -453,7 +584,7 @@ exports.serveStatic = serveStatic;
 
 =
 
-1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
+1. [RecordRTC to Node.js](https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs)
 2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
 3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
 4. [RecordRTC & HTML-2-Canvas i.e. Canvas/HTML Recording!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/Canvas-Recording)
@@ -465,4 +596,4 @@ exports.serveStatic = serveStatic;
 
 ##### License
 
-[RecordRTC-to-Nodejs](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[RecordRTC-to-Nodejs](https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-Nodejs) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

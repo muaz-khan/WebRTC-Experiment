@@ -5,6 +5,8 @@ function SocketConnection(connection, connectCallback) {
     parameters += '&msgEvent=' + connection.socketMessageEvent;
     parameters += '&socketCustomEvent=' + connection.socketCustomEvent;
 
+    parameters += '&maxParticipantsAllowed=' + connection.maxParticipantsAllowed;
+
     if (connection.enableScalableBroadcast) {
         parameters += '&enableScalableBroadcast=true';
         parameters += '&maxRelayLimitPerUser=' + (connection.maxRelayLimitPerUser || 2);
@@ -18,11 +20,31 @@ function SocketConnection(connection, connectCallback) {
         io.sockets = {};
     } catch (e) {};
 
-    try {
-        connection.socket = io((connection.socketURL || '/') + parameters);
-    } catch (e) {
-        connection.socket = io.connect((connection.socketURL || '/') + parameters, connection.socketOptions);
+    if (!connection.socketURL) {
+        connection.socketURL = '/';
     }
+
+    if (connection.socketURL.substr(connection.socketURL.length - 1, 1) != '/') {
+        // connection.socketURL = 'https://domain.com:9001/';
+        throw '"socketURL" MUST end with a slash.';
+    }
+
+    if (connection.enableLogs) {
+        if (connection.socketURL == '/') {
+            console.info('socket.io is connected at: ', location.origin + '/');
+        } else {
+            console.info('socket.io is connected at: ', connection.socketURL);
+        }
+    }
+
+    try {
+        connection.socket = io(connection.socketURL + parameters);
+    } catch (e) {
+        connection.socket = io.connect(connection.socketURL + parameters, connection.socketOptions);
+    }
+
+    // detect signaling medium
+    connection.socket.isIO = true;
 
     var mPeer = connection.multiPeersHandler;
 
@@ -305,5 +327,9 @@ function SocketConnection(connection, connectCallback) {
 
     connection.socket.on('number-of-broadcast-viewers-updated', function(data) {
         connection.onNumberOfBroadcastViewersUpdated(data);
+    });
+
+    connection.socket.on('room-full', function(roomid) {
+        connection.onRoomFull(roomid);
     });
 }

@@ -1,4 +1,4 @@
-// Last time updated at Sep 01, 2016, 08:32:23
+// Last time updated at Nov 07, 2016, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/Screen-Capturing.js
 
@@ -21,6 +21,15 @@ window.addEventListener('message', function(event) {
     onMessageCallback(event.data);
 });
 
+// via: https://bugs.chromium.org/p/chromium/issues/detail?id=487935#c17
+// you can capture screen on Android Chrome >= 55 with flag: "Experimental ScreenCapture android"
+window.IsAndroidChrome = false;
+try {
+    if (navigator.userAgent.toLowerCase().indexOf("android") > -1 && /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)) {
+        window.IsAndroidChrome = true;
+    }
+} catch (e) {}
+
 // and the function that handles received messages
 
 function onMessageCallback(data) {
@@ -41,7 +50,8 @@ function onMessageCallback(data) {
 
     // extension shared temp sourceId
     if (data.sourceId && screenCallback) {
-        screenCallback(sourceId = data.sourceId);
+        sourceId = data.sourceId;
+        screenCallback(sourceId);
     }
 }
 
@@ -56,7 +66,16 @@ function isChromeExtensionAvailable(callback) {
 
     if (isFirefox) return isFirefoxExtensionAvailable(callback);
 
-    if (chromeMediaSource == 'desktop') return callback(true);
+    if (window.IsAndroidChrome) {
+        chromeMediaSource = 'screen';
+        callback(true);
+        return;
+    }
+
+    if (chromeMediaSource == 'desktop') {
+        callback(true);
+        return;
+    }
 
     // ask extension if it is available
     window.postMessage('are-you-there', '*');
@@ -124,6 +143,12 @@ function getSourceId(callback, audioPlusTab) {
 }
 
 function getChromeExtensionStatus(extensionid, callback) {
+    if (window.IsAndroidChrome) {
+        chromeMediaSource = 'screen';
+        callback('installed-enabled');
+        return;
+    }
+
     if (arguments.length != 2) {
         callback = extensionid;
         extensionid = window.RMCExtensionID || 'ajhifddimkapgcifgcodmmfdlknahffk'; // default extension-id
@@ -134,6 +159,7 @@ function getChromeExtensionStatus(extensionid, callback) {
     var image = document.createElement('img');
     image.src = 'chrome-extension://' + extensionid + '/icon.png';
     image.onload = function() {
+        sourceId = null;
         chromeMediaSource = 'screen';
         window.postMessage('are-you-there', '*');
         setTimeout(function() {
@@ -158,6 +184,9 @@ function getScreenConstraints(callback, audioPlusTab) {
 
     if (isFirefox) return callback(null, firefoxScreenConstraints);
 
+    // support recapture again & again
+    sourceId = null;
+
     isChromeExtensionAvailable(function(isAvailable) {
         // this statement defines getUserMedia constraints
         // that will be used to capture content of screen
@@ -172,6 +201,12 @@ function getScreenConstraints(callback, audioPlusTab) {
             },
             optional: []
         };
+
+        if (window.IsAndroidChrome) {
+            // now invoking native getUserMedia API
+            callback(null, screen_constraints);
+            return;
+        }
 
         // this statement verifies chrome extension availability
         // if installed and available then it will invoke extension API
@@ -189,6 +224,10 @@ function getScreenConstraints(callback, audioPlusTab) {
         if (chromeMediaSource == 'desktop') {
             screen_constraints.mandatory.chromeMediaSourceId = sourceId;
         }
+
+        sourceId = null;
+        chromeMediaSource = 'screen'; // maybe this line is redundant?
+        screenCallback = null;
 
         // now invoking native getUserMedia API
         callback(null, screen_constraints);

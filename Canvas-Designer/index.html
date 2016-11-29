@@ -13,10 +13,6 @@
 </head>
 <body>
 <script src="canvas-designer-widget.js"></script>
-<script src="https://cdn.webrtc-experiment.com/rmc3.min.js"></script>
-
-<!-- socket.io for signaling -->
-<script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
 
 <style>
 * {
@@ -112,12 +108,12 @@ input {
     margin: 9px -20px;
 }
 
-#btn-undo, #btn-close-undo-popup, #btn-close-dataURL-popup, #btn-getDataURL {
+#btn-undo, #btn-close-undo-popup, #btn-close-dataURL-popup, #btn-close-comments-popup, #btn-getDataURL {
     font-size: 1.2em;
     padding: 2px 9px;
 }
 
-#btn-close-undo-popup, #btn-close-dataURL-popup {
+#btn-close-undo-popup, #btn-close-dataURL-popup, #btn-close-comments-popup {
     padding: 0 6px;
     border-radius: 50%;
     padding-bottom: 1px;
@@ -150,6 +146,32 @@ input {
     background-color: rgba(232, 229, 229, 0.17);
     color: rgb(84, 82, 82);
 }
+
+div#comments-popup {
+    width: 100%;
+    left: 0;
+    top: 0;
+    height: 100%;
+    border: 0;
+    padding: 0;
+	border-radius: 0;
+    overflow: auto;
+}
+
+#btn-comments {
+	color: red;
+	margin-top: 5px;
+	font-size: 24px;
+	text-shadow: 1px 1px white;
+}
+
+#h2-close-popup {
+	background: yellow;
+	padding: 5px 10px;
+	border-bottom: 1px solid red;
+	margin: 0;
+	color: red;
+}
 </style>
 
 <div id="widget-container" style="position: fixed;bottom: 0;right: 20%;left: 20%;height: 100%;border: 1px solid black; border-top:0; border-bottom: 0;"></div>
@@ -178,6 +200,9 @@ input {
 
     <input type="checkbox" id="arrow" checked>
     <label for="arrow">arrow</label><br>
+
+		<input type="checkbox" id="zoom" checked>
+    <label for="zoom">zoom</label><br>
 
     <input type="checkbox" id="dragSingle" checked>
     <label for="dragSingle">dragSingle</label><br>
@@ -258,9 +283,24 @@ input {
         <option>image/webp</option>
     </select>
 
+		<a id="link-to-image" target="_blank" download="image.png"></a>
+
     <br><br><br><br><br>
 
     <button id="btn-getDataURL" style="float:right;">Get DataURL</button>
+</div>
+
+<div id="comments-popup" class="white_content">
+    <button id="btn-close-comments-popup" style="float:right;">x</button>
+
+		<h2 id="h2-close-popup">Click right-side "x" button to close this popup.</h2>
+		<section class="experiment">
+        <h2 class="header" id="feedback">Feedback</h2>
+        <div>
+            <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+        </div>
+        <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
+    </section>
 </div>
 
 <div style="position: fixed; right: 0; width: 19%; padding: 1%;top:0; text-align: center;">
@@ -297,6 +337,11 @@ input {
             <img src="https://travis-ci.org/muaz-khan/Canvas-Designer.png?branch=master">
         </a>
     </div>
+
+		<div style="text-align:cener;margin-top:15px;">
+			<p style="font-size:22px;color:red;">Ask Questions Here:</p>
+			<button id="btn-comments">Comments<br>Discussion</button>
+		</div>
 </div>
 
 <script>
@@ -317,65 +362,6 @@ document.getElementById('open-room').onclick = function() {
     connection.open(roomid);
 
     this.parentNode.innerHTML = '<a href="#' + roomid + '" target="_blank">Please share this link</a>';
-};
-
-var connection = new RTCMultiConnection();
-
-connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
-connection.socketMessageEvent = 'canvas-designer';
-
-connection.enableFileSharing = false;
-connection.session = {
-    data: true
-};
-connection.sdpConstraints.mandatory = {
-    OfferToReceiveAudio: false,
-    OfferToReceiveVideo: false
-};
-if(location.hash.replace('#', '').length) {
-    var roomid = location.hash.replace('#', '');
-    connection.join(roomid);
-}
-
-connection.onUserStatusChanged = function(event) {
-    var infoBar = document.getElementById('hide-on-datachannel-opened');
-    if(event.status == 'online') {
-        infoBar.innerHTML = event.userid + ' is <b>online</b>.';
-    }
-
-    if(event.status == 'offline') {
-        infoBar.innerHTML = event.userid + ' is <b>offline</b>.';
-    }
-
-    numberOfConnectedUsers.innerHTML = connection.getAllParticipants().length;
-};
-
-var numberOfConnectedUsers = document.getElementById('number-of-connected-users');
-connection.onopen = function(event) {
-    var infoBar = document.getElementById('hide-on-datachannel-opened');
-    infoBar.innerHTML = '<b>' + event.userid + '</b> is ready to collaborate with you.';
-
-    if(designer.pointsLength <= 0) {
-        // make sure that remote user gets all drawings synced.
-        setTimeout(function() {
-            connection.send('plz-sync-points');
-        }, 1000);
-    }
-
-    numberOfConnectedUsers.innerHTML = connection.getAllParticipants().length;
-};
-
-connection.onclose = connection.onerror = connection.onleave = function() {
-    numberOfConnectedUsers.innerHTML = connection.getAllParticipants().length;
-};
-
-connection.onmessage = function(event) {
-    if(event.data === 'plz-sync-points') {
-        designer.sync();
-        return;
-    }
-
-    designer.syncData( event.data );
 };
 </script>
 
@@ -405,7 +391,8 @@ designer.setTools({
     rectangle: true,
     quadratic: true,
     bezier: true,
-    marker: true
+    marker: true,
+		zoom: true
 });
 
 designer.appendTo(document.getElementById('widget-container'));
@@ -509,11 +496,14 @@ function closeDataURLPopup() {
 document.getElementById('btn-close-dataURL-popup').onclick = closeDataURLPopup;
 
 document.getElementById('export-as-image').onclick = function() {
+		linkToImage.innerHTML = linkToImage.href = linkToImage.style = '';
+
     document.getElementById('dataURL-popup').style.display='block';
     document.getElementById('fade').style.display='block';
 };
 
 var dataURLFormat = document.getElementById('data-url-format');
+var linkToImage = document.getElementById('link-to-image');
 
 dataURLFormat.onchange = function() {
     localStorage.setItem('data-url-format', dataURLFormat.value);
@@ -529,11 +519,98 @@ document.getElementById('btn-getDataURL').onclick = function() {
     var format = dataURLFormat.value;
 
     designer.toDataURL(format || 'image/png', function(dataURL) {
-       window.open(dataURL)
+       window.open(dataURL);
+
+			 linkToImage.style = 'margin-left: 10px;display: block;text-align: center;margin-bottom: -50px;';
+			 linkToImage.href = dataURL;
+			 linkToImage.innerHTML = 'Click to Download Image';
+			 linkToImage.download = 'image.' + (format || 'image/png').split('/')[1];
     });
 
-    closeDataURLPopup();
+    // closeDataURLPopup();
+};
+
+document.getElementById('btn-close-comments-popup').onclick = function() {
+	document.getElementById('comments-popup').style.display='none';
+	document.getElementById('fade').style.display='none';
+
+	dataURLFormat.onchange();
+};
+
+function showCommentsPopup(e) {
+	document.getElementById('comments-popup').style.display='block';
+	document.getElementById('fade').style.display='block';
+}
+document.getElementById('btn-comments').onclick = showCommentsPopup;
+if(location.hash.length && location.hash.indexOf('comment') !== -1) {
+	showCommentsPopup();
+}
+</script>
+
+<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
+
+<script>
+var connection = new RTCMultiConnection();
+
+connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+connection.socketMessageEvent = 'canvas-designer';
+
+connection.enableFileSharing = false;
+connection.session = {
+    data: true
+};
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: false,
+    OfferToReceiveVideo: false
+};
+if(location.hash.replace('#', '').length) {
+    var roomid = location.hash.replace('#', '');
+    connection.join(roomid);
+}
+
+connection.onUserStatusChanged = function(event) {
+    var infoBar = document.getElementById('hide-on-datachannel-opened');
+    if(event.status == 'online') {
+        infoBar.innerHTML = event.userid + ' is <b>online</b>.';
+    }
+
+    if(event.status == 'offline') {
+        infoBar.innerHTML = event.userid + ' is <b>offline</b>.';
+    }
+
+    numberOfConnectedUsers.innerHTML = connection.getAllParticipants().length;
+};
+
+var numberOfConnectedUsers = document.getElementById('number-of-connected-users');
+connection.onopen = function(event) {
+    var infoBar = document.getElementById('hide-on-datachannel-opened');
+    infoBar.innerHTML = '<b>' + event.userid + '</b> is ready to collaborate with you.';
+
+    if(designer.pointsLength <= 0) {
+        // make sure that remote user gets all drawings synced.
+        setTimeout(function() {
+            connection.send('plz-sync-points');
+        }, 1000);
+    }
+
+    numberOfConnectedUsers.innerHTML = connection.getAllParticipants().length;
+};
+
+connection.onclose = connection.onerror = connection.onleave = function() {
+    numberOfConnectedUsers.innerHTML = connection.getAllParticipants().length;
+};
+
+connection.onmessage = function(event) {
+    if(event.data === 'plz-sync-points') {
+        designer.sync();
+        return;
+    }
+
+    designer.syncData( event.data );
 };
 </script>
+
+<script src="https://cdn.webrtc-experiment.com/common.js" async></script>
 </body>
 </html>

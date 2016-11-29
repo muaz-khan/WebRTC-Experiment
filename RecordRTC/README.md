@@ -60,7 +60,7 @@ Please check [dev](https://github.com/muaz-khan/RecordRTC/tree/master/dev) direc
 15. [Record canvas 2D drawings, lines, shapes, texts, images, drag/resize/enlarge/move via a huge drawing tool!](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html)
 16. [Record Canvas2D Animation](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/Canvas-Animation-Recording.html)
 17. [WebGL animation recording](https://www.webrtc-experiment.com/RecordRTC/webgl/)
-18. [Plotly - WebGL animation recording](https://www.webrtc-experiment.com/RecordRTC/webgl/plotly.html)
+18. [Plotly - WebGL animation recording](https://www.webrtc-experiment.com/RecordRTC/plotly.html)
 
 You can also try a chrome extension for screen recording:
 

@@ -52,7 +52,8 @@ module.exports = exports = function(app, socketCallback) {
             socket: socket,
             connectedWith: {},
             isPublic: false, // means: isPublicModerator
-            extra: extra || {}
+            extra: extra || {},
+            maxParticipantsAllowed: params.maxParticipantsAllowed || 1000
         };
     }
 
@@ -160,7 +161,7 @@ module.exports = exports = function(app, socketCallback) {
             }
 
             try {
-                if (listOfUsers[socket.userid] && listOfUsers[socket.userid].socket.id == socket.userid) {
+                if (listOfUsers[socket.userid] && listOfUsers[socket.userid].socket.userid == socket.userid) {
                     if (newUserId === socket.userid) return;
 
                     var oldUserId = socket.userid;
@@ -258,7 +259,8 @@ module.exports = exports = function(app, socketCallback) {
                             socket: null,
                             connectedWith: {},
                             isPublic: false,
-                            extra: {}
+                            extra: {},
+                            maxParticipantsAllowed: params.maxParticipantsAllowed || 1000
                         };
                     }
 
@@ -276,6 +278,43 @@ module.exports = exports = function(app, socketCallback) {
             } catch (e) {
                 pushLogs('onMessageCallback', e);
             }
+        }
+
+        function joinARoom(message) {
+            var roomInitiator = listOfUsers[message.remoteUserId];
+
+            if (!roomInitiator) {
+                return;
+            }
+
+            var usersInARoom = roomInitiator.connectedWith;
+            var maxParticipantsAllowed = roomInitiator.maxParticipantsAllowed;
+
+            if (Object.keys(usersInARoom).length >= maxParticipantsAllowed) {
+                socket.emit('room-full', message.remoteUserId);
+
+                if (roomInitiator.connectedWith[socket.userid]) {
+                    delete roomInitiator.connectedWith[socket.userid];
+                }
+                return;
+            }
+
+            var inviteTheseUsers = [roomInitiator.socket];
+            Object.keys(usersInARoom).forEach(function(key) {
+                inviteTheseUsers.push(usersInARoom[key]);
+            });
+
+            var keepUnique = [];
+            inviteTheseUsers.forEach(function(userSocket) {
+                if (userSocket.userid == socket.userid) return;
+                if (keepUnique.indexOf(userSocket.userid) != -1) {
+                    return;
+                }
+                keepUnique.push(userSocket.userid);
+
+                message.remoteUserId = userSocket.userid;
+                userSocket.emit(socketMessageEvent, message);
+            });
         }
 
         var numberOfPasswordTries = 0;
@@ -304,6 +343,11 @@ module.exports = exports = function(app, socketCallback) {
                             socket.emit('invalid-password', message.remoteUserId, message.password);
                             return;
                         }
+                    }
+
+                    if (listOfUsers[message.remoteUserId]) {
+                        joinARoom(message);
+                        return;
                     }
                 }
 
@@ -334,15 +378,20 @@ module.exports = exports = function(app, socketCallback) {
                         socket: socket,
                         connectedWith: {},
                         isPublic: false,
-                        extra: {}
+                        extra: {},
+                        maxParticipantsAllowed: params.maxParticipantsAllowed || 1000
                     };
                 }
 
                 // if someone tries to join a person who is absent
                 if (message.message.newParticipationRequest) {
-                    var waitFor = 120; // 2 minutes
+                    var waitFor = 60 * 10; // 10 minutes
                     var invokedTimes = 0;
                     (function repeater() {
+                        if (typeof socket == 'undefined' || !listOfUsers[socket.userid]) {
+                            return;
+                        }
+
                         invokedTimes++;
                         if (invokedTimes > waitFor) {
                             socket.emit('user-not-found', message.remoteUserId);
@@ -350,7 +399,7 @@ module.exports = exports = function(app, socketCallback) {
                         }
 
                         if (listOfUsers[message.remoteUserId] && listOfUsers[message.remoteUserId].socket) {
-                            onMessageCallback(message);
+                            joinARoom(message);
                             return;
                         }
 
@@ -368,7 +417,9 @@ module.exports = exports = function(app, socketCallback) {
 
         socket.on('disconnect', function() {
             try {
-                delete socket.namespace.sockets[this.id];
+                if (socket && socket.namespace && socket.namespace.sockets) {
+                    delete socket.namespace.sockets[this.id];
+                }
             } catch (e) {
                 pushLogs('disconnect', e);
             }

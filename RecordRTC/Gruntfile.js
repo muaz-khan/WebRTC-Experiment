@@ -7,7 +7,21 @@ module.exports = function(grunt) {
         scope: 'devDependencies'
     });
 
-    var banner = '\'use strict\';\n\n// Last time updated: <%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %>\n\n';
+    var versionNumber = grunt.file.readJSON('package.json').version;
+
+    var banner = '// Last time updated: <%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %>\n\n';
+
+    banner += '// ________________\n';
+    banner += '// RecordRTC v' + versionNumber + '\n\n';
+
+    banner += '// Open-Sourced: https://github.com/muaz-khan/RecordRTC\n\n';
+
+    banner += '// --------------------------------------------------\n';
+    banner += '// Muaz Khan     - www.MuazKhan.com\n';
+    banner += '// MIT License   - www.WebRTC-Experiment.com/licence\n';
+    banner += '// --------------------------------------------------\n\n';
+
+    banner += '\'use strict\';\n\n';
 
     // configure project
     grunt.initConfig({
@@ -21,7 +35,6 @@ module.exports = function(grunt) {
             },
             dist: {
                 src: [
-                    'dev/head.js',
                     'dev/RecordRTC.js',
                     'dev/RecordRTC-Configuration.js',
                     'dev/GetRecorderType.js',

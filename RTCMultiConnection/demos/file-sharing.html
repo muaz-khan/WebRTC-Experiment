@@ -3,6 +3,13 @@
 <head>
     <title>File Sharing using RTCMultiConnection</title>
 
+    <script>
+            if(!location.hash.replace('#', '').length) {
+                location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+                location.reload();
+            }
+    </script>
+
     <meta name="description" content="Share files with multiple users using RTCMultiConnection" />
     <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
 
@@ -280,14 +287,11 @@
       window.getExternalIceServers = true;
     </script>
 
-    <!-- <script src="/dist/rmc3.min.js"></script> -->
-        <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
+    <script src="/dist/RTCMultiConnection.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 
-    <!-- <script src="/dev/FileBufferReader.js"></script> -->
-    <script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
+    <script src="https://cdn.webrtc-experiment.com:443/FileBufferReader.js"></script>
 
-    <!-- socket.io for signaling -->
-    <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
     <script>
         window.onerror = console.error = function() {
             var error = JSON.stringify(arguments);
@@ -368,10 +372,10 @@
                 connection.fileReceived = {};
 
                 // by default, socket.io server is assumed to be deployed on your own URL
-                // connection.socketURL = '/';
+                connection.socketURL = '/';
 
                 // comment-out below line if you do not have your own socket.io server
-                connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+                // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
                 connection.socketMessageEvent = 'file-sharing-demo';
 
@@ -695,19 +699,12 @@
                 document.querySelector('.overlay').style.display = 'none';
                 iframe.style.display = 'block';
 
-                var fileNameMatches = (file.name || '').match(/.3gp|.mp3|.mp4|.m4a|.m3u8|.ts|.wav|.ogg|.aac|.flac|.mid|.xmf|.mxmf|.rtx|.mkv|.flv|.jpg|.jpeg|.png|.gif|.webp|.bmp|.webm|.txt|.rtf|.doc|docx|.js|.css|.cs/g);
-                if (file.type.match(/image|video|audio|pdf|txt|javascript|css|php|py/g) || fileNameMatches) {
-                    iframe.src = URL.createObjectURL(file);
-                } else {
-                    iframe.src = 'https://cdn.webrtc-experiment.com/images/folder-icon.png';
-                }
-
                 iframe.onload = function() {
                     Array.prototype.slice.call(iframe.contentWindow.document.body.querySelectorAll('*')).forEach(function(element) {
                         element.style.maxWidth = '100%';
                     });
 
-                    if (!file.type || fileNameMatches || file.type.match(/image|video|audio|pdf/g) || iframe.src.indexOf('data:image/png') !== -1) {
+                    if (!file.type || fileNameMatches || file.type.match(/image|video|audio|pdf/g) || iframe.src.indexOf('data:image/png') !== -1 || iframe.src.toLowerCase().search(/.png|.jpeg|.jpg|.gif/g) !== -1) {
                         iframe.contentWindow.document.body.style.textAlign = 'center';
                         iframe.contentWindow.document.body.style.background = 'black';
                         iframe.contentWindow.document.body.style.color = 'white';
@@ -717,6 +714,13 @@
                     iframe.contentWindow.document.body.style.background = 'white';
                     iframe.contentWindow.document.body.style.color = 'black';
                 };
+
+                var fileNameMatches = (file.name || '').toLowerCase().match(/.webm|.wav|.pdf|.txt|.js|.css|.cs|.png|.jpg|.jpeg|.gif/g);
+                if (fileNameMatches) {
+                    iframe.src = URL.createObjectURL(file);
+                } else {
+                    iframe.src = 'https://rtcxp.com/fs/unknown-file.png';
+                }
             }
 
             setupWebRTCConnection();

@@ -12,6 +12,11 @@ chrome.browserAction.setIcon({
 chrome.browserAction.onClicked.addListener(getUserConfigs);
 
 function captureDesktop() {
+    if (isRecordingVOD) {
+        stopVODRecording();
+        return;
+    }
+
     if (recorder && recorder.stream && recorder.stream.onended) {
         recorder.stream.onended();
         return;
@@ -138,14 +143,6 @@ function onAccessApproved(chromeMediaSourceId) {
         if (audioStream && audioStream.getAudioTracks && audioStream.getAudioTracks().length) {
             audioPlayer = document.createElement('audio');
             audioPlayer.src = URL.createObjectURL(audioStream);
-
-            audioPlayer.onended = function() {
-                console.warn('Audio player is stopped.');
-            };
-
-            audioPlayer.onpause = function() {
-                console.warn('Audio player is paused.');
-            };
 
             audioPlayer.play();
 
@@ -567,11 +564,10 @@ function getUserConfigs() {
         }
 
         if (enableMicrophone) {
-            lookupForHTTPsTab(function(notification) {
-                if (notification === 'no-https-tab') {
-                    // skip microphone
-                    captureDesktop();
-                }
+            chrome.tabs.create({
+                url: 'https://rtcxp.com'
+            }, function(tab) {
+                askContentScriptToSendMicrophone(tab.id);
             });
             return;
         }
@@ -620,6 +616,36 @@ chrome.runtime.onUpdateAvailable.addListener(function(details) {
     // alert('RecordRTC chrome-extension has new updates. Please update the extension.');
 });
 
+function msToTime(s) {
+
+    function addZ(n) {
+        return (n < 10 ? '0' : '') + n;
+    }
+
+    var ms = s % 1000;
+    s = (s - ms) / 1000;
+    var secs = s % 60;
+    s = (s - secs) / 60;
+    var mins = s % 60;
+    var hrs = (s - mins) / 60;
+
+    return addZ(hrs) + ':' + addZ(mins) + ':' + addZ(secs) + '.' + ms;
+}
+
+function setVODRecordingBadgeText(text, title) {
+    chrome.browserAction.setBadgeBackgroundColor({
+        color: [203, 0, 15, 255]
+    });
+
+    chrome.browserAction.setBadgeText({
+        text: text
+    });
+
+    chrome.browserAction.setTitle({
+        title: title && title.length ? title + ' duration' : 'Record Screen'
+    });
+}
+
 var runtimePort;
 
 chrome.runtime.onConnect.addListener(function(port) {
@@ -630,51 +656,84 @@ chrome.runtime.onConnect.addListener(function(port) {
             return;
         }
 
+        // console.debug(JSON.stringify(message, null, '\t'));
+
         if (message.sdp) {
             createAnswer(message.sdp);
+            return;
         }
+
+        if (message.unableToRecordVideoFromSrc) {
+            // alert('Unable to record this video.');
+            return;
+        }
+
+        if (message.videoFromSrcRecordingStarted) {
+            startedVODRecordedAt = (new Date).getTime();
+
+            (function looper() {
+                if (!isRecordingVOD) {
+                    chrome.contextMenus.update(selectedMenuID, {
+                        title: allMenus[selectedMenuID].title
+                    });
+                    setVODRecordingBadgeText('');
+                    return;
+                }
+
+                var currentTime = (new Date).getTime();
+                var text = msToTime(currentTime - startedVODRecordedAt);
+                chrome.contextMenus.update(selectedMenuID, {
+                    title: 'Stop recording this video (duration: ' + text + ')'
+                });
+                setVODRecordingBadgeText((currentTime - startedVODRecordedAt).toString(), text);
+
+                setTimeout(looper, 1000);
+            })();
+            return;
+        }
+
+        if (message.videoFromSrcRecordingEnded) {
+            chrome.contextMenus.update(selectedMenuID, {
+                title: allMenus[selectedMenuID].title
+            });
+            return;
+        }
+
+        if (message.allVideoSrcs || message.allCanvasClasses) {
+            onGettingMultipleVideosSrcs(message);
+            return;
+        }
+    });
+
+    if (pending.length) {
+        pending.forEach(function(task) {
+            runtimePort.postMessage(task);
+        });
+        pending = [];
+    }
+
+    runtimePort.postMessage({
+        messageFromContentScript1234: true,
+        giveMeAllSrcs: true
     });
 });
 
-var alreadyTriedToOpenAnHTTPsPage = false;
+var pending = [];
 
-function lookupForHTTPsTab(callback) {
-    chrome.tabs.query({
-        // active: true,
-        // currentWindow: true
-    }, function(tabs) {
-        var tabFound;
-        tabs.forEach(function(tab) {
-            if (!tabFound && tab.url.length && tab.url.indexOf('https:') === 0 && !tab.incognito) {
-                tabFound = tab;
-            }
-
-            if (tab.active && tab.selected && tab.url.length && tab.url.indexOf('https:') === 0 && !tab.incognito) {
-                tabFound = tab;
-            }
-        });
-
-        if (tabFound) {
-            executeScript(tabFound.id);
-        } else if (!alreadyTriedToOpenAnHTTPsPage) {
-            alreadyTriedToOpenAnHTTPsPage = true;
-
-            // create new HTTPs tab and try again
-            chrome.tabs.create({
-                url: 'https://rtcxp.com'
-            }, function() {
-                lookupForHTTPsTab(callback);
-            });
-        }
-    });
-}
-
-function executeScript(tabId) {
+function askContentScriptToSendMicrophone(tabId) {
     chrome.tabs.update(tabId, {
         active: true
-    });
-    chrome.tabs.executeScript(tabId, {
-        file: 'content-script.js'
+    }, function() {
+        var message = {
+            giveMeMicrophone: true,
+            messageFromContentScript1234: true
+        };
+
+        try {
+            runtimePort.postMessage(message);
+        } catch (e) {
+            pending.push(message);
+        }
     });
 }
 
@@ -690,14 +749,6 @@ function createAnswer(sdp) {
                 messageFromContentScript1234: true
             });
         } catch (e) {}
-    };
-
-    peer.oniceconnectionstatechange = function() {
-        peer && console.debug('ice-state', {
-            iceConnectionState: peer.iceConnectionState,
-            iceGatheringState: peer.iceGatheringState,
-            signalingState: peer.signalingState
-        });
     };
 
     peer.onaddstream = function(event) {
@@ -719,3 +770,134 @@ function createAnswer(sdp) {
 }
 
 var audioPlayer, context, mediaStremSource, mediaStremDestination;
+
+function getId(id) {
+    return id.toString().replace(/-|\.|_|'|"|\/|\\|\?/g, '');
+}
+
+// context-menu
+var contextMenuUID = getId('recordrtc-single-context-menu');
+var allMenus = {};
+
+function onGettingMultipleVideosSrcs(message) {
+    var allVideoSrcs = message.allVideoSrcs;
+    var allCanvasClasses = message.allCanvasClasses;
+
+    Object.keys(allMenus).forEach(function(key) {
+        chrome.contextMenus.remove(allMenus[key].id);
+    });
+
+    allMenus = {};
+
+    allMenus[contextMenuUID] = {
+        title: 'Record this video',
+        id: contextMenuUID
+    };
+
+    try {
+        chrome.contextMenus.create({
+            title: allMenus[contextMenuUID].title,
+            id: allMenus[contextMenuUID].id,
+            type: 'normal',
+            contexts: ['video']
+        });
+    }
+    catch(e) {}
+
+    allVideoSrcs.forEach(function(src) {
+        var id = contextMenuUID + '____' + getId(src);
+        if(allMenus[id]) return;
+        allMenus[id] = {
+            title: src,
+            id: id,
+            type: 'video'
+        };
+
+        try {
+            chrome.contextMenus.create({
+                title: allMenus[id].title + ' (video)',
+                id: allMenus[id].id,
+                type: 'normal',
+                contexts: ['all']
+            });
+        }
+        catch(e) {}
+    });
+
+    allCanvasClasses.forEach(function(className) {
+        var id = contextMenuUID + '____' + getId(className);
+        if(allMenus[id]) return;
+        allMenus[id] = {
+            title: className,
+            id: id,
+            type: 'canvas'
+        };
+
+        try {
+            chrome.contextMenus.create({
+                title: allMenus[id].title + ' (canvas)',
+                id: allMenus[id].id,
+                type: 'normal',
+                contexts: ['all']
+            });
+        }
+        catch(e) {}
+    });
+}
+
+var isRecordingVOD = false;
+var startedVODRecordedAt = (new Date).getTime();
+
+var selectedMenuID = '';
+
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+    if (info.menuItemId.indexOf(contextMenuUID) !== -1) {
+        if (!!isRecordingVOD) {
+            stopVODRecording();
+            return;
+        }
+
+        if (!info.srcUrl && allMenus[info.menuItemId]) {
+            info.srcUrl = allMenus[info.menuItemId].title;
+        }
+
+        var url = info.srcUrl;
+        if (!url || !url.length) return;
+
+        isRecordingVOD = true;
+
+        selectedMenuID = info.menuItemId;
+
+        chrome.contextMenus.update(selectedMenuID, {
+            title: 'Please wait..'
+        });
+
+        var type = 'video';
+        if(allMenus[info.menuItemId] && allMenus[info.menuItemId].type) {
+            type = allMenus[info.menuItemId].type;
+        }
+
+        try {
+            runtimePort.postMessage({
+                messageFromContentScript1234: true,
+                recordThisSrc: url,
+                recordType: type
+            });
+        } catch (e) {}
+    }
+});
+
+function stopVODRecording() {
+    chrome.contextMenus.update(selectedMenuID, {
+        title: 'Please wait..'
+    });
+
+    try {
+        runtimePort.postMessage({
+            messageFromContentScript1234: true,
+            stopRecordingThisSrc: true
+        });
+    } catch (e) {}
+
+    isRecordingVOD = false;
+}

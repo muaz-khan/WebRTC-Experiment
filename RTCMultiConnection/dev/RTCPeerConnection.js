@@ -98,10 +98,16 @@ function PeerInitiator(config) {
                 iceTransports = 'relay';
             }
         }
+
         peer = new RTCPeerConnection(navigator.onLine ? {
             iceServers: connection.iceServers,
-            iceTransports: iceTransports
+            iceTransportPolicy: connection.iceTransportPolicy || iceTransports,
+            rtcpMuxPolicy: connection.rtcpMuxPolicy || 'negotiate'
         } : null, window.PluginRTC ? null : connection.optionalArgument);
+
+        if (!connection.iceServers.length) {
+            peer = new RTCPeerConnection(null, null);
+        }
     } else {
         peer = config.peerRef;
     }
@@ -212,6 +218,7 @@ function PeerInitiator(config) {
 
     var streamObject;
     peer.addEventListener(remoteStreamAddEvent, function(event) {
+        if (!event) return;
         if (event.streams && event.streams.length && !event.stream) {
             if (!streamObject) {
                 streamObject = new MediaStream();
@@ -386,6 +393,8 @@ function PeerInitiator(config) {
                     streamsToShare: streamsToShare,
                     isFirefoxOffered: isFirefox
                 });
+
+                connection.onSettingLocalDescription(self);
             }, function(error) {
                 if (!connection.enableLogs) return;
                 console.error('setLocalDescription error', error);

@@ -56,7 +56,7 @@
             height: 35px;
             margin: 0 5px;
         }
-        
+
         button:hover, input:hover, select:hover {
             background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
             border: 1px solid rgb(142, 142, 142);
@@ -72,7 +72,7 @@
             color: rgb(197, 189, 189);
         }
         input, input:focus, input:active {
-            background: white;    
+            background: white;
         }
 
         video {
@@ -122,8 +122,9 @@
             Share files with unlimited users using p2p methods! <a href="/demos/Files-Scalable-Broadcast.html">Files Scalable Broadcast</a> or <a href="/demos/Scalable-Broadcast.html">all-in-one scalable broadcast</a>.
         </blockquote>
 
-        <script src="/socket.io/socket.io.js"></script>
         <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+
         <script>
             var maxRelayLimitPerUser = 2;
             var parameters = '';
@@ -201,7 +202,7 @@
                 if (connection.isInitiator == false && !connection.broadcastingConnection) {
                     // "connection.broadcastingConnection" global-level object is used
                     // instead of using a closure object, i.e. "privateConnection"
-                    // because sometimes out of browser-specific bugs, browser 
+                    // because sometimes out of browser-specific bugs, browser
                     // can emit "onaddstream" event even if remote user didn't attach any stream.
                     // such bugs happen often in chrome.
                     // "connection.broadcastingConnection" prevents multiple initializations.

@@ -61,11 +61,22 @@ function checkDeviceSupport(callback) {
     audioOutputDevices = [];
     videoInputDevices = [];
 
+    // to prevent duplication
+    var alreadyUsedDevices = {};
+
     navigator.enumerateDevices(function(devices) {
         devices.forEach(function(_device) {
             var device = {};
             for (var d in _device) {
-                device[d] = _device[d];
+                try {
+                    if (typeof _device[d] !== 'function') {
+                        device[d] = _device[d];
+                    }
+                } catch (e) {}
+            }
+
+            if (alreadyUsedDevices[device.deviceId]) {
+                return;
             }
 
             // if it is MediaStreamTrack.getSources
@@ -75,17 +86,6 @@ function checkDeviceSupport(callback) {
 
             if (device.kind === 'video') {
                 device.kind = 'videoinput';
-            }
-
-            var skip;
-            MediaDevices.forEach(function(d) {
-                if (d.id === device.id && d.kind === device.kind) {
-                    skip = true;
-                }
-            });
-
-            if (skip) {
-                return;
             }
 
             if (!device.deviceId) {
@@ -138,10 +138,9 @@ function checkDeviceSupport(callback) {
             }
 
             // there is no 'videoouput' in the spec.
+            MediaDevices.push(device);
 
-            if (MediaDevices.indexOf(device) === -1) {
-                MediaDevices.push(device);
-            }
+            alreadyUsedDevices[device.deviceId] = device;
         });
 
         if (typeof DetectRTC !== 'undefined') {

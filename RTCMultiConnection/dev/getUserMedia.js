@@ -12,7 +12,8 @@ function setStreamType(constraints, stream) {
     }
 }
 
-var currentUserMediaRequest = {
+// allow users to manage this object (to support re-capturing of screen/etc.)
+window.currentUserMediaRequest = {
     streams: [],
     mutex: false,
     queueRequests: [],
@@ -45,7 +46,7 @@ function getUserMediaHandler(options) {
     }
     currentUserMediaRequest.mutex = true;
 
-    // easy way to match 
+    // easy way to match
     var idInstance = JSON.stringify(options.localMediaConstraints);
 
     function streaming(stream, returnBack) {

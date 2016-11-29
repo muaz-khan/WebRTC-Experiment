@@ -6,38 +6,6 @@
 
 * [https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/](https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/)
 
-## How to reuse same addon for your own domains?
-
-Means that, you **don't need to publish your own addon**, you can reuse above link in your own domains/applications!
-
-You should copy/paste following code in your own webpage/domain (HTML/PHP/Python/etc.):
-
-```javascript
-// request addon to enable screen capturing for your domains
-window.postMessage({
-	enableScreenCapturing: true,
-	domains: ["www.yourdomain.com", "yourdomain.com"]
-}, "*");
-
-// watch addon's response
-// addon will return "enabledScreenCapturing=true" for success
-// else "enabledScreenCapturing=false" for failure (i.e. user rejection)
-window.addEventListener("message", function(event) {
-	var addonMessage = event.data;
-
-	if(!addonMessage || typeof addonMessage.enabledScreenCapturing === 'undefined') return;
-
-    if(addonMessage.enabledScreenCapturing === true) {
-    	// addonMessage.domains === [array-of-your-domains]
-    	alert(JSON.stringify(addonMessage.domains) + ' are enabled for screen capturing.');
-    }
-    else {
-    	// reason === 'user-rejected'
-    	alert(addonMessage.reason);
-    }
-}, false);
-```
-
 ## Simplest Demo
 
 Try this demo after installing above addon:

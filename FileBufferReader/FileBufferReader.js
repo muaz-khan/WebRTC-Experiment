@@ -1,436 +1,485 @@
-// Muaz Khan      - www.MuazKhan.com
-// MIT License    - www.WebRTC-Experiment.com/licence
-// Documentation  - github.com/muaz-khan/FileBufferReader
-function FileBufferReader() {
-    var fbr = this;
-    var fbrHelper = new FileBufferReaderHelper();
+// Last time updated: 2016-11-04 7:11:11 AM UTC
 
-    fbr.chunks = {};
-    fbr.users = {};
+// ________________
+// FileBufferReader
 
-    fbr.readAsArrayBuffer = function(file, earlyCallback, extra) {
-        var options = {
-            file: file,
-            earlyCallback: earlyCallback,
-            extra: extra || {
-                userid: 0
-            }
+// Open-Sourced: https://github.com/muaz-khan/FileBufferReader
+
+// --------------------------------------------------
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// --------------------------------------------------
+
+'use strict';
+
+(function() {
+
+    function FileBufferReader() {
+        var fbr = this;
+        var fbrHelper = new FileBufferReaderHelper();
+
+        fbr.chunks = {};
+        fbr.users = {};
+
+        fbr.readAsArrayBuffer = function(file, callback, extra) {
+            var options = {
+                file: file,
+                earlyCallback: function(chunk) {
+                    callback(fbrClone(chunk, {
+                        currentPosition: -1
+                    }));
+                },
+                extra: extra || {
+                    userid: 0
+                }
+            };
+
+            fbrHelper.readAsArrayBuffer(fbr, options);
         };
 
-        fbrHelper.readAsArrayBuffer(fbr, options);
-    };
+        fbr.getNextChunk = function(fileUUID, callback, userid) {
+            var currentPosition;
 
-    fbr.getNextChunk = function(fileUUID, callback, userid) {
-        var allFileChunks = fbr.chunks[fileUUID];
-        if (!allFileChunks) {
-            return;
-        }
-
-        var currentPosition;
-
-        if (typeof userid !== 'undefined') {
-            if (!fbr.users[userid + '']) {
-                fbr.users[userid + ''] = {
-                    fileUUID: fileUUID,
-                    userid: userid,
-                    currentPosition: -1
-                };
+            if (typeof fileUUID.currentPosition !== 'undefined') {
+                currentPosition = fileUUID.currentPosition;
+                fileUUID = fileUUID.uuid;
             }
 
-            fbr.users[userid + ''].currentPosition++;
-            currentPosition = fbr.users[userid + ''].currentPosition;
-        } else {
-            fbr.chunks[fileUUID].currentPosition++;
-            currentPosition = fbr.chunks[fileUUID].currentPosition;
-        }
-
-        var nextChunk = allFileChunks[currentPosition];
-        if (!nextChunk) return;
-
-        nextChunk = fbrClone(nextChunk);
-
-        if (typeof userid !== 'undefined') {
-            nextChunk.remoteUserId = userid + '';
-        }
-
-        if (!!nextChunk.start) {
-            fbr.onBegin(nextChunk);
-        }
-
-        if (!!nextChunk.end) {
-            fbr.onEnd(nextChunk);
-        }
-
-        fbr.onProgress(nextChunk);
-
-        fbr.convertToArrayBuffer(nextChunk, function(buffer) {
-            if (nextChunk.currentPosition == nextChunk.maxChunks) {
-                callback(buffer, true);
+            var allFileChunks = fbr.chunks[fileUUID];
+            if (!allFileChunks) {
                 return;
             }
 
-            callback(buffer, false);
-        });
-    };
+            if (typeof userid !== 'undefined') {
+                if (!fbr.users[userid + '']) {
+                    fbr.users[userid + ''] = {
+                        fileUUID: fileUUID,
+                        userid: userid,
+                        currentPosition: -1
+                    };
+                }
 
-    var fbReceiver = new FileBufferReceiver(fbr);
+                if (typeof currentPosition !== 'undefined') {
+                    fbr.users[userid + ''].currentPosition = currentPosition;
+                }
 
-    fbr.addChunk = function(chunk, callback) {
-        if (!chunk) {
-            console.error('Chunk is missing.');
-            return;
-        }
+                fbr.users[userid + ''].currentPosition++;
+                currentPosition = fbr.users[userid + ''].currentPosition;
+            } else {
+                if (typeof currentPosition !== 'undefined') {
+                    fbr.chunks[fileUUID].currentPosition = currentPosition;
+                }
 
-        fbReceiver.receive(chunk, function(uuid) {
-            fbr.convertToArrayBuffer({
-                readyForNextChunk: true,
-                uuid: uuid
-            }, callback);
-        });
-    };
-
-    fbr.onBegin = function() {};
-    fbr.onEnd = function() {};
-    fbr.onProgress = function() {};
-
-    fbr.convertToObject = FileConverter.ConvertToObject;
-    fbr.convertToArrayBuffer = FileConverter.ConvertToArrayBuffer
-
-    // for backward compatibility----it is redundant.
-    fbr.setMultipleUsers = function() {};
-
-    // extends 'from' object with members from 'to'. If 'to' is null, a deep clone of 'from' is returned
-    function fbrClone(from, to) {
-        if (from == null || typeof from != "object") return from;
-        if (from.constructor != Object && from.constructor != Array) return from;
-        if (from.constructor == Date || from.constructor == RegExp || from.constructor == Function ||
-            from.constructor == String || from.constructor == Number || from.constructor == Boolean)
-            return new from.constructor(from);
-
-        to = to || new from.constructor();
-
-        for (var name in from) {
-            to[name] = typeof to[name] == "undefined" ? fbrClone(from[name], null) : to[name];
-        }
-
-        return to;
-    }
-}
-
-function FileBufferReaderHelper() {
-    var fbrHelper = this;
-
-    function processInWebWorker(_function) {
-        var blob = URL.createObjectURL(new Blob([_function.toString(),
-            'this.onmessage =  function (e) {' + _function.name + '(e.data);}'
-        ], {
-            type: 'application/javascript'
-        }));
-
-        var worker = new Worker(blob);
-        return worker;
-    }
-
-    fbrHelper.readAsArrayBuffer = function(fbr, options) {
-        var earlyCallback = options.earlyCallback;
-        delete options.earlyCallback;
-
-        function processChunk(chunk) {
-            if (!fbr.chunks[chunk.uuid]) {
-                fbr.chunks[chunk.uuid] = {
-                    currentPosition: -1
-                };
+                fbr.chunks[fileUUID].currentPosition++;
+                currentPosition = fbr.chunks[fileUUID].currentPosition;
             }
 
-            options.extra = options.extra || {
-                userid: 0
-            };
-
-            chunk.userid = options.userid || options.extra.userid || 0;
-            chunk.extra = options.extra;
-
-            fbr.chunks[chunk.uuid][chunk.currentPosition] = chunk;
-
-            if (chunk.end && earlyCallback) {
-                earlyCallback(chunk.uuid);
-                earlyCallback = null;
-            }
-
-            if ((chunk.maxChunks > 5 && chunk.currentPosition == 5) && earlyCallback) {
-                earlyCallback(chunk.uuid);
-                earlyCallback = null;
-            }
-        }
-        if (typeof Worker !== 'undefined') {
-            var webWorker = processInWebWorker(fileReaderWrapper);
-
-            webWorker.onmessage = function(event) {
-                processChunk(event.data);
-            };
-
-            webWorker.postMessage(options);
-        } else {
-            var reader = new FileReader();
-            reader.readAsDataURL(options);
-            reader.onload = function(event) {
-                callback(event.target.result);
-            };
-
-            fileReaderWrapper(option, processChunk);
-        }
-    };
-
-    function fileReaderWrapper(options, callback) {
-        callback = callback || function(chunk) {
-            postMessage(chunk);
-        };
-
-        var file = options.file;
-        if (!file.uuid) {
-            file.uuid = (Math.random() * 100).toString().replace(/\./g, '');
-        }
-
-        var chunkSize = options.chunkSize || 15 * 1000;
-
-        var sliceId = 0;
-        var cacheSize = chunkSize;
-
-        var chunksPerSlice = Math.floor(Math.min(100000000, cacheSize) / chunkSize);
-        var sliceSize = chunksPerSlice * chunkSize;
-        var maxChunks = Math.ceil(file.size / chunkSize);
-
-        file.maxChunks = maxChunks;
-
-        var numOfChunksInSlice;
-        var currentPosition = 0;
-        var hasEntireFile;
-        var chunks = [];
-
-        callback({
-            currentPosition: currentPosition,
-            uuid: file.uuid,
-            maxChunks: maxChunks,
-            size: file.size,
-            name: file.name,
-            type: file.type,
-            lastModifiedDate: file.lastModifiedDate.toString(),
-            start: true
-        });
-
-        var blob, reader = new FileReader();
-
-        reader.onloadend = function(evt) {
-            if (evt.target.readyState == FileReader.DONE) {
-                addChunks(file.name, evt.target.result, function() {
-                    sliceId++;
-                    if ((sliceId + 1) * sliceSize < file.size) {
-                        blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
-                        reader.readAsArrayBuffer(blob);
-                    } else if (sliceId * sliceSize < file.size) {
-                        blob = file.slice(sliceId * sliceSize, file.size);
-                        reader.readAsArrayBuffer(blob);
-                    } else {
-                        file.url = URL.createObjectURL(file);
-                        callback({
-                            currentPosition: currentPosition,
-                            uuid: file.uuid,
-                            maxChunks: maxChunks,
-                            size: file.size,
-                            name: file.name,
-                            lastModifiedDate: file.lastModifiedDate.toString(),
-                            url: URL.createObjectURL(file),
-                            type: file.type,
-                            end: true
-                        });
-                    }
-                });
-            }
-        };
-
-        currentPosition += 1;
-
-        blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
-        reader.readAsArrayBuffer(blob);
-
-        function addChunks(fileName, binarySlice, addChunkCallback) {
-            numOfChunksInSlice = Math.ceil(binarySlice.byteLength / chunkSize);
-            for (var i = 0; i < numOfChunksInSlice; i++) {
-                var start = i * chunkSize;
-                chunks[currentPosition] = binarySlice.slice(start, Math.min(start + chunkSize, binarySlice.byteLength));
-
-                callback({
-                    uuid: file.uuid,
-                    buffer: chunks[currentPosition],
+            var nextChunk = allFileChunks[currentPosition];
+            if (!nextChunk) {
+                delete fbr.chunks[fileUUID];
+                fbr.convertToArrayBuffer({
+                    chunkMissing: true,
                     currentPosition: currentPosition,
-                    maxChunks: maxChunks,
-
-                    size: file.size,
-                    name: file.name,
-                    lastModifiedDate: file.lastModifiedDate.toString(),
-                    type: file.type
-                });
-
-                currentPosition++;
+                    uuid: fileUUID
+                }, callback);
+                return;
             }
 
-            if (currentPosition == maxChunks) {
-                hasEntireFile = true;
+            nextChunk = fbrClone(nextChunk);
+
+            if (typeof userid !== 'undefined') {
+                nextChunk.remoteUserId = userid + '';
             }
 
-            addChunkCallback();
+            if (!!nextChunk.start) {
+                fbr.onBegin(nextChunk);
+            }
+
+            if (!!nextChunk.end) {
+                fbr.onEnd(nextChunk);
+            }
+
+            fbr.onProgress(nextChunk);
+
+            fbr.convertToArrayBuffer(nextChunk, function(buffer) {
+                if (nextChunk.currentPosition == nextChunk.maxChunks) {
+                    callback(buffer, true);
+                    return;
+                }
+
+                callback(buffer, false);
+            });
+        };
+
+        var fbReceiver = new FileBufferReceiver(fbr);
+
+        fbr.addChunk = function(chunk, callback) {
+            if (!chunk) {
+                return;
+            }
+
+            fbReceiver.receive(chunk, function(chunk) {
+                fbr.convertToArrayBuffer({
+                    readyForNextChunk: true,
+                    currentPosition: chunk.currentPosition,
+                    uuid: chunk.uuid
+                }, callback);
+            });
+        };
+
+        fbr.chunkMissing = function(chunk) {
+            delete fbReceiver.chunks[chunk.uuid];
+            delete fbReceiver.chunksWaiters[chunk.uuid];
+        };
+
+        fbr.onBegin = function() {};
+        fbr.onEnd = function() {};
+        fbr.onProgress = function() {};
+
+        fbr.convertToObject = FileConverter.ConvertToObject;
+        fbr.convertToArrayBuffer = FileConverter.ConvertToArrayBuffer
+
+        // for backward compatibility----it is redundant.
+        fbr.setMultipleUsers = function() {};
+
+        // extends 'from' object with members from 'to'. If 'to' is null, a deep clone of 'from' is returned
+        function fbrClone(from, to) {
+            if (from == null || typeof from != "object") return from;
+            if (from.constructor != Object && from.constructor != Array) return from;
+            if (from.constructor == Date || from.constructor == RegExp || from.constructor == Function ||
+                from.constructor == String || from.constructor == Number || from.constructor == Boolean)
+                return new from.constructor(from);
+
+            to = to || new from.constructor();
+
+            for (var name in from) {
+                to[name] = typeof to[name] == "undefined" ? fbrClone(from[name], null) : to[name];
+            }
+
+            return to;
         }
     }
-}
 
-window.FileSelector = function() {
-    var selector = this;
+    function FileBufferReaderHelper() {
+        var fbrHelper = this;
 
-    selector.selectSingleFile = selectFile;
-    selector.selectMultipleFiles = function(callback) {
-        selectFile(callback, true);
-    };
+        function processInWebWorker(_function) {
+            var blob = URL.createObjectURL(new Blob([_function.toString(),
+                'this.onmessage =  function (e) {' + _function.name + '(e.data);}'
+            ], {
+                type: 'application/javascript'
+            }));
 
-    function selectFile(callback, multiple) {
-        var file = document.createElement('input');
-        file.type = 'file';
-
-        if (multiple) {
-            file.multiple = true;
+            var worker = new Worker(blob);
+            return worker;
         }
 
-        file.onchange = function() {
+        fbrHelper.readAsArrayBuffer = function(fbr, options) {
+            var earlyCallback = options.earlyCallback;
+            delete options.earlyCallback;
+
+            function processChunk(chunk) {
+                if (!fbr.chunks[chunk.uuid]) {
+                    fbr.chunks[chunk.uuid] = {
+                        currentPosition: -1
+                    };
+                }
+
+                options.extra = options.extra || {
+                    userid: 0
+                };
+
+                chunk.userid = options.userid || options.extra.userid || 0;
+                chunk.extra = options.extra;
+
+                fbr.chunks[chunk.uuid][chunk.currentPosition] = chunk;
+
+                if (chunk.end && earlyCallback) {
+                    earlyCallback(chunk.uuid);
+                    earlyCallback = null;
+                }
+
+                // for huge files
+                if ((chunk.maxChunks > 200 && chunk.currentPosition == 200) && earlyCallback) {
+                    earlyCallback(chunk.uuid);
+                    earlyCallback = null;
+                }
+            }
+            if (false && typeof Worker !== 'undefined') {
+                var webWorker = processInWebWorker(fileReaderWrapper);
+
+                webWorker.onmessage = function(event) {
+                    processChunk(event.data);
+                };
+
+                webWorker.postMessage(options);
+            } else {
+                fileReaderWrapper(options, processChunk);
+            }
+        };
+
+        function fileReaderWrapper(options, callback) {
+            callback = callback || function(chunk) {
+                postMessage(chunk);
+            };
+
+            var file = options.file;
+            if (!file.uuid) {
+                file.uuid = (Math.random() * 100).toString().replace(/\./g, '');
+            }
+
+            var chunkSize = options.chunkSize || 15 * 1000;
+            if (options.extra && options.extra.chunkSize) {
+                chunkSize = options.extra.chunkSize;
+            }
+
+            var sliceId = 0;
+            var cacheSize = chunkSize;
+
+            var chunksPerSlice = Math.floor(Math.min(100000000, cacheSize) / chunkSize);
+            var sliceSize = chunksPerSlice * chunkSize;
+            var maxChunks = Math.ceil(file.size / chunkSize);
+
+            file.maxChunks = maxChunks;
+
+            var numOfChunksInSlice;
+            var currentPosition = 0;
+            var hasEntireFile;
+            var chunks = [];
+
+            callback({
+                currentPosition: currentPosition,
+                uuid: file.uuid,
+                maxChunks: maxChunks,
+                size: file.size,
+                name: file.name,
+                type: file.type,
+                lastModifiedDate: file.lastModifiedDate.toString(),
+                start: true
+            });
+
+            var blob, reader = new FileReader();
+
+            reader.onloadend = function(evt) {
+                if (evt.target.readyState == FileReader.DONE) {
+                    addChunks(file.name, evt.target.result, function() {
+                        sliceId++;
+                        if ((sliceId + 1) * sliceSize < file.size) {
+                            blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
+                            reader.readAsArrayBuffer(blob);
+                        } else if (sliceId * sliceSize < file.size) {
+                            blob = file.slice(sliceId * sliceSize, file.size);
+                            reader.readAsArrayBuffer(blob);
+                        } else {
+                            file.url = URL.createObjectURL(file);
+                            callback({
+                                currentPosition: currentPosition,
+                                uuid: file.uuid,
+                                maxChunks: maxChunks,
+                                size: file.size,
+                                name: file.name,
+                                lastModifiedDate: file.lastModifiedDate.toString(),
+                                url: URL.createObjectURL(file),
+                                type: file.type,
+                                end: true
+                            });
+                        }
+                    });
+                }
+            };
+
+            currentPosition += 1;
+
+            blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
+            reader.readAsArrayBuffer(blob);
+
+            function addChunks(fileName, binarySlice, addChunkCallback) {
+                numOfChunksInSlice = Math.ceil(binarySlice.byteLength / chunkSize);
+                for (var i = 0; i < numOfChunksInSlice; i++) {
+                    var start = i * chunkSize;
+                    chunks[currentPosition] = binarySlice.slice(start, Math.min(start + chunkSize, binarySlice.byteLength));
+
+                    callback({
+                        uuid: file.uuid,
+                        buffer: chunks[currentPosition],
+                        currentPosition: currentPosition,
+                        maxChunks: maxChunks,
+
+                        size: file.size,
+                        name: file.name,
+                        lastModifiedDate: file.lastModifiedDate.toString(),
+                        type: file.type
+                    });
+
+                    currentPosition++;
+                }
+
+                if (currentPosition == maxChunks) {
+                    hasEntireFile = true;
+                }
+
+                addChunkCallback();
+            }
+        }
+    }
+
+    function FileSelector() {
+        var selector = this;
+
+        selector.selectSingleFile = selectFile;
+        selector.selectMultipleFiles = function(callback) {
+            selectFile(callback, true);
+        };
+
+        selector.accept = '*.*';
+
+        function selectFile(callback, multiple) {
+            var file = document.createElement('input');
+            file.type = 'file';
+
             if (multiple) {
-                if (!file.files.length) {
+                file.multiple = true;
+            }
+
+            file.accept = selector.accept;
+
+            file.onchange = function() {
+                if (multiple) {
+                    if (!file.files.length) {
+                        console.error('No file selected.');
+                        return;
+                    }
+                    callback(file.files);
+                    return;
+                }
+
+                if (!file.files[0]) {
                     console.error('No file selected.');
                     return;
                 }
-                callback(file.files);
+
+                callback(file.files[0]);
+
+                file.parentNode.removeChild(file);
+            };
+            file.style.display = 'none';
+            (document.body || document.documentElement).appendChild(file);
+            fireClickEvent(file);
+        }
+
+        function fireClickEvent(element) {
+            var evt = new window.MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true,
+                button: 0,
+                buttons: 0,
+                mozInputSource: 1
+            });
+
+            var fired = element.dispatchEvent(evt);
+        }
+    }
+
+    function FileBufferReceiver(fbr) {
+        var fbReceiver = this;
+
+        fbReceiver.chunks = {};
+        fbReceiver.chunksWaiters = {};
+
+        function receive(chunk, callback) {
+            if (!chunk.uuid) {
+                fbr.convertToObject(chunk, function(object) {
+                    receive(object);
+                });
                 return;
             }
 
-            if (!file.files[0]) {
-                console.error('No file selected.');
-                return;
+            if (chunk.start && !fbReceiver.chunks[chunk.uuid]) {
+                fbReceiver.chunks[chunk.uuid] = {};
+                if (fbr.onBegin) fbr.onBegin(chunk);
             }
 
-            callback(file.files[0]);
-
-            file.parentNode.removeChild(file);
-        };
-        file.style.display = 'none';
-        (document.body || document.documentElement).appendChild(file);
-        fireClickEvent(file);
-    }
-
-    function fireClickEvent(element) {
-        var evt = new window.MouseEvent('click', {
-            view: window,
-            bubbles: true,
-            cancelable: true,
-            button: 0,
-            buttons: 0,
-            mozInputSource: 1
-        });
-
-        var fired = element.dispatchEvent(evt);
-    }
-};
-
-function FileBufferReceiver(fbr) {
-    var packets = {};
-
-    function receive(chunk, callback) {
-        if (!chunk.uuid) {
-            fbr.convertToObject(chunk, function(object) {
-                receive(object);
-            });
-            return;
-        }
-
-        if (chunk.start && !packets[chunk.uuid]) {
-            packets[chunk.uuid] = [];
-            if (fbr.onBegin) fbr.onBegin(chunk);
-        }
-
-        if (!chunk.end && chunk.buffer) {
-            packets[chunk.uuid].push(chunk.buffer);
-        }
-
-        if (chunk.end) {
-            var _packets = packets[chunk.uuid];
-            var finalArray = [],
-                length = _packets.length;
-
-            for (var i = 0; i < length; i++) {
-                if (!!_packets[i]) {
-                    finalArray.push(_packets[i]);
-                }
+            if (!chunk.end && chunk.buffer) {
+                fbReceiver.chunks[chunk.uuid][chunk.currentPosition] = chunk.buffer;
             }
 
-            var blob = new Blob(finalArray, {
-                type: chunk.type
-            });
-            blob = merge(blob, chunk);
-            blob.url = URL.createObjectURL(blob);
-            blob.uuid = chunk.uuid;
+            if (chunk.end) {
+                var chunksObject = fbReceiver.chunks[chunk.uuid];
+                var chunksArray = [];
+                Object.keys(chunksObject).forEach(function(item, idx) {
+                    chunksArray.push(chunksObject[item]);
+                });
 
-            if (!blob.size) console.error('Something went wrong. Blob Size is 0.');
+                var blob = new Blob(chunksArray, {
+                    type: chunk.type
+                });
+                blob = merge(blob, chunk);
+                blob.url = URL.createObjectURL(blob);
+                blob.uuid = chunk.uuid;
 
-            if (fbr.onEnd) fbr.onEnd(blob);
+                if (!blob.size) console.error('Something went wrong. Blob Size is 0.');
+
+                if (fbr.onEnd) fbr.onEnd(blob);
+
+                // clear system memory
+                delete fbReceiver.chunks[chunk.uuid];
+                delete fbReceiver.chunksWaiters[chunk.uuid];
+            }
+
+            if (chunk.buffer && fbr.onProgress) fbr.onProgress(chunk);
+
+            if (!chunk.end) {
+                callback(chunk);
+
+                fbReceiver.chunksWaiters[chunk.uuid] = function() {
+                    function looper() {
+                        if (!chunk.buffer) {
+                            return;
+                        }
+
+                        if (!fbReceiver.chunks[chunk.uuid]) {
+                            return;
+                        }
+
+                        if (chunk.currentPosition != chunk.maxChunks && !fbReceiver.chunks[chunk.uuid][chunk.currentPosition]) {
+                            callback(chunk);
+                            setTimeout(looper, 5000);
+                        }
+                    }
+                    setTimeout(looper, 5000);
+                };
+
+                fbReceiver.chunksWaiters[chunk.uuid]();
+            }
         }
 
-        if (chunk.buffer && fbr.onProgress) fbr.onProgress(chunk);
-
-        if (!chunk.end) callback(chunk.uuid);
+        fbReceiver.receive = receive;
     }
+
+    var FileConverter = {
+        ConvertToArrayBuffer: function(object, callback) {
+            binarize.pack(object, function(dataView) {
+                callback(dataView.buffer);
+            });
+        },
+        ConvertToObject: function(buffer, callback) {
+            binarize.unpack(buffer, callback);
+        }
+    };
 
     function merge(mergein, mergeto) {
         if (!mergein) mergein = {};
         if (!mergeto) return mergein;
 
         for (var item in mergeto) {
-            mergein[item] = mergeto[item];
+            try {
+                mergein[item] = mergeto[item];
+            } catch (e) {}
         }
         return mergein;
     }
 
-    this.receive = receive;
-}
-var FileConverter = {
-    ConvertToArrayBuffer: function(object, callback) {
-        binarize.pack(object, function(dataView) {
-            callback(dataView.buffer);
-        });
-    },
-    ConvertToObject: function(buffer, callback) {
-        binarize.unpack(buffer, callback);
-    }
-};
-
-function merge(mergein, mergeto) {
-    if (!mergein) mergein = {};
-    if (!mergeto) return mergein;
-
-    for (var item in mergeto) {
-        mergein[item] = mergeto[item];
-    }
-    return mergein;
-}
-
-/*
-    Copyright 2013 Eiji Kitamura
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-         http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-    Author: Eiji Kitamura (agektmr@gmail.com)
-    */
-(function(root) {
     var debug = false;
 
     var BIG_ENDIAN = false,
@@ -636,7 +685,7 @@ function merge(mergein, mergeto) {
                 value = serialized[i].value,
                 byte_length = serialized[i].byte_length,
                 type_name = Length[type],
-                unit = type_name === null ? 0 : root[type_name + 'Array'].BYTES_PER_ELEMENT;
+                unit = type_name === null ? 0 : window[type_name + 'Array'].BYTES_PER_ELEMENT;
 
             // Set type
             if (type === Types.BUFFER) {
@@ -770,7 +819,7 @@ function merge(mergein, mergeto) {
         }
 
         var type_name = Length[type];
-        var unit = type_name === null ? 0 : root[type_name + 'Array'].BYTES_PER_ELEMENT;
+        var unit = type_name === null ? 0 : window[type_name + 'Array'].BYTES_PER_ELEMENT;
 
         switch (type) {
             case Types.NULL:
@@ -833,7 +882,7 @@ function merge(mergein, mergeto) {
 
                     // If other TypedArray
                 } else {
-                    value = new root[type_name + 'Array'](elem);
+                    value = new window[type_name + 'Array'](elem);
                 }
 
                 if (debug) {
@@ -846,7 +895,7 @@ function merge(mergein, mergeto) {
                     binary_dump(view, start, cursor - start);
                 }
                 // If Blob is available (on browser)
-                if (root.Blob) {
+                if (window.Blob) {
                     var mime = unpack(view, cursor);
                     var buffer = unpack(view, mime.cursor);
                     cursor = buffer.cursor;
@@ -946,7 +995,7 @@ function merge(mergein, mergeto) {
         type = find_type(obj);
 
         unit = Length[type] === undefined || Length[type] === null ? 0 :
-            root[Length[type] + 'Array'].BYTES_PER_ELEMENT;
+            window[Length[type] + 'Array'].BYTES_PER_ELEMENT;
 
         switch (type) {
             case Types.UNDEFINED:
@@ -1060,7 +1109,7 @@ function merge(mergein, mergeto) {
     };
 
     if (debug) {
-        root.Test = {
+        window.Test = {
             BIG_ENDIAN: BIG_ENDIAN,
             LITTLE_ENDIAN: LITTLE_ENDIAN,
             Types: Types,
@@ -1095,9 +1144,7 @@ function merge(mergein, mergeto) {
         }
     };
 
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = binarize;
-    } else {
-        root.binarize = binarize;
-    }
-})(typeof global !== 'undefined' ? global : this);
+    window.FileConverter = FileConverter;
+    window.FileSelector = FileSelector;
+    window.FileBufferReader = FileBufferReader;
+})();

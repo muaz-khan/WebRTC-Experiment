@@ -2,7 +2,7 @@
 	"name" : "WebRTC File Sharing",
 	"short_name" : "FileSharing",
     "author": "Muaz Khan",
-	"version" : "2.3",
+	"version" : "2.4",
 	"manifest_version" : 2,
     "minimum_chrome_version": "34",
 	"description" : "Instant/Private/Reliable file sharing across all devices(mobile/desktop), among single or multiple users.",

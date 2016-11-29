@@ -128,7 +128,11 @@ var StreamsHandler = (function() {
             var mediaElement = connection.streamEvents[stream.streamid].mediaElement;
             mediaElement.volume = 0;
             afterEach(200, 5, function() {
-                mediaElement.volume += .20;
+                try {
+                    mediaElement.volume += .20;
+                } catch (e) {
+                    mediaElement.volume = 1;
+                }
             });
         }
     }

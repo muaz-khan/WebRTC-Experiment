@@ -1,7 +1,7 @@
 {
   "name": "rtcmulticonnection-v3",
   "preferGlobal": false,
-  "version": "3.3.9",
+  "version": "3.4.3",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -15,6 +15,9 @@
   },
   "scripts": {
     "start": "node server.js"
+  },
+  "engines": {
+    "node": "7.0.0"
   },
   "main": "RTCMultiConnection.js",
   "keywords": [
@@ -41,7 +44,7 @@
     "muaz-khan"
   ],
   "dependencies": {
-    "socket.io": "0.9.17"
+    "socket.io": "latest"
   },
   "analyze": false,
   "license": "MIT",

@@ -1,10 +1,9 @@
 # iOS and Android
 
-Please check these docs instead:
+Please check these docs as well:
 
-# 1) [Write iOS apps using RTCMultiConnection](http://www.rtcmulticonnection.org/docs/Write-iOS-Apps/)
-
-# 2) [Write Android apps using RTCMultiConnection](http://www.rtcmulticonnection.org/docs/Write-Android-Apps/)
+* [Write iOS apps using RTCMultiConnection](http://www.rtcmulticonnection.org/docs/Write-iOS-Apps/)
+* [Write Android apps using RTCMultiConnection](http://www.rtcmulticonnection.org/docs/Write-Android-Apps/)
 
 ----
 
@@ -14,12 +13,16 @@ Please check these docs instead:
 
 # Cordova Demos
 
+Please check all iOS+Android demos here:
+
+* http://webrtcweb.com/cordova-apps/
+
 | DemoTitle        | DownloadZip           | AndroidAPK | AllFiles |
 | ------------- |-------------|-------------|-------------|
-| Scalable Broadcast | [Source](http://dl.webrtc-experiment.com/cordova-apps/scalable-broadcast/Download-Source.zip) | [Android APK](http://dl.webrtc-experiment.com/cordova-apps/scalable-broadcast/Install-Android-App.apk) | [All files](http://dl.webrtc-experiment.com/cordova-apps/scalable-broadcast) |
-| Audio Conferencing | [Source](http://dl.webrtc-experiment.com/cordova-apps/audio-conferencing/Download-Source.zip) | [Android APK](http://dl.webrtc-experiment.com/cordova-apps/audio-conferencing/Install-Android-App.apk) | [All files](http://dl.webrtc-experiment.com/cordova-apps/audio-conferencing) |
-| Video Conferencing | [Source](http://dl.webrtc-experiment.com/cordova-apps/video-conferencing/Download-Source.zip) | [Android APK](http://dl.webrtc-experiment.com/cordova-apps/video-conferencing/Install-Android-App.apk) | [All files](http://dl.webrtc-experiment.com/cordova-apps/video-conferencing) |
-| File Sharing | [Source](http://dl.webrtc-experiment.com/cordova-apps/filesharing/Download-Source.zip) | [Android APK](http://dl.webrtc-experiment.com/cordova-apps/filesharing/Install-Android-App.apk) | [All files](http://dl.webrtc-experiment.com/cordova-apps/filesharing) |
+| Scalable Broadcast | [Source](http://webrtcweb.com/cordova-apps/scalable-broadcast/Download-Source.zip) | [Android APK](http://webrtcweb.com/cordova-apps/scalable-broadcast/Install-Android-App.apk) | [All files](http://webrtcweb.com/cordova-apps/scalable-broadcast) |
+| Audio Conferencing | [Source](http://webrtcweb.com/cordova-apps/audio-conferencing/Download-Source.zip) | [Android APK](http://webrtcweb.com/cordova-apps/audio-conferencing/Install-Android-App.apk) | [All files](http://webrtcweb.com/cordova-apps/audio-conferencing) |
+| Video Conferencing | [Source](http://webrtcweb.com/cordova-apps/video-conferencing/Download-Source.zip) | [Android APK](http://webrtcweb.com/cordova-apps/video-conferencing/Install-Android-App.apk) | [All files](http://webrtcweb.com/cordova-apps/video-conferencing) |
+| File Sharing | [Source](http://webrtcweb.com/cordova-apps/filesharing/Download-Source.zip) | [Android APK](http://webrtcweb.com/cordova-apps/filesharing/Install-Android-App.apk) | [All files](http://webrtcweb.com/cordova-apps/filesharing) |
 
 # Prerequisites
 
@@ -199,7 +202,7 @@ An example `config.xml` file (make sure that `icon.png` has valid path):
 
 > This section explains how to integrate RTCMultiConnection-v3 for both iOS and Android apps.
 
-Copy/paste entire [`rmc3.min.js`](https://github.com/muaz-khan/RTCMultiConnection/tree/master/dist/rmc3.min.js) file inside `deviceready` callback:
+Copy/paste entire [`RTCMultiConnection.min.js`](https://github.com/muaz-khan/RTCMultiConnection/tree/master/dist/RTCMultiConnection.min.js) file inside `deviceready` callback:
 
 ```html
 <!DOCTYPE html>
@@ -214,8 +217,8 @@ Copy/paste entire [`rmc3.min.js`](https://github.com/muaz-khan/RTCMultiConnectio
     <!-- scripts are placed on footer -->
     <script src="cordova.js"></script>
 
-    <!-- NEVER link rmc3.min.js here -->
-    <!-- instead copy/paste code from rmc3.min.js into below "index.js" file -->
+    <!-- NEVER link RTCMultiConnection.min.js here -->
+    <!-- instead copy/paste code from RTCMultiConnection.min.js into below "index.js" file -->
     <script src="js/index.js"></script>
 </body>
 </html>
@@ -227,11 +230,11 @@ Copy/paste entire [`rmc3.min.js`](https://github.com/muaz-khan/RTCMultiConnectio
 ```javascript
 // please read below comments:
 document.addEventListener('deviceready', function() {
-    // copy/paste entire/all code from "rmc3.min.js" file
+    // copy/paste entire/all code from "RTCMultiConnection.min.js" file
     // here --- exact here
     // paste inside this callback
     // if you will NOT do this, RTCMultiConnection will fail on cordova-based apps
-    // again, you MUST NOT link rmc3.min.js
+    // again, you MUST NOT link RTCMultiConnection.min.js
     // instead copy/paste all the codes here
 
     // you can put your custom-ui-codes here

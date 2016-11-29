@@ -22,9 +22,8 @@ module.exports = function(grunt) {
             dist: {
                 src: [
                     'dev/head.js',
-                    
                     'dev/common.js',
-                    'dev/decorator.js',
+
                     'dev/draw-helper.js',
                     'dev/drag-helper.js',
                     'dev/pencil-handler.js',
@@ -37,10 +36,13 @@ module.exports = function(grunt) {
                     'dev/rect-handler.js',
                     'dev/quadratic-handler.js',
                     'dev/bezier-handler.js',
+                    'dev/zoom-handler.js',
                     'dev/file-selector.js',
                     'dev/image-handler.js',
+
+                    'dev/decorator.js',
                     'dev/events-handler.js',
-                    
+
                     'dev/share-drawings.js',
                     'dev/canvas-designer-widget.js',
 

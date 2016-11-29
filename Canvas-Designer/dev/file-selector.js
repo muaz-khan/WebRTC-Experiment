@@ -14,6 +14,8 @@ var FileSelector = function() {
             file.multiple = true;
         }
 
+        file.accept = 'image/*';
+
         file.onchange = function() {
             if (multiple) {
                 if (!file.files.length) {

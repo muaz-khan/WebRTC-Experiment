@@ -207,40 +207,89 @@
         socket.onmessage = onmessage;
     }
 
-    var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-    var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-    var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+    var RTCPeerConnection;
+    if (typeof window.RTCPeerConnection !== 'undefined') {
+        RTCPeerConnection = window.RTCPeerConnection;
+    } else if (typeof mozRTCPeerConnection !== 'undefined') {
+        RTCPeerConnection = mozRTCPeerConnection;
+    } else if (typeof webkitRTCPeerConnection !== 'undefined') {
+        RTCPeerConnection = webkitRTCPeerConnection;
+    }
 
-    window.URL = window.webkitURL || window.URL;
+    var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+    var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
     var isChrome = !!navigator.webkitGetUserMedia;
 
     var iceServers = [];
 
     iceServers.push({
-        url: 'turn:turn.bistri.com:80',
+        urls: 'turn:turn.bistri.com:80',
         credential: 'homeo',
         username: 'homeo'
     });
 
     iceServers.push({
-        url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+        urls: 'turn:turn.anyfirewall.com:443?transport=tcp',
         credential: 'webrtc',
         username: 'webrtc'
     });
 
     iceServers.push({
-        url: 'stun:stun.l.google.com:19302'
+        urls: 'stun:stun.l.google.com:19302'
+    });
+
+    iceServers.push({
+        urls: 'turn:webrtcweb.com:80',
+        credential: 'muazkh',
+        username: 'muazkh'
+    });
+
+    iceServers.push({
+        urls: 'turn:webrtcweb.com:443',
+        credential: 'muazkh',
+        username: 'muazkh'
+    });
+
+    iceServers.push({
+        urls: 'turn:webrtcweb.com:3344',
+        credential: 'muazkh',
+        username: 'muazkh'
+    });
+
+    iceServers.push({
+        urls: 'turn:webrtcweb.com:4433',
+        credential: 'muazkh',
+        username: 'muazkh'
     });
 
     iceServers = {
-        iceServers: iceServers
+        iceServers: iceServers,
+        iceTransportPolicy: 'all',
+        rtcpMuxPolicy: 'negotiate'
     };
 
     var optionalArgument = {
         optional: [{
             DtlsSrtpKeyAgreement: true
-        }]
+        }, {
+            googImprovedWifiBwe: true
+        }, {
+            googScreencastMinBitrate: 300
+        }, {
+            googIPv6: true
+        }, {
+            googDscp: true
+        }, {
+            googCpuUnderuseThreshold: 55
+        }, {
+            googCpuOveruseThreshold: 85
+        }, {
+            googSuspendBelowMinBitrate: true
+        }, {
+            googCpuOveruseDetection: true
+        }],
+        mandatory: {}
     };
 
     var offerAnswerConstraints = {
@@ -252,7 +301,16 @@
     };
 
     function getToken() {
-        return Math.round(Math.random() * 9999999999) + 9999999999;
+        if (window.crypto && window.crypto.getRandomValues && navigator.userAgent.indexOf('Safari') === -1) {
+            var a = window.crypto.getRandomValues(new Uint32Array(3)),
+                token = '';
+            for (var i = 0, l = a.length; i < l; i++) {
+                token += a[i].toString(36);
+            }
+            return token;
+        } else {
+            return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
+        }
     }
 
     function setChannelEvents(channel, config) {
@@ -265,12 +323,10 @@
         };
 
         channel.onerror = function(e) {
-            console.error('channel.onerror', JSON.stringify(e, null, '\t'));
             config.onerror(e);
         };
 
         channel.onclose = function(e) {
-            console.warn('channel.onclose', JSON.stringify(e, null, '\t'));
             config.onclose(e);
         };
     }

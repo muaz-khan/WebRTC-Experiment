@@ -1,0 +1,61 @@
+{
+  "name": "fbr",
+  "preferGlobal": true,
+  "version": "2.0.4",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "http://www.muazkhan.com/"
+  },
+  "description": "FileBufferReader is a JavaScript library reads file and returns chunkified array-buffers. The resulting buffers can be shared using WebRTC data channels or socket.io. Share files same as Skype do!",
+  "scripts": {
+    "start": "node FileBufferReader.js"
+  },
+  "main": "./FileBufferReader.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/FileBufferReader.git"
+  },
+  "keywords": [
+    "webrtc",
+    "file",
+    "file-sharing",
+    "datachannel",
+    "data-channels",
+    "file-reading",
+    "file-buffer",
+    "buffer",
+    "arraybuffer",
+    "buffers",
+    "chunkifier",
+    "fragmenter",
+    "library",
+    "javascript",
+    "webrtc-experiment",
+    "javascript-library",
+    "muaz",
+    "muaz-khan"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/muaz-khan/FileBufferReader/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://www.WebRTC-Experiment.com/FileBufferReader/",
+  "_id": "fbr@",
+  "_from": "fbr@",
+  "devDependencies": {
+    "grunt": "0.4.5",
+    "grunt-bump": "0.7.0",
+    "grunt-cli": "0.1.13",
+    "grunt-contrib-clean": "0.6.0",
+    "grunt-contrib-concat": "0.5.1",
+    "grunt-contrib-copy": "0.8.2",
+    "grunt-contrib-uglify": "0.11.0",
+    "grunt-jsbeautifier": "0.2.10",
+    "grunt-replace": "0.11.0",
+    "load-grunt-tasks": "3.4.0"
+  }
+}

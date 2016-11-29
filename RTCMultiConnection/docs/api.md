@@ -184,6 +184,15 @@ connection.onleave = connection.streamended = connection.onclose = function(even
 };
 ```
 
+### `onRoomFull`
+
+```javascript
+connection.maxParticipantsAllowed = 1; // one-to-one
+connection.onRoomFull = function(roomid) {
+  alert('Room is full.');
+};
+```
+
 ### `getSocket`
 
 This method allows you get the `socket` object used for signaling (handshake/presence-detection/etc.):
@@ -1070,6 +1079,59 @@ By default, it is `false`. Which means that RTCMultiConnection will always get r
 
 ```javascript
 connection.dontGetRemoteStream = true;
+```
+
+## `onSettingLocalDescription`
+
+This event is fired as soon as RTCMultiConnection calls the `nativePeer.setLocalDescription` method.
+
+This event helps you say: "incoming call" or debug peers if connection didn't establish till next 3 seconds.
+
+This method is helpful if you switch between cameras or you add screen or add other camera or change anything:
+
+```javascript
+connection.onSettingLocalDescription = fucntion(event) {
+	console.log('Trying to connect with', event.userid);
+
+	var nativePeer = event.peer;
+	var localStreams = nativePeer.getLocalStreams();
+	var remoteStreams = nativePeer.getRemoteStreams();
+
+	// make sure that you are correctly displaying all remote videos
+	var tries = 0;
+	(function looper() {
+		if(tries > 10) return; // throw error here
+
+		tries++;
+
+		// make sure that each user's video.id == hisUserID
+		var video = document.getElementById(event.userid);
+
+		// skip: if user left or if user video is playing
+		if(!video || video.currentTIme > 0) return;
+
+		video.src = URL.createObjectURL ( nativePeer.getRemoteStreams()[0] );
+		video.play();
+
+		setTimeout(looper, 1000); // repeat till 10-seconds
+	})();
+};
+```
+
+## `beforeAddingStream`
+
+You can skip any stream or allow RTCMultiConnection to share a stream with remote users.
+
+`nativePeer.addStream` method will be called only if below event permits the `MediaStream` object:
+
+```javascript
+connection.beforeAddingStream = function(stream) {
+	if(stream.id == 'any-streamid') return; // skip
+	if(stream.isScreen) return; // skip
+	if(stream.inactive) return; // skip
+
+	return stream; // otherwise allow RTCMultiConnection to share this stream with remote users
+};
 ```
 
 ## `getScreenConstraints`

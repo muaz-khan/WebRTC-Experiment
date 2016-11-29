@@ -144,11 +144,16 @@ function MultiPeers(connection) {
                 }
 
                 if (message.readyForNextChunk) {
-                    connection.fbr.getNextChunk(message.uuid, function(nextChunk, isLastChunk) {
+                    connection.fbr.getNextChunk(message, function(nextChunk, isLastChunk) {
                         connection.peers[remoteUserId].channels.forEach(function(channel) {
                             channel.send(nextChunk);
                         });
                     }, remoteUserId);
+                    return;
+                }
+
+                if (message.chunkMissing) {
+                    connection.fbr.chunkMissing(message);
                     return;
                 }
 
@@ -166,7 +171,9 @@ function MultiPeers(connection) {
                 self.onDataChannelClosed(event, remoteUserId);
             },
             onRemoteStream: function(stream) {
-                connection.peers[remoteUserId].streams.push(stream);
+                if (connection.peers[remoteUserId]) {
+                    connection.peers[remoteUserId].streams.push(stream);
+                }
 
                 if (isPluginRTC && window.PluginRTC) {
                     var mediaElement = document.createElement('video');
@@ -225,7 +232,6 @@ function MultiPeers(connection) {
         }
 
         userPreferences = connection.setUserPreferences(userPreferences, remoteUserId);
-
         var localConfig = this.getLocalConfig(null, remoteUserId, userPreferences);
         connection.peers[remoteUserId] = new PeerInitiator(localConfig);
     };
@@ -319,55 +325,30 @@ function MultiPeers(connection) {
         }
 
         if (message.enableMedia) {
-            if (connection.attachStreams.length || connection.dontCaptureUserMedia) {
-                var streamsToShare = {};
-                connection.attachStreams.forEach(function(stream) {
-                    streamsToShare[stream.streamid] = {
-                        isAudio: !!stream.isAudio,
-                        isVideo: !!stream.isVideo,
-                        isScreen: !!stream.isScreen
-                    };
-                });
-                message.userPreferences.streamsToShare = streamsToShare;
+            connection.session = message.userPreferences.session || connection.session;
 
-                self.onNegotiationNeeded({
-                    readyForOffer: true,
-                    userPreferences: message.userPreferences
-                }, remoteUserId);
-                return;
+            if (connection.session.oneway && connection.attachStreams.length) {
+                connection.attachStreams = [];
             }
 
-            var localMediaConstraints = {};
-            var userPreferences = message.userPreferences;
-            if (userPreferences.localPeerSdpConstraints.OfferToReceiveAudio) {
-                localMediaConstraints.audio = connection.mediaConstraints.audio;
+            if (message.userPreferences.isDataOnly && connection.attachStreams.length) {
+                connection.attachStreams.length = [];
             }
 
-            if (userPreferences.localPeerSdpConstraints.OfferToReceiveVideo) {
-                localMediaConstraints.video = connection.mediaConstraints.video;
-            }
-
-            var session = userPreferences.session || connection.session;
-
-            if (session.oneway && session.audio && session.audio === 'two-way') {
-                session = {
-                    audio: true
+            var streamsToShare = {};
+            connection.attachStreams.forEach(function(stream) {
+                streamsToShare[stream.streamid] = {
+                    isAudio: !!stream.isAudio,
+                    isVideo: !!stream.isVideo,
+                    isScreen: !!stream.isScreen
                 };
-            }
+            });
+            message.userPreferences.streamsToShare = streamsToShare;
 
-            if (session.audio || session.video || session.screen) {
-                if (session.screen) {
-                    connection.getScreenConstraints(function(error, screen_constraints) {
-                        connection.invokeGetUserMedia({
-                            audio: isAudioPlusTab(connection) ? getAudioScreenConstraints(screen_constraints) : false,
-                            video: screen_constraints,
-                            isScreen: true
-                        }, (session.audio || session.video) && !isAudioPlusTab(connection) ? connection.invokeGetUserMedia(null, cb) : cb);
-                    });
-                } else if (session.audio || session.video) {
-                    connection.invokeGetUserMedia(null, cb, session);
-                }
-            }
+            self.onNegotiationNeeded({
+                readyForOffer: true,
+                userPreferences: message.userPreferences
+            }, remoteUserId);
         }
 
         if (message.readyForOffer) {
@@ -397,30 +378,46 @@ function MultiPeers(connection) {
     }
 
     this.connectNewParticipantWithAllBroadcasters = function(newParticipantId, userPreferences, broadcastersList) {
-        broadcastersList = broadcastersList.split('|-,-|');
+        if (connection.socket.isIO) {
+            return;
+        }
+
+        broadcastersList = (broadcastersList || '').split('|-,-|');
+
         if (!broadcastersList.length) {
             return;
         }
 
-        var firstBroadcaster = broadcastersList[0];
+        var firstBroadcaster;
+
+        var remainingBroadcasters = [];
+        broadcastersList.forEach(function(list) {
+            list = (list || '').replace(/ /g, '');
+            if (list.length) {
+                if (!firstBroadcaster) {
+                    firstBroadcaster = list;
+                } else {
+                    remainingBroadcasters.push(list);
+                }
+            }
+        });
+
+        if (!firstBroadcaster) {
+            return;
+        }
 
         self.onNegotiationNeeded({
             newParticipant: newParticipantId,
             userPreferences: userPreferences || false
         }, firstBroadcaster);
 
-        delete broadcastersList[0];
-
-        var array = [];
-        broadcastersList.forEach(function(broadcaster) {
-            if (broadcaster) {
-                array.push(broadcaster);
-            }
-        });
+        if (!remainingBroadcasters.length) {
+            return;
+        }
 
         setTimeout(function() {
-            self.connectNewParticipantWithAllBroadcasters(newParticipantId, userPreferences, array.join('|-,-|'));
-        }, 10 * 1000);
+            self.connectNewParticipantWithAllBroadcasters(newParticipantId, userPreferences, remainingBroadcasters.join('|-,-|'));
+        }, 3 * 1000);
     };
 
     this.onGettingRemoteMedia = function(stream, remoteUserId) {};
