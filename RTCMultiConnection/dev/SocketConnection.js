@@ -2,8 +2,10 @@ function SocketConnection(connection, connectCallback) {
     var parameters = '';
 
     parameters += '?userid=' + connection.userid;
+    parameters += '&sessionid=' + connection.sessionid;
     parameters += '&msgEvent=' + connection.socketMessageEvent;
     parameters += '&socketCustomEvent=' + connection.socketCustomEvent;
+    parameters += '&autoCloseEntireSession=' + !!connection.autoCloseEntireSession;
 
     parameters += '&maxParticipantsAllowed=' + connection.maxParticipantsAllowed;
 
@@ -56,6 +58,15 @@ function SocketConnection(connection, connectCallback) {
             userid: remoteUserId,
             extra: extra
         });
+
+        if (!connection.peersBackup[remoteUserId]) {
+            connection.peersBackup[remoteUserId] = {
+                userid: remoteUserId,
+                extra: {}
+            };
+        }
+
+        connection.peersBackup[remoteUserId].extra = extra;
     });
 
     connection.socket.on(connection.socketMessageEvent, function(message) {
@@ -78,6 +89,9 @@ function SocketConnection(connection, connectCallback) {
             var action = message.message.action;
 
             if (action === 'ended' || action === 'inactive' || action === 'stream-removed') {
+                if (connection.peersBackup[stream.userid]) {
+                    stream.extra = connection.peersBackup[stream.userid].extra;
+                }
                 connection.onstreamended(stream);
                 return;
             }
@@ -229,10 +243,16 @@ function SocketConnection(connection, connectCallback) {
             extra: connection.peers[userid] ? connection.peers[userid].extra || {} : {}
         });
 
-        connection.onleave({
+        var eventObject = {
             userid: userid,
             extra: {}
-        });
+        };
+
+        if (connection.peersBackup[eventObject.userid]) {
+            eventObject.extra = connection.peersBackup[eventObject.userid].extra;
+        }
+
+        connection.onleave(eventObject);
     });
 
     var alreadyConnected = false;
@@ -331,5 +351,13 @@ function SocketConnection(connection, connectCallback) {
 
     connection.socket.on('room-full', function(roomid) {
         connection.onRoomFull(roomid);
+    });
+
+    connection.socket.on('become-next-modrator', function(sessionid) {
+        if (sessionid != connection.sessionid) return;
+        setTimeout(function() {
+            connection.open(sessionid);
+            connection.socket.emit('shift-moderator-control-on-disconnect');
+        }, 1000);
     });
 }

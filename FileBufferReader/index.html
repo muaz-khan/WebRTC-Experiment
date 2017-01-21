@@ -29,9 +29,10 @@
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
     <style>
-        p {
-            padding: .8em;
+        article p:first-of-type {
+          margin-top: inherit;
         }
+
         li {
             border-bottom: 1px solid rgb(189, 189, 189);
             border-left: 1px solid rgb(189, 189, 189);
@@ -48,12 +49,6 @@
         }
         .image-parent img {
             width: 100%;
-        }
-
-        p {
-          margin-top: 0!important;
-          margin-bottom: 0!important;
-          padding: 10px 10px!important;
         }
 
         blockquote {
@@ -138,6 +133,117 @@
           margin-left: 0;
           font-size: 14px;
         }
+
+        .button {
+          width: 200px;
+          margin-top: 30px;
+          margin-bottom: 30px;
+        }
+
+        .button a {
+          display: block;
+          height: 50px;
+          width: 200px;
+          
+          /*TYPE*/
+          color: white;
+          font: 17px/50px Helvetica, Verdana, sans-serif;
+          text-decoration: none;
+          text-align: center;
+          text-transform: uppercase;
+          
+          /*GRADIENT*/  
+          background: #00b7ea; /* Old browsers */
+          background: -moz-linear-gradient(top, #00b7ea 0%, #009ec3 100%); /* FF3.6+ */
+          background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#00b7ea), color-stop(100%,#009ec3)); /* Chrome,Safari4+ */
+          background: -webkit-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* Chrome10+,Safari5.1+ */
+          background: -o-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* Opera 11.10+ */
+          background: -ms-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* IE10+ */
+          background: linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* W3C */
+          filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00b7ea', endColorstr='#009ec3',GradientType=0 ); /* IE6-9 */
+        }
+
+        .button a, .button p {
+            -webkit-border-radius: 10px;
+             -moz-border-radius: 10px;
+                  border-radius: 10px;
+          
+          -webkit-box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+             -moz-box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+                  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .button p {
+          background: #222;
+          display: block;
+          height: 40px;
+          width: 180px; 
+          margin: -50px 0 0 10px;
+          
+          /*TYPE*/
+          text-align: center;
+          font: 12px/45px Helvetica, Verdana, sans-serif;
+          color: #fff;
+          
+          /*POSITION*/
+          position: absolute;
+          z-index: -1;
+          
+          /*TRANSITION*/  
+          -webkit-transition: margin 0.5s ease;
+             -moz-transition: margin 0.5s ease;
+               -o-transition: margin 0.5s ease;
+              -ms-transition: margin 0.5s ease;
+                  transition: margin 0.5s ease;
+        }
+
+        /*HOVER*/
+        .button:hover .bottom {
+          margin: -10px 0 0 10px;
+        }
+
+        .button:hover .top {
+          margin: -80px 0 0 10px;
+          line-height: 35px;
+        }
+
+        /*ACTIVE*/
+        .button a:active {
+        background: #00b7ea; /* Old browsers */
+        background: -moz-linear-gradient(top,  #00b7ea 36%, #009ec3 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(36%,#00b7ea), color-stop(100%,#009ec3)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* IE10+ */
+        background: linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00b7ea', endColorstr='#009ec3',GradientType=0 ); /* IE6-9 */
+
+        }
+
+        .button:active .bottom {
+          margin: -20px 0 0 10px;
+        }
+
+        .button:active .top {
+          margin: -70px 0 0 10px;
+        }
+
+        .fit-screen {
+          position: fixed;
+          top: -20px;
+          left: -20px;
+          width: 100%;
+          height: 100%;
+          background: white;
+          z-index: 999999999999999;
+          padding: 0;
+        }
+
+        .fit-screen li {
+          border-left: 0;
+          padding: 0;
+          margin: 0;
+        }
     </style>
     <!-- for HTML5 el styling -->
     <script>
@@ -173,9 +279,6 @@
         <div class="github-stargazers"></div>
 
         <blockquote>
-            FileBufferReader is a JavaScript library reads file and returns chunkified array-buffers. The resulting buffers can be shared using WebRTC data channels or socket.io.
-
-            <br><br>
             <a href="https://www.youtube.com/watch?v=gv8xpdGdS4o" target="_blank">Watch a YouTube video</a> to understand how it works.
         </blockquote>
 
@@ -184,7 +287,7 @@
 
           <div style="text-align:center;">
             <br>
-            <button class="button" id="setup-offer" disabled="">
+            <button id="setup-offer" disabled="">
                 <span>Connecting</span> <span>Signaling Socket..</span>
             </button>
 
@@ -199,6 +302,10 @@
 
           <blockquote id="info" style="display:none;"></blockquote>
         </section>
+
+        <blockquote>
+            FileBufferReader is a JavaScript library reads file and returns chunkified array-buffers. The resulting buffers can be shared using WebRTC data channels or socket.io.
+        </blockquote>
 
         <section class="experiment own-widgets">
             <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/FileBufferReader/issues">Latest Issues</a></h2>

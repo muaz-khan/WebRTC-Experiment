@@ -1,5 +1,6 @@
-# [Translator.js](https://github.com/muaz-khan/Translator) / [Demo](https://www.webrtc-experiment.com/Translator/)
-# WebRTC Voice & Text Translator
+# [Translator.js](https://github.com/muaz-khan/Translator) | WebRTC Voice & Text Translator
+
+# Demo: https://www.webrtc-experiment.com/Translator/
 
 Translator.js is a JavaScript library built top on Google Speech-Recognition & Translation API to transcript and translate voice and text. It supports many locales and brings globalization in <a href="https://www.webrtc-experiment.com/">WebRTC</a>!
 
@@ -10,10 +11,10 @@ Translator.js is a JavaScript library built top on Google Speech-Recognition & T
 # How to use?
 
 ```html
-<script src="//cdn.webrtc-experiment.com/Translator.js"> </script>
+<script src="https://cdn.webrtc-experiment.com/Translator.js"> </script>
 ```
 
-Facing issues using in your own domain?
+# Facing issues using in your own domain?
 
 * https://github.com/muaz-khan/Translator/issues/1#issuecomment-131100677
 
@@ -23,6 +24,32 @@ Facing issues using in your own domain?
 var translator = new Translator();
 ```
 
+# `getListOfLanguages`
+
+Get list of all supported languages:
+
+```javascript
+translator.getListOfLanguages(function(languages) {
+    languages.forEach(function(language) {
+        console.log(language.name, langauge.language);
+    });
+});
+```
+
+You can pass your API_Key as well:
+
+```javascript
+var config = {
+    api_key: 'AIzaSyCUmCjvKRb-kOYrnoL2xaXb8I-_JJeKpf0',
+};
+
+translator.getListOfLanguages(function(languages) {
+    languages.forEach(function(language) {
+        console.log(language.name, langauge.language);
+    });
+}, config);
+```
+
 # `translateLanguage`
 
 Pass English language text, and convert into Arabic or into any other supported language.
@@ -30,7 +57,7 @@ Pass English language text, and convert into Arabic or into any other supported 
 This method simply converts text from one language into another.
 
 ```javascript
-translator.translateLanguage(textToConvert, {
+var config = {
     from: 'language-of-the-text',
     to: 'convert-into',
     api_key: 'AIzaSyCUmCjvKRb-kOYrnoL2xaXb8I-_JJeKpf0', // use your own key
@@ -40,7 +67,9 @@ translator.translateLanguage(textToConvert, {
         // here you can use "speakTextUsingRobot"
         // see below sections
     }
-});
+};
+
+translator.translateLanguage(textToConvert, config);
 ```
 
 `translateLanguage` method takes two arguments:
@@ -57,13 +86,14 @@ What you can do is either display translated text in chat-box; or use `speakText
 This method allows you convert voice into text; whatever you speak is recognized using Google Speech-Recognition API; and converted into text using same API:
 
 ```javascript
+var convertMyVoiceIntoEnglish = 'en-US'; // select any language
 translator.voiceToText(function (text) {
     console.log('Your voice as text!', text);
     
     // here you can use "translateLanguage" method
     // translator.translateLanguage
     // see more info in above section
-}, 'en-US');
+}, convertMyVoiceIntoEnglish);
 ```
 
 `voiceToText` method takes two arguments:
@@ -82,7 +112,7 @@ Use a javascript file to speak the text.
 This method uses meSpeak.js library to play text using a robot voice. Behind the scene; text is buffered and converted into WAV file; which is played using invisible `<audio>` element.
 
 ```javascript
-translator.speakTextUsingRobot(textToPlay, {
+var config = {
     workerPath: '//cdn.webrtc-experiment.com/Robot-Speaker.js',
     callback: function (WAV_File) {},
     amplitude: 100,
@@ -92,7 +122,9 @@ translator.speakTextUsingRobot(textToPlay, {
     onSpeakingEnd: function() {},
     onWorkerFileDownloadStart: function() {},
     onWorkerFileDownloadEnd: function() {}
-});
+};
+
+translator.speakTextUsingRobot(textToPlay, config);
 ```
 
 `speakTextUsingRobot` method accepts two arguments; first one is mandatory and last one is optional:
@@ -146,7 +178,7 @@ It is really useful in text-chat apps!
 
 # Languages Supported
 
-43+ languages are supported. Please check above demo link for the list.
+102+ languages are supported. Please check above demo link for the list.
 
 # License
 

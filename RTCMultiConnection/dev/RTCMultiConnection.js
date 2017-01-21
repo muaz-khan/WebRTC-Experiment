@@ -1,18 +1,22 @@
-// RTCMultiConnection.js
-
-function RTCMultiConnection(roomid, forceOptions) {
+(function(connection) {
     forceOptions = forceOptions || {
         useDefaultDevices: true
     };
-
-    var connection = this;
 
     connection.channel = connection.sessionid = (roomid || location.href.replace(/\/|:|#|\?|\$|\^|%|\.|`|~|!|\+|@|\[|\||]|\|*. /g, '').split('\n').join('').split('\r').join('')) + '';
 
     var mPeer = new MultiPeers(connection);
 
+    var preventDuplicateOnStreamEvents = {};
     mPeer.onGettingLocalMedia = function(stream) {
-        stream.type = 'local';
+        if (preventDuplicateOnStreamEvents[stream.streamid]) {
+            return;
+        }
+        preventDuplicateOnStreamEvents[stream.streamid] = true;
+
+        try {
+            stream.type = 'local';
+        } catch (e) {}
 
         connection.setStreamEndHandler(stream);
 
@@ -48,7 +52,9 @@ function RTCMultiConnection(roomid, forceOptions) {
     };
 
     mPeer.onGettingRemoteMedia = function(stream, remoteUserId) {
-        stream.type = 'remote';
+        try {
+            stream.type = 'remote';
+        } catch (e) {}
 
         connection.setStreamEndHandler(stream, 'remote-stream');
 
@@ -86,6 +92,10 @@ function RTCMultiConnection(roomid, forceOptions) {
                 streamid: stream.streamid,
                 mediaElement: connection.streamEvents[stream.streamid] ? connection.streamEvents[stream.streamid].mediaElement : null
             };
+        }
+
+        if (connection.peersBackup[streamEvent.userid]) {
+            streamEvent.extra = connection.peersBackup[streamEvent.userid].extra;
         }
 
         connection.onstreamended(streamEvent);
@@ -254,10 +264,16 @@ function RTCMultiConnection(roomid, forceOptions) {
             return;
         }
 
-        connection.onleave({
+        var eventObject = {
             userid: remoteUserId,
             extra: connection.peers[remoteUserId] ? connection.peers[remoteUserId].extra : {}
-        });
+        };
+
+        if (connection.peersBackup[eventObject.userid]) {
+            eventObject.extra = connection.peersBackup[eventObject.userid].extra;
+        }
+
+        connection.onleave(eventObject);
 
         if (!!connection.peers[remoteUserId]) {
             connection.peers[remoteUserId].streams.forEach(function(stream) {
@@ -1133,6 +1149,10 @@ function RTCMultiConnection(roomid, forceOptions) {
                 return;
             }
 
+            if (connection.peersBackup[streamEvent.userid]) {
+                streamEvent.extra = connection.peersBackup[streamEvent.userid].extra;
+            }
+
             connection.onstreamended(streamEvent);
 
             delete connection.streamEvents[stream.streamid];
@@ -1592,4 +1612,4 @@ function RTCMultiConnection(roomid, forceOptions) {
             console.info('Set local description for remote user', event.userid);
         }
     };
-}
+})(this);

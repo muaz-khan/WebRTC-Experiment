@@ -34,7 +34,7 @@ function handleMessage(message) {
         }
 
         html += '<b>' + message.sessionid + '</b>';
-        html += '<br>Your Private URL: <a href="https://rtcxp.com/fs#' + message.sessionid + '" target="_blank">rtcxp.com/fs#' + message.sessionid + '</a>';
+        html += '<br>Your Private URL: <a href="https://webrtcweb.com/fs#' + message.sessionid + '" target="_blank">webrtcweb.com/fs#' + message.sessionid + '</a>';
 
         if (!!message.numberOfConnectedUsers) {
             html += '<br>Other users in the room: <b>' + message.numberOfConnectedUsers + '</b>';

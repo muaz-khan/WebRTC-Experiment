@@ -15,7 +15,7 @@ var chatSection = getElement('.chat-section'),
 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 var sender = Math.round(Math.random() * 999999999) + 999999999;
 
-var SIGNALING_SERVER = 'https://socketio-signaling.herokuapp.com:443/';
+var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
 
 io.connect(SIGNALING_SERVER).emit('new-channel', {
     channel: channel,
@@ -109,7 +109,7 @@ function getUserMedia(mediaType, callback) {
         callback(stream);
 
         var mediaElement = document.createElement(mediaType == 'audio' ? 'audio' : 'video');
-        mediaElement[isGecko ? 'mozSrcObject' : 'src'] = isGecko ? stream : window.webkitURL.createObjectURL(stream);
+        mediaElement[isGecko ? 'mozSrcObject' : 'src'] = isGecko ? stream : (window.URL || window.webkitURL).createObjectURL(stream);
 
         mediaElement.volume = 0;
         mainPreview.innerHTML = '<img src="' + imageURL + '">';

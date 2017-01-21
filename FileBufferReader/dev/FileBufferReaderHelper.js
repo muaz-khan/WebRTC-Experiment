@@ -92,7 +92,7 @@ function FileBufferReaderHelper() {
             size: file.size,
             name: file.name,
             type: file.type,
-            lastModifiedDate: file.lastModifiedDate.toString(),
+            lastModifiedDate: (file.lastModifiedDate || new Date()).toString(),
             start: true
         });
 
@@ -116,7 +116,7 @@ function FileBufferReaderHelper() {
                             maxChunks: maxChunks,
                             size: file.size,
                             name: file.name,
-                            lastModifiedDate: file.lastModifiedDate.toString(),
+                            lastModifiedDate: (file.lastModifiedDate || new Date()).toString(),
                             url: URL.createObjectURL(file),
                             type: file.type,
                             end: true
@@ -145,7 +145,7 @@ function FileBufferReaderHelper() {
 
                     size: file.size,
                     name: file.name,
-                    lastModifiedDate: file.lastModifiedDate.toString(),
+                    lastModifiedDate: (file.lastModifiedDate || new Date()).toString(),
                     type: file.type
                 });
 

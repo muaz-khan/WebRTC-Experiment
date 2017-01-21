@@ -1,9 +1,8 @@
-// MultiPeersHandler.js
-
 function MultiPeers(connection) {
     var self = this;
 
     var skipPeers = ['getAllParticipants', 'getLength', 'selectFirst', 'streams', 'send', 'forEach'];
+    connection.peersBackup = {};
     connection.peers = {
         getLength: function() {
             var numberOfPeers = 0;

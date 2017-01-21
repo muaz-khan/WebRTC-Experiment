@@ -2,6 +2,8 @@
 
 [![npm](https://img.shields.io/npm/v/fbr.svg)](https://npmjs.org/package/fbr) [![downloads](https://img.shields.io/npm/dm/fbr.svg)](https://npmjs.org/package/fbr) [![Build Status: Linux](https://travis-ci.org/muaz-khan/FileBufferReader.png?branch=master)](https://travis-ci.org/muaz-khan/FileBufferReader)
 
+All released versions: https://github.com/muaz-khan/FileBufferReader/releases
+
 Using FileBufferReader.js, you can:
 
 1. Get list of array-buffers with each specific chunkSize
@@ -23,7 +25,7 @@ WebRTC_Data_Channel.binaryType = 'arraybuffer';
 It is <a href="https://www.webrtc-experiment.com/licence/">MIT Licenced</a>, which means that you can use it in any commercial/non-commercial product, free of cost.
 
 ```sh
-npm install fbr
+npm install fbr --production
 
 # or using bower
 bower install fbr
@@ -33,6 +35,9 @@ To use it:
 
 ```html
 <script src="./node_modules/fbr/FileBufferReader.js"></script>
+
+<!-- or CDN -->
+<script src="https://cdn.webrtc-experiment.com/FileBufferReader.js"></script>
 ```
 
 Or run localhost server:
@@ -54,10 +59,11 @@ npm install fbr-client
 Then run the server:
 
 ```sh
-node ./node_modules/fbr-client/server.js
+cd ./node_modules/fbr-client
+node server.js port=9001
 ```
 
-Then open: `http://localhost:8888/` or `http://127.0.0.1:8888/`.
+Then open: `http://localhost:9001/` or `http://127.0.0.1:9001/`.
 
 > You can modify development files from the `dev` directory; and use `grunt` tool to recompile into `FileBufferReader.js`.
 

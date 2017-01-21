@@ -1,15 +1,26 @@
 // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.WebRTC-Experiment.com/licence/
 // Source Code   - https://github.com/muaz-khan/Chrome-Extensions
-
 // this page is using desktopCapture API to capture and record screen
 // http://developer.chrome.com/extensions/desktopCapture.html
-
 chrome.browserAction.setIcon({
     path: 'images/main-icon.png'
 });
 
-chrome.browserAction.onClicked.addListener(getUserConfigs);
+chrome.browserAction.onClicked.addListener(function() {
+    if (!!isRecordingVOD) {
+        stopVODRecording();
+        return;
+    }
+
+    getUserConfigs();
+});
+
+chrome.contextMenus.createExternal = function(message) {
+    try {
+        chrome.contextMenus.create(message);
+    } catch (e) {}
+};
 
 function captureDesktop() {
     if (isRecordingVOD) {
@@ -195,12 +206,10 @@ function onAccessApproved(chromeMediaSourceId) {
 }
 
 function askToStopExternalStreams() {
-    try {
-        runtimePort.postMessage({
-            stopStream: true,
-            messageFromContentScript1234: true
-        });
-    } catch (e) {}
+    sendMessageToContentScript({
+        stopStream: true,
+        messageFromContentScript1234: true
+    });
 }
 
 var peer;
@@ -209,7 +218,11 @@ function stopScreenRecording() {
     isRecording = false;
 
     recorder.stopRecording(function() {
-        invokeSaveAsDialog(recorder.blob, 'RecordRTC-' + (new Date).toISOString().replace(/:|\./g, '-') + '.webm');
+        var file = new File([recorder.getBlob()], 'RecordRTC-' + (new Date).toISOString().replace(/:|\./g, '-') + '.webm', {
+            type: 'video/webm'
+        });
+
+        invokeSaveAsDialog(file, file.name);
 
         setTimeout(function() {
             setDefaults();
@@ -564,11 +577,17 @@ function getUserConfigs() {
         }
 
         if (enableMicrophone) {
-            chrome.tabs.create({
-                url: 'https://rtcxp.com'
-            }, function(tab) {
-                askContentScriptToSendMicrophone(tab.id);
-            });
+            if(!runtimePort || runtimePort.sender.url.indexOf('https:') == -1) {
+                chrome.tabs.create({
+                    url: 'https://webrtcweb.com'
+                }, function(tab) {
+                    askContentScriptToSendMicrophone(tab.id);
+                });
+                return;
+            }
+            else {
+                askContentScriptToSendMicrophone(runtimePort.sender.tab.id);
+            }
             return;
         }
 
@@ -646,10 +665,36 @@ function setVODRecordingBadgeText(text, title) {
     });
 }
 
+function sendMessageToContentScript(message) {
+    try {
+        message.url = runtimePort.sender.url;
+        runtimePort.postMessage(message);
+    } catch (e) {
+        pending.push(message);
+    }
+}
+
+function enableDisableContextMenuItems() {
+    if(!runtimePort || !runtimePort.sender) return;
+
+    if(runtimePort.sender.url.toLowerCase().indexOf('youtube') != -1) {
+        updateYouTubeRightClick(true);
+    }
+    else {
+        updateYouTubeRightClick(false);
+    }
+}
+
+chrome.tabs.onActivated.addListener(enableDisableContextMenuItems);
+chrome.tabs.onUpdated.addListener(enableDisableContextMenuItems);
+chrome.tabs.onCreated.addListener(enableDisableContextMenuItems);
+
 var runtimePort;
 
 chrome.runtime.onConnect.addListener(function(port) {
     runtimePort = port;
+
+    enableDisableContextMenuItems();
 
     runtimePort.onMessage.addListener(function(message) {
         if (!message || !message.messageFromContentScript1234) {
@@ -664,7 +709,7 @@ chrome.runtime.onConnect.addListener(function(port) {
         }
 
         if (message.unableToRecordVideoFromSrc) {
-            // alert('Unable to record this video.');
+            // remove selected context menu item
             return;
         }
 
@@ -698,24 +743,14 @@ chrome.runtime.onConnect.addListener(function(port) {
             });
             return;
         }
-
-        if (message.allVideoSrcs || message.allCanvasClasses) {
-            onGettingMultipleVideosSrcs(message);
-            return;
-        }
     });
 
     if (pending.length) {
         pending.forEach(function(task) {
-            runtimePort.postMessage(task);
+            sendMessageToContentScript(task);
         });
         pending = [];
     }
-
-    runtimePort.postMessage({
-        messageFromContentScript1234: true,
-        giveMeAllSrcs: true
-    });
 });
 
 var pending = [];
@@ -729,11 +764,7 @@ function askContentScriptToSendMicrophone(tabId) {
             messageFromContentScript1234: true
         };
 
-        try {
-            runtimePort.postMessage(message);
-        } catch (e) {
-            pending.push(message);
-        }
+        sendMessageToContentScript(message);
     });
 }
 
@@ -743,12 +774,10 @@ function createAnswer(sdp) {
     peer.onicecandidate = function(event) {
         if (!event || !!event.candidate) return;
 
-        try {
-            runtimePort.postMessage({
-                sdp: peer.localDescription,
-                messageFromContentScript1234: true
-            });
-        } catch (e) {}
+        sendMessageToContentScript({
+            sdp: peer.localDescription,
+            messageFromContentScript1234: true
+        });
     };
 
     peer.onaddstream = function(event) {
@@ -775,75 +804,66 @@ function getId(id) {
     return id.toString().replace(/-|\.|_|'|"|\/|\\|\?/g, '');
 }
 
-// context-menu
-var contextMenuUID = getId('recordrtc-single-context-menu');
-var allMenus = {};
+function browserActionContextMenu() {
+    allMenus[contextMenuUID + 'send_error_report'] = {
+        title: 'Submit Error Reports',
+        id: contextMenuUID + 'send_error_report'
+    };
 
-function onGettingMultipleVideosSrcs(message) {
-    var allVideoSrcs = message.allVideoSrcs;
-    var allCanvasClasses = message.allCanvasClasses;
-
-    Object.keys(allMenus).forEach(function(key) {
-        chrome.contextMenus.remove(allMenus[key].id);
+    chrome.contextMenus.createExternal({
+        title: allMenus[contextMenuUID + 'send_error_report'].title,
+        id: allMenus[contextMenuUID + 'send_error_report'].id,
+        type: 'normal',
+        contexts: ['browser_action']
     });
+}
 
-    allMenus = {};
-
+function videoRightClick() {
     allMenus[contextMenuUID] = {
         title: 'Record this video',
         id: contextMenuUID
     };
 
-    try {
-        chrome.contextMenus.create({
-            title: allMenus[contextMenuUID].title,
-            id: allMenus[contextMenuUID].id,
-            type: 'normal',
-            contexts: ['video']
-        });
-    }
-    catch(e) {}
-
-    allVideoSrcs.forEach(function(src) {
-        var id = contextMenuUID + '____' + getId(src);
-        if(allMenus[id]) return;
-        allMenus[id] = {
-            title: src,
-            id: id,
-            type: 'video'
-        };
-
-        try {
-            chrome.contextMenus.create({
-                title: allMenus[id].title + ' (video)',
-                id: allMenus[id].id,
-                type: 'normal',
-                contexts: ['all']
-            });
-        }
-        catch(e) {}
-    });
-
-    allCanvasClasses.forEach(function(className) {
-        var id = contextMenuUID + '____' + getId(className);
-        if(allMenus[id]) return;
-        allMenus[id] = {
-            title: className,
-            id: id,
-            type: 'canvas'
-        };
-
-        try {
-            chrome.contextMenus.create({
-                title: allMenus[id].title + ' (canvas)',
-                id: allMenus[id].id,
-                type: 'normal',
-                contexts: ['all']
-            });
-        }
-        catch(e) {}
+    chrome.contextMenus.createExternal({
+        title: allMenus[contextMenuUID].title,
+        id: allMenus[contextMenuUID].id,
+        type: 'normal',
+        contexts: ['video']
     });
 }
+
+function youTubeRightClick() {
+    return;
+    allMenus[contextMenuUID + 'youtube'] = {
+        title: 'Record YouTube video',
+        id: contextMenuUID + 'youtube',
+        type: 'YouTube'
+    };
+
+    chrome.contextMenus.createExternal({
+        title: allMenus[contextMenuUID + 'youtube'].title,
+        id: allMenus[contextMenuUID + 'youtube'].id,
+        type: 'normal',
+        contexts: ['page']
+    });
+}
+
+function updateYouTubeRightClick(enabled) {
+    return;
+    chrome.contextMenus.update(contextMenuUID + 'youtube', {
+        enabled: enabled
+    }, function() {
+        //
+    });
+}
+
+// context-menu
+var contextMenuUID = getId('recordrtc-single-context-menu');
+var allMenus = {};
+
+videoRightClick();
+browserActionContextMenu();
+youTubeRightClick();
 
 var isRecordingVOD = false;
 var startedVODRecordedAt = (new Date).getTime();
@@ -851,40 +871,48 @@ var startedVODRecordedAt = (new Date).getTime();
 var selectedMenuID = '';
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-    if (info.menuItemId.indexOf(contextMenuUID) !== -1) {
-        if (!!isRecordingVOD) {
-            stopVODRecording();
-            return;
-        }
-
-        if (!info.srcUrl && allMenus[info.menuItemId]) {
-            info.srcUrl = allMenus[info.menuItemId].title;
-        }
-
-        var url = info.srcUrl;
-        if (!url || !url.length) return;
-
-        isRecordingVOD = true;
-
-        selectedMenuID = info.menuItemId;
-
-        chrome.contextMenus.update(selectedMenuID, {
-            title: 'Please wait..'
-        });
-
-        var type = 'video';
-        if(allMenus[info.menuItemId] && allMenus[info.menuItemId].type) {
-            type = allMenus[info.menuItemId].type;
-        }
-
-        try {
-            runtimePort.postMessage({
-                messageFromContentScript1234: true,
-                recordThisSrc: url,
-                recordType: type
-            });
-        } catch (e) {}
+    if (!info.menuItemId || info.menuItemId.indexOf(contextMenuUID) == -1) {
+        return;
     }
+
+    if(info.menuItemId == contextMenuUID + 'send_error_report') {
+        chrome.tabs.create({
+            url: 'https://github.com/muaz-khan/Chrome-Extensions/issues/new',
+            active: true
+        });
+        return;
+    }
+
+    if (!!isRecordingVOD) {
+        stopVODRecording();
+        return;
+    }
+
+    if (!info.srcUrl && allMenus[info.menuItemId]) {
+        info.srcUrl = allMenus[info.menuItemId].title;
+    }
+
+    var url = info.srcUrl;
+    if (!url || !url.length) return;
+
+    isRecordingVOD = true;
+
+    selectedMenuID = info.menuItemId;
+
+    chrome.contextMenus.update(selectedMenuID, {
+        title: 'Please wait..'
+    });
+
+    var type = 'video';
+    if (allMenus[info.menuItemId] && allMenus[info.menuItemId].type) {
+        type = allMenus[info.menuItemId].type;
+    }
+
+    sendMessageToContentScript({
+        messageFromContentScript1234: true,
+        recordThisSrc: url,
+        recordType: type
+    });
 });
 
 function stopVODRecording() {
@@ -892,12 +920,10 @@ function stopVODRecording() {
         title: 'Please wait..'
     });
 
-    try {
-        runtimePort.postMessage({
-            messageFromContentScript1234: true,
-            stopRecordingThisSrc: true
-        });
-    } catch (e) {}
+    sendMessageToContentScript({
+        messageFromContentScript1234: true,
+        stopRecordingThisSrc: true
+    });
 
     isRecordingVOD = false;
 }

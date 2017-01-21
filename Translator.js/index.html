@@ -38,7 +38,7 @@
             }
             
             .section-divider textarea {
-                width: 96%;
+                width: 90%;
                 height: 250px;
                 resize: none;
                 font-size: 2em;
@@ -84,6 +84,8 @@
         <div class="github-stargazers"></div>
 
         <section class="experiment">
+
+        <blockquote id="blockquote" style="display: none;border-bottom: 0;margin: 0 13%;text-align: center;border-radius: 6px;border-style: solid;border-color: rgb(214, 210, 210);"></blockquote>
         
         <section class="section-divider">
             <h2>Convert From</h2><br><br>
@@ -133,8 +135,8 @@
             
             <br><br>
             <textarea id="textarea-from"></textarea><br>
-            <button id="btn-convert-text">Convert Your Text Input</button><br><br>
-            <button id="btn-convert-voice">Speak & Convert Your Voice</button>
+            <button id="btn-convert-text" style="font-size: 16px;">Convert Your Text Input</button><br>
+            <button id="btn-convert-voice" style="font-size: 16px;">Speak & Convert Your Voice</button>
         </section>
         
         <section class="section-divider">
@@ -182,12 +184,15 @@
                         <option>sw (Kiswahili)</option>
                         <option>cy (Cymraeg)</option>
                     </select>
-
-            <label for="robot-voice">Robot Speaker?</label>
-            <input type="checkbox" id="robot-voice" title="A client-side robot that can speak your voice in target language!">
             
             <br><br>
-            <textarea id="textarea-to" disabled style="background: white!important;" title="Output! ReadOnly!"></textarea>
+            <textarea id="textarea-to" disabled style="background: #f9f9f9!important;border: 1px solid #f7f1f1;cursor: not-allowed;" title="Output! ReadOnly!"></textarea>
+
+            <br>
+
+            <input type="checkbox" id="robot-voice" title="A client-side robot that can speak your voice in target language!" style="vertical-align: middle;">
+
+            <label for="robot-voice" style="vertical-align: middle;" title="Use robot to play translated texts">Robot Speaker?</label>
 
             </section>
 
@@ -229,6 +234,47 @@
     
     <script>
         var translator = new Translator();
+
+        function getOption(language) {
+            var option = document.createElement('option');
+            option.value = language.language;
+            if(language.name) {
+                option.innerHTML = language.name + ' (' + language.language + ')'
+            }
+            else {
+                option.innerHTML = language.language;
+            }
+
+            if(language.language == 'en') {
+                option.selected = true;
+            }
+
+            return option;
+        }
+
+        var convertFrom = document.getElementById('convert-from');
+        var convertInto = document.getElementById('convert-into');
+
+        translator.getListOfLanguages(function(languages) {
+            if(!(languages instanceof Array)) return;
+
+            convertFrom.innerHTML = '';
+            convertInto.innerHTML = '';
+
+            languages.forEach(function(language) {
+                var option = getOption(language);
+                convertFrom.appendChild(option);
+
+                var option2 = getOption(language);
+                convertInto.appendChild(option2);
+            });
+
+            localStorageGetItem();
+
+            var blockquote = document.getElementById('blockquote');
+            blockquote.style.display = 'block';
+            blockquote.innerHTML = 'You can translate your voice & texts among <strong class="highlight">' + languages.length + '</strong> languages.';
+        });
         
         var textareaFrom = document.getElementById('textarea-from');
         var textareaTo = document.getElementById('textarea-to');
@@ -300,14 +346,6 @@
             localStorage.setItem('convert-into', this.value);
         };
         
-        if(localStorage.getItem('convert-from')) {
-            document.getElementById('convert-from').value = localStorage.getItem('convert-from');
-        }
-        
-        if(localStorage.getItem('convert-into')) {
-            document.getElementById('convert-into').value = localStorage.getItem('convert-into');
-        }
-        
         textareaFrom.onchange = function() {
             localStorage.setItem('textarea-from', this.value);
         };
@@ -316,21 +354,33 @@
             localStorage.setItem('textarea-to', this.value);
         };
         
-        if(localStorage.getItem('textarea-from')) {
-            textareaFrom.value = localStorage.getItem('textarea-from');
-        }
-        
-        if(localStorage.getItem('textarea-to')) {
-            textareaTo.value = localStorage.getItem('textarea-to');
-        }
-        
         document.getElementById('robot-voice').onchange = function() {
             localStorage.setItem('robot-checked', this.checked + '');
         };
-        
-        if(localStorage.getItem('robot-checked')) {
-            document.getElementById('robot-voice').checked = localStorage.getItem('robot-checked') === 'true';
+
+        function localStorageGetItem() {
+            if(localStorage.getItem('convert-from')) {
+                document.getElementById('convert-from').value = localStorage.getItem('convert-from');
+            }
+            
+            if(localStorage.getItem('convert-into')) {
+                document.getElementById('convert-into').value = localStorage.getItem('convert-into');
+            }
+
+            if(localStorage.getItem('textarea-from')) {
+                textareaFrom.value = localStorage.getItem('textarea-from');
+            }
+            
+            if(localStorage.getItem('textarea-to')) {
+                textareaTo.value = localStorage.getItem('textarea-to');
+            }
+            
+            if(localStorage.getItem('robot-checked')) {
+                document.getElementById('robot-voice').checked = localStorage.getItem('robot-checked') === 'true';
+            }
         }
+
+        localStorageGetItem();
     </script>
 
     <!-- commits.js is useless for you! -->

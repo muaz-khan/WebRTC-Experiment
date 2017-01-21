@@ -2,7 +2,7 @@
    "name":"RecordRTC",
    "short_name":"RecordRTC",
    "author":"Muaz Khan",
-   "version":"3.2",
+   "version":"3.7",
    "manifest_version":2,
    "minimum_chrome_version":"49",
    "incognito":"not_allowed",

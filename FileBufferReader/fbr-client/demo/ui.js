@@ -1,54 +1,28 @@
-// Muaz Khan    - www.MuazKhan.com
-// MIT License  - www.WebRTC-Experiment.com/licence
-// Source Code  - https://github.com/muaz-khan/FileBufferReader
-
-// _________
-// PeerUI.js
-
 window.addEventListener('load', function() {
-    var setupOffer = document.getElementById('setup-offer'),
-        innerHTML;
+    var socket = io.connect();
 
-    var SIGNALING_URI = 'wss://webrtcweb.com:9449/';
+    socket.on('connect', function() {
+        console.info('socket.io connection opened.');
 
-    var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+        btnSelectFile.disabled = false;
+        btnSelectFile.innerHTML = 'Select or Drop a File';
+    });
 
-    if (location.hash && location.hash.length > 2) {
-        channel = location.hash.replace('#', '');
-    }
+    socket.on('disconnect', function() {
+        btnSelectFile.disabled = true;
+        resetButtons();
 
-    var websocket = new WebSocket(SIGNALING_URI);
-    websocket.onopen = function() {
-        var innerHTML = '<span>Setup</span> <span>WebRTC Connection</span>';
-        setupOffer.innerHTML = innerHTML;
-        setupOffer.disabled = false;
-
-        websocket.push(JSON.stringify({
-            open: true,
-            channel: channel
-        }));
-
-        var info = document.getElementById('info');
-        if (location.hash.length > 2) {
-            document.getElementById('share-this-link').innerHTML = '<a href="' + location.href + '" target="_blank">Share this link with other users!</a>';
-            info.innerHTML = 'Your UNIQUE room-id is: ' + location.hash.replace('#', '') + '. Open <a href="' + location.href + '" target="_blank">same URL</a> on a new window or tab.';
-            info.style.display = 'block';
+        var helper = progressHelper[progressHelper.lastFileUUID];
+        if (helper && helper.li && helper.li.parentNode) {
+            isStoppedTimer = true;
+            helper.li.parentNode.removeChild(helper.li);
         }
-    };
-    websocket.push = websocket.send;
-    websocket.send = function(data) {
-        if (websocket.readyState != 1) {
-            console.warn('websocket connection is not opened yet.');
-            return setTimeout(function() {
-                websocket.send(data);
-            }, 1000);
-        }
+    });
 
-        websocket.push(JSON.stringify({
-            data: data,
-            channel: channel
-        }));
-    };
+    socket.on('error', function() {
+        btnSelectFile.disabled = true;
+        resetButtons();
+    });
 
     var progressHelper = {};
     var outputPanel = document.querySelector('.output-panel');
@@ -114,10 +88,7 @@ window.addEventListener('load', function() {
             previewFile(file);
 
             btnSelectFile.innerHTML = 'Select or Drop a File';
-            if (peerConnection.isOpened) {
-                btnSelectFile.disabled = false;
-            }
-
+            
             progressHelper.lastFileUUID = null;
             outputPanel.className = '';
             outputPanel.style.height = 'auto';
@@ -160,80 +131,37 @@ window.addEventListener('load', function() {
                 };
             } else {
                 btnSelectFile.innerHTML = 'Select or Drop a File';
-
-                if (peerConnection.isOpened) {
-                    btnSelectFile.disabled = false;
-                }
             }
         }
     };
 
     // RTCPeerConection
     // ----------------
-    var peerConnection = new PeerConnection(websocket);
-
-    peerConnection.onuserfound = function(userid) {
-        setupOffer.innerHTML = 'Detecting other users...';
-        setupOffer.disabled = true;
-
-        peerConnection.sendParticipationRequest(userid);
-    };
-
-    peerConnection.onopen = function() {
-        peerConnection.isOpened = true;
-
-        innerHTML = '<span>PeerConnection</span> <span>is established.</span>';
-        setupOffer.innerHTML = innerHTML;
-        setupOffer.disabled = true;
-
-        btnSelectFile.disabled = false;
-        btnSelectFile.innerHTML = 'Select or Drop a File';
-    };
-
-    peerConnection.onclose = function() {
-        onCloseOrOnError('<span>PeerConnection</span> <span>is closed.</span>');
-        resetButtons();
-
-        peerConnection.isOpened = false;
-
-        var helper = progressHelper[progressHelper.lastFileUUID];
-        if (helper && helper.li && helper.li.parentNode) {
-            isStoppedTimer = true;
-            helper.li.parentNode.removeChild(helper.li);
-        }
-    };
 
     function resetButtons() {
         btnSelectFile.innerHTML = 'Select or Drop a File';
-        btnSelectFile.disabled = true;
-
-        setupOffer.disabled = false;
-        setupOffer.innerHTML = 'Setup WebRTC Connection';
+        btnSelectFile.disabled = false;
     }
 
-    peerConnection.onerror = function() {
-        onCloseOrOnError('<span>Something</span> <span>went wrong.</span>');
-        resetButtons();
-    };
-
     // getNextChunkCallback gets next available buffer
-    // you need to send that buffer using WebRTC data channels
+    // you need to send that buffer using socket.io
     function getNextChunkCallback(nextChunk, isLastChunk) {
         if (isLastChunk) {
             // alert('File Successfully sent.');
         }
 
-        // sending using WebRTC data channels
-        peerConnection.send(nextChunk);
+        socket.emit('buffer-stream', nextChunk);
     };
 
-    peerConnection.ondata = function(chunk) {
+    socket.on('buffer-stream', onBufferStream);
+
+    function onBufferStream(chunk) {
         if (chunk instanceof ArrayBuffer || chunk instanceof DataView) {
-            // array buffers are passed using WebRTC data channels
+            // array buffers are passed using socket.io
             // need to convert data back into JavaScript objects
 
             fileBufferReader.convertToObject(chunk, function(object) {
-                peerConnection.ondata(object);
+                onBufferStream(object);
             });
             return;
         }
@@ -252,8 +180,7 @@ window.addEventListener('load', function() {
 
         // if chunk is received
         fileBufferReader.addChunk(chunk, function(promptNextChunk) {
-            // request next chunk
-            peerConnection.send(promptNextChunk);
+            socket.emit('buffer-stream', promptNextChunk);
         });
     };
 
@@ -332,7 +259,7 @@ window.addEventListener('load', function() {
 
     var fileBufferReader = new FileBufferReader();
 
-    fileBufferReader.chunkSize = 60 * 1000; // 60k
+    fileBufferReader.chunkSize = 100 * 1000; // 100k
 
     fileBufferReader.onBegin = FileHelper.onBegin;
     fileBufferReader.onProgress = FileHelper.onProgress;
@@ -383,8 +310,6 @@ window.addEventListener('load', function() {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!peerConnection || !peerConnection.isOpened) return;
-
         e.dataTransfer.dropEffect = 'copy';
         onDragOver();
     }, false);
@@ -392,8 +317,6 @@ window.addEventListener('load', function() {
     document.addEventListener('dragleave', function(e) {
         e.preventDefault();
         e.stopPropagation();
-
-        if (!peerConnection || !peerConnection.isOpened) return;
 
         e.dataTransfer.dropEffect = 'copy';
         onDragLeave();
@@ -403,8 +326,6 @@ window.addEventListener('load', function() {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!peerConnection || !peerConnection.isOpened) return;
-
         e.dataTransfer.dropEffect = 'copy';
         onDragOver();
     }, false);
@@ -412,8 +333,6 @@ window.addEventListener('load', function() {
     document.addEventListener('drop', function(e) {
         e.preventDefault();
         e.stopPropagation();
-
-        if (!peerConnection || !peerConnection.isOpened) return;
 
         onDragLeave();
 
@@ -423,48 +342,10 @@ window.addEventListener('load', function() {
 
         var file = e.dataTransfer.files[0];
 
-        if (!peerConnection || !peerConnection.isOpened) {
-            alert('Pleas setup WebRTC connection before sharing this file.');
-            return;
-        }
-
         onFileSelected(file);
     }, false);
 
     // --------------------------------------------------------
-    setupOffer.onclick = function(event) {
-        if (event !== true) {
-            peerConnection.startBroadcasting();
-        }
-
-        setupOffer.innerHTML = 'Detecting other users in this room...';
-        setupOffer.disabled = true;
-
-        setTimeout(function() {
-            if (!peerConnection.isOpened) {
-                var innerHTML = 'I am alone in this room.';
-                setupOffer.innerHTML = innerHTML;
-                setTimeout(function() {
-                    setupOffer.onclick(true);
-                }, 2000);
-            }
-        }, 5 * 1000);
-    };
-
-    function onCloseOrOnError(_innerHTML) {
-        innerHTML = _innerHTML;
-        setupOffer.innerHTML = innerHTML;
-        setupOffer.disabled = false;
-        setupOffer.className = 'button';
-
-        setTimeout(function() {
-            innerHTML = '<span>Setup</span> <span>WebRTC Connection</span>';
-            setupOffer.innerHTML = innerHTML;
-            setupOffer.disabled = false;
-        }, 1000);
-
-        document.getElementById('select-file').disabled = true;
-    }
 
     function millsecondsToSeconds(millis) {
         var seconds = ((millis % 60000) / 1000).toFixed(1);

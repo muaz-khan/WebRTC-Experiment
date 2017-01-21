@@ -38,7 +38,6 @@ module.exports = function(grunt) {
                     'dev/head.js',
                     // 'dev/amd.js',
 
-                    'dev/RTCMultiConnection.js',
                     'dev/SocketConnection.js', // You can replace it with: FirebaseConnection.js || PubNubConnection.js
                     'dev/MultiPeersHandler.js',
 
@@ -63,6 +62,8 @@ module.exports = function(grunt) {
                     'dev/FileProgressBarHandler.js',
 
                     'dev/TranslationHandler.js',
+
+                    'dev/RTCMultiConnection.js',
                     'dev/tail.js'
                 ],
                 dest: './temp/RTCMultiConnection.js',

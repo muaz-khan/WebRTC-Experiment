@@ -474,7 +474,7 @@ function setupRTCMultiConnection(stream) {
             dontTransmit: true
         });
 
-        var resultingURL = 'https://rtcxp.com/screen?s=' + connection.sessionid;
+        var resultingURL = 'https://webrtcweb.com/screen?s=' + connection.sessionid;
 
         if (room_password && room_password.length) {
             resultingURL += '&p=' + room_password;

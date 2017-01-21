@@ -102,9 +102,14 @@
                     if (root.onStreamEnded) root.onStreamEnded(streamObject);
                 };
 
-                var mediaElement = document.createElement(root.MediaStream.getVideoTracks().length ? 'video' : 'audio');
+                var eType = 'video';
+                if(root.MediaStream && root.MediaStream.getVideoTracks && !root.MediaStream.getVideoTracks().length) {
+                    eType = 'audio';
+                }
+
+                var mediaElement = document.createElement(eType);
                 mediaElement.id = root.participant;
-                mediaElement[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
+                mediaElement[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : (window.URL || window.webkitURL).createObjectURL(stream);
                 mediaElement.autoplay = true;
                 mediaElement.play();
 
@@ -219,7 +224,7 @@
     var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
 
     navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    window.URL = window.webkitURL || window.URL;
+    window.URL = window.URL || window.webkitURL;
 
     var isFirefox = !! navigator.mozGetUserMedia;
     var isChrome = !! navigator.webkitGetUserMedia;
@@ -384,6 +389,60 @@
 
     function onSdpError() {}
 
-    window.URL = window.webkitURL || window.URL;
+    window.URL = window.URL || window.webkitURL;
     navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+    var MediaStream = window.MediaStream;
+
+    if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+        MediaStream = webkitMediaStream;
+    }
+
+    if (typeof MediaStream !== 'undefined') {
+        if (!('getVideoTracks' in MediaStream.prototype)) {
+            MediaStream.prototype.getVideoTracks = function() {
+                if (!this.getTracks) {
+                    return [];
+                }
+
+                var tracks = [];
+                this.getTracks.forEach(function(track) {
+                    if (track.kind.toString().indexOf('video') !== -1) {
+                        tracks.push(track);
+                    }
+                });
+                return tracks;
+            };
+
+            MediaStream.prototype.getAudioTracks = function() {
+                if (!this.getTracks) {
+                    return [];
+                }
+
+                var tracks = [];
+                this.getTracks.forEach(function(track) {
+                    if (track.kind.toString().indexOf('audio') !== -1) {
+                        tracks.push(track);
+                    }
+                });
+                return tracks;
+            };
+        }
+
+        if (!('stop' in MediaStream.prototype)) {
+            MediaStream.prototype.stop = function() {
+                this.getAudioTracks().forEach(function(track) {
+                    if (!!track.stop) {
+                        track.stop();
+                    }
+                });
+
+                this.getVideoTracks().forEach(function(track) {
+                    if (!!track.stop) {
+                        track.stop();
+                    }
+                });
+            };
+        }
+    }
 })();

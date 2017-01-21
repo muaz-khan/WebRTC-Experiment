@@ -1,13 +1,13 @@
 {
   "name": "fbr-client",
   "preferGlobal": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Muaz Khan <muazkh@gmail.com> (http://www.muazkhan.com/)",
   "description": "FileBufferReader is a JavaScript library reads file and returns chunkified array-buffers. The resulting buffers can be shared using WebRTC data channels or socket.io. Share files same as Skype do!",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js port=9001"
   },
-  "main": "./server.js",
+  "main": "server.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/muaz-khan/FileBufferReader.git"
@@ -41,8 +41,7 @@
   "homepage": "https://www.WebRTC-Experiment.com/FileBufferReader/",
   "_from": "fbr@",
   "dependencies": {
-    "fbr": "^1.0.4",
-    "socket.io": "^1.1.0"
-  },
-  "devDependencies": {}
+    "fbr": "latest",
+    "socket.io": "latest"
+  }
 }

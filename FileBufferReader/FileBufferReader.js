@@ -1,4 +1,4 @@
-// Last time updated: 2016-11-04 7:11:11 AM UTC
+// Last time updated: 2017-01-18 10:28:28 AM UTC
 
 // ________________
 // FileBufferReader
@@ -254,7 +254,7 @@
                 size: file.size,
                 name: file.name,
                 type: file.type,
-                lastModifiedDate: file.lastModifiedDate.toString(),
+                lastModifiedDate: (file.lastModifiedDate || new Date()).toString(),
                 start: true
             });
 
@@ -278,7 +278,7 @@
                                 maxChunks: maxChunks,
                                 size: file.size,
                                 name: file.name,
-                                lastModifiedDate: file.lastModifiedDate.toString(),
+                                lastModifiedDate: (file.lastModifiedDate || new Date()).toString(),
                                 url: URL.createObjectURL(file),
                                 type: file.type,
                                 end: true
@@ -307,7 +307,7 @@
 
                         size: file.size,
                         name: file.name,
-                        lastModifiedDate: file.lastModifiedDate.toString(),
+                        lastModifiedDate: (file.lastModifiedDate || new Date()).toString(),
                         type: file.type
                     });
 

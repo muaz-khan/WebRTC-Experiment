@@ -42,7 +42,7 @@ function RecordRTC(mediaStream, config) {
 
         if (mediaRecorder) {
             mediaRecorder.clearRecordedData();
-            mediaRecorder.resume();
+            mediaRecorder.record();
 
             if (self.recordingDuration) {
                 handleRecordingDuration();

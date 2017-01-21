@@ -61,6 +61,9 @@ module.exports = exports = function(app, socketCallback) {
         var params = socket.handshake.query;
         var socketMessageEvent = params.msgEvent || 'RTCMultiConnection-Message';
 
+        var sessionid = params.sessionid;
+        var autoCloseEntireSession = params.autoCloseEntireSession;
+
         if (params.enableScalableBroadcast) {
             if (!ScalableBroadcast) {
                 ScalableBroadcast = require('./Scalable-Broadcast.js');
@@ -79,6 +82,14 @@ module.exports = exports = function(app, socketCallback) {
 
         socket.userid = params.userid;
         appendUser(socket);
+
+        if (autoCloseEntireSession == 'false' && sessionid == socket.userid) {
+            socket.shiftModerationControlBeforeLeaving = true;
+        }
+
+        socket.on('shift-moderator-control-on-disconnect', function() {
+            socket.shiftModerationControlBeforeLeaving = true;
+        });
 
         socket.on('extra-data-updated', function(extra) {
             try {
@@ -438,13 +449,23 @@ module.exports = exports = function(app, socketCallback) {
             try {
                 // inform all connected users
                 if (listOfUsers[socket.userid]) {
+                    var firstUserSocket = null;
+
                     for (var s in listOfUsers[socket.userid].connectedWith) {
+                        if (!firstUserSocket) {
+                            firstUserSocket = listOfUsers[socket.userid].connectedWith[s];
+                        }
+
                         listOfUsers[socket.userid].connectedWith[s].emit('user-disconnected', socket.userid);
 
                         if (listOfUsers[s] && listOfUsers[s].connectedWith[socket.userid]) {
                             delete listOfUsers[s].connectedWith[socket.userid];
                             listOfUsers[s].socket.emit('user-disconnected', socket.userid);
                         }
+                    }
+
+                    if (socket.shiftModerationControlBeforeLeaving && firstUserSocket) {
+                        firstUserSocket.emit('become-next-modrator', sessionid);
                     }
                 }
             } catch (e) {

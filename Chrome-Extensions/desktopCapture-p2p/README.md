@@ -13,7 +13,7 @@ This chrome extension not only captures content of screen, but also provides mul
 Try any of the below URL. Replace `your_room_id` with real room-id:
 
 ```
-https://rtcxp.com/screen?s=your_room_id
+https://webrtcweb.com/screen?s=your_room_id
 https://www.webrtc-experiment.com/!/?s=your_room_id
 https://cdn.webrtc-experiment.com/!/?s=your_room_id
 https://cdn.rawgit.com/muaz-khan/Chrome-Extensions/master/desktopCapture-p2p/viewer.html

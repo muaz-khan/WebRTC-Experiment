@@ -189,6 +189,7 @@
             interval = 10,
             isTimeout = false;
         var id = window.setInterval(
+
             function() {
                 if (isDone()) {
                     window.clearInterval(id);
@@ -242,6 +243,7 @@
 
             if (typeof isPrivate === 'undefined') {
                 retry(
+
                     function isDone() {
                         return db.readyState === 'done' ? true : false;
                     },
@@ -275,6 +277,7 @@
         }
 
         retry(
+
             function isDone() {
                 return typeof isPrivate !== 'undefined' ? true : false;
             },

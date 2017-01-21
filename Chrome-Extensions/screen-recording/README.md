@@ -35,7 +35,7 @@ YouTube videos:
 
 "Enable Microphone" feature requires an HTTPs page where you can click the extension icon.
 
-You simply need to open `https://google.com` or `https://rtcxp.com` or any HTTPs page, and then click the chrome extension icon.
+You simply need to open `https://google.com` or `https://webrtcweb.com` or any HTTPs page, and then click the chrome extension icon.
 
 You need to keep above page opened during recording. You can minimize or hide above page however it MUST kept opened during recording.
 

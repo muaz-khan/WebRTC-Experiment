@@ -2,17 +2,27 @@
 
 Socket.io client for [FileBufferReader.js](https://github.com/muaz-khan/FileBufferReader).
 
-```
+```sh
 npm install fbr-client
 ```
 
 Then run the server:
 
-```
-node ./node_modules/fbr-client/server.js
+```sh
+cd ./node_modules/fbr-client/
+node server.js
 ```
 
-Then open: `http://localhost:8888/` or `http://local-ip:8888/`.
+Then open: `http://localhost:9001/` or `http://local-ip:9001/`.
+
+# Change Port
+
+```sh
+node server.js port=80
+
+# or
+node server.js port=8888
+```
 
 ## Credits
 

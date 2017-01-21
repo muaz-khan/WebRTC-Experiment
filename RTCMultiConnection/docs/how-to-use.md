@@ -12,6 +12,12 @@ All files from `/dist` directory are available on CDN: `https://cdn.webrtc-exper
 
 <!-- Heroku Link -->
 <script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+
+<!-- or specific version -->
+<script src="https://github.com/muaz-khan/RTCMultiConnection/releases/download/3.4.3/RTCMultiConnection.js"></script>
+
+<!-- or CDN -->
+<script src="https://rawgit.com/muaz-khan/RTCMultiConnection/master/dist/RTCMultiConnection.min.js"></script>
 ```
 
 If you're sharing files, you also need to link:
@@ -44,7 +50,7 @@ You can use custom ports either via `config.json` file:
 Or simply override in your HTML code:
 
 ```javascript
-connection.socketURL = 'http:s//yourdomain.com:9001/';
+connection.socketURL = 'https://yourdomain.com:9001/';
 
 // if your server is already having "message" event
 // then you can use something else, unique.
