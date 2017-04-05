@@ -1,3 +1,12 @@
-node_modules
-lib-cov
-npm-debug.log
+# ignore everything
+*
+
+# but not these files...
+!DetectRTC.js
+!DetectRTC.min.js
+!index.html
+!package.json
+!bower.json
+!npm-test.js
+!server.js
+!README.md

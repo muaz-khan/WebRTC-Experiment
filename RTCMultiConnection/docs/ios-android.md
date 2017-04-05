@@ -7,7 +7,7 @@ Please check these docs as well:
 
 ----
 
-## iPhone, iPad, Nexus, Blackberry, Samsung, many other devices
+## iPhone, iPad, Nexus, Samsung, many other devices
 
 > This page explains how to write iOS+Android phonegap/cordova applications for RTCMultiConnection-v3.
 
@@ -26,9 +26,9 @@ Please check all iOS+Android demos here:
 
 # Prerequisites
 
-1. xcode `7.2.1` (required)
-2. cordova android plugin `5.1.0` (suggested)
-3. cordova ios plugin `3.9.2` --- note: MUST be this version (don't use newer ones)
+1. xcode `latest`
+2. cordova android plugin `latest`
+3. cordova ios plugin `latest`
 
 Check xcode-build-version: `xcodebuild -version`
 
@@ -96,18 +96,10 @@ Now add platforms. If you already added, please remove all existing platforms, a
 cordova platform remove ios
 cordova platform remove android
 
-# add specific/working platform versions
-cordova platform add ios@3.9.2
-cordova platform add android@5.1.0
+# add latest platform versions
+cordova platform add ios
+cordova platform add android
 ```
-
-> NOTE: NOTE: NOTE: NOTE:
->
-> Following LINE is VERY_VERY important:
->
-> `cordova platform add ios@3.9.2`
->
-> Make sure to install iOS package version 3.9.2. NEVER install any newer version.
 
 # Build your Apps
 
@@ -130,9 +122,10 @@ An example `AndroidManifest.xml` file:
 
 ```xml
 <?xml version='1.0' encoding='utf-8'?>
-<manifest android:hardwareAccelerated="true" android:versionCode="1" android:versionName="0.0.1" package="com.yourApp" xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest android:hardwareAccelerated="true" android:versionCode="30001" android:versionName="3.0.1" package="rmc3.videoconference" xmlns:android="http://schemas.android.com/apk/res/android">
     <supports-screens android:anyDensity="true" android:largeScreens="true" android:normalScreens="true" android:resizeable="true" android:smallScreens="true" android:xlargeScreens="true" />
-    <application android:hardwareAccelerated="true" android:icon="@drawable/icon" android:label="@string/app_name" android:supportsRtl="true">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application android:hardwareAccelerated="true" android:icon="@mipmap/icon" android:label="@string/app_name" android:supportsRtl="true">
         <activity android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale" android:label="@string/activity_name" android:launchMode="singleTop" android:name="MainActivity" android:theme="@android:style/Theme.DeviceDefault.NoActionBar" android:windowSoftInputMode="adjustResize">
             <intent-filter android:label="@string/launcher_name">
                 <action android:name="android.intent.action.MAIN" />
@@ -140,18 +133,13 @@ An example `AndroidManifest.xml` file:
             </intent-filter>
         </activity>
     </application>
-    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="23" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="24" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.MICROPHONE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 </manifest>
 ```
 
@@ -159,42 +147,53 @@ An example `config.xml` file (make sure that `icon.png` has valid path):
 
 ```xml
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.yourApp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>yourApp</name>
-    <icon src="www/icon.png" />
-    <description>yourApp</description>
-    <author email="yourApp@gmail.com" href="http://www.yourApp.com">You</author>
+<widget id="rmc3.videoconference" version="3.0.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Video Conferencing</name>
+    <icon src="www/img/icon.png" />
+    <description>
+        Peer-to-Peer Application
+    </description>
+    <author email="muazkh@gmail.com" href="https://www.webrtc-experiment.com/">
+        Muaz khan
+    </author>
     <content src="index.html" />
-    <plugin name="cordova-plugin-whitelist" spec="1" />
-    <access uri="*" subdomains="true" origin="*" />
-    <allow-intent href="http://*/*" />
-    <allow-intent href="https://*/*" />
-    <allow-intent href="tel:*" />
-    <allow-intent href="sms:*" />
-    <allow-intent href="mailto:*" />
-    <allow-intent href="geo:*" />
-    <allow-navigation href="https://*/*" />
+    
+    <allow-navigation href="*" />
+    <allow-intent href="*" />
+    <access origin="*" />
+
     <platform name="android">
-        <allow-intent href="market:*" />
+        <preference name="Orientation" value="default" />
+        <preference name="KeepRunning" value="true" />
+        <preference name="AndroidLaunchMode" value="singleTop" />
     </platform>
     <platform name="ios">
-        <allow-intent href="itms:*" />
-        <allow-intent href="itms-apps:*" />
-        <hook type="after_platform_add" src="hooks/iosrtc-swift-support.js" />
-        <config-file target="*-Info.plist" parent="CFBundleURLTypes">
+        <preference name="Orientation" value="all" />
+        <hook src="hooks/iosrtc-swift-support.js" type="after_platform_add" />
+
+        <config-file parent="CFBundleURLTypes" target="*-Info.plist">
             <array>
                 <key>NSAppTransportSecurity</key>
-                <dict><key>NSAllowsArbitraryLoads</key><true/></dict>
+                <dict>
+                    <key>NSAllowsArbitraryLoads</key>
+                    <true />
+                </dict>
             </array>
         </config-file>
+
+        <config-file parent="NSCameraUsageDescription" target="*-Info.plist" platform="ios">
+            <string>WebRTC uses your camera to make video calls.</string>
+        </config-file>
+
+        <config-file parent="NSMicrophoneUsageDescription" target="*-Info.plist" platform="ios">
+            <string>WebRTC uses your microphone to make voice calls.</string>
+        </config-file>
     </platform>
-    <preference name="xwalkVersion" value="16+" />
-    <preference name="xwalkCommandLine" value="--disable-pull-to-refresh-effect --allow-file-access-from-files --disable-web-security" />
-    <preference name="xwalkMode" value="embedded" />
-    <preference name="xwalkMultipleApk" value="true" />
-    <preference name="BackgroundColor" value="0xFFFF0000" />
-    <preference name="xwalkUserAgent" value="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36" />
-    <preference name="AndroidPersistentFileLocation" value="Internal" />
+
+    <plugin name="cordova-plugin-whitelist" spec="latest" />
+    <plugin name="cordova-plugin-iosrtc" spec="latest" />
+    <plugin name="cordova-plugin-device" spec="latest" />
+    <plugin name="cordova-plugin-crosswalk-webview" spec="latest" />
 </widget>
 ```
 
@@ -202,7 +201,7 @@ An example `config.xml` file (make sure that `icon.png` has valid path):
 
 > This section explains how to integrate RTCMultiConnection-v3 for both iOS and Android apps.
 
-Copy/paste entire [`RTCMultiConnection.min.js`](https://github.com/muaz-khan/RTCMultiConnection/tree/master/dist/RTCMultiConnection.min.js) file inside `deviceready` callback:
+Download and link [`RTCMultiConnection.js`](https://github.com/muaz-khan/RTCMultiConnection/tree/master/dist/RTCMultiConnection.js):
 
 ```html
 <!DOCTYPE html>
@@ -214,11 +213,9 @@ Copy/paste entire [`RTCMultiConnection.min.js`](https://github.com/muaz-khan/RTC
 <body>
     <!-- your UI code -->
 
-    <!-- scripts are placed on footer -->
     <script src="cordova.js"></script>
-
-    <!-- NEVER link RTCMultiConnection.min.js here -->
-    <!-- instead copy/paste code from RTCMultiConnection.min.js into below "index.js" file -->
+    <script src="js/socket.io.js"></script>
+    <script src="js/RTCMultiConnection.js"></script>
     <script src="js/index.js"></script>
 </body>
 </html>
@@ -230,17 +227,19 @@ Copy/paste entire [`RTCMultiConnection.min.js`](https://github.com/muaz-khan/RTC
 ```javascript
 // please read below comments:
 document.addEventListener('deviceready', function() {
-    // copy/paste entire/all code from "RTCMultiConnection.min.js" file
-    // here --- exact here
-    // paste inside this callback
-    // if you will NOT do this, RTCMultiConnection will fail on cordova-based apps
-    // again, you MUST NOT link RTCMultiConnection.min.js
-    // instead copy/paste all the codes here
-
     // you can put your custom-ui-codes here
     // e.g.
-    // var connection = new RTCMultiConnection({useDefaultDevices:true});
+    // var connection = new RTCMultiConnection();
 }, false);
+```
+
+# Select Speakers as default audio output device on iOS
+
+```javascript
+window.iOSDefaultAudioOutputDevice = 'speaker'; // earpiece or speaker
+
+// set above line, before below one
+var connection = new RTCMultiConnection();
 ```
 
 # Other Documents

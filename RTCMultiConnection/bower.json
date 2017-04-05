@@ -1,7 +1,7 @@
 {
     "name": "rtcmulticonnection",
     "description": "RTCMultiConnection is a WebRTC JavaScript wrapper library runs top over RTCPeerConnection API to provide multi-session establishment scenarios.",
-    "version": "3.4.3",
+    "version": "3.4.4",
     "authors": [
         {
             "name": "Muaz Khan",

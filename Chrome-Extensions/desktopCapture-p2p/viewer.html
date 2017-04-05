@@ -1,5 +1,5 @@
 ﻿
-<title>WebRTC Desktop Viewer ® Muaz Khan</title>
+<title>WebRTC Desktop Viewer | Muaz Khan</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 
@@ -13,6 +13,7 @@
 
 <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"> </script>
 <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection/CodecsHandler.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection/IceServersHandler.js"></script>
 <script src="https://cdn.webrtc-experiment.com/view/websocket.js"> </script>
 
 <style>
@@ -179,17 +180,8 @@ function setBandwidth(connection) {
 // http://www.rtcmulticonnection.org/docs/constructor/
 var connection = new RTCMultiConnection(params.s);
 
-connection.iceServers.push({
-    urls: 'turn:webrtcweb.com:443',
-    username: 'muazkh',
-    credential: 'muazkh'
-});
-
-connection.iceServers.push({
-    urls: 'turn:webrtcweb.com:80',
-    username: 'muazkh',
-    credential: 'muazkh'
-});
+connection.getExternalIceServers = false;
+connection.iceServers = IceServersHandler.getIceServers();
 
 setBandwidth(connection);
 

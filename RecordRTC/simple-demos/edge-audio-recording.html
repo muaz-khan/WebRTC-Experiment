@@ -1,0 +1,72 @@
+<style>
+    html, body {
+        margin: 0!important;
+        padding: 0!important;
+        overflow: hidden!important;
+        width: 100%;
+    }
+</style>
+
+<title>MS-Edge Audio Recording using RecordRTC</title>
+<h1>MS-Edge Audio Recording using RecordRTC</h1>
+
+<br>
+<button id="btn-start-recording">Start Recording</button>
+<button id="btn-stop-recording" disabled>Stop Recording</button>
+
+<hr>
+<audio controls autoplay></audio>
+
+<script src="/RecordRTC.js"></script>
+<!-- for Edge/FF/Chrome/Opera/etc. getUserMedia support -->
+<script src="https://cdn.webrtc-experiment.com/gumadapter.js"></script>
+<script>
+var audio = document.querySelector('audio');
+
+function captureMicrophone(callback) {
+    navigator.mediaDevices.getUserMedia({audio: true}).then(function(microphone) {
+        callback(microphone);
+    }).catch(function(error) {
+        alert('Unable to capture your microphone. Please check console logs. Please make sure to enable Windows Start Button => Settings => Privacy => Camera+Microphone for Edge browser.');
+        console.error(error);
+    });
+}
+
+function stopRecordingCallback() {
+    var blob = recorder.getBlob();
+    audio.src = URL.createObjectURL(blob);
+    audio.play();
+
+    recorder.microphone.stop();
+}
+
+var recorder; // globally accessible
+
+document.getElementById('btn-start-recording').onclick = function() {
+    this.disabled = true;
+    captureMicrophone(function(microphone) {
+        audio.src = URL.createObjectURL(microphone);
+        audio.play();
+
+        recorder = RecordRTC(microphone, {
+            type: 'audio',
+            recorderType: StereoAudioRecorder, // this line is required for MS-Edge
+            // sampleRate: 44100,
+            numberOfAudioChannels: 1,
+            // bufferSize: 16384
+        });
+
+        recorder.startRecording();
+
+        // release microphone on stopRecording
+        recorder.microphone = microphone;
+
+        document.getElementById('btn-stop-recording').disabled = false;
+    });
+};
+
+document.getElementById('btn-stop-recording').onclick = function() {
+    this.disabled = true;
+    recorder.stopRecording(stopRecordingCallback);
+};
+</script>

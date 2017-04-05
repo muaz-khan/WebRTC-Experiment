@@ -34,9 +34,8 @@ namespace RecordRTC_to_ASPNETMVC.Controllers
         [HttpPost]
         public ActionResult DeleteFile()
         {
-            var fileUrl = AppDomain.CurrentDomain.BaseDirectory + "uploads/" + Request.Form["delete-file"];
-            new FileInfo(fileUrl + ".wav").Delete();
-            new FileInfo(fileUrl + ".webm").Delete();
+            var fileUrl = AppDomain.CurrentDomain.BaseDirectory + "uploads/" + Request.Form["delete-file"] + ".webm";
+            new FileInfo(fileUrl).Delete();
             return Json(true);
         }
     }

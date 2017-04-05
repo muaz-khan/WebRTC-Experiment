@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>WebRTCPedia! the Encyclopedia! ® Muaz Khan</title>
+        <title>WebRTCPedia! the Encyclopedia!</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -48,8 +48,7 @@
         <article>
             <header style="text-align: center;">
                 <h1>
-                    WebRTCPedia! the Encyclopedia! ® 
-                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+                    WebRTCPedia! the Encyclopedia!
                 </h1>            
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
@@ -106,6 +105,41 @@ stream.addEventListener('ended', function() {
 stream.stop();
 </pre>
 				<small>via: <a href="http://stackoverflow.com/a/11646945/552182" target="_blank">http://stackoverflow.com/a/11646945/552182</a></small>
+            </section>
+            
+            <section class="experiment" id="stream-ended-listener">
+            	<h2>
+            		<a href="#stream-ended-listener">How to detect if screen-sharing stopped or camera stopped (cross browser)?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+addStreamStopListener(yourScreen, function() {
+    alert('screen sharing is ended.');
+});
+
+function addStreamStopListener(stream, callback) {
+    var streamEndedEvent = 'ended';
+    if ('oninactive' in stream) {
+        streamEndedEvent = 'inactive';
+    }
+    stream.addEventListener(streamEndedEvent, function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.getAudioTracks().forEach(function(track) {
+        track.addEventListener(streamEndedEvent, function() {
+            callback();
+            callback = function() {};
+        }, false);
+    });
+    stream.getVideoTracks().forEach(function(track) {
+        track.addEventListener(streamEndedEvent, function() {
+            callback();
+            callback = function() {};
+        }, false);
+    });
+}
+</pre>
             </section>
 
             <section class="experiment" id="camera-mic-already-allowed">

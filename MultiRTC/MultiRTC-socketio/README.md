@@ -2,6 +2,8 @@
 
 This demo application runs similarly like Skype. However it isn't having contacts section.
 
+* https://github.com/muaz-khan/MultiRTC
+
 It works as following:
 
 1. A user can start a room and anyone with the URL can join.

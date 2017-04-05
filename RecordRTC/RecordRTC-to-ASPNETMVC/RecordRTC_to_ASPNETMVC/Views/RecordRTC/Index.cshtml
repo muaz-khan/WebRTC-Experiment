@@ -12,7 +12,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>RecordRTC to ASP.NET MVC ® Muaz Khan</title>
+        <title>RecordRTC to ASP.NET MVC | Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -64,8 +64,7 @@
         <article>
             <header style="text-align: center;">
                 <h1>
-                    <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a> to <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-ASPNETMVC" target="_blank">ASP.NET MVC</a> ® 
-                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+                    RecordRTC to ASP.NET MVC
                 </h1>            
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
@@ -102,38 +101,22 @@
 
 				<div id="container" style="padding:1em 2em;"></div>
             </section>
-            
-            <section class="experiment">  
-                <h2 class="header">Try <a href="https://www.webrtc-experiment.com/RecordRTC/AudioVideo-on-Firefox.html">Audio+Video Recording on Firefox</a></h2>
-                <ol>
-                    <li>
-                        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/PHP-and-FFmpeg">RecordRTC / PHP / FFmpeg</a> (synced audio/video in single file!)
-                    </li>
-                    <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs" target="_blank">RecordRTC-to-Nodejs</a> (used ffmpeg to merge wav/webm in single WebM container)</li>
-                    <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP" target="_blank">RecordRTC-to-PHP</a> (audio/video recording and uploading to server)</li>
-                    <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC" target="_blank">RecordRTC-to-ASP.NET MVC</a> (audio/video recording and uploading to server)</li>
-                    <li><a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/" target="_blank">Canvas Recording!</a> (webpage recording)</li>
-                    <li><a href="https://www.webrtc-experiment.com/RecordRTC/MRecordRTC/" target="_blank">MRecordRTC and writeToDisk/getFromDisk!</a></li>
-                    <li><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio" target="_blank">RecordRTC-to-Socket.io</a> (used ffmpeg to merge wav/webm in single WebM container)</li>
-                    <li><a href="https://www.webrtc-experiment.com/ffmpeg/" target="_blank">RecordRTC and ffmpeg-asm.js</a> (ffmpeg inside the browser!)</li>
-                </ol>
-            </section>
 			
             <script>
                 // PostBlob method uses XHR2 and FormData to submit 
                 // recorded blob to the PHP server
-                function PostBlob(blob, fileType, fileName) {
+                function PostBlob(blob) {
                     // FormData
                     var formData = new FormData();
-                    formData.append(fileType + '-filename', fileName);
-                    formData.append(fileType + '-blob', blob);
+                    formData.append('video-filename', fileName);
+                    formData.append('video-blob', blob);
 
                     // progress-bar
                     var hr = document.createElement('hr');
                     container.appendChild(hr);
                     var strong = document.createElement('strong');
                     strong.id = 'percentage';
-                    strong.innerHTML = fileType + ' upload progress: ';
+                    strong.innerHTML = 'Video upload progress: ';
                     container.appendChild(strong);
                     var progress = document.createElement('progress');
                     container.appendChild(progress);
@@ -141,13 +124,11 @@
                     // POST the Blob using XHR2
                     xhr('/RecordRTC/PostRecordedAudioVideo', formData, progress, percentage, function (fName) {
                         container.appendChild(document.createElement('hr'));
-                        var mediaElement = document.createElement(fileType);
+                        var mediaElement = document.createElement('video');
 
                         var source = document.createElement('source');
-                        source.src = location.href + 'uploads/' + fName.replace(/"/g, '');
-
-                        if (fileType == 'video') source.type = 'video/webm; codecs="vp8, vorbis"';
-                        if (fileType == 'audio') source.type = !!navigator.mozGetUserMedia ? 'audio/ogg' : 'audio/wav';
+                        source.src = document.location.origin + '/uploads/' + fName.replace(/"/g, '');
+                        source.type = 'video/webm; codecs="vp8, vorbis"';
 
                         mediaElement.appendChild(source);
 
@@ -165,20 +146,15 @@
                 var stop = document.getElementById('stop');
                 var deleteFiles = document.getElementById('delete');
 
-                var audio = document.querySelector('audio');
-
-                var recordVideo = document.getElementById('record-video');
                 var preview = document.getElementById('preview');
 
                 var container = document.getElementById('container');
 
-                // if you want to record only audio on chrome
-                // then simply set "isFirefox=true"
-                var isFirefox = !!navigator.mozGetUserMedia;
-
-                var recordAudio, recordVideo;
+                var recordVideo;
                 record.onclick = function () {
                     record.disabled = true;
+
+                    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
                     navigator.getUserMedia({
                         audio: true,
                         video: true
@@ -186,32 +162,15 @@
                         preview.src = window.URL.createObjectURL(stream);
                         preview.play();
 
-                        // var legalBufferValues = [256, 512, 1024, 2048, 4096, 8192, 16384];
-                        // sample-rates in at least the range 22050 to 96000.
-                        recordAudio = RecordRTC(stream, {
-                            //bufferSize: 16384,
-                            //sampleRate: 45000,
-                            onAudioProcessStarted: function () {
-                                if (!isFirefox) {
-                                    recordVideo.startRecording();
-                                }
-                            }
+                        recordVideo = RecordRTC(stream, {
+                            type: 'video'
                         });
 
-                        if (isFirefox) {
-                            recordAudio.startRecording();
-                        }
-
-                        if (!isFirefox) {
-                            recordVideo = RecordRTC(stream, {
-                                type: 'video'
-                            });
-                            recordAudio.startRecording();
-                        }
+                        recordVideo.startRecording();
 
                         stop.disabled = false;
                     }, function (error) {
-                        alert(JSON.stringify(error, null, '\t'));
+                        alert(error.toString());
                     });
                 };
 
@@ -222,24 +181,11 @@
 
                     preview.src = '';
 
-                    fileName = Math.round(Math.random() * 99999999) + 99999999;
+                    fileName = (Math.round(Math.random() * 99999999) + 99999999) + '.webm';
 
-                    if (!isFirefox) {
-                        recordAudio.stopRecording(function () {
-                            PostBlob(recordAudio.getBlob(), 'audio', fileName + '.wav');
-                        });
-                    } else {
-                        recordAudio.stopRecording(function (url) {
-                            preview.src = url;
-                            PostBlob(recordAudio.getBlob(), 'video', fileName + '.webm');
-                        });
-                    }
-
-                    if (!isFirefox) {
-                        recordVideo.stopRecording(function () {
-                            PostBlob(recordVideo.getBlob(), 'video', fileName + '.webm');
-                        });
-                    }
+                    recordVideo.stopRecording(function () {
+                        PostBlob(recordVideo.getBlob());
+                    });
 
                     deleteFiles.disabled = false;
                 };
@@ -296,73 +242,6 @@
                 };
             </script>
 			
-			<section class="experiment">
-				<h2>
-					How to save recorded wav/webm file to IIS server?</h2>
-				<ol>
-					<li>Write a csharp class (*.cs) to write recrded blob on disk</li>
-					<li>Write Javascript to POST recorded blobs to server using XHR2/FormdData</li>
-				</ol>
-			</section>
-			
-            <section class="experiment">
-        <h2>ASP.NET MVC (CSharp) Code</h2>
-        <pre>
-[HttpPost]
-public ActionResult PostRecordedAudioVideo()
-{
-     foreach (string upload in Request.Files)
-     {
-          var path = AppDomain.CurrentDomain.BaseDirectory + "uploads/";
-          var file = Request.Files[upload];
-          if (file == null) continue;
-
-          file.SaveAs(Path.Combine(path, Request.Form[0]));
-     }
-     return Json(Request.Form[0]);
-}
-</pre>
-            </section>
-            <section class="experiment">
-                <h2>Javascript Code</h2>
-                <pre>
-var fileType = 'video'; // or "audio"
-var fileName = 'ABCDEF.webm';  // or "wav"
-
-var formData = new FormData();
-formData.append(fileType + '-filename', fileName);
-formData.append(fileType + '-blob', blob);
-
-xhr('/RecordRTC/PostRecordedAudioVideo', formData, function (fName) {
-    window.open(location.href + 'uploads/' + fName);
-});
-
-function xhr(url, data, callback) {
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if (request.readyState == 4 && request.status == 200) {
-            callback(location.href + request.responseText);
-        }
-    };
-    request.open('POST', url);
-    request.send(data);
-}
-</pre></section>
-
-<section class="experiment">
-			<h2>To Delete File</h2>
-			<pre>
-[HttpPost]
-public ActionResult DeleteFile()
-{
-    var fileUrl = AppDomain.CurrentDomain.BaseDirectory + "uploads/" 
-                + Request.Form["delete-file"];
-    new FileInfo(fileUrl + ".wav").Delete();
-    new FileInfo(fileUrl + ".webm").Delete();
-    return Json(true);
-}
-</pre></section>
-            
             <section class="experiment">
                 <p>
                     RecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">Documentation</a>
@@ -383,7 +262,7 @@ public ActionResult DeleteFile()
 			</section>
         </article>
 
-        <a href="https://github.com/muaz-khan/RecordRTC" class="fork-left"></a>
+        <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-ASPNETMVC" class="fork-left"></a>
         
         <footer>
             <p>

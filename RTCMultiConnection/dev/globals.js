@@ -154,15 +154,21 @@ function getRMCMediaElement(stream, callback, connection) {
     if (isFirefox) {
         var streamEndedEvent = 'ended';
 
-        if ('oninactive' in stream) {
+        if ('oninactive' in mediaElement) {
             streamEndedEvent = 'inactive';
         }
 
         mediaElement.addEventListener(streamEndedEvent, function() {
-            // fireEvent(stream, 'ended', stream);
+            // fireEvent(stream, streamEndedEvent, stream);
             currentUserMediaRequest.remove(stream.idInstance);
 
             if (stream.type === 'local') {
+                streamEndedEvent = 'ended';
+
+                if ('oninactive' in stream) {
+                    streamEndedEvent = 'inactive';
+                }
+
                 StreamsHandler.onSyncNeeded(stream.streamid, streamEndedEvent);
 
                 connection.attachStreams.forEach(function(aStream, idx) {
@@ -330,3 +336,5 @@ function getAudioScreenConstraints(screen_constraints) {
         }
     };
 }
+
+window.iOSDefaultAudioOutputDevice = window.iOSDefaultAudioOutputDevice || 'speaker'; // earpiece or speaker

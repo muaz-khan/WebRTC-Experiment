@@ -40,6 +40,10 @@ Nope open: `https://localhost:9001/`
 <script src="https://cdn.rawgit.com/muaz-khan/getScreenId/master/getScreenId.js"></script>
 ```
 
+# `getScreenId`
+
+This method allows you get chrome-media-source-id; which can be used to capture screens.
+
 ```javascript
 getScreenId(function (error, sourceId, screen_constraints) {
     // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
@@ -101,6 +105,18 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
       alert('Failed to capture your screen. Please check Chrome console logs for further information.');
     });
+});
+```
+
+# `getChromeExtensionStatus`
+
+This method allows you detect whether chrome extension is installed or not:
+
+```javascript
+getChromeExtensionStatus(function(status) {
+    if (status === 'installed-enabled') alert('installed');
+    if (status === 'installed-disabled') alert('installed but disabled');
+    // etc.
 });
 ```
 

@@ -13,6 +13,9 @@ function setCordovaAPIs() {
     navigator.getUserMedia = navigator.webkitGetUserMedia = iosrtc.getUserMedia;
 
     iosrtc.debug.enable('iosrtc*');
+    if (typeof iosrtc.selectAudioOutput == 'function') {
+        iosrtc.selectAudioOutput(window.iOSDefaultAudioOutputDevice || 'speaker'); // earpiece or speaker
+    }
     iosrtc.registerGlobals();
 }
 

@@ -64,6 +64,14 @@ function PeerInitiator(config) {
     this.channels = config.channels || [];
     this.connectionDescription = config.connectionDescription;
 
+    this.addStream = function(session) {
+        connection.addStream(session, this.userid);
+    };
+
+    this.removeStream = function(streamid) {
+        connection.removeStream(streamid, this.userid);
+    };
+
     var self = this;
 
     if (config.remoteSdp) {
@@ -165,7 +173,7 @@ function PeerInitiator(config) {
             return;
         }
 
-        localStream = connection.beforeAddingStream(localStream);
+        localStream = connection.beforeAddingStream(localStream, self);
 
         if (!localStream) return;
 
@@ -199,6 +207,18 @@ function PeerInitiator(config) {
             extra: extra,
             userid: self.userid
         });
+
+        if (peer && peer.iceConnectionState && peer.iceConnectionState.search(/closed|failed/gi) !== -1 && self.streams instanceof Array) {
+            self.streams.forEach(function(stream) {
+                var streamEvent = connection.streamEvents[stream.id] || {
+                    streamid: stream.id,
+                    stream: stream,
+                    type: 'remote'
+                };
+
+                connection.onstreamended(streamEvent);
+            });
+        }
     };
 
     var sdpConstraints = {
@@ -256,16 +276,14 @@ function PeerInitiator(config) {
             event.stream.isScreen = streamToShare.isScreen;
         }
         event.stream.streamid = event.stream.id;
-        if (!event.stream.stop) {
+        if (isFirefox || !event.stream.stop) {
             event.stream.stop = function() {
-                if (isFirefox) {
-                    var streamEndedEvent = 'ended';
+                var streamEndedEvent = 'ended';
 
-                    if ('oninactive' in event.stream) {
-                        streamEndedEvent = 'inactive';
-                    }
-                    fireEvent(event.stream, streamEndedEvent);
+                if ('oninactive' in event.stream) {
+                    streamEndedEvent = 'inactive';
                 }
+                fireEvent(event.stream, streamEndedEvent);
             };
         }
         allRemoteStreams[event.stream.id] = event.stream;

@@ -22,6 +22,8 @@
     <p>Switching streams from screen-sharing to audio+video at runtime. (Renegotiation) / Read <a href="https://www.webrtc-experiment.com/docs/how-to-switch-streams.html" target="_blank">how to switch streams?</a></p>
 </div>
 
+<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+
 <script>
     var mediaConstraints = {
         optional: [],
@@ -30,6 +32,69 @@
             OfferToReceiveVideo: true
         }
     };
+	
+	/*jshint -W079 */
+	var URL = window.URL;
+
+	if (typeof URL === 'undefined' && typeof webkitURL !== 'undefined') {
+		/*global URL:true */
+		URL = webkitURL;
+	}
+	
+	var MediaStream = window.MediaStream;
+
+	if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+		MediaStream = webkitMediaStream;
+	}
+
+	/*global MediaStream:true */
+	if (typeof MediaStream !== 'undefined') {
+		if (!('getVideoTracks' in MediaStream.prototype)) {
+			MediaStream.prototype.getVideoTracks = function() {
+				if (!this.getTracks) {
+					return [];
+				}
+
+				var tracks = [];
+				this.getTracks.forEach(function(track) {
+					if (track.kind.toString().indexOf('video') !== -1) {
+						tracks.push(track);
+					}
+				});
+				return tracks;
+			};
+
+			MediaStream.prototype.getAudioTracks = function() {
+				if (!this.getTracks) {
+					return [];
+				}
+
+				var tracks = [];
+				this.getTracks.forEach(function(track) {
+					if (track.kind.toString().indexOf('audio') !== -1) {
+						tracks.push(track);
+					}
+				});
+				return tracks;
+			};
+		}
+
+		if (!('stop' in MediaStream.prototype)) {
+			MediaStream.prototype.stop = function() {
+				this.getAudioTracks().forEach(function(track) {
+					if (!!track.stop) {
+						track.stop();
+					}
+				});
+
+				this.getVideoTracks().forEach(function(track) {
+					if (!!track.stop) {
+						track.stop();
+					}
+				});
+			};
+		}
+	}
 </script>
 
 <script>
@@ -46,8 +111,12 @@
 
     window.iceServers = {
         iceServers: [{
-            url: 'stun:23.21.150.121'
-        }]
+            urls: 'stun:stun.l.google.com:19302'
+        }, {
+			urls: 'stun:webrtcweb.com:4455',
+			username: 'muazkh',
+			credential: 'muazkh'
+		}]
     };
 </script>
 
@@ -80,7 +149,7 @@
 
             console.log('\r\n----offer-----\r\n');
             console.log(offer.sdp);
-        }, null, mediaConstraints);
+        }, function() {}, mediaConstraints);
     }
 </script>
 
@@ -114,7 +183,7 @@
 
             console.log('\r\n----answer-----\r\n');
             console.log(answer.sdp);
-        }, null, mediaConstraints);
+        }, function() {}, mediaConstraints);
     }
 </script>
 
@@ -125,6 +194,8 @@
     };
 
     function getUserMedia(callback, constraints) {
+		console.info('getUserMedia', constraints);
+		
         var n = navigator;
         n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
         n.getMedia(constraints || {
@@ -146,27 +217,43 @@
 
 <!-- screen capturing stream -->
 <script>
-    var screen_constraints = {
-        mandatory: {
-            chromeMediaSource: 'screen'
-        },
-        optional: []
-    };
-
-    var constraints = {
-        audio: false,
-        video: screen_constraints
-    };
-
     var old_stream;
-    getUserMedia(function(stream) {
-        old_stream = stream;
+    
+	function captureScreen() {
+		getScreenId(function (error, sourceId, screen_constraints) {
+			console.info('getScreenId', error, sourceId, screen_constraints);
+			getUserMedia(function(stream) {
+				old_stream = stream;
 
-        console.log(JSON.stringify(constraints, null, '\t'), stream);
-        offererPeer({
-            stream: stream
-        });
-    }, constraints);
+				console.log(JSON.stringify(screen_constraints, null, '\t'), stream);
+				offererPeer({
+					stream: stream
+				});
+			}, screen_constraints);
+		});
+	}
+	
+	var maxTries = 0;
+
+	function showChromeExtensionStatus() {
+		if (typeof window.getChromeExtensionStatus !== 'function') return captureScreen();
+
+		var gotResponse;
+		window.getChromeExtensionStatus(function(status) {
+			gotResponse = true;
+			console.info('getChromeExtensionStatus', status);
+			
+			captureScreen();
+		});
+
+		maxTries++;
+		if (maxTries > 15) return;
+		setTimeout(function() {
+			if (!gotResponse) showChromeExtensionStatus();
+		}, 1000);
+	}
+
+	showChromeExtensionStatus();
 </script>
 
 <!-- switch streams to audio+video -->
@@ -243,3 +330,10 @@
         width: 20em;
     }
 </style>
+
+<section class="experiment">
+	<h2 class="header" id="feedback">Feedback</h2>
+	<div><textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea></div>
+	<button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
+</section>
+<script src="https://cdn.webrtc-experiment.com/commits.js" async></script>

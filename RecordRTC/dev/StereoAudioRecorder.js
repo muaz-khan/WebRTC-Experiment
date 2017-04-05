@@ -42,6 +42,18 @@ function StereoAudioRecorder(mediaStream, config) {
 
     var numberOfAudioChannels = 2;
 
+    /**
+     * Set sample rates such as 8K or 16K. Reference: http://stackoverflow.com/a/28977136/552182
+     * @property {number} desiredSampRate - Desired Bits per sample * 1000
+     * @memberof StereoAudioRecorder
+     * @instance
+     * @example
+     * var recorder = StereoAudioRecorder(mediaStream, {
+     *   desiredSampRate: 16 * 1000 // bits-per-sample * 1000
+     * });
+     */
+    var desiredSampRate = config.desiredSampRate;
+
     // backward compatibility
     if (config.leftChannel === true) {
         numberOfAudioChannels = 1;
@@ -104,14 +116,53 @@ function StereoAudioRecorder(mediaStream, config) {
             var rightBuffers = config.rightBuffers.slice(0);
             var sampleRate = config.sampleRate;
             var internalInterleavedLength = config.internalInterleavedLength;
+            var desiredSampRate = config.desiredSampRate;
 
             if (numberOfAudioChannels === 2) {
                 leftBuffers = mergeBuffers(leftBuffers, internalInterleavedLength);
                 rightBuffers = mergeBuffers(rightBuffers, internalInterleavedLength);
+                if (desiredSampRate) {
+                    leftBuffers = interpolateArray(leftBuffers, desiredSampRate, sampleRate);
+                    rightBuffers = interpolateArray(rightBuffers, desiredSampRate, sampleRate);
+                }
             }
 
             if (numberOfAudioChannels === 1) {
                 leftBuffers = mergeBuffers(leftBuffers, internalInterleavedLength);
+                if (desiredSampRate) {
+                    leftBuffers = interpolateArray(leftBuffers, desiredSampRate, sampleRate);
+                }
+            }
+
+            // set sample rate as desired sample rate
+            if (desiredSampRate) {
+                sampleRate = desiredSampRate;
+            }
+
+            // for changing the sampling rate, reference:
+            // http://stackoverflow.com/a/28977136/552182
+            function interpolateArray(data, newSampleRate, oldSampleRate) {
+                var fitCount = Math.round(data.length * (newSampleRate / oldSampleRate));
+                //var newData = new Array();
+                var newData = [];
+                //var springFactor = new Number((data.length - 1) / (fitCount - 1));
+                var springFactor = Number((data.length - 1) / (fitCount - 1));
+                newData[0] = data[0]; // for new allocation
+                for (var i = 1; i < fitCount - 1; i++) {
+                    var tmp = i * springFactor;
+                    //var before = new Number(Math.floor(tmp)).toFixed();
+                    //var after = new Number(Math.ceil(tmp)).toFixed();
+                    var before = Number(Math.floor(tmp)).toFixed();
+                    var after = Number(Math.ceil(tmp)).toFixed();
+                    var atPoint = tmp - before;
+                    newData[i] = linearInterpolate(data[before], data[after], atPoint);
+                }
+                newData[fitCount - 1] = data[data.length - 1]; // for new allocation
+                return newData;
+            }
+
+            function linearInterpolate(before, after, atPoint) {
+                return before + (after - before) * atPoint;
             }
 
             function mergeBuffers(channelBuffer, rLength) {
@@ -284,6 +335,7 @@ function StereoAudioRecorder(mediaStream, config) {
         // audioInput.disconnect();
 
         mergeLeftRightBuffers({
+            desiredSampRate: desiredSampRate,
             sampleRate: sampleRate,
             numberOfAudioChannels: numberOfAudioChannels,
             internalInterleavedLength: recordingLength,
@@ -322,7 +374,7 @@ function StereoAudioRecorder(mediaStream, config) {
              */
             self.view = view;
 
-            self.sampleRate = sampleRate;
+            self.sampleRate = desiredSampRate || sampleRate;
             self.bufferSize = bufferSize;
 
             // recorded audio length
@@ -416,6 +468,10 @@ function StereoAudioRecorder(mediaStream, config) {
     if (!config.disableLogs) {
         console.log('sample-rate', sampleRate);
         console.log('buffer-size', bufferSize);
+
+        if (config.desiredSampRate) {
+            console.log('Desired sample-rate', config.desiredSampRate);
+        }
     }
 
     var isPaused = false;

@@ -1,4 +1,8 @@
 function FirebaseConnection(connection, connectCallback) {
+    function isData(session) {
+        return !session.audio && !session.video && !session.screen && session.data;
+    }
+
     connection.firebase = connection.firebase || 'webrtc-experiment';
     var channelId = connection.channel;
 

@@ -1,7 +1,7 @@
 <?php
     // Muaz Khan         - www.MuazKhan.com
     // MIT License       - www.WebRTC-Experiment.com/licence
-    // Documentation     - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+    // Documentation     - github.com/muaz-khan/RecordRTC
     
     // make sure that you're using newest ffmpeg version!
 

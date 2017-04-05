@@ -63,7 +63,7 @@ var FileProgressBarHandler = (function() {
         connection.onFileEnd = function(file) {
             var helper = progressHelper[file.uuid];
             if (!helper) {
-                console.error('No such progress-helper element exists.', file);
+                console.error('No such progress-helper element exist.', file);
                 return;
             }
 

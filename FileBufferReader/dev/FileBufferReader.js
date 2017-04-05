@@ -18,6 +18,12 @@ function FileBufferReader() {
             }
         };
 
+        if (file.extra && Object.keys(file.extra).length) {
+            Object.keys(file.extra).forEach(function(key) {
+                options.extra[key] = file.extra[key];
+            });
+        }
+
         fbrHelper.readAsArrayBuffer(fbr, options);
     };
 

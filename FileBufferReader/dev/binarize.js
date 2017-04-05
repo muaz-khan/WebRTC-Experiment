@@ -116,9 +116,13 @@ var find_type = function(obj) {
 
     } else {
         var const_name = obj.constructor.name;
-        if (const_name !== undefined) {
+        var const_name_reflection = obj.constructor.toString().match(/\w+/g)[1];
+        if (const_name !== undefined && Types[const_name.toUpperCase()] !== undefined) {
             // return type by .constructor.name if possible
             type = Types[const_name.toUpperCase()];
+
+        } else if (const_name_reflection !== undefined && Types[const_name_reflection.toUpperCase()] !== undefined) {
+            type = Types[const_name_reflection.toUpperCase()];
 
         } else {
             // Work around when constructor.name is not defined

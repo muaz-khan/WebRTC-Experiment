@@ -1,1 +1,1 @@
-https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/PHP-and-FFmpeg
+https://github.com/muaz-khan/RecordRTC/tree/master/PHP-and-FFmpeg

@@ -2,6 +2,12 @@
 // MIT License    - www.WebRTC-Experiment.com/licence
 // Documentation  - github.com/muaz-khan/RTCMultiConnection
 
+function resolveURL(url) {
+    var isWin = !!process.platform.match(/^win/);
+    if (!isWin) return url;
+    return url.replace(/\//g, '\\');
+}
+
 // Please use HTTPs on non-localhost domains.
 var isUseHTTPs = false;
 
@@ -14,8 +20,8 @@ var path = require('path');
 // see how to use a valid certificate:
 // https://github.com/muaz-khan/WebRTC-Experiment/issues/62
 var options = {
-    key: fs.readFileSync(path.join(__dirname, 'fake-keys/privatekey.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'fake-keys/certificate.pem'))
+    key: fs.readFileSync(path.join(__dirname, resolveURL('fake-keys/privatekey.pem'))),
+    cert: fs.readFileSync(path.join(__dirname, resolveURL('fake-keys/certificate.pem')))
 };
 
 // force auto reboot on failures
@@ -24,7 +30,7 @@ var autoRebootServerOnFailure = false;
 
 // skip/remove this try-catch block if you're NOT using "config.json"
 try {
-    var config = require('./config.json');
+    var config = require(resolveURL('./config.json'));
 
     if ((config.port || '').toString() !== '9001') {
         port = parseInt(config.port);
@@ -81,19 +87,29 @@ function serverHandler(request, response) {
                 'Content-Type': 'text/html'
             });
 
-            if (filename.indexOf('/demos/MultiRTC/') !== -1) {
-                filename = filename.replace('/demos/MultiRTC/', '');
-                filename += '/demos/MultiRTC/index.html';
-            } else if (filename.indexOf('/demos/') !== -1) {
-                filename = filename.replace('/demos/', '');
-                filename += '/demos/index.html';
+            if (filename.indexOf(resolveURL('/demos/MultiRTC/')) !== -1) {
+                filename = filename.replace(resolveURL('/demos/MultiRTC/'), '');
+                filename += resolveURL('/demos/MultiRTC/index.html');
+            } else if (filename.indexOf(resolveURL('/demos/')) !== -1) {
+                filename = filename.replace(resolveURL('/demos/'), '');
+                filename += resolveURL('/demos/index.html');
             } else {
-                filename += '/demos/index.html';
+                filename += resolveURL('/demos/index.html');
             }
         }
 
+        var contentType = 'text/plain';
+        if(filename.toLowerCase().indexOf('.html') !== -1) {
+            contentType = 'text/html';
+        }
+        if(filename.toLowerCase().indexOf('.css') !== -1) {
+            contentType = 'text/css';
+        }
+        if(filename.toLowerCase().indexOf('.png') !== -1) {
+            contentType = 'image/png';
+        }
 
-        fs.readFile(filename, 'utf8', function(err, file) {
+        fs.readFile(filename, 'binary', function(err, file) {
             if (err) {
                 response.writeHead(500, {
                     'Content-Type': 'text/plain'
@@ -141,8 +157,10 @@ function serverHandler(request, response) {
                 }
             } catch (e) {}
 
-            response.writeHead(200);
-            response.write(file, 'utf8');
+            response.writeHead(200, {
+                'Content-Type': contentType
+            });
+            response.write(file, 'binary');
             response.end();
         });
     } catch (e) {

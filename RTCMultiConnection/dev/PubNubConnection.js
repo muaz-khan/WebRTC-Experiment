@@ -1,4 +1,8 @@
 function PubNubConnection(connection, connectCallback) {
+    function isData(session) {
+        return !session.audio && !session.video && !session.screen && session.data;
+    }
+
     var channelId = connection.channel;
 
     var pub = 'pub-c-3c0fc243-9892-4858-aa38-1445e58b4ecb';

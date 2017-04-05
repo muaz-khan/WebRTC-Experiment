@@ -110,9 +110,7 @@
             // ..................RTCMultiConnection Code.............
             // ......................................................
 
-            var connection = new RTCMultiConnection({
-                useDefaultDevices: true
-            });
+            var connection = new RTCMultiConnection();
 
             // by default, socket.io server is assumed to be deployed on your own URL
             connection.socketURL = '/';
@@ -131,7 +129,10 @@
                 OfferToReceiveVideo: false
             };
 
-            connection.mediaConstraints.video = false;
+            connection.mediaConstraints = {
+                audio: true,
+                video: false
+            };
 
             connection.audiosContainer = document.getElementById('audios-container');
             connection.onstream = function(event) {

@@ -98,7 +98,7 @@
         </script>
 
         <!-- script used to capture sourceId of the screen -->
-        <script src="https://cdn.webrtc-experiment.com/getScreenId.js"> </script>
+		<script src="https://cdn.webrtc-experiment.com/getScreenId.js"> </script>
     </head>
 
     <body>
@@ -133,11 +133,32 @@
             </blockquote>
 
             <section class="experiment" style="text-align:center;">
+				<div id="chrome-extension-status"></div>
                 <br><button id="capture-screen">Capture Your Own Screen</button><hr>
                 <video controls autoplay style="width: 100%;background-repeat: no-repeat;background-size: 100%;background-image: url(https://lh5.googleusercontent.com/6U-gmL_hG9bbquDZdW_ajiA-1bgkfSlHOkzR24aigkyPQzXWXNoRNfyLjXS3rqV92iwq395JSQ=s640-h400-e365-rw);"></video>
             </section>
 
             <script>
+				var maxTries = 0;
+				function showChromeExtensionStatus() {
+					if(typeof window.getChromeExtensionStatus !== 'function') return;
+					
+					var gotResponse;
+					window.getChromeExtensionStatus(function(status) {
+						gotResponse = true;
+						document.getElementById('chrome-extension-status').innerHTML = 'Chrome extension status is: <b>' + status + '</b>';
+						console.info('getChromeExtensionStatus', status);
+					});
+					
+					maxTries++;
+					if(maxTries > 15) return;
+					setTimeout(function() {
+						if(!gotResponse) showChromeExtensionStatus();
+					}, 1000);
+				}
+				
+				showChromeExtensionStatus();
+				
                 // via: https://bugs.chromium.org/p/chromium/issues/detail?id=487935#c17
                 // you can capture screen on Android Chrome >= 55 with flag: "Experimental ScreenCapture android"
                 window.IsAndroidChrome = false;
@@ -275,6 +296,24 @@ getScreenId(function (error, sourceId, screen_constraints) {
     }, function (error) {
         console.error(error);
     });
+});
+&lt;/script&gt;
+</pre>
+
+            </section>
+			
+			<section class="experiment">
+              <h2 class="header specific-h2">
+                  How to detect whether extension is installed or not?
+			   </h2>
+
+                <pre class="sh_javascript sh_html">
+&lt;script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+getChromeExtensionStatus(function(status) {
+    if (status === 'installed-enabled') alert('installed');
+    if (status === 'installed-disabled') alert('installed but disabled');
+    // etc.
 });
 &lt;/script&gt;
 </pre>

@@ -42,7 +42,7 @@ You can use custom ports either via `config.json` file:
 
 ```json
 {
-  "socketURL": "http:s//yourdomain.com:9001/",
+  "socketURL": "https://yourdomain.com:9001/",
   "socketMessageEvent": "RTCMultiConnection-Message"
 }
 ```

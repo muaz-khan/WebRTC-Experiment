@@ -1,4 +1,4 @@
-var SIGNALING_SERVER = 'wss://webrtc-signaling.herokuapp.com:443/ws/';
+var SIGNALING_SERVER = 'wss://webrtcweb.com:9449/';
 var channel = window.RMCDefaultChannel;
 
 var websocket = new WebSocket(SIGNALING_SERVER);

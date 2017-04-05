@@ -2,6 +2,165 @@
 
 > RTCMultiConnection v3 tips and tricks for advance users!
 
+## How to secure your socket.io usage?
+
+Modify [`Signaling-Server.js`](https://github.com/muaz-khan/RTCMultiConnection/blob/master/Signaling-Server.js) and add this line:
+
+```javascript
+io.on('connection', onConnection);
+
+// add this line,
+// quickly after above line
+io.set('origins', 'https://domain.com');
+```
+
+Otherwise:
+
+```javascript
+// Seach & modify this function on Signaling-Server.js
+
+function onConnection(socket) {
+    if (socket.handshake.headers.origin == 'https://domain.com') {
+        console.log(socket.handshake.headers.origin + ' Allowed.');
+    } else {
+        console.log(socket.handshake.he aders.origin + ' Not Allowed.');
+        socket.disconnect();
+        return;
+    }
+
+    // rest of the code from Signaling-Server.js
+}
+```
+
+Now you've restricted the usage of socket.io only on domain `https://domain.com:9001`.
+
+## How to arrange videos?
+
+It happens all insidde the [`onstream`](http://www.rtcmulticonnection.org/docs/onstream/) event.
+
+```javascript
+connection.onstream = function(event) {
+    if (event.type == 'local') {
+        showLocalVideo(event);
+        return;
+    }
+
+    if (event.type == 'remote') {
+        var numberOfUsers = connection.getAllParticipants().length;
+        if (numberOfUsers == 1) {
+            showFirstUserVideoOnFullScreen(event);
+        } else {
+            showSecondAndUpcomingVideosInSmallDiv(event);
+        }
+    }
+};
+
+function showLocalVideo(event) {}
+
+function showFirstUserVideoOnFullScreen(event) {}
+
+function showSecondAndUpcomingVideosInSmallDiv(event) {}
+```
+
+#### Points to be noted:
+
+1. We are comparing `even.type == local or remote` to detect video's  type.
+2. We can differentiate between audio, video and screen using `event.stream.isScreen` or `event.stream.isAudio` or `event.stream.isVideo`.
+3. Unique `event.streamid` to set unique `IDs` for each video element.
+
+E.g.
+
+```javascript
+connection.onstream = function(event) {
+    var videoElement = event.mediaElement;
+
+    // "streamid" uniquely identifies each video
+    videoElement.id = event.streamid;
+
+    // single user can share multiple videos (+multiple screens)
+    videoElement.setAttribute('data-userid', event.userid);
+
+    videoElement.onclick = function() {
+        // get the unique stream-id
+        var streamid = this.id;
+
+        // get user-id
+        var userid = this.getAttribute('data-userid');
+
+        // you can access native RTCPeerConnection object
+        var allVideosComingFromThisUser = connection.peers[userid].peer.getRemoteStreams();
+
+        // you can access the MediaStream data
+        var streamEvent = connection.streamEvents[streamid];
+
+        console.log(streamEvent.type, streamEvent.stream.isScreen, streamEvent.stream, streamEvent.mediaElement);
+    };
+};
+```
+
+As you can see in the above snippet, we are setting two HTML attributes:
+
+1. `id` which is `event.streamid`
+2. `data-userid` which is `event.userid`
+
+`id` helps us access `MediaStream` object. We can detect type of stream, active tracks, etc.
+
+`data-userid` helps us detect who is sending the video stream.
+
+You can always reset the `video.src`:
+
+```javascript
+videoElement.onclick = function() {
+    // get the unique stream-id
+    var streamid = this.id;
+
+    // you can access the MediaStream data
+    var streamEvent = connection.streamEvents[streamid];
+
+    // access native MediaStreamObject
+    var mediaStream = streamEvent.stream;
+
+    // reset the URL
+    videoElement.src = URL.createObjectURL(mediaStream);
+    videoElement.play();
+};
+```
+
+You can merge or stop tracks:
+
+```javascript
+videoElement.onclick = function() {
+    // get the unique stream-id
+    var streamid = this.id;
+
+    // you can access the MediaStream data
+    var streamEvent = connection.streamEvents[streamid];
+
+    // access native MediaStreamObject
+    var mediaStream = streamEvent.stream;
+
+    // add new track
+    mediaStream.addTrack(newTrack);
+
+    // remove existing track
+    var videoTrack = mediaStream.getVideoTracks()[0];
+    mediaStream.removeTrack(videoTrack);
+};
+```
+
+You can renegotiate peers to share new tracks:
+
+```javascript
+videoElement.onclick = function() {
+    // get user-id
+    var userid = this.getAttribute('data-userid');
+
+    // renegotiate to update RTCPeerConnection
+    // it will reset ports; access all fresh tracks; etc.
+    connection.renegotiate(userid);
+};
+```
+
 ## If WebRTC fails
 
 ```html

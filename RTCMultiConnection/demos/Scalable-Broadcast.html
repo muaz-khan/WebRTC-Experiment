@@ -1,525 +1,437 @@
+
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" dir="ltr">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
-
-    <title>WebRTC Scalable Media Broadcast using RTCMultiConnection</title>
-
-    <meta name="description" content="This module simply initializes socket.io and configures it in a way that single audio/video/screen stream can be shared/relayed over unlimited users without any bandwidth/CPU usage issues. Everything happens peer-to-peer!" />
-    <meta name="keywords" content="WebRTC,RTCMultiConnection,Demos,Experiments,Samples,Examples" />
-
-    <style>
-        video {
-            object-fit: fill;
-            width: 100%;
-            max-width: 100%;
-        }
-        button,
-        input,
-        select {
-            font-weight: normal;
-            padding: 2px 4px;
-            text-decoration: none;
-            display: inline-block;
-            text-shadow: none;
-            font-size: 16px;
-            outline: none;
-        }
-
-        .make-center {
-            text-align: center;
-            padding: 5px 10px;
-        }
-
-        button, input, select {
-            font-family: Myriad, Arial, Verdana;
-            font-weight: normal;
-            border-top-left-radius: 3px;
-            border-top-right-radius: 3px;
-            border-bottom-right-radius: 3px;
-            border-bottom-left-radius: 3px;
-            padding: 4px 12px;
-            text-decoration: none;
-            color: rgb(27, 26, 26);
-            display: inline-block;
-            box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
-            text-shadow: none;
-            background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
-            font-size: 20px;
-            border: 1px solid red;
-            outline:none;
-            vertical-align: middle;
-        }
-        button, select {
-            height: 35px;
-            margin: 0 5px;
-        }
-
-        button:hover, input:hover, select:hover {
-            background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
-            border: 1px solid rgb(142, 142, 142);
-        }
-
-        button:active, input:active, select:active, button:focus, input:focus, select:focus {
-            background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(183, 183, 183)), to(rgb(255, 255, 255)));
-            border: 1px solid rgb(142, 142, 142);
-        }
-        button[disabled], iput[disabled], select[disabled] {
-            background: rgb(249, 249, 249);
-            border: 1px solid rgb(218, 207, 207);
-            color: rgb(197, 189, 189);
-        }
-        input, input:focus, input:active {
-            background: white;
-        }
-    </style>
+  <meta charset="utf-8">
+  <title>WebRTC Scalable Broadcast using RTCMultiConnection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="shortcut icon" href="/demos/logo.png">
+  <link rel="stylesheet" type="text/css" href="/demos/stylesheet.css">
 </head>
-
 <body>
-    <article>
+  <header>
+    <a class="logo" href="/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
+    <nav>
+      <li>
+        <a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+      </li>
+      <li>
+        <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+      </li>
+      <li>
+        <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection#v3-demos">Demos</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection">Github</a>
+      </li>
+    </nav>
+  </header>
 
-        <header style="text-align: center;">
-            <h1><a href="https://github.com/muaz-khan/WebRTC-Scalable-Broadcast">WebRTC Scalable Media Broadcast</a> using <a href="https://github.com/muaz-khan/RTCMultiConnection">RTCMultiConnection</a></h1>
-            <p>
-                <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
-                <span> &copy; </span>
-                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
-                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
-                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
-                <a href="https://github.com/muaz-khan/RTCMultiConnection/issues?state=open" target="_blank">Latest issues</a> .
-                <a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master" target="_blank">What's New?</a>
-            </p>
-        </header>
+  <h1>
+    WebRTC Scalable Broadcast using RTCMultiConnection
+    <p>
+      Use peer-to-peer protocol to broadcast your video over 20+ users.
+    </p>
+  </h1>
 
-        <div class="github-stargazers"></div>
+  <section class="make-center">
+      <div class="make-center">
+      <input type="text" id="broadcast-id" value="room-xyz" autocorrect=off autocapitalize=off size=20>
+      <button id="open-or-join">Open or Join Broadcast</button>
 
-        <section class="experiment">
-            <div class="make-center">
-                <input type="text" id="broadcast-id" placeholder="broadcast-id" value="room-xyz">
-                <button id="open-or-join">Open or Join Broadcast</button>
+      <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
+      <div class="make-center" id="broadcast-viewers-counter"></div>
 
-                <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
-            </div>
+      <video id="video-preview" controls loop></video>
+  </section>
 
-            <div class="make-center" id="broadcast-viewers-counter"></div>
+<script src="/dist/RTCMultiConnection.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<!-- <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script> -->
+<script>
+// recording is disabled because it is resulting for browser-crash
+// if you enable below line, please also uncomment above "RecordRTC.js"
+var enableRecordings = false;
 
-            <video id="video-preview" controls loop></video>
-        </section>
+var connection = new RTCMultiConnection();
 
-        <blockquote>
-            This demo <a href="http://webrtcweb.com/cordova-apps/scalable-broadcast/" target="_blank">has built-in (open-sourced)</a> cordova apps both for <b>iOS</b> and <b>Android</b>.<br><br>
+// its mandatory in v3
+connection.enableScalableBroadcast = true;
 
-            Google AppStore Link: <a href="https://play.google.com/store/apps/details?id=com.webrtc.scalablebroadcast" target="_blank">https://play.google.com/store/apps/details?id=com.webrtc.scalablebroadcast</a>
-        </blockquote>
+// each relaying-user should serve only 1 users
+connection.maxRelayLimitPerUser = 1;
 
-        <blockquote>
-            This module simply initializes socket.io and configures it in a way that single audio/video/screen stream can be shared/relayed over unlimited users without any <a href="https://www.webrtc-experiment.com/docs/RTP-usage.html">bandwidth/CPU usage issues</a>. Everything happens peer-to-peer!
+// we don't need to keep room-opened
+// scalable-broadcast.js will handle stuff itself.
+connection.autoCloseEntireSession = true;
 
-            <br><br>
-            Share files with unlimited users using p2p methods! <a href="/demos/Files-Scalable-Broadcast.html">Files Scalable Broadcast</a>
-        </blockquote>
+// by default, socket.io server is assumed to be deployed on your own URL
+connection.socketURL = '/';
 
-        <script src="/dist/RTCMultiConnection.min.js"></script>
-        <script src="/socket.io/socket.io.js"></script>
+// comment-out below line if you do not have your own socket.io server
+// connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
-        <!-- <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script> -->
-        <script>
-            // recording is disabled because it is resulting for browser-crash
-            // if you enable below line, please also uncomment above "RecordRTC.js"
-            var enableRecordings = false;
+connection.socketMessageEvent = 'scalable-media-broadcast-demo';
 
-            var connection = new RTCMultiConnection(null, {
-                useDefaultDevices: true // if we don't need to force selection of specific devices
+// document.getElementById('broadcast-id').value = connection.userid;
+
+// user need to connect server, so that others can reach him.
+connection.connectSocket(function(socket) {
+    socket.on('logs', function(log) {
+        document.querySelector('h1').innerHTML = log.replace(/</g, '----').replace(/>/g, '___').replace(/----/g, '(<span style="color:red;">').replace(/___/g, '</span>)');
+    });
+
+    // this event is emitted when a broadcast is already created.
+    socket.on('join-broadcaster', function(hintsToJoinBroadcast) {
+        console.log('join-broadcaster', hintsToJoinBroadcast);
+
+        connection.session = hintsToJoinBroadcast.typeOfStreams;
+        connection.sdpConstraints.mandatory = {
+            OfferToReceiveVideo: !!connection.session.video,
+            OfferToReceiveAudio: !!connection.session.audio
+        };
+        connection.broadcastId = hintsToJoinBroadcast.broadcastId;
+        connection.join(hintsToJoinBroadcast.userid);
+    });
+
+    socket.on('rejoin-broadcast', function(broadcastId) {
+        console.log('rejoin-broadcast', broadcastId);
+
+        connection.attachStreams = [];
+        socket.emit('check-broadcast-presence', broadcastId, function(isBroadcastExists) {
+            if (!isBroadcastExists) {
+                // the first person (i.e. real-broadcaster) MUST set his user-id
+                connection.userid = broadcastId;
+            }
+
+            socket.emit('join-broadcast', {
+                broadcastId: broadcastId,
+                userid: connection.userid,
+                typeOfStreams: connection.session
             });
+        });
+    });
 
-            // its mandatory in v3
-            connection.enableScalableBroadcast = true;
+    socket.on('broadcast-stopped', function(broadcastId) {
+        // alert('Broadcast has been stopped.');
+        // location.reload();
+        console.error('broadcast-stopped', broadcastId);
+        alert('This broadcast has been stopped.');
+    });
 
-            // each relaying-user should serve only 1 users
-            connection.maxRelayLimitPerUser = 1;
+    // this event is emitted when a broadcast is absent.
+    socket.on('start-broadcasting', function(typeOfStreams) {
+        console.log('start-broadcasting', typeOfStreams);
 
-            // we don't need to keep room-opened
-            // scalable-broadcast.js will handle stuff itself.
-            connection.autoCloseEntireSession = true;
+        // host i.e. sender should always use this!
+        connection.sdpConstraints.mandatory = {
+            OfferToReceiveVideo: false,
+            OfferToReceiveAudio: false
+        };
+        connection.session = typeOfStreams;
 
-            // by default, socket.io server is assumed to be deployed on your own URL
-            connection.socketURL = '/';
+        // "open" method here will capture media-stream
+        // we can skip this function always; it is totally optional here.
+        // we can use "connection.getUserMediaHandler" instead
+        connection.open(connection.userid, function() {
+            showRoomURL(connection.sessionid);
+        });
+    });
+});
 
-            // comment-out below line if you do not have your own socket.io server
-            // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+window.onbeforeunload = function() {
+    // Firefox is ugly.
+    document.getElementById('open-or-join').disabled = false;
+};
 
-            connection.socketMessageEvent = 'scalable-media-broadcast-demo';
+var videoPreview = document.getElementById('video-preview');
 
-            // document.getElementById('broadcast-id').value = connection.userid;
+connection.onstream = function(event) {
+    if (connection.isInitiator && event.type !== 'local') {
+        return;
+    }
 
-            // user need to connect server, so that others can reach him.
-            connection.connectSocket(function(socket) {
-                socket.on('logs', function(log) {
-                    document.querySelector('h1').innerHTML = log.replace(/</g, '----').replace(/>/g, '___').replace(/----/g, '(<span style="color:red;">').replace(/___/g, '</span>)');
-                });
+    if (event.mediaElement) {
+        event.mediaElement.pause();
+        delete event.mediaElement;
+    }
 
-                // this event is emitted when a broadcast is already created.
-                socket.on('join-broadcaster', function(hintsToJoinBroadcast) {
-                    console.log('join-broadcaster', hintsToJoinBroadcast);
+    connection.isUpperUserLeft = false;
+    videoPreview.src = URL.createObjectURL(event.stream);
+    videoPreview.play();
 
-                    connection.session = hintsToJoinBroadcast.typeOfStreams;
-                    connection.sdpConstraints.mandatory = {
-                        OfferToReceiveVideo: !!connection.session.video,
-                        OfferToReceiveAudio: !!connection.session.audio
-                    };
-                    connection.broadcastId = hintsToJoinBroadcast.broadcastId;
-                    connection.join(hintsToJoinBroadcast.userid);
-                });
+    videoPreview.userid = event.userid;
 
-                socket.on('rejoin-broadcast', function(broadcastId) {
-                    console.log('rejoin-broadcast', broadcastId);
+    if (event.type === 'local') {
+        videoPreview.muted = true;
+    }
 
-                    connection.attachStreams = [];
-                    socket.emit('check-broadcast-presence', broadcastId, function(isBroadcastExists) {
-                        if(!isBroadcastExists) {
-                            // the first person (i.e. real-broadcaster) MUST set his user-id
-                            connection.userid = broadcastId;
-                        }
+    if (connection.isInitiator == false && event.type === 'remote') {
+        // he is merely relaying the media
+        connection.dontCaptureUserMedia = true;
+        connection.attachStreams = [event.stream];
+        connection.sdpConstraints.mandatory = {
+            OfferToReceiveAudio: false,
+            OfferToReceiveVideo: false
+        };
 
-                        socket.emit('join-broadcast', {
-                            broadcastId: broadcastId,
-                            userid: connection.userid,
-                            typeOfStreams: connection.session
-                        });
+        var socket = connection.getSocket();
+        socket.emit('can-relay-broadcast');
+
+        if (connection.DetectRTC.browser.name === 'Chrome') {
+            connection.getAllParticipants().forEach(function(p) {
+                if (p + '' != event.userid + '') {
+                    var peer = connection.peers[p].peer;
+                    peer.getLocalStreams().forEach(function(localStream) {
+                        peer.removeStream(localStream);
                     });
-                });
-
-                socket.on('broadcast-stopped', function(broadcastId) {
-                    // alert('Broadcast has been stopped.');
-                    // location.reload();
-                    console.error('broadcast-stopped', broadcastId);
-                    alert('This broadcast has been stopped.');
-                });
-
-                // this event is emitted when a broadcast is absent.
-                socket.on('start-broadcasting', function(typeOfStreams) {
-                    console.log('start-broadcasting', typeOfStreams);
-
-                    // host i.e. sender should always use this!
-                    connection.sdpConstraints.mandatory = {
-                        OfferToReceiveVideo: false,
-                        OfferToReceiveAudio: false
-                    };
-                    connection.session = typeOfStreams;
-
-                    // "open" method here will capture media-stream
-                    // we can skip this function always; it is totally optional here.
-                    // we can use "connection.getUserMediaHandler" instead
-                    connection.open(connection.userid, function() {
-                        showRoomURL(connection.sessionid);
-                    });
-                });
+                    peer.addStream(event.stream);
+                    connection.dontAttachStream = true;
+                    connection.renegotiate(p);
+                    connection.dontAttachStream = false;
+                }
             });
+        }
 
-            window.onbeforeunload = function() {
-                // Firefox is ugly.
-                document.getElementById('open-or-join').disabled = false;
-            };
-
-            var videoPreview = document.getElementById('video-preview');
-
-            connection.onstream = function(event) {
-                if(connection.isInitiator && event.type !== 'local') {
-                    return;
+        if (connection.DetectRTC.browser.name === 'Firefox') {
+            // Firefox is NOT supporting removeStream method
+            // that's why using alternative hack.
+            // NOTE: Firefox seems unable to replace-tracks of the remote-media-stream
+            // need to ask all deeper nodes to rejoin
+            connection.getAllParticipants().forEach(function(p) {
+                if (p + '' != event.userid + '') {
+                    connection.replaceTrack(event.stream, p);
                 }
+            });
+        }
 
-                if(event.mediaElement) {
-                    event.mediaElement.pause();
-                    delete event.mediaElement;
-                }
+        // Firefox seems UN_ABLE to record remote MediaStream
+        // WebAudio solution merely records audio
+        // so recording is skipped for Firefox.
+        if (connection.DetectRTC.browser.name === 'Chrome') {
+            repeatedlyRecordStream(event.stream);
+        }
+    }
+};
 
-                connection.isUpperUserLeft = false;
-                videoPreview.src = URL.createObjectURL(event.stream);
-                videoPreview.play();
+// ask node.js server to look for a broadcast
+// if broadcast is available, simply join it. i.e. "join-broadcaster" event should be emitted.
+// if broadcast is absent, simply create it. i.e. "start-broadcasting" event should be fired.
+document.getElementById('open-or-join').onclick = function() {
+    var broadcastId = document.getElementById('broadcast-id').value;
+    if (broadcastId.replace(/^\s+|\s+$/g, '').length <= 0) {
+        alert('Please enter broadcast-id');
+        document.getElementById('broadcast-id').focus();
+        return;
+    }
 
-                videoPreview.userid = event.userid;
+    document.getElementById('open-or-join').disabled = true;
 
-                if(event.type === 'local') {
-                    videoPreview.muted = true;
-                }
+    connection.session = {
+        audio: true,
+        video: true,
+        oneway: true
+    };
 
-                if (connection.isInitiator == false && event.type === 'remote') {
-                    // he is merely relaying the media
-                    connection.dontCaptureUserMedia = true;
-                    connection.attachStreams = [event.stream];
-                    connection.sdpConstraints.mandatory = {
-                        OfferToReceiveAudio: false,
-                        OfferToReceiveVideo: false
-                    };
+    var socket = connection.getSocket();
 
-                    var socket = connection.getSocket();
-                    socket.emit('can-relay-broadcast');
+    socket.emit('check-broadcast-presence', broadcastId, function(isBroadcastExists) {
+        if (!isBroadcastExists) {
+            // the first person (i.e. real-broadcaster) MUST set his user-id
+            connection.userid = broadcastId;
+        }
 
-                    if(connection.DetectRTC.browser.name === 'Chrome') {
-                        connection.getAllParticipants().forEach(function(p) {
-                            if(p + '' != event.userid + '') {
-                                var peer = connection.peers[p].peer;
-                                peer.getLocalStreams().forEach(function(localStream) {
-                                    peer.removeStream(localStream);
-                                });
-                                peer.addStream(event.stream);
-                                connection.dontAttachStream = true;
-                                connection.renegotiate(p);
-                                connection.dontAttachStream = false;
-                            }
-                        });
-                    }
+        console.log('check-broadcast-presence', broadcastId, isBroadcastExists);
 
-                    if(connection.DetectRTC.browser.name === 'Firefox') {
-                        // Firefox is NOT supporting removeStream method
-                        // that's why using alternative hack.
-                        // NOTE: Firefox seems unable to replace-tracks of the remote-media-stream
-                        // need to ask all deeper nodes to rejoin
-                        connection.getAllParticipants().forEach(function(p) {
-                            if(p + '' != event.userid + '') {
-                                connection.replaceTrack(event.stream, p);
-                            }
-                        });
-                    }
+        socket.emit('join-broadcast', {
+            broadcastId: broadcastId,
+            userid: connection.userid,
+            typeOfStreams: connection.session
+        });
+    });
+};
 
-                    // Firefox seems UN_ABLE to record remote MediaStream
-                    // WebAudio solution merely records audio
-                    // so recording is skipped for Firefox.
-                    if(connection.DetectRTC.browser.name === 'Chrome') {
-                        repeatedlyRecordStream(event.stream);
-                    }
-                }
-            };
+connection.onstreamended = function() {};
 
-            // ask node.js server to look for a broadcast
-            // if broadcast is available, simply join it. i.e. "join-broadcaster" event should be emitted.
-            // if broadcast is absent, simply create it. i.e. "start-broadcasting" event should be fired.
-            document.getElementById('open-or-join').onclick = function() {
-                var broadcastId = document.getElementById('broadcast-id').value;
-                if (broadcastId.replace(/^\s+|\s+$/g, '').length <= 0) {
-                    alert('Please enter broadcast-id');
-                    document.getElementById('broadcast-id').focus();
-                    return;
-                }
+connection.onleave = function(event) {
+    if (event.userid !== videoPreview.userid) return;
 
-                document.getElementById('open-or-join').disabled = true;
+    var socket = connection.getSocket();
+    socket.emit('can-not-relay-broadcast');
 
-                connection.session = {
-                    audio: true,
-                    video: true,
-                    oneway: true
-                };
+    connection.isUpperUserLeft = true;
 
-                var socket = connection.getSocket();
+    if (allRecordedBlobs.length) {
+        // playing lats recorded blob
+        var lastBlob = allRecordedBlobs[allRecordedBlobs.length - 1];
+        videoPreview.src = URL.createObjectURL(lastBlob);
+        videoPreview.play();
+        allRecordedBlobs = [];
+    } else if (connection.currentRecorder) {
+        var recorder = connection.currentRecorder;
+        connection.currentRecorder = null;
+        recorder.stopRecording(function() {
+            if (!connection.isUpperUserLeft) return;
 
-                socket.emit('check-broadcast-presence', broadcastId, function(isBroadcastExists) {
-                    if(!isBroadcastExists) {
-                        // the first person (i.e. real-broadcaster) MUST set his user-id
-                        connection.userid = broadcastId;
-                    }
+            videoPreview.src = URL.createObjectURL(recorder.blob);
+            videoPreview.play();
+        });
+    }
 
-                    console.log('check-broadcast-presence', broadcastId, isBroadcastExists);
+    if (connection.currentRecorder) {
+        connection.currentRecorder.stopRecording();
+        connection.currentRecorder = null;
+    }
+};
 
-                    socket.emit('join-broadcast', {
-                        broadcastId: broadcastId,
-                        userid: connection.userid,
-                        typeOfStreams: connection.session
-                    });
-                });
-            };
+var allRecordedBlobs = [];
 
-            connection.onstreamended = function() {};
+function repeatedlyRecordStream(stream) {
+    if (!enableRecordings) {
+        return;
+    }
 
-            connection.onleave = function(event) {
-                if(event.userid !== videoPreview.userid) return;
+    connection.currentRecorder = RecordRTC(stream, {
+        type: 'video'
+    });
 
-                var socket = connection.getSocket();
-                socket.emit('can-not-relay-broadcast');
+    connection.currentRecorder.startRecording();
 
-                connection.isUpperUserLeft = true;
+    setTimeout(function() {
+        if (connection.isUpperUserLeft || !connection.currentRecorder) {
+            return;
+        }
 
-                if(allRecordedBlobs.length) {
-                    // playing lats recorded blob
-                    var lastBlob = allRecordedBlobs[allRecordedBlobs.length - 1];
-                    videoPreview.src = URL.createObjectURL(lastBlob);
-                    videoPreview.play();
-                    allRecordedBlobs = [];
-                }
-                else if(connection.currentRecorder) {
-                    var recorder = connection.currentRecorder;
-                    connection.currentRecorder = null;
-                    recorder.stopRecording(function() {
-                        if(!connection.isUpperUserLeft) return;
+        connection.currentRecorder.stopRecording(function() {
+            allRecordedBlobs.push(connection.currentRecorder.blob);
 
-                        videoPreview.src = URL.createObjectURL(recorder.blob);
-                        videoPreview.play();
-                    });
-                }
-
-                if(connection.currentRecorder) {
-                    connection.currentRecorder.stopRecording();
-                    connection.currentRecorder = null;
-                }
-            };
-
-            var allRecordedBlobs = [];
-
-            function repeatedlyRecordStream(stream) {
-                if(!enableRecordings) {
-                    return;
-                }
-
-                connection.currentRecorder = RecordRTC(stream, {
-                    type: 'video'
-                });
-
-                connection.currentRecorder.startRecording();
-
-                setTimeout(function() {
-                    if(connection.isUpperUserLeft || !connection.currentRecorder) {
-                        return;
-                    }
-
-                    connection.currentRecorder.stopRecording(function() {
-                        allRecordedBlobs.push(connection.currentRecorder.blob);
-
-                        if(connection.isUpperUserLeft) {
-                            return;
-                        }
-
-                        connection.currentRecorder = null;
-                        repeatedlyRecordStream(stream);
-                    });
-                }, 30 * 1000); // 30-seconds
-            };
-
-            function disableInputButtons() {
-                document.getElementById('open-or-join').disabled = true;
-                document.getElementById('broadcast-id').disabled = true;
+            if (connection.isUpperUserLeft) {
+                return;
             }
 
-            // ......................................................
-            // ......................Handling broadcast-id................
-            // ......................................................
+            connection.currentRecorder = null;
+            repeatedlyRecordStream(stream);
+        });
+    }, 30 * 1000); // 30-seconds
+};
 
-            function showRoomURL(broadcastId) {
-                var roomHashURL = '#' + broadcastId;
-                var roomQueryStringURL = '?simple=true&broadcastId=' + broadcastId;
+function disableInputButtons() {
+    document.getElementById('open-or-join').disabled = true;
+    document.getElementById('broadcast-id').disabled = true;
+}
 
-                var html = '<h2>Unique URL for your room:</h2><br>';
+// ......................................................
+// ......................Handling broadcast-id................
+// ......................................................
 
-                html += 'Hash URL: <a href="' + roomHashURL + '" target="_blank">' + roomHashURL + '</a>';
-                html += '<br>';
-                html += 'QueryString URL: <a href="' + roomQueryStringURL + '" target="_blank">' + roomQueryStringURL + '</a>';
+function showRoomURL(broadcastId) {
+    var roomHashURL = '#' + broadcastId;
+    var roomQueryStringURL = '?broadcastId=' + broadcastId;
 
-                var roomURLsDiv = document.getElementById('room-urls');
-                roomURLsDiv.innerHTML = html;
+    var html = '<h2>Unique URL for your room:</h2><br>';
 
-                roomURLsDiv.style.display = 'block';
+    html += 'Hash URL: <a href="' + roomHashURL + '" target="_blank">' + roomHashURL + '</a>';
+    html += '<br>';
+    html += 'QueryString URL: <a href="' + roomQueryStringURL + '" target="_blank">' + roomQueryStringURL + '</a>';
+
+    var roomURLsDiv = document.getElementById('room-urls');
+    roomURLsDiv.innerHTML = html;
+
+    roomURLsDiv.style.display = 'block';
+}
+
+(function() {
+    var params = {},
+        r = /([^&=]+)=?([^&]*)/g;
+
+    function d(s) {
+        return decodeURIComponent(s.replace(/\+/g, ' '));
+    }
+    var match, search = window.location.search;
+    while (match = r.exec(search.substring(1)))
+        params[d(match[1])] = d(match[2]);
+    window.params = params;
+})();
+
+var broadcastId = '';
+if (localStorage.getItem(connection.socketMessageEvent)) {
+    broadcastId = localStorage.getItem(connection.socketMessageEvent);
+} else {
+    broadcastId = connection.token();
+}
+document.getElementById('broadcast-id').value = broadcastId;
+document.getElementById('broadcast-id').onkeyup = function() {
+    localStorage.setItem(connection.socketMessageEvent, this.value);
+};
+
+var hashString = location.hash.replace('#', '');
+if (hashString.length && hashString.indexOf('comment-') == 0) {
+    hashString = '';
+}
+
+var broadcastId = params.broadcastId;
+if (!broadcastId && hashString.length) {
+    broadcastId = hashString;
+}
+
+if (broadcastId && broadcastId.length) {
+    document.getElementById('broadcast-id').value = broadcastId;
+    localStorage.setItem(connection.socketMessageEvent, broadcastId);
+
+    // auto-join-room
+    (function reCheckRoomPresence() {
+        connection.checkPresence(broadcastId, function(isRoomExists) {
+            if (isRoomExists) {
+                document.getElementById('open-or-join').onclick();
+                return;
             }
 
-            (function() {
-                var params = {},
-                    r = /([^&=]+)=?([^&]*)/g;
+            setTimeout(reCheckRoomPresence, 5000);
+        });
+    })();
 
-                function d(s) {
-                    return decodeURIComponent(s.replace(/\+/g, ' '));
-                }
-                var match, search = window.location.search;
-                while (match = r.exec(search.substring(1)))
-                    params[d(match[1])] = d(match[2]);
-                window.params = params;
-            })();
+    disableInputButtons();
+}
 
-            var broadcastId = '';
-            if (localStorage.getItem(connection.socketMessageEvent)) {
-                broadcastId = localStorage.getItem(connection.socketMessageEvent);
-            } else {
-                broadcastId = connection.token();
-            }
-            document.getElementById('broadcast-id').value = broadcastId;
-            document.getElementById('broadcast-id').onkeyup = function() {
-                localStorage.setItem(connection.socketMessageEvent, this.value);
-            };
+// below section detects how many users are viewing your broadcast
 
-            var hashString = location.hash.replace('#', '');
-            if(hashString.length && hashString.indexOf('comment-') == 0) {
-              hashString = '';
-            }
+connection.onNumberOfBroadcastViewersUpdated = function(event) {
+    if (!connection.isInitiator) return;
 
-            var broadcastId = params.broadcastId;
-            if(!broadcastId && hashString.length) {
-                broadcastId = hashString;
-            }
+    document.getElementById('broadcast-viewers-counter').innerHTML = 'Number of broadcast viewers: <b>' + event.numberOfBroadcastViewers + '</b>';
+};
+</script>
 
-            if(broadcastId && broadcastId.length) {
-                document.getElementById('broadcast-id').value = broadcastId;
-                localStorage.setItem(connection.socketMessageEvent, broadcastId);
+  <section>
+    <h2>How this works?</h2>
+    <p>
+      This module simply initializes socket.io and configures it in a way that single audio/video/screen stream can be shared/relayed over unlimited users without any <a href="https://www.webrtc-experiment.com/docs/RTP-usage.html">bandwidth/CPU usage issues</a>. Everything happens peer-to-peer!
+    </p>
+    <p>
+      Check <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues/2">this thread</a> or <a href="https://github.com/muaz-khan/WebRTC-Scalable-Broadcast">this github repository</a>.
+    </p>
+  </section>
 
-                // auto-join-room
-                (function reCheckRoomPresence() {
-                    connection.checkPresence(broadcastId, function(isRoomExists) {
-                        if(isRoomExists) {
-                            document.getElementById('open-or-join').onclick();
-                            return;
-                        }
+  <section>
+    <h2>iOS or Android</h2>
+    <p>
+      This demo <a href="http://webrtcweb.com/cordova-apps/scalable-broadcast/" target="_blank">has built-in (open-sourced)</a> cordova apps both for <b>iOS</b> and <b>Android</b>.
+    </p>
+    <p>
+      Google AppStore Link: <a href="https://play.google.com/store/apps/details?id=com.webrtc.scalablebroadcast" target="_blank">https://play.google.com/store/apps/details?id=com.webrtc.scalablebroadcast</a>
+    </p>
+  </section>
 
-                        setTimeout(reCheckRoomPresence, 5000);
-                    });
-                })();
+  <footer>
+    <small id="send-message"></small>
+  </footer>
 
-                disableInputButtons();
-            }
-
-            // below section detects how many users are viewing your broadcast
-
-            connection.onNumberOfBroadcastViewersUpdated = function(event) {
-                if (!connection.isInitiator) return;
-
-                document.getElementById('broadcast-viewers-counter').innerHTML = 'Number of broadcast viewers: <b>' + event.numberOfBroadcastViewers + '</b>';
-            };
-        </script>
-
-        <section class="experiment own-widgets latest-commits">
-            <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master">Latest Updates</a></h2>
-            <div id="github-commits"></div>
-        </section>
-
-        <section class="experiment own-widgets">
-            <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/issues">Latest Issues</a></h2>
-            <div id="github-issues"></div>
-        </section>
-
-        <section class="experiment">
-            <h2 class="header" id="feedback">Feedback</h2>
-            <div>
-                <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-            </div>
-            <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
-        </section>
-
-        <a href="https://github.com/muaz-khan/RTCMultiConnection" class="fork-left"></a>
-
-        <script>
-            window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
-        </script>
-
-        <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
-
-    </article>
-
-    <footer>
-        <p>
-            <a href="https://www.webrtc-experiment.com">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
-            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
-            <a href="https://github.com/muaz-khan" target="_blank">Github</a>
-        </p>
-    </footer>
-
+  <script src="https://cdn.webrtc-experiment.com/common.js"></script>
 </body>
-
 </html>

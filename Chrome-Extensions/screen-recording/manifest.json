@@ -2,10 +2,9 @@
    "name":"RecordRTC",
    "short_name":"RecordRTC",
    "author":"Muaz Khan",
-   "version":"3.7",
+   "version":"4.0",
    "manifest_version":2,
    "minimum_chrome_version":"49",
-   "incognito":"not_allowed",
    "description":"Record screen, audio+screen, all-audios+tab, entire conference, and more!",
    "homepage_url":"https://www.WebRTC-Experiment.com/RecordRTC/",
    "background":{  
@@ -41,7 +40,9 @@
       "storage",
       "contextMenus",
       "tabs",
-      "<all_urls>"
+      "<all_urls>",
+      "tabCapture",
+      "activeTab"
    ],
    "web_accessible_resources":[  
       "images/main-icon.png"

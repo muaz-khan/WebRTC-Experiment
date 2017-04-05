@@ -211,7 +211,7 @@
                     appendTR('System has Webcam?', output, 'videoInputDevices');
 
                     appendTR('Website has webcam permissions?', printVal(DetectRTC.isWebsiteHasWebcamPermissions), 'isWebsiteHasWebcamPermissions');
-                    appendTR('Website has mcirophone permissions?', printVal(DetectRTC.isWebsiteHasMicrophonePermissions), 'isWebsiteHasMicrophonePermissions');
+                    appendTR('Website has microphone permissions?', printVal(DetectRTC.isWebsiteHasMicrophonePermissions), 'isWebsiteHasMicrophonePermissions');
 
                     appendTR('Browser allows getUserMedia on this page?', printVal(DetectRTC.isGetUserMediaSupported), 'isGetUserMediaSupported');
 
@@ -326,8 +326,14 @@ rtpSenders.replaceTrack(newTrack);';
                     };
                 }
 
-                function reloadDetectRTC() {
-                    DetectRTC.load(onDetectRTCLoaded);
+                function reloadDetectRTC(callback) {
+                    DetectRTC.load(function() {
+                        onDetectRTCLoaded();
+
+                        if(callback && typeof callback == 'function') {
+                            callback();
+                        }
+                    });
                 }
 
                 DetectRTC.load(function() {
@@ -336,9 +342,19 @@ rtpSenders.replaceTrack(newTrack);';
                     try {
                         if(DetectRTC.MediaDevices[0] && DetectRTC.MediaDevices[0].label === 'Please invoke getUserMedia once.') {
                             navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(function(stream) {
-                                reloadDetectRTC();
-                                
+                                var video;
                                 try {
+                                    video = document.createElement('video');
+                                    video.muted = true;
+                                    video.volume = 0;
+                                    video.src = URL.createObjectURL(stream);
+                                    video.style.display = 'none';
+                                    video.style.opacity = 0;
+                                    (document.body || document.documentElement).appendChild(vide);
+                                }
+                                catch(e) {}
+
+                                reloadDetectRTC(function() {
                                     // release camera
                                     stream.getVideoTracks().forEach(function(track) {
                                         track.stop();
@@ -347,8 +363,11 @@ rtpSenders.replaceTrack(newTrack);';
                                     stream.getAudioTracks().forEach(function(track) {
                                         track.stop();
                                     });
-                                }
-                                catch(e) {}
+
+                                    if(video && video.parentNode) {
+                                        video.parentNode.removeChild(video);
+                                    }
+                                });
                             }).catch(reloadDetectRTC);
                             return;
                         }

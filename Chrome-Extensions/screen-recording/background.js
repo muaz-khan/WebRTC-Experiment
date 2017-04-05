@@ -1,8 +1,10 @@
 // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.WebRTC-Experiment.com/licence/
 // Source Code   - https://github.com/muaz-khan/Chrome-Extensions
+
 // this page is using desktopCapture API to capture and record screen
 // http://developer.chrome.com/extensions/desktopCapture.html
+
 chrome.browserAction.setIcon({
     path: 'images/main-icon.png'
 });
@@ -36,6 +38,11 @@ function captureDesktop() {
     chrome.browserAction.setIcon({
         path: 'images/main-icon.png'
     });
+
+    if (enableTabCaptureAPI) {
+        captureTabUsingTabCapture();
+        return;
+    }
 
     var screenSources = ['window', 'screen'];
 
@@ -105,104 +112,129 @@ function onAccessApproved(chromeMediaSourceId) {
     }
 
     navigator.webkitGetUserMedia(constraints, gotStream, getUserMediaError);
+}
 
-    function gotStream(stream) {
-        var options = {
-            type: 'video',
-            disableLogs: false,
-            recorderType: MediaStreamRecorder // StereoAudioRecorder
-        };
+function gotStream(stream) {
+    var options = {
+        type: 'video',
+        disableLogs: false,
+        recorderType: MediaStreamRecorder // StereoAudioRecorder
+    };
 
-        if (videoCodec && videoCodec !== 'Default') {
-            // chrome 49+= supports vp8+vp9 (30 fps) and opus 48khz
-            // firefox 30+ VP8 + vorbis 44.1 khz
+    if (videoCodec && videoCodec !== 'Default') {
+        // chrome 49+= supports vp8+vp9 (30 fps) and opus 48khz
+        // firefox 30+ VP8 + vorbis 44.1 khz
 
-            // video/webm,codecs=vp9
-            options.mimeType = 'video/webm; codecs=' + videoCodec.toLowerCase();
-        }
-
-        if (getChromeVersion() >= 52) {
-            if (audioBitsPerSecond) {
-                audioBitsPerSecond = parseInt(audioBitsPerSecond);
-                if (!audioBitsPerSecond || audioBitsPerSecond > 128) { // 128000
-                    audioBitsPerSecond = 128;
-                }
-                if (!audioBitsPerSecond || audioBitsPerSecond < 6) {
-                    audioBitsPerSecond = 6; // opus (smallest 6kbps, maximum 128kbps)
-                }
-            }
-
-            if (videoBitsPerSecond) {
-                videoBitsPerSecond = parseInt(videoBitsPerSecond);
-                if (!videoBitsPerSecond || videoBitsPerSecond < 100) {
-                    videoBitsPerSecond = 100; // vp8 (smallest 100kbps)
-                }
-            }
-
-            if (enableTabAudio || enableMicrophone) {
-                if (audioBitsPerSecond) {
-                    options.audioBitsPerSecond = audioBitsPerSecond * 1000;
-                }
-                if (videoBitsPerSecond) {
-                    options.videoBitsPerSecond = videoBitsPerSecond * 1000;
-                }
-            } else if (videoBitsPerSecond) {
-                options.bitsPerSecond = videoBitsPerSecond * 1000;
-            }
-        }
-
-        if (audioStream && audioStream.getAudioTracks && audioStream.getAudioTracks().length) {
-            audioPlayer = document.createElement('audio');
-            audioPlayer.src = URL.createObjectURL(audioStream);
-
-            audioPlayer.play();
-
-            context = new AudioContext();
-
-            var gainNode = context.createGain();
-            gainNode.connect(context.destination);
-            gainNode.gain.value = 0; // don't play for self
-
-            mediaStremSource = context.createMediaStreamSource(audioStream);
-            mediaStremSource.connect(gainNode);
-
-            mediaStremDestination = context.createMediaStreamDestination();
-            mediaStremSource.connect(mediaStremDestination)
-
-            stream.addTrack(mediaStremDestination.stream.getAudioTracks()[0]);
-        }
-
-        recorder = RecordRTC(stream, options);
-
-        try {
-            recorder.startRecording();
-            alreadyHadGUMError = false;
-        } catch (e) {
-            getUserMediaError();
-        }
-
-        recorder.stream = stream;
-
-        isRecording = true;
-        onRecording();
-
-        recorder.stream.onended = function() {
-            if (recorder && recorder.stream) {
-                recorder.stream.onended = function() {};
-            }
-
-            stopScreenRecording();
-        };
-
-        recorder.stream.getVideoTracks()[0].onended = function() {
-            if (recorder && recorder.stream && recorder.stream.onended) {
-                recorder.stream.onended();
-            }
-        };
-
-        initialTime = Date.now()
-        timer = setInterval(checkTime, 100);
+        // video/webm,codecs=vp9
+        options.mimeType = 'video/webm; codecs=' + videoCodec.toLowerCase();
     }
+
+    if (getChromeVersion() >= 52) {
+        if (audioBitsPerSecond) {
+            audioBitsPerSecond = parseInt(audioBitsPerSecond);
+            if (!audioBitsPerSecond || audioBitsPerSecond > 128) { // 128000
+                audioBitsPerSecond = 128;
+            }
+            if (!audioBitsPerSecond || audioBitsPerSecond < 6) {
+                audioBitsPerSecond = 6; // opus (smallest 6kbps, maximum 128kbps)
+            }
+        }
+
+        if (videoBitsPerSecond) {
+            videoBitsPerSecond = parseInt(videoBitsPerSecond);
+            if (!videoBitsPerSecond || videoBitsPerSecond < 100) {
+                videoBitsPerSecond = 100; // vp8 (smallest 100kbps)
+            }
+        }
+
+        if (enableTabAudio || enableMicrophone) {
+            if (audioBitsPerSecond) {
+                options.audioBitsPerSecond = audioBitsPerSecond * 1000;
+            }
+            if (videoBitsPerSecond) {
+                options.videoBitsPerSecond = videoBitsPerSecond * 1000;
+            }
+        } else if (videoBitsPerSecond) {
+            options.bitsPerSecond = videoBitsPerSecond * 1000;
+        }
+    }
+
+    if (audioStream && audioStream.getAudioTracks && audioStream.getAudioTracks().length) {
+        audioPlayer = document.createElement('audio');
+		audioPlayer.muted = true;
+		audioPlayer.volume = 0;
+        audioPlayer.src = URL.createObjectURL(audioStream);
+
+        audioPlayer.play();
+		
+		var singleAudioStream = getMixedAudioStream([stream, audioStream]);
+		singleAudioStream.addTrack(stream.getVideoTracks()[0]);
+		stream = singleAudioStream;
+    }
+
+    recorder = RecordRTC(stream, options);
+
+    try {
+        recorder.startRecording();
+        alreadyHadGUMError = false;
+    } catch (e) {
+        getUserMediaError();
+    }
+
+    recorder.stream = stream;
+
+    isRecording = true;
+    onRecording();
+
+    recorder.stream.onended = function() {
+        if (recorder && recorder.stream) {
+            recorder.stream.onended = function() {};
+        }
+
+        stopScreenRecording();
+    };
+
+    recorder.stream.getVideoTracks()[0].onended = function() {
+        if (recorder && recorder.stream && recorder.stream.onended) {
+            recorder.stream.onended();
+        }
+    };
+
+    initialTime = Date.now()
+    timer = setInterval(checkTime, 100);
+}
+
+function getMixedAudioStream(arrayOfMediaStreams) {
+    // via: @pehrsons
+    context = new AudioContext();
+    var audioSources = [];
+
+    var gainNode = context.createGain();
+    gainNode.connect(context.destination);
+    gainNode.gain.value = 0; // don't hear self
+
+    var audioTracksLength = 0;
+    arrayOfMediaStreams.forEach(function(stream) {
+        if (!stream.getAudioTracks().length) {
+            return;
+        }
+
+        audioTracksLength++;
+
+        var audioSource = context.createMediaStreamSource(stream);
+        audioSource.connect(gainNode);
+        audioSources.push(audioSource);
+    });
+
+    if (!audioTracksLength) {
+        return;
+    }
+
+    mediaStremDestination = context.createMediaStreamDestination();
+    audioSources.forEach(function(audioSource) {
+        audioSource.connect(mediaStremDestination);
+    });
+    return mediaStremDestination.stream;
 }
 
 function askToStopExternalStreams() {
@@ -364,6 +396,8 @@ var audioBitsPerSecond = 0;
 var videoBitsPerSecond = 0;
 
 var enableTabAudio = false;
+var enableTabCaptureAPI = false;
+
 var enableMicrophone = false;
 var audioStream = false;
 
@@ -382,6 +416,10 @@ function getUserConfigs() {
 
         if (items['enableTabAudio']) {
             enableTabAudio = items['enableTabAudio'] == 'true';
+        }
+
+        if (items['enableTabCaptureAPI']) {
+            enableTabCaptureAPI = items['enableTabCaptureAPI'] == 'true';
         }
 
         if (items['enableMicrophone']) {
@@ -577,15 +615,14 @@ function getUserConfigs() {
         }
 
         if (enableMicrophone) {
-            if(!runtimePort || runtimePort.sender.url.indexOf('https:') == -1) {
+            if (!runtimePort || runtimePort.sender.url.indexOf('https:') == -1) {
                 chrome.tabs.create({
                     url: 'https://webrtcweb.com'
                 }, function(tab) {
                     askContentScriptToSendMicrophone(tab.id);
                 });
                 return;
-            }
-            else {
+            } else {
                 askContentScriptToSendMicrophone(runtimePort.sender.tab.id);
             }
             return;
@@ -606,6 +643,8 @@ function getUserMediaError() {
         videoBitsPerSecond = false;
 
         enableTabAudio = false;
+        enableTabCaptureAPI = false;
+
         enableMicrophone = false;
         audioStream = false;
 
@@ -675,12 +714,11 @@ function sendMessageToContentScript(message) {
 }
 
 function enableDisableContextMenuItems() {
-    if(!runtimePort || !runtimePort.sender) return;
+    if (!runtimePort || !runtimePort.sender) return;
 
-    if(runtimePort.sender.url.toLowerCase().indexOf('youtube') != -1) {
+    if (runtimePort.sender.url.toLowerCase().indexOf('youtube') != -1) {
         updateYouTubeRightClick(true);
-    }
-    else {
+    } else {
         updateYouTubeRightClick(false);
     }
 }
@@ -875,7 +913,7 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
         return;
     }
 
-    if(info.menuItemId == contextMenuUID + 'send_error_report') {
+    if (info.menuItemId == contextMenuUID + 'send_error_report') {
         chrome.tabs.create({
             url: 'https://github.com/muaz-khan/Chrome-Extensions/issues/new',
             active: true
@@ -926,4 +964,40 @@ function stopVODRecording() {
     });
 
     isRecordingVOD = false;
+}
+
+function captureTabUsingTabCapture(isNoAudio) {
+    var constraints = {
+        audio: isNoAudio === true ? false : true,
+        video: true,
+        videoConstraints: {
+            mandatory: {
+                chromeMediaSource: 'tab',
+                maxWidth: screen.width,
+                maxHeight: screen.height,
+                minFrameRate: 30,
+                maxFrameRate: 64,
+                minAspectRatio: 1.77,
+                googLeakyBucket: true,
+                googTemporalLayeredScreencast: true
+            }
+        }
+    };
+
+    chrome.tabCapture.capture(constraints, function(stream) {
+        gotTabCaptureStream(stream, constraints);
+    });
+}
+
+function gotTabCaptureStream(stream, constraints) {
+    if (!stream) {
+        if (constraints.audio === true) {
+            captureTabUsingTabCapture(true);
+            return;
+        }
+        chrome.runtime.reload();
+        return;
+    }
+
+    gotStream(stream);
 }

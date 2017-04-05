@@ -8,10 +8,10 @@ var configToReferListOfAllowedDomains = 'media.getusermedia.screensharing.allowe
 var configToEnableScreenCapturing = 'media.getusermedia.screensharing.enabled';
 
 // replace your own domains with below array
-var arrayOfMyOwnDomains = ['webrtc-experiment.com', 'www.webrtc-experiment.com', 'localhost', '127.0.0.1'];
+var arrayOfMyOwnDomains = ['webrtc-experiment.com', 'www.webrtc-experiment.com', 'rtcmulticonnection.herokuapp.com', 'localhost', '127.0.0.1'];
 // Patterns to match the websites that may check whether ther add-on is installed.
 // See https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
-var patternsOfMyDomains = ['*.webrtc-experiment.com', /https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/.*/];
+var patternsOfMyDomains = ['*.webrtc-experiment.com', '*.rtcmulticonnection.herokuapp.com', /https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/.*/];
 
 // e.g. if 127.0.0.1 or localhost is already allowed by anyone else
 var listOfSimilarAlreadyAllowedDomains = [];

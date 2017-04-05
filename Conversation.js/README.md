@@ -43,8 +43,8 @@ To use it:
 ## Link the library
 
 ```html
-<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
-<script src="//cdn.webrtc-experiment.com/conversation.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+<script src="https://cdn.webrtc-experiment.com/conversation.js"></script>
 ```
 
 =
@@ -293,10 +293,6 @@ conversation.on('file-cancelled', function (file) {
     console.log(file.name, 'cancelled.');
 });
 ```
-
-## Demos
-
-* https://www.rtcmulticonnection.org/conversationjs/demos/
 
 ## Credits
 

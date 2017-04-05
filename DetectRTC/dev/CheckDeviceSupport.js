@@ -61,6 +61,9 @@ function checkDeviceSupport(callback) {
     audioOutputDevices = [];
     videoInputDevices = [];
 
+    isWebsiteHasMicrophonePermissions = false;
+    isWebsiteHasWebcamPermissions = false;
+
     // to prevent duplication
     var alreadyUsedDevices = {};
 
@@ -75,7 +78,7 @@ function checkDeviceSupport(callback) {
                 } catch (e) {}
             }
 
-            if (alreadyUsedDevices[device.deviceId]) {
+            if (alreadyUsedDevices[device.deviceId + device.label]) {
                 return;
             }
 
@@ -98,7 +101,7 @@ function checkDeviceSupport(callback) {
 
             if (!device.label) {
                 device.label = 'Please invoke getUserMedia once.';
-                if (location.protocol !== 'https:') {
+                if (DetectRTC.browser.isChrome && DetectRTC.browser.version >= 46 && !/^(https:|chrome-extension:)$/g.test(location.protocol || '')) {
                     if (document.domain.search && document.domain.search(/localhost|127.0./g) === -1) {
                         device.label = 'HTTPs is required to get label of this ' + device.kind + ' device.';
                     }
@@ -140,7 +143,7 @@ function checkDeviceSupport(callback) {
             // there is no 'videoouput' in the spec.
             MediaDevices.push(device);
 
-            alreadyUsedDevices[device.deviceId] = device;
+            alreadyUsedDevices[device.deviceId + device.label] = device;
         });
 
         if (typeof DetectRTC !== 'undefined') {

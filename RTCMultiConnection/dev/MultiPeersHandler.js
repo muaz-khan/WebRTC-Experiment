@@ -245,7 +245,7 @@ function MultiPeers(connection) {
     this.renegotiatePeer = function(remoteUserId, userPreferences, remoteSdp) {
         if (!connection.peers[remoteUserId]) {
             if (connection.enableLogs) {
-                console.error('This peer (' + remoteUserId + ') does not exists. Renegotiation skipped.');
+                console.error('This peer (' + remoteUserId + ') does not exist. Renegotiation skipped.');
             }
             return;
         }
@@ -265,7 +265,7 @@ function MultiPeers(connection) {
 
     this.replaceTrack = function(track, remoteUserId, isVideoTrack) {
         if (!connection.peers[remoteUserId]) {
-            throw 'This peer (' + remoteUserId + ') does not exists.';
+            throw 'This peer (' + remoteUserId + ') does not exist.';
         }
 
         var peer = connection.peers[remoteUserId].peer;

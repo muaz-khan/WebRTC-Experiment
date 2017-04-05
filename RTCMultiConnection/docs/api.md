@@ -1125,10 +1125,13 @@ You can skip any stream or allow RTCMultiConnection to share a stream with remot
 `nativePeer.addStream` method will be called only if below event permits the `MediaStream` object:
 
 ```javascript
-connection.beforeAddingStream = function(stream) {
+connection.beforeAddingStream = function(stream, peer) {
 	if(stream.id == 'any-streamid') return; // skip
 	if(stream.isScreen) return; // skip
 	if(stream.inactive) return; // skip
+	
+	// var remoteUserId = peer.userid;
+	// var remoteUserExtra = connection.peers[remoteUserId].extra;
 
 	return stream; // otherwise allow RTCMultiConnection to share this stream with remote users
 };

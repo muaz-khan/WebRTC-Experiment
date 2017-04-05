@@ -1,0 +1,76 @@
+<style>
+    html, body, video, canvas {
+        margin: 0!important;
+        padding: 0!important;
+        overflow: hidden!important;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+<title>Video+Screen recording using RecordRTC</title>
+<h1>Video+Screen recording using RecordRTC</h1>
+
+<video controls autoplay></video>
+
+<script src="/RecordRTC.js"></script>
+<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+<script>
+navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+
+function captureScreen(cb) {
+    getScreenId(function (error, sourceId, screen_constraints) {
+        navigator.getUserMedia(screen_constraints, cb, function (error) {
+          console.error('getScreenId error', error);
+
+          alert('Failed to capture your screen. Please check Chrome console logs for further information.');
+        });
+    });
+}
+
+function captureCamera(cb) {
+    navigator.getUserMedia({audio: true, video: true}, cb, function (error) {});
+}
+
+captureScreen(function(screen) {
+    captureCamera(function(camera) {
+        screen.width = window.screen.width;
+        screen.height = window.screen.height;
+        screen.fullcanvas = true;
+        
+        camera.width = 320;
+        camera.height = 240;
+        camera.top = screen.height - camera.height;
+        camera.left = screen.width - camera.width;
+        
+        var recorder = RecordRTC([screen, camera], {
+            type: 'video',
+            mimeType: 'video/webm',
+            previewStream: function(s) {
+                document.querySelector('video').muted = true;
+                document.querySelector('video').src = URL.createObjectURL(s);
+            }
+        });
+
+        recorder.startRecording();
+
+        setTimeout(function() {
+            recorder.stopRecording(function() {
+                var blob = recorder.getBlob();
+                document.querySelector('video').src = URL.createObjectURL(blob);
+                document.querySelector('video').muted = false;
+
+                [screen, camera].forEach(function(stream) {
+                    stream.getVideoTracks().forEach(function(track) {
+                        track.stop();
+                    });
+
+                    stream.getAudioTracks().forEach(function(track) {
+                        track.stop();
+                    });
+                })
+            });
+        }, 5 * 1000);
+    });
+});
+</script>

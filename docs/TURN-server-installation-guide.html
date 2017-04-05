@@ -8,7 +8,7 @@
 <html id="home" lang="en">
 
     <head>
-        <title>TURN server installation Guide ® Muaz Khan</title>
+        <title>TURN server installation Guide | Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -119,7 +119,7 @@
     <body>
         <article>
             <header style="text-align: center;">
-                <h1>TURN server installation Guide ® <a href="http://www.MuazKhan.com/">Muaz Khan</a></h1>
+                <h1>TURN server installation Guide</h1>
 
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
@@ -260,7 +260,7 @@ iceServer => {
                 </h2>
 
                 <p>
-                    "make" and "gcc" are required.
+                    "make" and "gcc" are required. <a href="https://github.com/muaz-khan/RTCMultiConnection/blob/master/dev/IceServersHandler.js#L100-L102">Example LIVE server</a>
                 </p>
 
                 <ol>
@@ -281,9 +281,9 @@ make install          # "sudo" is preferred
                     <li>
                         <h2>Download "restund":</h2>
                         <pre><code class="bash">
-# via: http://www.creytiv.com/restund.html
+# via: http://www.creytiv.com/pub/
 # choose latest version
-# replace "0.4.12" with latesat version
+# replace "0.4.12" with latesat version (06-Oct-2015)
 wget http://www.creytiv.com/pub/restund-0.4.12.tar.gz
 tar zxvf restund-0.4.12.tar.gz
 make
@@ -310,6 +310,7 @@ realm           yourdomain.com
 #       Version:    0.4.12
 #       Built:  Nov 10 2016 23:39:41
 #       Uptime: 21 hours 25 mins 56 secs
+# LIVE Example: http://webrtcweb.com:4050/
 
 status_udp_addr     your-ip
 status_udp_port     33000
@@ -405,7 +406,10 @@ status: module loaded (udp=your-ip:33000 http=your-ip:4050)
                 <h2>
                     <a href="#coturn">CoTURN installation on Ubuntu</a>
                 </h2>
-                <br>
+                
+				<p>
+					 <a href="https://github.com/muaz-khan/RTCMultiConnection/blob/master/dev/IceServersHandler.js#L90-L95">Example LIVE server</a>
+				</p>
 
                 <ol>
                     <li>

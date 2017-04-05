@@ -1,19 +1,20 @@
-# [Chrome Extensions](https://github.com/muaz-khan/Chrome-Extensions)
+# WebRTC [Chrome Extensions](https://github.com/muaz-khan/Chrome-Extensions)
 
-> Random WebRTC-based plugins/extensions for Chrome-browser. 
-> Possibly targeting screen capturing & sharing, recording, 
-> hiding & blocking WebRTC ip-addresses, 
-> bluetooth based handshake, controlling UDP connections etc.
+1. Share full screen or any app's screen in 1080p or 720p format
+2. Record full screen (1920p, 1080p, 720p) or any app's screen
+3. Share youtube video (+ audio) along with tab activity
+4. Share any tab's activity along with audio being played on the selected tab (youtube, dailymotion, soundcloud, whatever)
+5. Record your microphone along with full screen
+6. Record your microphone along with youtube video (+audio) as well as youtube tab activity (all-in-one)
+7. Share files (peer-to-peer) on windows, mac, linux, Android and iOS
 
 # Extensions
 
-| Extension Name        | Source Code           | Google App Store |
-| ------------- |-------------|-------------|
-| WebRTC Desktop Sharing | [github/desktopCapture-p2p](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture-p2p) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg) |
-| Screen Capturing in Chrome | [github/desktopCapture](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk) |
-| Tab Capturing in Chrome | [github/tabCapture](https://github.com/muaz-khan/Chrome-Extensions/tree/master/tabCapture) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk) |
-| WebRTC File Sharing Chrome Extension | [ github/file-sharing ](https://github.com/muaz-khan/Chrome-Extensions/tree/master/file-sharing) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/webrtc-file-sharing/nbnncbdkhpmbnkfngmkdbepoemljbnfo) |
-| Screen Recording | [ github/screen-recording ](https://github.com/muaz-khan/Chrome-Extensions/tree/master/screen-recording) | [![Install Chrome Extension](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton_small.png)](https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp) |
+1. Record full screen, apps' screen, youtube audio, and more. [download source](https://github.com/muaz-khan/Chrome-Extensions/tree/master/screen-recording) or [install from Google Web Store](https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp)
+2. Share full screen, apps' screen, youtube audio, and more. [download source](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture-p2p) or [install from Google Web Store](https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg)
+3. Access/capture screen from any HTTPs domain. [download source](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture) or [install from Google Web Store](https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk)
+4. Share selected tab. [download source](https://github.com/muaz-khan/Chrome-Extensions/tree/master/tabCapture) or [install from Google Web Store](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk)
+5. Share files peer-to-peer. [download source](https://github.com/muaz-khan/Chrome-Extensions/tree/master/file-sharing) or [install from Google Web Store](https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk)
 
 Firefox addon:
 
@@ -22,21 +23,6 @@ Firefox addon:
 # Third Party Extensions
 
 * WebRTC Block & [WebRTC Leak Prevent](https://chrome.google.com/webstore/detail/webrtc-network-limiter/npeicpdbkakmehahjeeohfdhnlpdklia?hl=en)
-
-----
-
-# `Screen-Capturing.js` / [Demo](https://www.webrtc-experiment.com/Screen-Capturing/)
-
-> Screen-Capturing.js can be used in any demo/project/library.
-> It provides simple methods to integrate "Screen-Capturing" extension
-> in your own applications.
->
-> It means that you don't need to use [iframe-hack](https://github.com/muaz-khan/getScreenId).
-
-Read more here:
-
-* https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js
-
 
 ## License
 

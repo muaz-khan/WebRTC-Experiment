@@ -1,0 +1,184 @@
+<style>
+    html, body, video, canvas {
+        margin: 0!important;
+        padding: 0!important;
+        overflow: hidden!important;
+        width: 100%;
+    }
+</style>
+
+<title>Multi-Videos (Conference) recording using RecordRTC</title>
+
+<video controls autoplay></video>
+
+<script src="/RecordRTC.js"></script>
+<script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
+<script>
+var allCameraStreams = [];
+
+function captureAllCameras(callback) {
+    var streams = [];
+    var donotDuplicateDevices = {};
+
+    DetectRTC.videoInputDevices.forEach(function(device, idx) {
+        navigator.webkitGetUserMedia({
+            audio: true,
+            video: {
+                mandatory: {},
+                optional: [{
+                    sourceId: device.id
+                }]
+            }
+        }, function(stream) {
+            if (!donotDuplicateDevices[device.id]) {
+                donotDuplicateDevices[device.id] = true;
+
+                // on-video-render:
+                // called as soon as this video stream is drawn (painted or recorded) on canvas2d surface
+                stream.onRender = function(context, x, y, width, height) {
+                    context.font = '20px Georgia';
+
+                    var userName = timeout + ' seconds remaining';
+                    var measuredTextWidth = parseInt(context.measureText(userName).width);
+
+                    x = x + (parseInt((width - measuredTextWidth)) / 2);
+                    y = height - 40;
+
+                    context.strokeStyle = 'rgb(255, 0, 0)';
+                    context.fillStyle = 'rgba(255, 255, 0, .5)';
+                    roundRect(context, x - 20, y - 25, measuredTextWidth + 40, 35, 20, true);
+
+                    var gradient = context.createLinearGradient(0, 0, width * 2, 0);
+                    gradient.addColorStop('0', 'magenta');
+                    gradient.addColorStop('0.5', 'blue');
+                    gradient.addColorStop('1.0', 'red');
+                    context.fillStyle = gradient;
+
+                    context.fillText(userName, x, y);
+                };
+
+                streams.push(stream);
+            }
+
+            allCameraStreams.push(stream);
+
+            if (idx == DetectRTC.videoInputDevices.length - 1) {
+                callback(streams);
+            }
+        }, function() {
+            console.error(arguments);
+        });
+    })
+}
+
+var timeout = 10; // 10 seconds
+
+DetectRTC.load(function() {
+    captureAllCameras(function(streams) {
+        if (streams.length == 1) {
+            streams.push(streams[0]);
+        }
+
+        var recorder = RecordRTC(streams, {
+            type: 'video',
+            mimeType: 'video/webm',
+            previewStream: function(s) {
+                document.querySelector('video').muted = true;
+                document.querySelector('video').src = URL.createObjectURL(s);
+            }
+        });
+
+        recorder.startRecording();
+
+        (function looper() {
+            timeout--;
+
+            if (timeout > 0) {
+                setTimeout(looper, 1000);
+                return;
+            }
+
+            recorder.stopRecording(function() {
+                var blob = recorder.getBlob();
+
+                document.querySelector('video').muted = false;
+                document.querySelector('video').src = URL.createObjectURL(blob);
+
+                allCameraStreams.forEach(function(stream) {
+                    stream.getVideoTracks().forEach(function(track) {
+                        track.stop();
+                    });
+
+                    stream.getAudioTracks().forEach(function(track) {
+                        track.stop();
+                    });
+                })
+            });
+        })();
+    });
+});
+
+/**
+ * Draws a rounded rectangle using the current state of the canvas.
+ * If you omit the last three params, it will draw a rectangle
+ * outline with a 5 pixel border radius
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Number} x The top left x coordinate
+ * @param {Number} y The top left y coordinate
+ * @param {Number} width The width of the rectangle
+ * @param {Number} height The height of the rectangle
+ * @param {Number} [radius = 5] The corner radius; It can also be an object 
+ *                 to specify different radii for corners
+ * @param {Number} [radius.tl = 0] Top left
+ * @param {Number} [radius.tr = 0] Top right
+ * @param {Number} [radius.br = 0] Bottom right
+ * @param {Number} [radius.bl = 0] Bottom left
+ * @param {Boolean} [fill = false] Whether to fill the rectangle.
+ * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
+ */
+// via: http://stackoverflow.com/a/3368118/552182
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+    if (typeof stroke == 'undefined') {
+        stroke = true;
+    }
+    if (typeof radius === 'undefined') {
+        radius = 5;
+    }
+    if (typeof radius === 'number') {
+        radius = {
+            tl: radius,
+            tr: radius,
+            br: radius,
+            bl: radius
+        };
+    } else {
+        var defaultRadius = {
+            tl: 0,
+            tr: 0,
+            br: 0,
+            bl: 0
+        };
+        for (var side in defaultRadius) {
+            radius[side] = radius[side] || defaultRadius[side];
+        }
+    }
+    ctx.beginPath();
+    ctx.moveTo(x + radius.tl, y);
+    ctx.lineTo(x + width - radius.tr, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+    ctx.lineTo(x + width, y + height - radius.br);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+    ctx.lineTo(x + radius.bl, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+    ctx.lineTo(x, y + radius.tl);
+    ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+    ctx.closePath();
+    if (fill) {
+        ctx.fill();
+    }
+    if (stroke) {
+        ctx.stroke();
+    }
+
+}
+</script>

@@ -54,6 +54,20 @@ chrome.storage.sync.get(null, function(items) {
         });
     }
 
+    if (items['enableTabCaptureAPI']) {
+        if(getChromeVersion() < 53) {
+            items['enableTabCaptureAPI'] = 'false';
+        }
+
+        document.getElementById('enableTabCaptureAPI').checked = items['enableTabCaptureAPI'] === 'true';
+    } else {
+        chrome.storage.sync.set({
+            enableTabCaptureAPI: 'false'
+        }, function() {
+            document.getElementById('enableTabCaptureAPI').removeAttribute('checked');
+        });
+    }
+
     if (items['enableTabAudio']) {
         if(getChromeVersion() < 53) {
             items['enableTabAudio'] = 'false';
@@ -113,12 +127,6 @@ document.getElementById('videoMaxFrameRates').onblur = function() {
 };
 
 document.getElementById('enableTabAudio').onchange = function(event) {
-    if(!!event) {
-        // microphone along with tab+audio is NOT allowed
-        document.getElementById('enableMicrophone').checked = false;
-        document.getElementById('enableMicrophone').onchange();
-    }
-
     if(getChromeVersion() < 53) {
         this.checked = false;
 
@@ -143,12 +151,6 @@ document.getElementById('enableTabAudio').onchange = function(event) {
 };
 
 document.getElementById('enableMicrophone').onchange = function(event) {
-    if(!!event) {
-        // microphone along with tab+audio is NOT allowed
-        document.getElementById('enableTabAudio').checked = false;
-        document.getElementById('enableTabAudio').onchange();
-    }
-
     document.getElementById('enableMicrophone').disabled = true;
     showSaving();
     chrome.storage.sync.set({
@@ -195,3 +197,14 @@ function getChromeVersion() {
     var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
     return raw ? parseInt(raw[2], 10) : 52;
 }
+
+document.getElementById('enableTabCaptureAPI').onchange = function(event) {
+    document.getElementById('enableTabCaptureAPI').disabled = true;
+    showSaving();
+    chrome.storage.sync.set({
+        enableTabCaptureAPI: document.getElementById('enableTabCaptureAPI').checked ? 'true' : 'false'
+    }, function() {
+        document.getElementById('enableTabCaptureAPI').disabled = false;
+        hideSaving();
+    });
+};

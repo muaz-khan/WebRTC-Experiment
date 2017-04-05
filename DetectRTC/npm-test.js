@@ -2,10 +2,7 @@
 
 var DetectRTC = require('detectrtc');
 
-console.log(DetectRTC.browser);
-
-console.log('\n\n-------\n\n');
-
-DetectRTC.load(function() {
-    console.log(DetectRTC);
-});
+console.log(DetectRTC.browser.name  + ' version ' + DetectRTC.browser.version);
+console.log(DetectRTC.osName + ' version ' + DetectRTC.osVersion);
+console.log(JSON.stringify(DetectRTC));
+console.log(DetectRTC);

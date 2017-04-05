@@ -1,9 +1,6 @@
 // ______________________
 // MediaStreamRecorder.js
 
-// todo: need to show alert boxes for incompatible cases
-// encoder only supports 48k/16k mono audio channel
-
 /*
  * Implementation of https://dvcs.w3.org/hg/dap/raw-file/default/media-stream-capture/MediaRecorder.html
  * The MediaRecorder accepts a mediaStream as input source passed from UA. When recorder starts,
@@ -24,11 +21,11 @@
  * @class
  * @example
  * var options = {
- *     mimeType: 'video/mp4', // audio/ogg or video/webm
+ *     mimeType: 'video/webm',
  *     audioBitsPerSecond : 256 * 8 * 1024,
  *     videoBitsPerSecond : 256 * 8 * 1024,
  *     bitsPerSecond: 256 * 8 * 1024,  // if this is provided, skip above two
- *     getNativeBlob: true // by default it is false
+ *     getNativeBlob: true // by default: it is false
  * }
  * var recorder = new MediaStreamRecorder(MediaStream, options);
  * recorder.record();
@@ -100,6 +97,16 @@ function MediaStreamRecorder(mediaStream, config) {
             recorderHints = 'video/vp8';
         }
 
+        if (typeof MediaRecorder.isTypeSupported === 'function' && recorderHints.mimeType) {
+            if (!MediaRecorder.isTypeSupported(recorderHints.mimeType)) {
+                if (!config.disableLogs) {
+                    console.warn('MediaRecorder API seems unable to record mimeType:', recorderHints.mimeType);
+                }
+
+                recorderHints.mimeType = config.type === 'audio' ? 'audio/webm' : 'video/webm';
+            }
+        }
+
         // http://dxr.mozilla.org/mozilla-central/source/content/media/MediaRecorder.cpp
         // https://wiki.mozilla.org/Gecko:MediaRecorder
         // https://dvcs.w3.org/hg/dap/raw-file/default/media-stream-capture/MediaRecorder.html
@@ -112,7 +119,7 @@ function MediaStreamRecorder(mediaStream, config) {
             mediaRecorder = new MediaRecorder(mediaStream);
         }
 
-        if ('canRecordMimeType' in mediaRecorder && mediaRecorder.canRecordMimeType(config.mimeType) === false) {
+        if (!MediaRecorder.isTypeSupported && 'canRecordMimeType' in mediaRecorder && mediaRecorder.canRecordMimeType(config.mimeType) === false) {
             if (!config.disableLogs) {
                 console.warn('MediaRecorder API seems unable to record mimeType:', config.mimeType);
             }
@@ -129,6 +136,14 @@ function MediaStreamRecorder(mediaStream, config) {
             }
 
             if (!e.data || !e.data.size || e.data.size < 100 || self.blob) {
+                // make sure that stopRecording always getting fired
+                // even if there is invalid data
+                if (self.recordingCallback) {
+                    self.recordingCallback(new Blob([], {
+                        type: recorderHints.mimeType || 'video/webm'
+                    }));
+                    self.recordingCallback = null;
+                }
                 return;
             }
 
@@ -141,7 +156,7 @@ function MediaStreamRecorder(mediaStream, config) {
              * });
              */
             self.blob = config.getNativeBlob ? e.data : new Blob([e.data], {
-                type: config.mimeType || 'video/webm'
+                type: recorderHints.mimeType || 'video/webm'
             });
 
             if (self.recordingCallback) {
@@ -167,6 +182,16 @@ function MediaStreamRecorder(mediaStream, config) {
                 }
             }
 
+            (function(looper) {
+                if (!self.manuallyStopped && mediaRecorder && mediaRecorder.state === 'inactive') {
+                    // 10 minutes, enough?
+                    mediaRecorder.start(10 * 60 * 1000);
+                    return;
+                }
+
+                setTimeout(looper, 1000);
+            })();
+
             // When the stream is "ended" set recording to 'inactive' 
             // and stop gathering data. Callers should not rely on 
             // exactness of the timeSlice value, especially 
@@ -183,7 +208,7 @@ function MediaStreamRecorder(mediaStream, config) {
         // handler. "mTimeSlice < 0" means Session object does not push encoded data to
         // onDataAvailable, instead, it passive wait the client side pull encoded data
         // by calling requestData API.
-        mediaRecorder.start(3.6e+6);
+        mediaRecorder.start(3.6e+6); // default is 60 minutes; enough?
 
         // Start recording. If timeSlice has been provided, mediaRecorder will
         // raise a dataavailable event containing the Blob of collected data on every timeSlice milliseconds.
@@ -209,6 +234,8 @@ function MediaStreamRecorder(mediaStream, config) {
      * });
      */
     this.stop = function(callback) {
+        self.manuallyStopped = true; // used inside the mediaRecorder.onerror
+
         if (!mediaRecorder) {
             return;
         }

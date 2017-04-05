@@ -3,23 +3,31 @@
 // Documentation  - github.com/muaz-khan/RTCMultiConnection
 
 module.exports = exports = function(app, socketCallback) {
+    // stores all sockets, user-ids, extra-data and connected sockets
+    // you can check presence as following:
+    // var isRoomExist = listOfUsers['room-id'] != null;
     var listOfUsers = {};
+
     var shiftedModerationControls = {};
+
+    // for scalable-broadcast demos
     var ScalableBroadcast;
 
     var io = require('socket.io');
 
     try {
+        // use latest socket.io
         io = io(app);
         io.on('connection', onConnection);
     } catch (e) {
+        // otherwise fallback
         io = io.listen(app, {
             log: false,
             origins: '*:*'
         });
 
         io.set('transports', [
-            'websocket', // 'disconnect' EVENT will work only with 'websocket'
+            'websocket',
             'xhr-polling',
             'jsonp-polling'
         ]);
@@ -27,12 +35,15 @@ module.exports = exports = function(app, socketCallback) {
         io.sockets.on('connection', onConnection);
     }
 
+    // to secure your socket.io usage: (via: docs/tips-tricks.md)
+    // io.set('origins', 'https://domain.com');
+
     function appendUser(socket) {
-        var alreadyExists = listOfUsers[socket.userid];
+        var alreadyExist = listOfUsers[socket.userid];
         var extra = {};
 
-        if (alreadyExists && alreadyExists.extra) {
-            extra = alreadyExists.extra;
+        if (alreadyExist && alreadyExist.extra) {
+            extra = alreadyExist.extra;
         }
 
         var params = socket.handshake.query;
@@ -72,7 +83,7 @@ module.exports = exports = function(app, socketCallback) {
         }
 
         // temporarily disabled
-        if (false && !!listOfUsers[params.userid]) {
+        if (!!listOfUsers[params.userid]) {
             params.dontUpdateUserId = true;
 
             var useridAlreadyTaken = params.userid;
@@ -107,7 +118,7 @@ module.exports = exports = function(app, socketCallback) {
         socket.on('get-remote-user-extra-data', function(remoteUserId, callback) {
             callback = callback || function() {};
             if (!remoteUserId || !listOfUsers[remoteUserId]) {
-                callback('remoteUserId (' + remoteUserId + ') does NOT exists.');
+                callback('remoteUserId (' + remoteUserId + ') does NOT exist.');
                 return;
             }
             callback(listOfUsers[remoteUserId].extra);
@@ -241,17 +252,11 @@ module.exports = exports = function(app, socketCallback) {
         });
 
         socket.on('check-presence', function(userid, callback) {
-            if (userid === socket.userid && !!listOfUsers[userid]) {
-                callback(false, socket.userid, listOfUsers[userid].extra);
-                return;
+            if (!listOfUsers[userid]) {
+                callback(false, userid, {});
+            } else {
+                callback(userid !== socket.userid, userid, listOfUsers[userid].extra);
             }
-
-            var extra = {};
-            if (listOfUsers[userid]) {
-                extra = listOfUsers[userid].extra;
-            }
-
-            callback(!!listOfUsers[userid], userid, extra);
         });
 
         function onMessageCallback(message) {

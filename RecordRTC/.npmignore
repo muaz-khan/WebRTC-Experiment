@@ -1,3 +1,11 @@
-node_modules
-lib-cov
-npm-debug.log
+# ignore everything
+*
+
+# but not these files...
+!RecordRTC.js
+!RecordRTC.min.js
+!index.html
+!package.json
+!bower.json
+!npm-test.js
+!README.md

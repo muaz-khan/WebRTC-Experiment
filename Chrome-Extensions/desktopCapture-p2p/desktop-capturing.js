@@ -1,4 +1,4 @@
-﻿ // Muaz Khan     - https://github.com/muaz-khan
+﻿// Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.WebRTC-Experiment.com/licence/
 // Source Code   - https://github.com/muaz-khan/Chrome-Extensions
 
@@ -33,19 +33,13 @@ function captureDesktop() {
     });
 
     chrome.storage.sync.get(null, function(items) {
-        if (items['is_audio'] && items['is_audio'] === 'true' && chromeVersion >= 50) {
+        if (items['is_audio'] && items['is_audio'] === 'true') {
             isAudio = true;
+            captureTabUsingTabCapture();
+            return;
         }
 
         var sources = ['window', 'screen'];
-        if (chromeVersion >= 50) {
-            if (isAudio) {
-                sources = ['tab', 'audio'];
-            } else {
-                sources = ['tab'].concat(sources);
-            }
-        }
-
         var desktop_id = chrome.desktopCapture.chooseDesktopMedia(sources, onAccessApproved);
     });
 }
@@ -138,109 +132,118 @@ function onAccessApproved(chromeMediaSourceId) {
             }
         };
 
-        if (isAudio && chromeVersion >= 50) {
-            constraints.audio = {
-                mandatory: {
-                    chromeMediaSource: 'desktop',
-                    chromeMediaSourceId: chromeMediaSourceId,
-                },
-                optional: [{
-                    bandwidth: resolutions.maxWidth * 8 * 1024
-                }]
-            };
-        }
-
         navigator.webkitGetUserMedia(constraints, gotStream, getUserMediaError);
     });
+}
 
-    function gotStream(stream) {
-        if (!stream) {
-            setDefaults();
-            chrome.windows.create({
-                url: "data:text/html,<h1>Internal error occurred while capturing the screen.</h1>",
-                type: 'popup',
-                width: screen.width / 2,
-                height: 170
-            });
-            return;
-        }
-
-        chrome.browserAction.setTitle({
-            title: 'Connecting to WebSockets server.'
-        });
-
-        chrome.browserAction.disable();
-
-        stream.onended = function() {
-            setDefaults();
-            chrome.runtime.reload();
-        };
-
-        stream.getVideoTracks()[0].onended = stream.onended;
-        if (stream.getAudioTracks().length) {
-            stream.getAudioTracks()[0].onended = stream.onended;
-        }
-
-        function isMediaStreamActive() {
-            if ('active' in stream) {
-                if (!stream.active) {
-                    return false;
-                }
-            } else if ('ended' in stream) { // old hack
-                if (stream.ended) {
-                    return false;
-                }
+function captureTabUsingTabCapture() {
+    constraints = {
+        audio: true,
+        video: true,
+        videoConstraints: {
+            mandatory: {
+                chromeMediaSource: 'tab',
+                maxWidth: screen.width,
+                maxHeight: screen.height,
+                minFrameRate: 30,
+                maxFrameRate: 64,
+                minAspectRatio: 1.77
             }
-            return true;
         }
+    };
 
-        // this method checks if media stream is stopped
-        // or any track is ended.
-        (function looper() {
-            if (isMediaStreamActive() === false) {
-                stream.onended();
-                return;
-            }
+    chrome.tabCapture.capture(constraints, function(stream) {
+        gotStream(stream);
+    });
+}
 
-            setTimeout(looper, 1000); // check every second
-        })();
-
-        // as it is reported that if you drag chrome screen's status-bar
-        // and scroll up/down the screen-viewer page.
-        // chrome auto-stops the screen without firing any 'onended' event.
-        // chrome also hides screen status bar.
-        chrome.windows.create({
-            url: chrome.extension.getURL('_generated_background_page.html'),
-            type: 'popup',
-            focused: false,
-            width: 1,
-            height: 1,
-            top: parseInt(screen.height),
-            left: parseInt(screen.width)
-        }, function(win) {
-            var background_page_id = win.id;
-
-            setTimeout(function() {
-                chrome.windows.remove(background_page_id);
-            }, 3000);
-        });
-
-        setupRTCMultiConnection(stream);
-
-        chrome.browserAction.setIcon({
-            path: 'images/pause22.png'
-        });
-    }
-
-    function getUserMediaError(e) {
+function gotStream(stream) {
+    if (!stream) {
         setDefaults();
         chrome.windows.create({
-            url: "data:text/html,<h1>getUserMediaError: " + JSON.stringify(e, null, '<br>') + "</h1><br>Constraints used:<br><pre>" + JSON.stringify(constraints, null, '<br>') + '</pre>',
+            url: "data:text/html,<h1>Internal error occurred while capturing the screen.</h1>",
             type: 'popup',
             width: screen.width / 2,
             height: 170
         });
+        return;
     }
+
+    chrome.browserAction.setTitle({
+        title: 'Connecting to WebSockets server.'
+    });
+
+    chrome.browserAction.disable();
+
+    stream.onended = function() {
+        setDefaults();
+        chrome.runtime.reload();
+    };
+
+    stream.getVideoTracks()[0].onended = stream.onended;
+    if (stream.getAudioTracks().length) {
+        stream.getAudioTracks()[0].onended = stream.onended;
+    }
+
+    function isMediaStreamActive() {
+        if ('active' in stream) {
+            if (!stream.active) {
+                return false;
+            }
+        } else if ('ended' in stream) { // old hack
+            if (stream.ended) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // this method checks if media stream is stopped
+    // or any track is ended.
+    (function looper() {
+        if (isMediaStreamActive() === false) {
+            stream.onended();
+            return;
+        }
+
+        setTimeout(looper, 1000); // check every second
+    })();
+
+    // as it is reported that if you drag chrome screen's status-bar
+    // and scroll up/down the screen-viewer page.
+    // chrome auto-stops the screen without firing any 'onended' event.
+    // chrome also hides screen status bar.
+    chrome.windows.create({
+        url: chrome.extension.getURL('_generated_background_page.html'),
+        type: 'popup',
+        focused: false,
+        width: 1,
+        height: 1,
+        top: parseInt(screen.height),
+        left: parseInt(screen.width)
+    }, function(win) {
+        var background_page_id = win.id;
+
+        setTimeout(function() {
+            chrome.windows.remove(background_page_id);
+        }, 3000);
+    });
+
+    setupRTCMultiConnection(stream);
+
+    chrome.browserAction.setIcon({
+        path: 'images/pause22.png'
+    });
+}
+
+function getUserMediaError(e) {
+    setDefaults();
+    chrome.windows.create({
+        url: "data:text/html,<h1>getUserMediaError: " + JSON.stringify(e, null, '<br>') + "</h1><br>Constraints used:<br><pre>" + JSON.stringify(constraints, null, '<br>') + '</pre>',
+        type: 'popup',
+        width: screen.width / 2,
+        height: 170
+    });
 }
 
 // RTCMultiConnection - www.RTCMultiConnection.org
@@ -301,23 +304,13 @@ function setupRTCMultiConnection(stream) {
     connection.autoReDialOnFailure = true;
     connection.getExternalIceServers = false;
 
-    connection.iceServers.push({
-        urls: 'turn:webrtcweb.com:443',
-        username: 'muazkh',
-        credential: 'muazkh'
-    });
-
-    connection.iceServers.push({
-        urls: 'turn:webrtcweb.com:80',
-        username: 'muazkh',
-        credential: 'muazkh'
-    });
+    connection.iceServers = IceServersHandler.getIceServers();
 
     setBandwidth(connection);
 
     // www.RTCMultiConnection.org/docs/session/
     connection.session = {
-        audio: !!isAudio && chromeVersion >= 50,
+        audio: !!isAudio,
         video: true,
         oneway: true
     };
@@ -549,12 +542,6 @@ function setBandwidth(connection) {
         sdp = CodecsHandler.preferVP9(sdp);
         return sdp;
     };
-}
-
-var chromeVersion = 49;
-var matchArray = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
-if (matchArray && matchArray[2]) {
-    chromeVersion = parseInt(matchArray[2], 10);
 }
 
 // Check whether new version is installed

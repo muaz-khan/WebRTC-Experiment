@@ -2,19 +2,24 @@ var port = 12034; // change it to 443
 
 var fs = require('fs');
 
+function resolveURL(url) {
+    var isWin = !!process.platform.match(/^win/);
+    if (!isWin) return url;
+    return url.replace(/\//g, '\\');
+}
+
 var _static = require('node-static');
 var file = new _static.Server('./public');
 
-/* for HTTP-only
 var http = require('http').createServer(function (request, response) {
     request.addListener('end', function () {
         if (request.url.search(/.png|.gif|.js|.css/g) == -1) {
-            file.serveFile('/index.html', 402, {}, request, response);
+            file.serveFile(resolveURL('/index.html'), 402, {}, request, response);
         } else file.serve(request, response);
     }).resume();
 }).listen(port);
-*/
 
+/* HTTPs
 var options = {
     key: fs.readFileSync('privatekey.pem'),
     cert: fs.readFileSync('certificate.pem')
@@ -27,13 +32,14 @@ var https = require('https').createServer(options, function (request, response) 
         } else file.serve(request, response);
     }).resume();
 }).listen(port);
+*/
 
 var CHANNELS = {};
 
 var WebSocketServer = require('websocket').server;
 
 new WebSocketServer({
-    httpServer: https,
+    httpServer: http,
     autoAcceptConnections: false
 }).on('request', onRequest);
 
@@ -117,4 +123,4 @@ function truncateChannels(websocket) {
     }
 }
 
-console.log('listening both websocket and HTTPs at port 12034');
+console.log('listening both websocket and HTTP at port ' + port);

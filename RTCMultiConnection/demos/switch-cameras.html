@@ -243,6 +243,10 @@
 
                 videosContainer.appendChild(videoParentNode);
 
+                setTimeout(function() {
+                    video.play(); // android
+                }, 3000);
+
                 if(event.type === 'remote' && !connection.alreadyHandlingRemoteMessages) {
                     connection.alreadyHandlingRemoteMessages = true;
                     receiveCustomMessages();
@@ -252,6 +256,9 @@
 
                     videoDevices.disabled = false;
                     audioDevices.disabled = false;
+
+                    videoDevices.onchange();
+                    audioDevices.onchange();
                 }
             };
 
@@ -286,37 +293,53 @@
             var videoDevices = document.getElementById('video-devices');
             var audioDevices = document.getElementById('audio-devices');
 
-            connection.DetectRTC.load(function() {
-                connection.DetectRTC.MediaDevices.forEach(function(device) {
-                    if(document.getElementById(device.id)) {
-                        return;
-                    }
-
-                    if(device.kind === 'audioinput') {
-                        var option = document.createElement('option');
-                        option.id = device.id;
-                        option.innerHTML = device.label || device.id;
-                        option.value = device.id;
-                        audioDevices.appendChild(option);
-
-                        if(connection.mediaConstraints.audio.optional.length && connection.mediaConstraints.audio.optional[0].sourceId === device.id) {
-                            option.selected = true;
+            videoDevices.onchange = function() {
+                videoDevices.innerHTML = '';
+                videoDevices.onchange = function() {};
+                DetectRTC.load(function() {
+                    DetectRTC.videoInputDevices.forEach(function(device) {
+                        if(document.getElementById(device.id + device.label + device.kind)) {
+                            return;
                         }
-                    }
 
-                    if(device.kind.indexOf('video') !== -1) {
-                        var option = document.createElement('option');
-                        option.id = device.id;
-                        option.innerHTML = device.label || device.id;
-                        option.value = device.id;
-                        videoDevices.appendChild(option);
+                        if(device.kind.indexOf('video') !== -1) {
+                            var option = document.createElement('option');
+                            option.id = device.id + device.label + device.kind;
+                            option.innerHTML = device.label || device.id;
+                            option.value = device.id;
+                            videoDevices.appendChild(option);
 
-                        if(connection.mediaConstraints.video.optional.length && connection.mediaConstraints.video.optional[0].sourceId === device.id) {
-                            option.selected = true;
+                            if(connection.mediaConstraints.video.optional.length && connection.mediaConstraints.video.optional[0].sourceId === device.id) {
+                                option.selected = true;
+                            }
                         }
-                    }
+                    });
                 });
-            });
+            };
+
+            audioDevices.onchange = function() {
+                audioDevices.innerHTML = '';
+                audioDevices.onchange = function() {};
+                DetectRTC.load(function() {
+                    DetectRTC.audioInputDevices.forEach(function(device) {
+                        if(document.getElementById(device.id + device.label + device.kind)) {
+                            return;
+                        }
+
+                        if(device.kind === 'audioinput') {
+                            var option = document.createElement('option');
+                            option.id = device.id + device.label + device.kind;
+                            option.innerHTML = device.label || device.id;
+                            option.value = device.id;
+                            audioDevices.appendChild(option);
+
+                            if(connection.mediaConstraints.audio.optional.length && connection.mediaConstraints.audio.optional[0].sourceId === device.id) {
+                                option.selected = true;
+                            }
+                        }
+                    });
+                });
+            };
 
             document.getElementById('switch-camera').onclick = function() {
                 var videoSourceId = videoDevices.value;

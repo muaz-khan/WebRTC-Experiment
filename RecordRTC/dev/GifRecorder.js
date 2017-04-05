@@ -58,11 +58,11 @@ function GifRecorder(mediaStream, config) {
                 };
             }
 
-            canvas.width = config.canvas.width;
-            canvas.height = config.canvas.height;
+            canvas.width = config.canvas.width || 320;
+            canvas.height = config.canvas.height || 240;
 
-            video.width = config.video.width;
-            video.height = config.video.height;
+            video.width = config.video.width || 320;
+            video.height = config.video.height || 240;
         }
 
         // external library to record as GIF images

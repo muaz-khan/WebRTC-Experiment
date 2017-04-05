@@ -12,9 +12,9 @@ input {
     -webkit-user-select:initial;
 }
 
-body { 
+body, html { 
     padding: 10px;
-    min-width: 520px;
+    max-width: 900px;
 }
 
 hr {
@@ -86,7 +86,22 @@ blockquote {
 <br>
 
 <div>
-    <input type="checkbox" id="enableTabAudio"> <label for="enableTabAudio">Record all audios on a tab?</label>
+    <input type="checkbox" id="enableTabCaptureAPI">
+    <label for="enableTabCaptureAPI">Record the selected tab?</label>
+    <br>
+    <small style="font-size:13px;margin-left:32px;display:block;">
+        Record the selected tab + all audios being played on the selected tab.
+    </small>
+</div>
+
+<br>
+<hr>
+<br>
+
+<div>
+    <input type="checkbox" id="enableTabAudio"> <label for="enableTabAudio">
+        Record any tab's activity 
+    <br>+ all audios on the selected tab?</label>
     <br>
     <small style="font-size:13px;margin-left:32px;display:block;">
         Record all-audios on a tab. Record entire activity along with audios on a tab.
@@ -97,10 +112,7 @@ blockquote {
 <hr>
 
 <blockquote>
-    Right-click on any HTML5-Video and you can record that video as well!!<br><br>
-    You can record HTML5 videos from dailymotion, youtube, and famous HLS/DASH streaming players e.g. video.js etc.
-    <br><br>
-    For help, please watch <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydLsLP_T1JU5MneCu5O86Wj7" target="_blank">YouTube videos</a>
+    You can <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydLsLP_T1JU5MneCu5O86Wj7" target="_blank">record any HTML5-Video</a>.
 </blockquote>
 
 <hr>

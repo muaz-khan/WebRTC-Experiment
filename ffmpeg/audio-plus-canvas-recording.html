@@ -138,7 +138,8 @@ document.getElementById('start').onclick = function() {
         audio.src = URL.createObjectURL(stream);
 
         recordAudio = RecordRTC(stream, {
-            type: 'audio'
+            type: 'audio',
+			recorderType: StereoAudioRecorder
         });
 
         isStoppedRecording = false;
@@ -163,9 +164,11 @@ document.getElementById('stop').onclick = function() {
     document.getElementById('start').disabled = false;
 };
 
-
-// var workerPath = location.href.replace(location.href.split('/').pop(), '') + 'ffmpeg_asm.js';
 var workerPath = 'https://archive.org/download/ffmpeg_asm/ffmpeg_asm.js';
+
+if(document.domain == 'localhost') {
+	workerPath = location.href.replace(location.href.split('/').pop(), '') + 'ffmpeg_asm.js';
+}
 
 function processInWebWorker() {
     var blob = URL.createObjectURL(new Blob(['importScripts("' + workerPath + '");var now = Date.now;function print(text) {postMessage({"type" : "stdout","data" : text});};onmessage = function(event) {var message = event.data;if (message.type === "command") {var Module = {print: print,printErr: print,files: message.files || [],arguments: message.arguments || [],TOTAL_MEMORY: 268435456};postMessage({"type" : "start","data" : Module.arguments.join(" ")});postMessage({"type" : "stdout","data" : "Received command: " +Module.arguments.join(" ") +((Module.TOTAL_MEMORY) ? ".  Processing with " + Module.TOTAL_MEMORY + " bits." : "")});var time = now();var result = ffmpeg_run(Module);var totalTime = now() - time;postMessage({"type" : "stdout","data" : "Finished processing (took " + totalTime + "ms)"});postMessage({"type" : "done","data" : result,"time" : totalTime});}};postMessage({"type" : "ready"});'], {
@@ -238,16 +241,33 @@ function convertStreams(videoBlob, audioBlob) {
     };
     var postMessage = function() {
         posted = true;
-
-        worker.postMessage({
+		
+		/*
+			[
+                '-i', 'video.webm',
+                '-i', 'audio.wav',
+				'-s', '1280x720',
+                '-c:v', 'mpeg4',
+                '-c:a', 'aac',
+                '-b:v', '1450k',
+                '-b:a', '96k',
+				'-bf', '2',
+				'-g', '90',
+				'-sc_threshold', '0',
+				'-ar', '32000',
+                '-strict', 'experimental', 'output.mp4'
+            ]
+		*/
+		
+		worker.postMessage({
             type: 'command',
             arguments: [
                 '-i', 'video.webm',
                 '-i', 'audio.wav',
                 '-c:v', 'mpeg4',
-                '-c:a', 'vorbis',
-                '-b:v', '6400k',
-                '-b:a', '4800k',
+                '-c:a', 'vorbis', // or aac
+                '-b:v', '6400k',  // or 1450k
+                '-b:a', '4800k',  // or 96k
                 '-strict', 'experimental', 'output.mp4'
             ],
             files: [
@@ -277,5 +297,3 @@ function log(message) {
 }
 </script>
 <a href="https://www.webrtc-experiment.com/ffmpeg/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←Try other Ffmpeg.js and RecordRTC demos</a>
-
-<script src="https://archive.org/download/ffmpeg_asm/ffmpeg_asm.js" async> </script>

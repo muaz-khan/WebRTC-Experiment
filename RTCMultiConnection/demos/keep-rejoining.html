@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Keep ReJoining Room using RTCMultiConnection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="shortcut icon" href="/demos/logo.png">
+  <link rel="stylesheet" type="text/css" href="/demos/stylesheet.css">
+</head>
+<body>
+  <header>
+    <a class="logo" href="/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
+    <nav>
+      <li>
+        <a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+      </li>
+      <li>
+        <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+      </li>
+      <li>
+        <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection#v3-demos">Demos</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection">Github</a>
+      </li>
+    </nav>
+  </header>
+
+  <h1>
+    Keep ReJoining Room using RTCMultiConnection
+    <p>Keep checking for room until it gets reopened.</p>
+    <p>To test it, ask room owner to leave, reopen, leave, reopen, leave and so on.</p>
+  </h1>
+
+  <section class="make-center">
+    <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
+    <button id="open-room">Open Room</button>
+    <button id="join-room">Join Room</button>
+    <br>
+
+    <div id="videos-container"></div>
+  </section>
+
+<script src="/dist/RTCMultiConnection.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+// ......................................................
+// .......................UI Code........................
+// ......................................................
+document.getElementById('open-room').onclick = function() {
+    disableInputButtons();
+    connection.open(document.getElementById('room-id').value);
+};
+
+document.getElementById('join-room').onclick = function() {
+    disableInputButtons();
+    connection.join(document.getElementById('room-id').value);
+};
+
+// ......................................................
+// ..................RTCMultiConnection Code.............
+// ......................................................
+
+var connection = new RTCMultiConnection();
+
+// make sure that room is closed as soon as room-owner leaves
+connection.autoCloseEntireSession = true;
+
+// by default, socket.io server is assumed to be deployed on your own URL
+connection.socketURL = '/';
+
+// comment-out below line if you do not have your own socket.io server
+// connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+connection.socketMessageEvent = 'keep-rejoining-demo';
+
+var roomid = '';
+if (localStorage.getItem('rmc-room-id')) {
+    roomid = localStorage.getItem('rmc-room-id');
+} else {
+    roomid = connection.token();
+}
+document.getElementById('room-id').value = roomid;
+document.getElementById('room-id').onkeyup = function() {
+    localStorage.setItem('rmc-room-id', this.value);
+};
+
+connection.session = {
+    audio: true,
+    video: true
+};
+
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true
+};
+
+connection.videosContainer = document.getElementById('videos-container');
+connection.onstream = function(event) {
+    event.mediaElement.id = event.userid;
+
+    connection.videosContainer.appendChild(event.mediaElement);
+    event.mediaElement.play();
+    setTimeout(function() {
+        event.mediaElement.play();
+    }, 5000);
+
+    if(event.type === 'remote') {
+        connection.receiveFirstRemoteStream = true;
+    }
+};
+
+connection.onstreamended = connection.onleave = connection.onclose = function(event) {
+    var video = document.getElementById(event.userid);
+    if (!video) return;
+    video.parentNode.removeChild(video);
+};
+
+function disableInputButtons() {
+    document.getElementById('open-room').disabled = true;
+    document.getElementById('join-room').disabled = true;
+    document.getElementById('room-id').disabled = true;
+}
+
+// below method "keepCheckingForRoom" keeps checking for room until joins it
+(function keepCheckingForRoom() {
+    if(!connection.receiveFirstRemoteStream) {
+        setTimeout(keepCheckingForRoom, 3000);
+        return;
+    }
+
+    connection.checkPresence(connection.sessionid, function(isRoomExist, roomid) {
+        if(connection.isInitiator) {
+            document.querySelector('h1').innerHTML = 'You are room owner!';
+            return;
+        }
+
+        if(connection.peers[connection.sessionid]) {
+            setTimeout(keepCheckingForRoom, 3000);
+            document.querySelector('h1').innerHTML = 'Room owner is in the room!';
+            return;
+        }
+        if (isRoomExist === true) {
+            connection.join(roomid);
+            document.querySelector('h1').innerHTML = 'Rejoined the room!!!!';
+            setTimeout(keepCheckingForRoom, 3000);
+            return;
+        }
+
+        document.querySelector('h1').innerHTML = 'Room owner left. Rechecking for the room...';
+        setTimeout(keepCheckingForRoom, 3000);
+    });
+})();
+</script>
+
+  <footer>
+    <small id="send-message"></small>
+  </footer>
+
+  <script src="https://cdn.webrtc-experiment.com/common.js"></script>
+</body>
+</html>

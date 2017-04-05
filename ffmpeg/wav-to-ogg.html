@@ -111,7 +111,7 @@
 
                             recordAudio = RecordRTC(stream, {
                                 bufferSize: 16384,
-                                recorderType: !!navigator.mozGetUserMedia ? MediaStreamRecorder : StereoAudioRecorder
+                                recorderType: StereoAudioRecorder
                             });
 
                             recordAudio.startRecording();
@@ -146,8 +146,10 @@
                     });
                 };
 
-                // var workerPath = location.href.replace(location.href.split('/').pop(), '') + 'ffmpeg_asm.js';
                 var workerPath = 'https://archive.org/download/ffmpeg_asm/ffmpeg_asm.js';
+				if(document.domain == 'localhost') {
+					workerPath = location.href.replace(location.href.split('/').pop(), '') + 'ffmpeg_asm.js';
+				}
 
                 function processInWebWorker() {
                     var blob = URL.createObjectURL(new Blob(['importScripts("' + workerPath + '");var now = Date.now;function print(text) {postMessage({"type" : "stdout","data" : text});};onmessage = function(event) {var message = event.data;if (message.type === "command") {var Module = {print: print,printErr: print,files: message.files || [],arguments: message.arguments || [],TOTAL_MEMORY: message.TOTAL_MEMORY || false};postMessage({"type" : "start","data" : Module.arguments.join(" ")});postMessage({"type" : "stdout","data" : "Received command: " +Module.arguments.join(" ") +((Module.TOTAL_MEMORY) ? ".  Processing with " + Module.TOTAL_MEMORY + " bits." : "")});var time = now();var result = ffmpeg_run(Module);var totalTime = now() - time;postMessage({"type" : "stdout","data" : "Finished processing (took " + totalTime + "ms)"});postMessage({"type" : "done","data" : result,"time" : totalTime});}};postMessage({"type" : "ready"});'], {
@@ -239,7 +241,7 @@
 
                     inner.appendChild(document.createElement('hr'));
                     var h2 = document.createElement('h2');
-                    h2.innerHTML = '<a href="' + source.src + '" target="_blank" download="Converted Audio.ogg">Converted Ogg:</a>';
+                    h2.innerHTML = '<a href="' + source.src + '" target="_blank" download="Converted Audio.ogg" style="font-size:200%;color:red;">Download Converted Ogg:</a>';
                     inner.appendChild(h2);
                     h2.style.display = 'block';
                     inner.appendChild(audio);
@@ -289,7 +291,7 @@
                         WebM can be converted in mp4.
                     </li>
                     <li>
-                        WAV can be converted in ogg or mp3.
+                        WAV can be converted in ogg or mp3 (AAC/Vorbis).
                     </li>
                     <li>
                         WAV can be merged in mp4.
@@ -302,7 +304,7 @@
 
             <section class="experiment">
                 <p style="margin-top: 0;">
-                    RecordRTC is MIT licensed on Github! <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">Documentation</a>
+                    Ffmpeg.js is MIT licensed on Github! <a href="https://github.com/muaz-khan/Ffmpeg.js" target="_blank">Documentation</a>
                 </p>
             </section>
 
@@ -328,6 +330,5 @@
             window.useThisGithubPath = 'muaz-khan/Ffmpeg.js';
         </script>
         <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
-        <script src="https://archive.org/download/ffmpeg_asm/ffmpeg_asm.js" async> </script>
     </body>
 </html>
