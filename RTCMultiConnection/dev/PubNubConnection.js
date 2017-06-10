@@ -54,6 +54,7 @@ function PubNubConnection(connection, connectCallback) {
     };
 
     connection.socket.emit = function(eventName, data, callback) {
+        if (!data) return;
         if (eventName === 'changed-uuid') return;
         if (data.message && data.message.shiftedModerationControl) return;
 
@@ -229,6 +230,8 @@ function PubNubConnection(connection, connectCallback) {
     }
 
     window.addEventListener('beforeunload', function() {
+        if (!connection.socket || !connection.socket.emit) return;
+
         connection.socket.emit('presence', {
             userid: connection.userid,
             isOnline: false

@@ -44,6 +44,7 @@ module.exports = function(grunt) {
                     'dev/events-handler.js',
 
                     'dev/share-drawings.js',
+                    'dev/webrtc-handler.js',
                     'dev/canvas-designer-widget.js',
 
                     'dev/tail.js'

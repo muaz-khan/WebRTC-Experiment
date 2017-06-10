@@ -1,11 +1,10 @@
 <!--
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
-// Experiments    - github.com/muaz-khan/WebRTC-Experiment
-// RecordRTC      - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+// RecordRTC      - github.com/muaz-khan/RecordRTC
 
 // RecordRTC over 
-// Socket.io      - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio
+// Socket.io      - https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-over-Socketio
 -->
 
 <!DOCTYPE html>
@@ -23,7 +22,7 @@
     <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
     <meta name="author" content="Muaz Khan">
 
-    <script src="https://www.webrtc-experiment.com/RecordRTC.js">
+    <script src="/node_modules/recordrtc/RecordRTC.js">
     </script>
     <script src="/socket.io/socket.io.js">
     </script>
@@ -62,7 +61,7 @@
 </head>
 
 <body>
-    <h1><a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC">RecordRTC</a> <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio">over Socket.io</a>
+    <h1><a href="https://github.com/muaz-khan/RecordRTC">RecordRTC</a> <a href="https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-over-Socketio">over Socket.io</a>
     </h1>
     <p>
         <video id="camera-preview" style="border: 1px solid rgb(15, 158, 238); width: 94%;"></video>
@@ -80,10 +79,7 @@
     </div>
 
     <script>
-    // you can set it equal to "false" to record only audio
-    var recordVideoSeparately = !!navigator.webkitGetUserMedia;
-
-    if (!!navigator.webkitGetUserMedia && !recordVideoSeparately) {
+    if (false /* for Microsoft Edge */) {
         var cameraPreview = document.getElementById('camera-preview');
         cameraPreview.parentNode.innerHTML = '<audio id="camera-preview" controls style="border: 1px solid rgb(15, 158, 238); width: 94%;"></audio> ';
     }
@@ -113,8 +109,10 @@
             mediaStream = stream;
 
             recordAudio = RecordRTC(stream, {
+                type: 'audio',
+                recorderType: StereoAudioRecorder,
                 onAudioProcessStarted: function() {
-                    recordVideoSeparately && recordVideo.startRecording();
+                    recordVideo.startRecording();
 
                     cameraPreview.src = window.URL.createObjectURL(stream);
                     cameraPreview.play();
@@ -124,8 +122,14 @@
                 }
             });
 
-            recordVideo = RecordRTC(stream, {
-                type: 'video'
+            var videoOnlyStream = new MediaStream();
+            stream.getVideoTracks().forEach(function(track) {
+                videoOnlyStream.addTrack(track);
+            });
+
+            recordVideo = RecordRTC(videoOnlyStream, {
+                type: 'video',
+                recorderType: !!navigator.mozGetUserMedia ? MediaStreamRecorder : WhammyRecorder
             });
 
             recordAudio.startRecording();
@@ -141,7 +145,7 @@
         stopRecording.disabled = true;
 
         // stop audio recorder
-        recordVideoSeparately && recordAudio.stopRecording(function() {
+        recordAudio.stopRecording(function() {
             // stop video recorder
             recordVideo.stopRecording(function() {
 
@@ -176,7 +180,7 @@
 
         // if firefox or if you want to record only audio
         // stop audio recorder
-        !recordVideoSeparately && recordAudio.stopRecording(function() {
+        recordAudio.stopRecording(function() {
             // get audio data-URL
             recordAudio.getDataURL(function(audioDataURL) {
                 var files = {

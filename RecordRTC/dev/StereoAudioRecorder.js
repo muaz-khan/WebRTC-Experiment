@@ -64,10 +64,23 @@ function StereoAudioRecorder(mediaStream, config) {
     }
 
     if (!config.disableLogs) {
-        console.debug('StereoAudioRecorder is set to record number of channels: ', numberOfAudioChannels);
+        console.log('StereoAudioRecorder is set to record number of channels: ', numberOfAudioChannels);
+    }
+
+    // if any Track within the MediaStream is muted or not enabled at any time, 
+    // the browser will only record black frames 
+    // or silence since that is the content produced by the Track
+    // so we need to stopRecording as soon as any single track ends.
+    if (typeof config.checkForInactiveTracks === 'undefined') {
+        config.checkForInactiveTracks = true;
     }
 
     function isMediaStreamActive() {
+        if (config.checkForInactiveTracks === false) {
+            // always return "true"
+            return true;
+        }
+
         if ('active' in mediaStream) {
             if (!mediaStream.active) {
                 return false;
@@ -381,7 +394,7 @@ function StereoAudioRecorder(mediaStream, config) {
             self.length = recordingLength;
 
             if (callback) {
-                callback();
+                callback(self.blob);
             }
 
             isAudioProcessStarted = false;
@@ -500,7 +513,7 @@ function StereoAudioRecorder(mediaStream, config) {
 
         if (!recording) {
             if (!config.disableLogs) {
-                console.info('Seems recording has been restarted.');
+                console.log('Seems recording has been restarted.');
             }
             this.record();
             return;
@@ -572,12 +585,22 @@ function StereoAudioRecorder(mediaStream, config) {
         }
 
         recordingLength += bufferSize;
+
+        // export raw PCM
+        self.recordingLength = recordingLength;
     }
 
     jsAudioNode.onaudioprocess = onAudioProcessDataAvailable;
 
     // to prevent self audio to be connected with speakers
     jsAudioNode.connect(context.destination);
+
+    // export raw PCM
+    this.leftchannel = leftchannel;
+    this.rightchannel = rightchannel;
+    this.numberOfAudioChannels = numberOfAudioChannels;
+    this.desiredSampRate = desiredSampRate;
+    this.sampleRate = sampleRate;
 }
 
 if (typeof RecordRTC !== 'undefined') {

@@ -19,31 +19,26 @@
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
     <style>
-    p,.inner {
-        padding: 1em;
-    }
-    li {
-        border-bottom: 1px solid rgb(189, 189, 189);
-        border-left: 1px solid rgb(189, 189, 189);
-        padding: .5em;
-    }
-    label {
-        display: inline-block;
-        width: 8em;
-    }
+        li {
+            border-bottom: 1px solid rgb(189, 189, 189);
+            border-left: 1px solid rgb(189, 189, 189);
+            padding: .5em;
+        }
+        label {
+            display: inline-block;
+            width: 8em;
+        }
 
-    h1 span {
-        background: yellow;
-        border: 2px solid #8e1515;
-        padding: 2px 8px;
-        margin: 2px 5px;
-        border-radius: 7px;
-        color: #8e1515;
-        display: inline-block;
-    }
-    </style>
+        h1 span {
+            background: yellow;
+            border: 2px solid #8e1515;
+            padding: 2px 8px;
+            margin: 2px 5px;
+            border-radius: 7px;
+            color: #8e1515;
+            display: inline-block;
+        }
 
-    <style>
         .recordrtc button {
             font-size: inherit;
         }
@@ -129,10 +124,13 @@
                     <option>vp8</option>
                     <option>vp9</option>
                     <option>h264</option>
+                    <option>mkv</option>
                     <option>opus</option>
+                    <option>ogg</option>
                     <option>pcm</option>
                     <option>gif</option>
                     <option>whammy</option>
+                    <option>default</option>
                 </select>
 
                 <input type="checkbox" id="chk-MultiStreamRecorder" style="margin:0;width:auto;">
@@ -346,7 +344,11 @@
                         }
                     },
                     onMediaCapturingFailed: function(error) {
-                        if(error.name === 'PermissionDeniedError' && !!navigator.mozGetUserMedia) {
+                        console.warn('onMediaCapturingFailed', error);
+
+                        if(DetectRTC.browser.name === 'Safari') return;
+                        
+                        if(error.name === 'PermissionDeniedError' && webrtcDetectedBrowser === 'firefox') {
                             InstallTrigger.install({
                                 'Foo': {
                                     // URL: 'https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/',
@@ -366,24 +368,25 @@
                     mimeType = 'video/webm\;codecs=h264';
                     fileExtension = 'mp4';
 
-                    if(typeof MediaRecorder.isTypeSupported === 'function') {
-                        if(MediaRecorder.isTypeSupported('video/mpeg')) {
-                            mimeType = 'video/mpeg';
-                        }
-                        else {
-                            mimeType = 'video/webm\;codecs=h264';
-                        }
+                    // video/mp4;codecs=avc1    
+                    if(isMimeTypeSupported('video/mpeg')) {
+                        mimeType = 'video/mpeg';
                     }
                 }
 
-                if(mediaContainerFormat.value === 'vp8') {
+                if(mediaContainerFormat.value === 'mkv' && isMimeTypeSupported('video/x-matroska;codecs=avc1')) {
+                    mimeType = 'video/x-matroska;codecs=avc1';
+                    fileExtension = 'mkv';
+                }
+
+                if(mediaContainerFormat.value === 'vp8' && isMimeTypeSupported('video/webm\;codecs=vp8')) {
                     mimeType = 'video/webm\;codecs=vp8';
                     fileExtension = 'webm';
                     recorderType = null;
                     type = 'video';
                 }
 
-                if(mediaContainerFormat.value === 'vp9') {
+                if(mediaContainerFormat.value === 'vp9' && isMimeTypeSupported('video/webm\;codecs=vp9')) {
                     mimeType = 'video/webm\;codecs=vp9';
                     fileExtension = 'webm';
                     recorderType = null;
@@ -397,9 +400,17 @@
                     type = 'audio';
                 }
 
-                if(mediaContainerFormat.value === 'opus') {
-                    mimeType = 'audio/webm';
-                    fileExtension = 'webm'; // ogg or webm?
+                if(mediaContainerFormat.value === 'opus' || mediaContainerFormat.value === 'ogg') {
+                    if(isMimeTypeSupported('audio/webm')) {
+                        mimeType = 'audio/webm';
+                        fileExtension = 'webm'; // webm
+                    }
+
+                    if(isMimeTypeSupported('audio/ogg')) {
+                        mimeType = 'audio/ogg';
+                        fileExtension = 'ogg'; // ogg
+                    }
+
                     recorderType = null;
                     type = 'audio';
                 }
@@ -416,6 +427,13 @@
                     fileExtension = 'gif';
                     recorderType = GifRecorder;
                     type = 'gif';
+                }
+
+                if(mediaContainerFormat.value === 'default') {
+                    mimeType = 'video/webm';
+                    fileExtension = 'webm';
+                    recorderType = null;
+                    type = 'video';
                 }
 
                 if(recordingMedia.value === 'record-audio') {
@@ -449,6 +467,7 @@
                             options.numberOfAudioChannels = 1;
                         }
 
+                        options.ignoreMutedMedia = true;
                         button.recordRTC = RecordRTC(button.stream, options);
 
                         button.recordingEndedCallback = function(url) {
@@ -505,6 +524,7 @@
                                 };
                             }
 
+                            options.ignoreMutedMedia = true;
                             var audioRecorder = RecordRTC(button.stream, options);
 
                             options.type = type;
@@ -584,6 +604,7 @@
                             };
                         }
 
+                        options.ignoreMutedMedia = true;
                         button.recordRTC = RecordRTC(button.stream, options);
 
                         button.recordingEndedCallback = function(url) {
@@ -622,6 +643,7 @@
                             options.videoBitsPerSecond = videoBitsPerSecond;
                         }
 
+                        options.ignoreMutedMedia = true;
                         button.recordRTC = RecordRTC(button.stream, options);
 
                         button.recordingEndedCallback = function(url) {
@@ -662,6 +684,7 @@
                             options.videoBitsPerSecond = videoBitsPerSecond;
                         }
 
+                        options.ignoreMutedMedia = true;
                         button.recordRTC = RecordRTC(button.stream, options);
 
                         button.recordingEndedCallback = function(url) {
@@ -719,14 +742,30 @@
                 });
             }
 
+            var MY_DOMAIN = 'webrtc-experiment.com';
+
+            function isMyOwnDomain() {
+                // replace "webrtc-experiment.com" with your own domain name
+                return document.domain.indexOf(MY_DOMAIN) !== -1;
+            }
+
+            function isLocalHost() {
+                // "chrome.exe" --enable-usermedia-screen-capturing
+                // or firefox => about:config => "media.getusermedia.screensharing.allowed_domains" => add "localhost"
+                return document.domain === 'localhost' || document.domain === '127.0.0.1';
+            }
+
             function captureScreen(config) {
+                // Firefox screen capturing addon is open-sourced here: https://github.com/muaz-khan/Firefox-Extensions
+                // Google Chrome screen capturing extension is open-sourced here: https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
+
                 window.getScreenId = function(chromeMediaSource, chromeMediaSourceId) {
                     var screenConstraints = {
                         audio: false,
                         video: {
                             mandatory: {
                                 chromeMediaSourceId: chromeMediaSourceId,
-                                chromeMediaSource: chromeMediaSource
+                                chromeMediaSource: isLocalHost() ? 'screen' : chromeMediaSource
                             }
                         }
                     };
@@ -749,10 +788,22 @@
                         });
                     }, function(error) {
                         config.onMediaCapturingFailed(error);
+
+                        if(isMyOwnDomain() === false && webrtcDetectedBrowser === 'chrome') {
+                            // otherwise deploy chrome extension yourselves
+                            // https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
+                            alert('Please enable this command line flag: "--enable-usermedia-screen-capturing"');
+                        }
+
+                        if(isMyOwnDomain() === false && webrtcDetectedBrowser === 'firefox') {
+                            // otherwise deploy firefox addon yourself
+                            // https://github.com/muaz-khan/Firefox-Extensions
+                            alert('Please enable screen capturing for your domain. Open "about:config" and search for "media.getusermedia.screensharing.allowed_domains"');
+                        }
                     });
                 };
 
-                if(webrtcDetectedBrowser == 'firefox') {
+                if(webrtcDetectedBrowser == 'firefox' || isLocalHost()) {
                     window.getScreenId();
                 }
 
@@ -760,13 +811,16 @@
             }
 
             function captureAudioPlusScreen(config) {
+                // Firefox screen capturing addon is open-sourced here: https://github.com/muaz-khan/Firefox-Extensions
+                // Google Chrome screen capturing extension is open-sourced here: https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
+
                 window.getScreenId = function(chromeMediaSource, chromeMediaSourceId) {
                     var screenConstraints = {
                         audio: false,
                         video: {
                             mandatory: {
                                 chromeMediaSourceId: chromeMediaSourceId,
-                                chromeMediaSource: chromeMediaSource
+                                chromeMediaSource: isLocalHost() ? 'screen' : chromeMediaSource
                             }
                         }
                     };
@@ -774,29 +828,28 @@
                     if(webrtcDetectedBrowser == 'firefox') {
                         screenConstraints = {
                             video: {
-                                mediaSource: 'window',
+                                mediaSource: 'window'
                             },
-                            audio: true
+                            audio: false
                         }
                     }
 
                     captureUserMedia(screenConstraints, function(screenStream) {
-                        if(webrtcDetectedBrowser == 'firefox') {
-                            config.onMediaCaptured(screenStream);
-
-                            addStreamStopListener(screenStream, function() {
-                                config.onMediaStopped();
-                            });
-                            return;
-                        }
-
                         captureUserMedia({audio: true}, function(audioStream) {
-                            // merge audio tracks into the screen
-                            screenStream.addTrack(audioStream.getAudioTracks()[0]);
+                            var newStream = new MediaStream();
 
-                            config.onMediaCaptured(screenStream);
+                            // merge audio and video tracks in a single stream
+                            audioStream.getAudioTracks().forEach(function(track) {
+                                newStream.addTrack(track);
+                            });
 
-                            addStreamStopListener(screenStream, function() {
+                            screenStream.getVideoTracks().forEach(function(track) {
+                                newStream.addTrack(track);
+                            });
+
+                            config.onMediaCaptured(newStream);
+
+                            addStreamStopListener(newStream, function() {
                                 config.onMediaStopped();
                             });
                         }, function(error) {
@@ -804,10 +857,22 @@
                         });
                     }, function(error) {
                         config.onMediaCapturingFailed(error);
+
+                        if(isMyOwnDomain() === false && webrtcDetectedBrowser === 'chrome') {
+                            // otherwise deploy chrome extension yourselves
+                            // https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture
+                            alert('Please enable this command line flag: "--enable-usermedia-screen-capturing"');
+                        }
+
+                        if(isMyOwnDomain() === false && webrtcDetectedBrowser === 'firefox') {
+                            // otherwise deploy firefox addon yourself
+                            // https://github.com/muaz-khan/Firefox-Extensions
+                            alert('Please enable screen capturing for your domain. Open "about:config" and search for "media.getusermedia.screensharing.allowed_domains"');
+                        }
                     });
                 };
 
-                if(webrtcDetectedBrowser == 'firefox') {
+                if(webrtcDetectedBrowser == 'firefox' || isLocalHost()) {
                     window.getScreenId();
                 }
 
@@ -997,28 +1062,85 @@
                 });
             }
 
+            function isMimeTypeSupported(mimeType) {
+                if(webrtcDetectedBrowser === 'edge' || DetectRTC.browser.name === 'Safari' || typeof MediaRecorder === 'undefined') {
+                    return false;
+                }
+
+                if(typeof MediaRecorder.isTypeSupported !== 'function') {
+                    return true;
+                }
+
+                return MediaRecorder.isTypeSupported(mimeType);
+            }
+
             recordingMedia.onchange = function() {
-                var options = [];
                 if(recordingMedia.value === 'record-audio') {
-                    setMediaContainerFormat(['opus', 'pcm']);
+                    var recordingOptions = [];
+                    
+                    if(isMimeTypeSupported('audio/webm')) {
+                        recordingOptions.push('opus');
+                    }
+
+                    if(isMimeTypeSupported('audio/ogg')) {
+                        recordingOptions.push('ogg');
+                    }
+
+                    recordingOptions.push('pcm');
+
+                    setMediaContainerFormat(recordingOptions);
                     return;
                 }
-                setMediaContainerFormat(['vp8', 'vp9', 'h264', 'gif', 'whammy']);
+
+                var isChrome = !!window.chrome && !(!!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0);
+
+                var recordingOptions = ['vp8']; // MediaStreamRecorder with vp8
+
+                if(isMimeTypeSupported('video/webm\;codecs=vp9')) {
+                    recordingOptions.push('vp9'); // MediaStreamRecorder with vp9
+                }
+
+                if(isMimeTypeSupported('video/webm\;codecs=h264')) {
+                    recordingOptions.push('h264'); // MediaStreamRecorder with h264
+                }
+
+                if(isMimeTypeSupported('video/x-matroska;codecs=avc1')) {
+                    recordingOptions.push('mkv'); // MediaStreamRecorder with mkv/matroska
+                }
+
+                recordingOptions.push('gif'); // GifRecorder
+
+                if(isChrome) {
+                    recordingOptions.push('whammy'); // WhammyRecorder
+                }
+
+                recordingOptions.push('default'); // Default mimeType for MediaStreamRecorder
+
+                setMediaContainerFormat(recordingOptions);
             };
             recordingMedia.onchange();
 
-            if(webrtcDetectedBrowser === 'edge') {
+            if(webrtcDetectedBrowser === 'edge' || DetectRTC.browser.name === 'Safari') {
                 // webp isn't supported in Microsoft Edge
                 // neither MediaRecorder API
                 // so lets disable both video/screen recording options
 
-                console.warn('Neither MediaRecorder API nor webp is supported in Microsoft Edge. You cam merely record audio.');
+                console.warn('Neither MediaRecorder API nor webp is supported in ' + DetectRTC.browser.name + '. You cam merely record audio.');
 
                 recordingMedia.innerHTML = '<option value="record-audio">Audio</option>';
                 setMediaContainerFormat(['pcm']);
             }
 
             function saveToDiskOrOpenNewTab(recordRTC) {
+                if(!recordRTC.getBlob().size) {
+                    if(mediaContainerFormat.value !== 'default') {
+                        alert('RecordRTC seems failed recording using ' + mediaContainerFormat.value + '. Please choose "default" option from the drop down and record again.');
+                    }
+                    else {
+                        alert('RecordRTC seems failed. Please report this bug by email, to: muazkh@gmail.com');
+                    }
+                }
+
                 var fileName = 'RecordRTC-' + (new Date).toISOString().replace(/:|\./g, '-') + '.' + fileExtension;
 
                 document.querySelector('#save-to-disk').parentNode.style.display = 'block';
@@ -1070,6 +1192,20 @@
                     if(!recordRTC) return alert('No recording found.');
                     this.disabled = true;
 
+                    if(isLocalHost()) {
+                        alert('This feature is NOT available on localhost.');
+                        return;
+                    }
+
+                    if(isMyOwnDomain() === false) {
+                        var url = 'https://github.com/muaz-khan/RecordRTC/wiki/Upload-to-YouTube';
+                        alert('YouTube API key is configured to work only on webrtc-experiment.com. Please create your own YouTube key + oAuth client-id and use it instead.\n\nWiki page: ' + url);
+
+                        // check instructions on the wiki page
+                        location.href = url;
+                        return;
+                    }
+
                     var button = this;
                     uploadToYouTube(fileName, recordRTC, function(percentageComplete, fileURL) {
                         if(percentageComplete == 'uploaded') {
@@ -1087,8 +1223,10 @@
                                 window.open(fileURL);
                             };
 
-                            document.querySelector('h1').innerHTML = 'Your video has been uploaded. Default privacy type is <span>private</span>. Please visit <a href="https://www.youtube.com/my_videos?o=U" target="_blank">youtube.com/my_videos</a> to change to <span>public</span>.';
+                            document.querySelector('h1').innerHTML = 'Your video has been uploaded. Default privacy type is <span>private</span>. Please visit <a href="https://www.youtube.com/my_videos?o=U" target="_blank">youtube.com/my_videos</a> to change privacy to <span>public</span>.';
                             window.scrollTo(0, 0);
+
+                            alert('Your video has been uploaded. Default privacy type is "private". Please visit "youtube.com/my_videos" to change privacy to "public".');
                             return;
                         }
                         if(percentageComplete == 'failed') {
@@ -1175,6 +1313,9 @@
                 (document.body || document.documentElement).appendChild(hyperlink);
                 hyperlink.onclick = function() {
                    (document.body || document.documentElement).removeChild(hyperlink);
+
+                   // required for Firefox
+                   window.URL.revokeObjectURL(hyperlink.href);
                 };
 
                 var mouseEvent = new MouseEvent('click', {
@@ -1184,15 +1325,6 @@
                 });
 
                 hyperlink.dispatchEvent(mouseEvent);
-                
-                // NEVER use "revoeObjectURL" here
-                // you can use it inside "onclick" handler, though.
-                // (window.URL || window.webkitURL).revokeObjectURL(hyperlink.href);
-
-                // if you're writing cross-browser function:
-                if(!navigator.mozGetUserMedia) { // i.e. if it is NOT Firefox
-                   window.URL.revokeObjectURL(hyperlink.href);
-                }
             }
 
             function getURL(arg) {
@@ -1271,6 +1403,8 @@
                 blob = new File([blob], 'RecordRTC-' + (new Date).toISOString().replace(/:|\./g, '-') + '.' + fileExtension, {
                     type: mimeType
                 });
+
+                if(!uploadVideo) return;
 
                 uploadVideo.callback = callback;
                 uploadVideo.uploadFile(fileName, blob);
@@ -1610,12 +1744,16 @@
                             donotDuplicateDevices[device.id] = true;
 
                             if(streams.length < 5) {
-                                // only 4-streams are allowed, currently
+                                // only 4-streams are allowed by RecordRTC, currently
                                 streams.push(stream);
                             }
                         }
 
                         if(idx == DetectRTC.videoInputDevices.length - 1) {
+                            if(streams.length === 1) {
+                                // duplicate
+                                streams = streams.concat(streams);
+                            }
                             successCallback(streams);
                         }
                     }).catch(function(error) {
@@ -1631,7 +1769,7 @@
             [mediaContainerFormat, chkMultiStreamRecorder, recordingMedia].forEach(function(element) {
                 element.addEventListener('change', function() {
                     if(chkMultiStreamRecorder.checked === true) {
-                        if(mediaContainerFormat.value.toString().search(/vp8|vp9|h264/g) === -1) {
+                        if(mediaContainerFormat.value.toString().search(/vp8|vp9|h264|default/g) === -1) {
                             mediaContainerFormat.value = 'vp8';
                         }
 
@@ -1692,7 +1830,7 @@
             <table style="border-collapse: collapse; border-spacing: 0px; margin-top: 0px; margin-bottom: 16px; display: block; width: 728px; overflow: auto; word-break: normal; color: rgb(51, 51, 51); font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif; font-size: 16px; line-height: 25.6000003814697px;"><thead><tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204);"><th style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">Experiment Name</th><th style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">Demo</th><th style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">Source</th></tr></thead>
             <tbody>
                 <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
-                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">WebPage+Canvas Recording</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);">WebPage Activity Recording (no addon, no extension, plugin-free)</td>
                     <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/webpage-recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Demo</a></td>
                     <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/Canvas-Recording/webpage-recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
                 </tr>
@@ -1783,6 +1921,46 @@
                     <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>Multiple Cameras Recording</td>
                     <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/multi-cameras-recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
                 </tr>
+
+                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>Show logo+advertisement on the recorded video</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/show-logo-on-recorded-video.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
+                </tr>
+
+                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>16khz-audio-recording</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/16khz-audio-recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
+                </tr>
+
+                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>microsoft-edge-audio-recording</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/edge-audio-recording.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
+                </tr>
+
+                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>onStateChanged</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/onStateChanged.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
+                </tr>
+
+                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>RecordRTCPromisesHandler</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/RecordRTCPromisesHandler.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
+                </tr>
+
+                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>reuse-same-instance</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/reuse-same-instance.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
+                </tr>
+
+                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>setRecordingDuration</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/setRecordingDuration.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
+                </tr>
+
+                <tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(248, 248, 248);">
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);" colspan=2>bitsPerSecond</td>
+                    <td style="padding: 6px 13px; border: 1px solid rgb(221, 221, 221);"><a href="https://github.com/muaz-khan/RecordRTC/blob/master/simple-demos/bitsPerSecond.html" style="color: rgb(65, 131, 196); text-decoration: none; background: transparent;">Source</a></td>
+                </tr>
             </tbody>
             </table>
         </section>
@@ -1802,8 +1980,8 @@
             <small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
         </section>
 
-        <section class="experiment">
-            <h2 class="header">Using RecordRTC...</h2>
+        <section class="experiment" id="browser-support">
+            <h2 class="header"><a href="#browser-support">Using RecordRTC...</a></h2>
 
             <ol>
                 <li>
@@ -1869,7 +2047,7 @@
     <script>
         var chromeMediaSource = 'screen';
         window.addEventListener('message', function(message) {
-            if(message.origin != 'https://www.webrtc-experiment.com') return;
+            if(message.origin.toString().indexOf(MY_DOMAIN) === -1) return;
             chromeMediaSource = 'desktop';
             if(typeof getScreenId == 'function' && !!message.data.sourceId) {
                 getScreenId(chromeMediaSource, message.data.sourceId);

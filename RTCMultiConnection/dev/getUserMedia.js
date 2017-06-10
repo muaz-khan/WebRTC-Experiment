@@ -107,11 +107,24 @@ function getUserMediaHandler(options) {
             return;
         }
 
+        if (DetectRTC.browser.name === 'Safari') {
+            if (options.localMediaConstraints.audio !== false) {
+                options.localMediaConstraints.audio = true;
+            }
+
+            if (options.localMediaConstraints.video !== false) {
+                options.localMediaConstraints.video = true;
+            }
+        }
+
         navigator.mediaDevices.getUserMedia(options.localMediaConstraints).then(function(stream) {
             stream.streamid = stream.streamid || stream.id || getRandomString();
             stream.idInstance = idInstance;
             streaming(stream);
         }).catch(function(error) {
+            if (DetectRTC.browser.name === 'Safari') {
+                return;
+            }
             options.onLocalMediaError(error, options.localMediaConstraints);
         });
     }

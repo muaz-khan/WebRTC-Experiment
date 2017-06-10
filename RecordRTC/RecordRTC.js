@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2017-04-04 4:13:54 AM UTC
+// Last time updated: 2017-06-09 3:48:01 PM UTC
 
 // ________________
 // RecordRTC v5.4.1
@@ -50,7 +50,7 @@ function RecordRTC(mediaStream, config) {
 
     function startRecording() {
         if (!config.disableLogs) {
-            console.debug('started recording ' + config.type + ' stream.');
+            console.log('started recording ' + config.type + ' stream.');
         }
 
         if (mediaRecorder) {
@@ -90,7 +90,7 @@ function RecordRTC(mediaStream, config) {
         setState('recording');
 
         if (!config.disableLogs) {
-            console.debug('Initialized recorderType:', mediaRecorder.constructor.name, 'for output-type:', config.type);
+            console.log('Initialized recorderType:', mediaRecorder.constructor.name, 'for output-type:', config.type);
         }
     }
 
@@ -100,8 +100,6 @@ function RecordRTC(mediaStream, config) {
         }
 
         if (self.state === 'paused') {
-            setState('recording');
-
             self.resumeRecording();
 
             setTimeout(function() {
@@ -160,7 +158,7 @@ function RecordRTC(mediaStream, config) {
             }
 
             if (blob && !config.disableLogs) {
-                console.debug(blob.type, '->', bytesToSize(blob.size));
+                console.log(blob.type, '->', bytesToSize(blob.size));
             }
 
             if (!config.autoWriteToDisk) {
@@ -192,7 +190,7 @@ function RecordRTC(mediaStream, config) {
         mediaRecorder.pause();
 
         if (!config.disableLogs) {
-            console.debug('Paused recording.');
+            console.log('Paused recording.');
         }
     }
 
@@ -214,7 +212,7 @@ function RecordRTC(mediaStream, config) {
         mediaRecorder.resume();
 
         if (!config.disableLogs) {
-            console.debug('Resumed recording.');
+            console.log('Resumed recording.');
         }
     }
 
@@ -426,7 +424,7 @@ function RecordRTC(mediaStream, config) {
             mediaRecorder.clearRecordedData();
 
             if (!config.disableLogs) {
-                console.debug('Cleared old recorded data.');
+                console.log('Cleared old recorded data.');
             }
         },
 
@@ -661,7 +659,7 @@ function RecordRTC(mediaStream, config) {
          */
         onStateChanged: function(state) {
             if (!config.disableLogs) {
-                console.info('Recorder state changed:', state);
+                console.log('Recorder state changed:', state);
             }
         },
 
@@ -680,7 +678,17 @@ function RecordRTC(mediaStream, config) {
          * })();
          * recorder.startRecording();
          */
-        state: 'inactive'
+        state: 'inactive',
+
+        /**
+         *
+         * State getter
+         *
+         * @returns {*}
+         */
+        getState: function() {
+            return self.state;
+        }
     };
 
     if (!this) {
@@ -952,7 +960,7 @@ function GetRecorderType(mediaStream, config) {
     }
 
     if (!config.disableLogs && !!recorder && !!recorder.name) {
-        console.debug('Using recorderType:', recorder.name || recorder.constructor.name);
+        console.log('Using recorderType:', recorder.name || recorder.constructor.name);
     }
 
     return recorder;
@@ -1115,7 +1123,10 @@ function MRecordRTC(mediaStream) {
 
         if (!!mediaType.audio && !!mediaType.video) {
             var self = this;
-            if (isMediaRecorderCompatible()) {
+
+            // this line prevents StereoAudioRecorder
+            // todo: fix it
+            if (isMediaRecorderCompatible() /* && !this.audioRecorder */ ) {
                 self.audioRecorder = null;
                 self.videoRecorder.startRecording();
             } else {
@@ -1442,8 +1453,8 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
         global.console = {};
     }
 
-    if (typeof global.console.debug === 'undefined') {
-        global.console.debug = global.console.info = global.console.error = global.console.log = global.console.log || function() {
+    if (typeof global.console.log === 'undefined' || typeof global.console.error === 'undefined') {
+        global.console.error = global.console.log = global.console.log || function() {
             console.log(arguments);
         };
     }
@@ -1632,21 +1643,25 @@ if (typeof MediaStream !== 'undefined') {
         };
     }
 
-    if (!('stop' in MediaStream.prototype)) {
-        MediaStream.prototype.stop = function() {
-            this.getAudioTracks().forEach(function(track) {
-                if (!!track.stop) {
-                    track.stop();
-                }
-            });
+    // override "stop" method for all browsers
+    MediaStream.prototype.__stop = MediaStream.prototype.stop;
+    MediaStream.prototype.stop = function() {
+        this.getAudioTracks().forEach(function(track) {
+            if (!!track.stop) {
+                track.stop();
+            }
+        });
 
-            this.getVideoTracks().forEach(function(track) {
-                if (!!track.stop) {
-                    track.stop();
-                }
-            });
-        };
-    }
+        this.getVideoTracks().forEach(function(track) {
+            if (!!track.stop) {
+                track.stop();
+            }
+        });
+
+        if (typeof this.__stop === 'function') {
+            this.__stop();
+        }
+    };
 }
 
 // below function via: http://goo.gl/B3ae8c
@@ -1703,27 +1718,23 @@ function invokeSaveAsDialog(file, fileName) {
 
     var hyperlink = document.createElement('a');
     hyperlink.href = URL.createObjectURL(file);
-    hyperlink.target = '_blank';
     hyperlink.download = fileFullName;
 
-    if (!!navigator.mozGetUserMedia) {
-        hyperlink.onclick = function() {
-            (document.body || document.documentElement).removeChild(hyperlink);
-        };
-        (document.body || document.documentElement).appendChild(hyperlink);
+    hyperlink.style = 'display:none;opacity:0;color:transparent;';
+    (document.body || document.documentElement).appendChild(hyperlink);
+
+    if (typeof hyperlink.click === 'function') {
+        hyperlink.click();
+    } else {
+        hyperlink.target = '_blank';
+        hyperlink.dispatchEvent(new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+        }));
     }
 
-    var evt = new MouseEvent('click', {
-        view: window,
-        bubbles: true,
-        cancelable: true
-    });
-
-    hyperlink.dispatchEvent(evt);
-
-    if (!navigator.mozGetUserMedia) {
-        URL.revokeObjectURL(hyperlink.href);
-    }
+    URL.revokeObjectURL(hyperlink.href);
 }
 
 // __________ (used to handle stuff like http://goo.gl/xmE5eg) issue #129
@@ -1817,7 +1828,8 @@ function isMediaRecorderCompatible() {
  *     audioBitsPerSecond : 256 * 8 * 1024,
  *     videoBitsPerSecond : 256 * 8 * 1024,
  *     bitsPerSecond: 256 * 8 * 1024,  // if this is provided, skip above two
- *     getNativeBlob: true // by default: it is false
+ *     checkForInactiveTracks: true,
+ *     timeSlice: 1000 // concatenate intervals based blobs
  * }
  * var recorder = new MediaStreamRecorder(MediaStream, options);
  * recorder.record();
@@ -1829,7 +1841,7 @@ function isMediaRecorderCompatible() {
  * });
  * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
  * @param {MediaStream} mediaStream - MediaStream object fetched using getUserMedia API or generated using captureStreamUntilEnded or WebAudio API.
- * @param {object} config - {disableLogs:true, initCallback: function, mimeType: "video/webm", onAudioProcessStarted: function}
+ * @param {object} config - {disableLogs:true, initCallback: function, mimeType: "video/webm"}
  */
 
 function MediaStreamRecorder(mediaStream, config) {
@@ -1863,6 +1875,19 @@ function MediaStreamRecorder(mediaStream, config) {
         }
     }
 
+    var arrayOfBlobs = [];
+
+    /**
+     * This method returns array of blobs. Use only with "timeSlice". Its useful to preview recording anytime, without using the "stop" method.
+     * @method
+     * @memberof MediaStreamRecorder
+     * @example
+     * var arrayOfBlobs = recorder.getArrayOfBlobs();
+     */
+    this.getArrayOfBlobs = function() {
+        return arrayOfBlobs;
+    };
+
     /**
      * This method records MediaStream.
      * @method
@@ -1872,6 +1897,7 @@ function MediaStreamRecorder(mediaStream, config) {
      */
     this.record = function() {
         self.blob = null;
+        self.clearRecordedData();
 
         var recorderHints = config;
 
@@ -1923,7 +1949,11 @@ function MediaStreamRecorder(mediaStream, config) {
 
         // Dispatching OnDataAvailable Handler
         mediaRecorder.ondataavailable = function(e) {
-            if (self.dontFireOnDataAvailableEvent) {
+            if (typeof config.timeSlice === 'number') {
+                if (e.data && e.data.size && e.data.size > 100) {
+                    updateTimeStamp();
+                    arrayOfBlobs.push(e.data);
+                }
                 return;
             }
 
@@ -1939,14 +1969,6 @@ function MediaStreamRecorder(mediaStream, config) {
                 return;
             }
 
-            /**
-             * @property {Blob} blob - Recorded frames in video/webm blob.
-             * @memberof MediaStreamRecorder
-             * @example
-             * recorder.stop(function() {
-             *     var blob = recorder.blob;
-             * });
-             */
             self.blob = config.getNativeBlob ? e.data : new Blob([e.data], {
                 type: recorderHints.mimeType || 'video/webm'
             });
@@ -1976,6 +1998,8 @@ function MediaStreamRecorder(mediaStream, config) {
 
             (function(looper) {
                 if (!self.manuallyStopped && mediaRecorder && mediaRecorder.state === 'inactive') {
+                    delete config.timeslice;
+
                     // 10 minutes, enough?
                     mediaRecorder.start(10 * 60 * 1000);
                     return;
@@ -1995,25 +2019,50 @@ function MediaStreamRecorder(mediaStream, config) {
             }
         };
 
-        // void start(optional long mTimeSlice)
-        // The interval of passing encoded data from EncodedBufferCache to onDataAvailable
-        // handler. "mTimeSlice < 0" means Session object does not push encoded data to
-        // onDataAvailable, instead, it passive wait the client side pull encoded data
-        // by calling requestData API.
-        mediaRecorder.start(3.6e+6); // default is 60 minutes; enough?
+        if (typeof config.timeSlice === 'number') {
+            updateTimeStamp();
+            mediaRecorder.start(config.timeSlice);
+        } else {
+            // void start(optional long mTimeSlice)
+            // The interval of passing encoded data from EncodedBufferCache to onDataAvailable
+            // handler. "mTimeSlice < 0" means Session object does not push encoded data to
+            // onDataAvailable, instead, it passive wait the client side pull encoded data
+            // by calling requestData API.
+
+            mediaRecorder.start(3.6e+6); // default is 60 minutes; enough?
+            /*
+            try {
+                // undefined value of timeslice will be understood as the largest long value
+                mediaRecorder.start();
+            } catch (e) {
+                mediaRecorder.start(3.6e+6); // default is 60 minutes; enough?
+            }
+            */
+        }
 
         // Start recording. If timeSlice has been provided, mediaRecorder will
         // raise a dataavailable event containing the Blob of collected data on every timeSlice milliseconds.
         // If timeSlice isn't provided, UA should call the RequestData to obtain the Blob data, also set the mTimeSlice to zero.
 
-        if (config.onAudioProcessStarted) {
-            config.onAudioProcessStarted();
-        }
-
         if (config.initCallback) {
             config.initCallback();
         }
     };
+
+    /**
+     * @property {Array} timestamps - Array of time stamps
+     * @memberof MediaStreamRecorder
+     * @example
+     * console.log(recorder.timestamps);
+     */
+    this.timestamps = [];
+
+    function updateTimeStamp() {
+        self.timestamps.push(new Date().getTime());
+        if (typeof config.onTimeStamp === 'function') {
+            config.onTimeStamp(self.timestamps[self.timestamps.length - 1], self.timestamps);
+        }
+    }
 
     /**
      * This method stops recording MediaStream.
@@ -2033,7 +2082,7 @@ function MediaStreamRecorder(mediaStream, config) {
         }
 
         this.recordingCallback = function(blob) {
-            mediaRecorder = null;
+            self.clearRecordedData();
 
             if (callback) {
                 callback(blob);
@@ -2047,6 +2096,16 @@ function MediaStreamRecorder(mediaStream, config) {
             // "stop" method auto invokes "requestData"!
             // mediaRecorder.requestData();
             mediaRecorder.stop();
+        }
+
+        if (typeof config.timeSlice === 'number') {
+            setTimeout(function() {
+                self.blob = new Blob(arrayOfBlobs, {
+                    type: config.mimeType || 'video/webm'
+                });
+
+                self.recordingCallback(self.blob);
+            }, 100);
         }
     };
 
@@ -2075,16 +2134,6 @@ function MediaStreamRecorder(mediaStream, config) {
      * recorder.resume();
      */
     this.resume = function() {
-        if (this.dontFireOnDataAvailableEvent) {
-            this.dontFireOnDataAvailableEvent = false;
-
-            var disableLogs = config.disableLogs;
-            config.disableLogs = true;
-            this.record();
-            config.disableLogs = disableLogs;
-            return;
-        }
-
         if (!mediaRecorder) {
             return;
         }
@@ -2102,20 +2151,20 @@ function MediaStreamRecorder(mediaStream, config) {
      * recorder.clearRecordedData();
      */
     this.clearRecordedData = function() {
-        if (!mediaRecorder) {
-            return;
-        }
-
-        this.pause();
-
-        this.dontFireOnDataAvailableEvent = true;
-        this.stop();
+        arrayOfBlobs = [];
+        mediaRecorder = null;
+        self.timestamps = [];
     };
 
     // Reference to "MediaRecorder" object
     var mediaRecorder;
 
     function isMediaStreamActive() {
+        if (config.checkForInactiveTracks === false) {
+            // always return "true"
+            return true;
+        }
+
         if ('active' in mediaStream) {
             if (!mediaStream.active) {
                 return false;
@@ -2128,10 +2177,43 @@ function MediaStreamRecorder(mediaStream, config) {
         return true;
     }
 
+    /**
+     * @property {Blob} blob - Recorded frames in video/webm blob.
+     * @memberof MediaStreamRecorder
+     * @example
+     * recorder.stop(function() {
+     *     var blob = recorder.blob;
+     * });
+     */
+    this.blob = null;
+
+    /**
+     * Get MediaRecorder readonly state.
+     * @method
+     * @memberof MediaStreamRecorder
+     * @example
+     * var state = recorder.getState();
+     */
+    this.getState = function() {
+        if (!mediaRecorder) {
+            return 'inactive';
+        }
+
+        return mediaRecorder.state || 'inactive';
+    };
+
+    // if any Track within the MediaStream is muted or not enabled at any time, 
+    // the browser will only record black frames 
+    // or silence since that is the content produced by the Track
+    // so we need to stopRecording as soon as any single track ends.
+    if (typeof config.checkForInactiveTracks === 'undefined') {
+        config.checkForInactiveTracks = true;
+    }
+
     var self = this;
 
     // this method checks if media stream is stopped
-    // or any track is ended.
+    // or if any track is ended.
     (function looper() {
         if (!mediaRecorder) {
             return;
@@ -2219,10 +2301,23 @@ function StereoAudioRecorder(mediaStream, config) {
     }
 
     if (!config.disableLogs) {
-        console.debug('StereoAudioRecorder is set to record number of channels: ', numberOfAudioChannels);
+        console.log('StereoAudioRecorder is set to record number of channels: ', numberOfAudioChannels);
+    }
+
+    // if any Track within the MediaStream is muted or not enabled at any time, 
+    // the browser will only record black frames 
+    // or silence since that is the content produced by the Track
+    // so we need to stopRecording as soon as any single track ends.
+    if (typeof config.checkForInactiveTracks === 'undefined') {
+        config.checkForInactiveTracks = true;
     }
 
     function isMediaStreamActive() {
+        if (config.checkForInactiveTracks === false) {
+            // always return "true"
+            return true;
+        }
+
         if ('active' in mediaStream) {
             if (!mediaStream.active) {
                 return false;
@@ -2536,7 +2631,7 @@ function StereoAudioRecorder(mediaStream, config) {
             self.length = recordingLength;
 
             if (callback) {
-                callback();
+                callback(self.blob);
             }
 
             isAudioProcessStarted = false;
@@ -2655,7 +2750,7 @@ function StereoAudioRecorder(mediaStream, config) {
 
         if (!recording) {
             if (!config.disableLogs) {
-                console.info('Seems recording has been restarted.');
+                console.log('Seems recording has been restarted.');
             }
             this.record();
             return;
@@ -2727,12 +2822,22 @@ function StereoAudioRecorder(mediaStream, config) {
         }
 
         recordingLength += bufferSize;
+
+        // export raw PCM
+        self.recordingLength = recordingLength;
     }
 
     jsAudioNode.onaudioprocess = onAudioProcessDataAvailable;
 
     // to prevent self audio to be connected with speakers
     jsAudioNode.connect(context.destination);
+
+    // export raw PCM
+    this.leftchannel = leftchannel;
+    this.rightchannel = rightchannel;
+    this.numberOfAudioChannels = numberOfAudioChannels;
+    this.desiredSampRate = desiredSampRate;
+    this.sampleRate = sampleRate;
 }
 
 if (typeof RecordRTC !== 'undefined') {
@@ -2794,7 +2899,7 @@ function CanvasRecorder(htmlElement, config) {
 
     if (isCanvasSupportsStreamCapturing) {
         if (!config.disableLogs) {
-            console.debug('Your browser supports both MediRecorder API and canvas.captureStream!');
+            console.log('Your browser supports both MediRecorder API and canvas.captureStream!');
         }
 
         if (htmlElement instanceof HTMLCanvasElement) {
@@ -2870,7 +2975,7 @@ function CanvasRecorder(htmlElement, config) {
         whammy.frames.forEach(function(frame, idx) {
             var framesRemaining = framesLength - idx;
             if (!config.disableLogs) {
-                console.debug(framesRemaining + '/' + framesLength + ' frames remaining');
+                console.log(framesRemaining + '/' + framesLength + ' frames remaining');
             }
 
             if (config.onEncodingCallback) {
@@ -2882,7 +2987,7 @@ function CanvasRecorder(htmlElement, config) {
         });
 
         if (!config.disableLogs) {
-            console.debug('Generating WebM');
+            console.log('Generating WebM');
         }
 
         callback();
@@ -2919,7 +3024,7 @@ function CanvasRecorder(htmlElement, config) {
              */
             whammy.compile(function(blob) {
                 if (!config.disableLogs) {
-                    console.debug('Recording finished!');
+                    console.log('Recording finished!');
                 }
 
                 that.blob = blob;
@@ -4474,9 +4579,16 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
             console.error('Upgrade to latest Chrome or otherwise enable this flag: chrome://flags/#enable-experimental-web-platform-features');
         }
 
-        canvas.stream = capturedStream;
+        var videoStream = new MediaStream();
 
-        return capturedStream;
+        // via streamproc/MediaStreamRecorder#126
+        capturedStream.getVideoTracks().forEach(function(track) {
+            videoStream.addTrack(track);
+        });
+
+        canvas.stream = videoStream;
+
+        return videoStream;
     }
 
     function getVideo(stream) {

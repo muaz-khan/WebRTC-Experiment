@@ -144,6 +144,7 @@ function WhammyRecorderHelper(mediaStream, root) {
     this.stop = function() {
         isStopDrawing = true;
         this.requestData();
+        this.onstop();
     };
 
     var canvas = document.createElement('canvas');
@@ -293,6 +294,8 @@ function WhammyRecorderHelper(mediaStream, root) {
     this.resume = function() {
         isPaused = false;
     };
+
+    this.onstop = function() {};
 }
 
 if (typeof MediaStreamRecorder !== 'undefined') {

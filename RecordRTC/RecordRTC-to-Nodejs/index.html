@@ -66,7 +66,7 @@
             <button id="btn-stop-recording" disabled="">Stop Recording</button>
         </div>
 
-        <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"> </script>
+        <script src="/node_modules/recordrtc/RecordRTC.js"> </script>
         
         <script>
             // fetching DOM references
@@ -77,68 +77,30 @@
             
             var progressBar = document.querySelector('#progress-bar');
             var percentage = document.querySelector('#percentage');
-        </script>
-        
-        <script>
-            // global variables
-            var currentBrowser = !!navigator.mozGetUserMedia ? 'gecko' : 'chromium';
             
-            var fileName;
-            var audioRecorder;
-            var videoRecorder;
-            
-            // Firefox can record both audio/video in single webm container
-            // Don't need to create multiple instances of the RecordRTC for Firefox
-            // You can even use below property to force recording only audio blob on chrome
-            // var isRecordOnlyAudio = true;
-            var isRecordOnlyAudio = !!navigator.mozGetUserMedia;
-            
-            // if recording only audio, we should replace "HTMLVideoElement" with "HTMLAudioElement"
-            if(isRecordOnlyAudio && currentBrowser == 'chromium') {
-                var parentNode = videoElement.parentNode;
-                parentNode.removeChild(videoElement);
-                
-                videoElement = document.createElement('audio');
-                videoElement.style.padding = '.4em';
-                videoElement.controls = true;
-                parentNode.appendChild(videoElement);
-            }
-        </script>
-        
-        <script>
+            var recorder;
+
             // reusable helpers
             
-            // this function submits both audio/video or single recorded blob to nodejs server
-            function postFiles(audio, video) {
-                // getting unique identifier for the file name
-                fileName = generateRandomString();
-                
-                // this object is used to allow submitting multiple recorded blobs
-                var files = { };
+            // this function submits recorded blob to nodejs server
+            function postFiles() {
+                var blob = recorder.getBlob();
 
-                // recorded audio blob
-                files.audio = {
-                    name: fileName + '.' + audio.blob.type.split('/')[1], // MUST be wav or ogg
-                    type: audio.blob.type,
-                    contents: audio.dataURL
-                };
+                // getting unique identifier for the file name
+                var fileName = generateRandomString() + '.webm';
                 
-                if(video) {
-                    files.video = {
-                        name: fileName + '.' + video.blob.type.split('/')[1], // MUST be webm or mp4
-                        type: video.blob.type,
-                        contents: video.dataURL
-                    };
-                }
-                
-                files.uploadOnlyAudio = !video;
+                var file = new File([blob], fileName, {
+                    type: 'video/webm'
+                });
 
                 videoElement.src = '';
                 videoElement.poster = '/ajax-loader.gif';
 
-                xhr('/upload', JSON.stringify(files), function(_fileName) {
-                    var href = location.href.substr(0, location.href.lastIndexOf('/') + 1);
-                    videoElement.src = href + 'uploads/' + _fileName;
+                xhr('/uploadFile', file, function(responseText) {
+                    var fileURL = JSON.parse(responseText).fileURL;
+
+                    console.info('fileURL', fileURL);
+                    videoElement.src = fileURL;
                     videoElement.play();
                     videoElement.muted = false;
                     videoElement.controls = true;
@@ -169,7 +131,10 @@
                     progressBar.style.display = 'none';
                 };
                 request.open('POST', url);
-                request.send(data);
+
+                var formData = new FormData();
+                formData.append('file', data);
+                request.send(formData);
             }
 
             // generating random string
@@ -183,39 +148,7 @@
                     return (Math.random() * new Date().getTime()).toString(36).replace( /\./g , '');
                 }
             }
-            
-            // when btnStopRecording is clicked
-            function onStopRecording() {
-                audioRecorder.getDataURL(function(audioDataURL) {
-                    var audio = {
-                        blob: audioRecorder.getBlob(),
-                        dataURL: audioDataURL
-                    };
-                    
-                    // if record both wav and webm
-                    if(!isRecordOnlyAudio) {
-                        audio.blob = new File([audio.blob], 'audio.wav', {
-                            type: 'audio/wav'
-                        });
-                        
-                        videoRecorder.getDataURL(function(videoDataURL) {
-                            var video = {
-                                blob: videoRecorder.getBlob(),
-                                dataURL: videoDataURL
-                            };
-                            
-                            postFiles(audio, video);
-                        });
-                        return;
-                    }
-                    
-                    // if record only audio (either wav or ogg)
-                    if (isRecordOnlyAudio) postFiles(audio);
-                });
-            }
-        </script>
-        
-        <script>
+
             var mediaStream = null;
             // reusable getUserMedia
             function captureUserMedia(success_callback) {
@@ -225,12 +158,11 @@
                 };
                 
                 navigator.getUserMedia(session, success_callback, function(error) {
-                    alert( JSON.stringify(error) );
+                    alert('Unable to capture your camera. Please check console logs.');
+                    console.error(error);
                 });
             }
-        </script>
-		
-        <script>
+
             // UI events handling
             btnStartRecording.onclick = function() {
                 btnStartRecording.disabled = true;
@@ -243,36 +175,11 @@
                     videoElement.muted = true;
                     videoElement.controls = false;
                     
-                    // it is second parameter of the RecordRTC
-                    var audioConfig = {};
-
-                    if(currentBrowser == 'chromium') {
-                        audioConfig.recorderType = StereoAudioRecorder;
-                    }
-
-                    if(!isRecordOnlyAudio) {
-                        audioConfig.onAudioProcessStarted = function() {
-                            // invoke video recorder in this callback
-                            // to get maximum sync
-                            videoRecorder.startRecording();
-                        };
-                    }
+                    recorder = RecordRTC(stream, {
+                        type: 'video'
+                    });
                     
-                    audioRecorder = RecordRTC(stream, audioConfig);
-                    
-                    if(!isRecordOnlyAudio) {
-                        // it is second parameter of the RecordRTC
-                        var videoConfig = { type: 'video' };
-
-                        if(currentBrowser == 'chromium') {
-                            audioConfig.recorderType = WhammyRecorder;
-                        }
-
-                        videoRecorder = RecordRTC(stream, videoConfig);
-                        videoRecorder.startRecording();
-                    }
-                    
-                    audioRecorder.startRecording();
+                    recorder.startRecording();
                     
                     // enable stop-recording button
                     btnStopRecording.disabled = false;
@@ -284,22 +191,9 @@
                 btnStartRecording.disabled = false;
                 btnStopRecording.disabled = true;
                 
-                if(isRecordOnlyAudio) {
-                    audioRecorder.stopRecording(onStopRecording);
-                    return;
-                }
-
-                if(!isRecordOnlyAudio) {
-                    audioRecorder.stopRecording(function() {
-                        videoRecorder.stopRecording(function() {
-                            onStopRecording();
-                        });
-                    });
-                }
+                recorder.stopRecording(postFiles);
             };
-        </script>
-        
-        <script>
+
             window.onbeforeunload = function() {
                 startRecording.disabled = false;
             };

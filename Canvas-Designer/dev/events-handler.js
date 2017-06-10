@@ -1,7 +1,7 @@
 var canvas = tempContext.canvas,
     isTouch = 'createTouch' in document;
 
-addEvent(canvas, isTouch ? 'touchstart' : 'mousedown', function(e) {
+addEvent(canvas, isTouch ? 'touchstart mousedown' : 'mousedown', function(e) {
     if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
         pageX: 0,
         pageY: 0
@@ -24,11 +24,24 @@ addEvent(canvas, isTouch ? 'touchstart' : 'mousedown', function(e) {
 
     drawHelper.redraw();
 
-    e.preventDefault();
-    e.stopPropagation();
+    preventStopEvent(e);
 });
 
-addEvent(canvas, isTouch ? 'touchend touchcancel' : 'mouseup', function(e) {
+function preventStopEvent(e) {
+    if (!e) {
+        return;
+    }
+
+    if (typeof e.preventDefault === 'function') {
+        e.preventDefault();
+    }
+
+    if (typeof e.stopPropagation === 'function') {
+        e.stopPropagation();
+    }
+}
+
+addEvent(canvas, isTouch ? 'touchend touchcancel mouseup' : 'mouseup', function(e) {
     if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
         pageX: 0,
         pageY: 0
@@ -53,11 +66,10 @@ addEvent(canvas, isTouch ? 'touchend touchcancel' : 'mouseup', function(e) {
 
     syncPoints(is.isDragAllPaths || is.isDragLastPath ? true : false);
 
-    e.preventDefault();
-    e.stopPropagation();
+    preventStopEvent(e);
 });
 
-addEvent(canvas, isTouch ? 'touchmove' : 'mousemove', function(e) {
+addEvent(canvas, isTouch ? 'touchmove mousemove' : 'mousemove', function(e) {
     if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
         pageX: 0,
         pageY: 0
@@ -78,8 +90,7 @@ addEvent(canvas, isTouch ? 'touchmove' : 'mousemove', function(e) {
     else if (cache.isArrow) arrowHandler.mousemove(e);
     else if (cache.isMarker) markerHandler.mousemove(e);
 
-    e.preventDefault();
-    e.stopPropagation();
+    preventStopEvent(e);
 });
 
 var keyCode;

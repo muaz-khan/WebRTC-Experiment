@@ -20,6 +20,7 @@ function StereoAudioRecorder(mediaStream) {
         if (mediaRecorder) {
             mediaRecorder.stop();
             clearTimeout(timeout);
+            this.onstop();
         }
     };
 
@@ -40,6 +41,7 @@ function StereoAudioRecorder(mediaStream) {
     };
 
     this.ondataavailable = function() {};
+    this.onstop = function() {};
 
     // Reference to "StereoAudioRecorder" object
     var mediaRecorder;

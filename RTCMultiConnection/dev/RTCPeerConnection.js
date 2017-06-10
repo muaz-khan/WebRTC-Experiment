@@ -52,6 +52,18 @@ if (typeof window.PluginRTC !== 'undefined') {
 }
 
 function PeerInitiator(config) {
+    if (typeof window.RTCPeerConnection !== 'undefined') {
+        RTCPeerConnection = window.RTCPeerConnection;
+    } else if (typeof mozRTCPeerConnection !== 'undefined') {
+        RTCPeerConnection = mozRTCPeerConnection;
+    } else if (typeof webkitRTCPeerConnection !== 'undefined') {
+        RTCPeerConnection = webkitRTCPeerConnection;
+    }
+
+    RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+    RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
+    MediaStreamTrack = window.MediaStreamTrack;
+
     if (!RTCPeerConnection) {
         throw 'WebRTC 1.0 (RTCPeerConnection) API are NOT available in this browser.';
     }
@@ -107,11 +119,21 @@ function PeerInitiator(config) {
             }
         }
 
-        peer = new RTCPeerConnection(navigator.onLine ? {
-            iceServers: connection.iceServers,
-            iceTransportPolicy: connection.iceTransportPolicy || iceTransports,
-            rtcpMuxPolicy: connection.rtcpMuxPolicy || 'negotiate'
-        } : null, window.PluginRTC ? null : connection.optionalArgument);
+        try {
+            peer = new RTCPeerConnection(navigator.onLine ? {
+                iceServers: connection.iceServers,
+                iceTransportPolicy: connection.iceTransportPolicy || iceTransports,
+                // rtcpMuxPolicy: connection.rtcpMuxPolicy || 'negotiate'
+            } : null, window.PluginRTC ? null : connection.optionalArgument);
+        } catch (e) {
+            try {
+                peer = new RTCPeerConnection({
+                    iceServers: connection.iceServers
+                });
+            } catch (e) {
+                peer = new RTCPeerConnection();
+            }
+        }
 
         if (!connection.iceServers.length) {
             peer = new RTCPeerConnection(null, null);

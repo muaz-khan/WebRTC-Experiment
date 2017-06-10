@@ -36,8 +36,8 @@
     <article>
         <header style="text-align: center;">
             <h1>
-                    MultiStreamRecorder.js & <a href="https://github.com/streamproc/MediaStreamRecorder">MediaStreamRecorder</a>
-                </h1>
+                MultiStreamRecorder.js & <a href="https://github.com/streamproc/MediaStreamRecorder">MediaStreamRecorder</a>
+            </h1>
             <p>
                 <a href="https://www.webrtc-experiment.com/">HOME</a>
                 <span> &copy; </span>
@@ -52,7 +52,7 @@
         <div class="github-stargazers"></div>
 
         <p>
-            Getting both audio/video blobs in single "ondataavailable" event using <a href="https://github.com/streamproc/MediaStreamRecorder">MediaStreamRecorder</a>
+            Recording multiple videos in single WebM using <a href="https://github.com/streamproc/MediaStreamRecorder">MediaStreamRecorder</a>
         </p>
 
         <section class="experiment" style="padding: 5px;">
@@ -64,6 +64,8 @@
 
             <button id="pause-recording" disabled>Pause</button>
             <button id="resume-recording" disabled>Resume</button>
+			
+			<button id="add-stream" disabled>Add another video</button>
         </section>
 
         <section class="experiment">
@@ -75,28 +77,9 @@
                 navigator.mediaDevices.getUserMedia(mediaConstraints).then(successCallback).catch(errorCallback);
             }
 
-            // commonly allowed resolutions:
-            // ['1920:1080', 
-            // '1280:720', 
-            // '960:720', 
-            // '640:360', 
-            // '640:480', 
-            // '320:240', 
-            // '320:180']
-            var resolution_x = 1280;
-            var resolution_y = 720;
-
             var mediaConstraints = {
                 audio: true,
-                video: IsEdge ? true : {
-                    mandatory: {
-                        maxWidth: resolution_x,
-                        maxHeight: resolution_y,
-                        //minFrameRate: 3,
-                        //maxFrameRate: 64,
-                        //minAspectRatio: 1.77
-                    }
-                }
+                video: true
             };
 
             document.querySelector('#start-recording').onclick = function() {
@@ -111,6 +94,7 @@
 
                 document.querySelector('#pause-recording').disabled = true;
                 document.querySelector('#start-recording').disabled = false;
+				document.querySelector('#add-stream').disabled = true;
             };
 
             document.querySelector('#pause-recording').onclick = function() {
@@ -141,26 +125,19 @@
                     src: URL.createObjectURL(stream)
                 });
 
-                //video.width = resolution_x;
-                //video.height = resolution_y;
-
                 video.addEventListener('loadedmetadata', function() {
-                    multiStreamRecorder = new MultiStreamRecorder(stream);
+					if(multiStreamRecorder && multiStreamRecorder.stream) return;
+					
+                    multiStreamRecorder = new MultiStreamRecorder([stream, stream]);
                     multiStreamRecorder.stream = stream;
+					
+					multiStreamRecorder.previewStream = function(stream) {
+						video.src = URL.createObjectURL(stream);
+						video.play();
+					};
 
-                    // below line is optional
-                    // because we already set "video.width"
-                    // and "video.height"....5 lines above
-                    multiStreamRecorder.canvas = {
-                        width: video.width,
-                        height: video.height
-                    };
-
-                    multiStreamRecorder.video = video;
-
-                    multiStreamRecorder.ondataavailable = function(blobs) {
-                        appendLink(blobs.audio);
-                        appendLink(blobs.video);
+                    multiStreamRecorder.ondataavailable = function(blob) {
+                        appendLink(blob);
                     };
 
                     function appendLink(blob) {
@@ -180,6 +157,12 @@
 
                     // get blob after specific time interval
                     multiStreamRecorder.start(timeInterval);
+					
+					document.querySelector('#add-stream').disabled = false;
+					document.querySelector('#add-stream').onclick = function() {
+						if(!multiStreamRecorder || !multiStreamRecorder.stream) return;
+						multiStreamRecorder.addStream(multiStreamRecorder.stream);
+					};
 
                     document.querySelector('#stop-recording').disabled = false;
                     document.querySelector('#pause-recording').disabled = false;
@@ -228,10 +211,10 @@ var mediaConstraints = {
 navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
 
 function onMediaSuccess(stream) {
-    var multiStreamRecorder = new MultiStreamRecorder(stream);
-    multiStreamRecorder.ondataavailable = function(blobs) {
-        // blobs.audio
-        // blobs.video
+	var arrayOfStreams = [stream, stream, stream, stream];
+    var multiStreamRecorder = new MultiStreamRecorder(arrayOfStreams);
+    multiStreamRecorder.ondataavailable = function(blob) {
+        // URL.createObjectURL(blob)
     };
     multiStreamRecorder.start(3000);
 }

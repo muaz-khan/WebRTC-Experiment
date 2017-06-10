@@ -99,8 +99,11 @@ function GifRecorder(mediaStream) {
             cancelAnimationFrame(lastAnimationFrame);
             clearTimeout(timeout);
             doneRecording();
+            this.onstop();
         }
     };
+
+    this.onstop = function() {};
 
     var isPaused = false;
 

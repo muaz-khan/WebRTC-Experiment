@@ -53,7 +53,7 @@ function CanvasRecorder(htmlElement, config) {
 
     if (isCanvasSupportsStreamCapturing) {
         if (!config.disableLogs) {
-            console.debug('Your browser supports both MediRecorder API and canvas.captureStream!');
+            console.log('Your browser supports both MediRecorder API and canvas.captureStream!');
         }
 
         if (htmlElement instanceof HTMLCanvasElement) {
@@ -129,7 +129,7 @@ function CanvasRecorder(htmlElement, config) {
         whammy.frames.forEach(function(frame, idx) {
             var framesRemaining = framesLength - idx;
             if (!config.disableLogs) {
-                console.debug(framesRemaining + '/' + framesLength + ' frames remaining');
+                console.log(framesRemaining + '/' + framesLength + ' frames remaining');
             }
 
             if (config.onEncodingCallback) {
@@ -141,7 +141,7 @@ function CanvasRecorder(htmlElement, config) {
         });
 
         if (!config.disableLogs) {
-            console.debug('Generating WebM');
+            console.log('Generating WebM');
         }
 
         callback();
@@ -178,7 +178,7 @@ function CanvasRecorder(htmlElement, config) {
              */
             whammy.compile(function(blob) {
                 if (!config.disableLogs) {
-                    console.debug('Recording finished!');
+                    console.log('Recording finished!');
                 }
 
                 that.blob = blob;

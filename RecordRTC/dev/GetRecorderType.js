@@ -72,7 +72,7 @@ function GetRecorderType(mediaStream, config) {
     }
 
     if (!config.disableLogs && !!recorder && !!recorder.name) {
-        console.debug('Using recorderType:', recorder.name || recorder.constructor.name);
+        console.log('Using recorderType:', recorder.name || recorder.constructor.name);
     }
 
     return recorder;

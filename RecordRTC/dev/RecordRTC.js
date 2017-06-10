@@ -36,7 +36,7 @@ function RecordRTC(mediaStream, config) {
 
     function startRecording() {
         if (!config.disableLogs) {
-            console.debug('started recording ' + config.type + ' stream.');
+            console.log('started recording ' + config.type + ' stream.');
         }
 
         if (mediaRecorder) {
@@ -76,7 +76,7 @@ function RecordRTC(mediaStream, config) {
         setState('recording');
 
         if (!config.disableLogs) {
-            console.debug('Initialized recorderType:', mediaRecorder.constructor.name, 'for output-type:', config.type);
+            console.log('Initialized recorderType:', mediaRecorder.constructor.name, 'for output-type:', config.type);
         }
     }
 
@@ -86,8 +86,6 @@ function RecordRTC(mediaStream, config) {
         }
 
         if (self.state === 'paused') {
-            setState('recording');
-
             self.resumeRecording();
 
             setTimeout(function() {
@@ -146,7 +144,7 @@ function RecordRTC(mediaStream, config) {
             }
 
             if (blob && !config.disableLogs) {
-                console.debug(blob.type, '->', bytesToSize(blob.size));
+                console.log(blob.type, '->', bytesToSize(blob.size));
             }
 
             if (!config.autoWriteToDisk) {
@@ -178,7 +176,7 @@ function RecordRTC(mediaStream, config) {
         mediaRecorder.pause();
 
         if (!config.disableLogs) {
-            console.debug('Paused recording.');
+            console.log('Paused recording.');
         }
     }
 
@@ -200,7 +198,7 @@ function RecordRTC(mediaStream, config) {
         mediaRecorder.resume();
 
         if (!config.disableLogs) {
-            console.debug('Resumed recording.');
+            console.log('Resumed recording.');
         }
     }
 
@@ -412,7 +410,7 @@ function RecordRTC(mediaStream, config) {
             mediaRecorder.clearRecordedData();
 
             if (!config.disableLogs) {
-                console.debug('Cleared old recorded data.');
+                console.log('Cleared old recorded data.');
             }
         },
 
@@ -647,7 +645,7 @@ function RecordRTC(mediaStream, config) {
          */
         onStateChanged: function(state) {
             if (!config.disableLogs) {
-                console.info('Recorder state changed:', state);
+                console.log('Recorder state changed:', state);
             }
         },
 
@@ -666,7 +664,17 @@ function RecordRTC(mediaStream, config) {
          * })();
          * recorder.startRecording();
          */
-        state: 'inactive'
+        state: 'inactive',
+
+        /**
+         *
+         * State getter
+         *
+         * @returns {*}
+         */
+        getState: function() {
+            return self.state;
+        }
     };
 
     if (!this) {

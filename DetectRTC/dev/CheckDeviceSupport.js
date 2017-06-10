@@ -101,8 +101,8 @@ function checkDeviceSupport(callback) {
 
             if (!device.label) {
                 device.label = 'Please invoke getUserMedia once.';
-                if (DetectRTC.browser.isChrome && DetectRTC.browser.version >= 46 && !/^(https:|chrome-extension:)$/g.test(location.protocol || '')) {
-                    if (document.domain.search && document.domain.search(/localhost|127.0./g) === -1) {
+                if (typeof DetectRTC !== 'undefined' && DetectRTC.browser.isChrome && DetectRTC.browser.version >= 46 && !/^(https:|chrome-extension:)$/g.test(location.protocol || '')) {
+                    if (typeof document !== 'undefined' && typeof document.domain === 'string' && document.domain.search && document.domain.search(/localhost|127.0./g) === -1) {
                         device.label = 'HTTPs is required to get label of this ' + device.kind + ' device.';
                     }
                 }
@@ -166,6 +166,3 @@ function checkDeviceSupport(callback) {
         }
     });
 }
-
-// check for microphone/camera support!
-checkDeviceSupport();

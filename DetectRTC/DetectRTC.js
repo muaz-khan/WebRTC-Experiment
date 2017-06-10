@@ -1,24 +1,22 @@
-// Last time updated: 2017-03-11 6:31:40 AM UTC
+'use strict';
 
-// Latest file can be found here: https://cdn.webrtc-experiment.com/DetectRTC.js
+// Last Updated On: 2017-05-24 4:28:17 PM UTC
 
+// ________________
+// DetectRTC v1.3.4
+
+// Open-Sourced: https://github.com/muaz-khan/DetectRTC
+
+// --------------------------------------------------
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
-// Documentation - github.com/muaz-khan/DetectRTC
-// ____________
-// DetectRTC.js
-
-// DetectRTC.hasWebcam (has webcam device!)
-// DetectRTC.hasMicrophone (has microphone device!)
-// DetectRTC.hasSpeakers (has speakers!)
+// --------------------------------------------------
 
 (function() {
 
-    'use strict';
-
     var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko) Fake/12.3.4567.89 Fake/123.45';
 
-    var isNodejs = typeof process === 'object' && typeof process.versions === 'object' && process.versions.node;
+    var isNodejs = typeof process === 'object' && typeof process.versions === 'object' && process.versions.node && /*node-process*/ !process.browser;
     if (isNodejs) {
         var version = process.versions.node.toString().replace('v', '');
         browserFakeUserAgent = 'Nodejs/' + version + ' (NodeOS) AppleWebKit/' + version + ' (KHTML, like Gecko) Nodejs/' + version + ' Nodejs/' + version
@@ -39,15 +37,6 @@
             that.window = global;
         } else if (typeof window === 'undefined') {
             // window = this;
-        }
-
-        if (typeof document === 'undefined') {
-            /*global document:true */
-            that.document = {};
-
-            document.createElement = document.captureStream = document.mozCaptureStream = function() {
-                return {};
-            };
         }
 
         if (typeof location === 'undefined') {
@@ -94,7 +83,7 @@
     var isFirefox = typeof window.InstallTrigger !== 'undefined';
     var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
     var isChrome = !!window.chrome && !isOpera;
-    var isIE = !!document.documentMode && !isEdge;
+    var isIE = typeof document !== 'undefined' && !!document.documentMode && !isEdge;
 
     // this one can also be used:
     // https://www.websocket.org/js/stuff.js (DetectBrowser.js)
@@ -428,8 +417,7 @@
             s: 'Search Bot',
             r: /(nuhk|Googlebot|Yammybot|Openbot|Slurp|MSNBot|Ask Jeeves\/Teoma|ia_archiver)/
         }];
-        for (var id in clientStrings) {
-            var cs = clientStrings[id];
+        for (var i = 0, cs; cs = clientStrings[i]; i++) {
             if (cs.r.test(nAgt)) {
                 os = cs.s;
                 break;
@@ -502,6 +490,10 @@
     var isCanvasSupportsStreamCapturing = false;
     var isVideoSupportsStreamCapturing = false;
     ['captureStream', 'mozCaptureStream', 'webkitCaptureStream'].forEach(function(item) {
+        if (typeof document === 'undefined' || typeof document.createElement !== 'function') {
+            return;
+        }
+
         if (!isCanvasSupportsStreamCapturing && item in document.createElement('canvas')) {
             isCanvasSupportsStreamCapturing = true;
         }
@@ -536,6 +528,10 @@
 
     //get the IP addresses associated with an account
     function getIPs(callback) {
+        if (typeof document === 'undefined' || typeof document.getElementById !== 'function') {
+            return;
+        }
+
         var ipDuplicates = {};
 
         //compatibility for firefox and chrome
@@ -742,8 +738,8 @@
 
                 if (!device.label) {
                     device.label = 'Please invoke getUserMedia once.';
-                    if (DetectRTC.browser.isChrome && DetectRTC.browser.version >= 46 && !/^(https:|chrome-extension:)$/g.test(location.protocol || '')) {
-                        if (document.domain.search && document.domain.search(/localhost|127.0./g) === -1) {
+                    if (typeof DetectRTC !== 'undefined' && DetectRTC.browser.isChrome && DetectRTC.browser.version >= 46 && !/^(https:|chrome-extension:)$/g.test(location.protocol || '')) {
+                        if (typeof document !== 'undefined' && typeof document.domain === 'string' && document.domain.search && document.domain.search(/localhost|127.0./g) === -1) {
                             device.label = 'HTTPs is required to get label of this ' + device.kind + ' device.';
                         }
                     }
@@ -808,9 +804,6 @@
         });
     }
 
-    // check for microphone/camera support!
-    checkDeviceSupport();
-
     var DetectRTC = window.DetectRTC || {};
 
     // ----------
@@ -855,7 +848,7 @@
     }
 
     if (!/^(https:|chrome-extension:)$/g.test(location.protocol || '')) {
-        if (document.domain.search && document.domain.search(/localhost|127.0./g) === -1) {
+        if (typeof document !== 'undefined' && typeof document.domain === 'string' && document.domain.search && document.domain.search(/localhost|127.0./g) === -1) {
             // DetectRTC.browser.isChrome
             isScreenCapturingSupported = false;
         }
@@ -919,7 +912,7 @@
     }
 
     if (DetectRTC.browser.isChrome && DetectRTC.browser.version >= 46 && !/^(https:|chrome-extension:)$/g.test(location.protocol || '')) {
-        if (document.domain.search && document.domain.search(/localhost|127.0./g) === -1) {
+        if (typeof document !== 'undefined' && typeof document.domain === 'string' && document.domain.search && document.domain.search(/localhost|127.0./g) === -1) {
             isGetUserMediaSupported = 'Requires HTTPs';
         }
     }
@@ -988,7 +981,17 @@
         checkDeviceSupport(callback);
     };
 
-    DetectRTC.MediaDevices = MediaDevices;
+    // check for microphone/camera support!
+    if (typeof checkDeviceSupport === 'function') {
+        // checkDeviceSupport();
+    }
+
+    if (typeof MediaDevices !== 'undefined') {
+        DetectRTC.MediaDevices = MediaDevices;
+    } else {
+        DetectRTC.MediaDevices = [];
+    }
+
     DetectRTC.hasMicrophone = hasMicrophone;
     DetectRTC.hasSpeakers = hasSpeakers;
     DetectRTC.hasWebcam = hasWebcam;
@@ -1002,7 +1005,7 @@
 
     // ------
     var isSetSinkIdSupported = false;
-    if ('setSinkId' in document.createElement('video')) {
+    if (typeof document !== 'undefined' && typeof document.createElement === 'function' && 'setSinkId' in document.createElement('video')) {
         isSetSinkIdSupported = true;
     }
     DetectRTC.isSetSinkIdSupported = isSetSinkIdSupported;

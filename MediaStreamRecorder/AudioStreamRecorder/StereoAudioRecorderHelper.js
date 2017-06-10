@@ -131,6 +131,7 @@ function StereoAudioRecorderHelper(mediaStream, root) {
         this.requestData();
 
         audioInput.disconnect();
+        this.onstop();
     };
 
     function interleave(leftChannel, rightChannel) {
@@ -236,6 +237,8 @@ function StereoAudioRecorderHelper(mediaStream, root) {
     this.resume = function() {
         isPaused = false;
     };
+
+    this.onstop = function() {};
 
     // http://webaudio.github.io/web-audio-api/#the-scriptprocessornode-interface
     scriptprocessornode.onaudioprocess = function(e) {

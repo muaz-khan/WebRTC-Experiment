@@ -1,6 +1,6 @@
 var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko) Fake/12.3.4567.89 Fake/123.45';
 
-var isNodejs = typeof process === 'object' && typeof process.versions === 'object' && process.versions.node;
+var isNodejs = typeof process === 'object' && typeof process.versions === 'object' && process.versions.node && /*node-process*/ !process.browser;
 if (isNodejs) {
     var version = process.versions.node.toString().replace('v', '');
     browserFakeUserAgent = 'Nodejs/' + version + ' (NodeOS) AppleWebKit/' + version + ' (KHTML, like Gecko) Nodejs/' + version + ' Nodejs/' + version
@@ -21,15 +21,6 @@ if (isNodejs) {
         that.window = global;
     } else if (typeof window === 'undefined') {
         // window = this;
-    }
-
-    if (typeof document === 'undefined') {
-        /*global document:true */
-        that.document = {};
-
-        document.createElement = document.captureStream = document.mozCaptureStream = function() {
-            return {};
-        };
     }
 
     if (typeof location === 'undefined') {

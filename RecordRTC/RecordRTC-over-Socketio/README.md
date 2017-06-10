@@ -1,14 +1,20 @@
-#### [RecordRTC over Socket.io](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio) [![npm](https://img.shields.io/npm/v/recordrtc-socketio.svg)](https://npmjs.org/package/recordrtc-socketio) [![downloads](https://img.shields.io/npm/dm/recordrtc-socketio.svg)](https://npmjs.org/package/recordrtc-socketio)
+# [RecordRTC over Socket.io](https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-over-Socketio) 
+
+[![npm](https://img.shields.io/npm/v/recordrtc-socketio.svg)](https://npmjs.org/package/recordrtc-socketio) [![downloads](https://img.shields.io/npm/dm/recordrtc-socketio.svg)](https://npmjs.org/package/recordrtc-socketio)
 
 <a href="https://nodei.co/npm/recordrtc-socketio/">
     <img src="https://nodei.co/npm/recordrtc-socketio.png">
 </a>
 
-```
+```sh
 npm install recordrtc-socketio
 
-// to run it!
-node ./node_modules/recordrtc-socketio/server.js
+cd ./node_modules/recordrtc-socketio/
+
+# to run it!
+node server.js
+
+# now open:  http://localhost:9001
 ```
 
 There are some other NPM packages regarding RecordRTC:
@@ -73,34 +79,28 @@ socketio.on('merged', function (fileName) {
 });
 ```
 
-=
-
-##### Windows Batch File (`merger.bat`)
+# Windows Batch File (`merger.bat`)
 
 `merger.bat` file is executed to invoke ffmpeg functionalities on windows:
 
-```
+```sh
 @echo off
 "C:\ffmpeg\bin\ffmpeg.exe" -i %1 -i %2  %3
 ```
 
 **It is assumed that you already have installed ffmpeg on your system.** Though, EXE file is hard-coded to "C:\ffmpeg\bin\ffmpeg.exe" however you can easily edit it according to your own installations.
 
-=
-
-##### `.sh` file
+# `.sh` file
 
 `merger.sh` file is executed to invoke ffmpeg functionalities on Mac/Linux/etc.
 
-```
+```sh
 ffmpeg -i video-file.webm -i audio-file.wav -map 0:0 -map 1:0 output-file-name.webm
 ```
 
 Using Linux; ffmpeg installation is super-easy! You can install DEVEL packages as well.
 
-=
-
-##### How to install ffmpeg on windows?
+# How to install ffmpeg on windows?
 
 1. Download ffmpeg and extract ZIP file
 2. Rename extracted directory to "ffmpeg"
@@ -113,9 +113,7 @@ Using Linux; ffmpeg installation is super-easy! You can install DEVEL packages a
 
 http://www.wikihow.com/Install-FFmpeg-on-Windows
 
-=
-
-##### How to install ffmpeg on Mac OSX?
+# How to install ffmpeg on Mac OSX?
 
 Make sure you have **homebrew** installed. Then run following command:
 
@@ -123,12 +121,10 @@ Make sure you have **homebrew** installed. Then run following command:
 brew install ffmpeg --with-libvpx --with-theora --whit-libogg --with-libvorbis
 ```
 
-##### How to test?
+# How to test?
 
-In the node.js command prompt window; type `node server`. It will run socket.io server at port 8888. Then you can open index.html file on any webserver.
+In the node.js command prompt window; type `node server`. It will run socket.io server at port `9001`. Then you can open index.html file on any webserver.
 
-=
-
-##### License
+# License
 
 [RecordRTC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).

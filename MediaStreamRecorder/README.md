@@ -2,13 +2,6 @@
 
 [![npm](https://img.shields.io/npm/v/msr.svg)](https://npmjs.org/package/msr) [![downloads](https://img.shields.io/npm/dm/msr.svg)](https://npmjs.org/package/msr) [![Build Status: Linux](https://travis-ci.org/streamproc/MediaStreamRecorder.png?branch=master)](https://travis-ci.org/streamproc/MediaStreamRecorder)
 
-A cross-browser implementation to record audio/video streams:
-
-1. MediaStreamRecorder can record both audio and video in single WebM file on Firefox.
-2. MediaStreamRecorder can record audio as WAV and video as either WebM or animated gif on Chrome.
-
-MediaStreamRecorder is useful in scenarios where you're planning to submit/upload recorded blobs in realtime to the server! You can get blobs after specific time-intervals.
-
 ## [Demos](https://www.webrtc-experiment.com/msr/) using [MediaStreamRecorder.js](https://github.com/streamproc/MediaStreamRecorder) library
 
 | Experiment Name        | Demo           | Source Code |
@@ -17,6 +10,13 @@ MediaStreamRecorder is useful in scenarios where you're planning to submit/uploa
 | **Video Recording** | [Demo](https://www.webrtc-experiment.com/msr/video-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/video-recorder.html) |
 | **Gif Recording** | [Demo](https://www.webrtc-experiment.com/msr/gif-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/gif-recorder.html) |
 | **MultiStreamRecorder Demo** | [Demo](https://www.webrtc-experiment.com/msr/MultiStreamRecorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/MultiStreamRecorder.html) |
+
+A cross-browser implementation to record audio/video streams:
+
+1. MediaStreamRecorder can record both audio and video in single WebM file on Firefox.
+2. MediaStreamRecorder can record audio as WAV and video as either WebM or animated gif on Chrome.
+
+MediaStreamRecorder is useful in scenarios where you're planning to submit/upload recorded blobs in realtime to the server! You can get blobs after specific time-intervals.
 
 ----
 
@@ -49,7 +49,7 @@ console.log('MediaStreamRecorder', recorder);
 
 console.log('\n\n-------\n\n');
 
-var multiStreamRecorder = new MediaStreamRecorder.MultiStreamRecorder({});
+var multiStreamRecorder = new MediaStreamRecorder.MultiStreamRecorder([]);
 console.log('MultiStreamRecorder', multiStreamRecorder);
 ```
 
@@ -110,6 +110,23 @@ function onMediaError(e) {
 </script>
 ```
 
+## Record Multiple Videos
+
+> Record multiple videos in single WebM file.
+
+```javascript
+var arrayOfStreams = [yourVideo, screen, remoteVideo1, remoteVideo2];
+var multiStreamRecorder = new MultiStreamRecorder( arrayOfStreams );
+```
+
+You can add additional streams at runtime:
+
+```javascript
+multiStreamRecorder.addStream( anotherStream );
+```
+
+Currently, you can only record 4-maximum videos in single WebM container.
+
 ## Record audio/wav
 
 ```html
@@ -166,52 +183,107 @@ mediaRecorder.save();
 mediaRecorder.save(YourExternalBlob, 'FileName.webm');
 ```
 
-## How to upload recorded files using PHP?
+## Upload to PHP Server
 
-**PHP code:**
-
-```php
-<?php
-foreach(array('video', 'audio') as $type) {
-    if (isset($_FILES["${type}-blob"])) {
-        
-		$fileName = $_POST["${type}-filename"];
-        $uploadDirectory = "uploads/$fileName";
-        
-        if (!move_uploaded_file($_FILES["${type}-blob"]["tmp_name"], $uploadDirectory)) {
-            echo("problem moving uploaded file");
-        }
-		
-		echo($uploadDirectory);
-    }
-}
-?>
-```
-
-**JavaScript Code:**
+Your HTML file:
 
 ```javascript
-var fileType = 'video'; // or "audio"
-var fileName = 'ABCDEF.webm';  // or "wav" or "ogg"
+mediaRecorder.ondataavailable = function(blob) {
+    // upload each blob to PHP server
+    uploadToPHPServer(blob);
+};
 
-var formData = new FormData();
-formData.append(fileType + '-filename', fileName);
-formData.append(fileType + '-blob', blob);
+function uploadToPHPServer(blob) {
+    var file = new File([blob], 'msr-' + (new Date).toISOString().replace(/:|\./g, '-') + '.webm', {
+        type: 'video/webm'
+    });
 
-xhr('save.php', formData, function (fileURL) {
-    window.open(fileURL);
-});
+    // create FormData
+    var formData = new FormData();
+    formData.append('video-filename', file.name);
+    formData.append('video-blob', file);
 
-function xhr(url, data, callback) {
+    makeXMLHttpRequest('https://path-to-your-server/save.php', formData, function() {
+        var downloadURL = 'https://path-to-your-server/uploads/' + file.name;
+        console.log('File uploaded to this path:', downloadURL);
+    });
+}
+
+function makeXMLHttpRequest(url, data, callback) {
     var request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
+    request.onreadystatechange = function() {
         if (request.readyState == 4 && request.status == 200) {
-            callback(location.href + request.responseText);
+            callback();
         }
     };
     request.open('POST', url);
     request.send(data);
 }
+```
+
+Save.php file:
+
+```php
+<?php
+// via: https://github.com/muaz-khan/RecordRTC/blob/master/RecordRTC-to-PHP/save.php
+header("Access-Control-Allow-Origin: *");
+function selfInvoker()
+{
+    if (!isset($_POST['audio-filename']) && !isset($_POST['video-filename'])) {
+        echo 'PermissionDeniedError';
+        return;
+    }
+
+    $fileName = '';
+    $tempName = '';
+
+    if (isset($_POST['audio-filename'])) {
+        $fileName = $_POST['audio-filename'];
+        $tempName = $_FILES['audio-blob']['tmp_name'];
+    } else {
+        $fileName = $_POST['video-filename'];
+        $tempName = $_FILES['video-blob']['tmp_name'];
+    }
+
+    if (empty($fileName) || empty($tempName)) {
+        echo 'PermissionDeniedError';
+        return;
+    }
+    $filePath = 'uploads/' . $fileName;
+
+    // make sure that one can upload only allowed audio/video files
+    $allowed = array(
+        'webm',
+        'wav',
+        'mp4',
+        'mp3',
+        'ogg'
+    );
+    $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+    if (!$extension || empty($extension) || !in_array($extension, $allowed)) {
+        echo 'PermissionDeniedError';
+        continue;
+    }
+
+    if (!move_uploaded_file($tempName, $filePath)) {
+        echo ('Problem saving file.');
+        return;
+    }
+
+    echo ($filePath);
+}
+selfInvoker();
+?>
+```
+
+Regarding PHP upload issues:
+
+* https://github.com/muaz-khan/RecordRTC/wiki/PHP-Upload-Issues
+
+Don't forget to create uploads directory here:
+
+```
+https://path-to-your-server/uploads/ ----- inside same directory as "save.php"
 ```
 
 # API Documentation
@@ -283,7 +355,6 @@ It is recommended to pass your HTMLVideoElement to get most accurate result.
 videoRecorder.video = yourHTMLVideoElement;
 videoRecorder.onStartedDrawingNonBlankFrames = function() {
     // record audio here to fix sync issues
-    // Note: MultiStreamRecorder auto handles audio sync issues.
     videoRecorder.clearOldRecordedFrames(); // clear all blank frames
     audioRecorder.start(interval);
 };

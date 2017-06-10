@@ -11,7 +11,7 @@
 
 > You don't need to modify any single line to use it. No single installation or modification is needed :)
 
-# DetectRTC | Is WebRTC Supported On Your Browser?
+# DetectRTC | Is WebRTC Supported In Your Browser?
 
 A tiny JavaScript library that can be used to detect WebRTC features e.g. system having speakers, microphone or webcam, screen capturing is supported, number of audio/video devices etc.
 
@@ -354,7 +354,7 @@ Github (open-sourced): https://github.com/muaz-khan/SdpSerializer
 | ------------- |-------------|-------------|
 | **Switch streams from screen-sharing to audio+video. (Renegotiation)** | [Demo](https://www.webrtc-experiment.com/demos/switch-streams.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/switch-streams.html) |
 | **Share screen and audio/video from single peer connection!** | [Demo](https://www.webrtc-experiment.com/demos/screen-and-video-from-single-peer.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/screen-and-video-from-single-peer.html) |
-| **Text chat using RTCDataChannel APIs** | [Demo](https://www.webrtc-experiment.com/demos/client-side-datachannel.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/) |client-side-datachannel.html
+| **Text chat using RTCDataChannel APIs** | [Demo](https://www.webrtc-experiment.com/demos/client-side-datachannel.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/) |
 | **Simple video chat** | [Demo](https://www.webrtc-experiment.com/demos/client-side.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side.html) |
 | **Sharing video - using socket.io for signaling** |[Demo](https://www.webrtc-experiment.com/demos/client-side-socket-io.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-socket-io.html) |
 | **Sharing video - using WebSockets for signaling** | [Demo](https://www.webrtc-experiment.com/demos/client-side-websocket.html) | [Source](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-websocket.html) |

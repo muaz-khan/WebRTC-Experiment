@@ -181,9 +181,16 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
             console.error('Upgrade to latest Chrome or otherwise enable this flag: chrome://flags/#enable-experimental-web-platform-features');
         }
 
-        canvas.stream = capturedStream;
+        var videoStream = new MediaStream();
 
-        return capturedStream;
+        // via streamproc/MediaStreamRecorder#126
+        capturedStream.getVideoTracks().forEach(function(track) {
+            videoStream.addTrack(track);
+        });
+
+        canvas.stream = videoStream;
+
+        return videoStream;
     }
 
     function getVideo(stream) {

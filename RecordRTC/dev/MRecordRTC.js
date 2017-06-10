@@ -155,7 +155,10 @@ function MRecordRTC(mediaStream) {
 
         if (!!mediaType.audio && !!mediaType.video) {
             var self = this;
-            if (isMediaRecorderCompatible()) {
+
+            // this line prevents StereoAudioRecorder
+            // todo: fix it
+            if (isMediaRecorderCompatible() /* && !this.audioRecorder */ ) {
                 self.audioRecorder = null;
                 self.videoRecorder.startRecording();
             } else {

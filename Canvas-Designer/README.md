@@ -336,6 +336,23 @@ webrtcDataChannel.onopen = function() {
 };
 ```
 
+## `captureStream`
+
+Get `MediaStream` object and share in realtime using `RTCPeerConnection.addStream` API.
+
+```html
+<script src="dev/webrtc-handler.js"></script>
+<script>
+designer.captureStream(function(stream) {
+    var url = URL.createObjectURL(stream);
+    videoPreview.src = url;
+
+    rtcPeerConnection.addStream(stream);
+    rtcPeerConnection.createOffer(success, failure, params);
+});
+</script>
+```
+
 ## `pointsLength`
 
 Each shape is considered as a `point`. This value allows you check number of shapes that are already drawn on the canvas-designer.

@@ -1,7 +1,7 @@
 // http://127.0.0.1:9001
 // http://localhost:9001
 
-var isUseHTTPs = !(!!process.env.PORT || !!process.env.IP);
+var isUseHTTPs = false;
 
 var server = require(isUseHTTPs ? 'https' : 'http'),
     url = require('url'),

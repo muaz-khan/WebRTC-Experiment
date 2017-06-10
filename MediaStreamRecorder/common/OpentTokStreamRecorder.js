@@ -245,11 +245,11 @@ function OpenTokStreamRecorder(o) {
     }
 
     function getBaseUrl() {
-            var scripts = document.head.getElementsByTagName("script");
-            var loc = scripts[scripts.length - 1].src;
-            return loc.substring(0, loc.lastIndexOf('/')) + '/';
-        }
-        //  extending user options
+        var scripts = document.head.getElementsByTagName("script");
+        var loc = scripts[scripts.length - 1].src;
+        return loc.substring(0, loc.lastIndexOf('/')) + '/';
+    }
+    //  extending user options
     function extend(o1, o2) {
         var obj = {};
         for (var i in o1) {

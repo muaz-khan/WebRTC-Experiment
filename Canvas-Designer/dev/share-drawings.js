@@ -12,6 +12,19 @@ window.addEventListener('message', function(event) {
         uid = event.data.uid;
     }
 
+    if (event.data.captureStream) {
+        webrtcHandler.createOffer(function(sdp) {
+            sdp.uid = uid;
+            window.parent.postMessage(sdp, '*');
+        });
+        return;
+    }
+
+    if (event.data.sdp) {
+        webrtcHandler.setRemoteDescription(event.data);
+        return;
+    }
+
     if (event.data.genDataURL) {
         var dataURL = context.canvas.toDataURL(event.data.format, 1);
         window.parent.postMessage({

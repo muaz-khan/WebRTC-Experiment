@@ -3,7 +3,7 @@ function FirebaseConnection(connection, connectCallback) {
         return !session.audio && !session.video && !session.screen && session.data;
     }
 
-    connection.firebase = connection.firebase || 'webrtc-experiment';
+    connection.firebase = connection.firebase || 'webrtc';
     var channelId = connection.channel;
 
     connection.socket = new Firebase('https://' + connection.firebase + '.firebaseio.com/' + channelId);

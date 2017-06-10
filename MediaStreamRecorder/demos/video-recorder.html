@@ -12,7 +12,7 @@
 <head>
     <title>WebRTC Video Recording using MediaStreamRecorder</title>
 
-    <script src="https://cdn.WebRTC-Experiment.com/MediaStreamRecorder.js"></script>
+    <script src="/MediaStreamRecorder.js"></script>
 
     <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
     <script src="https://cdn.WebRTC-Experiment.com/gumadapter.js"></script>
@@ -122,8 +122,10 @@
 
             document.querySelector('#stop-recording').onclick = function() {
                 this.disabled = true;
+                console.warn('Just stopped the recording');
+
                 mediaRecorder.stop();
-                mediaRecorder.stream.stop();
+                // mediaRecorder.stream.stop();
 
                 document.querySelector('#pause-recording').disabled = true;
                 document.querySelector('#start-recording').disabled = false;
@@ -190,6 +192,8 @@
                 mediaRecorder.videoWidth = videoWidth;
                 mediaRecorder.videoHeight = videoHeight;
                 mediaRecorder.ondataavailable = function(blob) {
+                    console.info('blob', blob);
+
                     var a = document.createElement('a');
                     a.target = '_blank';
                     a.innerHTML = 'Open Recorded Video No. ' + (index++) + ' (Size: ' + bytesToSize(blob.size) + ') Time Length: ' + getTimeLength(timeInterval);

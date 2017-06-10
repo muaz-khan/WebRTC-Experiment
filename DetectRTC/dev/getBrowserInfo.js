@@ -6,7 +6,7 @@ var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 var isFirefox = typeof window.InstallTrigger !== 'undefined';
 var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
 var isChrome = !!window.chrome && !isOpera;
-var isIE = !!document.documentMode && !isEdge;
+var isIE = typeof document !== 'undefined' && !!document.documentMode && !isEdge;
 
 // this one can also be used:
 // https://www.websocket.org/js/stuff.js (DetectBrowser.js)

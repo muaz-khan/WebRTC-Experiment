@@ -99,13 +99,13 @@ function serverHandler(request, response) {
         }
 
         var contentType = 'text/plain';
-        if(filename.toLowerCase().indexOf('.html') !== -1) {
+        if (filename.toLowerCase().indexOf('.html') !== -1) {
             contentType = 'text/html';
         }
-        if(filename.toLowerCase().indexOf('.css') !== -1) {
+        if (filename.toLowerCase().indexOf('.css') !== -1) {
             contentType = 'text/css';
         }
-        if(filename.toLowerCase().indexOf('.png') !== -1) {
+        if (filename.toLowerCase().indexOf('.png') !== -1) {
             contentType = 'image/png';
         }
 

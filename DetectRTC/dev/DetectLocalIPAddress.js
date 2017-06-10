@@ -23,6 +23,10 @@ function DetectLocalIPAddress(callback) {
 
 //get the IP addresses associated with an account
 function getIPs(callback) {
+    if (typeof document === 'undefined' || typeof document.getElementById !== 'function') {
+        return;
+    }
+
     var ipDuplicates = {};
 
     //compatibility for firefox and chrome

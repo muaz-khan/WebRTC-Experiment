@@ -1,7 +1,7 @@
 {
     "name": "detectrtc",
     "preferGlobal": false,
-    "version": "1.3.4",
+    "version": "1.3.5",
     "author": {
         "name": "Muaz Khan",
         "email": "muazkh@gmail.com",
@@ -13,7 +13,8 @@
         "url": "https://github.com/muaz-khan/DetectRTC.git"
     },
     "scripts": {
-        "start": "node server.js"
+        "start": "node server.js",
+        "test": "./node_modules/.bin/protractor test/browserstack.config.js"
     },
     "main": "DetectRTC.js",
     "keywords": [

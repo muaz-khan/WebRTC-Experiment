@@ -160,29 +160,29 @@ function FlashAudioRecorder(o) {
     }
 
     function upload(params) {
-            if (params == null)
-                params = self.uploadParams;
+        if (params == null)
+            params = self.uploadParams;
 
-            params.success = function(msg) {
-                self.ondataavailable({
-                    data: msg,
-                    dataType: 'url'
-                });
-            };
-            params.error = function(msg) {
-                self.onerror({
-                    msg: msg
-                });
-            }
-            Recorder.upload(params);
+        params.success = function(msg) {
+            self.ondataavailable({
+                data: msg,
+                dataType: 'url'
+            });
+        };
+        params.error = function(msg) {
+            self.onerror({
+                msg: msg
+            });
         }
-        // get script folder
+        Recorder.upload(params);
+    }
+    // get script folder
     function getBaseUrl() {
-            var scripts = document.head.getElementsByTagName("script");
-            var loc = scripts[scripts.length - 1].src;
-            return loc.substring(0, loc.lastIndexOf('/')) + '/';
-        }
-        //  extending user options
+        var scripts = document.head.getElementsByTagName("script");
+        var loc = scripts[scripts.length - 1].src;
+        return loc.substring(0, loc.lastIndexOf('/')) + '/';
+    }
+    //  extending user options
     function extend(o1, o2) {
         var obj = {};
         for (var i in o1) {

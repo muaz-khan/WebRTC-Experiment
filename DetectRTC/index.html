@@ -8,7 +8,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>DetectRTC | Is WebRTC Supported On Your Browser?</title>
+        <title>DetectRTC | Is WebRTC Supported In Your Browser?</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -84,7 +84,7 @@
         <article>
             <header style="text-align: center;">
                 <h1>
-                    DetectRTC | Is WebRTC Supported On Your Browser?
+                    DetectRTC | Is WebRTC Supported In Your Browser?
                 </h1>
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
@@ -177,6 +177,11 @@
 
                         var labels = [];
                         DetectRTC.audioOutputDevices.forEach(function(device) {
+
+                           if(DetectRTC.browser.name === 'Edge' && device.label === 'Please invoke getUserMedia once.') {
+                                device.label = 'Microsoft Edge is unable to detect label for this speaker device.';
+                           }
+
                            labels.push(device.label);
                         });
 
@@ -230,7 +235,7 @@
 
                     var tr = appendTR('Your system blocked WebSockets protocol or WebSockets server is not accessible?', printVal(DetectRTC.isWebSocketsBlocked), 'isWebSocketsBlocked');
                     DetectRTC.checkWebSocketsSupport(function() {
-                        tr.querySelectorAll('td')[1].innerHTML = printVal(DetectRTC.isWebSocketsBlocked);
+                        tr.querySelectorAll('td')[2].innerHTML = printVal(DetectRTC.isWebSocketsBlocked);
                     });
 
                     appendTR('Browser Supports WebAudio API?', printVal(DetectRTC.isAudioContextSupported), 'isAudioContextSupported');
@@ -249,9 +254,9 @@
 
                     appendTR('Is Browser Supports Promises?', printVal(DetectRTC.isPromisesSupported), 'isPromisesSupported');
 
-                    appendTR(DetectRTC.MediaStream === false ? 'Your system does NOT supports MediaStream.' : 'Your system supports MediaStream.', '<strong>MediaStream.prototype:</strong><br>' + DetectRTC.MediaStream.toString().split(',').join(', '), 'MediaStream');
-                    appendTR(DetectRTC.MediaStreamTrack === false ? 'Your system does NOT supports MediaStreamTrack.' : 'Your system supports MediaStreamTrack.', '<strong>MediaStreamTrack.prototype:</strong><br>' + DetectRTC.MediaStreamTrack.toString().split(',').join(', '), 'MediaStreamTrack');
-                    appendTR(DetectRTC.RTCPeerConnection === false ? 'Your system does NOT supports RTCPeerConnection API.' : 'Your system supports RTCPeerConnection API.', '<strong>RTCPeerConnection.prototype:</strong><br>' + DetectRTC.RTCPeerConnection.toString().split(',').join(', '), 'RTCPeerConnection');
+                    // appendTR(DetectRTC.MediaStream === false ? 'Your system does NOT supports MediaStream.' : 'Your system supports MediaStream.', '<strong>MediaStream.prototype:</strong><br>' + DetectRTC.MediaStream.toString().split(',').join(', '), 'MediaStream');
+                    // appendTR(DetectRTC.MediaStreamTrack === false ? 'Your system does NOT supports MediaStreamTrack.' : 'Your system supports MediaStreamTrack.', '<strong>MediaStreamTrack.prototype:</strong><br>' + DetectRTC.MediaStreamTrack.toString().split(',').join(', '), 'MediaStreamTrack');
+                    // appendTR(DetectRTC.RTCPeerConnection === false ? 'Your system does NOT supports RTCPeerConnection API.' : 'Your system supports RTCPeerConnection API.', '<strong>RTCPeerConnection.prototype:</strong><br>' + DetectRTC.RTCPeerConnection.toString().split(',').join(', '), 'RTCPeerConnection');
 
                     /*
                     DetectRTC.DetectLocalIPAddress(function(ipAddress) {

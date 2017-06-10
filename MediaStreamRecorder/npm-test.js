@@ -11,5 +11,5 @@ console.log('MediaStreamRecorder', recorder);
 
 console.log('\n\n-------\n\n');
 
-var multiStreamRecorder = new MediaStreamRecorder.MultiStreamRecorder({});
+var multiStreamRecorder = new MediaStreamRecorder.MultiStreamRecorder([]);
 console.log('MultiStreamRecorder', multiStreamRecorder);

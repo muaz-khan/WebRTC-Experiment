@@ -85,13 +85,10 @@ function detectDesktopOS() {
         s: 'Search Bot',
         r: /(nuhk|Googlebot|Yammybot|Openbot|Slurp|MSNBot|Ask Jeeves\/Teoma|ia_archiver)/
     }];
-    for (var id in clientStrings) {
-        if (clientStrings.hasOwnProperty(id)) {
-            var cs = clientStrings[id];
-            if (cs.r.test(nAgt)) {
-                os = cs.s;
-                break;
-            }
+    for (var i = 0, cs; cs = clientStrings[i]; i++) {
+        if (cs.r.test(nAgt)) {
+            os = cs.s;
+            break;
         }
     }
 

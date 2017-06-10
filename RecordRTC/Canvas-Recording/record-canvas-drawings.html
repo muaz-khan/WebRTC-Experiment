@@ -1,622 +1,896 @@
 ﻿<!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage">
+
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0, user-scalable=no">
 
-	<title>Recording HTML5 Canvas2D Drawings using RecordRTC</title>
-	<meta name="description" content="RecordRTC and HTML5 Canvas Designer ® Muaz Khan – A tool aimed to give you a full-fledged drawing surface and also auto generate appropriate code for you in different formats! Generator/Tool/Editor – 2D API/Context">
+    <title>Recording HTML5 Canvas2D Drawings using RecordRTC</title>
+    <meta name="description" content="RecordRTC and HTML5 Canvas Designer ® Muaz Khan – A tool aimed to give you a full-fledged drawing surface and also auto generate appropriate code for you in different formats! Generator/Tool/Editor – 2D API/Context">
 
-	<meta name="author" content="Muaz Khan">
-	<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
 
-	<style>
-		/* Muaz Khan (@muazkh) */
-		/*-------------------------------------------------------------*/
-		textarea::::-webkit-scrollbar {
-		    width: 0;
-		    height: 0;
-		}
-		textarea::-webkit-scrollbar {
-		  height: 0;
-		  overflow: visible;
-		  width: 10px;
-		  border-left:1px solid rgb(229, 229, 229);
-		}
-		textarea::-webkit-scrollbar-thumb {
-		  background-color: rgba(0, 0, 0, .2);
-		  background-clip: padding-box;
-		  min-height: 28px;
-		  padding: 100px 0 0;
-		  box-shadow: inset 1px 1px 0 rgba(0,0,0,.1),inset 0 -1px 0 rgba(0,0,0,.07);
-		  border-width: 1px 1px 1px 6px;
-		}
-		textarea::-webkit-scrollbar-button {
-		  height: 0;
-		  width: 0;
-		}
-		textarea::-webkit-scrollbar-track {
-		  background-clip: padding-box;
-		  border: solid transparent;
-		  border-width: 0 0 0 4px;
-		}
-		textarea::-webkit-scrollbar-corner {
-		  background: transparent;
-		}
-		/*-------------------------------------------------------------*/
-		::selection, ::-moz-selection {
-		    background: #00A2E8;
-		    color: #fff;
-		    text-shadow: none;
-		}
-		/*-------------------------------------------------------------*/
-		html, body, input, textarea, h1, h2 {
-		    margin: 0;
-		    padding: 0;
+    <style>
+        /* Muaz Khan (@muazkh/@WebRTCWeb) */
 
-		    word-wrap: break-word;
+        textarea::::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+        textarea::-webkit-scrollbar {
+            height: 0;
+            overflow: visible;
+            width: 10px;
+            border-left: 1px solid rgb(229, 229, 229);
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, .2);
+            background-clip: padding-box;
+            min-height: 28px;
+            padding: 100px 0 0;
+            box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1), inset 0 -1px 0 rgba(0, 0, 0, .07);
+            border-width: 1px 1px 1px 6px;
+        }
+        textarea::-webkit-scrollbar-button {
+            height: 0;
+            width: 0;
+        }
+        textarea::-webkit-scrollbar-track {
+            background-clip: padding-box;
+            border: solid transparent;
+            border-width: 0 0 0 4px;
+        }
+        textarea::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+        ::selection,
+        ::-moz-selection {
+            background: #00A2E8;
+            color: #fff;
+            text-shadow: none;
+        }
+        html,
+        body,
+        input,
+        textarea,
+        h1,
+        h2 {
+            margin: 0;
+            padding: 0;
+            word-wrap: break-word;
+            -o-text-overflow: ellipsis;
+            -ms-text-overflow: ellipsis;
+            text-overflow: ellipsis;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            font-family: Verdana, arial, helvetica, sans-serif;
+        }
+        html,
+        body {
+            background-color: #FBFBFB;
+            font-size: 13px;
+            height: 100%;
+            cursor: default;
+            color: Gray;
+            overflow: hidden;
+        }
+        /* header */
 
-		    -o-text-overflow: ellipsis;
-		    -ms-text-overflow: ellipsis;
-		    text-overflow: ellipsis;
+        h1,
+        .line-width-done,
+        .colors-done,
+        .additional-close {
+            background: -moz-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(243, 243, 243, 1) 97%, rgba(237, 237, 237, 1) 97%, rgba(255, 255, 255, 1) 100%);
+            /* FF3.6+ */
 
-		    -webkit-user-select: none;
-		    -moz-user-select: none;
-		    -ms-user-select: none;
-		    user-select: none;
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(255, 255, 255, 1)), color-stop(97%, rgba(243, 243, 243, 1)), color-stop(97%, rgba(237, 237, 237, 1)), color-stop(100%, rgba(255, 255, 255, 1)));
+            /* Chrome,Safari4+ */
 
-		    font-family: Verdana, arial, helvetica, sans-serif
-		}
-		html, body {
-		    background-color: #FBFBFB;
-		    font-size: 13px;
-		    height:100%;
-		    cursor: default;
-		    color:  Gray;
-		    overflow: hidden;
-		}
-		/*-------------------------------------------------------------*/
+            background: -webkit-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(243, 243, 243, 1) 97%, rgba(237, 237, 237, 1) 97%, rgba(255, 255, 255, 1) 100%);
+            /* Chrome10+,Safari5.1+ */
 
-		h1, .line-width-done, .colors-done, .additional-close
-		{
-		    background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(243,243,243,1) 97%, rgba(237,237,237,1) 97%, rgba(255,255,255,1) 100%); /* FF3.6+ */
-		    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(97%,rgba(243,243,243,1)), color-stop(97%,rgba(237,237,237,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
-		    background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
-		    background: -o-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* Opera 11.10+ */
-		    background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* IE10+ */
-		    background: linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* W3C */
-		    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
-		}
+            background: -o-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(243, 243, 243, 1) 97%, rgba(237, 237, 237, 1) 97%, rgba(255, 255, 255, 1) 100%);
+            /* Opera 11.10+ */
 
-		/*-------------------------------------------------------------*/
+            background: -ms-linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(243, 243, 243, 1) 97%, rgba(237, 237, 237, 1) 97%, rgba(255, 255, 255, 1) 100%);
+            /* IE10+ */
 
-		a {
-		    color: #0b7aff;
-		    text-decoration: none;
-		}
+            background: linear-gradient(top, rgba(255, 255, 255, 1) 0%, rgba(243, 243, 243, 1) 97%, rgba(237, 237, 237, 1) 97%, rgba(255, 255, 255, 1) 100%);
+            /* W3C */
 
-		a:hover {
-		    color: #043877;
-		}
+            filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff', GradientType=0);
+            /* IE6-9 */
+        }
+        /* links */
 
-		/*-------------------------------------------------------------*/
-		.design-surface
-		{
-		    background-color: white;
-		}
-		.design-surface canvas {
-		    position: absolute;
-		}
-		.design-surface canvas:last-child {
-		    position: static;
-		}
-		/*-------------------------------------------------------------*/
-		.tool-box
-		{
-		    border-right: 1px solid #E5E5E5;
-		    position: absolute;
-		    top: 0;
-		    width: 40px;
-		    background-color: #FBFBFB;
-		    overflow: hidden;
-		}
-		.tool-box canvas
-		{
-		    border-bottom: 1px solid #E5E5E5;
-		    border-radius: 2px;
-		    margin-top: -4px;
-		}
-		.tool-box canvas:first-child, .tool-box canvas:first-child:hover
-		{
-		    margin-top: 0;
-		    border-top:0;
-		}
-		.selected-shape, .tool-box canvas:hover
-		{
-		    box-shadow: inset 0 0 10px rgba(0, 0, 0, .1);
-		}
-		/*-------------------------------------------------------------*/
-		.preview-panel
-		{
-		    position: absolute;
-		    right: 10px;
-		    background-color: #FBFBFB;
-		    bottom: 0;
-		}
-		.preview-panel div, .start-top-recording button
-		{
-		    border: 1px solid #E5E5E5;
-		    display: inline-block;
-		    padding: 5px 10px;
-		}
+        a {
+            color: #0b7aff;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #043877;
+        }
+        /* design-surface */
 
-		.start-top-recording button {
-			font-size: 13px!important;
-			background: transparent;
-		}
+        .design-surface {
+            background-color: white;
+        }
+        .design-surface canvas {
+            position: absolute;
+        }
+        .design-surface canvas:last-child {
+            position: static;
+        }
+        /* toolbox */
 
-		.preview-panel #code-preview, .start-top-recording #stop
-		{
-		    margin-left: -6px;
-		}
-		.preview-panel div, .start-top-recording button
-		{
-		    border: 1px solid #E5E5E5;
-		}
-		.preview-panel div:not(.preview-selected) {
-		}
-		.preview-panel div, .start-top-recording button
-		{
-		    border: 1px solid rgb(9, 159, 243);
-		}
+        .tool-box {
+            border-right: 1px solid #E5E5E5;
+            position: absolute;
+            top: 0;
+            width: 40px;
+            background-color: #FBFBFB;
+            overflow: hidden;
+        }
+        .tool-box canvas {
+            border-bottom: 1px solid #E5E5E5;
+            border-radius: 2px;
+            margin-top: -4px;
+        }
+        .tool-box canvas:first-child,
+        .tool-box canvas:first-child:hover {
+            margin-top: 0;
+            border-top: 0;
+        }
+        .tool-box canvas:hover {
+            box-shadow: none;
+            background: rgb(255, 247, 103);
+        }
+        .selected-shape {
+            box-shadow: inset 0px 0px 4px 1px rgb(193, 164, 19)!important;
+            background: rgb(255, 247, 103)!important;
+        }
+        /* surface */
 
-		.preview-selected, .start-top-recording button {
-		    margin-top: -4px;
-		    background-color: rgb(6, 205, 255);
-		    color: white;
-		}
+        .preview-panel
+        {
+            position: absolute;
+            right: 10px;
+            background-color: #FBFBFB;
+            bottom: 0;
+        }
+        .preview-panel div, .start-top-recording button
+        {
+            border: 1px solid #E5E5E5;
+            display: inline-block;
+            padding: 5px 10px;
+        }
 
-		.start-top-recording button[disabled] {
-			background-color: rgb(222, 222, 222)!important;
-		    color: #BDBDBD!important;
-		    border: 1px solid #D8D4D4!important;
-		}
+        .start-top-recording button {
+            font-size: 13px!important;
+            background: transparent;
+        }
 
-		/*-------------------------------------------------------------*/
-		input, select
-		{
-		    -webkit-border-radius: 1px;
-		    -moz-border-radius: 1px;
-		    border-radius: 1px;
-		    border: 1px solid #D9D9D9;
+        .preview-panel #code-preview, .start-top-recording #stop
+        {
+            margin-left: -6px;
+        }
+        .preview-panel div, .start-top-recording button
+        {
+            border: 1px solid #E5E5E5;
+        }
+        .preview-panel div:not(.preview-selected) {
+        }
+        .preview-panel div, .start-top-recording button
+        {
+            border: 1px solid rgb(9, 159, 243);
+        }
 
-		    -webkit-user-select: initial;
-		    -moz-user-select: initial;
-		    -ms-user-select: initial;
-		    user-select: initial;
+        .preview-selected, .start-top-recording button {
+            margin-top: -4px;
+            background-color: rgb(6, 205, 255);
+            color: white;
+        }
 
-		    outline: none;
-		}
+        .start-top-recording button[disabled] {
+            background-color: rgb(222, 222, 222)!important;
+            color: #BDBDBD!important;
+            border: 1px solid #D8D4D4!important;
+        }
 
-		input:focus {
-		    border: 1px solid #043877;
-		}
-		/*-------------------------------------------------------------*/
-		.allow-select
-		{
-		    -webkit-user-select: initial;
-		    -moz-user-select: initial;
-		    user-select: initial
-		}
-		/*-------------------------------------------------------------*/
-		.arc-range-container
-		{
-		    position: absolute;
-		    z-index: 1000;
-		    display: none;
-		}
-		.arc-range
-		{
-		    font-size: 18px;
-		    padding: 2px 16px;
-		    text-align: center;
-		    width: 40px;
-		}
-		.arc-range-container-guide
-		{
-		    margin-top: 10px;
-		    color:#C5C5C5;
-		}
-		/*-------------------------------------------------------------*/
-		.code-container
-		{
-		    position: absolute;
-		    top: 0;
-		    width: 100%;
-		    display: none;
-		}
-		.code-text
-		{
-		    resize: none;
-		    width:99%;
-		    height: 300px;
-		    padding: 15px;
-		    outline: 0;
-		    border:0;
-		    border-top: 1px solid #E5E5E5;
-		    font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;
-		    color: #666;
-		}
-		/*-------------------------------------------------------------*/
-		.options-container
-		{
-		    position: absolute;
-		    top: 0;
-		    left: 0;
-		    border: 1px solid #E5E5E5;
-		    border-left: 0;
-		    background-color: #FBFBFB;
-		    display: none;
-		}
-		.options-container div
-		{
-		    border-bottom: 1px solid #E5E5E5;
-		    padding: 5px;
-		}
-		.options-container div:last-child
-		{
-		    border-bottom: 0;
-		}
+        /*-------------------------------------------------------------*/
+        input, select
+        {
+            -webkit-border-radius: 1px;
+            -moz-border-radius: 1px;
+            border-radius: 1px;
+            border: 1px solid #D9D9D9;
 
-		/*-------------------------------------------------------------*/
+            -webkit-user-select: initial;
+            -moz-user-select: initial;
+            -ms-user-select: initial;
+            user-select: initial;
 
-		.context-popup {
-		    position: absolute;
-		    display: none;
-		    padding: 5px;
-		    border: 1px solid #E5E5E5;
-		    border-left: 0;
-		    background-color: #FBFBFB;
-		    box-shadow: inset 0 0 14px rgb(229, 229, 229);
-		}
+            outline: none;
+        }
 
-		.line-width-text, .colors-container input {
-		    width: 25px;
-		    padding: 2px 5px;
-		    text-align: center;
-		}
+        input:focus {
+            border: 1px solid #043877;
+        }
+        /* select */
 
-		.done
-		{
-		    border: 1px solid #E5E5E5;
-		    display: inline-block;
-		    padding: 4px 10px;
-		    border-radius: 3px;
-		}
-		.done:hover
-		{
-		    box-shadow: inset 0 0 12px white;
-		}
+        .allow-select {
+            -webkit-user-select: initial;
+            -moz-user-select: initial;
+            user-select: initial
+        }
+        /* arc */
 
-		.done:active
-		{
-		  box-shadow: inset 0 0 52px white;
-		}
+        .arc-range-container {
+            position: absolute;
+            z-index: 1000;
+            display: none;
+        }
+        .arc-range {
+            font-size: 18px;
+            padding: 2px 16px;
+            text-align: center;
+            width: 40px;
+        }
+        .arc-range-container-guide {
+            margin-top: 10px;
+            color: #C5C5C5;
+        }
+        /* code viewer */
 
-		/*-------------------------------------------------------------*/
+        .code-container {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            display: none;
+        }
+        .code-text {
+            resize: none;
+            width: 99%;
+            height: 300px;
+            padding: 15px;
+            outline: 0;
+            border: 0;
+            border-top: 1px solid #E5E5E5;
+            font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;
+            color: #666;
+        }
+        /* options */
 
-		.colors-container label {
-		    width: 100px;
-		    display: inline-block;
-		}
+        .options-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 1px solid #E5E5E5;
+            border-left: 0;
+            background-color: #FBFBFB;
+            display: none;
+        }
+        .options-container div {
+            border-bottom: 1px solid #E5E5E5;
+            padding: 5px;
+        }
+        .options-container div:last-child {
+            border-bottom: 0;
+        }
+        /* context menu */
 
-		.colors-container input {
-		    width: 100px;
-		    text-align: left;
-		}
+        .context-popup {
+            position: absolute;
+            display: none;
+            padding: 5px;
+            border: 1px solid #E5E5E5;
+            border-left: 0;
+            background-color: #FBFBFB;
+            box-shadow: inset 0 0 14px rgb(229, 229, 229);
+        }
+        .line-width-text,
+        .colors-container input {
+            width: 25px;
+            padding: 2px 5px;
+            text-align: center;
+        }
+        /* colors */
 
-		.colors-container .input-div {
-		    margin-bottom: 5px;
-		}
+        .colors-container label {
+            width: 100px;
+            display: inline-block;
+        }
+        .colors-container input {
+            width: 100px;
+            text-align: left;
+        }
+        .colors-container .input-div {
+            margin-bottom: 5px;
+        }
+        /* additional controls */
 
-		/*-------------------------------------------------------------*/
+        .additional-container label,
+        .additional-container select {
+            width: 200px;
+            display: inline-block;
+        }
+        .additional-container select {
+            width: 120px;
+        }
+        .btn-007 {
+            font-family: Verdana, arial, helvetica, sans-serif;
+            font-weight: normal;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+            padding: 2px 3px;
+            text-decoration: none;
+            color: rgb(27, 26, 26);
+            display: inline-block;
+            box-shadow: rgb(255, 255, 255) 1px 1px 0px 0px inset;
+            text-shadow: none;
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.05, rgb(241, 241, 241)), to(rgb(230, 230, 230)));
+            font-size: 13px;
+            border: 1px solid red;
+            outline: none;
+        }
+        .btn-007:hover,
+        .btn-007:focus {
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(5%, rgb(221, 221, 221)), to(rgb(250, 250, 250)));
+            border: 1px solid rgb(142, 142, 142);
+        }
+        .btn-007[disabled] {
+            background: rgb(249, 249, 249);
+            border: 1px solid rgb(218, 207, 207);
+            color: rgb(197, 189, 189);
+        }
+        .fontSelect {
+            position: relative;
+            padding: 3px;
+            height: 28px;
+            line-height: 28px;
+            cursor: pointer;
+            margin: 3px;
+            width: 200px;
+            background-image: -webkit-linear-gradient(top, #f9f9f9, #f0f0f0);
+            background-image: -moz-linear-gradient(top, #f9f9f9, #f0f0f0);
+            background-image: -o-linear-gradient(top, #f9f9f9, #f0f0f0);
+            background-image: -ms-linear-gradient(top, #f9f9f9, #f0f0f0);
+            background-image: linear-gradient(top, #f9f9f9, #f0f0f0);
+            filter: progid: DXImageTransform.Microsoft.gradient(GradientType=0, StartColorStr='$from', EndColorStr='$to');
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+            border: 1px solid #cecece;
+        }
+        .fontSelect span {
+            overflow: hidden;
+            margin-left: 5px;
+        }
+        .fontSelect .arrow-down {
+            position: absolute;
+            right: 10px;
+            top: 14px;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #AAA;
+        }
+        .fontSelectUl,
+        .fontSizeUl {
+            list-style: none;
+            width: 200px;
+            background: #f9f9f9;
+            position: absolute;
+            left: 0;
+            top: 35px;
+            padding: 0;
+        }
+        .fontSelectUl {
+            padding-left: 5px;
+        }
+        .fontSelectUl li,
+        .fontSizeUl li {
+            height: 24px;
+            line-height: 24px;
+            overflow: hidden;
+            cursor: pointer;
+            padding: 0 10px;
+            font-size: 14px;
+            border-left: 1px solid #f0f0f0;
+            border-right: 1px solid #f0f0f0;
+        }
+        .fontSelectUl li:last-child,
+        .fontSizeUl li:last-child {
+            -webkit-border-radius: 0 0 4px 4px;
+            -moz-border-radius: 0 0 4px 4px;
+            border-radius: 0 0 4px 4px;
+            border-bottom: 1px solid #EEEEEE;
+        }
+        .fontSelectUl li:hover,
+        .fontSizeUl li:hover {
+            background: #DDD;
+        }
+        .fontSelectUl li.font-family-selected,
+        .fontSizeUl li.font-size-selected {
+            background: rgb(6, 205, 255)!important;
+            color: white!important;
+        }
+        #marker-selected-color,
+        #marker-selected-color-2, #pencil-selected-color,
+        #pencil-selected-color-2 {
+            display: inline-block;
+            vertical-align: middle;
+            width: 30px;
+            height: 30px;
+        }
+        #marker-fill-colors, #pencil-fill-colors {
+            display: none;
+        }
+        #marker-color-container, #pencil-color-container {
+            position: relative;
+        }
+        #marker-fill-colors, #pencil-fill-colors {
+            left: 100%;
+            top: 0;
+            width: 100px;
+            padding: 10px;
+        }
+        #marker-fill-style, #pencil-fill-style {
+            width: 50px;
+            display: inline-block;
+        }
+        #marker-colors-list, #pencil-colors-list {
+            margin: 10px auto;
+            border-collapse: collapse;
+        }
+        #marker-colors-list td, #pencil-colors-list td {
+            width: 15px;
+            height: 15px;
+            border: 1px solid black;
+            padding: 0;
+        }
+        #marker-colors-list td:hover, #pencil-colors-list td:hover {
+            border: 1px solid white;
+        }
 
-		.additional-container label, .additional-container select {
-		    width: 200px;
-		    display: inline-block;
-		}
-		.additional-container select {
-		    width: 120px;
-		}
+        .additional-container label, .additional-container select {
+            width: 200px;
+            display: inline-block;
+        }
+        .additional-container select {
+            width: 120px;
+        }
 
-		input[type=number] {
-			font-size: 13px!important;
-		    border: 1px solid rgb(9, 159, 243);
-		    padding: 5px 10px;
-		}
-
-	</style>
+        input[type=number] {
+            font-size: 13px!important;
+            border: 1px solid rgb(9, 159, 243);
+            padding: 5px 10px;
+        }
+    </style>
 </head>
+
 <body>
-	<section class="design-surface">
-		<canvas id="temp-canvas"></canvas>
-		<canvas id="main-canvas" opacity=0></canvas>
-	</section>
+    <section class="design-surface">
+        <canvas id="temp-canvas"></canvas>
+        <canvas id="main-canvas"></canvas>
+    </section>
 
-	<!------------------------------------------>
+    <!-- toolbox -->
 
-	<section id="tool-box" class="tool-box">
-        <canvas id="pencil-icon" width="40" height="40"></canvas>
-        <canvas id="eraser-icon" width="40" height="40"></canvas>
-        <canvas id="text-icon" width="40" height="40"></canvas>
-        <canvas id="image-icon" width="40" height="40"></canvas>
+    <section id="tool-box" class="tool-box">
+        <canvas id="pencil-icon" width="40" height="40" title="Panchil"></canvas>
+        <canvas id="marker-icon" width="40" height="40" title="Marker"></canvas>
 
-		<canvas id="drag-last-path" width="40" height="40"></canvas>
-		<canvas id="drag-all-paths" width="40" height="40"></canvas>
+        <canvas id="eraser-icon" width="40" height="40" title="Erase drawings"></canvas>
+        <canvas id="text-icon" width="40" height="40" title="Write text"></canvas>
+        <canvas id="image-icon" width="40" height="40" title="Add images"></canvas>
 
-		<canvas id="line" class="selected-shape" width="40" height="40"></canvas>
-		<canvas id="arc" width="40" height="40"></canvas>
-		<canvas id="rectangle" width="40" height="40"></canvas>
-		<canvas id="quadratic-curve" width="40" height="40"></canvas>
-		<canvas id="bezier-curve" width="40" height="40"></canvas>
+        <canvas id="drag-last-path" width="40" height="40" title="Drag/move last path"></canvas>
+        <canvas id="drag-all-paths" width="40" height="40" title="Drag/move all paths"></canvas>
 
-		<canvas id="line-width" width="40" height="40"></canvas>
-		<canvas id="colors" width="40" height="40"></canvas>
-		<canvas id="additional" width="40" height="40"></canvas>
-	</section>
+        <canvas id="line" width="40" height="40" title="Draw Lines"></canvas>
+        <canvas id="arrow" width="40" height="40" title="Draw Arrows"></canvas>
 
-	<!------------------------------------------>
+        <canvas id="zoom-up" width="40" height="40" title="Zoon-In"></canvas>
+        <canvas id="zoom-down" width="40" height="40" title="Zoom-Out"></canvas>
 
-	<section id="arc-range-container" class="arc-range-container">
-		<input id="arc-range" class="arc-range" type="text" value="2">
-		<input type="checkbox" id="is-clockwise" checked="" class="allow-select">
-		<label for="is-clockwise">Clockwise?</label>
-		<div class="arc-range-container-guide">Use arrow keys ↑↓</div>
-	</section>
+        <canvas id="arc" width="40" height="40" title="Arc"></canvas>
+        <canvas id="rectangle" width="40" height="40" title="Rectangle"></canvas>
+        <canvas id="quadratic-curve" width="40" height="40" title="Quadratic curve"></canvas>
+        <canvas id="bezier-curve" width="40" height="40" title="Bezier curve"></canvas>
 
-	<!------------------------------------------>
+        <canvas id="line-width" width="40" height="40" title="Set line-width"></canvas>
+        <canvas id="colors" width="40" height="40" title="Set foreground and background colors"></canvas>
+        <canvas id="additional" width="40" height="40" title="Extra options"></canvas>
+    </section>
 
-	<section class="code-container">
-		<textarea id="code-text" class="code-text allow-select"></textarea>
-	</section>
+    <!-- arc -->
 
-	<section class="preview-panel" style="display:none;">
-		<div id="design-preview" class="preview-selected">Preview</div>
-		<div id="code-preview">Code</div>
-	</section>
+    <section id="arc-range-container" class="arc-range-container">
+        <input id="arc-range" class="arc-range" type="text" value="2">
+        <input type="checkbox" id="is-clockwise" checked="" class="allow-select">
+        <label for="is-clockwise">Clockwise?</label>
+        <div class="arc-range-container-guide">Use arrow keys ↑↓</div>
+    </section>
 
-	<!------------------------------------------>
+    <!-- generated code -->
 
-	<section id="options-container" class="options-container">
-		<div>
-			<input type="checkbox" id="is-absolute-points" checked="">
-			<label for="is-absolute-points">Absolute Points</label>
-		</div>
-		<div>
-			<input type="checkbox" id="is-shorten-code" checked="">
-			<label for="is-shorten-code">Shorten Code</label>
-		</div>
-	</section>
+    <section class="code-container">
+        <textarea id="code-text" class="code-text allow-select"></textarea>
+    </section>
 
-	<!------------------------------------------>
+    <section class="preview-panel">
+        <div id="design-preview" class="preview-selected">Preview</div>
+        <div id="code-preview">Code</div>
+    </section>
 
-	<section id="line-width-container" class="context-popup">
-		<label for="line-width-text">Line Width:</label>
-		<input id="line-width-text" class="line-width-text" type="text" value="2">
+    <!-- options -->
 
-		<div id="line-width-done" class="done">Done</div>
-	</section>
+    <section id="options-container" class="options-container">
+        <div>
+            <input type="checkbox" id="is-absolute-points" checked="">
+            <label for="is-absolute-points">Absolute Points</label>
+        </div>
+        <div>
+            <input type="checkbox" id="is-shorten-code" checked="">
+            <label for="is-shorten-code">Shorten Code</label>
+        </div>
+    </section>
 
-	<!------------------------------------------>
+    <!-- line-width -->
 
-	<section id="colors-container" class="context-popup colors-container">
-		<div class="input-div">
-			<label for="stroke-style">Stroke Style:</label>
-			<input id="stroke-style" type="color" value="#6c96c8">
-		</div>
+    <section id="line-width-container" class="context-popup">
+        <label for="line-width-text">Line Width:</label>
+        <input id="line-width-text" class="line-width-text" type="text" value="2">
 
-		<div class="input-div">
-			<label for="fill-style">Fill Style:</label>
-			<input id="fill-style" type="color" value="transparent">
-		</div>
+        <div id="line-width-done" class="btn-007">Done</div>
+    </section>
 
-		<div id="colors-done" class="done">Done</div>
-	</section>
+    <!-- colors selector -->
 
-	<!------------------------------------------>
+    <section id="colors-container" class="context-popup colors-container">
+        <div class="input-div">
+            <label for="stroke-style">Stroke Style:</label>
+            <input id="stroke-style" type="color" value="#6c96c8">
+        </div>
 
-	<section id="copy-container" class="context-popup">
-		<div>
-			<input type="checkbox" id="copy-last" checked=""/>
-			<label for="copy-last">Copy last path</label>
-		</div>
-		<div style="margin-top: 5px;">
-			<input type="checkbox" id="copy-all"/>
-			<label for="copy-all">Copy all paths</label>
-		</div>
-	</section>
+        <div class="input-div">
+            <label for="fill-style">Fill Style:</label>
+            <input id="fill-style" type="color" value="#ffffff">
+        </div>
 
-	<!------------------------------------------>
+        <div id="colors-done" class="btn-007">Done</div>
+    </section>
 
-	<section id="additional-container" class="context-popup additional-container">
-		<div>
-			<label for="lineCap-select">Line Cap:</label>
-			<select id="lineCap-select">
-				<option>butt</option>
-				<option>round</option>
-				<option>square</option>
-			</select>
-		</div>
+    <!-- marker selector -->
 
-		<div>
-			<label for="lineJoin-select">Line Join:</label>
-			<select id="lineJoin-select">
-				<option>bevel</option>
-				<option>round</option>
-				<option>miter</option>
-			</select>
-		</div>
+    <section id="marker-container" class="context-popup colors-container">
 
-		<div>
-			<label for="globalAlpha-select">globalAlpha:</label>
-			<select id="globalAlpha-select">
-				<option>1.0</option>
-				<option>0.9</option>
-				<option>0.8</option>
-				<option>0.7</option>
-				<option>0.6</option>
-				<option>0.5</option>
-				<option>0.4</option>
-				<option>0.3</option>
-				<option>0.2</option>
-				<option>0.1</option>
-				<option>0.0</option>
-			</select>
-		</div>
+        <div class="input-div">
+            <label for="marker-stroke-style">Thickness:</label>
+            <select id="marker-stroke-style" value="8">
+                <option value='8'>8</option>
+                <option value='9'>9</option>
+                <option value='10'>10</option>
+                <option value='11'>11</option>
+                <option value='12'>12</option>
+                <option value='14'>14</option>
+                <option value='16'>16</option>
+                <option value='18'>18</option>
+                <option value='20'>20</option>
+                <option value='22'>22</option>
+                <option value='22'>22</option>
+                <option value='24'>24</option>
+                <option value='26'>26</option>
+                <option value='28'>28</option>
+                <option value='36'>36</option>
+                <option value='36'>36</option>
+                <option value='48'>48</option>
+                <option value='72'>72</option>
+            </select>
+        </div>
+        <div class="input-div" id='marker-color-container'>
+            <label for="marker-fill-style">Fill Color:</label>
+            <div id="marker-selected-color"></div>
+            <div id="marker-fill-colors" class='context-popup'>
+                <div class="top">
+                    <div id="marker-selected-color-2"></div>
+                    <input id="marker-fill-style" type="text" value="FF7373">
+                </div>
+                <table id="marker-colors-list">
 
-		<div>
-			<label for="globalCompositeOperation-select">globalCompositeOperation:</label>
-			<select id="globalCompositeOperation-select">
-				<option>source-atop</option>
-				<option>source-in</option>
-				<option>source-out</option>
-				<option selected="">source-over</option>
-				<option>destination-atop</option>
-				<option>destination-in</option>
-				<option>destination-out</option>
-				<option>destination-over</option>
-				<option>lighter</option>
-				<option>copy</option>
-				<option>xor</option>
-			</select>
-		</div>
+                </table>
+            </div>
+        </div>
+        </div>
 
-		<div id="additional-close" class="done">Done</div>
-	</section>
+        <div id="marker-done" class="btn-007">Done</div>
+    </section>
 
-    <!------------------------------------------>
+    <!-- marker selector -->
 
-    <input type="text" id="text-input" style="position: absolute; top: -100000px; left: -100000px; z-index: 1000000;border:0;outline:none; font-size: 15px;padding:0;margin:0; background: transparent; width: 100%;">
+    <!-- pencil selector -->
 
-	<!------------------------------------------>
+    <section id="pencil-container" class="context-popup colors-container">
 
-	<div id="fade"></div>
+        <div class="input-div">
+            <label for="pencil-stroke-style">Thickness:</label>
+            <select id="pencil-stroke-style">
+                <option value='1'>1</option>
+                <option value='2'>2</option>
+                <option value='3'>3</option>
+                <option value='4'>4</option>
+                <option value='5' selected>5</option>
+                <option value='6'>6</option>
+                <option value='7'>7</option>
+                <option value='8'>8</option>
+                <option value='9'>9</option>
+                <option value='10'>10</option>
+                <option value='11'>11</option>
+                <option value='12'>12</option>
+                <option value='14'>14</option>
+                <option value='16'>16</option>
+                <option value='18'>18</option>
+                <option value='20'>20</option>
+                <option value='22'>22</option>
+                <option value='22'>22</option>
+                <option value='24'>24</option>
+                <option value='26'>26</option>
+                <option value='28'>28</option>
+                <option value='36'>36</option>
+                <option value='36'>36</option>
+                <option value='48'>48</option>
+                <option value='72'>72</option>
+            </select>
+        </div>
+        <div class="input-div" id='pencil-color-container'>
+            <label for="pencil-fill-style">Fill Color:</label>
+            <div id="pencil-selected-color"></div>
+            <div id="pencil-fill-colors" class='context-popup'>
+                <div class="top">
+                    <div id="pencil-selected-color-2"></div>
+                    <input id="pencil-fill-style" type="text" value="6699FF">
+                </div>
+                <table id="pencil-colors-list">
 
-    <!------------------------------------------>
+                </table>
+            </div>
+        </div>
+        </div>
+
+        <div id="pencil-done" class="btn-007">Done</div>
+    </section>
+
+    <!-- pencil selector -->
+
+    <!-- copy paths -->
+
+    <section id="copy-container" class="context-popup">
+        <div>
+            <input type="checkbox" id="copy-last" checked="" />
+            <label for="copy-last">Copy last path</label>
+        </div>
+        <div style="margin-top: 5px;">
+            <input type="checkbox" id="copy-all" />
+            <label for="copy-all">Copy all paths</label>
+        </div>
+    </section>
+
+    <!-- additional controls -->
+
+    <section id="additional-container" class="context-popup additional-container">
+        <div>
+            <label for="lineCap-select">Line Cap:</label>
+            <select id="lineCap-select">
+                <option>round</option>
+                <option>butt</option>
+                <option>square</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="lineJoin-select">Line Join:</label>
+            <select id="lineJoin-select">
+                <option>round</option>
+                <option>bevel</option>
+                <option>miter</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="globalAlpha-select">globalAlpha:</label>
+            <select id="globalAlpha-select">
+                <option>1.0</option>
+                <option>0.9</option>
+                <option>0.8</option>
+                <option>0.7</option>
+                <option>0.6</option>
+                <option>0.5</option>
+                <option>0.4</option>
+                <option>0.3</option>
+                <option>0.2</option>
+                <option>0.1</option>
+                <option>0.0</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="globalCompositeOperation-select">globalCompositeOperation:</label>
+            <select id="globalCompositeOperation-select">
+                <option>source-atop</option>
+                <option>source-in</option>
+                <option>source-out</option>
+                <option selected="">source-over</option>
+                <option>destination-atop</option>
+                <option>destination-in</option>
+                <option>destination-out</option>
+                <option>destination-over</option>
+                <option>lighter</option>
+                <option>copy</option>
+                <option>xor</option>
+            </select>
+        </div>
+
+        <div id="additional-close" class="btn-007">Done</div>
+    </section>
+
+    <!-- fade -->
+
+    <div id="fade"></div>
+
+    <!-- text font/family/color -->
+
+    <ul class="fontSelectUl" style="display: none; position: absolute; top: 0; left: 0; width: 166px;">
+        <li>Arial</li>
+        <li>Arial Black</li>
+        <li>Comic Sans MS</li>
+        <li>Courier New</li>
+        <li>Georgia</li>
+        <li>Tahoma</li>
+        <li>Times New Roman</li>
+        <li>Trebuchet MS</li>
+        <li>Verdana</li>
+    </ul>
+
+    <ul class="fontSizeUl" style="display: none; position: absolute; top: 0; left: 0; width: 50px; text-align: center;">
+        <li>15</li>
+        <li>17</li>
+        <li>19</li>
+        <li>20</li>
+        <li>22</li>
+        <li>25</li>
+        <li>30</li>
+        <li>35</li>
+        <li>42</li>
+        <li>48</li>
+        <li>60</li>
+        <li>72</li>
+    </ul>
+
+    <!-- RecordRTC -->
+
     <script>
-    	var params = {
-    		tools: JSON.stringify({
-    			pencil: true,
-    			// dragMultiple: true,
-    			eraser: true,
-    			text: true
-    			/*image: true,
-		        line: true,
-		        dragSingle: true,
-		        rectangle: true,
-		        arc: true,
-		        bezier: true,
-		        quadratic: true,
-		        */
-    		}),
-	        selectedIcon: 'pencil'
-    	}
+            window.selectedIcon = 'Pencil';
+            window.params = {
+                line: true,
+                arrow: true,
+                pencil: true,
+                marker: true,
+                dragSingle: true,
+                dragMultiple: true,
+                eraser: true,
+                rectangle: true,
+                arc: true,
+                bezier: true,
+                quadratic: true,
+                text: true,
+                image: true,
+                zoom: true
+            };
     </script>
     <script src="https://cdn.webrtc-experiment.com/RecordRTC/Canvas-Recording/canvas-designer.js"></script>
-	<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
-	<script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script>
 
-	<div class="start-top-recording" style="position: absolute;top: 3px;right: 20px;z-index: 9;">
-		<button id="capture-screen" style="margin-right:40px;">Add Screen</button>
-		<span style="vertical-align:middle;">Fps: </span><input type="number" id="fps" value="10" min="0" max="1000">
-	    <button id="start">Start Canvas Recording</button>
-	    <button id="stop" disabled>Stop</button>
-	</div>
+    <div class="start-top-recording" style="position: absolute;top: 3px;right: 20px;z-index: 9;">
+        <button id="capture-screen" style="margin-right:40px;">Add Screen</button>
+        <span style="vertical-align:middle;">Fps: </span><input type="number" id="fps" value="10" min="0" max="1000">
+        <button id="start">Start Canvas Recording</button>
+        <button id="stop" disabled>Stop</button>
+    </div>
 
-	<script>
-	var recorder;
+    <script>
+    var recorder;
 
-	document.getElementById('start').onclick = function() {
-	    document.getElementById('start').disabled = true;
+    document.getElementById('start').onclick = function() {
+        document.getElementById('start').disabled = true;
 
-	    recorder = new RecordRTC(window.canvasElementToBeRecorded, {
-			type: 'canvas',
-		    disableLogs: false
-		});
+        recorder = new RecordRTC(window.canvasElementToBeRecorded, {
+            type: 'canvas',
+            disableLogs: false
+        });
 
-	    recorder.startRecording();
-	    setTimeout(function() {
-	         document.getElementById('stop').disabled = false;
-	    }, 1000);
-	};
-	document.getElementById('stop').onclick = function() {
-	   this.disabled = true;
+        recorder.startRecording();
+        setTimeout(function() {
+             document.getElementById('stop').disabled = false;
+        }, 1000);
+    };
+    document.getElementById('stop').onclick = function() {
+       this.disabled = true;
 
-	   document.body.innerHTML = '<h1 style="font-size:30px;text-align:center;margin:15px;color:red;font-weight:normal;">Please check page title for the encoding progress.<br><br>Frames are being encoded to generate a HD smooth WebM!<br><br><small>Please never click "kill" button; otherwise the entire encoding process will be crashed.</small></h1>';
+       document.body.innerHTML = '<h1 style="font-size:30px;text-align:center;margin:15px;color:red;font-weight:normal;">Please check page title for the encoding progress.<br><br>Frames are being encoded to generate a HD smooth WebM!<br><br><small>Please never click "kill" button; otherwise the entire encoding process will be crashed.</small></h1>';
 
-	   setTimeout(function() {
-		   	recorder.stopRecording(function() {
-		   		var blob = recorder.getBlob();
+       setTimeout(function() {
+            recorder.stopRecording(function() {
+                var blob = recorder.getBlob();
 
-		    	var video = document.createElement('video');
-		        video.src = URL.createObjectURL(blob);
-		        video.setAttribute('style', 'height: 100%; position: absolute; top:0; left:0;z-index:9999;width:100%;');
-		        document.body.appendChild(video);
-		        video.controls = true;
-		        video.play();
-		    });
-		}, 100);
-	};
+                var video = document.createElement('video');
+                video.src = URL.createObjectURL(blob);
+                video.setAttribute('style', 'height: 100%; position: absolute; top:0; left:0;z-index:9999;width:100%;');
+                document.body.appendChild(video);
+                video.controls = true;
+                video.play();
+            });
+        }, 100);
+    };
 
-	document.getElementById('capture-screen').onclick = function() {
-		this.disabled = true;
+    document.getElementById('capture-screen').onclick = function() {
+        this.disabled = true;
 
-		getScreenId(function (error, sourceId, screen_constraints) {
-			if(error) {
-				alert(error);
-				return;
-			}
+        getScreenId(function (error, sourceId, screen_constraints) {
+            if(error) {
+                alert(error);
+                return;
+            }
 
-			if(sourceId === 'firefox') {
-				screen_constraints.video.width = screen.width;
-				screen_constraints.video.height = screen.height;
-			}
-			else {
-				screen_constraints.video.mandatory.maxWidth =
-				screen_constraints.video.mandatory.minWidth = screen.width;
+            if(sourceId === 'firefox') {
+                screen_constraints.video.width = screen.width;
+                screen_constraints.video.height = screen.height;
+            }
+            else {
+                screen_constraints.video.mandatory.maxWidth =
+                screen_constraints.video.mandatory.minWidth = screen.width;
 
-				screen_constraints.video.mandatory.maxHeight =
-				screen_constraints.video.mandatory.minHeight = screen.height;
+                screen_constraints.video.mandatory.maxHeight =
+                screen_constraints.video.mandatory.minHeight = screen.height;
 
-				screen_constraints.video.mandatory.minAspectRatio = 1.77;
-			}
+                screen_constraints.video.mandatory.minAspectRatio = 1.77;
+            }
 
-		    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-		    navigator.getUserMedia(screen_constraints, function (stream) {
-		    	window.screenVideoElement = document.createElement('video');
-		    	screenVideoElement.onloadedmetadata = function() {
-			    	window.canvasElementToBeRecorded.getContext('2d').drawImage(
-			    		screenVideoElement, 0, -50,
-			    		window.canvasElementToBeRecorded.width,
-			    		window.canvasElementToBeRecorded.height);
+            navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+            navigator.getUserMedia(screen_constraints, function (stream) {
+                window.screenVideoElement = document.createElement('video');
+                screenVideoElement.onloadedmetadata = function() {
+                    window.canvasElementToBeRecorded.getContext('2d').drawImage(
+                        screenVideoElement, 0, -50,
+                        window.canvasElementToBeRecorded.width,
+                        window.canvasElementToBeRecorded.height);
 
-			    	document.getElementById('capture-screen').disabled = false;
-			    	stream.stop();
-			    };
+                    document.getElementById('capture-screen').disabled = false;
+                    stream.stop();
+                };
 
-			    screenVideoElement.src = URL.createObjectURL(stream);
-		    	screenVideoElement.play();
-		    }, function (error) {
-		        alert(JSON.stringify(error));
-		    });
-		});
-	};
+                screenVideoElement.src = URL.createObjectURL(stream);
+                screenVideoElement.play();
+            }, function (error) {
+                alert(JSON.stringify(error));
+            });
+        });
+    };
 
-	window.onbeforeunload = function() {
-	    document.getElementById('start').disabled = false;
-	    document.getElementById('stop').disabled = true;
-	};
-	</script>
+    window.onbeforeunload = function() {
+        document.getElementById('start').disabled = false;
+        document.getElementById('stop').disabled = true;
+    };
+    </script>
+
+
 </body>
+
 </html>

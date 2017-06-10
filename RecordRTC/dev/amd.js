@@ -22,8 +22,8 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
         global.console = {};
     }
 
-    if (typeof global.console.debug === 'undefined') {
-        global.console.debug = global.console.info = global.console.error = global.console.log = global.console.log || function() {
+    if (typeof global.console.log === 'undefined' || typeof global.console.error === 'undefined') {
+        global.console.error = global.console.log = global.console.log || function() {
             console.log(arguments);
         };
     }

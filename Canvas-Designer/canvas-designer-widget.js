@@ -40,17 +40,32 @@ function CanvasDesigner() {
 
     var syncDataListener = function(data) {};
     var dataURLListener = function(dataURL) {};
+    var captureStreamCallback = function() {};
 
     function onMessage(event) {
         if (!event.data || event.data.uid !== designer.uid) return;
 
+        if(!!event.data.sdp) {
+            webrtcHandler.createAnswer(event.data, function(response) {
+                if(response.sdp) {
+                    designer.postMessage(response);
+                    return;
+                }
+
+                captureStreamCallback(response.stream);
+            });
+            return;
+        }
+
         if (!!event.data.canvasDesignerSyncData) {
             designer.pointsLength = event.data.canvasDesignerSyncData.points.length;
             syncDataListener(event.data.canvasDesignerSyncData);
+            return;
         }
 
         if (!!event.data.dataURL) {
             dataURLListener(event.data.dataURL);
+            return;
         }
     }
 
@@ -139,6 +154,15 @@ function CanvasDesigner() {
 
         message.uid = designer.uid;
         designer.iframe.contentWindow.postMessage(message, '*');
+    };
+
+    designer.captureStream = function(callback) {
+        if (!designer.iframe) return;
+
+        captureStreamCallback = callback;
+        designer.postMessage({
+            captureStream: true
+        });
     };
 
     designer.widgetHtmlURL = 'widget.html';

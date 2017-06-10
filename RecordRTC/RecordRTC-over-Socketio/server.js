@@ -1,24 +1,25 @@
-// Last time updated at July 07, 2014, 19:21:23
+// Last time updated at June 02, 2017
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
-// Experiments    - github.com/muaz-khan/WebRTC-Experiment
-// RecordRTC      - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+// RecordRTC      - github.com/muaz-khan/RecordRTC
 
-// RecordRTC over Socket.io - github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio
+// RecordRTC over Socket.io - https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-over-Socketio
 var http = require("http"),
     url = require("url"),
     path = require("path"),
     fs = require("fs"),
     uuid = require('node-uuid'),
-    port = process.argv[2] || 8888;
+    port = process.argv[2] || 9001;
+
+console.log('http://localhost:' + port);
 
 var app = http.createServer(function (request, response) {
 
     var uri = url.parse(request.url).pathname,
         filename = path.join(process.cwd(), uri);
 
-    path.exists(filename, function (exists) {
+    fs.exists(filename, function (exists) {
         if (!exists) {
             response.writeHead(404, {
                 "Content-Type": "text/plain"
@@ -47,8 +48,7 @@ var app = http.createServer(function (request, response) {
     });
 }).listen(parseInt(port, 10));
 
-var sys = require('sys'),
-    path = require('path'),
+var path = require('path'),
     exec = require('child_process').exec;
 
 var io = require('socket.io').listen(app);

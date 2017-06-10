@@ -179,6 +179,8 @@ div#comments-popup {
 <div id="fade" class="black_overlay"></div>
 
 <div id="action-controls" style="width: 19%; padding: 1%;position: absolute;left:0;">
+    <video controls="" style="width: 105%;margin-left: -15px;margin-top: -23px; display: none;"></video>
+
     <h2>Select Tools</h2>
     <input type="checkbox" id="pencil" checked>
     <label for="pencil">pencil</label><br>
@@ -359,7 +361,7 @@ document.getElementById('open-room').onclick = function() {
 
     this.disabled = true;
 
-    connection.open(roomid);
+    connection.open(roomid, onOpenRoom);
 
     this.parentNode.innerHTML = '<a href="#' + roomid + '" target="_blank">Please share this link</a>';
 };
@@ -558,12 +560,15 @@ connection.socketMessageEvent = 'canvas-designer';
 
 connection.enableFileSharing = false;
 connection.session = {
+    audio: true,
+    video: true,
     data: true
 };
 connection.sdpConstraints.mandatory = {
-    OfferToReceiveAudio: false,
-    OfferToReceiveVideo: false
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true
 };
+connection.dontCaptureUserMedia = true;
 if(location.hash.replace('#', '').length) {
     var roomid = location.hash.replace('#', '');
     connection.join(roomid);
@@ -608,6 +613,36 @@ connection.onmessage = function(event) {
     }
 
     designer.syncData( event.data );
+};
+</script>
+
+<script src="dev/webrtc-handler.js"></script>
+<script>
+function onOpenRoom() {
+    // capture canvas-2d stream
+    // and share in realtime using RTCPeerConnection.addStream
+    // requires: dev/webrtc-handler.js
+    designer.captureStream(function(stream) {
+        connection.attachStreams = [stream];
+        connection.onstream({
+            stream: stream
+        });
+    });
+}
+
+var video = document.querySelector('video');
+
+connection.onstream = function(event) {
+    if(connection.isInitiator && event.mediaElement) return;
+
+    video.style.display = '';
+    video.src = URL.createObjectURL(event.stream);
+    video.play();
+};
+
+connection.onstreamended = function() {
+    video.src = null;
+    video.style.display = 'none';
 };
 </script>
 

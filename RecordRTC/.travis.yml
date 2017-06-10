@@ -6,6 +6,7 @@ before_script:
   - npm install grunt-cli@0.1.13 -g
   - npm install grunt@0.4.5
   - grunt
+  - npm install protractor@2.5.1
 after_failure: npm install && grunt
 matrix:
   fast_finish: true

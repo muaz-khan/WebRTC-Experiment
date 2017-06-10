@@ -7,7 +7,20 @@ module.exports = function(grunt) {
         scope: 'devDependencies'
     });
 
-    var banner = '// Last time updated: <%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %>\n\n';
+    var versionNumber = grunt.file.readJSON('package.json').version;
+
+    var banner = '\'use strict\';\n\n';
+    banner += '// Last Updated On: <%= grunt.template.today("UTC:yyyy-mm-dd h:MM:ss TT Z") %>\n\n';
+
+    banner += '// ________________\n';
+    banner += '// DetectRTC v' + versionNumber + '\n\n';
+
+    banner += '// Open-Sourced: https://github.com/muaz-khan/DetectRTC\n\n';
+
+    banner += '// --------------------------------------------------\n';
+    banner += '// Muaz Khan     - www.MuazKhan.com\n';
+    banner += '// MIT License   - www.WebRTC-Experiment.com/licence\n';
+    banner += '// --------------------------------------------------\n\n';
 
     // configure project
     grunt.initConfig({
@@ -60,6 +73,7 @@ module.exports = function(grunt) {
         jsbeautifier: {
             files: [
                 'dev/*.js',
+                'test/*.js',
                 'DetectRTC.js',
                 'Gruntfile.js'
             ],

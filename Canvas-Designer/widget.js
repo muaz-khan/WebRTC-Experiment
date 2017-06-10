@@ -1,4 +1,4 @@
-// Last time updated: 2016-11-16 4:15:14 PM UTC
+// Last time updated: 2017-04-29 1:56:26 PM UTC
 
 // _______________
 // Canvas-Designer
@@ -35,7 +35,7 @@
     function addEvent(element, eventType, callback) {
         if (eventType.split(' ').length > 1) {
             var events = eventType.split(' ');
-            for (var i = 0; i < events; i++) {
+            for (var i = 0; i < events.length; i++) {
                 addEvent(element, events[i], callback);
             }
             return;
@@ -325,36 +325,36 @@
                 if (p[0] === 'arc') {
                     output += 'context.beginPath();\n' + 'context.arc(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ', ' + point[2] + ', ' + point[3] + ', 0, ' + point[4] + ');\n'
 
-                    +
-                    this.strokeOrFill(p[2]);
+                        +
+                        this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'pencil') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n'
 
-                    +
-                    this.strokeOrFill(p[2]);
+                        +
+                        this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'marker') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n'
 
-                    +
-                    this.strokeOrFill(p[2]);
+                        +
+                        this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'eraser') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n'
 
-                    +
-                    this.strokeOrFill(p[2]);
+                        +
+                        this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'line') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.lineTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ');\n'
 
-                    +
-                    this.strokeOrFill(p[2]);
+                        +
+                        this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'arrow') {
@@ -372,15 +372,15 @@
                 if (p[0] === 'quadratic') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.quadraticCurveTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ', ' + getPoint(point[4], x, 'x') + ', ' + getPoint(point[5], y, 'y') + ');\n'
 
-                    +
-                    this.strokeOrFill(p[2]);
+                        +
+                        this.strokeOrFill(p[2]);
                 }
 
                 if (p[0] === 'bezier') {
                     output += 'context.beginPath();\n' + 'context.moveTo(' + getPoint(point[0], x, 'x') + ', ' + getPoint(point[1], y, 'y') + ');\n' + 'context.bezierCurveTo(' + getPoint(point[2], x, 'x') + ', ' + getPoint(point[3], y, 'y') + ', ' + getPoint(point[4], x, 'x') + ', ' + getPoint(point[5], y, 'y') + ', ' + getPoint(point[6], x, 'x') + ', ' + getPoint(point[7], y, 'y') + ');\n'
 
-                    +
-                    this.strokeOrFill(p[2]);
+                        +
+                        this.strokeOrFill(p[2]);
                 }
 
                 if (i !== length - 1) output += '\n\n';
@@ -391,50 +391,50 @@
         },
         forLoop: 'for(i; i < length; i++) {\n' + '    p = points[i];\n' + '    point = p[1];\n' + '    context.beginPath();\n\n'
 
-        // globals
+            // globals
             +
             '    if(p[2]) { \n' + '\tcontext.lineWidth = p[2][0];\n' + '\tcontext.strokeStyle = p[2][1];\n' + '\tcontext.fillStyle = p[2][2];\n'
 
             +
             '\tcontext.globalAlpha = p[2][3];\n' + '\tcontext.globalCompositeOperation = p[2][4];\n' + '\tcontext.lineCap = p[2][5];\n' + '\tcontext.lineJoin = p[2][6];\n' + '\tcontext.font = p[2][7];\n' + '    }\n\n'
 
-        // line
+            // line
 
             +
             '    if(p[0] === "line") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
-        // arrow
+            // arrow
 
             +
             '    if(p[0] === "arrow") { \n' + '\tdrawArrow(point[0], point[1], point[2], point[3], p[2]);\n' + '    }\n\n'
 
-        // pencil
+            // pencil
 
             +
             '    if(p[0] === "pencil") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
-        // marker
+            // marker
 
             +
             '    if(p[0] === "marker") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
 
-        // text
+            // text
 
             +
             '    if(p[0] === "text") { \n' + '\tcontext.fillText(point[0], point[1], point[2]);\n' + '    }\n\n'
 
-        // eraser
+            // eraser
 
             +
             '    if(p[0] === "eraser") { \n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.lineTo(point[2], point[3]);\n' + '    }\n\n'
 
-        // arc
+            // arc
 
             +
             '    if(p[0] === "arc") context.arc(point[0], point[1], point[2], point[3], 0, point[4]); \n\n'
 
-        // rect
+            // rect
 
             +
             '    if(p[0] === "rect") {\n' + '\tcontext.strokeRect(point[0], point[1], point[2], point[3]);\n' + '\tcontext.fillRect(point[0], point[1], point[2], point[3]);\n'
@@ -442,17 +442,17 @@
             +
             '    }\n\n'
 
-        // quadratic
+            // quadratic
 
             +
             '    if(p[0] === "quadratic") {\n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.quadraticCurveTo(point[2], point[3], point[4], point[5]);\n' + '    }\n\n'
 
-        // bezier
+            // bezier
 
             +
             '    if(p[0] === "bezier") {\n' + '\tcontext.moveTo(point[0], point[1]);\n' + '\tcontext.bezierCurveTo(point[2], point[3], point[4], point[5], point[6], point[7]);\n' + '    }\n\n'
 
-        // end-fill
+            // end-fill
 
             +
             '    context.stroke();\n' + '    context.fill();\n'
@@ -2284,18 +2284,12 @@
         },
         icons: {
             up: function(ctx) {
-                var image = new Image();
-                image.width = 32;
-                image.height = 32;
-                image.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuMTJDBGvsAAADiklEQVRoQ+2ZLXMUQRCGT0RERCCQiJMRyEjEiYiIiBOIiIiIiIiIExHIq4qlKiI/AMEPiIhEREREIpAIBAKBQCAQiON9trphcnt787F7lZoqRNfex0x3v909/TE7WiwWo5qpauUx/H8ATx1+g3hgNBptiw5F16Ib0YPoq0g+bp5853f+Z932UMCLAUiJLdGRKfbTlEXhFGI9gNi/1QdMEQAJPRB9DJT9rc/3oguz8J6eL5pDpqeI71ie/1nHegf6SZ+npSCyAEjQWHQXCP+sz6ei5zkKsF50JmK/A4Hvbg6frCwk5hPRNxP4w6zZK5bFgzCcib4HfPdzQCR5wKzsbv+g789yhMTWwk90ayCQcxbb4/9HAZjy7uYrrJbKPHedeF8GIXWasn8tAAsbt/x5CsO+ayTzOPDEJMavE4CYjIOYv4oxGvJ/yZ0bCM7ceB3vdQA82xDz2WETKDEvAaf91AlC9y4bgDaR59lMtik6sAMA2Aki4KALRMsDWFvkReqixHpWwDwMijxgPM7NkOizMgpWAaC8Y32KTHGe7+sBA4AxvdgdrTLmKgAee0lprNO1/w5isQcMBBUbg95EAWBxEY0WqTOrPVhmPoQHDABtB/qgVysiHnlAC2i4QHtfGvt/K+RAHjAQNIDoddgyVPiDFtCvs7D48G4IAF0sel3HAHj8t5DmemSoEDIPeGS0zsFyCDE5gXQvV+FNnQEDwDyBXg8xD/gY2AwjHUrNxOjEaKrnxOilnmMjitDchPbKQgaAoagZT2MAmq5zTWpMGReX15A9vhjhYVoU6L3onRFdKIA7wRqAlm7LIZTiAVpqF0wP7woxGrqiv1xg7rPD88ke2MQZeBuE1qsg5GibT4wa63d5QL8nn4Hqs1D1daD6Slx3L2Q5t95u1ACE80D2KDlkL6TsUzQPsImcTkGalbYUlhbhUVyJtZdbP3igT9pEZl6Y2kZuzJ5qJuY8+k1g591pyq3EbYkX+npA+2k1ym4lzAu7YsCtBEwuS0CU7pG8NyYX+WsvfGM3c/ti4Ddzx6UK5eyTvNcmE7nRi96Uu1EfqnsdyBQQZnk3WNIFbxSAhRPZwBlTJ3ZSFEpdI34cWI/5YW+ng7w+CbIC2YFLp+I6YYYhZWOc8L1DNGxCwyR5IAAxljD6fx9a6nlD8wh1re/IlkDU+5ZyxbBf33vi1Ayz6XVZh3jTypTwrx7AH8HANnr8oqz7AAAAAElFTkSuQmCC';
-                ctx.drawImage(image, 4, 4, 32, 32);
+                ctx.font = '22px Verdana';
+                ctx.strokeText('+', 10, 30);
             },
             down: function(ctx) {
-                var image = new Image();
-                image.width = 32;
-                image.height = 32;
-                image.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuMTJDBGvsAAADdUlEQVRoQ+2Zr1IcQRDGTyAQiIiIiIiTiEhkxAkEAnEiAoGIQCAQJxCRVPEACB4AkQdAICMQCGREZERERERERERExOX7bXVXDXu7NzP7h6upylV17e5tT3d/3T09PbOT5XI5KZmKNh7H/wew6fQbJAKTyWRbdCi6Ft2KHkXfRYpxdeWZ/3kP3/ZQwDsDkBFboiMz7LcZi8EpBD+AGL/VB0wnAFJ6IPocGPtX9w+ic/Pwnq6vq0mmq4hnPM97+OB3oF90P+8KIguAFE1F94Hyr7o/Eb3MMQB+0amI8Q4Eubs5crKqkITPRD9M4S/zZq9clgzScCH6GcjdzwGRFAHzsof9k55f5CiJ8SJPdGcg0HMaG+PvowDMeA/zFV5LFZ7LJ9mXQUqdpIxfC8DSxj1/liKwL490HgeRmMXktQKQkGmQ81cxQUO+l94LA8Gcm66TvQ6AVxtyfrS0aTNOOlknSN37bAAaRJ1nMNVm0AmbGinp3Qky4KAVaP0F3hb5InWeqnAMPtlxZo7EnsYsWEkhMbK8430WmV51vi8oc6YvdkdN8poAeO4llbG+RsbGCwQrNg69jQLA4yIaLUpnVnsQM6Tre+wwe7BrJSOeREAMNFygfeiqcIxx2GN2Ha7M2fAPMdGvA2Cjk7ehsNDFYtd1DIDn/wrSMTybKjPIjJV5UE8hdk4g3UsV/hx82GN2PcYi4NvAajPSEMoLCVqI3hvNdZ0ZvdF1arQzJDDJZFNUbU9jAKqus3XVS9su1reU9DPfjIgwLQr0UXRjRBeKcy5iumMAUiJAS+2K6eHdILaGbugf81gdTPS5JfLJERh8DgjIqyC13gYpR9vsqVh5vy0C+j95DhRfhYpfB4pficvuhagA+pXbjRqAcD/w7FvJWm/G5ip7P8AgajrhWAy5oubKkn5O/bADe9J2ZBaFuQ3kxGxTe2Lmo58Etp6dppxK3OV6bgh+GU+r0e1UwqKwKwGcSiDkcgijUmVI3wfTi/61B76xk7l9CfCTueNUA/rwSd8704ne6EFvytmob6qJRGu32MdoH2ued4clHfBGAVg6UQ1cMOvE0P0+E9ZzftjT6cA7s6AqUB04dOq1TjDeSmX43SGaNk/WipzQS9lURP/vfX05X2hqK2SZ38galvkyv1I2bPbL+06cM3fG5E0qo2Ma0Fd28QD+AZqKxdXXwZ1FAAAAAElFTkSuQmCC';
-                ctx.drawImage(image, 4, 4, 32, 32);
+                ctx.font = '22px Verdana';
+                ctx.strokeText('-', 15, 30);
             }
         }
     };
@@ -3262,7 +3256,7 @@
     var canvas = tempContext.canvas,
         isTouch = 'createTouch' in document;
 
-    addEvent(canvas, isTouch ? 'touchstart' : 'mousedown', function(e) {
+    addEvent(canvas, isTouch ? 'touchstart mousedown' : 'mousedown', function(e) {
         if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
             pageX: 0,
             pageY: 0
@@ -3285,11 +3279,24 @@
 
         drawHelper.redraw();
 
-        e.preventDefault();
-        e.stopPropagation();
+        preventStopEvent(e);
     });
 
-    addEvent(canvas, isTouch ? 'touchend touchcancel' : 'mouseup', function(e) {
+    function preventStopEvent(e) {
+        if (!e) {
+            return;
+        }
+
+        if (typeof e.preventDefault === 'function') {
+            e.preventDefault();
+        }
+
+        if (typeof e.stopPropagation === 'function') {
+            e.stopPropagation();
+        }
+    }
+
+    addEvent(canvas, isTouch ? 'touchend touchcancel mouseup' : 'mouseup', function(e) {
         if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
             pageX: 0,
             pageY: 0
@@ -3314,11 +3321,10 @@
 
         syncPoints(is.isDragAllPaths || is.isDragLastPath ? true : false);
 
-        e.preventDefault();
-        e.stopPropagation();
+        preventStopEvent(e);
     });
 
-    addEvent(canvas, isTouch ? 'touchmove' : 'mousemove', function(e) {
+    addEvent(canvas, isTouch ? 'touchmove mousemove' : 'mousemove', function(e) {
         if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
             pageX: 0,
             pageY: 0
@@ -3339,8 +3345,7 @@
         else if (cache.isArrow) arrowHandler.mousemove(e);
         else if (cache.isMarker) markerHandler.mousemove(e);
 
-        e.preventDefault();
-        e.stopPropagation();
+        preventStopEvent(e);
     });
 
     var keyCode;
@@ -3505,6 +3510,19 @@
             uid = event.data.uid;
         }
 
+        if (event.data.captureStream) {
+            webrtcHandler.createOffer(function(sdp) {
+                sdp.uid = uid;
+                window.parent.postMessage(sdp, '*');
+            });
+            return;
+        }
+
+        if (event.data.sdp) {
+            webrtcHandler.setRemoteDescription(event.data);
+            return;
+        }
+
         if (event.data.genDataURL) {
             var dataURL = context.canvas.toDataURL(event.data.format, 1);
             window.parent.postMessage({
@@ -3611,5 +3629,66 @@
             uid: uid
         }, '*');
     }
+
+    var webrtcHandler = {
+        createOffer: function(callback) {
+            var captureStream = document.getElementById('main-canvas').captureStream(15);
+
+            var peer = this.getPeer();
+            peer.addStream(captureStream);
+            peer.onicecandidate = function(event) {
+                if (!event || !!event.candidate) {
+                    return;
+                }
+
+                callback({
+                    sdp: peer.localDescription.sdp,
+                    type: peer.localDescription.type
+                });
+            };
+            peer.createOffer(function(sdp) {
+                peer.setLocalDescription(sdp);
+            }, function() {}, {
+                mandatory: {
+                    OfferToReceiveAudio: false,
+                    OfferToReceiveVideo: false
+                }
+            });
+        },
+        setRemoteDescription: function(sdp) {
+            this.peer.setRemoteDescription(new RTCSessionDescription(sdp));
+        },
+        createAnswer: function(sdp, callback) {
+            var peer = this.getPeer();
+            this.setRemoteDescription(sdp);
+            peer.onicecandidate = function(event) {
+                if (!event || !!event.candidate) {
+                    return;
+                }
+
+                callback({
+                    sdp: peer.localDescription.sdp,
+                    type: peer.localDescription.type
+                });
+            };
+            peer.createAnswer(function(sdp) {
+                peer.setLocalDescription(sdp);
+            }, function() {}, {
+                mandatory: {
+                    OfferToReceiveAudio: false,
+                    OfferToReceiveVideo: true
+                }
+            });
+            peer.onaddstream = function(event) {
+                callback(event);
+            };
+        },
+        getPeer: function() {
+            var WebRTC_Native_Peer = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+            var peer = new WebRTC_Native_Peer(null);
+            this.peer = peer;
+            return peer;
+        }
+    };
 
 })();
