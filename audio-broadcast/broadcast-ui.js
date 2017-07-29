@@ -4,23 +4,30 @@
 
 var config = {
     openSocket: function(config) {
-        // https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
-        // This method "openSocket" can be defined in HTML page
-        // to use any signaling gateway either XHR-Long-Polling or SIP/XMPP or WebSockets/Socket.io
-        // or WebSync/SignalR or existing implementations like signalmaster/peerserver or sockjs etc.
+        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
 
-        var channel = config.channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
-        var socket = new Firebase('https://webrtc.firebaseIO.com/' + channel);
-        socket.channel = channel;
-        socket.on('child_added', function(data) {
-            config.onmessage(data.val());
+        config.channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+        var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+        io.connect(SIGNALING_SERVER).emit('new-channel', {
+            channel: config.channel,
+            sender: sender
         });
-        socket.send = function(data) {
-            this.push(data);
+
+        var socket = io.connect(SIGNALING_SERVER + config.channel);
+        socket.channel = config.channel;
+        socket.on('connect', function() {
+            if (config.callback) config.callback(socket);
+        });
+
+        socket.send = function(message) {
+            socket.emit('message', {
+                sender: sender,
+                data: message
+            });
         };
-        config.onopen && setTimeout(config.onopen, 1);
-        socket.onDisconnect().remove();
-        return socket;
+
+        socket.on('message', config.onmessage);
     },
     onRemoteStream: function(media) {
         var audio = media.audio;

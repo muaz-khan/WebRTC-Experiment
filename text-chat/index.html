@@ -1,7 +1,14 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>WebRTC Text Chat / Data Sharing ® Muaz Khan</title>
+        <script>
+            if(!location.hash.replace('#', '').length) {
+                location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+                location.reload();
+            }
+        </script>
+
+        <title>WebRTC Text Chat / Data Sharing | Muaz Khan</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -132,7 +139,7 @@
                 margin-left: 6em;
             }
         </style>
-        <script src="https://cdn.webrtc-experiment.com/firebase.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
         <script src="https://cdn.webrtc-experiment.com/data-connection.js"> </script>
     </head>
     <body>
@@ -141,9 +148,22 @@
                                                  target="_blank">Source Code</a>
         </h1>
         <p>
-            <span>Copyright © 2013</span> <a href="https://github.com/muaz-khan" target="_blank">
-                                              Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
-        </p>
+                <a href="https://www.webrtc-experiment.com/">HOME</a>
+                <span> &copy; </span>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    
+                .
+                <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+            </p>
         <section class="plusone-gplus">
             <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
         </section>
@@ -204,7 +224,32 @@
 
 
         // using firebase for signaling
-            connection.firebase = 'signaling';
+            // connection.firebase = 'signaling';
+
+            var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+                var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+                var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+                io.connect(SIGNALING_SERVER).emit('new-channel', {
+                    channel: channel,
+                    sender: sender
+                });
+
+                var socket = io.connect(SIGNALING_SERVER + channel);
+                socket.on('connect', function () {
+                    // setup peer connection & pass socket object over the constructor!
+                });
+
+                socket.send = function (message) {
+                    socket.emit('message', {
+                        sender: sender,
+                        data: message
+                    });
+                };
+
+                connection.openSignalingChannel = function(callback) {
+                    return socket.on('message', callback);
+                };
 
         // if someone leaves; just remove his video
             connection.onuserleft = function(userid) {

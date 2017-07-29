@@ -2,7 +2,7 @@
 <html lang="en">
 
     <head>
-        <title>File Sharing + Text Chat using WebRTC DataChannel ® Muaz Khan</title>
+        <title>File Sharing + Text Chat using WebRTC DataChannel</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -49,16 +49,11 @@
         </script>
 
         <script src="https://cdn.webrtc-experiment.com/DataChannel.js"> </script>
-        <script src="https://cdn.webrtc-experiment.com/firebase.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
     </head>
 
     <body>
         <article>
-            <a href="https://www.webrtc-experiment.com/"
-               style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑
-                WEBRTC EXPERIMENTS</a>
-
-
             <h1>File Sharing + Text Chat using WebRTC <a
                                                           href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel"
                                                           target="_blank">DataChannel</a>
@@ -92,6 +87,7 @@
                 <h2>or join:</h2>
                 <button id="join-RTCMultiConnection">Join</button>
             </section>
+
             <table style="border-left: 1px solid black; width: 100%;">
                 <tr>
                     <td>
@@ -116,7 +112,33 @@
             <script>
                 var channel = new DataChannel();
 
-                channel.firebase = 'webrtc-experiment';
+                // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
+                var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+                channel.openSignalingChannel = function(config) {
+                   var channel = config.channel || this.channel || 'default-namespace';
+                   var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+                   
+                   io.connect(SIGNALING_SERVER).emit('new-channel', {
+                      channel: channel,
+                      sender : sender
+                   });
+                   
+                   var socket = io.connect(SIGNALING_SERVER + channel);
+                   socket.channel = channel;
+                   
+                   socket.on('connect', function () {
+                      if (config.callback) config.callback(socket);
+                   });
+                   
+                   socket.send = function (message) {
+                        socket.emit('message', {
+                            sender: sender,
+                            data  : message
+                        });
+                    };
+                   
+                   socket.on('message', config.onmessage);
+                };
 
                 channel.onmessage = function(data, userid, latency) {
                     console.debug(userid, 'posted', data);
@@ -286,7 +308,7 @@
             <h2>Use your own socket.io for signaling</h2>
             <pre>
 &lt;script&gt;
-    // by default <a href="http://firebase.com" target="_blank" rel="nofollow">Firebase</a> is used for signaling; you can override it
+    // by default socket.io is used for signaling; you can override it
     channel.<strong>openSignalingChannel</strong> = function(config) {
         var socket = io.connect('http://your-site:8888');
         socket.channel = config.channel || this.channel || 'default-channel';

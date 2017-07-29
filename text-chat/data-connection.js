@@ -1,4 +1,4 @@
-// 2013, Muaz Khan - www.muazkhan.com
+// Muaz Khan - www.muazkhan.com
 // MIT License     - www.webrtc-experiment.com/licence/
 // Documentation   - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-sharing
 
@@ -8,7 +8,7 @@
     window.DataConnection = function(channel) {
         var signaler, self = this;
 
-        this.channel = channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
+        this.channel = channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
         this.userid = getToken();
 
         // on each new session
@@ -80,10 +80,10 @@
         var signaler = this;
 
         // object to store all connected peers
-        var peers = { };
+        var peers = {};
 
         // object to store all connected participants's ids
-        var participants = { };
+        var participants = {};
 
         function onSocketMessage(data) {
             // don't get self-sent data
@@ -104,8 +104,7 @@
             if (peer && peer.peer) {
                 try {
                     peer.peer.close();
-                } catch(e) {
-                }
+                } catch (e) {}
                 delete peers[data.userid];
             }
         }
@@ -116,7 +115,8 @@
             if (message.roomid && message.broadcasting
 
                 // one user can participate in one room at a time
-                && !signaler.sentParticipationRequest) {
+                &&
+                !signaler.sentParticipationRequest) {
 
                 // broadcaster's and participant's session must be identical
                 root.onconnection(message);
@@ -251,7 +251,7 @@
             onopen: function(e) {
                 if (root.onopen) root.onopen(e);
 
-                if (!root.channels) root.channels = { };
+                if (!root.channels) root.channels = {};
                 root.channels[e.userid] = {
                     send: function(message) {
                         root.send(message, this.channel);
@@ -318,7 +318,7 @@
 
         // call only for session initiator
         this.broadcast = function(_config) {
-            _config = _config || { };
+            _config = _config || {};
             signaler.roomid = _config.roomid || getToken();
             signaler.isbroadcaster = true;
             (function transmit() {
@@ -369,14 +369,14 @@
                 }
             }
 
-            participants = { };
+            participants = {};
 
             // close all connected peers
             for (var peer in peers) {
                 peer = peers[peer];
                 if (peer.peer) peer.peer.close();
             }
-            peers = { };
+            peers = {};
 
             signaler.left = true;
 
@@ -426,7 +426,7 @@
 
             // Firebase is capable to store data in JSON format
             // root.transmitRoomOnce = true;
-            var socket = new window.Firebase('https://' + (root.firebase || 'signaling') + '.firebaseIO.com/' + channel);
+            var socket = new window.Firebase('https://' + (root.firebase || 'webrtc') + '.firebaseIO.com/' + channel);
             socket.on('child_added', function(snap) {
                 var data = snap.val();
                 onSocketMessage(data);
@@ -461,79 +461,88 @@
         }
     }
 
+    // IceServersHandler.js
+
+    var IceServersHandler = (function() {
+        function getIceServers(connection) {
+            var iceServers = [];
+
+            iceServers.push(getSTUNObj('stun:stun.l.google.com:19302'));
+
+            iceServers.push(getTURNObj('stun:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+            iceServers.push(getTURNObj('turns:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turns:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:3344', 'muazkh', 'muazkh')); // resiprocate
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:4433', 'muazkh', 'muazkh')); // resiprocate
+
+            // check if restund is still active: http://webrtcweb.com:4050/
+            iceServers.push(getTURNObj('stun:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:5544?transport=tcp', 'muazkh', 'muazkh')); // restund
+
+            return iceServers;
+        }
+
+        function getSTUNObj(stunStr) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
+            }
+
+            var obj = {};
+            obj[urlsParam] = stunStr;
+            return obj;
+        }
+
+        function getTURNObj(turnStr, username, credential) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
+            }
+
+            var obj = {
+                username: username,
+                credential: credential
+            };
+            obj[urlsParam] = turnStr;
+            return obj;
+        }
+
+        return {
+            getIceServers: getIceServers
+        };
+    })();
+
     // reusable stuff
-    var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-    var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-    var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+    var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+    var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+    var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
-    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    window.URL = window.webkitURL || window.URL;
-
-    var isFirefox = !!navigator.mozGetUserMedia;
-    var isChrome = !!navigator.webkitGetUserMedia;
-
-    var STUN = {
-        url: isChrome ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-    };
-
-    // old TURN syntax
-    var TURN = {
-        url: 'turn:homeo@turn.bistri.com:80',
-        credential: 'homeo'
-    };
+    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    window.URL = window.URL || window.webkitURL;
 
     var iceServers = {
-        iceServers: [STUN]
+        iceServers: IceServersHandler.getIceServers()
     };
 
-    if (isChrome) {
-        // in chrome M29 and higher
-        if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
-            TURN = {
-                url: 'turn:turn.bistri.com:80',
-                credential: 'homeo',
-                username: 'homeo'
-            };
-
-        // No STUN to make sure it works all the time!
-        iceServers.iceServers = [STUN, TURN];
-    }
-
     var optionalArgument = {
-        optional: [{
-            RtpDataChannels: true
-        }]
+        optional: []
     };
 
     var offerAnswerConstraints = {
         optional: [],
         mandatory: {
-            OfferToReceiveAudio: isFirefox,
-            OfferToReceiveVideo: isFirefox
+            OfferToReceiveAudio: false,
+            OfferToReceiveVideo: false
         }
     };
 
     function getToken() {
         return Math.round(Math.random() * 60535) + 5000;
-    }
-
-    function setBandwidth(sdp, bandwidth) {
-        bandwidth = bandwidth || { };
-
-        // remove existing bandwidth lines
-        sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
-        sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:' + (bandwidth.data || 1638400) + '\r\n');
-
-        return sdp;
-    }
-
-    function serializeSdp(sessionDescription, config) {
-        if (isFirefox) return sessionDescription;
-
-        var sdp = sessionDescription.sdp;
-        sdp = setBandwidth(sdp, config.bandwidth);
-        sessionDescription.sdp = sdp;
-        return sessionDescription;
     }
 
     // var offer = Offer.createOffer(config);
@@ -571,28 +580,9 @@
                 }
             };
 
-            if (isChrome) {
-                peer.createOffer(function(sdp) {
-                    sdp = serializeSdp(sdp, config);
-                    peer.setLocalDescription(sdp);
-                }, onSdpError, offerAnswerConstraints);
-
-            } else if (isFirefox) {
-                navigator.mozGetUserMedia({
-                        audio: true,
-                        fake: true
-                    }, function(stream) {
-                        peer.addStream(stream);
-                        peer.createOffer(function(sdp) {
-                            peer.setLocalDescription(sdp);
-                            config.onsdp({
-                                sdp: sdp,
-                                userid: config.to
-                            });
-                        }, onSdpError, offerAnswerConstraints);
-
-                    }, mediaError);
-            }
+            peer.createOffer(function(sdp) {
+                peer.setLocalDescription(sdp);
+            }, onSdpError, offerAnswerConstraints);
 
             this.peer = peer;
 
@@ -608,12 +598,12 @@
             }));
         }
     };
-	
-	function onSdpSuccess() {}
 
-        function onSdpError(e) {
-            console.error('sdp error:', e.name, e.message);
-        }
+    function onSdpSuccess() {}
+
+    function onSdpError(e) {
+        console.error('sdp error:', e.name, e.message);
+    }
 
     // var answer = Answer.createAnswer(config);
     // answer.setRemoteDescription(sdp);
@@ -623,32 +613,12 @@
             var peer = new RTCPeerConnection(iceServers, optionalArgument),
                 channel;
 
-            if (isChrome)
-                RTCDataChannel.createDataChannel(peer, config);
-            else if (isFirefox) {
-                peer.ondatachannel = function(event) {
-                    channel = event.channel;
-                    channel.binaryType = 'blob';
-                    RTCDataChannel.setChannelEvents(channel, config);
-                };
-
-                navigator.mozGetUserMedia({
-                        audio: true,
-                        fake: true
-                    }, function(stream) {
-
-                        peer.addStream(stream);
-                        peer.setRemoteDescription(new RTCSessionDescription(config.sdp), onSdpSuccess, onSdpError);
-                        peer.createAnswer(function(sdp) {
-                            peer.setLocalDescription(sdp);
-                            config.onsdp({
-                                sdp: sdp,
-                                userid: config.to
-                            });
-                        }, onSdpError, offerAnswerConstraints);
-
-                    }, mediaError);
-            }
+            RTCDataChannel.createDataChannel(peer, config);
+            peer.ondatachannel = function(event) {
+                channel = event.channel;
+                // channel.binaryType = 'arraybuffer';
+                RTCDataChannel.setChannelEvents(channel, config);
+            };
 
             peer.onicecandidate = function(event) {
                 if (event.candidate) {
@@ -669,18 +639,15 @@
                 }
             };
 
-            if (isChrome) {
-                peer.setRemoteDescription(new RTCSessionDescription(config.sdp), onSdpSuccess, onSdpError);
-                peer.createAnswer(function(sdp) {
-                    sdp = serializeSdp(sdp, config);
-                    peer.setLocalDescription(sdp);
+            peer.setRemoteDescription(new RTCSessionDescription(config.sdp), onSdpSuccess, onSdpError);
+            peer.createAnswer(function(sdp) {
+                peer.setLocalDescription(sdp);
 
-                    config.onsdp({
-                        sdp: sdp,
-                        userid: config.to
-                    });
-                }, onSdpError, offerAnswerConstraints);
-            }
+                config.onsdp({
+                    sdp: sdp,
+                    userid: config.to
+                });
+            }, onSdpError, offerAnswerConstraints);
 
             this.peer = peer;
 
@@ -757,36 +724,21 @@
             var file = config.file;
 
             function send(message) {
-                if (isChrome) message = JSON.stringify(message);
+                message = JSON.stringify(message);
 
                 // share data between two unique users i.e. direct messages
                 if (config.channel) return config.channel.send(message);
 
                 // share data with all connected users
-                var channels = root.channels || { };
+                var channels = root.channels || {};
                 for (var channel in channels) {
                     channels[channel].channel.send(message);
                 }
             }
 
-            if (isFirefox) {
-                send(JSON.stringify({
-                    fileName: file.name,
-                    type: 'file'
-                }));
-                send(file);
-                if (root.onFileSent)
-                    root.onFileSent({
-                        file: file,
-                        userid: config.userid
-                    });
-            }
-
-            if (isChrome) {
-                var reader = new window.FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = onReadAsDataURL;
-            }
+            var reader = new window.FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = onReadAsDataURL;
 
             var packetSize = 1000,
                 textToTransfer = '',
@@ -851,57 +803,33 @@
             var root = config.root;
             var data = config.data;
 
-            if (isFirefox) {
-                if (data.fileName)
-                    fileName = data.fileName;
+            if (data.packets)
+                numberOfPackets = packets = parseInt(data.packets);
 
-                if (data.size) {
-                    var reader = new window.FileReader();
-                    reader.readAsDataURL(data);
-                    reader.onload = function(event) {
-                        FileSaver.SaveToDisk({
-                            fileURL: event.target.result,
-                            fileName: fileName
-                        });
+            if (root.onFileProgress)
+                root.onFileProgress({
+                    packets: {
+                        remaining: packets--,
+                        length: numberOfPackets,
+                        received: numberOfPackets - packets
+                    },
+                    userid: config.userid
+                });
 
-                        if (root.onFileReceived)
-                            root.onFileReceived({
-                                fileName: fileName,
-                                userid: config.userid
-                            });
-                    };
-                }
-            }
+            content.push(data.message);
 
-            if (isChrome) {
-                if (data.packets)
-                    numberOfPackets = packets = parseInt(data.packets);
+            if (data.last) {
+                FileSaver.SaveToDisk({
+                    fileURL: content.join(''),
+                    fileName: data.name
+                });
 
-                if (root.onFileProgress)
-                    root.onFileProgress({
-                        packets: {
-                            remaining: packets--,
-                            length: numberOfPackets,
-                            received: numberOfPackets - packets
-                        },
+                if (root.onFileReceived)
+                    root.onFileReceived({
+                        fileName: data.name,
                         userid: config.userid
                     });
-
-                content.push(data.message);
-
-                if (data.last) {
-                    FileSaver.SaveToDisk({
-                        fileURL: content.join(''),
-                        fileName: data.name
-                    });
-
-                    if (root.onFileReceived)
-                        root.onFileReceived({
-                            fileName: data.name,
-                            userid: config.userid
-                        });
-                    content = [];
-                }
+                content = [];
             }
         };
     }
@@ -918,7 +846,7 @@
                 if (config.channel) return config.channel.send(message);
 
                 // share data with all connected users
-                var channels = root.channels || { };
+                var channels = root.channels || {};
                 for (var channel in channels) {
                     channels[channel].channel.send(message);
                 }
@@ -932,7 +860,7 @@
             if (typeof initialText !== 'string')
                 initialText = JSON.stringify(initialText);
 
-            if (isFirefox || initialText.length <= packetSize)
+            if (initialText.length <= packetSize)
                 send(config.text);
             else
                 sendText(initialText);

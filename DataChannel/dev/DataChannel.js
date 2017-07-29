@@ -316,7 +316,7 @@ window.DataChannel = function(channel, extras) {
     if (self.automatic) {
         if (window.Firebase) {
             console.debug('checking presence of the room..');
-            new window.Firebase('https://' + (extras.firebase || self.firebase || 'webrtc-experiment') + '.firebaseIO.com/' + self.channel).once('value', function(data) {
+            new window.Firebase('https://' + (extras.firebase || self.firebase || 'muazkh') + '.firebaseIO.com/' + self.channel).once('value', function(data) {
                 console.debug('room is present?', data.val() !== null);
                 self.openNewSession(data.val() === null);
             });

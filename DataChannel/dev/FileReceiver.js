@@ -12,7 +12,7 @@ function FileReceiver(root) {
 
         if (root.onFileProgress) {
             root.onFileProgress({
-                remaining: packets[uuid] --,
+                remaining: packets[uuid]--,
                 length: numberOfPackets[uuid],
                 received: numberOfPackets[uuid] - packets[uuid],
 

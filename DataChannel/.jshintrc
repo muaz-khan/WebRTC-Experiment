@@ -9,6 +9,7 @@
   "quotmark": "single",
   "undef": true,
   "globals": {
-    "DataChannel": true
+    "DataChannel": true,
+    "io": true
   }
 }

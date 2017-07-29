@@ -71,7 +71,7 @@
         </script>
 
         <!-- scripts used for video-conferencing -->
-        <script src="https://cdn.webrtc-experiment.com/firebase.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
         <script src="https://cdn.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
         <script src="https://cdn.webrtc-experiment.com/video-conferencing/conference.js"> </script>
 
@@ -136,19 +136,32 @@
                 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
 
                 var config = {
+                    // via: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
                     openSocket: function(config) {
-                        var channel = config.channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
-                        var socket = new Firebase('https://webrtc.firebaseIO.com/' + channel);
-                        socket.channel = channel;
-                        socket.on("child_added", function(data) {
-                            config.onmessage && config.onmessage(data.val());
+                        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+
+                        config.channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+                        var sender = Math.round(Math.random() * 999999999) + 999999999;
+
+                        io.connect(SIGNALING_SERVER).emit('new-channel', {
+                            channel: config.channel,
+                            sender: sender
                         });
-                        socket.send = function(data) {
-                            this.push(data);
+
+                        var socket = io.connect(SIGNALING_SERVER + config.channel);
+                        socket.channel = config.channel;
+                        socket.on('connect', function () {
+                            if (config.callback) config.callback(socket);
+                        });
+
+                        socket.send = function (message) {
+                            socket.emit('message', {
+                                sender: sender,
+                                data: message
+                            });
                         };
-                        config.onopen && setTimeout(config.onopen, 1);
-                        socket.onDisconnect().remove();
-                        return socket;
+
+                        socket.on('message', config.onmessage);
                     },
                     onRemoteStream: function(media) {
                         var mediaElement = getMediaElement(media.video, {

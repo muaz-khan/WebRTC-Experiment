@@ -1,5 +1,7 @@
-// http://127.0.0.1:9999
-// http://localhost:9999
+// http://127.0.0.1:9001
+// http://localhost:9001
+
+var port = 9001;
 
 var server = require('http'),
     url = require('url'),
@@ -68,7 +70,7 @@ var app;
 
 app = server.createServer(serverHandler);
 
-app = app.listen(process.env.PORT || 9999, process.env.IP || "0.0.0.0", function() {
+app = app.listen(process.env.PORT || port, process.env.IP || "0.0.0.0", function() {
     var addr = app.address();
     console.log("Server listening at", addr.address + ":" + addr.port);
 });

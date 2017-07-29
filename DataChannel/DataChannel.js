@@ -1,20 +1,25 @@
-// Last time updated at Feb 10, 2016, 08:32:23
-
-// Muaz Khan         - www.MuazKhan.com
-// MIT License       - www.WebRTC-Experiment.com/licence
-// Documentation     - github.com/muaz-khan/DataChannel
-// ______________
-// DataChannel.js
-
 'use strict';
 
+// Last time updated: 2017-07-29 4:31:53 PM UTC
+
+// __________________
+// DataChannel v1.0.0
+
+// Open-Sourced: https://github.com/muaz-khan/DataChannel
+
+// --------------------------------------------------
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// --------------------------------------------------
+
 (function() {
+
     window.DataChannel = function(channel, extras) {
         if (channel) {
             this.automatic = true;
         }
 
-        this.roomid = this.channel = channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+        this.channel = channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
         extras = extras || {};
 
@@ -199,7 +204,6 @@
         }
 
         this.open = function(_channel) {
-            this.roomid = _channel;
             self.joinedARoom = true;
 
             if (self.socket) {
@@ -225,8 +229,6 @@
                 self.channel = _channel;
             }
 
-            this.roomid = _channel;
-
             prepareInit(init);
         };
 
@@ -235,8 +237,6 @@
             if (!room.id || !room.owner) {
                 throw 'Invalid room info passed.';
             }
-
-            this.roomid = room.id;
 
             if (!dataConnector) {
                 init();
@@ -332,7 +332,7 @@
         if (self.automatic) {
             if (window.Firebase) {
                 console.debug('checking presence of the room..');
-                new window.Firebase('https://' + (extras.firebase || self.firebase || 'webrtc-experiment') + '.firebaseIO.com/' + self.channel).once('value', function(data) {
+                new window.Firebase('https://' + (extras.firebase || self.firebase || 'muazkh') + '.firebaseIO.com/' + self.channel).once('value', function(data) {
                     console.debug('room is present?', data.val() !== null);
                     self.openNewSession(data.val() === null);
                 });
@@ -430,8 +430,7 @@
                 if (root.direction === 'many-to-many' && isbroadcaster && channels.split('--').length > 3 && defaultSocket) {
                     defaultSocket.send({
                         newParticipant: socket.channel,
-                        userToken: self.userToken,
-                        roomToken: root.roomid
+                        userToken: self.userToken
                     });
                 }
 
@@ -668,7 +667,7 @@
                     config.ondatachannel(response);
                 }
 
-                if (response.newParticipant && response.roomToken === root.roomid) {
+                if (response.newParticipant) {
                     onNewParticipant(response.newParticipant);
                 }
 
@@ -763,6 +762,7 @@
             }
         };
     }
+
     var moz = !!navigator.mozGetUserMedia;
     var IsDataChannelSupported = !((moz && !navigator.mozGetUserMedia) || (!moz && !navigator.webkitGetUserMedia));
 
@@ -798,45 +798,62 @@
         window.removeEventListener(eventName, eventHandler);
         window.addEventListener(eventName, eventHandler, false);
     }
-    var loadedIceFrame;
 
-    function loadIceFrame(callback, skip) {
-        if (loadedIceFrame) {
-            return;
+    // IceServersHandler.js
+
+    var IceServersHandler = (function() {
+        function getIceServers(connection) {
+            var iceServers = [];
+
+            iceServers.push(getSTUNObj('stun:stun.l.google.com:19302'));
+
+            iceServers.push(getTURNObj('stun:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+            iceServers.push(getTURNObj('turns:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turns:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:3344', 'muazkh', 'muazkh')); // resiprocate
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:4433', 'muazkh', 'muazkh')); // resiprocate
+
+            // check if restund is still active: http://webrtcweb.com:4050/
+            iceServers.push(getTURNObj('stun:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:5544?transport=tcp', 'muazkh', 'muazkh')); // restund
+
+            return iceServers;
         }
 
-        if (!skip) {
-            return loadIceFrame(callback, true);
-        }
-
-        loadedIceFrame = true;
-
-        var iframe = document.createElement('iframe');
-        iframe.onload = function() {
-            iframe.isLoaded = true;
-
-            listenEventHandler('message', iFrameLoaderCallback);
-
-            function iFrameLoaderCallback(event) {
-                if (!event.data || !event.data.iceServers) {
-                    return;
-                }
-                callback(event.data.iceServers);
-
-                // this event listener is no more needed
-                window.removeEventListener('message', iFrameLoaderCallback);
+        function getSTUNObj(stunStr) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
             }
 
-            iframe.contentWindow.postMessage('get-ice-servers', '*');
-        };
-        iframe.src = 'https://cdn.webrtc-experiment.com/getIceServers/';
-        iframe.style.display = 'none';
-        (document.body || document.documentElement).appendChild(iframe);
-    }
+            var obj = {};
+            obj[urlsParam] = stunStr;
+            return obj;
+        }
 
-    loadIceFrame(function(iceServers) {
-        window.iceServers = iceServers;
-    });
+        function getTURNObj(turnStr, username, credential) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
+            }
+
+            var obj = {
+                username: username,
+                credential: credential
+            };
+            obj[urlsParam] = turnStr;
+            return obj;
+        }
+
+        return {
+            getIceServers: getIceServers
+        };
+    })();
 
     function RTCPeerConnection(options) {
         var w = window;
@@ -844,30 +861,8 @@
         var SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription;
         var IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
 
-        var iceServers = window.iceServers || [];
-
-        iceServers.push({
-            url: 'stun:stun.l.google.com:19302'
-        });
-
-        iceServers.push({
-            url: 'stun:stun.anyfirewall.com:3478'
-        });
-
-        iceServers.push({
-            url: 'turn:turn.bistri.com:80',
-            credential: 'homeo',
-            username: 'homeo'
-        });
-
-        iceServers.push({
-            url: 'turn:turn.anyfirewall.com:443?transport=tcp',
-            credential: 'webrtc',
-            username: 'webrtc'
-        });
-
-        iceServers = {
-            iceServers: iceServers
+        var iceServers = {
+            iceServers: IceServersHandler.getIceServers()
         };
 
         var optional = {
@@ -1025,6 +1020,7 @@
             }
         };
     }
+
     var FileConverter = {
         DataURLToBlob: function(dataURL, fileType, callback) {
 
@@ -1077,7 +1073,7 @@
 
             if (root.onFileProgress) {
                 root.onFileProgress({
-                    remaining: packets[uuid] --,
+                    remaining: packets[uuid]--,
                     length: numberOfPackets[uuid],
                     received: numberOfPackets[uuid] - packets[uuid],
 
@@ -1121,6 +1117,7 @@
             receive: receive
         };
     }
+
     var FileSaver = {
         SaveToDisk: function(fileUrl, fileName) {
             var hyperlink = document.createElement('a');
@@ -1138,6 +1135,7 @@
             (window.URL || window.webkitURL).revokeObjectURL(hyperlink.href);
         }
     };
+
     var FileSender = {
         send: function(config) {
             var root = config.root;
@@ -1303,6 +1301,7 @@
             receive: receive
         };
     }
+
     var TextSender = {
         send: function(config) {
             var root = config.root;
@@ -1357,4 +1356,5 @@
             }
         }
     };
+
 })();

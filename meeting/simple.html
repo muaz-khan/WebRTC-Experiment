@@ -1,5 +1,11 @@
-﻿<script src="//cdn.webrtc-experiment.com/firebase.js"> </script>
-<script src="//cdn.webrtc-experiment.com/meeting.js"> </script>
+﻿<script>
+            if(!location.hash.replace('#', '').length) {
+                location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+                location.reload();
+            }
+</script>
+
+<script src="https://cdn.webrtc-experiment.com/meeting.js"> </script>
 <button id="setup-new-meeting">Setup New Meeting</button>
         
 <table style="border-left: 1px solid black; width: 100%;">
@@ -24,6 +30,35 @@
 
     var remoteMediaStreams = document.getElementById('remote-media-streams');
     var localMediaStream = document.getElementById('local-media-stream');
+
+                // via: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs
+                meeting.openSignalingChannel = function(onmessage) {
+                    var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+                    var websocket = new WebSocket('wss://www.webrtcweb.com:9449');
+                    websocket.onopen = function () {
+                        websocket.push(JSON.stringify({
+                            open: true,
+                            channel: channel
+                        }));
+                    };
+                    websocket.push = websocket.send;
+                    websocket.send = function (data) {
+                        if(websocket.readyState != 1) {
+                            return setTimeout(function() {
+                                websocket.send(data);
+                            }, 300);
+                        }
+                        
+                        websocket.push(JSON.stringify({
+                            data: data,
+                            channel: channel
+                        }));
+                    };
+                    websocket.onmessage = function(e) {
+                        onmessage(JSON.parse(e.data));
+                    };
+                    return websocket;
+                };
 
     // on getting media stream
     meeting.onaddstream = function(e) {

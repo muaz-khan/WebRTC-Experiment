@@ -35,7 +35,7 @@
 
                 var video = document.createElement('video');
                 video.id = 'self';
-                video[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
+                video[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.URL.createObjectURL(stream);
                 video.autoplay = true;
                 video.controls = true;
                 video.play();
@@ -229,7 +229,7 @@
 
                 var video = document.createElement('video');
                 video.id = _userid;
-                video[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
+                video[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.URL.createObjectURL(stream);
                 video.autoplay = true;
                 video.controls = true;
                 video.play();
@@ -285,40 +285,76 @@
         unloadHandler(userid, signaler);
     }
 
-    // reusable stuff
-    var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-    var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-    var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+    // IceServersHandler.js
 
-    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    window.URL = window.webkitURL || window.URL;
+    var IceServersHandler = (function() {
+        function getIceServers(connection) {
+            var iceServers = [];
+
+            iceServers.push(getSTUNObj('stun:stun.l.google.com:19302'));
+
+            iceServers.push(getTURNObj('stun:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+            iceServers.push(getTURNObj('turns:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turns:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:3344', 'muazkh', 'muazkh')); // resiprocate
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:4433', 'muazkh', 'muazkh')); // resiprocate
+
+            // check if restund is still active: http://webrtcweb.com:4050/
+            iceServers.push(getTURNObj('stun:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:5544?transport=tcp', 'muazkh', 'muazkh')); // restund
+
+            return iceServers;
+        }
+
+        function getSTUNObj(stunStr) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
+            }
+
+            var obj = {};
+            obj[urlsParam] = stunStr;
+            return obj;
+        }
+
+        function getTURNObj(turnStr, username, credential) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
+            }
+
+            var obj = {
+                username: username,
+                credential: credential
+            };
+            obj[urlsParam] = turnStr;
+            return obj;
+        }
+
+        return {
+            getIceServers: getIceServers
+        };
+    })();
+
+    // reusable stuff
+    var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+    var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+    var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
+
+    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    window.URL = window.URL || window.webkitURL;
 
     var isFirefox = !!navigator.mozGetUserMedia;
     var isChrome = !!navigator.webkitGetUserMedia;
 
-    var STUN = {
-        url: isChrome ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
-    };
-
-    var TURN = {
-        url: 'turn:webrtc%40live.com@numb.viagenie.ca',
-        credential: 'muazkh'
-    };
-
     var iceServers = {
-        iceServers: [STUN]
+        iceServers: IceServersHandler.getIceServers()
     };
-
-    if (isChrome) {
-        if (parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28)
-            TURN = {
-                url: 'turn:numb.viagenie.ca',
-                credential: 'muazkh',
-                username: 'webrtc@live.com'
-            };
-
-        iceServers.iceServers = [STUN, TURN];
-    }
 
     var optionalArgument = {
         optional: [{

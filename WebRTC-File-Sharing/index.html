@@ -5,7 +5,14 @@
 -->
 <html>
     <head>
-        <title>WebRTC File Sharing using SCTP Data Channels  ® Muaz Khan</title>
+        <script>
+            if(!location.hash.replace('#', '').length) {
+                location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+                location.reload();
+            }
+        </script>
+
+        <title>WebRTC File Sharing using SCTP Data Channels | Muaz Khan</title>
         <meta name="description" content="WebRTC File Sharing Experiment using WebRTC SCTP based DataChannel API.">
         <meta name="keywords" content="WebRTC,Experiments,SCTP,DataChannel,File-Sharing">
         <link rel="author" type="text/html" href="http://google.com/+MuazKhan">
@@ -153,8 +160,8 @@
                 overflow: hidden;
             }
         </style>
-        <script src="https://www.webrtc-experiment.com/WebRTC-File-Sharing/File.js"> </script>
-        <script src="https://www.webrtc-experiment.com/WebRTC-File-Sharing/PeerConnection.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/WebRTC-File-Sharing/File.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/WebRTC-File-Sharing/PeerConnection.js"> </script>
     </head>
     <body>
         <p id="blah">WebRTC File Sharing using SCTP Data Channels</p>

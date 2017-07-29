@@ -7,7 +7,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>DataChannel.js » A WebRTC Library for Data Sharing ® Muaz Khan</title>
+        <title>DataChannel.js » A WebRTC Library for Data Sharing</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -48,7 +48,7 @@
         <!-- DataChannel.js library-->
         
         <script src="https://cdn.webrtc-experiment.com/DataChannel.js"> </script>
-        <script src="https://cdn.webrtc-experiment.com/firebase.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
     </head>
 
     <body>
@@ -108,7 +108,33 @@
             <script>
                 var channel = new DataChannel(); // DataChannel.js
                 
-                channel.firebase = 'webrtc-experiment';
+                // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
+                var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+                channel.openSignalingChannel = function(config) {
+                   var channel = config.channel || this.channel || 'default-namespace';
+                   var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+                   
+                   io.connect(SIGNALING_SERVER).emit('new-channel', {
+                      channel: channel,
+                      sender : sender
+                   });
+                   
+                   var socket = io.connect(SIGNALING_SERVER + channel);
+                   socket.channel = channel;
+                   
+                   socket.on('connect', function () {
+                      if (config.callback) config.callback(socket);
+                   });
+                   
+                   socket.send = function (message) {
+                        socket.emit('message', {
+                            sender: sender,
+                            data  : message
+                        });
+                    };
+                   
+                   socket.on('message', config.onmessage);
+                };
 
                 // "ondatachannel" is fired for each new data channel
                 channel.ondatachannel = function(channel00) {
@@ -224,7 +250,7 @@
                     <li>File size is limitless!</li>
                     <li>Text message length is limitless!</li>
                     <li>Size of data is also limitless!</li>
-                    <li>Fallback to firebase/socket.io/websockets/etc.</li>
+                    <li>Fallback to socket.io/websockets/etc.</li>
                     <li>Users' presence detection using `onleave`</li>
                     <li>Latency detection</li>
                     <li>Multi-longest strings/files concurrent transmission</li>
@@ -278,7 +304,7 @@
                 <h2 class="header">Use your own socket.io for signaling</h2>
             <pre>
 &lt;script&gt;
-    // by default <a href="http://firebase.com" target="_blank" rel="nofollow">Firebase</a> is used for signaling; you can override it
+    // by default socket.io is used for signaling; you can override it
     channel.<strong>openSignalingChannel</strong> = function(config) {
         var socket = io.connect('http://your-site:8888');
         socket.channel = config.channel || this.channel || 'default-channel';

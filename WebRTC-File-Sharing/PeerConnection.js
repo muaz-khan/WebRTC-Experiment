@@ -168,7 +168,7 @@
             // if offerer asked to create data channel
             if (message.isCreateDataChannel && message.to == root.userid) {
                 peer = root.peers[message.userid];
-                if (peer && isFirefox) peer.createDataChannel();
+                if (peer) peer.createDataChannel();
             }
 
             // if someone sent participation request
@@ -216,38 +216,73 @@
         socket.onmessage = onmessage;
     }
 
-    var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-    var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-    var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+    // IceServersHandler.js
 
-    window.URL = window.webkitURL || window.URL;
+    var IceServersHandler = (function() {
+        function getIceServers(connection) {
+            var iceServers = [];
 
-    var isFirefox = !!navigator.mozGetUserMedia;
-    var isChrome = !!navigator.webkitGetUserMedia;
+            iceServers.push(getSTUNObj('stun:stun.l.google.com:19302'));
 
-    var iceServers = [];
+            iceServers.push(getTURNObj('stun:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
 
-        if (isChrome && parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]) >= 28) {
-            iceServers.push({
-                url: 'turn:turn.bistri.com:80',
-                credential: 'homeo',
-                username: 'homeo'
-            });
-            
-            iceServers.push({
-                url: 'turn:turn.anyfirewall.com:443?transport=tcp',
-                credential: 'webrtc',
-                username: 'webrtc'
-            });
+            iceServers.push(getTURNObj('turns:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turns:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:3344', 'muazkh', 'muazkh')); // resiprocate
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:4433', 'muazkh', 'muazkh')); // resiprocate
+
+            // check if restund is still active: http://webrtcweb.com:4050/
+            iceServers.push(getTURNObj('stun:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:5544?transport=tcp', 'muazkh', 'muazkh')); // restund
+
+            return iceServers;
         }
 
-        iceServers.push({ url: 'stun:stun.l.google.com:19302' }, { url: 'stun:stun.sipgate.net' }, { url: 'stun:217.10.68.152' }, { url: 'stun:stun.sipgate.net:10000' }, { url: 'stun:217.10.68.152:10000' });
-        iceServers.push({ url: 'stun:23.21.150.121:3478' }, { url: 'stun:216.93.246.18:3478' }, { url: 'stun:66.228.45.110:3478' }, { url: 'stun:173.194.78.127:19302' });
-        iceServers.push({ url: 'stun:74.125.142.127:19302' }, { url: 'stun:provserver.televolution.net' }, { url: 'stun:sip1.lakedestiny.cordiaip.com' }, { url: 'stun:stun1.voiceeclipse.net' }, { url: 'stun:stun01.sipphone.com' }, { url: 'stun:stun.callwithus.com' }, { url: 'stun:stun.counterpath.net' }, { url: 'stun:stun.endigovoip.com' });
+        function getSTUNObj(stunStr) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
+            }
 
-        iceServers = {
-            iceServers: iceServers
+            var obj = {};
+            obj[urlsParam] = stunStr;
+            return obj;
+        }
+
+        function getTURNObj(turnStr, username, credential) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
+            }
+
+            var obj = {
+                username: username,
+                credential: credential
+            };
+            obj[urlsParam] = turnStr;
+            return obj;
+        }
+
+        return {
+            getIceServers: getIceServers
         };
+    })();
+
+    // reusable stuff
+    var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+    var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+    var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
+
+    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    window.URL = window.URL || window.webkitURL;
+
+    var iceServers = {
+        iceServers: IceServersHandler.getIceServers()
+    };
 
     var optionalArgument = {
         optional: [{
@@ -258,8 +293,8 @@
     var offerAnswerConstraints = {
         optional: [],
         mandatory: {
-            OfferToReceiveAudio: !!isFirefox,
-            OfferToReceiveVideo: !!isFirefox
+            OfferToReceiveAudio: false,
+            OfferToReceiveVideo: false
         }
     };
 
@@ -311,16 +346,10 @@
                 config.onsdp(peer.localDescription);
             }
 
-            if (isFirefox) {
-                peer.ondatachannel = function (event) {
-                    offererDataChannel = event.channel;
-                    setChannelEvents(offererDataChannel, config);
-                };
-
-                peer.onconnection = function () {
-                    config.askToCreateDataChannel();
-                };
-            }
+            peer.ondatachannel = function (event) {
+                offererDataChannel = event.channel;
+                setChannelEvents(offererDataChannel, config);
+            };
 
             peer.onicecandidate = function (event) {
                 if (!event.candidate) returnSDP();
@@ -340,24 +369,17 @@
                 }));
             };
 
-            if (isFirefox) {
-                navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function (stream) {
-                    peer.addStream(stream);
-                    createOffer();
-                }, useless);
-            } else createOffer();
+            createOffer();
 
             function createOffer() {
                 self.createDataChannel(peer);
 
                 window.peer = peer;
                 peer.createOffer(function (sdp) {
-                    if (isFirefox) config.onsdp(sdp);
                     peer.setLocalDescription(sdp);
-                }, onSdpError, isFirefox ? offerAnswerConstraints : null);
+
+                    config.onsdp(sdp);
+                }, onSdpError, offerAnswerConstraints);
 
                 self.peer = peer;
             }
@@ -411,22 +433,15 @@
                 }));
             };
 
-            if (isFirefox) {
-                navigator.mozGetUserMedia({
-                    audio: true,
-                    fake: true
-                }, function (stream) {
-                    peer.addStream(stream);
-                    createAnswer();
-                }, useless);
-            } else createAnswer();
+            createAnswer();
 
             function createAnswer() {
                 peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
                 peer.createAnswer(function (sdp) {
-                    config.onsdp(sdp);
                     peer.setLocalDescription(sdp);
-                }, onSdpError, isFirefox ? offerAnswerConstraints : null);
+
+                    config.onsdp(sdp);
+                }, onSdpError, offerAnswerConstraints);
 
                 self.peer = peer;
             }

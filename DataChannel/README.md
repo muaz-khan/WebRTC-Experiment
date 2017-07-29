@@ -1,4 +1,4 @@
-# [DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) : A JavaScript wrapper library for RTCDataChannel APIs / [Demos](https://www.webrtc-experiment.com/#DataChannel)
+# [DataChannel.js](https://github.com/muaz-khan/DataChannel) : A JavaScript wrapper library for RTCDataChannel APIs / [Demos](https://www.webrtc-experiment.com/#DataChannel)
 
 [![npm](https://img.shields.io/npm/v/datachannel.svg)](https://npmjs.org/package/datachannel) [![downloads](https://img.shields.io/npm/dm/datachannel.svg)](https://npmjs.org/package/datachannel) [![Build Status: Linux](https://travis-ci.org/muaz-khan/DataChannel.png?branch=master)](https://travis-ci.org/muaz-khan/DataChannel)
 
@@ -23,7 +23,7 @@ If you want all DataChannel.js functionalities along with media streaming and ru
 4. File size is limitless!
 5. Text message length is limitless!
 6. Size of data is also limitless!
-7. Fallback to firebase/socket.io/websockets/etc.
+7. Fallback to socket.io/websockets/etc.
 8. Users' presence detection using `onleave`
 9. Latency detection
 10. Multi-longest strings/files concurrent 
@@ -345,33 +345,6 @@ A demo & tutorial available here: http://pusher.com/tutorials/webrtc_chat
 
 Another link: http://www.rtcmulticonnection.org/docs/openSignalingChannel/#pusher-signaling
 
-## Use [firebase for signaling](http://www.rtcmulticonnection.org/docs/openSignalingChannel/#firebase-signaling)
-
-```javascript
-// firebase stores data on their servers
-// that's why transmitting room once
-// unlike other signalling gateways; that
-// doesn't stores data on servers.
-channel.transmitRoomOnce = true;
-
-channel.openSignalingChannel = function (config) {
-    channel = config.channel || this.channel || 'default-channel';
-    var socket = new window.Firebase('https://chat.firebaseIO.com/' + channel);
-    socket.channel = channel;
-    socket.on('child_added', function (data) {
-        var value = data.val();
-        if (value == 'joking') config.onopen && config.onopen();
-        else config.onmessage(value);
-    });
-    socket.send = function (data) {
-        this.push(data);
-    };
-    socket.push('joking');
-    this.socket = socket;
-    return socket;
-};
-```
-
 ## Other Signaling resources
 
 * [DataChanel.js and Reliable Signaling](https://github.com/muaz-khan/Reliable-Signaler/tree/master/datachannel-client)
@@ -393,7 +366,7 @@ channel.transmitRoomOnce = true;
 
 ## Browser Support
 
-[DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) works fine on following browsers:
+[DataChannel.js](https://github.com/muaz-khan/DataChannel) works fine on following browsers:
 
 | Browser        | Support           |
 | ------------- |:-------------|
@@ -403,4 +376,4 @@ channel.transmitRoomOnce = true;
 
 ## License
 
-[DataChannel.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](https://plus.google.com/+MuazKhan).
+[DataChannel.js](https://github.com/muaz-khan/DataChannel) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com).

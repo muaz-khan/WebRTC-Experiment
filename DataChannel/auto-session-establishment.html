@@ -2,7 +2,7 @@
 <html lang="en">
 
     <head>
-        <title>Auto Session Establishment using DataChannel.js ® Muaz Khan</title>
+        <title>Auto Session Establishment using DataChannel.js</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -41,23 +41,13 @@
         </script>
 
         <script src="https://cdn.webrtc-experiment.com/DataChannel.js"> </script>
-        <script src="https://cdn.webrtc-experiment.com/firebase.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
     </head>
 
     <body>
         <article>
-            <a href="https://www.webrtc-experiment.com/"
-               style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑
-                WEBRTC EXPERIMENTS</a>
-
-
-            <h1>Auto Session Establishment using <a href="https://github.com/muaz-khan/DataChannel"
-                                                    target="_blank">DataChannel.js</a>
-            
-            </h1>
-            
-            <div class="github-stargazers"></div>
-
+            <header style="text-align: center;">
+                <h1>Auto Session Establishment using <a href="https://github.com/muaz-khan/DataChannel" target="_blank">DataChannel.js</a></h1>
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
                     <span> &copy; </span>
@@ -75,6 +65,14 @@
                     .
                     <a href="https://github.com/muaz-khan/DataChannel/commits/master" target="_blank">What's New?</a>
                 </p>
+            </header>
+            
+            <div class="github-stargazers"></div>
+
+            <blockquote style="background: #f3b7b7;border: 5px solid black;border-radius: 5px;">
+                This demo does NOT works anymore. Please check this one instead: <br>
+                <a href="https://www.webrtc-experiment.com/DataChannel/">https://www.webrtc-experiment.com/DataChannel/</a>
+            </blockquote>
             
             <table style="border-left: 1px solid black; width: 100%;">
                 <tr>
@@ -96,10 +94,37 @@
                     </td>
                 </tr>
             </table>
+
             <script>
-                var channel = new DataChannel(location.hash.substr(1) || 'auto-session-establishment', {
-                    firebase: 'webrtc-experiment'
-                });
+                var channel = new DataChannel(location.hash.substr(1) || 'auto-session-establishment');
+
+                // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
+                var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+                channel.openSignalingChannel = function(config) {
+                   var channel = config.channel || this.channel || 'default-namespace';
+                   var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+                   
+                   io.connect(SIGNALING_SERVER).emit('new-channel', {
+                      channel: channel,
+                      sender : sender
+                   });
+                   
+                   var socket = io.connect(SIGNALING_SERVER + channel);
+                   socket.channel = channel;
+                   
+                   socket.on('connect', function () {
+                      if (config.callback) config.callback(socket);
+                   });
+                   
+                   socket.send = function (message) {
+                        socket.emit('message', {
+                            sender: sender,
+                            data  : message
+                        });
+                    };
+                   
+                   socket.on('message', config.onmessage);
+                };
 
                 channel.onmessage = function(data, userid, latency) {
                     console.debug(userid, 'posted', data);
@@ -304,7 +329,7 @@ channel.leave();        // close your own entire data session
             <h2>Use your own socket.io for signaling</h2>
             <pre>
 &lt;script&gt;
-    // by default <a href="http://firebase.com" target="_blank" rel="nofollow">Firebase</a> is used for signaling; you can override it
+    // by default socket.io is used for signaling; you can override it
     var channel = new <strong>DataChannel</strong>('default-channel', {
         openSignalingChannel: function(config) {
             var socket = io.connect('http://your-site:8888');

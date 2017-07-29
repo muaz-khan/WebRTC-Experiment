@@ -1,4 +1,4 @@
-// Last time updated at July 22, 2014, 08:32:23
+// Last time updated at July 29, 2017, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/meeting.js
 
@@ -388,6 +388,62 @@
         }
     }
 
+    // IceServersHandler.js
+
+    var IceServersHandler = (function() {
+        function getIceServers(connection) {
+            var iceServers = [];
+
+            iceServers.push(getSTUNObj('stun:stun.l.google.com:19302'));
+
+            iceServers.push(getTURNObj('stun:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+            iceServers.push(getTURNObj('turns:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turns:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:3344', 'muazkh', 'muazkh')); // resiprocate
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:4433', 'muazkh', 'muazkh')); // resiprocate
+
+            // check if restund is still active: http://webrtcweb.com:4050/
+            iceServers.push(getTURNObj('stun:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:5544?transport=tcp', 'muazkh', 'muazkh')); // restund
+
+            return iceServers;
+        }
+
+        function getSTUNObj(stunStr) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
+            }
+
+            var obj = {};
+            obj[urlsParam] = stunStr;
+            return obj;
+        }
+
+        function getTURNObj(turnStr, username, credential) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
+            }
+
+            var obj = {
+                username: username,
+                credential: credential
+            };
+            obj[urlsParam] = turnStr;
+            return obj;
+        }
+
+        return {
+            getIceServers: getIceServers
+        };
+    })();
+
     // reusable stuff
     var RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
     var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
@@ -399,58 +455,8 @@
     var isFirefox = !!navigator.mozGetUserMedia;
     var isChrome = !!navigator.webkitGetUserMedia;
 
-    var iceServers = [];
-
-    iceServers.push({
-        url: 'stun:stun.l.google.com:19302'
-    });
-
-    iceServers.push({
-        url: 'stun:stun.anyfirewall.com:3478'
-    });
-
-    iceServers.push({
-        url: 'turn:turn.bistri.com:80',
-        credential: 'homeo',
-        username: 'homeo'
-    });
-
-    iceServers.push({
-        url: 'turn:turn.anyfirewall.com:443?transport=tcp',
-        credential: 'webrtc',
-        username: 'webrtc'
-    });
-
     var iceServersObject = {
-        iceServers: iceServers
-    };
-
-    loadIceFrame(function (iceServers) {
-        iceServersObject.iceServers = iceServersObject.iceServers.concat(iceServers);
-    });
-
-    var iceFrame, loadedIceFrame;
-
-    function loadIceFrame(callback, skip) {
-        if (loadedIceFrame) return;
-        if (!skip) return loadIceFrame(callback, true);
-
-        loadedIceFrame = true;
-
-        var iframe = document.createElement('iframe');
-        iframe.onload = function () {
-            iframe.isLoaded = true;
-
-            window.addEventListener('message', function (event) {
-                if (!event.data || !event.data.iceServers) return;
-                callback(event.data.iceServers);
-            });
-
-            iframe.contentWindow.postMessage('get-ice-servers', '*');
-        };
-        iframe.src = 'https://cdn.webrtc-experiment.com/getIceServers/';
-        iframe.style.display = 'none';
-        (document.body || document.documentElement).appendChild(iframe);
+        iceServers: IceServersHandler.getIceServers()
     };
 
     var optionalArgument = {
