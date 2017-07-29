@@ -147,13 +147,13 @@
 
                         try {
                             if('captureStream' in video) {
-                                connection.preRecorededStream = video.captureStream(15);
+                                connection.preRecorededStream = video.captureStream();
                             }
                             else if('mozCaptureStream' in video) {
-                                connection.preRecorededStream = video.mozCaptureStream(15);
+                                connection.preRecorededStream = video.mozCaptureStream();
                             }
                             else if('webkitCaptureStream' in video) {
-                                connection.preRecorededStream = video.webkitCaptureStream(15);
+                                connection.preRecorededStream = video.webkitCaptureStream();
                             }
                         }
                         catch(e) {
@@ -165,13 +165,18 @@
                             return;
                         }
 
+                        var stream = new MediaStream();
+                        connection.preRecorededStream.getTracks().forEach(function(track) {
+                            stream.addTrack(track);
+                        });
+
                         // attach pre-recorded steam
-                        connection.attachStreams.push(connection.preRecorededStream);
+                        connection.attachStreams.push(stream);
                         connection.onstream({
                             userid: connection.userid,
                             extra: connection.extra,
                             type: 'local',
-                            stream: connection.preRecorededStream,
+                            stream: stream,
                             mediaElement: video
                         });
 

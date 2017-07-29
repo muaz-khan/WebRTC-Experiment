@@ -70,6 +70,7 @@ function MediaStreamRecorder(mediaStream) {
     };
 
     this.ondataavailable = function(blob) {
+        if (this.disableLogs) return;
         console.log('ondataavailable..', blob);
     };
 
@@ -96,6 +97,8 @@ function MediaStreamRecorder(mediaStream) {
             return;
         }
         mediaRecorder.pause();
+
+        if (this.disableLogs) return;
         console.log('Paused recording.', this.mimeType || mediaRecorder.mimeType);
     };
 
@@ -104,6 +107,8 @@ function MediaStreamRecorder(mediaStream) {
             return;
         }
         mediaRecorder.resume();
+
+        if (this.disableLogs) return;
         console.log('Resumed recording.', this.mimeType || mediaRecorder.mimeType);
     };
 

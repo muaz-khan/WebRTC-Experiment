@@ -17,7 +17,7 @@
     "start": "node server.js"
   },
   "engines": {
-    "node": "7.0.0"
+    "node": "latest"
   },
   "main": "RTCMultiConnection.js",
   "keywords": [

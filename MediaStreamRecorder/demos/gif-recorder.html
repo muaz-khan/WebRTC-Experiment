@@ -13,9 +13,7 @@
 
     <script src="https://cdn.WebRTC-Experiment.com/MediaStreamRecorder.js"></script>
     <script src="https://cdn.webrtc-experiment.com/gif-recorder.js"></script>
-    
-    <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
-    <script src="https://cdn.WebRTC-Experiment.com/gumadapter.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
@@ -185,6 +183,8 @@
             };
         </script>
 
+        <section class="experiment">
+            <h2 id="how-to-use">How to use?</h2>
         <pre style="border-left: 2px solid red; margin-left:2em; padding-left: 1em;">
 // cdn.webrtc-experiment.com/MediaStreamRecorder.js
 // cdn.webrtc-experiment.com/gif-recorder.js
@@ -201,7 +201,7 @@ function onMediaSuccess(stream) {
     mediaRecorder.ondataavailable = function (blob) {
         // POST/PUT "Blob" using FormData/XHR2
         var blobURL = URL.createObjectURL(blob);
-        document.write('<a href="' + blobURL + '">' + blobURL + '</a>');
+        document.write('&lt;a href="' + blobURL + '"&gt;' + blobURL + '&lt;/a&gt;');
     };
     mediaRecorder.start(3000);
 }
@@ -210,6 +210,7 @@ function onMediaError(e) {
     console.error('media error', e);
 }
 </pre>
+        </section>
 
         <a href="https://www.webrtc-experiment.com/msr/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">MediaStreamRecorder Demos</a>
 

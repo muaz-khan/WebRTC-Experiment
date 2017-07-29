@@ -1,4 +1,4 @@
-// Last time updated: 2017-04-29 1:56:26 PM UTC
+// Last time updated: 2017-07-03 1:56:26 PM UTC
 
 // _______________
 // Canvas-Designer
@@ -60,7 +60,7 @@
         textarea = find('code-text'),
         lineWidth = 2,
         strokeStyle = '#6c96c8',
-        fillStyle = 'transparent',
+        fillStyle = 'white',
         globalAlpha = 1,
         globalCompositeOperation = 'source-over',
         lineCap = 'round',
@@ -86,6 +86,13 @@
         tempContext = getContext('temp-canvas');
 
     window.canvasElementToBeRecorded = context.canvas; // either use "tempContext.canvas" or "context.canvas"
+    
+    context._clearRect = context.clearRect;
+    context.clearRect = function(x, y, width, height) {
+        context._clearRect(0, 0, context.canvas.width, context.canvas.height);
+        fillStyle = 'white';
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height); // fill white background
+    };
 
     var common = {
         updateTextArea: function() {

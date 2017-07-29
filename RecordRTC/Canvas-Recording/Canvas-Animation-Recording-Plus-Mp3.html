@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0, user-scalable=no">
+
+    <title>Canvas2D + Mp3 Recording using RecordRTC</title>    
+    <meta name="description" content="Record canvas animation using RecordRTC.">
+    <meta name="author" content="Muaz Khan"><link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+    <style>
+        /* Muaz Khan (@muazkh) */
+
+        ::-webkit-scrollbar {
+          height: 0;
+          overflow: visible;
+          width: 10px;
+          border-left:1px solid rgb(229, 229, 229);
+        }
+        ::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, .2);
+          background-clip: padding-box;
+          min-height: 28px;
+          padding: 100px 0 0;
+          box-shadow: inset 1px 1px 0 rgba(0,0,0,.1),inset 0 -1px 0 rgba(0,0,0,.07);
+          border-width: 1px 1px 1px 6px;
+        }
+        ::-webkit-scrollbar-button {
+          height: 0;
+          width: 0;
+        }
+        ::-webkit-scrollbar-track {
+          background-clip: padding-box;
+          border: solid transparent;
+          border-width: 0 0 0 4px;
+        }
+        ::-webkit-scrollbar-corner {
+          background: transparent;
+        }
+
+        ::selection, ::-moz-selection {
+            background: #00A2E8;
+            color: #fff;
+            text-shadow: none;
+        }
+
+        html, body, .footer, input, textarea, h1, h2 {
+            margin: 0;
+            padding: 0;
+
+            word-wrap: break-word;
+
+            -o-text-overflow: ellipsis;
+            -ms-text-overflow: ellipsis;
+            text-overflow: ellipsis;
+
+            font-family: Verdana, arial, helvetica, sans-serif
+        }
+        html {
+            background-color: #FBFBFB;
+            font-size: 13px;
+            height:100%;
+            cursor: default;
+            overflow-x: hidden;
+        }
+
+        .footer
+        {
+            border-top: 1px solid #E5E5E5;
+            text-align: center;
+        }
+
+        h1, h2
+        {
+            border-bottom: 1px solid #E5E5E5;
+            text-align: center;
+            text-shadow: 1px 1px #E5E5E5, 2px 2px white, 3px 3px #E5E5E5;
+            color: #6c96c8;
+            font-size: 350%;
+            font-weight: normal;
+            padding-bottom: 10px;
+
+            overflow:hidden;
+            height: 55px;
+        }
+
+        h1, .footer, .no-user-select, .view-buttons a
+        {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        h1
+        {
+            background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(243,243,243,1) 97%, rgba(237,237,237,1) 97%, rgba(255,255,255,1) 100%); /* FF3.6+ */
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(97%,rgba(243,243,243,1)), color-stop(97%,rgba(237,237,237,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
+            background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
+            background: -o-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* Opera 11.10+ */
+            background: -ms-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* IE10+ */
+            background: linear-gradient(top, rgba(255,255,255,1) 0%,rgba(243,243,243,1) 97%,rgba(237,237,237,1) 97%,rgba(255,255,255,1) 100%); /* W3C */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+        }
+
+        h2 {
+            font-size: 30px;
+            font-weight: normal;
+            text-align: left;
+            height: auto;
+        }
+
+        a {
+            color: #0b7aff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #043877;
+        }
+
+        section h2, section p, section pre, div h2, div p, div pre
+        {
+          padding: 1% 2%;
+        }
+
+        pre, code {
+            font-family: Consolas, "Andale Mono", "Lucida Console", "Courier New", monospace;
+            color: #666
+        }
+
+        img {
+            width: 100%;
+            -webkit-user-drag: none;
+        }
+
+        img:hover {
+            box-shadow: 0 0 3px rgb(0, 162, 232);
+        }
+
+        img, .view-buttons a
+        {
+            border: 1px solid rgb(0, 162, 232);
+            border-radius: 3px;
+            box-shadow: 0 0 5px rgb(0, 162, 232);
+        }
+
+        .view-buttons a {
+            padding: 5px 10px;
+            background-color: #FBFBFB;
+        }
+
+        .view-buttons {
+            padding: 20px;
+            text-align: center;
+        }
+
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+    </style>
+</head>
+    <body>
+        <h1>
+            Canvas2D+Mp3: click to <button id="btn-record-webm" style="font-size:inherit;">Record as WebM</button>
+        </h1>
+        <section>
+            <canvas id="canvas"></canvas>
+        </section>
+        <script>
+            if(!innerWidth) var innerWidth = document.body.clientWidth;
+          if(!innerHeight) var innerHeight = document.body.clientHeight;
+          innerHeight = innerHeight - (innerHeight / 3);
+
+            document.createElement("canvas").getContext?(function(){function a(){s.closePath(),s.fillStyle="rgba("+parseInt(Math.random()*255)+", "+parseInt(Math.random()*255)+", "+parseInt(Math.random()*255)+", .9)",s.fill(),s.beginPath()}function l(){var v;c+=5,h===1&&(t+=5,o+=5,n+=5,u+=5,c>20&&(h=2)),h===2&&(t-=5,o-=5,n-=5,u-=5,c>40&&(h=3)),h===3&&(f+=5,r+=5,i+=5,e+=5,c>60&&(h=4)),h===4&&(f-=5,r-=5,i-=5,e-=5,c>80&&(c=0,h=1)),s.clearRect(0,0,5e4,5e4);var y=[[t,n],[t,n],[t+269,n+69],[t+269,n+69],[t+211,n-162],[t+211,n-162],[t+23,n-213],[t+23,n-213],[t-165,n-60],[t-165,n-60],[t-72,n+116],[t-72,n+116],[t+74,n+117],[t+74,n+117],[t+128,n+128],[t+128,n+128],[t+274,n+15],[t+274,n+15],[t+137,n-158],[t+137,n-158],[t-80,n-97],[t-80,n-97],[t-114,n-10],[t-114,n-10],[t-165,n-57],[t-165,n-57],[t-72,n+118],[t-72,n+118],[t+72,n+117],[t+72,n+117],[t+268,n+67],[t+268,n+67],[t+211,n-162],[t+211,n-162],[t+24,n-211],[t+24,n-211]],p=[[f,i,r,e,o,u],[f+95,i+139,r-46,e+104,o,u],[f+186,i+153,r-44,e+97,o+29,u+3],[f+326,i+112,r+24,e+55,o+29,u+3],[f+317,i+12,r-7,e+77,o+5,u-65],[f+262,i-64,r-58,e-55,o+5,u-65],[f+154,i-43,r-116,e+6,o-88,u-76],[f+72,i-84,r-187,e-35,o-88,u-76],[f-81,i+111,r-162,e+70,o-142,u-39],[f-51,i+31,r-195,e-15,o-142,u-39],[f+78,i+239,r-123,e+142,o-124,u+47],[f-9,i+207,r-250,e+109,o-124,u+47],[f+107,i+229,r-162,e+130,o-55,u+61],[f+206,i+213,r-81,e+127,o-55,u+61],[f+196,i+191,r+67,e+166,o+151,u+108],[f+250,i+283,r+110,e+204,o+151,u+108],[f+283,i+100,r+87,e+12,o+136,u-78],[f+409,i+38,r+137,e-10,o+136,u-78],[f+164,i-44,r-76,e-50,o-36,u-163],[f+204,i-101,r-53,e-107,o-36,u-163],[f+23,i-2,r-156,e-53,o-118,u-132],[f-43,i-51,r-162,e-77,o-118,u-132],[f-26,i+101,r-190,e+86,o-189,u+73],[f-65,i+121,r-264,e+117,o-189,u+73],[f-65,i+121,r-264,e+117,o-363,u-30],[f-55,i+5,r-326,e-61,o-363,u-30],[f-61,i+140,r-261,e+205,o-239,u+204],[f+101,i+266,r-208,e+249,o-239,u+204],[f+110,i+237,r-161,e+190,o-22,u+238],[f+110,i+237,r+47,e+161,o-22,u+238],[f+309,i+214,r+121,e+202,o+254,u+160],[f+309,i+214,r+192,e+61,o+254,u+160],[f+325,i+14,r+161,e-98,o+178,u-203],[f+239,i-124,r+116,e-130,o+178,u-203],[f+179,i-105,r-74,e-175,o-104,u-255],[f+13,i-51,r-152,e-169,o-104,u-255]],w=36;for(v=0;v<w;v++)s.moveTo(y[v][0],y[v][1]),s.bezierCurveTo(p[v][0],p[v][1],p[v][2],p[v][3],p[v][4],p[v][5]),s.translate(y[v][0],y[v][1]),s.rotate(.001),s.translate(-y[v][0],-y[v][1]),a();oninterval(l)}var s;window.oninterval=function(){return window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame||function(n){window.setTimeout(n,1e3/60)}}(),s=document.getElementById("canvas").getContext("2d"),s.canvas.width=innerWidth,s.canvas.height=innerHeight,s.lineWidth=2;var c=0,h=1,t=396,n=342,f=339,i=232,r=529,e=255,o=498,u=322;l()})():(alert("Your browser is not supporting HTML5 Canvas APIs!"))
+        </script>
+
+    <script>
+        (function () {
+            if (!document.createElement('canvas').getContext) {
+                document.body.innerHTML = '<h1 style="height:auto;color:red;font-size:30px;">Excuse me Sir,<br /><br />You are using very old web-browser!<br /><br />Please upgrade it.</h1>';
+            }
+            var prepend = function (parent, elementToPrepend)
+            {
+                return parent.insertBefore(elementToPrepend, parent.firstChild);
+            };
+
+            var div = document.createElement('div');
+
+            div.innerHTML = '<g:plusone size="tall"></g:plusone>';
+            div.className = 'gplus-button';
+            div.style.position = 'absolute';
+            div.style.top = 0;
+            div.style.padding = '3px 0';
+            div.style.right = '30px';
+
+            var body = document.body;
+
+            if(body.insertBefore) prepend(body, div);
+            else document.body.appendChild(div);
+        })();
+
+
+        (function () {
+            var lastTime = 0, vendors = ['ms', 'moz', 'webkit', 'o'];
+            for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+                window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+                window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'RequestCancelAnimationFrame'];
+            }
+            if (!window.requestAnimationFrame)
+                window.requestAnimationFrame = function (callback, element) {
+                    var currTime = new Date().getTime();
+                    var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+                    var id = window.setTimeout(function () {
+                        callback(currTime + timeToCall);
+                    }, timeToCall);
+                    lastTime = currTime + timeToCall;
+                    return id;
+                };
+            if (!window.cancelAnimationFrame)
+                window.cancelAnimationFrame = function (id) {
+                    clearTimeout(id);
+                };
+        }());
+    </script>
+
+    <!-- below section handles RecordRTC and WhammyRecorder -->
+
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/FileSelector.js"></script>
+
+    <script>
+        document.getElementById('btn-record-webm').onclick = function() {
+            this.disabled = true;
+
+            getMp3Stream(function(audioStream) {
+                var canvas = document.getElementById('canvas');
+                var canvasStream = canvas.captureStream();
+
+                var finalStream = new MediaStream();
+                audioStream.getAudioTracks().forEach(function(track) {
+                    finalStream.addTrack(track);
+                });
+                canvasStream.getVideoTracks().forEach(function(track) {
+                    finalStream.addTrack(track);
+                });
+
+                var recorder = RecordRTC(finalStream, {
+                    type: 'video'
+                });
+
+                recorder.startRecording();
+
+                var stop = false;
+
+                (function looper() {
+                    if(stop) {
+                        recorder.stopRecording(function() {
+                            var blob = recorder.getBlob();
+                            document.body.innerHTML = '<video controls src="' + URL.createObjectURL(blob) + '" autoplay loop></video>';
+
+                            audioStream.stop();
+                            canvasStream.stop();
+                        });
+                        return;
+                    }
+                    setTimeout(looper, 100);
+                })();
+
+                var seconds = 15;
+                var interval = setInterval(function() {
+                    seconds--;
+                    if(document.querySelector('h1')) {
+                        document.querySelector('h1').innerHTML = seconds + ' seconds remaining.';
+                    }
+                }, 1000);
+
+                setTimeout(function() {
+                    clearTimeout(interval);
+                    stop = true;
+                }, seconds * 1000);
+            });
+        };
+
+        function getMp3Stream(callback) {
+            var selector = new FileSelector();
+            selector.accept = '*.mp3';
+            selector.selectSingleFile(function(file) {
+                if(!file || !file.size) {
+                    alert('Please try again by selecting a valid mp3 file.');
+                    return;
+                }
+
+                 var reader = new FileReader();
+                reader.file = file;
+                reader.onload = (function(e) {
+                    // Import callback function
+                    // provides PCM audio data decoded as an audio buffer
+                    context.decodeAudioData(e.target.result, function(buffer) {
+                        createSoundSource(buffer, callback);
+                    });
+                });
+                reader.readAsArrayBuffer(reader.file);
+            });
+        }
+
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        var context = new AudioContext();
+        var gainNode = context.createGain();
+        gainNode.connect(context.destination);
+        gainNode.gain.value = 0; // don't play for self
+
+        function createSoundSource(buffer, callback) {
+            var soundSource = context.createBufferSource();
+            soundSource.loop = true;
+            soundSource.buffer = buffer;
+            soundSource.start(0, 0 / 1000);
+            soundSource.connect(gainNode);
+            var destination = context.createMediaStreamDestination();
+            soundSource.connect(destination);
+
+            // durtion=second*1000 (milliseconds)
+            callback(destination.stream);
+        }
+    </script>
+</body>
+</html>

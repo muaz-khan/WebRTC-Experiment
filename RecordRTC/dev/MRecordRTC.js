@@ -26,6 +26,7 @@
  * @see For further information:
  * @see {@link https://github.com/muaz-khan/RecordRTC/tree/master/MRecordRTC|MRecordRTC Source Code}
  * @param {MediaStream} mediaStream - MediaStream object fetched using getUserMedia API or generated using captureStreamUntilEnded or WebAudio API.
+ * @requires {@link RecordRTC}
  */
 
 function MRecordRTC(mediaStream) {
@@ -106,7 +107,9 @@ function MRecordRTC(mediaStream) {
                 numberOfAudioChannels: this.numberOfAudioChannels || 2,
                 disableLogs: this.disableLogs,
                 recorderType: recorderType,
-                mimeType: mimeType.audio
+                mimeType: mimeType.audio,
+                timeSlice: this.timeSlice,
+                onTimeStamp: this.onTimeStamp
             });
 
             if (!mediaType.video) {
@@ -145,7 +148,9 @@ function MRecordRTC(mediaStream) {
                 frameInterval: this.frameInterval || 10,
                 disableLogs: this.disableLogs,
                 recorderType: recorderType,
-                mimeType: mimeType.video
+                mimeType: mimeType.video,
+                timeSlice: this.timeSlice,
+                onTimeStamp: this.onTimeStamp
             });
 
             if (!mediaType.audio) {

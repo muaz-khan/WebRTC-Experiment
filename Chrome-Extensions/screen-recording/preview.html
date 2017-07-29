@@ -1,0 +1,119 @@
+﻿<style>
+* {
+  -webkit-user-select: none;
+  -user-select: none;
+  -webkit-user-drag: none;
+  -user-drag: none;
+}
+
+@font-face {
+  font-family: 'Custom_Font';
+  src: local('.SFNSText-Light'), 
+       local('.HelveticaNeueDeskInterface-Light'), 
+       local('.LucidaGrandeUI'), 
+       local('Ubuntu Light'), 
+       local('Segoe UI Light'),
+       local('Roboto-Light'), 
+       local('DroidSans'), 
+       local('Tahoma');
+}
+
+input {
+    -webkit-user-select:initial;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: #F3F3F3;
+  font-family: Custom_Font!important;
+  font-size: 1em;
+  overflow: hidden;
+  overflow-x: hidden;
+}
+video {
+    border-left: 1px dotted red;
+    border-right: 1px dotted red;
+}
+header {
+    position: absolute;
+    background: white;
+    height: 60px;
+    font-size: 30px;
+    text-align: center;
+    padding: 10px 20px;
+    z-index: 99;
+    left: 0;
+    right: 0;
+    top: 0;
+    border-bottom: 1px dotted red;
+    overflow: hidden;
+}
+
+#btn-upload {
+    float: right;
+    height: 72px;
+    margin-top: -3px;
+    cursor: pointer;
+}
+
+#btn-upload-dropdown {
+    display: none;
+    position: absolute;
+    top: 80px;
+    cursor: pointer;
+    right: 27px;
+    background: white;
+    border-left: 1px dotted red;
+    border-right: 1px dotted red;
+    text-align: left;
+    font-size: 18px;
+}
+
+.visible {
+  display: block!important;
+}
+
+#btn-upload-dropdown div {
+  padding: 5px 10px;
+  border-bottom: 1px dotted red;
+}
+
+#btn-upload-dropdown div:hover {
+  background: #F3F3F3;
+}
+</style>
+
+<title></title>
+<link rel="manifest" href="manifest.json">
+<header>
+    <img id="btn-upload" src="images/upload-icon.png" title="Upload">
+    <p>
+        <a id="file-name" title="Download on your Disk!"></a>
+        (Size: <span id="file-size"></span>)
+        <!--
+        Duration: <span id="file-duration">00:00</span>
+        -->
+    </p>
+    <span style="font-size: 17px">This file is in your <b>browser cache</b>. Click above link to <b>download</b>.</span>
+</header>
+
+<div id="btn-upload-dropdown">
+  <div id="btn-youtube-upload">Upload to YouTube</div>
+  <div id="btn-php-upload">Upload to PHP</div>
+</div>
+
+<section style="text-align: center;">
+  <video controls disable-contextmenu cf-video-load="file"></video>
+</section>
+
+<script src="RecordRTC/DiskStorage.js"></script>
+<script src="background/background.common.js"></script>
+<script src="preview/preview.js"></script>
+<script src="preview/preview.php.upload.js"></script>
+<script src="preview/preview.youtube.upload.js"></script>
+
+<script src="https://apis.google.com/js/client:plusone.js"></script>

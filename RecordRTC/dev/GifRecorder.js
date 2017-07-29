@@ -213,6 +213,12 @@ function GifRecorder(mediaStream, config) {
         gifEncoder.stream().bin = [];
     };
 
+    // for debugging
+    this.name = 'GifRecorder';
+    this.toString = function() {
+        return this.name;
+    };
+
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
 

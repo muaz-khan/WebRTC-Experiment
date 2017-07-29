@@ -536,6 +536,12 @@ function StereoAudioRecorder(mediaStream, config) {
         recordingLength = 0;
     };
 
+    // for debugging
+    this.name = 'StereoAudioRecorder';
+    this.toString = function() {
+        return this.name;
+    };
+
     var isAudioProcessStarted = false;
 
     function onAudioProcessDataAvailable(e) {

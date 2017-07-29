@@ -2,31 +2,31 @@
    "name":"RecordRTC",
    "short_name":"RecordRTC",
    "author":"Muaz Khan",
-   "version":"4.0",
+   "version":"5.8",
    "manifest_version":2,
    "minimum_chrome_version":"49",
-   "description":"Record screen, audio+screen, all-audios+tab, entire conference, and more!",
+   "description":"Record screen activity, camera, tab, speakers in 4K HD video format",
    "homepage_url":"https://www.WebRTC-Experiment.com/RecordRTC/",
    "background":{  
       "scripts":[  
-         "background.js",
-         "RecordRTC.min.js"
+         "background/background.common.js",
+         "background/background.js",
+         "background/background.desktopCapture.js",
+         "background/background.tabCapture.js",
+         "background/background.badgeText.js",
+         "background/background.getUserMedia.js",
+         "background/background.messaging.js",
+         "background/background.players.js",
+         "RecordRTC/MediaStreamRecorder.js",
+         "RecordRTC/MultiStreamRecorder.js",
+         "RecordRTC/DiskStorage.js"
       ],
       "persistent":false
    },
-   "content_scripts":[  
-      {  
-         "matches":[  
-            "<all_urls>"
-         ],
-         "js":[  
-            "content-script.js"
-         ]
-      }
-   ],
    "browser_action":{  
       "default_icon":"images/main-icon.png",
-      "default_title":"Record Screen"
+      "default_title":"Record Your Screen, Tab or Camera",
+      "default_popup": "dropdown.html"
    },
    "icons":{  
       "16":"images/main-icon.png",
@@ -38,17 +38,26 @@
    "permissions":[  
       "desktopCapture",
       "storage",
-      "contextMenus",
       "tabs",
-      "<all_urls>",
       "tabCapture",
-      "activeTab"
+      "activeTab",
+      "identity",
+      "https://www.googleapis.com/*"
    ],
+   "oauth2": {
+       "client_id": "41556190767-44cbqasurg3dhfr9hmj1v90q5v8r9v46.apps.googleusercontent.com",
+       "scopes": [
+         "https://www.googleapis.com/auth/youtube.upload",
+         "https://www.googleapis.com/auth/youtube"
+       ]
+   },
+   "content_security_policy": "script-src 'self' https://apis.google.com; object-src 'self'",
    "web_accessible_resources":[  
       "images/main-icon.png"
    ],
    "options_ui":{  
       "page":"options.html",
-      "chrome_style":false
+      "chrome_style":false,
+      "open_in_tab": true
    }
 }

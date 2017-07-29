@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>RecordRTC WAV to Ogg using ffmpeg-asm.js ® Muaz Khan</title>
+        <title>RecordRTC WAV to Ogg using ffmpeg-asm.js</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -128,7 +128,7 @@
                             log('If you are still interested to use ffmpeg-asm.js in Firefox then set <a href="https://github.com/muaz-khan/RecordRTC#recordertype">this recorderType</a> parameter.');
                             log('E.g. <code>recordAudio = RecordRTC(stream, { recordertype: StereoAudioRecorder });</code>');
 
-                            var blob = new Blob([recordAudio.blob], {
+                            var blob = new File([recordAudio.blob], 'test.ogg', {
                                 type:' audio/ogg'
                             });
                             audioPreview.src = URL.createObjectURL(blob);
@@ -198,7 +198,7 @@
                             var result = message.data[0];
                             log(JSON.stringify(result));
 
-                            var blob = new Blob([result.data], {
+                            var blob = new File([result.data], 'test.ogg', {
                                 type: 'audio/ogg'
                             });
 
@@ -212,12 +212,7 @@
 
                         worker.postMessage({
                             type: 'command',
-                            arguments: [
-                                '-i', 'audio.wav',
-                                '-c:a', 'vorbis',
-                                '-b:a', '4800k',
-                                '-strict', 'experimental', 'output.mp4'
-                            ],
+                            arguments: '-i audio.wav -c:a vorbis -b:a 4800k -strict experimental output.ogg'.split(' '),
                             files: [
                                 {
                                     data: new Uint8Array(aab),

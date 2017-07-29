@@ -8,6 +8,7 @@
 | Transcoding WebM into mp4; then merging WAV+mp4 into single mp4 | [Demo](https://www.webrtc-experiment.com/ffmpeg/merging-wav-and-webm-into-mp4.html)  | [Source](https://github.com/muaz-khan/Ffmpeg.js/blob/master/merging-wav-and-webm-into-mp4.html) |
 | Recording Audio+Canvas and merging in single mp4 | [Demo](https://www.webrtc-experiment.com/ffmpeg/audio-plus-canvas-recording.html)  | [Source](https://github.com/muaz-khan/Ffmpeg.js/blob/master/audio-plus-canvas-recording.html) |
 | Recording Audio+Screen and merging in single mp4 | [Demo](https://www.webrtc-experiment.com/ffmpeg/audio-plus-screen-recording.html)  | [Source](https://github.com/muaz-khan/Ffmpeg.js/blob/master/audio-plus-screen-recording.html) |
+| Video Cropping | [Demo](https://www.webrtc-experiment.com/ffmpeg/video-cropping.html)  | [Source](https://github.com/muaz-khan/Ffmpeg.js/blob/master/video-cropping.html) |
 
 Remember: [`ffmpeg-asm.js`](https://archive.org/download/ffmpeg_asm/ffmpeg_asm.js)'s credit goes to: https://github.com/bgrins/videoconverter.js
 

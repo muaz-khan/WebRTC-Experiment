@@ -83,7 +83,7 @@ module.exports = exports = function(app, socketCallback) {
         }
 
         // temporarily disabled
-        if (!!listOfUsers[params.userid]) {
+        if (false && !!listOfUsers[params.userid]) {
             params.dontUpdateUserId = true;
 
             var useridAlreadyTaken = params.userid;

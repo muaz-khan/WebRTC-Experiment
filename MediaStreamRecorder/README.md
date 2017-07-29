@@ -11,16 +11,29 @@
 | **Gif Recording** | [Demo](https://www.webrtc-experiment.com/msr/gif-recorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/gif-recorder.html) |
 | **MultiStreamRecorder Demo** | [Demo](https://www.webrtc-experiment.com/msr/MultiStreamRecorder.html) | [Source](https://github.com/streamproc/MediaStreamRecorder/tree/master/demos/MultiStreamRecorder.html) |
 
-A cross-browser implementation to record audio/video streams:
+A cross-browser implementation to record
 
-1. MediaStreamRecorder can record both audio and video in single WebM file on Firefox.
-2. MediaStreamRecorder can record audio as WAV and video as either WebM or animated gif on Chrome.
+1. Camera
+2. Microphone
+3. Screen (full screen, apps' screens, tab, HTML elements)
+4. Canvas 2D as well as 3D animations (gaming/etc.)
+
+You can record above four options altogether (in single container).
 
 MediaStreamRecorder is useful in scenarios where you're planning to submit/upload recorded blobs in realtime to the server! You can get blobs after specific time-intervals.
 
-----
+## Browser Support
 
-There is a similar project: **RecordRTC**! [Demo](https://www.webrtc-experiment.com/RecordRTC/) - [Documentation](https://github.com/muaz-khan/RecordRTC)
+| Browser        | Support           | Features |
+| ------------- |-------------|-------------|
+| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) | Audio+Video (Both local/remote) |
+| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) | Audio+Video (Both local/remote) |
+| Opera | [Stable](http://www.opera.com/) / [NEXT](http://www.opera.com/computer/next)  | Audio+Video (Both local/remote) |
+| Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) / [Opera](https://play.google.com/store/apps/details?id=com.opera.browser) | Audio+Video (Both local/remote) |
+| Microsoft Edge | [Normal Build](https://www.microsoft.com/en-us/windows/microsoft-edge) | **Only Audio** - No Video - No Canvas - No Screen |
+| Safari 11 | preview | **Only Audio** - No Video - No Canvas - No Screen |
+
+> There is a similar project: **RecordRTC**! [Demo](https://www.webrtc-experiment.com/RecordRTC/) - [Documentation](https://github.com/muaz-khan/RecordRTC)
 
 ## How to link scripts?
 
@@ -87,8 +100,8 @@ Then link single/standalone "MediaStreamRecorder.js" file:
 <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"> </script>
 <script>
 var mediaConstraints = {
-    audio: true,    // don't forget audio!
-    video: true     // don't forget video!
+    audio: true,
+    video: true
 };
 
 navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
@@ -503,16 +516,6 @@ videoRecorder.quality = .8;
 // only chrome---whilst using WhammyRecorder
 videoRecorder.speed = 100;
 ```
-
-## Browser Support
-
-| Browser        | Support           |
-| ------------- |-------------|
-| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
-| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Opera | [Stable](http://www.opera.com/) / [NEXT](http://www.opera.com/computer/next)  |
-| Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) / [Opera](https://play.google.com/store/apps/details?id=com.opera.browser) |
-| Microsoft Edge | [Normal Build](https://www.microsoft.com/en-us/windows/microsoft-edge) |
 
 ## Contributors
 

@@ -76,8 +76,17 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
 
     function getMixedAudioStream() {
         // via: @pehrsons
-        self.audioContext = new AudioContext();
-        var audioSources = [];
+        if (!ObjectStore.AudioContextConstructor) {
+            ObjectStore.AudioContextConstructor = new ObjectStore.AudioContext();
+        }
+
+        self.audioContext = ObjectStore.AudioContextConstructor;
+
+        self.audioSources = [];
+
+        self.gainNode = self.audioContext.createGain();
+        self.gainNode.connect(self.audioContext.destination);
+        self.gainNode.gain.value = 0; // don't hear self
 
         var audioTracksLength = 0;
         arrayOfMediaStreams.forEach(function(stream) {
@@ -87,7 +96,9 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
 
             audioTracksLength++;
 
-            audioSources.push(self.audioContext.createMediaStreamSource(stream));
+            var audioSource = self.audioContext.createMediaStreamSource(stream);
+            audioSource.connect(self.gainNode);
+            self.audioSources.push(audioSource);
         });
 
         if (!audioTracksLength) {
@@ -95,7 +106,7 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
         }
 
         self.audioDestination = self.audioContext.createMediaStreamDestination();
-        audioSources.forEach(function(audioSource) {
+        self.audioSources.forEach(function(audioSource) {
             audioSource.connect(self.audioDestination);
         });
         return self.audioDestination.stream;
@@ -236,12 +247,39 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
 
     this.clearRecordedData = function() {
         videos = [];
-        context.clearRect(0, 0, canvas.width, canvas.height);
+
         isStoppedRecording = false;
         mediaRecorder = null;
 
         if (mediaRecorder) {
             mediaRecorder.clearRecordedData();
+        }
+
+        if (self.gainNode) {
+            self.gainNode.disconnect();
+            self.gainNode = null;
+        }
+
+        if (self.audioSources.length) {
+            self.audioSources.forEach(function(source) {
+                source.disconnect();
+            });
+            self.audioSources = [];
+        }
+
+        if (self.audioDestination) {
+            self.audioDestination.disconnect();
+            self.audioDestination = null;
+        }
+
+        // maybe "audioContext.close"?
+        self.audioContext = null;
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (canvas.stream) {
+            canvas.stream.stop();
+            canvas.stream = null;
         }
     };
 

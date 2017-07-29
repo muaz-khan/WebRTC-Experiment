@@ -103,6 +103,8 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
         }
 
         mediaRecorder.stop(function(blob) {
+            self.blob = blob;
+
             callback(blob);
 
             self.clearRecordedData();
@@ -412,6 +414,12 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
         }
 
         resetVideoStreams(streams);
+    };
+
+    // for debugging
+    this.name = 'MultiStreamRecorder';
+    this.toString = function() {
+        return this.name;
     };
 }
 

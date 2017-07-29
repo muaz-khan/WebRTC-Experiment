@@ -1,0 +1,95 @@
+<style>
+    html, body, video, canvas {
+        margin: 0!important;
+        padding: 0!important;
+        overflow: hidden!important;
+        width: 100%;
+    }
+</style>
+
+<title>onTimeStamp | RecordRTC</title>
+<h1>onTimeStamp</h1>
+
+<br>
+
+<button id="btn-start-recording">Start Recording</button>
+<button id="btn-stop-recording" disabled>Stop Recording</button>
+<button id="btn-pause-recording" disabled>Pause Recording</button>
+
+<hr>
+<video controls autoplay></video>
+
+<script src="/RecordRTC.js"></script>
+<script>
+var video = document.querySelector('video');
+
+function captureCamera(callback) {
+    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    navigator.getUserMedia({ audio: true, video: true }, function(camera) {
+        callback(camera);
+    }, function(error) {
+        alert('Unable to capture your camera. Please check console logs.');
+        console.error(error);
+    });
+}
+
+function stopRecordingCallback() {
+    var blob = recorder.getBlob();
+    video.src = URL.createObjectURL(blob);
+    video.play();
+
+    recorder.camera.stop();
+    recorder = null;
+}
+
+var recorder; // globally accessible
+
+document.getElementById('btn-start-recording').onclick = function() {
+    this.disabled = true;
+    captureCamera(function(camera) {
+        video.src = URL.createObjectURL(camera);
+        video.play();
+
+        recorder = RecordRTC(camera, {
+            recorderType: MediaStreamRecorder,
+            mimeType: 'video/webm',
+            timeSlice: 1000, // pass this parameter
+            onTimeStamp: function(timestamp, timestamps) {
+                var duration = (new Date().getTime() - timestamps[0]) / 1000;
+                if(duration < 0) return;
+                document.querySelector('h1').innerHTML = 'Recording duration: ' + duration;
+            }
+        });
+
+        recorder.startRecording();
+
+        // release camera on stopRecording
+        recorder.camera = camera;
+
+        document.getElementById('btn-stop-recording').disabled = false;
+        document.getElementById('btn-pause-recording').disabled = false;
+    });
+};
+
+document.getElementById('btn-stop-recording').onclick = function() {
+    this.disabled = true;
+    recorder.stopRecording(stopRecordingCallback);
+};
+
+document.getElementById('btn-pause-recording').onclick = function() {
+    this.disabled = true;
+
+    if(this.innerHTML === 'Pause Recording') {
+        recorder.pauseRecording();
+        this.innerHTML = 'Resume Recording';
+    }
+    else {
+        recorder.resumeRecording();
+        this.innerHTML = 'Pause Recording';
+    }
+
+    setTimeout(function() {
+        document.getElementById('btn-pause-recording').disabled = false;
+    }, 2000);
+};
+</script>

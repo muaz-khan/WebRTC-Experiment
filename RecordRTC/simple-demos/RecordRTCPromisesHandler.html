@@ -57,6 +57,9 @@ document.getElementById('btn-start-recording').onclick = function() {
             console.error('startRecording failure', error);
         });
 
+        // var internal = recorder.recordRTC.getInternalRecorder();
+        // alert(internal instanceof MediaStreamRecorder);
+
         // release camera on stopRecording
         recorder.camera = camera;
 
@@ -69,6 +72,8 @@ document.getElementById('btn-stop-recording').onclick = function() {
     recorder.stopRecording().then(function() {
         console.info('stopRecording success');
         stopRecordingCallback();
+
+        // recorder.getDataURL().then(function(dataURL) {}).catch(errorCB);
     }).catch(function(error) {
         console.error('stopRecording failure', error);
     });

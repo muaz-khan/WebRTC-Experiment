@@ -1,20 +1,38 @@
-﻿<link href='https://fonts.googleapis.com/css?family=Cutive+Mono' rel='stylesheet' type='text/css'>
-
-<style>
+﻿<style>
 * {
-    font-family: 'Cutive Mono'!important;
-    font-size: 20px;
-    -webkit-user-select:none;
-    -webkit-user-drag:none;
+  -webkit-user-select: none;
+  -user-select: none;
+  -webkit-user-drag: none;
+  -user-drag: none;
+}
+
+@font-face {
+  font-family: 'Custom_Font';
+  src: local('.SFNSText-Light'), 
+       local('.HelveticaNeueDeskInterface-Light'), 
+       local('.LucidaGrandeUI'), 
+       local('Ubuntu Light'), 
+       local('Segoe UI Light'),
+       local('Roboto-Light'), 
+       local('DroidSans'), 
+       local('Tahoma');
 }
 
 input {
     -webkit-user-select:initial;
 }
 
-body, html { 
-    padding: 10px;
-    max-width: 900px;
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: #F3F3F3;
+  font-family: Custom_Font!important;
+  font-size: 1em;
+  overflow: hidden;
+  overflow-x: hidden;
 }
 
 hr {
@@ -27,8 +45,14 @@ label, input {
     vertical-align: middle;
 }
 
-label, input[type=checkbox] {
+label, input[type=checkbox], input[type=radio] {
     cursor: pointer;
+}
+
+input[type=radio] {
+    vertical-align: baseline;
+    width: 50px;
+    margin-left: -15px;
 }
 
 select {
@@ -51,16 +75,9 @@ option:last-child {
     border-bottom: 0;
 }
 
-input[disabled], label[disabled] {
+input[disabled], label[disabled], button[disabled] {
     cursor: not-allowed!important;
     color: #bfbfbf!important;
-}
-
-.help-img {
-    vertical-align: middle;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
 }
 
 blockquote {
@@ -71,87 +88,79 @@ blockquote {
     border-radius: 10px;
     box-shadow: -1px -1px 5px 0px rgba(46, 128, 146, 0.75);
 }
+
+h1 {
+    color: #EC008C;
+    font-size: 30px;
+}
+
+h2, strong {
+    color: #38a8e0;
+}
+
+h2 {
+    display: inline-block;
+    vertical-align: middle; 
+}
+
+select {
+    vertical-align: middle;
+    margin-top: 15px;
+}
+
+#applying-changes {
+    background: yellow;
+    position: fixed;
+    top: 0;
+    left: 0px;
+    right: 0px;
+    width: 100%;
+    text-align: center;
+    color: green;
+    font-weight: bold;
+    display: none;
+    font-size: 24px !important;
+    padding: 9px 0;
+    border-bottom: 1px solid;
+}
+
+label:hover {
+    background: yellow;
+}
 </style>
 
-<h1 id="applying-changes" style="position:absolute;right:10px;top:-10px;color:green;font-weight:normal;font-size:14px!important;display:none;">Applying Changes...</h1>
+<p id="applying-changes">Applying Changes...</p>
 
-<input type="checkbox" id="enableMicrophone"> <label for="enableMicrophone">Enable Microphone Recording?</label>
-<br>
-<small style="font-size:13px;margin-left:32px;display:block;">
-    Record Your Own Voice along with full screen or tab or any app's screen.
-</small>
+<h2>Select Camera Device</h2>
+<select id="camera-devices" size=5></select>
 
-<br>
 <hr>
 <br>
 
-<div>
-    <input type="checkbox" id="enableTabCaptureAPI">
-    <label for="enableTabCaptureAPI">Record the selected tab?</label>
-    <br>
-    <small style="font-size:13px;margin-left:32px;display:block;">
-        Record the selected tab + all audios being played on the selected tab.
-    </small>
-</div>
+<h2>Select Microphone Device</h2>
+<select id="microphone-devices" size=5></select>
 
-<br>
 <hr>
 <br>
 
-<div>
-    <input type="checkbox" id="enableTabAudio"> <label for="enableTabAudio">
-        Record any tab's activity 
-    <br>+ all audios on the selected tab?</label>
-    <br>
-    <small style="font-size:13px;margin-left:32px;display:block;">
-        Record all-audios on a tab. Record entire activity along with audios on a tab.
-    </small>
+<h2>Video Codecs:</h2>
+<div id="videoCodec" style="display: inline-block;">
+    <label><input type="radio" checked>Default</label>
+    <label><input type="radio">VP8</label>
+    <label><input type="radio">VP9</label>
+    <label><input type="radio">H264</label>
+    <label><input type="radio">MKV</label>
 </div>
 
 <br>
 <hr>
 
-<blockquote>
-    You can <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydLsLP_T1JU5MneCu5O86Wj7" target="_blank">record any HTML5-Video</a>.
-</blockquote>
-
-<hr>
-
-<h2>Select Resolutions:</h2>
-<select id="resolutions" size=5>
-    <option>Default (29999x8640)</option>
-    <option>4K UHD (3840x2160)</option>
-    <option>WQXGA (2560x1600)</option>
-    <option>WQHD (2560x1440)</option>
-    <option>WUXGA (1920x1200)</option>
-    <option>Full HD (1920x1080)</option>
-    <option>WSXGA+ (1680x1050)</option>
-    <option>UXGA (1600x1200)</option>
-    <option>HD+ (1600x900)</option>
-    <option>WXGA+ (1440x900)</option>
-    <option>HD (1366x768)</option>
-    <option>HD (1360x768)</option>
-    <option>SXGA (1280x1024)</option>
-    <option>WXGA (1280x800)</option>
-    <option>WXGA (1280x768)</option>
-    <option>WXGA (1280x720)</option>
-    <option>XGA+ (1152x864)</option>
-    <option>XGA (1024x768)</option>
-    <option>WSVGA (1024x600)</option>
-    <option>SVGA (800x600)</option>
-    <option>720p (1280x720)</option>
-    <option>360p (640x360)</option>
-</select>
-
-
-<br><br>
-<hr>
-
-<h2>Select Video Codecs:</h2>
-<select id="videoCodec" size=3>
-    <option>Default</option>
-    <option>VP8</option>
-    <option>VP9</option>
+<h2>Video Framerates:</h2>
+<select id="videoMaxFrameRates" size=4>
+    <option selected>None</option>
+    <option>30</option>
+    <option>25</option>
+    <option>15</option>
 </select>
 
 <br><br>
@@ -159,19 +168,19 @@ blockquote {
 <hr>
 <br>
 
-<label for="videoMaxFrameRates">Video Framerates</label>
-<input type="text" id="videoMaxFrameRates" value="" style="margin-bottom:5px;width:70px;"> fps
+<h2>Bit rates:</h2>
 
-<hr>
-<br>
+<select id="bitsPerSecond" size=5>
+    <option value="default" selected>Default bitrates</option>
+    <option value="8000000000">1 GB bps</option>
+    <option value="800000000">100 MB bps</option>
+    <option value="8000000">1 MB bps</option>
+    <option value="800000">100 KB bps</option>
+    <option value="8000">1 KB bps</option>
+    <option value="800">100 Bytes bps</option>
+</select>
 
-<label for="videoBitsPerSecond">Video Bitrates</label>
-<input type="text" id="videoBitsPerSecond" value="" style="margin-bottom:5px;width:70px;"> kbps
+<br><br>
 
-<br>
-
-<label for="audioBitsPerSecond">Audio Bitrates</label>
-<input type="text" id="audioBitsPerSecond" value="" style="width:70px;"> kbps
-
-
+<script src="RecordRTC/getAllAudioVideoDevices.js"></script>
 <script src="options.js"></script>

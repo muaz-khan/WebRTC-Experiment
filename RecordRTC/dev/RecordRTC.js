@@ -431,6 +431,7 @@ function RecordRTC(mediaStream, config) {
          *     formData.append('file', file); // upload "File" object rather than a "Blob"
          *     uploadToServer(formData);
          * });
+         * @returns {Blob} Returns recorded data as "Blob" object.
          */
         getBlob: function() {
             if (!mediaRecorder) {
@@ -464,6 +465,7 @@ function RecordRTC(mediaStream, config) {
          * recorder.stopRecording(function() {
          *     video.src = this.toURL();
          * });
+         * @returns {String} Returns a virtual/temporary URL for the recorded "Blob".
          */
         toURL: function() {
             if (!mediaRecorder) {
@@ -474,16 +476,17 @@ function RecordRTC(mediaStream, config) {
         },
 
         /**
-         * Get internal recorder object e.g. MutliStreamRecorder, MediaStreamRecorder, StereoAudioRecorder or WhammyRecorder etc.
+         * Get internal recording object (i.e. internal module) e.g. MutliStreamRecorder, MediaStreamRecorder, StereoAudioRecorder or WhammyRecorder etc.
          * @method
          * @memberof RecordRTC
          * @instance
          * @example
-         * var msRecorder = recorder.getInternalRecorder();
-         * if(msRecorder instanceof MultiStreamRecorder) {
-         *     msRecorder.addStreams([newAudioStream]);
-         *     msRecorder.resetVideoStreams([screenStream]);
+         * var internal = recorder.getInternalRecorder();
+         * if(internal instanceof MultiStreamRecorder) {
+         *     internal.addStreams([newAudioStream]);
+         *     internal.resetVideoStreams([screenStream]);
          * }
+         * @returns {Object} Returns internal recording object.
          */
         getInternalRecorder: function() {
             return mediaRecorder;
@@ -667,10 +670,12 @@ function RecordRTC(mediaStream, config) {
         state: 'inactive',
 
         /**
-         *
-         * State getter
-         *
-         * @returns {*}
+         * Get recorder's readonly state.
+         * @method
+         * @memberof RecordRTC
+         * @example
+         * var state = recorder.getState();
+         * @returns {String} Returns recording state.
          */
         getState: function() {
             return self.state;

@@ -1,0 +1,238 @@
+<title>Record Cropped Screen using RecordRTC</title>
+<h1>Record Cropped Screen using <a href="https://github.com/muaz-khan/RecordRTC">RecordRTC</a></h1>
+
+<button id="btn-start-recording">Start Recording</button>
+<button id="btn-stop-recording" style="display: none;">Stop Recording</button>
+
+<br><hr>
+
+<div id="edit-panel" style="border-bottom: 1px solid;">
+    <div>
+        <label for="x">X</label>
+        <input type="number" name="x" id="x" value="0" />
+    </div>
+    <div>
+        <label for="y">Y</label>
+        <input type="number" name="y" id="y" value="0" />
+    </div>
+    <div>
+        <label for="w">Width (-1 = Full size)</label>
+        <input type="number" name="w" id="w" value="-1" />
+    </div>
+    <div>
+        <label for="h">Height (-1 = Full size)</label>
+        <input type="number" name="h" id="h" value="-1" />
+    </div>
+
+    <button id="update" style="display: none;">Update X-Y Width-Height Coordinates</button>
+
+    <canvas></canvas>
+</div>
+
+<video id="mediaElement"></video>
+
+<script src="/RecordRTC.js"></script>
+<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+<script>
+// this script tag is taken from: https://github.com/andersevenrud/webrtc-screenshare-crop-demo
+var CROP_X = 10;
+var CROP_Y = 20;
+var CROP_W = 320; // default width
+var CROP_H = 240; // default height
+var VIDEO_WIDTH = 0;
+var VIDEO_HEIGHT = 0;
+var MAX_VIDEO_WIDTH = 1920;
+var MAX_VIDEO_HEIGHT = 1080;
+var _canvas;
+var _context;
+
+var htmlCanvasElement = document.querySelector('canvas');
+
+// Form elements
+document.getElementById("x").value = CROP_X;
+document.getElementById("y").value = CROP_Y;
+document.getElementById("w").value = CROP_W;
+document.getElementById("h").value = CROP_H;
+
+document.getElementById("update").onclick = function() {
+    var x = document.getElementById("x").value << 0;
+    var y = document.getElementById("y").value << 0;
+    var w = document.getElementById("w").value << 0;
+    var h = document.getElementById("h").value << 0;
+
+    if (x >= 0) {
+        CROP_X = x;
+    }
+    if (y >= 0) {
+        CROP_Y = y;
+    }
+
+    CROP_W = w || 0;
+    CROP_H = h || 0;
+};
+
+_context = htmlCanvasElement.getContext('2d');
+
+/**
+ * Crops a video frame and shows it to the user
+ */
+function CropFrame(ev, stream, video, callback) {
+    callback = callback || function() {};
+
+    _canvas = htmlCanvasElement;
+
+    if (CROP_X < 0) {
+        CROP_X = 0;
+    }
+    if (CROP_Y < 0) {
+        CROP_Y = 0;
+    }
+    if (CROP_W <= 0) {
+        CROP_W = VIDEO_WIDTH;
+    }
+    if (CROP_H <= 0) {
+        CROP_H = VIDEO_HEIGHT;
+    }
+    if (CROP_W > MAX_VIDEO_WIDTH) {
+        CROP_W = MAX_VIDEO_WIDTH;
+    }
+    if (CROP_H > MAX_VIDEO_HEIGHT) {
+        CROP_W = MAX_VIDEO_HEIGHT;
+    }
+
+    _canvas.width = CROP_W;
+    _canvas.height = CROP_H;
+
+    _context.drawImage(video, CROP_X, CROP_Y, CROP_W, CROP_H, 0, 0, CROP_W, CROP_H);
+
+    // We need to scale down the image or else we get HTTP 414 Errors
+    // Also we scale down because of RTC message length restriction
+    var scanvas = document.createElement('canvas');
+    scanvas.width = _canvas.width;
+    scanvas.height = _canvas.height;
+
+    var wRatio = _canvas.width / 320;
+    var hRatio = _canvas.height / 240;
+    var maxRatio = Math.max(wRatio, hRatio);
+    if (maxRatio > 1) {
+        scanvas.width = _canvas.width / maxRatio;
+        scanvas.height = _canvas.height / maxRatio;
+    }
+    scanvas.getContext('2d').drawImage(_canvas, 0, 0, scanvas.width, scanvas.height);
+
+    callback(scanvas.toDataURL("image/jpeg"));
+}
+
+var recorder;
+
+function captureScreen(cb) {
+    getScreenId(function(error, sourceId, screen_constraints) {
+        navigator.getUserMedia(screen_constraints, cb, function(error) {
+            console.error('getScreenId error', error);
+
+            alert('Failed to capture your screen. Please check Chrome console logs for further information.');
+        });
+    });
+}
+
+var mediaElement = document.querySelector('#mediaElement');
+
+document.querySelector('#btn-start-recording').onclick = function() {
+    document.querySelector('#btn-start-recording').style.display = 'none';
+
+    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    captureScreen(function(screen) {
+        var inited = false;
+
+        mediaElement.ontimeupdate = function(ev) {
+            if (!inited) {
+                VIDEO_WIDTH = mediaElement.offsetWidth;
+                VIDEO_HEIGHT = mediaElement.offsetHeight;
+
+                mediaElement.style.display = 'none';
+                document.querySelector('#edit-panel').style.display = 'block';
+
+                inited = true;
+            }
+
+            CropFrame(ev, screen, mediaElement);
+        };
+
+        mediaElement.src = URL.createObjectURL(screen);
+        mediaElement.play();
+        mediaElement.screen = screen;
+
+        addStreamStopListener(screen, function() {
+            document.querySelector('#btn-stop-recording').onclick();
+        });
+
+        // RecordRTC goes here
+        var captureStream = htmlCanvasElement.captureStream();
+        recorder = RecordRTC(captureStream, {
+            type: 'video'
+        });
+        recorder.startRecording();
+
+        document.querySelector('#btn-stop-recording').style.display = 'inline';
+    });
+};
+
+document.querySelector('#btn-stop-recording').onclick = function() {
+    document.querySelector('#btn-stop-recording').style.display = 'none';
+
+    recorder.stopRecording(function() {
+        var blob = recorder.getBlob();
+
+        document.querySelector('#edit-panel').style.display = 'none';
+        mediaElement.style.display = 'block';
+
+        mediaElement.src = URL.createObjectURL(blob);
+        mediaElement.play();
+
+        if (mediaElement.screen && mediaElement.screen.getVideoTracks) {
+            mediaElement.screen.stop();
+            mediaElement.screen = null;
+        }
+
+        document.querySelector('#btn-start-recording').style.display = 'inline';
+    });
+};
+
+function addStreamStopListener(stream, callback) {
+    var streamEndedEvent = 'ended';
+    if ('oninactive' in stream) {
+        streamEndedEvent = 'inactive';
+    }
+    stream.addEventListener(streamEndedEvent, function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.getAudioTracks().forEach(function(track) {
+        track.addEventListener(streamEndedEvent, function() {
+            callback();
+            callback = function() {};
+        }, false);
+    });
+    stream.getVideoTracks().forEach(function(track) {
+        track.addEventListener(streamEndedEvent, function() {
+            callback();
+            callback = function() {};
+        }, false);
+    });
+}
+
+function querySelectorAll(selector) {
+    return Array.prototype.slice.call(document.querySelectorAll(selector));
+}
+
+querySelectorAll('input').forEach(function(input) {
+    input.onkeyup = input.oninput = function() {
+        if (!document.querySelector('#update').onclick) return;
+        document.querySelector('#update').onclick();
+    };
+});
+</script>
+
+<section><small id="send-message"></small></section>
+<script>window.useThisGithubPath = 'muaz-khan/RecordRTC';</script>
+<script src="https://cdn.webrtc-experiment.com/commits.js" async></script>

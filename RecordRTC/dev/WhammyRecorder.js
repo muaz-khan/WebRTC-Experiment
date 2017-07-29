@@ -352,6 +352,12 @@ function WhammyRecorder(mediaStream, config) {
         whammy.frames = [];
     };
 
+    // for debugging
+    this.name = 'WhammyRecorder';
+    this.toString = function() {
+        return this.name;
+    };
+
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
 

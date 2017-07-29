@@ -95,11 +95,9 @@ function MediaRecorderWrapper(mediaStream) {
 
         // Dispatching OnDataAvailable Handler
         mediaRecorder.ondataavailable = function(e) {
-            console.error('ondataavailable', e.data);
-
             // how to fix FF-corrupt-webm issues?
             // should we leave this?          e.data.size < 26800
-            if (!e.data || !e.data.size || e.data.size < 26800 || firedOnDataAvailableOnce) {
+            if (!e.data || /*!e.data.size || e.data.size < 26800 || */ firedOnDataAvailableOnce) {
                 return;
             }
 
@@ -119,7 +117,6 @@ function MediaRecorderWrapper(mediaStream) {
             mediaRecorder = null;
 
             if (self.dontFireOnDataAvailableEvent) {
-                console.error('ignore next interval');
                 return;
             }
 

@@ -103,7 +103,6 @@
                 var recordVideo;
                 var videoPreview = document.getElementById('video-preview');
                 var inner = document.querySelector('.inner');
-                var videoFile = !!navigator.mozGetUserMedia ? 'video.gif' : 'video.webm';
 
                 document.querySelector('#record-video').onclick = function() {
                     this.disabled = true;
@@ -114,8 +113,7 @@
                             videoPreview.play();
 
                             recordVideo = RecordRTC(stream, {
-                                type: 'video',
-                                // recorderType: !!navigator.mozGetUserMedia ? MediaStreamRecorder : WhammyRecorder
+                                type: 'video'
                             });
 
                             recordVideo.startRecording();
@@ -128,7 +126,7 @@
 
                     recordVideo.stopRecording(function(url) {
                         videoPreview.src = url;
-                        videoPreview.download = videoFile;
+                        videoPreview.download = 'video.webm';
 
                         log('<a href="'+ workerPath +'" download="ffmpeg-asm.js">ffmpeg-asm.js</a> file download started. It is about 18MB in size; please be patient!');
                         convertStreams(recordVideo.getBlob());
@@ -136,9 +134,9 @@
                 };
 
                 var workerPath = 'https://archive.org/download/ffmpeg_asm/ffmpeg_asm.js';
-				if(document.domain == 'localhost') {
-					workerPath = location.href.replace(location.href.split('/').pop(), '') + 'ffmpeg_asm.js';
-				}
+                if(document.domain == 'localhost') {
+                    workerPath = location.href.replace(location.href.split('/').pop(), '') + 'ffmpeg_asm.js';
+                }
 
                 function processInWebWorker() {
                     var blob = URL.createObjectURL(new Blob(['importScripts("' + workerPath + '");var now = Date.now;function print(text) {postMessage({"type" : "stdout","data" : text});};onmessage = function(event) {var message = event.data;if (message.type === "command") {var Module = {print: print,printErr: print,files: message.files || [],arguments: message.arguments || [],TOTAL_MEMORY: message.TOTAL_MEMORY || false};postMessage({"type" : "start","data" : Module.arguments.join(" ")});postMessage({"type" : "stdout","data" : "Received command: " +Module.arguments.join(" ") +((Module.TOTAL_MEMORY) ? ".  Processing with " + Module.TOTAL_MEMORY + " bits." : "")});var time = now();var result = ffmpeg_run(Module);var totalTime = now() - time;postMessage({"type" : "stdout","data" : "Finished processing (took " + totalTime + "ms)"});postMessage({"type" : "done","data" : result,"time" : totalTime});}};postMessage({"type" : "ready"});'], {
@@ -187,7 +185,7 @@
                             var result = message.data[0];
                             log(JSON.stringify(result));
 
-                            var blob = new Blob([result.data], {
+                            var blob = new File([result.data], 'test.mp4', {
                                 type: 'video/mp4'
                             });
 
@@ -201,16 +199,11 @@
 
                         worker.postMessage({
                             type: 'command',
-                            arguments: [
-                                '-i', videoFile,
-                                '-c:v', 'mpeg4',
-                                '-b:v', '6400k',
-                                '-strict', 'experimental', 'output.mp4'
-                            ],
+                            arguments: '-i video.webm -c:v mpeg4 -b:v 6400k -strict experimental output.mp4'.split(' '),
                             files: [
                                 {
                                     data: new Uint8Array(aab),
-                                    name: videoFile
+                                    name: 'video.webm'
                                 }
                             ]
                         });

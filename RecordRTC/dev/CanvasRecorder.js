@@ -248,6 +248,12 @@ function CanvasRecorder(htmlElement, config) {
         whammy.frames = [];
     };
 
+    // for debugging
+    this.name = 'CanvasRecorder';
+    this.toString = function() {
+        return this.name;
+    };
+
     function cloneCanvas() {
         //create a new canvas
         var newCanvas = document.createElement('canvas');
