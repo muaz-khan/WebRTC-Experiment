@@ -7,7 +7,14 @@
 <html id="home" lang="en">
 
 <head>
-    <title>Join with/without camera using RTCMultiConnection ® Muaz Khan</title>
+    <script>
+        if(!location.hash.replace('#', '').length) {
+            location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+            location.reload();
+        }
+    </script>
+
+    <title>Join with/without camera using RTCMultiConnection | Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -223,9 +230,9 @@
     document.createElement('footer');
     </script>
 
-    <script src="//cdn.webrtc-experiment.com/firebase.js">
+    <script src="https://cdn.webrtc-experiment.com/socket.io.js">
     </script>
-    <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
+    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js">
     </script>
 </head>
 
@@ -304,6 +311,35 @@
         </table>
         <script>
         var connection = new RTCMultiConnection();
+
+        // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
+        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+        connection.openSignalingChannel = function(config) {
+            var channel = config.channel || connection.channel || 'default-namespace';
+            var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+
+            io.connect(SIGNALING_SERVER).emit('new-channel', {
+                channel: channel,
+                sender: sender
+            });
+
+            var socket = io.connect(SIGNALING_SERVER + channel);
+            socket.channel = channel;
+
+            socket.on('connect', function() {
+                if (config.callback) config.callback(socket);
+            });
+
+            socket.send = function(message) {
+                socket.emit('message', {
+                    sender: sender,
+                    data: message
+                });
+            };
+
+            socket.on('message', config.onmessage);
+        };
+
         connection.session = {
             audio: true,
             video: true
@@ -403,15 +439,14 @@
     <footer>
         <p>
             <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a>©
-            <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>,
-            <span>2013 </span>»
+            <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a> »
             <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
             <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
             <a href="https://github.com/muaz-khan" target="_blank">Github</a>
         </p>
     </footer>
-    <script src="//cdn.webrtc-experiment.com/commits.js">
-    </script>
+    <script>window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';</script>
+    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
 </body>
 
 </html>

@@ -1,0 +1,91 @@
+<style>
+    html, body, video, canvas {
+        margin: 0!important;
+        padding: 0!important;
+        overflow: hidden!important;
+    }
+</style>
+
+<title>Show Animated Bar on the recorded video | RecordRTC</title>
+<h1>Show Animated Bar on the recorded video | RecordRTC</h1>
+
+<video id="video-preview" controls autoplay></video>
+
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script>
+var videoPreview = document.getElementById('video-preview');
+
+navigator.mediaDevices.getUserMedia({video: true}).then(function(camera) {
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+
+    canvas.style = 'position: absolute; top: 0; left: 0; opacity: 0; margin-top: -9999999999; margin-left: -9999999999; top: -9999999999; left: -9999999999; z-index: -1;';
+    document.body.appendChild(canvas);
+
+    var video = document.createElement('video');
+    setSrcObject(camera, video);
+    video.play();
+
+    var canvasStream = canvas.captureStream(15);
+
+    var audioPlusCanvasStream = new MediaStream();
+    canvasStream.getVideoTracks().forEach(function(videoTrack) {
+        audioPlusCanvasStream.addTrack(videoTrack);
+    });
+    camera.getAudioTracks().forEach(function(audioTrack) {
+        audioPlusCanvasStream.addTrack(audioTrack);
+    });
+
+    var recorder = RecordRTC(audioPlusCanvasStream, {
+        type: 'video'
+    });
+
+    recorder.setRecordingDuration(10 * 1000).onRecordingStopped(function() {
+        var blob = recorder.getBlob();
+        recorder = null;
+        camera.stop();
+
+        videoPreview.src = URL.createObjectURL(blob);
+        videoPreview.play();
+    });
+
+    recorder.startRecording();
+
+    setSrcObject(canvasStream, videoPreview);
+    videoPreview.play();
+
+    var rectX = 240;
+    var rectY = 240 - 20;
+
+    (function looper() {
+        if(!recorder) return; // ignore/skip on stop-recording
+
+        canvas.width = 320;
+        canvas.height = 240;
+
+        rectX-=5;
+
+        if(rectX <= -40) {
+            rectX = 240 + 50;
+        }
+
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        context.save();
+        context.fillStyle = 'black';
+        context.globalAlpha = 0.4;
+        context.fillRect(0, rectY - 20, 1000, 30)
+        context.restore();
+        context.font = '20px Georgia';
+        context.fillStyle = 'white';
+        context.fillText('Hello', rectX, rectY);
+
+        // repeat (looper)
+        setTimeout(looper, 100);
+    })();
+}).catch(function(error) {
+    alert('Unable to capture camera. Please check console logs.');
+    console.error(error);
+});
+</script>

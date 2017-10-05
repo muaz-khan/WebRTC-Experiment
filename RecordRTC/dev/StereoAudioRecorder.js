@@ -341,6 +341,8 @@ function StereoAudioRecorder(mediaStream, config) {
      * });
      */
     this.stop = function(callback) {
+        callback = callback || function() {};
+
         // stop recording
         recording = false;
 
@@ -530,11 +532,33 @@ function StereoAudioRecorder(mediaStream, config) {
      * recorder.clearRecordedData();
      */
     this.clearRecordedData = function() {
-        this.pause();
+        config.checkForInactiveTracks = false;
 
+        if (recording) {
+            this.stop(clearRecordedDataCB);
+        }
+
+        clearRecordedDataCB();
+    };
+
+    function clearRecordedDataCB() {
         leftchannel.length = rightchannel.length = 0;
         recordingLength = 0;
-    };
+        isAudioProcessStarted = false;
+        recording = false;
+        isPaused = false;
+
+        if (jsAudioNode) {
+            jsAudioNode.onaudioprocess = null;
+            jsAudioNode.disconnect();
+            jsAudioNode = null;
+        }
+
+        if (audioInput) {
+            audioInput.disconnect();
+            audioInput = null;
+        }
+    }
 
     // for debugging
     this.name = 'StereoAudioRecorder';

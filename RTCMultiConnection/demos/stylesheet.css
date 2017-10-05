@@ -22,6 +22,19 @@ body {
     line-height: 1.5em;
 }
 
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: inherit;
+}
+::-moz-placeholder { /* Firefox 19+ */
+  color: inherit;
+}
+:-ms-input-placeholder { /* IE 10+ */
+  color: inherit;
+}
+:-moz-placeholder { /* Firefox 18- */
+  color: inherit;
+}
+
 h1 {
     font-size: 25px;
     text-align: center;
@@ -119,6 +132,117 @@ button[disabled], input[disabled] {
   box-shadow: none!important;
   text-shadow: none!important;
   color: #dcd7d7!important;
-  border-color: #dcd7d7!important;
+  border: 1px solid #dcd7d7!important;
   cursor: not-allowed!important;
+}
+
+.menu-explorer {
+    color: transparent!important;
+    display: block;
+    display: none;
+    text-align: center;
+    position: absolute;
+    margin-right: 12px;
+    margin-top: 12px;
+    right: 0;
+}
+
+.menu-explorer img {
+    vertical-align: middle;
+    width: 25px;
+}
+
+@media all and (max-width: 900px) {
+    tr, td, .logo {
+        display: block;
+    }
+
+    .logo {
+        text-align: center;
+    }
+
+    nav li {
+        border: 0;
+        display: block;
+        text-align: right;
+    }
+
+    nav li img {
+        float: right;
+        margin-right: 0;
+        margin-left: 12px;
+    }
+
+    nav {
+        height: auto;
+        margin: 0;
+        display: none;
+
+        position: fixed;
+        left: auto;
+        right: 0;
+        top: 0;
+        z-index: 9;
+        background: white;
+        width: auto;
+        height: 100%;
+        box-shadow: rgb(84, 145, 208) 0px 0 0px 2px;
+    }
+
+    nav li {
+        border-bottom: 1px solid rgb(84, 145, 208);
+        text-align: center;
+        line-height: 2;
+    }
+
+    nav li a {
+        padding-right: 3px;
+    }
+
+    .menu-explorer {
+        display: block;
+    }
+
+    .header {
+        position: static;
+        border: 0;
+        box-shadow: rgb(84, 145, 208) 0px 2px 0px 0px;
+    }
+
+    .no-mobile {
+        display: none!important;
+        opacity: 0!important;
+        visibility: hidden!important;
+        z-index: -1!important;
+        width: 0!important;
+        height: 0!important;
+        overflow: hidden!important;
+        border: 0!important;
+        box-shadow: none!important;
+    }
+
+    nav a, .menu-explorer {
+        font-size: 15px;
+    }
+}
+
+@media all and (max-width: 620px) {
+    button, input {
+        display: block;
+        margin: 5px 10px;
+    }
+}
+
+@media all and (max-width: 500px) {
+    h1 {
+        font-size: 18px;
+    }
+}
+
+@media screen and (orientation:portrait) and (min-width: 350px) {
+    .header {
+        position: fixed!important;
+        border-bottom: 1px solid white!important;
+        box-shadow: rgb(84, 145, 208) 0px 1px 0px 0px!important;
+    }
 }

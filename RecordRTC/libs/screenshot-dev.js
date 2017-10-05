@@ -1,8 +1,9 @@
-// Last time updated at August 31, 2016, 08:32:23
+// Last time updated at August 04, 2017, 08:32:23
 
 // Muaz Khan     - https://github.com/muaz-khan
 // MIT License   - https://www.webrtc-experiment.com/licence/
 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing
+// Source codes  - https://github.com/muaz-khan/RecordRTC/tree/master/libs
 
 // Note: All libraries listed in this file are "external libraries"
 // ----  and has their own copyrights. Taken from "html2canvas" project.
@@ -638,7 +639,7 @@ function renderDocument(document, options, windowWidth, windowHeight, html2canva
         log("Document cloned");
         var attributeName = html2canvasNodeAttribute + html2canvasIndex;
         var selector = "[" + attributeName + "='" + html2canvasIndex + "']";
-        document.querySelector(selector).removeAttribute(attributeName);
+        document.querySelector(selector) && document.querySelector(selector).removeAttribute(attributeName);
         var clonedWindow = container.contentWindow;
         var node = clonedWindow.document.querySelector(selector);
         var oncloneHandler = (typeof(options.onclone) === "function") ? Promise.resolve(options.onclone(clonedWindow.document)) : Promise.resolve(true);
@@ -1746,7 +1747,8 @@ NodeContainer.prototype.parseTransformMatrix = function() {
 };
 
 NodeContainer.prototype.parseBounds = function() {
-    return this.bounds || (this.bounds = this.hasTransform() ? offsetBounds(this.node) : getBounds(this.node));
+    /* UPDATED by Muaz Khan */
+    return /* this.bounds || */ (this.bounds = this.hasTransform() ? offsetBounds(this.node) : getBounds(this.node));
 };
 
 NodeContainer.prototype.hasTransform = function() {
@@ -2256,7 +2258,7 @@ NodeParser.prototype.paintElement = function(container) {
               // to support <video> screenshots!
               var imageContainer = {
                 image: container.node,
-                src: '',
+                src: container.node.src || '',
                 tainted: false,
                 promise: function() {}
               };
@@ -2918,8 +2920,8 @@ Renderer.prototype.renderImage = function(container, bounds, borderData, imageCo
         imageContainer,
         0,
         0,
-        imageContainer.image.width || width,
-        imageContainer.image.height || height,
+        imageContainer.image.width || imageContainer.image.clientWidth || width,
+        imageContainer.image.height || imageContainer.image.clientHeight || height,
         bounds.left + paddingLeft + borders[3].width,
         bounds.top + paddingTop + borders[0].width,
         width,
@@ -3290,6 +3292,11 @@ CanvasRenderer.prototype.taints = function(imageContainer) {
 };
 
 CanvasRenderer.prototype.drawImage = function(imageContainer, sx, sy, sw, sh, dx, dy, dw, dh) {
+    if(imageContainer.image.nodeName.toUpperCase() === 'VIDEO') {
+      this.ctx.drawImage(imageContainer.image, sx, sy, sw, sh, dx, dy, dw, dh);
+      return;
+    }
+
     if (!this.taints(imageContainer) || this.options.allowTaint) {
       this.ctx.drawImage(imageContainer.image, sx, sy, sw, sh, dx, dy, dw, dh);
     }

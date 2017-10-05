@@ -36,14 +36,13 @@ module.exports = function(grunt) {
             dist: {
                 src: [
                     'dev/head.js',
-                    // 'dev/amd.js',
 
                     'dev/SocketConnection.js', // You can replace it with: FirebaseConnection.js || PubNubConnection.js
                     'dev/MultiPeersHandler.js',
 
-                    'dev/globals.js',
-                    // 'dev/Plugin.EveryWhere.js',
+                    // 'dev/adapter.js', ---- optional
                     'dev/DetectRTC.js',
+                    'dev/globals.js',
 
                     'dev/ios-hacks.js', // to support ios
                     'dev/RTCPeerConnection.js',
@@ -52,7 +51,6 @@ module.exports = function(grunt) {
                     'dev/OnIceCandidateHandler.js',
                     'dev/IceServersHandler.js',
 
-                    // 'dev/adapter.js',
                     'dev/getUserMedia.js',
                     'dev/StreamsHandler.js',
 

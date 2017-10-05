@@ -1,0 +1,11 @@
+# ignore everything
+*
+
+# but not these files...
+!MultiStreamsMixer.js
+!MultiStreamsMixer.min.js
+!index.html
+!package.json
+!bower.json
+!server.js
+!README.md

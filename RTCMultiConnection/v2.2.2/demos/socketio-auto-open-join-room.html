@@ -1,4 +1,11 @@
-<title>Socket.io auto Open/Join rooms using RTCMultiConnection ® Muaz Khan</title>
+<script>
+    if(!location.hash.replace('#', '').length) {
+        location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+        location.reload();
+    }
+</script>
+
+<title>Socket.io auto Open/Join rooms using RTCMultiConnection | Muaz Khan</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 
@@ -10,8 +17,8 @@
 <meta name="author" content="Muaz Khan">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
-<script src="//cdn.webrtc-experiment.com/socket.io.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+<script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
 
 <style>
 body,
@@ -443,11 +450,11 @@ function enterFullScreen() {
 // var config = { openSocket: openSignalingChannel };
 
 // via: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs#how-to-use
-var SIGNALING_SERVER = 'https://socketio-signaling.herokuapp.com:443/';
+var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
 var mainSocket = io.connect(SIGNALING_SERVER);
 
 connection.openSignalingChannel = function(config) {
-    config.channel = config.channel || this.channel;
+    config.channel = config.channel || connection.channel;
 
     mainSocket.emit('new-channel', {
         channel: config.channel,

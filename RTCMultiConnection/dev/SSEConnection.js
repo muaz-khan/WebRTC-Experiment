@@ -1,7 +1,7 @@
 // SSEConnection.js
 
 function SSEConnection(connection, connectCallback) {
-    connection.trickleIce = false;
+    // connection.trickleIce = false;
 
     var sseDirPath = 'https://webrtcweb.com/SSE/';
 
@@ -23,9 +23,29 @@ function SSEConnection(connection, connectCallback) {
         }
         if (!data) return;
 
+        if (data.remoteUserId) {
+            if (data.eventName === connection.socketMessageEvent) {
+                onMessagesCallback(data.data);
+            }
+            return;
+        }
+
         Object.keys(data).forEach(function(key) {
             var message = data[key];
             if (!message.length) return;
+
+            if (message instanceof Array) {
+                message.forEach(function(m) {
+                    m = JSON.parse(m);
+                    if (!m) return;
+
+                    if (m.eventName === connection.socketMessageEvent) {
+                        onMessagesCallback(m.data);
+                    }
+                });
+                return;
+            }
+
             message = JSON.parse(message);
             if (!message) return;
 

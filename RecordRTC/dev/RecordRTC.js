@@ -81,8 +81,11 @@ function RecordRTC(mediaStream, config) {
     }
 
     function stopRecording(callback) {
+        callback = callback || function() {};
+
         if (!mediaRecorder) {
-            return console.warn(WARNING);
+            warningLog();
+            return;
         }
 
         if (self.state === 'paused') {
@@ -94,15 +97,12 @@ function RecordRTC(mediaStream, config) {
             return;
         }
 
-        if (self.state !== 'recording') {
-            if (!config.disableLogs) {
-                console.warn('Unable to stop the recording. Recording state: ', self.state);
-            }
-            return;
+        if (self.state !== 'recording' && !config.disableLogs) {
+            console.warn('Recording state should be: "recording", however current state is: ', self.state);
         }
 
         if (!config.disableLogs) {
-            console.warn('Stopped recording ' + config.type + ' stream.');
+            console.log('Stopped recording ' + config.type + ' stream.');
         }
 
         if (config.type !== 'gif') {
@@ -115,6 +115,15 @@ function RecordRTC(mediaStream, config) {
         setState('stopped');
 
         function _callback(__blob) {
+            if (!mediaRecorder) {
+                if (typeof callback.call === 'function') {
+                    callback.call(self, '');
+                } else {
+                    callback('');
+                }
+                return;
+            }
+
             Object.keys(mediaRecorder).forEach(function(key) {
                 if (typeof mediaRecorder[key] === 'function') {
                     return;
@@ -133,6 +142,10 @@ function RecordRTC(mediaStream, config) {
                 }
             }
 
+            if (blob && !config.disableLogs) {
+                console.log(blob.type, '->', bytesToSize(blob.size));
+            }
+
             if (callback) {
                 var url = URL.createObjectURL(blob);
 
@@ -141,10 +154,6 @@ function RecordRTC(mediaStream, config) {
                 } else {
                     callback(url);
                 }
-            }
-
-            if (blob && !config.disableLogs) {
-                console.log(blob.type, '->', bytesToSize(blob.size));
             }
 
             if (!config.autoWriteToDisk) {
@@ -161,7 +170,8 @@ function RecordRTC(mediaStream, config) {
 
     function pauseRecording() {
         if (!mediaRecorder) {
-            return console.warn(WARNING);
+            warningLog();
+            return;
         }
 
         if (self.state !== 'recording') {
@@ -182,7 +192,8 @@ function RecordRTC(mediaStream, config) {
 
     function resumeRecording() {
         if (!mediaRecorder) {
-            return console.warn(WARNING);
+            warningLog();
+            return;
         }
 
         if (self.state !== 'paused') {
@@ -280,6 +291,10 @@ function RecordRTC(mediaStream, config) {
     }
 
     function setState(state) {
+        if (!self) {
+            return;
+        }
+
         self.state = state;
 
         if (typeof self.onStateChanged.call === 'function') {
@@ -289,7 +304,15 @@ function RecordRTC(mediaStream, config) {
         }
     }
 
-    var WARNING = 'It seems that "startRecording" is not invoked for ' + config.type + ' recorder.';
+    var WARNING = 'It seems that recorder is destroyed or "startRecording" is not invoked for ' + config.type + ' recorder.';
+
+    function warningLog() {
+        if (config.disableLogs === true) {
+            return;
+        }
+
+        console.warn(WARNING);
+    }
 
     var mediaRecorder;
 
@@ -404,7 +427,8 @@ function RecordRTC(mediaStream, config) {
          */
         clearRecordedData: function() {
             if (!mediaRecorder) {
-                return console.warn(WARNING);
+                warningLog();
+                return;
             }
 
             mediaRecorder.clearRecordedData();
@@ -435,7 +459,8 @@ function RecordRTC(mediaStream, config) {
          */
         getBlob: function() {
             if (!mediaRecorder) {
-                return console.warn(WARNING);
+                warningLog();
+                return;
             }
 
             return mediaRecorder.blob;
@@ -469,7 +494,8 @@ function RecordRTC(mediaStream, config) {
          */
         toURL: function() {
             if (!mediaRecorder) {
-                return console.warn(WARNING);
+                warningLog();
+                return;
             }
 
             return URL.createObjectURL(mediaRecorder.blob);
@@ -508,7 +534,8 @@ function RecordRTC(mediaStream, config) {
          */
         save: function(fileName) {
             if (!mediaRecorder) {
-                return console.warn(WARNING);
+                warningLog();
+                return;
             }
 
             invokeSaveAsDialog(mediaRecorder.blob, fileName);
@@ -527,7 +554,8 @@ function RecordRTC(mediaStream, config) {
          */
         getFromDisk: function(callback) {
             if (!mediaRecorder) {
-                return console.warn(WARNING);
+                warningLog();
+                return;
             }
 
             RecordRTC.getFromDisk(config.type, callback);
@@ -679,6 +707,27 @@ function RecordRTC(mediaStream, config) {
          */
         getState: function() {
             return self.state;
+        },
+
+        /**
+         * Destroy RecordRTC instance. Clear all recorders and objects.
+         * @method
+         * @memberof RecordRTC
+         * @example
+         * recorder.destroy();
+         */
+        destroy: function() {
+            var disableLogs = config.disableLogs;
+
+            config.disableLogs = true;
+            self.reset();
+            config = {};
+            setState('destroyed');
+            returnObject = self = null;
+
+            if (!disableLogs) {
+                console.warn('RecordRTC is destroyed.');
+            }
         }
     };
 
@@ -696,111 +745,6 @@ function RecordRTC(mediaStream, config) {
 
     return returnObject;
 }
-
-/**
- * This method can be used to get all recorded blobs from IndexedDB storage.
- * @param {string} type - 'all' or 'audio' or 'video' or 'gif'
- * @param {function} callback - Callback function to get all stored blobs.
- * @method
- * @memberof RecordRTC
- * @example
- * RecordRTC.getFromDisk('all', function(dataURL, type){
- *     if(type === 'audio') { }
- *     if(type === 'video') { }
- *     if(type === 'gif')   { }
- * });
- */
-RecordRTC.getFromDisk = function(type, callback) {
-    if (!callback) {
-        throw 'callback is mandatory.';
-    }
-
-    console.log('Getting recorded ' + (type === 'all' ? 'blobs' : type + ' blob ') + ' from disk!');
-    DiskStorage.Fetch(function(dataURL, _type) {
-        if (type !== 'all' && _type === type + 'Blob' && callback) {
-            callback(dataURL);
-        }
-
-        if (type === 'all' && callback) {
-            callback(dataURL, _type.replace('Blob', ''));
-        }
-    });
-};
-
-/**
- * This method can be used to store recorded blobs into IndexedDB storage.
- * @param {object} options - {audio: Blob, video: Blob, gif: Blob}
- * @method
- * @memberof RecordRTC
- * @example
- * RecordRTC.writeToDisk({
- *     audio: audioBlob,
- *     video: videoBlob,
- *     gif  : gifBlob
- * });
- */
-RecordRTC.writeToDisk = function(options) {
-    console.log('Writing recorded blob(s) to disk!');
-    options = options || {};
-    if (options.audio && options.video && options.gif) {
-        options.audio.getDataURL(function(audioDataURL) {
-            options.video.getDataURL(function(videoDataURL) {
-                options.gif.getDataURL(function(gifDataURL) {
-                    DiskStorage.Store({
-                        audioBlob: audioDataURL,
-                        videoBlob: videoDataURL,
-                        gifBlob: gifDataURL
-                    });
-                });
-            });
-        });
-    } else if (options.audio && options.video) {
-        options.audio.getDataURL(function(audioDataURL) {
-            options.video.getDataURL(function(videoDataURL) {
-                DiskStorage.Store({
-                    audioBlob: audioDataURL,
-                    videoBlob: videoDataURL
-                });
-            });
-        });
-    } else if (options.audio && options.gif) {
-        options.audio.getDataURL(function(audioDataURL) {
-            options.gif.getDataURL(function(gifDataURL) {
-                DiskStorage.Store({
-                    audioBlob: audioDataURL,
-                    gifBlob: gifDataURL
-                });
-            });
-        });
-    } else if (options.video && options.gif) {
-        options.video.getDataURL(function(videoDataURL) {
-            options.gif.getDataURL(function(gifDataURL) {
-                DiskStorage.Store({
-                    videoBlob: videoDataURL,
-                    gifBlob: gifDataURL
-                });
-            });
-        });
-    } else if (options.audio) {
-        options.audio.getDataURL(function(audioDataURL) {
-            DiskStorage.Store({
-                audioBlob: audioDataURL
-            });
-        });
-    } else if (options.video) {
-        options.video.getDataURL(function(videoDataURL) {
-            DiskStorage.Store({
-                videoBlob: videoDataURL
-            });
-        });
-    } else if (options.gif) {
-        options.gif.getDataURL(function(gifDataURL) {
-            DiskStorage.Store({
-                gifBlob: gifDataURL
-            });
-        });
-    }
-};
 
 if (typeof module !== 'undefined' /* && !!module.exports*/ ) {
     module.exports = RecordRTC;

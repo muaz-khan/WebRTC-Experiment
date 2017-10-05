@@ -1,3 +1,5 @@
+<script>window.demoVersion = '2017.09.05';</script>
+
 <!--
 > Muaz Khan     - www.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
@@ -84,28 +86,13 @@
         <article>
             <header style="text-align: center;">
                 <h1>
-                    DetectRTC | Is WebRTC Supported In Your Browser?
+                    <a href="https://github.com/muaz-khan/DetectRTC">DetectRTC</a> | Is WebRTC Supported In Your Browser?
                 </h1>
-                <p>
-                    <a href="https://www.webrtc-experiment.com/">HOME</a>
-                    <span> &copy; </span>
-                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
-
-                    .
-                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
-
-                    .
-                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
-
-                    .
-                    <a href="https://github.com/muaz-khan/DetectRTC/issues?state=open" target="_blank">Latest issues</a>
-
-                    .
-                    <a href="https://github.com/muaz-khan/DetectRTC/commits/master" target="_blank">What's New?</a>
+                <p style="margin: 0;">
+                    <a href="https://github.com/muaz-khan/DetectRTC">Github Source Codes</a> |
+                    <a href="https://github.com/muaz-khan/DetectRTC/commits/master">What's New?</a>
                 </p>
             </header>
-
-            <div class="github-stargazers"></div>
 
             <div style="text-align:center;">
                 <a href="https://www.npmjs.com/package/detectrtc" target="_blank">
@@ -120,6 +107,13 @@
                     <img src="https://travis-ci.org/muaz-khan/DetectRTC.png?branch=master">
                 </a>
             </div>
+
+            <section style="margin: 20px; text-align: center; color: red;">
+                <small id="demoVersion"></small>
+                <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day="0"+day);var year=date.getUTCFullYear();document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
+            </section>
+
+            <div class="github-stargazers"></div>
 
             <section class="experiment" id="detectrtc-output">
                 <button id="generate-image" style="float:right;">Open as Image</button>
@@ -170,6 +164,7 @@
                     appendTR('Browser', printVal(DetectRTC.browser.name) + ' version: ' + printVal(DetectRTC.browser.fullVersion) + '<br>Private browsing? ' + printVal(DetectRTC.browser.isPrivateBrowsing), 'fullVersion');
 
                     appendTR('Display resolutions', printVal(DetectRTC.displayResolution), 'displayResolution');
+                    appendTR('Display aspect ratio', printVal(DetectRTC.displayAspectRatio), 'displayAspectRatio');
 
                     output = printVal(DetectRTC.hasSpeakers);
                     if(DetectRTC.audioOutputDevices.length) {
@@ -247,7 +242,6 @@
 
 
                     appendTR('Is it a mobile device?', printVal(DetectRTC.isMobileDevice), 'isMobileDevice');
-                    appendTR('Browser Supports WebSockets?', printVal(DetectRTC.isWebSocketsSupported), 'isWebSocketsSupported');
 
                     appendTR('Is Browser Supports Stream Capturing from Canvas?', printVal(DetectRTC.isVideoSupportsStreamCapturing), 'isVideoSupportsStreamCapturing');
                     appendTR('Is Browser Supports Stream Capturing from Video?', printVal(DetectRTC.isVideoSupportsStreamCapturing), 'isVideoSupportsStreamCapturing');
@@ -426,19 +420,18 @@ rtpSenders.replaceTrack(newTrack);';
                 }
             </script>
 
-            <section class="experiment own-widgets">
+            <section class="experiment">
                 <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/DetectRTC/issues" target="_blank">DetectRTC Issues</a>
                 </h2>
                 <div id="github-issues"></div>
             </section>
 
             <section class="experiment">
-                <h2 class="header" id="feedback">Feedback</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/DetectRTC/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
             </section>
+
+            <section class="experiment"><small id="send-message"></small></section>
 
             <section class="experiment">
                 <h2 class="header">
@@ -494,20 +487,14 @@ DetectRTC.load(function() {
 </pre>
 
             </section>
-
-            <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/DetectRTC/commits/master" target="_blank">Latest Updates</a></h2>
-                <div id="github-commits"></div>
-            </section>
         </article>
-
-        <a href="https://github.com/muaz-khan/DetectRTC" class="fork-left"></a>
 
         <footer>
             <p>
-                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
-                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
-                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> |
+                <a href="http://www.muazkhan.com/">Muaz Khan</a> |
+                <a href="https://twitter.com/WebRTCWeb">@WebRTCWeb</a> |
+                <a href="https://twitter.com/muazkh">@muazkh</a>
             </p>
         </footer>
 

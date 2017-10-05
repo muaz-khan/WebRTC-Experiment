@@ -17,13 +17,13 @@
 <hr>
 <audio controls autoplay></audio>
 
-<script src="/RecordRTC.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script>
 var audio = document.querySelector('audio');
 
 function captureMicrophone(callback) {
-    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    navigator.getUserMedia({audio: true}, callback, function(error) {
+    navigator.mediaDevices.getUserMedia({audio: true}).then(callback).catch(function(error) {
         alert('Unable to access your microphone.');
         console.error(error);
     });
@@ -42,7 +42,7 @@ var recorder; // globally accessible
 document.getElementById('btn-start-recording').onclick = function() {
     this.disabled = true;
     captureMicrophone(function(microphone) {
-        audio.src = URL.createObjectURL(microphone);
+        setSrcObject(microphone, audio);
         audio.play();
 
         recorder = RecordRTC(microphone, {

@@ -1,6 +1,6 @@
 function isMediaRecorderCompatible() {
     var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
-    var isChrome = !!window.chrome && !isOpera;
+    var isChrome = (!!window.chrome && !isOpera) || isElectron();
     var isFirefox = typeof window.InstallTrigger !== 'undefined';
 
     if (isFirefox) {

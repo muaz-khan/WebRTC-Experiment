@@ -7,7 +7,14 @@
 <html id="home" lang="en">
 
 <head>
-    <title>takeSnapshot using RTCMultiConnection ® Muaz Khan</title>
+    <script>
+        if(!location.hash.replace('#', '').length) {
+            location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+            location.reload();
+        }
+    </script>
+
+    <title>takeSnapshot using RTCMultiConnection | Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -15,7 +22,7 @@
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
 
     <style>
     audio,
@@ -96,9 +103,9 @@
     document.createElement('footer');
     </script>
 
-    <script src="//cdn.webrtc-experiment.com/firebase.js">
+    <script src="https://cdn.webrtc-experiment.com/socket.io.js">
     </script>
-    <script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
+    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js">
     </script>
 </head>
 
@@ -149,6 +156,34 @@
         // window.username = Math.random() * 9999 << 9999;
 
         var connection = new RTCMultiConnection();
+
+        // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
+        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+        connection.openSignalingChannel = function(config) {
+            var channel = config.channel || connection.channel || 'default-namespace';
+            var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+
+            io.connect(SIGNALING_SERVER).emit('new-channel', {
+                channel: channel,
+                sender: sender
+            });
+
+            var socket = io.connect(SIGNALING_SERVER + channel);
+            socket.channel = channel;
+
+            socket.on('connect', function() {
+                if (config.callback) config.callback(socket);
+            });
+
+            socket.send = function(message) {
+                socket.emit('message', {
+                    sender: sender,
+                    data: message
+                });
+            };
+
+            socket.on('message', config.onmessage);
+        };
 
         var sessionsList = document.getElementById('sessions-list');
         connection.onNewSession = function(session) {
@@ -314,8 +349,8 @@
     </footer>
 
     <!-- commits.js is useless for you! -->
-    <script src="//cdn.webrtc-experiment.com/commits.js" async>
-    </script>
+    <script>window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';</script>
+    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
 </body>
 
 </html>

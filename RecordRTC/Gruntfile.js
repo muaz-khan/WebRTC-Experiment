@@ -35,6 +35,7 @@ module.exports = function(grunt) {
             dist: {
                 src: [
                     'dev/RecordRTC.js',
+                    'dev/RecordRTC.IndexedDB.js',
                     'dev/RecordRTC-Configuration.js',
                     'dev/GetRecorderType.js',
                     'dev/MRecordRTC.js',
@@ -49,6 +50,7 @@ module.exports = function(grunt) {
                     'dev/Whammy.js',
                     'dev/DiskStorage.js',
                     'dev/GifRecorder.js',
+                    'dev/MultiStreamsMixer.js', // github/muaz-khan/MultiStreamsMixer
                     'dev/MultiStreamRecorder.js',
                     'dev/RecordRTC.promises.js'
                 ],

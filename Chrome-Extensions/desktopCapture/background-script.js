@@ -13,7 +13,7 @@ chrome.runtime.onConnect.addListener(function (port) {
         }
 
         if(message == 'audio-plus-tab') {
-            screenOptions = ['audio', 'tab'];
+            screenOptions = ['screen', 'window', 'audio'];
             chrome.desktopCapture.chooseDesktopMedia(screenOptions, port.sender.tab, onAccessApproved);
         }
     }

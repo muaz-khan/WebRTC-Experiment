@@ -1,3 +1,4 @@
+<!-- Demo version: 2017.08.23 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -6,12 +7,17 @@
   <title>SSE+PHP Signaling using RTCMultiConnection</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="shortcut icon" href="/demos/logo.png">
-  <link rel="stylesheet" type="text/css" href="/demos/stylesheet.css">
+  <link rel="stylesheet" href="/demos/stylesheet.css">
+  <script src="/demos/menu.js"></script>
 </head>
 <body>
   <header>
     <a class="logo" href="/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
+    <a href="/demos/" class="menu-explorer">Menu<img src="/demos/menu-icon.png" alt="Menu"></a>
     <nav>
+      <li>
+        <a href="/demos/">Home</a>
+      </li>
       <li>
         <a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
       </li>
@@ -35,7 +41,7 @@
 
   <h1>
     SSE+PHP Signaling using RTCMultiConnection
-    <p>This demo is using SSE (Server Sent Events) to setup WebRTC one-to-one connection. <a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/SSEConnection">Check PHP Source Codes</a></p>
+    <p class="no-mobile">This demo is using SSE (Server Sent Events) to setup WebRTC one-to-one connection. <a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/SSEConnection">Check PHP Source Codes</a></p>
   </h1>
 
   <section class="make-center">
@@ -172,6 +178,13 @@ if (roomid && roomid.length) {
     disableInputButtons();
 }
 </script>
+
+  <section class="no-mobile">
+    <h2>iOS or Android</h2>
+    <p>
+      You can write <a href="http://www.rtcmulticonnection.org/docs/Write-iOS-Apps/" target="_blank">iOS</a> or <a href="http://www.rtcmulticonnection.org/docs/Write-Android-Apps/" target="_blank">Android</a> apps for this demo as well. 
+    </p>
+  </section>
 
   <footer>
     <small id="send-message"></small>

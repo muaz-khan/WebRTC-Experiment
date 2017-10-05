@@ -1,4 +1,4 @@
-// Last time updated at Wednesday, March 16th, 2016, 11:18:45 AM 
+// Last time updated at Wednesday, August 23rd, 2017, 9:02:27 PM 
 
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
@@ -2684,10 +2684,6 @@
             loadScreenFrame();
         }
 
-        connection.getExternalIceServers && loadIceFrame(function(iceServers) {
-            connection.iceServers = connection.iceServers.concat(iceServers);
-        });
-
         if (connection.log == false) connection.skipLogs();
         if (connection.onlog) {
             log = warn = error = function() {
@@ -3490,35 +3486,6 @@
         };
     }
 
-    var iceFrame, loadedIceFrame;
-
-    function loadIceFrame(callback, skip) {
-        if (loadedIceFrame) return;
-        if (!skip) return loadIceFrame(callback, true);
-
-        loadedIceFrame = true;
-
-        var iframe = document.createElement('iframe');
-        iframe.onload = function() {
-            iframe.isLoaded = true;
-
-            listenEventHandler('message', iFrameLoaderCallback);
-
-            function iFrameLoaderCallback(event) {
-                if (!event.data || !event.data.iceServers) return;
-                callback(event.data.iceServers);
-
-                // this event listener is no more needed
-                window.removeEventListener('message', iFrameLoaderCallback);
-            }
-
-            iframe.contentWindow.postMessage('get-ice-servers', '*');
-        };
-        iframe.src = 'https://cdn.webrtc-experiment.com/getIceServers/';
-        iframe.style.display = 'none';
-        (document.body || document.documentElement).appendChild(iframe);
-    }
-
     function muteOrUnmute(e) {
         var stream = e.stream,
             root = e.root,
@@ -3729,153 +3696,8 @@
 
         var connection = options.connection;
 
-        // tools.ietf.org/html/draft-alvestrand-constraints-resolution-00
-        var mediaConstraints = options.mediaConstraints || {};
-        var videoConstraints = typeof mediaConstraints.video == 'boolean' ? mediaConstraints.video : mediaConstraints.video || mediaConstraints;
-        var audioConstraints = typeof mediaConstraints.audio == 'boolean' ? mediaConstraints.audio : mediaConstraints.audio || defaultConstraints;
-
         var n = navigator;
-        var hints = options.constraints || {
-            audio: defaultConstraints,
-            video: defaultConstraints
-        };
-
-        if (hints.video && hints.video.mozMediaSource) {
-            // "mozMediaSource" is redundant
-            // need to check "mediaSource" instead.
-            videoConstraints = {};
-        }
-
-        if (hints.video == true) hints.video = defaultConstraints;
-        if (hints.audio == true) hints.audio = defaultConstraints;
-
-        // connection.mediaConstraints.audio = false;
-        if (typeof audioConstraints == 'boolean' && hints.audio) {
-            hints.audio = audioConstraints;
-        }
-
-        // connection.mediaConstraints.video = false;
-        if (typeof videoConstraints == 'boolean' && hints.video) {
-            hints.video = videoConstraints;
-        }
-
-        // connection.mediaConstraints.audio.mandatory = {prop:true};
-        var audioMandatoryConstraints = audioConstraints.mandatory;
-        if (!isEmpty(audioMandatoryConstraints)) {
-            hints.audio.mandatory = merge(hints.audio.mandatory, audioMandatoryConstraints);
-        }
-
-        // connection.media.min(320,180);
-        // connection.media.max(1920,1080);
-        var videoMandatoryConstraints = videoConstraints.mandatory;
-        if (videoMandatoryConstraints) {
-            var mandatory = {};
-
-            if (videoMandatoryConstraints.minWidth) {
-                mandatory.minWidth = videoMandatoryConstraints.minWidth;
-            }
-
-            if (videoMandatoryConstraints.minHeight) {
-                mandatory.minHeight = videoMandatoryConstraints.minHeight;
-            }
-
-            if (videoMandatoryConstraints.maxWidth) {
-                mandatory.maxWidth = videoMandatoryConstraints.maxWidth;
-            }
-
-            if (videoMandatoryConstraints.maxHeight) {
-                mandatory.maxHeight = videoMandatoryConstraints.maxHeight;
-            }
-
-            if (videoMandatoryConstraints.minAspectRatio) {
-                mandatory.minAspectRatio = videoMandatoryConstraints.minAspectRatio;
-            }
-
-            if (videoMandatoryConstraints.maxFrameRate) {
-                mandatory.maxFrameRate = videoMandatoryConstraints.maxFrameRate;
-            }
-
-            if (videoMandatoryConstraints.minFrameRate) {
-                mandatory.minFrameRate = videoMandatoryConstraints.minFrameRate;
-            }
-
-            if (mandatory.minWidth && mandatory.minHeight) {
-                // http://goo.gl/IZVYsj
-                var allowed = ['1920:1080', '1280:720', '960:720', '640:360', '640:480', '320:240', '320:180'];
-
-                if (allowed.indexOf(mandatory.minWidth + ':' + mandatory.minHeight) == -1 ||
-                    allowed.indexOf(mandatory.maxWidth + ':' + mandatory.maxHeight) == -1) {
-                    error('The min/max width/height constraints you passed "seems" NOT supported.', toStr(mandatory));
-                }
-
-                if (mandatory.minWidth > mandatory.maxWidth || mandatory.minHeight > mandatory.maxHeight) {
-                    error('Minimum value must not exceed maximum value.', toStr(mandatory));
-                }
-
-                if (mandatory.minWidth >= 1280 && mandatory.minHeight >= 720) {
-                    warn('Enjoy HD video! min/' + mandatory.minWidth + ':' + mandatory.minHeight + ', max/' + mandatory.maxWidth + ':' + mandatory.maxHeight);
-                }
-            }
-
-            hints.video.mandatory = merge(hints.video.mandatory, mandatory);
-        }
-
-        if (videoMandatoryConstraints) {
-            hints.video.mandatory = merge(hints.video.mandatory, videoMandatoryConstraints);
-        }
-
-        // videoConstraints.optional = [{prop:true}];
-        if (videoConstraints.optional && videoConstraints.optional instanceof Array && videoConstraints.optional.length) {
-            hints.video.optional = hints.video.optional ? hints.video.optional.concat(videoConstraints.optional) : videoConstraints.optional;
-        }
-
-        // audioConstraints.optional = [{prop:true}];
-        if (audioConstraints.optional && audioConstraints.optional instanceof Array && audioConstraints.optional.length) {
-            hints.audio.optional = hints.audio.optional ? hints.audio.optional.concat(audioConstraints.optional) : audioConstraints.optional;
-        }
-
-        if (hints.video.mandatory && !isEmpty(hints.video.mandatory) && connection._mediaSources.video) {
-            hints.video.optional.forEach(function(video, index) {
-                if (video.sourceId == connection._mediaSources.video) {
-                    delete hints.video.optional[index];
-                }
-            });
-
-            hints.video.optional = swap(hints.video.optional);
-
-            hints.video.optional.push({
-                sourceId: connection._mediaSources.video
-            });
-        }
-
-        if (hints.audio.mandatory && !isEmpty(hints.audio.mandatory) && connection._mediaSources.audio) {
-            hints.audio.optional.forEach(function(audio, index) {
-                if (audio.sourceId == connection._mediaSources.audio) {
-                    delete hints.audio.optional[index];
-                }
-            });
-
-            hints.audio.optional = swap(hints.audio.optional);
-
-            hints.audio.optional.push({
-                sourceId: connection._mediaSources.audio
-            });
-        }
-
-        if (hints.video && !hints.video.mozMediaSource && hints.video.optional && hints.video.mandatory) {
-            if (!hints.video.optional.length && isEmpty(hints.video.mandatory)) {
-                hints.video = true;
-            }
-        }
-
-        if (isMobileDevice) {
-            // Android fails for some constraints
-            // so need to force {audio:true,video:true}
-            hints = {
-                audio: !!hints.audio,
-                video: !!hints.video
-            };
-        }
+        var hints = connection.mediaConstraints;
 
         // connection.mediaConstraints always overrides constraints
         // passed from "captureUserMedia" function.
@@ -3919,6 +3741,62 @@
             });
         }
     }
+
+    // IceServersHandler.js
+
+    var IceServersHandler = (function() {
+        function getIceServers(connection) {
+            var iceServers = [];
+
+            iceServers.push(getSTUNObj('stun:stun.l.google.com:19302'));
+
+            iceServers.push(getTURNObj('stun:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turn:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+            iceServers.push(getTURNObj('turns:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
+            iceServers.push(getTURNObj('turns:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
+
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:3344', 'muazkh', 'muazkh')); // resiprocate
+            // iceServers.push(getTURNObj('turn:webrtcweb.com:4433', 'muazkh', 'muazkh')); // resiprocate
+
+            // check if restund is still active: http://webrtcweb.com:4050/
+            iceServers.push(getTURNObj('stun:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
+            iceServers.push(getTURNObj('turn:webrtcweb.com:5544?transport=tcp', 'muazkh', 'muazkh')); // restund
+
+            return iceServers;
+        }
+
+        function getSTUNObj(stunStr) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
+            }
+
+            var obj = {};
+            obj[urlsParam] = stunStr;
+            return obj;
+        }
+
+        function getTURNObj(turnStr, username, credential) {
+            var urlsParam = 'urls';
+            if (typeof isPluginRTC !== 'undefined') {
+                urlsParam = 'url';
+            }
+
+            var obj = {
+                username: username,
+                credential: credential
+            };
+            obj[urlsParam] = turnStr;
+            return obj;
+        }
+
+        return {
+            getIceServers: getIceServers
+        };
+    })();
 
     var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
     var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
@@ -4263,7 +4141,9 @@
 
                     this.iceServers = {
                         iceServers: this.iceServers,
-                        iceTransports: this.rtcConfiguration.iceTransports
+                        iceTransportPolicy: this.rtcConfiguration.iceTransports,
+                        rtcpMuxPolicy: 'require', // or negotiate
+                        bundlePolicy: 'max-bundle'
                     };
                 } else this.iceServers = null;
 
@@ -5908,29 +5788,7 @@
             }
         };
 
-        var iceServers = [];
-
-        iceServers.push({
-            url: 'stun:stun.l.google.com:19302'
-        });
-
-        iceServers.push({
-            url: 'stun:stun.anyfirewall.com:3478'
-        });
-
-        iceServers.push({
-            url: 'turn:turn.bistri.com:80',
-            credential: 'homeo',
-            username: 'homeo'
-        });
-
-        iceServers.push({
-            url: 'turn:turn.anyfirewall.com:443?transport=tcp',
-            credential: 'webrtc',
-            username: 'webrtc'
-        });
-
-        connection.iceServers = iceServers;
+        connection.iceServers = IceServersHandler.getIceServers();
 
         connection.rtcConfiguration = {
             iceServers: null,
@@ -6678,6 +6536,19 @@
         };
 
         connection.Plugin = Plugin;
+
+        connection.resetScreen = function() {
+            sourceId = null;
+            if (DetectRTC && DetectRTC.screen) {
+                delete DetectRTC.screen.sourceId;
+            }
+
+            currentUserMediaRequest = {
+                streams: [],
+                mutex: false,
+                queueRequests: []
+            };
+        };
     }
 
 })();

@@ -9,30 +9,6 @@
         });
     }
 
-    if (items['min_bandwidth']) {
-        document.getElementById('min_bandwidth').value = items['min_bandwidth'];
-    } else {
-        chrome.storage.sync.set({
-            min_bandwidth: 512
-        }, function() {});
-    }
-
-    if (items['is_audio']) {
-        document.getElementById('is_audio').checked = items['is_audio'] === 'true';
-    } else {
-        chrome.storage.sync.set({
-            is_audio: 'false'
-        }, function() {});
-    }
-
-    if (items['max_bandwidth']) {
-        document.getElementById('max_bandwidth').value = items['max_bandwidth'];
-    } else {
-        chrome.storage.sync.set({
-            max_bandwidth: 1048
-        }, function() {});
-    }
-
     if (items['room_password']) {
         document.getElementById('room_password').value = items['room_password'];
     }
@@ -49,54 +25,6 @@ document.getElementById('resolutions').onchange = function() {
         resolutions: this.value
     }, function() {
         document.getElementById('resolutions').disabled = false;
-    });
-};
-
-document.getElementById('is_audio').onchange = function() {
-    this.disabled = true;
-
-    chrome.storage.sync.set({
-        is_audio: this.checked ? 'true' : 'false'
-    }, function() {
-        document.getElementById('is_audio').disabled = false;
-    });
-};
-
-document.getElementById('min_bandwidth').onblur = function() {
-    var maxValue = parseInt(document.getElementById('max_bandwidth').value);
-    var minValue = parseInt(document.getElementById('min_bandwidth').value);
-    if(maxValue < minValue) {
-        console.log('Min-Bandwidth must be lower than Max-Bandwidth.');
-        document.getElementById('max_bandwidth').value = 
-            document.getElementById('min_bandwidth').value = this.value;
-        return;
-    }
-    
-    this.disabled = true;
-
-    chrome.storage.sync.set({
-        min_bandwidth: this.value
-    }, function() {
-        document.getElementById('min_bandwidth').disabled = false;
-    });
-};
-
-document.getElementById('max_bandwidth').onblur = function() {
-    var maxValue = parseInt(document.getElementById('max_bandwidth').value);
-    var minValue = parseInt(document.getElementById('min_bandwidth').value);
-    if(maxValue < minValue) {
-        console.log('Min-Bandwidth must be lower than Max-Bandwidth.');
-        document.getElementById('max_bandwidth').value = 
-            document.getElementById('min_bandwidth').value = this.value;
-        return;
-    }
-    
-    this.disabled = true;
-
-    chrome.storage.sync.set({
-        max_bandwidth: this.value
-    }, function() {
-        document.getElementById('max_bandwidth').disabled = false;
     });
 };
 

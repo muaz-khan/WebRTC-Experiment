@@ -1,3 +1,5 @@
+<script>window.demoVersion = '2017.09.25';</script>
+
 <!--
 > Muaz Khan     - wwww.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
@@ -8,7 +10,7 @@
 <html id="home" lang="en">
 
 <head>
-    <title>FileSharing using FileBufferReader</title>
+    <title>WebRTC File Sharing | FileBufferReader</title>
     <meta name="description" content="Peer-to-Peer file sharing using FileBufferReader.js and WebRTC!" />
     <meta name="keywords" content="FileSharing,File,Sharing,Peer-to-Peer,Peer2Peer,P2P,JavaScript,WebRTC,Demos,Experiments,Samples,Examples" />
 
@@ -251,39 +253,36 @@
         document.createElement('footer');
     </script>
 
-    <script src="FileBufferReader.js"></script>
-    <script src="demo/PeerConnection.js"> </script>
-    <script src="demo/PeerUI.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/FileBufferReader.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/FileBufferReader/demo/PeerConnection.js"> </script>
+    <script src="https://cdn.webrtc-experiment.com/FileBufferReader/demo/PeerUI.js"></script>
 
-    <link rel="stylesheet" href="demo/circular-progress-bar.css">
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/FileBufferReader/demo/circular-progress-bar.css">
 </head>
 
 <body>
     <article>
         <header style="text-align: center;">
-            <h1>
-                FileSharing using FileBufferReader
+            <h1 style="border:0;">
+                WebRTC File Sharing | <a href="https://github.com/muaz-khan/FileBufferReader">FileBufferReader</a>
             </h1>
 
-            <p>
-                <a href="https://www.webrtc-experiment.com/">HOME</a>
-                <span> &copy; </span>
-                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
-                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
-                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
-                <a href="https://github.com/muaz-khan/FileBufferReader/issues?state=open" target="_blank">Latest issues</a> .
-                <a href="https://github.com/muaz-khan/FileBufferReader/commits/master" target="_blank">What's New?</a>
+            <p style="margin-top: 15px;">
+                <a href="https://github.com/muaz-khan/FileBufferReader">Github Source Codes</a> |
+                <a href="https://github.com/muaz-khan/FileBufferReader/commits/master">What's New?</a>
             </p>
         </header>
 
-        <div class="github-stargazers"></div>
-
-        <blockquote>
-            <a href="https://www.youtube.com/watch?v=gv8xpdGdS4o" target="_blank">Watch a YouTube video</a> to understand how it works.
-        </blockquote>
+        <section style="margin: 20px; text-align: center; color: red;">
+            <small id="demoVersion"></small>
+            <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getUTCFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
+        </section>
 
         <section id="main-container" class="experiment">
-          <h2 class="specific-h2"><a id="demo" href="#demo">FileBufferReader Demo</a></h2>
+          <div style="text-align: center;">
+            <a href="https://www.youtube.com/watch?v=gv8xpdGdS4o" target="_blank">Watch a YouTube video</a> to understand <b>how this demo works</b>.
+          </div>
 
           <div style="text-align:center;">
             <br>
@@ -295,7 +294,9 @@
             <span id="share-this-link"></span>
             <br><br>
 
-            <button id="select-file" disabled style="font-size: 2em;">Select & Share A File</button>
+            <button id="select-file" disabled style="font-size: 2em;">Single</button>
+            <button id="select-multiple" disabled style="font-size: 2em;">Multiple</button>
+            <button id="select-directory" disabled style="font-size: 2em;">Directory</button>
           </div>
 
           <ol class="output-panel"></ol>
@@ -303,43 +304,24 @@
           <blockquote id="info" style="display:none;"></blockquote>
         </section>
 
-        <blockquote>
-            FileBufferReader is a JavaScript library reads file and returns chunkified array-buffers. The resulting buffers can be shared using WebRTC data channels or socket.io.
-        </blockquote>
-
-        <section class="experiment own-widgets">
-            <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/FileBufferReader/issues">Latest Issues</a></h2>
-            <div id="github-issues"></div>
+        <section class="experiment" style="padding: 10px 20px;">
+          FileBufferReader is a JavaScript library reads file and returns chunkified array-buffers. The resulting buffers can be shared using WebRTC data channels or socket.io. It is <a href="https://github.com/muaz-khan/FileBufferReader">Open Sourced on Github</a>
         </section>
 
-        <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
-            <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Want to ask a Question?</h2>
-            <div>
-                <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Feel free to ask any question regarding FileBufferReader.js!"></textarea>
-            </div>
-            <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left: 1em;">You can include your email for private conversation!</small>
-        </section>
-
-        <section class="experiment own-widgets latest-commits">
-            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-            <div id="github-commits"></div>
+        <section class="experiment">
+            <small id="send-message"></small>
         </section>
     </article>
 
-    <a href="https://github.com/muaz-khan/FileBufferReader" class="fork-left"></a>
-
     <footer>
         <p>
-            <a href="https://www.webrtc-experiment.com">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
-            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
-            <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> |
+            <a href="http://www.muazkhan.com/">Muaz Khan</a> |
+            <a href="https://twitter.com/WebRTCWeb">@WebRTCWeb</a> |
+            <a href="https://twitter.com/muazkh">@muazkh</a>
         </p>
     </footer>
-
-    <script>
-      window.useThisGithubPath = 'muaz-khan/FileBufferReader';
-    </script>
-    <script src="https://cdn.webrtc-experiment.com/commits.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/common.js"></script>
 </body>
 
 </html>

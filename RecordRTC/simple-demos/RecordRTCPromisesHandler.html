@@ -17,9 +17,8 @@
 <hr>
 <video controls autoplay></video>
 
-<script src="/RecordRTC.js"></script>
-<!-- for Edge/FF/Chrome/Opera/etc. getUserMedia support -->
-<script src="https://cdn.webrtc-experiment.com/gumadapter.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script>
 var video = document.querySelector('video');
 
@@ -44,7 +43,7 @@ var recorder; // globally accessible
 document.getElementById('btn-start-recording').onclick = function() {
     this.disabled = true;
     captureCamera(function(camera) {
-        video.src = URL.createObjectURL(camera);
+        setSrcObject(camera, video);
         video.play();
 
         recorder = new RecordRTCPromisesHandler(camera, {

@@ -27,6 +27,7 @@ Please check [dev](https://github.com/muaz-khan/RecordRTC/tree/master/dev) direc
 9. [RecordRTCPromisesHandler API Reference](http://recordrtc.org/RecordRTCPromisesHandler.html)
 10. [GifRecorder API Reference](http://RecordRTC.org/GifRecorder.html)
 11. [Global API Reference](http://RecordRTC.org/global.html)
+12 [RecordRTC and Upload to PHP Server](http://www.muazkhan.com/2017/08/recordrtc-and-upload-to-php-server.html)
 
 ## Browsers Support:
 
@@ -229,8 +230,8 @@ bower install recordrtc
 You can even link specific [releases](https://github.com/muaz-khan/RecordRTC/releases):
 
 ```html
-<!-- use 5.4.2 or any other version -->
-<script src="https://github.com/muaz-khan/RecordRTC/releases/download/5.4.2/RecordRTC.js"></script>
+<!-- use 5.4.4 or any other version -->
+<script src="https://github.com/muaz-khan/RecordRTC/releases/download/5.4.4/RecordRTC.js"></script>
 ```
 
 ## How to capture stream?
@@ -320,6 +321,7 @@ var recordRTC = RecordRTC(stream, options);
 * `mimeType` accepts [all these values](https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder/mimeType)
 * `recorderType` accepts `MediaStreamRecorder` or `StereoAudioRecorder` or `WhammyRecorder` or `GifRecorder` or any recorder type from [this page](https://github.com/muaz-khan/RecordRTC/tree/master/dev)
 * `timeSlice` accepts numbers in milliseconds; use this to force intervals-based blobs
+* `ondataavailable` pass this function along with `timeSlice` to get intervals based blobs
 * `checkForInactiveTracks` accepts `true` or `false`; use this to disable default inactive-stream-checker functions
 * `onTimeStamp` it is a function that is called-back by the MediaStreamRecorder; `timeSlice` parameter is required for this function
 * `bitsPerSecond` accepts numbers in bits; applies both to audio and video tracks
@@ -824,7 +826,7 @@ If you passed invalid value then you'll get blank audio.
 
 ## `sampleRate`
 
-Here is jow to customize Sample-Rate for audio recording?
+Here is how to customize Sample-Rate for audio recording?
 
 ```javascript
 // The sample rate (in sample-frames per second) at which the
@@ -872,7 +874,7 @@ This option allows you set MediaRecorder output format:
 
 ```javascript
 var options = {
-  mimeType 'video/webm', // or video/webm\;codecs=h264 or video/webm\;codecs=vp9
+  mimeType: 'video/webm', // or video/webm\;codecs=h264 or video/webm\;codecs=vp9
   bitsPerSecond: 128000
 };
 var recorder = RecordRTC(mediaStream, options);
@@ -1084,6 +1086,16 @@ recordRTC.getFromDisk(function(dataURL) {
 ```
 
 In the above example; you can see that `recordRTC` instance object is used instead of global `RecordRTC` object.
+
+## `destroy`
+
+Destroy all internal recorders. Clear memory and ask RecordRTC to stop doing anything internally:
+
+```javascript
+recorder.destroy();
+```
+
+Note: You can use this method anytime, anywhere; even during recording a stream.
 
 ## Promises
 

@@ -9,18 +9,20 @@
 </style>
 
 <title>Video+Screen recording using RecordRTC</title>
-<h1>Video+Screen recording using RecordRTC</h1>
+<h1>
+    Video+Screen recording using RecordRTC
+    (Requires <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">THIS CHROME EXTENSION</a>)
+</h1>
 
 <video controls autoplay></video>
 
-<script src="/RecordRTC.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
 <script>
-navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-
 function captureScreen(cb) {
     getScreenId(function (error, sourceId, screen_constraints) {
-        navigator.getUserMedia(screen_constraints, cb, function (error) {
+        navigator.mediaDevices.getUserMedia(screen_constraints).then(cb).catch(function(error) {
           console.error('getScreenId error', error);
 
           alert('Failed to capture your screen. Please check Chrome console logs for further information.');
@@ -29,11 +31,22 @@ function captureScreen(cb) {
 }
 
 function captureCamera(cb) {
-    navigator.getUserMedia({audio: true, video: true}, cb, function (error) {});
+    navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(cb);
+}
+
+function keepStreamActive(stream) {
+    var video = document.createElement('video');
+    video.muted = true;
+    setSrcObject(stream, video);
+    video.style.display = 'none';
+    (document.body || document.documentElement).appendChild(video);
 }
 
 captureScreen(function(screen) {
+    keepStreamActive(screen);
     captureCamera(function(camera) {
+        keepStreamActive(camera);
+
         screen.width = window.screen.width;
         screen.height = window.screen.height;
         screen.fullcanvas = true;
@@ -48,7 +61,7 @@ captureScreen(function(screen) {
             mimeType: 'video/webm',
             previewStream: function(s) {
                 document.querySelector('video').muted = true;
-                document.querySelector('video').src = URL.createObjectURL(s);
+                setSrcObject(s, document.querySelector('video'));
             }
         });
 

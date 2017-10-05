@@ -30,11 +30,17 @@ function getBrowserInfo() {
             majorVersion = 0;
         }
     }
-    // In MSIE, the true version is after 'MSIE' in userAgent
+    // In MSIE version <=10, the true version is after 'MSIE' in userAgent
+    // In IE 11, look for the string after 'rv:'
     else if (isIE) {
-        verOffset = nAgt.indexOf('MSIE');
+        verOffset = nAgt.indexOf('rv:');
+        if (verOffset > 0) { //IE 11
+            fullVersion = nAgt.substring(verOffset + 3);
+        } else { //IE 10 or earlier
+            verOffset = nAgt.indexOf('MSIE');
+            fullVersion = nAgt.substring(verOffset + 5);
+        }
         browserName = 'IE';
-        fullVersion = nAgt.substring(verOffset + 5);
     }
     // In Chrome, the true version is after 'Chrome' 
     else if (isChrome) {
@@ -71,16 +77,12 @@ function getBrowserInfo() {
 
     if (isEdge) {
         browserName = 'Edge';
-        // fullVersion = navigator.userAgent.split('Edge/')[1];
-        fullVersion = parseInt(navigator.userAgent.match(/Edge\/(\d+).(\d+)$/)[2], 10).toString();
+        fullVersion = navigator.userAgent.split('Edge/')[1];
+        // fullVersion = parseInt(navigator.userAgent.match(/Edge\/(\d+).(\d+)$/)[2], 10).toString();
     }
 
-    // trim the fullVersion string at semicolon/space if present
-    if ((ix = fullVersion.indexOf(';')) !== -1) {
-        fullVersion = fullVersion.substring(0, ix);
-    }
-
-    if ((ix = fullVersion.indexOf(' ')) !== -1) {
+    // trim the fullVersion string at semicolon/space/bracket if present
+    if ((ix = fullVersion.search(/[; \)]/)) !== -1) {
         fullVersion = fullVersion.substring(0, ix);
     }
 

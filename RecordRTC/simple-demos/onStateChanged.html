@@ -21,15 +21,15 @@
 <hr>
 <video controls autoplay></video>
 
-<script src="/RecordRTC.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script>
 var video = document.querySelector('video');
 
 function captureCamera(callback) {
-    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    navigator.getUserMedia({ audio: true, video: true }, function(camera) {
+    navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(function(camera) {
         callback(camera);
-    }, function(error) {
+    }).catch(function(error) {
         alert('Unable to capture your camera. Please check console logs.');
         console.error(error);
     });
@@ -48,7 +48,7 @@ var recorder; // globally accessible
 document.getElementById('btn-start-recording').onclick = function() {
     this.disabled = true;
     captureCamera(function(camera) {
-        video.src = URL.createObjectURL(camera);
+        setSrcObject(camera, video);
         video.play();
 
         recorder = RecordRTC(camera, {

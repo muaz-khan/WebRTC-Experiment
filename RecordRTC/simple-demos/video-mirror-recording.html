@@ -1,0 +1,106 @@
+<style>
+    html, body, video{
+        margin: 0!important;
+        padding: 0!important;
+        overflow: hidden!important;
+    }
+
+    video {
+        width: 100%;
+    }
+
+    .grid {
+        text-align: center;
+        display: grid;
+        grid-gap: 10px;
+        grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr);
+    }
+</style>
+
+<title>Record Video Mirror | RecordRTC</title>
+<h1>Record Video Mirror</h1>
+
+<div class="grid">
+    <div>
+        <h2>Original Camera</h2>
+        <video id="video-preview" controls autoplay></video>
+    </div>
+    <div>
+        <h2>Canvas Preview (Mirror)</h2>
+        <video id="canvas-preview" controls autoplay></video>
+    </div>
+</div>
+
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script>
+var videoPreview = document.getElementById('video-preview');
+var canvasPreview = document.getElementById('canvas-preview');
+
+var logoImage = document.getElementById('logo-image');
+var waitImage = document.getElementById('wait-image');
+
+navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(function(camera) {
+    videoPreview.muted = true;
+    setSrcObject(camera, videoPreview);
+    videoPreview.play();
+
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+
+    canvas.style = 'position: absolute; top: 0; left: 0; opacity: 0; margin-top: -9999999999; margin-left: -9999999999; top: -9999999999; left: -9999999999; z-index: -1;';
+    document.body.appendChild(canvas);
+
+    var canvasStream = canvas.captureStream();
+
+    var audioPlusCanvasStream = new MediaStream();
+    canvasStream.getVideoTracks().forEach(function(videoTrack) {
+        audioPlusCanvasStream.addTrack(videoTrack);
+    });
+    camera.getAudioTracks().forEach(function(audioTrack) {
+        audioPlusCanvasStream.addTrack(audioTrack);
+    });
+
+    var recorder = RecordRTC(audioPlusCanvasStream, {
+        type: 'video'
+    });
+
+    setSrcObject(canvasStream, canvasPreview);
+    canvasPreview.play();
+
+    recorder.setRecordingDuration(5 * 1000).onRecordingStopped(function() {
+        var blob = recorder.getBlob();
+        recorder = null;
+        camera.stop();
+
+        canvasPreview.src = canvasPreview.srcObject = null;
+
+        videoPreview.muted = false;
+        videoPreview.src = URL.createObjectURL(blob);
+        videoPreview.play();
+    });
+
+    recorder.startRecording();
+
+    (function looper() {
+        if(!recorder) return; // ignore/skip on stop-recording
+
+        canvas.width = videoPreview.clientWidth;
+        canvas.height = videoPreview.clientHeight;
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.save();
+        context.translate(canvas.width, 0);
+        context.scale(-1, 1);
+        context.drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.restore();
+
+        // repeat (looper)
+        setTimeout(looper, 10);
+    })();
+}).catch(function(error) {
+    alert('Unable to capture camera. Please check console logs.');
+    console.error(error);
+});
+</script>

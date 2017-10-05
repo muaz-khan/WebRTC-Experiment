@@ -1,3 +1,9 @@
+# Firefox doesn't need add-ons in order to do screen sharing, since Firefox 52 already. [More info](https://wiki.mozilla.org/Screensharing)
+
+# This repository is discontinued from September 01, 2017.
+
+----
+
 # [Firefox Extensions](https://github.com/muaz-khan/Firefox-Extensions)
 
 > Enable screen capturing in Firefox for both localhost/127.0.0.1 and `https://www.webrtc-experiment.com` pages.

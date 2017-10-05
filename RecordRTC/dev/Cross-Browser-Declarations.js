@@ -87,7 +87,7 @@ if (typeof navigator !== 'undefined' && typeof navigator.getUserMedia === 'undef
 
 var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveBlob || !!navigator.msSaveOrOpenBlob);
 var isOpera = !!window.opera || navigator.userAgent.indexOf('OPR/') !== -1;
-var isChrome = !isOpera && !isEdge && !!navigator.webkitGetUserMedia;
+var isChrome = (!isOpera && !isEdge && !!navigator.webkitGetUserMedia) || isElectron();
 
 var MediaStream = window.MediaStream;
 
@@ -104,7 +104,7 @@ if (typeof MediaStream !== 'undefined') {
             }
 
             var tracks = [];
-            this.getTracks.forEach(function(track) {
+            this.getTracks().forEach(function(track) {
                 if (track.kind.toString().indexOf('video') !== -1) {
                     tracks.push(track);
                 }
@@ -118,7 +118,7 @@ if (typeof MediaStream !== 'undefined') {
             }
 
             var tracks = [];
-            this.getTracks.forEach(function(track) {
+            this.getTracks().forEach(function(track) {
                 if (track.kind.toString().indexOf('audio') !== -1) {
                     tracks.push(track);
                 }
@@ -128,24 +128,13 @@ if (typeof MediaStream !== 'undefined') {
     }
 
     // override "stop" method for all browsers
-    MediaStream.prototype.__stop = MediaStream.prototype.stop;
-    MediaStream.prototype.stop = function() {
-        this.getAudioTracks().forEach(function(track) {
-            if (!!track.stop) {
+    if (typeof MediaStream.prototype.stop === 'undefined') {
+        MediaStream.prototype.stop = function() {
+            this.getTracks().forEach(function(track) {
                 track.stop();
-            }
-        });
-
-        this.getVideoTracks().forEach(function(track) {
-            if (!!track.stop) {
-                track.stop();
-            }
-        });
-
-        if (typeof this.__stop === 'function') {
-            this.__stop();
-        }
-    };
+            });
+        };
+    }
 }
 
 // below function via: http://goo.gl/B3ae8c
@@ -219,4 +208,43 @@ function invokeSaveAsDialog(file, fileName) {
     }
 
     URL.revokeObjectURL(hyperlink.href);
+}
+
+/**
+ * from: https://github.com/cheton/is-electron/blob/master/index.js
+ **/
+function isElectron() {
+    // Renderer process
+    if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
+        return true;
+    }
+
+    // Main process
+    if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
+        return true;
+    }
+
+    // Detect the user agent when the `nodeIntegration` option is set to true
+    if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+        return true;
+    }
+
+    return false;
+}
+
+function setSrcObject(stream, element, ignoreCreateObjectURL) {
+    if ('createObjectURL' in URL && !ignoreCreateObjectURL) {
+        try {
+            element.src = URL.createObjectURL(stream);
+        } catch (e) {
+            setSrcObject(stream, element, true);
+            return;
+        }
+    } else if ('srcObject' in element) {
+        element.srcObject = stream;
+    } else if ('mozSrcObject' in element) {
+        element.mozSrcObject = stream;
+    } else {
+        alert('createObjectURL/srcObject both are not supported.');
+    }
 }

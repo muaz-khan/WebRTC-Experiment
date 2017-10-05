@@ -16,11 +16,12 @@ window.onresize = setVideoWidth;
 
 var file;
 
-DiskStorage.Fetch('latest-file', function(f) {
+function onGettingFile(f) {
     file = f;
 
     if (!file) {
-        header.innerHTML = 'You did NOT record anything yet.';
+        header.querySelector('p').innerHTML = 'You did NOT record anything yet.';
+        header.querySelector('span').innerHTML = '';
         return;
     }
 
@@ -36,22 +37,82 @@ DiskStorage.Fetch('latest-file', function(f) {
         video.style.cursor = '';
         video.play();
     };
-});
+}
+DiskStorage.GetRecentFile(onGettingFile);
 
 var btnUploadDropDown = document.querySelector('#btn-upload-dropdown');
 document.querySelector('#btn-upload').onclick = function(e) {
     e.stopPropagation();
 
-    if(btnUploadDropDown.className === 'visible') {
-        btnUploadDropDown.className = '';
+    if (!file) {
+        alert('You have no recordings.');
+        return;
     }
-    else {
+
+    if (btnUploadDropDown.className === 'visible') {
+        btnUploadDropDown.className = '';
+    } else {
         btnUploadDropDown.className = 'visible';
     }
 };
 
+var btnRecordingsListDropDown = document.querySelector('#btn-recordings-list-dropdown');
+document.querySelector('#btn-recordings-list').onclick = function(e) {
+    e.stopPropagation();
+
+    if (btnRecordingsListDropDown.className === 'visible') {
+        btnRecordingsListDropDown.className = '';
+        btnRecordingsListDropDown.innerHTML = '';
+    } else {
+        btnRecordingsListDropDown.className = 'visible';
+
+        btnRecordingsListDropDown.innerHTML = '';
+        DiskStorage.GetFilesList(function(fileNames) {
+            if (!fileNames.length) {
+                btnRecordingsListDropDown.className = '';
+                alert('You have no recordings.');
+                return;
+            }
+
+            fileNames.forEach(function(fName) {
+                var div = document.createElement('div');
+                div.innerHTML = '<img src="images/cross-icon.png" class="cross-icon">' + fName;
+                btnRecordingsListDropDown.appendChild(div);
+
+                div.querySelector('.cross-icon').onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (!window.confirm('Are you sure you want to permanently delete the selected recording?')) {
+                        return;
+                    }
+
+                    DiskStorage.RemoveFile(fName, function() {
+                        location.reload();
+                    });
+                };
+
+                div.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    DiskStorage.Fetch(fName, function(file) {
+                        onGettingFile(file);
+                    });
+
+                    document.body.onclick();
+                };
+            });
+        });
+    }
+};
+
 document.body.onclick = function() {
-    if(btnUploadDropDown.className === 'visible') {
+    if (btnUploadDropDown.className === 'visible') {
         btnUploadDropDown.className = '';
+    }
+
+    if (btnRecordingsListDropDown.className === 'visible') {
+        btnRecordingsListDropDown.className = '';
     }
 };

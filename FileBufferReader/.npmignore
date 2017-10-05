@@ -1,6 +1,11 @@
-node_modules
-lib-cov
-npm-debug.log
+# ignore everything
+*
 
-fbr-client
-demos
+# but not these files...
+!FileBufferReader.js
+!FileBufferReader.min.js
+!index.html
+!package.json
+!bower.json
+!server.js
+!README.md

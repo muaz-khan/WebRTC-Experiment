@@ -12,10 +12,10 @@ function serverHandler(request, response) {
     var uri = url.parse(request.url).pathname;
 
     if(isWin) {
-        filename = path.join(process.cwd() + '\\demos\\', uri);
+        filename = path.join(process.cwd() + '\\', uri);
     }
     else {
-        filename = path.join(process.cwd() + '/demos/', uri);
+        filename = path.join(process.cwd() + '/', uri);
     }
 
     fs.exists(filename, function(exists) {

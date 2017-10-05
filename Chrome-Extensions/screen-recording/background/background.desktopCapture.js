@@ -27,10 +27,10 @@ function captureDesktop() {
         return;
     }
 
-    var screenSources = ['window', 'screen', 'audio'];
+    var screenSources = ['screen', 'window', 'audio'];
 
     if (enableSpeakers === false) {
-        screenSources = ['window', 'screen'];
+        screenSources = ['screen', 'window'];
     }
 
     chrome.desktopCapture.chooseDesktopMedia(screenSources, onAccessApproved);

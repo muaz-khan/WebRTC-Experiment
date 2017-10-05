@@ -1,7 +1,7 @@
 // ios-hacks.js
 
 function setCordovaAPIs() {
-    if (DetectRTC.osName !== 'iOS') return;
+    // if (DetectRTC.osName !== 'iOS') return;
     if (typeof cordova === 'undefined' || typeof cordova.plugins === 'undefined' || typeof cordova.plugins.iosrtc === 'undefined') return;
 
     var iosrtc = cordova.plugins.iosrtc;

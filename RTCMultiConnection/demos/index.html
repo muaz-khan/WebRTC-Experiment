@@ -1,112 +1,172 @@
+<!-- Demo version: 2017.08.31 -->
+
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" dir="ltr">
 <head>
-    <meta name="google-site-verification" content="zhJ273gZGLJ_Cbl-muzPYYTR6jD7sCCgufDIRS5h4SE" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+  <meta charset="utf-8">
+  <title>RTCMultiConnection Demos</title>
+  <link rel="canonical" href="/demos/">
+  <meta name="google-site-verification" content="zhJ273gZGLJ_Cbl-muzPYYTR6jD7sCCgufDIRS5h4SE" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="shortcut icon" href="/demos/logo.png">
+  <link rel="stylesheet" href="/demos/stylesheet.css">
+  <script src="/demos/menu.js"></script>
 
-    <title>RTCMultiConnection Demos</title>
+  <style>
+  .search-container {
+    text-align: left;
+    margin: -2em 5%;
+    margin-top: 0;
+  }
 
-    <meta name="description" content="RTCMultiConnection - WebRTC JavaScript Library for peer-to-peer applications." />
-    <meta name="keywords" content="RTCMultiConnection,JavaScript,WebRTC,Demos,Experiments,Samples,Examples" />
+  .search-container input {
+    background-color: transparent;
+  }
 
-    <link rel="canonical" href="/demos/">
+  .search-container td {
+    border: 0;
+    vertical-align: top;
+    padding: 0;
+    border-top: none;
+    border-right: none;
+  }
 
-    <style>
-        .search-container {
-                text-align: left;
-                margin: -2em 5%;
-                margin-top: 0;
-            }
-            .search-container input {
-                background-color: transparent;
-            }
+  .table-style {
+    border-collapse: collapse;
+    border-spacing: 0px;
+    margin-top: 0px;
+    margin-bottom: 16px;
+    display: block;
+    overflow: auto;
+    word-break: normal;
+    color: rgb(51, 51, 51);
+    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif;
+    font-size: 16px;
+    line-height: 25.6000003814697px;
+    margin-top: 10px;
+    margin-left: 20px;
+  }
 
-            .search-container td {
-                border: 0;
-                vertical-align: top;
-                padding: 0;
-                border-top: none;
-                border-right: none;
-            }
+  .tr-style {
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: rgb(204, 204, 204);
+    background-color: rgb(248, 248, 248);
+  }
 
-        .table-style {
-            border-collapse: collapse; border-spacing: 0px; margin-top: 0px; margin-bottom: 16px; display: block; width: 728px; overflow: auto; word-break: normal; color: rgb(51, 51, 51); font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif; font-size: 16px; line-height: 25.6000003814697px;"><thead><tr style="border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204);
-        }
+  .td-style {
+    padding: 6px 13px;
+    border: 1px solid rgb(221, 221, 221);
+  }
 
-        .tr-style {
-            border-top-width: 1px;
-            border-top-style: solid;
-            border-top-color: rgb(204, 204, 204);
-            background-color: rgb(248, 248, 248);
-        }
+  .td-style2 {
+    color: rgb(65, 131, 196);
+    text-decoration: none;
+    background: transparent;
+  }
 
-        .td-style {
-            padding: 6px 13px;
-            border: 1px solid rgb(221, 221, 221);
-        }
-
-        .td-style2 {
-            color: rgb(65, 131, 196);
-            text-decoration: none;
-            background: transparent;
-        }
-    </style>
-    <link rel="alternate" type="application/rss+xml" title="Muaz Khan Feed" href="http://feeds.feedburner.com/muazkh">
-        <script type="application/ld+json">
-        {
-           "@context": "http://schema.org",
-           "@type": "WebSite",
-           "url": "https://www.webrtc-experiment.com/",
-           "potentialAction": {
-             "@type": "SearchAction",
-             "target": "https://www.google.com/cse?q=WebRTC&r=m&cx=010995979085537571634%3Auujpel__q7e#gsc.tab=0&gsc.q={search_term_string}&gsc.page=1",
-             "query-input": "required name=search_term_string"
-           }
-        }
-    </script>
+  .github-button {
+    color: #24292e!important;
+    font-size: 11px!important;
+    font-weight: 600!important;
+  }
+  </style>
 </head>
-
 <body>
-    <article>
+  <header>
+    <a class="logo" href="/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
+    <a href="/" class="menu-explorer">Menu<img src="/demos/menu-icon.png" alt="Menu"></a>
+    <nav>
+      <li>
+        <a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+      </li>
+      <li>
+        <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+      </li>
+      <li>
+        <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection#v3-demos">Demos</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection">Github</a>
+      </li>
+    </nav>
+  </header>
 
-        <header style="text-align: center;">
-            <h1>
-                <a href="https://github.com/muaz-khan/RTCMultiConnection">RTCMultiConnection</a>  Demos & Experiments
-            </h1>
-            <p>
-                <a href="https://rtcmulticonnection.herokuapp.com/">HOME</a>
-                <span> &copy; </span>
-                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
-                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
-                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
-                <a href="https://github.com/muaz-khan/RTCMultiConnection/issues?state=open" target="_blank">Latest issues</a> .
-                <a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master" target="_blank">What's New?</a>
-            </p>
+  <h1>
+    RTCMultiConnection Demos
+    
+    <p class="no-mobile">
+      RTCMultiConnection is a WebRTC JavaScript library for peer-to-peer applications (screen sharing, audio/video conferencing, file sharing, media streaming etc.)
+    </p>
+  </h1>
 
-            <div class="search-container">
-                <gcse:search></gcse:search>
-            </div>
-        </header>
+  <section id="demos" style="text-align:center;" class="no-mobile">
+      <h2>
+          <a href="https://www.npmjs.com/package/rtcmulticonnection-v3"><img src="https://img.shields.io/npm/v/rtcmulticonnection-v3.svg" /></a>
+          <a class="github-button" href="https://github.com/muaz-khan/RTCMultiConnection" data-show-count="true" aria-label="Star muaz-khan/RTCMultiConnection on GitHub">Star</a>
+          <a class="github-button" href="https://github.com/muaz-khan/RTCMultiConnection/issues" data-show-count="true" aria-label="Issue muaz-khan/RTCMultiConnection on GitHub">Issue</a>
+          <a class="github-button" href="https://github.com/muaz-khan/RTCMultiConnection/fork" data-show-count="true" aria-label="Fork muaz-khan/RTCMultiConnection on GitHub">Fork</a>
+          <a class="github-button" href="https://github.com/muaz-khan" data-show-count="true" aria-label="Follow @muaz-khan on GitHub">Follow @muaz-khan</a>
+          <a href="https://travis-ci.org/muaz-khan/RTCMultiConnection"><img src="https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master" /></a>
+      </h2>
+  </section>
+  <section id="featured">
+      <h2>
+          <a href="#featured">Featured Demos</a>
 
-        <div class="github-stargazers"></div>
+          <a class="github-button" href="https://github.com/muaz-khan/RTCMultiConnection/archive/master.zip" aria-label="Download muaz-khan/RTCMultiConnection on GitHub">RTCMultiConnection.zip</a>
+      </h2>
+      <table class="table-style">
+          <thead>
+              <tr>
+                  <th class="td-style">RTCMultiConnection Demo Title</th>
+                  <th class="td-style">Demo</th>
+                  <th class="td-style">Source</th>
+              </tr>
+          </thead>
+          <tbody>
+               <tr class="tr-style" style="background: #e4f6ff;">
+                    <td class="td-style">Video Conferencing (MANY_TO_MANY)</td>
+                    <td class="td-style"><a href="/demos/Video-Conferencing.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Video-Conferencing.html" class="td-style2">Source</a></td>
+                </tr>
 
-        <section class="experiment" id="demos" style="text-align:center;">
-            <h2>
-                <a href="https://www.npmjs.com/package/rtcmulticonnection-v3"><img src="https://img.shields.io/npm/v/rtcmulticonnection-v3.svg"></a>
-                <a href="https://www.npmjs.com/package/rtcmulticonnection-v3"><img src="https://img.shields.io/npm/dm/rtcmulticonnection-v3.svg"></a>
-                <a href="https://travis-ci.org/muaz-khan/RTCMultiConnection"><img src="https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master"></a>
-            </h2>
-        </section>
+                <tr class="tr-style" style="background: #e4f6ff;">
+                    <td class="td-style">MCN inside the browser!</td>
+                    <td class="td-style"><a href="/demos/MCU.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/MCU.html" class="td-style2">Source</a></td>
+                </tr>
 
-        <section class="experiment" id="featured">
-            <h2 class="header">
-                <a href="#featured">Featured Demos</a>
-            </h2>
-            <table class="table-style"><th class="td-style">RTCMultiConnection Demo Title</th><th class="td-style">Demo</th><th class="td-style">Source</th></tr></thead>
-            <tbody>
+                <tr class="tr-style" style="background: #e4f6ff;">
+                    <td class="td-style">SFU inside the browser!</td>
+                    <td class="td-style"><a href="/demos/SFU.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/SFU.html" class="td-style2">Source</a></td>
+                </tr>
+
+                <tr class="tr-style" style="background: #e4f6ff;">
+                    <td class="td-style">getStats / WebRTC getStats API</td>
+                    <td class="td-style"><a href="/demos/getStats.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/getStats.html" class="td-style2">Source</a></td>
+                </tr>
+
+                <tr class="tr-style" style="background: #e4f6ff;">
+                    <td class="td-style">Audio+Video+TextChat+FileSharing</td>
+                    <td class="td-style"><a href="/demos/Audio+Video+TextChat+FileSharing.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio+Video+TextChat+FileSharing.html" class="td-style2">Source</a></td>
+                </tr>
+
+                <tr class="tr-style" style="background: #e4f6ff;">
+                    <td class="td-style">Video Broadcasting (ONE_TO_MANY)</td>
+                    <td class="td-style"><a href="/demos/Video-Broadcasting.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/video-broadcasting.html" class="td-style2">Source</a></td>
+                </tr>
+
                 <tr class="tr-style">
                     <td class="td-style">WebRTC Scalable Broadcast</td>
                     <td class="td-style"><a href="/demos/Scalable-Broadcast.html" class="td-style2">Demo</a></td>
@@ -118,13 +178,7 @@
                     <td class="td-style"><a href="/demos/Scalable-Video-Conferencing.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Video-Conferencing.html" class="td-style2">Source</a></td>
                 </tr>
-
-                <tr class="tr-style">
-                    <td class="td-style">Audio+Video+TextChat+FileSharing</td>
-                    <td class="td-style"><a href="/demos/Audio+Video+TextChat+FileSharing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio+Video+TextChat+FileSharing.html" class="td-style2">Source</a></td>
-                </tr>
-
+                
                 <tr class="tr-style">
                     <td class="td-style">File Sharing</td>
                     <td class="td-style"><a href="/demos/file-sharing.html" class="td-style2">Demo</a></td>
@@ -136,17 +190,23 @@
                     <td class="td-style"><a href="/demos/Pre-recorded-Media-Streaming.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/blob/master/demos/Pre-recorded-Media-Streaming.html" class="td-style2">Source</a></td>
                 </tr>
-            </tbody>
-            </table>
-        </section>
-
-        <section class="experiment" id="scalable-broadcast">
-            <h2 class="header">
-                <a href="#scalable-broadcast">Scalable Broadcast Demos</a>
-            </h2>
-            <table class="table-style"><th class="td-style">RTCMultiConnection Demo Title</th><th class="td-style">Demo</th><th class="td-style">Source</th></tr></thead>
-            <tbody>
-                <tr class="tr-style">
+          </tbody>
+      </table>
+  </section>
+  <section id="scalable-broadcast">
+      <h2>
+          <a href="#scalable-broadcast">Scalable Broadcast Demos</a>
+      </h2>
+      <table class="table-style">
+          <thead>
+              <tr>
+                  <th class="td-style">RTCMultiConnection Demo Title</th>
+                  <th class="td-style">Demo</th>
+                  <th class="td-style">Source</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr class="tr-style">
                     <td class="td-style">Scalable Audio/Video Broadcast</td>
                     <td class="td-style"><a href="/demos/Scalable-Broadcast.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Broadcast.html" class="td-style2">Source</a></td>
@@ -175,23 +235,23 @@
                     <td class="td-style"><a href="/demos/Scalable-Screen-plus-Audio-Broadcast.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Screen-plus-Audio-Broadcast.html" class="td-style2">Source</a></td>
                 </tr>
-            </tbody>
-            </table>
-        </section>
-
-        <section class="experiment" id="v3-demos">
-            <h2 class="header">
-                <a href="#v3-demos">Other v3 Demos</a>
-            </h2>
-            <table class="table-style"><th class="td-style">RTCMultiConnection Demo Title</th><th class="td-style">Demo</th><th class="td-style">Source</th></tr></thead>
-            <tbody>
-                <tr class="tr-style">
-                    <td class="td-style">Video Conferencing</td>
-                    <td class="td-style"><a href="/demos/Video-Conferencing.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Video-Conferencing.html" class="td-style2">Source</a></td>
-                </tr>
-                
-                <tr class="tr-style">
+          </tbody>
+      </table>
+  </section>
+  <section id="v3-demos">
+      <h2>
+          <a href="#v3-demos">Other v3 Demos</a>
+      </h2>
+      <table class="table-style">
+          <thead>
+              <tr>
+                  <th class="td-style">RTCMultiConnection Demo Title</th>
+                  <th class="td-style">Demo</th>
+                  <th class="td-style">Source</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr class="tr-style">
                     <td class="td-style">Audio+Video+Screen Sharing</td>
                     <td class="td-style"><a href="/demos/Audio-Video-Screen.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio-Video-Screen.html" class="td-style2">Source</a></td>
@@ -210,15 +270,15 @@
                 </tr>
 
                 <tr class="tr-style">
-                    <td class="td-style">Video Broadcasting</td>
-                    <td class="td-style"><a href="/demos/Video-Broadcasting.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/video-broadcasting.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
                     <td class="td-style">Audio Conferencing</td>
                     <td class="td-style"><a href="/demos/Audio-Conferencing.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio-Conferencing.html" class="td-style2">Source</a></td>
+                </tr>
+
+                <tr class="tr-style">
+                    <td class="td-style">Multi-Broadcasters and Many-Viewers</td>
+                    <td class="td-style"><a href="/demos/Multi-Broadcasters-and-Many-Viewers.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Multi-Broadcasters-and-Many-Viewers.html" class="td-style2">Source</a></td>
                 </tr>
 
                 <tr class="tr-style">
@@ -253,7 +313,7 @@
 
                 <tr class="tr-style">
                     <td class="td-style">One-to-Many Screen Sharing</td>
-                    <td class="td-style"><a href="/demos/Screen-Sharing.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="/demos/screen-sharing.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/screen-sharing.html" class="td-style2">Source</a></td>
                 </tr>
 
@@ -304,8 +364,8 @@
                     <td class="td-style"><a href="/demos/Firebase-Demo.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Firebase-Demo.html" class="td-style2">Source</a></td>
                 </tr>
-				
-				<tr class="tr-style">
+                
+                <tr class="tr-style">
                     <td class="td-style">Video Conferencing using WebSocket</td>
                     <td class="td-style"><a href="/demos/WebSocket-Demo.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/WebSocket-Demo.html" class="td-style2">Source</a></td>
@@ -358,91 +418,39 @@
                     <td class="td-style"><a href="/demos/admin-guest.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/admin-guest.html" class="td-style2">Source</a></td>
                 </tr>
-            </tbody>
-            </table>
-        </section>
-
-        <section class="experiment">
-            <blockquote class="inline">
-                You can try RTCMultiConnection v2 demos as well:<br>
-                <a href="https://www.webrtc-experiment.com/RTCMultiConnection/">https://www.webrtc-experiment.com/RTCMultiConnection/</a>
-            </blockquote>
-        </section>
-
-        <section class="experiment" id="install">
-            <h2>
-                <a href="#install">How to install RTCMultiConnection?</a>
-            </h2>
-
-            <br><br>
-
-            <a href="https://www.youtube.com/watch?v=EtsiYEW_T8Y"><img src="https://cdn.webrtc-experiment.com/images/RTCMultiConnection-Socketio-Server.png" alt="YouTube Video Tutorial for RTCMultiConnection!" /></a>
-        </section>
-
-        </section>
-
-        <section class="experiment own-widgets latest-commits">
-            <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master">Latest Updates</a></h2>
-            <div id="github-commits"></div>
-        </section>
-
-        <section class="experiment own-widgets">
-            <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/issues">Latest Issues</a></h2>
-            <div id="github-issues"></div>
-        </section>
-
-        <section class="experiment">
-            <h2 class="header" id="feedback">Feedback</h2>
-            <div>
-                <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-            </div>
-            <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
-        </section>
-
-        <a href="https://github.com/muaz-khan/RTCMultiConnection" class="fork-left"></a>
-
-        <script>
-            window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';
-        </script>
-        <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
-
-    </article>
-
-    <footer>
+          </tbody>
+      </table>
+  </section>
+  <section class="no-mobile">
+        <h2>v2 Demos</h2>
         <p>
-            <a href="https://www.webrtc-experiment.com">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
-            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
-            <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+            You can try RTCMultiConnection v2 demos as well:
         </p>
-    </footer>
+        <p>
+            <a href="https://github.com/muaz-khan/RTCMultiConnection#v2-demos">https://github.com/muaz-khan/RTCMultiConnection#v2-demos</a>
+        </p>
+  </section>
+  <section class="no-mobile">
+      <h2>
+          How to install RTCMultiConnection?
+      </h2>
+      <p>
+        <a href="https://www.youtube.com/watch?v=EtsiYEW_T8Y">https://www.youtube.com/watch?v=EtsiYEW_T8Y</a>
+      </p>
+  </section>
 
-    <script>
-      (function() {
-        var cx = '010995979085537571634:okwrck5_p9q';
-        var gcse = document.createElement('script');
-        gcse.type = 'text/javascript';
-        gcse.async = true;
-        gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
-            '//cse.google.com/cse.js?cx=' + cx;
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(gcse, s);
-      })();
-    </script>
+  <section class="no-mobile" class="no-mobile">
+    <h2>iOS or Android</h2>
+    <p>
+      You can write <a href="http://www.rtcmulticonnection.org/docs/Write-iOS-Apps/" target="_blank">iOS</a> or <a href="http://www.rtcmulticonnection.org/docs/Write-Android-Apps/" target="_blank">Android</a> apps for all demos.
+    </p>
+  </section>
 
-    <style>
-        .gsc-result .gs-title {
-            height: 1.4em!important;
-        }
-        input.gsc-search-button, input.gsc-search-button:hover, input.gsc-search-button:focus {
-            border-color: #090808!important;
-            background-color: #413E3E!important;
-            margin-left: -13px!important;
-            margin-top: 8px!important;
-            border-left: 0!important;
-            border-radius: 0!important;
-        }
-    </style>
+  <footer>
+    <small id="send-message"></small>
+  </footer>
 
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script async defer src="https://cdn.webrtc-experiment.com/common.js"></script>
 </body>
-
 </html>

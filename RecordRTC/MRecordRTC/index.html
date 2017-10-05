@@ -58,11 +58,11 @@
 
     <!-- script used for audio/video/gif recording -->
     <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"></script>
     <script src="https://cdn.webrtc-experiment.com/gif-recorder.js"></script>
     <script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
 
-    <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
-    <script src="https://cdn.webrtc-experiment.com/gumadapter.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 </head>
 
 <body>
@@ -188,7 +188,7 @@
             video: true  // or WhammyRecorder      or MediaStreamRecorder
         };
 
-        if (webrtcDetectedBrowser === 'edge') {
+        if (DetectRTC.browser.name === 'Edge') {
             // Microsoft Edge currently supports only audio and gif recording
             mRecordRTC.mediaType = {
                 audio: StereoAudioRecorder
@@ -205,11 +205,7 @@
             }, function(stream) {
                 var video = document.createElement('video');
 
-                if (webrtcDetectedBrowser === 'edge') {
-                    video.srcObject = stream;
-                } else {
-                    video.src = URL.createObjectURL(stream);
-                }
+                setSrcObject(stream, video);
 
                 video.play();
                 var mediaElement = getMediaElement(video, {

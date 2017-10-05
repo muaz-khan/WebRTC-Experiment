@@ -76,11 +76,7 @@ function WhammyRecorder(mediaStream, config) {
         } else {
             video = document.createElement('video');
 
-            if (typeof video.srcObject !== 'undefined') {
-                video.srcObject = mediaStream;
-            } else {
-                video.src = URL.createObjectURL(mediaStream);
-            }
+            setSrcObject(mediaStream, video);
 
             video.onloadedmetadata = function() { // "onloadedmetadata" may NOT work in FF?
                 if (config.initCallback) {
@@ -271,6 +267,8 @@ function WhammyRecorder(mediaStream, config) {
      * });
      */
     this.stop = function(callback) {
+        callback = callback || function() {};
+
         isStopDrawing = true;
 
         var _this = this;
@@ -348,9 +346,17 @@ function WhammyRecorder(mediaStream, config) {
      * recorder.clearRecordedData();
      */
     this.clearRecordedData = function() {
-        this.pause();
-        whammy.frames = [];
+        if (!isStopDrawing) {
+            this.stop(clearRecordedDataCB);
+        }
+        clearRecordedDataCB();
     };
+
+    function clearRecordedDataCB() {
+        whammy.frames = [];
+        isStopDrawing = true;
+        isPausedRecording = false;
+    }
 
     // for debugging
     this.name = 'WhammyRecorder';

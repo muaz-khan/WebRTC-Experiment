@@ -41,21 +41,13 @@ select[disabled] {
 </style>
 
 <h2>Select Screen Resolutions:</h2>
-<select id="resolutions" size="4">
+<select id="resolutions" size="5">
     <option value="fit-screen" selected>Fit Screen</option>
+    <option value="4K">4K (2160p)</option>
     <option value="1080p">Full-HD (1080p)</option>
     <option value="720p">HD (720p)</option>
     <option value="360p">SD (360p)</option>
 </select>
-<hr>
-<h2>Set Bandwidth:</h2>
-<label for="min_bandwidth">Minimum Bandwidth</label>
-<input type="text" id="min_bandwidth" value="512" style="width: 40px;">kbps
-<br><br>
-<label for="max_bandwidth">Maximum Bandwidth</label>
-<input type="text" id="max_bandwidth" value="1048" style="width: 40px;">kbps
-<hr>
-<input type="checkbox" id="is_audio"> <label for="is_audio">Enable audio+tab sharing?</label>
 <hr>
 <h2>Password Protected Room?</h2>
 <label for="room_password">Set Password</label>

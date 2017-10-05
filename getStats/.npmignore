@@ -1,0 +1,11 @@
+# ignore everything
+*
+
+# but not these files...
+!getStats.js
+!getStats.min.js
+!index.html
+!package.json
+!bower.json
+!server.js
+!README.md

@@ -36,9 +36,11 @@ var StreamHasData = (function() {
             if (stream instanceof MediaStream) {
                 var mediaElement = document.createElement('video');
                 mediaElement.muted = true;
-                mediaElement.src = URL.createObjectURL(stream);
+
+                mediaElement.srcObject = stream;
+
                 mediaElement.style.display = 'none';
-                document.body.appendChild(mediaElement);
+                (document.body || document.documentElement).appendChild(mediaElement);
 
                 checkIfStreamHasData(mediaElement, callback);
             }

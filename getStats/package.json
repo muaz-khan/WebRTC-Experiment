@@ -1,7 +1,7 @@
 {
   "name": "getstats",
   "preferGlobal": true,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -11,7 +11,7 @@
   "scripts": {
     "start": "node server.js"
   },
-  "main": "./server.js",
+  "main": "./getStats.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/muaz-khan/getStats.git"
@@ -35,7 +35,16 @@
     "url": "https://github.com/muaz-khan/getStats/issues",
     "email": "muazkh@gmail.com"
   },
-  "homepage": "https://www.webrtc-experiment.com/",
+  "homepage": "https://www.webrtc-experiment.com/getStats/",
   "_id": "getstats@",
-  "_from": "getstats@"
+  "_from": "getstats@",
+  "devDependencies": {
+    "grunt": "0.4.5",
+    "grunt-bump": "0.7.0",
+    "grunt-cli": "0.1.13",
+    "grunt-contrib-concat": "0.5.1",
+    "grunt-contrib-uglify": "0.11.0",
+    "grunt-jsbeautifier": "0.2.10",
+    "load-grunt-tasks": "3.4.0"
+  }
 }

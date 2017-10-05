@@ -308,6 +308,30 @@ function MRecordRTC(mediaStream) {
     };
 
     /**
+     * Destroy all recorder instances.
+     * @method
+     * @memberof MRecordRTC
+     * @example
+     * recorder.destroy();
+     */
+    this.destroy = function() {
+        if (this.audioRecorder) {
+            this.audioRecorder.destroy();
+            this.audioRecorder = null;
+        }
+
+        if (this.videoRecorder) {
+            this.videoRecorder.destroy();
+            this.videoRecorder = null;
+        }
+
+        if (this.gifRecorder) {
+            this.gifRecorder.destroy();
+            this.gifRecorder = null;
+        }
+    };
+
+    /**
      * This method can be used to manually get all recorded blobs' DataURLs.
      * @param {function} callback - All recorded blobs' DataURLs are passed back to the "callback" function.
      * @method

@@ -1,3 +1,4 @@
+<!-- Demo version: 2017.08.12 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -6,12 +7,17 @@
   <title>Video Conferencing using RTCMultiConnection</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="shortcut icon" href="/demos/logo.png">
-  <link rel="stylesheet" type="text/css" href="/demos/stylesheet.css">
+  <link rel="stylesheet" href="/demos/stylesheet.css">
+  <script src="/demos/menu.js"></script>
 </head>
 <body>
   <header>
-    <a class="logo" href="/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
+    <a class="logo" href="/demos/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
+    <a href="/demos/" class="menu-explorer">Menu<img src="/demos/menu-icon.png" alt="Menu"></a>
     <nav>
+      <li>
+        <a href="/demos/">Home</a>
+      </li>
       <li>
         <a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
       </li>
@@ -35,7 +41,7 @@
 
   <h1>
     Video Conferencing using RTCMultiConnection
-    <p>
+    <p class="no-mobile">
       Multi-user (many-to-many) video chat using mesh networking model.
     </p>
   </h1>
@@ -52,11 +58,15 @@
   </section>
 
 <script src="/dist/RTCMultiConnection.min.js"></script>
+<script src="/dev/adapter.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <!-- custom layout for HTML5 audio/video elements -->
-<script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
+<link rel="stylesheet" href="/dev/getHTMLMediaElement.css">
+<script src="/dev/getHTMLMediaElement.js"></script>
 <script>
+window.enableAdapter = true; // enable adapter.js
+
 // ......................................................
 // .......................UI Code........................
 // ......................................................
@@ -74,8 +84,8 @@ document.getElementById('join-room').onclick = function() {
 
 document.getElementById('open-or-join-room').onclick = function() {
     disableInputButtons();
-    connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExists, roomid) {
-        if (!isRoomExists) {
+    connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExist, roomid) {
+        if (!isRoomExist) {
             showRoomURL(roomid);
         }
     });
@@ -107,8 +117,18 @@ connection.sdpConstraints.mandatory = {
 
 connection.videosContainer = document.getElementById('videos-container');
 connection.onstream = function(event) {
+    event.mediaElement.removeAttribute('src');
+    event.mediaElement.removeAttribute('srcObject');
+
+    var video = document.createElement('video');
+    video.controls = true;
+    if(event.type === 'local') {
+        video.muted = true;
+    }
+    video.srcObject = event.stream;
+
     var width = parseInt(connection.videosContainer.clientWidth / 2) - 20;
-    var mediaElement = getMediaElement(event.mediaElement, {
+    var mediaElement = getHTMLMediaElement(video, {
         title: event.userid,
         buttons: ['full-screen'],
         width: width,
@@ -198,8 +218,8 @@ if (roomid && roomid.length) {
 
     // auto-join-room
     (function reCheckRoomPresence() {
-        connection.checkPresence(roomid, function(isRoomExists) {
-            if (isRoomExists) {
+        connection.checkPresence(roomid, function(isRoomExist) {
+            if (isRoomExist) {
                 connection.join(roomid);
                 return;
             }
@@ -212,14 +232,14 @@ if (roomid && roomid.length) {
 }
 </script>
 
-  <section>
+  <section class="no-mobile">
     <h2>iOS or Android</h2>
     <p>
-      This demo <a href="http://webrtcweb.com/cordova-apps/video-conferencing/" target="_blank">has built-in (open-sourced)</a> cordova apps both for <b>iOS</b> and <b>Android</b>.
+      You can write <a href="http://www.rtcmulticonnection.org/docs/Write-iOS-Apps/" target="_blank">iOS</a> or <a href="http://www.rtcmulticonnection.org/docs/Write-Android-Apps/" target="_blank">Android</a> apps for this demo as well. 
     </p>
 
     <p>
-      Google AppStore Link: <a href="https://play.google.com/store/apps/details?id=rmc3.videoconference" target="_blank">https://play.google.com/store/apps/details?id=rmc3.videoconference</a>
+      Install following Android app and join meetings from this demo: <a href="https://play.google.com/store/apps/details?id=rmc3.videoconference" target="_blank">https://play.google.com/store/apps/details?id=rmc3.videoconference</a>
     </p>
   </section>
 

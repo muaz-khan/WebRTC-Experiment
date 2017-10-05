@@ -134,18 +134,6 @@
             </section>
 
             <script>
-                function intallFirefoxScreenCapturingExtension() {
-                    InstallTrigger.install({
-                        'Foo': {
-                            // URL: 'https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/',
-                            URL: 'https://addons.mozilla.org/firefox/downloads/file/355418/enable_screen_capturing_in_firefox-1.0.006-fx.xpi?src=cb-dl-hotness',
-                            toString: function() {
-                                return this.URL;
-                            }
-                        }
-                    });
-                }
-
                 // Muaz Khan     - https://github.com/muaz-khan
                 // MIT License   - https://www.webrtc-experiment.com/licence/
                 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing
@@ -392,10 +380,12 @@
                     </li>
 
                     <li>
-                        Firefox? <a href="https://addons.mozilla.org/en-US/firefox/addon/enable-screen-capturing/">Store</a> / <a href="https://github.com/muaz-khan/Firefox-Extensions/tree/master/enable-screen-capturing">Source Code</a> / <button onclick="intallFirefoxScreenCapturingExtension(); this.disabled = true;" style="font-size:inherit; padding-bottom:0;">Click to Install</button>
+                        Firefox? Please use version 52 or higher. Also use HTTPs.
                     </li>
                 </ol>
             </section>
+
+            <section class="experiment"><small id="send-message"></small></section>
 
             <section class="experiment">
                 <h2>Advantages</h2>
@@ -488,22 +478,9 @@ document.getElementById('share-screen').onclick = function() {
                 <h2 class="header">Suggestions</h2>
                 <ol>
                     <li>
-                        <a href="http://www.RTCMultiConnection.org/" target="_blank">RTCMultiConnection.js</a> can be used for HD screen sharing; HD audio/video streaming; fastest file sharing; and writing entire skype-like app in the browser!
+                        <a href="https://github.com/muaz-khan/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> can be used for HD screen sharing; HD audio/video streaming; fastest file sharing; and writing entire skype-like app in the browser!
                     </li>
                 </ol>
-            </section>
-
-            <section class="experiment">
-                <h2 class="header" id="feedback">Feedback</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
-            </section>
-
-            <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-                <div id="github-commits"></div>
             </section>
 
         </article>

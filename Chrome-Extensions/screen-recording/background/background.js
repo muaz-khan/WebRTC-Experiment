@@ -13,7 +13,7 @@ function gotStream(stream) {
         recorderType: MediaStreamRecorder // StereoAudioRecorder
     };
 
-    if(!videoCodec) {
+    if (!videoCodec) {
         videoCodec = 'Default'; // prefer VP9 by default
     }
 
@@ -103,12 +103,12 @@ function gotStream(stream) {
         stopScreenRecording();
     };
 
-    if(recorder.streams[0].getVideoTracks().length) {
-        recorder.streams[0].getVideoTracks().forEach(function(track){
+    if (recorder.streams[0].getVideoTracks().length) {
+        recorder.streams[0].getVideoTracks().forEach(function(track) {
             track.onended = function() {
-                if(!recorder) return;
+                if (!recorder) return;
                 var stream = recorder.streams[0];
-                if(!stream || typeof stream.onended !== 'function') return;
+                if (!stream || typeof stream.onended !== 'function') return;
 
                 stream.onended();
             };
@@ -149,15 +149,10 @@ function stopScreenRecording() {
         // var formatted = convertTime(timeDifference);
         // file.duration = formatted;
 
-        DiskStorage.Store({
-            key: 'latest-file',
-            value: file
-        }, function(success) {
-            if(success) {
-                chrome.tabs.create({
-                    url: 'preview.html'
-                });
-            }
+        DiskStorage.StoreFile(file, function() {
+            chrome.tabs.create({
+                url: 'preview.html'
+            });
         });
 
         // invokeSaveAsDialog(file, file.name);

@@ -3,7 +3,6 @@
         margin: 0!important;
         padding: 0!important;
         overflow: hidden!important;
-        width: 100%;
     }
 </style>
 
@@ -18,15 +17,15 @@
 <hr>
 <video controls autoplay></video>
 
-<script src="/RecordRTC.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script>
 var video = document.querySelector('video');
 
 function captureCamera(callback) {
-    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    navigator.getUserMedia({ audio: true, video: true }, function(camera) {
+    navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(function(camera) {
         callback(camera);
-    }, function(error) {
+    }).catch(function(error) {
         alert('Unable to capture your camera. Please check console logs.');
         console.error(error);
     });
@@ -53,13 +52,16 @@ document.getElementById('btn-enable-camera').onclick = function() {
         recorder.camera = camera;
 
         document.getElementById('btn-start-recording').disabled = false;
+
+        setSrcObject(recorder.camera, video);
+        video.play();
     });
 };
 
 document.getElementById('btn-start-recording').onclick = function() {
     this.disabled = true;
 
-    video.src = URL.createObjectURL(recorder.camera);
+    setSrcObject(recorder.camera, video);
     video.play();
 
     recorder.startRecording();

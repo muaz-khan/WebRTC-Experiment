@@ -37,8 +37,8 @@ rtcMultiConnection.onopen = function(e) {
     getElement('#share-files').disabled = false;
     getElement('#allow-screen').disabled = false;
 
-    if(!event.extra.username) {
-        event.extra.username = 'userid:' + event.userid;
+    if(!e.extra.username) {
+        e.extra.username = 'userid:' + e.userid;
     }
 
     addNewMessage({

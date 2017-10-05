@@ -7,6 +7,10 @@ function SocketConnection(connection, connectCallback) {
     parameters += '&socketCustomEvent=' + connection.socketCustomEvent;
     parameters += '&autoCloseEntireSession=' + !!connection.autoCloseEntireSession;
 
+    if (connection.session.broadcast === true) {
+        parameters += '&oneToMany=true';
+    }
+
     parameters += '&maxParticipantsAllowed=' + connection.maxParticipantsAllowed;
 
     if (connection.enableScalableBroadcast) {

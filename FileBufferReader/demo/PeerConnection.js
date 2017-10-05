@@ -221,74 +221,13 @@
 
     var isChrome = !!navigator.webkitGetUserMedia;
 
-    var iceServers = [];
-
-    iceServers.push({
-        urls: 'turn:turn.bistri.com:80',
-        credential: 'homeo',
-        username: 'homeo'
-    });
-
-    iceServers.push({
-        urls: 'turn:turn.anyfirewall.com:443?transport=tcp',
-        credential: 'webrtc',
-        username: 'webrtc'
-    });
-
-    iceServers.push({
-        urls: 'stun:stun.l.google.com:19302'
-    });
-
-    iceServers.push({
-        urls: 'turn:webrtcweb.com:80',
-        credential: 'muazkh',
-        username: 'muazkh'
-    });
-
-    iceServers.push({
-        urls: 'turn:webrtcweb.com:443',
-        credential: 'muazkh',
-        username: 'muazkh'
-    });
-
-    iceServers.push({
-        urls: 'turn:webrtcweb.com:3344',
-        credential: 'muazkh',
-        username: 'muazkh'
-    });
-
-    iceServers.push({
-        urls: 'turn:webrtcweb.com:4433',
-        credential: 'muazkh',
-        username: 'muazkh'
-    });
-
-    iceServers = {
-        iceServers: iceServers,
-        iceTransportPolicy: 'all',
-        rtcpMuxPolicy: 'negotiate'
+    var iceServers = {
+        iceServers: IceServersHandler.getIceServers(),
+        iceTransportPolicy: 'all'
     };
 
     var optionalArgument = {
-        optional: [{
-            DtlsSrtpKeyAgreement: true
-        }, {
-            googImprovedWifiBwe: true
-        }, {
-            googScreencastMinBitrate: 300
-        }, {
-            googIPv6: true
-        }, {
-            googDscp: true
-        }, {
-            googCpuUnderuseThreshold: 55
-        }, {
-            googCpuOveruseThreshold: 85
-        }, {
-            googSuspendBelowMinBitrate: true
-        }, {
-            googCpuOveruseDetection: true
-        }],
+        optional: [],
         mandatory: {}
     };
 

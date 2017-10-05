@@ -1,0 +1,50 @@
+{
+  "name": "multistreamsmixer",
+  "preferGlobal": true,
+  "version": "1.0.4",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "http://www.muazkhan.com/"
+  },
+  "description": "Pass multiple streams (e.g. screen+camera or multiple-cameras) and get single stream.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "main": "./MultiStreamsMixer.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/MultiStreamsMixer.git"
+  },
+  "keywords": [
+    "webrtc",
+    "multistreamsmixer",
+    "webrtc-library",
+    "library",
+    "javascript",
+    "rtcweb",
+    "webrtc-experiment",
+    "javascript-library",
+    "muaz",
+    "muaz-khan"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/muaz-khan/MultiStreamsMixer/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://www.webrtc-experiment.com/MultiStreamsMixer/",
+  "_id": "multistreamsmixer@",
+  "_from": "multistreamsmixer@",
+  "devDependencies": {
+    "grunt": "0.4.5",
+    "grunt-bump": "0.7.0",
+    "grunt-cli": "0.1.13",
+    "grunt-contrib-concat": "0.5.1",
+    "grunt-contrib-uglify": "0.11.0",
+    "grunt-jsbeautifier": "0.2.10",
+    "load-grunt-tasks": "3.4.0"
+  }
+}

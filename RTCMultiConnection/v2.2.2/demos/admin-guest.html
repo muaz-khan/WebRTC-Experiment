@@ -8,7 +8,14 @@
 <html lang="en">
 
 <head>
-    <title>Admin/Guest audio/video calling using RTCMultiConnection ® Muaz Khan</title>
+    <script>
+        if(!location.hash.replace('#', '').length) {
+            location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+            location.reload();
+        }
+    </script>
+
+    <title>Admin/Guest audio/video calling using RTCMultiConnection | Muaz Khan</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -413,8 +420,8 @@
     </footer>
 
     <!-- commits.js is useless for you! -->
-    <script src="//cdn.webrtc-experiment.com/commits.js" async>
-    </script>
+    <script>window.useThisGithubPath = 'muaz-khan/RTCMultiConnection';</script>
+    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
 </body>
 
 </html>

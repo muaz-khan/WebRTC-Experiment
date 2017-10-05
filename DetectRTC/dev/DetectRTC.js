@@ -124,6 +124,16 @@ if (screen.width) {
 }
 DetectRTC.displayResolution = displayResolution;
 
+function getAspectRatio(w, h) {
+    function gcd(a, b) {
+        return (b == 0) ? a : gcd(b, a % b);
+    }
+    var r = gcd(w, h);
+    return (w / r) / (h / r);
+}
+
+DetectRTC.displayAspectRatio = getAspectRatio(screen.width, screen.height).toFixed(2);
+
 // ----------
 DetectRTC.isCanvasSupportsStreamCapturing = isCanvasSupportsStreamCapturing;
 DetectRTC.isVideoSupportsStreamCapturing = isVideoSupportsStreamCapturing;

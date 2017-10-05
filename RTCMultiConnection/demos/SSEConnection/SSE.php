@@ -16,13 +16,14 @@ $me = getParam('me');
 $json = file_get_contents('./rooms/' . $me . '.json');
 $json = json_decode($json, true);
 
+echo 'data: ' . json_encode($json) . "\n\n";
+
 foreach ($json as $receiver => $val) {
     // skip duplicate entries for future requests
     // todo: find a better solution to clear only entries; NOT the entire JSON.
     removeJSON($me, $receiver);
 }
 
-echo 'data: ' . json_encode($json) . "\n\n";
 ob_flush();
 flush();
 ?>

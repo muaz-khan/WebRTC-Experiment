@@ -1658,10 +1658,6 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
         loadScreenFrame();
     }
 
-    connection.getExternalIceServers && loadIceFrame(function(iceServers) {
-        connection.iceServers = connection.iceServers.concat(iceServers);
-    });
-
     if (connection.log == false) connection.skipLogs();
     if (connection.onlog) {
         log = warn = error = function() {

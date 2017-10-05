@@ -11,7 +11,8 @@
 
 <video id="video-preview" controls autoplay></video>
 
-<script src="/RecordRTC.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script>
 navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
 
@@ -37,7 +38,7 @@ if(!!navigator.mozGetUserMedia) {
     };
 }
 
-navigator.getUserMedia({video: mediaHints, audio: true}, function(camera) {
+navigator.mediaDevices.getUserMedia({video: mediaHints, audio: true}).then(function(camera) {
     var recorder = RecordRTC(camera, {
         recorderType: MediaStreamRecorder,
         mimeType: 'video/webm',
@@ -56,9 +57,9 @@ navigator.getUserMedia({video: mediaHints, audio: true}, function(camera) {
 
     recorder.startRecording();
 
-    videoPreview.src = URL.createObjectURL(camera);
+    setSrcObject(camera, videoPreview);
     videoPreview.play();
-}, function(error) {
+}).catch(function(error) {
     alert('Unable to capture camera. Please check console logs.');
     console.error(error);
 });

@@ -1,0 +1,252 @@
+<!-- Demo version: 2017.08.31 -->
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>MCU using RTCMultiConnection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="shortcut icon" href="/demos/logo.png">
+  <link rel="stylesheet" href="/demos/stylesheet.css">
+  <script src="/demos/menu.js"></script>
+</head>
+<body>
+  <header>
+    <a class="logo" href="/demos/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
+    <a href="/demos/" class="menu-explorer">Menu<img src="/demos/menu-icon.png" alt="Menu"></a>
+    <nav>
+      <li>
+        <a href="/demos/">Home</a>
+      </li>
+      <li>
+        <a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+      </li>
+      <li>
+        <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+      </li>
+      <li>
+        <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection#v3-demos">Demos</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection">Github</a>
+      </li>
+    </nav>
+  </header>
+
+  <h1>
+    MCU using RTCMultiConnection
+    <p class="no-mobile">
+      Room initiator plays role of a media server i.e. MCU.
+    </p>
+    <p class="no-mobile">
+      Only one RTCPeerConnection object is used for all users.
+    </p>
+  </h1>
+
+  <section class="make-center">
+    <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
+    <button id="open-room">Open Room</button>
+    <button id="join-room">Join Room</button>
+    <button id="open-or-join-room">Auto Open Or Join Room</button>
+
+    <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
+
+    <br>
+    <video controls="" autoplay="" id="video-preview"></video>
+  </section>
+
+<script src="/dist/RTCMultiConnection.min.js"></script>
+<script src="/dev/MultiStreamsMixer.js"></script>
+<script src="/dev/adapter.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+window.enableAdapter = true; // enable adapter.js
+
+// ......................................................
+// .......................UI Code........................
+// ......................................................
+var mixer;
+var videoPreview = document.getElementById('video-preview');
+document.getElementById('open-room').onclick = function() {
+    disableInputButtons();
+    navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(function(initiatorStream) {
+        mixer = new MultiStreamsMixer([initiatorStream]);
+        mixer.frameInterval = 10;
+        mixer.startDrawingFrames();
+
+        videoPreview.srcObject = mixer.getMixedStream();
+        connection.attachStreams = [mixer.getMixedStream()];
+
+        connection.open(document.getElementById('room-id').value, function() {
+            showRoomURL(connection.sessionid);
+        });
+    });
+};
+
+document.getElementById('join-room').onclick = function() {
+    disableInputButtons();
+
+    navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(function(participantStream) {
+        videoPreview.srcObject = participantStream;
+        connection.attachStreams = [participantStream];
+        connection.join(document.getElementById('room-id').value);
+    });
+};
+
+document.getElementById('open-or-join-room').onclick = function() {
+    disableInputButtons();
+    connection.checkPresence(document.getElementById('room-id').value, function(isRoomExist, roomid) {
+        if (!isRoomExist) {
+            document.getElementById('open-room').onclick();
+            showRoomURL(roomid);
+        }
+        else {
+            document.getElementById('join-room').onclick();
+        }
+    });
+};
+
+// ......................................................
+// ..................RTCMultiConnection Code.............
+// ......................................................
+
+var connection = new RTCMultiConnection();
+
+connection.dontCaptureUserMedia = true;
+
+// by default, socket.io server is assumed to be deployed on your own URL
+connection.socketURL = '/';
+
+// comment-out below line if you do not have your own socket.io server
+// connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+connection.socketMessageEvent = 'MCU-demo';
+
+connection.session = {
+    audio: true,
+    video: true,
+    broadcast: true
+};
+
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true
+};
+
+connection.onstream = function(event) {
+    event.mediaElement.removeAttribute('src');
+    event.mediaElement.removeAttribute('srcObject');
+
+    if(connection.isInitiator === false) {
+        videoPreview.srcObject = event.stream;
+    }
+
+    if(connection.isInitiator === true && event.type === 'remote') {
+        mixer.appendStreams([event.stream]);
+    }
+
+    document.querySelector('h1').innerHTML = 'Maximum RTCPeerConnection objects: ' + connection.getAllParticipants().length;
+};
+
+function disableInputButtons() {
+    document.getElementById('open-or-join-room').disabled = true;
+    document.getElementById('open-room').disabled = true;
+    document.getElementById('join-room').disabled = true;
+    document.getElementById('room-id').disabled = true;
+}
+
+// ......................................................
+// ......................Handling Room-ID................
+// ......................................................
+
+function showRoomURL(roomid) {
+    var roomHashURL = '#' + roomid;
+    var roomQueryStringURL = '?roomid=' + roomid;
+
+    var html = '<h2>Unique URL for your room:</h2><br>';
+
+    html += 'Hash URL: <a href="' + roomHashURL + '" target="_blank">' + roomHashURL + '</a>';
+    html += '<br>';
+    html += 'QueryString URL: <a href="' + roomQueryStringURL + '" target="_blank">' + roomQueryStringURL + '</a>';
+
+    var roomURLsDiv = document.getElementById('room-urls');
+    roomURLsDiv.innerHTML = html;
+
+    roomURLsDiv.style.display = 'block';
+}
+
+(function() {
+    var params = {},
+        r = /([^&=]+)=?([^&]*)/g;
+
+    function d(s) {
+        return decodeURIComponent(s.replace(/\+/g, ' '));
+    }
+    var match, search = window.location.search;
+    while (match = r.exec(search.substring(1)))
+        params[d(match[1])] = d(match[2]);
+    window.params = params;
+})();
+
+var roomid = '';
+if (localStorage.getItem(connection.socketMessageEvent)) {
+    roomid = localStorage.getItem(connection.socketMessageEvent);
+} else {
+    roomid = connection.token();
+}
+document.getElementById('room-id').value = roomid;
+document.getElementById('room-id').onkeyup = function() {
+    localStorage.setItem(connection.socketMessageEvent, this.value);
+};
+
+var hashString = location.hash.replace('#', '');
+if (hashString.length && hashString.indexOf('comment-') == 0) {
+    hashString = '';
+}
+
+var roomid = params.roomid;
+if (!roomid && hashString.length) {
+    roomid = hashString;
+}
+
+if (roomid && roomid.length) {
+    document.getElementById('room-id').value = roomid;
+    localStorage.setItem(connection.socketMessageEvent, roomid);
+
+    // auto-join-room
+    (function reCheckRoomPresence() {
+        connection.checkPresence(roomid, function(isRoomExist) {
+            if (isRoomExist) {
+                document.getElementById('room-id').value = roomid;
+                document.getElementById('join-room').onclick();
+                return;
+            }
+
+            setTimeout(reCheckRoomPresence, 5000);
+        });
+    })();
+
+    disableInputButtons();
+}
+</script>
+
+  <section class="no-mobile">
+    <h2>iOS or Android</h2>
+    <p>
+      You can write <a href="http://www.rtcmulticonnection.org/docs/Write-iOS-Apps/" target="_blank">iOS</a> or <a href="http://www.rtcmulticonnection.org/docs/Write-Android-Apps/" target="_blank">Android</a> apps for this demo as well. 
+    </p>
+  </section>
+
+  <footer>
+    <small id="send-message"></small>
+  </footer>
+
+  <script src="https://cdn.webrtc-experiment.com/common.js"></script>
+</body>
+</html>

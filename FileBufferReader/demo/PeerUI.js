@@ -31,7 +31,7 @@ window.addEventListener('load', function() {
         var info = document.getElementById('info');
         if (location.hash.length > 2) {
             document.getElementById('share-this-link').innerHTML = '<a href="' + location.href + '" target="_blank">Share this link with other users!</a>';
-            info.innerHTML = 'Your UNIQUE room-id is: ' + location.hash.replace('#', '') + '. Open <a href="' + location.href + '" target="_blank">same URL</a> on a new window or tab.';
+            info.innerHTML = 'Your UNIQUE room-id is: ' + location.hash.replace('#', '') + '.<br>Open <a href="' + location.href + '" target="_blank">same URL</a> on a new window or tab.';
             info.style.display = 'block';
         }
     };
@@ -60,9 +60,16 @@ window.addEventListener('load', function() {
             return;
         }
 
-        var html = '<a class="single-line-text" href="' + file.url + '" target="_blank" download="' + file.name + '">Download <span class="highlighted-name">' + file.name + '</span> on your Disk!</a>';
+        var fname = '';
+        if (file.extra && file.extra.webkitRelativePath) {
+            fname = file.extra.webkitRelativePath;
+        } else {
+            fname = file.name;
+        }
 
-        html += '<section class="button"><a href="' + file.url + '" target="_blank" download="' + file.name + '"">Download</a><p class="top">' + file.name + '</p><p class="bottom">' + bytesToSize(file.size) + '</p></section>';
+        var html = '<a class="single-line-text" href="' + file.url + '" target="_blank" download="' + fname + '">Download <span class="highlighted-name">' + fname + '</span> on your Disk!</a>';
+
+        html += '<section class="button"><a href="' + file.url + '" target="_blank" download="' + file.name + '"">Download</a><p class="top">' + fname + '</p><p class="bottom">' + bytesToSize(file.size) + '</p></section>';
 
         if (file.name.match(/\.jpg|\.png|\.jpeg|\.gif/gi)) {
             html += '<img crossOrigin="anonymous" src="' + file.url + '">';
@@ -83,12 +90,21 @@ window.addEventListener('load', function() {
     var FileHelper = {
         onBegin: function(file) {
             var li = document.createElement('li');
-            li.innerHTML = '<pre style="text-align:left;" class="file-name">' + file.name + '</pre><br><progress style="display:none;" value="0"></progress><div class="circular-progress-bar c100 p25" style="margin-left: 40%;"><span class="circular-progress-bar-percentage">25%</span><div class="slice"><div class="bar"></div><div class="fill"></div></div></div>';
+
+            var html = '<pre style="text-align:left;" class="file-name">';
+            if (file.extra && file.extra.webkitRelativePath) {
+                html += file.extra.webkitRelativePath;
+            } else {
+                html += file.name;
+            }
+            html += '</pre><br><progress style="display:none;" value="0"></progress><div class="circular-progress-bar c100 p25" style="margin-left: 40%;"><span class="circular-progress-bar-percentage">25%</span><div class="slice"><div class="bar"></div><div class="fill"></div></div></div>';
+
+            li.innerHTML = html;
             li.style['min-height'] = '350px';
             outputPanel.insertBefore(li, outputPanel.firstChild);
 
-            outputPanel.className = 'fit-screen';
-            outputPanel.style.height = innerHeight + 'px';
+            // outputPanel.className = 'fit-screen';
+            // outputPanel.style.height = innerHeight + 'px';
 
             progressHelper[file.uuid] = {
                 li: li,
@@ -98,11 +114,29 @@ window.addEventListener('load', function() {
             progressHelper[file.uuid].progress.max = file.maxChunks;
 
             btnSelectFile.disabled = true;
+            btnSelectDirectory.disabled = true;
+            btnSelectMultiple.disabled = true;
 
             if (fileSelector.lastSelectedFile) {
-                btnSelectFile.innerHTML = 'File Sending In-Progress...';
+                if (filesRemaining.files) {
+                    if (filesRemaining.directory) {
+                        btnSelectDirectory.innerHTML = 'File Sending In-Progress...';
+                    } else {
+                        btnSelectMultiple.innerHTML = 'File Sending In-Progress...';
+                    }
+                } else {
+                    btnSelectFile.innerHTML = 'File Sending In-Progress...';
+                }
             } else {
-                btnSelectFile.innerHTML = 'File Receiving In-Progress...';
+                if (filesRemaining.files) {
+                    if (filesRemaining.directory) {
+                        btnSelectDirectory.innerHTML = 'File Receiving In-Progress...';
+                    } else {
+                        btnSelectMultiple.innerHTML = 'File Receiving In-Progress...';
+                    }
+                } else {
+                    btnSelectFile.innerHTML = 'File Receiving In-Progress...';
+                }
             }
 
             resetTimeCalculator();
@@ -113,14 +147,23 @@ window.addEventListener('load', function() {
         onEnd: function(file) {
             previewFile(file);
 
-            btnSelectFile.innerHTML = 'Select or Drop a File';
+            btnSelectFile.innerHTML = 'Single';
+            btnSelectDirectory.innerHTML = 'Directory';
+            btnSelectMultiple.innerHTML = 'Multiple';
             if (peerConnection.isOpened) {
                 btnSelectFile.disabled = false;
+                btnSelectDirectory.disabled = false;
+                btnSelectMultiple.disabled = false;
             }
 
             progressHelper.lastFileUUID = null;
-            outputPanel.className = '';
-            outputPanel.style.height = 'auto';
+            // outputPanel.className = '';
+            // outputPanel.style.height = 'auto';
+
+            if (filesRemaining.files) {
+                filesRemaining.idx++;
+                sendEntireDirectory();
+            }
         },
         onProgress: function(chunk) {
             var helper = progressHelper[chunk.uuid];
@@ -159,10 +202,14 @@ window.addEventListener('load', function() {
                     progressHelper.startedAt = (new Date).getTime();
                 };
             } else {
-                btnSelectFile.innerHTML = 'Select or Drop a File';
+                btnSelectFile.innerHTML = 'Single';
+                btnSelectDirectory.innerHTML = 'Directory';
+                btnSelectMultiple.innerHTML = 'Multiple';
 
                 if (peerConnection.isOpened) {
                     btnSelectFile.disabled = false;
+                    btnSelectDirectory.disabled = false;
+                    btnSelectMultiple.disabled = false;
                 }
             }
         }
@@ -187,7 +234,13 @@ window.addEventListener('load', function() {
         setupOffer.disabled = true;
 
         btnSelectFile.disabled = false;
-        btnSelectFile.innerHTML = 'Select or Drop a File';
+        btnSelectFile.innerHTML = 'Single';
+
+        btnSelectDirectory.disabled = false;
+        btnSelectDirectory.innerHTML = 'Directory';
+
+        btnSelectMultiple.disabled = false;
+        btnSelectMultiple.innerHTML = 'Multiple';
     };
 
     peerConnection.onclose = function() {
@@ -204,8 +257,14 @@ window.addEventListener('load', function() {
     };
 
     function resetButtons() {
-        btnSelectFile.innerHTML = 'Select or Drop a File';
+        btnSelectFile.innerHTML = 'Single';
         btnSelectFile.disabled = true;
+
+        btnSelectDirectory.innerHTML = 'Directory';
+        btnSelectDirectory.disabled = true;
+
+        btnSelectMultiple.innerHTML = 'Multiple';
+        btnSelectMultiple.disabled = true;
 
         setupOffer.disabled = false;
         setupOffer.innerHTML = 'Setup WebRTC Connection';
@@ -341,19 +400,36 @@ window.addEventListener('load', function() {
     function onFileSelected(file) {
         fileSelector.lastSelectedFile = file;
 
-        btnSelectFile.innerHTML = 'Please wait..';;
-        btnSelectFile.disabled = true;
+        if (filesRemaining.files) {
+            if (filesRemaining.directory) {
+                btnSelectDirectory.innerHTML = 'Please wait..';
+                btnSelectDirectory.disabled = true;
+            } else {
+                btnSelectMultiple.innerHTML = 'Please wait..';
+                btnSelectMultiple.disabled = true;
+            }
+        } else {
+            btnSelectFile.innerHTML = 'Please wait..';;
+            btnSelectFile.disabled = true;
+        }
 
         fileBufferReader.readAsArrayBuffer(file, function(metadata) {
             fileBufferReader.getNextChunk(metadata, getNextChunkCallback);
         }, {
-            chunkSize: fileBufferReader.chunkSize
+            chunkSize: fileBufferReader.chunkSize,
+            webkitRelativePath: file.webkitRelativePath || file.name
         });
 
         setTimeout(function() {
             if (fileSelector.lastSelectedFile) return;
-            btnSelectFile.innerHTML = 'Select or Drop a File';
+            btnSelectFile.innerHTML = 'Single';
             btnSelectFile.disabled = false;
+
+            btnSelectDirectory.innerHTML = 'Directory';
+            btnSelectDirectory.disabled = false;
+
+            btnSelectMultiple.innerHTML = 'Multiple';
+            btnSelectMultiple.disabled = false;
         }, 5000);
     }
 
@@ -362,8 +438,51 @@ window.addEventListener('load', function() {
         btnSelectFile.disabled = true;
         fileSelector.selectSingleFile(function(file) {
             onFileSelected(file);
-        });
+        }, onNoFileSelected);
     };
+
+    var btnSelectMultiple = document.getElementById('select-multiple');
+    btnSelectMultiple.onclick = function() {
+        btnSelectMultiple.disabled = true;
+        fileSelector.selectMultipleFiles(function(files) {
+            filesRemaining = {
+                files: files,
+                idx: 0
+            };
+
+            sendEntireDirectory();
+        }, onNoFileSelected);
+    };
+
+    var btnSelectDirectory = document.getElementById('select-directory');
+    btnSelectDirectory.onclick = function() {
+        btnSelectDirectory.disabled = true;
+        fileSelector.selectDirectory(function(files) {
+            filesRemaining = {
+                files: files,
+                idx: 0,
+                directory: true
+            };
+
+            sendEntireDirectory();
+        }, onNoFileSelected);
+    };
+
+    function onNoFileSelected() {
+        peerConnection.onopen();
+    }
+
+    var filesRemaining = 'none';
+
+    function sendEntireDirectory() {
+        if (filesRemaining === 'none') return;
+        if (!filesRemaining.files[filesRemaining.idx]) {
+            filesRemaining = 'none';
+            return;
+        }
+
+        onFileSelected(filesRemaining.files[filesRemaining.idx]);
+    }
 
     // drag-drop support
     function onDragOver() {
@@ -423,6 +542,11 @@ window.addEventListener('load', function() {
 
         var file = e.dataTransfer.files[0];
 
+        filesRemaining = {
+            files: e.dataTransfer.files,
+            idx: 0
+        };
+
         if (!peerConnection || !peerConnection.isOpened) {
             alert('Pleas setup WebRTC connection before sharing this file.');
             return;
@@ -463,7 +587,9 @@ window.addEventListener('load', function() {
             setupOffer.disabled = false;
         }, 1000);
 
-        document.getElementById('select-file').disabled = true;
+        btnSelectFile.disabled = true;
+        btnSelectDirectory.disabled = true;
+        btnSelectMultiple.disabled = true;
     }
 
     function millsecondsToSeconds(millis) {

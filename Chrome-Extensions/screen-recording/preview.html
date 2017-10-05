@@ -53,14 +53,14 @@ header {
     overflow: hidden;
 }
 
-#btn-upload {
+#btn-upload, #btn-recordings-list {
     float: right;
     height: 72px;
     margin-top: -3px;
     cursor: pointer;
 }
 
-#btn-upload-dropdown {
+#btn-upload-dropdown, #btn-recordings-list-dropdown {
     display: none;
     position: absolute;
     top: 80px;
@@ -71,25 +71,43 @@ header {
     border-right: 1px dotted red;
     text-align: left;
     font-size: 18px;
+    z-index: 9;
 }
 
 .visible {
   display: block!important;
 }
 
-#btn-upload-dropdown div {
+#btn-upload-dropdown div, #btn-recordings-list-dropdown div {
   padding: 5px 10px;
   border-bottom: 1px dotted red;
 }
 
-#btn-upload-dropdown div:hover {
+#btn-upload-dropdown div:hover, #btn-recordings-list-dropdown div:hover {
   background: #F3F3F3;
+}
+
+#btn-recordings-list {
+  float: left;
+}
+
+#btn-recordings-list-dropdown {
+  left: 27px;
+  right: auto;
+}
+
+.cross-icon {
+    float: right;
+    width: 22px;
+    margin-left: 20px;
+    cursor: pointer;
 }
 </style>
 
 <title></title>
 <link rel="manifest" href="manifest.json">
 <header>
+    <img id="btn-recordings-list" src="images/list-icon.png" title="Upload">
     <img id="btn-upload" src="images/upload-icon.png" title="Upload">
     <p>
         <a id="file-name" title="Download on your Disk!"></a>
@@ -105,6 +123,8 @@ header {
   <div id="btn-youtube-upload">Upload to YouTube</div>
   <div id="btn-php-upload">Upload to PHP</div>
 </div>
+
+<div id="btn-recordings-list-dropdown"></div>
 
 <section style="text-align: center;">
   <video controls disable-contextmenu cf-video-load="file"></video>

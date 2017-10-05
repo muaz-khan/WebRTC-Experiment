@@ -797,6 +797,7 @@
     <!-- https://cdn.webrtc-experiment.com/RecordRTC/Canvas-Recording/ -->
     <script src="canvas-designer.js"></script>
     <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script>
 
     <div class="start-top-recording" style="position: absolute;top: 3px;right: 20px;z-index: 9;">
@@ -864,8 +865,7 @@
                 screen_constraints.video.mandatory.minAspectRatio = 1.77;
             }
 
-            navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-            navigator.getUserMedia(screen_constraints, function (stream) {
+            navigator.getUserMedia(screen_constraints).then(function (stream) {
                 window.screenVideoElement = document.createElement('video');
                 screenVideoElement.onloadedmetadata = function() {
                     window.canvasElementToBeRecorded.getContext('2d').drawImage(
@@ -877,9 +877,9 @@
                     stream.stop();
                 };
 
-                screenVideoElement.src = URL.createObjectURL(stream);
+                setSrcObject(stream, screenVideoElement);
                 screenVideoElement.play();
-            }, function (error) {
+            }).catch(function (error) {
                 alert(JSON.stringify(error));
             });
         });

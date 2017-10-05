@@ -1,3 +1,4 @@
+<!-- Demo version: 2017.08.26 -->
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -8,7 +9,7 @@
 <html lang="en">
 
 <head>
-    <title>getStats.js Demo | Muaz Khan</title>
+    <title>getStats.js Demo | WebRTC getStats API</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -56,13 +57,11 @@
             }
             
             .videos-container {
-                display: inline-block;
                 border: 2px solid black;
                 padding: .1em;
                 border-radius: 0.2em;
-                margin: 2em .2em;
                 background: white;
-                vertical-align: top;
+                overflow: hidden;
             }
             .videos-container h2 {
                 border: 0;
@@ -72,24 +71,62 @@
                 display:block;
             }
             video {
-                width:20em;
-                height: 15em;
+                width:100%;
                 background: black;
+            }
+
+            .videos-container p {
+                margin: 0;
+                padding: 0;
+                text-align: left;
+            }
+
+            table {
+                width: 100%;
+            }
+
+            td, th, tr {
+                padding: 1px 3px;
+            }
+
+            td {
+                width: 40%!important;
+            }
+
+            td:first-child, th {
+                font-weight: bold;
+                color: #EC008C;
+            }
+
+            td:first-child, th:first-child {
+                width: 150px!important;
+            }
+
+            table {
+                border-bottom: 1px dotted #BBA9A9;
+                border-left: 1px dotted #BBA9A9;
+            }
+
+            label {
+                width: 100px!important;
+                display: inline-block;
+                text-align: right;
+                padding-right: 15px;
             }
     </style>
 
     <script src="https://cdn.webrtc-experiment.com/getStats.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
 
     <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
-    <script src="https://cdn.webrtc-experiment.com/gumadapter.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 </head>
 
 <body>
     <article>
         <header style="text-align: center;">
             <h1>
-                getStats.js Demo |
-                <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+                getStats.js Demo | WebRTC getStats API
             </h1>
             <p>
                 <a href="https://www.webrtc-experiment.com/">HOME</a>
@@ -103,116 +140,261 @@
         </header>
 
         <div class="github-stargazers"></div>
-        
-        <div style="text-align:center;">
-                <div class="videos-container">
-                    <video id="peer2-to-peer1" autoplay controls></video>
-                     <h2>Offerer-to-Answerer</h2>
 
-                </div>
-                <div class="videos-container">
-                    <video id="peer1-to-peer2" autoplay controls></video>
-                     <h2>Answerer-to-Offerer</h2>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button id="btn-stop" disabled>Stop Camera & getStats</button>
+            <select id="select-iceTransportPolicy">
+                <option value="all">STUN+TURN</option>
+                <option value="relay">TURN Only</option>
+            </select>
+            <select id="select-iceTransportLimitation">
+                <option value="all">UDP+TCP</option>
+                <option value="tcp">TCP Only</option>
+            </select>
+            <select id="select-codec">
+                <option value="vp9">VP9</option>
+                <option value="vp8">VP8</option>
+            </select>
+        </div>
 
-                </div>
-            </div>
+        <table>
+            <thead>
+                <th></th>
+                <th>First Peer</th>
+                <th>Second Peer</th>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        Videos
+                    </td>
+                    <td>
+                        <video id="peer2-to-peer1" controls muted></video>
+                    </td>
+                    <td>
+                        <video id="peer1-to-peer2" controls muted></video>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Available Bandwidth</td>
+                    <td><span id="peer1-availableSendBandwidth"></span></td>
+                    <td><span id="peer2-availableSendBandwidth"></span></td>
+                </tr>
+
+                <tr>
+                    <td>STUN/TURN?</td>
+                    <td>
+                        <label>Local:</label> <span id="peer1-localIceType"></span> (<span id="peer1-localTransport"></span>)<br>
+                        <label>Remote:</label> <span id="peer1-remoteIceType"></span> (<span id="peer1-remoteTransport"></span>)<br>
+                    </td>
+                    <td>
+                        <label>Local:</label> <span id="peer2-localIceType"></span> (<span id="peer2-localTransport"></span>)<br>
+                        <label>Remote:</label> <span id="peer2-remoteIceType"></span> (<span id="peer2-remoteTransport"></span>)<br>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Codecs</td>
+                    <td>
+                        <label>Send:</label> <span id="peer1-codecsSend"></span><br>
+                        <label>Recv:</label> <span id="peer1-codecsRecv"></span><br>
+                    </td>
+                    <td>
+                        <label>Send:</label> <span id="peer2-codecsSend"></span><br>
+                        <label>Recv:</label> <span id="peer2-codecsRecv"></span><br>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Encryption</td>
+                    <td><span id="peer1-encryptedAs"></span></td>
+                    <td><span id="peer2-encryptedAs"></span></td>
+                </tr>
+
+                <tr>
+                    <td>IP Address</td>
+                    <td>
+                        <label>Send:</label> <span id="peer1-externalIPAddressLocal"></span><br>
+                        <label>Recv:</label> <span id="peer1-externalIPAddressRemote"></span>
+                    </td>
+                    <td>
+                        <label>Send:</label> <span id="peer2-externalIPAddressLocal"></span><br>
+                        <label>Recv:</label> <span id="peer2-externalIPAddressRemote"></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Resolutions</td>
+                    <td>
+                        <label>Send:</label> <span id="peer1-videoResolutionsForSenders"></span><br>
+                        <label>Recv:</label> <span id="peer1-videoResolutionsForReceivers"></span>
+                    </td>
+                    <td>
+                        <label>Send:</label> <span id="peer2-videoResolutionsForSenders"></span><br>
+                        <label>Recv:</label> <span id="peer2-videoResolutionsForReceivers"></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Data</td>
+                    <td>
+                        <label>Send:</label> <span id="peer1-totalDataForSenders"></span><br>
+                        <label>Recv:</label> <span id="peer1-totalDataForReceivers"></span>
+                    </td>
+                    <td>
+                        <label>Send:</label> <span id="peer2-totalDataForSenders"></span><br>
+                        <label>Recv:</label> <span id="peer2-totalDataForReceivers"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <blockquote style="margin: 20px;">
+            Multi-user peer-to-peer demo: <a href="https://rtcmulticonnection.herokuapp.com/demos/getStats.html">getStats using RTCMultiConnection</a>
+        </blockquote>
+
             <script>
-                 var mediaConstraints = {
-                    optional: [],
-                    mandatory: {
-                        OfferToReceiveAudio: true,
-                        OfferToReceiveVideo: true
-                    }
+                var iceTransportPolicy = document.getElementById('select-iceTransportPolicy');
+                if(localStorage.getItem('iceTransportPolicy')) {
+                    iceTransportPolicy.value = localStorage.getItem('iceTransportPolicy');
+                }
+                iceTransportPolicy.onchange = function() {
+                    localStorage.setItem('iceTransportPolicy', this.value);
+                    location.reload();
                 };
+
+                var iceTransportLimitation = document.getElementById('select-iceTransportLimitation');
+                if(localStorage.getItem('iceTransportLimitation')) {
+                    iceTransportLimitation.value = localStorage.getItem('iceTransportLimitation');
+                }
+                iceTransportLimitation.onchange = function() {
+                    localStorage.setItem('iceTransportLimitation', this.value);
+                    location.reload();
+                };
+
+                var codec = document.getElementById('select-codec');
+                if(localStorage.getItem('codec')) {
+                    codec.value = localStorage.getItem('codec');
+                }
+                codec.onchange = function() {
+                    localStorage.setItem('codec', this.value);
+                    location.reload();
+                };
+
+                function addIceCandidate(peer, candidate) {
+                    if(iceTransportLimitation.value === 'tcp') {
+                        if(candidate.candidate.toLowerCase().indexOf('tcp') === -1) {
+                            return; // ignore UDP
+                        }
+                    }
+
+                    peer.addIceCandidate(candidate);
+                }
             </script>
             <script>
                 var offerer, answerer;
                 var offererToAnswerer = document.getElementById('peer1-to-peer2');
                 var answererToOfferer = document.getElementById('peer2-to-peer1');
 
-                window.RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-                window.RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-                window.RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+                var iceServers = {
+                    iceServers: IceServersHandler.getIceServers(),
+                    iceTransportPolicy: iceTransportPolicy.value,
+                    rtcpMuxPolicy: 'require',
+                    bundlePolicy: 'max-bundle'
+                };
 
-                var iceServers = [];
-
-                // Firefox <= 37 doesn't understands "urls"
-
-                iceServers.push({
-                    urls: 'stun:stun.l.google.com:19302'
-                });
-
-                iceServers.push({
-                    urls: 'stun:stun.anyfirewall.com:3478'
-                });
-
-                iceServers.push({
-                    urls: 'turn:turn.bistri.com:80',
-                    credential: 'homeo',
-                    username: 'homeo'
-                });
-
-                iceServers.push({
-                    urls: 'turn:turn.anyfirewall.com:443?transport=tcp',
-                    credential: 'webrtc',
-                    username: 'webrtc'
-                });
-
-                iceServers = {
-                    iceServers: iceServers
+                var mediaConstraints = {
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: true
                 };
             </script>
             <script>
                 /* offerer */
 
                 function offererPeer(video_stream) {
-                    offerer = new RTCPeerConnection(window.iceServers);
+                    offerer = new RTCPeerConnection(iceServers);
                     offerer.id = 1;
-                    offerer.addStream(video_stream);
 
-                    offerer.onaddstream = function (event) {
-                        offererToAnswerer.srcObject = event.stream;
-                        offererToAnswerer.play();
+                    video_stream.getTracks().forEach(function(track) {
+                        offerer.addTrack(track, video_stream);
+                    });
 
-                        invokeGetStats(offerer);
+                    var firedOnce = false;
+                    offerer.ontrack = function (event) {
+                        if(firedOnce) return;
+                        firedOnce = true;
+
+                        offererToAnswerer.srcObject = event.streams[0];
+
+                        if (typeof window.InstallTrigger !== 'undefined') {
+                            getStats(offerer, event.streams[0].getTracks()[0], function(result) {
+                                previewGetStatsResult(offerer, result);
+                            }, 1000);
+                        }
+                        else {
+                            getStats(offerer, function(result) {
+                                previewGetStatsResult(offerer, result);
+                            }, 1000);
+                        }
                     };
 
                     offerer.onicecandidate = function (event) {
                         if (!event || !event.candidate) return;
-                        answerer.addIceCandidate(event.candidate);
+                        addIceCandidate(answerer, event.candidate);
                     };
 
-                    offerer.createOffer(function (offer) {
-                        offerer.setLocalDescription(offer);
-                        answererPeer(offer, video_stream);
-                    }, function() {}, mediaConstraints);
+                    offerer.createOffer(mediaConstraints).then(function (offer) {
+                        offer.sdp = preferVP9(offer.sdp);
+                        offerer.setLocalDescription(offer).then(function() {
+                            answererPeer(offer, video_stream);
+                        }, function() {});
+                    }, function() {});
                 }
             </script>
             <script>
                 /* answerer */
 
                 function answererPeer(offer, video_stream) {
-                    answerer = new RTCPeerConnection(window.iceServers);
+                    answerer = new RTCPeerConnection(iceServers);
                     answerer.id = 2;
-                    answerer.addStream(video_stream);
+                    
+                    video_stream.getTracks().forEach(function(track) {
+                        answerer.addTrack(track, video_stream);
+                    });
 
-                    answerer.onaddstream = function (event) {
-                        answererToOfferer.srcObject = event.stream;
-                        answererToOfferer.play();
+                    var firedOnce = false;
+                    answerer.ontrack = function (event) {
+                        if(firedOnce) return;
+                        firedOnce = true;
 
-                        invokeGetStats(answerer);
+                        answererToOfferer.srcObject = event.streams[0];
+                        
+                        if (typeof window.InstallTrigger !== 'undefined') {
+                            getStats(answerer, event.streams[0].getTracks()[0], function(result) {
+                                previewGetStatsResult(answerer, result);
+                            }, 1000);
+                        }
+                        else {
+                            getStats(answerer, function(result) {
+                                previewGetStatsResult(answerer, result);
+                            }, 1000);
+                        }
                     };
 
                     answerer.onicecandidate = function (event) {
                         if (!event || !event.candidate) return;
-                        offerer.addIceCandidate(event.candidate);
+                        addIceCandidate(offerer, event.candidate);
                     };
 
                     answerer.setRemoteDescription(offer);
-                    answerer.createAnswer(function (answer) {
-                        answerer.setLocalDescription(answer);
-                        offerer.setRemoteDescription(answer);
-                    }, function() {}, mediaConstraints);
+                    answerer.createAnswer(mediaConstraints).then(function (answer) {
+                        answer.sdp = preferVP9(answer.sdp);
+                        answerer.setLocalDescription(answer).then(function() {
+                            offerer.setRemoteDescription(answer);
+                        }, function() {});                        
+                    }, function() {});
                 }
             </script>
             <script>
@@ -232,93 +414,105 @@
                 }
             </script>
             <script>
+                var CAMERA_STREAM;
                 getUserMedia(function (video_stream) {
+                    CAMERA_STREAM = video_stream;
                     offererPeer(video_stream);
+
+                    document.getElementById('btn-stop').disabled = false;
                 });
             </script>
 
-            <section class="experiment" style="margin-left:0; margin-right:0;width: 100%;overflow: auto;">
-                <h2>getStats.js Logs</h2><br>
-                <table>
-                    <thead>
-                        <th>PeerId</th>
-                        <th>IsOfferer</th>
-                        <th>ConnectionInfo</th>
-                        <th>DataChannel</th>
-                        <th>EncryptedAs</th>
-                        <th>AudioAvailBandwidth</th>
-                        <th>VideoAvailBandwidth</th>
-                    </thead>
-                    <tbody id="getStats-logs-container"></tbody>
-                </table>
-            </section>
-
             <script>
-                var getStatsLogsContainer = document.getElementById('getStats-logs-container');
-                function invokeGetStats(peer) {
-                    getStats(peer, function(result) {
-                        var tr = getStatsLogsContainer.querySelector('#peer-stats-' + peer.id);
-                        if (!tr) {
-                            tr = document.createElement('tr');
-                            tr.id = 'peer-stats-' + peer.id;
-                            getStatsLogsContainer.appendChild(tr);
+                var STOP_GETSTATS = false;
+                document.getElementById('btn-stop').onclick = function() {
+                    this.disabled = true;
+                    STOP_GETSTATS = true;
+
+                    if(CAMERA_STREAM && CAMERA_STREAM.active === true) {
+                        CAMERA_STREAM.getTracks().forEach(function(track) {
+                            track.stop();
+                        });
+                    }
+                };
+
+                function previewGetStatsResult(peer, result) {
+                        if(STOP_GETSTATS) {
+                            result.nomore();
+                            return;
                         }
 
-                        var html = '<td>' + peer.id + '</td>';
-
-                        html += '<td>' + (result.isOfferer ? 'Offerer' : 'Answerer') + '</td>';
-
-                        html += '<td>';
-                        if (result.connectionType && result.connectionType.remote) {
-                            html += 'RemoteIceType (' + result.connectionType.remote.candidateType + '), ';
-
-                            if (result.connectionType.remote.networkType) {
-                                html += 'RemoteNetType (' + result.connectionType.remote.networkType + '), ';
-                            }
+                        if(result.connectionType.remote.candidateType.indexOf('relayed') !== -1) {
+                            result.connectionType.remote.candidateType = 'TURN';
+                        }
+                        else {
+                            result.connectionType.remote.candidateType = 'STUN';
                         }
 
-                        if (result.connectionType && result.connectionType.local) {
-                            html += 'LocalIceType (' + result.connectionType.local.candidateType + '), ';
+                        document.getElementById('peer' + peer.id + '-remoteIceType').innerHTML = result.connectionType.remote.candidateType;
+                        document.getElementById('peer' + peer.id + '-externalIPAddressRemote').innerHTML = result.connectionType.remote.ipAddress.join(', ');
+                        document.getElementById('peer' + peer.id + '-remoteTransport').innerHTML = result.connectionType.remote.transport.join(', ');
 
-                            if (result.connectionType.local.networkType) {
-                                html += 'LocalNetType (' + result.connectionType.local.networkType + '), ';
-                            }
+                        if(result.connectionType.local.candidateType.indexOf('relayed') !== -1) {
+                            result.connectionType.local.candidateType = 'TURN';
                         }
-
-                        html += '</td>';
-                        html += '<td>' + (result.datachannel ? result.datachannel.state : 'not-created') + '</td>';
-
-                        if (result.encryption) {
-                            html += '<td>' + result.encryption + '</td>';
+                        else {
+                            result.connectionType.local.candidateType = 'STUN';
                         }
+                        document.getElementById('peer' + peer.id + '-localIceType').innerHTML = result.connectionType.local.candidateType;
+                        document.getElementById('peer' + peer.id + '-externalIPAddressLocal').innerHTML = result.connectionType.local.ipAddress.join(', ');
+                        document.getElementById('peer' + peer.id + '-localTransport').innerHTML = result.connectionType.local.transport.join(', ');
 
-                        if(result.audio.availableBandwidth) {
-                            html += '<td>' + result.audio.availableBandwidth + ' kbps</td>';
-                        }
+                        document.getElementById('peer' + peer.id + '-encryptedAs').innerHTML = result.encryption;
 
-                        if(result.video.availableBandwidth) {
-                            html += '<td>' + result.video.availableBandwidth + ' kbps</td>';
-                        }
+                        document.getElementById('peer' + peer.id + '-videoResolutionsForSenders').innerHTML = result.resolutions.send.width + 'x' + result.resolutions.send.height;
+                        document.getElementById('peer' + peer.id + '-videoResolutionsForReceivers').innerHTML = result.resolutions.recv.width + 'x' + result.resolutions.recv.height;
 
-                        tr.innerHTML = html;
+                        document.getElementById('peer' + peer.id + '-totalDataForSenders').innerHTML = bytesToSize(result.audio.bytesSent + result.video.bytesSent);
+                        document.getElementById('peer' + peer.id + '-totalDataForReceivers').innerHTML = bytesToSize(result.audio.bytesReceived + result.video.bytesReceived);
 
-                        if (result.datachannel && result.datachannel.state === 'close') {
-                            tr.parentNode.removeChild(tr);
+                        document.getElementById('peer' + peer.id + '-codecsSend').innerHTML = result.audio.send.codecs.concat(result.video.send.codecs).join(', ');
+                        document.getElementById('peer' + peer.id + '-codecsRecv').innerHTML = result.audio.recv.codecs.concat(result.video.recv.codecs).join(', ');
+
+                        document.getElementById('peer' + peer.id + '-availableSendBandwidth').innerHTML = bytesToSize(result.bandwidth.availableSendBandwidth);
+
+                        if (result.ended === true) {
                             result.nomore();
                         }
 
                         window.getStatsResult = result;
-                    }, 5 * 1000);
+                }
+
+                function bytesToSize(bytes) {
+                    var k = 1000;
+                    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                    if (bytes === 0) {
+                        return '0 Bytes';
+                    }
+                    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+                    return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+                }
+
+                function preferVP9(sdp) {
+                    if(codec.value === 'vp8') {
+                        return sdp; // ignore VP9
+                    }
+
+                    if (sdp.indexOf('SAVPF 96 98') === -1 || sdp.indexOf('VP9/90000') === -1) {
+                        return sdp;
+                    }
+
+                    return sdp.replace('SAVPF 96 98', 'SAVPF 98 96');
                 }
             </script>
 
-        <section class="experiment own-widgets">
+        <section>
             <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/getStats/issues" target="_blank">getStats Issues</a>
             </h2>
             <div id="github-issues"></div>
         </section>
 
-        <section class="experiment">
+        <section>
             <h2 class="header" id="feedback">Feedback</h2>
             <div>
                 <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
@@ -327,7 +521,7 @@
             <small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
         </section>
 
-        <section class="experiment own-widgets latest-commits">
+        <section>
             <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/getStats/commits/master" target="_blank">Latest Updates</a>
             </h2>
             <div id="github-commits"></div>

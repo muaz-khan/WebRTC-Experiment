@@ -1,15 +1,6 @@
 // CodecsHandler.js
 
 var CodecsHandler = (function() {
-    var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
-    if (typeof cordova !== 'undefined') {
-        isMobileDevice = true;
-    }
-
-    if (navigator && navigator.userAgent && navigator.userAgent.indexOf('Crosswalk') !== -1) {
-        isMobileDevice = true;
-    }
-
     // "removeVPX" and "removeNonG722" methods are taken from github/mozilla/webrtc-landing
     function removeVPX(sdp) {
         if (!sdp || typeof sdp !== 'string') {
@@ -85,10 +76,6 @@ var CodecsHandler = (function() {
             return sdp;
         }
 
-        if (isMobileDevice) {
-            return sdp;
-        }
-
         if (isScreen) {
             if (!bandwidth.screen) {
                 console.warn('It seems that you are not using bandwidth for screen. Screen sharing is expected to fail.');
@@ -104,7 +91,7 @@ var CodecsHandler = (function() {
         }
 
         // remove existing bandwidth lines
-        if (bandwidth.audio || bandwidth.video || bandwidth.data) {
+        if (bandwidth.audio || bandwidth.video) {
             sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
         }
 
@@ -112,8 +99,10 @@ var CodecsHandler = (function() {
             sdp = sdp.replace(/a=mid:audio\r\n/g, 'a=mid:audio\r\nb=AS:' + bandwidth.audio + '\r\n');
         }
 
-        if (bandwidth.video) {
-            sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + (isScreen ? bandwidth.screen : bandwidth.video) + '\r\n');
+        if (bandwidth.screen) {
+            sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + bandwidth.screen + '\r\n');
+        } else if (bandwidth.video) {
+            sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:' + bandwidth.video + '\r\n');
         }
 
         return sdp;
@@ -148,10 +137,6 @@ var CodecsHandler = (function() {
     }
 
     function setVideoBitrates(sdp, params) {
-        if (isMobileDevice) {
-            return sdp;
-        }
-
         params = params || {};
         var xgoogle_min_bitrate = params.min;
         var xgoogle_max_bitrate = params.max;
@@ -191,10 +176,6 @@ var CodecsHandler = (function() {
     }
 
     function setOpusAttributes(sdp, params) {
-        if (isMobileDevice) {
-            return sdp;
-        }
-
         params = params || {};
 
         var sdpLines = sdp.split('\r\n');
@@ -250,11 +231,11 @@ var CodecsHandler = (function() {
     }
 
     function preferVP9(sdp) {
-        if (sdp.indexOf('SAVPF 100 101') === -1 || sdp.indexOf('VP9/90000') === -1) {
+        if (sdp.indexOf('SAVPF 96 98') === -1 || sdp.indexOf('VP9/90000') === -1) {
             return sdp;
         }
 
-        return sdp.replace('SAVPF 100 101', 'SAVPF 101 100');
+        return sdp.replace('SAVPF 96 98', 'SAVPF 98 96');
     }
 
     // forceStereoAudio => via webrtcexample.com

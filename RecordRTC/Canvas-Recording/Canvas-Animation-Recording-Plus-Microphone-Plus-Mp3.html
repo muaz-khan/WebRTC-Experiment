@@ -242,7 +242,7 @@
                     var audio = document.createElement('audio');
                     audio.muted = true;
                     audio.volume = 0;
-                    audio.src = URL.createObjectURL(microphoneStream);
+                    setSrcObject(microphoneStream, audio);
                     audio.play();
 
                     (document.body || document.documentElement).appendChild(audio);

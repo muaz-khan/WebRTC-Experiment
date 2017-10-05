@@ -1,5 +1,7 @@
 ## [RecordRTC to PHP](https://github.com/muaz-khan/RecordRTC/tree/master/RecordRTC-to-PHP) / [Try LIVE Demo](https://www.webrtc-experiment.com/RecordRTC/PHP/)
 
+Please check tutorial: [RecordRTC and Upload to PHP Server](http://www.muazkhan.com/2017/08/recordrtc-and-upload-to-php-server.html)
+
 > This demo allows you record and upload to PHP server. Files on PHP server are auto-deleted as soon as you leave this page. 
 > 
 > This demo runs top over RecordRTC: [https://github.com/muaz-khan/RecordRTC](https://github.com/muaz-khan/RecordRTC)

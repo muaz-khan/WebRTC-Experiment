@@ -1,4 +1,4 @@
-// Last time updated at Nov 07, 2016, 08:32:23
+// Last time updated at August 29, 2017, 08:32:23
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/Screen-Capturing.js
 
@@ -64,7 +64,7 @@ var screenCallback;
 function isChromeExtensionAvailable(callback) {
     if (!callback) return;
 
-    if (isFirefox) return isFirefoxExtensionAvailable(callback);
+    if (DetectRTC.browser.name === 'Firefox') return isFirefoxExtensionAvailable(callback);
 
     if (window.IsAndroidChrome) {
         chromeMediaSource = 'screen';
@@ -90,7 +90,7 @@ function isChromeExtensionAvailable(callback) {
 function isFirefoxExtensionAvailable(callback) {
     if (!callback) return;
 
-    if (!isFirefox) return isChromeExtensionAvailable(callback);
+    if (DetectRTC.browser.name !== 'Firefox') return isChromeExtensionAvailable(callback);
 
     var isFirefoxAddonResponded = false;
 
@@ -154,7 +154,7 @@ function getChromeExtensionStatus(extensionid, callback) {
         extensionid = window.RMCExtensionID || 'ajhifddimkapgcifgcodmmfdlknahffk'; // default extension-id
     }
 
-    if (isFirefox) return callback('not-chrome');
+    if (DetectRTC.browser.name === 'Firefox') return callback('not-chrome');
 
     var image = document.createElement('img');
     image.src = 'chrome-extension://' + extensionid + '/icon.png';
@@ -173,16 +173,22 @@ function getChromeExtensionStatus(extensionid, callback) {
     };
 }
 
+function getAspectRatio(w, h) {
+    function gcd(a, b) {
+        return (b == 0) ? a : gcd(b, a % b);
+    }
+    var r = gcd(w, h);
+    return (w / r) / (h / r);
+}
+
 // this function explains how to use above methods/objects
 function getScreenConstraints(callback, audioPlusTab) {
     var firefoxScreenConstraints = {
         mozMediaSource: 'window',
-        mediaSource: 'window',
-        width: 29999,
-        height: 8640
+        mediaSource: 'window'
     };
 
-    if (isFirefox) return callback(null, firefoxScreenConstraints);
+    if (DetectRTC.browser.name === 'Firefox') return callback(null, firefoxScreenConstraints);
 
     // support recapture again & again
     sourceId = null;
@@ -193,11 +199,14 @@ function getScreenConstraints(callback, audioPlusTab) {
         var screen_constraints = {
             mandatory: {
                 chromeMediaSource: chromeMediaSource,
-                maxWidth: 29999,
-                maxHeight: 8640,
-                minFrameRate: 30,
-                maxFrameRate: 128,
-                minAspectRatio: 1.77 // 2.39
+                maxWidth: screen.width,
+                maxHeight: screen.height,
+                minWidth: screen.width,
+                minHeight: screen.height,
+                minAspectRatio: getAspectRatio(screen.width, screen.height),
+                maxAspectRatio: getAspectRatio(screen.width, screen.height),
+                minFrameRate: 64,
+                maxFrameRate: 128
             },
             optional: []
         };

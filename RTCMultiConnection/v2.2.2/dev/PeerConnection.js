@@ -341,7 +341,9 @@ function PeerConnection() {
 
                 this.iceServers = {
                     iceServers: this.iceServers,
-                    iceTransports: this.rtcConfiguration.iceTransports
+                    iceTransportPolicy: this.rtcConfiguration.iceTransports,
+                    rtcpMuxPolicy: 'require', // or negotiate
+                    bundlePolicy: 'max-bundle'
                 };
             } else this.iceServers = null;
 

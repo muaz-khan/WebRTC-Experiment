@@ -16,6 +16,14 @@
  */
 
 function RecordRTCConfiguration(mediaStream, config) {
+    if (!config.recorderType && !config.type) {
+        if (!!config.audio && !!config.video) {
+            config.type = 'video';
+        } else if (!!config.audio && !config.video) {
+            config.type = 'audio';
+        }
+    }
+
     if (config.recorderType && !config.type) {
         if (config.recorderType === WhammyRecorder || config.recorderType === CanvasRecorder) {
             config.type = 'video';

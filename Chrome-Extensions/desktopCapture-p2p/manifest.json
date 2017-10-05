@@ -1,7 +1,7 @@
 {
    "name":"WebRTC Desktop Sharing",
    "author":"Muaz Khan",
-   "version":"2.7",
+   "version":"3.5",
    "manifest_version":2,
    "minimum_chrome_version":"34",
    "description":"WebRTC based P2P HQ/HD screen sharing. Share audio+tab or any application's screen. Even share full/entire screen.",
@@ -9,7 +9,7 @@
    "background":{
       "scripts":[
          "websocket.js",
-         "RTCMultiConnection.min.js",
+         "RTCMultiConnection.js",
          "CodecsHandler.js",
          "IceServersHandler.js",
          "desktop-capturing.js"
@@ -32,7 +32,6 @@
       "storage",
       "tabs",
       "<all_urls>",
-      "tabCapture",
       "activeTab"
    ],
    "web_accessible_resources":[

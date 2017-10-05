@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-    <meta name="google-site-verification" content="zhJ273gZGLJ_Cbl-muzPYYTR6jD7sCCgufDIRS5h4SE" />
     <script>
         if(!location.hash.replace('#', '').length) {
             location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
@@ -86,11 +85,39 @@
         <!-- for p2p streaming -->
         <script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
         <!-- for recording -->
-        <script src="https://cdn.webrtc-experiment.com/firebase.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
 
         <script>
             // http://www.rtcmulticonnection.org/docs/constructor/
             var rmc = new RTCMultiConnection();
+
+            // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
+            var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+            rmc.openSignalingChannel = function(config) {
+                var channel = config.channel || rmc.channel || 'default-namespace';
+                var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+
+                io.connect(SIGNALING_SERVER).emit('new-channel', {
+                    channel: channel,
+                    sender: sender
+                });
+
+                var socket = io.connect(SIGNALING_SERVER + channel);
+                socket.channel = channel;
+
+                socket.on('connect', function() {
+                    if (config.callback) config.callback(socket);
+                });
+
+                socket.send = function(message) {
+                    socket.emit('message', {
+                        sender: sender,
+                        data: message
+                    });
+                };
+
+                socket.on('message', config.onmessage);
+            };
 
             rmc.body = document.getElementById('videos-container');
 

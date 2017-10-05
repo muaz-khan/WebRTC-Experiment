@@ -1,0 +1,26 @@
+{
+    "name" : "Get Any WebRTC Peer Stream",
+    "author": "Muaz Khan",
+    "version" : "1.0",
+    "manifest_version" : 2,
+    "minimum_chrome_version": "48",
+    "description" : "Get Stream From Any WebRTC Peer from any website.",
+    "homepage_url": "https://www.webrtc-experiment.com/",
+    "content_scripts": [ {
+       "js": [ "content-script.js" ],
+       "all_frames": true,
+       "run_at": "document_start",
+       "matches": ["<all_urls>"]
+    }],
+    "icons" : {
+        "48" : "icon.png"
+    },
+    "permissions": [
+        "<all_urls>",
+        "tabs"
+    ],
+    "web_accessible_resources": [
+        "icon.png",
+        "RTCPeerConnection-override.js"
+    ]
+}

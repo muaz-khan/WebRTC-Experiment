@@ -1,0 +1,524 @@
+<script>window.demoVersion = '2017.09.27';</script>
+
+<!--
+> Muaz Khan     - www.MuazKhan.com
+> MIT License   - www.WebRTC-Experiment.com/licence
+> Documentation - github.com/muaz-khan/MultiStreamsMixer
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>MultiStreamsMixer | Mix Multiple Cameras & Screens into Single Stream</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+
+    <style>
+        h1 span {
+            background: yellow;
+            border: 2px solid #8e1515;
+            padding: 2px 8px;
+            margin: 2px 5px;
+            border-radius: 7px;
+            color: #8e1515;
+            display: inline-block;
+        }
+
+        video {
+            max-width: 100%;
+        }
+    </style>
+
+    <script src="https://cdn.webrtc-experiment.com/MultiStreamsMixer.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/getScreenId.js"> </script>
+    <script src="https://cdn.webrtc-experiment.com/FileSelector.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+
+    <!-- video element -->
+    <link href="https://cdn.webrtc-experiment.com/getHTMLMediaElement.css" rel="stylesheet">
+    <script src="https://cdn.webrtc-experiment.com/getHTMLMediaElement.js"></script>
+</head>
+
+<body>
+    <article>
+        <header style="text-align: center;">
+            <h1>
+                MultiStreamsMixer | Mix Multiple Cameras & <br>Screens into Single Stream
+            </h1>
+            <p style="margin:0;">
+                <a href="https://www.webrtc-experiment.com/">HOME</a>
+                <span> &copy; </span>
+                <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
+                <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
+                <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a> .
+                <a href="https://github.com/muaz-khan/MultiStreamsMixer/issues?state=open" target="_blank">Latest issues</a> .
+                <a href="https://github.com/muaz-khan/MultiStreamsMixer/commits/master" target="_blank">What's New?</a>
+            </p>
+        </header>
+
+        <div class="github-stargazers"></div>
+
+        <section style="text-align: center; margin-top: 15px; color: red;" id="demoVersion"></section>
+        <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getUTCFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
+
+        <div style="text-align:center;">
+                <a href="https://www.npmjs.com/package/multistreamsmixer" target="_blank">
+                    <img src="https://img.shields.io/npm/v/multistreamsmixer.svg">
+                </a>
+
+                <a href="https://www.npmjs.com/package/multistreamsmixer" target="_blank">
+                    <img src="https://img.shields.io/npm/dm/multistreamsmixer.svg">
+                </a>
+
+                <a href="https://travis-ci.org/muaz-khan/MultiStreamsMixer">
+                    <img src="https://travis-ci.org/muaz-khan/MultiStreamsMixer.png?branch=master">
+                </a>
+            </div>
+
+        <section class="experiment" style="text-align: center;">
+            <button id="btn-get-mixed-stream">Get Mixed Stream</button>
+
+            <select id="mixer-options">
+                <option value="multiple-cameras-default">Multiple Cameras (Default)</option>
+                <option value="multiple-cameras-customized">Multiple Cameras (Customized)</option>
+                <option value="camera-screen">Camera + Screen</option>
+                <option value="microphone-mp3">Microphone + Mp3</option>
+            </select>
+
+            <br>
+
+            <div id="video-preview" style="margin-top: 15px;"></div>
+        </section>
+
+        <script>
+            var video = document.createElement('video');
+            video.controls = false;
+            var mediaElement = getHTMLMediaElement(video, {
+                title: 'Click "Get Mixed Stream" button',
+                buttons: [],
+                showOnMouseEnter: false,
+                width: document.getElementById('video-preview').parentNode.clientWidth
+            });
+            document.getElementById('video-preview').appendChild(mediaElement);
+
+            var div = document.createElement('section');
+            mediaElement.media.parentNode.appendChild(div);
+            div.appendChild(mediaElement.media);
+
+            var videoPreview = mediaElement.media;
+
+            var mixerOptions = document.querySelector('#mixer-options');
+
+            mixerOptions.onchange = function() {
+                localStorage.setItem('mixer-selected-options', this.value);
+                location.reload();
+            };
+            if(localStorage.getItem('mixer-selected-options')) {
+                mixerOptions.value = localStorage.getItem('mixer-selected-options');
+            }
+
+            function updateMediaHTML(html) {
+                videoPreview.parentNode.parentNode.querySelector('h2').innerHTML = html;
+            }
+
+            document.querySelector('#btn-get-mixed-stream').onclick = function() {
+                this.disabled = true;
+
+                if(mixerOptions.value === 'camera-screen') {
+                    updateMediaHTML('Capturing screen');
+                    getMixedCameraAndScreen();
+                }
+
+                if(mixerOptions.value === 'multiple-cameras-default' || mixerOptions.value === 'multiple-cameras-customized') {
+                    updateMediaHTML('Capturing camera');
+                    getMixedMultipleCameras(mixerOptions.value === 'multiple-cameras-customized');
+                }
+
+                if(mixerOptions.value === 'microphone-mp3') {
+                    updateMediaHTML('Capturing mp3+microphone');
+                    getMixedMicrophoneAndMp3();
+                }
+            };
+
+            function getMixedCameraAndScreen() {
+                getScreenId(function (error, sourceId, screen_constraints) {
+                    navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
+                        navigator.mediaDevices.getUserMedia({video: true}).then(function(cameraStream) {
+                            screenStream.fullcanvas = true;
+                            screenStream.width = screen.width; // or 3840
+                            screenStream.height = screen.height; // or 2160 
+
+                            cameraStream.width = parseInt((30 / 100) * screenStream.width);
+                            cameraStream.height = parseInt((30 / 100) * screenStream.height);
+                            cameraStream.top = screenStream.height - cameraStream.height;
+                            cameraStream.left = screenStream.width - cameraStream.width;
+
+                            fullCanvasRenderHandler(screenStream, 'Your Screen!');
+                            normalVideoRenderHandler(cameraStream, 'Your Camera!');
+
+                            var mixer = new MultiStreamsMixer([screenStream, cameraStream]);
+
+                            mixer.frameInterval = 1;
+                            mixer.startDrawingFrames();
+
+                            setSrcObject(mixer.getMixedStream(), videoPreview);
+
+                            updateMediaHTML('Mixed Screen+Camera!');
+
+                            addStreamStopListener(screenStream, function() {
+                                mixer.releaseStreams();
+                                videoPreview.pause();
+                                videoPreview.src = null;
+
+                                cameraStream.getTracks().forEach(function(track) {
+                                    track.stop();
+                                });
+                            });
+                        });
+                    });
+                });
+            }
+
+            function getMixedMultipleCameras(isCustomized) {
+                navigator.mediaDevices.getUserMedia({video: true }).then(function(cameraStream) {
+                    var mixer;
+
+                    if(isCustomized === true) {
+                        var fullCanvasStream = new MediaStream();
+                        cameraStream.getTracks().forEach(function(track) {
+                            fullCanvasStream.addTrack(track);
+                        });
+
+                        fullCanvasStream.fullcanvas = true;
+                        fullCanvasStream.width = screen.width; // or 3840
+                        fullCanvasStream.height = screen.height; // or 2160 
+
+                        fullCanvasRenderHandler(fullCanvasStream, 'Full Canvas Stream');
+
+                        cameraStream.width = parseInt((30 / 100) * fullCanvasStream.width);
+                        cameraStream.height = parseInt((30 / 100) * fullCanvasStream.height);
+                        cameraStream.top = fullCanvasStream.height - cameraStream.height;
+                        cameraStream.left = fullCanvasStream.width - cameraStream.width;
+
+                        var clonedCamera2 = new MediaStream();
+                        cameraStream.getTracks().forEach(function(track) {
+                            clonedCamera2.addTrack(track);
+                        });
+
+                        clonedCamera2.width = parseInt((30 / 100) * fullCanvasStream.width);
+                        clonedCamera2.height = parseInt((30 / 100) * fullCanvasStream.height);
+                        clonedCamera2.top = fullCanvasStream.height - clonedCamera2.height;
+                        clonedCamera2.left = fullCanvasStream.width - (clonedCamera2.width * 2);
+
+                        normalVideoRenderHandler(clonedCamera2, 'Someone');
+                        normalVideoRenderHandler(cameraStream, 'You!');
+                        
+                        mixer = new MultiStreamsMixer([fullCanvasStream, clonedCamera2, cameraStream]);
+                    }
+                    else {
+                        normalVideoRenderHandler(cameraStream, 'Camera', function(context, x, y, width, height, idx, textToDisplay) {
+                            context.font = '30px Georgia';
+                            textToDisplay += ' #' + (idx + 1);
+                            var measuredTextWidth = parseInt(context.measureText(textToDisplay).width);
+                            x = x + (parseInt((width - measuredTextWidth)) / 2);
+
+                            y = height - 40;
+
+                            if(idx == 2 || idx == 3) {
+                                y = (height * 2) - 40;
+                            }
+
+                            if(idx == 4 || idx == 5) {
+                                y = (height * 3) - 40;
+                            }
+                            
+                            context.strokeStyle = 'rgb(255, 0, 0)';
+                            context.fillStyle = 'rgba(255, 255, 0, .5)';
+                            roundRect(context, x - 20, y - 25, measuredTextWidth + 40, 35, 20, true);
+                            var gradient = context.createLinearGradient(0, 0, width * 2, 0);
+                            gradient.addColorStop('0', 'magenta');
+                            gradient.addColorStop('0.5', 'blue');
+                            gradient.addColorStop('1.0', 'red');
+                            context.fillStyle = gradient;
+                            context.fillText(textToDisplay, x, y);
+                        });
+
+                        mixer = new MultiStreamsMixer([cameraStream, cameraStream, cameraStream, cameraStream]);
+                    }
+
+                    mixer.frameInterval = 1;
+                    mixer.startDrawingFrames();
+
+                    setSrcObject(mixer.getMixedStream(), videoPreview);
+
+                    updateMediaHTML('Mixed Multiple Cameras!');
+                });
+            }
+
+            function getMixedMicrophoneAndMp3() {
+                updateMediaHTML('Select Mp3 file.');
+
+                getMp3Stream(function(mp3Stream) {
+                    navigator.mediaDevices.getUserMedia({
+                        audio: true
+                    }).then(function(microphoneStream) {
+                        var audioMixer = new MultiStreamsMixer([microphoneStream, mp3Stream]);
+                        // audioMixer.useGainNode = false;
+                        var audioPreview = document.createElement('audio');
+                        audioPreview.controls = true;
+                        audioPreview.autoplay = true;
+                        setSrcObject(audioMixer.getMixedStream(), audioPreview);
+                        videoPreview.replaceWith(audioPreview);
+                        videoPreview = audioPreview;
+
+                        var secondsLeft = 6;
+                        (function looper() {
+                            secondsLeft--;
+
+                            if(secondsLeft < 0) {
+                                updateMediaHTML('Mixed Microphone+Mp3!');
+                                return;
+                            }
+                            updateMediaHTML('Seconds left: ' + secondsLeft);
+                            setTimeout(looper, 1000);
+                        })();
+
+                        var recorder = RecordRTC(audioMixer.getMixedStream(), {
+                            recorderType: StereoAudioRecorder
+                        });
+
+                        recorder.startRecording();
+
+                        setTimeout(function() {
+                            recorder.stopRecording(function() {
+                                audioPreview.removeAttribute('srcObject');
+                                audioPreview.removeAttribute('src');
+                                audioPreview.src = URL.createObjectURL(recorder.getBlob());
+                            });
+                        }, 5000)
+                    });
+                });
+            }
+
+            function getMp3Stream(callback) {
+                var selector = new FileSelector();
+                selector.accept = '*.mp3';
+                selector.selectSingleFile(function(mp3File) {
+                    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                    var context = new AudioContext();
+                    var gainNode = context.createGain();
+                    gainNode.connect(context.destination);
+                    gainNode.gain.value = 0; // don't play for self
+
+                    var reader = new FileReader();
+                    reader.onload = (function(e) {
+                        // Import callback function
+                        // provides PCM audio data decoded as an audio buffer
+                        context.decodeAudioData(e.target.result, createSoundSource);
+                    });
+                    reader.readAsArrayBuffer(mp3File);
+
+                    function createSoundSource(buffer) {
+                        var soundSource = context.createBufferSource();
+                        soundSource.buffer = buffer;
+                        soundSource.start(0, 0 / 1000);
+                        soundSource.connect(gainNode);
+                        var destination = context.createMediaStreamDestination();
+                        soundSource.connect(destination);
+
+                        // durtion=second*1000 (milliseconds)
+                        callback(destination.stream, buffer.duration * 1000);
+                    }
+                }, function() {
+                    document.querySelector('#btn-get-mixed-stream').disabled = false;
+                    alert('Please select mp3 file.');
+                });
+            }
+
+            function addStreamStopListener(stream, callback) {
+                var streamEndedEvent = 'ended';
+                if ('oninactive' in stream) {
+                    streamEndedEvent = 'inactive';
+                }
+                stream.addEventListener(streamEndedEvent, function() {
+                    callback();
+                    callback = function() {};
+                }, false);
+                stream.getAudioTracks().forEach(function(track) {
+                    track.addEventListener(streamEndedEvent, function() {
+                        callback();
+                        callback = function() {};
+                    }, false);
+                });
+                stream.getVideoTracks().forEach(function(track) {
+                    track.addEventListener(streamEndedEvent, function() {
+                        callback();
+                        callback = function() {};
+                    }, false);
+                });
+            }
+
+            function fullCanvasRenderHandler(stream, textToDisplay) {
+                // on-video-render:
+                // called as soon as this video stream is drawn (painted or recorded) on canvas2d surface
+                stream.onRender = function(context, x, y, width, height, idx) {
+                    context.font = '50px Georgia';
+                    var measuredTextWidth = parseInt(context.measureText(textToDisplay).width);
+                    x = x + (parseInt((width - measuredTextWidth)) - 40);
+                    y = y + 80;
+                    context.strokeStyle = 'rgb(255, 0, 0)';
+                    context.fillStyle = 'rgba(255, 255, 0, .5)';
+                    roundRect(context, x - 20, y - 55, measuredTextWidth + 40, 75, 20, true);
+                    var gradient = context.createLinearGradient(0, 0, width * 2, 0);
+                    gradient.addColorStop('0', 'magenta');
+                    gradient.addColorStop('0.5', 'blue');
+                    gradient.addColorStop('1.0', 'red');
+                    context.fillStyle = gradient;
+                    context.fillText(textToDisplay, x, y);
+                };
+            }
+
+            function normalVideoRenderHandler(stream, textToDisplay, callback) {
+                // on-video-render:
+                // called as soon as this video stream is drawn (painted or recorded) on canvas2d surface
+                stream.onRender = function(context, x, y, width, height, idx, ignoreCB) {
+                    if(!ignoreCB && callback) {
+                        callback(context, x, y, width, height, idx, textToDisplay);
+                        return;
+                    }
+
+                    context.font = '40px Georgia';
+                    var measuredTextWidth = parseInt(context.measureText(textToDisplay).width);
+                    x = x + (parseInt((width - measuredTextWidth)) / 2);
+                    y = (context.canvas.height - height) + 50;
+                    context.strokeStyle = 'rgb(255, 0, 0)';
+                    context.fillStyle = 'rgba(255, 255, 0, .5)';
+                    roundRect(context, x - 20, y - 35, measuredTextWidth + 40, 45, 20, true);
+                    var gradient = context.createLinearGradient(0, 0, width * 2, 0);
+                    gradient.addColorStop('0', 'magenta');
+                    gradient.addColorStop('0.5', 'blue');
+                    gradient.addColorStop('1.0', 'red');
+                    context.fillStyle = gradient;
+                    context.fillText(textToDisplay, x, y);
+                };
+            }
+
+            /**
+             * Draws a rounded rectangle using the current state of the canvas.
+             * If you omit the last three params, it will draw a rectangle
+             * outline with a 5 pixel border radius
+             * @param {CanvasRenderingContext2D} ctx
+             * @param {Number} x The top left x coordinate
+             * @param {Number} y The top left y coordinate
+             * @param {Number} width The width of the rectangle
+             * @param {Number} height The height of the rectangle
+             * @param {Number} [radius = 5] The corner radius; It can also be an object 
+             *                 to specify different radii for corners
+             * @param {Number} [radius.tl = 0] Top left
+             * @param {Number} [radius.tr = 0] Top right
+             * @param {Number} [radius.br = 0] Bottom right
+             * @param {Number} [radius.bl = 0] Bottom left
+             * @param {Boolean} [fill = false] Whether to fill the rectangle.
+             * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
+             */
+            // via: http://stackoverflow.com/a/3368118/552182
+            function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+                if (typeof stroke == 'undefined') {
+                    stroke = true;
+                }
+                if (typeof radius === 'undefined') {
+                    radius = 5;
+                }
+                if (typeof radius === 'number') {
+                    radius = {
+                        tl: radius,
+                        tr: radius,
+                        br: radius,
+                        bl: radius
+                    };
+                } else {
+                    var defaultRadius = {
+                        tl: 0,
+                        tr: 0,
+                        br: 0,
+                        bl: 0
+                    };
+                    for (var side in defaultRadius) {
+                        radius[side] = radius[side] || defaultRadius[side];
+                    }
+                }
+                ctx.beginPath();
+                ctx.moveTo(x + radius.tl, y);
+                ctx.lineTo(x + width - radius.tr, y);
+                ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+                ctx.lineTo(x + width, y + height - radius.br);
+                ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+                ctx.lineTo(x + radius.bl, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+                ctx.lineTo(x, y + radius.tl);
+                ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+                ctx.closePath();
+                if (fill) {
+                    ctx.fill();
+                }
+                if (stroke) {
+                    ctx.stroke();
+                }
+            }
+        </script>
+
+        <section class="experiment">
+            <h2>How to use MultiStreamsMixer?</h2>
+            <pre style="background:#fdf6e3;color:#586e75"><span style="color:#93a1a1">// https://cdn.webrtc-experiment.com/MultiStreamsMixer.js</span>
+
+<span style="color:#268bd2">var</span> audioMixer <span style="color:#859900">=</span> <span style="color:#859900">new</span> MultiStreamsMixer<span style="color:#93a1a1">(</span><span style="color:#268bd2">[</span>microphone1, microphone2<span style="color:#268bd2">]</span><span style="color:#93a1a1">)</span>;
+
+<span style="color:#93a1a1">// record using MediaRecorder API</span>
+<span style="color:#268bd2">var</span> recorder <span style="color:#859900">=</span> <span style="color:#859900">new</span> MediaRecorder<span style="color:#93a1a1">(</span>audioMixer.getMixedStream<span style="color:#93a1a1">(</span><span style="color:#93a1a1">)</span><span style="color:#93a1a1">)</span>;
+
+<span style="color:#93a1a1">// or share using WebRTC</span>
+rtcPeerConnection.addStream<span style="color:#93a1a1">(</span>audioMixer.getMixedStream<span style="color:#93a1a1">(</span><span style="color:#93a1a1">)</span><span style="color:#93a1a1">)</span>;
+</pre>
+        </section>
+
+        <!--
+        <section class="experiment">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/MultiStreamsMixer/issues" target="_blank">Issues</a>
+            </h2>
+            <div id="github-issues"></div>
+        </section>
+        -->
+
+        <section class="experiment">
+            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/MultiStreamsMixer/commits/master" target="_blank">Latest Updates</a>
+            </h2>
+            <div id="github-commits"></div>
+        </section>
+
+        <section class="experiment"><small id="send-message"></small></section>
+    </article>
+
+    <a href="https://github.com/muaz-khan/MultiStreamsMixer" class="fork-left"></a>
+
+    <footer>
+        <p>
+            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+            <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+        </p>
+    </footer>
+
+    <!-- commits.js is useless for you! -->
+    <script>
+        window.useThisGithubPath = 'muaz-khan/MultiStreamsMixer';
+    </script>
+    <script src="https://cdn.webrtc-experiment.com/commits.js" async></script>
+</body>
+
+</html>

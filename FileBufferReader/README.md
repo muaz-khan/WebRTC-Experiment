@@ -35,9 +35,13 @@ To use it:
 
 ```html
 <script src="./node_modules/fbr/FileBufferReader.js"></script>
+<script src="./bower_components/fbr/FileBufferReader.js"></script>
 
 <!-- or CDN -->
 <script src="https://cdn.webrtc-experiment.com/FileBufferReader.js"></script>
+
+<!-- or rawgit -->
+<script src="https://rawgit.com/muaz-khan/FileBufferReader/master/FileBufferReader.js"></script>
 ```
 
 Or run localhost server:
@@ -449,7 +453,51 @@ for(var chunkIndex = 1; chunkIndex < allFileIndices.length; i++) {
 }
 ```
 
-## `FileConverter`
+# `FileSelector`
+
+Provides methods to select single file, multiple files or entire directory.
+
+**Select single file:**
+
+```javascript
+var selector = new FileSelector();
+selector.accept = '*.png';
+selector.selectSingleFile(function(file) {
+    alert(file.name);
+}, function() {
+    alert('User did not select any file.');
+});
+```
+
+**Select multiple files:**
+
+```javascript
+var selector = new FileSelector();
+selector.accept = '*.png';
+selector.selectMultipleFiles(function(files) {
+    files.forEach(function(file) {
+        alert(file.name);
+    });
+}, function() {
+    alert('User did not select any file.');
+});
+```
+
+**Select entire directory:**
+
+```javascript
+var selector = new FileSelector();
+selector.accept = '*.png';
+selector.selectDirectory(function(files) {
+    files.forEach(function(file) {
+        alert(file.webkitRelativePath);
+    });
+}, function() {
+    alert('User did not select any file.');
+});
+```
+
+# `FileConverter`
 
 This global object exposes two methods:
 
@@ -505,9 +553,8 @@ fbr.getNextChunks('file-uuid', function(buffer) {
 
 ## RTCMultiConnection FileBufferReader Demos
 
-1. https://rtcxp.com/fs
-2. https://rtcmulticonnection.herokuapp.com/demos/Audio+Video+TextChat+FileSharing.html
-3. https://rtcmulticonnection.herokuapp.com/demos/TextChat+FileSharing.html
+1. https://rtcmulticonnection.herokuapp.com/demos/Audio+Video+TextChat+FileSharing.html
+2. https://rtcmulticonnection.herokuapp.com/demos/TextChat+FileSharing.html
 
 More demos here: https://rtcmulticonnection.herokuapp.com/demos/
 

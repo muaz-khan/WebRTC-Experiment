@@ -1,4 +1,6 @@
-﻿<!--
+﻿<script>window.demoVersion = '2017.09.19';</script>
+
+<!--
 > Muaz Khan     - https://github.com/muaz-khan
 > MIT License   - https://www.webrtc-experiment.com/licence/
 > Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
@@ -59,7 +61,6 @@
               background: rgb(253, 253, 253);
               padding: 8px 20px;
               font-size: 25px;
-              font-weight: 200;
               line-height: 1.5;
               word-spacing: 5px;
             }
@@ -70,7 +71,6 @@
 
             h2, h1 {
               font-size: 35px;
-              font-weight: 200;
               padding: 5px 10px;
               border-bottom: 1px dotted #EC008C;
             }
@@ -140,7 +140,10 @@
                 </p>
             </header>
 
-            <div class="github-stargazers"></div>
+            <section style="margin: 20px; text-align: center; color: red;">
+                <small id="demoVersion"></small>
+                <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getUTCFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
+            </section>
 
             <blockquote class="inline" id="top">
                 This document is aimed to explain TURN server installation steps for different operating systems.
@@ -271,7 +274,7 @@ mkdir /home/restund
 cd /home/restund
 
 # via: http://creytiv.com/pub/
-wget http://creytiv.com/pub/re-latest.tar.gz
+wget http://webrtcweb.com/re-latest.tar.gz
 tar zxvf re-latest.tar.gz
 make
 make install          # "sudo" is preferred
@@ -284,7 +287,7 @@ make install          # "sudo" is preferred
 # via: http://www.creytiv.com/pub/
 # choose latest version
 # replace "0.4.12" with latesat version (06-Oct-2015)
-wget http://www.creytiv.com/pub/restund-0.4.12.tar.gz
+wget http://webrtcweb.com/restund-0.4.12.tar.gz
 tar zxvf restund-0.4.12.tar.gz
 make
 make install          # "sudo" is preferred
@@ -830,17 +833,8 @@ cp /turnserver-1.8.4.0/examples/etc/turnserver.conf /usr/local/etc/
             </section>
 
             <br />
-            <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
-                <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Want to ask a Question?</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Feel free to ask any question regarding WebRTC!"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left: 1em;">You can include your email for private conversation!</small>
-            </section>
-
-            <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-                <div id="github-commits"></div>
+            <section class="experiment">
+                <small id="send-message"></small>
             </section>
         </article>
 
@@ -859,7 +853,7 @@ cp /turnserver-1.8.4.0/examples/etc/turnserver.conf /usr/local/etc/
         <script>hljs.initHighlightingOnLoad();</script>
 
         <!-- commits.js is useless for you! -->
-        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
+        <script src="https://cdn.webrtc-experiment.com/common.js" async> </script>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
         <script>

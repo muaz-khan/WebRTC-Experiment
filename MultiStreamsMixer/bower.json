@@ -1,0 +1,36 @@
+{
+    "name": "multistreamsmixer",
+    "description": "Pass multiple streams (e.g. screen+camera or multiple-cameras) and get single stream.",
+    "version": "1.0.4",
+    "authors": [
+        {
+            "name": "Muaz Khan",
+            "email": "muazkh@gmail.com",
+            "homepage": "http://www.muazkhan.com/"
+        }
+    ],
+    "main": "./MultiStreamsMixer.js",
+    "keywords": [
+        "webrtc",
+        "multistreamsmixer",
+        "webrtc-library",
+        "library",
+        "javascript",
+        "rtcweb",
+        "webrtc-experiment",
+        "javascript-library",
+        "muaz",
+        "muaz-khan"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/muaz-khan/MultiStreamsMixer.git"
+    },
+    "homepage": "https://www.webrtc-experiment.com/MultiStreamsMixer/",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "test",
+        "tests"
+    ]
+}

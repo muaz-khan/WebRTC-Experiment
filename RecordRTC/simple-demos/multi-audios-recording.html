@@ -1,0 +1,97 @@
+<style>
+    html, body, video, canvas {
+        margin: 0!important;
+        padding: 0!important;
+        overflow: hidden!important;
+    }
+    audio { vertical-align: middle; }
+</style>
+
+<title>Multiple Audios Recording using RecordRTC</title>
+<h1>Multiple Audios Recording using RecordRTC</h1>
+
+<br>
+<button id="btn-enable-microphone">Enable Microphone</button>
+<button id="btn-start-recording" disabled>Start Recording</button>
+<button id="btn-stop-recording" disabled>Stop Recording</button>
+
+<hr>
+(First Microphone) <audio id="audio-1" controls autoplay></audio>
+<hr>
+(Second Microphone) <audio id="audio-2" controls autoplay></audio>
+
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script>
+var audio1 = document.querySelector('#audio-1');
+var audio2 = document.querySelector('#audio-2');
+
+function captureMicrophone(callback) {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function(microphone) {
+        callback(microphone);
+    }).catch(function(error) {
+        alert('Unable to capture your microphone. Please check console logs.');
+        console.error(error);
+    });
+}
+
+function stopRecordingCallback() {
+    var blob1 = recorder1.getBlob();
+    audio1.src = URL.createObjectURL(blob1);
+    audio1.play();
+
+    var blob2 = recorder2.getBlob();
+    audio2.src = URL.createObjectURL(blob2);
+    audio2.play();
+
+    document.getElementById('btn-start-recording').disabled = false;
+}
+
+var recorder1, recorder2; // globally accessible
+
+document.getElementById('btn-enable-microphone').onclick = function() {
+    this.disabled = true;
+
+    captureMicrophone(function(microphone) {
+        recorder1 = RecordRTC(microphone, {
+            type: 'audio'
+        });
+
+        recorder2 = RecordRTC(microphone, {
+            type: 'audio'
+        });
+
+        recorder1.microphone = microphone;
+        recorder2.microphone = microphone;
+
+        document.getElementById('btn-start-recording').disabled = false;
+
+        setSrcObject(recorder1.microphone, audio1);
+        audio1.play();
+    });
+};
+
+document.getElementById('btn-start-recording').onclick = function() {
+    this.disabled = true;
+
+    setSrcObject(recorder1.microphone, audio1);
+    audio1.play();
+
+    setSrcObject(recorder2.microphone, audio2);
+    audio2.play();
+
+    recorder1.startRecording();
+    recorder2.startRecording();
+
+    document.getElementById('btn-stop-recording').disabled = false;
+};
+
+document.getElementById('btn-stop-recording').onclick = function() {
+    this.disabled = true;
+    recorder1.stopRecording(function() {
+        recorder2.stopRecording(function() {
+            stopRecordingCallback();
+        });
+    });
+};
+</script>

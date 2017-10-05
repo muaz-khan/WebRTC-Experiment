@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "0.11"
+install: npm install
+before_script:
+  - npm install grunt-cli@0.1.13 -g
+  - npm install grunt@0.4.5
+  - grunt
+after_failure: npm install && grunt
+matrix:
+  fast_finish: true

@@ -61,6 +61,10 @@ function checkDeviceSupport(callback) {
     audioOutputDevices = [];
     videoInputDevices = [];
 
+    hasMicrophone = false;
+    hasSpeakers = false;
+    hasWebcam = false;
+
     isWebsiteHasMicrophonePermissions = false;
     isWebsiteHasWebcamPermissions = false;
 

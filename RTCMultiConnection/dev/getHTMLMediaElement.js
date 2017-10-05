@@ -11,7 +11,12 @@ function getHTMLMediaElement(mediaElement, config) {
 
         var mediaStream = mediaElement;
         mediaElement = document.createElement(mediaStream.getVideoTracks().length ? 'video' : 'audio');
-        mediaElement[!!navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = !!navigator.mozGetUserMedia ? mediaStream : window.webkitURL.createObjectURL(mediaStream);
+
+        if ('srcObject' in mediaElement) {
+            mediaElement.srcObject = mediaStream;
+        } else {
+            mediaElement[!!navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = !!navigator.mozGetUserMedia ? mediaStream : window.webkitURL.createObjectURL(mediaStream);
+        }
     }
 
     if (mediaElement.nodeName && mediaElement.nodeName.toLowerCase() == 'audio') {
@@ -233,6 +238,13 @@ function getHTMLMediaElement(mediaElement, config) {
     mediaBox.className = 'media-box';
     mediaElementContainer.appendChild(mediaBox);
 
+    if (config.title) {
+        var h2 = document.createElement('h2');
+        h2.innerHTML = config.title;
+        h2.setAttribute('style', 'position: absolute;color:white;font-size:17px;text-shadow: 1px 1px black;padding:0;margin:0;text-align: left; margin-top: 10px; margin-left: 10px; display: block; border: 0;line-height:1.5;z-index:1;');
+        mediaBox.appendChild(h2);
+    }
+
     mediaBox.appendChild(mediaElement);
 
     if (!config.width) config.width = (innerWidth / 2) - 50;
@@ -323,7 +335,12 @@ function getAudioElement(mediaElement, config) {
     if (!mediaElement.nodeName || (mediaElement.nodeName.toLowerCase() != 'audio' && mediaElement.nodeName.toLowerCase() != 'video')) {
         var mediaStream = mediaElement;
         mediaElement = document.createElement('audio');
-        mediaElement[!!navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = !!navigator.mozGetUserMedia ? mediaStream : window.webkitURL.createObjectURL(mediaStream);
+
+        if ('srcObject' in mediaElement) {
+            mediaElement.mediaElement = mediaStream;
+        } else {
+            mediaElement[!!navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = !!navigator.mozGetUserMedia ? mediaStream : window.webkitURL.createObjectURL(mediaStream);
+        }
     }
 
     config.toggle = config.toggle || [];

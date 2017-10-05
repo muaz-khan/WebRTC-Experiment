@@ -15,10 +15,17 @@ video {
 }
 </style>
 
+<script>
+    if(!location.hash.replace('#', '').length) {
+        location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+        location.reload();
+    }
+</script>
+
 <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> one-page demo</h1>
 
-<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
-</script>
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+
 <button>Setup RTC-Multi-Connection</button>
 <hr />
 

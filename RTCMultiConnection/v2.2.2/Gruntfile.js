@@ -24,6 +24,7 @@ module.exports = function(grunt) {
                     'dev/RTCMultiSession.js',
                     'dev/globals.js',
                     'dev/getUserMedia.js',
+                    'dev/IceServersHandler.js',
                     'dev/PeerConnection.js',
                     'dev/FilesHandler.js',
                     'dev/DataMessagingHandler.js',

@@ -151,9 +151,9 @@ RTCMultiConnection-v2 (old) videos: https://vimeo.com/muazkh
 * [Select Camera and Microphone Devices](https://github.com/muaz-khan/RTCMultiConnection/wiki/Select-Camera-and-Microphone-Devices)
 * [Fix Duplicate Videos Issues](https://github.com/muaz-khan/RTCMultiConnection/wiki/Fix-Duplicate-Videos-Issues)
 
-## Twitter
+## Twitter RTCMultiConnection Updates
 
-* https://twitter.com/WebRTCWeb i.e. @WebRTCWeb
+* https://twitter.com/RTCMultiConnect i.e. @RTCMultiConnect
 
 ## License
 

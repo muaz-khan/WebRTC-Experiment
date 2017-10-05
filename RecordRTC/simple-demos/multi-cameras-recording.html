@@ -11,7 +11,8 @@
 
 <video controls autoplay></video>
 
-<script src="/RecordRTC.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
 <script>
 var allCameraStreams = [];
@@ -21,7 +22,7 @@ function captureAllCameras(callback) {
     var donotDuplicateDevices = {};
 
     DetectRTC.videoInputDevices.forEach(function(device, idx) {
-        navigator.webkitGetUserMedia({
+        navigator.mediaDevices.getUserMedia({
             audio: true,
             video: {
                 mandatory: {},
@@ -29,7 +30,7 @@ function captureAllCameras(callback) {
                     sourceId: device.id
                 }]
             }
-        }, function(stream) {
+        }).then(function(stream) {
             if (!donotDuplicateDevices[device.id]) {
                 donotDuplicateDevices[device.id] = true;
 
@@ -65,11 +66,13 @@ function captureAllCameras(callback) {
             if (idx == DetectRTC.videoInputDevices.length - 1) {
                 callback(streams);
             }
-        }, function() {
+        }).catch(function() {
             console.error(arguments);
         });
     })
 }
+
+var video = document.querySelector('video');
 
 var timeout = 10; // 10 seconds
 
@@ -83,8 +86,8 @@ DetectRTC.load(function() {
             type: 'video',
             mimeType: 'video/webm',
             previewStream: function(s) {
-                document.querySelector('video').muted = true;
-                document.querySelector('video').src = URL.createObjectURL(s);
+                video.muted = true;
+                setSrcObject(s, video);
             }
         });
 
@@ -101,8 +104,8 @@ DetectRTC.load(function() {
             recorder.stopRecording(function() {
                 var blob = recorder.getBlob();
 
-                document.querySelector('video').muted = false;
-                document.querySelector('video').src = URL.createObjectURL(blob);
+                video.muted = false;
+                video.src = URL.createObjectURL(blob);
 
                 allCameraStreams.forEach(function(stream) {
                     stream.getVideoTracks().forEach(function(track) {

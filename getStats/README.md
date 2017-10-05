@@ -1,10 +1,14 @@
-# [getStats.js](https://github.com/muaz-khan/getStats) / [Demo](https://www.webrtc-experiment.com/getStats/)
+# [getStats.js](https://github.com/muaz-khan/getStats) | WebRTC getStats API
 
-[![npm](https://img.shields.io/npm/v/getstats.svg)](https://npmjs.org/package/getstats) [![downloads](https://img.shields.io/npm/dm/getstats.svg)](https://npmjs.org/package/getstats)
+# [Single Page Demo](https://www.webrtc-experiment.com/getStats/) or [Multi User P2P Demo](https://rtcmulticonnection.herokuapp.com/demos/getStats.html)
+
+[![npm](https://img.shields.io/npm/v/getstats.svg)](https://npmjs.org/package/getstats) [![downloads](https://img.shields.io/npm/dm/getstats.svg)](https://npmjs.org/package/getstats) [![Build Status: Linux](https://travis-ci.org/muaz-khan/getStats.png?branch=master)](https://travis-ci.org/muaz-khan/getStats)
 
 A tiny JavaScript library using [WebRTC getStats API](http://dev.w3.org/2011/webrtc/editor/webrtc.html#dom-peerconnection-getstats) to return peer connection stats i.e. bandwidth usage, packets lost, local/remote ip addresses and ports, type of connection etc.
 
 It is <a href="https://www.webrtc-experiment.com/licence/">MIT Licenced</a>, which means that you can use it in any commercial/non-commercial product, free of cost.
+
+![getStats](https://cdn.webrtc-experiment.com/images/getStats.png)
 
 ```
 npm install getstats
@@ -27,6 +31,15 @@ To use it:
 
 ```html
 <script src="https://cdn.webrtc-experiment.com/getStats.js"></script>
+
+<!-- or min.js -->
+<script src="https://cdn.webrtc-experiment.com/getStats.min.js"></script>
+
+<!-- or without CDN -->
+<script src="https://www.webrtc-experiment.com/getStats.js"></script>
+
+<!-- or rawgit -->
+<script src="https://rawgit.com/muaz-khan/getStats/master/getStats.js"></script>
 ```
 
 Or link specific build:
@@ -34,7 +47,7 @@ Or link specific build:
 * https://github.com/muaz-khan/getStats/releases
 
 ```html
-<script src="https://github.com/muaz-khan/getStats/releases/download/1.0.4/getStats.js"></script>
+<script src="https://github.com/muaz-khan/getStats/releases/download/1.0.5/getStats.js"></script>
 ```
 
 # `window.getStats`
@@ -86,7 +99,7 @@ rtcPeerConnection.getPeerStats(function(result) {
     result.connectionType.remote.candidateType
     result.connectionType.transport
     
-    result.audio.availableBandwidth
+    result.bandwidth.availableSendBandwidth // it will be your system bandwidth for STUN connections
     result.audio.packetsSent
     result.audio.packetsLost
     result.audio.rtt
@@ -135,47 +148,63 @@ btnStopGetStats.onclick  = function() {
 };
 ```
 
+# `result.bandwidth`
+
+1. `result.bandwidth.availableSendBandwidth`
+
 # `result.audio`
 
-1. `result.audio.availableBandwidth`
-2. `result.audio.inputLevel`
-3. `result.audio.packetsLost`
-3. `result.audio.rtt`
-4. `result.audio.packetsSent`
-5. `result.audio.bytesSent`
+1. `result.audio.send.availableBandwidth`
+2. `result.audio.recv.availableBandwidth`
+3. `result.audio.inputLevel`
+4. `result.audio.packetsLost`
+5. `result.audio.rtt`
+6. `result.audio.packetsSent`
+7. `result.audio.bytesSent`
+8. `result.video.tracks.length` /* array */
 
 # `result.video`
 
-1. `result.video.availableBandwidth`
-2. `result.video.googFrameHeightInput`
-3. `result.video.googFrameWidthInput`
-4. `result.video.googCaptureQueueDelayMsPerS`
-5. `result.video.rtt`
-6. `result.video.packetsLost`
-7. `result.video.packetsSent`
-8. `result.video.googEncodeUsagePercent`
-9. `result.video.googCpuLimitedResolution`
-10. `result.video.googNacksReceived`
-11. `result.video.googFrameRateInput`
-12. `result.video.googPlisReceived`
-13. `result.video.googViewLimitedResolution`
-14. `result.video.googCaptureJitterMs`
-15. `result.video.googAvgEncodeMs`
-16. `result.video.googFrameHeightSent`
-17. `result.video.googFrameRateSent`
-18. `result.video.googBandwidthLimitedResolution`
-19. `result.video.googFrameWidthSent`
-20. `result.video.googFirsReceived`
-21. `result.video.bytesSent`
+1. `result.video.send.availableBandwidth`
+2. `result.video.recv.availableBandwidth`
+3. `result.video.googFrameHeightInput`
+4. `result.video.googFrameWidthInput`
+5. `result.video.googCaptureQueueDelayMsPerS`
+6. `result.video.rtt`
+7. `result.video.packetsLost`
+8. `result.video.packetsSent`
+9. `result.video.googEncodeUsagePercent`
+10. `result.video.googCpuLimitedResolution`
+11. `result.video.googNacksReceived`
+12. `result.video.googFrameRateInput`
+13. `result.video.googPlisReceived`
+14. `result.video.googViewLimitedResolution`
+15. `result.video.googCaptureJitterMs`
+16. `result.video.googAvgEncodeMs`
+17. `result.video.googFrameHeightSent`
+18. `result.video.googFrameRateSent`
+19. `result.video.googBandwidthLimitedResolution`
+20. `result.video.googFrameWidthSent`
+21. `result.video.googFirsReceived`
+22. `result.video.bytesSent`
+23. `result.video.tracks.length` /* array */
 
 # `result.connectionType`
 
 1. `result.connectionType.local.candidateType`
-2. `result.connectionType.local.ipAddress`
+2. `result.connectionType.local.ipAddress` /* external ip-address */
 3. `result.connectionType.local.networkType`
 4. `result.connectionType.remote.candidateType`
 5. `result.connectionType.remote.ipAddress`
 6. `result.connectionType.transport`
+7. `result.connectionType.systemIpAddress` /* 192.168.1.1 */
+
+# `result.resolutions`
+
+1. `result.resolutions.send.width`
+2. `result.resolutions.send.height`
+3. `result.resolutions.recv.width`
+4. `result.resolutions.recv.height`
 
 # `result.results`
 

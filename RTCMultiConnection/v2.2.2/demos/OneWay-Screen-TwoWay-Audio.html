@@ -4,6 +4,13 @@
 > Documentation - www.RTCMultiConnection.org
 -->
 
+<script>
+    if(!location.hash.replace('#', '').length) {
+        location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+        location.reload();
+    }
+</script>
+
 <title>OneWay Screen & Two-Way Audio using RTCMultiConnection</title>
 
 <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
@@ -26,13 +33,40 @@ audio {
 <hr />
 <div id="container"></div>
 
-<script src="//cdn.webrtc-experiment.com/RTCMultiConnection.js">
-</script>
-<script src="//cdn.webrtc-experiment.com/firebase.js">
-</script>
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
+<script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
 
 <script>
 var connection = new RTCMultiConnection();
+
+// https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
+var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+connection.openSignalingChannel = function(config) {
+    var channel = config.channel || connection.channel || 'default-namespace';
+    var sender = Math.round(Math.random() * 9999999999) + 9999999999;
+
+    io.connect(SIGNALING_SERVER).emit('new-channel', {
+        channel: channel,
+        sender: sender
+    });
+
+    var socket = io.connect(SIGNALING_SERVER + channel);
+    socket.channel = channel;
+
+    socket.on('connect', function() {
+        if (config.callback) config.callback(socket);
+    });
+
+    socket.send = function(message) {
+        socket.emit('message', {
+            sender: sender,
+            data: message
+        });
+    };
+
+    socket.on('message', config.onmessage);
+};
+
 connection.session = {
     audio: true,
     screen: true

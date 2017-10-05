@@ -1,0 +1,3 @@
+this.startDrawingFrames = function() {
+    drawVideosToCanvas();
+};

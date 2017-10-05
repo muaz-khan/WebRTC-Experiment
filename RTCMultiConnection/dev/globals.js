@@ -1,42 +1,13 @@
 // globals.js
 
-var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
-var isFirefox = typeof window.InstallTrigger !== 'undefined';
-var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
-var isChrome = !!window.chrome && !isOpera;
-var isIE = !!document.documentMode;
-
-var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
-
 if (typeof cordova !== 'undefined') {
-    isMobileDevice = true;
-    isChrome = true;
+    DetectRTC.isMobileDevice = true;
+    DetectRTC.browser.name = 'Chrome';
 }
 
 if (navigator && navigator.userAgent && navigator.userAgent.indexOf('Crosswalk') !== -1) {
-    isMobileDevice = true;
-    isChrome = true;
-}
-
-var isPluginRTC = !isMobileDevice && (isSafari || isIE);
-
-if (isPluginRTC && typeof URL !== 'undefined') {
-    URL.createObjectURL = function() {};
-}
-
-// detect node-webkit
-var isNodeWebkit = !!(window.process && (typeof window.process === 'object') && window.process.versions && window.process.versions['node-webkit']);
-
-var chromeVersion = 50;
-var matchArray = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
-if (isChrome && matchArray && matchArray[2]) {
-    chromeVersion = parseInt(matchArray[2], 10);
-}
-
-var firefoxVersion = 50;
-matchArray = navigator.userAgent.match(/Firefox\/(.*)/);
-if (isFirefox && matchArray && matchArray[1]) {
-    firefoxVersion = parseInt(matchArray[1], 10);
+    DetectRTC.isMobileDevice = true;
+    DetectRTC.browser.name = 'Chrome';
 }
 
 function fireEvent(obj, eventName, args) {
@@ -128,30 +99,24 @@ function getRandomString() {
 
 function getRMCMediaElement(stream, callback, connection) {
     var isAudioOnly = false;
-    if (!!stream.getVideoTracks && !stream.getVideoTracks().length) {
+    if (!!stream.getVideoTracks && !stream.getVideoTracks().length && !stream.isVideo && !stream.isScreen) {
         isAudioOnly = true;
+    }
+
+    if (DetectRTC.browser.name === 'Firefox') {
+        if (connection.session.video || connection.session.screen) {
+            isAudioOnly = false;
+        }
     }
 
     var mediaElement = document.createElement(isAudioOnly ? 'audio' : 'video');
 
-    if (isPluginRTC && window.PluginRTC) {
-        connection.videosContainer.insertBefore(mediaElement, connection.videosContainer.firstChild);
-
-        setTimeout(function() {
-            window.PluginRTC.attachMediaStream(mediaElement, stream);
-            callback(mediaElement);
-        }, 1000);
-
-        return;
-    }
-
-    // "mozSrcObject" is always preferred over "src"!!
-    mediaElement[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.URL.createObjectURL(stream);
+    mediaElement.srcObject = stream;
     mediaElement.controls = true;
 
     // http://goo.gl/WZ5nFl
     // Firefox don't yet support onended for any stream (remote/local)
-    if (isFirefox) {
+    if (DetectRTC.browser.name === 'Firefox') {
         var streamEndedEvent = 'ended';
 
         if ('oninactive' in mediaElement) {
@@ -198,8 +163,27 @@ function getRMCMediaElement(stream, callback, connection) {
         }, false);
     }
 
-    mediaElement.play();
-    callback(mediaElement);
+    var played = mediaElement.play();
+    if (typeof played !== 'undefined') {
+        var cbFired = false;
+        setTimeout(function() {
+            if (!cbFired) {
+                cbFired = true;
+                callback(mediaElement);
+            }
+        }, 1000);
+        played.then(function() {
+            if (cbFired) return;
+            cbFired = true;
+            callback(mediaElement);
+        }).catch(function(error) {
+            if (cbFired) return;
+            cbFired = true;
+            callback(mediaElement);
+        });
+    } else {
+        callback(mediaElement);
+    }
 }
 
 // if IE
@@ -252,14 +236,14 @@ if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefine
 
 /*global MediaStream:true */
 if (typeof MediaStream !== 'undefined') {
-    if (!('getVideoTracks' in MediaStream.prototype)) {
+    if (!('getVideoTracks' in MediaStream.prototype) || DetectRTC.browser.name === 'Firefox') {
         MediaStream.prototype.getVideoTracks = function() {
             if (!this.getTracks) {
                 return [];
             }
 
             var tracks = [];
-            this.getTracks.forEach(function(track) {
+            this.getTracks().forEach(function(track) {
                 if (track.kind.toString().indexOf('video') !== -1) {
                     tracks.push(track);
                 }
@@ -273,7 +257,7 @@ if (typeof MediaStream !== 'undefined') {
             }
 
             var tracks = [];
-            this.getTracks.forEach(function(track) {
+            this.getTracks().forEach(function(track) {
                 if (track.kind.toString().indexOf('audio') !== -1) {
                     tracks.push(track);
                 }
@@ -282,7 +266,7 @@ if (typeof MediaStream !== 'undefined') {
         };
     }
 
-    if (!('stop' in MediaStream.prototype)) {
+    if (!('stop' in MediaStream.prototype) || DetectRTC.browser.name === 'Firefox') {
         MediaStream.prototype.stop = function() {
             this.getAudioTracks().forEach(function(track) {
                 if (!!track.stop) {
@@ -304,11 +288,11 @@ function isAudioPlusTab(connection, audioPlusTab) {
         return false;
     }
 
-    if (isFirefox && audioPlusTab !== false) {
+    if (DetectRTC.browser.name === 'Firefox' && audioPlusTab !== false) {
         return true;
     }
 
-    if (!isChrome || chromeVersion < 50) return false;
+    if (DetectRTC.browser.name !== 'Chrome' || DetectRTC.browser.version < 50) return false;
 
     if (typeof audioPlusTab === true) {
         return true;
@@ -323,11 +307,11 @@ function isAudioPlusTab(connection, audioPlusTab) {
 }
 
 function getAudioScreenConstraints(screen_constraints) {
-    if (isFirefox) {
+    if (DetectRTC.browser.name === 'Firefox') {
         return true;
     }
 
-    if (!isChrome) return false;
+    if (DetectRTC.browser.name !== 'Chrome') return false;
 
     return {
         mandatory: {
@@ -338,3 +322,38 @@ function getAudioScreenConstraints(screen_constraints) {
 }
 
 window.iOSDefaultAudioOutputDevice = window.iOSDefaultAudioOutputDevice || 'speaker'; // earpiece or speaker
+
+if (typeof window.enableAdapter === 'undefined') {
+    if (DetectRTC.browser.name === 'Firefox' && DetectRTC.browser.version >= 54) {
+        window.enableAdapter = true;
+    }
+
+    if (DetectRTC.browser.name === 'Chrome' && DetectRTC.browser.version >= 60) {
+        // window.enableAdapter = true;
+    }
+
+    if (typeof adapter !== 'undefined' && adapter.browserDetails && typeof adapter.browserDetails.browser === 'string') {
+        window.enableAdapter = true;
+    }
+}
+
+if (!window.enableAdapter) {
+    if (typeof URL.createObjectURL === 'undefined') {
+        URL.createObjectURL = function(stream) {
+            return 'blob:https://' + document.domain + '/' + getRandomString();
+        };
+    }
+
+    if (!('srcObject' in HTMLMediaElement.prototype)) {
+        HTMLMediaElement.prototype.srcObject = function(stream) {
+            if ('mozSrcObject' in this) {
+                this.mozSrcObject = stream;
+                return;
+            }
+
+            this.src = URL.createObjectURL(stream);
+        };
+    }
+
+    // need RTCPeerConnection shim here
+}

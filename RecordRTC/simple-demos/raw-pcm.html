@@ -17,9 +17,8 @@
 <hr>
 <audio controls autoplay></audio>
 
-<script src="/RecordRTC.js"></script>
-<!-- for Edge/FF/Chrome/Opera/etc. getUserMedia support -->
-<script src="https://cdn.webrtc-experiment.com/gumadapter.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script>
 var audio = document.querySelector('audio');
 
@@ -75,7 +74,7 @@ var recorder; // globally accessible
 document.getElementById('btn-start-recording').onclick = function() {
     this.disabled = true;
     captureMicrophone(function(microphone) {
-        audio.src = URL.createObjectURL(microphone);
+        setSrcObject(microphone, audio);
         audio.play();
 
         recorder = RecordRTC(microphone, {
