@@ -73,14 +73,10 @@ document.getElementById('videoMaxFrameRates').onchange = function() {
 };
 
 document.getElementById('bitsPerSecond').onchange = function() {
-    if (this.value === 'default') {
-        return;
-    }
-
     this.disabled = true;
     showSaving();
     chrome.storage.sync.set({
-        bitsPerSecond: this.value
+        bitsPerSecond: this.value === 'default' ? '' : this.value
     }, function() {
         document.getElementById('bitsPerSecond').disabled = false;
         hideSaving();
@@ -145,6 +141,15 @@ getAllAudioVideoDevices(function(result) {
     if (result.audioInputDevices.length && !result.audioInputDevices[0].label) {
         var constraints = { audio: true, video: true };
         navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+            var video = document.createElement('video');
+            video.muted = true;
+            if('srcObject' in video) {
+                video.srcObject = stream;
+            }
+            else {
+                video.src = URL.createObjectURL(stream);
+            }
+
             onGettingDevices(result, stream);
         }).catch(function() {
             onGettingDevices(result);

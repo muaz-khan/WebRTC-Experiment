@@ -1293,7 +1293,7 @@
         selector.selectSingleFile(callback);
     };
 
-    connection.getPublicModerators = function(userIdStartsWith, callback) {
+    connection.getPublicModerators = connection.getPublicUsers = function(userIdStartsWith, callback) {
         if (typeof userIdStartsWith === 'function') {
             callback = userIdStartsWith;
         }

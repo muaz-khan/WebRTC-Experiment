@@ -1,0 +1,154 @@
+<style>
+    html, body {
+        margin: 0!important;
+        padding: 0!important;
+        overflow: hidden!important;
+        width: 100%;
+    }
+</style>
+
+<title>Audio Recording | RecordRTC</title>
+<h1>Simple Audio Recording using RecordRTC</h1>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+<br>
+
+<button id="btn-start-recording">Start Recording</button>
+<button id="btn-stop-recording" disabled>Stop Recording</button>
+<button id="btn-release-microphone" disabled>Release Microphone</button>
+
+<hr>
+<div><audio controls autoplay></audio></div>
+
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script>
+var audio = document.querySelector('audio');
+
+function captureMicrophone(callback) {
+    document.querySelector('#btn-release-microphone').disabled = false;
+
+    if(microphone) {
+        callback(microphone);
+        return;
+    }
+
+    if(typeof navigator.mediaDevices === 'undefined' || !navigator.mediaDevices.getUserMedia) {
+        alert('This browser does not supports WebRTC getUserMedia API.');
+
+        if(!!navigator.getUserMedia) {
+            alert('This browser seems supporting deprecated getUserMedia API.');
+        }
+    }
+
+    navigator.mediaDevices.getUserMedia({
+        audio: isEdge ? true : {
+            echoCancellation: false
+        }
+    }).then(function(mic) {
+        callback(mic);
+    }).catch(function(error) {
+        alert('Unable to capture your microphone. Please check console logs.');
+        console.error(error);
+    });
+}
+
+function replaceAudio(src) {
+    var newAudio = document.createElement('audio');
+    newAudio.controls = true;
+
+    if(src) {
+        newAudio.src = src;
+    }
+    
+    var parentNode = audio.parentNode;
+    parentNode.innerHTML = '';
+    parentNode.appendChild(newAudio);
+
+    audio = newAudio;
+}
+
+function stopRecordingCallback() {
+    replaceAudio(URL.createObjectURL(recorder.getBlob()));
+
+    recorder.destroy();
+    recorder = null;
+
+    document.getElementById('btn-start-recording').disabled = false;
+
+    setTimeout(function() {
+        if(!audio.paused) return;
+
+        setTimeout(function() {
+            if(!audio.paused) return;
+            audio.play();
+        }, 1000);
+        
+        audio.play();
+    }, 300);
+
+    audio.play();
+}
+
+document.querySelector('#btn-release-microphone').onclick = function() {
+    this.disabled = true;
+    document.getElementById('btn-start-recording').disabled = false;
+
+    microphone.stop();
+    microphone = null;
+
+    if(recorder) {
+        click(document.getElementById('btn-stop-recording'));
+    }
+};
+
+var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob);
+var recorder; // globally accessible
+var microphone;
+
+document.getElementById('btn-start-recording').onclick = function() {
+    this.disabled = true;
+
+    if (!microphone) {
+        captureMicrophone(function(mic) {
+            microphone = mic;
+            click(document.getElementById('btn-start-recording'));
+        });
+        return;
+    }
+
+    replaceAudio();
+
+    audio.muted = true;
+    setSrcObject(microphone, audio);
+    audio.play();
+
+    var options = {
+        type: 'audio',
+        numberOfAudioChannels: isEdge ? 1 : 2,
+        checkForInactiveTracks: true,
+        bufferSize: 16384
+    };
+
+    if(navigator.platform && navigator.platform.toString().toLowerCase().indexOf('win') === -1) {
+        options.sampleRate = 48000; // or 44100 or remove this line for default
+    }
+
+    recorder = RecordRTC(microphone, options);
+
+    recorder.startRecording();
+
+    document.getElementById('btn-stop-recording').disabled = false;
+};
+
+document.getElementById('btn-stop-recording').onclick = function() {
+    this.disabled = true;
+    recorder.stopRecording(stopRecordingCallback);
+};
+
+function click(el) {
+    var evt = document.createEvent('Event');
+    evt.initEvent('click', true, true);
+    el.dispatchEvent(evt);
+}
+</script>

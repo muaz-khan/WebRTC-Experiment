@@ -17,6 +17,7 @@
         <meta name="keywords" content="WebRTC,Experiments,SCTP,DataChannel,File-Sharing">
         <link rel="author" type="text/html" href="http://google.com/+MuazKhan">
         <meta name="author" content="Muaz Khan">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
 
         <style type='text/css'>
             @font-face {
@@ -160,8 +161,9 @@
                 overflow: hidden;
             }
         </style>
-        <script src="https://cdn.webrtc-experiment.com/WebRTC-File-Sharing/File.js"> </script>
-        <script src="https://cdn.webrtc-experiment.com/WebRTC-File-Sharing/PeerConnection.js"> </script>
+        <script src="File.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script><!-- required -->
+        <script src="PeerConnection.js"></script>
     </head>
     <body>
         <p id="blah">WebRTC File Sharing using SCTP Data Channels</p>
@@ -200,12 +202,17 @@
                 onBegin: function(file) {
                     var li = document.createElement('li');
                     li.title = file.name;
-                    li.innerHTML = '<label>0%</label> <progress></progress>';
+                    li.style.textAlign = 'left';
+                    li.innerHTML = file.name + '<br><label>0%</label> <progress></progress><div id="size-remaining">' + bytesToSize(file.size || 0) + '<hr><div id="chunks-remaining">0/'+file.maxChunks+'</div></div>';
                     outputPanel.insertBefore(li, outputPanel.firstChild);
                     progressHelper[file.uuid] = {
                         li: li,
                         progress: li.querySelector('progress'),
-                        label: li.querySelector('label')
+                        label: li.querySelector('label'),
+                        chunks_remaining: li.querySelector('#chunks-remaining'),
+                        size_remaining: li.querySelector('#size-remaining'),
+                        size: file.size,
+                        name: file.name
                     };
                     progressHelper[file.uuid].progress.max = file.maxChunks;
                 },
@@ -215,9 +222,21 @@
                 onProgress: function(chunk) {
                     var helper = progressHelper[chunk.uuid];
                     helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
+                    helper.chunks_remaining.innerHTML = (chunk.currentPosition || 0) + '/' + (chunk.maxChunks || helper.progress.max) + ' pieces';
+                    helper.size_remaining.innerHTML = bytesToSize(chunk.size * chunk.currentPosition || 0) + (chunk.sending ? ' sent ' : ' received ') + 'out of ' + bytesToSize(helper.size);
                     updateLabel(helper.progress, helper.label);
                 }
             };
+
+            function bytesToSize(bytes) {
+                var k = 1000;
+                var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                if (bytes === 0) {
+                    return '0 Bytes';
+                }
+                var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+                return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+            }
 
             document.querySelector('input[type=file]').onchange = function() {
                 var file = this.files[0];
@@ -343,7 +362,7 @@
             var uniqueToken = document.getElementById('unique-token');
             if (uniqueToken)
                 if (location.hash.length > 2)
-                    uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this Link!</a></h2>';
+                    uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align: center;background: rgba(0, 0, 0, .3);border: 1px solid #666;padding: 10px;padding-bottom: 0;box-shadow: inset 0 2px 2px #111;">Your Private Room: <a href="' + location.href + '" target="_blank" style="color: #6792cc;">#'+ location.href.split('#')[1] + '</a></h2>';
                 else
                     uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.round(Math.random() * 999999999) + 999999999);
         </script>

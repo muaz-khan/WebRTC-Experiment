@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2017.09.05';</script>
+<script>window.demoVersion = '2017.11.15';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -79,7 +79,7 @@
         -->
         <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
         <script src="https://cdn.webrtc-experiment.com/screenshot.js"></script>
-        <script src="https://cdn.webrtc-experiment.com/gumadapter.js"></script>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     </head>
 
     <body>
@@ -110,7 +110,7 @@
 
             <section style="margin: 20px; text-align: center; color: red;">
                 <small id="demoVersion"></small>
-                <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day="0"+day);var year=date.getUTCFullYear();document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
+                <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getUTCFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
             </section>
 
             <div class="github-stargazers"></div>
@@ -139,6 +139,11 @@
                     html += '<td style="padding:5px;width:' + (parseInt(screenWidth00 / 2) -  180) + 'px!important; overflow:hidden;padding: 5px!important; text-aling: center!important;width:50%!important;">' + firstValue + '</td>';
                     html += '<td style="padding:5px;">' + secondValue + '</td>';
                     tr.innerHTML = html;
+
+                    if(orignal === 'error') {
+                        tr.style.color = 'red';
+                    }
+
                     browserFeaturesTable.appendChild(tr);
                     return tr;
                 }
@@ -248,19 +253,45 @@
 
                     appendTR('Is Browser Supports Promises?', printVal(DetectRTC.isPromisesSupported), 'isPromisesSupported');
 
+                    appendTR('<a id="btn-show-ip-addresses" href"#" style="cursor:pointer;">Click to show IP addresses</a>', '', '');
+
+                    document.getElementById('btn-show-ip-addresses').onclick = function(e) {
+                        e.preventDefault();
+
+                        var parentNode = this.parentNode.parentNode;
+                        parentNode.parentNode.removeChild(parentNode);
+
+                        if(DetectRTC.browser.name === 'Edge') {
+                            navigator.mediaDevices.getUserMedia({video: true}).then(function(stream) {
+                                detectIpAddresses(stream);
+                            });
+                            return;
+                        }
+
+                        detectIpAddresses();
+                    };
+
+                    function detectIpAddresses(stream) {
+                        DetectRTC.DetectLocalIPAddress(function(ipAddress) {
+                            if (ipAddress.indexOf('Local') !== -1) {
+                                appendTR('Your <strong>Local</strong> IP Address', ipAddress);
+                            } else {
+                                appendTR('Your <strong>Public</strong> IP Address', ipAddress);
+                            }
+
+                            if(!stream) return;
+
+                            stream.getTracks().forEach(function(track) {
+                                track.stop();
+                            });
+
+                            stream = null;
+                        }, stream);
+                    }
+
                     // appendTR(DetectRTC.MediaStream === false ? 'Your system does NOT supports MediaStream.' : 'Your system supports MediaStream.', '<strong>MediaStream.prototype:</strong><br>' + DetectRTC.MediaStream.toString().split(',').join(', '), 'MediaStream');
                     // appendTR(DetectRTC.MediaStreamTrack === false ? 'Your system does NOT supports MediaStreamTrack.' : 'Your system supports MediaStreamTrack.', '<strong>MediaStreamTrack.prototype:</strong><br>' + DetectRTC.MediaStreamTrack.toString().split(',').join(', '), 'MediaStreamTrack');
                     // appendTR(DetectRTC.RTCPeerConnection === false ? 'Your system does NOT supports RTCPeerConnection API.' : 'Your system supports RTCPeerConnection API.', '<strong>RTCPeerConnection.prototype:</strong><br>' + DetectRTC.RTCPeerConnection.toString().split(',').join(', '), 'RTCPeerConnection');
-
-                    /*
-                    DetectRTC.DetectLocalIPAddress(function(ipAddress) {
-                        if (ipAddress.indexOf('Local') !== -1) {
-                            appendTR('Your <strong>Local</strong> IP Address', ipAddress);
-                        } else {
-                            appendTR('Your <strong>Public</strong> IP Address', ipAddress);
-                        }
-                    });
-                    */
 
                     document.getElementById('infoIcon-set-sink-id').onclick = function() {
                         var pre = this.parentNode.querySelector('pre');
@@ -355,11 +386,7 @@ rtpSenders.replaceTrack(newTrack);';
 
                                 reloadDetectRTC(function() {
                                     // release camera
-                                    stream.getVideoTracks().forEach(function(track) {
-                                        track.stop();
-                                    });
-
-                                    stream.getAudioTracks().forEach(function(track) {
+                                    stream.getTracks().forEach(function(track) {
                                         track.stop();
                                     });
 

@@ -1,4 +1,4 @@
-// Last time updated at Feb 16, 2017, 08:32:23
+// Last time updated on Oct 26, 2017
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getScreenId.js
 
@@ -44,15 +44,20 @@ getScreenId(function (error, sourceId, screen_constraints) {
             if (event.data.chromeMediaSourceId) {
                 if (event.data.chromeMediaSourceId === 'PermissionDeniedError') {
                     callback('permission-denied');
-                } else callback(null, event.data.chromeMediaSourceId, getScreenConstraints(null, event.data.chromeMediaSourceId));
+                } else {
+                    callback(null, event.data.chromeMediaSourceId, getScreenConstraints(null, event.data.chromeMediaSourceId));
+                }
+
+                // this event listener is no more needed
+                window.removeEventListener('message', onIFrameCallback);
             }
 
             if (event.data.chromeExtensionStatus) {
                 callback(event.data.chromeExtensionStatus, null, getScreenConstraints(event.data.chromeExtensionStatus));
-            }
 
-            // this event listener is no more needed
-            window.removeEventListener('message', onIFrameCallback);
+                // this event listener is no more needed
+                window.removeEventListener('message', onIFrameCallback);
+            }
         }
 
         setTimeout(postGetSourceIdMessage, 100);
@@ -136,10 +141,10 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
             if (event.data.chromeExtensionStatus) {
                 callback(event.data.chromeExtensionStatus);
-            }
 
-            // this event listener is no more needed
-            window.removeEventListener('message', onIFrameCallback);
+                // this event listener is no more needed
+                window.removeEventListener('message', onIFrameCallback);
+            }
         }
 
         setTimeout(postGetChromeExtensionStatusMessage, 100);

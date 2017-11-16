@@ -725,6 +725,11 @@ function RecordRTC(mediaStream, config) {
             setState('destroyed');
             returnObject = self = null;
 
+            if (Storage.AudioContextConstructor) {
+                Storage.AudioContextConstructor.close();
+                Storage.AudioContextConstructor = null;
+            }
+
             if (!disableLogs) {
                 console.warn('RecordRTC is destroyed.');
             }

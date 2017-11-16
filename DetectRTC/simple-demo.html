@@ -1,0 +1,29 @@
+<script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
+<script>
+navigator.mediaDevices.getUserMedia({audio: true, video: true }).then(function(stream) {
+    var temp = document.createElement('video');
+    temp.srcObject = stream;
+    temp.volume = 0;
+    temp.play();
+
+    DetectRTC.load(function() {
+        document.write('<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">');
+        
+        DetectRTC.audioInputDevices.forEach(function(device) {
+            document.write(JSON.stringify(device, null, '<br>'));
+            document.write('<hr>');
+        });
+
+        document.write('--------------<hr>');
+
+        DetectRTC.videoInputDevices.forEach(function(device) {
+            document.write(JSON.stringify(device, null, '<br>'));
+            document.write('<hr>');
+        });
+
+        stream.getTracks().forEach(function(track) {
+            track.stop();
+        });
+    });
+});
+</script>

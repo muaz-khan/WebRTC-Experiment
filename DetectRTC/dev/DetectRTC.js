@@ -162,9 +162,15 @@ if (DetectRTC.osName === 'Nodejs') {
 DetectRTC.checkWebSocketsSupport = function(callback) {
     callback = callback || function() {};
     try {
+        var starttime;
         var websocket = new WebSocket('wss://echo.websocket.org:443/');
         websocket.onopen = function() {
             DetectRTC.isWebSocketsBlocked = false;
+            starttime = (new Date).getTime();
+            websocket.send('ping');
+        };
+        websocket.onmessage = function() {
+            DetectRTC.WebsocketLatency = (new Date).getTime() - starttime + 'ms';
             callback();
             websocket.close();
             websocket = null;

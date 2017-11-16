@@ -20,7 +20,7 @@
  */
 
 function CanvasRecorder(htmlElement, config) {
-    if (typeof html2canvas === 'undefined' && htmlElement.nodeName.toLowerCase() !== 'canvas') {
+    if (typeof html2canvas === 'undefined') {
         throw 'Please link: https://cdn.webrtc-experiment.com/screenshot.js';
     }
 

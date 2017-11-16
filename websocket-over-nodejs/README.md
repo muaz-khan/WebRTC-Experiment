@@ -1,4 +1,4 @@
-# [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) / [Demo](https://www.webrtc-experiment.com/websocket/) 
+# [WebSocket over Node.js](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/websocket-over-nodejs) / [Demo](https://www.webrtc-experiment.com/FileBufferReader/) 
 
 [![npm](https://img.shields.io/npm/v/websocket-over-nodejs.svg)](https://npmjs.org/package/websocket-over-nodejs) [![downloads](https://img.shields.io/npm/dm/websocket-over-nodejs.svg)](https://npmjs.org/package/websocket-over-nodejs)
 
@@ -19,7 +19,7 @@ You can see three node.js files:
 Following code explains how to override [`openSignalingChannel`](http://www.rtcmulticonnection.org/docs/openSignalingChannel/) method in your HTML pages; `openSignalingChannel` is useful only for RTCMultiConnection.js and DataChannel.js. For other WebRTC Experiments, please check next section.
 
 ```javascript
-var SIGNALING_SERVER = 'wss://webrtc-signaling.herokuapp.com:443/ws/';
+var SIGNALING_SERVER = 'wss://webrtcweb.com:9449/';
 connection.openSignalingChannel = function(config) {
     config.channel = config.channel || this.channel;
     var websocket = new WebSocket(SIGNALING_SERVER);
@@ -50,7 +50,7 @@ connection.openSignalingChannel = function(config) {
 `openSocket` is used in all standalone WebRTC Experiments. You can define this method in your `ui.js` file or in your HTML page.
 
 ```javascript
-var SIGNALING_SERVER = 'wss://webrtc-signaling.herokuapp.com:443/ws/';
+var SIGNALING_SERVER = 'wss://webrtcweb.com:9449/';
 var config = {
     openSocket = function (config) {
         config.channel = config.channel || 'main-public-channel';
@@ -89,7 +89,7 @@ You can detect presence of any channel/room; and invoke open/join methods accord
 // use "channel" as sessionid or use custom sessionid!
 var roomid = connection.channel;
 
-var SIGNALING_SERVER = 'wss://webrtc-signaling.herokuapp.com:443/ws/';
+var SIGNALING_SERVER = 'wss://webrtcweb.com:9449/';
 var websocket = new WebSocket(SIGNALING_SERVER);
 
 websocket.onmessage = function (event) {

@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2017-07-29 8:42:43 AM UTC
+// Last time updated: 2017-08-31 4:03:22 AM UTC
 
 // __________________________
 // MediaStreamRecorder v1.3.4
@@ -142,49 +142,59 @@ function MediaStreamRecorder(mediaStream) {
 // ______________________
 // MultiStreamRecorder.js
 
-function MultiStreamRecorder(arrayOfMediaStreams) {
+function MultiStreamRecorder(arrayOfMediaStreams, options) {
+    arrayOfMediaStreams = arrayOfMediaStreams || [];
+
     if (arrayOfMediaStreams instanceof MediaStream) {
         arrayOfMediaStreams = [arrayOfMediaStreams];
     }
 
     var self = this;
 
-    if (!this.mimeType) {
-        this.mimeType = 'video/webm';
+    var mixer;
+    var mediaRecorder;
+
+    options = options || {
+        mimeType: 'video/webm',
+        video: {
+            width: 360,
+            height: 240
+        }
+    };
+
+    if (!options.frameInterval) {
+        options.frameInterval = 10;
     }
 
-    if (!this.frameInterval) {
-        this.frameInterval = 10;
+    if (!options.video) {
+        options.video = {};
     }
 
-    if (!this.video) {
-        this.video = {};
+    if (!options.video.width) {
+        options.video.width = 360;
     }
 
-    if (!this.video.width) {
-        this.video.width = 360;
-    }
-
-    if (!this.video.height) {
-        this.video.height = 240;
+    if (!options.video.height) {
+        options.video.height = 240;
     }
 
     this.start = function(timeSlice) {
-        isStoppedRecording = false;
-        var mixedVideoStream = getMixedVideoStream();
+        // github/muaz-khan/MultiStreamsMixer
+        mixer = new MultiStreamsMixer(arrayOfMediaStreams);
 
-        var mixedAudioStream = getMixedAudioStream();
-        if (mixedAudioStream) {
-            mixedAudioStream.getAudioTracks().forEach(function(track) {
-                mixedVideoStream.addTrack(track);
-            });
+        if (getVideoTracks().length) {
+            mixer.frameInterval = options.frameInterval || 10;
+            mixer.width = options.video.width || 360;
+            mixer.height = options.video.height || 240;
+            mixer.startDrawingFrames();
         }
 
-        if (self.previewStream && typeof self.previewStream === 'function') {
-            self.previewStream(mixedVideoStream);
+        if (typeof self.previewStream === 'function') {
+            self.previewStream(mixer.getMixedStream());
         }
 
-        mediaRecorder = new MediaStreamRecorder(mixedVideoStream);
+        // record using MediaRecorder API
+        mediaRecorder = new MediaStreamRecorder(mixer.getMixedStream());
 
         for (var prop in self) {
             if (typeof self[prop] !== 'function') {
@@ -198,14 +208,20 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
 
         mediaRecorder.onstop = self.onstop;
 
-        drawVideosToCanvas();
-
         mediaRecorder.start(timeSlice);
     };
 
-    this.stop = function(callback) {
-        isStoppedRecording = true;
+    function getVideoTracks() {
+        var tracks = [];
+        arrayOfMediaStreams.forEach(function(stream) {
+            stream.getVideoTracks().forEach(function(track) {
+                tracks.push(track);
+            });
+        });
+        return tracks;
+    }
 
+    this.stop = function(callback) {
         if (!mediaRecorder) {
             return;
         }
@@ -214,165 +230,6 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
             callback(blob);
         });
     };
-
-    function getMixedAudioStream() {
-        // via: @pehrsons
-        if (!ObjectStore.AudioContextConstructor) {
-            ObjectStore.AudioContextConstructor = new ObjectStore.AudioContext();
-        }
-
-        self.audioContext = ObjectStore.AudioContextConstructor;
-
-        self.audioSources = [];
-
-        self.gainNode = self.audioContext.createGain();
-        self.gainNode.connect(self.audioContext.destination);
-        self.gainNode.gain.value = 0; // don't hear self
-
-        var audioTracksLength = 0;
-        arrayOfMediaStreams.forEach(function(stream) {
-            if (!stream.getAudioTracks().length) {
-                return;
-            }
-
-            audioTracksLength++;
-
-            var audioSource = self.audioContext.createMediaStreamSource(stream);
-            audioSource.connect(self.gainNode);
-            self.audioSources.push(audioSource);
-        });
-
-        if (!audioTracksLength) {
-            return;
-        }
-
-        self.audioDestination = self.audioContext.createMediaStreamDestination();
-        self.audioSources.forEach(function(audioSource) {
-            audioSource.connect(self.audioDestination);
-        });
-        return self.audioDestination.stream;
-    }
-
-    var videos = [];
-    var mediaRecorder;
-
-    function getMixedVideoStream() {
-        // via: @adrian-ber
-        arrayOfMediaStreams.forEach(function(stream) {
-            if (!stream.getVideoTracks().length) {
-                return;
-            }
-
-            var video = getVideo(stream);
-            video.width = self.video.width;
-            video.height = self.video.height;
-            videos.push(video);
-        });
-
-        var capturedStream;
-
-        if ('captureStream' in canvas) {
-            capturedStream = canvas.captureStream();
-        } else if ('mozCaptureStream' in canvas) {
-            capturedStream = canvas.mozCaptureStream();
-        } else if (!self.disableLogs) {
-            console.error('Upgrade to latest Chrome or otherwise enable this flag: chrome://flags/#enable-experimental-web-platform-features');
-        }
-
-        var videoStream = new MediaStream();
-
-        // via #126
-        capturedStream.getVideoTracks().forEach(function(track) {
-            videoStream.addTrack(track);
-        });
-
-        return videoStream;
-    }
-
-    function getVideo(stream) {
-        var video = document.createElement('video');
-        video.src = URL.createObjectURL(stream);
-        video.play();
-        return video;
-    }
-
-    var isStoppedRecording = false;
-
-    function drawVideosToCanvas() {
-        if (isStoppedRecording) {
-            return;
-        }
-
-        var videosLength = videos.length;
-
-        canvas.width = videosLength > 1 ? videos[0].width * 2 : videos[0].width;
-        canvas.height = videosLength > 2 ? videos[0].height * 2 : videos[0].height;
-
-        videos.forEach(function(video, idx) {
-            if (videosLength === 1) {
-                context.drawImage(video, 0, 0, video.width, video.height);
-                return;
-            }
-
-            if (videosLength === 2) {
-                var x = 0;
-                var y = 0;
-
-                if (idx === 1) {
-                    x = video.width;
-                }
-
-                context.drawImage(video, x, y, video.width, video.height);
-                return;
-            }
-
-            if (videosLength === 3) {
-                var x = 0;
-                var y = 0;
-
-                if (idx === 1) {
-                    x = video.width;
-                }
-
-                if (idx === 2) {
-                    y = video.height;
-                }
-
-                context.drawImage(video, x, y, video.width, video.height);
-                return;
-            }
-
-            if (videosLength === 4) {
-                var x = 0;
-                var y = 0;
-
-                if (idx === 1) {
-                    x = video.width;
-                }
-
-                if (idx === 2) {
-                    y = video.height;
-                }
-
-                if (idx === 3) {
-                    x = video.width;
-                    y = video.height;
-                }
-
-                context.drawImage(video, x, y, video.width, video.height);
-                return;
-            }
-        });
-
-        setTimeout(drawVideosToCanvas, self.frameInterval);
-    }
-
-    var canvas = document.createElement('canvas');
-    var context = canvas.getContext('2d');
-
-    canvas.style = 'opacity:0;position:absolute;z-index:-1;top: -100000000;left:-1000000000;';
-
-    (document.body || document.documentElement).appendChild(canvas);
 
     this.pause = function() {
         if (mediaRecorder) {
@@ -387,14 +244,426 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
     };
 
     this.clearRecordedData = function() {
-        videos = [];
-
-        isStoppedRecording = false;
-        mediaRecorder = null;
-
         if (mediaRecorder) {
             mediaRecorder.clearRecordedData();
+            mediaRecorder = null;
         }
+
+        if (mixer) {
+            mixer.releaseStreams();
+            mixer = null;
+        }
+    };
+
+    this.addStreams = this.addStream = function(streams) {
+        if (!streams) {
+            throw 'First parameter is required.';
+        }
+
+        if (!(streams instanceof Array)) {
+            streams = [streams];
+        }
+
+        arrayOfMediaStreams.concat(streams);
+
+        if (!mediaRecorder || !mixer) {
+            return;
+        }
+
+        mixer.appendStreams(streams);
+    };
+
+    this.resetVideoStreams = function(streams) {
+        if (!mixer) {
+            return;
+        }
+
+        if (streams && !(streams instanceof Array)) {
+            streams = [streams];
+        }
+
+        mixer.resetVideoStreams(streams);
+    };
+
+    this.ondataavailable = function(blob) {
+        if (self.disableLogs) {
+            return;
+        }
+
+        console.log('ondataavailable', blob);
+    };
+
+    this.onstop = function() {};
+
+    // for debugging
+    this.name = 'MultiStreamRecorder';
+    this.toString = function() {
+        return this.name;
+    };
+}
+
+if (typeof MediaStreamRecorder !== 'undefined') {
+    MediaStreamRecorder.MultiStreamRecorder = MultiStreamRecorder;
+}
+
+// Last time updated: 2017-08-31 2:56:12 AM UTC
+
+// ________________________
+// MultiStreamsMixer v1.0.2
+
+// Open-Sourced: https://github.com/muaz-khan/MultiStreamsMixer
+
+// --------------------------------------------------
+// Muaz Khan     - www.MuazKhan.com
+// MIT License   - www.WebRTC-Experiment.com/licence
+// --------------------------------------------------
+
+function MultiStreamsMixer(arrayOfMediaStreams) {
+
+    // requires: chrome://flags/#enable-experimental-web-platform-features
+
+    var videos = [];
+    var isStopDrawingFrames = false;
+
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    canvas.style = 'opacity:0;position:absolute;z-index:-1;top: -100000000;left:-1000000000; margin-top:-1000000000;margin-left:-1000000000;';
+    (document.body || document.documentElement).appendChild(canvas);
+
+    this.disableLogs = false;
+    this.frameInterval = 10;
+
+    this.width = 360;
+    this.height = 240;
+
+    // use gain node to prevent echo
+    this.useGainNode = true;
+
+    var self = this;
+
+    // _____________________________
+    // Cross-Browser-Declarations.js
+
+    // WebAudio API representer
+    var AudioContext = window.AudioContext;
+
+    if (typeof AudioContext === 'undefined') {
+        if (typeof webkitAudioContext !== 'undefined') {
+            /*global AudioContext:true */
+            AudioContext = webkitAudioContext;
+        }
+
+        if (typeof mozAudioContext !== 'undefined') {
+            /*global AudioContext:true */
+            AudioContext = mozAudioContext;
+        }
+    }
+
+    /*jshint -W079 */
+    var URL = window.URL;
+
+    if (typeof URL === 'undefined' && typeof webkitURL !== 'undefined') {
+        /*global URL:true */
+        URL = webkitURL;
+    }
+
+    if (typeof navigator !== 'undefined' && typeof navigator.getUserMedia === 'undefined') { // maybe window.navigator?
+        if (typeof navigator.webkitGetUserMedia !== 'undefined') {
+            navigator.getUserMedia = navigator.webkitGetUserMedia;
+        }
+
+        if (typeof navigator.mozGetUserMedia !== 'undefined') {
+            navigator.getUserMedia = navigator.mozGetUserMedia;
+        }
+    }
+
+    var MediaStream = window.MediaStream;
+
+    if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+        MediaStream = webkitMediaStream;
+    }
+
+    /*global MediaStream:true */
+    if (typeof MediaStream !== 'undefined') {
+        if (!('getVideoTracks' in MediaStream.prototype)) {
+            MediaStream.prototype.getVideoTracks = function() {
+                if (!this.getTracks) {
+                    return [];
+                }
+
+                var tracks = [];
+                this.getTracks.forEach(function(track) {
+                    if (track.kind.toString().indexOf('video') !== -1) {
+                        tracks.push(track);
+                    }
+                });
+                return tracks;
+            };
+
+            MediaStream.prototype.getAudioTracks = function() {
+                if (!this.getTracks) {
+                    return [];
+                }
+
+                var tracks = [];
+                this.getTracks.forEach(function(track) {
+                    if (track.kind.toString().indexOf('audio') !== -1) {
+                        tracks.push(track);
+                    }
+                });
+                return tracks;
+            };
+        }
+
+        // override "stop" method for all browsers
+        if (typeof MediaStream.prototype.stop === 'undefined') {
+            MediaStream.prototype.stop = function() {
+                this.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+            };
+        }
+    }
+
+    var Storage = {};
+
+    if (typeof AudioContext !== 'undefined') {
+        Storage.AudioContext = AudioContext;
+    } else if (typeof webkitAudioContext !== 'undefined') {
+        Storage.AudioContext = webkitAudioContext;
+    }
+
+    this.startDrawingFrames = function() {
+        drawVideosToCanvas();
+    };
+
+    function drawVideosToCanvas() {
+        if (isStopDrawingFrames) {
+            return;
+        }
+
+        var videosLength = videos.length;
+
+        var fullcanvas = false;
+        var remaining = [];
+        videos.forEach(function(video) {
+            if (!video.stream) {
+                video.stream = {};
+            }
+
+            if (video.stream.fullcanvas) {
+                fullcanvas = video;
+            } else {
+                remaining.push(video);
+            }
+        });
+
+        if (fullcanvas) {
+            canvas.width = fullcanvas.stream.width;
+            canvas.height = fullcanvas.stream.height;
+        } else if (remaining.length) {
+            canvas.width = videosLength > 1 ? remaining[0].width * 2 : remaining[0].width;
+            canvas.height = videosLength > 2 ? remaining[0].height * 2 : remaining[0].height;
+        } else {
+            canvas.width = self.width || 360;
+            canvas.height = self.height || 240;
+        }
+
+        if (fullcanvas && fullcanvas instanceof HTMLVideoElement) {
+            drawImage(fullcanvas);
+        }
+
+        remaining.forEach(function(video, idx) {
+            drawImage(video, idx);
+        });
+
+        setTimeout(drawVideosToCanvas, self.frameInterval);
+    }
+
+    function drawImage(video, idx) {
+        if (isStopDrawingFrames) {
+            return;
+        }
+
+        var x = 0;
+        var y = 0;
+        var width = video.width;
+        var height = video.height;
+
+        if (idx === 1) {
+            x = video.width;
+        }
+
+        if (idx === 2) {
+            y = video.height;
+        }
+
+        if (idx === 3) {
+            x = video.width;
+            y = video.height;
+        }
+
+        if (typeof video.stream.left !== 'undefined') {
+            x = video.stream.left;
+        }
+
+        if (typeof video.stream.top !== 'undefined') {
+            y = video.stream.top;
+        }
+
+        if (typeof video.stream.width !== 'undefined') {
+            width = video.stream.width;
+        }
+
+        if (typeof video.stream.height !== 'undefined') {
+            height = video.stream.height;
+        }
+
+        context.drawImage(video, x, y, width, height);
+
+        if (typeof video.stream.onRender === 'function') {
+            video.stream.onRender(context, x, y, width, height, idx);
+        }
+    }
+
+    function getMixedStream() {
+        isStopDrawingFrames = false;
+        var mixedVideoStream = getMixedVideoStream();
+
+        var mixedAudioStream = getMixedAudioStream();
+        if (mixedAudioStream) {
+            mixedAudioStream.getAudioTracks().forEach(function(track) {
+                mixedVideoStream.addTrack(track);
+            });
+        }
+
+        var fullcanvas;
+        arrayOfMediaStreams.forEach(function(stream) {
+            if (stream.fullcanvas) {
+                fullcanvas = true;
+            }
+        });
+
+        return mixedVideoStream;
+    }
+
+    function getMixedVideoStream() {
+        resetVideoStreams();
+
+        var capturedStream;
+
+        if ('captureStream' in canvas) {
+            capturedStream = canvas.captureStream();
+        } else if ('mozCaptureStream' in canvas) {
+            capturedStream = canvas.mozCaptureStream();
+        } else if (!self.disableLogs) {
+            console.error('Upgrade to latest Chrome or otherwise enable this flag: chrome://flags/#enable-experimental-web-platform-features');
+        }
+
+        var videoStream = new MediaStream();
+
+        capturedStream.getVideoTracks().forEach(function(track) {
+            videoStream.addTrack(track);
+        });
+
+        canvas.stream = videoStream;
+
+        return videoStream;
+    }
+
+    function getMixedAudioStream() {
+        // via: @pehrsons
+        if (!Storage.AudioContextConstructor) {
+            Storage.AudioContextConstructor = new Storage.AudioContext();
+        }
+
+        self.audioContext = Storage.AudioContextConstructor;
+
+        self.audioSources = [];
+
+        if (self.useGainNode === true) {
+            self.gainNode = self.audioContext.createGain();
+            self.gainNode.connect(self.audioContext.destination);
+            self.gainNode.gain.value = 0; // don't hear self
+        }
+
+        var audioTracksLength = 0;
+        arrayOfMediaStreams.forEach(function(stream) {
+            if (!stream.getAudioTracks().length) {
+                return;
+            }
+
+            audioTracksLength++;
+
+            var audioSource = self.audioContext.createMediaStreamSource(stream);
+
+            if (self.useGainNode === true) {
+                audioSource.connect(self.gainNode);
+            }
+
+            self.audioSources.push(audioSource);
+        });
+
+        if (!audioTracksLength) {
+            return;
+        }
+
+        self.audioDestination = self.audioContext.createMediaStreamDestination();
+        self.audioSources.forEach(function(audioSource) {
+            audioSource.connect(self.audioDestination);
+        });
+        return self.audioDestination.stream;
+    }
+
+    function getVideo(stream) {
+        var video = document.createElement('video');
+
+        if ('srcObject' in video) {
+            video.srcObject = stream;
+        } else {
+            video.src = URL.createObjectURL(stream);
+        }
+
+        video.muted = true;
+        video.volume = 0;
+
+        video.width = stream.width || self.width || 360;
+        video.height = stream.height || self.height || 240;
+
+        video.play();
+
+        return video;
+    }
+
+    this.appendStreams = function(streams) {
+        if (!streams) {
+            throw 'First parameter is required.';
+        }
+
+        if (!(streams instanceof Array)) {
+            streams = [streams];
+        }
+
+        arrayOfMediaStreams.concat(streams);
+
+        streams.forEach(function(stream) {
+            if (stream.getVideoTracks().length) {
+                var video = getVideo(stream);
+                video.stream = stream;
+                videos.push(video);
+            }
+
+            if (stream.getAudioTracks().length && self.audioContext) {
+                var audioSource = self.audioContext.createMediaStreamSource(stream);
+                audioSource.connect(self.audioDestination);
+                self.audioSources.push(audioSource);
+            }
+        });
+    };
+
+    this.releaseStreams = function() {
+        videos = [];
+        isStopDrawingFrames = true;
 
         if (self.gainNode) {
             self.gainNode.disconnect();
@@ -413,7 +682,6 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
             self.audioDestination = null;
         }
 
-        // maybe "audioContext.close"?
         self.audioContext = null;
 
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -424,42 +692,38 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
         }
     };
 
-    this.addStream = function(stream) {
-        if (stream instanceof Array && stream.length) {
-            stream.forEach(this.addStream);
-            return;
-        }
-        arrayOfMediaStreams.push(stream);
-
-        if (!mediaRecorder) {
-            return;
+    this.resetVideoStreams = function(streams) {
+        if (streams && !(streams instanceof Array)) {
+            streams = [streams];
         }
 
-        if (stream.getVideoTracks().length) {
+        resetVideoStreams(streams);
+    };
+
+    function resetVideoStreams(streams) {
+        videos = [];
+        streams = streams || arrayOfMediaStreams;
+
+        // via: @adrian-ber
+        streams.forEach(function(stream) {
+            if (!stream.getVideoTracks().length) {
+                return;
+            }
+
             var video = getVideo(stream);
-            video.width = self.video.width;
-            video.height = self.video.height;
+            video.stream = stream;
             videos.push(video);
-        }
+        });
+    }
 
-        if (stream.getAudioTracks().length && self.audioContext) {
-            var audioSource = self.audioContext.createMediaStreamSource(stream);
-            audioSource.connect(self.audioDestination);
-        }
+    // for debugging
+    this.name = 'MultiStreamsMixer';
+    this.toString = function() {
+        return this.name;
     };
 
-    this.ondataavailable = function(blob) {
-        if (self.disableLogs) {
-            return;
-        }
-        console.log('ondataavailable', blob);
-    };
+    this.getMixedStream = getMixedStream;
 
-    this.onstop = function() {};
-}
-
-if (typeof MediaStreamRecorder !== 'undefined') {
-    MediaStreamRecorder.MultiStreamRecorder = MultiStreamRecorder;
 }
 
 // _____________________________
@@ -866,7 +1130,9 @@ function MediaRecorderWrapper(mediaStream) {
 
         // i.e. stop recording when <video> is paused by the user; and auto restart recording 
         // when video is resumed. E.g. yourStream.getVideoTracks()[0].muted = true; // it will auto-stop recording.
-        mediaRecorder.ignoreMutedMedia = self.ignoreMutedMedia || false;
+        if (self.ignoreMutedMedia === true) {
+            mediaRecorder.ignoreMutedMedia = true;
+        }
 
         var firedOnDataAvailableOnce = false;
 
@@ -874,7 +1140,7 @@ function MediaRecorderWrapper(mediaStream) {
         mediaRecorder.ondataavailable = function(e) {
             // how to fix FF-corrupt-webm issues?
             // should we leave this?          e.data.size < 26800
-            if (!e.data || /*!e.data.size || e.data.size < 26800 || */ firedOnDataAvailableOnce) {
+            if (!e.data || !e.data.size || e.data.size < 26800 || firedOnDataAvailableOnce) {
                 return;
             }
 

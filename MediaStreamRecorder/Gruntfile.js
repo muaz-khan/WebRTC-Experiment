@@ -36,6 +36,7 @@ module.exports = function(grunt) {
                 src: [
                     'common/MediaStreamRecorder.js',
                     'common/MultiStreamRecorder.js',
+                    'common/MultiStreamsMixer.js',
                     'common/Cross-Browser-Declarations.js',
                     'AudioStreamRecorder/MediaRecorderWrapper.js',
                     'AudioStreamRecorder/StereoAudioRecorder.js',

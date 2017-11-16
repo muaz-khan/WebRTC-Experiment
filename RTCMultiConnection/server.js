@@ -14,6 +14,16 @@ var isUseHTTPs = false;
 // var port = 443;
 var port = process.env.PORT || 9001;
 
+try {
+    process.argv.forEach(function(val, index, array) {
+        if (!val) return;
+
+        if (val === '--ssl') {
+            isUseHTTPs = true;
+        }
+    });
+} catch (e) {}
+
 var fs = require('fs');
 var path = require('path');
 
@@ -254,7 +264,10 @@ function runServer() {
         console.log('socket.io is listening at:');
         console.log('\x1b[31m%s\x1b[0m ', '\t' + domainURL);
 
-        console.log('\n');
+        if(!isUseHTTPs) {
+            console.log('use --ssl to enable HTTPs:');
+            console.log('\x1b[31m%s\x1b[0m ', '\t' + 'node server.js --ssl');
+        }
 
         console.log('Your web-browser (HTML file) MUST set this line:');
         console.log('\x1b[31m%s\x1b[0m ', 'connection.socketURL = "' + domainURL + '";');

@@ -1,49 +1,59 @@
 // ______________________
 // MultiStreamRecorder.js
 
-function MultiStreamRecorder(arrayOfMediaStreams) {
+function MultiStreamRecorder(arrayOfMediaStreams, options) {
+    arrayOfMediaStreams = arrayOfMediaStreams || [];
+
     if (arrayOfMediaStreams instanceof MediaStream) {
         arrayOfMediaStreams = [arrayOfMediaStreams];
     }
 
     var self = this;
 
-    if (!this.mimeType) {
-        this.mimeType = 'video/webm';
+    var mixer;
+    var mediaRecorder;
+
+    options = options || {
+        mimeType: 'video/webm',
+        video: {
+            width: 360,
+            height: 240
+        }
+    };
+
+    if (!options.frameInterval) {
+        options.frameInterval = 10;
     }
 
-    if (!this.frameInterval) {
-        this.frameInterval = 10;
+    if (!options.video) {
+        options.video = {};
     }
 
-    if (!this.video) {
-        this.video = {};
+    if (!options.video.width) {
+        options.video.width = 360;
     }
 
-    if (!this.video.width) {
-        this.video.width = 360;
-    }
-
-    if (!this.video.height) {
-        this.video.height = 240;
+    if (!options.video.height) {
+        options.video.height = 240;
     }
 
     this.start = function(timeSlice) {
-        isStoppedRecording = false;
-        var mixedVideoStream = getMixedVideoStream();
+        // github/muaz-khan/MultiStreamsMixer
+        mixer = new MultiStreamsMixer(arrayOfMediaStreams);
 
-        var mixedAudioStream = getMixedAudioStream();
-        if (mixedAudioStream) {
-            mixedAudioStream.getAudioTracks().forEach(function(track) {
-                mixedVideoStream.addTrack(track);
-            });
+        if (getVideoTracks().length) {
+            mixer.frameInterval = options.frameInterval || 10;
+            mixer.width = options.video.width || 360;
+            mixer.height = options.video.height || 240;
+            mixer.startDrawingFrames();
         }
 
-        if (self.previewStream && typeof self.previewStream === 'function') {
-            self.previewStream(mixedVideoStream);
+        if (typeof self.previewStream === 'function') {
+            self.previewStream(mixer.getMixedStream());
         }
 
-        mediaRecorder = new MediaStreamRecorder(mixedVideoStream);
+        // record using MediaRecorder API
+        mediaRecorder = new MediaStreamRecorder(mixer.getMixedStream());
 
         for (var prop in self) {
             if (typeof self[prop] !== 'function') {
@@ -57,14 +67,20 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
 
         mediaRecorder.onstop = self.onstop;
 
-        drawVideosToCanvas();
-
         mediaRecorder.start(timeSlice);
     };
 
-    this.stop = function(callback) {
-        isStoppedRecording = true;
+    function getVideoTracks() {
+        var tracks = [];
+        arrayOfMediaStreams.forEach(function(stream) {
+            stream.getVideoTracks().forEach(function(track) {
+                tracks.push(track);
+            });
+        });
+        return tracks;
+    }
 
+    this.stop = function(callback) {
         if (!mediaRecorder) {
             return;
         }
@@ -73,165 +89,6 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
             callback(blob);
         });
     };
-
-    function getMixedAudioStream() {
-        // via: @pehrsons
-        if (!ObjectStore.AudioContextConstructor) {
-            ObjectStore.AudioContextConstructor = new ObjectStore.AudioContext();
-        }
-
-        self.audioContext = ObjectStore.AudioContextConstructor;
-
-        self.audioSources = [];
-
-        self.gainNode = self.audioContext.createGain();
-        self.gainNode.connect(self.audioContext.destination);
-        self.gainNode.gain.value = 0; // don't hear self
-
-        var audioTracksLength = 0;
-        arrayOfMediaStreams.forEach(function(stream) {
-            if (!stream.getAudioTracks().length) {
-                return;
-            }
-
-            audioTracksLength++;
-
-            var audioSource = self.audioContext.createMediaStreamSource(stream);
-            audioSource.connect(self.gainNode);
-            self.audioSources.push(audioSource);
-        });
-
-        if (!audioTracksLength) {
-            return;
-        }
-
-        self.audioDestination = self.audioContext.createMediaStreamDestination();
-        self.audioSources.forEach(function(audioSource) {
-            audioSource.connect(self.audioDestination);
-        });
-        return self.audioDestination.stream;
-    }
-
-    var videos = [];
-    var mediaRecorder;
-
-    function getMixedVideoStream() {
-        // via: @adrian-ber
-        arrayOfMediaStreams.forEach(function(stream) {
-            if (!stream.getVideoTracks().length) {
-                return;
-            }
-
-            var video = getVideo(stream);
-            video.width = self.video.width;
-            video.height = self.video.height;
-            videos.push(video);
-        });
-
-        var capturedStream;
-
-        if ('captureStream' in canvas) {
-            capturedStream = canvas.captureStream();
-        } else if ('mozCaptureStream' in canvas) {
-            capturedStream = canvas.mozCaptureStream();
-        } else if (!self.disableLogs) {
-            console.error('Upgrade to latest Chrome or otherwise enable this flag: chrome://flags/#enable-experimental-web-platform-features');
-        }
-
-        var videoStream = new MediaStream();
-
-        // via #126
-        capturedStream.getVideoTracks().forEach(function(track) {
-            videoStream.addTrack(track);
-        });
-
-        return videoStream;
-    }
-
-    function getVideo(stream) {
-        var video = document.createElement('video');
-        video.src = URL.createObjectURL(stream);
-        video.play();
-        return video;
-    }
-
-    var isStoppedRecording = false;
-
-    function drawVideosToCanvas() {
-        if (isStoppedRecording) {
-            return;
-        }
-
-        var videosLength = videos.length;
-
-        canvas.width = videosLength > 1 ? videos[0].width * 2 : videos[0].width;
-        canvas.height = videosLength > 2 ? videos[0].height * 2 : videos[0].height;
-
-        videos.forEach(function(video, idx) {
-            if (videosLength === 1) {
-                context.drawImage(video, 0, 0, video.width, video.height);
-                return;
-            }
-
-            if (videosLength === 2) {
-                var x = 0;
-                var y = 0;
-
-                if (idx === 1) {
-                    x = video.width;
-                }
-
-                context.drawImage(video, x, y, video.width, video.height);
-                return;
-            }
-
-            if (videosLength === 3) {
-                var x = 0;
-                var y = 0;
-
-                if (idx === 1) {
-                    x = video.width;
-                }
-
-                if (idx === 2) {
-                    y = video.height;
-                }
-
-                context.drawImage(video, x, y, video.width, video.height);
-                return;
-            }
-
-            if (videosLength === 4) {
-                var x = 0;
-                var y = 0;
-
-                if (idx === 1) {
-                    x = video.width;
-                }
-
-                if (idx === 2) {
-                    y = video.height;
-                }
-
-                if (idx === 3) {
-                    x = video.width;
-                    y = video.height;
-                }
-
-                context.drawImage(video, x, y, video.width, video.height);
-                return;
-            }
-        });
-
-        setTimeout(drawVideosToCanvas, self.frameInterval);
-    }
-
-    var canvas = document.createElement('canvas');
-    var context = canvas.getContext('2d');
-
-    canvas.style = 'opacity:0;position:absolute;z-index:-1;top: -100000000;left:-1000000000;';
-
-    (document.body || document.documentElement).appendChild(canvas);
 
     this.pause = function() {
         if (mediaRecorder) {
@@ -246,75 +103,62 @@ function MultiStreamRecorder(arrayOfMediaStreams) {
     };
 
     this.clearRecordedData = function() {
-        videos = [];
-
-        isStoppedRecording = false;
-        mediaRecorder = null;
-
         if (mediaRecorder) {
             mediaRecorder.clearRecordedData();
+            mediaRecorder = null;
         }
 
-        if (self.gainNode) {
-            self.gainNode.disconnect();
-            self.gainNode = null;
-        }
-
-        if (self.audioSources.length) {
-            self.audioSources.forEach(function(source) {
-                source.disconnect();
-            });
-            self.audioSources = [];
-        }
-
-        if (self.audioDestination) {
-            self.audioDestination.disconnect();
-            self.audioDestination = null;
-        }
-
-        // maybe "audioContext.close"?
-        self.audioContext = null;
-
-        context.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (canvas.stream) {
-            canvas.stream.stop();
-            canvas.stream = null;
+        if (mixer) {
+            mixer.releaseStreams();
+            mixer = null;
         }
     };
 
-    this.addStream = function(stream) {
-        if (stream instanceof Array && stream.length) {
-            stream.forEach(this.addStream);
+    this.addStreams = this.addStream = function(streams) {
+        if (!streams) {
+            throw 'First parameter is required.';
+        }
+
+        if (!(streams instanceof Array)) {
+            streams = [streams];
+        }
+
+        arrayOfMediaStreams.concat(streams);
+
+        if (!mediaRecorder || !mixer) {
             return;
         }
-        arrayOfMediaStreams.push(stream);
 
-        if (!mediaRecorder) {
+        mixer.appendStreams(streams);
+    };
+
+    this.resetVideoStreams = function(streams) {
+        if (!mixer) {
             return;
         }
 
-        if (stream.getVideoTracks().length) {
-            var video = getVideo(stream);
-            video.width = self.video.width;
-            video.height = self.video.height;
-            videos.push(video);
+        if (streams && !(streams instanceof Array)) {
+            streams = [streams];
         }
 
-        if (stream.getAudioTracks().length && self.audioContext) {
-            var audioSource = self.audioContext.createMediaStreamSource(stream);
-            audioSource.connect(self.audioDestination);
-        }
+        mixer.resetVideoStreams(streams);
     };
 
     this.ondataavailable = function(blob) {
         if (self.disableLogs) {
             return;
         }
+
         console.log('ondataavailable', blob);
     };
 
     this.onstop = function() {};
+
+    // for debugging
+    this.name = 'MultiStreamRecorder';
+    this.toString = function() {
+        return this.name;
+    };
 }
 
 if (typeof MediaStreamRecorder !== 'undefined') {

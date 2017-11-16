@@ -94,7 +94,9 @@ var File = {
                 config.onProgress({
                     currentPosition: currentPosition,
                     maxChunks: maxChunks,
-                    uuid: uuid
+                    uuid: uuid,
+                    size: chunkSize,
+                    sending: true
                 });
             }
 
@@ -142,7 +144,11 @@ var File = {
                 if (config.onEnd) config.onEnd(blob);
             }
 
-            if (chunk.value && config.onProgress) config.onProgress(chunk);
+            if (chunk.value && config.onProgress) {
+                chunk.size = 40 * 1000;
+                chunk.receiving = true;
+                config.onProgress(chunk);
+            }
         }
 
         return {

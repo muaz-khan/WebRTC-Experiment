@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2017-09-23 12:09:30 PM UTC
+// Last time updated: 2017-11-15 1:53:55 PM UTC
 
 // _________________________
 // RTCMultiConnection v3.4.4
@@ -5426,7 +5426,7 @@ window.RTCMultiConnection = function(roomid, forceOptions) {
             selector.selectSingleFile(callback);
         };
 
-        connection.getPublicModerators = function(userIdStartsWith, callback) {
+        connection.getPublicModerators = connection.getPublicUsers = function(userIdStartsWith, callback) {
             if (typeof userIdStartsWith === 'function') {
                 callback = userIdStartsWith;
             }

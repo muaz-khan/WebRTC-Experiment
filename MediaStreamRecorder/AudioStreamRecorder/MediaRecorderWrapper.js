@@ -89,7 +89,9 @@ function MediaRecorderWrapper(mediaStream) {
 
         // i.e. stop recording when <video> is paused by the user; and auto restart recording 
         // when video is resumed. E.g. yourStream.getVideoTracks()[0].muted = true; // it will auto-stop recording.
-        mediaRecorder.ignoreMutedMedia = self.ignoreMutedMedia || false;
+        if (self.ignoreMutedMedia === true) {
+            mediaRecorder.ignoreMutedMedia = true;
+        }
 
         var firedOnDataAvailableOnce = false;
 
@@ -97,7 +99,7 @@ function MediaRecorderWrapper(mediaStream) {
         mediaRecorder.ondataavailable = function(e) {
             // how to fix FF-corrupt-webm issues?
             // should we leave this?          e.data.size < 26800
-            if (!e.data || /*!e.data.size || e.data.size < 26800 || */ firedOnDataAvailableOnce) {
+            if (!e.data || !e.data.size || e.data.size < 26800 || firedOnDataAvailableOnce) {
                 return;
             }
 

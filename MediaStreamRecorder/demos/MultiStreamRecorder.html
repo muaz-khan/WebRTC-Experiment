@@ -1,3 +1,5 @@
+<script>window.demoVersion = '2017.08.31';</script>
+
 <!--
 > Muaz Khan     - https://github.com/muaz-khan
 > MIT License   - https://www.webrtc-experiment.com/licence/
@@ -12,7 +14,7 @@
 <head>
     <title>MultiStreamRecorder.js & MediaStreamRecorder</title>
 
-    <script src="https://cdn.WebRTC-Experiment.com/MediaStreamRecorder.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/MediaStreamRecorder.js"></script>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
@@ -37,7 +39,7 @@
                 MultiStreamRecorder.js & <a href="https://github.com/streamproc/MediaStreamRecorder">MediaStreamRecorder</a>
             </h1>
             <p>
-                <a href="https://www.webrtc-experiment.com/">HOME</a>
+                <a href="https://www.webrtc-experiment.com/msr/">HOME</a>
                 <span> &copy; </span>
                 <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a> .
                 <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a> .
@@ -49,9 +51,12 @@
 
         <div class="github-stargazers"></div>
 
-        <p>
+        <section style="text-align: center; margin-top: 15px; color: red; font-family: Courier New; font-weight: bold;" id="demoVersion"></section>
+        <script>document.getElementById('demoVersion').innerHTML = 'Last Updated On: <time>' + new Date(window.demoVersion).toDateString() + '</time>';</script>
+
+        <blockquote>
             Recording multiple videos in single WebM using <a href="https://github.com/streamproc/MediaStreamRecorder">MediaStreamRecorder</a>
-        </p>
+        </blockquote>
 
         <section class="experiment" style="padding: 5px;">
             <label for="time-interval">Time Interval (milliseconds):</label>
@@ -119,9 +124,9 @@
 
                 video = mergeProps(video, {
                     controls: true,
-                    muted: true,
-                    src: URL.createObjectURL(stream)
+                    muted: true
                 });
+                video.srcObject = stream;
 
                 video.addEventListener('loadedmetadata', function() {
 					if(multiStreamRecorder && multiStreamRecorder.stream) return;
@@ -227,33 +232,19 @@ function onMediaError(e) {
 </pre>
         </section>
 
-        <a href="https://www.webrtc-experiment.com/msr/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">MediaStreamRecorder Demos</a>
-
-        <section class="experiment own-widgets latest-commits">
-            <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/streamproc/MediaStreamRecorder/commits/master" target="_blank">Latest Updates</a>
-            </h2>
-            <div id="github-commits"></div>
-        </section>
-
-        <section class="experiment own-widgets">
+        <section class="experiment">
             <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/streamproc/MediaStreamRecorder/commits/master" target="_blank">Latest Issues</a>
             </h2>
             <div id="github-issues"></div>
         </section>
 
         <section class="experiment">
-            <h2 class="header" id="feedback">Feedback</h2>
-            <div>
-                <textarea id="message" style="height: 8em; margin: .2em; width: 98%; border: 1px solid rgb(189, 189, 189); outline: none; resize: vertical;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-            </div>
-            <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left:1em;">Enter your email too; if you want "direct" reply!</small>
-        </section>
-
-        <section class="experiment own-widgets latest-commits">
             <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/streamproc/MediaStreamRecorder/commits/master" target="_blank">Latest Updates</a>
             </h2>
             <div id="github-commits"></div>
         </section>
+
+        <section class="experiment"><small id="send-message"></small></section>
 
         <script>
             window.useThisGithubPath = 'streamproc/MediaStreamRecorder';

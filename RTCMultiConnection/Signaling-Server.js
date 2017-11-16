@@ -2,37 +2,47 @@
 // MIT License    - www.WebRTC-Experiment.com/licence
 // Documentation  - github.com/muaz-khan/RTCMultiConnection
 
+// to use this signaling-server.js file:
+// require('./Signaling-Server.js')(socketio_object); --- pass socket.io object
+// require('./Signaling-Server.js')(nodejs_app_object); --- pass node.js "app" object
+
+// stores all sockets, user-ids, extra-data and connected sockets
+// you can check presence as following:
+// var isRoomExist = listOfUsers['room-id'] != null;
+var listOfUsers = {};
+
+var shiftedModerationControls = {};
+
+// for scalable-broadcast demos
+var ScalableBroadcast;
+
 module.exports = exports = function(app, socketCallback) {
-    // stores all sockets, user-ids, extra-data and connected sockets
-    // you can check presence as following:
-    // var isRoomExist = listOfUsers['room-id'] != null;
-    var listOfUsers = {};
+    socketCallback = socketCallback || function() {};
 
-    var shiftedModerationControls = {};
+    if (!!app.listen) {
+        var io = require('socket.io');
 
-    // for scalable-broadcast demos
-    var ScalableBroadcast;
+        try {
+            // use latest socket.io
+            io = io(app);
+            io.on('connection', onConnection);
+        } catch (e) {
+            // otherwise fallback
+            io = io.listen(app, {
+                log: false,
+                origins: '*:*'
+            });
 
-    var io = require('socket.io');
+            io.set('transports', [
+                'websocket',
+                'xhr-polling',
+                'jsonp-polling'
+            ]);
 
-    try {
-        // use latest socket.io
-        io = io(app);
-        io.on('connection', onConnection);
-    } catch (e) {
-        // otherwise fallback
-        io = io.listen(app, {
-            log: false,
-            origins: '*:*'
-        });
-
-        io.set('transports', [
-            'websocket',
-            'xhr-polling',
-            'jsonp-polling'
-        ]);
-
-        io.sockets.on('connection', onConnection);
+            io.sockets.on('connection', onConnection);
+        }
+    } else {
+        onConnection(app);
     }
 
     // to secure your socket.io usage: (via: docs/tips-tricks.md)
