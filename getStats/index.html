@@ -1,4 +1,4 @@
-<!-- Demo version: 2017.08.26 -->
+<script>window.demoVersion = '2017.11.19';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -141,6 +141,11 @@
 
         <div class="github-stargazers"></div>
 
+        <section style="margin: 20px; text-align: center; color: red;">
+            <small id="demoVersion"></small>
+            <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getUTCFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
+        </section>
+
         <div style="text-align: center; margin-bottom: 20px;">
             <button id="btn-stop" disabled>Stop Camera & getStats</button>
             <select id="select-iceTransportPolicy">
@@ -152,8 +157,9 @@
                 <option value="tcp">TCP Only</option>
             </select>
             <select id="select-codec">
-                <option value="vp9">VP9</option>
                 <option value="vp8">VP8</option>
+                <option value="vp9">VP9</option>
+                <option value="h264">H264</option>
             </select>
         </div>
 
@@ -178,9 +184,9 @@
                 </tr>
 
                 <tr>
-                    <td>Available Bandwidth</td>
-                    <td><span id="peer1-availableSendBandwidth"></span></td>
-                    <td><span id="peer2-availableSendBandwidth"></span></td>
+                    <td>Bandwidth Speed</td>
+                    <td><span id="peer1-bandwidthSpeed"></span> per second</td>
+                    <td><span id="peer2-bandwidthSpeed"></span> per second</td>
                 </tr>
 
                 <tr>
@@ -346,7 +352,7 @@
                     };
 
                     offerer.createOffer(mediaConstraints).then(function (offer) {
-                        offer.sdp = preferVP9(offer.sdp);
+                        offer.sdp = preferSelectedCodec(offer.sdp);
                         offerer.setLocalDescription(offer).then(function() {
                             answererPeer(offer, video_stream);
                         }, function() {});
@@ -390,7 +396,7 @@
 
                     answerer.setRemoteDescription(offer);
                     answerer.createAnswer(mediaConstraints).then(function (answer) {
-                        answer.sdp = preferVP9(answer.sdp);
+                        answer.sdp = preferSelectedCodec(answer.sdp);
                         answerer.setLocalDescription(answer).then(function() {
                             offerer.setRemoteDescription(answer);
                         }, function() {});                        
@@ -474,7 +480,7 @@
                         document.getElementById('peer' + peer.id + '-codecsSend').innerHTML = result.audio.send.codecs.concat(result.video.send.codecs).join(', ');
                         document.getElementById('peer' + peer.id + '-codecsRecv').innerHTML = result.audio.recv.codecs.concat(result.video.recv.codecs).join(', ');
 
-                        document.getElementById('peer' + peer.id + '-availableSendBandwidth').innerHTML = bytesToSize(result.bandwidth.availableSendBandwidth);
+                        document.getElementById('peer' + peer.id + '-bandwidthSpeed').innerHTML = bytesToSize(result.bandwidth.speed);
 
                         if (result.ended === true) {
                             result.nomore();
@@ -486,23 +492,104 @@
                 function bytesToSize(bytes) {
                     var k = 1000;
                     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-                    if (bytes === 0) {
+                    if (bytes <= 0) {
                         return '0 Bytes';
                     }
                     var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+                    
+                    if(!sizes[i]) {
+                        return '0 Bytes';
+                    }
+
                     return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
                 }
 
-                function preferVP9(sdp) {
-                    if(codec.value === 'vp8') {
-                        return sdp; // ignore VP9
-                    }
+                function preferSelectedCodec(sdp) {
+                    var info = splitLines(sdp);
 
-                    if (sdp.indexOf('SAVPF 96 98') === -1 || sdp.indexOf('VP9/90000') === -1) {
+                    if(codec.value === 'vp8' && info.vp8LineNumber === info.videoCodecNumbers[0]) {
                         return sdp;
                     }
 
-                    return sdp.replace('SAVPF 96 98', 'SAVPF 98 96');
+                    if(codec.value === 'vp9' && info.vp9LineNumber === info.videoCodecNumbers[0]) {
+                        return sdp;
+                    }
+
+                    if(codec.value === 'h264' && info.h264LineNumber === info.videoCodecNumbers[0]) {
+                        return sdp;
+                    }
+
+                    sdp = preferCodec(sdp, codec.value, info);
+
+                    return sdp;
+                }
+
+                function preferCodec(sdp, codec, info) {
+                    var preferCodecNumber = '';
+
+                    if(codec === 'vp8') {
+                        if(!info.vp8LineNumber) {
+                            return sdp;
+                        }
+                        preferCodecNumber = info.vp8LineNumber;
+                    }
+                    
+                    if(codec === 'vp9') {
+                        if(!info.vp9LineNumber) {
+                            return sdp;
+                        }
+                        preferCodecNumber = info.vp9LineNumber;
+                    }
+                    
+                    if(codec === 'h264') {
+                        if(!info.h264LineNumber) {
+                            return sdp;
+                        }
+
+                        preferCodecNumber = info.h264LineNumber;
+                    }
+
+                    var newLine = info.videoCodecNumbersOriginal.split('SAVPF')[0] + 'SAVPF ';
+
+                    var newOrder = [preferCodecNumber];
+                    info.videoCodecNumbers.forEach(function(codecNumber) {
+                        if(codecNumber === preferCodecNumber) return;
+                        newOrder.push(codecNumber);
+                    });
+
+                    newLine += newOrder.join(' ');
+
+                    sdp = sdp.replace(info.videoCodecNumbersOriginal, newLine);
+                    return sdp;
+                }
+
+                function splitLines(sdp) {
+                    var info = {};
+                    sdp.split('\n').forEach(function(line) {
+                        if (line.indexOf('m=video') === 0) {
+                            info.videoCodecNumbers = [];
+                            line.split('SAVPF')[1].split(' ').forEach(function(codecNumber) {
+                                codecNumber = codecNumber.trim();
+                                if(!codecNumber || !codecNumber.length) return;
+                                info.videoCodecNumbers.push(codecNumber);
+                                info.videoCodecNumbersOriginal = line;
+                            });
+                        }
+
+                        if (line.indexOf('VP8/90000') !== -1 && !info.vp8LineNumber) {
+                            info.vp8LineNumber = line.replace('a=rtpmap:', '').split(' ')[0];
+                        }
+
+                        if (line.indexOf('VP9/90000') !== -1 && !info.vp9LineNumber) {
+                            info.vp9LineNumber = line.replace('a=rtpmap:', '').split(' ')[0];
+                        }
+
+                        if (line.indexOf('H264/90000') !== -1 && !info.h264LineNumber) {
+                            info.h264LineNumber = line.replace('a=rtpmap:', '').split(' ')[0];
+                        }
+                    });
+
+                    return info;
                 }
             </script>
 

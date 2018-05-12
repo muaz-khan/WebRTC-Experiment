@@ -154,7 +154,9 @@ function PeerInitiator(config) {
         if (typeof window.InstallTrigger !== 'undefined' && 'getSenders' in peer && typeof peer.getSenders === 'function') {
             var streamObject2 = new MediaStream();
             peer.getSenders().forEach(function(sender) {
-                streamObject2.addTrack(sender.track);
+                try {
+                    streamObject2.addTrack(sender.track);
+                } catch (e) {}
             });
             return streamObject2;
         }
@@ -211,7 +213,9 @@ function PeerInitiator(config) {
 
         if (localStream && typeof peer.addTrack === 'function') {
             localStream.getTracks().forEach(function(track) {
-                peer.addTrack(track, localStream);
+                try {
+                    peer.addTrack(track, localStream);
+                } catch (e) {}
             });
         } else if (localStream && typeof peer.addStream === 'function') {
             peer.addStream(localStream);
@@ -220,7 +224,9 @@ function PeerInitiator(config) {
                 peer.addStream(localStream);
             } catch (e) {
                 localStream && localStream.getTracks().forEach(function(track) {
-                    peer.addTrack(track, localStream);
+                    try {
+                        peer.addTrack(track, localStream);
+                    } catch (e) {}
                 });
             }
         }
@@ -282,7 +288,7 @@ function PeerInitiator(config) {
             event.stream = event.streams[event.streams.length - 1];
         }
 
-        if (dontDuplicate[event.stream.id]) return;
+        if (dontDuplicate[event.stream.id] && DetectRTC.browser.name !== 'Safari') return;
         dontDuplicate[event.stream.id] = event.stream.id;
 
         var streamsToShare = {};
@@ -336,7 +342,9 @@ function PeerInitiator(config) {
     function oldAddRemoteSdp(remoteSdp, cb) {
         cb = cb || function() {};
 
-        remoteSdp.sdp = connection.processSdp(remoteSdp.sdp);
+        if (DetectRTC.browser.name !== 'Safari') {
+            remoteSdp.sdp = connection.processSdp(remoteSdp.sdp);
+        }
         peer.setRemoteDescription(new RTCSessionDescription(remoteSdp), cb, function(error) {
             if (!!connection.enableLogs) {
                 console.error('setRemoteDescription failed', '\n', error, '\n', remoteSdp.sdp);
@@ -353,7 +361,9 @@ function PeerInitiator(config) {
             return oldAddRemoteSdp(remoteSdp, cb);
         }
 
-        remoteSdp.sdp = connection.processSdp(remoteSdp.sdp);
+        if (DetectRTC.browser.name !== 'Safari') {
+            remoteSdp.sdp = connection.processSdp(remoteSdp.sdp);
+        }
         peer.setRemoteDescription(new RTCSessionDescription(remoteSdp)).then(cb, function(error) {
             if (!!connection.enableLogs) {
                 console.error('setRemoteDescription failed', '\n', error, '\n', remoteSdp.sdp);
@@ -447,7 +457,9 @@ function PeerInitiator(config) {
 
     function oldCreateOfferOrAnswer(_method) {
         peer[_method](function(localSdp) {
-            localSdp.sdp = connection.processSdp(localSdp.sdp);
+            if (DetectRTC.browser.name !== 'Safari') {
+                localSdp.sdp = connection.processSdp(localSdp.sdp);
+            }
             peer.setLocalDescription(localSdp, function() {
                 if (!connection.trickleIce) return;
 
@@ -481,7 +493,9 @@ function PeerInitiator(config) {
         }
 
         peer[_method](defaults.sdpConstraints).then(function(localSdp) {
-            localSdp.sdp = connection.processSdp(localSdp.sdp);
+            if (DetectRTC.browser.name !== 'Safari') {
+                localSdp.sdp = connection.processSdp(localSdp.sdp);
+            }
             peer.setLocalDescription(localSdp).then(function() {
                 if (!connection.trickleIce) return;
 

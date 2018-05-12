@@ -1,4 +1,8 @@
 function SignalRConnection(connection, connectCallback) {
+    function isData(session) {
+        return !session.audio && !session.video && !session.screen && session.data;
+    }
+
     var channelName = connection.channel || 'rmc3';
 
     connection.socket = {

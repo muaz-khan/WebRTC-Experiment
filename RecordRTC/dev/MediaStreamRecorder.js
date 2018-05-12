@@ -16,8 +16,7 @@
  *     bitsPerSecond: 256 * 8 * 1024,  // if this is provided, skip above two
  *     checkForInactiveTracks: true,
  *     timeSlice: 1000, // concatenate intervals based blobs
- *     ondataavailable: function() {}, // get intervals based blobs
- *     ignoreMutedMedia: true
+ *     ondataavailable: function() {} // get intervals based blobs
  * }
  * var recorder = new MediaStreamRecorder(mediaStream, config);
  * recorder.record();
@@ -144,9 +143,6 @@ function MediaStreamRecorder(mediaStream, config) {
                 console.warn('MediaRecorder API seems unable to record mimeType:', recorderHints.mimeType);
             }
         }
-
-        // ignore muted/disabled/inactive tracks
-        mediaRecorder.ignoreMutedMedia = config.ignoreMutedMedia === true;
 
         // Dispatching OnDataAvailable Handler
         mediaRecorder.ondataavailable = function(e) {

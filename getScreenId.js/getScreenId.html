@@ -23,6 +23,10 @@ DetectRTC.screen = {
         screenCallback = callback;
         window.postMessage('get-sourceId', '*');
     },
+    getSourceIdWithAudio: function(callback) {
+        screenCallback = callback;
+        window.postMessage('audio-plus-tab', '*');
+    },
     onMessageCallback: function(data) {
         // "cancel" button is clicked
         if (data == 'PermissionDeniedError') {
@@ -39,7 +43,10 @@ DetectRTC.screen = {
         // extension shared temp sourceId
         if (data.sourceId) {
             DetectRTC.screen.sourceId = data.sourceId;
-            if (screenCallback) screenCallback(DetectRTC.screen.sourceId);
+            
+            if (screenCallback) {
+                screenCallback(DetectRTC.screen.sourceId, data.canRequestAudioTrack === true);
+            }
         }
     },
     getChromeExtensionStatus: function(callback) {
@@ -74,7 +81,7 @@ DetectRTC.screen = {
 };
 
 window.addEventListener('message', function(event) {
-    if (!event.data || !(typeof event.data == 'string' || event.data.sourceId || event.data.captureSourceId || event.data.getChromeExtensionStatus)) return;
+    if (!event.data || !(typeof event.data == 'string' || event.data.sourceId || event.data.captureSourceId || event.data.getChromeExtensionStatus || event.data.captureSourceIdWithAudio)) return;
 
     if (event.data.getChromeExtensionStatus) {
         DetectRTC.screen.getChromeExtensionStatus(function(status) {
@@ -85,12 +92,18 @@ window.addEventListener('message', function(event) {
         return;
     }
 
-    if (event.data.captureSourceId) captureSourceId();
+    if (event.data.captureSourceId) {
+        captureSourceId();
+    }
+
+    if (event.data.captureSourceIdWithAudio) {
+        captureSourceId('system_audio');
+    }
 
     DetectRTC.screen.onMessageCallback(event.data);
 });
 
-function captureSourceId() {
+function captureSourceId(system_audio) {
     // check if desktop-capture extension installed.
     DetectRTC.screen.getChromeExtensionStatus(function(status) {
         if (status != 'installed-enabled') {
@@ -100,11 +113,21 @@ function captureSourceId() {
             return;
         }
 
-        DetectRTC.screen.getSourceId(function(sourceId) {
-            window.parent.postMessage({
-                chromeMediaSourceId: sourceId
-            }, '*');
-        });
+        if(!system_audio) {
+            DetectRTC.screen.getSourceId(function(sourceId) {
+                window.parent.postMessage({
+                    chromeMediaSourceId: sourceId
+                }, '*');
+            });
+        }
+        else {
+            DetectRTC.screen.getSourceIdWithAudio(function(sourceId, canRequestAudioTrack) {
+                window.parent.postMessage({
+                    chromeMediaSourceId: sourceId,
+                    canRequestAudioTrack: !!canRequestAudioTrack
+                }, '*');
+            });
+        }
     });
 }
 </script>

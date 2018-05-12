@@ -2,7 +2,23 @@
 // MIT License       - www.WebRTC-Experiment.com/licence
 // Experiments       - github.com/muaz-khan/RTCMultiConnection
 
+window.enableAdapter = true; // enable adapter.js
+
 var rtcMultiConnection = new RTCMultiConnection();
+
+// Using getScreenId.js to capture screen from any domain
+// You do NOT need to deploy Chrome Extension YOUR-Self!!
+rtcMultiConnection.getScreenConstraints = function(callback) {
+    getScreenConstraints(function(error, screen_constraints) {
+        if (!error) {
+            screen_constraints = rtcMultiConnection.modifyScreenConstraints(screen_constraints);
+            callback(error, screen_constraints);
+            return;
+        }
+        alert(error);
+        throw error;
+    });
+};
 
 rtcMultiConnection.enableFileSharing = true;
 

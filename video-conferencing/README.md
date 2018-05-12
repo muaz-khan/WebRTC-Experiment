@@ -28,7 +28,7 @@
 <script>
 var config = {
     openSocket: function (config) {
-        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/',
+        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/',
             defaultChannel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
         var channel = config.channel || defaultChannel;

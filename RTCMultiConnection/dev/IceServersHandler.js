@@ -7,14 +7,22 @@ var IceServersHandler = (function() {
                 'urls': [
                     'turn:webrtcweb.com:7788', // coTURN 7788+8877
                     'turn:webrtcweb.com:4455', // restund udp
-                    'turn:webrtcweb.com:5544' // restund tcp
+
+                    'turn:webrtcweb.com:7788?transport=udp', // coTURN udp
+                    'turn:webrtcweb.com:7788?transport=tcp', // coTURN tcp
+
+                    'turn:webrtcweb.com:4455?transport=udp', // restund udp
+                    'turn:webrtcweb.com:5544?transport=tcp', // restund tcp
+
+                    'turn:webrtcweb.com:7575?transport=udp', // pions/turn
                 ],
                 'username': 'muazkh',
                 'credential': 'muazkh'
             },
             {
                 'urls': [
-                    'stun:stun.l.google.com:19302'
+                    'stun:stun.l.google.com:19302',
+                    'stun:stun.l.google.com:19302?transport=udp'
                 ]
             }
         ];

@@ -87,7 +87,7 @@ function checkDeviceSupport(callback) {
                 } catch (e) {}
             }
 
-            if (alreadyUsedDevices[device.deviceId + device.label]) {
+            if (alreadyUsedDevices[device.deviceId + device.label + device.kind]) {
                 return;
             }
 
@@ -109,13 +109,25 @@ function checkDeviceSupport(callback) {
             }
 
             if (!device.label) {
-                device.label = 'Please invoke getUserMedia once.';
+                device.isCustomLabel = true;
+
+                if (device.kind === 'videoinput') {
+                    device.label = 'Camera ' + (videoInputDevices.length + 1);
+                } else if (device.kind === 'audioinput') {
+                    device.label = 'Microphone ' + (audioInputDevices.length + 1);
+                } else if (device.kind === 'audiooutput') {
+                    device.label = 'Speaker ' + (audioOutputDevices.length + 1);
+                } else {
+                    device.label = 'Please invoke getUserMedia once.';
+                }
+
                 if (typeof DetectRTC !== 'undefined' && DetectRTC.browser.isChrome && DetectRTC.browser.version >= 46 && !/^(https:|chrome-extension:)$/g.test(location.protocol || '')) {
                     if (typeof document !== 'undefined' && typeof document.domain === 'string' && document.domain.search && document.domain.search(/localhost|127.0./g) === -1) {
                         device.label = 'HTTPs is required to get label of this ' + device.kind + ' device.';
                     }
                 }
             } else {
+                // Firefox on Android still returns empty label
                 if (device.kind === 'videoinput' && !isWebsiteHasWebcamPermissions) {
                     isWebsiteHasWebcamPermissions = true;
                 }
@@ -152,7 +164,7 @@ function checkDeviceSupport(callback) {
             // there is no 'videoouput' in the spec.
             MediaDevices.push(device);
 
-            alreadyUsedDevices[device.deviceId + device.label] = device;
+            alreadyUsedDevices[device.deviceId + device.label + device.kind] = device;
         });
 
         if (typeof DetectRTC !== 'undefined') {

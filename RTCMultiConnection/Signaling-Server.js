@@ -92,13 +92,14 @@ module.exports = exports = function(app, socketCallback) {
             ScalableBroadcast(socket, params.maxRelayLimitPerUser);
         }
 
-        // temporarily disabled
+        // [disabled]
         if (false && !!listOfUsers[params.userid]) {
             params.dontUpdateUserId = true;
 
             var useridAlreadyTaken = params.userid;
             params.userid = (Math.random() * 1000).toString().replace('.', '');
             socket.emit('userid-already-taken', useridAlreadyTaken, params.userid);
+            return;
         }
 
         socket.userid = params.userid;
@@ -426,6 +427,7 @@ module.exports = exports = function(app, socketCallback) {
                             return;
                         }
 
+                        // if user just come online
                         if (listOfUsers[message.remoteUserId] && listOfUsers[message.remoteUserId].socket) {
                             joinARoom(message);
                             return;

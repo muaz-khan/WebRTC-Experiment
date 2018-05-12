@@ -1,4 +1,4 @@
-<!-- Demo version: 2017.08.12 -->
+<!-- Demo version: 2017.11.19 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -47,6 +47,11 @@
   </h1>
 
   <section class="make-center">
+    <select id="select-codec">
+      <option value="vp8">VP8</option>
+      <option value="vp9">VP9</option>
+      <option value="h264">H264</option>
+    </select>
     <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
     <button id="open-room">Open Room</button>
     <button id="join-room">Join Room</button>
@@ -66,11 +71,22 @@
 
 <script src="/dev/getStats.js"></script>
 <script>
+var codec = document.getElementById('select-codec');
+if(localStorage.getItem('codec')) {
+  codec.value = localStorage.getItem('codec');
+}
+codec.onchange = function() {
+  localStorage.setItem('codec', this.value);
+  if(!connection.attachStreams.length) return;
+  location.reload();
+};
+
 // ......................................................
 // .......................UI Code........................
 // ......................................................
 document.getElementById('open-room').onclick = function() {
     disableInputButtons();
+    connection.codecs.video = codec.value;
     connection.open(document.getElementById('room-id').value, function() {
         showRoomURL(connection.sessionid);
     });
@@ -78,11 +94,13 @@ document.getElementById('open-room').onclick = function() {
 
 document.getElementById('join-room').onclick = function() {
     disableInputButtons();
+    connection.codecs.video = codec.value;
     connection.join(document.getElementById('room-id').value);
 };
 
 document.getElementById('open-or-join-room').onclick = function() {
     disableInputButtons();
+    connection.codecs.video = codec.value;
     connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExist, roomid) {
         if (!isRoomExist) {
             showRoomURL(roomid);
@@ -210,6 +228,7 @@ if (roomid && roomid.length) {
     (function reCheckRoomPresence() {
         connection.checkPresence(roomid, function(isRoomExist) {
             if (isRoomExist) {
+                connection.codecs.video = codec.value;
                 connection.join(roomid);
                 return;
             }
@@ -253,7 +272,7 @@ function onGettingWebRTCStats(stats, remoteUserId) {
   }
 
   var statsData = 'UserID: ' + remoteUserId + '\n';
-  statsData += 'Available Send Bandwidth: ' + bytesToSize(stats.bandwidth.availableSendBandwidth);
+  statsData += 'Bandwidth: ' + bytesToSize(stats.bandwidth.speed);
   statsData += '\n';
   statsData += 'Encryption: ' + stats.encryption;
   statsData += '\n';

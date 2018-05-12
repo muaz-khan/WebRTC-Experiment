@@ -46,7 +46,7 @@ try {
         port = parseInt(config.port);
     }
 
-    if ((config.autoRebootServerOnFailure || '').toString() !== true) {
+    if ((config.autoRebootServerOnFailure || '').toString() === 'true') {
         autoRebootServerOnFailure = true;
     }
 } catch (e) {}
@@ -70,9 +70,11 @@ function serverHandler(request, response) {
             return;
         }
 
-        if (filename && filename.indexOf('Video-Broadcasting.html') !== -1) {
-            filename = filename.replace('Video-Broadcasting.html', 'video-broadcasting.html');
-        }
+        ['Video-Broadcasting', 'Screen-Sharing', 'Switch-Cameras'].forEach(function(fname) {
+            if (filename && filename.indexOf(fname + '.html') !== -1) {
+                filename = filename.replace(fname + '.html', fname.toLowerCase() + '.html');
+            }
+        });
 
         var stats;
 
@@ -264,7 +266,7 @@ function runServer() {
         console.log('socket.io is listening at:');
         console.log('\x1b[31m%s\x1b[0m ', '\t' + domainURL);
 
-        if(!isUseHTTPs) {
+        if (!isUseHTTPs) {
             console.log('use --ssl to enable HTTPs:');
             console.log('\x1b[31m%s\x1b[0m ', '\t' + 'node server.js --ssl');
         }

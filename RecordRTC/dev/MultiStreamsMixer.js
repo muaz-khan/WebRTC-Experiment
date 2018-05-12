@@ -1,7 +1,7 @@
-// Last time updated: 2017-09-26 7:19:00 AM UTC
+// Last time updated: 2018-03-02 2:56:28 AM UTC
 
 // ________________________
-// MultiStreamsMixer v1.0.3
+// MultiStreamsMixer v1.0.5
 
 // Open-Sourced: https://github.com/muaz-khan/MultiStreamsMixer
 
@@ -417,6 +417,10 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
         if (self.audioDestination) {
             self.audioDestination.disconnect();
             self.audioDestination = null;
+        }
+
+        if (self.audioContext) {
+            self.audioContext.close();
         }
 
         self.audioContext = null;

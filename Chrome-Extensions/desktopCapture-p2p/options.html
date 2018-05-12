@@ -1,6 +1,6 @@
 ﻿<style>
-body: { 
-    padding: 10px;
+body { 
+    min-width: 450px;
 }
 
 h2 {
@@ -49,23 +49,25 @@ select[disabled] {
     <option value="360p">SD (360p)</option>
 </select>
 <hr>
-<h2>Password Protected Room?</h2>
-<label for="room_password">Set Password</label>
+<h2>Select Codecs:</h2>
+<select id="codecs" size="4">
+    <option value="default" selected>Default</option>
+    <option value="vp8">VP8</option>
+    <option value="vp9">VP9</option>
+    <option value="h264">H264</option>
+</select>
+<hr>
+<label for="bandwidth">Set Bandwidth (e.g. 8192)</label>
+<input type="text" id="bandwidth" value="">
+<hr>
+<label for="room_password">Set Room Password</label>
 <input type="password" id="room_password" value="">
 <br>
-<small>Keep empty for NO password.</small>
+<small>Keep empty for No password.</small>
 <hr>
-<h2>Set Your Own Room ID:</h2>
-<label for="room_id">Set Room ID</label>
+<label for="room_id">Set ReUsable Room ID</label>
 <input type="text" id="room_id" value="">
 <br>
-<small>
-    It will use your room-id instead of generating random string.
-    <br>
-    E.g. You can always share this with screen viewers:
-    <br>
-    https://webrtcweb.com/screen?s=your_room_id<br>or<br>
-    https://www.webrtc-experiment.com/!/?s=your_room_id
-</small>
+<small>Set Your Own Room-ID. Keep empty for random room-id.</small>
 
 <script src="options.js"></script>

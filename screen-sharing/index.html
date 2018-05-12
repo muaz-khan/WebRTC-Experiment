@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 > Muaz Khan     - https://github.com/muaz-khan
 > MIT License   - https://www.webrtc-experiment.com/licence/
 > Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing
@@ -81,9 +81,13 @@
         <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk">
 
         <!-- scripts used for screen-sharing -->
-        <script src='https://cdn.webrtc-experiment.com/socket.io.js'> </script>
+        <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
         <script src="https://cdn.webrtc-experiment.com/getScreenId.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
         <script src="https://cdn.webrtc-experiment.com/BandwidthHandler.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/RecordRTC/Cross-Browser-Declarations.js"></script>
         <script src="https://cdn.webrtc-experiment.com/screen.js"> </script>
     </head>
 
@@ -118,7 +122,7 @@
 
             <!-- just copy this <section> and next script -->
             <section class="experiment">
-                <section>
+                <section class="hide-after-join">
                     <span>
                         Private ?? <a href="/screen-sharing/" target="_blank" title="Open this link for private screen sharing!"><code><strong id="unique-token">#123456789</strong></code></a>
                     </span>
@@ -127,7 +131,7 @@
                 </section>
 
                 <!-- list of all available broadcasting rooms -->
-                <table style="width: 100%;" id="rooms-list"></table>
+                <table style="width: 100%;" id="rooms-list" class="hide-after-join"></table>
 
                 <!-- local/remote videos container -->
                 <div id="videos-container"></div>
@@ -146,7 +150,8 @@
                 var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
                 var sender = Math.round(Math.random() * 999999999) + 999999999;
 
-                var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+                // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
+                var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
                 io.connect(SIGNALING_SERVER).emit('new-channel', {
                     channel: channel,
                     sender: sender
@@ -178,7 +183,7 @@
 
                     tr.id = _screen.userid;
                     tr.innerHTML = '<td>' + _screen.userid + ' shared his screen.</td>' +
-                            '<td><button class="join">Preview His Screen</button></td>';
+                            '<td><button class="join">View</button></td>';
                     roomsList.insertBefore(tr, roomsList.firstChild);
 
                     var button = tr.querySelector('.join');
@@ -201,10 +206,19 @@
                     media.video.id = media.userid;
 
                     var video = media.video;
-                    video.setAttribute('controls', true);
                     videosContainer.insertBefore(video, videosContainer.firstChild);
-                    video.play();
                     rotateVideo(video);
+
+                    var hideAfterJoin = document.querySelectorAll('.hide-after-join');
+                    for(var i = 0; i < hideAfterJoin.length; i++) {
+                        hideAfterJoin[i].style.display = 'none';
+                    }
+
+                    if(media.type === 'local') {
+                        addStreamStopListener(media.stream, function() {
+                            location.reload();
+                        });
+                    }
                 };
 
                 // using firebase for signaling
@@ -214,15 +228,12 @@
                 screensharing.onuserleft = function(userid) {
                     var video = document.getElementById(userid);
                     if (video && video.parentNode) video.parentNode.removeChild(video);
+
+                    // location.reload();
                 };
 
                 // check pre-shared screens
                 screensharing.check();
-
-                document.getElementById('share-screen').onclick = function() {
-                    screensharing.share();
-                    this.disabled = true;
-                };
 
                 document.getElementById('share-screen').onclick = function() {
                     var username = document.getElementById('user-name');
@@ -244,7 +255,7 @@
                 (function() {
                     var uniqueToken = document.getElementById('unique-token');
                     if (uniqueToken)
-                        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
+                        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center; display: block"><a href="' + location.href + '" target="_blank">Right click to copy & share this private link</a></h2>';
                         else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
                 })();
 
@@ -382,6 +393,14 @@
                     <li>
                         Firefox? Please use version 52 or higher. Also use HTTPs.
                     </li>
+
+                    <li>
+                        Edge? Please use version 17 or higher. Also use HTTPs.
+                    </li>
+
+                    <li>
+                        Safari? Please use version 11 (on Mac or iphone/ipad). However Safari can merely view screens. Safari can not share its own screen.
+                    </li>
                 </ol>
             </section>
 
@@ -422,20 +441,21 @@ mandatory: {chromeMediaSource: 'screen'}
 // or desktop-Capturing
 mandatory: {chromeMediaSource: 'desktop'}
 
-// for Firefox
+// for Firefox (https-only)
 video: {
     mediaSource: 'window' || 'screen'
 }
+
+// for Edge &gt;= 17 (https-only)
+navigator.getDisplayMedia({
+    video: true
+}).then(successCallback, errorCallback);
 </pre>
                     </li>
                     <li>On chrome, you requested audio-stream alongwith '<strong>chromeMediaSource</strong>' – it is not permitted on chrome. Remember, Firefox is supporting audio+screen from single getUserMedia request.</li>
                     <li>On chrome, you're not testing it on SSL origin (HTTPS domain) otherwise you didn't enable <code><a href="http://peter.sh/experiments/chromium-command-line-switches/#allow-http-screen-capture" target="_blank">--allow-http-screen-capture</a></code> command-line flag on canary. Firefox is supporting screen capturing from both HTTP and HTTPs domains.</li>
                     <li>You may used media constraints like min/max frameRate; bandwidth or min/max width/height like 2000*2000 that is "currently" not allowed.</li>
                 </ol>
-
-                <p>
-                    <strong><code>mandatory: {chromeMediaSource: 'tab'}</code></strong> is useful only in chrome extensions. See <a href="https://www.webrtc-experiment.com/screen-broadcast/">Tab sharing using tabCapture APIs</a>.
-                </p>
             </section>
 
             <section class="experiment">

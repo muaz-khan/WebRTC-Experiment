@@ -1,0 +1,68 @@
+<style>
+    html, body {
+        margin: 0!important;
+        padding: 0!important;
+        overflow: hidden!important;
+        width: 100%;
+    }
+
+    video {
+        width: auto;
+        max-width: 100%;
+    }
+</style>
+
+<title>HTML Element Recording | RecordRTC</title>
+<h1>HTML Element Recording using RecordRTC</h1>
+
+<br>
+
+<button id="btn-start-recording">Start Recording</button>
+<button id="btn-stop-recording" disabled>Stop Recording</button>
+
+<hr>
+<div style="display: none;">
+    <video controls autoplay playsinline id="preview-video"></video>
+</div>
+<div id="element-to-record" style="border: 5px solid gray; border-radius: 5px; padding: 20px; margin: 20px;">
+    <input value="type something"><br><br>
+    <span id="timer"></span><br><br>
+
+    <video controls autoplay src="https://www.quirksmode.org/html5/videos/big_buck_bunny.webm"></video>
+</div>
+
+<script src="/RecordRTC.js"></script>
+<script src="/libs/screenshot-dev.js"></script>
+<script>
+var elementToRecord = document.getElementById('element-to-record');
+var recorder = RecordRTC(elementToRecord, {
+    type: 'canvas',
+    showMousePointer: true,
+    useWhammyRecorder: true,
+    frameInterval: 1
+});
+
+document.getElementById('btn-start-recording').onclick = function() {
+    this.disabled = true;
+    recorder.startRecording();
+    document.getElementById('btn-stop-recording').disabled = false;
+};
+
+document.getElementById('btn-stop-recording').onclick = function() {
+    this.disabled = true;
+    
+    recorder.stopRecording(function() {
+        var blob = recorder.getBlob();
+        document.getElementById('preview-video').src = URL.createObjectURL(blob);
+        document.getElementById('preview-video').parentNode.style.display = 'block';
+        elementToRecord.style.display = 'none';
+
+        // window.open(URL.createObjectURL(blob));
+    });
+};
+
+var timer = document.getElementById('timer');
+var interval = setInterval(function() {
+    timer.innerHTML = new Date();
+}, 1000);
+</script>

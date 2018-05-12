@@ -1,9 +1,9 @@
 'use strict';
 
-// Last time updated: 2017-08-26 5:42:35 AM UTC
+// Last time updated: 2017-11-19 4:49:44 AM UTC
 
 // _______________
-// getStats v1.0.4
+// getStats v1.0.6
 
 // Open-Sourced: https://github.com/muaz-khan/getStats
 
@@ -59,7 +59,12 @@ window.getStats = function(mediaStreamTrack, callback, interval) {
         bandwidth: {
             systemBandwidth: 0,
             sentPerSecond: 0,
-            encodedPerSecond: 0
+            encodedPerSecond: 0,
+            helper: {
+                audioBytesSent: 0,
+                videoBytestSent: 0
+            },
+            speed: 0
         },
         results: {},
         connectionType: {
@@ -164,6 +169,12 @@ window.getStats = function(mediaStreamTrack, callback, interval) {
 
             // allow users to access native results
             getStatsResult.results = results;
+
+            if (getStatsResult.audio && getStatsResult.video) {
+                getStatsResult.bandwidth.speed = (getStatsResult.audio.bytesSent - getStatsResult.bandwidth.helper.audioBytesSent) + (getStatsResult.video.bytesSent - getStatsResult.bandwidth.helper.videoBytesSent);
+                getStatsResult.bandwidth.helper.audioBytesSent = getStatsResult.audio.bytesSent;
+                getStatsResult.bandwidth.helper.videoBytesSent = getStatsResult.video.bytesSent;
+            }
 
             callback(getStatsResult);
 

@@ -1,4 +1,4 @@
-﻿// Last time updated at August 22, 2014, 08:32:23
+﻿// Last time updated on: April 30, 2018
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -90,7 +90,18 @@ var conference = function(config) {
                 });
             },
             onRemoteStream: function(stream) {
-                htmlElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
+                if('srcObject' in htmlElement) {
+                    htmlElement.srcObject = stream;
+                }
+
+                else if('mozSrcObject' in htmlElement) {
+                    htmlElement.mozSrcObject = stream;
+                }
+
+                else {
+                    htmlElement.src = (window.URL || window.webkitURL).createObjectURL(stream);
+                }
+
                 htmlElement.play();
 
                 _config.stream = stream;
@@ -490,25 +501,50 @@ var video_constraints = {
 };
 
 function getUserMedia(options) {
+    function streaming(stream) {
+        var video = options.video;
+        if (video) {
+            if('srcObject' in video) {
+                video.srcObject = stream;
+            }
+
+            else if('mozSrcObject' in video) {
+                video.mozSrcObject = stream;
+            }
+
+            else {
+                video.src = (window.URL || window.webkitURL).createObjectURL(stream);
+            }
+
+            video.play();
+        }
+
+        if(typeof options.onsuccess === 'function') {
+            options.onsuccess(stream);
+        }
+
+        media = stream;
+    }
+
+    if(false && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia(options.constraints || {
+            audio: false,
+            video: video_constraints
+        }).then(streaming).catch(options.onerror || function(e) {
+            console.error(e);
+        });
+        return;
+    }
+
     var n = navigator,
         media;
-    n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
+    n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia || n.getUserMedia;
     n.getMedia(options.constraints || {
         audio: true,
         video: video_constraints
     }, streaming, options.onerror || function(e) {
         console.error(e);
     });
-
-    function streaming(stream) {
-        var video = options.video;
-        if (video) {
-            video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
-            video.play();
-        }
-        options.onsuccess && options.onsuccess(stream);
-        media = stream;
-    }
 
     return media;
 }

@@ -283,7 +283,7 @@
 
             // --------------------------------------------------------
             var channel = location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
-            var websocket = new WebSocket('wss://www.webrtcweb.com:9449');
+            var websocket = new WebSocket('wss://websocket-over-nodejs.herokuapp.com:443/');
             websocket.onopen = function() {
                 console.log('websocket connection opened!');
                 websocket.push(JSON.stringify({

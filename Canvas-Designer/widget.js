@@ -1,4 +1,4 @@
-// Last time updated: 2017-04-29 1:56:26 PM UTC
+// Last time updated: 2017-11-22 11:30:34 AM UTC
 
 // _______________
 // Canvas-Designer
@@ -3297,10 +3297,18 @@
     }
 
     addEvent(canvas, isTouch ? 'touchend touchcancel mouseup' : 'mouseup', function(e) {
-        if (isTouch) e = e.pageX ? e : e.touches.length ? e.touches[0] : {
-            pageX: 0,
-            pageY: 0
-        };
+        if (isTouch && (!e || !('pageX' in e))) {
+            if (e && e.touches && e.touches.length) {
+                e = e.touches[0];
+            } else if (e && e.changedTouches && e.changedTouches.length) {
+                e = e.changedTouches[0];
+            } else {
+                e = {
+                    pageX: 0,
+                    pageY: 0
+                }
+            }
+        }
 
         var cache = is;
 

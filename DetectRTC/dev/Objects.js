@@ -8,7 +8,7 @@ if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefine
     MediaStream = webkitMediaStream;
 }
 
-if (typeof MediaStream !== 'undefined') {
+if (typeof MediaStream !== 'undefined' && typeof MediaStream === 'function') {
     DetectRTC.MediaStream = Object.keys(MediaStream.prototype);
 } else DetectRTC.MediaStream = false;
 

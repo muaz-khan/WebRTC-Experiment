@@ -4,7 +4,7 @@ var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOr
 
 var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 var isFirefox = typeof window.InstallTrigger !== 'undefined';
-var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 var isChrome = !!window.chrome && !isOpera;
 var isIE = typeof document !== 'undefined' && !!document.documentMode && !isEdge;
 
@@ -51,11 +51,16 @@ function getBrowserInfo() {
     // In Safari, the true version is after 'Safari' or after 'Version' 
     else if (isSafari) {
         verOffset = nAgt.indexOf('Safari');
+
         browserName = 'Safari';
         fullVersion = nAgt.substring(verOffset + 7);
 
         if ((verOffset = nAgt.indexOf('Version')) !== -1) {
             fullVersion = nAgt.substring(verOffset + 8);
+        }
+
+        if (navigator.userAgent.indexOf('Version/') !== -1) {
+            fullVersion = navigator.userAgent.split('Version/')[1].split(' ')[0];
         }
     }
     // In Firefox, the true version is after 'Firefox' 

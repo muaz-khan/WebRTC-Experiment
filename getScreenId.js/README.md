@@ -35,9 +35,9 @@ Nope open: `https://localhost:9001/`
 
 ```html
 <script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
-<!-- or -->
-<script src="https://cdn.rawgit.com/muaz-khan/getScreenId/master/getScreenId.js"></script>
+<video controls autoplay playsinline></video>
 ```
 
 # `getScreenId`
@@ -49,22 +49,30 @@ getScreenId(function (error, sourceId, screen_constraints) {
     // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
     // sourceId == null || 'string' || 'firefox'
 
+    if(navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob)) {
+        navigator.getDisplayMedia(screen_constraints).then(stream => {
+            document.querySelector('video').srcObject = stream;
+        }, error => {
+            alert('Please make sure to use Edge 17 or higher.');
+        });
+        return;
+    }
+
     if(error == 'not-installed') {
       alert('Please install Chrome extension.');
       return;
     }
 
-    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    navigator.getUserMedia(screen_constraints, function (stream) {
-        document.querySelector('video').src = URL.createObjectURL(stream);
+    navigator.mediaDevices.getUserMedia(screen_constraints).then(function (stream) {
+        document.querySelector('video').srcObject = stream;
 
         // share this "MediaStream" object using RTCPeerConnection API
-    }, function (error) {
+    }).catch(function (error) {
       console.error('getScreenId error', error);
 
       alert('Failed to capture your screen. Please check Chrome console logs for further information.');
     });
-});
+}, 'pass second argument only if you want to capture speakers as well');
 ```
 
 Or...
@@ -105,7 +113,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
       alert('Failed to capture your screen. Please check Chrome console logs for further information.');
     });
-});
+}, 'pass second argument only if you want to capture speakers as well');
 ```
 
 # `getChromeExtensionStatus`
@@ -127,6 +135,18 @@ getChromeExtensionStatus(function(status) {
 * That `<iframe>` is loaded from domain: `https://www.webrtc-experiment.com/`
 * That `<iframe>` can connect with chrome-extension. It can send/receive `postMessage` data.
 * Same `postMessage` API are used to pass `screen-id` back to your script.
+
+# System Audio i.e. Speakers?
+
+Pass second argument to `getScrenId` method:
+
+```javascript
+// second argument can be any non-Zero or non-False character
+// e.g. a boolean, a string, or a number greater than or equal to 1
+getScreenId(successCallback, true);
+getScreenId(successCallback, 1);
+getScreenId(successCallback, 'enable speakers');
+```
 
 # Firefox
 

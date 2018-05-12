@@ -13,14 +13,14 @@ chrome.runtime.onConnect.addListener(function (port) {
         }
 
         if(message == 'audio-plus-tab') {
-            screenOptions = ['screen', 'window', 'audio'];
+            screenOptions = ['screen', 'window', 'audio', 'tab'];
             chrome.desktopCapture.chooseDesktopMedia(screenOptions, port.sender.tab, onAccessApproved);
         }
     }
 
     // on getting sourceId
     // "sourceId" will be empty if permission is denied.
-    function onAccessApproved(sourceId) {
+    function onAccessApproved(sourceId, opts) {
         // if "cancel" button is clicked
         if(!sourceId || !sourceId.length) {
             return port.postMessage('PermissionDeniedError');
@@ -29,7 +29,8 @@ chrome.runtime.onConnect.addListener(function (port) {
         // "ok" button is clicked; share "sourceId" with the
         // content-script which will forward it to the webpage
         port.postMessage({
-            sourceId: sourceId
+            sourceId: sourceId,
+            canRequestAudioTrack: !!opts.canRequestAudioTrack
         });
     }
 });

@@ -1,4 +1,4 @@
-// Last time updated at August 29, 2017, 08:32:23
+// Last time updated on: 5th May 2018
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/Screen-Capturing.js
 
@@ -164,7 +164,7 @@ function getChromeExtensionStatus(extensionid, callback) {
         window.postMessage('are-you-there', '*');
         setTimeout(function() {
             if (chromeMediaSource == 'screen') {
-                callback(extensionid == extensionid ? 'installed-enabled' : 'installed-disabled');
+                callback('installed-disabled');
             } else callback('installed-enabled');
         }, 2000);
     };

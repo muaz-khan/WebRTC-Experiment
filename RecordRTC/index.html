@@ -1343,10 +1343,10 @@
                                 window.open(fileURL);
                             };
 
-                            document.querySelector('h1').innerHTML = 'Your video has been uploaded. Default privacy type is <span>private</span>. Please visit <a href="https://www.youtube.com/my_videos?o=U" target="_blank">youtube.com/my_videos</a> to change privacy to <span>public</span>.';
+                            document.querySelector('h1').innerHTML = 'Your video has been uploaded.';
                             window.scrollTo(0, 0);
 
-                            alert('Your video has been uploaded. Default privacy type is "private". Please visit "youtube.com/my_videos" to change privacy to "public".');
+                            alert('Your video has been uploaded.');
                             return;
                         }
                         if(percentageComplete == 'failed') {
@@ -1624,7 +1624,7 @@
                   categoryId: this.categoryId
                 },
                 status: {
-                  privacyStatus: 'private'
+                  privacyStatus: 'public'
                 }
               };
               var uploader = new MediaUploader({

@@ -5,6 +5,9 @@
             }
 </script>
 
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+<script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
 <script src="https://cdn.webrtc-experiment.com/meeting.js"> </script>
 <button id="setup-new-meeting">Setup New Meeting</button>
         
@@ -34,7 +37,7 @@
                 // via: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs
                 meeting.openSignalingChannel = function(onmessage) {
                     var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-                    var websocket = new WebSocket('wss://www.webrtcweb.com:9449');
+                    var websocket = new WebSocket('wss://websocket-over-nodejs.herokuapp.com:443/');
                     websocket.onopen = function () {
                         websocket.push(JSON.stringify({
                             open: true,

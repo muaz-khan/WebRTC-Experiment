@@ -5,15 +5,14 @@
 
 1:1 multiple is explained here: [WebRTC RTP Usage](https://www.webrtc-experiment.com/docs/RTP-usage.html)
 
-=
-
 ## First Step: Link the library
 
 ```html
-<script src="//cdn.webrtc-experiment.com/meeting.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+<script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+<script src="https://cdn.webrtc-experiment.com/meeting.js"> </script>
 ```
-
-=
 
 ## Last Step: Start using it!
 
@@ -45,15 +44,11 @@ document.getElementById('join-meeting').onclick = function() {
 };
 ```
 
-=
-
 ## Custom user-ids?
 
 ```javascript
 meeting.userid = 'username';
 ```
-
-=
 
 ## Custom signaling channel?
 
@@ -92,8 +87,6 @@ meeting.firebase = 'chat';
 
 More details here: https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
-=
-
 ## Want to manually join rooms?
 
 ```javascript
@@ -113,15 +106,11 @@ meeting.onmeeting = function(room) {
 
 `onmeeting` is called for each new meeting; and `meet` method allows you manually join a meeting room.
 
-=
-
 ## Leave a meeting room
 
 ```javascript
 meeting.leave();
 ```
-
-=
 
 ## If someone leaves...
 
@@ -134,8 +123,6 @@ meeting.onuserleft = function(userid) {
     if(video) video.parentNode.removeChild(video);
 };
 ```
-
-=
 
 ## `onaddstream`
 
@@ -154,19 +141,17 @@ meeting.onaddstream = function(e) {
 };
 ```
 
-=
-
 ## Browser Support
 
 This [WebRTC Meeting](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting) experiment works fine on following web-browsers:
 
 | Browser        | Support           |
 | ------------- |-------------|
-| Firefox | [Stable](http://www.mozilla.org/en-US/firefox/new/) / [Aurora](http://www.mozilla.org/en-US/firefox/aurora/) / [Nightly](http://nightly.mozilla.org/) |
-| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
-| Android | [Chrome Beta](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) |
-
-=
+| Firefox | All Releases |
+| Google Chrome | All Releases |
+| Android | Chrome/Firefox/Opera/Cordova/etc. |
+| Safari | version 11+ for both MacOSX and iOS10+ |
+| Edge | version 16+ |
 
 ## License
 

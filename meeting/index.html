@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 > Muaz Khan     - https://github.com/muaz-khan 
 > MIT License   - https://www.webrtc-experiment.com/licence/
 > Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/meeting
@@ -22,23 +22,26 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
         <style>
-            audio,video {
-				width: 100%;
-				vertical-align:top;
-			}
-			input {
-				font-size: 2em;
-				width: 4em;
-			}
-			
-			p { padding: 1em; }
+            audio, video {
+                width: 100%;
+                vertical-align:top;
+            }
+            input {
+                font-size: 2em;
+                width: 4em;
+            }
+            
+            p { padding: 1em; }
         </style>
         <script>
             document.createElement('article');
             document.createElement('footer');
         </script>
-		
+        
         <!-- Meeting.js library -->
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
         <script src="https://cdn.webrtc-experiment.com/meeting.js"> </script>
     </head>
 
@@ -69,30 +72,30 @@
             </header>
 
             <div class="github-stargazers"></div>
-		
+        
             <!-- just copy this <section> and next script -->
             <section class="experiment">
                 <section>
                     <h2 style="border: 0; padding-left: .5em;">Wanna try yourself?</h2>
-					<input type="text" id="meeting-name">
+                    <input type="text" id="meeting-name">
                     <button id="setup-meeting">Setup New Meeting</button>
                 </section>
 
                 <table style="width: 100%;" id="meetings-list"></table>
                 <table style="width: 100%;">
                     <tr>
-                        <td>
+                        <td style="width: auto!important;">
                             <h2 style="display: block; font-size: 1em; text-align: center;">You!</h2>
-							<div id="local-streams-container"></div>
+                            <div id="local-streams-container"></div>
                         </td>
-                        <td style="background: white;">
+                        <td style="background: white;width: auto!important;">
                             <h2 style="display: block; font-size: 1em; text-align: center;">Remote Peers</h2>
-							<div id="remote-streams-container"></div>
+                            <div id="remote-streams-container"></div>
                         </td>
                     </tr>
                 </table>
             </section>
-		
+        
             <script>
                 var meeting = new Meeting();
 
@@ -127,35 +130,35 @@
                     if (e.type == 'local') localMediaStream.appendChild(e.video);
                     if (e.type == 'remote') remoteMediaStreams.insertBefore(e.video, remoteMediaStreams.firstChild);
                 };
-				
+                
                 // via: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket-over-nodejs
-				meeting.openSignalingChannel = function(onmessage) {
-					var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-					var websocket = new WebSocket('wss://www.webrtcweb.com:9449');
-					websocket.onopen = function () {
-						websocket.push(JSON.stringify({
-							open: true,
-							channel: channel
-						}));
-					};
-					websocket.push = websocket.send;
-					websocket.send = function (data) {
-						if(websocket.readyState != 1) {
-							return setTimeout(function() {
-								websocket.send(data);
-							}, 300);
-						}
-						
-						websocket.push(JSON.stringify({
-							data: data,
-							channel: channel
-						}));
-					};
-					websocket.onmessage = function(e) {
-						onmessage(JSON.parse(e.data));
-					};
-					return websocket;
-				};
+                meeting.openSignalingChannel = function(onmessage) {
+                    var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+                    var websocket = new WebSocket('wss://websocket-over-nodejs.herokuapp.com:443/');
+                    websocket.onopen = function () {
+                        websocket.push(JSON.stringify({
+                            open: true,
+                            channel: channel
+                        }));
+                    };
+                    websocket.push = websocket.send;
+                    websocket.send = function (data) {
+                        if(websocket.readyState != 1) {
+                            return setTimeout(function() {
+                                websocket.send(data);
+                            }, 300);
+                        }
+                        
+                        websocket.push(JSON.stringify({
+                            data: data,
+                            channel: channel
+                        }));
+                    };
+                    websocket.onmessage = function(e) {
+                        onmessage(JSON.parse(e.data));
+                    };
+                    return websocket;
+                };
 
                 // using firebase for signaling
                 // meeting.firebase = 'muazkh';
@@ -178,18 +181,21 @@
                     this.parentNode.innerHTML = '<h2><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
                 };
             </script>
-			
-			<section class="experiment">
+            
+            <section class="experiment">
                 <ol>
                     <li>Mesh networking model is implemented to open multiple peer connections i.e. interconnected peer connections</li>
                     <li>Maximum peer connections limit in mesh-networking is <strong>256</strong> (on chrome)</li>
                 </ol>
             </section>
-			
+            
             <section class="experiment">
                 <h2 class="header">How to use Meeting.js?</h2>
                 <pre>
-&lt;script src="//www.webrtc-experiment.com/meeting.js"&gt;&lt;/script&gt;
+&lt;script src="https://webrtc.github.io/adapter/adapter-latest.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.webrtc-experiment.com/meeting.js"&gt;&lt;/script&gt;
 </pre>
                 <pre>
 var meeting = new Meeting('meeting-unique-id');
@@ -229,13 +235,13 @@ meeting.onuserleft = function(userid) {
 meeting.leave();
 </pre>
             </section>
-			
+            
             <section class="experiment">
                 <h2 class="header">How it works?</h2>
                 <p><strong>
                     Huge bandwidth and CPU-usage out of multi-peers and number of RTP-ports
                 </strong>
-				</p>
+                </p>
                 <p>
                     To understand it better; assume that 10 users are sharing video in a group.
                     40 RTP-ports i.e. streams will be created for each user. All streams are expected
@@ -249,10 +255,10 @@ meeting.leave();
                     <li>10 RTP ports are opened to receive video i.e. for incoming video streams</li>
                     <li>10 RTP ports are opened to receive audio i.e. for incoming audio streams</li>
                 </ol>
-				<p>
-					Maximum bandwidth used by each video RTP port (media-track) is about 1MB; which can be controlled using "b=AS" session description parameter values. In two-way video-only session; 2MB bandwidth is used by each peer; otherwise; a low-quality blurred video will be delivered.
-				</p>
-				<pre>
+                <p>
+                    Maximum bandwidth used by each video RTP port (media-track) is about 1MB; which can be controlled using "b=AS" session description parameter values. In two-way video-only session; 2MB bandwidth is used by each peer; otherwise; a low-quality blurred video will be delivered.
+                </p>
+                <pre>
 // removing existing bandwidth lines
 sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
 
@@ -280,7 +286,7 @@ sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
                     </li>
                 </ol>
             </section>
-		
+        
             <section class="experiment">
                 <h2 class="header" id="feedback">Feedback</h2>
                 <div>
@@ -305,7 +311,7 @@ sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
                 <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
             </p>
         </footer>
-	
+    
         <!-- commits.js is useless for you! -->
         <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
     </body>

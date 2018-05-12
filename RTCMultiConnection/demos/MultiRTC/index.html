@@ -1,4 +1,4 @@
-<!-- Demo version: 2017.08.06 -->
+<!-- Demo version: 2017.12.13 -->
 
 <!--
 // Muaz Khan         - www.MuazKhan.com
@@ -10,6 +10,11 @@
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
     <head>
         <title>MultiRTC! / RTCMultiConnection Demo</title>
+        <script>
+            if(document.domain !== 'localhost' && location.protocol === 'http:') {
+                location.href = location.href.replace(location.protocol, 'https:');
+            }
+        </script>
         <meta name="description" content="MultiRTC is a WebRTC skype-like application that allows all features as skype provides E.g. text conversation, file sharing, enable/disable screen, enable/disable webcam or microphone etc. It provides additional features like auto-text translation in about 41 languages. It also provides customization of each feature so that you can set each value yourself e.g. chunk-size, intervals, etc." />
         <meta name="keywords" content="MultiRTC,RTCMultiConnection,WebRTC,Demos,Experiments,Muaz Khan,WebRTC and Skype,Skype like Demo" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -26,10 +31,13 @@
 
         <!-- www.RTCMultiConnection.org/changes-log/ -->
         <script src="/dist/RTCMultiConnection.min.js"> </script>
+        <script src="/dev/adapter.js"></script>
         <script src="/socket.io/socket.io.js"> </script>
         <script src="/dev/adapter.js"></script>
         <script src="linkify.js"> </script>
 
+        <!-- capture screen from any HTTPs domain! -->
+        <script src="https://cdn.webrtc-experiment.com:443/getScreenId.js"></script>
         <script src="https://cdn.webrtc-experiment.com/FileBufferReader.js"> </script>
     </head>
     <body>

@@ -1,4 +1,4 @@
-﻿<script>window.demoVersion = '2017.09.19';</script>
+﻿<script>window.demoVersion = '2018.05.10';</script>
 
 <!--
 > Muaz Khan     - https://github.com/muaz-khan
@@ -43,6 +43,7 @@
 
             .experiment h2 {
                 color: rgb(26, 86, 214);
+                line-height: 1.5;
             }
 
             li h2 {
@@ -151,11 +152,7 @@
                 <br>
                 <ol>
                     <li>
-                        <a href="#coturn">CoTURN installation on Ubuntu </a>
-                    </li>
-
-                    <li>
-                        <a href="#reTurnServer">reTurnServer installation on Ubuntu </a>
+                        <a href="#coturn">CoTURN installation on Ubuntu</a>
                     </li>
 
                     <li>
@@ -167,7 +164,15 @@
                     </li>
 
                     <li>
-                        <a href="#windows">TURN installation on Windows </a>
+                        <a href="#windows">TURN installation on Windows</a>
+                    </li>
+
+                    <li>
+                        <a href="#reTurnServer">reTurnServer installation on Ubuntu</a>
+                    </li>
+
+                    <li>
+                        <a href="#pion">Pion TURN server</a>
                     </li>
                 </ol>
 
@@ -175,86 +180,6 @@
                   You can test a TURN <a href="https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/" target="_blank">here LIVE</a> or use "apt-get install stun" and then "stun domain.com:port".
                 </p>
             </blockquote>
-
-            <!-- for psql: https://rtcquickstart.org/guide/multi/turn-reTurnServer.html -->
-            <section class="experiment" id="reTurnServer">
-                <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
-                <h2>
-                    <a href="#reTurnServer">reTurnServer installation on Ubuntu</a>
-                </h2>
-
-                <ol>
-                    <li>
-                        <h2>First Step: Install reTurnServer:</h2>
-                        <pre><code class="bash">
-# Ubuntu
-apt-get install resiprocate-turn-server
-
-# CentOS
-yum install resiprocate-turn-server
-</code></pre>
-                    </li>
-
-                    <li>
-                        <h2>Second Step: Edit "/etc/reTurn/reTurnServer.config" file:</h2>
-                        <pre><code class="bash">
-TurnAddress = your-first-ip
-AltStunAddress = your-second-ip
-
-TurnPort = 3478
-AltStunPort = 5349
-
-AuthenticationRealm = domain.com
-
-UserDatabaseFile = /etc/reTurn/users.txt
-UserDatabaseHashedPasswords = true # required for HashString
-
-# for more info:
-# https://github.com/resiprocate/resiprocate/blob/master/reTurn/reTurnServer.config
-</code></pre>
-                    </li>
-
-                    <li>
-                        <h2>Next Step: Edit "/etc/reTurn/users.txt" file:</h2>
-                        <pre><code class="bash">
-# first of all, execute this command:
-# echo -n username:domain.com:password | md5sum
-
-# you will get a HASH string: 32 chars
-# domain.com must match "AuthenticationRealm" above "reTurnServer.config"
-username:AboveHashString:domain.com:authorized
-
-# more info:
-# https://github.com/resiprocate/resiprocate/blob/master/reTurn/users.txt
-</code></pre>
-                    </li>
-
-                    <li>
-                        <h2>Last Step: ReStart reTurnServer:</h2>
-                        <pre><code class="bash">
-service resiprocate-turn-server restart
-</code></pre>
-                    </li>
-
-                    <li>
-                        You can check ports and addresses reTurnServer is listenning on:
-                        <pre><code class="bash">
-netstat -nlp | grep reTurnServer
-</code></pre>
-                    </li>
-
-                    <li>
-                        In your HTML-JavaScript file, you will use original password, NOT the HashString:
-                        <pre><code class="bash">
-iceServer => {
-  urls: 'turn:domain.com:3478',
-  credential: 'orignal-password', // NOT Hash
-  username: 'username'
-}
-</code></pre>
-                    </li>
-                </ol>
-            </section>
 
             <section class="experiment" id="restund">
                 <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
@@ -827,6 +752,140 @@ cp /turnserver-1.8.4.0/examples/etc/turnserver.conf /usr/local/etc/
 
                         <li>
                             Now, you can follow "fifth" step from previous section to edit "turnserver.conf" for setting "username", "password", "listening-port" and "listening-ip".
+                        </li>
+
+                    </ol>
+            </section>
+
+            <!-- for psql: https://rtcquickstart.org/guide/multi/turn-reTurnServer.html -->
+            <section class="experiment" id="reTurnServer">
+                <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
+                <h2>
+                    <a href="#reTurnServer">reTurnServer installation on Ubuntu</a>
+                </h2>
+
+                <ol>
+                    <li>
+                        <h2>First Step: Install reTurnServer:</h2>
+                        <pre><code class="bash">
+# Ubuntu
+apt-get install resiprocate-turn-server
+
+# CentOS
+yum install resiprocate-turn-server
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Second Step: Edit "/etc/reTurn/reTurnServer.config" file:</h2>
+                        <pre><code class="bash">
+TurnAddress = your-first-ip
+AltStunAddress = your-second-ip
+
+TurnPort = 3478
+AltStunPort = 5349
+
+AuthenticationRealm = domain.com
+
+UserDatabaseFile = /etc/reTurn/users.txt
+UserDatabaseHashedPasswords = true # required for HashString
+
+# for more info:
+# https://github.com/resiprocate/resiprocate/blob/master/reTurn/reTurnServer.config
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Next Step: Edit "/etc/reTurn/users.txt" file:</h2>
+                        <pre><code class="bash">
+# first of all, execute this command:
+# echo -n username:domain.com:password | md5sum
+
+# you will get a HASH string: 32 chars
+# domain.com must match "AuthenticationRealm" above "reTurnServer.config"
+username:AboveHashString:domain.com:authorized
+
+# more info:
+# https://github.com/resiprocate/resiprocate/blob/master/reTurn/users.txt
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Last Step: ReStart reTurnServer:</h2>
+                        <pre><code class="bash">
+service resiprocate-turn-server restart
+</code></pre>
+                    </li>
+
+                    <li>
+                        You can check ports and addresses reTurnServer is listenning on:
+                        <pre><code class="bash">
+netstat -nlp | grep reTurnServer
+</code></pre>
+                    </li>
+
+                    <li>
+                        In your HTML-JavaScript file, you will use original password, NOT the HashString:
+                        <pre><code class="bash">
+iceServer => {
+  urls: 'turn:domain.com:3478',
+  credential: 'orignal-password', // NOT Hash
+  username: 'username'
+}
+</code></pre>
+                    </li>
+                </ol>
+            </section>
+
+            <section class="experiment" id="pion">
+                <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
+                    <h2>
+                        <a href="#windows">Pion TURN server</a><br>A simple extendable Golang TURN server (for Ubuntu, Windows and Mac)
+                    </h2>
+                    <ol>
+                        <li>
+                            Create a new directory (optional):
+                            <pre><code class="bash">
+mkdir pions
+cd pions
+</code></pre>
+                        </li>
+
+                        <li>
+                            Download the TURN server's source: (replace "1.0.0" with <a href="https://github.com/pions/turn/releases" target="_blank">latest release</a>)
+                            <pre><code class="bash">
+wget -q https://github.com/pions/turn/releases/download/1.0.0/simple-turn-linux-amd64
+</code></pre>
+                        </li>
+
+                        <li>
+                            Give read-write permissions to the DIR:
+                            <pre><code class="bash">
+chmod +x simple-turn-linux-amd64
+</code></pre>
+                        </li>
+
+                        <li>
+                            Set username, password and port: (using EXPORT commands)
+                            <pre><code class="bash">
+export USERS='username=password'
+export REALM=domain.com
+export UDP_PORT=3478
+</code></pre>
+                        </li>
+
+                        <li>
+                            Now run the pions turn server:
+                            <pre><code class="bash">
+./simple-turn-linux-amd64
+
+# or use nohup
+nohup ./simple-turn-linux-amd64 &
+</code></pre>
+                        </li>
+
+                        <li>
+                            To check latest releases: <a href="https://github.com/pions/turn/releases" target="_blank">https://github.com/pions/turn/releases</a>
                         </li>
 
                     </ol>

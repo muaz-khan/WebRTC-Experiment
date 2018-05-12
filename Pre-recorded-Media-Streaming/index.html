@@ -1,4 +1,6 @@
 
+<!-- Demo version: 2017.08.06 -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -76,6 +78,9 @@
 
             <br><br>
             Old pre-recorded media streaming demo is <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pre-recorded-Media-Streaming">available here</a>.
+
+            <br><br>
+            The person who opens room, will select a WebM file. This demo will read your WebM file and generate a MediaStream object. The resulting MediaStream object will be shared with other users in realtime using WebRTC RTCPeerConnection API.
         </blockquote>
 
         <section class="experiment">
@@ -90,19 +95,17 @@
             <div id="videos-container"></div>
         </section>
 
-        <!-- <script src="/dist/rmc3.min.js"></script> -->
-        <script src="https://cdn.webrtc-experiment.com:443/rmc3.min.js"></script>
+        <script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+        <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
 
-        <!-- <script src="/dist/rmc3.min.js"></script> -->
-        <script src="https://cdn.webrtc-experiment.com:443/rmc3.fbr.min.js"></script>
+        <script src="https://cdn.webrtc-experiment.com:443/FileBufferReader.js"></script>
 
         <!-- custom layout for HTML5 audio/video elements -->
         <script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
 
-        <!-- socket.io for signaling -->
-        <script src="https://cdn.webrtc-experiment.com:443/socket.io.js"></script>
-
         <script>
+            var connection = new RTCMultiConnection(); // to get window.DetectRTC object
+            
             // ......................................................
             // .......................UI Code........................
             // ......................................................
@@ -110,10 +113,15 @@
             function oldBrowserDetected() {
                 document.getElementById('open-room').disabled = true;
                 document.getElementById('join-room').disabled = true;
-                document.querySelector('blockquote').innerHTML = 'Your browser does NOT supports pre-recorded media streaming.<br><br><span style="color:red;">This demo requires Chrome 53+ or Firefox.</span>';
+
+                if(DetectRTC.browser.name == 'Chrome' && DetectRTC.browser.version >= 53) {
+                    document.querySelector('blockquote').innerHTML = 'Please enable this flag: <a href="chrome://flags/#enable-experimental-web-platform-features">chrome://flags/#enable-experimental-web-platform-features</a>';
+                } else {
+                    document.querySelector('blockquote').innerHTML = 'Your browser does NOT supports pre-recorded media streaming.<br><br><span style="color:red;">This demo requires Chrome 53+ or Firefox (only on Mac).';
+                }
             }
 
-            if(!DetectRTC.isVideoSupportsStreamCapturing) {
+            if(DetectRTC.isVideoSupportsStreamCapturing !== true) {
                 oldBrowserDetected();
             }
 
@@ -121,6 +129,7 @@
                 disableInputButtons();
 
                 var selector = new FileSelector();
+                selector.accept = '*.webm'; // webm or mp4 or mp3 or wav or ogg
                 selector.selectSingleFile(function(file) {
                     if(file.name.search(/.webm|.mp3/g) === -1) {
                         document.getElementById('open-room').disabled = false;
@@ -141,13 +150,13 @@
 
                         try {
                             if('captureStream' in video) {
-                                connection.preRecorededStream = video.captureStream(15);
+                                connection.preRecorededStream = video.captureStream();
                             }
                             else if('mozCaptureStream' in video) {
-                                connection.preRecorededStream = video.mozCaptureStream(15);
+                                connection.preRecorededStream = video.mozCaptureStream();
                             }
                             else if('webkitCaptureStream' in video) {
-                                connection.preRecorededStream = video.webkitCaptureStream(15);
+                                connection.preRecorededStream = video.webkitCaptureStream();
                             }
                         }
                         catch(e) {
@@ -159,13 +168,18 @@
                             return;
                         }
 
+                        var stream = new MediaStream();
+                        connection.preRecorededStream.getTracks().forEach(function(track) {
+                            stream.addTrack(track);
+                        });
+
                         // attach pre-recorded steam
-                        connection.attachStreams.push(connection.preRecorededStream);
+                        connection.attachStreams.push(stream);
                         connection.onstream({
                             userid: connection.userid,
                             extra: connection.extra,
                             type: 'local',
-                            stream: connection.preRecorededStream,
+                            stream: stream,
                             mediaElement: video
                         });
 
@@ -185,12 +199,10 @@
             // ..................RTCMultiConnection Code.............
             // ......................................................
 
-            var connection = new RTCMultiConnection();
-
             connection.dontCaptureUserMedia = true;
 
             // by default, socket.io server is assumed to be deployed on your own URL
-            connection.socketURL = '/';
+            // connection.socketURL = '/';
 
             // comment-out below line if you do not have your own socket.io server
             connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
@@ -286,6 +298,9 @@
             };
 
             var hashString = location.hash.replace('#', '');
+            if(hashString.length && hashString.indexOf('comment-') == 0) {
+              hashString = '';
+            }
 
             var roomid = params.roomid;
             if(!roomid && hashString.length) {
@@ -312,7 +327,7 @@
             }
         </script>
 
-        <section class="experiment own-widgets latest-commits">
+        <section class="experiment" id="demos"><details><summary style="text-align:center;">Check 51 other RTCMultiConnection-v3 demos</summary><h2 style="text-align:center;display:block;"><a href="https://www.npmjs.com/package/rtcmulticonnection-v3"><img src="https://img.shields.io/npm/v/rtcmulticonnection-v3.svg"></a><a href="https://www.npmjs.com/package/rtcmulticonnection-v3"><img src="https://img.shields.io/npm/dm/rtcmulticonnection-v3.svg"></a><a href="https://travis-ci.org/muaz-khan/RTCMultiConnection"><img src="https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master"></a></h2><ol><li><a href="/demos/Audio+ScreenSharing.html">Audio+ScreenSharing.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio+ScreenSharing.html">Source</a>)</li><li><a href="/demos/Audio+Video+TextChat+FileSharing.html">Audio+Video+TextChat+FileSharing.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio+Video+TextChat+FileSharing.html">Source</a>)</li><li><a href="/demos/Audio-Conferencing.html">Audio-Conferencing.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio-Conferencing.html">Source</a>)</li><li><a href="/demos/Audio-Video-Screen.html">Audio-Video-Screen.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Audio-Video-Screen.html">Source</a>)</li><li><a href="/demos/Cross-Domain-Screen-Capturing.html">Cross-Domain-Screen-Capturing.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Cross-Domain-Screen-Capturing.html">Source</a>)</li><li><a href="/demos/Disconnect+Rejoin.html">Disconnect+Rejoin.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Disconnect+Rejoin.html">Source</a>)</li><li><a href="/demos/Files-Scalable-Broadcast.html">Files-Scalable-Broadcast.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Files-Scalable-Broadcast.html">Source</a>)</li><li><a href="/demos/Firebase-Demo.html">Firebase-Demo.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Firebase-Demo.html">Source</a>)</li><li><a href="/demos/MCU.html">MCU.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/MCU.html">Source</a>)</li><li><a href="/demos/Multi-Broadcasters-and-Many-Viewers.html">Multi-Broadcasters-and-Many-Viewers.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Multi-Broadcasters-and-Many-Viewers.html">Source</a>)</li><li><a href="/demos/One-to-One.html">One-to-One.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/One-to-One.html">Source</a>)</li><li><a href="/demos/Password-Protected-Rooms.html">Password-Protected-Rooms.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Password-Protected-Rooms.html">Source</a>)</li><li><a href="/demos/Pre-recorded-Media-Streaming.html">Pre-recorded-Media-Streaming.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Pre-recorded-Media-Streaming.html">Source</a>)</li><li><a href="/demos/PubNub-Demo.html">PubNub-Demo.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/PubNub-Demo.html">Source</a>)</li><li><a href="/demos/SFU.html">SFU.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/SFU.html">Source</a>)</li><li><a href="/demos/SSEConnection.html">SSEConnection.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/SSEConnection.html">Source</a>)</li><li><a href="/demos/Scalable-Broadcast.html">Scalable-Broadcast.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Broadcast.html">Source</a>)</li><li><a href="/demos/Scalable-Screen-Broadcast.html">Scalable-Screen-Broadcast.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Screen-Broadcast.html">Source</a>)</li><li><a href="/demos/Scalable-Screen-plus-Audio-Broadcast.html">Scalable-Screen-plus-Audio-Broadcast.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Screen-plus-Audio-Broadcast.html">Source</a>)</li><li><a href="/demos/Scalable-Video-Conferencing.html">Scalable-Video-Conferencing.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Video-Conferencing.html">Source</a>)</li><li><a href="/demos/StreamHasData.html">StreamHasData.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/StreamHasData.html">Source</a>)</li><li><a href="/demos/TextChat+FileSharing.html">TextChat+FileSharing.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/TextChat+FileSharing.html">Source</a>)</li><li><a href="/demos/Translate-TextChat.html">Translate-TextChat.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Translate-TextChat.html">Source</a>)</li><li><a href="/demos/Video-Conferencing.html">Video-Conferencing.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Video-Conferencing.html">Source</a>)</li><li><a href="/demos/Video-Scalable-Broadcast.html">Video-Scalable-Broadcast.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Video-Scalable-Broadcast.html">Source</a>)</li><li><a href="/demos/Videos-Layout.html">Videos-Layout.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Videos-Layout.html">Source</a>)</li><li><a href="/demos/WebSocket-Demo.html">WebSocket-Demo.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/WebSocket-Demo.html">Source</a>)</li><li><a href="/demos/addStream-in-Chat-room.html">addStream-in-Chat-room.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/addStream-in-Chat-room.html">Source</a>)</li><li><a href="/demos/admin-guest.html">admin-guest.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/admin-guest.html">Source</a>)</li><li><a href="/demos/applyConstraints.html">applyConstraints.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/applyConstraints.html">Source</a>)</li><li><a href="/demos/autoCreateMediaElement.html">autoCreateMediaElement.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/autoCreateMediaElement.html">Source</a>)</li><li><a href="/demos/change-resolutions.html">change-resolutions.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/change-resolutions.html">Source</a>)</li><li><a href="/demos/checkPresence.html">checkPresence.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/checkPresence.html">Source</a>)</li><li><a href="/demos/custom-socket-event.html">custom-socket-event.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/custom-socket-event.html">Source</a>)</li><li><a href="/demos/file-sharing.html">file-sharing.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/file-sharing.html">Source</a>)</li><li><a href="/demos/getPublicModerators.html">getPublicModerators.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/getPublicModerators.html">Source</a>)</li><li><a href="/demos/getStats.html">getStats.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/getStats.html">Source</a>)</li><li><a href="/demos/keep-rejoining.html">keep-rejoining.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/keep-rejoining.html">Source</a>)</li><li><a href="/demos/replaceTrack.html">replaceTrack.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/replaceTrack.html">Source</a>)</li><li><a href="/demos/screen-sharing.html">screen-sharing.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/screen-sharing.html">Source</a>)</li><li><a href="/demos/share-part-of-screen.html">share-part-of-screen.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/share-part-of-screen.html">Source</a>)</li><li><a href="/demos/switch-cameras.html">switch-cameras.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/switch-cameras.html">Source</a>)</li><li><a href="/demos/v2-conference.html">v2-conference.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/v2-conference.html">Source</a>)</li><li><a href="/demos/video-broadcasting.html">video-broadcasting.html</a> (<a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/video-broadcasting.html">Source</a>)</li><ol></details></section><section class="experiment" id="docs"><details><summary style="text-align:center;">RTCMultiConnection Docs</summary><h2 style="text-align:center;display:block;"><a href="http://www.rtcmulticonnection.org/docs/">http://www.rtcmulticonnection.org/docs/</a></h2><ol><li><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/README.md">README.md</a></li><li><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/api.md">api.md</a></li><li><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/getting-started.md">getting-started.md</a></li><li><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/how-to-use.md">how-to-use.md</a></li><li><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/installation-guide.md">installation-guide.md</a></li><li><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/ios-android.md">ios-android.md</a></li><li><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/tips-tricks.md">tips-tricks.md</a></li><li><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/upgrade.md">upgrade.md</a></li></ol></details></section><section class="experiment own-widgets latest-commits">
             <h2 class="header" id="updates" style="color: red;padding-bottom: .1em;"><a href="https://github.com/muaz-khan/RTCMultiConnection/commits/master">Latest Updates</a></h2>
             <div id="github-commits"></div>
         </section>

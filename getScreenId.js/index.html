@@ -98,7 +98,8 @@
         </script>
 
         <!-- script used to capture sourceId of the screen -->
-		<script src="https://cdn.webrtc-experiment.com/getScreenId.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/getScreenId.js"> </script>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     </head>
 
     <body>
@@ -135,7 +136,7 @@
             <section class="experiment" style="text-align:center;">
 				<div id="chrome-extension-status"></div>
                 <br><button id="capture-screen">Capture Your Own Screen</button><hr>
-                <video controls autoplay style="width: 100%;background-repeat: no-repeat;background-size: 100%;background-image: url(https://lh5.googleusercontent.com/6U-gmL_hG9bbquDZdW_ajiA-1bgkfSlHOkzR24aigkyPQzXWXNoRNfyLjXS3rqV92iwq395JSQ=s640-h400-e365-rw);"></video>
+                <video controls autoplay playsinline style="width: 100%;background-repeat: no-repeat;background-size: 100%;background-image: url(https://lh5.googleusercontent.com/6U-gmL_hG9bbquDZdW_ajiA-1bgkfSlHOkzR24aigkyPQzXWXNoRNfyLjXS3rqV92iwq395JSQ=s640-h400-e365-rw);"></video>
             </section>
 
             <script>
@@ -177,6 +178,16 @@
                       }
                     }, 5000);
 
+                    // edge 17 or higher
+                    if(navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob)) {
+                        navigator.getDisplayMedia(screen_constraints).then(stream => {
+                            document.querySelector('video').srcObject = stream;
+                         }, error => {
+                           alert('Please make sure to use Edge 17 or higher.');
+                         });
+                         return;
+                    }
+
                     getScreenId(function(error, sourceId, screen_constraints) {
                         // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
                         // sourceId == null || 'string' || 'firefox'
@@ -217,11 +228,10 @@
                         console.info('getScreenId callback \n(error, sourceId, screen_constraints) =>\n', error, sourceId, screen_constraints);
 
                         document.getElementById('capture-screen').disabled = true;
-                        navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-                        navigator.getUserMedia(screen_constraints, function(stream) {
+                        navigator.mediaDevices.getUserMedia(screen_constraints).then(function(stream) {
                             // share this "MediaStream" object using RTCPeerConnection API
 
-                            document.querySelector('video').src = URL.createObjectURL(stream);
+                            document.querySelector('video').srcObject = stream;
 
                             stream.oninactive = stream.onended = function() {
                                 document.querySelector('video').src = null;
@@ -229,12 +239,12 @@
                             };
 
                             document.getElementById('capture-screen').disabled = false;
-                        }, function(error) {
+                        }).catch(function(error) {
                             console.error('getScreenId error', error);
 
                             alert('Failed to capture your screen. Please check Chrome console logs for further information.');
                         });
-                    });
+                    }/*, 'we need speakers as well!'*/);
                 };
             </script>
 
@@ -274,6 +284,10 @@
                     <li>
                         Firefox? Requires version 52 or higher; and HTTPs.
                     </li>
+
+                    <li>
+                        MS-Edge requires 17 or higher; and HTTPs.
+                    </li>
                 </ol>
             </section>
 
@@ -283,20 +297,29 @@
 
                 <pre class="sh_javascript sh_html">
 &lt;script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"&gt;&lt;/script&gt;
+&lt;script src="https://webrtc.github.io/adapter/adapter-latest.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 getScreenId(function (error, sourceId, screen_constraints) {
     // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
     // sourceId == null || 'string' || 'firefox'
 
-    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    navigator.getUserMedia(screen_constraints, function (stream) {
-        document.querySelector('video').src = URL.createObjectURL(stream);
+    if(navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob)) {
+        navigator.getDisplayMedia(screen_constraints).then(stream => {
+            document.querySelector('video').srcObject = stream;
+        }, error => {
+            alert('Please make sure to use Edge 17 or higher.');
+        });
+        return;
+    }
+
+    navigator.mediaDevices.getUserMedia(screen_constraints).then(function (stream) {
+        document.querySelector('video').srcObject = stream;
 
         // share this "MediaStream" object using RTCPeerConnection API
-    }, function (error) {
+    }).catch(function (error) {
         console.error(error);
     });
-});
+}, 'pass second argument only if you want to capture speakers as well');
 &lt;/script&gt;
 </pre>
 

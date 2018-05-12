@@ -1,9 +1,9 @@
 'use strict';
 
-// Last time updated: 2017-11-11 6:28:47 AM UTC
+// Last time updated: 2018-05-11 2:50:18 PM UTC
 
 // ________________
-// RecordRTC v5.4.6
+// RecordRTC v5.4.7
 
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
 
@@ -48,7 +48,13 @@ function RecordRTC(mediaStream, config) {
     // a reference to user's recordRTC object
     var self = this;
 
-    function startRecording() {
+    function startRecording(config2) {
+        if (!!config2) {
+            // allow users to set options using startRecording method
+            // config2 is similar to main "config" object (second parameter over RecordRTC constructor)
+            config = new RecordRTCConfiguration(mediaStream, config2);
+        }
+
         if (!config.disableLogs) {
             console.log('started recording ' + config.type + ' stream.');
         }
@@ -747,7 +753,18 @@ function RecordRTC(mediaStream, config) {
             if (!disableLogs) {
                 console.warn('RecordRTC is destroyed.');
             }
-        }
+        },
+
+        /**
+         * RecordRTC version number
+         * @property {String} version - Release version number.
+         * @memberof RecordRTC
+         * @static
+         * @readonly
+         * @example
+         * alert(recorder.version);
+         */
+        version: '5.4.7'
     };
 
     if (!this) {
@@ -764,6 +781,8 @@ function RecordRTC(mediaStream, config) {
 
     return returnObject;
 }
+
+RecordRTC.version = '5.4.7';
 
 if (typeof module !== 'undefined' /* && !!module.exports*/ ) {
     module.exports = RecordRTC;
@@ -1931,8 +1950,7 @@ function isMediaRecorderCompatible() {
  *     bitsPerSecond: 256 * 8 * 1024,  // if this is provided, skip above two
  *     checkForInactiveTracks: true,
  *     timeSlice: 1000, // concatenate intervals based blobs
- *     ondataavailable: function() {}, // get intervals based blobs
- *     ignoreMutedMedia: true
+ *     ondataavailable: function() {} // get intervals based blobs
  * }
  * var recorder = new MediaStreamRecorder(mediaStream, config);
  * recorder.record();
@@ -2059,9 +2077,6 @@ function MediaStreamRecorder(mediaStream, config) {
                 console.warn('MediaRecorder API seems unable to record mimeType:', recorderHints.mimeType);
             }
         }
-
-        // ignore muted/disabled/inactive tracks
-        mediaRecorder.ignoreMutedMedia = config.ignoreMutedMedia === true;
 
         // Dispatching OnDataAvailable Handler
         mediaRecorder.ondataavailable = function(e) {
@@ -2524,6 +2539,10 @@ function StereoAudioRecorder(mediaStream, config) {
 
         isAudioProcessStarted = isPaused = false;
         recording = true;
+
+        if (typeof config.timeSlice !== 'undefined') {
+            looper();
+        }
     };
 
     function mergeLeftRightBuffers(config, callback) {
@@ -2956,6 +2975,12 @@ function StereoAudioRecorder(mediaStream, config) {
         self.desiredSampRate = desiredSampRate;
         self.sampleRate = sampleRate;
         self.recordingLength = recordingLength;
+
+        intervalsBasedBuffers = {
+            left: [],
+            right: [],
+            recordingLength: 0
+        };
     }
 
     function clearRecordedDataCB() {
@@ -3023,17 +3048,28 @@ function StereoAudioRecorder(mediaStream, config) {
         var left = e.inputBuffer.getChannelData(0);
 
         // we clone the samples
-        leftchannel.push(new Float32Array(left));
+        var chLeft = new Float32Array(left);
+        leftchannel.push(chLeft);
 
         if (numberOfAudioChannels === 2) {
             var right = e.inputBuffer.getChannelData(1);
-            rightchannel.push(new Float32Array(right));
+            var chRight = new Float32Array(right);
+            rightchannel.push(chRight);
         }
 
         recordingLength += bufferSize;
 
         // export raw PCM
         self.recordingLength = recordingLength;
+
+        if (typeof config.timeSlice !== 'undefined') {
+            intervalsBasedBuffers.recordingLength += bufferSize;
+            intervalsBasedBuffers.left.push(chLeft);
+
+            if (numberOfAudioChannels === 2) {
+                intervalsBasedBuffers.right.push(chRight);
+            }
+        }
     }
 
     jsAudioNode.onaudioprocess = onAudioProcessDataAvailable;
@@ -3048,6 +3084,46 @@ function StereoAudioRecorder(mediaStream, config) {
     this.desiredSampRate = desiredSampRate;
     this.sampleRate = sampleRate;
     self.recordingLength = recordingLength;
+
+    // helper for intervals based blobs
+    var intervalsBasedBuffers = {
+        left: [],
+        right: [],
+        recordingLength: 0
+    };
+
+    // this looper is used to support intervals based blobs (via timeSlice+ondataavailable)
+    function looper() {
+        if (!recording || typeof config.ondataavailable !== 'function' || typeof config.timeSlice === 'undefined') {
+            return;
+        }
+
+        if (intervalsBasedBuffers.left.length) {
+            mergeLeftRightBuffers({
+                desiredSampRate: desiredSampRate,
+                sampleRate: sampleRate,
+                numberOfAudioChannels: numberOfAudioChannels,
+                internalInterleavedLength: intervalsBasedBuffers.recordingLength,
+                leftBuffers: intervalsBasedBuffers.left,
+                rightBuffers: numberOfAudioChannels === 1 ? [] : intervalsBasedBuffers.right
+            }, function(buffer, view) {
+                var blob = new Blob([view], {
+                    type: 'audio/wav'
+                });
+                config.ondataavailable(blob);
+
+                setTimeout(looper, config.timeSlice);
+            });
+
+            intervalsBasedBuffers = {
+                left: [],
+                right: [],
+                recordingLength: 0
+            };
+        } else {
+            setTimeout(looper, config.timeSlice);
+        }
+    }
 }
 
 if (typeof RecordRTC !== 'undefined') {
@@ -3102,6 +3178,10 @@ function CanvasRecorder(htmlElement, config) {
     }
 
     if (_isChrome && chromeVersion < 52) {
+        isCanvasSupportsStreamCapturing = false;
+    }
+
+    if (config.useWhammyRecorder) {
         isCanvasSupportsStreamCapturing = false;
     }
 
@@ -4666,10 +4746,10 @@ if (typeof RecordRTC !== 'undefined') {
     RecordRTC.GifRecorder = GifRecorder;
 }
 
-// Last time updated: 2017-09-26 7:19:00 AM UTC
+// Last time updated: 2018-03-02 2:56:28 AM UTC
 
 // ________________________
-// MultiStreamsMixer v1.0.3
+// MultiStreamsMixer v1.0.5
 
 // Open-Sourced: https://github.com/muaz-khan/MultiStreamsMixer
 
@@ -5085,6 +5165,10 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
         if (self.audioDestination) {
             self.audioDestination.disconnect();
             self.audioDestination = null;
+        }
+
+        if (self.audioContext) {
+            self.audioContext.close();
         }
 
         self.audioContext = null;

@@ -126,7 +126,7 @@ node npm-test.js
 You can even link specific versions:
 
 ```html
-<script src="https://github.com/muaz-khan/DetectRTC/releases/download/1.3.5/DetectRTC.js"></script>
+<script src="https://github.com/muaz-khan/DetectRTC/releases/download/1.3.6/DetectRTC.js"></script>
 ```
 
 <img src="https://cdn.webrtc-experiment.com/images/DetectRTC.png" style="width:100%;" />
@@ -144,7 +144,7 @@ DetectRTC.load(function() {
     DetectRTC.hasWebcam; // (has webcam device!)
     DetectRTC.hasMicrophone; // (has microphone device!)
     DetectRTC.hasSpeakers; // (has speakers!)
-    DetectRTC.isScreenCapturingSupported;
+    DetectRTC.isScreenCapturingSupported; // Chrome, Firefox, Opera, Edge and Android
     DetectRTC.isSctpDataChannelsSupported;
     DetectRTC.isRtpDataChannelsSupported;
     DetectRTC.isAudioContextSupported;
@@ -184,16 +184,31 @@ DetectRTC.load(function() {
 });
 ```
 
+# `DetectRTC.version`
+
+DetectRTC is supporting `version` property since `1.3.6`.
+
+```javascript
+if(DetectRTC.version === '1.3.6') {
+    alert('We are using DetectRTC version 1.3.6');
+}
+```
+
 # Why `load` method?
 
-If you're not detecting audio/video input/outupt devices then you can skip this method.
+If you're not detecting audio/video input/output devices then you can skip this method.
 
 `DetectRTC.load` simply makes sure that all devices are captured and valid result is set for relevant properties.
 
-# How to fix `Please invoke getUserMedia once.`?
+# How to fix devices' labels?
+
+You need to check for `device.isCustomLabel` boolean. If this boolean is `true` then assume that DetectRTC given a custom label to the device.
+
+You must getUserMedia request whenever you find `isCustomLabel===true`. getUserMedia request will return valid device labels.
 
 ```javascript
-if (DetectRTC.MediaDevices[0] && DetectRTC.MediaDevices[0].label === 'Please invoke getUserMedia once.') {
+if (DetectRTC.MediaDevices[0] && DetectRTC.MediaDevices[0].isCustomLabel) {
+    // it seems that we did not make getUserMedia request yet
     navigator.mediaDevices.getUserMedia({
         audio: true,
         video: true
@@ -232,7 +247,7 @@ if (DetectRTC.MediaDevices[0] && DetectRTC.MediaDevices[0].label === 'Please inv
 }
 ```
 
-# How to use specific files?
+# How to select specific camera?
 
 Demo: [https://jsfiddle.net/cf90az9q/](https://jsfiddle.net/cf90az9q/)
 

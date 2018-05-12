@@ -9,7 +9,7 @@ exports.config = {
     multiCapabilities: []
 };
 
-['Chrome', 'Firefox'].forEach(function(browserName) {
+['Chrome' /*, 'Firefox'*/ ].forEach(function(browserName) {
     var browserInfo = getDefaultBrowserInfo(browserName);
 
     [ /*'OS X',*/ 'Windows'].forEach(function(os) {

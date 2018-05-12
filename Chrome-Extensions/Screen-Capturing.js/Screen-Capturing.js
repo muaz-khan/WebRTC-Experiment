@@ -1,4 +1,4 @@
-// Last time updated at Sep 23, 2014, 08:32:23
+// Last time updated on: May 10, 2018
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/Screen-Capturing.js
 
@@ -18,7 +18,7 @@
 
 // Usage:
 // getScreenConstraints(function(screen_constraints) {
-//    navigator.webkitGetUserMedia({ video: screen_constraints }, onSuccess, onFailure );
+//    navigator.mediaDevices.getUserMedia({ video: screen_constraints }).then(onSuccess).catch(onFailure );
 // });
 
 // First Step: Download the extension, modify "manifest.json" and publish to Google AppStore
@@ -86,6 +86,15 @@ function getSourceId(callback) {
     window.postMessage('get-sourceId', '*');
 }
 
+// this function can be used to get "source-id" from the extension
+function getSourceIdWithAudio(callback) {
+    if (!callback) throw '"callback" parameter is mandatory.';
+    if(sourceId) return callback(sourceId);
+    
+    screenCallback = callback;
+    window.postMessage('audio-plus-tab', '*');
+}
+
 var isFirefox = typeof window.InstallTrigger !== 'undefined';
 var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 var isChrome = !!window.chrome && !isOpera;
@@ -105,7 +114,7 @@ function getChromeExtensionStatus(extensionid, callback) {
         window.postMessage('are-you-there', '*');
         setTimeout(function() {
             if (chromeMediaSource == 'screen') {
-                callback(extensionid == extensionid ? 'installed-enabled' : 'installed-disabled');
+                callback('installed-disabled');
             } else callback('installed-enabled');
         }, 2000);
     };
@@ -114,8 +123,12 @@ function getChromeExtensionStatus(extensionid, callback) {
     };
 }
 
+function getScreenConstraintsWithAudio(callback) {
+    getScreenConstraints(callback, true);
+}
+
 // this function explains how to use above methods/objects
-function getScreenConstraints(callback) {
+function getScreenConstraints(callback, captureSourceIdWithAudio) {
     var firefoxScreenConstraints = {
         mozMediaSource: 'window',
         mediaSource: 'window'
@@ -138,10 +151,18 @@ function getScreenConstraints(callback) {
     // if installed and available then it will invoke extension API
     // otherwise it will fallback to command-line based screen capturing API
     if (chromeMediaSource == 'desktop' && !sourceId) {
-        getSourceId(function() {
-            screen_constraints.mandatory.chromeMediaSourceId = sourceId;
-            callback(sourceId == 'PermissionDeniedError' ? sourceId : null, screen_constraints);
-        });
+        if(captureSourceIdWithAudio) {
+            getSourceIdWithAudio(function() {
+                screen_constraints.mandatory.chromeMediaSourceId = sourceId;
+                callback(sourceId == 'PermissionDeniedError' ? sourceId : null, screen_constraints);
+            });
+        }
+        else {
+            getSourceId(function() {
+                screen_constraints.mandatory.chromeMediaSourceId = sourceId;
+                callback(sourceId == 'PermissionDeniedError' ? sourceId : null, screen_constraints);
+            });
+        }
         return;
     }
 

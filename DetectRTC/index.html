@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2017.11.15';</script>
+<script>window.demoVersion = '2018.05.05';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -110,7 +110,7 @@
 
             <section style="margin: 20px; text-align: center; color: red;">
                 <small id="demoVersion"></small>
-                <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getUTCFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
+                <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
             </section>
 
             <div class="github-stargazers"></div>
@@ -178,7 +178,7 @@
                         var labels = [];
                         DetectRTC.audioOutputDevices.forEach(function(device) {
 
-                           if(DetectRTC.browser.name === 'Edge' && device.label === 'Please invoke getUserMedia once.') {
+                           if(DetectRTC.browser.name === 'Edge' && device.isCustomLabel) {
                                 device.label = 'Microsoft Edge is unable to detect label for this speaker device.';
                            }
 
@@ -241,17 +241,17 @@
                     appendTR('Browser Supports WebAudio API?', printVal(DetectRTC.isAudioContextSupported), 'isAudioContextSupported');
                     appendTR('Browser Supports SCTP Data Channels?', printVal(DetectRTC.isSctpDataChannelsSupported), 'isSctpDataChannelsSupported');
                     appendTR('Browser Supports RTP Data Channels?', printVal(DetectRTC.isRtpDataChannelsSupported), 'isRtpDataChannelsSupported');
-                    appendTR('This page Supports Screen Capturing API?', printVal(DetectRTC.isScreenCapturingSupported), 'isScreenCapturingSupported');
+                    appendTR('This page Supports Screen Capturing API?' + getInfoDiv('infoIcon-isScreenCapturingSupported'), printVal(DetectRTC.isScreenCapturingSupported), 'isScreenCapturingSupported');
 
-                    appendTR('Is this browser supports multi-monitor selection & capturing screen of any monitor?', printVal(DetectRTC.isMultiMonitorScreenCapturingSupported), 'isMultiMonitorScreenCapturingSupported');
+                    appendTR('Does Browser Support multi-monitor selection & capturing screen of any monitor?', printVal(DetectRTC.isMultiMonitorScreenCapturingSupported), 'isMultiMonitorScreenCapturingSupported');
 
 
                     appendTR('Is it a mobile device?', printVal(DetectRTC.isMobileDevice), 'isMobileDevice');
 
-                    appendTR('Is Browser Supports Stream Capturing from Canvas?', printVal(DetectRTC.isVideoSupportsStreamCapturing), 'isVideoSupportsStreamCapturing');
-                    appendTR('Is Browser Supports Stream Capturing from Video?', printVal(DetectRTC.isVideoSupportsStreamCapturing), 'isVideoSupportsStreamCapturing');
+                    appendTR('Does Browser Support Stream Capturing from Canvas?', printVal(DetectRTC.isVideoSupportsStreamCapturing), 'isVideoSupportsStreamCapturing');
+                    appendTR('Does Browser Support Stream Capturing from Video?', printVal(DetectRTC.isVideoSupportsStreamCapturing), 'isVideoSupportsStreamCapturing');
 
-                    appendTR('Is Browser Supports Promises?', printVal(DetectRTC.isPromisesSupported), 'isPromisesSupported');
+                    appendTR('Does Browser Support Promises?', printVal(DetectRTC.isPromisesSupported), 'isPromisesSupported');
 
                     appendTR('<a id="btn-show-ip-addresses" href"#" style="cursor:pointer;">Click to show IP addresses</a>', '', '');
 
@@ -292,6 +292,38 @@
                     // appendTR(DetectRTC.MediaStream === false ? 'Your system does NOT supports MediaStream.' : 'Your system supports MediaStream.', '<strong>MediaStream.prototype:</strong><br>' + DetectRTC.MediaStream.toString().split(',').join(', '), 'MediaStream');
                     // appendTR(DetectRTC.MediaStreamTrack === false ? 'Your system does NOT supports MediaStreamTrack.' : 'Your system supports MediaStreamTrack.', '<strong>MediaStreamTrack.prototype:</strong><br>' + DetectRTC.MediaStreamTrack.toString().split(',').join(', '), 'MediaStreamTrack');
                     // appendTR(DetectRTC.RTCPeerConnection === false ? 'Your system does NOT supports RTCPeerConnection API.' : 'Your system supports RTCPeerConnection API.', '<strong>RTCPeerConnection.prototype:</strong><br>' + DetectRTC.RTCPeerConnection.toString().split(',').join(', '), 'RTCPeerConnection');
+                    document.getElementById('infoIcon-isScreenCapturingSupported').onclick = function() {
+                        var pre = this.parentNode.querySelector('pre');
+                        if(pre) {
+                            pre.parentNode.removeChild(pre);
+                            return;
+                        }
+
+                        pre = document.createElement('pre');
+                        pre.className = 'sh_javascript inline-pre';
+                        pre.innerHTML += '\
+# Edge &gt= 17<br>\
+navigator.getDisplayMedia({<br>\
+    video: true<br>\
+}).then(screenStream => {<br>\
+    video.srcObject = screenStream;<br>\
+}, error => {<br>\
+    alert(error);<br>\
+});<br>\
+<br>\
+# Firefox<br>\
+navigator.mediaDevices.getUserMedia({<br>\
+    video: {<br>\
+        mediaSource: \'window\' || \'screen\'<br>\
+    }<br>\
+}).then(function(screenStream) {<br>\
+    video.srcObject = screenStream;<br>\
+});<br><br>\
+# Chrome+Opera desktopCapture API i.e. extension';
+                        this.parentNode.appendChild(pre);
+                        pre.focus();
+                        sh_highlightDocument();
+                    };
 
                     document.getElementById('infoIcon-set-sink-id').onclick = function() {
                         var pre = this.parentNode.querySelector('pre');
@@ -322,16 +354,13 @@ if(secondarySpeakers) {<br>\
                         pre = document.createElement('pre');
                         pre.className = 'sh_javascript inline-pre';
                         pre.innerHTML += '\
-var secondaryCamera = DetectRTC.videoInputDevices[1];<br>\
-if(secondaryCamera) {<br>\
-   var videoConstraints = {<br>\
-       deviceId: secondaryCamera.deviceId<br>\
-   };<br>\
-<br>\
-   oldMediaStream.getVideoTracks().forEach(function(track) {<br>\
-       track.applyConstraints(videoConstraints); <br>\
-   });<br>\
-}';
+oldMediaStream.getVideoTracks().forEach(function(track) {<br>\
+    var videoConstraints = {<br>\
+        width: {min: 640, ideal: 1280},<br>\
+        height: {min: 480, ideal: 720},<br>\
+    };<br>\
+    track.applyConstraints(videoConstraints); <br>\
+});';
                         this.parentNode.appendChild(pre);
                         pre.focus();
                         sh_highlightDocument();
@@ -370,7 +399,7 @@ rtpSenders.replaceTrack(newTrack);';
                     reloadDetectRTC();
 
                     try {
-                        if(DetectRTC.MediaDevices[0] && DetectRTC.MediaDevices[0].label === 'Please invoke getUserMedia once.') {
+                        if(DetectRTC.MediaDevices[0] && DetectRTC.MediaDevices[0].isCustomLabel) {
                             navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(function(stream) {
                                 var video;
                                 try {
@@ -444,6 +473,10 @@ rtpSenders.replaceTrack(newTrack);';
                     return new Blob([uInt8Array], {
                         type: contentType
                     });
+                }
+
+                if(DetectRTC.version) {
+                    document.getElementById('welcome').innerHTML = 'DetectRTC v' + DetectRTC.version;
                 }
             </script>
 

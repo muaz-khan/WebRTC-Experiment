@@ -48,6 +48,17 @@ function captureCamera(callback) {
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
         initVideoPlayer(stream);
         callback(stream);
+
+        if(enableCamera && !enableScreen) {
+            var win = window.open("video.html?src=" + URL.createObjectURL(stream),"_blank", "top=20,left=20,width=360,height=240");
+
+            var timer = setInterval(function() {   
+                if(win.closed) {  
+                    clearInterval(timer);
+                    stopScreenRecording();
+                }  
+            }, 1000); 
+        }
     }).catch(function(error) {
         chrome.tabs.create({
             url: 'camera-mic.html'

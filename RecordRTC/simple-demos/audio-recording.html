@@ -16,6 +16,7 @@
 <button id="btn-start-recording">Start Recording</button>
 <button id="btn-stop-recording" disabled>Stop Recording</button>
 <button id="btn-release-microphone" disabled>Release Microphone</button>
+<button id="btn-download-recording" disabled>Download</button>
 
 <hr>
 <div><audio controls autoplay></audio></div>
@@ -26,7 +27,7 @@
 var audio = document.querySelector('audio');
 
 function captureMicrophone(callback) {
-    document.querySelector('#btn-release-microphone').disabled = false;
+    btnReleaseMicrophone.disabled = false;
 
     if(microphone) {
         callback(microphone);
@@ -71,10 +72,7 @@ function replaceAudio(src) {
 function stopRecordingCallback() {
     replaceAudio(URL.createObjectURL(recorder.getBlob()));
 
-    recorder.destroy();
-    recorder = null;
-
-    document.getElementById('btn-start-recording').disabled = false;
+    btnStartRecording.disabled = false;
 
     setTimeout(function() {
         if(!audio.paused) return;
@@ -88,31 +86,50 @@ function stopRecordingCallback() {
     }, 300);
 
     audio.play();
+
+    btnDownloadRecording.disabled = false;
+
+    if(isSafari) {
+        click(btnReleaseMicrophone);
+    }
 }
 
-document.querySelector('#btn-release-microphone').onclick = function() {
-    this.disabled = true;
-    document.getElementById('btn-start-recording').disabled = false;
-
-    microphone.stop();
-    microphone = null;
-
-    if(recorder) {
-        click(document.getElementById('btn-stop-recording'));
-    }
-};
-
 var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob);
+var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
 var recorder; // globally accessible
 var microphone;
 
-document.getElementById('btn-start-recording').onclick = function() {
+var btnStartRecording = document.getElementById('btn-start-recording');
+var btnStopRecording = document.getElementById('btn-stop-recording');
+var btnReleaseMicrophone = document.querySelector('#btn-release-microphone');
+var btnDownloadRecording = document.getElementById('btn-download-recording');
+
+btnStartRecording.onclick = function() {
     this.disabled = true;
+    this.style.border = '';
+    this.style.fontSize = '';
 
     if (!microphone) {
         captureMicrophone(function(mic) {
             microphone = mic;
-            click(document.getElementById('btn-start-recording'));
+
+            if(isSafari) {
+                replaceAudio();
+
+                audio.muted = true;
+                setSrcObject(microphone, audio);
+                audio.play();
+
+                btnStartRecording.disabled = false;
+                btnStartRecording.style.border = '1px solid red';
+                btnStartRecording.style.fontSize = '150%';
+
+                alert('Please click startRecording button again. First time we tried to access your microphone. Now we will record it.');
+                return;
+            }
+
+            click(btnStartRecording);
         });
         return;
     }
@@ -134,21 +151,111 @@ document.getElementById('btn-start-recording').onclick = function() {
         options.sampleRate = 48000; // or 44100 or remove this line for default
     }
 
+    if(recorder) {
+        recorder.destroy();
+        recorder = null;
+    }
+
     recorder = RecordRTC(microphone, options);
 
     recorder.startRecording();
 
-    document.getElementById('btn-stop-recording').disabled = false;
+    btnStopRecording.disabled = false;
+    btnDownloadRecording.disabled = true;
 };
 
-document.getElementById('btn-stop-recording').onclick = function() {
+btnStopRecording.onclick = function() {
     this.disabled = true;
     recorder.stopRecording(stopRecordingCallback);
 };
 
+btnReleaseMicrophone.onclick = function() {
+    this.disabled = true;
+    btnStartRecording.disabled = false;
+
+    if(microphone) {
+        microphone.stop();
+        microphone = null;
+    }
+
+    if(recorder) {
+        // click(btnStopRecording);
+    }
+};
+
+btnDownloadRecording.onclick = function() {
+    this.disabled = true;
+    if(!recorder || !recorder.getBlob()) return;
+
+    if(isSafari) {
+        recorder.getDataURL(function(dataURL) {
+            SaveToDisk(dataURL, getFileName('mp3'));
+        });
+        return;
+    }
+
+    var blob = recorder.getBlob();
+    var file = new File([blob], getFileName('mp3'), {
+        type: 'audio/mp3'
+    });
+    invokeSaveAsDialog(file);
+};
+
 function click(el) {
+    el.disabled = false; // make sure that element is not disabled
     var evt = document.createEvent('Event');
     evt.initEvent('click', true, true);
     el.dispatchEvent(evt);
+}
+
+function getRandomString() {
+    if (window.crypto && window.crypto.getRandomValues && navigator.userAgent.indexOf('Safari') === -1) {
+        var a = window.crypto.getRandomValues(new Uint32Array(3)),
+            token = '';
+        for (var i = 0, l = a.length; i < l; i++) {
+            token += a[i].toString(36);
+        }
+        return token;
+    } else {
+        return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
+    }
+}
+
+function getFileName(fileExtension) {
+    var d = new Date();
+    var year = d.getFullYear();
+    var month = d.getMonth();
+    var date = d.getDate();
+    return 'RecordRTC-' + year + month + date + '-' + getRandomString() + '.' + fileExtension;
+}
+
+function SaveToDisk(fileURL, fileName) {
+    // for non-IE
+    if (!window.ActiveXObject) {
+        var save = document.createElement('a');
+        save.href = fileURL;
+        save.download = fileName || 'unknown';
+        save.style = 'display:none;opacity:0;color:transparent;';
+        (document.body || document.documentElement).appendChild(save);
+
+        if (typeof save.click === 'function') {
+            save.click();
+        } else {
+            save.target = '_blank';
+            var event = document.createEvent('Event');
+            event.initEvent('click', true, true);
+            save.dispatchEvent(event);
+        }
+
+        (window.URL || window.webkitURL).revokeObjectURL(save.href);
+    }
+
+    // for IE
+    else if (!!window.ActiveXObject && document.execCommand) {
+        var _window = window.open(fileURL, '_blank');
+        _window.document.close();
+        _window.document.execCommand('SaveAs', true, fileName || fileURL)
+        _window.close();
+    }
 }
 </script>

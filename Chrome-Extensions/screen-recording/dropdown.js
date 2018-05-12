@@ -40,6 +40,23 @@ document.getElementById('full-screen').onclick = function() {
         enableCamera: 'false',
         enableScreen: 'true', // TRUE
         isRecording: 'true', // TRUE
+        enableSpeakers: 'false' // FALSE
+    }, function() {
+        runtimePort.postMessage({
+            messageFromContentScript1234: true,
+            startRecording: true
+        });
+        window.close();
+    });
+};
+
+document.getElementById('full-screen-audio').onclick = function() {
+    chrome.storage.sync.set({
+        enableTabCaptureAPI: 'false',
+        enableMicrophone: 'false',
+        enableCamera: 'false',
+        enableScreen: 'true', // TRUE
+        isRecording: 'true', // TRUE
         enableSpeakers: 'true' // TRUE
     }, function() {
         runtimePort.postMessage({

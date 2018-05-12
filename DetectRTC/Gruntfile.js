@@ -48,17 +48,26 @@ module.exports = function(grunt) {
                     'dev/Objects.js',
                     'dev/tail.js'
                 ],
-                dest: 'DetectRTC.js',
+                dest: './temp/DetectRTC.js',
             },
         },
-        jshint: {
-            options: {
-                ignores: [],
-                // use default .jshintrc files
-                jshintrc: true
-            },
-            files: ['DetectRTC.js']
+        replace: {
+            dist: {
+                options: {
+                    patterns: [{
+                        match: 'version',
+                        replacement: versionNumber
+                    }]
+                },
+                files: [{
+                    expand: true,
+                    flatten: true,
+                    src: ['./temp/DetectRTC.js'],
+                    dest: './'
+                }]
+            }
         },
+        clean: ['./temp'],
         uglify: {
             options: {
                 mangle: false,
@@ -134,5 +143,5 @@ module.exports = function(grunt) {
 
     // set default tasks to run when grunt is called without parameters
     // http://gruntjs.com/api/grunt.task
-    grunt.registerTask('default', ['concat', 'jsbeautifier', /*'jshint',*/ 'uglify']);
+    grunt.registerTask('default', ['concat', 'replace', 'jsbeautifier', 'uglify', 'clean']);
 };

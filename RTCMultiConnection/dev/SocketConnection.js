@@ -73,7 +73,7 @@ function SocketConnection(connection, connectCallback) {
         connection.peersBackup[remoteUserId].extra = extra;
     });
 
-    connection.socket.on(connection.socketMessageEvent, function(message) {
+    function onMessageEvent(message) {
         if (message.remoteUserId != connection.userid) return;
 
         if (connection.peers[message.sender] && connection.peers[message.sender].extra != message.message.extra) {
@@ -174,6 +174,15 @@ function SocketConnection(connection, connectCallback) {
         }
 
         if (message.message.readyForOffer || message.message.addMeAsBroadcaster) {
+            if (connection.waitingForLocalMedia) {
+                // if someone is waiting to join you
+                // make sure that we've local media before making a handshake
+                setTimeout(function() {
+                    onMessageEvent(message);
+                }, 1000);
+                return;
+            }
+
             connection.addNewBroadcaster(message.sender);
         }
 
@@ -236,7 +245,9 @@ function SocketConnection(connection, connectCallback) {
         }
 
         mPeer.addNegotiatedMessage(message.message, message.sender);
-    });
+    }
+
+    connection.socket.on(connection.socketMessageEvent, onMessageEvent);
 
     connection.socket.on('user-left', function(userid) {
         onUserLeft(userid);

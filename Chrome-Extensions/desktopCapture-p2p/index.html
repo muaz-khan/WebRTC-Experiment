@@ -160,7 +160,7 @@ button[disabled] {
 <div id="container" ondblclick="enterFullScreen()">
     <div id="card">
         <div id="remote">
-            <video id="remoteVideo" autoplay="autoplay"></video>
+            <video id="remoteVideo" autoplay playsinline></video>
         </div>
     </div>
 
@@ -192,10 +192,8 @@ var connection = new RTCMultiConnection(params.s);
 
 // www.rtcmulticonnection.org/docs/sdpConstraints/
 connection.sdpConstraints.mandatory = {
-    OfferToReceiveAudio: false,
-    OfferToReceiveVideo: true,
-    voiceActivityDetection: false,
-    iceRestart: false
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true
 };
 
 connection.getExternalIceServers = false;
@@ -487,6 +485,8 @@ function onGettingWebRCStats(stats, userid) {
     html += 'Resolutions: ' + stats.resolutions.recv.width + 'x' + stats.resolutions.recv.height;
     html += '<br>';
     html += 'Data: ' + bytesToSize(stats.audio.bytesReceived + stats.video.bytesReceived);
+    // html += '<br>';
+    // html += 'Speed: ' + bytesToSize(stats.bandwidth.speed || 0);
     statsBarHTML.innerHTML = html;
 }
 

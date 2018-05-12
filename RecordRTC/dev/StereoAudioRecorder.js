@@ -113,6 +113,10 @@ function StereoAudioRecorder(mediaStream, config) {
 
         isAudioProcessStarted = isPaused = false;
         recording = true;
+
+        if (typeof config.timeSlice !== 'undefined') {
+            looper();
+        }
     };
 
     function mergeLeftRightBuffers(config, callback) {
@@ -545,6 +549,12 @@ function StereoAudioRecorder(mediaStream, config) {
         self.desiredSampRate = desiredSampRate;
         self.sampleRate = sampleRate;
         self.recordingLength = recordingLength;
+
+        intervalsBasedBuffers = {
+            left: [],
+            right: [],
+            recordingLength: 0
+        };
     }
 
     function clearRecordedDataCB() {
@@ -612,17 +622,28 @@ function StereoAudioRecorder(mediaStream, config) {
         var left = e.inputBuffer.getChannelData(0);
 
         // we clone the samples
-        leftchannel.push(new Float32Array(left));
+        var chLeft = new Float32Array(left);
+        leftchannel.push(chLeft);
 
         if (numberOfAudioChannels === 2) {
             var right = e.inputBuffer.getChannelData(1);
-            rightchannel.push(new Float32Array(right));
+            var chRight = new Float32Array(right);
+            rightchannel.push(chRight);
         }
 
         recordingLength += bufferSize;
 
         // export raw PCM
         self.recordingLength = recordingLength;
+
+        if (typeof config.timeSlice !== 'undefined') {
+            intervalsBasedBuffers.recordingLength += bufferSize;
+            intervalsBasedBuffers.left.push(chLeft);
+
+            if (numberOfAudioChannels === 2) {
+                intervalsBasedBuffers.right.push(chRight);
+            }
+        }
     }
 
     jsAudioNode.onaudioprocess = onAudioProcessDataAvailable;
@@ -637,6 +658,46 @@ function StereoAudioRecorder(mediaStream, config) {
     this.desiredSampRate = desiredSampRate;
     this.sampleRate = sampleRate;
     self.recordingLength = recordingLength;
+
+    // helper for intervals based blobs
+    var intervalsBasedBuffers = {
+        left: [],
+        right: [],
+        recordingLength: 0
+    };
+
+    // this looper is used to support intervals based blobs (via timeSlice+ondataavailable)
+    function looper() {
+        if (!recording || typeof config.ondataavailable !== 'function' || typeof config.timeSlice === 'undefined') {
+            return;
+        }
+
+        if (intervalsBasedBuffers.left.length) {
+            mergeLeftRightBuffers({
+                desiredSampRate: desiredSampRate,
+                sampleRate: sampleRate,
+                numberOfAudioChannels: numberOfAudioChannels,
+                internalInterleavedLength: intervalsBasedBuffers.recordingLength,
+                leftBuffers: intervalsBasedBuffers.left,
+                rightBuffers: numberOfAudioChannels === 1 ? [] : intervalsBasedBuffers.right
+            }, function(buffer, view) {
+                var blob = new Blob([view], {
+                    type: 'audio/wav'
+                });
+                config.ondataavailable(blob);
+
+                setTimeout(looper, config.timeSlice);
+            });
+
+            intervalsBasedBuffers = {
+                left: [],
+                right: [],
+                recordingLength: 0
+            };
+        } else {
+            setTimeout(looper, config.timeSlice);
+        }
+    }
 }
 
 if (typeof RecordRTC !== 'undefined') {

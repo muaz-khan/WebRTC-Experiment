@@ -27,6 +27,7 @@ function onGettingFile(f) {
 
     video.src = URL.createObjectURL(file);
     fname.innerHTML = fname.download = title.innerHTML = file.name;
+    fname.innerHTML = '<img src="images/download-icon.png" style="height: 32px; vertical-align: middle;margin-right: 5px;">' + file.name;
     fname.href = video.src;
     fsize.innerHTML = bytesToSize(file.size);
     // fduration.innerHTML = file.duration || '00:00';

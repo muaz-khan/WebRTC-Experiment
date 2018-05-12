@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Select & Change Cameras using DetectRTC</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+</head>
+<body style="text-align: center;">
+    <h1>Select & Change Cameras using DetectRTC</h1>
+    <select id="cameras-list"></select><br>
+    <video autoplay playsinline style="border-radius: 3px; max-width: 60%;margin: 10px;"></video>
+
+    <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script>
+        var video = document.querySelector('video');
+        var camerasList = document.querySelector('#cameras-list');
+
+        camerasList.onchange = function() {
+            var selected = camerasList.value;
+            var deviceSelection = selected ? {
+                deviceId: selected
+            } : true;
+
+            navigator.mediaDevices.getUserMedia({
+                video: deviceSelection
+            }).then(function(stream) {
+                video.srcObject = stream;
+
+                DetectRTC.load(function() {
+                    camerasList.innerHTML = '';
+                    camerasList.size = DetectRTC.videoInputDevices.length;
+                    DetectRTC.videoInputDevices.forEach(function(device, idx) {
+                        var option = document.createElement('option');
+                        option.value = device.id;
+                        option.innerHTML = device.label || 'UnKnown Camera';
+                        camerasList.appendChild(option);
+
+                        if(device.id === selected || (!selected && idx == 0)) {
+                            option.selected = true;
+                            option.tabIndex = 0;
+                            option.focus();
+                        }
+                    });
+                });
+            });
+        };
+
+        camerasList.onchange();
+    </script>
+
+    <footer>
+        <a href="https://github.com/muaz-khan/DetectRTC">https://github.com/muaz-khan/DetectRTC</a>
+    </footer>
+</body>
+</html>

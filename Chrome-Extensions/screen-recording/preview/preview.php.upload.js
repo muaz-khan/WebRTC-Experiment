@@ -10,13 +10,21 @@ document.querySelector('#btn-php-upload').onclick = function() {
     uploadToPHPServer(file, function(progress, videoURL) {
         if(progress === 'ended' || videoURL) {
             showPHPURL(videoURL);
+            document.title = 'Upload successful';
             return;
         }
 
-        header.innerHTML = progress;
+        if(progress != 'Upload started...') {
+            header.innerHTML = 'Upload Progress: ' + progress + '%';
+        }
+        else {
+            header.innerHTML = progress;
+        }
+        
+        document.title = progress + '% uploaded';
 
         if (progress >= 99 || videoURL || progress === 'progress-ended') {
-            header.innerHTML = 'Uploaded to PHP. Retrieving the video URL...';
+            header.innerHTML = 'Uploaded to Server. Retrieving the private video URL...';
         }
     });
 };
@@ -61,7 +69,7 @@ function makeXMLHttpRequest(url, data, callback) {
     };
 
     request.upload.onprogress = function(event) {
-        callback('Upload Progress ' + Math.round(event.loaded / event.total * 100) + "%");
+        callback(Math.round(event.loaded / event.total * 100));
     };
 
     request.upload.onload = function() {

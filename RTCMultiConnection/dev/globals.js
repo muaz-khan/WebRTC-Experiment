@@ -98,6 +98,11 @@ function getRandomString() {
 // Get HTMLAudioElement/HTMLVideoElement accordingly
 
 function getRMCMediaElement(stream, callback, connection) {
+    if (!connection.autoCreateMediaElement) {
+        callback({});
+        return;
+    }
+
     var isAudioOnly = false;
     if (!!stream.getVideoTracks && !stream.getVideoTracks().length && !stream.isVideo && !stream.isScreen) {
         isAudioOnly = true;
@@ -112,7 +117,16 @@ function getRMCMediaElement(stream, callback, connection) {
     var mediaElement = document.createElement(isAudioOnly ? 'audio' : 'video');
 
     mediaElement.srcObject = stream;
-    mediaElement.controls = true;
+
+    try {
+        mediaElement.setAttributeNode(document.createAttribute('autoplay'));
+        mediaElement.setAttributeNode(document.createAttribute('playsinline'));
+        mediaElement.setAttributeNode(document.createAttribute('controls'));
+    } catch (e) {
+        mediaElement.setAttribute('autoplay', true);
+        mediaElement.setAttribute('playsinline', true);
+        mediaElement.setAttribute('controls', true);
+    }
 
     // http://goo.gl/WZ5nFl
     // Firefox don't yet support onended for any stream (remote/local)

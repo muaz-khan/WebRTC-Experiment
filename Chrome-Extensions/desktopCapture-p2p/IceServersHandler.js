@@ -5,15 +5,9 @@ var IceServersHandler = (function() {
         // resiprocate: 3344+4433
         var iceServers = [{
                 'urls': [
-                    'turn:webrtcweb.com:7788',
-                    'turn:webrtcweb.com:8877',
-                    'turn:webrtcweb.com:4455',
-                    'turn:webrtcweb.com:5544',
-
-                    'turns:webrtcweb.com:7788',
-                    'turns:webrtcweb.com:8877',
-                    'turns:webrtcweb.com:4455',
-                    'turns:webrtcweb.com:5544'
+                    'turn:webrtcweb.com:7788', // coTURN 7788+8877
+                    'turn:webrtcweb.com:4455', // restund udp
+                    'turn:webrtcweb.com:5544' // restund tcp
                 ],
                 'username': 'muazkh',
                 'credential': 'muazkh'
@@ -24,6 +18,11 @@ var IceServersHandler = (function() {
                 ]
             }
         ];
+
+        if (typeof window.InstallTrigger !== 'undefined') {
+            iceServers[0].urls = iceServers[0].urls.pop();
+            iceServers[1].urls = iceServers[1].urls.pop();
+        }
 
         return iceServers;
     }

@@ -1,35 +1,30 @@
-## Record Entire WebPage or Canvas2D
+# Canvas+WebPage Recording using RecordRTC
 
-Features:
-
-1. Realtime Canvas2D-animation recording is supported on Firefox 44+, and Chrome 53+
-2. Older chrome supports webpage recording as well as canvas-2d animation recording. PS: Old Firefox is NOT supporting Canvas2D recording.
+Record entire webpage, part of webpage eg. a DIV, Canvas2D animatino, WebGL animation, videos+webpage, or any activity on the webpage.
 
 ## Demos
 
-1. [Record entire DIV including video, image, textarea, input, drag/move/resize, everything](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/)
-2. [Record canvas 2D drawings, lines, shapes, texts, images, drag/resize/enlarge/move via a huge drawing tool!](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html)
-3. [Record Canvas2D Animation](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/Canvas-Animation-Recording.html)
+1. [WebPage+Canvas Recording](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/webpage-recording.html)
+2. [HTML5 Canvas Dashboard + 2D Animation Recording](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html)
+3. [HTML5 2D Animation Recording](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/Canvas-Animation-Recording.html)
+4. [HTML5 2D Animation + Microphone Recording](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/Canvas-Animation-Recording-Plus-Microphone.html)
+5. [HTML5 2D Animation + Mp3 Recording](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/Canvas-Animation-Recording-Plus-Mp3.html)
+6. [HTML5 2D Animation + Microphone + Mp3 Recording](https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/Canvas-Animation-Recording-Plus-Microphone-Plus-Mp3.html)
+7. [WebGL Animation Recording](https://www.webrtc-experiment.com/RecordRTC/webgl/)
+8. [plotly - WebGL Recording](https://www.webrtc-experiment.com/RecordRTC/plotly.html)
 
-This [WebRTC](https://www.webrtc-experiment.com/) experiment is using [RecordRTC.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC) to record HTML/Canvas into webm; where [html2canvas.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/part-of-screen-sharing) is used to capture HTML-snapshots. Those snapshots are encoded in webp; and then encoded again in webm.
-
-You can say it: "HTML/Canvas Recording using RecordRTC"!
-
-<a href="https://www.webrtc-experiment.com/getMediaElement/">
-	<img src="https://lh5.googleusercontent.com/-mZGcj67_NTE/UtY2vw9bljI/AAAAAAAAAl0/T6lvI68bfb8/s0-I/RecordRTC-Canvas-Recording.gif" />
-</a>
-
-=
+# How to use?
 
 ```html
 <script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
 <script src="https://cdn.webrtc-experiment.com/screenshot.js"></script>
-<div id="elementToShare" style="width:100%;height:100%;background:green;"></div>
+<div id="element-to-record" style="width:100%;height:100%;background:green;"></div>
 <script>
-var elementToShare = document.getElementById('elementToShare');
-var recorder = RecordRTC(elementToShare, {
+var elementToRecord = document.getElementById('element-to-record');
+var recorder = RecordRTC(elementToRecord, {
     type: 'canvas',
-    showMousePointer: true
+    showMousePointer: true,
+    useWhammyRecorder: true
 });
 recorder.startRecording();
 recorder.stopRecording(function(url) {
@@ -37,8 +32,6 @@ recorder.stopRecording(function(url) {
 });
 </script>
 ```
-
-=
 
 ## Record `<canvas>`
 
@@ -63,25 +56,8 @@ recorder.stop(function(blob) {
 </script>
 ```
 
-Live Demo:
-
-* https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html
-
 Watch a video: https://vimeo.com/152119435
 
-=
-
-[RecordRTC](https://www.webrtc-experiment.com/RecordRTC/) is a server-less (entire client-side) JavaScript library can be used to record WebRTC audio/video media streams. It supports cross-browser audio/video recording.
-
-1. [RecordRTC to Node.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-Nodejs)
-2. [RecordRTC to PHP](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-PHP)
-3. [RecordRTC to ASP.NET MVC](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-to-ASPNETMVC)
-4. [RecordRTC & HTML-2-Canvas i.e. Canvas/HTML Recording!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/Canvas-Recording)
-5. [MRecordRTC i.e. Multi-RecordRTC!](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/MRecordRTC)
-6. [RecordRTC on Ruby!](https://github.com/cbetta/record-rtc-experiment)
-7. [RecordRTC over Socket.io](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC/RecordRTC-over-Socketio)
-
-=
 
 ## License
 

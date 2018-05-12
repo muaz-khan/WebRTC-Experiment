@@ -12,18 +12,24 @@ function getHTMLMediaElement(mediaElement, config) {
         var mediaStream = mediaElement;
         mediaElement = document.createElement(mediaStream.getVideoTracks().length ? 'video' : 'audio');
 
+        try {
+            mediaElement.setAttributeNode(document.createAttribute('autoplay'));
+            mediaElement.setAttributeNode(document.createAttribute('playsinline'));
+        } catch (e) {
+            mediaElement.setAttribute('autoplay', true);
+            mediaElement.setAttribute('playsinline', true);
+        }
+
         if ('srcObject' in mediaElement) {
             mediaElement.srcObject = mediaStream;
         } else {
-            mediaElement[!!navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = !!navigator.mozGetUserMedia ? mediaStream : window.webkitURL.createObjectURL(mediaStream);
+            mediaElement[!!navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = !!navigator.mozGetUserMedia ? mediaStream : (window.URL || window.webkitURL).createObjectURL(mediaStream);
         }
     }
 
     if (mediaElement.nodeName && mediaElement.nodeName.toLowerCase() == 'audio') {
         return getAudioElement(mediaElement, config);
     }
-
-    mediaElement.controls = false;
 
     var buttons = config.buttons || ['mute-audio', 'mute-video', 'full-screen', 'volume-slider', 'stop'];
     buttons.has = function(element) {
@@ -336,10 +342,18 @@ function getAudioElement(mediaElement, config) {
         var mediaStream = mediaElement;
         mediaElement = document.createElement('audio');
 
+        try {
+            mediaElement.setAttributeNode(document.createAttribute('autoplay'));
+            mediaElement.setAttributeNode(document.createAttribute('controls'));
+        } catch (e) {
+            mediaElement.setAttribute('autoplay', true);
+            mediaElement.setAttribute('controls', true);
+        }
+
         if ('srcObject' in mediaElement) {
             mediaElement.mediaElement = mediaStream;
         } else {
-            mediaElement[!!navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = !!navigator.mozGetUserMedia ? mediaStream : window.webkitURL.createObjectURL(mediaStream);
+            mediaElement[!!navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = !!navigator.mozGetUserMedia ? mediaStream : (window.URL || window.webkitURL).createObjectURL(mediaStream);
         }
     }
 
@@ -347,9 +361,6 @@ function getAudioElement(mediaElement, config) {
     config.toggle.has = function(element) {
         return config.toggle.indexOf(element) !== -1;
     };
-
-    mediaElement.controls = false;
-    mediaElement.play();
 
     var mediaElementContainer = document.createElement('div');
     mediaElementContainer.className = 'media-container';

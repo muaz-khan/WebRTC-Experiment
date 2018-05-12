@@ -51,7 +51,6 @@ function getUserMediaHandler(options) {
 
     function streaming(stream, returnBack) {
         setStreamType(options.localMediaConstraints, stream);
-        options.onGettingLocalMedia(stream, returnBack);
 
         var streamEndedEvent = 'ended';
 
@@ -76,6 +75,9 @@ function getUserMediaHandler(options) {
         if (currentUserMediaRequest.queueRequests.length) {
             getUserMediaHandler(currentUserMediaRequest.queueRequests.shift());
         }
+
+        // callback
+        options.onGettingLocalMedia(stream, returnBack);
     }
 
     if (currentUserMediaRequest.streams[idInstance]) {

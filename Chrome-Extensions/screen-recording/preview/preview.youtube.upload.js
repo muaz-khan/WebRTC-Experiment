@@ -42,6 +42,7 @@ function showYouTubeURL(videoURL) {
 
 function uploadVideoCallback(response, videoURL) {
     header.innerHTML = 'YouTube Upload Progress: ' + response + '%';
+    document.title = response + '% uploaded';
 
     if (response >= 100 || videoURL) {
         header.innerHTML = 'Uploaded to YouTube. Retrieving the video URL...';
@@ -49,6 +50,7 @@ function uploadVideoCallback(response, videoURL) {
 
     if (videoURL) {
         showYouTubeURL(videoURL);
+        document.title = 'Upload successful';
     }
 
     // etag, id, kind
@@ -102,7 +104,7 @@ UploadVideo.prototype.uploadFile = function(fileName, file) {
             categoryId: this.categoryId
         },
         status: {
-            privacyStatus: 'private'
+            privacyStatus: 'public'
         }
     };
     var uploader = new MediaUploader({

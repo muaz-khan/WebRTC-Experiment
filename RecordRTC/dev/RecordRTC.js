@@ -34,7 +34,13 @@ function RecordRTC(mediaStream, config) {
     // a reference to user's recordRTC object
     var self = this;
 
-    function startRecording() {
+    function startRecording(config2) {
+        if (!!config2) {
+            // allow users to set options using startRecording method
+            // config2 is similar to main "config" object (second parameter over RecordRTC constructor)
+            config = new RecordRTCConfiguration(mediaStream, config2);
+        }
+
         if (!config.disableLogs) {
             console.log('started recording ' + config.type + ' stream.');
         }
@@ -733,7 +739,18 @@ function RecordRTC(mediaStream, config) {
             if (!disableLogs) {
                 console.warn('RecordRTC is destroyed.');
             }
-        }
+        },
+
+        /**
+         * RecordRTC version number
+         * @property {String} version - Release version number.
+         * @memberof RecordRTC
+         * @static
+         * @readonly
+         * @example
+         * alert(recorder.version);
+         */
+        version: '@@version'
     };
 
     if (!this) {
@@ -750,6 +767,8 @@ function RecordRTC(mediaStream, config) {
 
     return returnObject;
 }
+
+RecordRTC.version = '@@version';
 
 if (typeof module !== 'undefined' /* && !!module.exports*/ ) {
     module.exports = RecordRTC;

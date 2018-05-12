@@ -1,0 +1,165 @@
+﻿<!-- Demo version: 2018.05.06 -->
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<title>Video Conferencing using RTCMultiConnection</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+	<link rel="shortcut icon" href="https://rtcmulticonnection.herokuapp.com/demos/logo.png">
+	<link rel="stylesheet" href="https://rtcmulticonnection.herokuapp.com/demos/stylesheet.css">
+	<script src="https://rtcmulticonnection.herokuapp.com/demos/menu.js"></script>
+</head>
+<body>
+	<header>
+		<a class="logo" href="https://rtcmulticonnection.herokuapp.com"><img src="https://rtcmulticonnection.herokuapp.com/demos/logo.png" alt="RTCMultiConnection"></a>
+		<a href="https://rtcmulticonnection.herokuapp.com" class="menu-explorer">Menu<img src="https://rtcmulticonnection.herokuapp.com/demos/menu-icon.png" alt="Menu"></a>
+		<nav>
+			<li>
+				<a href="https://rtcmulticonnection.herokuapp.com">Home</a>
+			</li>
+			<li>
+				<a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+			</li>
+			<li>
+				<a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+			</li>
+			<li>
+				<a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
+			</li>
+			<li>
+				<a href="https://github.com/muaz-khan/RTCMultiConnection#v3-demos">Demos</a>
+			</li>
+			<li>
+				<a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
+			</li>
+			<li>
+				<a href="https://github.com/muaz-khan/RTCMultiConnection">Github</a>
+			</li>
+		</nav>
+	</header>
+
+	<h1>
+		Video Conferencing using RTCMultiConnection
+		<p class="no-mobile">
+			Multi-user (many-to-many) video chat using mesh networking model.
+		</p>
+	</h1>
+
+	<section class="make-center">
+		<input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
+		<button id="open-room">Open Room</button>
+		<button id="join-room">Join Room</button>
+
+		<div id="videos-container"></div>
+	</section>
+
+	<style>
+		#videos-container video {
+			width: 45%;
+			border-radius: 3px;
+			margin: 5px 10px;
+		}
+	</style>
+
+	<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+	<script src="https://rtcmulticonnection.herokuapp.com/dev/adapter.js"></script>
+
+	<script src="SignalRConnection.js"></script>
+	<script src="Scripts/jquery-1.10.2.min.js"></script>
+	<script src="Scripts/jquery.signalR-2.1.2.min.js"></script>
+	<script src="signalr/hubs"></script>
+
+	<script>
+		window.enableAdapter = true; // enable adapter.js
+
+		// ......................................................
+		// .......................UI Code........................
+		// ......................................................
+		document.getElementById('open-room').onclick = function () {
+			disableInputButtons();
+			connection.open(document.getElementById('room-id').value, function () {
+			});
+		};
+
+		document.getElementById('join-room').onclick = function () {
+			disableInputButtons();
+			connection.join(document.getElementById('room-id').value);
+		};
+
+		// ......................................................
+		// ..................RTCMultiConnection Code.............
+		// ......................................................
+
+		var connection = new RTCMultiConnection();
+
+		// using signalR for signaling
+		connection.setCustomSocketHandler(SignalRConnection);
+
+		connection.session = {
+			audio: true,
+			video: true
+		};
+
+		connection.sdpConstraints.mandatory = {
+			OfferToReceiveAudio: true,
+			OfferToReceiveVideo: true
+		};
+
+		connection.onstream = function (event) {
+			var existing = document.getElementById(event.streamid);
+			if (existing && existing.parentNode) {
+				existing.parentNode.removeChild(existing);
+			}
+
+			document.getElementById('videos-container').appendChild(event.mediaElement);
+		};
+
+		connection.onstreamended = function (event) {
+			var mediaElement = document.getElementById(event.streamid);
+			if (mediaElement) {
+				mediaElement.parentNode.removeChild(mediaElement);
+			}
+		};
+
+		connection.onMediaError = function (e) {
+			if (e.message === 'Concurrent mic process limit.') {
+				if (DetectRTC.audioInputDevices.length <= 1) {
+					alert('Please select external microphone. Check github issue number 483.');
+					return;
+				}
+
+				var secondaryMic = DetectRTC.audioInputDevices[1].deviceId;
+				connection.mediaConstraints.audio = {
+					deviceId: secondaryMic
+				};
+
+				connection.join(connection.sessionid);
+			}
+		};
+
+		function disableInputButtons() {
+			document.getElementById('open-room').disabled = true;
+			document.getElementById('join-room').disabled = true;
+			document.getElementById('room-id').disabled = true;
+		}
+
+		// ......................................................
+		// ......................Handling Room-ID................
+		// ......................................................
+
+		(function () {
+			var params = {},
+				r = /([^&=]+)=?([^&]*)/g;
+
+			function d(s) {
+				return decodeURIComponent(s.replace(/\+/g, ' '));
+			}
+			var match, search = window.location.search;
+			while (match = r.exec(search.substring(1)))
+				params[d(match[1])] = d(match[2]);
+			window.params = params;
+		})();
+	</script>
+</body>
+</html>

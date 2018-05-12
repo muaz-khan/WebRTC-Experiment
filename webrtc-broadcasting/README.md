@@ -149,7 +149,7 @@ All these three pages has unique channels. They'll NEVER see rooms from each oth
             // https://webrtc-signaling.nodejitsu:443/ (Secure port: HTTPs)
             // http://webrtc-signaling.nodejitsu:80/ (Ordinary port: HTTP)
 			
-            var SIGNALING_SERVER = 'https://webrtc-signaling.nodejitsu.com:443/';
+            var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com/';
 
             var channel = config.channel || location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
             var sender = Math.round(Math.random() * 999999999) + 999999999;

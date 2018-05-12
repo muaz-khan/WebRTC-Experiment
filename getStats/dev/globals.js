@@ -43,7 +43,12 @@ var getStatsResult = {
     bandwidth: {
         systemBandwidth: 0,
         sentPerSecond: 0,
-        encodedPerSecond: 0
+        encodedPerSecond: 0,
+        helper: {
+            audioBytesSent: 0,
+            videoBytestSent: 0
+        },
+        speed: 0
     },
     results: {},
     connectionType: {

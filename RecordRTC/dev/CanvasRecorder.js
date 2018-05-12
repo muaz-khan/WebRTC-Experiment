@@ -49,6 +49,10 @@ function CanvasRecorder(htmlElement, config) {
         isCanvasSupportsStreamCapturing = false;
     }
 
+    if (config.useWhammyRecorder) {
+        isCanvasSupportsStreamCapturing = false;
+    }
+
     var globalCanvas, mediaStreamRecorder;
 
     if (isCanvasSupportsStreamCapturing) {

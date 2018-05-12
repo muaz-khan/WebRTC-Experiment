@@ -55,9 +55,13 @@ header {
 
 #btn-upload, #btn-recordings-list {
     float: right;
-    height: 72px;
-    margin-top: -3px;
+    height: 48px;
+    margin-top: 5px;
     cursor: pointer;
+}
+
+#btn-upload {
+  height: 60px;
 }
 
 #btn-upload-dropdown, #btn-recordings-list-dropdown {
@@ -118,12 +122,12 @@ header {
         Duration: <span id="file-duration">00:00</span>
         -->
     </p>
-    <span style="font-size: 17px">This file is in your <b>browser cache</b>. Click above link to <b>download</b>.</span>
+    <span style="font-size: 17px">This file is in your <b>browser cache</b>. Click above link to <b>download</b> ie. save-to-disk.</span>
 </header>
 
 <div id="btn-upload-dropdown">
+  <div id="btn-php-upload">Upload to Private Server</div>
   <div id="btn-youtube-upload">Upload to YouTube</div>
-  <div id="btn-php-upload">Upload to PHP</div>
 </div>
 
 <div id="btn-recordings-list-dropdown"></div>

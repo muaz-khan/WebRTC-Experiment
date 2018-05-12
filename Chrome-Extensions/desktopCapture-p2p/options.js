@@ -9,8 +9,22 @@
         });
     }
 
+    if (items['codecs']) {
+        document.getElementById('codecs').value = items['codecs'];
+    } else {
+        chrome.storage.sync.set({
+            codecs: 'default'
+        }, function() {
+            document.getElementById('codecs').value = 'default'
+        });
+    }
+
     if (items['room_password']) {
         document.getElementById('room_password').value = items['room_password'];
+    }
+
+    if (items['bandwidth']) {
+        document.getElementById('bandwidth').value = items['bandwidth'];
     }
 
     if (items['room_id']) {
@@ -25,6 +39,26 @@ document.getElementById('resolutions').onchange = function() {
         resolutions: this.value
     }, function() {
         document.getElementById('resolutions').disabled = false;
+    });
+};
+
+document.getElementById('codecs').onchange = function() {
+    this.disabled = true;
+
+    chrome.storage.sync.set({
+        codecs: this.value
+    }, function() {
+        document.getElementById('codecs').disabled = false;
+    });
+};
+
+document.getElementById('bandwidth').onblur = function() {
+    this.disabled = true;
+
+    chrome.storage.sync.set({
+        bandwidth: this.value
+    }, function() {
+        document.getElementById('bandwidth').disabled = false;
     });
 };
 

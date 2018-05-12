@@ -124,7 +124,7 @@ Then open `http://localhost:8888/`.
 In `ui.js` files you can find `openSocket` method; or in all libraries; you can find `openSignalingChannel` method.
 
 ```javascript
-var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
 connection.openSignalingChannel = function(config) {
    var channel = config.channel || this.channel || 'default-namespace';
    var sender = Math.round(Math.random() * 9999999999) + 9999999999;
@@ -159,7 +159,7 @@ connection.openSignalingChannel = function(config) {
 ```javascript
 var config = {
     openSocket: function (config) {
-        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
 
         config.channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
         var sender = Math.round(Math.random() * 999999999) + 999999999;
@@ -193,7 +193,7 @@ var config = {
 You can detect presence of a room like this:
 
 ```javascript
-var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
 function testChannelPresence(channel) {
     var socket = io.connect(SIGNALING_SERVER);
     socket.on('presence', function (isChannelPresent) {

@@ -38,7 +38,7 @@ Please check [dev](https://github.com/muaz-khan/RecordRTC/tree/master/dev) direc
 | Opera | [Stable](http://www.opera.com/) / [NEXT](http://www.opera.com/computer/next)  | Audio+Video (Both local/remote) |
 | Android | [Chrome](https://play.google.com/store/apps/details?id=com.chrome.beta&hl=en) / [Firefox](https://play.google.com/store/apps/details?id=org.mozilla.firefox) / [Opera](https://play.google.com/store/apps/details?id=com.opera.browser) | Audio+Video (Both local/remote) |
 | Microsoft Edge | [Normal Build](https://www.microsoft.com/en-us/windows/microsoft-edge) | **Only Audio** - No Video - No Canvas - No Screen |
-| Safari 11 | preview | **Only Audio** - No Video - No Canvas - No Screen |
+| Safari 11 | preview/beta (OSX/iOS11) | [Only StereoAudioRecorder](https://www.webrtc-experiment.com/RecordRTC/simple-demos/audio-recording.html) - No Video - No Canvas - No Screen |
 
 ## Frameworks
 
@@ -225,14 +225,18 @@ bower install recordrtc
 <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 ```
 
+Otherwise check cdnjs below.
+
 ## Releases
 
 You can even link specific [releases](https://github.com/muaz-khan/RecordRTC/releases):
 
 ```html
-<!-- use 5.4.5 or any other version -->
-<script src="https://github.com/muaz-khan/RecordRTC/releases/download/5.4.5/RecordRTC.js"></script>
+<!-- use 5.4.6 or any other version on cdnjs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.4.6/RecordRTC.js"></script>
 ```
+
+Note: You can use `RecordRTC.min.js` as well. (on webrtc-experiment or cdnjs)
 
 ## How to capture stream?
 
@@ -315,6 +319,18 @@ var options = {
     mimeType: 'video/webm\;codecs=vp9'
 };
 var recordRTC = RecordRTC(stream, options);
+```
+
+You can pass `options` object over `startRecording` method as well:
+
+```javascript
+var recordRTC = RecordRTC(stream);
+
+var options = {
+    recorderType: MediaStreamRecorder,
+    mimeType: 'video/webm\;codecs=vp9'
+};
+recordRTC.startRecording(options);
 ```
 
 * `type` accepts `video` or `audio` or `canvas` or `gif`
@@ -439,6 +455,65 @@ Internal recorders can add extra methods. Same as MultiStreamRecorder which is s
 
 1. `addStreams`
 2. `resetVideoStreams`
+
+## `onStateChanged`
+
+Use this method to detect status of the recording:
+
+```javascript
+recorder = RecordRTC(stream, {
+    type: 'video',
+    onStateChanged: function(state) {
+        alert('Current recorder status: ' + state);
+    }
+});
+
+recorder.startRecording();
+```
+
+## `state`
+
+Use this property to detect status of the recording:
+
+```javascript
+recorder = RecordRTC(stream, {
+    type: 'video'
+});
+
+alert('Current recorder status: ' + recorder.state);
+
+recorder.startRecording();
+
+alert('Current recorder status: ' + recorder.state);
+
+recorder.stopRecording(function() {
+    alert('Current recorder status: ' + recorder.state);
+});
+```
+
+You can even use `getState` method:
+
+```javascript
+alert('Current recorder status: ' + recorder.getState());
+```
+
+## `version`
+
+Detect current RecordRTC version:
+
+```javascript
+recorder = RecordRTC(stream, {
+    type: 'video'
+});
+
+alert('Current recorder version: ' + recorder.version);
+```
+
+You can even use `RecordRTC.version`:
+
+```javascript
+alert('Current recorder version: ' + RecordRTC.version);
+```
 
 ## Echo Issues
 

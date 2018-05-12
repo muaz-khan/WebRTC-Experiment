@@ -1,0 +1,118 @@
+<style>
+    html, body, video, canvas {
+        margin: 0!important;
+        padding: 0!important;
+        overflow: hidden!important;
+        width: 100%;
+    }
+
+    video {
+        width: auto;
+        max-width: 100%;
+    }
+</style>
+
+<title>Auto Stop RecordRTC on Silence</title>
+<h1>Auto Stop RecordRTC on Silence</h1>
+
+<br>
+<button id="btn-start-recording">Start Recording</button>
+<button id="btn-stop-recording" disabled style="display: none;">Stop Recording</button>
+
+<hr>
+<video controls autoplay></video>
+
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://cdn.webrtc-experiment.com/hark.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script>
+var video = document.querySelector('video');
+var h1 = document.querySelector('h1');
+var default_h1 = h1.innerHTML;
+
+function captureCamera(callback) {
+    navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(function(camera) {
+        callback(camera);
+    }).catch(function(error) {
+        alert('Unable to capture your camera. Please check console logs.');
+        console.error(error);
+    });
+}
+
+function stopRecordingCallback() {
+    var blob = recorder.getBlob();
+    video.src = URL.createObjectURL(blob);
+    video.play();
+
+    recorder.camera.stop();
+    video.muted = false;
+}
+
+var recorder; // globally accessible
+
+document.getElementById('btn-start-recording').onclick = function() {
+    this.disabled = true;
+    captureCamera(function(camera) {
+        setSrcObject(camera, video);
+        video.muted = true;
+        video.play();
+
+        recorder = RecordRTC(camera, {
+            type: 'video'
+        });
+
+        recorder.startRecording();
+
+        var max_seconds = 3;
+        var stopped_speaking_timeout;
+        var speechEvents = hark(camera, {});
+
+        speechEvents.on('speaking', function() {
+            if(recorder.getBlob()) return;
+
+            clearTimeout(stopped_speaking_timeout);
+
+            if(recorder.getState() === 'paused') {
+                // recorder.resumeRecording();
+            }
+            
+            h1.innerHTML = default_h1;
+        });
+
+        speechEvents.on('stopped_speaking', function() {
+            if(recorder.getBlob()) return;
+
+            // recorder.pauseRecording();
+            stopped_speaking_timeout = setTimeout(function() {
+                document.getElementById('btn-stop-recording').click();
+                h1.innerHTML = 'Recording is now stopped.';
+            }, max_seconds * 1000);
+
+            
+            // just for logging purpose (you ca remove below code)
+            var seconds = max_seconds;
+            (function looper() {
+                h1.innerHTML = 'Recording is going to be stopped in ' + seconds + ' seconds.';
+                seconds--;
+
+                if(seconds <= 0) {
+                    h1.innerHTML = default_h1;
+                    return;
+                }
+
+                setTimeout(looper, 1000);
+            })();
+        });
+
+        // release camera on stopRecording
+        recorder.camera = camera;
+
+        document.getElementById('btn-stop-recording').disabled = false;
+    });
+};
+
+document.getElementById('btn-stop-recording').onclick = function() {
+    this.disabled = true;
+    recorder.stopRecording(stopRecordingCallback);
+};
+</script>

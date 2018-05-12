@@ -54,9 +54,26 @@ module.exports = function(grunt) {
                     'dev/MultiStreamRecorder.js',
                     'dev/RecordRTC.promises.js'
                 ],
-                dest: 'RecordRTC.js',
+                dest: './temp/RecordRTC.js',
             },
         },
+        replace: {
+            dist: {
+                options: {
+                    patterns: [{
+                        match: 'version',
+                        replacement: versionNumber
+                    }]
+                },
+                files: [{
+                    expand: true,
+                    flatten: true,
+                    src: ['./temp/RecordRTC.js'],
+                    dest: './'
+                }]
+            }
+        },
+        clean: ['./temp'],
         jshint: {
             options: {
                 globals: {
@@ -128,6 +145,16 @@ module.exports = function(grunt) {
                 }
             }
         },
+        copy: {
+            main: {
+                options: {
+                    flatten: true
+                },
+                files: {
+                    'RecordRTC.js': ['RecordRTC.js']
+                },
+            },
+        },
         jsbeautifier: {
             files: [
                 // 'RecordRTC.js',
@@ -191,5 +218,5 @@ module.exports = function(grunt) {
 
     // set default tasks to run when grunt is called without parameters
     // http://gruntjs.com/api/grunt.task
-    grunt.registerTask('default', ['concat', 'jsbeautifier', 'jshint', 'uglify']);
+    grunt.registerTask('default', ['concat', 'replace', 'jsbeautifier', 'jshint', 'copy', 'uglify', 'clean']);
 };

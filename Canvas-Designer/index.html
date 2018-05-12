@@ -351,13 +351,13 @@ document.getElementById('room-id').onkeyup = document.getElementById('room-id').
     localStorage.setItem('canvas-designer-roomid', this.value);
 };
 
-if(localStorage.getItem('canvas-designer-roomid')) {
+if (localStorage.getItem('canvas-designer-roomid')) {
     document.getElementById('room-id').value = localStorage.getItem('canvas-designer-roomid');
 }
 
 document.getElementById('open-room').onclick = function() {
     var roomid = document.getElementById('room-id').value;
-    if(!roomid.length) return alert('Please enter roomid.');
+    if (!roomid.length) return alert('Please enter roomid.');
 
     this.disabled = true;
 
@@ -365,9 +365,7 @@ document.getElementById('open-room').onclick = function() {
 
     this.parentNode.innerHTML = '<a href="#' + roomid + '" target="_blank">Please share this link</a>';
 };
-</script>
 
-<script>
 var designer = new CanvasDesigner();
 
 // you can place widget.html anywhere
@@ -394,7 +392,7 @@ designer.setTools({
     quadratic: true,
     bezier: true,
     marker: true,
-		zoom: true
+    zoom: true
 });
 
 designer.appendTo(document.getElementById('widget-container'));
@@ -409,7 +407,7 @@ Array.prototype.slice.call(document.getElementById('action-controls').querySelec
 
         var tools = {};
         Array.prototype.slice.call(document.getElementById('action-controls').querySelectorAll('input[type=checkbox]')).forEach(function(checkbox2) {
-            if(checkbox2.checked) {
+            if (checkbox2.checked) {
                 tools[checkbox2.id] = true;
             }
         });
@@ -421,8 +419,8 @@ Array.prototype.slice.call(document.getElementById('action-controls').querySelec
 var undoOptions = document.getElementById('undo-options');
 
 document.getElementById('btn-display-undo-popup').onclick = function() {
-    document.getElementById('light').style.display='block';
-    document.getElementById('fade').style.display='block';
+    document.getElementById('light').style.display = 'block';
+    document.getElementById('fade').style.display = 'block';
 };
 
 var txtNumberOfShapesToUndo = document.getElementById('number-of-shapes-to-undo');
@@ -430,7 +428,7 @@ txtNumberOfShapesToUndo.onkeyup = function() {
     localStorage.setItem('number-of-shapes-to-undo', txtNumberOfShapesToUndo.value);
 }
 
-if(localStorage.getItem('number-of-shapes-to-undo')){
+if (localStorage.getItem('number-of-shapes-to-undo')) {
     txtNumberOfShapesToUndo.value = localStorage.getItem('number-of-shapes-to-undo');
     txtNumberOfShapesToUndo.onkeyup();
 }
@@ -438,10 +436,9 @@ if(localStorage.getItem('number-of-shapes-to-undo')){
 undoOptions.onchange = function() {
     txtNumberOfShapesToUndo.parentNode.style.display = 'none';
 
-    if(undoOptions.value === 'Specific Range') {
+    if (undoOptions.value === 'Specific Range') {
         //
-    }
-    else if(undoOptions.value === 'Last Multiple') {
+    } else if (undoOptions.value === 'Last Multiple') {
         txtNumberOfShapesToUndo.parentNode.style.display = 'block';
     }
 
@@ -450,27 +447,24 @@ undoOptions.onchange = function() {
 
 undoOptions.onclick = undoOptions.onchange;
 
-if(localStorage.getItem('undo-options')) {
+if (localStorage.getItem('undo-options')) {
     undoOptions.value = localStorage.getItem('undo-options');
     undoOptions.onchange();
 }
 
 document.getElementById('btn-undo').onclick = function() {
-    if(undoOptions.value === 'All Shapes') {
+    if (undoOptions.value === 'All Shapes') {
         designer.undo('all');
-    }
-    else if(undoOptions.value === 'Specific Range') {
+    } else if (undoOptions.value === 'Specific Range') {
         designer.undo({
             specificRange: {
                 start: -1,
                 end: -1
             }
         });
-    }
-    else if(undoOptions.value === 'Last Shape') {
+    } else if (undoOptions.value === 'Last Shape') {
         designer.undo(-1);
-    }
-    else if(undoOptions.value === 'Last Multiple') {
+    } else if (undoOptions.value === 'Last Multiple') {
         var numberOfLastShapes = txtNumberOfShapesToUndo.value;
         numberOfLastShapes = parseInt(numberOfLastShapes || 0) || 0;
         designer.undo({
@@ -482,70 +476,79 @@ document.getElementById('btn-undo').onclick = function() {
 };
 
 function closeUndoPopup() {
-    document.getElementById('light').style.display='none';
-    document.getElementById('fade').style.display='none';
+    document.getElementById('light').style.display = 'none';
+    document.getElementById('fade').style.display = 'none';
 
     undoOptions.onchange();
 }
 document.getElementById('btn-close-undo-popup').onclick = closeUndoPopup;
 
 function closeDataURLPopup() {
-    document.getElementById('dataURL-popup').style.display='none';
-    document.getElementById('fade').style.display='none';
+    document.getElementById('dataURL-popup').style.display = 'none';
+    document.getElementById('fade').style.display = 'none';
 
     dataURLFormat.onchange();
 }
 document.getElementById('btn-close-dataURL-popup').onclick = closeDataURLPopup;
 
 document.getElementById('export-as-image').onclick = function() {
-		linkToImage.innerHTML = linkToImage.href = linkToImage.style = '';
+    linkToImage.innerHTML = linkToImage.href = linkToImage.style = '';
 
-    document.getElementById('dataURL-popup').style.display='block';
-    document.getElementById('fade').style.display='block';
+    document.getElementById('dataURL-popup').style.display = 'block';
+    document.getElementById('fade').style.display = 'block';
+
+    getDataURL();
 };
+
+function getDataURL(callback) {
+    callback = callback || function() {};
+    var format = dataURLFormat.value;
+    designer.toDataURL(format || 'image/png', function(dataURL) {
+        linkToImage.style = 'margin-left: 10px;display: block;text-align: center;margin-bottom: -50px;';
+        linkToImage.href = dataURL;
+        linkToImage.innerHTML = 'Click to Download Image';
+        linkToImage.download = 'image.' + (format || 'image/png').split('/')[1];
+
+        callback(dataURL, format);
+    });
+}
 
 var dataURLFormat = document.getElementById('data-url-format');
 var linkToImage = document.getElementById('link-to-image');
 
 dataURLFormat.onchange = function() {
     localStorage.setItem('data-url-format', dataURLFormat.value);
+    getDataURL();
 };
 dataURLFormat.onclick = dataURLFormat.onchange;
 
-if(localStorage.getItem('data-url-format')) {
+if (localStorage.getItem('data-url-format')) {
     dataURLFormat.value = localStorage.getItem('data-url-format');
     dataURLFormat.onchange();
 }
 
 document.getElementById('btn-getDataURL').onclick = function() {
-    var format = dataURLFormat.value;
-
-    designer.toDataURL(format || 'image/png', function(dataURL) {
-       window.open(dataURL);
-
-			 linkToImage.style = 'margin-left: 10px;display: block;text-align: center;margin-bottom: -50px;';
-			 linkToImage.href = dataURL;
-			 linkToImage.innerHTML = 'Click to Download Image';
-			 linkToImage.download = 'image.' + (format || 'image/png').split('/')[1];
+    getDataURL(function(dataURL, format) {
+        window.open(dataURL);
     });
 
     // closeDataURLPopup();
 };
 
 document.getElementById('btn-close-comments-popup').onclick = function() {
-	document.getElementById('comments-popup').style.display='none';
-	document.getElementById('fade').style.display='none';
+    document.getElementById('comments-popup').style.display = 'none';
+    document.getElementById('fade').style.display = 'none';
 
-	dataURLFormat.onchange();
+    dataURLFormat.onchange();
 };
 
 function showCommentsPopup(e) {
-	document.getElementById('comments-popup').style.display='block';
-	document.getElementById('fade').style.display='block';
+    document.getElementById('comments-popup').style.display = 'block';
+    document.getElementById('fade').style.display = 'block';
 }
 document.getElementById('btn-comments').onclick = showCommentsPopup;
-if(location.hash.length && location.hash.indexOf('comment') !== -1) {
-	showCommentsPopup();
+if (location.hash.length && location.hash.indexOf('comment') !== -1) {
+    showCommentsPopup();
 }
 </script>
 
@@ -569,18 +572,18 @@ connection.sdpConstraints.mandatory = {
     OfferToReceiveVideo: true
 };
 connection.dontCaptureUserMedia = true;
-if(location.hash.replace('#', '').length) {
+if (location.hash.replace('#', '').length) {
     var roomid = location.hash.replace('#', '');
     connection.join(roomid);
 }
 
 connection.onUserStatusChanged = function(event) {
     var infoBar = document.getElementById('hide-on-datachannel-opened');
-    if(event.status == 'online') {
+    if (event.status == 'online') {
         infoBar.innerHTML = event.userid + ' is <b>online</b>.';
     }
 
-    if(event.status == 'offline') {
+    if (event.status == 'offline') {
         infoBar.innerHTML = event.userid + ' is <b>offline</b>.';
     }
 
@@ -592,7 +595,7 @@ connection.onopen = function(event) {
     var infoBar = document.getElementById('hide-on-datachannel-opened');
     infoBar.innerHTML = '<b>' + event.userid + '</b> is ready to collaborate with you.';
 
-    if(designer.pointsLength <= 0) {
+    if (designer.pointsLength <= 0) {
         // make sure that remote user gets all drawings synced.
         setTimeout(function() {
             connection.send('plz-sync-points');
@@ -607,12 +610,12 @@ connection.onclose = connection.onerror = connection.onleave = function() {
 };
 
 connection.onmessage = function(event) {
-    if(event.data === 'plz-sync-points') {
+    if (event.data === 'plz-sync-points') {
         designer.sync();
         return;
     }
 
-    designer.syncData( event.data );
+    designer.syncData(event.data);
 };
 </script>
 
@@ -633,7 +636,7 @@ function onOpenRoom() {
 var video = document.querySelector('video');
 
 connection.onstream = function(event) {
-    if(connection.isInitiator && event.mediaElement) return;
+    if (connection.isInitiator && event.mediaElement) return;
 
     video.style.display = '';
     video.src = URL.createObjectURL(event.stream);
