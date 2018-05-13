@@ -65,9 +65,13 @@ getScreenConstraintsWithAudio(function(error, screen_constraints) {
 ### `getSourceId`
 
 ```javascript
-getSourceId(function(sourceId) {
+getSourceId(function(sourceId, canRequestAudioTrack) {
     if(sourceId != 'PermissionDeniedError') {
         // your code here
+    }
+
+    if(canRequestAudioTrack === true) {
+        // system audio i.e. speakers are enabled
     }
 });
 ```
@@ -77,9 +81,13 @@ getSourceId(function(sourceId) {
 This method includes system-audio i.e. speakers as well.
 
 ```javascript
-getSourceIdWithAudio(function(sourceId) {
+getSourceIdWithAudio(function(sourceId, canRequestAudioTrack) {
     if(sourceId != 'PermissionDeniedError') {
         // your code here
+    }
+
+    if(canRequestAudioTrack === true) {
+        // system audio i.e. speakers are enabled
     }
 });
 ```

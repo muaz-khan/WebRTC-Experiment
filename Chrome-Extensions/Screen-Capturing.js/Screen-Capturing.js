@@ -1,4 +1,4 @@
-// Last time updated on: May 10, 2018
+// Last time updated on: May 13, 2018
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/Screen-Capturing.js
 
@@ -52,7 +52,7 @@ function onMessageCallback(data) {
 
     // extension shared temp sourceId
     if (data.sourceId && screenCallback) {
-        screenCallback(sourceId = data.sourceId);
+        screenCallback(sourceId = data.sourceId, data.canRequestAudioTrack === true);
     }
 }
 

@@ -1,4 +1,4 @@
-// Last time updated On: May 12, 2018
+// Last updated On: May 12, 2018
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/screen.js
 
@@ -498,8 +498,6 @@
     var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
     var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
-    var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
-
     var iceServers = [];
 
     if(typeof IceServersHandler !== 'undefined') {
@@ -682,7 +680,6 @@
 
     function setBandwidth(sdp) {
         if (adapter.browserDetails.browser === 'firefox') return sdp;
-        if (isMobileDevice) return sdp;
         if(adapter.browserDetails.browser === 'safari') return sdp;
         if(isEdge) return sdp;
 
@@ -693,7 +690,6 @@
 
         // https://github.com/muaz-khan/RTCMultiConnection/blob/master/dev/BandwidthHandler.js
         if (typeof BandwidthHandler !== 'undefined') {
-            window.isMobileDevice = isMobileDevice;
             window.isFirefox = adapter.browserDetails.browser === 'firefox';
 
             var bandwidth = {
