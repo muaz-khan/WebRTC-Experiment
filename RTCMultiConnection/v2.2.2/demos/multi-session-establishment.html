@@ -62,6 +62,9 @@
     </script>
 
     <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
     <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 </head>
 
@@ -84,6 +87,13 @@
         </header>
 
         <div class="github-stargazers"></div>
+
+        <blockquote style="background: #f3b7b7;border: 5px solid black;border-radius: 5px; padding: 10px;">
+            This demo is <span style="border: 1px dotted red; background: yellow; padding: 2px 5px;">out-dated i.e. deprecated (written in 2013)</span>.
+
+            <br><br>
+            Please try other demos: <a href="https://github.com/muaz-khan/RTCMultiConnection">https://github.com/muaz-khan/RTCMultiConnection</a>
+        </blockquote>
 
         <section class="experiment">
             <h2>Open Four Unique Sessions</h2>
@@ -111,7 +121,7 @@
         var audiooneway = new RTCMultiConnection('audio-oneway');
 
         // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
         videoconferencing.openSignalingChannel =
             oneway.openSignalingChannel =
             audioconferencing.openSignalingChannel =

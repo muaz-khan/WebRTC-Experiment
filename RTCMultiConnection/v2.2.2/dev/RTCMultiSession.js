@@ -237,13 +237,11 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                     var streaminfo = _config.streaminfo.split('----');
                     var strInfo = JSON.parse(streaminfo[streaminfo.length - 1]);
 
-                    if (!isIE) {
-                        stream.streamid = strInfo.streamid;
-                        stream.isScreen = !!strInfo.isScreen;
-                        stream.isVideo = !!strInfo.isVideo;
-                        stream.isAudio = !!strInfo.isAudio;
-                        preMuted = strInfo.preMuted;
-                    }
+                    stream.streamid = strInfo.streamid;
+                    stream.isScreen = !!strInfo.isScreen;
+                    stream.isVideo = !!strInfo.isVideo;
+                    stream.isAudio = !!strInfo.isAudio;
+                    preMuted = strInfo.preMuted;
 
                     streaminfo.pop();
                     _config.streaminfo = streaminfo.join('----');
@@ -257,7 +255,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                     connection.setDefaultEventsForMediaElement(mediaElement, stream.streamid);
                 }
 
-                if (!isPluginRTC && !stream.getVideoTracks().length) {
+                if (!stream.getVideoTracks().length) {
                     function eventListener() {
                         setTimeout(function() {
                             mediaElement.muted = false;
@@ -412,7 +410,7 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
 
         function waitUntilRemoteStreamStartsFlowing(args) {
             // chrome for android may have some features missing
-            if (isMobileDevice || isPluginRTC || (isNull(connection.waitUntilRemoteStreamStartsFlowing) || !connection.waitUntilRemoteStreamStartsFlowing)) {
+            if (isMobileDevice || (isNull(connection.waitUntilRemoteStreamStartsFlowing) || !connection.waitUntilRemoteStreamStartsFlowing)) {
                 return afterRemoteStreamStartedFlowing(args);
             }
 
@@ -480,14 +478,14 @@ function RTCMultiSession(connection, callbackForSignalingReady) {
                 streamid: stream.streamid,
                 session: session || connection.session,
 
-                blobURL: isPluginRTC ? '' : mediaElement.mozSrcObject ? URL.createObjectURL(stream) : mediaElement.src,
+                blobURL: null,
                 type: 'remote',
 
                 extra: _config.extra,
                 userid: _config.userid,
 
-                isVideo: isPluginRTC ? !!session.video : !!stream.isVideo,
-                isAudio: isPluginRTC ? !!session.audio && !session.video : !!stream.isAudio,
+                isVideo: !!stream.isVideo,
+                isAudio: !!stream.isAudio,
                 isScreen: !!stream.isScreen,
                 isInitiator: !!_config.isInitiator,
 

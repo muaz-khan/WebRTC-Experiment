@@ -220,34 +220,21 @@
     </script>
 
     <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
     <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 </head>
 
 <body>
     <article>
-        <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                WEBRTC EXPERIMENTS</a>
+        <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ WEBRTC EXPERIMENTS</a>
 
 
         <h1>Manual session establishment + extra data transmission + video conferencing</h1>
 
         <p>
-            <span>Copyright © 2013</span>
+            <span>Copyright © </span>
             <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
             <span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>
             <span>&gt;.</span>
@@ -255,6 +242,14 @@
         <section class="plusone-gplus">
             <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
         </section>
+
+        <blockquote style="background: #f3b7b7;border: 5px solid black;border-radius: 5px; padding: 10px;">
+            This demo is <span style="border: 1px dotted red; background: yellow; padding: 2px 5px;">out-dated i.e. deprecated (written in 2013)</span>.
+
+            <br><br>
+            Please try other demos: <a href="https://github.com/muaz-khan/RTCMultiConnection">https://github.com/muaz-khan/RTCMultiConnection</a>
+        </blockquote>
+
         <section>
             <h2>New Session:</h2>
             <button id="start-new-session">Start New Video Session</button>
@@ -282,7 +277,7 @@
         var connection = new RTCMultiConnection('session-id-0123456789');
 
         // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
         connection.openSignalingChannel = function(config) {
             var channel = config.channel || connection.channel || 'default-namespace';
             var sender = Math.round(Math.random() * 9999999999) + 9999999999;

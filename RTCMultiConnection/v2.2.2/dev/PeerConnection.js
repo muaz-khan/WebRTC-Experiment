@@ -1,36 +1,17 @@
+var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
 var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
 var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
-var RTCPeerConnection;
-if (typeof mozRTCPeerConnection !== 'undefined') {
-    RTCPeerConnection = mozRTCPeerConnection;
-} else if (typeof webkitRTCPeerConnection !== 'undefined') {
-    RTCPeerConnection = webkitRTCPeerConnection;
-} else if (typeof window.RTCPeerConnection !== 'undefined') {
-    RTCPeerConnection = window.RTCPeerConnection;
-} else {
-    console.error('WebRTC 1.0 (RTCPeerConnection) API seems NOT available in this browser.');
-}
-
 function setSdpConstraints(config) {
-    var sdpConstraints;
-
-    var sdpConstraints_mandatory = {
+    var sdpConstraints = {
         OfferToReceiveAudio: !!config.OfferToReceiveAudio,
         OfferToReceiveVideo: !!config.OfferToReceiveVideo
     };
 
-    sdpConstraints = {
-        mandatory: sdpConstraints_mandatory,
-        optional: [{
-            VoiceActivityDetection: false
-        }]
-    };
-
-    if (!!navigator.mozGetUserMedia && firefoxVersion > 34) {
+    if (adapter.browserDetails.browser === 'chrome' || adapter.browserDetails.browser === 'safari') {
         sdpConstraints = {
-            OfferToReceiveAudio: !!config.OfferToReceiveAudio,
-            OfferToReceiveVideo: !!config.OfferToReceiveVideo
+            mandatory: sdpConstraints,
+            optional: []
         };
     }
 
@@ -77,20 +58,20 @@ function PeerConnection() {
             } else createDescription();
 
             function createDescription() {
-                self.connection[createType == 'offer' ? 'createOffer' : 'createAnswer'](function(sessionDescription) {
+                self.connection[createType == 'offer' ? 'createOffer' : 'createAnswer'](self.constraints).then(function(sessionDescription) {
                     sessionDescription.sdp = self.serializeSdp(sessionDescription.sdp, createType);
-                    self.connection.setLocalDescription(sessionDescription);
+                    self.connection.setLocalDescription(sessionDescription).then(function() {
+                        if (self.trickleIce) {
+                            self.onSessionDescription(sessionDescription, self.streaminfo);
+                        }
 
-                    if (self.trickleIce) {
-                        self.onSessionDescription(sessionDescription, self.streaminfo);
-                    }
+                        if (sessionDescription.type == 'offer') {
+                            log('offer sdp', sessionDescription.sdp);
+                        }
 
-                    if (sessionDescription.type == 'offer') {
-                        log('offer sdp', sessionDescription.sdp);
-                    }
-
-                    self.prevCreateType = createType;
-                }, self.onSdpError, self.constraints);
+                        self.prevCreateType = createType;
+                    }).catch(self.onSdpError);
+                }).catch(self.onSdpError);
             }
         },
         serializeSdp: function(sdp, createType) {
@@ -219,15 +200,34 @@ function PeerConnection() {
                 self.onSessionDescription(self.connection.localDescription, self.streaminfo);
             }
 
-            this.connection.onaddstream = function(e) {
-                log('onaddstream', isPluginRTC ? e.stream : toStr(e.stream));
+            if ('addStream' in this.connection) {
+                this.connection.onaddstream = function(e) {
+                    log('onaddstream', toStr(e.stream));
 
-                self.onaddstream(e.stream, self.session);
-            };
+                    self.onaddstream(e.stream, self.session);
+                };
 
-            this.connection.onremovestream = function(e) {
-                self.onremovestream(e.stream);
-            };
+                this.connection.onremovestream = function(e) {
+                    self.onremovestream(e.stream);
+                };
+            } else if ('addTrack' in this.connection) {
+                peer.onaddtrack = function(event) {
+
+                };
+
+                this.connection.onaddtrack = function(e) {
+                    event.stream = event.streams.pop();
+
+                    if (self.dontDuplicateOnAddTrack[event.stream.id] && adapter.browserDetails.browser !== 'safari') return;
+                    self.dontDuplicateOnAddTrack[event.stream.id] = true;
+
+                    log('onaddstream', toStr(e.stream));
+
+                    self.onaddstream(e.stream, self.session);
+                };
+            } else {
+                throw new Error('WebRTC addStream/addTrack is not supported.');
+            }
 
             this.connection.onsignalingstatechange = function() {
                 self.connection && self.oniceconnectionstatechange({
@@ -256,6 +256,7 @@ function PeerConnection() {
 
             var self = this;
         },
+        dontDuplicateOnAddTrack: {},
         setBandwidth: function(sdp) {
             if (isMobileDevice || isFirefox || !this.bandwidth) return sdp;
 
@@ -342,8 +343,8 @@ function PeerConnection() {
                 this.iceServers = {
                     iceServers: this.iceServers,
                     iceTransportPolicy: this.rtcConfiguration.iceTransports,
-                    rtcpMuxPolicy: 'require', // or negotiate
-                    bundlePolicy: 'max-bundle'
+                    bundlePolicy: 'max-bundle',
+                    iceCandidatePoolSize: 0
                 };
             } else this.iceServers = null;
 
@@ -371,31 +372,18 @@ function PeerConnection() {
             log('setting remote description', sessionDescription.type, sessionDescription.sdp);
 
             var self = this;
-            this.connection.setRemoteDescription(
-                new RTCSessionDescription(sessionDescription),
-                onSdpSuccess || this.onSdpSuccess,
-                function(error) {
-                    if (error.search(/STATE_SENTINITIATE|STATE_INPROGRESS/gi) == -1) {
-                        self.onSdpError(error);
-                    }
+            this.connection.setRemoteDescription(new RTCSessionDescription(sessionDescription)).then(onSdpSuccess || this.onSdpSuccess).catch(function(error) {
+                if (error.search(/STATE_SENTINITIATE|STATE_INPROGRESS/gi) == -1) {
+                    self.onSdpError(error);
                 }
-            );
+            });
         },
         addIceCandidate: function(candidate) {
-            var self = this;
-            if (isPluginRTC) {
-                RTCIceCandidate(candidate, function(iceCandidate) {
-                    onAddIceCandidate(iceCandidate);
-                });
-            } else onAddIceCandidate(new RTCIceCandidate(candidate));
-
-            function onAddIceCandidate(iceCandidate) {
-                self.connection.addIceCandidate(iceCandidate, function() {
-                    log('added:', candidate.sdpMid, candidate.candidate);
-                }, function() {
-                    error('onIceFailure', arguments, candidate.candidate);
-                });
-            }
+            this.connection.addIceCandidate(new RTCIceCandidate(candidate)).then(function() {
+                log('added:', candidate.sdpMid, candidate.candidate);
+            }).catch(function() {
+                error('onIceFailure', arguments, candidate.candidate);
+            });
         },
         createDataChannel: function(channelIdentifier) {
             // skip 2nd invocation of createDataChannel
@@ -491,15 +479,24 @@ function PeerConnection() {
             this.channels.push(channel);
         },
         addStream: function(stream) {
-            if (!stream.streamid && !isIE) {
+            if (!stream.streamid) {
                 stream.streamid = getRandomString();
             }
 
             // todo: maybe need to add isAudio/isVideo/isScreen if missing?
+            var self = this;
 
-            log('attaching stream:', stream.streamid, isPluginRTC ? stream : toStr(stream));
+            log('attaching stream:', stream.streamid, toStr(stream));
 
-            this.connection.addStream(stream);
+            if ('addStream' in this.connection) {
+                this.connection.addStream(stream);
+            } else if ('addTrack' in this.connection) {
+                stream.getTracks().forEach(function(track) {
+                    self.connection.addTrack(track, stream);
+                });
+            } else {
+                throw new Error('WebRTC addStream/addTrack is not supported.');
+            }
 
             this.sendStreamId(stream);
             this.getStreamInfo();
@@ -507,6 +504,7 @@ function PeerConnection() {
         attachMediaStreams: function() {
             var streams = this.attachStreams;
             for (var i = 0; i < streams.length; i++) {
+                // "addStream" method above is handling "addTrack"
                 this.addStream(streams[i]);
             }
         },

@@ -251,35 +251,18 @@
     document.createElement('article');
     document.createElement('footer');
     </script>
-    <script src="https://cdn.webrtc-experiment.com/socket.io.js">
-    </script>
-    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js">
-    </script>
+    <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 </head>
 
 <body>
     <article>
-        <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑
+        <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑WEBRTC EXPERIMENTS</a>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                WEBRTC EXPERIMENTS</a>
-
-
-        <h1>Customizing Bandwidth using <a href="https://github.com/muaz-khan/RTCMultiConnection" target="_blank">RTCMultiConnection</a>
-        </h1>
+        <h1>Customizing Bandwidth using <a href="https://github.com/muaz-khan/RTCMultiConnection" target="_blank">RTCMultiConnection</a></h1>
 
         <p>
             <span>Copyright ©</span>
@@ -318,7 +301,7 @@
         connection = new RTCMultiConnection('bandwidth-customization');
 
         // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
         connection.openSignalingChannel = function(config) {
             var channel = config.channel || connection.channel || 'default-namespace';
             var sender = Math.round(Math.random() * 9999999999) + 9999999999;
@@ -465,8 +448,13 @@
 
         <p>Pass "session-id" only-over the constructor:</p>
         <pre>
-            connection = new RTCMultiConnection('session-id'); connection.bandwidth = { audio: 50, video: 256 }; connection.open();
-        </pre>
+connection = new RTCMultiConnection('session-id'); 
+connection.bandwidth = { 
+    audio: 50, 
+    video: 256 
+}; 
+connection.open();
+</pre>
 
         <br/>
         <br/>

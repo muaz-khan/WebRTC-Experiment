@@ -1,4 +1,4 @@
-// Last time updated at Wednesday, August 23rd, 2017, 9:02:27 PM 
+// Last time updated at Monday, May 14th, 2018, 9:49:41 AM 
 
 // Quick-Demo for newbies: http://jsfiddle.net/c46de0L8/
 // Another simple demo: http://jsfiddle.net/zar6fg60/
@@ -312,27 +312,22 @@
             }
 
             var constraints = {
-                audio: !!session.audio ? {
-                    mandatory: {},
-                    optional: [{
-                        chromeRenderToAssociatedSink: true
-                    }]
-                } : false,
+                audio: !!session.audio,
                 video: !!session.video
             };
 
             // if custom audio device is selected
-            if (connection._mediaSources.audio) {
+            if (connection._mediaSources.audio && constraints.audio && constraints.audio.optional) {
                 constraints.audio.optional.push({
                     sourceId: connection._mediaSources.audio
                 });
             }
-            if (connection._mediaSources.audiooutput) {
+            if (connection._mediaSources.audiooutput && constraints.audio && constraints.audio.optional) {
                 constraints.audio.optional.push({
                     sourceId: connection._mediaSources.audiooutput
                 });
             }
-            if (connection._mediaSources.audioinput) {
+            if (connection._mediaSources.audioinput && constraints.audio && constraints.audio.optional) {
                 constraints.audio.optional.push({
                     sourceId: connection._mediaSources.audioinput
                 });
@@ -694,7 +689,7 @@
             }
 
             connection.localStreamids.push(streamid);
-            stream.onended = function() {
+            addStreamStopListener(stream, function() {
                 if (streamedObject.mediaElement && !streamedObject.mediaElement.parentNode && document.getElementById(stream.streamid)) {
                     streamedObject.mediaElement = document.getElementById(stream.streamid);
                 }
@@ -732,29 +727,26 @@
 
                 // to allow re-capturing of the screen
                 DetectRTC.screen.sourceId = null;
+            });
+
+            stream.streamid = streamid;
+            stream.isScreen = forcedConstraints == screen_constraints;
+            stream.isVideo = forcedConstraints == constraints && !!constraints.video;
+            stream.isAudio = forcedConstraints == constraints && !!constraints.audio && !constraints.video;
+
+            // if muted stream is negotiated
+            stream.preMuted = {
+                audio: stream.getAudioTracks().length && !stream.getAudioTracks()[0].enabled,
+                video: stream.getVideoTracks().length && !stream.getVideoTracks()[0].enabled
             };
 
-            if (!isIE) {
-                stream.streamid = streamid;
-                stream.isScreen = forcedConstraints == screen_constraints;
-                stream.isVideo = forcedConstraints == constraints && !!constraints.video;
-                stream.isAudio = forcedConstraints == constraints && !!constraints.audio && !constraints.video;
-
-                // if muted stream is negotiated
-                stream.preMuted = {
-                    audio: stream.getAudioTracks().length && !stream.getAudioTracks()[0].enabled,
-                    video: stream.getVideoTracks().length && !stream.getVideoTracks()[0].enabled
-                };
-            }
-
             var mediaElement = createMediaElement(stream, session);
-            mediaElement.muted = true;
 
             var streamedObject = {
                 stream: stream,
                 streamid: streamid,
                 mediaElement: mediaElement,
-                blobURL: mediaElement.mozSrcObject ? URL.createObjectURL(stream) : mediaElement.src,
+                blobURL: null,
                 type: 'local',
                 userid: connection.userid,
                 extra: connection.extra,
@@ -1263,13 +1255,11 @@
                         var streaminfo = _config.streaminfo.split('----');
                         var strInfo = JSON.parse(streaminfo[streaminfo.length - 1]);
 
-                        if (!isIE) {
-                            stream.streamid = strInfo.streamid;
-                            stream.isScreen = !!strInfo.isScreen;
-                            stream.isVideo = !!strInfo.isVideo;
-                            stream.isAudio = !!strInfo.isAudio;
-                            preMuted = strInfo.preMuted;
-                        }
+                        stream.streamid = strInfo.streamid;
+                        stream.isScreen = !!strInfo.isScreen;
+                        stream.isVideo = !!strInfo.isVideo;
+                        stream.isAudio = !!strInfo.isAudio;
+                        preMuted = strInfo.preMuted;
 
                         streaminfo.pop();
                         _config.streaminfo = streaminfo.join('----');
@@ -1283,7 +1273,7 @@
                         connection.setDefaultEventsForMediaElement(mediaElement, stream.streamid);
                     }
 
-                    if (!isPluginRTC && !stream.getVideoTracks().length) {
+                    if (!stream.getVideoTracks().length) {
                         function eventListener() {
                             setTimeout(function() {
                                 mediaElement.muted = false;
@@ -1438,7 +1428,7 @@
 
             function waitUntilRemoteStreamStartsFlowing(args) {
                 // chrome for android may have some features missing
-                if (isMobileDevice || isPluginRTC || (isNull(connection.waitUntilRemoteStreamStartsFlowing) || !connection.waitUntilRemoteStreamStartsFlowing)) {
+                if (isMobileDevice || (isNull(connection.waitUntilRemoteStreamStartsFlowing) || !connection.waitUntilRemoteStreamStartsFlowing)) {
                     return afterRemoteStreamStartedFlowing(args);
                 }
 
@@ -1506,14 +1496,14 @@
                     streamid: stream.streamid,
                     session: session || connection.session,
 
-                    blobURL: isPluginRTC ? '' : mediaElement.mozSrcObject ? URL.createObjectURL(stream) : mediaElement.src,
+                    blobURL: null,
                     type: 'remote',
 
                     extra: _config.extra,
                     userid: _config.userid,
 
-                    isVideo: isPluginRTC ? !!session.video : !!stream.isVideo,
-                    isAudio: isPluginRTC ? !!session.audio && !session.video : !!stream.isAudio,
+                    isVideo: !!stream.isVideo,
+                    isAudio: !!stream.isAudio,
                     isScreen: !!stream.isScreen,
                     isInitiator: !!_config.isInitiator,
 
@@ -3154,9 +3144,6 @@
     var isFirefox = typeof window.InstallTrigger !== 'undefined';
     var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
     var isChrome = !!window.chrome && !isOpera;
-    var isIE = !!document.documentMode;
-
-    var isPluginRTC = isSafari || isIE;
 
     var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
 
@@ -3294,31 +3281,22 @@
         var mediaElement = document.createElement(stream.isAudio ? 'audio' : 'video');
         mediaElement.id = stream.streamid;
 
-        if (isPluginRTC) {
-            var body = (document.body || document.documentElement);
-            body.insertBefore(mediaElement, body.firstChild);
-
-            setTimeout(function() {
-                Plugin.attachMediaStream(mediaElement, stream)
-            }, 1000);
-
-            return Plugin.attachMediaStream(mediaElement, stream);
+        if (!session.remote) {
+            mediaElement.muted = true;
+            mediaElement.volume = 0;
         }
 
-        // "mozSrcObject" is always preferred over "src"!!
-        mediaElement[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : (window.URL || window.webkitURL).createObjectURL(stream);
+        try {
+            mediaElement.setAttributeNode(document.createAttribute('autoplay'));
+            mediaElement.setAttributeNode(document.createAttribute('playsinline'));
+            mediaElement.setAttributeNode(document.createAttribute('controls'));
+        } catch (e) {
+            mediaElement.setAttribute('autoplay', true);
+            mediaElement.setAttribute('playsinline', true);
+            mediaElement.setAttribute('controls', true);
+        }
 
-        mediaElement.controls = true;
-        mediaElement.autoplay = !!session.remote;
-        mediaElement.muted = session.remote ? false : true;
-
-        // http://goo.gl/WZ5nFl
-        // Firefox don't yet support onended for any stream (remote/local)
-        isFirefox && mediaElement.addEventListener('ended', function() {
-            stream.onended();
-        }, false);
-
-        mediaElement.play();
+        mediaElement.srcObject = stream;
 
         return mediaElement;
     }
@@ -3624,23 +3602,6 @@
         video.addEventListener(type, listener, useCapture);
     };
 
-    var Plugin = window.PluginRTC || {};
-    window.onPluginRTCInitialized = function(pluginRTCObject) {
-        Plugin = pluginRTCObject;
-        MediaStreamTrack = Plugin.MediaStreamTrack;
-        RTCPeerConnection = Plugin.RTCPeerConnection;
-        RTCIceCandidate = Plugin.RTCIceCandidate;
-        RTCSessionDescription = Plugin.RTCSessionDescription;
-
-        log(isPluginRTC ? 'Java-Applet' : 'ActiveX', 'plugin has been loaded.');
-    };
-    if (!isEmpty(Plugin)) window.onPluginRTCInitialized(Plugin);
-
-    // if IE or Safari
-    if (isPluginRTC) {
-        loadScript('https://cdn.webrtc-experiment.com/Plugin.EveryWhere.js');
-        // loadScript('https://cdn.webrtc-experiment.com/Plugin.Temasys.js');
-    }
 
     var MediaStream = window.MediaStream;
 
@@ -3661,10 +3622,30 @@
         };
     }
 
-    var defaultConstraints = {
-        mandatory: {},
-        optional: []
-    };
+    function addStreamStopListener(stream, callback) {
+        var streamEndedEvent = 'ended';
+        if ('oninactive' in stream) {
+            streamEndedEvent = 'inactive';
+        }
+        stream.addEventListener(streamEndedEvent, function() {
+            callback();
+            callback = function() {};
+        }, false);
+        stream.getAudioTracks().forEach(function(track) {
+            track.addEventListener(streamEndedEvent, function() {
+                callback();
+                callback = function() {};
+            }, false);
+        });
+        stream.getVideoTracks().forEach(function(track) {
+            track.addEventListener(streamEndedEvent, function() {
+                callback();
+                callback = function() {};
+            }, false);
+        });
+    }
+
+    var defaultConstraints = true;
 
     /* by @FreCap pull request #41 */
     var currentUserMediaRequest = {
@@ -3674,20 +3655,6 @@
     };
 
     function getUserMedia(options) {
-        if (isPluginRTC) {
-            if (!Plugin.getUserMedia) {
-                setTimeout(function() {
-                    getUserMedia(options);
-                }, 1000);
-                return;
-            }
-
-            return Plugin.getUserMedia(options.constraints || {
-                audio: true,
-                video: true
-            }, options.onsuccess, options.onerror);
-        }
-
         if (currentUserMediaRequest.mutex === true) {
             currentUserMediaRequest.queueRequests.push(options);
             return;
@@ -3696,7 +3663,6 @@
 
         var connection = options.connection;
 
-        var n = navigator;
         var hints = connection.mediaConstraints;
 
         // connection.mediaConstraints always overrides constraints
@@ -3716,8 +3682,7 @@
 
             var video = options.video;
             if (video) {
-                video[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : (window.URL || window.webkitURL).createObjectURL(stream);
-                video.play();
+                video.srcObject = stream;
             }
 
             options.onsuccess(stream, returnBack, idInstance, streamid);
@@ -3733,104 +3698,26 @@
         if (currentUserMediaRequest.streams[idInstance]) {
             streaming(currentUserMediaRequest.streams[idInstance].stream, true, currentUserMediaRequest.streams[idInstance].streamid);
         } else {
-            n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
-
-            // http://goo.gl/eETIK4
-            n.getMedia(hints, streaming, function(error) {
+            navigator.mediaDevices.getUserMedia(hints).then(streaming).catch(function(error) {
                 options.onerror(error, hints);
             });
         }
     }
 
-    // IceServersHandler.js
-
-    var IceServersHandler = (function() {
-        function getIceServers(connection) {
-            var iceServers = [];
-
-            iceServers.push(getSTUNObj('stun:stun.l.google.com:19302'));
-
-            iceServers.push(getTURNObj('stun:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
-            iceServers.push(getTURNObj('turn:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
-            iceServers.push(getTURNObj('turn:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
-
-            iceServers.push(getTURNObj('turns:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
-            iceServers.push(getTURNObj('turns:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
-
-            // iceServers.push(getTURNObj('turn:webrtcweb.com:3344', 'muazkh', 'muazkh')); // resiprocate
-            // iceServers.push(getTURNObj('turn:webrtcweb.com:4433', 'muazkh', 'muazkh')); // resiprocate
-
-            // check if restund is still active: http://webrtcweb.com:4050/
-            iceServers.push(getTURNObj('stun:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
-            iceServers.push(getTURNObj('turn:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
-            iceServers.push(getTURNObj('turn:webrtcweb.com:5544?transport=tcp', 'muazkh', 'muazkh')); // restund
-
-            return iceServers;
-        }
-
-        function getSTUNObj(stunStr) {
-            var urlsParam = 'urls';
-            if (typeof isPluginRTC !== 'undefined') {
-                urlsParam = 'url';
-            }
-
-            var obj = {};
-            obj[urlsParam] = stunStr;
-            return obj;
-        }
-
-        function getTURNObj(turnStr, username, credential) {
-            var urlsParam = 'urls';
-            if (typeof isPluginRTC !== 'undefined') {
-                urlsParam = 'url';
-            }
-
-            var obj = {
-                username: username,
-                credential: credential
-            };
-            obj[urlsParam] = turnStr;
-            return obj;
-        }
-
-        return {
-            getIceServers: getIceServers
-        };
-    })();
-
+    var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
     var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
     var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
-    var RTCPeerConnection;
-    if (typeof mozRTCPeerConnection !== 'undefined') {
-        RTCPeerConnection = mozRTCPeerConnection;
-    } else if (typeof webkitRTCPeerConnection !== 'undefined') {
-        RTCPeerConnection = webkitRTCPeerConnection;
-    } else if (typeof window.RTCPeerConnection !== 'undefined') {
-        RTCPeerConnection = window.RTCPeerConnection;
-    } else {
-        console.error('WebRTC 1.0 (RTCPeerConnection) API seems NOT available in this browser.');
-    }
-
     function setSdpConstraints(config) {
-        var sdpConstraints;
-
-        var sdpConstraints_mandatory = {
+        var sdpConstraints = {
             OfferToReceiveAudio: !!config.OfferToReceiveAudio,
             OfferToReceiveVideo: !!config.OfferToReceiveVideo
         };
 
-        sdpConstraints = {
-            mandatory: sdpConstraints_mandatory,
-            optional: [{
-                VoiceActivityDetection: false
-            }]
-        };
-
-        if (!!navigator.mozGetUserMedia && firefoxVersion > 34) {
+        if (adapter.browserDetails.browser === 'chrome' || adapter.browserDetails.browser === 'safari') {
             sdpConstraints = {
-                OfferToReceiveAudio: !!config.OfferToReceiveAudio,
-                OfferToReceiveVideo: !!config.OfferToReceiveVideo
+                mandatory: sdpConstraints,
+                optional: []
             };
         }
 
@@ -3877,20 +3764,20 @@
                 } else createDescription();
 
                 function createDescription() {
-                    self.connection[createType == 'offer' ? 'createOffer' : 'createAnswer'](function(sessionDescription) {
+                    self.connection[createType == 'offer' ? 'createOffer' : 'createAnswer'](self.constraints).then(function(sessionDescription) {
                         sessionDescription.sdp = self.serializeSdp(sessionDescription.sdp, createType);
-                        self.connection.setLocalDescription(sessionDescription);
+                        self.connection.setLocalDescription(sessionDescription).then(function() {
+                            if (self.trickleIce) {
+                                self.onSessionDescription(sessionDescription, self.streaminfo);
+                            }
 
-                        if (self.trickleIce) {
-                            self.onSessionDescription(sessionDescription, self.streaminfo);
-                        }
+                            if (sessionDescription.type == 'offer') {
+                                log('offer sdp', sessionDescription.sdp);
+                            }
 
-                        if (sessionDescription.type == 'offer') {
-                            log('offer sdp', sessionDescription.sdp);
-                        }
-
-                        self.prevCreateType = createType;
-                    }, self.onSdpError, self.constraints);
+                            self.prevCreateType = createType;
+                        }).catch(self.onSdpError);
+                    }).catch(self.onSdpError);
                 }
             },
             serializeSdp: function(sdp, createType) {
@@ -4019,15 +3906,34 @@
                     self.onSessionDescription(self.connection.localDescription, self.streaminfo);
                 }
 
-                this.connection.onaddstream = function(e) {
-                    log('onaddstream', isPluginRTC ? e.stream : toStr(e.stream));
+                if ('addStream' in this.connection) {
+                    this.connection.onaddstream = function(e) {
+                        log('onaddstream', toStr(e.stream));
 
-                    self.onaddstream(e.stream, self.session);
-                };
+                        self.onaddstream(e.stream, self.session);
+                    };
 
-                this.connection.onremovestream = function(e) {
-                    self.onremovestream(e.stream);
-                };
+                    this.connection.onremovestream = function(e) {
+                        self.onremovestream(e.stream);
+                    };
+                } else if ('addTrack' in this.connection) {
+                    peer.onaddtrack = function(event) {
+
+                    };
+
+                    this.connection.onaddtrack = function(e) {
+                        event.stream = event.streams.pop();
+
+                        if (self.dontDuplicateOnAddTrack[event.stream.id] && adapter.browserDetails.browser !== 'safari') return;
+                        self.dontDuplicateOnAddTrack[event.stream.id] = true;
+
+                        log('onaddstream', toStr(e.stream));
+
+                        self.onaddstream(e.stream, self.session);
+                    };
+                } else {
+                    throw new Error('WebRTC addStream/addTrack is not supported.');
+                }
 
                 this.connection.onsignalingstatechange = function() {
                     self.connection && self.oniceconnectionstatechange({
@@ -4056,6 +3962,7 @@
 
                 var self = this;
             },
+            dontDuplicateOnAddTrack: {},
             setBandwidth: function(sdp) {
                 if (isMobileDevice || isFirefox || !this.bandwidth) return sdp;
 
@@ -4142,8 +4049,8 @@
                     this.iceServers = {
                         iceServers: this.iceServers,
                         iceTransportPolicy: this.rtcConfiguration.iceTransports,
-                        rtcpMuxPolicy: 'require', // or negotiate
-                        bundlePolicy: 'max-bundle'
+                        bundlePolicy: 'max-bundle',
+                        iceCandidatePoolSize: 0
                     };
                 } else this.iceServers = null;
 
@@ -4171,31 +4078,18 @@
                 log('setting remote description', sessionDescription.type, sessionDescription.sdp);
 
                 var self = this;
-                this.connection.setRemoteDescription(
-                    new RTCSessionDescription(sessionDescription),
-                    onSdpSuccess || this.onSdpSuccess,
-                    function(error) {
-                        if (error.search(/STATE_SENTINITIATE|STATE_INPROGRESS/gi) == -1) {
-                            self.onSdpError(error);
-                        }
+                this.connection.setRemoteDescription(new RTCSessionDescription(sessionDescription)).then(onSdpSuccess || this.onSdpSuccess).catch(function(error) {
+                    if (error.search(/STATE_SENTINITIATE|STATE_INPROGRESS/gi) == -1) {
+                        self.onSdpError(error);
                     }
-                );
+                });
             },
             addIceCandidate: function(candidate) {
-                var self = this;
-                if (isPluginRTC) {
-                    RTCIceCandidate(candidate, function(iceCandidate) {
-                        onAddIceCandidate(iceCandidate);
-                    });
-                } else onAddIceCandidate(new RTCIceCandidate(candidate));
-
-                function onAddIceCandidate(iceCandidate) {
-                    self.connection.addIceCandidate(iceCandidate, function() {
-                        log('added:', candidate.sdpMid, candidate.candidate);
-                    }, function() {
-                        error('onIceFailure', arguments, candidate.candidate);
-                    });
-                }
+                this.connection.addIceCandidate(new RTCIceCandidate(candidate)).then(function() {
+                    log('added:', candidate.sdpMid, candidate.candidate);
+                }).catch(function() {
+                    error('onIceFailure', arguments, candidate.candidate);
+                });
             },
             createDataChannel: function(channelIdentifier) {
                 // skip 2nd invocation of createDataChannel
@@ -4291,15 +4185,24 @@
                 this.channels.push(channel);
             },
             addStream: function(stream) {
-                if (!stream.streamid && !isIE) {
+                if (!stream.streamid) {
                     stream.streamid = getRandomString();
                 }
 
                 // todo: maybe need to add isAudio/isVideo/isScreen if missing?
+                var self = this;
 
-                log('attaching stream:', stream.streamid, isPluginRTC ? stream : toStr(stream));
+                log('attaching stream:', stream.streamid, toStr(stream));
 
-                this.connection.addStream(stream);
+                if ('addStream' in this.connection) {
+                    this.connection.addStream(stream);
+                } else if ('addTrack' in this.connection) {
+                    stream.getTracks().forEach(function(track) {
+                        self.connection.addTrack(track, stream);
+                    });
+                } else {
+                    throw new Error('WebRTC addStream/addTrack is not supported.');
+                }
 
                 this.sendStreamId(stream);
                 this.getStreamInfo();
@@ -4307,6 +4210,7 @@
             attachMediaStreams: function() {
                 var streams = this.attachStreams;
                 for (var i = 0; i < streams.length; i++) {
+                    // "addStream" method above is handling "addTrack"
                     this.addStream(streams[i]);
                 }
             },
@@ -4628,6 +4532,12 @@
                 // fullVersion = navigator.userAgent.split('Edge/')[1];
                 fullVersion = parseInt(navigator.userAgent.match(/Edge\/(\d+).(\d+)$/)[2], 10);
             }
+
+            if (!fullVersion) {
+                fullVersion = 17;
+            }
+
+            fullVersion = fullVersion.toString();
 
             // trim the fullVersion string at semicolon/space if present
             if ((ix = fullVersion.indexOf(';')) !== -1) {
@@ -5265,16 +5175,8 @@
 
         // www.RTCMultiConnection.org/docs/mediaConstraints/
         connection.mediaConstraints = {
-            mandatory: {}, // kept for backward compatibility
-            optional: [], // kept for backward compatibility
-            audio: {
-                mandatory: {},
-                optional: []
-            },
-            video: {
-                mandatory: {},
-                optional: []
-            }
+            audio: true,
+            video: true
         };
 
         // www.RTCMultiConnection.org/docs/candidates/
@@ -5304,9 +5206,9 @@
         };
 
         // www.RTCMultiConnection.org/docs/preferSCTP/
-        connection.preferSCTP = isFirefox || chromeVersion >= 32 ? true : false;
-        connection.chunkInterval = isFirefox || chromeVersion >= 32 ? 100 : 500; // 500ms for RTP and 100ms for SCTP
-        connection.chunkSize = isFirefox || chromeVersion >= 32 ? 13 * 1000 : 1000; // 1000 chars for RTP and 13000 chars for SCTP
+        connection.preferSCTP = true;
+        connection.chunkInterval = 100; // 500ms for RTP and 100ms for SCTP
+        connection.chunkSize = 60 * 1000; // 1000 chars for RTP and 13000 chars for SCTP
 
         // www.RTCMultiConnection.org/docs/fakeDataChannels/
         connection.fakeDataChannels = false;
@@ -5327,7 +5229,6 @@
             version: isChrome ? chromeVersion : firefoxVersion,
             isNodeWebkit: isNodeWebkit,
             isSafari: isSafari,
-            isIE: isIE,
             isOpera: isOpera
         };
 
@@ -5395,13 +5296,7 @@
         connection.detachStreams = [];
 
         connection.optionalArgument = {
-            optional: [{
-                DtlsSrtpKeyAgreement: true
-            }, {
-                googImprovedWifiBwe: true
-            }, {
-                googScreencastMinBitrate: 300
-            }],
+            optional: [],
             mandatory: {}
         };
 
@@ -5788,34 +5683,25 @@
             }
         };
 
-        connection.iceServers = IceServersHandler.getIceServers();
+        connection.iceServers = [];
+        if (typeof IceServersHandler !== 'undefined') {
+            connection.iceServers = IceServersHandler.getIceServers();
+        }
 
         connection.rtcConfiguration = {
-            iceServers: null,
-            iceTransports: 'all', // none || relay || all - ref: http://goo.gl/40I39K
-            peerIdentity: false
+            iceServers: [],
+            iceTransportPolicy: 'all',
+            bundlePolicy: 'max-bundle',
+            iceCandidatePoolSize: 0
         };
 
         // www.RTCMultiConnection.org/docs/media/
         connection.media = {
             min: function(width, height) {
-                if (!connection.mediaConstraints.video) return;
-
-                if (!connection.mediaConstraints.video.mandatory) {
-                    connection.mediaConstraints.video.mandatory = {};
-                }
-                connection.mediaConstraints.video.mandatory.minWidth = width;
-                connection.mediaConstraints.video.mandatory.minHeight = height;
+                console.warn('connection.media method is deprecated. Please manually set the "connection.mediaConstraints" object.');
             },
             max: function(width, height) {
-                if (!connection.mediaConstraints.video) return;
-
-                if (!connection.mediaConstraints.video.mandatory) {
-                    connection.mediaConstraints.video.mandatory = {};
-                }
-
-                connection.mediaConstraints.video.mandatory.maxWidth = width;
-                connection.mediaConstraints.video.mandatory.maxHeight = height;
+                console.warn('connection.media method is deprecated. Please manually set the "connection.mediaConstraints" object.');
             }
         };
 
@@ -6361,7 +6247,7 @@
             log('It seems that screen capturing extension is installed and available on your system!');
         };
 
-        if (!isPluginRTC && DetectRTC.screen.onScreenCapturingExtensionAvailable) {
+        if (DetectRTC.screen.onScreenCapturingExtensionAvailable) {
             DetectRTC.screen.onScreenCapturingExtensionAvailable = function() {
                 connection.onScreenCapturingExtensionAvailable();
             };
@@ -6435,7 +6321,7 @@
             if (!mediaStream) throw 'MediaStream argument is mandatory.';
 
             if (connection.keepStreamsOpened) {
-                if (mediaStream.onended) mediaStream.onended();
+                addStreamStopListener(mediaStream, mediaStream.onended || function() {});
                 return;
             }
 
@@ -6443,11 +6329,6 @@
             // when native-stop method invoked.
             if (connection.localStreams[mediaStream.streamid]) {
                 delete connection.localStreams[mediaStream.streamid];
-            }
-
-            if (isFirefox) {
-                // Firefox don't yet support onended for any stream (remote/local)
-                if (mediaStream.onended) mediaStream.onended();
             }
 
             // Latest firefox does support mediaStream.getAudioTrack but doesn't support stop on MediaStreamTrack

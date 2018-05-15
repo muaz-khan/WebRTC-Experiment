@@ -81,18 +81,19 @@
             <br><br>
         </section>
 
-        <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
-        <!-- for p2p streaming -->
         <script src="https://www.webrtc-experiment.com/RecordRTC.js"></script>
-        <!-- for recording -->
         <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 
         <script>
             // http://www.rtcmulticonnection.org/docs/constructor/
             var rmc = new RTCMultiConnection();
 
             // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-            var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+            var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
             rmc.openSignalingChannel = function(config) {
                 var channel = config.channel || rmc.channel || 'default-namespace';
                 var sender = Math.round(Math.random() * 9999999999) + 9999999999;

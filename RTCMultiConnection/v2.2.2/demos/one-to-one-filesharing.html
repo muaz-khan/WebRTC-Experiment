@@ -30,6 +30,9 @@
     </script>
 
     <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
     <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 </head>
 
@@ -71,7 +74,7 @@
         var connection = new RTCMultiConnection();
 
         // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
         connection.openSignalingChannel = function(config) {
             var channel = config.channel || connection.channel || 'default-namespace';
             var sender = Math.round(Math.random() * 9999999999) + 9999999999;

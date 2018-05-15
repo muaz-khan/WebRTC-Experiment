@@ -230,31 +230,16 @@
     document.createElement('footer');
     </script>
 
-    <script src="https://cdn.webrtc-experiment.com/socket.io.js">
-    </script>
-    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js">
-    </script>
+    <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 </head>
 
 <body>
     <article>
-        <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                WEBRTC EXPERIMENTS</a>
+        <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid #2844FA; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">↑ WEBRTC EXPERIMENTS</a>
 
 
         <h1>
@@ -262,25 +247,8 @@
         </h1>
 
         <p>
-            <span>Copyright © 2013</span> <a href="https://github.com/muaz-khan" target="_blank">Muaz
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                                  Khan</a>
-            <span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>
-            <span>&gt;.</span>
+            <span>Copyright © </span> <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+            <span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
         </p>
         <section class="plusone-gplus">
             <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
@@ -313,7 +281,7 @@
         var connection = new RTCMultiConnection();
 
         // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
         connection.openSignalingChannel = function(config) {
             var channel = config.channel || connection.channel || 'default-namespace';
             var sender = Math.round(Math.random() * 9999999999) + 9999999999;
@@ -384,12 +352,19 @@
         <h2>Getting started with <a href="https://github.com/muaz-khan/RTCMultiConnection" target="_blank">RTCMultiConnection</a>
         </h2>
         <pre>
-            &lt;script src="<a href="https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js" target="_blank">https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js</a>"&gt;&lt;/script&gt; &lt;script&gt; var connection = new
-            <strong>RTCMultiConnection</strong>(); // force RTCMultiConnection to not attach local stream connection.
-            <strong>dontAttachStream</strong> = true; // to create/open a new session connection.
-            <strong>open</strong>('session-id'); // if someone already created a session; to join it: use "connect" method connection.
-            <strong>connect</strong>('session-id'); &lt;/script&gt;
-        </pre>
+&lt;script src="<a href="https://www.webrtc-experiment.com/RTCMultiConnection.js" target="_blank">https://www.webrtc-experiment.com/RTCMultiConnection-v1.4.js</a>"&gt;&lt;/script&gt; &lt;script&gt; 
+var connection = new <strong>RTCMultiConnection</strong>(); 
+
+// force RTCMultiConnection to not attach local stream 
+connection.<strong>dontAttachStream</strong> = true; 
+
+// to create/open a new session 
+connection.<strong>open</strong>('session-id'); 
+
+// if someone already created a session; to join it: use "connect" method 
+connection.<strong>connect</strong>('session-id'); 
+&lt;/script&gt;
+</pre>
         <br/>
         <br/>
 

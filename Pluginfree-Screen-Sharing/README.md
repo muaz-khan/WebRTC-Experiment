@@ -12,13 +12,9 @@ This WebRTC experiment uses a chrome extension:
 
 Read more here: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Chrome-Extensions/desktopCapture
 
-=
-
 ### Disclaimer
 
 It isn't totally pluginfree (unfortunately)! You'll be asked either to enable command-line flag or install a chrome extension.
-
-=
 
 ### Prerequisites
 
@@ -31,8 +27,6 @@ It isn't totally pluginfree (unfortunately)! You'll be asked either to enable co
         </div>
     </li>
 </ol>
-
-=
 
 ### Advantages
 
@@ -48,8 +42,6 @@ It isn't totally pluginfree (unfortunately)! You'll be asked either to enable co
     </li>
 </ol>
 
-=
-
 ### Common issues & queries
 
 <ol>
@@ -57,8 +49,6 @@ It isn't totally pluginfree (unfortunately)! You'll be asked either to enable co
     <li>Firefox/Opera has no support of screen-capturing yet. However, you can view shared screens on both Firefox and Opera!</li>
     <li>Remember, it is not desktop sharing! It is just a state-less screen sharing. Desktop sharing is possible only through native (C++) applications.</li>
 </ol>
-
-=
 
 #### Developers Guide
 
@@ -236,19 +226,13 @@ Remember, [the one](https://chrome.google.com/webstore/detail/screen-capturing/a
 
 * https://www.webrtc-experiment.com/Pluginfree-Screen-Sharing/
 
-=
-
 There is another experiment: [WebRTC Tab Sharing using experimental tabCapture APIs](https://www.webrtc-experiment.com/screen-broadcast/)
-
-=
 
 #### What about Desktop Sharing?
 
 It is a big wish to share desktop using RTCWeb peer connection APIs but unfortunately currently it is not possible.
 
 Current experiment is using chrome screen sharing APIs (media/constraints) which allows end-users to **view the screen**....nothing else!
-
-=
 
 Test it on HTTPS. Because, screen capturing (currently) only works on SSL domains.
 
@@ -284,15 +268,11 @@ if (!screen_capture_enabled ||
 
 Browsers that don't understand `{chromeMediaSource: 'screen'}` constraint will simply get video like chrome stable or Firefox.
 
-=
-
 For signaling; please check following page:
 
 https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md
 
 Remember, you can use any signaling implementation exists out there without modifying any single line! Just skip below code and open [above link](https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md)!
-
-=
 
 #### Browser Support
 
@@ -300,9 +280,12 @@ Remember, you can use any signaling implementation exists out there without modi
 
 | Browser        | Support           |
 | ------------- |-------------|
-| Google Chrome | [Stable](https://www.google.com/intl/en_uk/chrome/browser/) / [Canary](https://www.google.com/intl/en/chrome/browser/canary.html) / [Beta](https://www.google.com/intl/en/chrome/browser/beta.html) / [Dev](https://www.google.com/intl/en/chrome/browser/index.html?extra=devchannel#eula) |
+| Firefox | 52 or higher |
+| Google Chrome | 49 or higher |
+| Android | latest |
+| Edge | 17 or higher |
 
-=
+Safari-11 (on MacOSX/iOS) can merely receive screens.
 
 #### License
 

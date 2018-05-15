@@ -217,7 +217,7 @@
     <script src="https://cdn.webrtc-experiment.com/socket.io.js">
     </script>
     <!-- v1.2 ? -->
-    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js">
+    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection-v1.2.js">
     </script>
 </head>
 
@@ -232,29 +232,21 @@
         </h1>
 
         <p>
-            <span>Copyright ©</span> <a href="https://github.com/muaz-khan" target="_blank">Muaz
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                                  Khan</a>
+            <span>Copyright ©</span> <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
             <span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>
             <span>&gt;.</span>
         </p>
+
         <section class="plusone-gplus">
             <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
         </section>
+
+        <blockquote style="background: #f3b7b7;border: 5px solid black;border-radius: 5px; padding: 10px;">
+            This demo is <span style="border: 1px dotted red; background: yellow; padding: 2px 5px;">out-dated i.e. deprecated (written in 2013)</span>.
+
+            <br><br>
+            Please try other demos: <a href="https://github.com/muaz-khan/RTCMultiConnection">https://github.com/muaz-khan/RTCMultiConnection</a>
+        </blockquote>
 
         <section>
             <h2>Open New Session:</h2>
@@ -294,7 +286,7 @@
         });
 
         // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
         connection.openSignalingChannel = function(config) {
             var channel = config.channel || connection.channel || 'default-namespace';
             var sender = Math.round(Math.random() * 9999999999) + 9999999999;

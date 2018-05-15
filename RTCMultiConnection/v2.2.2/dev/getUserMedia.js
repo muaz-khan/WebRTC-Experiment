@@ -1,7 +1,4 @@
-var defaultConstraints = {
-    mandatory: {},
-    optional: []
-};
+var defaultConstraints = true;
 
 /* by @FreCap pull request #41 */
 var currentUserMediaRequest = {
@@ -11,20 +8,6 @@ var currentUserMediaRequest = {
 };
 
 function getUserMedia(options) {
-    if (isPluginRTC) {
-        if (!Plugin.getUserMedia) {
-            setTimeout(function() {
-                getUserMedia(options);
-            }, 1000);
-            return;
-        }
-
-        return Plugin.getUserMedia(options.constraints || {
-            audio: true,
-            video: true
-        }, options.onsuccess, options.onerror);
-    }
-
     if (currentUserMediaRequest.mutex === true) {
         currentUserMediaRequest.queueRequests.push(options);
         return;
@@ -33,7 +16,6 @@ function getUserMedia(options) {
 
     var connection = options.connection;
 
-    var n = navigator;
     var hints = connection.mediaConstraints;
 
     // connection.mediaConstraints always overrides constraints
@@ -53,8 +35,7 @@ function getUserMedia(options) {
 
         var video = options.video;
         if (video) {
-            video[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : (window.URL || window.webkitURL).createObjectURL(stream);
-            video.play();
+            video.srcObject = stream;
         }
 
         options.onsuccess(stream, returnBack, idInstance, streamid);
@@ -70,10 +51,7 @@ function getUserMedia(options) {
     if (currentUserMediaRequest.streams[idInstance]) {
         streaming(currentUserMediaRequest.streams[idInstance].stream, true, currentUserMediaRequest.streams[idInstance].streamid);
     } else {
-        n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
-
-        // http://goo.gl/eETIK4
-        n.getMedia(hints, streaming, function(error) {
+        navigator.mediaDevices.getUserMedia(hints).then(streaming).catch(function(error) {
             options.onerror(error, hints);
         });
     }

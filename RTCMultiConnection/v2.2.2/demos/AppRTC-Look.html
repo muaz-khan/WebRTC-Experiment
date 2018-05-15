@@ -17,8 +17,11 @@
 <meta name="author" content="Muaz Khan">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+<script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 
 <style>
 body,
@@ -187,7 +190,7 @@ button[disabled] {
 var connection = new RTCMultiConnection();
 
 // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
 connection.openSignalingChannel = function(config) {
     var channel = config.channel || connection.channel || 'default-namespace';
     var sender = Math.round(Math.random() * 9999999999) + 9999999999;
@@ -385,10 +388,19 @@ function appendVideo(e, style) {
         video.className = 'other-videos';
         video.setAttribute('style', 'height:auto;opacity:1;');
         video.id = e.userid;
-        video.src = URL.createObjectURL(e.stream);
-        var remote = document.getElementById('remote');
+        video.srcObject = stream;
+
+        try {
+            video.setAttributeNode(document.createAttribute('autoplay'));
+            video.setAttributeNode(document.createAttribute('playsinline'));
+            video.setAttributeNode(document.createAttribute('controls'));
+        } catch (e) {
+            video.setAttribute('autoplay', true);
+            video.setAttribute('playsinline', true);
+            video.setAttribute('controls', true);
+        }
+    
         div.appendChild(video);
-        video.play();
     });
 }
 

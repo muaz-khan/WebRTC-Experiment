@@ -58,12 +58,13 @@
     document.createElement('footer');
     </script>
 
-    <script src="https://cdn.webrtc-experiment.com/socket.io.js">
-    </script>
-    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js">
-    </script>
-    <script src="https://cdn.webrtc-experiment.com/FileBufferReader.js">
-    </script>
+    <script src="https://cdn.webrtc-experiment.com/FileBufferReader.js"></script>
+
+    <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 </head>
 
 <body>
@@ -112,7 +113,7 @@
         var connection = new RTCMultiConnection();
 
         // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
         connection.openSignalingChannel = function(config) {
             var channel = config.channel || connection.channel || 'default-namespace';
             var sender = Math.round(Math.random() * 9999999999) + 9999999999;
@@ -200,14 +201,15 @@
         <h2>Getting started with <a href="https://github.com/muaz-khan/RTCMultiConnection" target="_blank">RTCMultiConnection</a>
         </h2>
         <pre>
-            &lt;script src="<a href="https://cdn.webrtc-experiment.com/RTCMultiConnection.js" target="_blank">https://cdn.webrtc-experiment.com/RTCMultiConnection.js</a>"&gt;&lt;/script&gt; &lt;script&gt; var connection = new
-            <strong>RTCMultiConnection</strong>(); connection.
+&lt;script src="<a href="https://cdn.webrtc-experiment.com/RTCMultiConnection.js" target="_blank">https://cdn.webrtc-experiment.com/RTCMultiConnection.js</a>"&gt;&lt;/script&gt; &lt;script&gt;
+var connection = new <strong>RTCMultiConnection</strong>(); 
+connection.<strong>session</strong> = { data: true }; // to create/open a new session 
+connection.<strong>open</strong>('session-id'); // if someone already created a session; to join it: use "connect" method 
+connection.<strong>connect</strong>('session-id'); // to send text/data or file 
+connection.<strong>send</strong>(file || data || 'text'); 
+&lt;/script&gt;
+</pre>
 
-            <strong>session</strong> = { data: true }; // to create/open a new session connection.
-            <strong>open</strong>('session-id'); // if someone already created a session; to join it: use "connect" method connection.
-            <strong>connect</strong>('session-id'); // to send text/data or file connection.
-            <strong>send</strong>(file || data || 'text'); &lt;/script&gt;
-        </pre>
         Remember, A-to-Z, everything is optional! You can set
         <strong>session-id</strong> in constructor or in
         <strong>open</strong>/
@@ -227,41 +229,45 @@
 
         <h2>Additional:</h2>
         <pre>
-            &lt;script&gt; // to be alerted on data ports get open connection.
-            <strong>onopen</strong> = function(e) {} // to be alerted on data ports get new message connection.
-            <strong>onmessage</strong> = function(e) {} var progressHelper = {}; // to make sure file-saver dialog is not invoked. connection.autoSaveToDisk = false; connection.onFileProgress = function (chunk, uuid) { var helper = progressHelper[chunk.uuid]; helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max; updateLabel(helper.progress, helper.label); }; connection.onFileStart = function (file) { var div = document.createElement('div'); div.title = file.name; div.innerHTML = '&lt;label&gt;0%&lt;/label&gt; &lt;progress&gt;&lt;/progress&gt;'; document.body.appendChild(div); progressHelper[file.uuid] = { div: div, progress: div.querySelector('progress'), label: div.querySelector('label') }; progressHelper[file.uuid].progress.max = file.maxChunks; }; connection.onFileEnd = function (file) { progressHelper[file.uuid].div.innerHTML = '&lt;a href="' + file.url + '" target="_blank" download="' + file.name + '"&gt;' + file.name + '&lt;/a&gt;'; }; function updateLabel(progress, label) { if (progress.position == -1) return; var position = +progress.position.toFixed(2).split('.')[1] || 100; label.innerHTML = position + '%'; } &lt;/script&gt;
-        </pre>
+&lt;script&gt; // to be alerted on data ports get open 
+connection.<strong>onopen</strong> = function(e) {} // to be alerted on data ports get new message 
+connection.<strong>onmessage</strong> = function(e) {} var progressHelper = {}; // to make sure file-saver dialog is not invoked. 
+connection.autoSaveToDisk = false; 
+connection.onFileProgress = function (chunk, uuid) { 
+    var helper = progressHelper[chunk.uuid]; 
+    helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max; 
+    updateLabel(helper.progress, helper.label); 
+}; 
+connection.onFileStart = function (file) { 
+    var div = document.createElement('div'); 
+    div.title = file.name; 
+    div.innerHTML = '&lt;label&gt;0%&lt;/label&gt; &lt;progress&gt;&lt;/progress&gt;'; 
+    document.body.appendChild(div); 
+    progressHelper[file.uuid] = { div: div, progress: div.querySelector('progress'), label: div.querySelector('label') }; 
+    progressHelper[file.uuid].progress.max = file.maxChunks; 
+}; 
+connection.onFileEnd = function (file) { 
+    progressHelper[file.uuid].div.innerHTML = '&lt;a href="' + file.url + '" target="_blank" download="' + file.name + '"&gt;' + file.name + '&lt;/a&gt;'; }; function updateLabel(progress, label) { if (progress.position == -1) return; var position = +progress.position.toFixed(2).split('.')[1] || 100; 
+    label.innerHTML = position + '%';
+} 
+&lt;/script&gt;
+</pre>
         <br/>
         <br/>
 
         <h2>Errors Handling</h2>
         <pre>
-            &lt;script&gt; // error to open data ports connection.
-            <strong>onerror</strong> = function(e) {} // data ports suddenly dropped connection.
-            <strong>onclose</strong> = function(e) {} &lt;/script&gt;
-        </pre>
+&lt;script&gt; // error to open data ports 
+connection.<strong>onerror</strong> = function(e) {} // data ports suddenly dropped 
+connection.<strong>onclose</strong> = function(e) {} 
+&lt;/script&gt;
+</pre>
 
         <br/>
         <br/>
 
         <h2>
-            <a href="https://github.com/muaz-khan/RTCMultiConnection" target="_blank">Source code
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    and Documentation on Github!</a>
+            <a href="https://github.com/muaz-khan/RTCMultiConnection" target="_blank">Source code and Documentation on Github!</a>
         </h2>
         <br/>
         <br/>

@@ -22,9 +22,6 @@ var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 var isFirefox = typeof window.InstallTrigger !== 'undefined';
 var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
 var isChrome = !!window.chrome && !isOpera;
-var isIE = !!document.documentMode;
-
-var isPluginRTC = isSafari || isIE;
 
 var isMobileDevice = !!navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i);
 
@@ -162,31 +159,22 @@ function createMediaElement(stream, session) {
     var mediaElement = document.createElement(stream.isAudio ? 'audio' : 'video');
     mediaElement.id = stream.streamid;
 
-    if (isPluginRTC) {
-        var body = (document.body || document.documentElement);
-        body.insertBefore(mediaElement, body.firstChild);
-
-        setTimeout(function() {
-            Plugin.attachMediaStream(mediaElement, stream)
-        }, 1000);
-
-        return Plugin.attachMediaStream(mediaElement, stream);
+    if (!session.remote) {
+        mediaElement.muted = true;
+        mediaElement.volume = 0;
     }
 
-    // "mozSrcObject" is always preferred over "src"!!
-    mediaElement[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : (window.URL || window.webkitURL).createObjectURL(stream);
+    try {
+        mediaElement.setAttributeNode(document.createAttribute('autoplay'));
+        mediaElement.setAttributeNode(document.createAttribute('playsinline'));
+        mediaElement.setAttributeNode(document.createAttribute('controls'));
+    } catch (e) {
+        mediaElement.setAttribute('autoplay', true);
+        mediaElement.setAttribute('playsinline', true);
+        mediaElement.setAttribute('controls', true);
+    }
 
-    mediaElement.controls = true;
-    mediaElement.autoplay = !!session.remote;
-    mediaElement.muted = session.remote ? false : true;
-
-    // http://goo.gl/WZ5nFl
-    // Firefox don't yet support onended for any stream (remote/local)
-    isFirefox && mediaElement.addEventListener('ended', function() {
-        stream.onended();
-    }, false);
-
-    mediaElement.play();
+    mediaElement.srcObject = stream;
 
     return mediaElement;
 }
@@ -492,23 +480,6 @@ attachEventListener = function(video, type, listener, useCapture) {
     video.addEventListener(type, listener, useCapture);
 };
 
-var Plugin = window.PluginRTC || {};
-window.onPluginRTCInitialized = function(pluginRTCObject) {
-    Plugin = pluginRTCObject;
-    MediaStreamTrack = Plugin.MediaStreamTrack;
-    RTCPeerConnection = Plugin.RTCPeerConnection;
-    RTCIceCandidate = Plugin.RTCIceCandidate;
-    RTCSessionDescription = Plugin.RTCSessionDescription;
-
-    log(isPluginRTC ? 'Java-Applet' : 'ActiveX', 'plugin has been loaded.');
-};
-if (!isEmpty(Plugin)) window.onPluginRTCInitialized(Plugin);
-
-// if IE or Safari
-if (isPluginRTC) {
-    loadScript('https://cdn.webrtc-experiment.com/Plugin.EveryWhere.js');
-    // loadScript('https://cdn.webrtc-experiment.com/Plugin.Temasys.js');
-}
 
 var MediaStream = window.MediaStream;
 
@@ -527,4 +498,27 @@ if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
             track.stop();
         });
     };
+}
+
+function addStreamStopListener(stream, callback) {
+    var streamEndedEvent = 'ended';
+    if ('oninactive' in stream) {
+        streamEndedEvent = 'inactive';
+    }
+    stream.addEventListener(streamEndedEvent, function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.getAudioTracks().forEach(function(track) {
+        track.addEventListener(streamEndedEvent, function() {
+            callback();
+            callback = function() {};
+        }, false);
+    });
+    stream.getVideoTracks().forEach(function(track) {
+        track.addEventListener(streamEndedEvent, function() {
+            callback();
+            callback = function() {};
+        }, false);
+    });
 }

@@ -1,4 +1,4 @@
-// Last time updated On: May 12, 2018
+// Last time updated On: May 15, 2018
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/meeting.js
 
@@ -367,7 +367,16 @@
             if (signaler.isbroadcaster) signaler.stopBroadcasting = true;
 
             // leave user media resources
-            if (root.stream) root.stream.stop();
+            if (root.stream) {
+                if('stop' in root.stream) {
+                    root.stream.stop();
+                }
+                else {
+                    root.stream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+                }
+            }
 
             // if firebase; remove data from their servers
             if (window.Firebase) socket.remove();

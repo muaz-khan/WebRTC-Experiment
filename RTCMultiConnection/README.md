@@ -1,4 +1,4 @@
-<a href="https://github.com/muaz-khan/RTCMultiConnection"><img src="https://i.imgur.com/MFfRBSM.png" /></a>
+<a href="https://www.rtcmulticonnection.org/"><img src="https://i.imgur.com/MFfRBSM.png" /></a>
 
 ## RTCMultiConnection - WebRTC JavaScript Library
 

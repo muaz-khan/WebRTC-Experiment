@@ -104,6 +104,12 @@
             fullVersion = parseInt(navigator.userAgent.match(/Edge\/(\d+).(\d+)$/)[2], 10);
         }
 
+        if (!fullVersion) {
+            fullVersion = 17;
+        }
+
+        fullVersion = fullVersion.toString();
+
         // trim the fullVersion string at semicolon/space if present
         if ((ix = fullVersion.indexOf(';')) !== -1) {
             fullVersion = fullVersion.substring(0, ix);

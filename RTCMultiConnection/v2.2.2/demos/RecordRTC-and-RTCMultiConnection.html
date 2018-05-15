@@ -91,19 +91,20 @@
     </script>
 
     <!-- scripts used for broadcasting -->
-    <script src="https://cdn.webrtc-experiment.com/socket.io.js">
-    </script>
-    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js">
-    </script>
-    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js">
-    </script>
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+
+    <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 </head>
 
 <body>
     <article>
         <header style="text-align: center;">
             <h1>
-                <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC" target="_blank">RecordRTC</a> &
+                <a href="https://github.com/muaz-khan/RecordRTC" target="_blank">RecordRTC</a> &
                 <a href="http://www.RTCMultiConnection.org/docs/" target="_blank">RTCMultiConnection</a> ® <a href="http://www.muazkhan.com/" target="_blank">Muaz Khan</a>
             </h1>
             <p>
@@ -146,13 +147,13 @@
         <script>
         // Muaz Khan          - https://github.com/muaz-khan
         // MIT License        - https://www.webrtc-experiment.com/licence/
-        // RecordRTC          - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RecordRTC
+        // RecordRTC          - https://github.com/muaz-khan/RecordRTC
         // RTCMultiConnection - http://www.RTCMultiConnection.org/docs/
 
         var connection = new RTCMultiConnection();
 
         // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-        var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
         connection.openSignalingChannel = function(config) {
             var channel = config.channel || connection.channel || 'default-namespace';
             var sender = Math.round(Math.random() * 9999999999) + 9999999999;
@@ -191,7 +192,7 @@
         function appendVideo(video, streamid) {
             video.width = 600;
             video = getVideo(video, streamid);
-            videosContainer.insertBefore(video, videosContainer.firstChild);
+            videosContainer.appendChild(video);
             rotateVideo(video);
             scaleVideos();
 
@@ -268,7 +269,7 @@
             var tr = document.createElement('tr');
             tr.innerHTML = '<td><strong>' + session.extra['session-name'] + '</strong> is running a conference!</td>' +
                 '<td><button class="join">Join</button></td>';
-            roomsList.insertBefore(tr, roomsList.firstChild);
+            roomsList.appendChild(tr);
 
             var joinRoomButton = tr.querySelector('.join');
             joinRoomButton.setAttribute('data-sessionid', session.sessionid);

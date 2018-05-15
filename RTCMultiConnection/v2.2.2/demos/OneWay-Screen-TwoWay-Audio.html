@@ -25,22 +25,31 @@ audio {
 }
 </style>
 
-<h1>OneWay Screen & Two-Way Audio using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection</a>
-</h1>
+<h1>OneWay Screen & Two-Way Audio using <a href="http://www.rtcmulticonnection.org/">RTCMultiConnection</a></h1>
+<br><br>
+<blockquote style="background: #f3b7b7;border: 5px solid black;border-radius: 5px; padding: 10px;">
+    This demo is <span style="border: 1px dotted red; background: yellow; padding: 2px 5px;">out-dated i.e. deprecated (written in 2013)</span>.
+
+    <br><br>
+    Please try other demos: <a href="https://github.com/muaz-khan/RTCMultiConnection">https://github.com/muaz-khan/RTCMultiConnection</a>
+</blockquote>
 <br />
 <br />
 <button id="share-screen-and-audio">Share Screen + Audio</button>
 <hr />
 <div id="container"></div>
 
-<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+<script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 
 <script>
 var connection = new RTCMultiConnection();
 
 // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
 connection.openSignalingChannel = function(config) {
     var channel = config.channel || connection.channel || 'default-namespace';
     var sender = Math.round(Math.random() * 9999999999) + 9999999999;
@@ -101,6 +110,8 @@ document.querySelector('#share-screen-and-audio').onclick = function() {
     <li>Share audio in two-way; among all users.</li>
 </ol>
 <pre>
-    // initiator's session initiator.session = { audio: true, screen: true }; participant.onNewSession = function (session) { session.join(
-    <strong>{ audio: true }</strong> ); };
+// initiator's session initiator.session = { audio: true, screen: true }; 
+participant.onNewSession = function (session) { 
+    session.join(<strong>{ audio: true }</strong> ); 
+};
 </pre>

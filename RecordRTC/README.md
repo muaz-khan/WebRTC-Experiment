@@ -2,7 +2,7 @@
 
 # Demo: https://www.webrtc-experiment.com/RecordRTC/
 
-[RecordRTC Documentation](http://RecordRTC.org/) / [RecordRTC Wiki Pages](https://github.com/muaz-khan/RecordRTC/wiki) / [RecordRTC Demo](https://www.webrtc-experiment.com/RecordRTC/) / [WebRTC Experiments](https://www.webrtc-experiment.com/)
+[RecordRTC Documentation](https://RecordRTC.org/) / [RecordRTC Wiki Pages](https://github.com/muaz-khan/RecordRTC/wiki) / [RecordRTC Demo](https://www.webrtc-experiment.com/RecordRTC/) / [WebRTC Experiments](https://www.webrtc-experiment.com/)
 
 [![npm](https://img.shields.io/npm/v/recordrtc.svg)](https://npmjs.org/package/recordrtc) [![downloads](https://img.shields.io/npm/dm/recordrtc.svg)](https://npmjs.org/package/recordrtc) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RecordRTC.png?branch=master)](https://travis-ci.org/muaz-khan/RecordRTC)
 
@@ -16,17 +16,17 @@
 
 Please check [dev](https://github.com/muaz-khan/RecordRTC/tree/master/dev) directory for development files.
 
-1. [RecordRTC API Reference](http://RecordRTC.org/RecordRTC.html)
-2. [MediaStreamRecorder API Reference](http://RecordRTC.org/MediaStreamRecorder.html)
-3. [StereoAudioRecorder API Reference](http://RecordRTC.org/StereoAudioRecorder.html)
-4. [WhammyRecorder API Reference](http://RecordRTC.org/WhammyRecorder.html)
-5. [Whammy API Reference](http://RecordRTC.org/Whammy.html)
-6. [CanvasRecorder API Reference](http://RecordRTC.org/CanvasRecorder.html)
-7. [MultiStreamRecorder API Reference](http://recordrtc.org/MultiStreamRecorder.html)
-8. [MRecordRTC API Reference](http://RecordRTC.org/MRecordRTC.html)
-9. [RecordRTCPromisesHandler API Reference](http://recordrtc.org/RecordRTCPromisesHandler.html)
-10. [GifRecorder API Reference](http://RecordRTC.org/GifRecorder.html)
-11. [Global API Reference](http://RecordRTC.org/global.html)
+1. [RecordRTC API Reference](https://RecordRTC.org/RecordRTC.html)
+2. [MediaStreamRecorder API Reference](https://RecordRTC.org/MediaStreamRecorder.html)
+3. [StereoAudioRecorder API Reference](https://RecordRTC.org/StereoAudioRecorder.html)
+4. [WhammyRecorder API Reference](https://RecordRTC.org/WhammyRecorder.html)
+5. [Whammy API Reference](https://RecordRTC.org/Whammy.html)
+6. [CanvasRecorder API Reference](https://RecordRTC.org/CanvasRecorder.html)
+7. [MultiStreamRecorder API Reference](https://RecordRTC.org/MultiStreamRecorder.html)
+8. [MRecordRTC API Reference](https://RecordRTC.org/MRecordRTC.html)
+9. [RecordRTCPromisesHandler API Reference](https://RecordRTC.org/RecordRTCPromisesHandler.html)
+10. [GifRecorder API Reference](https://RecordRTC.org/GifRecorder.html)
+11. [Global API Reference](https://RecordRTC.org/global.html)
 12 [RecordRTC and Upload to PHP Server](http://www.muazkhan.com/2017/08/recordrtc-and-upload-to-php-server.html)
 
 ## Browsers Support:
@@ -735,7 +735,7 @@ var audioRecorder = RecordRTC(mediaStream, {
 })
 ```
 
-It means that ALL_BROWSERS will be using [StereoAudioRecorder](http://RecordRTC.org/StereoAudioRecorder.html) i.e. WebAudio API for audio recording.
+It means that ALL_BROWSERS will be using [StereoAudioRecorder](https://RecordRTC.org/StereoAudioRecorder.html) i.e. WebAudio API for audio recording.
 
 This feature brings remote audio recording support in Firefox, and local audio recording support in Microsoft Edge.
 
@@ -784,7 +784,7 @@ var recorder = RecordRTC(mediaStream, {
 
 ## `numberOfAudioChannels`
 
-You can force [StereoAudioRecorder](http://RecordRTC.org/StereoAudioRecorder.html) to record single-audio-channel only. It allows you reduce WAV file size to half.
+You can force [StereoAudioRecorder](https://RecordRTC.org/StereoAudioRecorder.html) to record single-audio-channel only. It allows you reduce WAV file size to half.
 
 ```javascript
 var audioRecorder = RecordRTC(audioStream, {
@@ -1215,9 +1215,9 @@ Demo:
 3. [Canvas2D](http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/)
 4. [Media Capture and Streams](http://www.w3.org/TR/mediacapture-streams/)
 
-## Contribute in [RecordRTC.org](http://RecordRTC.org) domain
+## Contribute in [RecordRTC.org](https://RecordRTC.org) domain
 
-The domain http://RecordRTC.org is open-sourced here:
+The domain https://RecordRTC.org is open-sourced here:
 
 * https://github.com/muaz-khan/RecordRTC/tree/gh-pages
 

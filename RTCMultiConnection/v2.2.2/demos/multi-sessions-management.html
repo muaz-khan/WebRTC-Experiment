@@ -12,6 +12,13 @@
 
 <h1><a href="http://www.RTCMultiConnection.org/docs/">RTCMultiConnection</a> & Multi-Sessions Management</h1>
 
+<blockquote style="background: #f3b7b7;border: 5px solid black;border-radius: 5px; padding: 10px;">
+    This demo is <span style="border: 1px dotted red; background: yellow; padding: 2px 5px;">out-dated i.e. deprecated (written in 2013)</span>.
+
+    <br><br>
+    Please try other demos: <a href="https://github.com/muaz-khan/RTCMultiConnection">https://github.com/muaz-khan/RTCMultiConnection</a>
+</blockquote>
+
 <hr />
 
 <button id="open-connections">open-connections</button>
@@ -22,8 +29,11 @@
 <hr />
 
 
-<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 <script src="https://cdn.webrtc-experiment.com/socket.io.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+<script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+<script src="https://cdn.webrtc-experiment.com/RTCMultiConnection.js"></script>
 <script>
 document.querySelector('#open-connections').onclick = function() {
     audioVideoConnection.open();
@@ -40,7 +50,7 @@ var dataOnlyConnection = new RTCMultiConnection(channel + 'dataOnlyConnection');
 var screenOnlyConnection = new RTCMultiConnection(channel + 'screenOnlyConnection');
 
 // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
-var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
+var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
 audioVideoConnection.openSignalingChannel = dataOnlyConnection.openSignalingChannel = screenOnlyConnection.openSignalingChannel = function(config) {
     var channel = config.channel || this.channel || 'default-namespace';
     var sender = Math.round(Math.random() * 9999999999) + 9999999999;
@@ -88,7 +98,7 @@ audioVideoConnection.onstream = screenOnlyConnection.onstream = function(e) {
 function appendData(data) {
     var h1 = document.createElement('h1');
     h1.innerHTML = data;
-    document.body.insertBefore(h1, document.body.firstChild);
+    document.body.appendChild(h1);
 }
 
 dataOnlyConnection.onopen = function() {

@@ -293,27 +293,22 @@ window.RTCMultiConnection = function(channel) {
         }
 
         var constraints = {
-            audio: !!session.audio ? {
-                mandatory: {},
-                optional: [{
-                    chromeRenderToAssociatedSink: true
-                }]
-            } : false,
+            audio: !!session.audio,
             video: !!session.video
         };
 
         // if custom audio device is selected
-        if (connection._mediaSources.audio) {
+        if (connection._mediaSources.audio && constraints.audio && constraints.audio.optional) {
             constraints.audio.optional.push({
                 sourceId: connection._mediaSources.audio
             });
         }
-        if (connection._mediaSources.audiooutput) {
+        if (connection._mediaSources.audiooutput && constraints.audio && constraints.audio.optional) {
             constraints.audio.optional.push({
                 sourceId: connection._mediaSources.audiooutput
             });
         }
-        if (connection._mediaSources.audioinput) {
+        if (connection._mediaSources.audioinput && constraints.audio && constraints.audio.optional) {
             constraints.audio.optional.push({
                 sourceId: connection._mediaSources.audioinput
             });
@@ -675,7 +670,7 @@ window.RTCMultiConnection = function(channel) {
         }
 
         connection.localStreamids.push(streamid);
-        stream.onended = function() {
+        addStreamStopListener(stream, function() {
             if (streamedObject.mediaElement && !streamedObject.mediaElement.parentNode && document.getElementById(stream.streamid)) {
                 streamedObject.mediaElement = document.getElementById(stream.streamid);
             }
@@ -713,29 +708,26 @@ window.RTCMultiConnection = function(channel) {
 
             // to allow re-capturing of the screen
             DetectRTC.screen.sourceId = null;
+        });
+
+        stream.streamid = streamid;
+        stream.isScreen = forcedConstraints == screen_constraints;
+        stream.isVideo = forcedConstraints == constraints && !!constraints.video;
+        stream.isAudio = forcedConstraints == constraints && !!constraints.audio && !constraints.video;
+
+        // if muted stream is negotiated
+        stream.preMuted = {
+            audio: stream.getAudioTracks().length && !stream.getAudioTracks()[0].enabled,
+            video: stream.getVideoTracks().length && !stream.getVideoTracks()[0].enabled
         };
 
-        if (!isIE) {
-            stream.streamid = streamid;
-            stream.isScreen = forcedConstraints == screen_constraints;
-            stream.isVideo = forcedConstraints == constraints && !!constraints.video;
-            stream.isAudio = forcedConstraints == constraints && !!constraints.audio && !constraints.video;
-
-            // if muted stream is negotiated
-            stream.preMuted = {
-                audio: stream.getAudioTracks().length && !stream.getAudioTracks()[0].enabled,
-                video: stream.getVideoTracks().length && !stream.getVideoTracks()[0].enabled
-            };
-        }
-
         var mediaElement = createMediaElement(stream, session);
-        mediaElement.muted = true;
 
         var streamedObject = {
             stream: stream,
             streamid: streamid,
             mediaElement: mediaElement,
-            blobURL: mediaElement.mozSrcObject ? URL.createObjectURL(stream) : mediaElement.src,
+            blobURL: null,
             type: 'local',
             userid: connection.userid,
             extra: connection.extra,
