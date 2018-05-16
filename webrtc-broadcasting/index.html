@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 > Muaz Khan     - wwww.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
 > Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/video-broadcasting
@@ -79,13 +79,15 @@
             document.createElement('footer');
         </script>
 
-        <!-- scripts used for broadcasting -->
-        <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script> <!-- Signaling -->
-        <script src="https://cdn.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script> <!-- WebRTC simple wrapper -->
-        <script src="https://cdn.webrtc-experiment.com/webrtc-broadcasting/broadcast.js"> </script> <!-- Multi-user connectivity handler -->
-
         <!-- This Library is used to detect WebRTC features -->
         <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"></script>
+
+        <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/webrtc-broadcasting/RTCPeerConnection-v1.5.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/webrtc-broadcasting/broadcast.js"> </script>
     </head>
 
     <body>
@@ -167,9 +169,7 @@
                         socket.on('message', config.onmessage);
                     },
                     onRemoteStream: function(htmlElement) {
-                        htmlElement.setAttribute('controls', true);
-                        videosContainer.insertBefore(htmlElement, videosContainer.firstChild);
-                        htmlElement.play();
+                        videosContainer.appendChild(htmlElement);
                         rotateInCircle(htmlElement);
                     },
                     onRoomFound: function(room) {
@@ -181,7 +181,7 @@
                         var tr = document.createElement('tr');
                         tr.innerHTML = '<td><strong>' + room.roomName + '</strong> is broadcasting his media!</td>' +
                             '<td><button class="join">Join</button></td>';
-                        roomsList.insertBefore(tr, roomsList.firstChild);
+                        roomsList.appendChild(tr);
 
                         var joinRoomButton = tr.querySelector('.join');
                         joinRoomButton.setAttribute('data-broadcaster', room.broadcaster);
@@ -200,6 +200,9 @@
                     },
                     onNewParticipant: function(numberOfViewers) {
                         document.title = 'Viewers: ' + numberOfViewers;
+                    },
+                    onReady: function() {
+                        console.log('now you can open or join rooms');
                     }
                 };
 
@@ -261,18 +264,29 @@
                     }
 
                     var htmlElement = document.createElement(option === 'Only Audio' ? 'audio' : 'video');
-                    htmlElement.setAttribute('autoplay', true);
-                    htmlElement.setAttribute('controls', true);
-                    videosContainer.insertBefore(htmlElement, videosContainer.firstChild);
+
+                    htmlElement.muted = true;
+                    htmlElement.volume = 0;
+
+                    try {
+                        htmlElement.setAttributeNode(document.createAttribute('autoplay'));
+                        htmlElement.setAttributeNode(document.createAttribute('playsinline'));
+                        htmlElement.setAttributeNode(document.createAttribute('controls'));
+                    } catch (e) {
+                        htmlElement.setAttribute('autoplay', true);
+                        htmlElement.setAttribute('playsinline', true);
+                        htmlElement.setAttribute('controls', true);
+                    }
 
                     var mediaConfig = {
                         video: htmlElement,
                         onsuccess: function(stream) {
                             config.attachStream = stream;
-                            callback && callback();
-
-                            htmlElement.setAttribute('muted', true);
+                            
+                            videosContainer.appendChild(htmlElement);
                             rotateInCircle(htmlElement);
+                            
+                            callback && callback();
                         },
                         onerror: function() {
                             if (option === 'Only Audio') alert('unable to get access to your microphone');
@@ -324,63 +338,7 @@
                 </ol>
             </section>
 
-            <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-                <div id="github-commits"></div>
-            </section>
-
-            <section class="experiment">
-                <h2 class="header" id="feedback">Feedback</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
-            </section>
-
-            <section class="experiment">
-                <h2 class="header">How it works?</h2>
-                <p>
-                    It is one-way broadcasting; media stream is attached only by the broadcaster.
-                </p>
-                <p>
-                    It means that, if 10 people are watching your one-way broadcasted audio/video stream; on your system:
-                </p>
-                <ol>
-                    <li>10 RTP ports are opened to send video upward i.e. outgoing video</li>
-                    <li>10 RTP ports are opened to send audio upward i.e. outgoing audio</li>
-                </ol>
-                <p>
-                    And on participants system:
-                </p>
-                <ol>
-                    <li>10 RTP ports are opened to receive video i.e. incoming video</li>
-                    <li>10 RTP ports are opened to receive audio i.e. incoming audio</li>
-                </ol>
-                <p>
-                    Maximum bandwidth used by each video RTP port (media-track) is about 1MB. You're streaming audio and video tracks. You must be careful when streaming video over more than one peers. If you're broadcasting audio/video over 10 peers; it means that 20MB bandwidth is required on your system to stream-up (broadcast/transmit) your video. Otherwise; you'll face connection lost; CPU usage issues; and obviously audio-lost/noise/echo issues.
-                </p>
-                <p>
-                    You can handle such things using "b=AS" (application specific bandwidth) session description parameter values to deliver a little bit low quality video.
-                </p>
-                <pre>
-// removing existing bandwidth lines
-sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
-
-// setting "outgoing" audio RTP port's bandwidth to "50kbit/s"
-sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:50\r\n');
-
-// setting "outgoing" video RTP port's bandwidth to "256kbit/s"
-sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:256\r\n');
-</pre>
-                <p>
-                    Possible issues:</p>
-                <ol>
-                    <li>Blurry video experience</li>
-                    <li>Unclear voice and audio lost</li>
-                    <li>Bandwidth issues / slow streaming / CPU overwhelming</li>
-                </ol>
-                <p>Solution? Obviously a media server or <a href="https://www.webrtc-experiment.com/RTCMultiConnection/remote-stream-forwarding.html">remote-stream-forwarding</a>!</p>
-            </section>
+            <section class="experiment"><small id="send-message"></small></section>
         </article>
 
         <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/webrtc-broadcasting" class="fork-left"></a>

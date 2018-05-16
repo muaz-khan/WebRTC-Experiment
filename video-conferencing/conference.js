@@ -14,11 +14,12 @@ var conference = function(config) {
     var sockets = [];
     var defaultSocket = { };
 
-    function openDefaultSocket() {
+    function openDefaultSocket(callback) {
         defaultSocket = config.openSocket({
             onmessage: onDefaultSocketResponse,
             callback: function(socket) {
                 defaultSocket = socket;
+                callback();
             }
         });
     }
@@ -38,7 +39,7 @@ var conference = function(config) {
             });
         }
 
-        // to make sure room is unlisted if owner leaves		
+        // to make sure room is unlisted if owner leaves        
         if (response.left && config.onRoomClosed) {
             config.onRoomClosed(response);
         }
@@ -58,6 +59,10 @@ var conference = function(config) {
         socketConfig.callback = function(_socket) {
             socket = _socket;
             this.onopen();
+
+            if(_config.callback) {
+                _config.callback();
+            }
         };
 
         var socket = config.openSocket(socketConfig),
@@ -81,8 +86,17 @@ var conference = function(config) {
             onRemoteStream: function(stream) {
                 if (!stream) return;
 
-                video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
-                video.play();
+                try {
+                    video.setAttributeNode(document.createAttribute('autoplay'));
+                    video.setAttributeNode(document.createAttribute('playsinline'));
+                    video.setAttributeNode(document.createAttribute('controls'));
+                } catch (e) {
+                    video.setAttribute('autoplay', true);
+                    video.setAttribute('playsinline', true);
+                    video.setAttribute('controls', true);
+                }
+
+                video.srcObject = stream;
 
                 _config.stream = stream;
                 onRemoteStreamStartsFlowing();
@@ -101,7 +115,7 @@ var conference = function(config) {
                 peerConfig.onAnswerSDP = sendsdp;
             }
 
-            peer = RTCPeerConnection(peerConfig);
+            peer = RTCPeerConnection5(peerConfig);
         }
         
         function afterRemoteStreamStartedFlowing() {
@@ -198,7 +212,16 @@ var conference = function(config) {
             });
         }
 
-        if (config.attachStream) config.attachStream.stop();
+        if (config.attachStream) {
+            if('stop' in config.attachStream) {
+                config.attachStream.stop();
+            }
+            else {
+                config.attachStream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+            }
+        }
     }
     
     window.addEventListener('beforeunload', function () {
@@ -243,7 +266,8 @@ var conference = function(config) {
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
     }
 
-    openDefaultSocket();
+    openDefaultSocket(config.onReady || function() {});
+
     return {
         createRoom: function(_config) {
             self.roomName = _config.roomName || 'Anonymous';
@@ -261,13 +285,14 @@ var conference = function(config) {
             self.broadcasterid = _config.joinUser;
 
             openSubSocket({
-                channel: self.userToken
-            });
-
-            defaultSocket.send({
-                participant: true,
-                userToken: self.userToken,
-                joinUser: _config.joinUser
+                channel: self.userToken,
+                callback: function() {
+                    defaultSocket.send({
+                        participant: true,
+                        userToken: self.userToken,
+                        joinUser: _config.joinUser
+                    });
+                }
             });
         },
         leaveRoom: leave

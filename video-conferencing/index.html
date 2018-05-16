@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 > Muaz Khan       - wwww.MuazKhan.com
 > MIT License     - www.WebRTC-Experiment.com/licence
 > Documentation   - github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
@@ -70,22 +70,18 @@
             document.createElement('footer');
         </script>
 
-        <!-- scripts used for video-conferencing -->
-        <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
-        <script src="https://cdn.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
-        <script src="https://cdn.webrtc-experiment.com/video-conferencing/conference.js"> </script>
-
         <!-- script used to stylize video element -->
         <script src="https://cdn.webrtc-experiment.com/getMediaElement.min.js"> </script>
 
-        <!-- code styling; below 4-scripts are useless for you! -->
-        <script src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js" type="text/javascript"> </script>
-        <script src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js" type="text/javascript"> </script>
-        <script src="https://cdn.webrtc-experiment.com/syntax/sh_html.min.js" type="text/javascript"> </script>
-        <link href="https://cdn.webrtc-experiment.com/syntax/sh_style.css" type="text/css" rel="stylesheet">
+        <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
+        <script src="https://cdn.webrtc-experiment.com/video-conferencing/RTCPeerConnection-v1.5.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/video-conferencing/conference.js"> </script>
     </head>
 
-    <body onload="sh_highlightDocument();">
+    <body>
         <article>
             <header style="text-align: center;">
                 <h1>
@@ -119,7 +115,7 @@
                         Private ?? <a href="/video-conferencing/" target="_blank" title="Open this link in new tab. Then your conference room will be private!"><code><strong id="unique-token">#123456789</strong></code></a>
                     </span>
 
-                    <input type="text" id="conference-name">
+                    <input type="text" id="conference-name" placeholder="Conference Name" style="width: 50%;">
                     <button id="setup-new-room" class="setup">Setup New Conference</button>
                 </section>
 
@@ -168,8 +164,8 @@
                             width: (videosContainer.clientWidth / 2) - 50,
                             buttons: ['mute-audio', 'mute-video', 'full-screen', 'volume-slider']
                         });
-                        mediaElement.id = media.streamid;
-                        videosContainer.insertBefore(mediaElement, videosContainer.firstChild);
+                        mediaElement.id = media.stream.streamid;
+                        videosContainer.appendChild(mediaElement);
                     },
                     onRemoteStreamEnded: function(stream, video) {
                         if (video.parentNode && video.parentNode.parentNode && video.parentNode.parentNode.parentNode) {
@@ -185,7 +181,7 @@
                         var tr = document.createElement('tr');
                         tr.innerHTML = '<td><strong>' + room.roomName + '</strong> shared a conferencing room with you!</td>' +
                             '<td><button class="join">Join</button></td>';
-                        roomsList.insertBefore(tr, roomsList.firstChild);
+                        roomsList.appendChild(tr);
 
                         var joinRoomButton = tr.querySelector('.join');
                         joinRoomButton.setAttribute('data-broadcaster', room.broadcaster);
@@ -214,6 +210,9 @@
                             // joinButton.parentNode.parentNode.parentNode.parentNode === <table>
                             joinButton.parentNode.parentNode.parentNode.parentNode.removeChild(joinButton.parentNode.parentNode.parentNode);
                         }
+                    },
+                    onReady: function() {
+                        console.log('now you can open or join rooms');
                     }
                 };
 
@@ -231,21 +230,32 @@
 
                 function captureUserMedia(callback, failure_callback) {
                     var video = document.createElement('video');
+                    video.muted = true;
+                    video.volume = 0;
+
+                    try {
+                        video.setAttributeNode(document.createAttribute('autoplay'));
+                        video.setAttributeNode(document.createAttribute('playsinline'));
+                        video.setAttributeNode(document.createAttribute('controls'));
+                    } catch (e) {
+                        video.setAttribute('autoplay', true);
+                        video.setAttribute('playsinline', true);
+                        video.setAttribute('controls', true);
+                    }
 
                     getUserMedia({
                         video: video,
                         onsuccess: function(stream) {
                             config.attachStream = stream;
-                            callback && callback();
-
-                            video.setAttribute('muted', true);
 
                             var mediaElement = getMediaElement(video, {
                                 width: (videosContainer.clientWidth / 2) - 50,
                                 buttons: ['mute-audio', 'mute-video', 'full-screen', 'volume-slider']
                             });
                             mediaElement.toggle('mute-audio');
-                            videosContainer.insertBefore(mediaElement, videosContainer.firstChild);
+                            videosContainer.appendChild(mediaElement);
+
+                            callback && callback();
                         },
                         onerror: function() {
                             alert('unable to get access to your webcam');
@@ -273,7 +283,7 @@
                 (function() {
                     var uniqueToken = document.getElementById('unique-token');
                     if (uniqueToken)
-                        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;"><a href="' + location.href + '" target="_blank">Share this link</a></h2>';
+                        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;display: block;"><a href="' + location.href + '" target="_blank">Right click to copy & share this private link</a></h2>';
                         else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
                 })();
 
@@ -322,127 +332,7 @@
                 </ol>
             </section>
 
-            <section class="experiment">
-                <h2 class="header">Want to use video-conferencing in your own webpage?</h2>
-                <pre class="sh_html">
-&lt;script src="https://cdn.webrtc-experiment.com/socket.io.js"&gt; &lt;/script&gt;
-&lt;script src="https://cdn.webrtc-experiment.com/RTCPeerConnection-v1.5.js"&gt; &lt;/script&gt;
-&lt;script src="https://cdn.webrtc-experiment.com/video-conferencing/conference.js"&gt; &lt;/script&gt;
-
-&lt;button id="setup-new-room"&gt;Setup New Conference&lt;/button&gt;
-&lt;table style="width: 100%;" id="rooms-list"&gt;&lt;/table&gt;
-&lt;div id="videos-container"&gt;&lt;/div&gt;
-</pre>
-                <pre class="sh_javascript">
-var config = {
-    openSocket: function (config) {
-        var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/',
-            defaultChannel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-
-        var channel = config.channel || defaultChannel;
-        var sender = Math.round(Math.random() * 999999999) + 999999999;
-
-        io.connect(SIGNALING_SERVER).emit('new-channel', {
-            channel: channel,
-            sender: sender
-        });
-
-        var socket = io.connect(SIGNALING_SERVER + channel);
-        socket.channel = channel;
-        socket.on('connect', function () {
-            if (config.callback) config.callback(socket);
-        });
-
-        socket.send = function (message) {
-            socket.emit('message', {
-                sender: sender,
-                data: message
-            });
-        };
-
-        socket.on('message', config.onmessage);
-    },
-    onRemoteStream: function (media) {
-        var video = media.video;
-        video.setAttribute('controls', true);
-        video.setAttribute('id', media.stream.id);
-        videosContainer.insertBefore(video, videosContainer.firstChild);
-        video.play();
-    },
-    onRemoteStreamEnded: function (stream) {
-        var video = document.getElementById(stream.id);
-        if (video) video.parentNode.removeChild(video);
-    },
-    onRoomFound: function (room) {
-        var alreadyExist = document.querySelector('button[data-broadcaster="' + room.broadcaster + '"]');
-        if (alreadyExist) return;
-
-        var tr = document.createElement('tr');
-        tr.innerHTML = '&lt;td&gt;&lt;strong&gt;' + room.roomName + '&lt;/strong&gt; shared a conferencing room with you!&lt;/td&gt;' +
-            '&lt;td&gt;&lt;button class="join"&gt;Join&lt;/button&gt;&lt;/td&gt;';
-        roomsList.insertBefore(tr, roomsList.firstChild);
-
-        var joinRoomButton = tr.querySelector('.join');
-        joinRoomButton.setAttribute('data-broadcaster', room.broadcaster);
-        joinRoomButton.setAttribute('data-roomToken', room.broadcaster);
-        joinRoomButton.onclick = function () {
-            this.disabled = true;
-
-            var broadcaster = this.getAttribute('data-broadcaster');
-            var roomToken = this.getAttribute('data-roomToken');
-            captureUserMedia(function () {
-                conferenceUI.joinRoom({
-                    roomToken: roomToken,
-                    joinUser: broadcaster
-                });
-            });
-        };
-    }
-};
-
-var conferenceUI = conference(config);
-var videosContainer = document.getElementById('videos-container') || document.body;
-var roomsList = document.getElementById('rooms-list');
-
-document.getElementById('setup-new-room').onclick = function () {
-    this.disabled = true;
-    captureUserMedia(function () {
-        conferenceUI.createRoom({
-            roomName: 'Anonymous'
-        });
-    });
-};
-
-function captureUserMedia(callback) {
-    var video = document.createElement('video');
-    video.setAttribute('autoplay', true);
-    video.setAttribute('controls', true);
-    videosContainer.insertBefore(video, videosContainer.firstChild);
-
-    getUserMedia({
-        video: video,
-        onsuccess: function (stream) {
-            config.attachStream = stream;
-            video.setAttribute('muted', true);
-            callback();
-        }
-    });
-}
-</pre>
-            </section>
-
-            <section class="experiment own-widgets latest-commits">
-                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
-                <div id="github-commits"></div>
-            </section>
-
-            <section class="experiment">
-                <h2 class="header" id="feedback">Feedback</h2>
-                <div>
-                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
-                </div>
-                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
-            </section>
+            <section class="experiment"><small id="send-message"></small></section>
         </article>
 
         <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing" class="fork-left"></a>

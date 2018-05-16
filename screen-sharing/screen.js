@@ -696,7 +696,7 @@
                 screen: 300, // 300kbits minimum
                 video: 256 // 256kbits (both min-max)
             };
-            var isScreenSharing = false;
+            var isScreenSharing = true;
 
             sdp = BandwidthHandler.setApplicationSpecificBandwidth(sdp, bandwidth, isScreenSharing);
             sdp = BandwidthHandler.setVideoBitrates(sdp, {

@@ -15,11 +15,12 @@ var broadcast = function(config) {
         participants = 1,
         defaultSocket = { };
 
-    function openDefaultSocket() {
+    function openDefaultSocket(callback) {
         defaultSocket = config.openSocket({
             onmessage: onDefaultSocketResponse,
             callback: function(socket) {
                 defaultSocket = socket;
+                callback();
             }
         });
     }
@@ -52,6 +53,10 @@ var broadcast = function(config) {
         socketConfig.callback = function(_socket) {
             socket = _socket;
             this.onopen();
+
+            if(_config.callback) {
+                _config.callback();
+            }
         };
 
         var socket = config.openSocket(socketConfig),
@@ -82,8 +87,17 @@ var broadcast = function(config) {
             onRemoteStream: function(stream) {
                 if (!stream) return;
 
-                htmlElement[moz ? 'mozSrcObject' : 'src'] = moz ? stream : webkitURL.createObjectURL(stream);
-                htmlElement.play();
+                try {
+                    htmlElement.setAttributeNode(document.createAttribute('autoplay'));
+                    htmlElement.setAttributeNode(document.createAttribute('playsinline'));
+                    htmlElement.setAttributeNode(document.createAttribute('controls'));
+                } catch (e) {
+                    htmlElement.setAttribute('autoplay', true);
+                    htmlElement.setAttribute('playsinline', true);
+                    htmlElement.setAttribute('controls', true);
+                }
+
+                htmlElement.srcObject = stream;
 
                 _config.stream = stream;
                 if (self.isAudio) {
@@ -104,7 +118,7 @@ var broadcast = function(config) {
                 peerConfig.onAnswerSDP = sendsdp;
             }
 
-            peer = RTCPeerConnection(peerConfig);
+            peer = RTCPeerConnection5(peerConfig);
         }
 
         function onRemoteStreamStartsFlowing() {
@@ -213,7 +227,7 @@ var broadcast = function(config) {
         return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
     }
 
-    openDefaultSocket();
+    openDefaultSocket(config.onReady || function() {});
     return {
         createRoom: function(_config) {
             self.roomName = _config.roomName || 'Anonymous';
@@ -230,13 +244,14 @@ var broadcast = function(config) {
             isGetNewRoom = false;
 
             openSubSocket({
-                channel: self.userToken
-            });
-
-            defaultSocket.send({
-                participant: true,
-                userToken: self.userToken,
-                joinUser: _config.joinUser
+                channel: self.userToken,
+                callback: function() {
+                    defaultSocket.send({
+                        participant: true,
+                        userToken: self.userToken,
+                        joinUser: _config.joinUser
+                    });
+                }
             });
         }
     };
