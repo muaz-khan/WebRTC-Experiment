@@ -42,7 +42,7 @@ mkdir socketio-over-nodejs
 cd socketio-over-nodejs
 
 # get package
-wget http://dl.webrtc-experiment.com/socketio-over-nodejs.tar
+wget http://webrtcweb.com/socketio-over-nodejs.tar
 
 # extract package
 tar -xf socketio-over-nodejs.tar
@@ -53,6 +53,10 @@ node signaler.js
 # run HTTPs server
 node signaler-ssl.js
 ```
+
+# Download ZIP on windows
+
+http://webrtcweb.com/websocket-over-nodejs.zip
 
 Now, you can open port `8888` on your ip address/domain; or otherwise on localhost: `http://localhost:8888/`
 

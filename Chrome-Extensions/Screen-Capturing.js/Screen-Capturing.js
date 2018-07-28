@@ -1,4 +1,4 @@
-// Last time updated on: May 13, 2018
+// Last time updated on: June 08, 2018
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/Screen-Capturing.js
 
@@ -87,6 +87,19 @@ function getSourceId(callback) {
 }
 
 // this function can be used to get "source-id" from the extension
+function getCustomSourceId(arr, callback) {
+    if (!arr || !arr.forEach) throw '"arr" parameter is mandatory and it must be an array.';
+    if (!callback) throw '"callback" parameter is mandatory.';
+
+    if(sourceId) return callback(sourceId);
+    
+    screenCallback = callback;
+    window.postMessage({
+        'get-custom-sourceId': arr
+    }, '*');
+}
+
+// this function can be used to get "source-id" from the extension
 function getSourceIdWithAudio(callback) {
     if (!callback) throw '"callback" parameter is mandatory.';
     if(sourceId) return callback(sourceId);
@@ -152,13 +165,17 @@ function getScreenConstraints(callback, captureSourceIdWithAudio) {
     // otherwise it will fallback to command-line based screen capturing API
     if (chromeMediaSource == 'desktop' && !sourceId) {
         if(captureSourceIdWithAudio) {
-            getSourceIdWithAudio(function() {
+            getSourceIdWithAudio(function(sourceId, canRequestAudioTrack) {
                 screen_constraints.mandatory.chromeMediaSourceId = sourceId;
+
+                if(canRequestAudioTrack) {
+                    screen_constraints.canRequestAudioTrack = true;
+                }
                 callback(sourceId == 'PermissionDeniedError' ? sourceId : null, screen_constraints);
             });
         }
         else {
-            getSourceId(function() {
+            getSourceId(function(sourceId) {
                 screen_constraints.mandatory.chromeMediaSourceId = sourceId;
                 callback(sourceId == 'PermissionDeniedError' ? sourceId : null, screen_constraints);
             });

@@ -27,6 +27,11 @@ getScreenConstraints(function(error, screen_constraints) {
         return alert(error);
     }
 
+    if(screen_constraints.canRequestAudioTrack) {
+        // you can capture speakers
+        // getUserMedia({audio:screen_constraints})
+    }
+
     navigator.mediaDevices.getUserMedia({
         video: screen_constraints
     }).then(function(stream) {
@@ -66,6 +71,30 @@ getScreenConstraintsWithAudio(function(error, screen_constraints) {
 
 ```javascript
 getSourceId(function(sourceId, canRequestAudioTrack) {
+    if(sourceId != 'PermissionDeniedError') {
+        // your code here
+    }
+
+    if(canRequestAudioTrack === true) {
+        // system audio i.e. speakers are enabled
+    }
+});
+```
+
+### `getCustomSourceId`
+
+Get your own custom source-id according to requested screen formats. Supported formats are:
+
+* `window`
+* `screen`
+* `tab`
+* `audio`
+
+> Note: First parameter must be an array.
+
+```javascript
+var our_own_choices = ['tab', 'audio'];
+getCustomSourceId(our_own_choices, function(sourceId, canRequestAudioTrack) {
     if(sourceId != 'PermissionDeniedError') {
         // your code here
     }

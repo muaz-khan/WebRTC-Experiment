@@ -119,6 +119,6 @@ function truncateChannels(websocket) {
     }
 }
 
-app.listen(12034);
+app.listen(process.env.PORT || 12034);
 
 console.log('Please open SSL URL: https://localhost:12034/');

@@ -1,0 +1,134 @@
+﻿ <!DOCTYPE html>
+<html>
+<head>
+<style>
+* {
+  -webkit-user-select: none;
+  -user-select: none;
+  -webkit-user-drag: none;
+  -user-drag: none;
+}
+
+@font-face {
+  font-family: 'Custom_Font';
+  src: local('.SFNSText-Light'), 
+       local('.HelveticaNeueDeskInterface-Light'), 
+       local('.LucidaGrandeUI'), 
+       local('Ubuntu Light'), 
+       local('Segoe UI Light'),
+       local('Roboto-Light'), 
+       local('DroidSans'), 
+       local('Tahoma');
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 400px;
+  background-color: #F3F3F3;
+  font-family: Custom_Font!important;
+  font-size: 1em;
+  overflow: hidden;
+}
+
+hr {
+  border: 0;
+  border-top: solid lightgray 1px;
+}
+
+div {
+  padding: 4px 8px;
+}
+
+div.btn {
+  text-decoration: none;
+  outline: none;
+  border: 0;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+div.btn:hover {
+  background: rgba(234,234,234,1);
+  text-decoration: none;
+}
+
+a {
+  outline: none;
+  text-decoration: none;
+  color: #0C97BB;
+}
+
+div.btn img {
+  height: 32px;
+}
+
+section {
+  margin-right: 15px;
+  text-align: right;
+  width: 24px;
+  display: inline-block;
+  vertical-align: middle;
+}
+</style>
+</head>
+<body>
+    <article id="default-section">
+      <div class="btn" id="full-screen">
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen Without Audio
+      </div>
+      <hr>
+      <div class="btn" id="microphone-screen">
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen + Microphone
+      </div>
+      <hr>
+      <div class="btn" id="full-screen-audio">
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen + Speakers
+      </div>
+      <hr>
+      <div class="btn" id="full-screen-audio-microphone">
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen + Microphone + Speakers
+      </div>
+      <hr>
+      <div class="btn" id="full-screen-audio-microphone-camera">
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen + Microphone + Speakers + Camera
+      </div>
+      <hr>
+      <div class="btn" id="selected-tab">
+          <section><img src="images/desktopCapture22.png"></section>
+          Chrome Tab + Speakers
+      </div>
+      <hr>
+      <div class="btn" id="microphone-screen-camera">
+          <section><img src="images/desktopCapture22.png"></section>
+          Screen + Camera
+      </div>
+      <hr>
+      <div class="btn" id="microphone-webcam">
+          <section><img src="images/desktopCapture22.png"></section>
+           Camera Only
+      </div>
+      <hr>
+      <div style="text-align: right;">
+        <a id="btn-options" href="options.html" target="_blank">Options</a>
+      </div>
+    </article>
+
+    <article id="stop-section">
+      <div class="btn" id="stop-sharing">
+          <section><img src="images/desktopCapture22.png"></section>
+          Stop Sharing
+      </div>
+    </article>
+
+    <script src="dropdown.js"></script>
+</body>
+</html>

@@ -61,7 +61,8 @@ header {
 }
 
 #btn-upload {
-  height: 60px;
+    height: 42px;
+    margin-top: 10px;
 }
 
 #btn-upload-dropdown, #btn-recordings-list-dropdown {
@@ -91,6 +92,10 @@ header {
   background: #F3F3F3;
 }
 
+.btn-upload-dropdown-selected {
+  background: #dad6d6!important;
+}
+
 #btn-recordings-list {
   float: left;
 }
@@ -102,32 +107,47 @@ header {
   overflow: auto;
 }
 
-.cross-icon {
+.cross-icon, .edit-icon {
     float: right;
     width: 22px;
     margin-left: 20px;
     cursor: pointer;
 }
+
+.cross-icon {
+  margin-left: 15px;
+}
+
+#browser-cache .cross-icon {
+    float: none;
+    vertical-align: middle;
+    margin: 0;
+    width: 15px;
+}
 </style>
 
-<title></title>
+<title>RecordRTC Extension</title>
 <link rel="manifest" href="manifest.json">
 <header>
-    <img id="btn-recordings-list" src="images/list-icon.png" title="Upload">
+    <img id="btn-recordings-list" src="images/list-icon.png" title="List Of Recordings">
     <img id="btn-upload" src="images/upload-icon.png" title="Upload">
-    <p>
-        <a id="file-name" title="Download on your Disk!"></a>
-        (Size: <span id="file-size"></span>)
-        <!--
-        Duration: <span id="file-duration">00:00</span>
-        -->
+    
+    <p style="position: absolute;right: 10%;">
+      <span style="font-size: .6em; margin-left: 20px;" id="file-size" title="Size"></span>
+      <span style="font-size: .6em; margin-left: 20px;" id="file-resolutions" title="Resolutions"></span>
+      <span style="font-size: .6em; margin-left: 20px;" id="file-duration" title="Duration"></span>
     </p>
-    <span style="font-size: 17px">This file is in your <b>browser cache</b>. Click above link to <b>download</b> ie. save-to-disk.</span>
+
+    <p>
+      <span id="file-name" title="Recording Name"></span>
+    </p>
+
+    <span id="browser-cache" style="font-size: 17px"></span>
 </header>
 
 <div id="btn-upload-dropdown">
-  <div id="btn-php-upload">Upload to Private Server</div>
-  <div id="btn-youtube-upload">Upload to YouTube</div>
+  <div id="btn-php-upload">Upload to <span style="color: red;">Private Server</span></div>
+  <div id="btn-youtube-upload">Upload to <span style="color: red;">YouTube</span></div>
 </div>
 
 <div id="btn-recordings-list-dropdown"></div>

@@ -244,7 +244,7 @@
 
                             alert('Failed to capture your screen. Please check Chrome console logs for further information.');
                         });
-                    }/*, 'we need speakers as well!'*/);
+                    }/*, ['screen', 'audio']*/);
                 };
             </script>
 
@@ -319,7 +319,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
     }).catch(function (error) {
         console.error(error);
     });
-}, 'pass second argument only if you want to capture speakers as well');
+});
 &lt;/script&gt;
 </pre>
 

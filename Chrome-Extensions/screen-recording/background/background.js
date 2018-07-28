@@ -57,8 +57,8 @@ function gotStream(stream) {
 
     if (cameraStream && cameraStream.getAudioTracks().length) {
         cameraStream.getAudioTracks().forEach(function(track) {
-            cameraStream.removeTrack(track);
             stream.addTrack(track);
+            cameraStream.removeTrack(track);
         });
     }
 
@@ -145,14 +145,32 @@ function stopScreenRecording() {
             type: mimeType
         });
 
+        localStorage.setItem('selected-file', file.name);
+
         // initialTime = initialTime || Date.now();
         // var timeDifference = Date.now() - initialTime;
         // var formatted = convertTime(timeDifference);
         // file.duration = formatted;
 
         DiskStorage.StoreFile(file, function() {
-            chrome.tabs.create({
-                url: 'preview.html'
+            chrome.tabs.query({}, function(tabs) {
+                var found = false;
+                var url = 'chrome-extension://' + chrome.runtime.id + '/preview.html';
+                for (var i = tabs.length - 1; i >= 0; i--) {
+                    if (tabs[i].url === url) {
+                        found = true;
+                        chrome.tabs.update(tabs[i].id, {
+                            active: true,
+                            url: url
+                        });
+                        break;
+                    }
+                }
+                if (!found) {
+                    chrome.tabs.create({
+                        url: 'preview.html'
+                    });
+                }
             });
         });
 
@@ -218,6 +236,7 @@ function setDefaults() {
     enableSpeakers = true;
     videoCodec = 'Default';
     videoMaxFrameRates = '';
+    videoResolutions = '1920x1080';
     isRecordingVOD = false;
     startedVODRecordedAt = (new Date).getTime();
 
@@ -259,6 +278,10 @@ function getUserConfigs() {
 
         if (items['videoMaxFrameRates'] && items['videoMaxFrameRates'].toString().length) {
             videoMaxFrameRates = parseInt(items['videoMaxFrameRates']);
+        }
+
+        if (items['videoResolutions'] && items['videoResolutions'].toString().length) {
+            videoResolutions = items['videoResolutions'];
         }
 
         if (items['microphone']) {

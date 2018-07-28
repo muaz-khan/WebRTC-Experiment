@@ -20,6 +20,7 @@ function selfInvoker()
         'webm',
         'wav',
         'mp4',
+        "mkv",
         'mp3',
         'ogg'
     );

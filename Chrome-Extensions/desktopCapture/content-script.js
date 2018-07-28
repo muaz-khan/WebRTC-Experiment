@@ -22,6 +22,12 @@ window.addEventListener('message', function (event) {
     // if invalid source
     if (event.source != window)
         return;
+
+    if(!!event.data['get-custom-sourceId']) {
+        // forward message to background script
+        port.postMessage(event.data);
+        return;
+    }
         
     // it is 3rd party message
     if(!rtcmulticonnectionMessages[event.data]) return;

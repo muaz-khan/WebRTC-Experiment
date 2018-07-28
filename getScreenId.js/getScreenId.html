@@ -20,10 +20,23 @@ var screenCallback;
 DetectRTC.screen = {
     chromeMediaSource: 'screen',
     getSourceId: function(callback) {
+        if (!callback) throw '"callback" parameter is mandatory.';
+
         screenCallback = callback;
         window.postMessage('get-sourceId', '*');
     },
+    getCustomSourceId: function(arr, callback) {
+        if (!arr || !arr.forEach) throw '"arr" parameter is mandatory and it must be an array.';
+        if (!callback) throw '"callback" parameter is mandatory.';
+
+        screenCallback = callback;
+        window.postMessage({
+            'get-custom-sourceId': arr
+        }, '*');
+    },
     getSourceIdWithAudio: function(callback) {
+        if (!callback) throw '"callback" parameter is mandatory.';
+
         screenCallback = callback;
         window.postMessage('audio-plus-tab', '*');
     },
@@ -81,7 +94,7 @@ DetectRTC.screen = {
 };
 
 window.addEventListener('message', function(event) {
-    if (!event.data || !(typeof event.data == 'string' || event.data.sourceId || event.data.captureSourceId || event.data.getChromeExtensionStatus || event.data.captureSourceIdWithAudio)) return;
+    if (!event.data || !(typeof event.data == 'string' || event.data.sourceId || event.data.captureSourceId || event.data.captureCustomSourceId || event.data.getChromeExtensionStatus || event.data.captureSourceIdWithAudio)) return;
 
     if (event.data.getChromeExtensionStatus) {
         DetectRTC.screen.getChromeExtensionStatus(function(status) {
@@ -90,6 +103,10 @@ window.addEventListener('message', function(event) {
             }, '*');
         });
         return;
+    }
+
+    if(event.data.captureCustomSourceId) {
+        captureSourceId(null, event.data.captureCustomSourceId);
     }
 
     if (event.data.captureSourceId) {
@@ -103,7 +120,7 @@ window.addEventListener('message', function(event) {
     DetectRTC.screen.onMessageCallback(event.data);
 });
 
-function captureSourceId(system_audio) {
+function captureSourceId(system_audio, custom_sourceId) {
     // check if desktop-capture extension installed.
     DetectRTC.screen.getChromeExtensionStatus(function(status) {
         if (status != 'installed-enabled') {
@@ -113,7 +130,15 @@ function captureSourceId(system_audio) {
             return;
         }
 
-        if(!system_audio) {
+        if(!!custom_sourceId) {
+            DetectRTC.screen.getCustomSourceId(custom_sourceId, function(sourceId, canRequestAudioTrack) {
+                window.parent.postMessage({
+                    chromeMediaSourceId: sourceId,
+                    canRequestAudioTrack: !!canRequestAudioTrack
+                }, '*');
+            });
+        }
+        else if(!system_audio && !custom_sourceId) {
             DetectRTC.screen.getSourceId(function(sourceId) {
                 window.parent.postMessage({
                     chromeMediaSourceId: sourceId

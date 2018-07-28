@@ -72,7 +72,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
       alert('Failed to capture your screen. Please check Chrome console logs for further information.');
     });
-}, 'pass second argument only if you want to capture speakers as well');
+});
 ```
 
 Or...
@@ -113,7 +113,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
 
       alert('Failed to capture your screen. Please check Chrome console logs for further information.');
     });
-}, 'pass second argument only if you want to capture speakers as well');
+});
 ```
 
 # `getChromeExtensionStatus`
@@ -136,16 +136,18 @@ getChromeExtensionStatus(function(status) {
 * That `<iframe>` can connect with chrome-extension. It can send/receive `postMessage` data.
 * Same `postMessage` API are used to pass `screen-id` back to your script.
 
-# System Audio i.e. Speakers?
+# Custom Parameter
 
 Pass second argument to `getScrenId` method:
 
+* `true` means that capture system audio i.e. speakers
+* `[]` array means that capture custom array items
+
 ```javascript
-// second argument can be any non-Zero or non-False character
-// e.g. a boolean, a string, or a number greater than or equal to 1
-getScreenId(successCallback, true);
-getScreenId(successCallback, 1);
-getScreenId(successCallback, 'enable speakers');
+getScreenId(successCallback, true);    // capture speakers
+getScreenId(successCallback, ['tab']); // capature only tab
+getScreenId(successCallback, ['window']); // capature only app's windows
+getScreenId(successCallback, ['screen', 'audio']); // capature only screen with speakers
 ```
 
 # Firefox

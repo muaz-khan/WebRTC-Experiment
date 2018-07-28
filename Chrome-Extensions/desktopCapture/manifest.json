@@ -1,7 +1,7 @@
 {
     "name" : "Screen Capturing",
     "author": "Muaz Khan",
-    "version" : "3.5",
+    "version" : "3.6",
     "manifest_version" : 2,
     "minimum_chrome_version": "34",
     "description" : "Capture full-screen or specific application's screen on any HTTPs domain!",

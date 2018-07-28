@@ -2,20 +2,17 @@
 
 ## WebRTC Library  [![npm](https://img.shields.io/npm/v/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master)](https://travis-ci.org/muaz-khan/RTCMultiConnection)
 
-<a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki Pages</a> / <a href="http://www.rtcmulticonnection.org/docs/">Documentation</a> / <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a> / <a href="https://www.webrtc-experiment.com/RTCMultiConnection/">Demos</a> / <a href="http://www.rtcmulticonnection.org/changes-log/">Changes Log</a>
+<a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki Pages</a> / <a href="https://www.rtcmulticonnection.org/docs/">Documentation</a> / <a href="https://www.rtcmulticonnection.org/FAQ/">FAQ</a> / <a href="https://www.webrtc-experiment.com/RTCMultiConnection/">Demos</a> / <a href="https://www.rtcmulticonnection.org/changes-log/">Changes Log</a>
 
-* [RTCMultiConnection-v3.0](https://github.com/muaz-khan/RTCMultiConnection) is latest version [![npm](https://img.shields.io/npm/v/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection-v3.svg)](https://npmjs.org/package/rtcmulticonnection-v3)
-* RTCMultiConnection-v3.0 demo: [https://rtcmulticonnection.herokuapp.com/](https://rtcmulticonnection.herokuapp.com/)
+* DEMOS: [https://rtcmulticonnection.herokuapp.com/demos/](https://rtcmulticonnection.herokuapp.com/demos/)
 
 ```
 # v3.0 is highly recommended to users
 # who can afford node.js on their servers!
 # it is many times reliable comparing v2.2.2 and earlier
 
-npm install rtcmulticonnection-v3
+npm install rtcmulticonnection
 ```
-
-* [rtcmulticonnection-v3.tar.gz](http://dl.webrtc-experiment.com/rtcmulticonnection-v3.tar.gz)
 
 > [Latest version v3.0](https://github.com/muaz-khan/RTCMultiConnection) is preferred over `v2.2.2`
 
@@ -34,28 +31,28 @@ npm install rtcmulticonnection-v3
         </td>
         
         <td>
-            <a href="http://www.rtcmulticonnection.org/docs/getting-started/" target="_blank">
+            <a href="https://www.rtcmulticonnection.org/docs/getting-started/" target="_blank">
                 <img src="https://i.imgur.com/v3YdSC6.png" style="display:block; width:99px; height99px;" alt="Getting-Started">
                 Getting Started
             </a>
         </td>
         
         <td>
-            <a href="http://www.rtcmulticonnection.org/docs/" target="_blank">
+            <a href="https://www.rtcmulticonnection.org/docs/" target="_blank">
                 <img src="https://i.imgur.com/mtu6091.png" style="display:block; width:99px; height99px;" alt="Documentation">
                 Documentation
             </a>
         </td>
         
         <td>
-            <a href="http://www.rtcmulticonnection.org/changes-log/" target="_blank">
+            <a href="https://www.rtcmulticonnection.org/changes-log/" target="_blank">
                 <img src="https://i.imgur.com/zHngv8r.png" style="display:block; width:99px; height99px;" alt="Changes Log">
                 Changes Log
             </a>
         </td>
         
         <td>
-            <a href="http://www.rtcmulticonnection.org/FAQ/" target="_blank">
+            <a href="https://www.rtcmulticonnection.org/FAQ/" target="_blank">
                 <img src="https://i.imgur.com/Zeqlfv2.png" style="display:block; width:99px; height99px;" alt="FAQ">
                 FAQ
             </a>
@@ -265,4 +262,4 @@ If you've additional plugins, you can update this list.
 
 ## License
 
-[RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection) is released under [MIT licence](https://github.com/muaz-khan/RTCMultiConnection/blob/master/LICENSE.md) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).
+[RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection) is released under [MIT licence](https://github.com/muaz-khan/RTCMultiConnection/blob/master/LICENSE.md) . Copyright (c) [Muaz Khan](https://MuazKhan.com/).

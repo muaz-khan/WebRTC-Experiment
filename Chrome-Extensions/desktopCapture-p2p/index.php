@@ -1,4 +1,8 @@
-﻿
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+?>
+
 <title>WebRTC Desktop Viewer</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
@@ -11,11 +15,12 @@
 <meta name="author" content="Muaz Khan">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-<script src="RTCMultiConnection.js"> </script>
-<script src="CodecsHandler.js"></script>
-<script src="IceServersHandler.js"></script>
-<script src="getStats.js"></script>
-<script src="websocket.js"> </script>
+<script type="text/javascript"><?php readfile(getcwd()."/socket.io.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/adapter.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/RTCMultiConnection.min.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/CodecsHandler.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/IceServersHandler.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/getStats.js"); ?></script>
 
 <style>
 body,
@@ -189,6 +194,14 @@ button[disabled] {
 
 // http://www.rtcmulticonnection.org/docs/constructor/
 var connection = new RTCMultiConnection(params.s);
+connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+connection.enableLogs = true;
+connection.session = {
+    audio: true,
+    video: true,
+    oneway: true
+};
 
 // www.rtcmulticonnection.org/docs/sdpConstraints/
 connection.sdpConstraints.mandatory = {
@@ -206,13 +219,28 @@ function setBandwidth(sdp) {
 }
 
 connection.processSdp = function(sdp) {
-    return sdp;
-    sdp = setBandwidth(sdp);
-    sdp = BandwidthHandler.setVideoBitrates(sdp, {
-        min: 300,
-        max: 10000
-    });
-    // sdp = CodecsHandler.preferVP9(sdp);
+    var bandwidth = params.bandwidth;
+    var codecs = params.codecs;
+    
+    if (bandwidth) {
+        try {
+            bandwidth = parseInt(bandwidth);
+        } catch (e) {
+            bandwidth = null;
+        }
+
+        if (bandwidth && bandwidth != NaN && bandwidth != 'NaN' && typeof bandwidth == 'number') {
+            sdp = setBandwidth(sdp, bandwidth);
+            sdp = BandwidthHandler.setVideoBitrates(sdp, {
+                min: bandwidth,
+                max: bandwidth
+            });
+        }
+    }
+
+    if (!!codecs && codecs !== 'default') {
+        sdp = CodecsHandler.preferCodec(sdp, codecs);
+    }
     return sdp;
 };
 
@@ -287,13 +315,19 @@ connection.onstream = function(e) {
         waitForRemoteVideo();
         remoteVideo.setAttribute('data-id', e.userid);
 
-        websocket.send('received-your-screen');
+        connection.socket.emit(connection.socketCustomEvent, {
+            receivedYourScreen: true
+        });
     }
 };
 // if user left
 connection.onleave = function(e) {
+    if(e.userid !== params.s) return;
+
     transitionToWaiting();
     connection.onSessionClosed();
+
+    location.reload();
 };
 
 connection.onSessionClosed = function() {
@@ -301,10 +335,13 @@ connection.onSessionClosed = function() {
     infoBar.style.display = 'block';
     statsBar.style.display = 'none';
     connection.close();
-    websocket.onopen();
+    connection.closeSocket();
+    connection.userid = connection.token();
 
     remoteVideo.pause();
     remoteVideo.src = 'https://cdn.webrtc-experiment.com/images/muted.png';
+
+    setTimeout(checkPresence, 2000);
 };
 
 connection.ondisconnected = connection.onSessionClosed;
@@ -357,112 +394,92 @@ function enterFullScreen() {
 </script>
 
 <script>
-// using websockets as signaling medium
-// http://www.rtcmulticonnection.org/docs/openSignalingChannel/
-// using websockets for signaling
-// www.RTCMultiConnection.org/docs/openSignalingChannel/
-var onMessageCallbacks = {};
-var pub = 'pub-c-3c0fc243-9892-4858-aa38-1445e58b4ecb';
-var sub = 'sub-c-d0c386c6-7263-11e2-8b02-12313f022c90';
-
-WebSocket = PUBNUB.ws;
-var websocket = new WebSocket('wss://pubsub.pubnub.com/' + pub + '/' + sub + '/' + connection.channel);
-
-websocket.onmessage = function(e) {
-    data = JSON.parse(e.data);
-
-    if (data.sender == connection.userid) return;
-
-    if (onMessageCallbacks[data.channel]) {
-        onMessageCallbacks[data.channel](data.message);
-    };
-};
-
-websocket.push = websocket.send;
-websocket.send = function(data) {
-    data.sender = connection.userid;
-    websocket.push(JSON.stringify(data));
-};
-
-// overriding "openSignalingChannel" method
-connection.openSignalingChannel = function(config) {
-    var channel = config.channel || this.channel;
-    onMessageCallbacks[channel] = config.onmessage;
-
-    if (config.onopen) setTimeout(config.onopen, 1000);
-
-    // directly returning socket object using "return" statement
-    return {
-        send: function(message) {
-            websocket.send({
-                sender: connection.userid,
-                channel: channel,
-                message: message
-            });
-        },
-        channel: channel
-    };
-};
-
-websocket.onerror = function() {
-    if(connection.numberOfConnectedUsers <= 0) {
-        location.reload();
+connection.onJoinWithPassword = function(remoteUserId) {
+    if(!params.p) {
+        params.p = prompt(remoteUserId + ' is password protected. Please enter the pasword:');
     }
+
+    connection.password = params.p;
+    connection.join(remoteUserId);
 };
 
-websocket.onclose = function() {
-    if(connection.numberOfConnectedUsers <= 0) {
-        location.reload();
-    }
+connection.onInvalidPassword = function(remoteUserId, oldPassword) {
+    var password = prompt(remoteUserId + ' is password protected. Your entered wrong password (' + oldPassword + '). Please enter valid pasword:');
+    connection.password = password;
+    connection.join(remoteUserId);
 };
 
-infoBar.innerHTML = 'Connecting WebSockets server.';
+connection.onPasswordMaxTriesOver = function(remoteUserId) {
+    alert(remoteUserId + ' is password protected. Your max password tries exceeded the limit.');
+};
 
-websocket.onopen = function() {
-    infoBar.innerHTML = 'WebSockets connection is opened.';
+connection.socketCustomEvent = params.s;
 
-    var sessionDescription = {
-        userid: params.s,
-        extra: {},
-        session: {
-            video: true,
-            oneway: true
-        },
-        sessionid: params.s
-    };
+function checkPresence() {
+    infoBar.innerHTML = 'Checking room: ' + params.s;
 
-    if (params.s) {
-        infoBar.innerHTML = 'Joining session: ' + params.s;
+    connection.checkPresence(params.s, function(isRoomExist) {
+        if (isRoomExist === false) {
+            infoBar.innerHTML = 'Room does not exist: ' + params.s;
 
-        if(params.p) {
-            // it seems a password protected room.
-            connection.extra.password = params.p;
+            setTimeout(function() {
+                infoBar.innerHTML = 'Checking room: ' + params.s;
+                setTimeout(checkPresence, 1000);
+            }, 4000);
+            return;
         }
 
-        // http://www.rtcmulticonnection.org/docs/join/
-        connection.join(sessionDescription);
-    }
-};
+        infoBar.innerHTML = 'Joining room: ' + params.s;
+
+        connection.password = null;
+        if (params.p) {
+            connection.password = params.p;
+        }
+
+        connection.join(params.s);
+    });
+}
+
+if(params.s) {
+    checkPresence();
+}
 
 var dontDuplicate = {};
-connection.onconnected = function(event) {
-    if(dontDuplicate[event.userid]) return;
-    dontDuplicate[event.userid] = true;
+connection.onPeerStateChanged = function(event) {
+    if(!connection.getRemoteStreams(params.s).length) {
+        if(event.signalingState === 'have-remote-offer') {
+            infoBar.innerHTML = 'Received WebRTC offer from: ' + params.s;
+        }
 
-    var peer = connection.peers[event.userid].peer.connection;
-
-    if(DetectRTC.browser.name === 'Firefox') {
-        getStats(peer, (connection.remoteStream || peer.getRemoteStreams()[0]).getTracks()[0], function(stats) {
-            onGettingWebRCStats(stats, event.userid);
-        }, 1000);
-        return;
+        else if(event.iceGatheringState === 'complete' && event.iceConnectionState === 'connected') {
+            infoBar.innerHTML = 'WebRTC handshake is completed. Waiting for remote video from: ' + params.s;
+        }
     }
 
-    getStats(peer, function(stats) {
-        onGettingWebRCStats(stats, event.userid);
-    }, 1000);
+    if(event.iceConnectionState === 'connected' && event.signalingState === 'stable') {
+        if(dontDuplicate[event.userid]) return;
+        dontDuplicate[event.userid] = true;
 
-    statsBar.style.display = 'block';
+        if(DetectRTC.browser.name === 'Safari' || DetectRTC.browser.name === 'Edge') {
+            // todo: getStats for safari/edge?
+            return;
+        }
+
+        var peer = connection.peers[event.userid].peer;
+
+        if(DetectRTC.browser.name === 'Firefox') {
+            getStats(peer, (connection.remoteStream || peer.getRemoteStreams()[0]).getTracks()[0], function(stats) {
+                onGettingWebRCStats(stats, event.userid);
+            }, 1000);
+            return;
+        }
+
+        getStats(peer, function(stats) {
+            onGettingWebRCStats(stats, event.userid);
+        }, 1000);
+
+        statsBar.style.display = 'block';
+    }
 };
 
 var statsBar = document.getElementById('stats-bar');

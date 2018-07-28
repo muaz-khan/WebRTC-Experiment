@@ -3,18 +3,22 @@
 var IceServersHandler = (function() {
     function getIceServers(connection) {
         // resiprocate: 3344+4433
+        // pions: 7575
         var iceServers = [{
                 'urls': [
+                    'stun:webrtcweb.com:7788', // coTURN
+                    'stun:webrtcweb.com:7788?transport=udp', // coTURN
+                ],
+                'username': 'muazkh',
+                'credential': 'muazkh'
+            },
+            {
+                'urls': [
                     'turn:webrtcweb.com:7788', // coTURN 7788+8877
-                    'turn:webrtcweb.com:4455', // restund udp
-
-                    'turn:webrtcweb.com:7788?transport=udp', // coTURN udp
-                    'turn:webrtcweb.com:7788?transport=tcp', // coTURN tcp
-
                     'turn:webrtcweb.com:4455?transport=udp', // restund udp
-                    'turn:webrtcweb.com:5544?transport=tcp', // restund tcp
 
-                    'turn:webrtcweb.com:7575?transport=udp', // pions/turn
+                    'turn:webrtcweb.com:8877?transport=udp', // coTURN udp
+                    'turn:webrtcweb.com:8877?transport=tcp', // coTURN tcp
                 ],
                 'username': 'muazkh',
                 'credential': 'muazkh'
@@ -22,7 +26,7 @@ var IceServersHandler = (function() {
             {
                 'urls': [
                     'stun:stun.l.google.com:19302',
-                    'stun:stun.l.google.com:19302?transport=udp'
+                    'stun:stun.l.google.com:19302?transport=udp',
                 ]
             }
         ];

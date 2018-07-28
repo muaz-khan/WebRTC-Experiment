@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2017.09.30';</script>
+<script>window.demoVersion = '2018.06.06';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -1034,8 +1034,14 @@
 
                     setVideoURL(stream, true);
                 }).catch(function(error) {
-                    if(error && error.name === 'ConstraintNotSatisfiedError') {
+                    if(error && (error.name === 'ConstraintNotSatisfiedError' || error.name === 'OverconstrainedError')) {
                         alert('Your camera or browser does NOT supports selected resolutions or frame-rates. \n\nPlease select "default" resolutions.');
+                    }
+                    else if(error && error.message) {
+                        alert(error.message);
+                    }
+                    else {
+                        alert('Unable to make getUserMedia request. Please check browser console logs.');
                     }
 
                     errorCallback(error);

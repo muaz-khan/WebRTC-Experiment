@@ -127,11 +127,8 @@ function isFirefoxExtensionAvailable(callback) {
 // this function can be used to get "source-id" from the extension
 function getSourceId(callback, audioPlusTab) {
     if (!callback) throw '"callback" parameter is mandatory.';
-    if (sourceId) {
-        callback(sourceId);
-        sourceId = null;
-        return;
-    }
+
+    sourceId = null;
 
     screenCallback = callback;
 
@@ -156,11 +153,12 @@ function getChromeExtensionStatus(extensionid, callback) {
 
     if (DetectRTC.browser.name === 'Firefox') return callback('not-chrome');
 
+    sourceId = null;
+    chromeMediaSource = 'screen';
+
     var image = document.createElement('img');
     image.src = 'chrome-extension://' + extensionid + '/icon.png';
     image.onload = function() {
-        sourceId = null;
-        chromeMediaSource = 'screen';
         window.postMessage('are-you-there', '*');
         setTimeout(function() {
             if (chromeMediaSource == 'screen') {
@@ -235,7 +233,7 @@ function getScreenConstraints(callback, audioPlusTab) {
         }
 
         sourceId = null;
-        chromeMediaSource = 'screen'; // maybe this line is redundant?
+        // chromeMediaSource = 'screen'; // maybe this line is redundant?
         screenCallback = null;
 
         // now invoking native getUserMedia API

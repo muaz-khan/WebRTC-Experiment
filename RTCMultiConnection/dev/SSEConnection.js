@@ -1,10 +1,12 @@
 // SSEConnection.js
+var sseDirPath = 'https://webrtcweb.com/SSE/';
 
 function SSEConnection(connection, connectCallback) {
+    if (connection.socketURL && connection.socketURL !== '/') {
+        sseDirPath = connection.socketURL;
+    }
+
     // connection.trickleIce = false;
-
-    var sseDirPath = 'https://webrtcweb.com/SSE/';
-
     connection.socket = new EventSource(sseDirPath + 'SSE.php?me=' + connection.userid);
 
     var skipDuplicate = {};
@@ -54,9 +56,12 @@ function SSEConnection(connection, connectCallback) {
             }
         });
     };
+
     connection.socket.emit = function(eventName, data, callback) {
         if (!eventName || !data) return;
-        if (eventName === 'changed-uuid') return;
+        if (eventName === 'changed-uuid' || eventName === 'check-presence') {
+            return;
+        }
         if (data.message && data.message.shiftedModerationControl) return;
 
         if (!data.remoteUserId) return;
@@ -85,6 +90,11 @@ function SSEConnection(connection, connectCallback) {
             if (connection.enableLogs) {
                 console.info('SSE connection is opened.');
             }
+
+            // this event tries to open json file on server
+            connection.socket.emit('fake_EventName', {
+                remoteUserId: connection.userid
+            });
 
             connectCallback(connection.socket);
             connectCallback = null;
@@ -255,4 +265,29 @@ function SSEConnection(connection, connectCallback) {
     function isData(session) {
         return !session.audio && !session.video && !session.screen && session.data;
     }
+}
+
+SSEConnection.checkPresence = function(roomid, callback) {
+    callback = callback || function() {};
+
+    if (connection.socketURL && connection.socketURL !== '/') {
+        sseDirPath = connection.socketURL;
+    }
+
+    var hr = new XMLHttpRequest();
+    hr.responseType = 'json';
+    hr.response = {
+        isRoomExist: false
+    };
+    hr.addEventListener('load', function() {
+        if (connection.enableLogs) {
+            console.info('XMLHttpRequest', hr.response);
+        }
+        callback(hr.response.isRoomExist, roomid);
+    });
+    hr.addEventListener('error', function() {
+        callback(hr.response.isRoomExist, roomid);
+    });
+    hr.open('GET', sseDirPath + 'checkPresence.php?roomid=' + roomid);
+    hr.send();
 }

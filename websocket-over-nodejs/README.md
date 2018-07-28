@@ -143,7 +143,7 @@ mkdir websocket-over-nodejs
 cd websocket-over-nodejs
 
 # get package
-wget http://dl.webrtc-experiment.com/websocket-over-nodejs.tar
+wget http://webrtcweb.com/websocket-over-nodejs.tar
 
 # extract package
 tar -xf websocket-over-nodejs.tar
@@ -151,6 +151,10 @@ tar -xf websocket-over-nodejs.tar
 # run node.js server
 node signaler.js
 ```
+
+# Download ZIP on windows
+
+http://webrtcweb.com/websocket-over-nodejs.zip
 
 Now, you can open port `12034` on your ip address/domain; or otherwise on localhost: `http://localhost:12034/`
 
@@ -201,10 +205,6 @@ Following error doesn't matter!!! Simply skip it!
 Warning: Native modules not compiled.  XOR performance will be degraded.
 Warning: Native modules not compiled.  UTF-8 validation disabled.
 ```
-
-# Download ZIP on windows
-
-http://dl.webrtc-experiment.com/websocket-over-nodejs.zip
 
 # Test Demos
 

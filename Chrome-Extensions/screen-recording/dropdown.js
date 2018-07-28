@@ -18,6 +18,24 @@ chrome.storage.sync.get('isRecording', function(obj) {
     // auto-stop-recording
     if (isRecording === true) {
         document.getElementById('stop-recording').click();
+
+        chrome.tabs.query({}, function(tabs) {
+        var tabIds = [];
+        var url = 'chrome-extension://' + chrome.runtime.id + '/video.html';
+        for (var i = tabs.length - 1; i >= 0; i--) {
+            if (tabs[i].url === url) {
+                tabIds.push(tabs[i].id);
+                chrome.tabs.update(tabs[i].id, {
+                    active: true,
+                    url: url
+                });
+                break;
+            }
+        }
+        if (tabIds.length) {
+            chrome.tabs.remove(tabIds);
+        }
+    });
     }
 });
 
@@ -133,4 +151,9 @@ document.getElementById('microphone-webcam').onclick = function() {
         });
         window.close();
     });
+};
+
+document.getElementById('btn-options').onclick = function(e) {
+    e.preventDefault();
+    location.href = this.href;
 };

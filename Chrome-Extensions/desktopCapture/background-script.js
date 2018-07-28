@@ -8,13 +8,21 @@ chrome.runtime.onConnect.addListener(function (port) {
     
     // this one is called for each message from "content-script.js"
     function portOnMessageHanlder(message) {
+        if(!!message['get-custom-sourceId']) {
+            screenOptions = message['get-custom-sourceId'];
+            chrome.desktopCapture.chooseDesktopMedia(screenOptions, port.sender.tab, onAccessApproved);
+            return;
+        }
+
         if(message == 'get-sourceId') {
             chrome.desktopCapture.chooseDesktopMedia(screenOptions, port.sender.tab, onAccessApproved);
+            return;
         }
 
         if(message == 'audio-plus-tab') {
             screenOptions = ['screen', 'window', 'audio', 'tab'];
             chrome.desktopCapture.chooseDesktopMedia(screenOptions, port.sender.tab, onAccessApproved);
+            return;
         }
     }
 

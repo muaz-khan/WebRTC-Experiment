@@ -63,12 +63,12 @@ function GetRecorderType(mediaStream, config) {
         }
     }
 
-    if (config.recorderType) {
-        recorder = config.recorderType;
-    }
-
     if (mediaStream instanceof Array && mediaStream.length) {
         recorder = MultiStreamRecorder;
+    }
+
+    if (config.recorderType) {
+        recorder = config.recorderType;
     }
 
     if (!config.disableLogs && !!recorder && !!recorder.name) {

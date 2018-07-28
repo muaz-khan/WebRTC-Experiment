@@ -67,6 +67,6 @@ function removeUser(websocket) {
     clients = newClientsArray;
 }
 
-app.listen(12034);
+app.listen(process.env.PORT || 12034);
 
 console.log('Please open NON-SSL URL: http://localhost:12034/');

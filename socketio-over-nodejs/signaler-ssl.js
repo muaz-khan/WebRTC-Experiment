@@ -95,4 +95,4 @@ function onNewNamespace(channel, sender) {
     });
 }
 
-app.listen(8888);
+app.listen(process.env.PORT || 8888);

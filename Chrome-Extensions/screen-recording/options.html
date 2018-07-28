@@ -32,7 +32,6 @@ html, body {
   font-family: Custom_Font!important;
   font-size: 1em;
   overflow: hidden;
-  overflow-x: hidden;
 }
 
 label, input {
@@ -105,9 +104,30 @@ label:hover {
 td {
     padding: 10px 20px;
 }
+
+article {
+    width: 800px;
+    margin: 0 auto;
+    border: 1px solid black;
+    border-top: 0;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+h1 {
+    text-align: center;
+    padding: 20px 0;
+    font-weight: normal;
+    font-size: 250%;
+}
 </style>
 
+<title>RecordRTC Extension</title>
+
 <p id="applying-changes">Applying Changes...</p>
+
+<article>
+<h1>Customize RecordRTC Extension</h1>
 
 <table>
     <tr>
@@ -148,6 +168,23 @@ td {
 
     <tr>
         <td>
+            Camera resolutions:
+        </td>
+
+        <td>
+            <select id="videoResolutions">
+                <option value="1920x1080" selected>1920p</option>
+                <option value="1280x720">720p</option>
+                <option value="640x480">480p</option>
+                <option value="640x360">360p</option>
+                <option value="320x240">240p</option>
+                <option value="default">Default</option>
+            </select>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
             Select video frame rates:
         </td>
 
@@ -178,7 +215,24 @@ td {
             </select>
         </td>
     </tr>
+
+    <tr>
+        <td>
+            YouTube visibility:
+        </td>
+
+        <td>
+            <select id="youtube_privacy">
+                <option value="public" selected>Public</option>
+                <option value="unlisted">Unlisted</option>
+                <option value="private">Private</option>
+                <option value="scheduled" disabled>Scheduled</option>
+            </select>
+        </td>
+    </tr>
 </table>
+
+</article>
 
 <script src="RecordRTC/getAllAudioVideoDevices.js"></script>
 <script src="options.js"></script>

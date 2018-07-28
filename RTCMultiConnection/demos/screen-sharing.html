@@ -1,4 +1,4 @@
-<!-- Demo version: 2017.08.06 -->
+<!-- Demo version: 2018.06.09 -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -74,6 +74,7 @@
         </section>
 
         <script src="/dist/RTCMultiConnection.min.js"></script>
+        <script src="/dev/adapter.js"></script>
         <script src="/socket.io/socket.io.js"></script>
 
         <!-- capture screen from any HTTPs domain! -->
@@ -132,15 +133,16 @@
             connection.videosContainer = document.getElementById('videos-container');
             connection.onstream = function(event) {
                 connection.videosContainer.appendChild(event.mediaElement);
-                event.mediaElement.play();
-                setTimeout(function() {
-                    event.mediaElement.play();
-                }, 5000);
             };
 
             // Using getScreenId.js to capture screen from any domain
             // You do NOT need to deploy Chrome Extension YOUR-Self!!
             connection.getScreenConstraints = function(callback) {
+                if (DetectRTC.browser.name === 'Edge') {
+                    callback('Edge requires navigator.getDisplayMedia.');
+                    return;
+                }
+
                 getScreenConstraints(function(error, screen_constraints) {
                     if (!error) {
                         screen_constraints = connection.modifyScreenConstraints(screen_constraints);

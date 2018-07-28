@@ -1,6 +1,6 @@
 # Installation Guide
 
-> This page explains how to install RTCMultiConnection v3.
+> This page explains how to install RTCMultiConnection.
 
 * Youtube Video: [NPM install](https://www.youtube.com/watch?v=EtsiYEW_T8Y) or [Other Videos](https://www.youtube.com/watch?v=EtsiYEW_T8Y&list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl)
 
@@ -15,27 +15,23 @@ npm install --production
 
 Or download ZIP:
 
-* https://github.com/muaz-khan/RTCMultiConnection/archive/master.zip
+```sh
+wget https://github.com/muaz-khan/RTCMultiConnection/archive/master.zip
+unzip master.zip
+```
 
 Then call `npm install --production`.
 
 Use `--production` to skip `grunt` dependencies. You don't need `grunt` until you modify library itself.
 
-# Download TAR
-
-```sh
-wget http://webrtcweb.com/rtcmulticonnection-v3.tar.gz
-tar -xf rtcmulticonnection-v3.tar.gz
-```
-
 # Install using NPM or Bower
 
 
 ```sh
-npm install rtcmulticonnection-v3 --production
+npm install rtcmulticonnection --production
 
 # or
-bower install rtcmulticonnection-v3
+bower install rtcmulticonnection
 ```
 
 # Run `server.js`
@@ -46,29 +42,26 @@ node server.js
 
 Now open `http://localhost:9001/`.
 
-# Use HTTPs
+# Modify config.json
 
-Open [server.js](https://github.com/muaz-khan/RTCMultiConnection/blob/master/server.js) and enable `isUseHTTPs`:
+* https://github.com/muaz-khan/RTCMultiConnection/blob/master/config.json
 
-```javascript
-var isUseHTTPs = true;
+```json
+{
+  "socketURL": "/",
+  "socketMessageEvent": "abcdef",
+  "socketCustomEvent": "ghijkl",
+  "port": "443",
+  "enableLogs": "false",
+  "autoRebootServerOnFailure": "false",
+  "isUseHTTPs": "true",
+  "ssl_key": "/ssl/certificate.key",
+  "ssl_cert": "/ssl/certificate.crt",
+  "ssl_cabundle": "/ssl/certificate.cabundle"
+}
 ```
 
-# Change Port
-
-Open [server.js](https://github.com/muaz-khan/RTCMultiConnection/blob/master/server.js) and set `port`:
-
-```javascript
-var port = 443;
-```
-
-See how to enable SSL certificates:
-
-* https://github.com/muaz-khan/WebRTC-Experiment/issues/62
-
-> Remember: HTTPs is requires for screen-capturing on both Chrome & Firefox.
-> 
-> Chrome requires HTTPs for normal camera/mic as well.
+Now run `server.js` and it will automatically use above configuration.
 
 # How to check if server is running correctly?
 
@@ -141,10 +134,6 @@ More info about `forever-service` [here](http://stackoverflow.com/a/36027516/552
 6. [How to write iOS/Android applications?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/ios-android.md)
 7. [Tips & Tricks](https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/tips-tricks.md)
 
-## Twitter
-
-* https://twitter.com/WebRTCWeb i.e. @WebRTCWeb
-
 ## License
 
-[RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection) is released under [MIT licence](https://github.com/muaz-khan/RTCMultiConnection/blob/master/LICENSE.md) . Copyright (c) [Muaz Khan](http://www.MuazKhan.com/).
+[RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection) is released under [MIT licence](https://github.com/muaz-khan/RTCMultiConnection/blob/master/LICENSE.md) . Copyright (c) [Muaz Khan](https://MuazKhan.com/).

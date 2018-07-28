@@ -30,6 +30,16 @@
     if (items['room_id']) {
         document.getElementById('room_id').value = items['room_id'];
     }
+
+    if (items['room_url_box']) {
+        document.getElementById('room_url_box').checked = items['room_url_box'] === 'true';
+    } else {
+        chrome.storage.sync.set({
+            room_url_box: 'true'
+        }, function() {
+            document.getElementById('room_url_box').checked = true;
+        });
+    }
 });
 
 document.getElementById('resolutions').onchange = function() {
@@ -79,5 +89,15 @@ document.getElementById('room_id').onblur = function() {
         room_id: this.value
     }, function() {
         document.getElementById('room_id').disabled = false;
+    });
+};
+
+document.getElementById('room_url_box').onchange = function() {
+    this.disabled = true;
+
+    chrome.storage.sync.set({
+        room_url_box: this.checked === true ? 'true' : 'false'
+    }, function() {
+        document.getElementById('room_url_box').disabled = false;
     });
 };

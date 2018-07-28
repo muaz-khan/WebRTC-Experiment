@@ -1,4 +1,4 @@
-// Last time updated on May 04, 2018
+// Last time updated on June 08, 2018
 
 // Latest file can be found here: https://cdn.webrtc-experiment.com/getScreenId.js
 
@@ -25,7 +25,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
 */
 
 (function() {
-    window.getScreenId = function(callback, system_audio) {
+    window.getScreenId = function(callback, custom_parameter) {
         if(navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob)) {
             // microsoft edge => navigator.getDisplayMedia(screen_constraints).then(onSuccess, onFailure);
             callback({
@@ -71,12 +71,12 @@ getScreenId(function (error, sourceId, screen_constraints) {
             }
         }
 
-        if(!system_audio) {
+        if(!custom_parameter) {
             setTimeout(postGetSourceIdMessage, 100);
         }
         else {
             setTimeout(function() {
-                postGetSourceIdMessage('system_audio');
+                postGetSourceIdMessage(custom_parameter);
             }, 100);
         }
     };
@@ -115,24 +115,29 @@ getScreenId(function (error, sourceId, screen_constraints) {
         return screen_constraints;
     }
 
-    function postGetSourceIdMessage(system_audio) {
+    function postGetSourceIdMessage(custom_parameter) {
         if (!iframe) {
             loadIFrame(function() {
-                postGetSourceIdMessage(system_audio);
+                postGetSourceIdMessage(custom_parameter);
             });
             return;
         }
 
         if (!iframe.isLoaded) {
             setTimeout(function() {
-                postGetSourceIdMessage(system_audio);
+                postGetSourceIdMessage(custom_parameter);
             }, 100);
             return;
         }
 
-        if(!system_audio) {
+        if(!custom_parameter) {
             iframe.contentWindow.postMessage({
                 captureSourceId: true
+            }, '*');
+        }
+        else if(!!custom_parameter.forEach) {
+            iframe.contentWindow.postMessage({
+                captureCustomSourceId: custom_parameter
             }, '*');
         }
         else {

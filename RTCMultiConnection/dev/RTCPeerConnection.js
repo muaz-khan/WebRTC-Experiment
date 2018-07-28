@@ -123,8 +123,8 @@ function PeerInitiator(config) {
                     iceServers: connection.iceServers,
                     iceTransportPolicy: connection.iceTransportPolicy || iceTransports,
                     // rtcpMuxPolicy: connection.rtcpMuxPolicy || 'require', // or negotiate
-                    bundlePolicy: 'max-bundle',
-                    iceCandidatePoolSize: connection.iceCandidatePoolSize || 0
+                    // bundlePolicy: 'max-bundle',
+                    // iceCandidatePoolSize: connection.iceCandidatePoolSize || 0
                 };
             }
 
@@ -149,19 +149,24 @@ function PeerInitiator(config) {
         peer = config.peerRef;
     }
 
-    function getLocalStreams() {
-        // if-block is temporarily disabled
-        if (typeof window.InstallTrigger !== 'undefined' && 'getSenders' in peer && typeof peer.getSenders === 'function') {
-            var streamObject2 = new MediaStream();
-            peer.getSenders().forEach(function(sender) {
-                try {
-                    streamObject2.addTrack(sender.track);
-                } catch (e) {}
+    if (!peer.getRemoteStreams && peer.getReceivers) {
+        peer.getRemoteStreams = function() {
+            var stream = new MediaStream();
+            peer.getReceivers().forEach(function(receiver) {
+                stream.addTrack(receiver.track);
             });
-            return streamObject2;
-        }
+            return [stream];
+        };
+    }
 
-        return peer.getLocalStreams();
+    if (!peer.getLocalStreams && peer.getSenders) {
+        peer.getLocalStreams = function() {
+            var stream = new MediaStream();
+            peer.getSenders().forEach(function(sender) {
+                stream.addTrack(sender.track);
+            });
+            return [stream];
+        };
     }
 
     peer.onicecandidate = function(event) {
@@ -203,13 +208,11 @@ function PeerInitiator(config) {
 
         if (!localStream) return;
 
-        if (getLocalStreams().forEach) {
-            getLocalStreams().forEach(function(stream) {
-                if (localStream && stream.id == localStream.id) {
-                    localStream = null;
-                }
-            });
-        }
+        peer.getLocalStreams().forEach(function(stream) {
+            if (localStream && stream.id == localStream.id) {
+                localStream = null;
+            }
+        });
 
         if (localStream && typeof peer.addTrack === 'function') {
             localStream.getTracks().forEach(function(track) {
@@ -445,15 +448,13 @@ function PeerInitiator(config) {
     }
 
     var streamsToShare = {};
-    if (getLocalStreams().forEach) {
-        getLocalStreams().forEach(function(stream) {
-            streamsToShare[stream.streamid] = {
-                isAudio: !!stream.isAudio,
-                isVideo: !!stream.isVideo,
-                isScreen: !!stream.isScreen
-            };
-        });
-    }
+    peer.getLocalStreams().forEach(function(stream) {
+        streamsToShare[stream.streamid] = {
+            isAudio: !!stream.isAudio,
+            isVideo: !!stream.isVideo,
+            isScreen: !!stream.isScreen
+        };
+    });
 
     function oldCreateOfferOrAnswer(_method) {
         peer[_method](function(localSdp) {
@@ -533,18 +534,9 @@ function PeerInitiator(config) {
         }
 
         try {
-            if (peer.iceConnectionState.search(/closed|failed/gi) === -1) {
-                peer.getRemoteStreams().forEach(function(stream) {
-                    var streamEndedEvent = 'ended';
-
-                    if ('oninactive' in stream) {
-                        streamEndedEvent = 'inactive';
-                    }
-
-                    fireEvent(stream, streamEndedEvent);
-                });
+            if (peer.nativeClose !== peer.close) {
+                peer.nativeClose();
             }
-            peer.nativeClose();
         } catch (e) {}
 
         peer = null;

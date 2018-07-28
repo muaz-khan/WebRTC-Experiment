@@ -116,16 +116,21 @@ var DiskStorage = {
         key: 'key'
     },
     StoreFile: function(file, callback) {
-        DiskStorage.Fetch('files-list', function(fileNames) {
-            if (!fileNames || fileNames === 'success') {
-                fileNames = [];
+        DiskStorage.Fetch('files-list', function(list) {
+            if (!list || list === 'success') {
+                list = [];
             }
 
-            fileNames.push(file.name);
+            list.push({
+                name: file.name,
+                display: file.name,
+                youtube: '',
+                php: ''
+            });
 
             DiskStorage.Store({
                 key: 'files-list',
-                value: fileNames
+                value: list
             }, function() {
                 DiskStorage.Store({
                     key: file.name,
@@ -135,44 +140,201 @@ var DiskStorage = {
         });
     },
     RemoveFile: function(fName, callback) {
-        DiskStorage.Fetch('files-list', function(fileNames) {
-            if (!fileNames || fileNames === 'success') {
-                fileNames = [];
+        DiskStorage.Fetch('files-list', function(list) {
+            if (!list || list === 'success') {
+                list = [];
             }
 
             var newNames = [];
-            fileNames.forEach(function(name) {
-                if (name !== fName) {
-                    newNames.push(name);
+            list.forEach(function(item) {
+                if(typeof item === 'string') {
+                    if (item !== fName) {
+                        newNames.push({
+                            name: item,
+                            display: item,
+                            youtube: '',
+                            php: ''
+                        });
+                    }
+                }
+                else if(typeof item.name === 'string') {
+                    if (item.name !== fName) {
+                        newNames.push(item);
+                    }
                 }
             });
-            fileNames = newNames;
+            list = newNames;
 
             DiskStorage.Store({
                 key: 'files-list',
-                value: fileNames
+                value: list
             }, function() {
                 DiskStorage.Remove(fName, callback);
             });
         });
     },
     GetFilesList: function(callback) {
-        DiskStorage.Fetch('files-list', function(fileNames) {
-            if (!fileNames || fileNames === 'success') {
-                fileNames = [];
+        DiskStorage.Fetch('files-list', function(list) {
+            if (!list || list === 'success') {
+                list = [];
             }
 
-            callback(fileNames.reverse());
+            var newList = [];
+            list.reverse().forEach(function(item) {
+                if(typeof item === 'string') {
+                    newList.push({
+                        name: item,
+                        display: item,
+                        youtube: '',
+                        php: ''
+                    });
+                }
+                else {
+                    newList.push({
+                        name: item.name,
+                        display: item.display || item.name,
+                        youtube: item.youtube,
+                        php: item.php
+                    });
+                }
+            })
+
+            callback(newList);
         });
     },
-    GetRecentFile: function(callback) {
-        DiskStorage.GetFilesList(function(fileNames) {
-            if (!fileNames.length) {
+    GetLastSelectedFile: function(fName, callback) {
+        DiskStorage.GetFilesList(function(list) {
+            if (!list.length) {
                 callback();
                 return;
             }
 
-            DiskStorage.Fetch(fileNames[0], callback);
+            if(!fName) {
+                DiskStorage.Fetch(list[0].name || list[0], callback);
+                return;
+            }
+
+            var found;
+            list.forEach(function(item) {
+                if(typeof item === 'string') {
+                    if(item === fName) {
+                        found = {
+                            name: item,
+                            display: item,
+                            php: '',
+                            youtube: ''
+                        };
+                    }
+                }
+                else if(item.name === fName) {
+                    found = item;
+                }
+            });
+
+            if(!found) {
+                DiskStorage.Fetch(list[0].name || list[0], callback);
+                return;
+            }
+
+            DiskStorage.Fetch(found.name, callback);
+        });
+    },
+    UpdateFileName: function(fileName, newFileName, callback) {
+        if(!newFileName || !newFileName.replace(/ /g, '').length) {
+            newFileName = 'unknown.webm';
+        }
+        
+        if(newFileName.split('.').length <= 1) {
+            newFileName = newFileName.split('.')[0] + '.webm';
+        }
+
+        DiskStorage.Fetch('files-list', function(list) {
+            if (!list || list === 'success') {
+                list = [];
+            }
+
+            var alreadyTaken;
+            list.forEach(function(item, idx) {
+                if(item.name === newFileName || /* fallback */ item === newFileName) {
+                    alreadyTaken = true;
+                }
+            });
+
+            if(alreadyTaken) {
+                newFileName = newFileName.split('.')[0] + '_.' + newFileName.split('.')[1];
+                DiskStorage.UpdateFileName(fileName, newFileName, callback);
+                return;
+            }
+
+            var updated;
+            list.forEach(function(item, idx) {
+                if(typeof item === 'string') {
+                    if(item !== fileName) {
+                        return;
+                    }
+                }
+                else if(typeof item.name === 'string') {
+                    if(item.name !== fileName) {
+                        return;
+                    }
+                }
+
+                updated = true;
+
+                item.name = newFileName;
+                list[idx] = item;
+            });
+
+            DiskStorage.Store({
+                key: 'files-list',
+                value: list
+            }, function() {
+                DiskStorage.Fetch(fileName, function(blob) {
+                    var file = new File([blob], newFileName, {
+                        type: blob.type
+                    });
+
+                    DiskStorage.Store({
+                        key: file.name,
+                        value: file
+                    }, function() {
+                        callback(file);
+                    });
+                });
+            });
+        });
+    },
+    UpdateFileInfo: function(fileName, info, callback) {
+        DiskStorage.Fetch('files-list', function(list) {
+            if (!list || list === 'success') {
+                list = [];
+            }
+
+            var updated;
+            list.forEach(function(item, idx) {
+                if(typeof item === 'string') {
+                    if(item !== fileName) {
+                        return;
+                    }
+                }
+                else if(typeof item.name === 'string') {
+                    if(item.name !== fileName) {
+                        return;
+                    }
+                }
+
+                updated = true;
+
+                Object.keys(info).forEach(function(key) {
+                    item[key] = info[key];
+                })
+                list[idx] = item;
+            });
+
+            DiskStorage.Store({
+                key: 'files-list',
+                value: list
+            }, callback);
         });
     }
 };

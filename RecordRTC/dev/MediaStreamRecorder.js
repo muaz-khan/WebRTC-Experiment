@@ -205,6 +205,14 @@ function MediaStreamRecorder(mediaStream, config) {
         };
 
         mediaRecorder.onerror = function(error) {
+            if (!error) {
+                return;
+            }
+
+            if (!error.name) {
+                error.name = 'UnknownError';
+            }
+
             allStates.push('error: ' + error);
 
             if (!config.disableLogs) {

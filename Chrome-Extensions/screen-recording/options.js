@@ -35,6 +35,26 @@
             document.getElementById('bitsPerSecond').value = 'default';
         });
     }
+
+    if (items['youtube_privacy']) {
+        document.getElementById('youtube_privacy').value = items['youtube_privacy'];
+    } else {
+        chrome.storage.sync.set({
+            youtube_privacy: ''
+        }, function() {
+            document.getElementById('youtube_privacy').value = 'public';
+        });
+    }
+
+    if (items['videoResolutions']) {
+        document.getElementById('videoResolutions').value = items['videoResolutions'];
+    } else {
+        chrome.storage.sync.set({
+            videoResolutions: '1920x1080'
+        }, function() {
+            document.getElementById('videoResolutions').value = '1920x1080';
+        });
+    }
 });
 
 function querySelectorAll(selector) {
@@ -79,6 +99,28 @@ document.getElementById('bitsPerSecond').onchange = function() {
         bitsPerSecond: this.value === 'default' ? '' : this.value
     }, function() {
         document.getElementById('bitsPerSecond').disabled = false;
+        hideSaving();
+    });
+};
+
+document.getElementById('youtube_privacy').onchange = function() {
+    this.disabled = true;
+    showSaving();
+    chrome.storage.sync.set({
+        youtube_privacy: this.value === 'public' ? '' : this.value
+    }, function() {
+        document.getElementById('youtube_privacy').disabled = false;
+        hideSaving();
+    });
+};
+
+document.getElementById('videoResolutions').onchange = function() {
+    this.disabled = true;
+    showSaving();
+    chrome.storage.sync.set({
+        videoResolutions: this.value || '1920x1080'
+    }, function() {
+        document.getElementById('videoResolutions').disabled = false;
         hideSaving();
     });
 };

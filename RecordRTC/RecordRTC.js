@@ -1,9 +1,9 @@
 'use strict';
 
-// Last time updated: 2018-05-11 2:50:18 PM UTC
+// Last time updated: 2018-07-26 4:28:24 PM UTC
 
 // ________________
-// RecordRTC v5.4.7
+// RecordRTC v5.4.8
 
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
 
@@ -737,11 +737,12 @@ function RecordRTC(mediaStream, config) {
          * recorder.destroy();
          */
         destroy: function() {
-            var disableLogs = config.disableLogs;
+            var disableLogsCache = config.disableLogs;
 
-            config.disableLogs = true;
+            config = {
+                disableLogs: true
+            };
             self.reset();
-            config = {};
             setState('destroyed');
             returnObject = self = null;
 
@@ -750,7 +751,9 @@ function RecordRTC(mediaStream, config) {
                 Storage.AudioContextConstructor = null;
             }
 
-            if (!disableLogs) {
+            config.disableLogs = disableLogsCache;
+
+            if (!config.disableLogs) {
                 console.warn('RecordRTC is destroyed.');
             }
         },
@@ -764,7 +767,7 @@ function RecordRTC(mediaStream, config) {
          * @example
          * alert(recorder.version);
          */
-        version: '5.4.7'
+        version: '5.4.8'
     };
 
     if (!this) {
@@ -782,7 +785,7 @@ function RecordRTC(mediaStream, config) {
     return returnObject;
 }
 
-RecordRTC.version = '5.4.7';
+RecordRTC.version = '5.4.8';
 
 if (typeof module !== 'undefined' /* && !!module.exports*/ ) {
     module.exports = RecordRTC;
@@ -1024,12 +1027,12 @@ function GetRecorderType(mediaStream, config) {
         }
     }
 
-    if (config.recorderType) {
-        recorder = config.recorderType;
-    }
-
     if (mediaStream instanceof Array && mediaStream.length) {
         recorder = MultiStreamRecorder;
+    }
+
+    if (config.recorderType) {
+        recorder = config.recorderType;
     }
 
     if (!config.disableLogs && !!recorder && !!recorder.name) {
@@ -2139,6 +2142,14 @@ function MediaStreamRecorder(mediaStream, config) {
         };
 
         mediaRecorder.onerror = function(error) {
+            if (!error) {
+                return;
+            }
+
+            if (!error.name) {
+                error.name = 'UnknownError';
+            }
+
             allStates.push('error: ' + error);
 
             if (!config.disableLogs) {
@@ -2735,6 +2746,9 @@ function StereoAudioRecorder(mediaStream, config) {
 
             // release memory
             URL.revokeObjectURL(webWorker.workerURL);
+
+            // kill webworker (or Chrome will kill your page after ~25 calls)
+            webWorker.terminate();
         };
 
         webWorker.postMessage(config);

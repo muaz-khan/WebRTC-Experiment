@@ -106,6 +106,73 @@ stream.stop();
 </pre>
 				<small>via: <a href="http://stackoverflow.com/a/11646945/552182" target="_blank">http://stackoverflow.com/a/11646945/552182</a></small>
             </section>
+
+            <section class="experiment" id="getremotestreams-alternative">
+                <h2>
+                    <a href="#getremotestreams-alternative">getRemoteStreams alternative?</a>
+                </h2>
+
+                <pre class="sh_javascript">
+var stream = new MediaStream();
+peer.getReceivers().forEach(function(receiver) {
+    stream.addTrack(receiver.track);
+});
+ 
+video.srcObject = stream;
+ 
+console.log(stream.getTracks()); // check console logs
+</pre>
+
+                <h2>Or</h2>
+                <pre class="sh_javascript">
+var audioTrack, videoTrack;
+peer.getReceivers().forEach(function(receiver) {
+    if (receiver.track.kind === 'audio' && !audioTrack) {
+        audioTrack = receiver.track;
+    }
+
+    if (receiver.track.kind === 'video' && !videoTrack) {
+        videoTrack = receiver.track;
+    }
+});
+
+var stream = new MediaStream();
+
+if (audioTrack) {
+    stream.addTrack(audioTrack);
+}
+
+if (videoTrack) {
+    stream.addTrack(videoTrack);
+}
+
+video.srcObject = stream;
+
+console.log(stream.getTracks()); // check console logs
+</pre>
+                <h2>Or override "getRemoteStreams" and "getLocalStreams"</h2>
+                <pre class="sh_javascript">
+if (!peer.getRemoteStreams) {
+    peer.getRemoteStreams = function() {
+        var stream = new MediaStream();
+        peer.getReceivers().forEach(function(receiver) {
+            stream.addTrack(receiver.track);
+        });
+        return [stream];
+    };
+}
+
+if (!peer.getLocalStreams) {
+    peer.getLocalStreams = function() {
+        var stream = new MediaStream();
+        peer.getSenders().forEach(function(sender) {
+            stream.addTrack(sender.track);
+        });
+        return [stream];
+    };
+}
+</pre>
+            </section>
             
             <section class="experiment" id="stream-ended-listener">
             	<h2>

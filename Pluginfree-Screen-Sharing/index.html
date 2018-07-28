@@ -1,4 +1,4 @@
-<!-- Demo version: 2018.05.13 -->
+<!-- Demo version: 2018.06.09 -->
 
 <!--
 > Muaz Khan     - https://github.com/muaz-khan
@@ -85,6 +85,7 @@
 
         <!-- scripts used for screen-sharing -->
         <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"></script>
         <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
         <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
         <script src="https://cdn.webrtc-experiment.com/BandwidthHandler.js"></script>
@@ -305,7 +306,7 @@
                         return;
                     }
 
-                    if(adapter.browserDetails.browser === 'chrome' && CHROME_MEDIA_SOURCE == 'desktop' && !CHROME_MEDIA_SOURCE_ID) {
+                    if(DetectRTC.browser.name === 'Chrome' && CHROME_MEDIA_SOURCE == 'desktop' && !CHROME_MEDIA_SOURCE_ID) {
                         // https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js#getsourceidwithaudio
                         getSourceIdWithAudio(function(sourceId, canRequestAudioTrack) {
                             CHROME_MEDIA_SOURCE_ID = sourceId;
@@ -315,7 +316,7 @@
                         return;
                     }
 
-                    if(adapter.browserDetails.browser === 'chrome' && CHROME_MEDIA_SOURCE == 'desktop') {
+                    if(DetectRTC.browser.name === 'Chrome' && CHROME_MEDIA_SOURCE == 'desktop') {
                         if(screen_constraints.mandatory) {
                             screen_constraints.mandatory.chromeMediaSourceId = CHROME_MEDIA_SOURCE_ID;
                         }
@@ -364,9 +365,9 @@
                             });
                         },
                         onerror: function(error) {
-                            if (adapter.browserDetails.browser === 'chrome' && location.protocol === 'http:') {
+                            if (DetectRTC.browser.name === 'Chrome' && location.protocol === 'http:') {
                                 alert('Please test this WebRTC experiment on HTTPS.');
-                            } else if(adapter.browserDetails.browser === 'chrome') {
+                            } else if(DetectRTC.browser.name === 'Chrome') {
                                 alert('Screen capturing is either denied or not supported. Please install chrome extension for screen capturing or run chrome with command-line flag: --enable-usermedia-screen-capturing');
                             } else {
                                 alert(error.toString());
@@ -410,7 +411,7 @@
             </script>
 
             <script>
-                if(adapter.browserDetails.browser === 'chrome') {
+                if(DetectRTC.browser.name === 'Chrome') {
                     document.getElementById('room-name').disabled = true;
                     document.getElementById('share-screen').disabled = true;
 

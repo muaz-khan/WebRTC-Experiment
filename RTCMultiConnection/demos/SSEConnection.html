@@ -1,4 +1,4 @@
-<!-- Demo version: 2017.08.23 -->
+<!-- Demo version: 2018.05.16 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -48,15 +48,19 @@
       <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
       <button id="open-room">Open Room</button>
       <button id="join-room">Join Room</button>
+      <button id="open-or-join-room">Open or Join Room</button>
 
       <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
 
       <div id="videos-container"></div>
   </section>
 
+<script src="/dev/adapter.js"></script>
 <script src="/dist/RTCMultiConnection.min.js"></script>
 <script src="/dev/SSEConnection.js"></script>
 <script>
+window.enableAdapter = true; // enable adapter.js
+
 // ......................................................
 // .......................UI Code........................
 // ......................................................
@@ -72,6 +76,21 @@ document.getElementById('join-room').onclick = function() {
     connection.join(document.getElementById('room-id').value);
 };
 
+document.getElementById('open-or-join-room').onclick = function() {
+    disableInputButtons();
+    // connection.openOrJoin(document.getElementById('room-id').value);
+    connection.checkPresence(document.getElementById('room-id').value, function(isRoomExist, roomid) {
+      console.info('checkPresence', isRoomExist, roomid);
+
+      if(isRoomExist) {
+        connection.join(roomid);
+      }
+      else {
+        connection.open(roomid);
+      }
+    });
+};
+
 // ......................................................
 // ..................RTCMultiConnection Code.............
 // ......................................................
@@ -79,6 +98,7 @@ document.getElementById('join-room').onclick = function() {
 var connection = new RTCMultiConnection();
 
 // Using SSE (Server Sent Events) for signaling
+connection.socketURL = 'https://webrtcweb.com/SSE/';
 connection.setCustomSocketHandler(SSEConnection);
 
 connection.session = {
@@ -111,6 +131,7 @@ connection.onstreamended = function(event) {
 function disableInputButtons() {
     document.getElementById('open-room').disabled = true;
     document.getElementById('join-room').disabled = true;
+    document.getElementById('open-or-join-room').disabled = true;
     document.getElementById('room-id').disabled = true;
 }
 

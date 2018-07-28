@@ -1,4 +1,4 @@
-<!-- Demo version: 2018.05.08 -->
+<!-- Demo version: 2018.05.21 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -19,16 +19,16 @@
         <a href="/demos/">Home</a>
       </li>
       <li>
-        <a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+        <a href="https://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
       </li>
       <li>
-        <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+        <a href="https://www.rtcmulticonnection.org/FAQ/">FAQ</a>
       </li>
       <li>
         <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
       </li>
       <li>
-        <a href="https://github.com/muaz-khan/RTCMultiConnection#v3-demos">Demos</a>
+        <a href="https://rtcmulticonnection.herokuapp.com/demos/">Demos</a>
       </li>
       <li>
         <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
@@ -65,8 +65,6 @@
 <link rel="stylesheet" href="/dev/getHTMLMediaElement.css">
 <script src="/dev/getHTMLMediaElement.js"></script>
 <script>
-window.enableAdapter = true; // enable adapter.js
-
 // ......................................................
 // .......................UI Code........................
 // ......................................................
@@ -148,7 +146,7 @@ connection.onstream = function(event) {
     }
     video.srcObject = event.stream;
 
-    var width = parseInt(connection.videosContainer.clientWidth / 2) - 20;
+    var width = parseInt(connection.videosContainer.clientWidth / 3) - 20;
     var mediaElement = getHTMLMediaElement(video, {
         title: event.userid,
         buttons: ['full-screen'],
@@ -188,7 +186,13 @@ connection.onMediaError = function(e) {
     }
 };
 
+// ..................................
+// ALL below scripts are redundant!!!
+// ..................................
+
 function disableInputButtons() {
+    document.getElementById('room-id').onkeyup();
+
     document.getElementById('open-or-join-room').disabled = true;
     document.getElementById('open-room').disabled = true;
     document.getElementById('join-room').disabled = true;
@@ -236,7 +240,7 @@ if (localStorage.getItem(connection.socketMessageEvent)) {
 }
 document.getElementById('room-id').value = roomid;
 document.getElementById('room-id').onkeyup = function() {
-    localStorage.setItem(connection.socketMessageEvent, this.value);
+    localStorage.setItem(connection.socketMessageEvent, document.getElementById('room-id').value);
 };
 
 var hashString = location.hash.replace('#', '');
@@ -276,14 +280,25 @@ if(navigator.connection &&
 }
 </script>
 
-  <section class="no-mobile">
-    <h2>iOS or Android</h2>
+  <section>
     <p>
-      You can write <a href="http://www.rtcmulticonnection.org/docs/Write-iOS-Apps/" target="_blank">iOS</a> or <a href="http://www.rtcmulticonnection.org/docs/Write-Android-Apps/" target="_blank">Android</a> apps for this demo as well. You can run same demo on Safari-11 as well. (both on MacOSX & iOS)
+      You can write cordova/ionic/phonegap based <a href="https://www.rtcmulticonnection.org/docs/Write-iOS-Apps/" target="_blank">iOS</a> or <a href="https://www.rtcmulticonnection.org/docs/Write-Android-Apps/" target="_blank">Android</a> apps for this demo as well. 
+
+      You can download <a href="https://webrtcweb.com/cordova-apps/video-conferencing/">an open-sourced cordova app</a> both for iOS and Android as well.
     </p>
 
     <p>
-      Install following Android app and join meetings from this demo: <a href="https://play.google.com/store/apps/details?id=rmc3.videoconference" target="_blank">https://play.google.com/store/apps/details?id=rmc3.videoconference</a>
+      You can run same demo on Safari-11 as well. (both on MacOSX & iOS)
+    </p>
+
+    <p>
+      You can install following Android app and join meetings from this demo:
+
+      <a href="https://play.google.com/store/apps/details?id=rmc3.videoconference" target="_blank">https://play.google.com/store/apps/details?id=rmc3.videoconference</a>
+    </p>
+
+    <p>
+      Microsoft Edge is also supported.
     </p>
   </section>
 

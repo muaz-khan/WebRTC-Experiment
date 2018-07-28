@@ -223,6 +223,8 @@ function MultiPeers(connection) {
         userPreferences = connection.setUserPreferences(userPreferences, remoteUserId);
         var localConfig = this.getLocalConfig(null, remoteUserId, userPreferences);
         connection.peers[remoteUserId] = new PeerInitiator(localConfig);
+
+        this.checkIfNextPossibleInitiator(remoteUserId);
     };
 
     this.createAnsweringPeer = function(remoteSdp, remoteUserId, userPreferences) {
@@ -230,6 +232,7 @@ function MultiPeers(connection) {
 
         var localConfig = this.getLocalConfig(remoteSdp, remoteUserId, userPreferences);
         connection.peers[remoteUserId] = new PeerInitiator(localConfig);
+        this.checkIfNextPossibleInitiator(remoteUserId);
     };
 
     this.renegotiatePeer = function(remoteUserId, userPreferences, remoteSdp) {
@@ -251,6 +254,7 @@ function MultiPeers(connection) {
         var localConfig = this.getLocalConfig(remoteSdp, remoteUserId, userPreferences);
 
         connection.peers[remoteUserId] = new PeerInitiator(localConfig);
+        this.checkIfNextPossibleInitiator(remoteUserId);
     };
 
     this.replaceTrack = function(track, remoteUserId, isVideoTrack) {
@@ -502,5 +506,17 @@ function MultiPeers(connection) {
     this.getRemoteStreams = function(remoteUserId) {
         remoteUserId = remoteUserId || connection.peers.getAllParticipants()[0];
         return connection.peers[remoteUserId] ? connection.peers[remoteUserId].streams : [];
+    };
+
+    this.checkIfNextPossibleInitiator = function(remoteUserId) {
+        if (connection.sessionid === remoteUserId) return;
+        if (connection.autoCloseEntireSession) return;
+        if (connection.isInitiator && connection.getAllParticipants().length > 1) return;
+
+        connection.socket.emit(connection.socketMessageEvent, {
+            remoteUserId: remoteUserId,
+            message: 'next-possible-initiator',
+            sender: connection.userid
+        });
     };
 }

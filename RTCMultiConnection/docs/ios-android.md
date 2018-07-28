@@ -1,5 +1,9 @@
 # iOS and Android
 
+> Note: RTCMultiConnection supports Safari-11 browser both on iOS and MacOSX.
+> 
+> So you do not need to build a cordova or ionic application.
+
 Please check these docs as well:
 
 * [Write iOS apps using RTCMultiConnection](http://www.rtcmulticonnection.org/docs/Write-iOS-Apps/)
@@ -15,14 +19,14 @@ Please check these docs as well:
 
 Please check all iOS+Android demos here:
 
-* http://webrtcweb.com/cordova-apps/
+* https://webrtcweb.com/cordova-apps/
 
 | DemoTitle        | DownloadZip           | AndroidAPK | AllFiles |
 | ------------- |-------------|-------------|-------------|
-| Scalable Broadcast | [Source](http://webrtcweb.com/cordova-apps/scalable-broadcast/Download-Source.zip) | [Android APK](http://webrtcweb.com/cordova-apps/scalable-broadcast/Install-Android-App.apk) | [All files](http://webrtcweb.com/cordova-apps/scalable-broadcast) |
-| Audio Conferencing | [Source](http://webrtcweb.com/cordova-apps/audio-conferencing/Download-Source.zip) | [Android APK](http://webrtcweb.com/cordova-apps/audio-conferencing/Install-Android-App.apk) | [All files](http://webrtcweb.com/cordova-apps/audio-conferencing) |
-| Video Conferencing | [Source](http://webrtcweb.com/cordova-apps/video-conferencing/Download-Source.zip) | [Android APK](http://webrtcweb.com/cordova-apps/video-conferencing/Install-Android-App.apk) | [All files](http://webrtcweb.com/cordova-apps/video-conferencing) |
-| File Sharing | [Source](http://webrtcweb.com/cordova-apps/filesharing/Download-Source.zip) | [Android APK](http://webrtcweb.com/cordova-apps/filesharing/Install-Android-App.apk) | [All files](http://webrtcweb.com/cordova-apps/filesharing) |
+| Scalable Broadcast | [Source](https://webrtcweb.com/cordova-apps/scalable-broadcast/Download-Source.zip) | [Android APK](https://webrtcweb.com/cordova-apps/scalable-broadcast/Install-Android-App.apk) | [All files](https://webrtcweb.com/cordova-apps/scalable-broadcast) |
+| Audio Conferencing | [Source](https://webrtcweb.com/cordova-apps/audio-conferencing/Download-Source.zip) | [Android APK](https://webrtcweb.com/cordova-apps/audio-conferencing/Install-Android-App.apk) | [All files](https://webrtcweb.com/cordova-apps/audio-conferencing) |
+| Video Conferencing | [Source](https://webrtcweb.com/cordova-apps/video-conferencing/Download-Source.zip) | [Android APK](https://webrtcweb.com/cordova-apps/video-conferencing/Install-Android-App.apk) | [All files](https://webrtcweb.com/cordova-apps/video-conferencing) |
+| File Sharing | [Source](https://webrtcweb.com/cordova-apps/filesharing/Download-Source.zip) | [Android APK](https://webrtcweb.com/cordova-apps/filesharing/Install-Android-App.apk) | [All files](https://webrtcweb.com/cordova-apps/filesharing) |
 
 # Prerequisites
 

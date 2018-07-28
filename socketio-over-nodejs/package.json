@@ -2,7 +2,7 @@
   "name": "socketio-over-nodejs",
   "subdomain": "socketio-over-nodejs",
   "preferGlobal": true,
-  "version": "3.0.1",
+  "version": "3.0.2",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com"

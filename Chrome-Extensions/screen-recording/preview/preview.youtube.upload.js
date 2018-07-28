@@ -1,26 +1,39 @@
+var youtube_privacy = 'public';
+
+chrome.storage.sync.get(null, function(items) {
+    if (items['youtube_privacy'] && items['youtube_privacy'] !== 'public') {
+        youtube_privacy = items['youtube_privacy'];
+    }
+});
+
 document.querySelector('#btn-youtube-upload').onclick = function() {
     if (!file) {
-        header.innerHTML = 'You did NOT record anything yet.';
+        fname.innerHTML = 'You did NOT record anything yet.';
         return;
     }
 
     this.disabled = true;
-    header.innerHTML = 'Google.getAuthToken...';
+
+    fresolutions.innerHTML = fsize.innerHTML = fduration.innerHTML = browserCache.innerHTML = '';
+    fname.innerHTML = 'Google.getAuthToken...';
 
     chrome.identity.getAuthToken({
         'interactive': true
     }, function(access_token) {
         if (chrome.runtime.lastError) {
-            if(typeof chrome.runtime.lastError === 'object') {
-                chrome.runtime.lastError = JSON.stringify(chrome.runtime.lastError);
-                alert(chrome.runtime.lastError);
+            if (typeof chrome.runtime.lastError === 'object') {
+                if (chrome.runtime.lastError && chrome.runtime.lastError.message) {
+                    alert(chrome.runtime.lastError.message);
+                } else {
+                    alert(JSON.stringify(chrome.runtime.lastError));
+                }
             }
 
-            header.innerHTML = chrome.runtime.lastError;
+            fname.innerHTML = chrome.runtime.lastError;
             return;
         }
 
-        header.innerHTML = 'Upload started...';
+        fname.innerHTML = 'Upload started...';
 
         uploadVideo = new UploadVideo();
         uploadVideo.ready(access_token);
@@ -30,25 +43,28 @@ document.querySelector('#btn-youtube-upload').onclick = function() {
 };
 
 function showYouTubeURL(videoURL) {
-    var html = '<p>Uploaded to YouTube: <a href="' + videoURL + '" target="_blank">' + videoURL + '</a></p>';
-
-    if (uploadVideo.uploadResponse) {
-        var channelTitle = uploadVideo.uploadResponse.snippet.channelTitle;
-        html += '<span style="font-size: 17px;">This video is <b style="color: red;">privately</b> published to <a href="https://www.youtube.com/channel/'+uploadVideo.uploadResponse.snippet.channelId+'" target="_blank">' + channelTitle + '</a>. Go to youtube.com/my_videos and <a href="https://www.youtube.com/my_videos?o=U" target="_blank"><span style="background: yellow;display: inline-block;border-bottom: 1px solid red;">Make It Public!</span></a></span>';
-    }
-
-    header.innerHTML = html;
+    DiskStorage.UpdateFileInfo(file.name, {
+        youtube: videoURL
+    }, function() {
+        file.url = videoURL;
+        if(!file.item) file.item = {};
+        file.item.youtube = videoURL;
+        onGettingFile(file, file.item);
+    });
 }
 
 function uploadVideoCallback(response, videoURL) {
-    header.innerHTML = 'YouTube Upload Progress: ' + response + '%';
+    fname.innerHTML = 'YouTube Upload Progress: ' + response + '%';
+    browserCache.innerHTML = '<progress min=0 max=100 value=' + response + ' style="margin-top: 10px;"></progress>';
     document.title = response + '% uploaded';
 
     if (response >= 100 || videoURL) {
-        header.innerHTML = 'Uploaded to YouTube. Retrieving the video URL...';
+        browserCache.innerHTML = '';
+        fname.innerHTML = 'Uploaded to YouTube. Retrieving the video URL...';
     }
 
     if (videoURL) {
+        browserCache.innerHTML = '';
         showYouTubeURL(videoURL);
         document.title = 'Upload successful';
     }
@@ -96,15 +112,20 @@ UploadVideo.prototype.ready = function(accessToken) {
 };
 
 UploadVideo.prototype.uploadFile = function(fileName, file) {
+    var youtube_title = fileName;
+    if (file.item && file.item.display) {
+        youtube_title = file.item.display;
+    }
+
     var metadata = {
         snippet: {
-            title: fileName,
-            description: fileName,
+            title: youtube_title,
+            description: fileName + ' (via RecordRTC)',
             tags: this.tags,
             categoryId: this.categoryId
         },
         status: {
-            privacyStatus: 'public'
+            privacyStatus: youtube_privacy
         }
     };
     var uploader = new MediaUploader({

@@ -1,4 +1,4 @@
-﻿<script>window.demoVersion = '2018.05.10';</script>
+﻿<script>window.demoVersion = '2018.05.23';</script>
 
 <!--
 > Muaz Khan     - https://github.com/muaz-khan
@@ -840,8 +840,12 @@ iceServer => {
             <section class="experiment" id="pion">
                 <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
                     <h2>
-                        <a href="#windows">Pion TURN server</a><br>A simple extendable Golang TURN server (for Ubuntu, Windows and Mac)
+                        <a href="#windows">Pion TURN server</a>
                     </h2>
+
+                    <p>
+                        A simple extendable Golang TURN server for Windows, Linux, Darwin and FreeBSD.
+                    </p>
                     <ol>
                         <li>
                             Create a new directory (optional):
@@ -852,9 +856,14 @@ cd pions
                         </li>
 
                         <li>
-                            Download the TURN server's source: (replace "1.0.0" with <a href="https://github.com/pions/turn/releases" target="_blank">latest release</a>)
+                            Download the TURN server's source: (replace "1.0.3" with <a href="https://github.com/pions/turn/releases" target="_blank">latest release</a>)
                             <pre><code class="bash">
-wget -q https://github.com/pions/turn/releases/download/1.0.0/simple-turn-linux-amd64
+wget -q https://github.com/pions/turn/releases/download/1.0.3/simple-turn-linux-amd64
+
+# linux:   simple-turn-linux-386 or simple-turn-linux-amd64
+# darwin:  simple-turn-darwin-amd64
+# freebsd: simple-turn-freebsd-386 and simple-turn-freebsd-amd64
+# windows: simple-turn-windows-386.exe and simple-turn-windows-amd64.exe
 </code></pre>
                         </li>
 

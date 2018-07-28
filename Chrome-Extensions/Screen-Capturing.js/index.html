@@ -106,6 +106,10 @@
                     </li>
 
                     <li>
+                        <button id="getCustomSourceId">getCustomSourceId</button> » Simply get "chromeMediaSourceId" from chrome extension however pass yoru own array. 
+                    </li>
+
+                    <li>
                         <button id="getSourceIdWithAudio">getSourceIdWithAudio</button> » Simply get "chromeMediaSourceId" from chrome extension. (system audio is included)
                     </li>
                     
@@ -172,6 +176,15 @@
                     });
                 };
 
+                document.querySelector('#getCustomSourceId').onclick =  function() {
+                    this.disabled=true;
+                    
+                    var our_own_choices = ['tab', 'audio'];
+                    getCustomSourceId(our_own_choices, function(sourceId) {
+                        document.querySelector('#getCustomSourceId').innerHTML = 'SourceId for [' + our_own_choices.join(',') + ']: ' + sourceId;
+                    });
+                };
+
                 document.querySelector('#getSourceIdWithAudio').onclick =  function() {
                     this.disabled=true;
                     
@@ -230,10 +243,12 @@
                         if(error) {
                             return alert(error);
                         }
+
+                        // check for "screen_constraints.canRequestAudioTrack===true"
                         
                         console.log('screen_constraints', screen_constraints);
                         
-                        navigator.mediaDevices.getUserMedia({ video: screen_constraints, audio: screen_constraints }).then(function(stream) {
+                        navigator.mediaDevices.getUserMedia({ video: screen_constraints, audio: screen_constraints.canRequestAudioTrack ? screen_constraints : false }).then(function(stream) {
                             document.querySelector('video').srcObject = stream;
                         }).catch(function(error) {
                             alert(JSON.stringify(error, null, '\t'));

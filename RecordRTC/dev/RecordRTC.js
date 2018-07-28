@@ -723,11 +723,12 @@ function RecordRTC(mediaStream, config) {
          * recorder.destroy();
          */
         destroy: function() {
-            var disableLogs = config.disableLogs;
+            var disableLogsCache = config.disableLogs;
 
-            config.disableLogs = true;
+            config = {
+                disableLogs: true
+            };
             self.reset();
-            config = {};
             setState('destroyed');
             returnObject = self = null;
 
@@ -736,7 +737,9 @@ function RecordRTC(mediaStream, config) {
                 Storage.AudioContextConstructor = null;
             }
 
-            if (!disableLogs) {
+            config.disableLogs = disableLogsCache;
+
+            if (!config.disableLogs) {
                 console.warn('RecordRTC is destroyed.');
             }
         },

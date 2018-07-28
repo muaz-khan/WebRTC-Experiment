@@ -6,7 +6,7 @@
         {
             "name": "Muaz Khan",
             "email": "muazkh@gmail.com",
-            "homepage": "http://www.muazkhan.com/"
+            "homepage": "https://muazkhan.com/"
         }
     ],
     "main": "RTCMultiConnection.js",

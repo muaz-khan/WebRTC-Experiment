@@ -84,6 +84,12 @@ function SocketConnection(connection, connectCallback) {
             });
         }
 
+        if (message.message === 'next-possible-initiator') {
+            if (connection.nextPossibleInitiatorIfThisUserLeave) return;
+            connection.nextPossibleInitiatorIfThisUserLeave = message.sender;
+            return;
+        }
+
         if (message.message.streamSyncNeeded && connection.peers[message.sender]) {
             var stream = connection.streamEvents[message.message.streamid];
             if (!stream || !stream.stream) {
@@ -174,6 +180,10 @@ function SocketConnection(connection, connectCallback) {
         }
 
         if (message.message.readyForOffer || message.message.addMeAsBroadcaster) {
+            if (connection.attachStreams.length) {
+                connection.waitingForLocalMedia = false;
+            }
+
             if (connection.waitingForLocalMedia) {
                 // if someone is waiting to join you
                 // make sure that we've local media before making a handshake
@@ -268,6 +278,11 @@ function SocketConnection(connection, connectCallback) {
         }
 
         connection.onleave(eventObject);
+
+        if (connection.nextPossibleInitiatorIfThisUserLeave === userid) {
+            connection.nextPossibleInitiatorIfThisUserLeave = null;
+            connection.open(connection.sessionid);
+        }
     });
 
     var alreadyConnected = false;

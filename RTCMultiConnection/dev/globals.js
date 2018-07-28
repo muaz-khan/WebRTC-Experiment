@@ -25,6 +25,8 @@ function fireEvent(obj, eventName, args) {
 }
 
 function setHarkEvents(connection, streamEvent) {
+    if (!streamEvent.stream || !streamEvent.stream.getAudioTracks || !streamEvent.stream.getAudioTracks().length) return;
+
     if (!connection || !streamEvent) {
         throw 'Both arguments are required.';
     }
@@ -96,6 +98,7 @@ function getRandomString() {
 }
 
 // Get HTMLAudioElement/HTMLVideoElement accordingly
+// todo: add API documentation for connection.autoCreateMediaElement
 
 function getRMCMediaElement(stream, callback, connection) {
     if (!connection.autoCreateMediaElement) {
@@ -250,48 +253,10 @@ if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefine
 
 /*global MediaStream:true */
 if (typeof MediaStream !== 'undefined') {
-    if (!('getVideoTracks' in MediaStream.prototype) || DetectRTC.browser.name === 'Firefox') {
-        MediaStream.prototype.getVideoTracks = function() {
-            if (!this.getTracks) {
-                return [];
-            }
-
-            var tracks = [];
-            this.getTracks().forEach(function(track) {
-                if (track.kind.toString().indexOf('video') !== -1) {
-                    tracks.push(track);
-                }
-            });
-            return tracks;
-        };
-
-        MediaStream.prototype.getAudioTracks = function() {
-            if (!this.getTracks) {
-                return [];
-            }
-
-            var tracks = [];
-            this.getTracks().forEach(function(track) {
-                if (track.kind.toString().indexOf('audio') !== -1) {
-                    tracks.push(track);
-                }
-            });
-            return tracks;
-        };
-    }
-
-    if (!('stop' in MediaStream.prototype) || DetectRTC.browser.name === 'Firefox') {
+    if (!('stop' in MediaStream.prototype)) {
         MediaStream.prototype.stop = function() {
-            this.getAudioTracks().forEach(function(track) {
-                if (!!track.stop) {
-                    track.stop();
-                }
-            });
-
-            this.getVideoTracks().forEach(function(track) {
-                if (!!track.stop) {
-                    track.stop();
-                }
+            this.getTracks().forEach(function(track) {
+                track.stop();
             });
         };
     }
