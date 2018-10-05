@@ -1,7 +1,7 @@
 {
    "name":"WebRTC Desktop Sharing",
    "author":"Muaz Khan",
-   "version":"4.6",
+   "version":"4.7",
    "manifest_version":2,
    "minimum_chrome_version":"34",
    "description":"WebRTC P2P HQ/HD screen-sharing. Share camera, microphone, speakers, full-screen, or software's screens.",

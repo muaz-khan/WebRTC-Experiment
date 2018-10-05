@@ -15,119 +15,43 @@ ini_set('display_errors', 1);
 <meta name="author" content="Muaz Khan">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-<script type="text/javascript"><?php readfile(getcwd()."/socket.io.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/adapter.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/RTCMultiConnection.min.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/CodecsHandler.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/IceServersHandler.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/getStats.js"); ?></script>
-
 <style>
-body,
-html {
-    background: black;
+* {
+    padding: 0;
+    margin: 0;
+}
+body, html {
     text-align: center;
-    color: white;
     overflow: hidden;
-}
-.local-media,
-.remote-media {
-    max-width: 100%;
-    max-height: 70%;
-}
-.local-media-small,
-.remote-media-small {
-    width: 20%;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-}
-button {
-    display: inline-block;
-    outline: 0;
-    color: white;
-    background: #4472b9;
-    white-space: nowrap;
-    border: 5px solid #4472b9 !important;
-    font-family: 'Gotham Rounded A', 'Gotham Rounded B', sans-serif;
-    font-weight: 500;
-    font-style: normal;
-    padding: 9px 16px !important;
-    line-height: 1.4;
-    position: relative;
-    border-radius: 10px;
-    -webkit-box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.15);
-    box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.15);
-    -webkit-transition: 0.1s;
-    transition: 0.1s;
-}
-button:hover,
-button:active,
-button:focus {
-    background: #04C;
-}
-button[disabled] {
-    background: transparent;
-    border-color: rgb(83, 81, 81);
-    color: rgb(139, 133, 133);
-}
-#container {
-    -webkit-perspective: 1000;
-    background-color: #000000;
+    width: 100%;
     height: 100%;
-    margin: 0px auto;
-    position: absolute;
-    width: 100%;
+    background: black;
 }
-#card {
-    -webkit-transform-style: preserve-3d;
-    -webkit-transition-duration: 2s;
-    -webkit-transition-property: rotation;
+video {
+    height: 100%;
 }
-#local {
-    -webkit-backface-visibility: hidden;
-    -webkit-transform: scale(-1, 1);
-    position: absolute;
-    width: 100%;
-}
-#remote {
-    -webkit-backface-visibility: hidden;
-    -webkit-transform: rotateY(180deg);
-    position: absolute;
-    width: 100%;
-}
-#mini {
-    /* -webkit-transform: scale(-1, 1); */
 
-    bottom: 0;
-    height: 30%;
-    opacity: 1.0;
+#overlay {
     position: absolute;
-    right: 4px;
-    width: 30%;
-}
-#remoteVideo {
-    -webkit-transition-duration: 2s;
-    -webkit-transition-property: opacity;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
     height: 100%;
-    opacity: 0;
-    width: 100%;
-}
-#info-bar {
-    background-color: #15DBFF;
-    bottom: 55%;
-    color: rgb(255, 255, 255);
-    font-size: 25px;
-    font-weight: bold;
-    height: 38px;
-    line-height: 38px;
-    position: absolute;
+    z-index: 1;
+    background: #000000a3;
     text-align: center;
-    width: 100%;
-    text-shadow: 1px 1px rgb(14, 105, 137);
-    border: 2px solid rgb(47, 102, 118);
-    box-shadow: 0 0 6px white;
+    padding-top: 10%;
 }
+
+#info-bar {
+    display: inline-block;
+    color: white;
+    font-size: 150%;
+    font-weight: bold;
+    font-family: Arial;
+}
+
 #stats-bar {
     background-color: rgba(255, 255, 255, 0.92);
     top: 20px;
@@ -162,19 +86,23 @@ button[disabled] {
 }
 </style>
 
-<div id="container" ondblclick="enterFullScreen()">
-    <div id="card">
-        <div id="remote">
-            <video id="remoteVideo" autoplay playsinline></video>
-        </div>
-    </div>
+<video id="video" autoplay playsinline controls></video>
 
+<div id="overlay">
     <div id="info-bar"></div>
-    <div id="stats-bar">
-        <div id="hide-stats-bar">x</div>
-        <div id="stats-bar-html"></div>
-    </div>
 </div>
+
+<div id="stats-bar">
+    <div id="hide-stats-bar">x</div>
+    <div id="stats-bar-html"></div>
+</div>
+
+<script type="text/javascript"><?php readfile(getcwd()."/socket.io.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/adapter.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/RTCMultiConnection.min.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/CodecsHandler.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/IceServersHandler.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/getStats.js"); ?></script>
 
 <script>
 (function() {
@@ -192,9 +120,13 @@ button[disabled] {
     window.params = params;
 })();
 
+var infoBar = document.getElementById('info-bar');
+var overlay = document.getElementById('overlay');
+
 // http://www.rtcmulticonnection.org/docs/constructor/
 var connection = new RTCMultiConnection(params.s);
-connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+// connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+connection.socketURL = 'https://webrtcweb.com:9001/';
 
 connection.enableLogs = true;
 connection.session = {
@@ -248,46 +180,6 @@ connection.optionalArgument = {
     optional: [],
     mandatory: {}
 };
-</script>
-
-<script>
-// DOM objects
-var remoteVideo = document.getElementById('remoteVideo');
-var card = document.getElementById('card');
-var containerDiv;
-
-if (navigator.mozGetUserMedia) {
-    attachMediaStream = function(element, stream) {
-        console.log("Attaching media stream");
-        element.mozSrcObject = stream;
-        element.play();
-    };
-    reattachMediaStream = function(to, from) {
-        console.log("Reattaching media stream");
-        to.mozSrcObject = from.mozSrcObject;
-        to.play();
-    };
-} else if (navigator.webkitGetUserMedia) {
-    attachMediaStream = function(element, stream) {
-        if (typeof element.srcObject !== 'undefined') {
-            element.srcObject = stream;
-        } else if (typeof element.mozSrcObject !== 'undefined') {
-            element.mozSrcObject = stream;
-        } else if (typeof element.src !== 'undefined') {
-            element.src = URL.createObjectURL(stream);
-        } else {
-            console.log('Error attaching stream to element.');
-        }
-    };
-    reattachMediaStream = function(to, from) {
-        to.src = from.src;
-    };
-} else {
-    console.log("Browser does not appear to be WebRTC-capable");
-}
-// onstream event; fired both for local and remote videos
-
-var infoBar = document.getElementById('info-bar');
 
 connection.onstatechange = function(state) {
     infoBar.innerHTML = state.name + ': ' + state.reason;
@@ -305,95 +197,28 @@ connection.onstreamid = function(event) {
     infoBar.innerHTML = 'Remote peer is about to send his screen.';
 };
 
+var video = document.getElementById('video');
 connection.onstream = function(e) {
-    if (e.type == 'remote') {
-        connection.remoteStream = e.stream;
-
-        infoBar.style.display = 'none';
-        remoteStream = e.stream;
-        attachMediaStream(remoteVideo, e.stream);
-        waitForRemoteVideo();
-        remoteVideo.setAttribute('data-id', e.userid);
-
-        connection.socket.emit(connection.socketCustomEvent, {
-            receivedYourScreen: true
-        });
-    }
+    video.srcObject = e.stream;
+    overlay.style.display = 'none';
 };
+
 // if user left
-connection.onleave = function(e) {
+connection.onleave = connection.onstreamended = connection.onSessionClosed = function(e) {
     if(e.userid !== params.s) return;
 
-    transitionToWaiting();
-    connection.onSessionClosed();
-
-    location.reload();
-};
-
-connection.onSessionClosed = function() {
+    video.srcObject = null;
+    
     infoBar.innerHTML = 'Screen sharing has been closed.';
-    infoBar.style.display = 'block';
+    overlay.style.display = 'block';
     statsBar.style.display = 'none';
     connection.close();
     connection.closeSocket();
     connection.userid = connection.token();
 
-    remoteVideo.pause();
-    remoteVideo.src = 'https://cdn.webrtc-experiment.com/images/muted.png';
-
-    setTimeout(checkPresence, 2000);
+    location.reload();
 };
 
-connection.ondisconnected = connection.onSessionClosed;
-connection.onstreamended = connection.onSessionClosed;
-
-function waitForRemoteVideo() {
-    // Call the getVideoTracks method via adapter.js.
-    var videoTracks = remoteStream.getVideoTracks();
-    if (videoTracks.length === 0 || remoteVideo.currentTime > 0) {
-        transitionToActive();
-    } else {
-        setTimeout(waitForRemoteVideo, 100);
-    }
-}
-
-function transitionToActive() {
-    remoteVideo.style.opacity = 1;
-    card.style.webkitTransform = 'rotateY(180deg)';
-    window.onresize();
-}
-
-function transitionToWaiting() {
-        card.style.webkitTransform = 'rotateY(0deg)';
-        remoteVideo.style.opacity = 0;
-    }
-    // Set the video displaying in the center of window.
-window.onresize = function() {
-    var aspectRatio;
-    if (remoteVideo.style.opacity === '1') {
-        aspectRatio = remoteVideo.videoWidth / remoteVideo.videoHeight;
-    } else {
-        return;
-    }
-    var innerHeight = this.innerHeight;
-    var innerWidth = this.innerWidth;
-    var videoWidth = innerWidth < aspectRatio * window.innerHeight ?
-        innerWidth : aspectRatio * window.innerHeight;
-    var videoHeight = innerHeight < window.innerWidth / aspectRatio ?
-        innerHeight : window.innerWidth / aspectRatio;
-    containerDiv = document.getElementById('container');
-    containerDiv.style.width = videoWidth + 'px';
-    containerDiv.style.height = videoHeight + 'px';
-    containerDiv.style.left = (innerWidth - videoWidth) / 2 + 'px';
-    containerDiv.style.top = (innerHeight - videoHeight) / 2 + 'px';
-};
-
-function enterFullScreen() {
-    container.webkitRequestFullScreen();
-}
-</script>
-
-<script>
 connection.onJoinWithPassword = function(remoteUserId) {
     if(!params.p) {
         params.p = prompt(remoteUserId + ' is password protected. Please enter the pasword:');
