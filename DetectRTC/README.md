@@ -1,3 +1,5 @@
+<a href="https://github.com/muaz-khan/DetectRTC"><img alt="DetectRTC" src="https://webrtcweb.com/DetectRTC/icon.png" /> DetectRTC.js</a>
+
 # DetectRTC | Is WebRTC Supported In Your Browser?
 
 [![npm](https://img.shields.io/npm/v/detectrtc.svg)](https://npmjs.org/package/detectrtc) [![downloads](https://img.shields.io/npm/dm/detectrtc.svg)](https://npmjs.org/package/detectrtc)  [![Build Status: Linux](https://travis-ci.org/muaz-khan/DetectRTC.png?branch=master)](https://travis-ci.org/muaz-khan/DetectRTC) <a href="https://www.browserstack.com"><img src="https://webrtcweb.com/browserstack.svg" height="20px" /></a>
@@ -21,6 +23,8 @@ if (DetectRTC.hasSpeakers === false && (DetectRTC.browser.name === 'Chrome' || D
     alert('Oops, your system can not play audios.');
 }
 ```
+
+<a target="_blank" href="https://chrome.google.com/webstore/detail/detectrtc/infnkpmpcmmofkmndpheeplkcghgdjbf">![Try it now in CWS](https://raw.github.com/GoogleChrome/chrome-app-samples/master/tryitnowbutton.png "Click here to install this extension from the Chrome Web Store")</a>
 
 ## What is this?
 
