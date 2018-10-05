@@ -2,6 +2,7 @@ var textHandler = {
     text: '',
     selectedFontFamily: 'Arial',
     selectedFontSize: '15',
+    lastFillStyle: '',
     onShapeSelected: function() {
         tempContext.canvas.style.cursor = 'text';
         this.x = this.y = this.pageX = this.pageY = 0;
@@ -105,6 +106,16 @@ var textHandler = {
     mouseup: function(e) {},
     mousemove: function(e) {},
     showOrHideTextTools: function(show) {
+        if (show === 'hide') {
+            if (this.lastFillStyle.length) {
+                fillStyle = this.lastFillStyle;
+                this.lastFillStyle = '';
+            }
+        } else if (!this.lastFillStyle.length) {
+            this.lastFillStyle = fillStyle;
+            fillStyle = 'black';
+        }
+
         this.fontFamilyBox.style.display = show == 'show' ? 'block' : 'none';
         this.fontSizeBox.style.display = show == 'show' ? 'block' : 'none';
 

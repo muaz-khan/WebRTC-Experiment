@@ -6,6 +6,7 @@ var drawHelper = {
         var i, point, length = points.length;
         for (i = 0; i < length; i++) {
             point = points[i];
+            // point[0] != 'pdf' && 
             if (point && point.length && this[point[0]]) {
                 this[point[0]](context, point[1], point[2]);
             }
@@ -126,6 +127,28 @@ var drawHelper = {
         }
 
         context.drawImage(image, point[1], point[2], point[3], point[4]);
+    },
+    pdf: function(context, point, options) {
+        this.handleOptions(context, options, true);
+
+        var image = pdfHandler.images[point[5]];
+        if (!image) {
+            var image = new Image();
+            image.onload = function() {
+                var index = imageHandler.images.length;
+
+                pdfHandler.lastPage = image.src;
+                pdfHandler.lastIndex = index;
+
+                pdfHandler.images.push(image);
+                context.drawImage(image, point[1], point[2], point[3], point[4]);
+            };
+            image.src = point[0];
+            return;
+        }
+
+        context.drawImage(image, point[1], point[2], point[3], point[4]);
+        pdfHandler.reset_pos(point[1], point[2]);
     },
     quadratic: function(context, point, options) {
         context.beginPath();

@@ -19,10 +19,11 @@ addEvent(canvas, isTouch ? 'touchstart mousedown' : 'mousedown', function(e) {
     else if (cache.isEraser) eraserHandler.mousedown(e);
     else if (cache.isText) textHandler.mousedown(e);
     else if (cache.isImage) imageHandler.mousedown(e);
+    else if (cache.isPdf) pdfHandler.mousedown(e);
     else if (cache.isArrow) arrowHandler.mousedown(e);
     else if (cache.isMarker) markerHandler.mousedown(e);
 
-    drawHelper.redraw();
+    !cache.isPdf && drawHelper.redraw();
 
     preventStopEvent(e);
 });
@@ -67,10 +68,11 @@ addEvent(canvas, isTouch ? 'touchend touchcancel mouseup' : 'mouseup', function(
     else if (cache.isEraser) eraserHandler.mouseup(e);
     else if (cache.isText) textHandler.mouseup(e);
     else if (cache.isImage) imageHandler.mouseup(e);
+    else if (cache.isPdf) pdfHandler.mousedown(e);
     else if (cache.isArrow) arrowHandler.mouseup(e);
     else if (cache.isMarker) markerHandler.mouseup(e);
 
-    drawHelper.redraw();
+    !cache.isPdf && drawHelper.redraw();
 
     syncPoints(is.isDragAllPaths || is.isDragLastPath ? true : false);
 
@@ -95,6 +97,7 @@ addEvent(canvas, isTouch ? 'touchmove mousemove' : 'mousemove', function(e) {
     else if (cache.isEraser) eraserHandler.mousemove(e);
     else if (cache.isText) textHandler.mousemove(e);
     else if (cache.isImage) imageHandler.mousemove(e);
+    else if (cache.isPdf) pdfHandler.mousedown(e);
     else if (cache.isArrow) arrowHandler.mousemove(e);
     else if (cache.isMarker) markerHandler.mousemove(e);
 

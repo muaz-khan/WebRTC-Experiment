@@ -12,7 +12,13 @@ var tools = {
     quadratic: true,
     text: true,
     image: true,
-    zoom: true
+    pdf: true,
+    zoom: true,
+    lineWidth: true,
+    colorsPicker: true,
+    extraOptions: true,
+    code: true,
+    undo: true
 };
 
 if (params.tools) {
@@ -20,6 +26,10 @@ if (params.tools) {
         var t = JSON.parse(params.tools);
         tools = t;
     } catch (e) {}
+}
+
+if (tools.code === true) {
+    document.querySelector('.preview-panel').style.display = 'block';
 }
 
 function setSelection(element, prop) {
@@ -80,6 +90,8 @@ window.addEventListener('load', function() {
         }
 
         addEvent(context.canvas, 'click', function() {
+            pdfHandler.pdfPageContainer.style.display = 'none';
+
             if (textHandler.text.length) {
                 textHandler.appendPoints();
             }
@@ -108,6 +120,7 @@ window.addEventListener('load', function() {
 
             if (this.id === 'image-icon') {
                 var selector = new FileSelector();
+                selector.accept = 'image/*';
                 selector.selectSingleFile(function(file) {
                     if (!file) return;
 
@@ -121,11 +134,31 @@ window.addEventListener('load', function() {
                             imageHandler.lastImageIndex = index;
 
                             imageHandler.images.push(image);
+                            imageHandler.load(image.clientWidth, image.clientHeight);
                         };
+                        image.style = 'position: absolute; top: -99999999999; left: -999999999;'
+                        document.body.appendChild(image);
                         image.src = event.target.result;
                     };
                     reader.readAsDataURL(file);
                 });
+            }
+
+            if (this.id === 'pdf-icon') {
+                var selector = new FileSelector();
+                selector.selectSingleFile(function(file) {
+                    if (!file) return;
+
+                    function onGettingPdf() {
+                        var reader = new FileReader();
+                        reader.onload = function(event) {
+                            pdfHandler.pdf = null; // to make sure we call "getDocument" again
+                            pdfHandler.load(event.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                    onGettingPdf();
+                }, null, 'application/pdf');
             }
 
             if (this.id === 'pencil-icon' || this.id === 'eraser-icon' || this.id === 'marker-icon') {
@@ -155,160 +188,131 @@ window.addEventListener('load', function() {
     }
 
     var toolBox = find('tool-box');
-    toolBox.style.height = (innerHeight /* - toolBox.offsetTop - 77 */ ) + 'px';
+    toolBox.style.height = (innerHeight) + 'px'; // -toolBox.offsetTop - 77
 
     function decorateDragLastPath() {
         var context = getContext('drag-last-path');
 
-        var x = 10,
-            y = 6,
-            line = "line",
-            points = [
-                [line, x, y, x + 5, y + 27],
-                [line, x, y, x + 18, y + 19],
-                [line, x + 17, y + 19, x + 9, y + 20],
-                [line, x + 9, y + 20, x + 5, y + 27],
-                [line, x + 16, y + 22, x + 16, y + 31],
-                [line, x + 12, y + 27, x + 20, y + 27]
-            ],
-            length = points.length,
-            point, i;
-
-        for (i = 0; i < length; i++) {
-            point = points[i];
-
-            if (point[0] === "line") {
-                context.beginPath();
-                context.moveTo(point[1], point[2]);
-                context.lineTo(point[3], point[4]);
-                context.closePath();
-                context.stroke();
-            }
-        }
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('Last', 18, 12);
-
-        bindEvent(context, 'DragLastPath');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'DragLastPath');
+        };
+        image.src = data_uris.dragSingle;
     }
 
     if (tools.dragSingle === true) {
         decorateDragLastPath();
-    } else document.getElementById('drag-last-path').style.display = 'none';
+        document.getElementById('drag-last-path').style.display = 'block';
+    }
 
     function decorateDragAllPaths() {
         var context = getContext('drag-all-paths');
 
-        var x = 10,
-            y = 6,
-            line = "line",
-            points = [
-                [line, x, y, x + 5, y + 27],
-                [line, x, y, x + 18, y + 19],
-                [line, x + 17, y + 19, x + 9, y + 20],
-                [line, x + 9, y + 20, x + 5, y + 27],
-                [line, x + 16, y + 22, x + 16, y + 31],
-                [line, x + 12, y + 27, x + 20, y + 27]
-            ],
-            length = points.length,
-            point, i;
-
-        for (i = 0; i < length; i++) {
-            point = points[i];
-
-            if (point[0] === "line") {
-                context.beginPath();
-                context.moveTo(point[1], point[2]);
-                context.lineTo(point[3], point[4]);
-                context.closePath();
-                context.stroke();
-            }
-        }
-
-        context.fillStyle = 'Gray';
-        context.font = '10px Verdana';
-        context.fillText('All', 20, 12);
-
-        bindEvent(context, 'DragAllPaths');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'DragAllPaths');
+        };
+        image.src = data_uris.dragMultiple;
     }
 
     if (tools.dragMultiple === true) {
         decorateDragAllPaths();
-    } else document.getElementById('drag-all-paths').style.display = 'none';
+        document.getElementById('drag-all-paths').style.display = 'block';
+    }
 
     function decorateLine() {
         var context = getContext('line');
 
-        context.moveTo(10, 15);
-        context.lineTo(30, 35);
-        context.stroke();
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('Line', 16, 12);
-
-        bindEvent(context, 'Line');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'Line');
+        };
+        image.src = data_uris.line;
     }
 
     if (tools.line === true) {
         decorateLine();
-    } else document.getElementById('line').style.display = 'none';
+        document.getElementById('line').style.display = 'block';
+    }
+
+    function decorateUndo() {
+        var context = getContext('undo');
+
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+
+            document.querySelector('#undo').onclick = function() {
+                if (points.length) {
+                    points.length = points.length - 1;
+                    drawHelper.redraw();
+                }
+
+                // share to webrtc
+                syncPoints(true);
+            };
+        };
+        image.src = data_uris.undo;
+    }
+
+    if (tools.undo === true) {
+        decorateUndo();
+        document.getElementById('undo').style.display = 'block';
+    }
 
     function decorateArrow() {
         var context = getContext('arrow');
 
-        var x = 10;
-        var y = 35;
-
-        context.beginPath();
-        context.moveTo(x, y);
-        context.lineTo(x + 20, y - 20);
-        context.stroke();
-
-        context.beginPath();
-        context.moveTo(x + 15, y - 5);
-        context.lineTo(x + 20, y - 20);
-        context.stroke();
-
-        context.beginPath();
-        context.moveTo(x + 5, y - 15);
-        context.lineTo(x + 20, y - 20);
-        context.stroke();
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('Arrow', 5, 12);
-
-        bindEvent(context, 'Arrow');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'Arrow');
+        };
+        image.src = data_uris.arrow;
     }
 
     if (tools.arrow === true) {
         decorateArrow();
-    } else document.getElementById('arrow').style.display = 'none';
+        document.getElementById('arrow').style.display = 'block';
+    }
 
     function decoreZoomUp() {
         var context = getContext('zoom-up');
-        zoomHandler.icons.up(context);
+        // zoomHandler.icons.up(context);
         addEvent(context.canvas, 'click', function() {
             zoomHandler.up();
         });
+
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+        };
+        image.src = data_uris.zoom_in;
     }
 
     function decoreZoomDown() {
         var context = getContext('zoom-down');
-        zoomHandler.icons.down(context);
+        // zoomHandler.icons.down(context);
         addEvent(context.canvas, 'click', function() {
             zoomHandler.down();
         });
+
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+        };
+        image.src = data_uris.zoom_out;
     }
 
     if (tools.zoom === true) {
         decoreZoomUp();
         decoreZoomDown();
-    } else {
-        document.getElementById('zoom-up').style.display = 'none';
-        document.getElementById('zoom-down').style.display = 'none';
+
+        document.getElementById('zoom-up').style.display = 'block';
+        document.getElementById('zoom-down').style.display = 'block';
     }
 
     function decoratePencil() {
@@ -327,17 +331,12 @@ window.addEventListener('load', function() {
 
         var context = getContext('pencil-icon');
 
-        context.lineWidth = 5;
-        context.lineCap = 'round';
-        context.moveTo(35, 20);
-        context.lineTo(5, 35);
-        context.stroke();
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('Pencil', 6, 12);
-
-        bindEvent(context, 'Pencil');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'Pencil');
+        };
+        image.src = data_uris.pencil;
 
         var pencilContainer = find('pencil-container'),
             pencilColorContainer = find('pencil-fill-colors'),
@@ -370,7 +369,6 @@ window.addEventListener('load', function() {
             pencilColorsList.innerHTML += row;
         })
 
-        // console.log(pencilColorsList.getElementsByTagName('td'))
         Array.prototype.slice.call(pencilColorsList.getElementsByTagName('td')).forEach(function(td) {
             addEvent(td, 'mouseover', function() {
                 var elColor = td.getAttribute('data-color');
@@ -417,7 +415,8 @@ window.addEventListener('load', function() {
 
     if (tools.pencil === true) {
         decoratePencil();
-    } else document.getElementById('pencil-icon').style.display = 'none';
+        document.getElementById('pencil-icon').style.display = 'block';
+    }
 
     function decorateMarker() {
 
@@ -434,18 +433,12 @@ window.addEventListener('load', function() {
 
         var context = getContext('marker-icon');
 
-        context.lineWidth = 9;
-        context.lineCap = 'round';
-        context.strokeStyle = 'green';
-        context.moveTo(35, 20);
-        context.lineTo(5, 25);
-        context.stroke();
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('Marker', 6, 12);
-
-        bindEvent(context, 'Marker');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'Marker');
+        };
+        image.src = data_uris.marker;
 
         var markerContainer = find('marker-container'),
             markerColorContainer = find('marker-fill-colors'),
@@ -478,7 +471,6 @@ window.addEventListener('load', function() {
             markerColorsList.innerHTML += row;
         })
 
-        // console.log(markerColorsList.getElementsByTagName('td'))
         Array.prototype.slice.call(markerColorsList.getElementsByTagName('td')).forEach(function(td) {
             addEvent(td, 'mouseover', function() {
                 var elColor = td.getAttribute('data-color');
@@ -525,40 +517,40 @@ window.addEventListener('load', function() {
 
     if (tools.marker === true) {
         decorateMarker();
-    } else document.getElementById('marker-icon').style.display = 'none';
+        document.getElementById('marker-icon').style.display = 'block';
+    }
 
     function decorateEraser() {
         var context = getContext('eraser-icon');
 
-        context.lineWidth = 9;
-        context.lineCap = 'round';
-        context.moveTo(35, 20);
-        context.lineTo(5, 25);
-        context.stroke();
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('Eraser', 6, 12);
-
-        bindEvent(context, 'Eraser');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'Eraser');
+        };
+        image.src = data_uris.eraser;
     }
 
     if (tools.eraser === true) {
         decorateEraser();
-    } else document.getElementById('eraser-icon').style.display = 'none';
+        document.getElementById('eraser-icon').style.display = 'block';
+    }
 
     function decorateText() {
         var context = getContext('text-icon');
 
-        context.font = '22px Verdana';
-        context.strokeText('T', 15, 30);
-
-        bindEvent(context, 'Text');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'Text');
+        };
+        image.src = data_uris.text;
     }
 
     if (tools.text === true) {
         decorateText();
-    } else document.getElementById('text-icon').style.display = 'none';
+        document.getElementById('text-icon').style.display = 'block';
+    }
 
     function decorateImage() {
         var context = getContext('image-icon');
@@ -568,85 +560,94 @@ window.addEventListener('load', function() {
             context.drawImage(image, 4, 4, 32, 32);
             bindEvent(context, 'Image');
         };
-        image.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAADFBMVEVYWFhVVVUAAABUVFTqqlXjAAAAA3RSTlMxdACUjPeLAAAATElEQVR42u3SQQrAMAwDQSn7/z+XFExTcOxroN3zgC4STecApy1gpP2gBgZXQMwKwJ23QITYACLlQBC9gAFNwJMXoJhVc7lBA/gsuAArEgqPcT12VgAAAABJRU5ErkJggg==';
+        image.src = data_uris.image;
     }
 
     if (tools.image === true) {
         decorateImage();
-    } else document.getElementById('image-icon').style.display = 'none';
+        document.getElementById('image-icon').style.display = 'block';
+    }
+
+
+    function decoratePDF() {
+        var context = getContext('pdf-icon');
+
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'Pdf');
+        };
+        image.src = data_uris.pdf;
+    }
+
+    if (tools.pdf === true) {
+        decoratePDF();
+        document.getElementById('pdf-icon').style.display = 'block';
+    }
 
     function decorateArc() {
         var context = getContext('arc');
 
-        context.arc(20, 20, 16.3, Math.PI * 2, 0, 1);
-        context.stroke();
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('Arc', 10, 24);
-
-        bindEvent(context, 'Arc');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'Arc');
+        };
+        image.src = data_uris.arc;
     }
 
     if (tools.arc === true) {
         decorateArc();
-    } else document.getElementById('arc').style.display = 'none';
+        document.getElementById('arc').style.display = 'block';
+    }
 
     function decorateRect() {
         var context = getContext('rectangle');
 
-        context.strokeRect(5, 5, 30, 30);
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('Rect', 8, 24);
-
-        bindEvent(context, 'Rectangle');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'Rectangle');
+        };
+        image.src = data_uris.rectangle;
     }
 
     if (tools.rectangle === true) {
         decorateRect();
-    } else document.getElementById('rectangle').style.display = 'none';
+        document.getElementById('rectangle').style.display = 'block';
+    }
 
     function decorateQuadratic() {
         var context = getContext('quadratic-curve');
 
-        context.moveTo(0, 0);
-        context.quadraticCurveTo(50, 10, 30, 40);
-        context.stroke();
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('quad..', 2, 24);
-
-        bindEvent(context, 'QuadraticCurve');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'QuadraticCurve');
+        };
+        image.src = data_uris.quadratic;
     }
 
     if (tools.quadratic === true) {
         decorateQuadratic();
-    } else document.getElementById('quadratic-curve').style.display = 'none';
+        document.getElementById('quadratic-curve').style.display = 'block';
+    }
 
     function decorateBezier() {
         var context = getContext('bezier-curve');
 
-        var x = 0,
-            y = 4;
-
-        context.moveTo(x, y);
-        context.bezierCurveTo(x + 86, y + 16, x - 45, y + 24, x + 48, y + 34);
-
-        context.stroke();
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('Bezier', 10, 8);
-
-        bindEvent(context, 'BezierCurve');
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+            bindEvent(context, 'Bezier');
+        };
+        image.src = data_uris.bezier;
     }
 
     if (tools.bezier === true) {
         decorateBezier();
-    } else document.getElementById('bezier-curve').style.display = 'none';
+        document.getElementById('bezier-curve').style.display = 'block';
+    }
 
     function tempStrokeTheLine(context, width, mx, my, lx, ly) {
         context.beginPath();
@@ -659,14 +660,11 @@ window.addEventListener('load', function() {
     function decorateLineWidth() {
         var context = getContext('line-width');
 
-        tempStrokeTheLine(context, 2, 5, 15, 35, 15);
-        tempStrokeTheLine(context, 3, 5, 20, 35, 20);
-        tempStrokeTheLine(context, 4, 5, 26, 35, 26);
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('Line', 8, 12);
-        context.fillText('Width', 6, 38);
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+        };
+        image.src = data_uris.lineWidth;
 
         var lineWidthContainer = find('line-width-container'),
             lineWidthText = find('line-width-text'),
@@ -690,19 +688,19 @@ window.addEventListener('load', function() {
         });
     }
 
-    decorateLineWidth();
+    if (tools.lineWidth === true) {
+        decorateLineWidth();
+        document.getElementById('line-width').style.display = 'block';
+    }
 
     function decorateColors() {
         var context = getContext('colors');
 
-        context.fillStyle = 'red';
-        context.fillRect(5, 3, 30, 10);
-
-        context.fillStyle = 'green';
-        context.fillRect(5, 15, 30, 10);
-
-        context.fillStyle = 'blue';
-        context.fillRect(5, 27, 30, 10);
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+        };
+        image.src = data_uris.colorsPicker;
 
         var colorsContainer = find('colors-container'),
             strokeStyleText = find('stroke-style'),
@@ -728,18 +726,19 @@ window.addEventListener('load', function() {
         });
     }
 
-    decorateColors();
+    if (tools.colorsPicker === true) {
+        decorateColors();
+        document.getElementById('colors').style.display = 'block';
+    }
 
     function decorateAdditionalOptions() {
         var context = getContext('additional');
 
-        context.fillStyle = '#6c96c8';
-        context.font = '35px Verdana';
-        context.fillText('»', 10, 27);
-
-        context.fillStyle = 'Gray';
-        context.font = '9px Verdana';
-        context.fillText('Extras!', 2, 38);
+        var image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 4, 4, 32, 32);
+        };
+        image.src = data_uris.extraOptions;
 
         var additionalContainer = find('additional-container'),
             btnAdditionalClose = find('additional-close'),
@@ -766,7 +765,10 @@ window.addEventListener('load', function() {
         });
     }
 
-    decorateAdditionalOptions();
+    if (tools.extraOptions === true) {
+        decorateAdditionalOptions();
+        document.getElementById('additional').style.display = 'block';
+    }
 
     var designPreview = find('design-preview'),
         codePreview = find('code-preview');

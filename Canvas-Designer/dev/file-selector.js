@@ -6,7 +6,7 @@ var FileSelector = function() {
         selectFile(callback, true);
     };
 
-    function selectFile(callback, multiple) {
+    function selectFile(callback, multiple, accept) {
         var file = document.createElement('input');
         file.type = 'file';
 
@@ -14,7 +14,7 @@ var FileSelector = function() {
             file.multiple = true;
         }
 
-        file.accept = 'image/*';
+        file.accept = accept || 'image/*';
 
         file.onchange = function() {
             if (multiple) {

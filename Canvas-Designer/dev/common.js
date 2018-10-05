@@ -12,11 +12,12 @@ var is = {
     isEraser: false,
     isText: false,
     isImage: false,
+    isPdf: false,
 
     set: function(shape) {
         var cache = this;
 
-        cache.isLine = cache.isArrow = cache.isArc = cache.isDragLastPath = cache.isDragAllPaths = cache.isRectangle = cache.isQuadraticCurve = cache.isBezierCurve = cache.isPencil = cache.isMarker = cache.isEraser = cache.isText = cache.isImage = false;
+        cache.isLine = cache.isArrow = cache.isArc = cache.isDragLastPath = cache.isDragAllPaths = cache.isRectangle = cache.isQuadraticCurve = cache.isBezierCurve = cache.isPencil = cache.isMarker = cache.isEraser = cache.isText = cache.isImage = cache.isPdf = false;
         cache['is' + shape] = true;
     }
 };
@@ -49,7 +50,7 @@ var points = [],
     textarea = find('code-text'),
     lineWidth = 2,
     strokeStyle = '#6c96c8',
-    fillStyle = 'transparent',
+    fillStyle = 'rgba(0,0,0,0)',
     globalAlpha = 1,
     globalCompositeOperation = 'source-over',
     lineCap = 'round',
@@ -488,7 +489,7 @@ function drawArrow(mx, my, lx, ly, options) {
         return [
             opt.lineWidth || 2,
             opt.strokeStyle || '#6c96c8',
-            opt.fillStyle || 'transparent',
+            opt.fillStyle || 'rgba(0,0,0,0)',
             opt.globalAlpha || 1,
             opt.globalCompositeOperation || 'source-over',
             opt.lineCap || 'round',

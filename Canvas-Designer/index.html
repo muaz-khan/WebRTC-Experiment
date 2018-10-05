@@ -63,7 +63,7 @@ input {
 }
 
 .extra-controls {
-    position: absolute;
+    position: fixed;
     right: 21%;
 }
 
@@ -197,13 +197,16 @@ div#comments-popup {
     <input type="checkbox" id="image" checked>
     <label for="image">image</label><br>
 
+    <input type="checkbox" id="pdf" checked>
+    <label for="pdf">pdf</label><br>
+
     <input type="checkbox" id="line" checked>
     <label for="line">line</label><br>
 
     <input type="checkbox" id="arrow" checked>
     <label for="arrow">arrow</label><br>
 
-		<input type="checkbox" id="zoom" checked>
+		<input type="checkbox" id="zoom">
     <label for="zoom">zoom</label><br>
 
     <input type="checkbox" id="dragSingle" checked>
@@ -222,7 +225,22 @@ div#comments-popup {
     <label for="quadratic">quadratic</label><br>
 
     <input type="checkbox" id="bezier" checked>
-    <label for="bezier">bezier</label><br><br>
+    <label for="bezier">bezier</label><br>
+
+    <input type="checkbox" id="undo" checked>
+    <label for="undo">undo</label><br>
+
+    <input type="checkbox" id="lineWidth" checked>
+    <label for="lineWidth">lineWidth</label><br>
+
+    <input type="checkbox" id="colorsPicker" checked>
+    <label for="colorsPicker">colorsPicker</label><br>
+
+    <input type="checkbox" id="extraOptions" checked>
+    <label for="extraOptions">extraOptions</label><br>
+
+    <input type="checkbox" id="code" checked>
+    <label for="code">code</label><br><br>
 
     <hr>
     <div>
@@ -320,25 +338,7 @@ div#comments-popup {
 
     <h2><a href="multiple.html">Try multiple designers!</a></h2>
 
-    <hr>
-
-    <div style="text-align:center;">
-        <a href="https://www.npmjs.com/package/canvas-designer" target="_blank">
-            <img src="https://img.shields.io/npm/v/canvas-designer.svg">
-        </a>
-
-        <br>
-
-        <a href="https://www.npmjs.com/package/canvas-designer" target="_blank">
-            <img src="https://img.shields.io/npm/dm/canvas-designer.svg">
-        </a>
-
-        <br>
-
-        <a href="https://travis-ci.org/muaz-khan/Canvas-Designer">
-            <img src="https://travis-ci.org/muaz-khan/Canvas-Designer.png?branch=master">
-        </a>
-    </div>
+    <br><br><br>
 
 		<div style="text-align:cener;margin-top:15px;">
 			<p style="font-size:22px;color:red;">Ask Questions Here:</p>
@@ -369,7 +369,7 @@ document.getElementById('open-room').onclick = function() {
 var designer = new CanvasDesigner();
 
 // you can place widget.html anywhere
-designer.widgetHTML = 'widget.html';
+designer.widgetHtmlURL = 'widget.html';
 designer.widgetJsURL = 'widget.min.js'
 
 designer.addSyncListener(function(data) {
@@ -382,6 +382,7 @@ designer.setTools({
     pencil: true,
     text: true,
     image: true,
+    pdf: true,
     eraser: true,
     line: true,
     arrow: true,
@@ -392,7 +393,12 @@ designer.setTools({
     quadratic: true,
     bezier: true,
     marker: true,
-    zoom: true
+    zoom: false,
+    lineWidth: true,
+    colorsPicker: true,
+    extraOptions: true,
+    code: true,
+    undo: true
 });
 
 designer.appendTo(document.getElementById('widget-container'));

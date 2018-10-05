@@ -3,7 +3,12 @@ var webrtcHandler = {
         var captureStream = document.getElementById('main-canvas').captureStream(15);
 
         var peer = this.getPeer();
-        peer.addStream(captureStream);
+        if ('addStream' in peer) {
+            peer.addStream(captureStream);
+        } else {
+            peer.addTrack(captureStream.getVideoTracks()[0], captureStream);
+        }
+
         peer.onicecandidate = function(event) {
             if (!event || !!event.candidate) {
                 return;
@@ -14,13 +19,11 @@ var webrtcHandler = {
                 type: peer.localDescription.type
             });
         };
-        peer.createOffer(function(sdp) {
+        peer.createOffer({
+            OfferToReceiveAudio: false,
+            OfferToReceiveVideo: false
+        }).then(function(sdp) {
             peer.setLocalDescription(sdp);
-        }, function() {}, {
-            mandatory: {
-                OfferToReceiveAudio: false,
-                OfferToReceiveVideo: false
-            }
         });
     },
     setRemoteDescription: function(sdp) {
@@ -28,7 +31,6 @@ var webrtcHandler = {
     },
     createAnswer: function(sdp, callback) {
         var peer = this.getPeer();
-        this.setRemoteDescription(sdp);
         peer.onicecandidate = function(event) {
             if (!event || !!event.candidate) {
                 return;
@@ -39,17 +41,28 @@ var webrtcHandler = {
                 type: peer.localDescription.type
             });
         };
-        peer.createAnswer(function(sdp) {
-            peer.setLocalDescription(sdp);
-        }, function() {}, {
-            mandatory: {
+        this.peer.setRemoteDescription(new RTCSessionDescription(sdp)).then(function() {
+            peer.createAnswer({
                 OfferToReceiveAudio: false,
                 OfferToReceiveVideo: true
-            }
+            }).then(function(sdp) {
+                peer.setLocalDescription(sdp);
+            });
         });
-        peer.onaddstream = function(event) {
-            callback(event);
-        };
+
+        if ('onaddstream' in peer) {
+            peer.onaddstream = function(event) {
+                callback({
+                    stream: event.stream
+                });
+            };
+        } else {
+            peer.onaddtrack = function(event) {
+                callback({
+                    stream: event.streams[0]
+                });
+            };
+        }
     },
     getPeer: function() {
         var WebRTC_Native_Peer = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;

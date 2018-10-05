@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0, user-scalable=no">
 
-    <title>Canvas Designer ® Muaz Khan</title>
-    <meta name="description" content="HTML5 Canvas Designer ® Muaz Khan – A tool aimed to give you a full-fledged drawing surface and also auto generate appropriate code for you in different formats! Generator/Tool/Editor – 2D API/Context">
+    <title>Canvas Designer | Muaz Khan</title>
+    <meta name="description" content="HTML5 Canvas Designer | Muaz Khan – A tool aimed to give you a full-fledged drawing surface and also auto generate appropriate code for you in different formats! Generator/Tool/Editor – 2D API/Context">
 
     <meta name="author" content="Muaz Khan">
     <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
@@ -118,7 +118,7 @@
         /* design-surface */
 
         .design-surface {
-            background-color: white;
+            background-color: transparent;
         }
         .design-surface canvas {
             position: absolute;
@@ -135,11 +135,38 @@
             width: 40px;
             background-color: #FBFBFB;
             overflow: hidden;
+            height: 100%;
+            overflow: hidden;
+            overflow-y: auto;
         }
+
+        .tool-box::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            background-color:transparent;
+        }
+
+        .tool-box::-webkit-scrollbar-button {
+            height: 0;
+            width: 0
+        }
+
+        .tool-box::-webkit-scrollbar-thumb {
+            background-color:transparent;
+            border: 0;
+        }
+
+
+        .tool-box::-webkit-scrollbar-track {
+            background-color:transparent;
+            box-shadow: none;
+        }
+
         .tool-box canvas {
             border-bottom: 1px solid #E5E5E5;
             border-radius: 2px;
             margin-top: -4px;
+            display: none;
         }
         .tool-box canvas:first-child,
         .tool-box canvas:first-child:hover {
@@ -148,11 +175,10 @@
         }
         .tool-box canvas:hover {
             box-shadow: none;
-            background: rgb(255, 247, 103);
+            background: #eeeeee;
         }
         .selected-shape {
-            box-shadow: inset 0px 0px 4px 1px rgb(193, 164, 19)!important;
-            background: rgb(255, 247, 103)!important;
+            background: #eeeeee!important;
         }
         /* surface */
 
@@ -207,7 +233,7 @@
         }
         /* arc */
 
-        .arc-range-container {
+        .arc-range-container, #pdf-page-container {
             position: absolute;
             z-index: 1000;
             display: none;
@@ -452,7 +478,9 @@
 
         <canvas id="eraser-icon" width="40" height="40" title="Erase drawings"></canvas>
         <canvas id="text-icon" width="40" height="40" title="Write text"></canvas>
-        <canvas id="image-icon" width="40" height="40" title="Add images"></canvas>
+        <canvas id="image-icon" width="40" height="40" title="Add image"></canvas>
+
+        <canvas id="pdf-icon" width="40" height="40" title="Add pdf"></canvas>
 
         <canvas id="drag-last-path" width="40" height="40" title="Drag/move last path"></canvas>
         <canvas id="drag-all-paths" width="40" height="40" title="Drag/move all paths"></canvas>
@@ -468,9 +496,17 @@
         <canvas id="quadratic-curve" width="40" height="40" title="Quadratic curve"></canvas>
         <canvas id="bezier-curve" width="40" height="40" title="Bezier curve"></canvas>
 
+        <canvas id="undo" width="40" height="40" title="Undo: Remove recent shapes"></canvas>
+
         <canvas id="line-width" width="40" height="40" title="Set line-width"></canvas>
         <canvas id="colors" width="40" height="40" title="Set foreground and background colors"></canvas>
         <canvas id="additional" width="40" height="40" title="Extra options"></canvas>
+    </section>
+
+    <!-- pdf -->
+
+    <section id="pdf-page-container">
+        <select id="pdf-pages-list"></select>
     </section>
 
     <!-- arc -->
@@ -488,7 +524,7 @@
         <textarea id="code-text" class="code-text allow-select"></textarea>
     </section>
 
-    <section class="preview-panel">
+    <section class="preview-panel" style="display: none;">
         <div id="design-preview" class="preview-selected">Preview</div>
         <div id="code-preview">Code</div>
     </section>
@@ -766,9 +802,11 @@
         }
 
         var script = document.createElement('script');
-        script.src = params.widgetJsURL || 'https://cdn.webrtc-experiment.com/Canvas-Designer/widget.js';
+        script.src = params.widgetJsURL || 'https://cdn.webrtc-experiment.com/Canvas-Designer/widget.min.js';
         (document.body || document.documentElement).appendChild(script);
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.0.489/build/pdf.min.js"></script>
 </body>
 
 </html>

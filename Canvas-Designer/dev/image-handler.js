@@ -6,6 +6,14 @@ var imageHandler = {
     ismousedown: false,
     prevX: 0,
     prevY: 0,
+    load: function(width, height) {
+        var t = imageHandler;
+        points[points.length] = ['image', [imageHandler.lastImageURL, t.prevX, t.prevY, width, height, imageHandler.lastImageIndex], drawHelper.getOptions()];
+        document.getElementById('drag-last-path').click();
+
+        // share to webrtc
+        syncPoints(true);
+    },
     mousedown: function(e) {
         var x = e.pageX - canvas.offsetLeft,
             y = e.pageY - canvas.offsetTop;
