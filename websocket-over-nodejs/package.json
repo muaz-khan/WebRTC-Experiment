@@ -1,12 +1,12 @@
 {
   "name": "websocket-over-nodejs",
   "preferGlobal": true,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com"
   },
-  "description": "WebSocket-over-Nodejs for WebRTC Experiments: https://www.webrtc-experiment.com",
+  "description": "WebSocket-over-Nodejs: https://webrtcweb.com:9449/",
   "contributors": [
     {
       "name": "Muaz Khan",
@@ -14,9 +14,9 @@
     }
   ],
   "scripts": {
-    "start": "node signaler.js"
+    "start": "node server.js"
   },
-  "main": "signaler.js",
+  "main": "server.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/muaz-khan/WebRTC-Experiment.git"
@@ -36,7 +36,7 @@
   "bugs": {
     "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues"
   },
-  "homepage": "https://github.com/muaz-khan/WebRTC-Experiment",
-  "_id": "websocket-over-nodejs@0.0.2",
+  "homepage": "https://webrtcweb.com:9449/",
+  "_id": "websocket-over-nodejs@",
   "_from": "websocket-over-nodejs@"
 }
