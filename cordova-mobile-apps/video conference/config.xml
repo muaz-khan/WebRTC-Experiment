@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.yourdomain" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Application Name</name>
+    <icon src="www/img/icon.png" />
+    <description>Application Description</description>
+    <author email="author@email.com" href="https://yourdomain.com/">Author Name</author>
+    <content src="index.html" />
+    <allow-navigation href="*" />
+    <allow-intent href="*" />
+    <access origin="*" />
+    <platform name="android">
+        <preference name="Orientation" value="default" />
+        <preference name="KeepRunning" value="true" />
+        <preference name="AndroidLaunchMode" value="singleTop" />
+    </platform>
+    <platform name="ios">
+        <preference name="Orientation" value="all" />
+        <hook src="hooks/iosrtc-swift-support.js" type="after_platform_add" />
+        <config-file parent="CFBundleURLTypes" target="*-Info.plist">
+            <array>
+                <key>NSAppTransportSecurity</key>
+                <dict>
+                    <key>NSAllowsArbitraryLoads</key>
+                    <true />
+                </dict>
+            </array>
+        </config-file>
+        <config-file parent="NSCameraUsageDescription" platform="ios" target="*-Info.plist">
+            <string>WebRTC uses your camera to make video calls.</string>
+        </config-file>
+        <config-file parent="NSMicrophoneUsageDescription" platform="ios" target="*-Info.plist">
+            <string>WebRTC uses your microphone to make voice calls.</string>
+        </config-file>
+    </platform>
+    <preference name="Fullscreen" value="false" />
+    <preference name="WebViewBounce" value="true" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="HideKeyboardFormAccessoryBar" value="true" />
+    <preference name="TopActivityIndicator" value="white" />
+    <preference name="KeyboardDisplayRequiresUserAction" value="false" />
+    <preference name="StatusBarStyle" value="lightcontent" />
+    <preference name="StatusBarOverlaysWebView" value="true" />
+    <preference name="StatusBarBackgroundColor" value="#e4685d" />
+    <plugin name="cordova-plugin-iosrtc" spec="^4.4.0" />
+    <plugin name="cordova-plugin-android-permissions" spec="^1.0.0" />
+    <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
+    <engine name="android" spec="^6.3.0" />
+</widget>

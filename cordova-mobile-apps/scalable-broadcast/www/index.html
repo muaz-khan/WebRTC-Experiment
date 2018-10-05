@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+<head>
+    <title>Scalable Broadcast using RTCMultiConnection</title>
+
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+</head>
+<body>
+    <article style="margin-top:10px!important;">
+        <header style="text-align: center;">
+            <h1>Scalable Broadcast using RTCMultiConnection</h1>
+        </header>
+
+        <button class="btn-leave-room">Leave</button>
+
+        <div class="make-center" style="margin: 15px 0; text-align: center;">
+            <div style="text-align: left;display: inline-block;">
+                <select id="list-of-cameras">
+                    <option readonly>Camera</option>
+                </select>
+                <br>
+                <input type="text" id="broadcast-id" placeholder="broadcast-id" value="room-xyz" autocorrect=off autocapitalize=off>
+                <br>
+                
+                <button id="open-or-join">Open or Join Broadcast</button>
+                <p id="broadcast-viewers-counter" style="display: none;"></p>
+            </div>
+        </div>
+
+        <video id="video-preview" controls loop></video>
+    </article>
+
+    <footer>
+        Online demo link: bit.ly/scalable-broadcast
+    </footer>
+
+    <script src="cordova.js"></script>
+    <script src="js/socket.io.js"></script>
+    <script src="js/RTCMultiConnection.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>
