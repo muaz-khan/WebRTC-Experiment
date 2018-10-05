@@ -2,7 +2,6 @@ function MultiPeers(connection) {
     var self = this;
 
     var skipPeers = ['getAllParticipants', 'getLength', 'selectFirst', 'streams', 'send', 'forEach'];
-    connection.peersBackup = {};
     connection.peers = {
         getLength: function() {
             var numberOfPeers = 0;
@@ -223,8 +222,6 @@ function MultiPeers(connection) {
         userPreferences = connection.setUserPreferences(userPreferences, remoteUserId);
         var localConfig = this.getLocalConfig(null, remoteUserId, userPreferences);
         connection.peers[remoteUserId] = new PeerInitiator(localConfig);
-
-        this.checkIfNextPossibleInitiator(remoteUserId);
     };
 
     this.createAnsweringPeer = function(remoteSdp, remoteUserId, userPreferences) {
@@ -232,7 +229,6 @@ function MultiPeers(connection) {
 
         var localConfig = this.getLocalConfig(remoteSdp, remoteUserId, userPreferences);
         connection.peers[remoteUserId] = new PeerInitiator(localConfig);
-        this.checkIfNextPossibleInitiator(remoteUserId);
     };
 
     this.renegotiatePeer = function(remoteUserId, userPreferences, remoteSdp) {
@@ -254,7 +250,6 @@ function MultiPeers(connection) {
         var localConfig = this.getLocalConfig(remoteSdp, remoteUserId, userPreferences);
 
         connection.peers[remoteUserId] = new PeerInitiator(localConfig);
-        this.checkIfNextPossibleInitiator(remoteUserId);
     };
 
     this.replaceTrack = function(track, remoteUserId, isVideoTrack) {
@@ -370,49 +365,6 @@ function MultiPeers(connection) {
         }, remoteUserId);
     }
 
-    this.connectNewParticipantWithAllBroadcasters = function(newParticipantId, userPreferences, broadcastersList) {
-        if (connection.socket.isIO) {
-            return;
-        }
-
-        broadcastersList = (broadcastersList || '').split('|-,-|');
-
-        if (!broadcastersList.length) {
-            return;
-        }
-
-        var firstBroadcaster;
-
-        var remainingBroadcasters = [];
-        broadcastersList.forEach(function(list) {
-            list = (list || '').replace(/ /g, '');
-            if (list.length) {
-                if (!firstBroadcaster) {
-                    firstBroadcaster = list;
-                } else {
-                    remainingBroadcasters.push(list);
-                }
-            }
-        });
-
-        if (!firstBroadcaster) {
-            return;
-        }
-
-        self.onNegotiationNeeded({
-            newParticipant: newParticipantId,
-            userPreferences: userPreferences || false
-        }, firstBroadcaster);
-
-        if (!remainingBroadcasters.length) {
-            return;
-        }
-
-        setTimeout(function() {
-            self.connectNewParticipantWithAllBroadcasters(newParticipantId, userPreferences, remainingBroadcasters.join('|-,-|'));
-        }, 3 * 1000);
-    };
-
     this.onGettingRemoteMedia = function(stream, remoteUserId) {};
     this.onRemovingRemoteMedia = function(stream, remoteUserId) {};
     this.onGettingLocalMedia = function(localStream) {};
@@ -506,17 +458,5 @@ function MultiPeers(connection) {
     this.getRemoteStreams = function(remoteUserId) {
         remoteUserId = remoteUserId || connection.peers.getAllParticipants()[0];
         return connection.peers[remoteUserId] ? connection.peers[remoteUserId].streams : [];
-    };
-
-    this.checkIfNextPossibleInitiator = function(remoteUserId) {
-        if (connection.sessionid === remoteUserId) return;
-        if (connection.autoCloseEntireSession) return;
-        if (connection.isInitiator && connection.getAllParticipants().length > 1) return;
-
-        connection.socket.emit(connection.socketMessageEvent, {
-            remoteUserId: remoteUserId,
-            message: 'next-possible-initiator',
-            sender: connection.userid
-        });
     };
 }

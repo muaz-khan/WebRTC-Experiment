@@ -1,4 +1,4 @@
-<!-- Demo version: 2017.08.06 -->
+<!-- Demo version: 2018.09.30 -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -304,6 +304,8 @@
                 }
 
                 document.getElementById('open-or-join').disabled = true;
+
+                connection.extra.broadcastId = broadcastId;
 
                 connection.session = {
                     screen: true,

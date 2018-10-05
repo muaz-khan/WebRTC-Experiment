@@ -13,7 +13,7 @@ Please check these docs as well:
 
 ## iPhone, iPad, Nexus, Samsung, many other devices
 
-> This page explains how to write iOS+Android phonegap/cordova applications for RTCMultiConnection-v3.
+> This page explains how to write iOS+Android phonegap/cordova applications for RTCMultiConnection.
 
 # Cordova Demos
 
@@ -201,9 +201,9 @@ An example `config.xml` file (make sure that `icon.png` has valid path):
 </widget>
 ```
 
-# Use RTCMultiConnection-v3
+# Use RTCMultiConnection
 
-> This section explains how to integrate RTCMultiConnection-v3 for both iOS and Android apps.
+> This section explains how to integrate RTCMultiConnection for both iOS and Android apps.
 
 Download and link [`RTCMultiConnection.js`](https://github.com/muaz-khan/RTCMultiConnection/tree/master/dist/RTCMultiConnection.js):
 
@@ -211,7 +211,7 @@ Download and link [`RTCMultiConnection.js`](https://github.com/muaz-khan/RTCMult
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>CordovaApp using RTCMultiConnection-v3</title>
+    <title>CordovaApp using RTCMultiConnection</title>
     <link rel="stylesheet" href="css/index.css">
 </head>
 <body>

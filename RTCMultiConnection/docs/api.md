@@ -1,24 +1,30 @@
 # API Reference
 
-> RTCMultiConnection v3 API References
+> RTCMultiConnection API References
 
 You can search docs/APIs here:
 
+* http://www.rtcmulticonnection.org/
 * http://www.rtcmulticonnection.org/docs/
 
 ### `socketURL`
 
 1. You can run nodejs on a separate domain or separate port or on a separate server
 2. You can set `socketURL="ip-address"` to link nodejs server
-3. Now you can run RTCMultiConnection-v3 demos on any webpage; whether it is PHP page, ASP.net page, python or ruby page or whatever framework running top over HTML.
+3. Now you can run RTCMultiConnection demos on any webpage; whether it is PHP page, ASP.net page, python or ruby page or whatever framework running top over HTML.
 
 ```javascript
 connection.socketURL = 'https://onlyChangingPort.com:8888/';
 connection.socketURL = 'https://separateDomain.com:443/';
 connection.socketURL = '/'; // same domain
 
-// or a free signaling server
+// or a free signaling server:
+
+// v3.4.7 or newer
 connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+// v3.4.6 or older
+connection.socketURL = 'https://webrtcweb.com:9001/';
 ```
 
 ### `socketCustomParameters`
@@ -714,28 +720,6 @@ connection.processSdp = function(sdp) {
 
 * http://www.rtcmulticonnection.org/docs/processSdp/
 
-## `shiftModerationControl`
-
-Moderator can shift moderation control to any other user:
-
-```javascript
-connection.shiftModerationControl('remoteUserId', connection.broadcasters, false);
-```
-
-`connection.broadcasters` is the array of users that builds mesh-networking model i.e. multi-user conference.
-
-Moderator shares `connection.broadcasters` with each new participant; so that new participants can connect with other members of the room as well.
-
-## `onShiftedModerationControl`
-
-This event is fired, as soon as moderator of the room shifts moderation control toward you:
-
-```javascript
-connection.onShiftedModerationControl = function(sender, existingBroadcasters) {
-	connection.acceptModerationControl(sender, existingBroadcasters);
-};
-```
-
 ## `autoCloseEntireSession`
 
 * http://www.rtcmulticonnection.org/docs/autoCloseEntireSession/
@@ -756,26 +740,6 @@ A DOM-element to append videos or audios or screens:
 connection.videosContainer = document.getElementById('videos-container');
 ```
 
-## `addNewBroadcaster`
-
-In a one-way session, you can make multiple broadcasters using this method:
-
-```javascript
-if(connection.isInitiator) {
-	connection.addNewBroadcaster('remoteUserId');
-}
-```
-
-Now this user will also share videos/screens.
-
-## `removeFromBroadcastersList`
-
-Remove user from `connection.broadcasters` list.
-
-```javascript
-connection.removeFromBroadcastersList('remote-userid');
-```
-
 ## `onMediaError`
 
 If screen or video capturing fails:
@@ -787,6 +751,8 @@ connection.onMediaError = function(error) {
 ```
 
 ## `renegotiate`
+
+> Note on 10-02-2018: `replaceTrack` is preferred over `renegotiate`.
 
 Recreate peers. Capture new video using `connection.captureUserMedia` and call `connection.renegotiate()` and that new video will be shared with all connected users.
 
@@ -1200,7 +1166,7 @@ First step, install this chrome extension:
 
 * https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk
 
-Now use below code in any RTCMultiConnection-v3 (screen) demo:
+Now use below code in any RTCMultiConnection (screen) demo:
 
 ```html
 <script src="/dev/globals.js"></script>
@@ -1248,7 +1214,7 @@ connection.getScreenConstraints = function(callback) {
 
 ## Scalable Broadcasting
 
-v3 now supports WebRTC scalable broadcasting. Two new API are introduced: `enableScalableBroadcast` and `singleBroadcastAttendees`.
+RTCMultiConnection now supports WebRTC scalable broadcasting. Two new API are introduced: `enableScalableBroadcast` and `singleBroadcastAttendees`.
 
 ```javascript
 connection.enableScalableBroadcast = true; // by default, it is false.
@@ -1582,10 +1548,6 @@ You can either remove `enableLogs` from the `config.json` to **disable logs**; o
   "enableLogs": "false"
 }
 ```
-
-# Missing API?
-
-Search here: http://www.rtcmulticonnection.org/docs/
 
 # Tips & Tricks
 

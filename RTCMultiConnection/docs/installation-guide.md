@@ -86,7 +86,20 @@ fuser -vk 9001/tcp
 
 Now open: `http://localhost:9001/`
 
-## Keep running server in background
+## Keep running server in background using `pm2`
+
+``sh
+npm install pm2 -g
+pm2 startup  
+pm2 start server.js
+pm2 save
+```
+
+Now `server.js` will auto restart on failure. Even auto run as soon as operating system reboots.
+
+For more info about `pm2` please check [this link](https://github.com/Unitech/pm2).
+
+## Keep running server in background usnig `nohup`
 
 ```sh
 nohup nodejs server.js > /dev/null 2>&1 &

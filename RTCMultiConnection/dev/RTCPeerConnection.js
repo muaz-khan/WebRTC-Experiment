@@ -398,6 +398,22 @@ function PeerInitiator(config) {
         }
     }
 
+    this.enableDisableVideoEncoding = function(enable) {
+        var rtcp;
+        peer.getSenders().forEach(function(sender) {
+            if (!rtcp && sender.track.kind === 'video') {
+                rtcp = sender;
+            }
+        });
+
+        if (!rtcp || !rtcp.getParameters) return;
+
+        var parameters = rtcp.getParameters();
+        parameters.encodings[1] && (parameters.encodings[1].active = !!enable);
+        parameters.encodings[2] && (parameters.encodings[2].active = !!enable);
+        rtcp.setParameters(parameters);
+    };
+
     if (config.remoteSdp) {
         if (config.remoteSdp.remotePeerSdpConstraints) {
             sdpConstraints = config.remoteSdp.remotePeerSdpConstraints;

@@ -63,6 +63,10 @@ function SocketConnection(connection, connectCallback) {
             extra: extra
         });
 
+        updateExtraBackup(remoteUserId, extra);
+    });
+
+    function updateExtraBackup(remoteUserId, extra) {
         if (!connection.peersBackup[remoteUserId]) {
             connection.peersBackup[remoteUserId] = {
                 userid: remoteUserId,
@@ -71,7 +75,7 @@ function SocketConnection(connection, connectCallback) {
         }
 
         connection.peersBackup[remoteUserId].extra = extra;
-    });
+    }
 
     function onMessageEvent(message) {
         if (message.remoteUserId != connection.userid) return;
@@ -82,12 +86,8 @@ function SocketConnection(connection, connectCallback) {
                 userid: message.sender,
                 extra: message.extra
             });
-        }
 
-        if (message.message === 'next-possible-initiator') {
-            if (connection.nextPossibleInitiatorIfThisUserLeave) return;
-            connection.nextPossibleInitiatorIfThisUserLeave = message.sender;
-            return;
+            updateExtraBackup(message.sender, message.extra);
         }
 
         if (message.message.streamSyncNeeded && connection.peers[message.sender]) {
@@ -110,25 +110,6 @@ function SocketConnection(connection, connectCallback) {
 
             if (typeof stream.stream[action] == 'function') {
                 stream.stream[action](type);
-            }
-            return;
-        }
-
-        if (message.message === 'connectWithAllParticipants') {
-            if (connection.broadcasters.indexOf(message.sender) === -1) {
-                connection.broadcasters.push(message.sender);
-            }
-
-            mPeer.onNegotiationNeeded({
-                allParticipants: connection.getAllParticipants(message.sender)
-            }, message.sender);
-            return;
-        }
-
-        if (message.message === 'removeFromBroadcastersList') {
-            if (connection.broadcasters.indexOf(message.sender) !== -1) {
-                delete connection.broadcasters[connection.broadcasters.indexOf(message.sender)];
-                connection.broadcasters = removeNullEntries(connection.broadcasters);
             }
             return;
         }
@@ -179,7 +160,7 @@ function SocketConnection(connection, connectCallback) {
             return;
         }
 
-        if (message.message.readyForOffer || message.message.addMeAsBroadcaster) {
+        if (message.message.readyForOffer) {
             if (connection.attachStreams.length) {
                 connection.waitingForLocalMedia = false;
             }
@@ -189,11 +170,9 @@ function SocketConnection(connection, connectCallback) {
                 // make sure that we've local media before making a handshake
                 setTimeout(function() {
                     onMessageEvent(message);
-                }, 1000);
+                }, 1);
                 return;
             }
-
-            connection.addNewBroadcaster(message.sender);
         }
 
         if (message.message.newParticipationRequest && message.sender !== connection.userid) {
@@ -216,24 +195,10 @@ function SocketConnection(connection, connectCallback) {
                 dontGetRemoteStream: typeof message.message.isOneWay !== 'undefined' ? message.message.isOneWay : !!connection.session.oneway || connection.direction === 'one-way',
                 dontAttachLocalStream: !!message.message.dontGetRemoteStream,
                 connectionDescription: message,
-                successCallback: function() {
-                    // if its oneway----- todo: THIS SEEMS NOT IMPORTANT.
-                    if (typeof message.message.isOneWay !== 'undefined' ? message.message.isOneWay : !!connection.session.oneway || connection.direction === 'one-way') {
-                        connection.addNewBroadcaster(message.sender, userPreferences);
-                    }
-
-                    if (!!connection.session.oneway || connection.direction === 'one-way' || isData(connection.session)) {
-                        connection.addNewBroadcaster(message.sender, userPreferences);
-                    }
-                }
+                successCallback: function() {}
             };
 
             connection.onNewParticipant(message.sender, userPreferences);
-            return;
-        }
-
-        if (message.message.shiftedModerationControl) {
-            connection.onShiftedModerationControl(message.sender, message.message.broadcasters);
             return;
         }
 
@@ -258,32 +223,6 @@ function SocketConnection(connection, connectCallback) {
     }
 
     connection.socket.on(connection.socketMessageEvent, onMessageEvent);
-
-    connection.socket.on('user-left', function(userid) {
-        onUserLeft(userid);
-
-        connection.onUserStatusChanged({
-            userid: userid,
-            status: 'offline',
-            extra: connection.peers[userid] ? connection.peers[userid].extra || {} : {}
-        });
-
-        var eventObject = {
-            userid: userid,
-            extra: {}
-        };
-
-        if (connection.peersBackup[eventObject.userid]) {
-            eventObject.extra = connection.peersBackup[eventObject.userid].extra;
-        }
-
-        connection.onleave(eventObject);
-
-        if (connection.nextPossibleInitiatorIfThisUserLeave === userid) {
-            connection.nextPossibleInitiatorIfThisUserLeave = null;
-            connection.open(connection.sessionid);
-        }
-    });
 
     var alreadyConnected = false;
 
@@ -385,9 +324,6 @@ function SocketConnection(connection, connectCallback) {
 
     connection.socket.on('become-next-modrator', function(sessionid) {
         if (sessionid != connection.sessionid) return;
-        setTimeout(function() {
-            connection.open(sessionid);
-            connection.socket.emit('shift-moderator-control-on-disconnect');
-        }, 1000);
+        connection.isInitiator = true;
     });
 }

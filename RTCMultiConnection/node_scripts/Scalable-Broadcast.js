@@ -2,6 +2,16 @@
 // MIT License    - www.WebRTC-Experiment.com/licence
 // Documentation  - github.com/muaz-khan/RTCMultiConnection
 
+// pushLogs is used to write error logs into logs.json
+var pushLogs = function(name, error) {
+    console.log(name, error);
+};
+try {
+    pushLogs = require('./pushLogs.js');
+} catch (e) {
+    console.log('Unable to read pushLogs.js', e);
+}
+
 var users = {};
 
 module.exports = exports = function(socket, maxRelayLimitPerUser) {
@@ -13,7 +23,7 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
 
     socket.on('join-broadcast', function(user) {
         try {
-            if(!users[user.userid]) {
+            if (!users[user.userid]) {
                 socket.userid = user.userid;
                 socket.isScalableBroadcastSocket = true;
 
@@ -25,16 +35,19 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
                     relayReceivers: [],
                     receivingFrom: null,
                     canRelay: false,
-                    typeOfStreams: user.typeOfStreams || {audio: true, video: true},
+                    typeOfStreams: user.typeOfStreams || {
+                        audio: true,
+                        video: true
+                    },
                     socket: socket
                 };
 
                 notifyBroadcasterAboutNumberOfViewers(user.broadcastId);
             }
 
-            var relayUser = getFirstAvailableBraodcater(user.broadcastId, maxRelayLimitPerUser);
+            var relayUser = getFirstAvailableBroadcaster(user.broadcastId, maxRelayLimitPerUser);
 
-            if(relayUser === 'ask-him-rejoin') {
+            if (relayUser === 'ask-him-rejoin') {
                 socket.emit('rejoin-broadcast', user.broadcastId);
                 return;
             }
@@ -67,7 +80,7 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
                 socket.emit('logs', 'You <' + user.userid + '> are now serving the broadcast.');
             }
         } catch (e) {
-            consoleLog(e);
+            pushLogs('join-broadcast', e);
         }
     });
 
@@ -76,13 +89,13 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
     });
 
     socket.on('can-relay-broadcast', function() {
-        if(users[socket.userid]) {
+        if (users[socket.userid]) {
             users[socket.userid].canRelay = true;
         }
     });
 
     socket.on('can-not-relay-broadcast', function() {
-        if(users[socket.userid]) {
+        if (users[socket.userid]) {
             users[socket.userid].canRelay = false;
         }
     });
@@ -91,24 +104,22 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
         // we can pass number of viewers as well
         try {
             callback(!!users[userid] && users[userid].isBroadcastInitiator === true);
-        }
-        catch(e) {
-            consoleLog(e);
+        } catch (e) {
+            pushLogs('check-broadcast-presence', e);
         }
     });
 
     socket.on('get-number-of-users-in-specific-broadcast', function(broadcastId, callback) {
         try {
-            if(!broadcastId || !callback) return;
+            if (!broadcastId || !callback) return;
 
-            if(!users[broadcastId]) {
+            if (!users[broadcastId]) {
                 callback(0);
                 return;
             }
 
             callback(getNumberOfBroadcastViewers(broadcastId));
-        }
-        catch(e) {}
+        } catch (e) {}
     });
 
     function getNumberOfBroadcastViewers(broadcastId) {
@@ -116,60 +127,51 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
             var numberOfUsers = 0;
             Object.keys(users).forEach(function(uid) {
                 var user = users[uid];
-                if(user.broadcastId === broadcastId) {
+                if (user.broadcastId === broadcastId) {
                     numberOfUsers++;
                 }
             });
             return numberOfUsers - 1;
-        }
-        catch(e) {
+        } catch (e) {
             return 0;
         }
     }
 
     function notifyBroadcasterAboutNumberOfViewers(broadcastId, userLeft) {
         try {
-            if(!broadcastId || !users[broadcastId] || !users[broadcastId].socket) return;
+            if (!broadcastId || !users[broadcastId] || !users[broadcastId].socket) return;
             var numberOfBroadcastViewers = getNumberOfBroadcastViewers(broadcastId);
-            
-            if(userLeft === true) {
+
+            if (userLeft === true) {
                 numberOfBroadcastViewers--;
-            } 
+            }
 
             users[broadcastId].socket.emit('number-of-broadcast-viewers-updated', {
                 numberOfBroadcastViewers: numberOfBroadcastViewers,
                 broadcastId: broadcastId
             });
-        }
-        catch(e) {}
+        } catch (e) {}
     }
 
-    socket.on('disconnect', function() {
+    // this even is called from "signaling-server.js"
+    socket.ondisconnect = function() {
         try {
             if (!socket.isScalableBroadcastSocket) return;
 
             var user = users[socket.userid];
 
-            if(!user) return;
+            if (!user) return;
 
-            if(user.isBroadcastInitiator === false) {
+            if (user.isBroadcastInitiator === false) {
                 notifyBroadcasterAboutNumberOfViewers(user.broadcastId, true);
             }
 
-            if(user.isBroadcastInitiator === true) {
-                consoleLog({
-                    'initiator-left': true,
-                    'userid': user.userid,
-                    'broadcastId': user.broadcastId,
-                    'isBroadcastInitiator': user.isBroadcastInitiator,
-                    'relayReceivers': Object.keys(user.relayReceivers)
-                });
-
+            if (user.isBroadcastInitiator === true) {
                 // need to stop entire broadcast?
-                for(var n in users) {
+                for (var n in users) {
                     var _user = users[n];
-                    
-                    if(_user.broadcastId === user.broadcastId) {
+
+                    if (_user.broadcastId === user.broadcastId) {
                         _user.socket.emit('broadcast-stopped', user.broadcastId);
                     }
                 }
@@ -178,13 +180,13 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
                 return;
             }
 
-            if(user.receivingFrom || user.isBroadcastInitiator === true) {
+            if (user.receivingFrom || user.isBroadcastInitiator === true) {
                 var parentUser = users[user.receivingFrom];
 
-                if(parentUser) {
+                if (parentUser) {
                     var newArray = [];
                     parentUser.relayReceivers.forEach(function(n) {
-                        if(n.userid !== user.userid) {
+                        if (n.userid !== user.userid) {
                             newArray.push(n);
                         }
                     });
@@ -192,15 +194,15 @@ module.exports = exports = function(socket, maxRelayLimitPerUser) {
                 }
             }
 
-            if(user.relayReceivers.length && user.isBroadcastInitiator === false) {
+            if (user.relayReceivers.length && user.isBroadcastInitiator === false) {
                 askNestedUsersToRejoin(user.relayReceivers);
             }
 
             delete users[socket.userid];
         } catch (e) {
-            consoleLog(e);
+            pushLogs('scalable-broadcast-disconnect', e);
         }
-    });
+    };
 };
 
 function askNestedUsersToRejoin(relayReceivers) {
@@ -208,52 +210,51 @@ function askNestedUsersToRejoin(relayReceivers) {
         var usersToAskRejoin = [];
 
         relayReceivers.forEach(function(receiver) {
-            if(!!users[receiver.userid]) {
+            if (!!users[receiver.userid]) {
                 users[receiver.userid].canRelay = false;
                 users[receiver.userid].receivingFrom = null;
                 receiver.socket.emit('rejoin-broadcast', receiver.broadcastId);
             }
-            
+
         });
-    }
-    catch(e) {
-        consoleLog(e);
+    } catch (e) {
+        pushLogs('askNestedUsersToRejoin', e);
     }
 }
 
-function getFirstAvailableBraodcater(broadcastId, maxRelayLimitPerUser) {
+function getFirstAvailableBroadcaster(broadcastId, maxRelayLimitPerUser) {
     try {
         var broadcastInitiator = users[broadcastId];
 
         // if initiator is capable to receive users
-        if(broadcastInitiator.relayReceivers.length < maxRelayLimitPerUser) {
+        if (broadcastInitiator && broadcastInitiator.relayReceivers.length < maxRelayLimitPerUser) {
             return broadcastInitiator;
         }
-        
+
         // otherwise if initiator knows who is current relaying user
-        if(broadcastInitiator.lastRelayuserid) {
+        if (broadcastInitiator && broadcastInitiator.lastRelayuserid) {
             var lastRelayUser = users[broadcastInitiator.lastRelayuserid];
-            if(lastRelayUser && lastRelayUser.relayReceivers.length < maxRelayLimitPerUser) {
+            if (lastRelayUser && lastRelayUser.relayReceivers.length < maxRelayLimitPerUser) {
                 return lastRelayUser;
             }
         }
 
         // otherwise, search for a user who not relayed anything yet
+        // todo: why we're using "for-loop" here? it is not safe.
         var userFound;
-        for(var n in users) {
+        for (var n in users) {
             var user = users[n];
-            
-            if(userFound) {
+
+            if (userFound) {
                 continue;
-            }
-            else if(user.broadcastId === broadcastId) {
-                if(!user.relayReceivers.length && user.canRelay === true) {
+            } else if (user.broadcastId === broadcastId) {
+                if (!user.relayReceivers.length && user.canRelay === true) {
                     userFound = user;
                 }
             }
         }
 
-        if(userFound) {
+        if (userFound) {
             return userFound;
         }
 
@@ -261,12 +262,6 @@ function getFirstAvailableBraodcater(broadcastId, maxRelayLimitPerUser) {
         // so that each relaying user can distribute the bandwidth
         return broadcastInitiator;
     } catch (e) {
-        consoleLog(e);
+        pushLogs('getFirstAvailableBroadcaster', e);
     }
-}
-
-function consoleLog() {
-    // return; // comment this line for development testings
-
-    // console.log(arguments);
 }

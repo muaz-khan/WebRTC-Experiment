@@ -1,6 +1,6 @@
 # Tips & Tricks
 
-> RTCMultiConnection v3 tips and tricks for advance users!
+> RTCMultiConnection tips and tricks for advance users!
 
 ## How to secure your socket.io usage?
 

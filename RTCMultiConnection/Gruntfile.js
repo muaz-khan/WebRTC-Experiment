@@ -108,7 +108,7 @@ module.exports = function(grunt) {
             },
         },
         jsbeautifier: {
-            files: ['RTCMultiConnection.js', 'dev/*.js', 'Gruntfile.js', 'Signaling-Server.js', 'server.js'],
+            files: ['RTCMultiConnection.js', 'dev/*.js', 'Gruntfile.js', 'node_scripts/*.js'],
             options: {
                 js: {
                     braceStyle: "collapse",
@@ -159,6 +159,15 @@ module.exports = function(grunt) {
                 pushTo: 'upstream',
                 gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
             }
+        },
+        watch: {
+            scripts: {
+                files: ['dev/*.js'],
+                tasks: ['concat', 'replace', 'jsbeautifier', 'uglify', 'copy', 'clean'],
+                options: {
+                    spawn: false,
+                },
+            }
         }
     });
 
@@ -167,4 +176,5 @@ module.exports = function(grunt) {
     // set default tasks to run when grunt is called without parameters
     // http://gruntjs.com/api/grunt.task
     grunt.registerTask('default', ['concat', 'replace', 'jsbeautifier', 'uglify', 'copy', 'clean']);
+    grunt.loadNpmTasks('grunt-contrib-watch');
 };

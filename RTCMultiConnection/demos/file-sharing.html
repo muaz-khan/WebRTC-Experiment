@@ -1,4 +1,4 @@
-<!-- Demo version: 2017.08.06 -->
+<!-- Demo version: 2018.10.01 -->
 
  <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -477,7 +477,7 @@
                 var message = 'Connecting room:<br><b>' + connection.channel + '</b>';
                 appendLog(message);
 
-                connection.openOrJoin(connection.channel, function(isRoomExists, roomid) {
+                connection.openOrJoin(connection.channel, function(isRoomExist, roomid) {
                     var message = 'Successfully connected to room: <b>' + roomid + '</b><hr>Other users can join you on iPhone/Android using "' + roomid + '" or desktop (Windows/MacOSX/Ubuntu) users can join using this (secure/private) URL: <a href="./file-sharing.html#' + roomid + '" target="_blank">file-sharing.html#' + roomid + '</a>';
 
                     // if (isRoomEists) { }

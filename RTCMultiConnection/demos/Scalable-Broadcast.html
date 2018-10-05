@@ -1,4 +1,4 @@
-<!-- Demo version: 2017.08.08 -->
+<!-- Demo version: 2018.09.30 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -18,18 +18,17 @@
       <li>
         <a href="/demos/">Home</a>
       </li>
-
       <li>
-        <a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+        <a href="https://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
       </li>
       <li>
-        <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+        <a href="https://www.rtcmulticonnection.org/FAQ/">FAQ</a>
       </li>
       <li>
         <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
       </li>
       <li>
-        <a href="https://github.com/muaz-khan/RTCMultiConnection#v3-demos">Demos</a>
+        <a href="https://rtcmulticonnection.herokuapp.com/demos/">Demos</a>
       </li>
       <li>
         <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
@@ -48,17 +47,19 @@
   </h1>
 
   <section class="make-center">
-      <div class="make-center">
-      <input type="text" id="broadcast-id" value="room-xyz" autocorrect=off autocapitalize=off size=20>
-      <button id="open-or-join">Open or Join Broadcast</button>
+      <p style="margin: 0; padding: 0; padding-bottom: 20px;">
+          <div class="make-center">
+          <input type="text" id="broadcast-id" value="room-xyz" autocorrect=off autocapitalize=off size=20>
+          <button id="open-or-join">Open or Join Broadcast</button>
 
-      <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
-      <div class="make-center" id="broadcast-viewers-counter"></div>
+          <div class="make-center" id="broadcast-viewers-counter"></div>
+      </p>
 
       <video id="video-preview" controls loop></video>
   </section>
 
 <script src="/dist/RTCMultiConnection.min.js"></script>
+<script src="/dev/adapter.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <!-- <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script> -->
 <script>
@@ -146,9 +147,7 @@ connection.connectSocket(function(socket) {
         // "open" method here will capture media-stream
         // we can skip this function always; it is totally optional here.
         // we can use "connection.getUserMediaHandler" instead
-        connection.open(connection.userid, function() {
-            showRoomURL(connection.sessionid);
-        });
+        connection.open(connection.userid);
     });
 });
 
@@ -222,6 +221,9 @@ connection.onstream = function(event) {
             repeatedlyRecordStream(event.stream);
         }
     }
+
+    // to keep room-id in cache
+    localStorage.setItem(connection.socketMessageEvent, connection.sessionid);
 };
 
 // ask node.js server to look for a broadcast
@@ -236,6 +238,8 @@ document.getElementById('open-or-join').onclick = function() {
     }
 
     document.getElementById('open-or-join').disabled = true;
+
+    connection.extra.broadcastId = broadcastId;
 
     connection.session = {
         audio: true,
@@ -334,74 +338,17 @@ function disableInputButtons() {
 // ......................Handling broadcast-id................
 // ......................................................
 
-function showRoomURL(broadcastId) {
-    var roomHashURL = '#' + broadcastId;
-    var roomQueryStringURL = '?broadcastId=' + broadcastId;
-
-    var html = '<h2>Unique URL for your room:</h2><br>';
-
-    html += 'Hash URL: <a href="' + roomHashURL + '" target="_blank">' + roomHashURL + '</a>';
-    html += '<br>';
-    html += 'QueryString URL: <a href="' + roomQueryStringURL + '" target="_blank">' + roomQueryStringURL + '</a>';
-
-    var roomURLsDiv = document.getElementById('room-urls');
-    roomURLsDiv.innerHTML = html;
-
-    roomURLsDiv.style.display = 'block';
-}
-
-(function() {
-    var params = {},
-        r = /([^&=]+)=?([^&]*)/g;
-
-    function d(s) {
-        return decodeURIComponent(s.replace(/\+/g, ' '));
-    }
-    var match, search = window.location.search;
-    while (match = r.exec(search.substring(1)))
-        params[d(match[1])] = d(match[2]);
-    window.params = params;
-})();
-
 var broadcastId = '';
 if (localStorage.getItem(connection.socketMessageEvent)) {
     broadcastId = localStorage.getItem(connection.socketMessageEvent);
 } else {
     broadcastId = connection.token();
 }
-document.getElementById('broadcast-id').value = broadcastId;
-document.getElementById('broadcast-id').onkeyup = function() {
+var txtBroadcastId = document.getElementById('broadcast-id');
+txtBroadcastId.value = broadcastId;
+txtBroadcastId.onkeyup = txtBroadcastId.oninput = txtBroadcastId.onpaste = function() {
     localStorage.setItem(connection.socketMessageEvent, this.value);
 };
-
-var hashString = location.hash.replace('#', '');
-if (hashString.length && hashString.indexOf('comment-') == 0) {
-    hashString = '';
-}
-
-var broadcastId = params.broadcastId;
-if (!broadcastId && hashString.length) {
-    broadcastId = hashString;
-}
-
-if (broadcastId && broadcastId.length) {
-    document.getElementById('broadcast-id').value = broadcastId;
-    localStorage.setItem(connection.socketMessageEvent, broadcastId);
-
-    // auto-join-room
-    (function reCheckRoomPresence() {
-        connection.checkPresence(broadcastId, function(isRoomExists) {
-            if (isRoomExists) {
-                document.getElementById('open-or-join').onclick();
-                return;
-            }
-
-            setTimeout(reCheckRoomPresence, 5000);
-        });
-    })();
-
-    disableInputButtons();
-}
 
 // below section detects how many users are viewing your broadcast
 

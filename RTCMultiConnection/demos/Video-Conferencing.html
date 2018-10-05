@@ -1,4 +1,4 @@
-<!-- Demo version: 2018.05.21 -->
+<!-- Demo version: 2018.09.23 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -161,6 +161,9 @@ connection.onstream = function(event) {
     }, 5000);
 
     mediaElement.id = event.streamid;
+
+    // to keep room-id in cache
+    localStorage.setItem(connection.socketMessageEvent, connection.sessionid);
 };
 
 connection.onstreamended = function(event) {
@@ -238,8 +241,10 @@ if (localStorage.getItem(connection.socketMessageEvent)) {
 } else {
     roomid = connection.token();
 }
-document.getElementById('room-id').value = roomid;
-document.getElementById('room-id').onkeyup = function() {
+
+var txtRoomId = document.getElementById('room-id');
+txtRoomId.value = roomid;
+txtRoomId.onkeyup = txtRoomId.oninput = txtRoomId.onpaste = function() {
     localStorage.setItem(connection.socketMessageEvent, document.getElementById('room-id').value);
 };
 
