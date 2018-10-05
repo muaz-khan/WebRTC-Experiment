@@ -1,0 +1,49 @@
+{  
+   "name":"DetectRTC",
+   "short_name":"DetectRTC",
+   "author":"Muaz Khan",
+   "version":"1.1",
+   "manifest_version":2,
+   "minimum_chrome_version":"49",
+   "description":"Detect WebRTC Features using DetectRTC!",
+   "homepage_url":"https://github.com/muaz-khan/Chrome-Extensions/tree/master/DetectRTC",
+   "background":{  
+      "scripts":[  
+         "DetectRTC.min.js",
+         "background.js"
+      ],
+      "persistent":false
+   },
+   "content_scripts":[  
+      {  
+         "matches":[  
+            "<all_urls>"
+         ],
+         "js":[  
+            "content-script.js"
+         ]
+      }
+   ],
+   "browser_action":{  
+      "default_icon":"icon.png",
+      "default_title":"Detect WebRTC Features",
+      "default_popup": "dropdown.html"
+   },
+   "icons":{  
+      "16":"icon.png",
+      "22":"icon.png",
+      "32":"icon.png",
+      "48":"icon.png",
+      "128":"icon.png"
+   },
+   "permissions":[  
+      "tabs",
+      "<all_urls>",
+      "tabCapture",
+      "activeTab"
+   ],
+   "content_security_policy":  "script-src 'self' 'unsafe-eval'; object-src 'self'",
+   "web_accessible_resources":[  
+      "icon.png"
+   ]
+}

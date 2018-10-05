@@ -1,0 +1,71 @@
+﻿ <!DOCTYPE html>
+<html>
+<head>
+<style>
+* {
+  -webkit-user-select: none;
+  -user-select: none;
+  -webkit-user-drag: none;
+  -user-drag: none;
+}
+
+@font-face {
+  font-family: 'Custom_Font';
+  src: local('.SFNSText-Light'), 
+       local('.HelveticaNeueDeskInterface-Light'), 
+       local('.LucidaGrandeUI'), 
+       local('Ubuntu Light'), 
+       local('Segoe UI Light'),
+       local('Roboto-Light'), 
+       local('DroidSans'), 
+       local('Tahoma');
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 450px;
+  background-color: white;
+  font-family: Custom_Font!important;
+  font-size: 1em;
+  overflow: hidden;
+  padding: 5px 10px;
+  padding-right: 0;
+}
+
+strong {
+    color: rgb(204, 14, 14);
+    font-family: inherit;
+    font-weight: normal;
+}
+
+tr, td, th {
+    vertical-align: top;
+    padding: .7em 1.4em;
+    border-top: 1px dotted #BBA9A9;
+    border-right: 1px dotted #BBA9A9;
+}
+
+table {
+  border-left: 1px dotted #BBA9A9;
+  border-bottom: 1px dotted #BBA9A9;
+  margin-bottom: 10px;
+}
+
+table, tbody, tr, td {
+  width: 100%!important;
+}
+</style>
+<title>DetectRTC Extension</title>
+</head>
+<body>
+    <button id="generate-image" style="float:right; display: none;">Open as Image</button>
+    <h2 id="welcome">DetectRTC!</h2>
+    <table id="browser-features"></table>
+
+    <script src="dropdown.js"></script>
+</body>
+</html>
