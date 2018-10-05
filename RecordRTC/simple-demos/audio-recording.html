@@ -147,8 +147,18 @@ btnStartRecording.onclick = function() {
         bufferSize: 16384
     };
 
+    if(isSafari || isEdge) {
+        options.recorderType = StereoAudioRecorder;
+    }
+
     if(navigator.platform && navigator.platform.toString().toLowerCase().indexOf('win') === -1) {
         options.sampleRate = 48000; // or 44100 or remove this line for default
+    }
+
+    if(isSafari) {
+        options.sampleRate = 44100;
+        options.bufferSize = 4096;
+        options.numberOfAudioChannels = 2;
     }
 
     if(recorder) {
@@ -259,3 +269,6 @@ function SaveToDisk(fileURL, fileName) {
     }
 }
 </script>
+
+<footer style="margin-top: 20px;"><small id="send-message"></small></footer>
+<script src="https://cdn.webrtc-experiment.com/common.js"></script>

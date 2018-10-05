@@ -304,7 +304,7 @@ function mergeLeftRightBuffers(config, callback) {
 
 function processInWebWorker(_function) {
     var workerURL = URL.createObjectURL(new Blob([_function.toString(),
-        ';this.onmessage =  function (e) {' + _function.name + '(e.data);}'
+        ';this.onmessage =  function (eee) {' + _function.name + '(eee.data);}'
     ], {
         type: 'application/javascript'
     }));
@@ -314,3 +314,6 @@ function processInWebWorker(_function) {
     return worker;
 }
 </script>
+
+<footer style="margin-top: 20px;"><small id="send-message"></small></footer>
+<script src="https://cdn.webrtc-experiment.com/common.js"></script>
