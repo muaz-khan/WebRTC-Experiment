@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>getUserMedia on HTTP</title>
+<style type="text/css">
+video {
+    max-width: 100%;
+    margin-top: 20px;
+}
+#logs {
+    border-top: 1px dotted grey;
+    margin-top: 20px;
+}
+#logs div {
+    padding: 5px 10px;
+    border-bottom: 1px dotted grey;
+}
+</style>
+</head>
+<body>
+<h1>getUserMedia on HTTP / <a href="https://chrome.google.com/webstore/detail/getusermedia/nbnpcmljmiinldficickhdoaiblgkggc">Install This Extension</a></h1>
+
+<div id="radio-container">
+    <label><input type="radio" id="camera" checked> Camera</label>
+    <label><input type="radio" id="microphone"> Microphone</label>
+    <label><input type="radio" id="screen"> Screen</label>
+</div>
+
+<button id="getUserMedia">getUserMedia</button><br>
+<video controls autoplay playsinline></video>
+<div id="logs"></div>
+<script type="text/javascript" src="index.js"></script>
+</body>
+</html>

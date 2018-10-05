@@ -1,0 +1,38 @@
+{
+    "name" : "getUserMedia",
+    "author": "Muaz Khan",
+    "version" : "1.0",
+    "manifest_version" : 2,
+    "minimum_chrome_version": "34",
+    "description" : "Access camera, mic or screen on any HTTP domain! i.e. Call getUserMedia on any HTTP website!",
+    "homepage_url": "https://github.com/muaz-khan/Chrome-Extensions/tree/master/getUserMedia-on-http",
+    "background": {
+        "scripts": ["webrtc-handler.js", "background-script.js"],
+        "persistent": false
+    },
+    "content_scripts":[  
+      {  
+        "matches":[  
+          "<all_urls>"
+        ],
+        "js":[  
+            "webrtc-handler.js", "content-script.js"
+        ],
+        "all_frames": true,
+        "run_at": "document_start"
+      }
+    ],
+    "icons" : {
+        "48" : "icon.png"
+    },
+    "permissions": [
+      "desktopCapture",
+      "tabs",
+      "<all_urls>",
+      "tabCapture",
+      "activeTab"
+   ],
+    "web_accessible_resources": [
+        "icon.png"
+    ]
+}
