@@ -80,8 +80,34 @@ function onAccessApproved(chromeMediaSourceId, opts) {
         };
     }
 
-    navigator.webkitGetUserMedia(constraints, function(stream) {
+    navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+        if(enableSpeakers && !enableScreen) {
+            var screenOnly = new MediaStream();
+            stream.getVideoTracks().forEach(function(track) {
+                screenOnly.addTrack(track);
+
+                // remove video track, because we are gonna record only speakers
+                stream.removeTrack(track);
+            });
+
+            initVideoPlayer(screenOnly);
+            addStreamStopListener(screenOnly, function() {
+                stopScreenRecording();
+            });
+
+            // alert('You can stop recording only using extension icon. Whenever you are done, click extension icon to stop the recording.');
+        }
+        else {
+            addStreamStopListener(stream, function() {
+                stopScreenRecording();
+            });
+        }
+
         initVideoPlayer(stream);
         gotStream(stream);
-    }, function() {});
+    }).catch(function() {
+        alert('Unable to capture screen using:\n' + JSON.stringify(constraints, null, '\t'));
+        setDefaults();
+        chrome.runtime.reload();
+    });
 }

@@ -50,7 +50,7 @@ function convertTime(miliseconds) {
 var initialTime, timer;
 
 function checkTime() {
-    if (!initialTime) return;
+    if (!initialTime || !isRecording) return;
     var timeDifference = Date.now() - initialTime;
     var formatted = convertTime(timeDifference);
     setBadgeText(formatted);
@@ -76,6 +76,8 @@ var imgIndex = 0;
 var reverse = false;
 
 function onRecording() {
+    if(!isRecording) return;
+    
     chrome.browserAction.setIcon({
         path: 'images/' + images[imgIndex]
     });

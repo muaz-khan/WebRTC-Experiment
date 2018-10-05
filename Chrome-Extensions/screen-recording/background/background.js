@@ -9,9 +9,7 @@ chrome.browserAction.setIcon({
 function gotStream(stream) {
     var options = {
         type: 'video',
-        disableLogs: false,
-        recorderType: MediaStreamRecorder, // StereoAudioRecorder
-        // timeSlice: 1000
+        disableLogs: false
     };
 
     if (!videoCodec) {
@@ -42,6 +40,10 @@ function gotStream(stream) {
                 options.mimeType = 'video/x-matroska;codecs=avc1';
             }
         }
+
+        if(enableTabCaptureAPIAudioOnly || (enableMicrophone && !enableCamera && !enableScreen) || (enableSpeakers && !enableScreen && !enableCamera)) {
+            options.mimeType = 'audio/wav';
+        }
     }
 
     if (bitsPerSecond) {
@@ -55,17 +57,40 @@ function gotStream(stream) {
         options.bitsPerSecond = bitsPerSecond;
     }
 
-    if (cameraStream && cameraStream.getAudioTracks().length) {
-        cameraStream.getAudioTracks().forEach(function(track) {
-            stream.addTrack(track);
-            cameraStream.removeTrack(track);
-        });
+    if (cameraStream) {
+        var ignoreSecondPart = false;
+        
+        if(enableSpeakers && enableMicrophone) {
+            var mixAudioStream = getMixedAudioStream([cameraStream, stream]);
+            if(mixAudioStream && mixAudioStream.getAudioTracks().length) {
+                ignoreSecondPart = true;
+                
+                var mixedTrack = mixAudioStream.getAudioTracks()[0];
+                stream.addTrack(mixedTrack);
+                stream.getAudioTracks().forEach(function(track) {
+                    if(track === mixedTrack) return;
+                    stream.removeTrack(track);
+                });
+            }
+        }
+
+        if(!ignoreSecondPart) {
+            cameraStream.getAudioTracks().forEach(function(track) {
+                stream.addTrack(track);
+                cameraStream.removeTrack(track);
+            });
+        }
     }
 
     // fix https://github.com/muaz-khan/RecordRTC/issues/281
     options.ignoreMutedMedia = false;
 
-    if (cameraStream && cameraStream.getVideoTracks().length) {
+    if(options.mimeType === 'audio/wav') {
+        options.numberOfAudioChannels = 2;
+        recorder = new StereoAudioRecorder(stream, options);
+        recorder.streams = [stream];
+    }
+    else if (enableScreen && cameraStream && cameraStream.getVideoTracks().length) {
         // adjust video on top over screen
 
         // on faster systems (i.e. 4MB or higher RAM):
@@ -96,25 +121,9 @@ function gotStream(stream) {
     isRecording = true;
     onRecording();
 
-    recorder.streams[0].onended = function() {
-        if (recorder && recorder.streams.length) {
-            recorder.streams[0].onended = null;
-        }
-
+    addStreamStopListener(recorder.streams[0], function() {
         stopScreenRecording();
-    };
-
-    if (recorder.streams[0].getVideoTracks().length) {
-        recorder.streams[0].getVideoTracks().forEach(function(track) {
-            track.onended = function() {
-                if (!recorder) return;
-                var stream = recorder.streams[0];
-                if (!stream || typeof stream.onended !== 'function') return;
-
-                stream.onended();
-            };
-        });
-    }
+    });
 
     initialTime = Date.now()
     timer = setInterval(checkTime, 100);
@@ -122,6 +131,19 @@ function gotStream(stream) {
 
 function stopScreenRecording() {
     isRecording = false;
+
+    if (timer) {
+        clearTimeout(timer);
+    }
+    setBadgeText('');
+    isRecording = false;
+
+    chrome.browserAction.setTitle({
+        title: 'Record Your Screen, Tab or Camera'
+    });
+    chrome.browserAction.setIcon({
+        path: 'images/main-icon.png'
+    });
 
     recorder.stop(function() {
         var mimeType = 'video/webm';
@@ -141,6 +163,11 @@ function stopScreenRecording() {
             }
         }
 
+        if(enableTabCaptureAPIAudioOnly || (enableMicrophone && !enableCamera && !enableScreen) || (enableSpeakers && !enableScreen && !enableCamera)) {
+            mimeType = 'audio/wav';
+            fileExtension = 'wav';
+        }
+
         var file = new File([recorder ? recorder.blob : ''], getFileName(fileExtension), {
             type: mimeType
         });
@@ -152,55 +179,24 @@ function stopScreenRecording() {
         // var formatted = convertTime(timeDifference);
         // file.duration = formatted;
 
-        DiskStorage.StoreFile(file, function() {
-            chrome.tabs.query({}, function(tabs) {
-                var found = false;
-                var url = 'chrome-extension://' + chrome.runtime.id + '/preview.html';
-                for (var i = tabs.length - 1; i >= 0; i--) {
-                    if (tabs[i].url === url) {
-                        found = true;
-                        chrome.tabs.update(tabs[i].id, {
-                            active: true,
-                            url: url
-                        });
-                        break;
-                    }
-                }
-                if (!found) {
-                    chrome.tabs.create({
-                        url: 'preview.html'
-                    });
-                }
+        DiskStorage.StoreFile(file, function(response) {
+            try {
+                videoPlayers.forEach(function(player) {
+                    player.srcObject = null;
+                });
+                videoPlayers = [];
+            } catch (e) {}
+
+            chrome.storage.sync.set({
+                isRecording: 'false', // for dropdown.js
+                openPreviewPage: 'true' // for previewing recorded video
             });
+
+            setTimeout(function() {
+                setDefaults();
+                chrome.runtime.reload();
+            }, 1000);
         });
-
-        // invokeSaveAsDialog(file, file.name);
-
-        setTimeout(function() {
-            setDefaults();
-            // chrome.runtime.reload();            
-        }, 1000);
-
-        try {
-            videoPlayers.forEach(function(player) {
-                player.src = null;
-            });
-            videoPlayers = [];
-        } catch (e) {}
-
-        // for dropdown.js
-        chrome.storage.sync.set({
-            isRecording: 'false' // FALSE
-        });
-    });
-
-    if (timer) {
-        clearTimeout(timer);
-    }
-    setBadgeText('');
-
-    chrome.browserAction.setTitle({
-        title: 'Record Your Screen, Tab or Camera'
     });
 }
 
@@ -210,14 +206,10 @@ function setDefaults() {
     });
 
     if (recorder && recorder.streams) {
-        recorder.streams.forEach(function(stream, idx) {
+        recorder.streams.forEach(function(stream) {
             stream.getTracks().forEach(function(track) {
                 track.stop();
             });
-
-            if (idx == 0 && typeof stream.onended === 'function') {
-                stream.onended();
-            }
         });
 
         recorder.streams = null;
@@ -229,6 +221,7 @@ function setDefaults() {
 
     bitsPerSecond = 0;
     enableTabCaptureAPI = false;
+    enableTabCaptureAPIAudioOnly = false;
     enableScreen = true;
     enableMicrophone = false;
     enableCamera = false;
@@ -254,6 +247,10 @@ function getUserConfigs() {
 
         if (items['enableTabCaptureAPI']) {
             enableTabCaptureAPI = items['enableTabCaptureAPI'] == 'true';
+        }
+
+        if (items['enableTabCaptureAPIAudioOnly']) {
+            enableTabCaptureAPIAudioOnly = items['enableTabCaptureAPIAudioOnly'] == 'true';
         }
 
         if (items['enableCamera']) {
@@ -293,7 +290,7 @@ function getUserConfigs() {
         }
 
         if (enableMicrophone || enableCamera) {
-            if (!enableScreen) {
+            if (!enableScreen && !enableSpeakers) {
                 captureCamera(function(stream) {
                     gotStream(stream);
                 });
@@ -314,3 +311,34 @@ function getUserConfigs() {
 function stopVODRecording() {
     isRecordingVOD = false;
 }
+
+chrome.storage.sync.get('openPreviewPage', function(item) {
+    if (item.openPreviewPage !== 'true') return;
+    chrome.storage.sync.set({
+        isRecording: 'false',
+        openPreviewPage: 'false'
+    });
+
+    chrome.tabs.query({}, function(tabs) {
+        var found = false;
+        var url = 'chrome-extension://' + chrome.runtime.id + '/preview.html';
+        for (var i = tabs.length - 1; i >= 0; i--) {
+            if (tabs[i].url === url) {
+                found = true;
+                chrome.tabs.update(tabs[i].id, {
+                    active: true,
+                    url: url
+                });
+                break;
+            }
+        }
+        if (!found) {
+            chrome.tabs.create({
+                url: 'preview.html'
+            });
+        }
+    });
+
+    // invokeSaveAsDialog(file, file.name);
+});
+

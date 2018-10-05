@@ -4,8 +4,8 @@ var cameraDevice = false;
 function captureCamera(callback, defaultDevices) {
     var supported = navigator.mediaDevices.getSupportedConstraints();
     var constraints = {
-        audio: true,
-        video: true
+        audio: !!enableMicrophone,
+        video: !!enableCamera
     };
 
     if (enableCamera && !defaultDevices) {
@@ -52,6 +52,14 @@ function captureCamera(callback, defaultDevices) {
         }
     }
 
+    if(!constraints.audio && !constraints.video) {
+        // todo: should we display alert?
+        constraints = {
+            audio: true,
+            video: true
+        };
+    }
+
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
         initVideoPlayer(stream);
         callback(stream);
@@ -76,6 +84,21 @@ function captureCamera(callback, defaultDevices) {
         chrome.tabs.create({
             url: 'camera-mic.html'
         });
+
+        /*
+        var popup_width = screen.width - parseInt(screen.width / 3);
+        var popup_height = screen.height - parseInt(screen.height / 3);
+        chrome.windows.create({
+            url: 'camera-mic.html',
+            type: 'popup',
+            width: popup_width,
+            height: popup_height,
+            top: parseInt((screen.height / 2) - (popup_height / 2)),
+            left: parseInt((screen.width / 2) - (popup_width / 2)),
+            focused: true
+        });
+        */
+
         setDefaults();
     });
 }

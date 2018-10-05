@@ -72,6 +72,14 @@ function onGettingFile(f, item) {
     video.src = file.url;
     video.currentTime = 9999999999;
 
+    if(file.name && (file.name.indexOf('.mp3') !== -1 || file.name.indexOf('.wav') !== -1 || file.name.indexOf('.ogg') !== -1)) {
+        video.style.background = 'url(images/no-video.png) no-repeat center center';
+        video.currentTime = 0;
+    }
+    else {
+        video.style.background = '';
+    }
+
     fname.innerHTML = item.display;
     fsize.innerHTML = bytesToSize(file.size);
 

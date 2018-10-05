@@ -4,6 +4,7 @@ var bitsPerSecond = 0;
 var isChrome = true; // used by RecordRTC
 
 var enableTabCaptureAPI = false;
+var enableTabCaptureAPIAudioOnly = false;
 
 var enableScreen = true;
 var enableMicrophone = false;
@@ -82,4 +83,73 @@ function getFileName(fileExtension) {
         date = '0' + date;
     }
     return year + month + date + getRandomString() + '.' + fileExtension;
+}
+
+function addStreamStopListener(stream, callback) {
+    var streamEndedEvent = 'ended';
+    if ('oninactive' in stream && !('onended' in stream)) {
+        streamEndedEvent = 'inactive';
+    }
+    stream.addEventListener(streamEndedEvent, function() {
+        callback();
+        callback = function() {};
+    });
+    stream.getAudioTracks().forEach(function(track) {
+        track.addEventListener(streamEndedEvent, function() {
+            callback();
+            callback = function() {};
+        });
+    });
+    stream.getVideoTracks().forEach(function(track) {
+        track.addEventListener(streamEndedEvent, function() {
+            callback();
+            callback = function() {};
+        });
+    });
+}
+
+function getMixedAudioStream(arrayOfMediaStreams) {
+    // via: @pehrsons
+    if(typeof Storage === 'undefined') {
+        window.Storage = {
+            AudioContextConstructor: null,
+            AudioContext: window.AudioContext || window.webkitAudioContext
+        };
+    }
+
+    if (!Storage.AudioContextConstructor) {
+        Storage.AudioContextConstructor = new Storage.AudioContext();
+    }
+
+    var context = Storage.AudioContextConstructor;
+
+    var audioSources = [];
+
+    var gainNode = context.createGain();
+    gainNode.connect(context.destination);
+    gainNode.gain.value = 0; // don't hear self
+
+    var audioTracksLength = 0;
+    arrayOfMediaStreams.forEach(function(stream) {
+        if (!stream.getAudioTracks().length) {
+            return;
+        }
+
+        audioTracksLength++;
+
+        var audioSource = context.createMediaStreamSource(stream);
+        audioSource.connect(gainNode);
+        audioSources.push(audioSource);
+    });
+
+    if (!audioTracksLength) {
+        return;
+    }
+
+    mediaStremDestination = context.createMediaStreamDestination();
+    audioSources.forEach(function(audioSource) {
+        audioSource.connect(mediaStremDestination);
+    });
+
+    return mediaStremDestination.stream;
 }
