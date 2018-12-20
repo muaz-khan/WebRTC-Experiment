@@ -47,7 +47,29 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
             return obj;
         };
 
-        that.HTMLVideoElement = function() {};
+        document.addEventListener = document.removeEventListener = that.addEventListener = that.removeEventListener = function() {};
+
+        that.HTMLVideoElement = that.HTMLMediaElement = function() {};
+    }
+
+    if (typeof io === 'undefined') {
+        that.io = function() {
+            return {
+                on: function(eventName, callback) {
+                    callback = callback || function() {};
+
+                    if (eventName === 'connect') {
+                        callback();
+                    }
+                },
+                emit: function(eventName, data, callback) {
+                    callback = callback || function() {};
+                    if (eventName === 'open-room' || eventName === 'join-room') {
+                        callback(true, data.sessionid, null);
+                    }
+                }
+            };
+        };
     }
 
     if (typeof location === 'undefined') {
@@ -55,7 +77,8 @@ var browserFakeUserAgent = 'Fake/5.0 (FakeOS) AppleWebKit/123 (KHTML, like Gecko
         that.location = {
             protocol: 'file:',
             href: '',
-            hash: ''
+            hash: '',
+            origin: 'self'
         };
     }
 

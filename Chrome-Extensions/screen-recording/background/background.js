@@ -127,10 +127,13 @@ function gotStream(stream) {
 
     initialTime = Date.now()
     timer = setInterval(checkTime, 100);
+
+    // tell website that recording is started
+    startRecordingCallback();
 }
 
 function stopScreenRecording() {
-    isRecording = false;
+    if(!recorder || !isRecording) return;
 
     if (timer) {
         clearTimeout(timer);
@@ -187,15 +190,76 @@ function stopScreenRecording() {
                 videoPlayers = [];
             } catch (e) {}
 
-            chrome.storage.sync.set({
-                isRecording: 'false', // for dropdown.js
-                openPreviewPage: 'true' // for previewing recorded video
-            });
+            if(false && openPreviewOnStopRecording) {
+                chrome.storage.sync.set({
+                    isRecording: 'false', // for dropdown.js
+                    openPreviewPage: 'true' // for previewing recorded video
+                }, function() {
+                    // wait 100 milliseconds to make sure DiskStorage finished its job
+                    setTimeout(function() {
+                        // reset & reload to make sure we clear everything
+                        setDefaults();
+                        chrome.runtime.reload();
+                    }, 100);
+                });
+                return;
+            }
 
-            setTimeout(function() {
+            false && setTimeout(function() {
                 setDefaults();
                 chrome.runtime.reload();
-            }, 1000);
+            }, 2000);
+
+            // -------------
+            if (recorder && recorder.streams) {
+                recorder.streams.forEach(function(stream, idx) {
+                    stream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+
+                    if (idx == 0 && typeof stream.onended === 'function') {
+                        stream.onended();
+                    }
+                });
+
+                recorder.streams = null;
+            }
+
+            isRecording = false;
+            setBadgeText('');
+            chrome.browserAction.setIcon({
+                path: 'images/main-icon.png'
+            });
+            // -------------
+
+            stopRecordingCallback(file);
+
+            chrome.storage.sync.set({
+                isRecording: 'false',
+                openPreviewPage: 'false'
+            });
+
+            openPreviewOnStopRecording && chrome.tabs.query({}, function(tabs) {
+                var found = false;
+                var url = 'chrome-extension://' + chrome.runtime.id + '/preview.html';
+                for (var i = tabs.length - 1; i >= 0; i--) {
+                    if (tabs[i].url === url) {
+                        found = true;
+                        chrome.tabs.update(tabs[i].id, {
+                            active: true,
+                            url: url
+                        });
+                        break;
+                    }
+                }
+                if (!found) {
+                    chrome.tabs.create({
+                        url: 'preview.html'
+                    });
+                }
+
+                setDefaults();
+            });
         });
     });
 }
@@ -231,7 +295,6 @@ function setDefaults() {
     videoMaxFrameRates = '';
     videoResolutions = '1920x1080';
     isRecordingVOD = false;
-    startedVODRecordedAt = (new Date).getTime();
 
     // for dropdown.js
     chrome.storage.sync.set({
@@ -308,12 +371,9 @@ function getUserConfigs() {
     });
 }
 
-function stopVODRecording() {
-    isRecordingVOD = false;
-}
-
-chrome.storage.sync.get('openPreviewPage', function(item) {
+false && chrome.storage.sync.get('openPreviewPage', function(item) {
     if (item.openPreviewPage !== 'true') return;
+    
     chrome.storage.sync.set({
         isRecording: 'false',
         openPreviewPage: 'false'

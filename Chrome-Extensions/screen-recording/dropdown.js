@@ -45,7 +45,8 @@ document.getElementById('stop-recording').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            stopRecording: true
+            stopRecording: true,
+            dropdown: true
         });
         window.close();
     });
@@ -63,7 +64,8 @@ document.getElementById('full-screen').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startRecording: true,
+            dropdown: true
         });
         window.close();
     });
@@ -81,7 +83,8 @@ document.getElementById('full-screen-audio').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startRecording: true,
+            dropdown: true
         });
         window.close();
     });
@@ -99,7 +102,8 @@ document.getElementById('full-screen-microphone-audio').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startRecording: true,
+            dropdown: true
         });
         window.close();
     });
@@ -117,7 +121,8 @@ document.getElementById('selected-tab').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startRecording: true,
+            dropdown: true
         });
         window.close();
     });
@@ -135,7 +140,8 @@ document.getElementById('selected-tab-audio-only').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startRecording: true,
+            dropdown: true
         });
         window.close();
     });
@@ -153,7 +159,8 @@ document.getElementById('microphone-screen').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startRecording: true,
+            dropdown: true
         });
         window.close();
     });
@@ -171,7 +178,8 @@ document.getElementById('microphone-screen-camera').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startRecording: true,
+            dropdown: true
         });
         window.close();
     });
@@ -189,7 +197,8 @@ document.getElementById('microphone-webcam').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startRecording: true,
+            dropdown: true
         });
         window.close();
     });
@@ -207,7 +216,8 @@ document.getElementById('microphone-speakers').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startRecording: true,
+            dropdown: true
         });
         window.close();
     });
@@ -225,7 +235,8 @@ document.getElementById('microphone-only').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startRecording: true,
+            dropdown: true
         });
         window.close();
     });
@@ -243,7 +254,8 @@ document.getElementById('speakers-only').onclick = function() {
     }, function() {
         runtimePort.postMessage({
             messageFromContentScript1234: true,
-            startRecording: true
+            startRecording: true,
+            dropdown: true
         });
         window.close();
     });

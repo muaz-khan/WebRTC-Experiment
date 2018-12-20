@@ -12,7 +12,9 @@ function resetVideoStreams(streams) {
 
     // via: @adrian-ber
     streams.forEach(function(stream) {
-        if (!stream.getVideoTracks().length) {
+        if (!stream.getTracks().filter(function(t) {
+                return t.kind === 'video';
+            }).length) {
             return;
         }
 

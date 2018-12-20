@@ -1,4 +1,4 @@
-﻿<script>window.demoVersion = '2018.05.23';</script>
+﻿<script>window.demoVersion = '2018.10.30';</script>
 
 <!--
 > Muaz Khan     - https://github.com/muaz-khan
@@ -181,163 +181,15 @@
                 </p>
             </blockquote>
 
-            <section class="experiment" id="restund">
-                <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
-                <h2>
-                    <a href="#restund">restund installation on Ubuntu</a> (<a href="https://www.html5rocks.com/en/tutorials/webrtc/infrastructure/#deploying-stun-and-turn-servers" target="_blank">via</a>)
-                </h2>
-
-                <p>
-                    "make" and "gcc" are required. <a href="https://github.com/muaz-khan/RTCMultiConnection/blob/master/dev/IceServersHandler.js#L100-L102">Example LIVE server</a>
-                </p>
-
-                <ol>
-                    <li>
-                        <h2>Download "re":</h2>
-                        <pre><code class="bash">
-mkdir /home/restund
-cd /home/restund
-
-# via: http://creytiv.com/pub/
-wget http://webrtcweb.com/re-latest.tar.gz
-tar zxvf re-latest.tar.gz
-make
-make install          # "sudo" is preferred
-</code></pre>
-                    </li>
-
-                    <li>
-                        <h2>Download "restund":</h2>
-                        <pre><code class="bash">
-# via: http://www.creytiv.com/pub/
-# choose latest version
-# replace "0.4.12" with latesat version (06-Oct-2015)
-wget http://webrtcweb.com/restund-0.4.12.tar.gz
-tar zxvf restund-0.4.12.tar.gz
-make
-make install          # "sudo" is preferred
-</code></pre>
-                    </li>
-
-                    <li>
-                        <h2>Modify "etc/restund.conf" file:</h2>
-                        <pre><code class="bash">
-# it will be located at:
-# /home/restund/etc/restund.conf
-
-udp_listen      your-ip:4455
-tcp_listen      your-ip:5544  # different port than UDP
-
-turn_relay_addr     your-ip
-
-debug           yes
-realm           yourdomain.com
-
-# you will get a HTTP server for stats
-# example stats:
-#       Version:    0.4.12
-#       Built:  Nov 10 2016 23:39:41
-#       Uptime: 21 hours 25 mins 56 secs
-# LIVE Example: http://webrtcweb.com:4050/
-
-status_udp_addr     your-ip
-status_udp_port     33000
-status_http_addr    your-ip
-status_http_port    4050
-
-# filedb (your username/password are stored in this file)
-filedb_path     /etc/restund.auth
-
-# modules (STUN messages are processed in module loading order)
-module_path     /usr/local/lib/restund/modules
-module          stat.so
-module          binding.so
-module          auth.so
-module          turn.so
-module          filedb.so
-module          syslog.so
-module          status.so
-
-syncinterval        600
-auth_nonce_expiry   3600
-</code></pre>
-                    </li>
-
-                    <li>
-                        <h2>Modify "etc/restund.auth" file:</h2>
-                        <p>
-                            It will be located at: /home/restund/etc/restund.auth
-                        </p>
-                        <pre><code class="bash">
-# remove default credentials
-</code></pre>
-
-                        <p>
-                            First of all, execute this command:
-                        </p>
-
-                        <pre><code class="bash">
-util/genha1.sh username yourdomain.com password
-</code></pre>
-                        <p>
-                            Above command will print something. Copy whatever is printed; and paste inside "etc/restund.auth":
-                        </p>
-
-                        <pre><code class="bash">
-# copy/paste inside the "restund.auth" file
-
-username:sha1
-</code></pre>
-
-                    </li>
-
-                    <li>
-                        <h2>Copy all "etc" files to "/etc/"</h2>
-                        <pre><code class="bash">
-# move .conf and .auth files to /etc/ directory
-cp ./etc/* /etc/
-
-# or use absolute path:
-# cp /home/restund/etc/ /etc/
-</code></pre>
-                    </li>
-
-                    <li>
-                        <h2>Run the "restund" server</h2>
-                        <pre><code class="bash">
-restund
-</code></pre>
-                        <p>
-                            Above command will print something like this:
-                        </p>
-
-                        <pre><code class="bash">
-udp listen: your-ip:4455
-tcp listen: your-ip:5544
-stat: module loaded
-binding: module loaded
-auth: module loaded (nonce_expiry=3600s)
-turn: lifetime=600 ext=your-ip ext6=::1 bsz=512
-filedb: module loaded (/etc/restund.auth)
-syslog: module loaded facility=24
-status: module loaded (udp=your-ip:33000 http=your-ip:4050)
-</code></pre>
-                        <p>
-                            You can open stats server here: http://your-ip:4050
-                        </p>
-                    </li>
-                </ol>
-            </section>
-
             <section class="experiment" id="coturn">
                 <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
                 <h2>
                     <a href="#coturn">CoTURN installation on Ubuntu</a>
                 </h2>
                 
-				<p>
-					 <a href="https://github.com/muaz-khan/RTCMultiConnection/blob/master/dev/IceServersHandler.js#L90-L95">Example LIVE server</a>
-				</p>
+                <p>
+                     <a href="https://github.com/muaz-khan/RTCMultiConnection/blob/master/dev/IceServersHandler.js">Example LIVE server</a>
+                </p>
 
                 <ol>
                     <li>
@@ -358,7 +210,7 @@ https://packages.debian.org/jessie/amd64/coturn/download
                         <h2>Modify sources.list file:</h2><br><br>
 
                         <pre><code class="bash">
-/etc/apt/sources.list
+vi /etc/apt/sources.list
 </code></pre>
                         <br>
 
@@ -378,23 +230,15 @@ deb http://ftp.hk.debian.org/debian jessie main
                         <h2>Make sure you have installed "Aptitude":</h2><br><br>
 
                         <pre><code class="bash">
-https://wiki.debian.org/Aptitude
+# https://wiki.debian.org/Aptitude
 
 # update-to-latest version
 aptitude update
 </code></pre>
                     </li>
-                    <li>
-                        <h2>Now install "coturn" package using "aptitude":</h2><br><br>
-
-                        <pre><code class="bash">
-# below command may require [sudo] privileges
-aptitude install coturn
-</code></pre>
-                    </li>
 
                     <li>
-                        <h2>If "aptitude install coturn" fails:</h2><br><br>
+                        <h2>If "aptitude update" fails:</h2><br><br>
 
                         <pre><code class="bash">
 # replace "8B48AD6246925553" and "7638D0442B90D010" with the error_key displayed on your OWN-screen
@@ -414,10 +258,27 @@ gpg -a --export 7638D0442B90D010 | apt-key add -
                     </li>
 
                     <li>
+                        <h2>Try "Aptitude" again if failed on initial try:</h2><br><br>
+
+                        <pre><code class="bash">
+aptitude update
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Now install "coturn" package using "aptitude":</h2><br><br>
+
+                        <pre><code class="bash">
+# below command may require [sudo] privileges
+aptitude install coturn
+</code></pre>
+                    </li>
+
+                    <li>
                         <h2>Modify following file after "coturn" installation:</h2><br><br>
 
                         <pre><code class="bash">
-/etc/turnserver.conf
+vi /etc/turnserver.conf
 </code></pre>
                         <br>
                         <h2>Remove all text from the file, and replace with this:</h2><br><br>
@@ -450,9 +311,8 @@ no-stdout-log
                         <h2>Modify following file after modifying above "turnserver.conf":</h2><br><br>
 
                         <pre><code class="bash">
-/etc/turnuserdb.conf
+vi /etc/turnuserdb.conf
 </code></pre>
-
                         <br>
                         <h2>Remove all text from the file, and replace with this:</h2>
 
@@ -460,6 +320,28 @@ no-stdout-log
 
                         <pre>
 yourName:yourPassword
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>
+                            Instead of "turnuserdb.conf", you can try following as well:
+                        </h2>
+
+<pre><code class="bash">
+# rquires: apt-get install sqlite3 libsqlite3-dev
+# now: find / -name 'turndb'
+
+# vi /etc/turnserver.conf
+
+userdb=/var/lib/turn/turndb
+
+# in this case, please add following:
+# lt-cred-mech             # remove or comment this one
+oauth                      # add this
+user=youruser:yourpassword # add this
+
+# source: askubuntu.com/a/819264
 </code></pre>
                     </li>
 
@@ -512,6 +394,12 @@ iptables -A INPUT -p udp --dport 443 -j ACCEPT
                         <h2>Run following command:</h2><br><br>
 
                         <pre><code class="bash">
+# pm2 is strongly recommended
+# https://github.com/Unitech/pm2
+pm2 start turnserver
+pm2 save # after: pm2 startup
+
+# if you do not want to use "pm2"
 nohup turnserver > /dev/null 2>&1 &
 
 # or simply
@@ -533,14 +421,213 @@ netstat -nat | grep LISTEN
                         <br>
                         You will see that port 80/443 is listened by turnserver (both for UDP/TCP).
                     </li>
-                </ol>
 
-                Otherwise:
+                    <li>
+                        <h2>Otherwise (alternative coTURN installation solutions):</h2>
 
                     <pre><code class="bash">
 // Please follow this link:
-https://groups.google.com/d/msg/easyrtc/ypjJ5Yu3wZM/u5Lq6VNfabcJ
+groups.google.com/d/msg/easyrtc/ypjJ5Yu3wZM/u5Lq6VNfabcJ
+
+// or
+apt-get install coturn
+
+// or: stackoverflow.com/a/37290864
+sudo -i     # ignore if you already in admin mode
+apt-get update && apt-get install libssl-dev libevent-dev libhiredis-dev make -y    # install the dependencies
+wget -O turn.tar.gz http://turnserver.open-sys.org/downloads/v4.5.0.3/turnserver-4.5.0.3.tar.gz     # Download the source tar
+tar -zxvf turn.tar.gz     # unzip
+cd turnserver-*
+./configure
+make && make install 
+
+// or: stackoverflow.com/a/52408246
 </code></pre>
+                    </li>
+                </ol>
+
+                
+            </section>
+
+            <section class="experiment" id="restund">
+                <h2 style="float: right;margin-top: 0px;display: block;border-left: 1px solid rgb(189, 189, 189);padding: 0px 10px 5px 10px;border-bottom-left-radius: 12px;cursor: pointer;background: #F9F9F9;"><a href="#top">Top</a></h2>
+                <h2>
+                    <a href="#restund">restund installation on Ubuntu</a> (<a href="https://www.html5rocks.com/en/tutorials/webrtc/infrastructure/#deploying-stun-and-turn-servers" target="_blank">via</a>)
+                </h2>
+
+                <p>
+                    "make" and "gcc" are required. <a href="https://github.com/muaz-khan/RTCMultiConnection/blob/master/dev/IceServersHandler.js#L100-L102">Example LIVE server</a>
+                </p>
+
+                <ol>
+                    <li>
+                        <h2>Download "re":</h2>
+                        <pre><code class="bash">
+mkdir /home/restund
+cd /home/restund
+
+# via: http://creytiv.com/pub/
+wget http://webrtcweb.com/re-latest.tar.gz
+tar zxvf re-latest.tar.gz
+cd re-0.4.17
+make
+make install          # "sudo" is preferred
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Download "restund":</h2>
+                        <pre><code class="bash">
+# via: http://www.creytiv.com/pub/
+# choose latest version
+# replace "0.4.12" with latesat version (06-Oct-2015)
+cd ..
+wget http://webrtcweb.com/restund-0.4.12.tar.gz
+tar zxvf restund-0.4.12.tar.gz
+cd restund-0.4.12
+make
+make install          # "sudo" is preferred
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Modify "etc/restund.conf" file:</h2>
+                        <p>
+                            It will be located at: restund-0.4.12/etc/restund.conf
+                        </p>
+                        <pre><code class="bash">
+# cd etc && vi restund.conf
+# "etc" is a directory inside "restund-0.4.12"
+
+udp_listen      your-ip:4455
+tcp_listen      your-ip:5544  # different port than UDP
+
+turn_relay_addr     your-ip
+
+debug           yes
+realm           yourdomain.com
+
+# you will get a HTTP server for stats
+# example stats:
+#       Version:    0.4.12
+#       Built:  Nov 10 2016 23:39:41
+#       Uptime: 21 hours 25 mins 56 secs
+# LIVE Example: http://webrtcweb.com:4050/
+
+status_udp_addr     your-ip
+status_udp_port     33000
+status_http_addr    your-ip
+status_http_port    4050
+
+# filedb (your username/password are stored in this file)
+filedb_path     /etc/restund.auth
+
+# modules (STUN messages are processed in module loading order)
+module_path     /usr/local/lib/restund/modules
+module          stat.so
+module          binding.so
+module          auth.so
+module          turn.so
+module          filedb.so
+module          syslog.so
+module          status.so
+
+syncinterval        600
+auth_nonce_expiry   3600
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Modify "etc/restund.auth" file:</h2>
+                        <p>
+                            It will be located at: restund-0.4.12/etc/restund.auth
+                        </p>
+                        <pre><code class="bash">
+# remove default credentials
+</code></pre>
+
+                        <p>
+                            First of all, execute this command:
+                        </p>
+
+                        <pre><code class="bash">
+cd ..
+util/genha1.sh username yourdomain.com password
+</code></pre>
+                        <p>
+                            Above command will print something. Copy whatever is printed; and paste inside "etc/restund.auth":
+                        </p>
+
+                        <pre><code class="bash">
+cd etc
+vi restund.auth
+
+
+# copy/paste inside the "restund.auth" file
+username:sha1
+</code></pre>
+
+                    </li>
+
+                    <li>
+                        <h2>Copy all "etc" files to "/etc/"</h2>
+                        <pre><code class="bash">
+cd ..
+
+# move .conf and .auth files to /etc/ directory
+cp ./etc/* /etc/
+
+# or use absolute path:
+# cp /home/restund/restund-0.4.12/etc/ /etc/
+</code></pre>
+                    </li>
+
+                    <li>
+                        <h2>Run the "restund" server</h2>
+                        <pre><code class="bash">
+restund
+</code></pre>
+                        <p>
+                            Above command will print something like this:
+                        </p>
+
+                        <pre><code class="bash">
+udp listen: your-ip:4455
+tcp listen: your-ip:5544
+stat: module loaded
+binding: module loaded
+auth: module loaded (nonce_expiry=3600s)
+turn: lifetime=600 ext=your-ip ext6=::1 bsz=512
+filedb: module loaded (/etc/restund.auth)
+syslog: module loaded facility=24
+status: module loaded (udp=your-ip:33000 http=your-ip:4050)
+</code></pre>
+                        <p>
+                            You can open stats server here: http://your-ip:4050
+                        </p>
+                    </li>
+
+                    <li>
+                        <h2>If webrtc access to "restund" fails:</h2>
+                        <pre><code class="bash">
+iptables -I INPUT 1 -i eth0 -p udp --dport 33000 -j ACCEPT
+
+iptables -I INPUT 1 -i eth0 -p udp --dport 4455 -j ACCEPT
+iptables -I INPUT 1 -i eth0 -p tcp --dport 4455 -j ACCEPT
+
+iptables -I INPUT 1 -i eth0 -p udp --dport 5544 -j ACCEPT
+iptables -I INPUT 1 -i eth0 -p tcp --dport 5544 -j ACCEPT
+
+iptables -I INPUT 1 -i eth0 -p tcp --dport 4050 -j ACCEPT
+</code></pre>
+                    </li>
+
+                    <li>
+                        <p>
+                            Now open this: http://your-ip.com:4050/
+                        </p>
+                    </li>
+                </ol>
             </section>
 
             <section class="experiment" id="centos">
@@ -699,11 +786,11 @@ nohup turnserver -v -r  ip:port -a -b turnuserdb.conf -c turnserver.conf -u turn
                 <h2>
                     <a href="#windows">TURN installation on Windows</a>
                 </h2>
-                <blockquote>
-                  Others: <a href="http://www.stunprotocol.org/" target="_blank">STUNTMAN</a> or <a href="http://www.codeproject.com/Articles/18492/STUN-Client" target="_blank">C# Client</a>.
+                <blockquote style="font-size: 16px; text-align: center;">
+                  Alternatives: <a href="http://www.stunprotocol.org/" target="_blank">STUNTMAN</a> or <a href="http://www.codeproject.com/Articles/18492/STUN-Client" target="_blank">C# STUN Client</a> or <a href="https://github.com/pions/turn/releases" target="_blank">Pion TURN-server for Windows</a>.
                 </blockquote>
-                <br />
-                    <small>Note: Following section is taken from <a href="http://www.slideshare.net/amiteshawa/web-rtc-media-stra" target="_blank">slideshare</a>; and its credit goes to @amiteshawa!</small>
+                    <p style="text-align: right;">Please check PION link above for a <b>Windows TURN client</b>.</p>
+                    <p style="font-size: 11px; text-align: right;">Note: Below section is taken from <a href="http://www.slideshare.net/amiteshawa/web-rtc-media-stra" target="_blank">slideshare</a>; and its credit goes to @amiteshawa!</p>
                     <ol>
                         <li>
                             Install "Cygwin" application

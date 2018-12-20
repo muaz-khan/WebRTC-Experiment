@@ -1,14 +1,26 @@
+const regexIpv4Local = /^(192\.168\.|169\.254\.|10\.|172\.(1[6-9]|2\d|3[01]))/,
+    regexIpv4 = /([0-9]{1,3}(\.[0-9]{1,3}){3})/,
+    regexIpv6 = /[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7}/;
+
 // via: https://github.com/diafygi/webrtc-ips
 function DetectLocalIPAddress(callback, stream) {
     if (!DetectRTC.isWebRTCSupported) {
         return;
     }
 
+    var isPublic = true,
+        isIpv4 = true;
     getIPs(function(ip) {
-        if (ip.match(/^(192\.168\.|169\.254\.|10\.|172\.(1[6-9]|2\d|3[01]))/)) {
-            callback('Local: ' + ip);
+        if (!ip) {
+            callback(); // Pass nothing to tell that ICE-gathering-ended
+        } else if (ip.match(regexIpv4Local)) {
+            isPublic = false;
+            callback('Local: ' + ip, isPublic, isIpv4);
+        } else if (ip.match(regexIpv6)) { //via https://ourcodeworld.com/articles/read/257/how-to-get-the-client-ip-address-with-javascript-only
+            isIpv4 = false;
+            callback('Public: ' + ip, isPublic, isIpv4);
         } else {
-            callback('Public: ' + ip);
+            callback('Public: ' + ip, isPublic, isIpv4);
         }
     }, stream);
 }
@@ -63,24 +75,32 @@ function getIPs(callback, stream) {
     }
 
     function handleCandidate(candidate) {
-        var ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
-        var match = ipRegex.exec(candidate);
+        if (!candidate) {
+            callback(); // Pass nothing to tell that ICE-gathering-ended
+            return;
+        }
+
+        var match = regexIpv4.exec(candidate);
         if (!match) {
             return;
         }
         var ipAddress = match[1];
+        const isPublic = (candidate.match(regexIpv4Local)),
+            isIpv4 = true;
 
         if (ipDuplicates[ipAddress] === undefined) {
-            callback(ipAddress);
+            callback(ipAddress, isPublic, isIpv4);
         }
 
         ipDuplicates[ipAddress] = true;
     }
 
     // listen for candidate events
-    pc.onicecandidate = function(ice) {
-        if (ice.candidate) {
-            handleCandidate(ice.candidate.candidate);
+    pc.onicecandidate = function(event) {
+        if (event.candidate && event.candidate.candidate) {
+            handleCandidate(event.candidate.candidate);
+        } else {
+            handleCandidate(); // Pass nothing to tell that ICE-gathering-ended
         }
     };
 
@@ -106,7 +126,7 @@ function getIPs(callback, stream) {
         var lines = pc.localDescription.sdp.split('\n');
 
         lines.forEach(function(line) {
-            if (line.indexOf('a=candidate:') === 0) {
+            if (line && line.indexOf('a=candidate:') === 0) {
                 handleCandidate(line);
             }
         });

@@ -2,6 +2,14 @@
 
 * Demo: https://www.webrtc-experiment.com/Screen-Capturing/
 
+[![npm](https://img.shields.io/npm/v/webrtc-screen-capturing.svg)](https://npmjs.org/package/webrtc-screen-capturing) [![downloads](https://img.shields.io/npm/dm/webrtc-screen-capturing.svg)](https://npmjs.org/package/webrtc-screen-capturing)
+
+```sh
+npm instll webrtc-screen-capturing
+
+# node_modules/webrtc-screen-capturing/Screen-Capturing.js
+```
+
 # How to Use?
 
 **First Step,** download and modify [desktopCapture extension](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture)

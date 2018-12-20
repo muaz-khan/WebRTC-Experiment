@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2017.09.27';</script>
+<script>window.demoVersion = '2018.10.26';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -32,6 +32,9 @@
 
         video {
             max-width: 100%;
+            border-radius: 5px;
+            border: 1px solid black;
+            padding: 2px;
         }
     </style>
 
@@ -40,10 +43,6 @@
     <script src="https://cdn.webrtc-experiment.com/getScreenId.js"> </script>
     <script src="https://cdn.webrtc-experiment.com/FileSelector.js"></script>
     <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
-
-    <!-- video element -->
-    <link href="https://cdn.webrtc-experiment.com/getHTMLMediaElement.css" rel="stylesheet">
-    <script src="https://cdn.webrtc-experiment.com/getHTMLMediaElement.js"></script>
 </head>
 
 <body>
@@ -94,25 +93,14 @@
 
             <br>
 
-            <div id="video-preview" style="margin-top: 15px;"></div>
+            <div id="video-preview" style="margin-top: 15px;">
+                <h2 style="display: block;"></h2>
+                <video controls playsinline autoplay></video>
+            </div>
         </section>
 
         <script>
-            var video = document.createElement('video');
-            video.controls = false;
-            var mediaElement = getHTMLMediaElement(video, {
-                title: 'Click "Get Mixed Stream" button',
-                buttons: [],
-                showOnMouseEnter: false,
-                width: document.getElementById('video-preview').parentNode.clientWidth
-            });
-            document.getElementById('video-preview').appendChild(mediaElement);
-
-            var div = document.createElement('section');
-            mediaElement.media.parentNode.appendChild(div);
-            div.appendChild(mediaElement.media);
-
-            var videoPreview = mediaElement.media;
+            var videoPreview = document.querySelector('video');
 
             var mixerOptions = document.querySelector('#mixer-options');
 
@@ -125,7 +113,7 @@
             }
 
             function updateMediaHTML(html) {
-                videoPreview.parentNode.parentNode.querySelector('h2').innerHTML = html;
+                videoPreview.parentNode.querySelector('h2').innerHTML = html;
             }
 
             document.querySelector('#btn-get-mixed-stream').onclick = function() {
@@ -168,7 +156,7 @@
                             mixer.frameInterval = 1;
                             mixer.startDrawingFrames();
 
-                            setSrcObject(mixer.getMixedStream(), videoPreview);
+                            videoPreview.srcObject = mixer.getMixedStream();
 
                             updateMediaHTML('Mixed Screen+Camera!');
 
@@ -256,7 +244,7 @@
                     mixer.frameInterval = 1;
                     mixer.startDrawingFrames();
 
-                    setSrcObject(mixer.getMixedStream(), videoPreview);
+                    videoPreview.srcObject = mixer.getMixedStream();
 
                     updateMediaHTML('Mixed Multiple Cameras!');
                 });
@@ -274,7 +262,9 @@
                         var audioPreview = document.createElement('audio');
                         audioPreview.controls = true;
                         audioPreview.autoplay = true;
-                        setSrcObject(audioMixer.getMixedStream(), audioPreview);
+                        
+                        audioPreview.srcObject = audioMixer.getMixedStream();
+
                         videoPreview.replaceWith(audioPreview);
                         videoPreview = audioPreview;
 
@@ -494,13 +484,13 @@ rtcPeerConnection.addStream<span style="color:#93a1a1">(</span>audioMixer.getMix
             </h2>
             <div id="github-issues"></div>
         </section>
-        -->
 
         <section class="experiment">
             <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/MultiStreamsMixer/commits/master" target="_blank">Latest Updates</a>
             </h2>
             <div id="github-commits"></div>
         </section>
+        -->
 
         <section class="experiment"><small id="send-message"></small></section>
     </article>

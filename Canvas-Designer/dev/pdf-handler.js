@@ -1,10 +1,13 @@
 var pdfHandler = {
     lastPdfURL: null,
     lastIndex: 0,
-    lastPageIndex: null,
-    removeWhiteBackground: true,
+    lastPointIndex: 0,
+    removeWhiteBackground: false,
     pdfPageContainer: document.getElementById('pdf-page-container'),
     pdfPagesList: document.getElementById('pdf-pages-list'),
+    pdfNext: document.getElementById('pdf-next'),
+    pdfPrev: document.getElementById('pdf-prev'),
+    pdfClose: document.getElementById('pdf-close'),
     pageNumber: 1,
 
     images: [],
@@ -37,9 +40,12 @@ var pdfHandler = {
 
             var renderContext = {
                 canvasContext: ctx,
-                viewport: viewport,
-                background: 'rgba(0,0,0,0)'
+                viewport: viewport
             };
+
+            if (pdfHandler.removeWhiteBackground === true) {
+                renderContext.background = 'rgba(0,0,0,0)';
+            }
 
             page.render(renderContext).then(function() {
                 if (pdfHandler.removeWhiteBackground === true) {
@@ -80,6 +86,8 @@ var pdfHandler = {
             var t = pdfHandler;
             pdfHandler.lastIndex = pdfHandler.images.length;
             var point = [lastPage, 60, 20, width, height, pdfHandler.lastIndex];
+
+            pdfHandler.lastPointIndex = points.length;
             points[points.length] = ['pdf', point, drawHelper.getOptions()];
 
             pdfHandler.pdfPagesList.innerHTML = '';
@@ -93,14 +101,33 @@ var pdfHandler = {
                     option.selected = true;
                 }
             }
-            pdfHandler.pdfPageContainer.style.top = '20px';
-            pdfHandler.pdfPageContainer.style.left = point[2] + 'px';
 
             pdfHandler.pdfPagesList.onchange = function() {
                 pdfHandler.load(lastPdfURL);
             };
 
+            pdfHandler.pdfNext.onclick = function() {
+                pdfHandler.pdfPagesList.selectedIndex++;
+                pdfHandler.pdfPagesList.onchange();
+            };
+
+            pdfHandler.pdfPrev.onclick = function() {
+                pdfHandler.pdfPagesList.selectedIndex--;
+                pdfHandler.pdfPagesList.onchange();
+            };
+
+            pdfHandler.pdfClose.onclick = function() {
+                pdfHandler.pdfPageContainer.style.display = 'none';
+            };
+
             document.getElementById('drag-last-path').click();
+
+            pdfHandler.pdfPrev.src = data_uris.pdf_next;
+            pdfHandler.pdfNext.src = data_uris.pdf_prev;
+            pdfHandler.pdfClose.src = data_uris.pdf_close;
+
+            pdfHandler.pdfPageContainer.style.top = '20px';
+            pdfHandler.pdfPageContainer.style.left = (point[3] - parseInt(point[3] / 2)) + 'px';
             pdfHandler.pdfPageContainer.style.display = 'block';
 
             // share to webrtc
@@ -124,7 +151,9 @@ var pdfHandler = {
 
         var t = this;
         if (t.ismousedown) {
-            points[points.length] = ['pdf', [pdfHandler.lastPage, t.prevX, t.prevY, x - t.prevX, y - t.prevY, pdfHandler.lastIndex], drawHelper.getOptions()];
+            if (points[pdfHandler.lastPointIndex]) {
+                points[pdfHandler.lastPointIndex] = ['pdf', [pdfHandler.lastPage, t.prevX, t.prevY, x - t.prevX, y - t.prevY, pdfHandler.lastIndex], drawHelper.getOptions()];
+            }
 
             t.ismousedown = false;
         }
@@ -141,9 +170,11 @@ var pdfHandler = {
     },
     reset_pos: function(x, y) {
         pdfHandler.pdfPageContainer.style.top = y + 'px';
-        pdfHandler.pdfPageContainer.style.left = x + 'px';
+        if (!points[pdfHandler.lastPointIndex]) return;
+        var point = points[pdfHandler.lastPointIndex][1];
+        pdfHandler.pdfPageContainer.style.left = (point[1] + point[3] - parseInt(point[3] / 2) - parseInt(pdfHandler.pdfPageContainer.clientWidth / 2)) + 'px';
     },
     end: function() {
-        pdfHandler.pdfPageContainer.style.display = 'none';
+        // pdfHandler.pdfPageContainer.style.display = 'none';
     }
 };

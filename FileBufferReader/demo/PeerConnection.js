@@ -1,4 +1,4 @@
-// Last time updated at Feb 15, 2016, 08:32:23
+// Last time updated at November 17, 2018
 
 // Muaz Khan      - www.MuazKhan.com
 // MIT License    - www.WebRTC-Experiment.com/licence
@@ -13,7 +13,7 @@
         this.userid = userid || getToken();
         this.peers = {};
 
-        if (!socketURL) throw 'Socket-URL is mandatory.';
+        if (!socketURL) throw 'Socket-URL is required.';
 
         var signaler = new Signaler(this, socketURL);
 
@@ -21,15 +21,18 @@
         this.send = function(data) {
             var channel = answererDataChannel || offererDataChannel;
 
-            if (channel.readyState != 'open')
+            if (channel.readyState != 'open') {
                 return setTimeout(function() {
                     that.send(data);
                 }, 1000);
+            }
             channel.send(data);
         };
 
         signaler.ondata = function(data) {
-            if (that.ondata) that.ondata(data);
+            if (that.ondata) {
+                that.ondata(data);
+            }
         };
 
         this.onopen = function() {
@@ -47,8 +50,7 @@
                     broadcasting: true
                 });
 
-                !self.participantFound && !self.stopBroadcasting &&
-                    setTimeout(transmit, 3000);
+                !self.participantFound && !self.stopBroadcasting && setTimeout(transmit, 3000);
             })();
         };
 
@@ -113,7 +115,9 @@
             self.stopBroadcasting = true;
 
             for (var userid in root.peers) {
-                root.peers[userid].peer.close();
+                if(root.peers[userid] && root.peers[userid].peer) {
+                    root.peers[userid].peer.close();
+                }
             }
             root.peers = {};
         }
@@ -132,8 +136,9 @@
         };
 
         window.onkeyup = function(e) {
-            if (e.keyCode == 116)
+            if (e.keyCode == 116) {
                 root.close();
+            }
         };
 
         // users who broadcasts themselves
@@ -227,11 +232,32 @@
     };
 
     var optionalArgument = {
-        optional: [],
+        optional: [{
+            DtlsSrtpKeyAgreement: true
+        }, {
+            googImprovedWifiBwe: true
+        }, {
+            googScreencastMinBitrate: 300
+        }, {
+            googIPv6: true
+        }, {
+            googDscp: true
+        }, {
+            googCpuUnderuseThreshold: 55
+        }, {
+            googCpuOveruseThreshold: 85
+        }, {
+            googSuspendBelowMinBitrate: true
+        }, {
+            googCpuOveruseDetection: true
+        }],
         mandatory: {}
     };
 
     var offerAnswerConstraints = {
+        OfferToReceiveAudio: false,
+        OfferToReceiveVideo: false,
+
         optional: [],
         mandatory: {
             OfferToReceiveAudio: false,
@@ -254,9 +280,11 @@
 
     function setChannelEvents(channel, config) {
         channel.binaryType = 'arraybuffer';
+
         channel.onmessage = function(event) {
             config.ondata(event.data);
         };
+
         channel.onopen = function() {
             config.onopen();
         };
@@ -281,30 +309,43 @@
             self.config = config;
 
             peer.onicecandidate = function(event) {
-                if (event.candidate)
+                if (event.candidate && event.candidate.candidate) {
                     config.onicecandidate(event.candidate);
+                }
             };
 
             peer.onsignalingstatechange = function() {
                 console.log('onsignalingstatechange:', JSON.stringify({
                     iceGatheringState: peer.iceGatheringState,
-                    signalingState: peer.signalingState
+                    signalingState: peer.signalingState,
+                    iceConnectionState: peer.iceConnectionState
                 }));
+
+                if (peer.iceConnectionState.search(/closed|failed/gi) !== -1) {
+                    config.onclose();
+                }
             };
+            
             peer.oniceconnectionstatechange = function() {
                 console.log('oniceconnectionstatechange:', JSON.stringify({
                     iceGatheringState: peer.iceGatheringState,
-                    signalingState: peer.signalingState
+                    signalingState: peer.signalingState,
+                    iceConnectionState: peer.iceConnectionState
                 }));
+
+                if (peer.iceConnectionState.search(/closed|failed/gi) !== -1) {
+                    config.onclose();
+                }
             };
 
             this.createDataChannel(peer);
 
             window.peer = peer;
-            peer.createOffer(function(sdp) {
-                peer.setLocalDescription(sdp);
-                config.onsdp(sdp);
-            }, onSdpError, offerAnswerConstraints);
+            peer.createOffer(offerAnswerConstraints).then(function(sdp) {
+                peer.setLocalDescription(sdp).then(function() {
+                    config.onsdp(sdp);
+                });
+            }).catch(onSdpError);
 
             this.peer = peer;
 
@@ -357,11 +398,13 @@
                 }));
             };
 
-            peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
-            peer.createAnswer(function(sdp) {
-                peer.setLocalDescription(sdp);
-                config.onsdp(sdp);
-            }, onSdpError, offerAnswerConstraints);
+            peer.setRemoteDescription(new RTCSessionDescription(config.sdp)).then(function() {
+                peer.createAnswer(offerAnswerConstraints).then(function(sdp) {
+                    peer.setLocalDescription(sdp).then(function() {
+                        config.onsdp(sdp);
+                    });
+                }).catch(onSdpError);
+            });
 
             this.peer = peer;
 

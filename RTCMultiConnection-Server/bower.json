@@ -1,0 +1,47 @@
+{
+    "name": "rtcmulticonnection-server",
+    "description": "RTCMultiConnection socket.io server",
+    "version": "1.3.0",
+    "authors": [
+        {
+            "name": "Muaz Khan",
+            "email": "muazkh@gmail.com",
+            "homepage": "https://muazkhan.com/"
+        }
+    ],
+    "main": "server.js",
+    "keywords": [
+        "peer-to-peer",
+        "peer2peer",
+        "peer",
+        "webrtc",
+        "rtcmulticonnection",
+        "webrtc-library",
+        "library",
+        "javascript",
+        "chrome",
+        "firefox",
+        "opera",
+        "ie",
+        "internet-explorer",
+        "android",
+        "rtcweb",
+        "rtcmulticonnection.js",
+        "multirtc",
+        "webrtc-experiment",
+        "javascript-library",
+        "muaz",
+        "muaz-khan"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/muaz-khan/RTCMultiConnection.git"
+    },
+    "homepage": "https://rtcmulticonnection.herokuapp.com/demos/",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "test",
+        "tests"
+    ]
+}

@@ -9,8 +9,45 @@ chrome.runtime.onConnect.addListener(function(port) {
         }
 
         if (message.startRecording) {
-            if (!!isRecordingVOD) {
-                stopVODRecording();
+            if(message.dropdown) {
+                openPreviewOnStopRecording = true;
+                openCameraPreviewDuringRecording = true;
+            }
+
+            if (isRecording && message.dropdown) {
+                stopScreenRecording();
+                return;
+            }
+
+            if(message.RecordRTC_Extension) {
+                openPreviewOnStopRecording = false;
+                openCameraPreviewDuringRecording = false;
+                
+                enableTabCaptureAPI = message['enableTabCaptureAPI'] === true;
+                enableTabCaptureAPIAudioOnly = message['enableTabCaptureAPIAudioOnly'] === true;
+                enableScreen = message['enableScreen'] === true;
+                enableMicrophone = message['enableMicrophone'] === true;
+                enableCamera = message['enableCamera'] === true;
+                enableSpeakers = message['enableSpeakers'] === true;
+
+                startRecordingCallback = function(file) {
+                    port.postMessage({
+                        messageFromContentScript1234: true,
+                        startedRecording: true
+                    });
+                };
+
+                chrome.storage.sync.set({
+                    enableTabCaptureAPI: enableTabCaptureAPI ? 'true' : 'false',
+                    enableTabCaptureAPIAudioOnly: enableTabCaptureAPIAudioOnly ? 'true' : 'false',
+                    enableMicrophone: enableMicrophone ? 'true' : 'false',
+                    enableCamera: enableCamera ? 'true' : 'false',
+                    enableScreen: enableScreen ? 'true' : 'false',
+                    enableSpeakers: enableSpeakers ? 'true' : 'false',
+                    isRecording: 'true'
+                }, function() {
+                    getUserConfigs();
+                });
                 return;
             }
 
@@ -19,25 +56,21 @@ chrome.runtime.onConnect.addListener(function(port) {
         }
 
         if (message.stopRecording) {
-            if (recorder && recorder.streams) {
-                recorder.streams.forEach(function(stream, idx) {
-                    stream.getTracks().forEach(function(track) {
-                        track.stop();
-                    });
-
-                    if (idx == 0 && typeof stream.onended === 'function') {
-                        stream.onended();
-                    }
-                });
-
-                recorder.streams = null;
+            if(message.RecordRTC_Extension) {
+                stopRecordingCallback = function(file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        port.postMessage({
+                            messageFromContentScript1234: true,
+                            stoppedRecording: true,
+                            file: e.target.result
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                };
             }
 
-            isRecording = false;
-            setBadgeText('');
-            chrome.browserAction.setIcon({
-                path: 'images/main-icon.png'
-            });
+            stopScreenRecording();
             return;
         }
     });

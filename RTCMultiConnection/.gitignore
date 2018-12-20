@@ -1,11 +1,19 @@
+rmc-debug.log
+.sass-cache
+.jekyll-metadata
+*.iml
+.idea/*
+_site
+Gemfile.lock
+*.pyc
+dist/
+.vscode/
+v2.2.2
 node_modules
 bower_components
-
 make-tar.sh
-
 *.tar.gz
 lib-cov
-
 .*.swp
 ._*
 .DS_Store
@@ -18,4 +26,3 @@ lib-cov
 config.gypi
 CVS
 npm-debug.log
-rmc-debug.log

@@ -286,52 +286,6 @@ Its defined here:
 
 * [getUserMedia.js#L20](https://github.com/muaz-khan/RTCMultiConnection/tree/master/dev/getUserMedia.js#L20)
 
-## `becomePublicModerator`
-
-By default: all moderators are private.
-
-This method returns list of all moderators (room owners) who declared themselves as `public` via `becomePublicModerator` method:
-
-```javascript
-# to become a public moderator
-connection.open('roomid', true); // 2nd argument is "TRUE"
-
-# or call this method later (any time)
-connection.becomePublicModerator();
-```
-
-### `getPublicModerators`
-
-You can access list of all the public rooms using this method. This works similar to old RTCMultiConnection method `onNewSession`.
-
-Here is how to get public moderators:
-
-```javascript
-connection.getPublicModerators(function(array) {
-	array.forEach(function(moderator) {
-		// moderator.extra
-		connection.join(moderator.userid);
-	});
-});
-```
-
-You can even search for specific moderators. Moderators whose userid starts with specific string:
-
-```javascript
-var moderatorIdStartsWith = 'public-moderator-';
-connection.getPublicModerators(moderatorIdStartsWith, function(array) {
-	// only those moderators are returned here
-	// that are having userid similar to this:
-	// public-moderator-xyz
-	// public-moderator-abc
-	// public-moderator-muaz
-	// public-moderator-conference
-	array.forEach(function(moderator) {
-		// moderator.extra
-		connection.join(moderator.userid);
-	});
-});
-```
 
 ## `setUserPreferences`
 
@@ -816,43 +770,11 @@ connection.renegotiate();
 
 * http://www.rtcmulticonnection.org/docs/userid/
 
-`conection.open` method sets this:
+You must set userid before opening or joining a room:
 
 ```javascript
-connection.open = function(roomid) {
-    connection.userid = roomid; // --------- please check this line
-
-    // rest of the codes
-};
-```
-
-It means that `roomid` is always organizer/moderator's `userid`.
-
-RTCMultiConnection requires unique `userid` for each peer.
-
-Following code is WRONG/INVALID:
-
-```javascript
-// both organizer and participants are using same 'userid'
-connection.userid = roomid;
-connection.open(roomid);
-connection.join(roomid);
-```
-
-Following code is VALID:
-
-```javascript
-connection.userid = connection.token(); // random userid
-connection.open(roomid);
-connection.join(roomid);
-```
-
-Following code is also VALID:
-
-```javascript
-var roomid = 'xyz';
-connection.open(roomid); // organizer will use "roomid" as his "userid" here
-connection.join(roomid); // participant will use random userid here
+connection.userid = 'abcdef';
+connection.openOrJoin('roomid');
 ```
 
 ## `session`
@@ -978,12 +900,14 @@ connection.onEntireSessionClosed = function(event) {
 Open room:
 
 ```javascript
-var isPublicRoom = false;
-connection.open('roomid', isPublicRoom);
+connection.open('roomid', function(isRoomCreated, roomid, error) {
+	if(error) {
+        alert(error);
 
-// or
-connection.open('roomid', function() {
-	// on room created
+        // if error says that room is already created
+        connection.join('room-id');
+        return;
+    }
 });
 ```
 
@@ -992,7 +916,15 @@ connection.open('roomid', function() {
 Join room:
 
 ```javascript
-connection.join('roomid');
+connection.join('roomid', function(isRoomJoined, roomid, error) {
+    if(error) {
+        // maybe room does not exist
+        // maybe room is full
+        // maybe password is invalid
+        alert(error);
+        return;
+    }
+});
 
 // or pass "options"
 connection.join('roomid', {
@@ -1015,9 +947,13 @@ connection.join('roomid', {
 connection.openOrJoin('roomid');
 
 // or
-connection.openOrJoin('roomid', function(isRoomExists, roomid) {
-	if(isRoomExists) alert('opened the room');
-	else alert('joined the room');
+connection.openOrJoin('roomid', function(isRoomOpened, roomid) {
+	if(isRoomOpened === true) {
+        alert('opened the room');
+    }
+	else {
+        alert('joined the room');
+    }
 });
 ```
 

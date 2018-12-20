@@ -1,0 +1,268 @@
+<!-- Demo version: 2018.12.01 -->
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Video Conference using RTCMultiConnection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="shortcut icon" href="/demos/logo.png">
+  <link rel="stylesheet" href="/demos/stylesheet.css">
+  <script src="/demos/menu.js"></script>
+</head>
+<body>
+  <header>
+    <a class="logo" href="/demos/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
+    <a href="/demos/" class="menu-explorer">Menu<img src="/demos/menu-icon.png" alt="Menu"></a>
+    <nav>
+      <li>
+        <a href="/demos/">Home</a>
+      </li>
+      <li>
+        <a href="https://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+      </li>
+      <li>
+        <a href="https://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+      </li>
+      <li>
+        <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
+      </li>
+      <li>
+        <a href="https://rtcmulticonnection.herokuapp.com/demos/">Demos</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection">Github</a>
+      </li>
+    </nav>
+  </header>
+
+  <h1>
+    Video Conference using RTCMultiConnection
+    <p class="no-mobile">
+      Multi-user (many-to-many) video chat using mesh networking model.
+    </p>
+  </h1>
+
+  <section class="make-center">
+    <div id="videos-container" style="margin: 20px 0;"></div>
+    <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
+  </section>
+
+<script src="/dist/RTCMultiConnection.min.js"></script>
+<script src="/node_modules/webrtc-adapter/out/adapter.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
+<!-- custom layout for HTML5 audio/video elements -->
+<link rel="stylesheet" href="/dev/getHTMLMediaElement.css">
+<script src="/dev/getHTMLMediaElement.js"></script>
+<script>
+(function() {
+    var params = {},
+        r = /([^&=]+)=?([^&]*)/g;
+
+    function d(s) {
+        return decodeURIComponent(s.replace(/\+/g, ' '));
+    }
+    var match, search = window.location.search;
+    while (match = r.exec(search.substring(1)))
+        params[d(match[1])] = d(match[2]);
+    window.params = params;
+})();
+// ......................................................
+// ..................RTCMultiConnection Code.............
+// ......................................................
+
+var connection = new RTCMultiConnection();
+
+connection.autoCloseEntireSession = true;
+connection.publicRoomIdentifier = params.publicRoomIdentifier;
+
+// by default, socket.io server is assumed to be deployed on your own URL
+connection.socketURL = '/';
+
+// comment-out below line if you do not have your own socket.io server
+// connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+connection.socketMessageEvent = 'video-conference-demo';
+
+connection.session = {
+    audio: true,
+    video: true
+};
+
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true
+};
+
+connection.videosContainer = document.getElementById('videos-container');
+connection.onstream = function(event) {
+    var existing = document.getElementById(event.streamid);
+    if(existing && existing.parentNode) {
+      existing.parentNode.removeChild(existing);
+    }
+
+    event.mediaElement.removeAttribute('src');
+    event.mediaElement.removeAttribute('srcObject');
+    event.mediaElement.muted = true;
+    event.mediaElement.volume = 0;
+
+    var video = document.createElement('video');
+
+    try {
+        video.setAttributeNode(document.createAttribute('autoplay'));
+        video.setAttributeNode(document.createAttribute('playsinline'));
+    } catch (e) {
+        video.setAttribute('autoplay', true);
+        video.setAttribute('playsinline', true);
+    }
+
+    if(event.type === 'local') {
+      video.volume = 0;
+      try {
+          video.setAttributeNode(document.createAttribute('muted'));
+      } catch (e) {
+          video.setAttribute('muted', true);
+      }
+    }
+    video.srcObject = event.stream;
+
+    var width = parseInt(connection.videosContainer.clientWidth / 3) - 20;
+    var mediaElement = getHTMLMediaElement(video, {
+        title: event.userid,
+        buttons: ['full-screen'],
+        width: width,
+        showOnMouseEnter: false
+    });
+
+    connection.videosContainer.appendChild(mediaElement);
+
+    setTimeout(function() {
+        mediaElement.media.play();
+    }, 5000);
+
+    mediaElement.id = event.streamid;
+
+    if(event.type === 'local') {
+      connection.socket.on('disconnect', function() {
+        if(!connection.getAllParticipants().length) {
+          location.reload();
+        }
+      });
+    }
+};
+
+connection.onstreamended = function(event) {
+    var mediaElement = document.getElementById(event.streamid);
+    if (mediaElement) {
+        mediaElement.parentNode.removeChild(mediaElement);
+    }
+};
+
+connection.onMediaError = function(e) {
+    if (e.message === 'Concurrent mic process limit.') {
+        if (DetectRTC.audioInputDevices.length <= 1) {
+            alert('Please select external microphone. Check github issue number 483.');
+            return;
+        }
+
+        var secondaryMic = DetectRTC.audioInputDevices[1].deviceId;
+        connection.mediaConstraints.audio = {
+            deviceId: secondaryMic
+        };
+
+        connection.join(connection.sessionid);
+    }
+};
+
+if(!!params.password) {
+  connection.password = params.password;
+}
+
+if (params.open === true || params.open === 'true') {
+    connection.open(params.sessionid, function(isRoomOpened, roomid, error) {
+        if (error) {
+            if (error === connection.errors.ROOM_NOT_AVAILABLE) {
+                alert('Someone already created this room. Please either join or create a separate room.');
+                return;
+            }
+            alert(error);
+        }
+
+        connection.socket.on('disconnect', function() {
+            location.reload();
+        });
+    });
+} else {
+    connection.join(params.sessionid, function(isRoomJoined, roomid, error) {
+        if (error) {
+            if (error === connection.errors.ROOM_NOT_AVAILABLE) {
+                alert('This room does not exist. Please either create it or wait for moderator to enter in the room.');
+                return;
+            }
+            if (error === connection.errors.ROOM_FULL) {
+                alert('Room is full.');
+                return;
+            }
+            if (error === connection.errors.INVALID_PASSWORD) {
+                connection.password = prompt('Please enter room password.') || '';
+                if (!connection.password.length) {
+                    alert('Invalid password.');
+                    return;
+                }
+                connection.join(params.sessionid, function(isRoomJoined, roomid, error) {
+                    if (error) {
+                        alert(error);
+                    }
+                });
+                return;
+            }
+            alert(error);
+        }
+
+        connection.socket.on('disconnect', function() {
+            location.reload();
+        });
+    });
+}
+
+// detect 2G
+if(navigator.connection &&
+   navigator.connection.type === 'cellular' &&
+   navigator.connection.downlinkMax <= 0.115) {
+  alert('2G is not supported. Please use a better internet service.');
+}
+</script>
+
+  <section>
+    <p>
+      You can write cordova/ionic/phonegap based <a href="https://www.rtcmulticonnection.org/docs/Write-iOS-Apps/" target="_blank">iOS</a> or <a href="https://www.rtcmulticonnection.org/docs/Write-Android-Apps/" target="_blank">Android</a> apps for this demo as well. 
+
+      You can download <a href="https://webrtcweb.com/cordova-apps/video-conferencing/">an open-sourced cordova app</a> both for iOS and Android as well.
+    </p>
+
+    <p>
+      You can run same demo on Safari-11 as well. (both on MacOSX & iOS)
+    </p>
+
+    <p>
+      You can install following Android app and join meetings from this demo:
+
+      <a href="https://play.google.com/store/apps/details?id=rmc3.videoconference" target="_blank">https://play.google.com/store/apps/details?id=rmc3.videoconference</a>
+    </p>
+
+    <p>
+      Microsoft Edge is also supported.
+    </p>
+  </section>
+
+  <footer>
+    <small id="send-message"></small>
+  </footer>
+
+  <script src="https://cdn.webrtc-experiment.com/common.js"></script>
+</body>
+</html>

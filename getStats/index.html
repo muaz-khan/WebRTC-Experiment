@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2017.11.19';</script>
+<script>window.demoVersion = '2018.12.19';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -113,12 +113,16 @@
                 text-align: right;
                 padding-right: 15px;
             }
+
+            tr {
+                display: none;
+            }
     </style>
 
     <script src="https://cdn.webrtc-experiment.com/getStats.js"></script>
     <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
 
-    <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
+    <!-- for Edge/FF/Chrome/Opera/etc. getUserMedia support -->
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 </head>
 
@@ -154,6 +158,7 @@
             </select>
             <select id="select-iceTransportLimitation">
                 <option value="all">UDP+TCP</option>
+                <option value="udp">UDP Only</option>
                 <option value="tcp">TCP Only</option>
             </select>
             <select id="select-codec">
@@ -171,25 +176,25 @@
             </thead>
 
             <tbody>
-                <tr>
+                <tr class="firefox-allowed chrome-allowed">
                     <td>
                         Videos
                     </td>
                     <td>
-                        <video id="peer2-to-peer1" controls muted></video>
+                        <video id="peer2-to-peer1" autoplay playsinilne controls muted></video>
                     </td>
                     <td>
-                        <video id="peer1-to-peer2" controls muted></video>
+                        <video id="peer1-to-peer2" autoplay playsinilne controls muted></video>
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-allowed chrome-allowed">
                     <td>Bandwidth Speed</td>
                     <td><span id="peer1-bandwidthSpeed"></span> per second</td>
                     <td><span id="peer2-bandwidthSpeed"></span> per second</td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-allowed chrome-allowed">
                     <td>STUN/TURN?</td>
                     <td>
                         <label>Local:</label> <span id="peer1-localIceType"></span> (<span id="peer1-localTransport"></span>)<br>
@@ -201,7 +206,7 @@
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-not-allowed chrome-allowed">
                     <td>Codecs</td>
                     <td>
                         <label>Send:</label> <span id="peer1-codecsSend"></span><br>
@@ -213,13 +218,13 @@
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-not-allowed chrome-allowed">
                     <td>Encryption</td>
                     <td><span id="peer1-encryptedAs"></span></td>
                     <td><span id="peer2-encryptedAs"></span></td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-allowed chrome-allowed">
                     <td>IP Address</td>
                     <td>
                         <label>Send:</label> <span id="peer1-externalIPAddressLocal"></span><br>
@@ -231,7 +236,7 @@
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-not-allowed chrome-allowed">
                     <td>Resolutions</td>
                     <td>
                         <label>Send:</label> <span id="peer1-videoResolutionsForSenders"></span><br>
@@ -243,7 +248,7 @@
                     </td>
                 </tr>
 
-                <tr>
+                <tr class="firefox-allowed chrome-allowed">
                     <td>Data</td>
                     <td>
                         <label>Send:</label> <span id="peer1-totalDataForSenders"></span><br>
@@ -252,6 +257,26 @@
                     <td>
                         <label>Send:</label> <span id="peer2-totalDataForSenders"></span><br>
                         <label>Recv:</label> <span id="peer2-totalDataForReceivers"></span>
+                    </td>
+                </tr>
+
+                <tr class="firefox-allowed chrome-not-allowed">
+                    <td>framerateMean</td>
+                    <td>
+                        <label>Send:</label> <span id="peer1-framerateMean"></span>
+                    </td>
+                    <td>
+                        <label>Send:</label> <span id="peer2-framerateMean"></span>
+                    </td>
+                </tr>
+
+                <tr class="firefox-allowed chrome-not-allowed">
+                    <td>bitrateMean</td>
+                    <td>
+                        <label>Send:</label> <span id="peer1-bitrateMean"></span>
+                    </td>
+                    <td>
+                        <label>Send:</label> <span id="peer2-bitrateMean"></span>
                     </td>
                 </tr>
             </tbody>
@@ -296,6 +321,12 @@
                         }
                     }
 
+                    if(iceTransportLimitation.value === 'udp') {
+                        if(candidate.candidate.toLowerCase().indexOf('udp') === -1) {
+                            return; // ignore UDP
+                        }
+                    }
+
                     peer.addIceCandidate(candidate);
                 }
             </script>
@@ -321,7 +352,7 @@
 
                 function offererPeer(video_stream) {
                     offerer = new RTCPeerConnection(iceServers);
-                    offerer.id = 1;
+                    offerer.idx = 1;
 
                     video_stream.getTracks().forEach(function(track) {
                         offerer.addTrack(track, video_stream);
@@ -334,16 +365,16 @@
 
                         offererToAnswerer.srcObject = event.streams[0];
 
-                        if (typeof window.InstallTrigger !== 'undefined') {
+                        if(/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
                             getStats(offerer, event.streams[0].getTracks()[0], function(result) {
                                 previewGetStatsResult(offerer, result);
                             }, 1000);
+                            return;
                         }
-                        else {
-                            getStats(offerer, function(result) {
-                                previewGetStatsResult(offerer, result);
-                            }, 1000);
-                        }
+
+                        getStats(offerer, function(result) {
+                            previewGetStatsResult(offerer, result);
+                        }, 1000);
                     };
 
                     offerer.onicecandidate = function (event) {
@@ -355,8 +386,8 @@
                         offer.sdp = preferSelectedCodec(offer.sdp);
                         offerer.setLocalDescription(offer).then(function() {
                             answererPeer(offer, video_stream);
-                        }, function() {});
-                    }, function() {});
+                        });
+                    });
                 }
             </script>
             <script>
@@ -364,7 +395,7 @@
 
                 function answererPeer(offer, video_stream) {
                     answerer = new RTCPeerConnection(iceServers);
-                    answerer.id = 2;
+                    answerer.idx = 2;
                     
                     video_stream.getTracks().forEach(function(track) {
                         answerer.addTrack(track, video_stream);
@@ -376,17 +407,17 @@
                         firedOnce = true;
 
                         answererToOfferer.srcObject = event.streams[0];
+
+                        if(/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+                            getStats(offerer, event.streams[0].getTracks()[0], function(result) {
+                                previewGetStatsResult(offerer, result);
+                            }, 1000);
+                            return;
+                        }
                         
-                        if (typeof window.InstallTrigger !== 'undefined') {
-                            getStats(answerer, event.streams[0].getTracks()[0], function(result) {
-                                previewGetStatsResult(answerer, result);
-                            }, 1000);
-                        }
-                        else {
-                            getStats(answerer, function(result) {
-                                previewGetStatsResult(answerer, result);
-                            }, 1000);
-                        }
+                        getStats(answerer, function(result) {
+                            previewGetStatsResult(answerer, result);
+                        }, 1000);
                     };
 
                     answerer.onicecandidate = function (event) {
@@ -394,13 +425,14 @@
                         addIceCandidate(offerer, event.candidate);
                     };
 
-                    answerer.setRemoteDescription(offer);
-                    answerer.createAnswer(mediaConstraints).then(function (answer) {
-                        answer.sdp = preferSelectedCodec(answer.sdp);
-                        answerer.setLocalDescription(answer).then(function() {
-                            offerer.setRemoteDescription(answer);
-                        }, function() {});                        
-                    }, function() {});
+                    answerer.setRemoteDescription(offer).then(function() {
+                        answerer.createAnswer(mediaConstraints).then(function (answer) {
+                            answer.sdp = preferSelectedCodec(answer.sdp);
+                            answerer.setLocalDescription(answer).then(function() {
+                                offerer.setRemoteDescription(answer);
+                            });                        
+                        });
+                    });
                 }
             </script>
             <script>
@@ -455,9 +487,9 @@
                             result.connectionType.remote.candidateType = 'STUN';
                         }
 
-                        document.getElementById('peer' + peer.id + '-remoteIceType').innerHTML = result.connectionType.remote.candidateType;
-                        document.getElementById('peer' + peer.id + '-externalIPAddressRemote').innerHTML = result.connectionType.remote.ipAddress.join(', ');
-                        document.getElementById('peer' + peer.id + '-remoteTransport').innerHTML = result.connectionType.remote.transport.join(', ');
+                        document.getElementById('peer' + peer.idx + '-remoteIceType').innerHTML = result.connectionType.remote.candidateType;
+                        document.getElementById('peer' + peer.idx + '-externalIPAddressRemote').innerHTML = result.connectionType.remote.ipAddress.join(', ');
+                        document.getElementById('peer' + peer.idx + '-remoteTransport').innerHTML = result.connectionType.remote.transport.join(', ');
 
                         if(result.connectionType.local.candidateType.indexOf('relayed') !== -1) {
                             result.connectionType.local.candidateType = 'TURN';
@@ -465,28 +497,54 @@
                         else {
                             result.connectionType.local.candidateType = 'STUN';
                         }
-                        document.getElementById('peer' + peer.id + '-localIceType').innerHTML = result.connectionType.local.candidateType;
-                        document.getElementById('peer' + peer.id + '-externalIPAddressLocal').innerHTML = result.connectionType.local.ipAddress.join(', ');
-                        document.getElementById('peer' + peer.id + '-localTransport').innerHTML = result.connectionType.local.transport.join(', ');
+                        document.getElementById('peer' + peer.idx + '-localIceType').innerHTML = result.connectionType.local.candidateType;
+                        document.getElementById('peer' + peer.idx + '-externalIPAddressLocal').innerHTML = result.connectionType.local.ipAddress.join(', ');
+                        document.getElementById('peer' + peer.idx + '-localTransport').innerHTML = result.connectionType.local.transport.join(', ');
 
-                        document.getElementById('peer' + peer.id + '-encryptedAs').innerHTML = result.encryption;
+                        document.getElementById('peer' + peer.idx + '-encryptedAs').innerHTML = result.encryption;
 
-                        document.getElementById('peer' + peer.id + '-videoResolutionsForSenders').innerHTML = result.resolutions.send.width + 'x' + result.resolutions.send.height;
-                        document.getElementById('peer' + peer.id + '-videoResolutionsForReceivers').innerHTML = result.resolutions.recv.width + 'x' + result.resolutions.recv.height;
+                        document.getElementById('peer' + peer.idx + '-videoResolutionsForSenders').innerHTML = result.resolutions.send.width + 'x' + result.resolutions.send.height;
+                        document.getElementById('peer' + peer.idx + '-videoResolutionsForReceivers').innerHTML = result.resolutions.recv.width + 'x' + result.resolutions.recv.height;
 
-                        document.getElementById('peer' + peer.id + '-totalDataForSenders').innerHTML = bytesToSize(result.audio.bytesSent + result.video.bytesSent);
-                        document.getElementById('peer' + peer.id + '-totalDataForReceivers').innerHTML = bytesToSize(result.audio.bytesReceived + result.video.bytesReceived);
+                        document.getElementById('peer' + peer.idx + '-totalDataForSenders').innerHTML = bytesToSize(result.audio.bytesSent + result.video.bytesSent);
+                        document.getElementById('peer' + peer.idx + '-totalDataForReceivers').innerHTML = bytesToSize(result.audio.bytesReceived + result.video.bytesReceived);
 
-                        document.getElementById('peer' + peer.id + '-codecsSend').innerHTML = result.audio.send.codecs.concat(result.video.send.codecs).join(', ');
-                        document.getElementById('peer' + peer.id + '-codecsRecv').innerHTML = result.audio.recv.codecs.concat(result.video.recv.codecs).join(', ');
+                        document.getElementById('peer' + peer.idx + '-codecsSend').innerHTML = result.audio.send.codecs.concat(result.video.send.codecs).join(', ');
+                        document.getElementById('peer' + peer.idx + '-codecsRecv').innerHTML = result.audio.recv.codecs.concat(result.video.recv.codecs).join(', ');
 
-                        document.getElementById('peer' + peer.id + '-bandwidthSpeed').innerHTML = bytesToSize(result.bandwidth.speed);
+                        document.getElementById('peer' + peer.idx + '-bandwidthSpeed').innerHTML = bytesToSize(result.bandwidth.speed);
+
+                        document.getElementById('peer' + peer.idx + '-framerateMean').innerHTML = bytesToSize(result.video.send.framerateMean);
+                        document.getElementById('peer' + peer.idx + '-bitrateMean').innerHTML = bytesToSize(result.video.send.bitrateMean);
 
                         if (result.ended === true) {
                             result.nomore();
                         }
 
                         window.getStatsResult = result;
+                }
+
+                if (typeof window.InstallTrigger !== 'undefined') {
+                    var all = document.querySelectorAll('.firefox-allowed');
+                    for(var i = 0; i < all.length; i++) {
+                        all[i].style.display = 'table-row';
+                    }
+
+                    var all = document.querySelectorAll('.firefox-not-allowed');
+                    for(var i = 0; i < all.length; i++) {
+                        all[i].style.display = 'none';
+                    }
+                }
+                else {
+                    var all = document.querySelectorAll('.chrome-allowed');
+                    for(var i = 0; i < all.length; i++) {
+                        all[i].style.display = 'table-row';
+                    }
+
+                    var all = document.querySelectorAll('.chrome-not-allowed');
+                    for(var i = 0; i < all.length; i++) {
+                        all[i].style.display = 'none';
+                    }
                 }
 
                 function bytesToSize(bytes) {

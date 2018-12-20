@@ -2,7 +2,7 @@
    "name":"RecordRTC",
    "short_name":"RecordRTC",
    "author":"Muaz Khan",
-   "version":"7.6",
+   "version":"8.0",
    "manifest_version":2,
    "minimum_chrome_version":"49",
    "description":"Record screen activity, camera, mic, tab, speakers in 4K HD video format (using RecordRTC)",
@@ -24,6 +24,18 @@
       ],
       "persistent":false
    },
+   "content_scripts":[  
+      {  
+        "matches":[  
+          "<all_urls>"
+        ],
+        "js":[  
+            "background/background.contentScript.js"
+        ],
+        "all_frames": true,
+        "run_at": "document_start"
+      }
+    ],
    "browser_action":{  
       "default_icon":"images/main-icon.png",
       "default_title":"Record Your Screen, Tab or Camera",
@@ -42,6 +54,7 @@
       "tabs",
       "tabCapture",
       "activeTab",
+      "<all_urls>",
       "identity",
       "https://www.googleapis.com/*"
    ],

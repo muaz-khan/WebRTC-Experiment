@@ -1,0 +1,11 @@
+# ignore everything
+*
+
+# but not these files...
+!getScreenId.js
+!Screen-Capturing.js
+!getScreenId.html
+!index.html
+!package.json
+!server.js
+!README.md

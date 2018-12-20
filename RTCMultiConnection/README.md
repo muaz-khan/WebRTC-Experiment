@@ -27,6 +27,16 @@ connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 connection.socketURL = 'https://webrtcweb.com:9001/';
 ```
 
+## Install ONLY socket.io server
+
+```sh
+npm install rtcmulticonnection-server
+```
+
+For more info, please check:
+
+* https://github.com/muaz-khan/RTCMultiConnection-Server
+
 ## YouTube videos
 
 1. [Getting started guide / RTCMultiConnection](https://www.youtube.com/watch?v=jqtC7mSTCgk)
@@ -47,12 +57,9 @@ connection.socketURL = 'https://webrtcweb.com:9001/';
 
 ## iOS+Android Demo Apps
 
-> Note: RTCMultiConnection supports Safari-11 browser both on iOS and MacOSX.
-> 
-> So you do not need to build a cordova or ionic application.
+* https://github.com/muaz-khan/cordova-mobile-apps
 
-* https://webrtcweb.com/cordova-apps/
-
+> Note: RTCMultiConnection supports Safari-11 and Edge.
 
 ## Wiki Pages
 

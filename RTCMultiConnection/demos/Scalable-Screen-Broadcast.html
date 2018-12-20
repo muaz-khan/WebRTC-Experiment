@@ -1,4 +1,4 @@
-<!-- Demo version: 2018.09.30 -->
+<!-- Demo version: 2018.10.25 -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -121,10 +121,11 @@
         </blockquote>
 
         <script src="/dist/RTCMultiConnection.min.js"></script>
+        <script src="/node_modules/webrtc-adapter/out/adapter.js"></script>
         <script src="/socket.io/socket.io.js"></script>
 
         <!-- capture screen from any HTTPs domain! -->
-        <script src="https://cdn.webrtc-experiment.com:443/getScreenId.js"></script>
+        <script src="/node_modules/webrtc-screen-capturing/getScreenId.js"></script>
 
         <!-- <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script> -->
         <script>
@@ -253,42 +254,43 @@
                         OfferToReceiveVideo: false
                     };
 
-                    var socket = connection.getSocket();
-                    socket.emit('can-relay-broadcast');
+                    connection.getSocket(function(socket) {
+                        socket.emit('can-relay-broadcast');
 
-                    if(connection.DetectRTC.browser.name === 'Chrome') {
-                        connection.getAllParticipants().forEach(function(p) {
-                            if(p + '' != event.userid + '') {
-                                var peer = connection.peers[p].peer;
-                                peer.getLocalStreams().forEach(function(localStream) {
-                                    peer.removeStream(localStream);
-                                });
-                                peer.addStream(event.stream);
-                                connection.dontAttachStream = true;
-                                connection.renegotiate(p);
-                                connection.dontAttachStream = false;
-                            }
-                        });
-                    }
+                        if(connection.DetectRTC.browser.name === 'Chrome') {
+                            connection.getAllParticipants().forEach(function(p) {
+                                if(p + '' != event.userid + '') {
+                                    var peer = connection.peers[p].peer;
+                                    peer.getLocalStreams().forEach(function(localStream) {
+                                        peer.removeStream(localStream);
+                                    });
+                                    peer.addStream(event.stream);
+                                    connection.dontAttachStream = true;
+                                    connection.renegotiate(p);
+                                    connection.dontAttachStream = false;
+                                }
+                            });
+                        }
 
-                    if(connection.DetectRTC.browser.name === 'Firefox') {
-                        // Firefox is NOT supporting removeStream method
-                        // that's why using alternative hack.
-                        // NOTE: Firefox seems unable to replace-tracks of the remote-media-stream
-                        // need to ask all deeper nodes to rejoin
-                        connection.getAllParticipants().forEach(function(p) {
-                            if(p + '' != event.userid + '') {
-                                connection.replaceTrack(event.stream, p);
-                            }
-                        });
-                    }
+                        if(connection.DetectRTC.browser.name === 'Firefox') {
+                            // Firefox is NOT supporting removeStream method
+                            // that's why using alternative hack.
+                            // NOTE: Firefox seems unable to replace-tracks of the remote-media-stream
+                            // need to ask all deeper nodes to rejoin
+                            connection.getAllParticipants().forEach(function(p) {
+                                if(p + '' != event.userid + '') {
+                                    connection.replaceTrack(event.stream, p);
+                                }
+                            });
+                        }
 
-                    // Firefox seems UN_ABLE to record remote MediaStream
-                    // WebAudio solution merely records audio
-                    // so recording is skipped for Firefox.
-                    if(connection.DetectRTC.browser.name === 'Chrome') {
-                        repeatedlyRecordStream(event.stream);
-                    }
+                        // Firefox seems UN_ABLE to record remote MediaStream
+                        // WebAudio solution merely records audio
+                        // so recording is skipped for Firefox.
+                        if(connection.DetectRTC.browser.name === 'Chrome') {
+                            repeatedlyRecordStream(event.stream);
+                        }
+                    });
                 }
             };
 
@@ -312,20 +314,20 @@
                     oneway: true
                 };
 
-                var socket = connection.getSocket();
+                connection.getSocket(function(socket) {
+                    socket.emit('check-broadcast-presence', broadcastId, function(isBroadcastExists) {
+                        if(!isBroadcastExists) {
+                            // the first person (i.e. real-broadcaster) MUST set his user-id
+                            connection.userid = broadcastId;
+                        }
 
-                socket.emit('check-broadcast-presence', broadcastId, function(isBroadcastExists) {
-                    if(!isBroadcastExists) {
-                        // the first person (i.e. real-broadcaster) MUST set his user-id
-                        connection.userid = broadcastId;
-                    }
+                        console.log('check-broadcast-presence', broadcastId, isBroadcastExists);
 
-                    console.log('check-broadcast-presence', broadcastId, isBroadcastExists);
-
-                    socket.emit('join-broadcast', {
-                        broadcastId: broadcastId,
-                        userid: connection.userid,
-                        typeOfStreams: connection.session
+                        socket.emit('join-broadcast', {
+                            broadcastId: broadcastId,
+                            userid: connection.userid,
+                            typeOfStreams: connection.session
+                        });
                     });
                 });
             };
@@ -335,33 +337,34 @@
             connection.onleave = function(event) {
                 if(event.userid !== videoPreview.userid) return;
 
-                var socket = connection.getSocket();
-                socket.emit('can-not-relay-broadcast');
+                connection.getSocket(function(socket) {
+                    socket.emit('can-not-relay-broadcast');
 
-                connection.isUpperUserLeft = true;
+                    connection.isUpperUserLeft = true;
 
-                if(allRecordedBlobs.length) {
-                    // playing lats recorded blob
-                    var lastBlob = allRecordedBlobs[allRecordedBlobs.length - 1];
-                    videoPreview.src = URL.createObjectURL(lastBlob);
-                    videoPreview.play();
-                    allRecordedBlobs = [];
-                }
-                else if(connection.currentRecorder) {
-                    var recorder = connection.currentRecorder;
-                    connection.currentRecorder = null;
-                    recorder.stopRecording(function() {
-                        if(!connection.isUpperUserLeft) return;
-
-                        videoPreview.src = URL.createObjectURL(recorder.blob);
+                    if(allRecordedBlobs.length) {
+                        // playing lats recorded blob
+                        var lastBlob = allRecordedBlobs[allRecordedBlobs.length - 1];
+                        videoPreview.src = URL.createObjectURL(lastBlob);
                         videoPreview.play();
-                    });
-                }
+                        allRecordedBlobs = [];
+                    }
+                    else if(connection.currentRecorder) {
+                        var recorder = connection.currentRecorder;
+                        connection.currentRecorder = null;
+                        recorder.stopRecording(function() {
+                            if(!connection.isUpperUserLeft) return;
 
-                if(connection.currentRecorder) {
-                    connection.currentRecorder.stopRecording();
-                    connection.currentRecorder = null;
-                }
+                            videoPreview.src = URL.createObjectURL(recorder.blob);
+                            videoPreview.play();
+                        });
+                    }
+
+                    if(connection.currentRecorder) {
+                        connection.currentRecorder.stopRecording();
+                        connection.currentRecorder = null;
+                    }
+                });
             };
 
             var allRecordedBlobs = [];

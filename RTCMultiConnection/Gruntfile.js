@@ -36,12 +36,13 @@ module.exports = function(grunt) {
             dist: {
                 src: [
                     'dev/head.js',
+                    'dev/amd.js',
 
                     'dev/SocketConnection.js', // You can replace it with: FirebaseConnection.js || PubNubConnection.js
                     'dev/MultiPeersHandler.js',
 
                     // 'dev/adapter.js', ---- optional
-                    'dev/DetectRTC.js',
+                    'node_modules/detectrtc/DetectRTC.js', // npm install detectrtc
                     'dev/globals.js',
 
                     'dev/ios-hacks.js', // to support ios
@@ -54,7 +55,7 @@ module.exports = function(grunt) {
                     'dev/getUserMedia.js',
                     'dev/StreamsHandler.js',
 
-                    'dev/Screen-Capturing.js',
+                    'node_modules/webrtc-screen-capturing/Screen-Capturing.js', // npm install webrtc-screen-capturing
 
                     'dev/TextSenderReceiver.js',
                     'dev/FileProgressBarHandler.js',
@@ -108,7 +109,7 @@ module.exports = function(grunt) {
             },
         },
         jsbeautifier: {
-            files: ['RTCMultiConnection.js', 'dev/*.js', 'Gruntfile.js', 'node_scripts/*.js'],
+            files: ['RTCMultiConnection.js', 'dev/*.js', 'Gruntfile.js', 'node_scripts/*.js', 'admin/js/admin-ui.js'],
             options: {
                 js: {
                     braceStyle: "collapse",

@@ -1,16 +1,18 @@
-var VIDEO_codecs = ['vp9', 'vp8', 'h264'];
-
 getStatsParser.checkVideoTracks = function(result) {
-    if (!result.googCodecName || result.mediaType !== 'video') return;
+    if (result.mediaType !== 'video') return;
 
-    if (VIDEO_codecs.indexOf(result.googCodecName.toLowerCase()) === -1) return;
-
-    // googCurrentDelayMs, googRenderDelayMs, googTargetDelayMs
-    // transportId === 'Channel-audio-1'
     var sendrecvType = result.id.split('_').pop();
+    if (result.isRemote === true) {
+        sendrecvType = 'recv';
+    }
+    if (result.isRemote === false) {
+        sendrecvType = 'send';
+    }
 
-    if (getStatsResult.video[sendrecvType].codecs.indexOf(result.googCodecName) === -1) {
-        getStatsResult.video[sendrecvType].codecs.push(result.googCodecName);
+    if (!sendrecvType) return;
+
+    if (getStatsResult.video[sendrecvType].codecs.indexOf(result.googCodecName || 'VP8') === -1) {
+        getStatsResult.video[sendrecvType].codecs.push(result.googCodecName || 'VP8');
     }
 
     if (!!result.bytesSent) {
@@ -23,6 +25,9 @@ getStatsParser.checkVideoTracks = function(result) {
         getStatsResult.internal.video[sendrecvType].prevBytesSent = result.bytesSent;
 
         kilobytes = bytes / 1024;
+
+        getStatsResult.video[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        getStatsResult.video.bytesSent = kilobytes.toFixed(1);
     }
 
     if (!!result.bytesReceived) {
@@ -35,9 +40,9 @@ getStatsParser.checkVideoTracks = function(result) {
         getStatsResult.internal.video[sendrecvType].prevBytesReceived = result.bytesReceived;
 
         kilobytes = bytes / 1024;
+        // getStatsResult.video[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        getStatsResult.video.bytesReceived = kilobytes.toFixed(1);
     }
-
-    getStatsResult.video[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
 
     if (result.googFrameHeightReceived && result.googFrameWidthReceived) {
         getStatsResult.resolutions[sendrecvType].width = result.googFrameWidthReceived;
@@ -49,7 +54,35 @@ getStatsParser.checkVideoTracks = function(result) {
         getStatsResult.resolutions[sendrecvType].height = result.googFrameHeightSent;
     }
 
-    if (getStatsResult.video[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
+    if (result.googTrackId && getStatsResult.video[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
         getStatsResult.video[sendrecvType].tracks.push(result.googTrackId);
+    }
+
+    if (result.framerateMean) {
+        getStatsResult.bandwidth.framerateMean = result.framerateMean;
+        var kilobytes = 0;
+        if (!getStatsResult.internal.video[sendrecvType].prevFramerateMean) {
+            getStatsResult.internal.video[sendrecvType].prevFramerateMean = result.bitrateMean;
+        }
+
+        var bytes = result.bytesSent - getStatsResult.internal.video[sendrecvType].prevFramerateMean;
+        getStatsResult.internal.video[sendrecvType].prevFramerateMean = result.framerateMean;
+
+        kilobytes = bytes / 1024;
+        getStatsResult.video[sendrecvType].framerateMean = bytes.toFixed(1);
+    }
+
+    if (result.bitrateMean) {
+        getStatsResult.bandwidth.bitrateMean = result.bitrateMean;
+        var kilobytes = 0;
+        if (!getStatsResult.internal.video[sendrecvType].prevBitrateMean) {
+            getStatsResult.internal.video[sendrecvType].prevBitrateMean = result.bitrateMean;
+        }
+
+        var bytes = result.bytesSent - getStatsResult.internal.video[sendrecvType].prevBitrateMean;
+        getStatsResult.internal.video[sendrecvType].prevBitrateMean = result.bitrateMean;
+
+        kilobytes = bytes / 1024;
+        getStatsResult.video[sendrecvType].bitrateMean = bytes.toFixed(1);
     }
 };

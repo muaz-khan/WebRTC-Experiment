@@ -49,6 +49,9 @@ module.exports = function(grunt) {
                     'dev/local-candidate.js',
                     'dev/remote-candidate.js',
                     'dev/dataSentReceived.js',
+                    'dev/inbound-rtp.js',
+                    'dev/outbound-rtp.js',
+                    'dev/track.js',
                     'dev/ssrc.js',
                     'dev/tail.js'
                 ],
@@ -118,6 +121,15 @@ module.exports = function(grunt) {
                 pushTo: 'upstream',
                 gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
             }
+        },
+        watch: {
+            scripts: {
+                files: ['dev/*.js'],
+                tasks: ['concat', 'jsbeautifier', 'uglify'],
+                options: {
+                    spawn: false,
+                },
+            }
         }
     });
 
@@ -126,4 +138,5 @@ module.exports = function(grunt) {
     // set default tasks to run when grunt is called without parameters
     // http://gruntjs.com/api/grunt.task
     grunt.registerTask('default', ['concat', 'jsbeautifier', 'uglify']);
+    grunt.loadNpmTasks('grunt-contrib-watch');
 };

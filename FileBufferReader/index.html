@@ -1,11 +1,3 @@
-<script>window.demoVersion = '2017.09.25';</script>
-
-<!--
-> Muaz Khan     - wwww.MuazKhan.com
-> MIT License   - www.WebRTC-Experiment.com/licence
-> Documentation - https://github.com/muaz-khan/FileBufferReader
--->
-
 <!DOCTYPE html>
 <html id="home" lang="en">
 
@@ -28,300 +20,719 @@
     <meta name="author" content="Muaz Khan">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+    <script src="demo/IceServersHandler.js"></script>
+    <script src="demo/adapter-latest.js"></script>
+    <script src="demo/PeerConnection.js"> </script>
+    <script src="FileBufferReader.js"></script>
 
-    <style>
-        article p:first-of-type {
-          margin-top: inherit;
-        }
+<style type="text/css">
+* {
+  user-select: none;
+  user-drag: none;
+  -webkit-user-drag: none;
+}
 
-        li {
-            border-bottom: 1px solid rgb(189, 189, 189);
-            border-left: 1px solid rgb(189, 189, 189);
-            padding: .5em;
-        }
-        .image-container {
-            margin: 2em 0;
-            text-align: center;
-        }
-        .image-parent {
-            border: 2px solid black;
-            border-radius: 5px;
-            margin: 0 2em;
-        }
-        .image-parent img {
-            width: 100%;
-        }
+body, html {
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
 
-        blockquote {
-          margin: 10px;
-          border-radius: 10px;
-          background: rgb(253, 253, 253);
-          padding: 8px 20px;
-          font-size: 25px;
-          font-weight: 200;
-          line-height: 1.5;
-          word-spacing: 5px;
-        }
+article {
+  width: 340px;
+  margin: 0 auto;
+}
 
-        section blockquote {
-          color: #EC008C;
-        }
+.select-file {
+  border: 1px dotted black;
+  width: 320px;
+  height: 240px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url('icons/select-file.png');
+  display: inline-block;
+  cursor: pointer;
+  background-color: #f6f6f6;
+}
 
-        .specific-h2, h1 {
-          font-size: 35px;
-          font-weight: 200;
-          padding: 5px 10px;
-          border-bottom: 1px dotted #EC008C;
-        }
+.drag {
+  background-color: yellow!important;
+  border-color: red!important;
+  cursor: copy!important;
+}
 
-        button, .output-panel, .highlighted-name {
-          font-size: 25px;
-          font-weight: 200;
-          line-height: 1.5;
-          word-spacing: 5px;
-        }
+.select-file:hover {
+  background-color: #d9f3ff;
+}
 
-        .highlighted-name {
-          color: #EC008C;
-        }
+.connection-status {
+  background: yellow;
+  display: inline-block;
+  padding: 5px 10px;
+  border: 1px dotted black;
+  border-top: 0;
+  cursor: pointer;
+}
 
-        .output-panel {
-          overflow: hidden;
-          margin-left: 0;
-          padding-left: 0;
-          border-left: 0;
-        }
+.connection-status:hover {
+  background: #d9f3ff!important;
+  color: black!important;
+}
 
-        .specific-h2 a {
-          color: #EC008C;
-        }
+.connection-status.connecting {
+  background: #d0f4c1;
+  border-color: #d0f4c1;
+}
 
-        h1 {
-          font-size: 40px;
-          color: #EC008C;
-        }
+.connection-status.connected {
+  background: #8fff61;
+  border-color: #8fff61;
+}
 
-        .inline-iframe {
-          width: 100%;
-          border:0;
-          padding: 0;
-          outline: none;
-        }
+.file-info {
+  border: 1px dotted black;
+  width: 320px;
+  height: 240px;
+  display: inline-block;
+}
 
-        video {
-          width: 100%:
-        }
+.file-info .img-prevew {
+  max-width: 100%;
+}
 
-        video, img {
-          max-width: 100%;
-        }
+.file-name {
+  margin-top: 5px;
+}
 
-        .single-line-text {
-          white-space: nowrap;
-          display: block;
-          text-overflow: ellipsis;
-          width: 100%;
-          overflow: hidden;
-        }
+.time-remaining {
+    position: absolute;
+    top: 220px;
+    text-align: center;
+    width: 320px;
+}
 
-        button {
-          text-align: center;
-          display: inline-block;
-        }
+.progress-bar, .progress-bar-background {
+  position: absolute;
+  width: 320px;
+  height: 240px;
+}
 
-        pre {
-          border: 0;
-          margin-left: 0;
-          font-size: 14px;
-        }
+.progress-bar-background {
+  background: #ff000026;
+  width: 0;
+}
 
-        .button {
-          width: 200px;
-          margin-top: 30px;
-          margin-bottom: 30px;
-        }
+.percentage {
+  margin-top: 20%;
+  font-size: 300%;
+  color: red;
+}
 
-        .button a {
-          display: block;
-          height: 50px;
-          width: 200px;
-          
-          /*TYPE*/
-          color: white;
-          font: 17px/50px Helvetica, Verdana, sans-serif;
-          text-decoration: none;
-          text-align: center;
-          text-transform: uppercase;
-          
-          /*GRADIENT*/  
-          background: #00b7ea; /* Old browsers */
-          background: -moz-linear-gradient(top, #00b7ea 0%, #009ec3 100%); /* FF3.6+ */
-          background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#00b7ea), color-stop(100%,#009ec3)); /* Chrome,Safari4+ */
-          background: -webkit-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* Chrome10+,Safari5.1+ */
-          background: -o-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* Opera 11.10+ */
-          background: -ms-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* IE10+ */
-          background: linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* W3C */
-          filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00b7ea', endColorstr='#009ec3',GradientType=0 ); /* IE6-9 */
-        }
+.btn-pause, .btn-close {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-size: 24px;
+  background-position: center center;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  top: 200px;
+}
 
-        .button a, .button p {
-            -webkit-border-radius: 10px;
-             -moz-border-radius: 10px;
-                  border-radius: 10px;
-          
-          -webkit-box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
-             -moz-box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
-                  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
-        }
+.btn-pause {
+    margin-left: 5px;
+}
 
-        .button p {
-          background: #222;
-          display: block;
-          height: 40px;
-          width: 180px; 
-          margin: -50px 0 0 10px;
-          
-          /*TYPE*/
-          text-align: center;
-          font: 12px/45px Helvetica, Verdana, sans-serif;
-          color: #fff;
-          
-          /*POSITION*/
-          position: absolute;
-          z-index: -1;
-          
-          /*TRANSITION*/  
-          -webkit-transition: margin 0.5s ease;
-             -moz-transition: margin 0.5s ease;
-               -o-transition: margin 0.5s ease;
-              -ms-transition: margin 0.5s ease;
-                  transition: margin 0.5s ease;
-        }
+.btn-close {
+    margin-left: 283px;
+}
 
-        /*HOVER*/
-        .button:hover .bottom {
-          margin: -10px 0 0 10px;
-        }
+.btn-pause:hover, .btn-close:hover {
+  background-color: #d9f3ff;
+}
 
-        .button:hover .top {
-          margin: -80px 0 0 10px;
-          line-height: 35px;
-        }
+.btn-close {
+  background-image: url(icons/close-icon.png);
+}
 
-        /*ACTIVE*/
-        .button a:active {
-        background: #00b7ea; /* Old browsers */
-        background: -moz-linear-gradient(top,  #00b7ea 36%, #009ec3 100%); /* FF3.6+ */
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(36%,#00b7ea), color-stop(100%,#009ec3)); /* Chrome,Safari4+ */
-        background: -webkit-linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* Chrome10+,Safari5.1+ */
-        background: -o-linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* Opera 11.10+ */
-        background: -ms-linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* IE10+ */
-        background: linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* W3C */
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00b7ea', endColorstr='#009ec3',GradientType=0 ); /* IE6-9 */
-
-        }
-
-        .button:active .bottom {
-          margin: -20px 0 0 10px;
-        }
-
-        .button:active .top {
-          margin: -70px 0 0 10px;
-        }
-
-        .fit-screen {
-          position: fixed;
-          top: -20px;
-          left: -20px;
-          width: 100%;
-          height: 100%;
-          background: white;
-          z-index: 999999999999999;
-          padding: 0;
-        }
-
-        .fit-screen li {
-          border-left: 0;
-          padding: 0;
-          margin: 0;
-        }
-    </style>
-    <!-- for HTML5 el styling -->
-    <script>
-        document.createElement('article');
-        document.createElement('footer');
-    </script>
-
-    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
-    <script src="https://cdn.webrtc-experiment.com/FileBufferReader.js"></script>
-    <script src="https://cdn.webrtc-experiment.com/FileBufferReader/demo/PeerConnection.js"> </script>
-    <script src="https://cdn.webrtc-experiment.com/FileBufferReader/demo/PeerUI.js"></script>
-
-    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/FileBufferReader/demo/circular-progress-bar.css">
+.btn-pause {
+  background-image: url(icons/pause-icon.png);
+}
+</style>
 </head>
 
 <body>
-    <article>
-        <header style="text-align: center;">
-            <h1 style="border:0;">
-                WebRTC File Sharing | <a href="https://github.com/muaz-khan/FileBufferReader">FileBufferReader</a>
-            </h1>
+<article>
+<div class="connection-status">Connecting<img src="icons/loading.gif"></div>
+<h1><time datetime="2018-11-17T01:00">WebRTC File Sharing</time></h1>
+<div class="select-file"></div>
 
-            <p style="margin-top: 15px;">
-                <a href="https://github.com/muaz-khan/FileBufferReader">Github Source Codes</a> |
-                <a href="https://github.com/muaz-khan/FileBufferReader/commits/master">What's New?</a>
-            </p>
-        </header>
+<br><br>
+<div class="output-panel"></div>
 
-        <section style="margin: 20px; text-align: center; color: red;">
-            <small id="demoVersion"></small>
-            <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getUTCFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
-        </section>
+<br><br>
+<footer>
+    <p>Source code: <a href="https://github.com/muaz-khan/FileBufferReader">FileBufferReader.js</a></p>
+    <p>
+        <label>Chunk Size:</label>
+        <select id="chunkSize">
+            <option>60000</option>
+            <option>50000</option>
+            <option>40000</option>
+            <option>30000</option>
+            <option>20000</option>
+            <option>16000</option>
+            <option>8000</option>
+        </select> bytes
+    </p>
+</footer>
+</article>
 
-        <section id="main-container" class="experiment">
-          <div style="text-align: center;">
-            <a href="https://www.youtube.com/watch?v=gv8xpdGdS4o" target="_blank">Watch a YouTube video</a> to understand <b>how this demo works</b>.
-          </div>
+<script type="text/javascript">
+var connectionStatus = document.querySelector('.connection-status');
+var selectFile = document.querySelector('.select-file');
 
-          <div style="text-align:center;">
-            <br>
-            <button id="setup-offer" disabled="">
-                <span>Connecting</span> <span>Signaling Socket..</span>
-            </button>
+var SIGNALING_URI = 'wss://websocket-over-nodejs.herokuapp.com:443/';
+var SIGNALING_URI = 'wss://webrtcweb.com:9449/';
 
-            <br>
-            <span id="share-this-link"></span>
-            <br><br>
+var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
 
-            <button id="select-file" disabled style="font-size: 2em;">Single</button>
-            <button id="select-multiple" disabled style="font-size: 2em;">Multiple</button>
-            <button id="select-directory" disabled style="font-size: 2em;">Directory</button>
-          </div>
+connectionStatus.onclick = function() {
+  alert('Your unique room URL is:\n' + location.href);
+};
 
-          <ol class="output-panel"></ol>
+var websocket = new WebSocket(SIGNALING_URI);
+websocket.onopen = function() {
+    websocket.isOpened = true;
+    connectionStatus.innerHTML = 'Waiting for someone to join you<img src="icons/loading.gif">';
 
-          <blockquote id="info" style="display:none;"></blockquote>
-        </section>
+    websocket.push(JSON.stringify({
+        open: true,
+        channel: channel
+    }));
 
-        <section class="experiment" style="padding: 10px 20px;">
-          FileBufferReader is a JavaScript library reads file and returns chunkified array-buffers. The resulting buffers can be shared using WebRTC data channels or socket.io. It is <a href="https://github.com/muaz-khan/FileBufferReader">Open Sourced on Github</a>
-        </section>
+    setTimeout(function() {
+      if(peerConnection.isOpened) return;
+      peerConnection.startBroadcasting();
+    }, 3000);
+};
+websocket.push = websocket.send;
+websocket.send = function(data) {
+    if (websocket.readyState != 1) {
+        console.warn('websocket connection is not opened yet.');
+        return setTimeout(function() {
+            websocket.send(data);
+        }, 1000);
+    }
 
-        <section class="experiment">
-            <small id="send-message"></small>
-        </section>
-    </article>
+    websocket.push(JSON.stringify({
+        data: data,
+        channel: channel
+    }));
+};
 
-    <footer>
-        <p>
-            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> |
-            <a href="http://www.muazkhan.com/">Muaz Khan</a> |
-            <a href="https://twitter.com/WebRTCWeb">@WebRTCWeb</a> |
-            <a href="https://twitter.com/muazkh">@muazkh</a>
-        </p>
-    </footer>
-    <script src="https://cdn.webrtc-experiment.com/common.js"></script>
+var progressHelper = {};
+var outputPanel = document.querySelector('.output-panel');
+
+function previewFile(file) {
+    try {
+        file.url = URL.createObjectURL(fileSelector.lastSelectedFile || file);
+    } catch (e) {
+        return;
+    }
+
+    var fname = '';
+    if (file.extra && file.extra.webkitRelativePath) {
+        fname = file.extra.webkitRelativePath;
+    } else {
+        fname = file.name;
+    }
+
+    var html = '';
+
+    if (file.name.match(/\.jpg|\.png|\.jpeg|\.gif/gi)) {
+        html += '<a href="' + file.url + '" target="_blank" download="' + fname + '"><img class="img-prevew" crossOrigin="anonymous" src="' + file.url + '"></a>';
+    }
+    else {
+      html += '<p>Click to download:</p><p><a href="' + file.url + '" target="_blank" download="' + fname + '">' + fname + '</a></p>';
+    }
+
+    progressHelper[file.uuid].div.innerHTML = html;
+
+    fileSelector.lastSelectedFile = false;
+}
+
+var FileHelper = {
+    onBegin: function(file) {
+        var div = document.createElement('div');
+        div.className = 'file-info';
+        div.id = file.uuid;
+
+        var fName = '';
+        if (file.extra && file.extra.webkitRelativePath) {
+            fName = file.extra.webkitRelativePath;
+        } else {
+            fName = file.name;
+        }
+
+        var html = '';
+        html += '<div class="progress-bar-background" data-progress=0 style="width:0px;"></div>';
+        html += '<div class="progress-bar">';
+        html += '<div class="percentage">0%</div>';
+        html += '<div class="size-remaining">1KB out of ' + bytesToSize(file.size) + '</div>';
+        html += '<div class="time-remaining"><img src="icons/loading.gif"></div>';
+        html += '<div class="btn-close"></div>';
+        html += '<div class="btn-pause"></div>';
+        html += '</div>';
+        html += '<div class="file-name">' + fName + '</div>';
+        html += '<progress min=0 max=' + file.maxChunks + ' style="display:none;"></progress>';
+
+        div.innerHTML = html;
+
+        outputPanel.insertBefore(document.createElement('br'), outputPanel.firstChild);
+        outputPanel.insertBefore(document.createElement('br'), outputPanel.firstChild);
+        outputPanel.insertBefore(div, outputPanel.firstChild);
+
+        progressHelper[file.uuid] = {
+            div: div,
+            file: file
+        };
+
+        progressHelper.lastFileUUID = file.uuid;
+
+        div.querySelector('.btn-close').onclick = function() {
+            peerConnection.stopCallback = function() {
+                div.parentNode.removeChild(div);
+                peerConnection.send('stopped:::' + file.uuid);
+            };
+        };
+
+        var paused = false;
+        div.querySelector('.btn-pause').onclick = function() {
+            var btn = div.querySelector('.btn-pause');
+            if (paused) {
+                paused = false;
+                isPausedTimer = false;
+                btn.style.backgroundImage = 'url(https://cdn.webrtc-experiment.com/FileBufferReader/icons/pause-icon.png)';
+                if (peerConnection.resumeCallback) {
+                    peerConnection.resumeCallback();
+                }
+                peerConnection.paused = false;
+
+                peerConnection.send('resumed:::' + file.uuid);
+                return;
+            }
+
+            paused = true;
+            isPausedTimer = true;
+            btn.style.backgroundImage = 'url(https://cdn.webrtc-experiment.com/FileBufferReader/icons/resume-icon.png)';
+            peerConnection.resumeCallback = null;
+            peerConnection.paused = true;
+
+            peerConnection.send('paused:::' + file.uuid);
+        };
+
+        calculateTimeRemaining(div.querySelector('progress'), div.querySelector('.time-remaining'));
+    },
+    onEnd: function(file) {
+        previewFile(file);
+
+        progressHelper.lastFileUUID = null;
+
+        if (filesRemaining.files) {
+            filesRemaining.idx++;
+            sendEntireDirectory();
+        }
+    },
+    onProgress: function(chunk) {
+        var helper = progressHelper[chunk.uuid];
+        if (!helper) return;
+        var div = helper.div;
+        var file = helper.file;
+
+
+        var progress = div.querySelector('progress');
+        var percentComplete = div.querySelector('.percent-complete');
+        var sizeRemaining = div.querySelector('.size-remaining');
+        var progressBarBackground = div.querySelector('.progress-bar-background');
+        var percentage = div.querySelector('.percentage');
+
+        if (!progress) return;
+
+        progress.value = chunk.currentPosition || chunk.maxChunks || progress.max;
+        if (progress.position <= 0) return;
+
+        var position = +progress.position.toFixed(2).split('.')[1] || 100;
+        percentage.innerHTML = position + '%';
+
+        var width = parseInt((position / 100) * div.offsetWidth);
+
+        progressBarBackground.style.width = width + 'px';
+        progressBarBackground.setAttribute('data-progress', position);
+
+        // var remainingFileSize = (chunk.size / chunk.maxChunks) * (chunk.maxChunks - chunk.currentPosition);
+        var sentFileSize = ((chunk.size / chunk.maxChunks) * chunk.currentPosition);
+        sizeRemaining.innerHTML = bytesToSize(sentFileSize) + ' out of ' + bytesToSize(chunk.size);
+    }
+};
+
+var progressIterations = 0;
+var ONE_SECOND = 1000;
+var isPausedTimer = false;
+
+function calculateTimeRemaining(progress, timeRemaining) {
+    if(!timeRemaining || !timeRemaining.parentNode) return;
+    if(!progress || !progress.parentNode) return
+
+    var step = 1;
+    var remainingProgress = 1.0 - progress.position;
+
+    var estimatedCompletionTime = Math.round((remainingProgress / progress.position) * progressIterations);
+    var estimatedHours, estimatedMinutes, estimatedSeconds, displayHours, displayMinutes, displaySeconds;
+    progressIterations += step;
+
+    if (progress.position < 1.0) {
+        if (isFinite(estimatedCompletionTime)) {
+            estimatedHours = Math.floor(estimatedCompletionTime / 3600);
+            displayHours = estimatedHours > 9 ? estimatedHours : '0' + estimatedHours;
+            estimatedMinutes = Math.floor((estimatedCompletionTime / 60) % 60);
+            displayMinutes = estimatedMinutes > 9 ? estimatedMinutes : '0' + estimatedMinutes;
+            estimatedSeconds = estimatedCompletionTime % 60;
+            displaySeconds = estimatedSeconds > 9 ? estimatedSeconds : '0' + estimatedSeconds;
+        }
+
+        var output = '';
+        if (displayHours > 0) {
+            output += displayHours + ' hours ';
+        }
+        if (displayMinutes > 0) {
+            output += displayMinutes + ' minutes ';
+        }
+        if (displaySeconds > 0) {
+            output += displaySeconds + ' seconds ';
+        }
+
+        if (output.length && !isPausedTimer) {
+            timeRemaining.innerHTML = output + ' remaining';
+        }
+    }
+
+    setTimeout(function() {
+        calculateTimeRemaining(progress, timeRemaining);
+    }, ONE_SECOND);
+}
+
+// RTCPeerConection
+// ----------------
+var peerConnection = new PeerConnection(websocket);
+
+peerConnection.onuserfound = function(userid) {
+    peerConnection.isOpened = true;
+    connectionStatus.innerHTML = 'Someone is joining you<img src="icons/loading.gif">';
+    connectionStatus.classList.remove('connected');
+    connectionStatus.classList.add('connecting');
+    peerConnection.sendParticipationRequest(userid);
+};
+
+peerConnection.onopen = function() {
+    peerConnection.isOpened = true;
+
+    connectionStatus.innerHTML = 'You are connected with someone.';
+    connectionStatus.classList.remove('connecting');
+    connectionStatus.classList.add('connected');
+
+    if(peerConnection.onWebRTCOpened) {
+      peerConnection.onWebRTCOpened();
+      peerConnection.onWebRTCOpened = null;
+    }
+};
+
+peerConnection.onclose = function() {
+    peerConnection.isOpened = false;
+    
+    connectionStatus.innerHTML = 'Waiting for someone to join you<img src="icons/loading.gif">';
+    connectionStatus.classList.remove('connected', 'connecting');
+
+    peerConnection.isOpened = false;
+
+    var helper = progressHelper[progressHelper.lastFileUUID];
+    if (helper && helper.div && helper.div.parentNode) {
+        helper.div.parentNode.removeChild(helper.div);
+    }
+};
+
+peerConnection.onerror = function() {
+    peerConnection.isOpened = false;
+    connectionStatus.innerHTML = 'Waiting for someone to join you<img src="icons/loading.gif">';
+    connectionStatus.classList.remove('connected', 'connecting');
+};
+
+// getNextChunkCallback gets next available buffer
+// you need to send that buffer using WebRTC data channels
+function getNextChunkCallback(nextChunk, isLastChunk) {
+    if (isLastChunk) {
+        // alert('File Successfully sent.');
+    }
+
+    // sending using WebRTC data channels
+    peerConnection.send(nextChunk);
+};
+
+peerConnection.ondata = function(chunk) {
+    if (typeof chunk === 'string' && chunk.indexOf('stopped:::') !== -1) {
+        var div = document.getElementById(chunk.split('stopped:::')[1]);
+        if (div && div.parentNode) {
+            div.parentNode.removeChild(div);
+        }
+
+        return;
+    }
+
+    if (typeof chunk === 'string' && chunk.indexOf('paused:::') !== -1) {
+        var div = document.getElementById(chunk.split('paused:::')[1]);
+        if (div && div.querySelector('.btn-pause')) {
+            div.querySelector('.btn-pause').style.backgroundImage = 'url(https://cdn.webrtc-experiment.com/FileBufferReader/icons/resume-icon.png)';
+        }
+        isPausedTimer = true;
+        return;
+    }
+
+    if (typeof chunk === 'string' && chunk.indexOf('resumed:::') !== -1) {
+        var div = document.getElementById(chunk.split('resumed:::')[1]);
+        if (div && div.querySelector('.btn-pause')) {
+            div.querySelector('.btn-pause').style.backgroundImage = 'url(https://cdn.webrtc-experiment.com/FileBufferReader/icons/pause-icon.png)';
+        }
+        isPausedTimer = false;
+        return;
+    }
+
+    if (chunk instanceof ArrayBuffer || chunk instanceof DataView) {
+        // array buffers are passed using WebRTC data channels
+        // need to convert data back into JavaScript objects
+
+        fileBufferReader.convertToObject(chunk, function(object) {
+            peerConnection.ondata(object);
+        });
+        return;
+    }
+
+    // if target user requested next chunk
+    if (chunk.readyForNextChunk) {
+        if (peerConnection.paused) {
+            peerConnection.resumeCallback = function() {
+                fileBufferReader.getNextChunk(chunk, getNextChunkCallback);
+            };
+            return;
+        }
+
+        if (peerConnection.stopCallback) {
+            peerConnection.stopCallback();
+            return;
+        }
+
+        fileBufferReader.getNextChunk(chunk /*aka metadata*/ , getNextChunkCallback);
+        return;
+    }
+
+    // if any of the chunks missed
+    if (chunk.chunkMissing) {
+        fileBufferReader.chunkMissing(chunk);
+        return;
+    }
+
+    // if chunk is received
+    fileBufferReader.addChunk(chunk, function(promptNextChunk) {
+        // request next chunk
+
+        if (peerConnection.paused) {
+            peerConnection.resumeCallback = function() {
+                peerConnection.send(promptNextChunk);
+            };
+            return;
+        }
+
+        if (peerConnection.stopCallback) {
+            peerConnection.stopCallback();
+            return;
+        }
+
+        peerConnection.send(promptNextChunk);
+    });
+};
+
+// -------------------------
+// using FileBufferReader.js
+
+var fileSelector = new FileSelector();
+
+// you can force specific files e.g.
+// image/png, image/*, image/jpeg, video/webm, audio/ogg etc.
+fileSelector.accept = '*.*';
+
+var fileBufferReader = new FileBufferReader();
+
+// fileBufferReader.chunkSize = 60000; // 60k
+
+fileBufferReader.onBegin = FileHelper.onBegin;
+fileBufferReader.onProgress = FileHelper.onProgress;
+fileBufferReader.onEnd = FileHelper.onEnd;
+
+function onFileSelected(file) {
+    fileSelector.lastSelectedFile = file;
+
+    fileBufferReader.readAsArrayBuffer(file, function(metadata) {
+        fileBufferReader.getNextChunk(metadata, getNextChunkCallback);
+    }, {
+        chunkSize: parseInt(document.getElementById('chunkSize').value),
+        webkitRelativePath: file.webkitRelativePath || file.name
+    });
+}
+
+function onNoFileSelected() {
+    peerConnection.onopen();
+}
+
+var filesRemaining = 'none';
+
+function sendEntireDirectory() {
+    if (filesRemaining === 'none') return;
+    if (!filesRemaining.files[filesRemaining.idx]) {
+        filesRemaining = 'none';
+        return;
+    }
+
+    onFileSelected(filesRemaining.files[filesRemaining.idx]);
+}
+
+// drag-drop support
+function onDragOver() {
+    selectFile.classList.add('drag');
+}
+
+function onDragLeave() {
+    selectFile.classList.remove('drag');
+}
+
+selectFile.addEventListener('dragenter', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!peerConnection || !peerConnection.isOpened) return;
+
+    e.dataTransfer.dropEffect = 'copy';
+    onDragOver();
+}, false);
+
+selectFile.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!peerConnection || !peerConnection.isOpened) return;
+
+    e.dataTransfer.dropEffect = 'copy';
+    onDragLeave();
+}, false);
+
+selectFile.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!peerConnection || !peerConnection.isOpened) return;
+
+    e.dataTransfer.dropEffect = 'copy';
+    onDragOver();
+}, false);
+
+selectFile.addEventListener('drop', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!peerConnection || !peerConnection.isOpened) return;
+
+    onDragLeave();
+
+    if (!e.dataTransfer.files || !e.dataTransfer.files.length) {
+        return;
+    }
+
+    var file = e.dataTransfer.files[0];
+
+    filesRemaining = {
+        files: e.dataTransfer.files,
+        idx: 0
+    };
+
+    if (!peerConnection || !peerConnection.isOpened) {
+        alert('Pleas setup WebRTC connection before sharing this file.');
+        return;
+    }
+
+    onFileSelected(file);
+}, false);
+
+// --------------------------------------------------------
+selectFile.onclick = function(event) {
+    if (event !== true) {
+        fileSelector.selectMultipleFiles(function(files) {
+            filesRemaining = {
+                files: files,
+                idx: 0
+            };
+
+            if (peerConnection.isOpened) {
+                sendEntireDirectory();
+            }
+            else {
+              peerConnection.onWebRTCOpened = function() {
+                sendEntireDirectory();
+              };
+
+              alert('Selected file will be shared as soon as someone joins you.');
+            }
+        }, onNoFileSelected);
+    }
+
+    if (peerConnection.isOpened) {
+        return;
+    }
+
+    connectionStatus.innerHTML = 'Waiting for someone to join you<img src="icons/loading.gif">';
+    connectionStatus.classList.remove('connected', 'connecting');
+
+    setTimeout(function() {
+        if (!peerConnection.isOpened) {
+            selectFile.onclick(true);
+        }
+    }, 5 * 1000);
+};
+
+function millsecondsToSeconds(millis) {
+    var seconds = ((millis % 60000) / 1000).toFixed(1);
+    return seconds;
+}
+
+function bytesToSize(bytes) {
+    var k = 1000;
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) {
+        return '0 Bytes';
+    }
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+    return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+}
+
+function getToken() {
+    if (window.crypto && window.crypto.getRandomValues && navigator.userAgent.indexOf('Safari') === -1) {
+        var a = window.crypto.getRandomValues(new Uint32Array(3)),
+            token = '';
+        for (var i = 0, l = a.length; i < l; i++) {
+            token += a[i].toString(36);
+        }
+        return token;
+    } else {
+        return (Math.random() * new Date().getTime()).toString(36).replace(/\./g, '');
+    }
+}
+</script>
 </body>
-
 </html>

@@ -13,13 +13,17 @@ var getStatsResult = {
             tracks: [],
             codecs: [],
             availableBandwidth: 0,
-            streams: 0
+            streams: 0,
+            framerateMean: 0,
+            bitrateMean: 0
         },
         recv: {
             tracks: [],
             codecs: [],
             availableBandwidth: 0,
-            streams: 0
+            streams: 0,
+            framerateMean: 0,
+            bitrateMean: 0
         },
         bytesSent: 0,
         bytesReceived: 0
@@ -29,13 +33,17 @@ var getStatsResult = {
             tracks: [],
             codecs: [],
             availableBandwidth: 0,
-            streams: 0
+            streams: 0,
+            framerateMean: 0,
+            bitrateMean: 0
         },
         recv: {
             tracks: [],
             codecs: [],
             availableBandwidth: 0,
-            streams: 0
+            streams: 0,
+            framerateMean: 0,
+            bitrateMean: 0
         },
         bytesSent: 0,
         bytesReceived: 0
@@ -100,3 +108,5 @@ var getStatsParser = {
         }
     }
 };
+
+var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);

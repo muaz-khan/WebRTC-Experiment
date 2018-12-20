@@ -1,7 +1,7 @@
 {
   "name": "rtcmulticonnection",
   "preferGlobal": false,
-  "version": "3.4.8",
+  "version": "3.5.9",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -43,9 +43,16 @@
     "muaz-khan"
   ],
   "dependencies": {
+    "rtcmulticonnection-server": "latest",
+    "detectrtc": "latest",
+    "recordrtc": "latest",
+    "getstats": "latest",
+    "fbr": "latest",
+    "webrtc-screen-capturing": "latest",
     "socket.io": "latest",
-    "basic-auth": "latest",
-    "tsscmp": "latest"
+    "webrtc-adapter": "latest",
+    "canvas-designer": "latest",
+    "multistreamsmixer": "latest"
   },
   "analyze": false,
   "license": "MIT",
@@ -54,7 +61,8 @@
     "url": "https://github.com/muaz-khan/RTCMultiConnection/issues",
     "email": "muazkh@gmail.com"
   },
-  "homepage": "https://rtcmulticonnection.herokuapp.com/",
+  "homepage": "https://rtcmulticonnection.herokuapp.com/demos/",
+  "tonicExampleFilename": "npm-test.js",
   "_from": "rtcmulticonnection@",
   "devDependencies": {
     "grunt": "0.4.5",

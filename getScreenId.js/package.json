@@ -1,0 +1,43 @@
+{
+    "name": "webrtc-screen-capturing",
+    "preferGlobal": false,
+    "version": "1.0.1",
+    "author": {
+        "name": "Muaz Khan",
+        "email": "muazkh@gmail.com",
+        "url": "https://muazkhan.com/"
+    },
+    "description": "Capture Screen on Any Domain! This script is a hack used to support single chrome extension usage on any HTTPs domain.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/muaz-khan/getScreenId.git"
+    },
+    "scripts": {
+        "start": "node server.js",
+        "test": "./node_modules/.bin/protractor test/browserstack.config.js"
+    },
+    "main": "getScreenId.js",
+    "keywords": [
+        "webrtc",
+        "getscreenid",
+        "get-screen-id",
+        "webrtc-library",
+        "library",
+        "javascript",
+        "rtcweb",
+        "webrtc-experiment",
+        "javascript-library",
+        "muaz",
+        "muaz-khan"
+    ],
+    "analyze": false,
+    "license": "MIT",
+    "readmeFilename": "README.md",
+    "bugs": {
+        "url": "https://github.com/muaz-khan/getScreenId/issues",
+        "email": "muazkh@gmail.com"
+    },
+    "homepage": "https://www.webrtc-experiment.com/getScreenId/",
+    "_id": "webrtc-screen-capturing@",
+    "_from": "webrtc-screen-capturing@"
+}

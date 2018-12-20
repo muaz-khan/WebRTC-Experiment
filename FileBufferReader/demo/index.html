@@ -1,0 +1,388 @@
+<script>window.demoVersion = '2018.03.19';</script>
+
+<!--
+> Muaz Khan     - wwww.MuazKhan.com
+> MIT License   - www.WebRTC-Experiment.com/licence
+> Documentation - https://github.com/muaz-khan/FileBufferReader
+-->
+
+<!DOCTYPE html>
+<html id="home" lang="en">
+
+<head>
+    <title>WebRTC File Sharing | FileBufferReader</title>
+    <meta name="description" content="Peer-to-Peer file sharing using FileBufferReader.js and WebRTC!" />
+    <meta name="keywords" content="FileSharing,File,Sharing,Peer-to-Peer,Peer2Peer,P2P,JavaScript,WebRTC,Demos,Experiments,Samples,Examples" />
+
+    <script>
+        if(!location.hash.replace('#', '').length) {
+            location.href = location.href.split('#')[0] + '#' + (Math.random() * 100).toString().replace('.', '');
+            location.reload();
+        }
+    </script>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+
+    <style>
+        article p:first-of-type {
+          margin-top: inherit;
+        }
+
+        li {
+            border-bottom: 1px solid rgb(189, 189, 189);
+            border-left: 1px solid rgb(189, 189, 189);
+            padding: .5em;
+        }
+        .image-container {
+            margin: 2em 0;
+            text-align: center;
+        }
+        .image-parent {
+            border: 2px solid black;
+            border-radius: 5px;
+            margin: 0 2em;
+        }
+        .image-parent img {
+            width: 100%;
+        }
+
+        blockquote {
+          margin: 10px;
+          border-radius: 10px;
+          background: rgb(253, 253, 253);
+          padding: 8px 20px;
+          font-size: 25px;
+          font-weight: 200;
+          line-height: 1.5;
+          word-spacing: 5px;
+        }
+
+        section blockquote {
+          color: #EC008C;
+        }
+
+        .specific-h2, h1 {
+          font-size: 35px;
+          font-weight: 200;
+          padding: 5px 10px;
+          border-bottom: 1px dotted #EC008C;
+        }
+
+        button, .output-panel, .highlighted-name {
+          font-size: 25px;
+          font-weight: 200;
+          line-height: 1.5;
+          word-spacing: 5px;
+        }
+
+        .highlighted-name {
+          color: #EC008C;
+        }
+
+        .output-panel {
+          overflow: hidden;
+          margin-left: 0;
+          padding-left: 0;
+          border-left: 0;
+        }
+
+        .specific-h2 a {
+          color: #EC008C;
+        }
+
+        h1 {
+          font-size: 40px;
+          color: #EC008C;
+        }
+
+        .inline-iframe {
+          width: 100%;
+          border:0;
+          padding: 0;
+          outline: none;
+        }
+
+        video {
+          width: 100%:
+        }
+
+        video, img {
+          max-width: 100%;
+        }
+
+        .single-line-text {
+          white-space: nowrap;
+          display: block;
+          text-overflow: ellipsis;
+          width: 100%;
+          overflow: hidden;
+        }
+
+        button {
+          text-align: center;
+          display: inline-block;
+        }
+
+        pre {
+          border: 0;
+          margin-left: 0;
+          font-size: 14px;
+        }
+
+        .button {
+          width: 200px;
+          margin-top: 30px;
+          margin-bottom: 30px;
+        }
+
+        .button a {
+          display: block;
+          height: 50px;
+          width: 200px;
+          
+          /*TYPE*/
+          color: white;
+          font: 17px/50px Helvetica, Verdana, sans-serif;
+          text-decoration: none;
+          text-align: center;
+          text-transform: uppercase;
+          
+          /*GRADIENT*/  
+          background: #00b7ea; /* Old browsers */
+          background: -moz-linear-gradient(top, #00b7ea 0%, #009ec3 100%); /* FF3.6+ */
+          background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#00b7ea), color-stop(100%,#009ec3)); /* Chrome,Safari4+ */
+          background: -webkit-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* Chrome10+,Safari5.1+ */
+          background: -o-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* Opera 11.10+ */
+          background: -ms-linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* IE10+ */
+          background: linear-gradient(top, #00b7ea 0%,#009ec3 100%); /* W3C */
+          filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00b7ea', endColorstr='#009ec3',GradientType=0 ); /* IE6-9 */
+        }
+
+        .button a, .button p {
+            -webkit-border-radius: 10px;
+             -moz-border-radius: 10px;
+                  border-radius: 10px;
+          
+          -webkit-box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+             -moz-box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+                  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .button p {
+          background: #222;
+          display: block;
+          height: 40px;
+          width: 180px; 
+          margin: -50px 0 0 10px;
+          
+          /*TYPE*/
+          text-align: center;
+          font: 12px/45px Helvetica, Verdana, sans-serif;
+          color: #fff;
+          
+          /*POSITION*/
+          position: absolute;
+          z-index: -1;
+          
+          /*TRANSITION*/  
+          -webkit-transition: margin 0.5s ease;
+             -moz-transition: margin 0.5s ease;
+               -o-transition: margin 0.5s ease;
+              -ms-transition: margin 0.5s ease;
+                  transition: margin 0.5s ease;
+        }
+
+        /*HOVER*/
+        .button:hover .bottom {
+          margin: -10px 0 0 10px;
+        }
+
+        .button:hover .top {
+          margin: -80px 0 0 10px;
+          line-height: 35px;
+        }
+
+        /*ACTIVE*/
+        .button a:active {
+        background: #00b7ea; /* Old browsers */
+        background: -moz-linear-gradient(top,  #00b7ea 36%, #009ec3 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(36%,#00b7ea), color-stop(100%,#009ec3)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* IE10+ */
+        background: linear-gradient(top,  #00b7ea 36%,#009ec3 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00b7ea', endColorstr='#009ec3',GradientType=0 ); /* IE6-9 */
+
+        }
+
+        .button:active .bottom {
+          margin: -20px 0 0 10px;
+        }
+
+        .button:active .top {
+          margin: -70px 0 0 10px;
+        }
+
+        .fit-screen {
+          position: fixed;
+          top: -20px;
+          left: -20px;
+          width: 100%;
+          height: 100%;
+          background: white;
+          z-index: 999999999999999;
+          padding: 0;
+        }
+
+        .fit-screen li {
+          border-left: 0;
+          padding: 0;
+          margin: 0;
+        }
+    </style>
+
+    <style>
+        .output-panel {
+            text-align: center;
+        }
+
+        .file-container {
+          width: 90%;
+          border: 5px solid gray;
+          padding: 5px 10px;
+          margin: 5px 15px;
+          text-align: left;
+          display: inline-block;
+        }
+
+        .file-container, .file-container * {
+            font-weight: normal;
+        }
+
+        .percent-complete {
+          font-size: 22px;
+        }
+
+        .btn-pause, .btn-close {
+          float: right;
+          background-repeat: no-repeat;
+          background-size: 24px;
+          background-position: center center;
+          width: 32px;
+          height: 32px;
+          cursor: pointer;
+        }
+
+        .btn-pause:hover, .btn-close:hover {
+          background-color: yellow;
+        }
+
+        .btn-close {
+          background-image: url(https://cdn.webrtc-experiment.com/FileBufferReader/icons/close-icon.png);
+        }
+
+        .btn-pause {
+          background-image: url(https://cdn.webrtc-experiment.com/FileBufferReader/icons/pause-icon.png);
+        }
+
+        .progress-container {
+          margin: 5px 0;
+        }
+
+        .footer-items label {
+          display: inline-block;
+          width: 40%;
+        }
+
+        .file-name, .time-remaining {
+          white-space: nowrap;
+          display: inline-block;
+          text-overflow: ellipsis;
+          width: 50%;
+          overflow: hidden;
+        }
+    </style>
+
+    <!-- for HTML5 el styling -->
+    <script>
+        document.createElement('article');
+        document.createElement('footer');
+    </script>
+
+    <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/FileBufferReader.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/FileBufferReader/demo/PeerConnection.js"> </script>
+    <script src="https://cdn.webrtc-experiment.com/FileBufferReader/demo/PeerUI.js"></script>
+</head>
+
+<body>
+    <article>
+        <header style="text-align: center;">
+            <h1 style="border:0;">
+                WebRTC File Sharing | <a href="https://github.com/muaz-khan/FileBufferReader">FileBufferReader</a>
+            </h1>
+
+            <p style="margin-top: 15px;">
+                <a href="https://github.com/muaz-khan/FileBufferReader">Github Source Codes</a> |
+                <a href="https://github.com/muaz-khan/FileBufferReader/commits/master">What's New?</a>
+            </p>
+        </header>
+
+        <section style="margin: 20px; text-align: center; color: red;">
+            <small id="demoVersion"></small>
+            <script>var date=new Date(window.demoVersion),month=date.toLocaleString("en-us",{month:"long"}),day=date.getUTCDate();day.toString().length<=9&&(day=day.toString().length == 1 ? "0"+day : day);var year=date.getUTCFullYear(); document.getElementById("demoVersion").innerHTML="Last Updated On: <time>"+month+" "+day+" "+year+"</time>";</script>
+        </section>
+
+        <section id="main-container" class="experiment">
+          <div style="text-align: center;">
+            <a href="https://www.youtube.com/watch?v=gv8xpdGdS4o" target="_blank">Watch a YouTube video</a> to understand <b>how this demo works</b>.
+          </div>
+
+          <div style="text-align:center;">
+            <br>
+            <button id="setup-offer" disabled="">
+                <span>Connecting</span> <span>Signaling Socket..</span>
+            </button>
+
+            <br>
+            <span id="share-this-link"></span>
+            <br><br>
+
+            <button id="select-file" disabled style="font-size: 2em;">Single</button>
+            <button id="select-multiple" disabled style="font-size: 2em;">Multiple</button>
+            <button id="select-directory" disabled style="font-size: 2em;">Directory</button>
+          </div>
+
+          <div class="output-panel"></div>
+
+          <blockquote id="info" style="display:none;"></blockquote>
+        </section>
+
+        <section class="experiment" style="padding: 10px 20px;">
+          FileBufferReader is a JavaScript library reads file and returns chunkified array-buffers. The resulting buffers can be shared using WebRTC data channels or socket.io. It is <a href="https://github.com/muaz-khan/FileBufferReader">Open Sourced on Github</a>
+        </section>
+
+        <section class="experiment">
+            <small id="send-message"></small>
+        </section>
+    </article>
+
+    <footer>
+        <p>
+            <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a> |
+            <a href="http://www.muazkhan.com/">Muaz Khan</a> |
+            <a href="https://twitter.com/WebRTCWeb">@WebRTCWeb</a> |
+            <a href="https://twitter.com/muazkh">@muazkh</a>
+        </p>
+    </footer>
+    <script src="https://cdn.webrtc-experiment.com/common.js"></script>
+</body>
+
+</html>

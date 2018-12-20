@@ -1,4 +1,4 @@
-<!-- Demo version: 2018.10.01 -->
+<!-- Demo version: 2018.12.19 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -11,7 +11,6 @@
   <link rel="shortcut icon" href="/demos/logo.png">
   <link rel="stylesheet" href="/demos/stylesheet.css">
   <script src="/demos/menu.js"></script>
-
   <style>
   .search-container {
     text-align: left;
@@ -117,6 +116,27 @@
     </p>
   </h1>
 
+  <section class="table-style-container" style="float: right; margin-top: 50px; border:0;">
+    <table class="table-style">
+      <thead>
+        <tr>
+          <th class="td-style">TURN Server Name</th>
+          <th class="td-style">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="tr-style">
+          <td class="td-style">CoTURN</td>
+          <td id="coturn-status" class="td-style">Checking..</td>
+        </tr>
+        <tr class="tr-style">
+          <td class="td-style">Restund</td>
+          <td id="restund-status" class="td-style">Checking..</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
   <section id="demos" style="text-align:center;" class="no-mobile">
       <h2>
           <a href="https://www.npmjs.com/package/rtcmulticonnection"><img src="https://img.shields.io/npm/v/rtcmulticonnection.svg" /></a>
@@ -150,8 +170,14 @@
 
                 <tr class="tr-style" style="background: #e4f6ff;">
                     <td class="td-style">Dashboard + Video Conferencing + Chat + File Sharing</td>
-                    <td class="td-style"><a href="/demos/dashboard.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/dashboard.html" class="td-style2">Source</a></td>
+                    <td class="td-style"><a href="/demos/dashboard/" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/dashboard/" class="td-style2">Source</a></td>
+                </tr>
+
+                <tr class="tr-style" style="background: #e4f6ff;">
+                    <td class="td-style">Video Conference | Dashboard</td>
+                    <td class="td-style"><a href="/demos/video-conference/" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/video-conference/" class="td-style2">Source</a></td>
                 </tr>
 
                 <tr class="tr-style" style="background: #e4f6ff;">
@@ -254,6 +280,12 @@
                 </tr>
 
                 <tr class="tr-style">
+                    <td class="td-style">Scalable Audio-Only Broadcast</td>
+                    <td class="td-style"><a href="/demos/Scalable-Audio-Broadcast.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Audio-Broadcast.html" class="td-style2">Source</a></td>
+                </tr>
+
+                <tr class="tr-style">
                     <td class="td-style">Scalable Screen Broadcast</td>
                     <td class="td-style"><a href="/demos/Scalable-Screen-Broadcast.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/Scalable-Screen-Broadcast.html" class="td-style2">Source</a></td>
@@ -332,6 +364,12 @@
                     <td class="td-style">TextChat & FileSharing</td>
                     <td class="td-style"><a href="/demos/TextChat+FileSharing.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/TextChat+FileSharing.html" class="td-style2">Source</a></td>
+                </tr>
+
+                <tr class="tr-style">
+                    <td class="td-style">FileSharing without using FileBufferReader</td>
+                    <td class="td-style"><a href="/demos/File-Sharing-Without-FileBufferReader.html" class="td-style2">Demo</a></td>
+                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/File-Sharing-Without-FileBufferReader.html" class="td-style2">Source</a></td>
                 </tr>
 
                 <tr class="tr-style">
@@ -437,12 +475,6 @@
                 </tr>
 
                 <tr class="tr-style">
-                    <td class="td-style">Get list of all public moderators (rooms initiators)</td>
-                    <td class="td-style"><a href="/demos/getPublicModerators.html" class="td-style2">Demo</a></td>
-                    <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/getPublicModerators.html" class="td-style2">Source</a></td>
-                </tr>
-
-                <tr class="tr-style">
                     <td class="td-style">Switch/Change Cameras in a Live Conference</td>
                     <td class="td-style"><a href="/demos/switch-cameras.html" class="td-style2">Demo</a></td>
                     <td class="td-style"><a href="https://github.com/muaz-khan/RTCMultiConnection/tree/master/demos/switch-cameras.html" class="td-style2">Source</a></td>
@@ -494,6 +526,7 @@
     <small id="send-message"></small>
   </footer>
 
+  <script async defer src="/demos/is-turn-server-still-running.js"></script>
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <script async defer src="https://cdn.webrtc-experiment.com/common.js"></script>
 </body>

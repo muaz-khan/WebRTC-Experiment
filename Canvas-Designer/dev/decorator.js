@@ -90,7 +90,7 @@ window.addEventListener('load', function() {
         }
 
         addEvent(context.canvas, 'click', function() {
-            pdfHandler.pdfPageContainer.style.display = 'none';
+            // pdfHandler.pdfPageContainer.style.display = 'none';
 
             if (textHandler.text.length) {
                 textHandler.appendPoints();
@@ -201,8 +201,9 @@ window.addEventListener('load', function() {
         image.src = data_uris.dragSingle;
     }
 
+    decorateDragLastPath();
+
     if (tools.dragSingle === true) {
-        decorateDragLastPath();
         document.getElementById('drag-last-path').style.display = 'block';
     }
 
@@ -217,8 +218,9 @@ window.addEventListener('load', function() {
         image.src = data_uris.dragMultiple;
     }
 
+    decorateDragAllPaths();
+
     if (tools.dragMultiple === true) {
-        decorateDragAllPaths();
         document.getElementById('drag-all-paths').style.display = 'block';
     }
 

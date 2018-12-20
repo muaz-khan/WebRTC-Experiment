@@ -109,7 +109,7 @@ function CanvasRecorder(htmlElement, config) {
             // Note: Jan 18, 2016 status is that, 
             // Firefox MediaRecorder API can't record CanvasCaptureMediaStream object.
             mediaStreamRecorder = new MediaStreamRecorder(canvasMediaStream, {
-                mimeType: 'video/webm'
+                mimeType: config.mimeType || 'video/webm'
             });
             mediaStreamRecorder.record();
         } else {

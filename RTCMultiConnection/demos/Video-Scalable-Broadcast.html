@@ -1,9 +1,10 @@
-<!-- Demo version: 2017.08.06 -->
+<!-- Demo version: 2017.10.11 -->
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+    <script type="text/javascript">location.href = 'Scalable-Broadcast.html';</script>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
@@ -128,11 +129,16 @@
         <script src="/socket.io/socket.io.js"></script>
 
         <script>
+            var userid = (Math.random() * 100).toString().replace('.', '');
+
             var maxRelayLimitPerUser = 2;
             var parameters = '';
 
             parameters += '?enableScalableBroadcast=true';
             parameters += '&maxRelayLimitPerUser=' + maxRelayLimitPerUser;
+            parameters += '&sessionid=video-scalable-broadcast';
+            parameters += '&socketMessageEvent=video-scalable-broadcast';
+            parameters += '&userid=' + userid;
 
             var socket = io.connect('/' + parameters);
 

@@ -1,11 +1,11 @@
 {
     "name": "detectrtc",
     "preferGlobal": false,
-    "version": "1.3.6",
+    "version": "1.3.9",
     "author": {
         "name": "Muaz Khan",
         "email": "muazkh@gmail.com",
-        "url": "http://www.muazkhan.com/"
+        "url": "https://muazkhan.com/"
     },
     "description": "A tiny JavaScript library that can be used to detect WebRTC features e.g. system having speakers, microphone or webcam, screen capturing is supported, number of audio/video devices etc.",
     "repository": {
@@ -51,6 +51,7 @@
         "grunt-jsbeautifier": "0.2.10",
         "grunt-replace": "0.11.0",
         "grunt-contrib-clean": "0.6.0",
-        "grunt-bump": "0.7.0"
+        "grunt-bump": "0.7.0",
+        "grunt-contrib-watch": "^1.1.0"
     }
 }

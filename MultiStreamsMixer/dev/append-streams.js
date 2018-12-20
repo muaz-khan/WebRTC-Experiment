@@ -10,13 +10,17 @@ this.appendStreams = function(streams) {
     arrayOfMediaStreams.concat(streams);
 
     streams.forEach(function(stream) {
-        if (stream.getVideoTracks().length) {
+        if (stream.getTracks().filter(function(t) {
+                return t.kind === 'video';
+            }).length) {
             var video = getVideo(stream);
             video.stream = stream;
             videos.push(video);
         }
 
-        if (stream.getAudioTracks().length && self.audioContext) {
+        if (stream.getTracks().filter(function(t) {
+                return t.kind === 'audio';
+            }).length && self.audioContext) {
             var audioSource = self.audioContext.createMediaStreamSource(stream);
             audioSource.connect(self.audioDestination);
             self.audioSources.push(audioSource);

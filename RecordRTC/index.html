@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2018.09.13';</script>
+<script>window.demoVersion = '2018.11.05';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -93,13 +93,13 @@
     <article>
         <header style="text-align: center;">
             <h1>
-                Audio+Video+Screen Recording | <a href="https://github.com/muaz-khan/RecordRTC">Record WebRTC</a>
+                Audio+Video+Screen Recording using <a href="https://github.com/muaz-khan/RecordRTC">RecordRTC</a>
             </h1>
 
             <p style="margin:0;margin-bottom:-30px;margin-top: 15px;">
                 <a href="https://github.com/muaz-khan/RecordRTC">Github Source Codes</a> |
                 <a href="Canvas-Recording/">Canvas Recording</a> |
-                <a href="simple-demos/">Simple Demos</a>
+                <a href="simple-demos/" style="color: #EC008C;border: 1px dotted;background: #ffffbe;padding: 0 6px;border-radius: 3px;">30+ Simple Demos</a>
 
                 <br><br>
 
@@ -393,8 +393,6 @@
                         if(error.toString().indexOf('no audio or video tracks available') !== -1) {
                             alert('RecordRTC failed to start because there are no audio or video tracks available.');
                         }
-
-                        if(DetectRTC.browser.name === 'Safari') return;
                         
                         if(error.name === 'PermissionDeniedError' && DetectRTC.browser.name === 'Firefox') {
                             alert('Firefox requires version >= 52. Firefox also requires HTTPs.');
@@ -1081,7 +1079,7 @@
             }
 
             function isMimeTypeSupported(mimeType) {
-                if(DetectRTC.browser.name === 'Edge' || DetectRTC.browser.name === 'Safari' || typeof MediaRecorder === 'undefined') {
+                if(typeof MediaRecorder === 'undefined') {
                     return false;
                 }
 
@@ -1138,7 +1136,7 @@
             };
             recordingMedia.onchange();
 
-            if(DetectRTC.browser.name === 'Edge' || DetectRTC.browser.name === 'Safari') {
+            if(typeof MediaRecorder === 'undefined' && (DetectRTC.browser.name === 'Edge' || DetectRTC.browser.name === 'Safari')) {
                 // webp isn't supported in Microsoft Edge
                 // neither MediaRecorder API
                 // so lets disable both video/screen recording options
@@ -1934,7 +1932,7 @@
                 RecordRTC Google Chrome Extension
             </a>
             <br>
-            A chrome extension for screen activity recording!
+            You can <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/screen-recording#call-from-your-own-website">call and use</a> this extension from any website!
         </section>
 
         <section class="experiment">

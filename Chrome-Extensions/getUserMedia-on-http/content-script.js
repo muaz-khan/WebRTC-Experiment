@@ -12,9 +12,8 @@ window.addEventListener('message', function(event) {
 });
 
 function getUserMediaHttp() {
-    if(location.protocol === 'https:' || location.protocol === 'chrome:' || location.domain === 'localhost' || location.domain === '127.0.0.1') {
+    if(location.protocol === 'https:' || location.protocol === 'chrome:' || document.domain === 'localhost' || document.domain === '127.0.0.1') {
         // ignore HTTPs and localhost and chrome
-        console.error('ignore HTTPs and localhost and chrome');
         return;
     }
 

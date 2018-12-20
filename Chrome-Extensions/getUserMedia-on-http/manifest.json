@@ -1,7 +1,7 @@
 {
     "name" : "getUserMedia",
     "author": "Muaz Khan",
-    "version" : "1.0",
+    "version" : "1.2",
     "manifest_version" : 2,
     "minimum_chrome_version": "34",
     "description" : "Access camera, mic or screen on any HTTP domain! i.e. Call getUserMedia on any HTTP website!",

@@ -12,7 +12,7 @@ This chrome extension allows you invoke getUserMedia on any HTTP domain. You can
 
 ### Try Following Demo After Installation
 
-* http://webrtc.getforge.io/
+* http://www.webrtc-experiment.com/getUserMedia-on-http/
 
 Source code is available in the `./example/` directory.
 

@@ -9,6 +9,7 @@ window.addEventListener('load', function() {
     var setupOffer = document.getElementById('setup-offer'),
         innerHTML;
 
+    var SIGNALING_URI = 'wss://websocket-over-nodejs.herokuapp.com:443/';
     var SIGNALING_URI = 'wss://webrtcweb.com:9449/';
 
     var channel = location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
@@ -77,41 +78,44 @@ window.addEventListener('load', function() {
             html += '<audio src="' + file.url + '" controls></audio>';
         } else if (file.name.match(/\.webm|\.flv|\.mp4/gi)) {
             html += '<video src="' + file.url + '" controls></video>';
-        } else if (file.name.match(/\.pdf|\.js|\.txt|\.sh/gi)) {
+        } else if (file.name.match(/\.js|\.txt|\.sh/gi)) {
             html += '<a href="' + file.url + '" target="_blank" download="' + file.name + '">';
             html += '<br><iframe class="inline-iframe" src="' + file.url + '"></iframe></a>';
         }
 
-        progressHelper[file.uuid].li.innerHTML = html;
+        progressHelper[file.uuid].div.innerHTML = html;
 
         fileSelector.lastSelectedFile = false;
     }
 
     var FileHelper = {
         onBegin: function(file) {
-            var li = document.createElement('li');
+            var div = document.createElement('div');
 
-            var html = '<pre style="text-align:left;" class="file-name">';
+            var fName = '';
             if (file.extra && file.extra.webkitRelativePath) {
-                html += file.extra.webkitRelativePath;
+                fName = file.extra.webkitRelativePath;
             } else {
-                html += file.name;
+                fName = file.name;
             }
-            html += '</pre><br><progress style="display:none;" value="0"></progress><div class="circular-progress-bar c100 p25" style="margin-left: 40%;"><span class="circular-progress-bar-percentage">25%</span><div class="slice"><div class="bar"></div><div class="fill"></div></div></div>';
 
-            li.innerHTML = html;
-            li.style['min-height'] = '350px';
-            outputPanel.insertBefore(li, outputPanel.firstChild);
+            var html = '<div class="file-container" id="' + file.uuid + '">';
+            html += '<div class="btn-close"></div>';
+            html += '<div class="btn-pause"></div>';
+            html += '<div class="percent-complete">1% complete</div>';
+            html += '<div class="progress-container"><progress value="1" max="' + file.maxChunks + '"></progress></div>';
+            html += '<div class="footer-items"><label>Name:</label> <span class="file-name">' + fName + '</span></div>';
+            html += '<div class="footer-items"><label>Time remaining:</label> <span class="time-remaining">Calculating ...</span></div>';
+            html += '<div class="footer-items"><label>Items remaining:</label> <span class="items-remaining">' + file.maxChunks + '</span> (<span class="size-remaining">' + bytesToSize(file.size) + '</span>)</div>';
+            html += '</div>';
 
-            // outputPanel.className = 'fit-screen';
-            // outputPanel.style.height = innerHeight + 'px';
+            div.innerHTML = html;
+            outputPanel.insertBefore(div, outputPanel.firstChild);
 
             progressHelper[file.uuid] = {
-                li: li,
-                progress: li.querySelector('progress'),
-                label: li.querySelector('label')
+                div: div,
+                file: file
             };
-            progressHelper[file.uuid].progress.max = file.maxChunks;
 
             btnSelectFile.disabled = true;
             btnSelectDirectory.disabled = true;
@@ -140,9 +144,42 @@ window.addEventListener('load', function() {
             }
 
             resetTimeCalculator();
-            timeCalculator(progressHelper[file.uuid].progress);
+            timeCalculator(div.querySelector('progress'));
 
             progressHelper.lastFileUUID = file.uuid;
+
+            div.querySelector('.btn-close').onclick = function() {
+                peerConnection.stopCallback = function() {
+                    div.parentNode.removeChild(div);
+                    peerConnection.send('stopped:::' + file.uuid);
+                    isStoppedTimer = true;
+                };
+            };
+
+            var paused = false;
+            div.querySelector('.btn-pause').onclick = function() {
+                var btn = div.querySelector('.btn-pause');
+                if(paused) {
+                    paused = false;
+                    isPausedTimer = false;
+                    btn.style.backgroundImage = 'url(https://cdn.webrtc-experiment.com/FileBufferReader/icons/pause-icon.png)';
+                    if(peerConnection.resumeCallback) {
+                        peerConnection.resumeCallback();
+                    }
+                    peerConnection.paused = false;
+
+                    peerConnection.send('resumed:::' + file.uuid);
+                    return;
+                }
+
+                paused = true;
+                isPausedTimer = true;
+                btn.style.backgroundImage = 'url(https://cdn.webrtc-experiment.com/FileBufferReader/icons/resume-icon.png)';
+                peerConnection.resumeCallback = null;
+                peerConnection.paused = true;
+
+                peerConnection.send('paused:::' + file.uuid);
+            };
         },
         onEnd: function(file) {
             previewFile(file);
@@ -157,8 +194,6 @@ window.addEventListener('load', function() {
             }
 
             progressHelper.lastFileUUID = null;
-            // outputPanel.className = '';
-            // outputPanel.style.height = 'auto';
 
             if (filesRemaining.files) {
                 filesRemaining.idx++;
@@ -167,24 +202,31 @@ window.addEventListener('load', function() {
         },
         onProgress: function(chunk) {
             var helper = progressHelper[chunk.uuid];
-            helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
+            if(!helper) return;
+            var div = helper.div;
+            var file = helper.file;
 
-            if (helper.progress.position > 0 && helper.li.querySelector('.circular-progress-bar-percentage')) {
-                var position = +helper.progress.position.toFixed(2).split('.')[1] || 100;
-                helper.li.querySelector('.circular-progress-bar-percentage').innerHTML = position + '%';
-                helper.li.querySelector('.circular-progress-bar').className = 'circular-progress-bar c100 p' + position;
+            var progress = div.querySelector('progress');
+            var percentComplete = div.querySelector('.percent-complete');
+            var itemsRemaining = div.querySelector('.items-remaining');
+            var sizeRemaining = div.querySelector('.size-remaining');
+            var timeRemaining = div.querySelector('.time-remaining');
+
+            if(!progress) return;
+
+            progress.value = chunk.currentPosition || chunk.maxChunks || progress.max;
+
+            if (progress.position > 0) {
+                var position = +progress.position.toFixed(2).split('.')[1] || 100;
+                percentComplete.innerHTML = position + '% complete';
             }
 
-            if (chunk.currentPosition + 2 != chunk.maxChunks && helper.li.querySelector('.file-name')) {
+            if (chunk.currentPosition + 2 != chunk.maxChunks) {
                 progressHelper[chunk.uuid].lastChunk = chunk;
-                progressHelper.callback = function(timeRemaining) {
+                progressHelper.callback = function(tRemaining) {
                     var lastChunk = progressHelper[chunk.uuid].lastChunk;
 
                     var singleChunkSize = chunk.size / lastChunk.maxChunks;
-
-                    var html = 'File name: ' + lastChunk.name + ' (File size: ' + bytesToSize(chunk.size) + ')';
-                    html += '<br>Pieces (total/remaining): ' + lastChunk.maxChunks + '/' + lastChunk.currentPosition;
-                    html += ' (Single piece size: ' + bytesToSize(singleChunkSize) + ')';
 
                     var endedAt = (new Date).getTime();
                     var timeElapsed = endedAt - (progressHelper.startedAt || (new Date).getTime());
@@ -192,14 +234,14 @@ window.addEventListener('load', function() {
                     progressHelper.latencies.push(timeElapsed);
                     var avg = calculateAverage(progressHelper.latencies);
 
-                    html += '<br>Latency in millseconds: <span title="' + millsecondsToSeconds(timeElapsed) + ' seconds">' + timeElapsed + '</span> (Average): <span title="' + millsecondsToSeconds(avg) + ' seconds">' + avg + '</span>';
+                    // html += '<br>Latency in millseconds: <span title="' + millsecondsToSeconds(timeElapsed) + ' seconds">' + timeElapsed + '</span> (Average): <span title="' + millsecondsToSeconds(avg) + ' seconds">' + avg + '</span>';
 
                     var remainingFileSize = singleChunkSize * (lastChunk.maxChunks - lastChunk.currentPosition);
-                    html += '<br>Remaining (time): ' + timeRemaining + ' (Remaining file size): ' + bytesToSize(remainingFileSize);
-
-                    helper.li.querySelector('.file-name').innerHTML = html;
-
                     progressHelper.startedAt = (new Date).getTime();
+
+                    itemsRemaining.innerHTML = (lastChunk.maxChunks - lastChunk.currentPosition);
+                    sizeRemaining.innerHTML = bytesToSize(remainingFileSize);
+                    timeRemaining.innerHTML = tRemaining;
                 };
             } else {
                 btnSelectFile.innerHTML = 'Single';
@@ -250,9 +292,9 @@ window.addEventListener('load', function() {
         peerConnection.isOpened = false;
 
         var helper = progressHelper[progressHelper.lastFileUUID];
-        if (helper && helper.li && helper.li.parentNode) {
+        if (helper && helper.div && helper.div.parentNode) {
             isStoppedTimer = true;
-            helper.li.parentNode.removeChild(helper.li);
+            helper.div.parentNode.removeChild(helper.div);
         }
     };
 
@@ -287,6 +329,34 @@ window.addEventListener('load', function() {
     };
 
     peerConnection.ondata = function(chunk) {
+        if(typeof chunk === 'string' && chunk.indexOf('stopped:::') !== -1) {
+            var div = document.getElementById(chunk.split('stopped:::')[1]);
+            if(div && div.parentNode) {
+                div.parentNode.removeChild(div);
+            }
+
+            isStoppedTimer = true;
+            return;
+        }
+
+        if(typeof chunk === 'string' && chunk.indexOf('paused:::') !== -1) {
+            var div = document.getElementById(chunk.split('paused:::')[1]);
+            if(div && div.querySelector('.btn-pause')) {
+                div.querySelector('.btn-pause').style.backgroundImage = 'url(https://cdn.webrtc-experiment.com/FileBufferReader/icons/resume-icon.png)';
+            }
+            isPausedTimer = true;
+            return;
+        }
+
+        if(typeof chunk === 'string' && chunk.indexOf('resumed:::') !== -1) {
+            var div = document.getElementById(chunk.split('resumed:::')[1]);
+            if(div && div.querySelector('.btn-pause')) {
+                div.querySelector('.btn-pause').style.backgroundImage = 'url(https://cdn.webrtc-experiment.com/FileBufferReader/icons/pause-icon.png)';
+            }
+            isPausedTimer = false;
+            return;
+        }
+
         if (chunk instanceof ArrayBuffer || chunk instanceof DataView) {
             // array buffers are passed using WebRTC data channels
             // need to convert data back into JavaScript objects
@@ -299,6 +369,18 @@ window.addEventListener('load', function() {
 
         // if target user requested next chunk
         if (chunk.readyForNextChunk) {
+            if(peerConnection.paused) {
+                peerConnection.resumeCallback = function() {
+                    fileBufferReader.getNextChunk(chunk, getNextChunkCallback);
+                };
+                return;
+            }
+
+            if(peerConnection.stopCallback) {
+                peerConnection.stopCallback();
+                return;
+            }
+
             fileBufferReader.getNextChunk(chunk /*aka metadata*/ , getNextChunkCallback);
             return;
         }
@@ -312,6 +394,19 @@ window.addEventListener('load', function() {
         // if chunk is received
         fileBufferReader.addChunk(chunk, function(promptNextChunk) {
             // request next chunk
+
+            if(peerConnection.paused) {
+                peerConnection.resumeCallback = function() {
+                    peerConnection.send(promptNextChunk);
+                };
+                return;
+            }
+
+            if(peerConnection.stopCallback) {
+                peerConnection.stopCallback();
+                return;
+            }
+
             peerConnection.send(promptNextChunk);
         });
     };
@@ -337,13 +432,13 @@ window.addEventListener('load', function() {
     }
 
     var isStoppedTimer = false;
+    var isPausedTimer = false;
 
     // https://github.com/23/resumable.js/issues/168#issuecomment-65297110
     function timeCalculator(progress, selfInvoker) {
         if (isStoppedTimer) return;
 
         var step = 1;
-
         var remainingProgress = 1.0 - progress.position;
 
         var estimatedCompletionTime = Math.round((remainingProgress / progress.position) * progressIterations);
@@ -370,7 +465,8 @@ window.addEventListener('load', function() {
             if (displaySeconds > 0) {
                 output += displaySeconds + ' seconds ';
             }
-            if (output.length) {
+
+            if (output.length && !isPausedTimer) {
                 progressHelper.callback(output);
             }
         }

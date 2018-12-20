@@ -4,8 +4,6 @@
 # but not these files...
 !FileBufferReader.js
 !FileBufferReader.min.js
-!index.html
 !package.json
 !bower.json
-!server.js
 !README.md

@@ -1,0 +1,185 @@
+﻿<style>
+/* custom select start */
+.custom-select {
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  display: inline-block;
+}
+.custom-select select {
+  display: none;
+}
+.select-selected {
+    background-color: rgb(243, 242, 242);
+    box-shadow: 1px 1px #d6d6d6;
+}
+.select-selected:after {
+  position: absolute;
+  content: "";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #1b1a1a transparent transparent transparent;
+}
+.select-selected.select-arrow-active:after {
+  border-color: transparent transparent #1b1a1a transparent;
+  top: 7px;
+}
+.select-items div,.select-selected {
+  color: black;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+}
+.select-items {
+  position: absolute;
+  background-color: rgb(243, 242, 242);
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+.select-hide {
+  display: none;
+}
+.select-items div:hover, .same-as-selected {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+/* custom select end */
+
+select[disabled] {
+    background-color: rgba(232, 229, 229, 0.17);
+    color: rgb(84, 82, 82);
+}
+
+html, body {
+    padding: 0;
+    margin: 0;
+}
+
+body { 
+    min-width: 550px;
+    min-height: 400px;
+}
+
+.item {
+    border-top: 1px solid rgb(191, 191, 191);
+    padding: 10px 20px;
+}
+
+h2 {
+    font-size: 16px;
+    font-weight: normal;
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 40%;
+    margin-right: 20px;
+}
+
+#changes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #e1e6ff;
+    text-align: center;
+    padding: 5px 10px;
+    z-index: 999;
+    border: 1px dotted #c1c1c1;
+    border-left: 0;
+    border-right: 0;
+    font-size: 15px;
+}
+
+small {
+  display: block;
+  height: 0;
+  overflow: hidden;
+  transition: margin-top .8s ease;
+}
+
+.help-icon {
+  width: 16px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+input {
+  width: 200px; 
+}
+</style>
+<title>WebRTC Desktop Sharing</title>
+<link rel="shortcut icon" href="../images/desktopCapture128.png">
+
+<div id="changes"><span>Loading configuration</span><img src="../images/progress.gif"></div>
+
+<div class="item">
+    <h2>Resolutions:</h2>
+    <div class="custom-select" style="width:200px;">
+    <select id="resolutions">
+        <option value="fit-screen" selected>Fit Screen</option>
+        <option value="4K">4K (2160p)</option>
+        <option value="1080p">Full-HD (1080p)</option>
+        <option value="720p">HD (720p)</option>
+        <option value="360p">SD (360p)</option>
+    </select>
+    </div>
+</div>
+
+<div class="item">
+    <h2>Codecs:</h2>
+    <div class="custom-select" style="width:200px;">
+    <select id="codecs">
+        <option value="default" selected>Default</option>
+        <option value="vp8">VP8</option>
+        <option value="vp9">VP9</option>
+        <option value="h264">H264</option>
+    </select>
+    </div>
+</div>
+
+<div class="item" style="display: none;"> <!-- disabled on setupWebRTCConnection.js -->
+    <h2>Streaming Methods:</h2>
+    <div class="custom-select" style="width:200px;">
+    <select id="streaming_method">
+        <option value="RTCMultiConnection" selected>Peer-to-Peer</option>
+        <option value="AntMediaServer">Media Server</option>
+    </select>
+    </div>
+</div>
+
+<div class="item">
+    <h2>Bandwidth:</h2>
+    <input type="text" id="bandwidth" value="" />
+    <img class="help-icon" src="../images/help-icon.png">
+    <small>E.g. 8192 or 1048 or 512 or any digit.</small>
+</div>
+
+<div class="item">
+    <h2>Room Password:</h2>
+    <input type="password" id="room_password" value="" />
+    <img class="help-icon" src="../images/help-icon.png">
+    <small>Keep empty for normal rooms. Currently works only for Peer-to-Peer streaming method.</small>
+</div>
+
+<div class="item">
+    <h2>Room Unique ID:</h2>
+    <input type="text" id="room_id" value=""/>
+    <img class="help-icon" src="../images/help-icon.png">
+    <small>Set Your Own Room-ID (to make it secure & protected & reusable). Keep empty for random room-id.</small>
+</div>
+
+<div class="item">
+    <h2>Room URL box:</h2>
+    <input type="checkbox" id="room_url_box"/>
+    <img class="help-icon" src="../images/help-icon.png" style="margin-left: 186px;">
+    <small>You can ignore/hide the link box. For reusable room-ids: we do not need to show popup again and again.</small>
+</div>
+
+<script src="options.js"></script>

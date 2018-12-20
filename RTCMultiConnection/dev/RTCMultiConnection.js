@@ -1,3 +1,6 @@
+// _____________________
+// RTCMultiConnection.js
+
 (function(connection) {
     forceOptions = forceOptions || {
         useDefaultDevices: true
@@ -12,6 +15,7 @@
         callback = callback || function() {};
 
         if (preventDuplicateOnStreamEvents[stream.streamid]) {
+            callback();
             return;
         }
         preventDuplicateOnStreamEvents[stream.streamid] = true;
@@ -45,10 +49,15 @@
                 isAudioMuted: true
             };
 
-            setHarkEvents(connection, connection.streamEvents[stream.streamid]);
-            setMuteHandlers(connection, connection.streamEvents[stream.streamid]);
+            try {
+                setHarkEvents(connection, connection.streamEvents[stream.streamid]);
+                setMuteHandlers(connection, connection.streamEvents[stream.streamid]);
 
-            connection.onstream(connection.streamEvents[stream.streamid]);
+                connection.onstream(connection.streamEvents[stream.streamid]);
+            } catch (e) {
+                //
+            }
+
             callback();
         }, connection);
     };
@@ -105,14 +114,25 @@
     };
 
     mPeer.onNegotiationNeeded = function(message, remoteUserId, callback) {
+        callback = callback || function() {};
+
         remoteUserId = remoteUserId || message.remoteUserId;
         message = message || '';
+
+        // usually a message looks like this
+        var messageToDeliver = {
+            remoteUserId: remoteUserId,
+            message: message,
+            sender: connection.userid
+        };
+
+        if (message.remoteUserId && message.message && message.sender) {
+            // if a code is manually passing required data
+            messageToDeliver = message;
+        }
+
         connectSocket(function() {
-            connection.socket.emit(connection.socketMessageEvent, typeof message.password !== 'undefined' ? message : {
-                remoteUserId: remoteUserId,
-                message: message,
-                sender: connection.userid
-            }, callback || function() {});
+            connection.socket.emit(connection.socketMessageEvent, messageToDeliver, callback);
         });
     };
 
@@ -163,22 +183,11 @@
     }
 
     // 1st paramter is roomid
-    // 2nd paramter can be either password or a callback function
-    // 3rd paramter is a callback function
-    connection.openOrJoin = function(roomid, password, callback) {
+    // 2rd paramter is a callback function
+    connection.openOrJoin = function(roomid, callback) {
         callback = callback || function() {};
 
         connection.checkPresence(roomid, function(isRoomExist, roomid) {
-            // i.e. 2nd parameter is a callback function
-            if (typeof password === 'function' && typeof password !== 'undefined') {
-                callback = password; // switch callback functions
-                password = null;
-            }
-
-            if (!password && !!connection.password) {
-                password = connection.password;
-            }
-
             if (isRoomExist) {
                 connection.sessionid = roomid;
 
@@ -206,12 +215,11 @@
                         localPeerSdpConstraints: localPeerSdpConstraints,
                         remotePeerSdpConstraints: remotePeerSdpConstraints
                     },
-                    sender: connection.userid,
-                    password: password || false
+                    sender: connection.userid
                 };
 
                 beforeJoin(connectionDescription.message, function() {
-                    joinRoom(connectionDescription, password, function() {});
+                    joinRoom(connectionDescription, callback);
                 });
                 return;
             }
@@ -219,20 +227,15 @@
             connection.waitingForLocalMedia = true;
             connection.isInitiator = true;
 
-            // var oldUserId = connection.userid;
-            // connection.userid = 
             connection.sessionid = roomid || connection.sessionid;
-            // connection.userid += '';
-
-            // connection.socket.emit('changed-uuid', connection.userid);
 
             if (isData(connection.session)) {
-                openRoom(callback, password);
+                openRoom(callback);
                 return;
             }
 
             connection.captureUserMedia(function() {
-                openRoom(callback, password);
+                openRoom(callback);
             });
         });
     };
@@ -240,46 +243,24 @@
     // don't allow someone to join this person until he has the media
     connection.waitingForLocalMedia = false;
 
-    connection.open = function(roomid, isPublicModerator, callback) {
+    connection.open = function(roomid, callback) {
+        callback = callback || function() {};
+
         connection.waitingForLocalMedia = true;
         connection.isInitiator = true;
 
-        callback = callback || function() {};
-        if (typeof isPublicModerator === 'function') {
-            callback = isPublicModerator;
-            isPublicModerator = false;
-        }
-
-        // var oldUserId = connection.userid;
-        // connection.userid = 
         connection.sessionid = roomid || connection.sessionid;
-        // connection.userid += '';
 
         connectSocket(function() {
-            // connection.socket.emit('changed-uuid', connection.userid);
-
-            if (isPublicModerator == true) {
-                connection.becomePublicModerator();
-            }
-
             if (isData(connection.session)) {
-                openRoom(callback, connection.password);
+                openRoom(callback);
                 return;
             }
 
             connection.captureUserMedia(function() {
-                openRoom(callback, connection.password);
+                openRoom(callback);
             });
         });
-    };
-
-    connection.becomePublicModerator = function() {
-        if (!connection.isInitiator) return;
-        connection.socket.emit('become-a-public-moderator');
-    };
-
-    connection.dontMakeMeModerator = function() {
-        connection.socket.emit('dont-make-me-moderator');
     };
 
     // this object keeps extra-data records for all connected users
@@ -343,7 +324,7 @@
         }
     };
 
-    connection.join = connection.connect = function(remoteUserId, options) {
+    connection.join = function(remoteUserId, options) {
         connection.sessionid = (remoteUserId ? remoteUserId.sessionid || remoteUserId.remoteUserId || remoteUserId : false) || connection.sessionid;
         connection.sessionid += '';
 
@@ -402,23 +383,18 @@
                 localPeerSdpConstraints: localPeerSdpConstraints,
                 remotePeerSdpConstraints: remotePeerSdpConstraints
             },
-            sender: connection.userid,
-            password: connection.password || false
+            sender: connection.userid
         };
 
         beforeJoin(connectionDescription.message, function() {
             connectSocket(function() {
-                joinRoom(connectionDescription, connection.password, cb);
+                joinRoom(connectionDescription, cb);
             });
         });
         return connectionDescription;
     };
 
-    function joinRoom(connectionDescription, password, cb) {
-        if (password && (typeof password === 'function' || password.prototype || typeof password === 'object')) {
-            password = null;
-        }
-
+    function joinRoom(connectionDescription, cb) {
         connection.socket.emit('join-room', {
             sessionid: connection.sessionid,
             session: connection.session,
@@ -426,7 +402,7 @@
             sdpConstraints: connection.sdpConstraints,
             streams: getStreamInfoForAdmin(),
             extra: connection.extra,
-            password: typeof password !== 'undefined' && typeof password !== 'object' ? (password || onnection.password) : ''
+            password: typeof connection.password !== 'undefined' && typeof connection.password !== 'object' ? connection.password : ''
         }, function(isRoomJoined, error) {
             if (isRoomJoined === true) {
                 if (connection.enableLogs) {
@@ -439,7 +415,6 @@
                 }
 
                 mPeer.onNegotiationNeeded(connectionDescription);
-                cb();
             }
 
             if (isRoomJoined === false) {
@@ -447,17 +422,21 @@
                     console.warn('isRoomJoined: ', error, ' roomid: ', connection.sessionid);
                 }
 
-                // retry after 3 seconds
-                setTimeout(function() {
-                    joinRoom(connectionDescription, password, cb);
+                // [disabled] retry after 3 seconds
+                false && setTimeout(function() {
+                    joinRoom(connectionDescription, cb);
                 }, 3000);
             }
+
+            cb(isRoomJoined, connection.sessionid, error);
         });
     }
 
-    function openRoom(callback, password) {
-        if (password && (typeof password === 'function' || password.prototype || typeof password === 'object')) {
-            password = null;
+    connection.publicRoomIdentifier = '';
+
+    function openRoom(callback) {
+        if (connection.enableLogs) {
+            console.log('Sending open-room signal to socket.io');
         }
 
         connection.waitingForLocalMedia = false;
@@ -468,7 +447,8 @@
             sdpConstraints: connection.sdpConstraints,
             streams: getStreamInfoForAdmin(),
             extra: connection.extra,
-            password: typeof password !== 'undefined' && typeof password !== 'object' ? (password || onnection.password) : ''
+            identifier: connection.publicRoomIdentifier,
+            password: typeof connection.password !== 'undefined' && typeof connection.password !== 'object' ? connection.password : ''
         }, function(isRoomOpened, error) {
             if (isRoomOpened === true) {
                 if (connection.enableLogs) {
@@ -481,6 +461,8 @@
                 if (connection.enableLogs) {
                     console.warn('isRoomOpened: ', error, ' roomid: ', connection.sessionid);
                 }
+
+                callback(isRoomOpened, connection.sessionid, error);
             }
         });
     }
@@ -627,10 +609,6 @@
     connection.onbeforeunload = function(arg1, dontCloseSocket) {
         if (!connection.closeBeforeUnload) {
             return;
-        }
-
-        if (connection.isInitiator === true) {
-            connection.dontMakeMeModerator();
         }
 
         connection.peers.getAllParticipants().forEach(function(participant) {
@@ -1408,20 +1386,6 @@
         selector.selectSingleFile(callback);
     };
 
-    connection.getPublicModerators = connection.getPublicUsers = function(userIdStartsWith, callback) {
-        if (typeof userIdStartsWith === 'function') {
-            callback = userIdStartsWith;
-        }
-
-        connectSocket(function() {
-            connection.socket.emit(
-                'get-public-moderators',
-                typeof userIdStartsWith === 'string' ? userIdStartsWith : '',
-                callback
-            );
-        });
-    };
-
     connection.onmute = function(e) {
         if (!e || !e.mediaElement) {
             return;
@@ -1459,18 +1423,6 @@
     connection.onExtraDataUpdated = function(event) {
         event.status = 'online';
         connection.onUserStatusChanged(event, true);
-    };
-
-    connection.onJoinWithPassword = function(remoteUserId) {
-        console.warn(remoteUserId, 'is password protected. Please join with password.');
-    };
-
-    connection.onInvalidPassword = function(remoteUserId, oldPassword) {
-        console.warn(remoteUserId, 'is password protected. Please join with valid password. Your old password', oldPassword, 'is wrong.');
-    };
-
-    connection.onPasswordMaxTriesOver = function(remoteUserId) {
-        console.warn(remoteUserId, 'is password protected. Your max password tries exceeded the limit.');
     };
 
     connection.getAllParticipants = function(sender) {
@@ -1513,13 +1465,21 @@
     };
 
     connection.getSocket = function(callback) {
+        if (!callback && connection.enableLogs) {
+            console.warn('getSocket.callback paramter is required.');
+        }
+
+        callback = callback || function() {};
+
         if (!connection.socket) {
-            connectSocket(callback);
-        } else if (callback) {
+            connectSocket(function() {
+                callback(connection.socket);
+            });
+        } else {
             callback(connection.socket);
         }
 
-        return connection.socket;
+        return connection.socket; // callback is preferred over return-statement
     };
 
     connection.getRemoteStreams = mPeer.getRemoteStreams;
@@ -1670,14 +1630,14 @@
         roomid = roomid || connection.sessionid;
 
         if (SocketConnection.name === 'SSEConnection') {
-            SSEConnection.checkPresence(roomid, function(isRoomExist, _roomid) {
+            SSEConnection.checkPresence(roomid, function(isRoomExist, _roomid, extra) {
                 if (!connection.socket) {
                     if (!isRoomExist) {
                         connection.userid = _roomid;
                     }
 
                     connection.connectSocket(function() {
-                        callback(isRoomExist, _roomid);
+                        callback(isRoomExist, _roomid, extra);
                     });
                     return;
                 }
@@ -1692,11 +1652,12 @@
             });
             return;
         }
-        connection.socket.emit('check-presence', roomid + '', function(isRoomExist, _roomid) {
+
+        connection.socket.emit('check-presence', roomid + '', function(isRoomExist, _roomid, extra) {
             if (connection.enableLogs) {
                 console.log('checkPresence.isRoomExist: ', isRoomExist, ' roomid: ', _roomid);
             }
-            callback(isRoomExist, _roomid);
+            callback(isRoomExist, _roomid, extra);
         });
     };
 
@@ -1831,16 +1792,17 @@
     }
 
     connection.onUserIdAlreadyTaken = function(useridAlreadyTaken, yourNewUserId) {
-        if (connection.enableLogs) {
-            console.warn('Userid already taken.', useridAlreadyTaken, 'Your new userid:', yourNewUserId);
-        }
+        // via #683
+        connection.close();
+        connection.closeSocket();
 
-        connection.join(useridAlreadyTaken);
-    };
+        connection.isInitiator = false;
+        connection.userid = connection.token();
 
-    connection.onRoomFull = function(roomid) {
+        connection.join(connection.sessionid);
+
         if (connection.enableLogs) {
-            console.warn(roomid, 'is full.');
+            console.warn('Userid already taken.', useridAlreadyTaken, 'Your new userid:', connection.userid);
         }
     };
 
@@ -1851,13 +1813,6 @@
         if (connection.enableLogs) {
             console.info('Set local description for remote user', event.userid);
         }
-    };
-
-    connection.oneRoomAlreadyExist = function(roomid) {
-        if (connection.enableLogs) {
-            console.info('Server says "Room ', roomid, 'already exist. Joining instead.');
-        }
-        connection.join(roomid);
     };
 
     connection.resetScreen = function() {
@@ -1876,6 +1831,30 @@
     // if disabled, "event.mediaElement" for "onstream" will be NULL
     connection.autoCreateMediaElement = true;
 
-    // open or join with a password
+    // set password
     connection.password = null;
+
+    // set password
+    connection.setPassword = function(password, callback) {
+        callback = callback || function() {};
+        if (connection.socket) {
+            connection.socket.emit('set-password', password, callback);
+        } else {
+            connection.password = password;
+            callback(true, connection.sessionid, null);
+        }
+    };
+
+    // error messages
+    connection.errors = {
+        ROOM_NOT_AVAILABLE: 'Room not available',
+        INVALID_PASSWORD: 'Invalid password',
+        USERID_NOT_AVAILABLE: 'User ID does not exist',
+        ROOM_PERMISSION_DENIED: 'Room permission denied',
+        ROOM_FULL: 'Room full',
+        DID_NOT_JOIN_ANY_ROOM: 'Did not join any room yet',
+        INVALID_SOCKET: 'Invalid socket',
+        PUBLIC_IDENTIFIER_MISSING: 'publicRoomIdentifier is required',
+        INVALID_ADMIN_CREDENTIAL: 'Invalid username or password attempted'
+    };
 })(this);

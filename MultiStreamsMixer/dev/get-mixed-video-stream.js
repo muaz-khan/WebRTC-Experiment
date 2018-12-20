@@ -13,7 +13,9 @@ function getMixedVideoStream() {
 
     var videoStream = new MediaStream();
 
-    capturedStream.getVideoTracks().forEach(function(track) {
+    capturedStream.getTracks().filter(function(t) {
+        return t.kind === 'video';
+    }).forEach(function(track) {
         videoStream.addTrack(track);
     });
 

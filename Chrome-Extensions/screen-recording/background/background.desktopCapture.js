@@ -1,6 +1,6 @@
 function captureDesktop() {
-    if (isRecordingVOD) {
-        stopVODRecording();
+    if (isRecording) {
+        stopScreenRecording();
         return;
     }
 

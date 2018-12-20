@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2018-10-02 1:32:58 PM UTC
+// Last time updated: 2018-12-12 7:50:08 AM UTC
 
 // ________________
 // RecordRTC v5.4.9
@@ -1761,8 +1761,9 @@ if (typeof MediaStream !== 'undefined') {
 
 // below function via: http://goo.gl/B3ae8c
 /**
- * @param {number} bytes - Pass bytes and get formafted string.
- * @returns {string} - formafted string
+ * Return human-readable file size.
+ * @param {number} bytes - Pass bytes and get formatted string.
+ * @returns {string} - formatted string
  * @example
  * bytesToSize(1024*1024*5) === '5 GB'
  * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
@@ -2837,7 +2838,7 @@ function StereoAudioRecorder(mediaStream, config) {
         });
     };
 
-    if(typeof Storage === 'undefined') {
+    if (typeof Storage === 'undefined') {
         var Storage = {
             AudioContextConstructor: null,
             AudioContext: window.AudioContext || window.webkitAudioContext
@@ -3094,10 +3095,9 @@ function StereoAudioRecorder(mediaStream, config) {
     jsAudioNode.onaudioprocess = onAudioProcessDataAvailable;
 
     // to prevent self audio to be connected with speakers
-    if(context.createMediaStreamDestination) {
+    if (context.createMediaStreamDestination) {
         jsAudioNode.connect(context.createMediaStreamDestination());
-    }
-    else {
+    } else {
         jsAudioNode.connect(context.destination);
     }
 
@@ -3265,7 +3265,7 @@ function CanvasRecorder(htmlElement, config) {
             // Note: Jan 18, 2016 status is that, 
             // Firefox MediaRecorder API can't record CanvasCaptureMediaStream object.
             mediaStreamRecorder = new MediaStreamRecorder(canvasMediaStream, {
-                mimeType: 'video/webm'
+                mimeType: config.mimeType || 'video/webm'
             });
             mediaStreamRecorder.record();
         } else {

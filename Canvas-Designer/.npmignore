@@ -1,18 +1,14 @@
-node_modules
-bower_components
+# ignore everything
+*
 
-*.tar.gz
-lib-cov
-
-.*.swp
-._*
-.DS_Store
-.git
-.hg
-.npmrc
-.lock-wscript
-.svn
-.wafpickle-*
-config.gypi
-CVS
-npm-debug.log
+# but not these files...
+!canvas-designer-widget.js
+!widget.html
+!widget.js
+!widget.min.js
+!dev/webrtc-handler.js
+!index.html
+!package.json
+!bower.json
+!server.js
+!README.md

@@ -151,6 +151,7 @@
 
                 // https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
                 var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
+                var SIGNALING_SERVER = 'https://webrtcweb.com:9559/';
                 io.connect(SIGNALING_SERVER).emit('new-channel', {
                     channel: channel,
                     sender: sender

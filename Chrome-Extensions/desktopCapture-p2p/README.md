@@ -1,6 +1,8 @@
 # Chrome extension for WebRTC Screen Sharing
 
-<a target="_blank" href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg"><img alt="WebRTC Screen Sharing" src="https://lh3.googleusercontent.com/Jpi56T9fBfBXJGsDJchpAvW-PvZrysL99GLibfUKMVon8mk0KnBZtZU3W08IbkeYIAgyRvz9Lg=w640-h400-e365" title="WebRTC Screen Sharing"></img></a>
+<a target="_blank" href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg"><img alt="WebRTC Screen Sharing" src="https://lh3.googleusercontent.com/hoWYXBvzcszyre-LlNVq5i_lEFtqVXYrTJ8gnkVw35vv5xWyUx7sw8VPMrGXjHpxUcV0n3Ie=w640-h400-e365" title="WebRTC Screen Sharing"></img></a>
+
+<a target="_blank" href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg"><img alt="WebRTC Screen Sharing" src="https://lh3.googleusercontent.com/rUvbMYBGFgwbe_gzIj3qUwtlnemsvbHccSskM__tjFSIILN3D7QRS6P1LielPb90Wt2a4awmNg=w640-h400-e365" title="WebRTC Screen Sharing"></img></a>
 
 ## How to install?
 
@@ -14,7 +16,8 @@ Try any of the below URL. Replace `your_room_id` with real room-id:
 
 ```
 https://webrtcweb.com/screen?s=your_room_id
-https://cdn.rawgit.com/muaz-khan/Chrome-Extensions/master/desktopCapture-p2p/index.html
+https://www.webrtc-experiment.com/screen/?s=your_room_id
+https://cdn.rawgit.com/muaz-khan/Chrome-Extensions/master/desktopCapture-p2p/screen-receivers/index.php?s=your_room_id
 ```
 
 ## Developer Notes
@@ -40,12 +43,12 @@ var resultingURL = 'https://webrtcweb.com/screen?s=' + connection.sessionid;
 Replace above line with your own server/website:
 
 ```javascript
-var resultingURL = 'https://yourWebSite.com/index.html?s=' + connection.sessionid;
+var resultingURL = 'https://yourWebSite.com/screen-receivers/index.php?s=' + connection.sessionid;
 ```
 
-You can find `index.html` here:
+You can find `index.php` here:
 
-* [desktopCapture-p2p/index.html](https://github.com/muaz-khan/Chrome-Extensions/blob/master/desktopCapture-p2p/index.html)
+* [desktopCapture-p2p/screen-receivers/index.php](https://github.com/muaz-khan/Chrome-Extensions/blob/master/desktopCapture-p2p/screen-receivers/index.php)
 
 ## How to publish it for your own business?
 

@@ -18,6 +18,8 @@ function SocketConnection(connection, connectCallback) {
         parameters += '&maxRelayLimitPerUser=' + (connection.maxRelayLimitPerUser || 2);
     }
 
+    parameters += '&extra=' + JSON.stringify(connection.extra || {});
+
     if (connection.socketCustomParameters) {
         parameters += connection.socketCustomParameters;
     }
@@ -37,9 +39,9 @@ function SocketConnection(connection, connectCallback) {
 
     if (connection.enableLogs) {
         if (connection.socketURL == '/') {
-            console.info('socket.io is connected at: ', location.origin + '/');
+            console.info('socket.io url is: ', location.origin + '/');
         } else {
-            console.info('socket.io is connected at: ', connection.socketURL);
+            console.info('socket.io url is: ', connection.socketURL);
         }
     }
 
@@ -48,9 +50,6 @@ function SocketConnection(connection, connectCallback) {
     } catch (e) {
         connection.socket = io.connect(connection.socketURL + parameters, connection.socketOptions);
     }
-
-    // detect signaling medium
-    connection.socket.isIO = true;
 
     var mPeer = connection.multiPeersHandler;
 
@@ -242,29 +241,17 @@ function SocketConnection(connection, connectCallback) {
 
         setTimeout(function() {
             connection.socket.emit('extra-data-updated', connection.extra);
-
-            if (connectCallback) {
-                connectCallback(connection.socket);
-            }
         }, 1000);
+
+        if (connectCallback) {
+            connectCallback(connection.socket);
+        }
     });
 
     connection.socket.on('disconnect', function() {
         if (connection.enableLogs) {
             console.warn('socket.io connection is closed');
         }
-    });
-
-    connection.socket.on('join-with-password', function(remoteUserId) {
-        connection.onJoinWithPassword(remoteUserId);
-    });
-
-    connection.socket.on('invalid-password', function(remoteUserId, oldPassword) {
-        connection.onInvalidPassword(remoteUserId, oldPassword);
-    });
-
-    connection.socket.on('password-max-tries-over', function(remoteUserId) {
-        connection.onPasswordMaxTriesOver(remoteUserId);
     });
 
     connection.socket.on('user-disconnected', function(remoteUserId) {
@@ -303,11 +290,8 @@ function SocketConnection(connection, connectCallback) {
     });
 
     connection.socket.on('userid-already-taken', function(useridAlreadyTaken, yourNewUserId) {
-        connection.isInitiator = false;
-        connection.userid = yourNewUserId;
-
         connection.onUserIdAlreadyTaken(useridAlreadyTaken, yourNewUserId);
-    })
+    });
 
     connection.socket.on('logs', function(log) {
         if (!connection.enableLogs) return;
@@ -318,11 +302,7 @@ function SocketConnection(connection, connectCallback) {
         connection.onNumberOfBroadcastViewersUpdated(data);
     });
 
-    connection.socket.on('room-full', function(roomid) {
-        connection.onRoomFull(roomid);
-    });
-
-    connection.socket.on('become-next-modrator', function(sessionid) {
+    connection.socket.on('set-isInitiator-true', function(sessionid) {
         if (sessionid != connection.sessionid) return;
         connection.isInitiator = true;
     });

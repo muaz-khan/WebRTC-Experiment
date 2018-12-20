@@ -3,11 +3,17 @@
 * Live Demo: https://www.webrtc-experiment.com/getScreenId/
 * YouTube video: https://www.youtube.com/watch?v=UHrsfe9RYAQ
 
+[![npm](https://img.shields.io/npm/v/webrtc-screen-capturing.svg)](https://npmjs.org/package/webrtc-screen-capturing) [![downloads](https://img.shields.io/npm/dm/webrtc-screen-capturing.svg)](https://npmjs.org/package/webrtc-screen-capturing)
+
 1. Install this: https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk
 2. Now use below codes on any HTTPs domain.
 3. Remember, HTTPs is required.
 4. getScreenId gives you "MediaStream" object; you can share that object with other users using AppRTC demo, SimpleWebRTC or EasyRTC or PeerJs libraries, or any standalone peer-to-peer demo.
 5. In simple words, you have to use RTCPeerConnection API along with getScreenId to share screen with other users.
+
+```sh
+npm instll webrtc-screen-capturing
+```
 
 > Hacking to use single chrome-extension on any domain!
 

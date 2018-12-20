@@ -64,7 +64,7 @@ function captureCamera(callback, defaultDevices) {
         initVideoPlayer(stream);
         callback(stream);
 
-        if (enableCamera && !enableScreen) {
+        if (enableCamera && !enableScreen && openCameraPreviewDuringRecording) {
             var win = window.open("video.html", "_blank", "top=0,left=0,width=" + screen.width + ",height=" + screen.height);
 
             var timer = setInterval(function() {
@@ -81,11 +81,10 @@ function captureCamera(callback, defaultDevices) {
             return;
         }
 
-        chrome.tabs.create({
+        false && chrome.tabs.create({
             url: 'camera-mic.html'
         });
 
-        /*
         var popup_width = screen.width - parseInt(screen.width / 3);
         var popup_height = screen.height - parseInt(screen.height / 3);
         chrome.windows.create({
@@ -97,8 +96,7 @@ function captureCamera(callback, defaultDevices) {
             left: parseInt((screen.width / 2) - (popup_width / 2)),
             focused: true
         });
-        */
 
-        setDefaults();
+        // setDefaults();
     });
 }

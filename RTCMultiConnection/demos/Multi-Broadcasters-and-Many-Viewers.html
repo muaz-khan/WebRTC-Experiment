@@ -1,4 +1,4 @@
-<!-- Demo version: 2017.08.10 -->
+<!-- Demo version: 2018.10.26 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -19,16 +19,16 @@
         <a href="/demos/">Home</a>
       </li>
       <li>
-        <a href="http://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+        <a href="https://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
       </li>
       <li>
-        <a href="http://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+        <a href="https://www.rtcmulticonnection.org/FAQ/">FAQ</a>
       </li>
       <li>
         <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
       </li>
       <li>
-        <a href="https://github.com/muaz-khan/RTCMultiConnection#v3-demos">Demos</a>
+        <a href="https://rtcmulticonnection.herokuapp.com/demos/">Demos</a>
       </li>
       <li>
         <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
@@ -47,56 +47,113 @@
   </h1>
 
   <section class="make-center">
-    <label style="cursor: pointer;"><input type="checkbox"> Are You A Broadcaster?</label>
-    <br><br>
     <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
-    <button id="open-broadcast" disabled>Open Broadcast</button>
+    <button id="open-broadcast">Open Broadcast</button>
     <button id="join-broadcast">Join Broadcast</button>
-
-    <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
+    <button id="switch-camera" disabled>Switch Camera</button>
 
     <div id="videos-container"></div>
+
+    <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
   </section>
 
 <script src="/dist/RTCMultiConnection.min.js"></script>
-<script src="/dev/adapter.js"></script>
+<script src="/node_modules/webrtc-adapter/out/adapter.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <!-- custom layout for HTML5 audio/video elements -->
 <link rel="stylesheet" href="/dev/getHTMLMediaElement.css">
 <script src="/dev/getHTMLMediaElement.js"></script>
 <script>
-var checkbox = document.querySelector('input[type=checkbox]');
-checkbox.onchange = function() {
-    if (checkbox.checked === false) {
-        document.getElementById('open-broadcast').disabled = true;
-    } else {
-        document.getElementById('open-broadcast').disabled = false;
-    }
-};
-
-function beforeJoiningARoom(callback) {
-    if (checkbox.checked === false) {
-        connection.extra.broadcaster = false;
-        connection.dontCaptureUserMedia = true;
-        connection.session.oneway = true;
-    } else {
-        connection.extra.broadcaster = true;
-    }
-
-    callback();
-}
-
 // ......................................................
 // .......................UI Code........................
 // ......................................................
 document.getElementById('open-broadcast').onclick = function() {
     disableInputButtons();
 
-    beforeJoiningARoom(function() {
-        connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExist, roomid) {
+    connection.extra.broadcaster = true;
+    DetectRTC.load(function() {
+        if (DetectRTC.videoInputDevices.length > 1) {
+            connection.mediaConstraints = {
+                audio: true,
+                video: {
+                    deviceId: DetectRTC.videoInputDevices[0].deviceId
+                }
+            };
+        }
+
+        connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExist, roomid, error) {
+            if (error) {
+                console.error('openOrJoin', error, roomid);
+                return;
+            }
+
             showRoomURL(roomid);
             afterConnectingSocket();
+
+            if (!connection.isInitiator) {
+                console.log('I am creating my own room as well.');
+
+                var initialStatus = connection.dontCaptureUserMedia;
+                connection.dontCaptureUserMedia = true;
+                // each user must create a separate room as well!
+                connection.open(connection.userid, function(isRoomOpened, roomid, error) {
+                    if (error) {
+                        console.error('open', error, roomid);
+                        return;
+                    }
+                    connection.dontCaptureUserMedia = initialStatus;
+                    connection.isInitiator = false;
+                });
+            }
+
+            if (DetectRTC.videoInputDevices.length > 1) {
+                document.getElementById('switch-camera').disabled = false;
+
+                var idx = 0;
+                document.getElementById('switch-camera').onclick = function() {
+                    var deviceId = DetectRTC.videoInputDevices[0].deviceId;
+                    if (idx % 2 == 0) {
+                        deviceId = DetectRTC.videoInputDevices[1].deviceId;
+                    }
+                    idx++;
+
+                    this.disabled = true;
+                    navigator.mediaDevices.getUserMedia({
+                        video: {
+                            deviceId: deviceId
+                        }
+                    }).then(function(cam) {
+                        document.getElementById(connection.userid).media.srcObject = cam;
+
+                        document.getElementById('switch-camera').disabled = false;
+                        connection.getAllParticipants().forEach(function(remoteUserId) {
+                            var peer = connection.peers[remoteUserId].peer;
+                            var sender = peer.getSenders().filter(function(s) {
+                                return s.track.kind === 'video'
+                            })[0];
+                            var track = cam.getTracks().filter(function(s) {
+                                return s.kind === 'video'
+                            })[0];
+                            if (sender && track) {
+                                sender.track.stop();
+                                sender.replaceTrack(track);
+                            }
+                        });
+
+                        // for upcoming users
+                        var audioTrack = connection.attachStreams[0].getTracks().filter(function(s) {
+                            return s.kind === 'audio'
+                        })[0];
+                            
+                        if(audioTrack) {
+                            cam.addTrack(audioTrack);
+                        }
+                            
+                        connection.attachStreams = [cam];
+                    });
+                };
+            }
         });
     });
 };
@@ -111,6 +168,8 @@ document.getElementById('join-broadcast').onclick = function() {
 // ......................................................
 
 var connection = new RTCMultiConnection();
+
+connection.autoCloseEntireSession = true;
 
 // by default, socket.io server is assumed to be deployed on your own URL
 connection.socketURL = '/';
@@ -133,7 +192,7 @@ connection.sdpConstraints.mandatory = {
 
 connection.videosContainer = document.getElementById('videos-container');
 connection.onstream = function(event) {
-    var width = parseInt(connection.videosContainer.clientWidth / 2) - 20;
+    var width = parseInt(connection.videosContainer.clientWidth / 4) - 20;
     var mediaElement = getHTMLMediaElement(event.mediaElement, {
         title: event.userid,
         buttons: ['full-screen'],
@@ -147,7 +206,7 @@ connection.onstream = function(event) {
         mediaElement.media.play();
     }, 5000);
 
-    mediaElement.id = event.streamid;
+    mediaElement.id = event.userid;
 
     if (event.type === 'remote' && connection.isInitiator) {
         var participants = [];
@@ -160,7 +219,7 @@ connection.onstream = function(event) {
         connection.socket.emit(connection.socketCustomEvent, {
             participants: participants
         });
-    } else if (event.type === 'remote' && checkbox.checked === false) {
+    } else if (event.type === 'remote' && !connection.extra.broadcaster) {
         connection.socket.emit(connection.socketCustomEvent, {
             giveAllParticipants: true
         });
@@ -169,16 +228,21 @@ connection.onstream = function(event) {
 
 function afterConnectingSocket() {
     connection.socket.on(connection.socketCustomEvent, function(message) {
-        console.error('custom message', message);
+        console.log('custom message', message);
 
-        if (message.participants && !connection.isInitiator) {
+        if (message.participants && !connection.isInitiator && !connection.extra.broadcaster) {
             message.participants.forEach(function(participant) {
                 if (participant.pid === connection.userid) return;
                 if (connection.getAllParticipants().indexOf(participant.pid) !== -1) return;
-                if (checkbox.checked === true && participant.broadcaster === false) return;
+                if (!connection.extra.broadcaster && participant.broadcaster === false) return;
 
-                console.error('I am joining:', participant.pid);
-                connection.join(participant.pid);
+                console.log('I am joining:', participant.pid);
+                connection.join(participant.pid, function(isRoomJoined, roomid, error) {
+                    if (error) {
+                        console.error('join', error, roomid);
+                        return;
+                    }
+                });
             });
         }
 
@@ -198,7 +262,7 @@ function afterConnectingSocket() {
 }
 
 connection.onstreamended = function(event) {
-    var mediaElement = document.getElementById(event.streamid);
+    var mediaElement = document.getElementById(event.userid);
     if (mediaElement) {
         mediaElement.parentNode.removeChild(mediaElement);
     }
@@ -208,7 +272,6 @@ function disableInputButtons() {
     document.getElementById('open-broadcast').disabled = true;
     document.getElementById('join-broadcast').disabled = true;
     document.getElementById('room-id').disabled = true;
-    checkbox.disabled = true;
 }
 
 // ......................................................
@@ -266,14 +329,34 @@ if (!roomid && hashString.length) {
 }
 
 function joinBroadcastLooper(roomid) {
+    connection.extra.broadcaster = false;
+    connection.dontCaptureUserMedia = true;
+    connection.session.oneway = true;
+
     // join-broadcast looper
     (function reCheckRoomPresence() {
-        connection.checkPresence(roomid, function(isRoomExist) {
+        connection.checkPresence(roomid, function(isRoomExist, roomid, extra) {
+            // note: last parametr on checkPresence will be changed in future
+            // it is expected to return "error" rather than "extra"
+            // so you can compare: if(error === connection.errors.ROOM_FULL) {}
+            if (extra._room) {
+                if (extra._room.isFull) {
+                    alert('Room is full.');
+                }
+
+                if (extra._room.isPasswordProtected) {
+                    alert('Room is password protected');
+                }
+            }
+
             if (isRoomExist) {
-                beforeJoiningARoom(function() {
-                    connection.join(roomid, function() {
-                        afterConnectingSocket();
-                    });
+                connection.join(roomid, function(isRoomJoined, roomid, error) {
+                    if (error) {
+                        console.error('join', error, roomid);
+                        return;
+                    }
+
+                    afterConnectingSocket();
                 });
                 return;
             }

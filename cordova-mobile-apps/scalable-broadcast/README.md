@@ -4,6 +4,11 @@ APK files and other source codes can be found here:
 
 * https://webrtcweb.com/cordova-apps/scalable-broadcast/
 
+Articles:
+
+* [Write iOS apps using RTCMultiConnection](https://www.rtcmulticonnection.org/docs/Write-iOS-Apps/)
+* [Write Android apps using RTCMultiConnection](https://www.rtcmulticonnection.org/docs/Write-Android-Apps/)
+
 # First of All:
 
 ```sh
@@ -18,7 +23,7 @@ npm install --save-dev
 
 # Second Step, Install Platforms
 
-``sh
+```sh
 # android
 cordova platform add android@6.3.0
 

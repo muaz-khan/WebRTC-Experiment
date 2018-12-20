@@ -1,14 +1,35 @@
 document.write('<h1 style="font-family: Courier New; font-size: 30px; color:red;margin-top:200px;">The purpose of this page is to access your camera and microphone.</h1>');
-document.write('<p style="font-family: Courier New; font-size: 20px; padding:5px 10px; margin-top: 10px; background: yellow; border: 1px dotted red;">RecordRTC chrome extension will use your camera only when you manually click the startRecording buttons.<br><img src="https://lh3.googleusercontent.com/efS6_LNfsKB3vPSkOqJP01r0sn1c66ivvq8-qv34Pzz29E460iY5GnQztBtri2O4ehIhTUTePG0=s1280-h800-e365-rw"></p>');
 
-var constraints = {
+var port = chrome.runtime.connect();
+
+navigator.mediaDevices.getUserMedia({
     audio: true,
     video: true
-};
+}).then(function(stream) {
+    var tracksLength = stream.getTracks().length;
 
-navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-    document.write('<h1 style="font-family: Courier New; font-size: 35px; color: green;"></h1><video autoplay controls src="' + URL.createObjectURL(stream) + '"></video>');
-    document.querySelector('h1').innerHTML = 'Now you can close this page and click extension icon again.'
-}).catch(function() {
-    document.querySelector('h1').innerHTML = 'Unable to capture your camera and microphone.';
+    stream.getTracks().forEach(function(track) {
+        track.stop();
+    });
+
+    if(tracksLength <= 1) {
+        throw new Error('Expected two tracks but received: ' + tracksLength);
+    }
+
+    port.postMessage({
+        messageFromContentScript1234: true,
+        startRecording: true
+    });
+    window.close();
+}).catch(function(e) {
+    var html = '<h1 style="font-family: Courier New; font-size: 30px; color:red;margin-top:20px;">Unable to access your camera and/or microphone.</h1>';
+    html += '<p style="font-family: Courier New; font-size: 25px; color:black;margin-top:20px;">Please go to following pages and remove "RecordRTC" from blocked-list:</p>';
+    html += '<pre style="font-family: Courier New; font-size: 25px; color:blue;margin-top:20px;">chrome://settings/content/microphone?search=camera</pre>';
+    html += '<pre style="font-family: Courier New; font-size: 25px; color:blue;margin-top:20px;">chrome://settings/content/microphone?search=microphone</pre>';
+    
+    if(e.message && e.message.toString().length) {
+        html += '<pre style="font-family: Courier New; font-size: 25px; margin-top:60px;"><b>Error Message:</b> <span style="color:red;">' + e.message + '</span></pre>';
+    }
+
+    document.body.innerHTML = html;
 });

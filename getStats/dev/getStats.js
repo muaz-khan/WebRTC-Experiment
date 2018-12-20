@@ -2,10 +2,16 @@ var nomore = false;
 
 function getStatsLooper() {
     getStatsWrapper(function(results) {
+        if (!results || !results.forEach) return;
+
         results.forEach(function(result) {
             Object.keys(getStatsParser).forEach(function(key) {
                 if (typeof getStatsParser[key] === 'function') {
-                    getStatsParser[key](result);
+                    try {
+                        getStatsParser[key](result);
+                    } catch (e) {
+                        console.error(e.message, e.stack);
+                    }
                 }
             });
 

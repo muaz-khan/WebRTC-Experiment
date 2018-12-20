@@ -2,6 +2,12 @@
 
 This chrome extension not only captures content of the selected tab, but also provides multi-user peer-to-peer tab-streaming.
 
+## Codes to view the shared tab
+
+Here are different HTML pages that can view your tab:
+
+* [desktopCapture-p2p/screen-receivers](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture-p2p/screen-receivers)
+
 ## How to install?
 
 * https://chrome.google.com/webstore/detail/tab-capturing-sharing/pcnepejfgcmidedoimegcafiabjnodhk
@@ -33,48 +39,6 @@ Make ZIP of the directory. Then navigate to [Chrome WebStore Developer Dashboard
 To learn more about how to publish a chrome extension in Google App Store:
 
 * https://developer.chrome.com/webstore/publish
-
-## How to add inline-install button?
-
-**Make sure that you added and verified your webpage/domain using Google WebMaster tools.** Additional instructions available [here](https://support.google.com/webmasters/answer/35179?hl=en).
-
-```html
-<!DOCTYPE html>
-<html>
-    <head>
-        <!-- head; this <link> tag MUST be in <head> section -->
-        <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/your-chrome-extension-id">
-    </head>
-    <body>
-        <!-- body; the button element that is used to invoke inline installation -->
-        <button onclick="" id="install-button" style="padding: 0;background: none;height: 61px;vertical-align: middle;cursor:pointer;">
-            <img src="https://www.webrtc-experiment.com/images/btn-install-chrome-extension.png" alt="Add to Chrome">
-        </button>
-        
-        <script>
-            document.querySelector('#inline-install').onclick = function() {
-                !!navigator.webkitGetUserMedia 
-                    && !!window.chrome 
-                    && !!chrome.webstore 
-                    && !!chrome.webstore.install && 
-                chrome.webstore.install(
-                    'https://chrome.google.com/webstore/detail/your-chrome-extension-id', 
-                    successCallback, 
-                    failureCallback
-                );
-            };
-            
-            function successCallback() {
-                location.reload();
-            }
-            
-            function failureCallback(error) {
-                alert(error);
-            }
-        </script>
-    </body>
-</html>
-```
 
 ## For more information
 

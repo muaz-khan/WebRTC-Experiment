@@ -1,4 +1,4 @@
-<!-- Demo version: 2018.08.24 -->
+<!-- Demo version: 2018.10.17 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -57,7 +57,7 @@
   </section>
 
 <script src="/dist/RTCMultiConnection.min.js"></script>
-<script src="/dev/adapter.js"></script>
+<script src="/node_modules/webrtc-adapter/out/adapter.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <!-- custom layout for HTML5 audio/video elements -->
@@ -69,7 +69,8 @@
 // ......................................................
 document.getElementById('open-room').onclick = function() {
     disableInputButtons();
-    connection.open(document.getElementById('room-id').value, function() {
+    connection.userid = document.getElementById('room-id').value;
+    connection.open(connection.userid, function() {
         showRoomURL(connection.sessionid);
     });
 };
@@ -158,6 +159,10 @@ connection.onstream = function(event) {
       setTimeout(function() {
         connection.connectWithAllParticipants();
       }, 3000);
+    }
+
+    if(event.type === 'remote' && !connection.isInitiator) {
+      document.querySelector('h1').innerHTML = 'Joined a room';
     }
 };
 
@@ -261,14 +266,17 @@ if(navigator.connection &&
 </script>
 
 <script type="text/javascript">
+
 // via: https://github.com/muaz-khan/RTCMultiConnection/wiki/checkPresence-and-automatically-join-rejoin-rooms
 connection.autoCloseEntireSession = true;
+
 var isOwnerPesenceCheckingOn = false;
 var connectWithAllParticipantsOnce = false;
 
 connection.onleave = function(event) {
   if (event.userid === connection.sessionid && !isOwnerPesenceCheckingOn) {
-        console.info('Room is closed. Rechecking for room presence.');
+        document.querySelector('h1').innerHTML = 'Room is closed. Rechecking for room presence.';
+
         isOwnerPesenceCheckingOn = true;
         connectWithAllParticipantsOnce = true;
 

@@ -282,8 +282,11 @@
             };
 
             // --------------------------------------------------------
+            var SIGNALING_URI = 'wss://websocket-over-nodejs.herokuapp.com:443/';
+            var SIGNALING_URI = 'wss://webrtcweb.com:9449/';
+
             var channel = location.href.replace( /\/|:|#|%|\.|\[|\]/g , '');
-            var websocket = new WebSocket('wss://websocket-over-nodejs.herokuapp.com:443/');
+            var websocket = new WebSocket(SIGNALING_URI);
             websocket.onopen = function() {
                 console.log('websocket connection opened!');
                 websocket.push(JSON.stringify({

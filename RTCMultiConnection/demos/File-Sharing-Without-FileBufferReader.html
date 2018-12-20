@@ -1,0 +1,354 @@
+<!-- Demo version: 2018.10.21 -->
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>FileSharing without using FileBufferReader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="shortcut icon" href="/demos/logo.png">
+  <link rel="stylesheet" href="/demos/stylesheet.css">
+  <script src="/demos/menu.js"></script>
+  <style type="text/css">
+    #files-container div {
+      border-bottom: 1px dotted black;
+      padding: 5px 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="logo" href="/demos/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
+    <a href="/demos/" class="menu-explorer">Menu<img src="/demos/menu-icon.png" alt="Menu"></a>
+    <nav>
+      <li>
+        <a href="/demos/">Home</a>
+      </li>
+      <li>
+        <a href="https://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
+      </li>
+      <li>
+        <a href="https://www.rtcmulticonnection.org/FAQ/">FAQ</a>
+      </li>
+      <li>
+        <a href="https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl">YouTube</a>
+      </li>
+      <li>
+        <a href="https://rtcmulticonnection.herokuapp.com/demos/">Demos</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection/wiki">Wiki</a>
+      </li>
+      <li>
+        <a href="https://github.com/muaz-khan/RTCMultiConnection">Github</a>
+      </li>
+    </nav>
+  </header>
+
+  <h1>
+    FileSharing without using FileBufferReader
+    <p class="no-mobile">
+      This RTCMultiConnection demo tries to share files without using FileBufferReader.
+    </p>
+  </h1>
+
+  <section class="make-center">
+    <div>
+      <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
+      <button id="open-room">Open Room</button>
+      <button id="join-room">Join Room</button>
+      <button id="open-or-join-room">Auto Open Or Join Room</button>
+    </div>
+
+    <div style="margin: 20px 0;">
+      <input type="file" id="btn-share-file" disabled>
+    </div>
+
+    <div id="files-container" style="margin: 20px 0;"></div>
+
+    <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0; margin-top: 50px;"></div>
+  </section>
+
+<script src="/dist/RTCMultiConnection.min.js"></script>
+<script src="/node_modules/webrtc-adapter/out/adapter.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+// ......................................................
+// .......................UI Code........................
+// ......................................................
+document.getElementById('open-room').onclick = function() {
+    disableInputButtons();
+    connection.open(document.getElementById('room-id').value, function(isRoomOpened, roomid, error) {
+        if(isRoomOpened === true) {
+          showRoomURL(connection.sessionid);
+        }
+        else {
+          disableInputButtons(true);
+          if(error === 'Room not available') {
+            alert('Someone already created this room. Please either join or create a separate room.');
+            return;
+          }
+          alert(error);
+        }
+    });
+};
+
+document.getElementById('join-room').onclick = function() {
+    disableInputButtons();
+    connection.join(document.getElementById('room-id').value, function(isJoinedRoom, roomid, error) {
+      if (error) {
+            disableInputButtons(true);
+            if(error === 'Room not available') {
+              alert('This room does not exist. Please either create it or wait for moderator to enter in the room.');
+              return;
+            }
+            alert(error);
+        }
+    });
+};
+
+document.getElementById('open-or-join-room').onclick = function() {
+    disableInputButtons();
+    connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExist, roomid, error) {
+        if(error) {
+          disableInputButtons(true);
+          alert(error);
+        }
+        else if (connection.isInitiator === true) {
+            // if room doesn't exist, it means that current user will create the room
+            showRoomURL(roomid);
+        }
+    });
+};
+
+// ......................................................
+// ..................RTCMultiConnection Code.............
+// ......................................................
+
+var connection = new RTCMultiConnection();
+
+// by default, socket.io server is assumed to be deployed on your own URL
+connection.socketURL = '/';
+
+// comment-out below line if you do not have your own socket.io server
+// connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+
+connection.socketMessageEvent = 'filesharing-without-filebufferreader-demo';
+
+connection.session = {
+    data: true
+};
+
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: false,
+    OfferToReceiveVideo: false
+};
+
+// ..................................
+// ALL below scripts are redundant!!!
+// ..................................
+
+function disableInputButtons(enable) {
+    document.getElementById('room-id').onkeyup();
+
+    document.getElementById('open-or-join-room').disabled = !enable;
+    document.getElementById('open-room').disabled = !enable;
+    document.getElementById('join-room').disabled = !enable;
+    document.getElementById('room-id').disabled = !enable;
+}
+
+// ......................................................
+// ......................Handling Room-ID................
+// ......................................................
+
+function showRoomURL(roomid) {
+    var roomHashURL = '#' + roomid;
+    var roomQueryStringURL = '?roomid=' + roomid;
+
+    var html = '<h2>Unique URL for your room:</h2><br>';
+
+    html += 'Hash URL: <a href="' + roomHashURL + '" target="_blank">' + roomHashURL + '</a>';
+    html += '<br>';
+    html += 'QueryString URL: <a href="' + roomQueryStringURL + '" target="_blank">' + roomQueryStringURL + '</a>';
+
+    var roomURLsDiv = document.getElementById('room-urls');
+    roomURLsDiv.innerHTML = html;
+
+    roomURLsDiv.style.display = 'block';
+}
+
+(function() {
+    var params = {},
+        r = /([^&=]+)=?([^&]*)/g;
+
+    function d(s) {
+        return decodeURIComponent(s.replace(/\+/g, ' '));
+    }
+    var match, search = window.location.search;
+    while (match = r.exec(search.substring(1)))
+        params[d(match[1])] = d(match[2]);
+    window.params = params;
+})();
+
+var roomid = '';
+if (localStorage.getItem(connection.socketMessageEvent)) {
+    roomid = localStorage.getItem(connection.socketMessageEvent);
+} else {
+    roomid = connection.token();
+}
+
+var txtRoomId = document.getElementById('room-id');
+txtRoomId.value = roomid;
+txtRoomId.onkeyup = txtRoomId.oninput = txtRoomId.onpaste = function() {
+    localStorage.setItem(connection.socketMessageEvent, document.getElementById('room-id').value);
+};
+
+var hashString = location.hash.replace('#', '');
+if (hashString.length && hashString.indexOf('comment-') == 0) {
+    hashString = '';
+}
+
+var roomid = params.roomid;
+if (!roomid && hashString.length) {
+    roomid = hashString;
+}
+
+if (roomid && roomid.length) {
+    document.getElementById('room-id').value = roomid;
+    localStorage.setItem(connection.socketMessageEvent, roomid);
+
+    // auto-join-room
+    (function reCheckRoomPresence() {
+        connection.checkPresence(roomid, function(isRoomExist) {
+            if (isRoomExist) {
+                connection.join(roomid);
+                return;
+            }
+
+            setTimeout(reCheckRoomPresence, 5000);
+        });
+    })();
+
+    disableInputButtons();
+}
+
+// detect 2G
+if(navigator.connection &&
+   navigator.connection.type === 'cellular' &&
+   navigator.connection.downlinkMax <= 0.115) {
+  alert('2G is not supported. Please use a better internet service.');
+}
+</script>
+
+<script type="text/javascript">
+function getDataURL(file, callback) {
+    var reader = new FileReader();
+    reader.onload = function(event) {
+        callback(event.target.result);
+    };
+    reader.readAsDataURL(file);
+}
+
+document.getElementById('btn-share-file').onchange = function() {
+  if(!this.files.length) return;
+  var file = this.files[0];
+  getDataURL(file, function(dataURL) {
+      connection.send({
+          fileName: file.name,
+          fileType: file.type,
+          dataURL: dataURL
+      });
+
+      var html = getFileHTML(file);
+      var div = document.createElement('div');
+      div.innerHTML = html;
+      var container = document.getElementById('files-container');
+      container.insertBefore(div, container.firstChild);
+
+      document.getElementById('btn-share-file').value = '';
+  });
+};
+
+connection.onopen = function() {
+  document.getElementById('btn-share-file').disabled = false;
+};
+
+connection.onmessage = function(event) {
+    if (event.data.fileName) {
+        var blob = dataURItoBlob(event.data.dataURL);
+        var file = new File([blob], event.data.fileName, {
+            type: event.data.fileType
+        });
+        var url = URL.createObjectURL(file);
+        file.url = url;
+
+        var html = getFileHTML(file);
+        var div = document.createElement('div');
+        div.innerHTML = html;
+        var container = document.getElementById('files-container');
+        container.insertBefore(div, container.firstChild);
+
+        // tell sender that you received the file!
+        connection.send({
+          receivedFile: event.data.fileName
+        });
+        return;
+    }
+
+    if(event.data.receivedFile) {
+      alert('Remote user received your file: ' + event.data.receivedFile);
+    }
+};
+
+function dataURItoBlob(dataURI) {
+    var byteString = atob(dataURI.split(',')[1]);
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+    var ab = new ArrayBuffer(byteString.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+
+    var blob = new Blob([ab], {
+        type: mimeString
+    });
+    return blob;
+}
+
+function getFileHTML(file) {
+    var url = file.url || URL.createObjectURL(file);
+    var attachment = '<a href="' + url + '" target="_blank" download="' + file.name + '">Download: <b>' + file.name + '</b></a><br>';
+    if (file.name.match(/\.jpg|\.png|\.jpeg|\.gif/gi)) {
+        attachment += '<br><img crossOrigin="anonymous" src="' + url + '">';
+    } else if (file.name.match(/\.wav|\.mp3/gi)) {
+        attachment += '<br><audio src="' + url + '" controls></audio>';
+    } else if (file.name.match(/\.pdf|\.js|\.txt|\.sh/gi)) {
+        attachment += '<iframe class="inline-iframe" src="' + url + '"></iframe></a>';
+    }
+    return attachment;
+}
+</script>
+
+  <section>
+    <p>
+      You can write cordova/ionic/phonegap based <a href="https://www.rtcmulticonnection.org/docs/Write-iOS-Apps/" target="_blank">iOS</a> or <a href="https://www.rtcmulticonnection.org/docs/Write-Android-Apps/" target="_blank">Android</a> apps for this demo as well.
+    </p>
+
+    <p>
+      You can run same demo on Safari-11 as well. (both on MacOSX & iOS)
+    </p>
+
+    <p>
+      Microsoft Edge is also supported.
+    </p>
+  </section>
+
+  <footer>
+    <small id="send-message"></small>
+  </footer>
+
+  <script src="https://cdn.webrtc-experiment.com/common.js"></script>
+</body>
+</html>

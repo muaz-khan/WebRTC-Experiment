@@ -17,8 +17,12 @@ var videoCodec = 'Default';
 var videoMaxFrameRates = '';
 var videoResolutions = '1920x1080';
 
-var isRecordingVOD = false;
 var startedVODRecordedAt = (new Date).getTime();
+
+var startRecordingCallback = function() {};
+var stopRecordingCallback = function(file) {};
+var openPreviewOnStopRecording = true;
+var openCameraPreviewDuringRecording = true;
 
 function isMediaRecorderCompatible() {
     return true;

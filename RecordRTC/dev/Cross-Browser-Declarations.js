@@ -140,8 +140,9 @@ if (typeof MediaStream !== 'undefined') {
 
 // below function via: http://goo.gl/B3ae8c
 /**
- * @param {number} bytes - Pass bytes and get formafted string.
- * @returns {string} - formafted string
+ * Return human-readable file size.
+ * @param {number} bytes - Pass bytes and get formatted string.
+ * @returns {string} - formatted string
  * @example
  * bytesToSize(1024*1024*5) === '5 GB'
  * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}

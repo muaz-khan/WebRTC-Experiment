@@ -1,4 +1,4 @@
-<!-- Demo version: 2018.09.23 -->
+<!-- Demo version: 2018.10.21 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -47,10 +47,17 @@
   </h1>
 
   <section class="make-center">
-    <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
-    <button id="open-room">Open Room</button>
-    <button id="join-room">Join Room</button>
-    <button id="open-or-join-room">Auto Open Or Join Room</button>
+    <div>
+      <label><input type="checkbox" id="record-entire-conference"> Record Entire Conference In The Browser?</label>
+      <span id="recording-status" style="display: none;"></span>
+      <button id="btn-stop-recording" style="display: none;">Stop Recording</button>
+      <br><br>
+
+      <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
+      <button id="open-room">Open Room</button>
+      <button id="join-room">Join Room</button>
+      <button id="open-or-join-room">Auto Open Or Join Room</button>
+    </div>
 
     <div id="videos-container" style="margin: 20px 0;"></div>
 
@@ -58,32 +65,57 @@
   </section>
 
 <script src="/dist/RTCMultiConnection.min.js"></script>
-<script src="/dev/adapter.js"></script>
+<script src="/node_modules/webrtc-adapter/out/adapter.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <!-- custom layout for HTML5 audio/video elements -->
 <link rel="stylesheet" href="/dev/getHTMLMediaElement.css">
 <script src="/dev/getHTMLMediaElement.js"></script>
+
+<script src="/node_modules/recordrtc/RecordRTC.js"></script>
 <script>
 // ......................................................
 // .......................UI Code........................
 // ......................................................
 document.getElementById('open-room').onclick = function() {
     disableInputButtons();
-    connection.open(document.getElementById('room-id').value, function() {
-        showRoomURL(connection.sessionid);
+    connection.open(document.getElementById('room-id').value, function(isRoomOpened, roomid, error) {
+        if(isRoomOpened === true) {
+          showRoomURL(connection.sessionid);
+        }
+        else {
+          disableInputButtons(true);
+          if(error === 'Room not available') {
+            alert('Someone already created this room. Please either join or create a separate room.');
+            return;
+          }
+          alert(error);
+        }
     });
 };
 
 document.getElementById('join-room').onclick = function() {
     disableInputButtons();
-    connection.join(document.getElementById('room-id').value);
+    connection.join(document.getElementById('room-id').value, function(isJoinedRoom, roomid, error) {
+      if (error) {
+            disableInputButtons(true);
+            if(error === 'Room not available') {
+              alert('This room does not exist. Please either create it or wait for moderator to enter in the room.');
+              return;
+            }
+            alert(error);
+        }
+    });
 };
 
 document.getElementById('open-or-join-room').onclick = function() {
     disableInputButtons();
-    connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExist, roomid) {
-        if (isRoomExist === false && connection.isInitiator === true) {
+    connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExist, roomid, error) {
+        if(error) {
+          disableInputButtons(true);
+          alert(error);
+        }
+        else if (connection.isInitiator === true) {
             // if room doesn't exist, it means that current user will create the room
             showRoomURL(roomid);
         }
@@ -164,6 +196,57 @@ connection.onstream = function(event) {
 
     // to keep room-id in cache
     localStorage.setItem(connection.socketMessageEvent, connection.sessionid);
+
+    chkRecordConference.parentNode.style.display = 'none';
+
+    if(chkRecordConference.checked === true) {
+      btnStopRecording.style.display = 'inline-block';
+      recordingStatus.style.display = 'inline-block';
+
+      var recorder = connection.recorder;
+      if(!recorder) {
+        recorder = RecordRTC([event.stream], {
+          type: 'video'
+        });
+        recorder.startRecording();
+        connection.recorder = recorder;
+      }
+      else {
+        recorder.getInternalRecorder().addStreams([event.stream]);
+      }
+
+      if(!connection.recorder.streams) {
+        connection.recorder.streams = [];
+      }
+
+      connection.recorder.streams.push(event.stream);
+      recordingStatus.innerHTML = 'Recording ' + connection.recorder.streams.length + ' streams';
+    }
+
+    if(event.type === 'local') {
+      connection.socket.on('disconnect', function() {
+        if(!connection.getAllParticipants().length) {
+          location.reload();
+        }
+      });
+    }
+};
+
+var recordingStatus = document.getElementById('recording-status');
+var chkRecordConference = document.getElementById('record-entire-conference');
+var btnStopRecording = document.getElementById('btn-stop-recording');
+btnStopRecording.onclick = function() {
+  var recorder = connection.recorder;
+  if(!recorder) return alert('No recorder found.');
+  recorder.stopRecording(function() {
+    var blob = recorder.getBlob();
+    invokeSaveAsDialog(blob);
+
+    connection.recorder = null;
+    btnStopRecording.style.display = 'none';
+    recordingStatus.style.display = 'none';
+    chkRecordConference.parentNode.style.display = 'inline-block';
+  });
 };
 
 connection.onstreamended = function(event) {
@@ -193,13 +276,13 @@ connection.onMediaError = function(e) {
 // ALL below scripts are redundant!!!
 // ..................................
 
-function disableInputButtons() {
+function disableInputButtons(enable) {
     document.getElementById('room-id').onkeyup();
 
-    document.getElementById('open-or-join-room').disabled = true;
-    document.getElementById('open-room').disabled = true;
-    document.getElementById('join-room').disabled = true;
-    document.getElementById('room-id').disabled = true;
+    document.getElementById('open-or-join-room').disabled = !enable;
+    document.getElementById('open-room').disabled = !enable;
+    document.getElementById('join-room').disabled = !enable;
+    document.getElementById('room-id').disabled = !enable;
 }
 
 // ......................................................

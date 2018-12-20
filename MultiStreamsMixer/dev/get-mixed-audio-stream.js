@@ -16,7 +16,9 @@ function getMixedAudioStream() {
 
     var audioTracksLength = 0;
     arrayOfMediaStreams.forEach(function(stream) {
-        if (!stream.getAudioTracks().length) {
+        if (!stream.getTracks().filter(function(t) {
+                return t.kind === 'audio';
+            }).length) {
             return;
         }
 

@@ -1,4 +1,4 @@
-<!-- Demo version: 2017.08.06 -->
+<!-- Demo version: 2018.10.06 -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -118,8 +118,8 @@
 
         <script src="/dist/RTCMultiConnection.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
-
-        <script src="https://cdn.webrtc-experiment.com:443/FileBufferReader.js"></script>
+        <script src="/node_modules/webrtc-adapter/out/adapter.js"></script>
+        <script src="/node_modules/fbr/FileBufferReader.js"></script>
 
         <script>
             // ......................................................
@@ -132,6 +132,7 @@
                 connection.adminId = document.getElementById('admin-id').value;
                 connection.socketCustomEvent = connection.adminId;
 
+                connection.userid = connection.adminId;
                 connection.checkPresence(connection.adminId, function(isAdminOnline, adminId, adminInfo) {
                     if(isAdminOnline) {
                         rmcNotificationBox('Multiple admins are NOT allowed. An admin is using same "admin-id".', {
@@ -144,9 +145,13 @@
                         });
                         return;
                     }
-
-                    connection.open(connection.adminId, function() {
-                        showRoomURL(connection.sessionid);
+                    connection.open(connection.adminId, function(isRoomOpened, roomid, error) {
+                        if(isRoomOpened === true) {
+                            showRoomURL(roomid);
+                        }
+                        else {
+                            alert(error);
+                        }
                     });
                     handleSocketCustomMessages();
                 });
@@ -291,6 +296,8 @@
             // ......................................................
 
             var connection = new RTCMultiConnection();
+
+            connection.autoCloseEntireSession = true;
 
             // by default, socket.io server is assumed to be deployed on your own URL
             connection.socketURL = '/';
@@ -439,17 +446,19 @@
                     }
 
                     if(message.youCanJoinAdmin) {
-                        connection.join(message.adminId);
+                        connection.join(message.adminId, function(isJoined, roomid, error) {
+                            if(isJoined === true) {
+                                var text = 'Admin accepted your request. Setting WebRTC connection...';
 
-                        var text = 'Admin accepted your request. Setting WebRTC connection...';
-
-                        rmcNotificationBox(text, {
-                            btnClose: false,
-                            btnAccept: false,
-                            btnAcceptText: '',
-                            onBtnAcceptClicked: function() {},
-                            autoClose: true,
-                            autoCloseInterval: 2 * 1000
+                                rmcNotificationBox(text, {
+                                    btnClose: false,
+                                    btnAccept: false,
+                                    btnAcceptText: '',
+                                    onBtnAcceptClicked: function() {},
+                                    autoClose: true,
+                                    autoCloseInterval: 2 * 1000
+                                });
+                            }
                         });
                         return;
                     }

@@ -31,14 +31,13 @@
 
         <!-- www.RTCMultiConnection.org/changes-log/ -->
         <script src="/dist/RTCMultiConnection.min.js"> </script>
-        <script src="/dev/adapter.js"></script>
+        <script src="/node_modules/webrtc-adapter/out/adapter.js"></script>
         <script src="/socket.io/socket.io.js"> </script>
-        <script src="/dev/adapter.js"></script>
         <script src="linkify.js"> </script>
 
         <!-- capture screen from any HTTPs domain! -->
-        <script src="https://cdn.webrtc-experiment.com:443/getScreenId.js"></script>
-        <script src="https://cdn.webrtc-experiment.com/FileBufferReader.js"> </script>
+        <script src="/node_modules/webrtc-screen-capturing/getScreenId.js"></script>
+        <script src="/node_modules/fbr/FileBufferReader.js"></script>
     </head>
     <body>
         <div class="settings">

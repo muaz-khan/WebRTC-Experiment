@@ -261,12 +261,12 @@ function MultiPeers(connection) {
 
         if (!!peer.getSenders && typeof peer.getSenders === 'function' && peer.getSenders().length) {
             peer.getSenders().forEach(function(rtpSender) {
-                if (isVideoTrack && rtpSender.track instanceof VideoStreamTrack) {
+                if (isVideoTrack && rtpSender.track.kind === 'video') {
                     connection.peers[remoteUserId].peer.lastVideoTrack = rtpSender.track;
                     rtpSender.replaceTrack(track);
                 }
 
-                if (!isVideoTrack && rtpSender.track instanceof AudioStreamTrack) {
+                if (!isVideoTrack && rtpSender.track.kind === 'audio') {
                     connection.peers[remoteUserId].peer.lastAudioTrack = rtpSender.track;
                     rtpSender.replaceTrack(track);
                 }

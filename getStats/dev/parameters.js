@@ -1,17 +1,13 @@
 var peer = this;
 
-if (arguments[0] instanceof RTCPeerConnection) {
-    peer = arguments[0];
+if (!(arguments[0] instanceof RTCPeerConnection)) {
+    throw '1st argument is not instance of RTCPeerConnection.';
+}
 
-    if (!!navigator.mozGetUserMedia) {
-        mediaStreamTrack = arguments[1];
-        callback = arguments[2];
-        interval = arguments[3];
-    }
+peer = arguments[0];
 
-    if (!(mediaStreamTrack instanceof MediaStreamTrack) && !!navigator.mozGetUserMedia) {
-        throw '2nd argument is not instance of MediaStreamTrack.';
-    }
-} else if (!(mediaStreamTrack instanceof MediaStreamTrack) && !!navigator.mozGetUserMedia) {
-    throw '1st argument is not instance of MediaStreamTrack.';
+if (arguments[1] instanceof MediaStreamTrack) {
+    mediaStreamTrack = arguments[1]; // redundant on non-safari
+    callback = arguments[2];
+    interval = arguments[3];
 }

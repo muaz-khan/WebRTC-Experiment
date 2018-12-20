@@ -1,0 +1,128 @@
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+if(!empty($_GET['hls']) && !empty($_GET['s'])) {
+    $roomid = $_GET['s'];
+    $html = <<< EOT
+<style>
+* {margin:0;padding:0;}
+iframe {
+    border: 0;
+    outline: none;
+    width: 100%;
+    height: 100%;
+}
+</style>
+<iframe src="http://webrtcweb.com:5080/WebRTCAppEE/play.html?name={$roomid}"></iframe>
+EOT;
+    echo $html;
+    die();
+    exit();
+}
+?>
+
+<title>WebRTC AntMedia Broadcast Viewer</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+
+<meta name="description" content="This WebRTC Experiment page shows privately shared screens, desktops, and parts of the screens." />
+<meta name="keywords" content="WebRTC,Desktop-Sharing,Screen-Sharing,RTCWeb,WebRTC-Experiment,WebRTC-Demo" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+<meta name="author" content="Muaz Khan">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+<style>
+* {
+    padding: 0;
+    margin: 0;
+}
+body, html {
+    text-align: center;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background: black;
+}
+video {
+    height: 100%;
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: #000000a3;
+    text-align: center;
+    padding-top: 10%;
+}
+
+#info-bar {
+    display: inline-block;
+    color: white;
+    font-size: 150%;
+    font-weight: bold;
+    font-family: Arial;
+}
+</style>
+
+<video id="video" autoplay playsinline controls></video>
+
+<div id="overlay">
+    <div id="info-bar"></div>
+</div>
+
+<script type="text/javascript"><?php readfile(getcwd()."/../../background/helpers/adapter.js"); ?></script>
+<script type="text/javascript"><?php readfile(getcwd()."/../../background/helpers/AntMediaWrapper.js"); ?></script>
+
+<script>
+(function() {
+    var params = {},
+        r = /([^&=]+)=?([^&]*)/g;
+
+    function d(s) {
+        return decodeURIComponent(s.replace(/\+/g, ' '));
+    }
+
+    var match, search = window.location.search;
+    while (match = r.exec(search.substring(1)))
+        params[d(match[1])] = d(match[2]);
+
+    window.roomid = params.s;
+})();
+
+var video = document.getElementById('video');
+var infoBar = document.getElementById('info-bar');
+
+infoBar.innerHTML = 'Connecting socket...';
+
+var wrapper = new AntMediaWrapper();
+wrapper.callbacks('onopen', function() {
+    looper();
+});
+
+wrapper.callbacks('onerror', function() {
+    infoBar.parentNode.style.display = 'block';
+    infoBar.innerHTML = 'Ant-Media Server is down or not reachable in the moment.';
+});
+
+function looper() {
+    infoBar.innerHTML = 'Checking for stream...';
+    wrapper.receive(window.roomid, function(stream, error) {
+        if(error) {
+            infoBar.innerHTML = error;
+            setTimeout(looper, 3000);
+        }
+        else {
+            video.srcObject = stream;
+            infoBar.parentNode.style.display = 'none';
+        }
+    });
+}
+</script>

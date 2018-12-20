@@ -19,6 +19,12 @@ function getBrowserInfo() {
     var majorVersion = parseInt(navigator.appVersion, 10);
     var nameOffset, verOffset, ix;
 
+    // both and safri and chrome has same userAgent
+    if (isSafari && !isChrome && nAgt.indexOf('CriOS') !== -1) {
+        isSafari = false;
+        isChrome = true;
+    }
+
     // In Opera, the true version is after 'Opera' or after 'Version'
     if (isOpera) {
         browserName = 'Opera';

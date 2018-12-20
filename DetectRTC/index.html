@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2018.09.15';</script>
+<script>window.demoVersion = '2018.12.20';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -115,13 +115,6 @@
 
             <div class="github-stargazers"></div>
 
-            <section class="experiment" style="padding: 10px 20px; text-align: center;">
-                <a href="https://chrome.google.com/webstore/detail/detectrtc/infnkpmpcmmofkmndpheeplkcghgdjbf" target="_blank">
-                    <img alt="DetectRTC" src="https://webrtcweb.com/DetectRTC/icon.png" style="width: 20px;vertical-align: middle;margin-right: 3px;">
-                    DetectRTC Google Chrome Extension
-                </a>
-            </section>
-
             <section class="experiment" id="detectrtc-output">
                 <button id="generate-image" style="float:right;">Open as Image</button>
                 <h2 id="welcome">DetectRTC!</h2>
@@ -130,6 +123,13 @@
 
             <!-- dirty trick to bypass webrtc blockers -->
             <iframe id="iframe" sandbox="allow-same-origin" style="display: none"></iframe>
+
+            <section class="experiment" style="padding: 10px 20px; text-align: center;">
+                <a href="https://chrome.google.com/webstore/detail/detectrtc/infnkpmpcmmofkmndpheeplkcghgdjbf" target="_blank">
+                    <img alt="DetectRTC" src="https://webrtcweb.com/DetectRTC/icon.png" style="width: 20px;vertical-align: middle;margin-right: 3px;">
+                    DetectRTC Google Chrome Extension
+                </a>
+            </section>
 
             <script>
                 var browserFeaturesTable = document.querySelector('#browser-features');
@@ -279,7 +279,10 @@
                     };
 
                     function detectIpAddresses(stream) {
-                        DetectRTC.DetectLocalIPAddress(function(ipAddress) {
+                        DetectRTC.DetectLocalIPAddress(function(ipAddress, isPublic, isIpv4) {
+                            if(!ipAddress) return;
+
+                            // console.log(ipAddress, isPublic, isIpv4);
                             if (ipAddress.indexOf('Local') !== -1) {
                                 appendTR('Your <strong>Local</strong> IP Address', ipAddress);
                             } else {
@@ -309,7 +312,7 @@
                         pre = document.createElement('pre');
                         pre.className = 'sh_javascript inline-pre';
                         pre.innerHTML += '\
-# Edge &gt= 17<br>\
+# Edge &gt= 17 or Firefox &gt= 60 or Safari &gt=13<br>\
 navigator.getDisplayMedia({<br>\
     video: true<br>\
 }).then(screenStream => {<br>\
@@ -329,7 +332,6 @@ navigator.mediaDevices.getUserMedia({<br>\
 # Chrome+Opera desktopCapture API i.e. extension';
                         this.parentNode.appendChild(pre);
                         pre.focus();
-                        sh_highlightDocument();
                     };
 
                     document.getElementById('infoIcon-set-sink-id').onclick = function() {
@@ -348,7 +350,6 @@ if(secondarySpeakers) {<br>\
 }';
                         this.parentNode.appendChild(pre);
                         pre.focus();
-                        sh_highlightDocument();
                     };
 
                     document.getElementById('infoIcon-apply-constraints').onclick = function() {
@@ -370,7 +371,6 @@ oldMediaStream.getVideoTracks().forEach(function(track) {<br>\
 });';
                         this.parentNode.appendChild(pre);
                         pre.focus();
-                        sh_highlightDocument();
                     };
 
                     document.getElementById('infoIcon-replace-tracks').onclick = function() {
@@ -388,7 +388,6 @@ var rtpSenders = rtcPeerConnection.getSenders()[0];<br>\
 rtpSenders.replaceTrack(newTrack);';
                         this.parentNode.appendChild(pre);
                         pre.focus();
-                        sh_highlightDocument();
                     };
                 }
 
@@ -505,6 +504,10 @@ rtpSenders.replaceTrack(newTrack);';
                     How to use <a href="https://github.com/muaz-khan/DetectRTC" target="_blank">DetectRTC</a>?</h2>
                 <pre class="sh_html">
 &lt;script src="https://cdn.WebRTC-Experiment.com/DetectRTC.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+// OR otherwise use <a href="https://www.npmjs.com/package/detectrtc">NPM</a>
+var DetectRTC = require('detectrtc');
+&lt;/script&gt;
 </pre>
             </section>
             <section class="experiment">
@@ -570,15 +573,5 @@ DetectRTC.load(function() {
             window.useThisGithubPath = 'muaz-khan/DetectRTC';
         </script>
         <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
-
-        <!-- scripts to highlight syntax -->
-        <script src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js" type="text/javascript"> </script>
-        <script src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js" type="text/javascript"> </script>
-        <script src="https://cdn.webrtc-experiment.com/syntax/sh_html.min.js" type="text/javascript"> </script>
-        <link href="https://cdn.webrtc-experiment.com/syntax/sh_style.css" type="text/css" rel="stylesheet">
-
-        <script>
-          sh_highlightDocument();
-        </script>
     </body>
 </html>

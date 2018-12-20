@@ -1,49 +1,50 @@
-var AUDIO_codecs = ['opus', 'isac', 'ilbc'];
-
 getStatsParser.checkAudioTracks = function(result) {
-    if (!result.googCodecName || result.mediaType !== 'audio') return;
-
-    if (AUDIO_codecs.indexOf(result.googCodecName.toLowerCase()) === -1) return;
+    if (result.mediaType !== 'audio') return;
 
     var sendrecvType = result.id.split('_').pop();
-
-    if (getStatsResult.audio[sendrecvType].codecs.indexOf(result.googCodecName) === -1) {
-        getStatsResult.audio[sendrecvType].codecs.push(result.googCodecName);
+    if (result.isRemote === true) {
+        sendrecvType = 'recv';
+    }
+    if (result.isRemote === false) {
+        sendrecvType = 'send';
     }
 
-    if (result.bytesSent) {
-        var kilobytes = 0;
-        if (!!result.bytesSent) {
-            if (!getStatsResult.internal.audio[sendrecvType].prevBytesSent) {
-                getStatsResult.internal.audio[sendrecvType].prevBytesSent = result.bytesSent;
-            }
+    if (!sendrecvType) return;
 
-            var bytes = result.bytesSent - getStatsResult.internal.audio[sendrecvType].prevBytesSent;
+    if (getStatsResult.audio[sendrecvType].codecs.indexOf(result.googCodecName || 'opus') === -1) {
+        getStatsResult.audio[sendrecvType].codecs.push(result.googCodecName || 'opus');
+    }
+
+    if (!!result.bytesSent) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.audio[sendrecvType].prevBytesSent) {
             getStatsResult.internal.audio[sendrecvType].prevBytesSent = result.bytesSent;
-
-            kilobytes = bytes / 1024;
         }
 
+        var bytes = result.bytesSent - getStatsResult.internal.audio[sendrecvType].prevBytesSent;
+        getStatsResult.internal.audio[sendrecvType].prevBytesSent = result.bytesSent;
+
+        kilobytes = bytes / 1024;
         getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        getStatsResult.video.bytesSent = kilobytes.toFixed(1);
     }
 
-    if (result.bytesReceived) {
+    if (!!result.bytesReceived) {
         var kilobytes = 0;
-        if (!!result.bytesReceived) {
-            if (!getStatsResult.internal.audio[sendrecvType].prevBytesReceived) {
-                getStatsResult.internal.audio[sendrecvType].prevBytesReceived = result.bytesReceived;
-            }
-
-            var bytes = result.bytesReceived - getStatsResult.internal.audio[sendrecvType].prevBytesReceived;
+        if (!getStatsResult.internal.audio[sendrecvType].prevBytesReceived) {
             getStatsResult.internal.audio[sendrecvType].prevBytesReceived = result.bytesReceived;
-
-            kilobytes = bytes / 1024;
         }
 
-        getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        var bytes = result.bytesReceived - getStatsResult.internal.audio[sendrecvType].prevBytesReceived;
+        getStatsResult.internal.audio[sendrecvType].prevBytesReceived = result.bytesReceived;
+
+        kilobytes = bytes / 1024;
+
+        // getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
+        getStatsResult.video.bytesReceived = kilobytes.toFixed(1);
     }
 
-    if (getStatsResult.audio[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
+    if (result.googTrackId && getStatsResult.audio[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
         getStatsResult.audio[sendrecvType].tracks.push(result.googTrackId);
     }
 };

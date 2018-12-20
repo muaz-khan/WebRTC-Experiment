@@ -82,6 +82,12 @@ window.addEventListener('message', function(event) {
         return;
     }
 
+    if (event.data.clearCanvas) {
+        points = [];
+        drawHelper.redraw();
+        return;
+    }
+
     if (!event.data.canvasDesignerSyncData) return;
 
     // drawing is shared here (array of points)

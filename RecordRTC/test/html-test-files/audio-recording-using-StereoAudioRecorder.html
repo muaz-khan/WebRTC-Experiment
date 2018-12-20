@@ -1,0 +1,47 @@
+logs: <span id="logs">logs</span><hr>
+getUserMedia: <span id="getUserMedia">Not invoked yet.</span><hr>
+onStateChanged: <span id="onStateChanged">Not initialized yet.</span><hr>
+blobSize: <span id="blobSize">0</span><hr>
+isRecordingStopped: <span id="isRecordingStopped">false</span><hr>
+
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.min.js"></script>
+<script type="text/javascript">
+window.onerror = console.log = console.error = console.debug = console.warn = function() {
+    document.getElementById('logs').innerHTML += ' =&gt; ' + JSON.stringify(arguments);
+};
+
+navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+navigator.getUserMedia({audio: true}, function(stream) {
+    document.getElementById('getUserMedia').innerHTML = 'success: ' + (stream.label || stream.id);
+
+    var recorder = RecordRTC(stream, {
+        type: 'audio',
+        recorderType: StereoAudioRecorder
+    });
+
+    recorder.onStateChanged = function(state) {
+        document.getElementById('onStateChanged').innerHTML = state;
+    };
+
+    recorder.startRecording();
+
+    setTimeout(function() {
+        document.getElementById('logs').innerHTML += ' =&gt; before stopRecording.call()';
+
+        recorder.stopRecording(function() {
+            document.getElementById('logs').innerHTML += ' =&gt; stopRecording success';
+
+            var blob = recorder.getBlob();
+            document.getElementById('blobSize').innerHTML = bytesToSize(blob.size);
+
+            stream.getVideoTracks().concat(stream.getAudioTracks()).forEach(function(track) {
+                track.stop();
+            });
+
+            document.getElementById('isRecordingStopped').innerHTML = 'true';
+        });
+    }, 3000);
+}, function(error) {
+    document.getElementById('getUserMedia').innerHTML = 'failure: ' + (error.name || error.toString()) + ' =&gt; ' + JSON.stringify(error);
+});
+</script>

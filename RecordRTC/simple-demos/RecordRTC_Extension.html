@@ -1,0 +1,76 @@
+<style>
+    html, body {
+        margin: 0!important;
+        padding: 0!important;
+    }
+
+    video {
+        max-width: 100%;
+    }
+</style>
+
+<title>RecordRTC Google Chrome Extension API</title>
+<h1>How to use RecordRTC_Extension? <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/screen-recording#call-from-your-own-website">Check API/Documentation</a></h1>
+<p>This chrome extension is required: <a href="https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp">Link To Google Chrome Extension</a></p>
+
+<br>
+
+<select id="RecordRTC_Extension_Options">
+    <option value="0">Screen Only (wihtout audio)</option>
+    <option value="1">Screen + Microphone</option>
+    <option value="2">Screen + Speakers</option>
+    <option value="3">Screen + Microphone + Speakers</option>
+    <option value="4">Chrome Tab</option>
+    <option value="5">Chrome Tab (Audio Only)</option>
+    <option value="6">Full Screen + Camera</option>
+    <option value="7">Microphone + Camera</option>
+    <option value="8">Microphone + Speakers</option>
+    <option value="9">Microphone Only</option>
+    <option value="10">Speakers Only</option>
+</select>
+<button id="btn-start-recording">Start Recording</button>
+<button id="btn-stop-recording" disabled>Stop Recording</button>
+
+<hr>
+<video controls autoplay></video>
+
+
+<script>
+if(typeof RecordRTC_Extension === 'undefined') {
+    alert('RecordRTC chrome extension is either disabled or not installed.');
+}
+
+// first step
+var recorder = new RecordRTC_Extension();
+
+var video = document.querySelector('video');
+
+function stopRecordingCallback(blob) {
+    video.src = video.srcObject = null;
+    video.src = URL.createObjectURL(blob);
+    video.play();
+    recorder = null;
+}
+
+document.getElementById('btn-start-recording').onclick = function() {
+    this.disabled = true;
+    // you can find list-of-options here:
+    // https://github.com/muaz-khan/Chrome-Extensions/tree/master/screen-recording#getsupoortedformats
+    var options = recorder.getSupoortedFormats()[document.getElementById('RecordRTC_Extension_Options').value];
+
+    // second step
+    recorder.startRecording(options, function() {
+        document.getElementById('btn-stop-recording').disabled = false;
+    });
+};
+
+document.getElementById('btn-stop-recording').onclick = function() {
+    this.disabled = true;
+
+    // third and last step
+    recorder.stopRecording(stopRecordingCallback);
+};
+</script>
+
+<footer style="margin-top: 20px;"><small id="send-message"></small></footer>
+<script src="https://cdn.webrtc-experiment.com/common.js"></script>

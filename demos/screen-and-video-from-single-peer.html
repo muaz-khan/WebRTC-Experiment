@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html id="home" lang="en">
     <head>
-        <title>Share screen and audio/video from single peer connection! | Muaz Khan</title>
+        <title>Share screen and audio/video from single peer connection!</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -49,6 +49,7 @@
         </script>
 
         <script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     </head>
     <body>
         <article> <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
@@ -58,7 +59,7 @@
 
                 <p>
                         <span> &copy; </span>
-                        <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                        <a href="https://MuazKhan.com/" target="_blank">Muaz Khan</a>
                         
                         .
                         <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
@@ -78,8 +79,8 @@
                 </div>
             </header>
 
-            <blockquote style="background: #f3b7b7;border: 5px solid black;border-radius: 5px;">
-                This demo is <span style="border: 1px dotted red; background: yellow; padding: 2px 5px;">out-dated (published on 2013)</span>. Please check this instead: <a href="https://github.com/webrtc/samples">https://github.com/webrtc/samples</a>
+            <blockquote>
+                If you are using Chrome then <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">this chrome-extension</a> is required.
             </blockquote>
 
             <div style="text-align: center;">
@@ -100,7 +101,9 @@
                     mandatory: {
                         OfferToReceiveAudio: true,
                         OfferToReceiveVideo: true
-                    }
+                    },
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: true
                 };
             </script>
             <script>
@@ -108,21 +111,9 @@
                 var videoStream = document.getElementById('video-stream');
                 var screenStream = document.getElementById('screen-stream');
 
-                var RTCPeerConnection;
-                if (typeof mozRTCPeerConnection !== 'undefined') {
-                    RTCPeerConnection = mozRTCPeerConnection;
-                } else if (typeof webkitRTCPeerConnection !== 'undefined') {
-                    RTCPeerConnection = webkitRTCPeerConnection;
-                } else if (typeof window.RTCPeerConnection !== 'undefined') {
-                    RTCPeerConnection = window.RTCPeerConnection;
-                }
-
-                navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.getUserMedia;
-                window.URL = window.URL || window.webkitURL;
-
                 window.iceServers = {
                     iceServers: [{
-                        url: 'stun:stun.l.google.com:19302'
+                        urls: 'stun:stun.l.google.com:19302'
                     }]
                 };
             </script>
@@ -134,26 +125,25 @@
 
                     // attaching audio/video stream
                     if(video_stream) {
-                        offerer.addStream(video_stream);
+                        offerer.addTrack(video_stream.getTracks()[0], video_stream);
                     }
 
                     // attaching screen capturing stream
                     if(screen_stream) {
-                        offerer.addStream(screen_stream);
+                        offerer.addTrack(screen_stream.getTracks()[0], screen_stream);
                     }
 
                     offerer.onicecandidate = function(event) {
                         if (!event || !event.candidate) return;
-                        answerer.addIceCandidate(event.candidate, function() {}, function() {});
+                        answerer.addIceCandidate(event.candidate);
                     };
 
-                    offerer.createOffer(function(offer) {
-                        offerer.setLocalDescription(offer, function() {}, function() {});
-
-                        console.log('offer->sdp->', offer.sdp);
-
-                        answererPeer(offer);
-                    }, function() {}, mediaConstraints);
+                    offerer.createOffer(mediaConstraints).then(function(offer) {
+                        offerer.setLocalDescription(offer).then(function() {
+                            console.log('offer->sdp->', offer.sdp);
+                            answererPeer(offer);
+                        });
+                    });
                 }
             </script>
             <script>
@@ -163,48 +153,45 @@
                     answerer = new RTCPeerConnection(window.iceServers);
 
                     var gotFirstMediaStream = false;
-                    answerer.onaddstream = function(event) {
+                    answerer.ontrack = function(event) {
+                        event.stream = event.streams[0];
+
                         console.log(event.stream);
 
                         // "video-stream" is attached in 1st order
                         if (!gotFirstMediaStream) {
                             gotFirstMediaStream = true;
-                            videoStream.src = URL.createObjectURL(event.stream);
+                            videoStream.srcObject = event.stream;
                             videoStream.play();
                         }
 
                             // "screen-stream" is attached in 2nd order
                         else {
-                            screenStream.src = URL.createObjectURL(event.stream);
+                            screenStream.srcObject = event.stream;
                             screenStream.play();
                         }
                     };
 
                     answerer.onicecandidate = function(event) {
                         if (!event || !event.candidate) return;
-                        offerer.addIceCandidate(event.candidate, function() {}, function() {});
+                        offerer.addIceCandidate(event.candidate);
                     };
 
-                    answerer.setRemoteDescription(offer, function() {}, function() {});
-                    answerer.createAnswer(function(answer) {
-                        answerer.setLocalDescription(answer, function() {}, function() {});
-
-                        console.log('answer->sdp->', answer.sdp);
-                        offerer.setRemoteDescription(answer);
-                    }, function() {}, mediaConstraints);
+                    answerer.setRemoteDescription(offer).then(function() {
+                        answerer.createAnswer(mediaConstraints).then(function(answer) {
+                            answerer.setLocalDescription(answer).then(function() {
+                                console.log('answer->sdp->', answer.sdp);
+                                offerer.setRemoteDescription(answer);
+                            });
+                        });
+                    });
                 }
             </script>
             <script>
-                var video_constraints = {
-                    mandatory: { },
-                    optional: []
-                };
-
                 function getUserMedia(callback, constraints) {
-                    navigator.getUserMedia(constraints || {
-                        audio: true,
-                        video: video_constraints
-                    }, callback, function(e) {
+                    navigator.mediaDevices.getUserMedia(constraints || {
+                        video: true
+                    }).then(callback).catch(function(e) {
                         if (location.protocol === 'http:')
                             throw '<https> is mandatory to capture screen.';
                         else
@@ -215,21 +202,90 @@
                     });
                 }
             </script>
+            <script type="text/javascript">
+                function addStreamStopListener(stream, callback) {
+                    stream.addEventListener('ended', function() {
+                        callback();
+                        callback = function() {};
+                    }, false);
+                    stream.addEventListener('inactive', function() {
+                        callback();
+                        callback = function() {};
+                    }, false);
+                    stream.getTracks().forEach(function(track) {
+                        track.addEventListener('ended', function() {
+                            callback();
+                            callback = function() {};
+                        }, false);
+                        track.addEventListener('inactive', function() {
+                            callback();
+                            callback = function() {};
+                        }, false);
+                    });
+                }
+
+                function onScreenEnded(video_stream, screen_stream) {
+                    var videos = document.querySelectorAll('video');
+                    for(var i = 0; i < videos.length; i++) {
+                        var video = videos[i];
+                        video.parentNode.removeChild(video);
+                    }
+
+                    video_stream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+
+                    screen_stream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+                }
+            </script>
             <script>
                 function updateFakeVideo(stream) {
                     var video = document.createElement('video');
                     video.muted = true;
                     video.style.display = 'none';
-                    video.src = URL.createObjectURL(stream);
+                    video.srcObject = stream;
                     (document.body || document.documentElement).appendChild(video);
+                    video.play();
                 }
+                
                 getUserMedia(function(video_stream) {
                     updateFakeVideo(video_stream);
-                    getScreenId(function (error, sourceId, screen_constraints) {
-                        navigator.getUserMedia(screen_constraints, function (screen_stream) {
+
+                    if(!!navigator.getDisplayMedia) {
+                        navigator.getDisplayMedia({
+                            video: true
+                        }).then(screen_stream => {
                             updateFakeVideo(screen_stream);
                             offererPeer(video_stream, screen_stream);
-                        }, function (error) {
+
+                            addStreamStopListener(screen_stream, function() {
+                                onScreenEnded(video_stream, screen_stream);
+                            });
+                        }, error => {
+                            console.error(error);
+                            offererPeer(video_stream);
+                        });
+
+                        return;
+                    }
+
+                    getScreenId(function (error, sourceId, screen_constraints) {
+                        if(error) {
+                            console.error(error);
+                            offererPeer(video_stream);
+                            return;
+                        }
+
+                        navigator.mediaDevices.getUserMedia(screen_constraints).then(function (screen_stream) {
+                            updateFakeVideo(screen_stream);
+                            offererPeer(video_stream, screen_stream);
+
+                            addStreamStopListener(screen_stream, function() {
+                                onScreenEnded(video_stream, screen_stream);
+                            });
+                        }).catch(function (error) {
                             console.error(error);
                             offererPeer(video_stream);
                         });
@@ -241,18 +297,18 @@
             <ol>
                 <li>It is one-way streaming; flowing from peer1 to peer2.</li>
                 <li>peer1 attached both screen capturing stream; and audio/video stream.</li>
-                <li>On "peer2" side; "onaddstream" event is fired two times.</li>
-                <li>First time; "onaddstream" returned audio/video stream; and last time it returned screen capturing stream.</li>
+                <li>On "peer2" side; "ontrack" event is fired two times.</li>
+                <li>First time; "ontrack" returned audio/video stream; and last time it returned screen capturing stream.</li>
                 <li>Basically it is multi-streams attachment demo.</li>
                 <li>You can get same functionality via "renegotiation" process; supported by RTCMultionnection v1.3 and v1.4</li>
             </ol>
 			
             <pre>
 // attaching audio/video stream
-offerer.addStream(video_stream);
+offerer.addTrack(video_stream.getTracks()[0], video_stream);
 					
 // attaching screen capturing stream
-offerer.addStream(screen_stream);
+offerer.addTrack(screen_stream.getTracks()[0], screen_stream);
 </pre>
 
             <section class="experiment own-widgets latest-commits">

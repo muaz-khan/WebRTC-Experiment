@@ -185,22 +185,20 @@ addStreamStopListener(yourScreen, function() {
 });
 
 function addStreamStopListener(stream, callback) {
-    var streamEndedEvent = 'ended';
-    if ('oninactive' in stream) {
-        streamEndedEvent = 'inactive';
-    }
-    stream.addEventListener(streamEndedEvent, function() {
+    stream.addEventListener('ended', function() {
         callback();
         callback = function() {};
     }, false);
-    stream.getAudioTracks().forEach(function(track) {
-        track.addEventListener(streamEndedEvent, function() {
+    stream.addEventListener('inactive', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.getTracks().forEach(function(track) {
+        track.addEventListener('ended', function() {
             callback();
             callback = function() {};
         }, false);
-    });
-    stream.getVideoTracks().forEach(function(track) {
-        track.addEventListener(streamEndedEvent, function() {
+        track.addEventListener('inactive', function() {
             callback();
             callback = function() {};
         }, false);

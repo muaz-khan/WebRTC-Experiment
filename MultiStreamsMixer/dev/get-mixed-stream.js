@@ -4,7 +4,9 @@ function getMixedStream() {
 
     var mixedAudioStream = getMixedAudioStream();
     if (mixedAudioStream) {
-        mixedAudioStream.getAudioTracks().forEach(function(track) {
+        mixedAudioStream.getTracks().filter(function(t) {
+            return t.kind === 'audio';
+        }).forEach(function(track) {
             mixedVideoStream.addTrack(track);
         });
     }
