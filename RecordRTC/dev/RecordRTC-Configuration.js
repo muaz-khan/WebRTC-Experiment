@@ -32,11 +32,11 @@ function RecordRTCConfiguration(mediaStream, config) {
         } else if (config.recorderType === StereoAudioRecorder) {
             config.type = 'audio';
         } else if (config.recorderType === MediaStreamRecorder) {
-            if (mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
+            if (getTracks(mediaStream, 'audio').length && getTracks(mediaStream, 'video').length) {
                 config.type = 'video';
-            } else if (mediaStream.getAudioTracks().length && !mediaStream.getVideoTracks().length) {
-                config.type = 'audio';
-            } else if (!mediaStream.getAudioTracks().length && mediaStream.getVideoTracks().length) {
+            } else if (!getTracks(mediaStream, 'audio').length && getTracks(mediaStream, 'video').length) {
+                config.type = 'video';
+            } else if (getTracks(mediaStream, 'audio').length && !getTracks(mediaStream, 'video').length) {
                 config.type = 'audio';
             } else {
                 // config.type = 'UnKnown';

@@ -4,7 +4,7 @@
 
 ## How to secure your socket.io usage?
 
-Modify [`Signaling-Server.js`](https://github.com/muaz-khan/RTCMultiConnection/blob/master/Signaling-Server.js) and add this line:
+Modify [`Signaling-Server.js`](https://github.com/muaz-khan/RTCMultiConnection-Server/blob/master/node_scripts/Signaling-Server.js) and add this line:
 
 ```javascript
 io.on('connection', onConnection);
@@ -36,7 +36,7 @@ Now you've restricted the usage of socket.io only on domain `https://domain.com:
 
 ## How to arrange videos?
 
-It happens all insidde the [`onstream`](http://www.rtcmulticonnection.org/docs/onstream/) event.
+It happens all insidde the [`onstream`](https://www.rtcmulticonnection.org/docs/onstream/) event.
 
 ```javascript
 connection.onstream = function(event) {
@@ -380,7 +380,7 @@ v3 users can get list of existing public-rooms using this API (`connection.getPu
 
 * https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/api.md#getpublicmoderators
 
-However v2 users can use `connection.onNewSession` event: http://www.rtcmulticonnection.org/docs/onNewSession/
+However v2 users can use `connection.onNewSession` event: https://www.rtcmulticonnection.org/docs/onNewSession/
 
 # Other Documents
 
@@ -391,10 +391,6 @@ However v2 users can use `connection.onNewSession` event: http://www.rtcmulticon
 5. [Upgrade from v2 to v3](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/upgrade.md)
 6. [How to write iOS/Android applications?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/ios-android.md)
 7. [Tips & Tricks](https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/tips-tricks.md)
-
-## Twitter
-
-* https://twitter.com/WebRTCWeb i.e. @WebRTCWeb
 
 ## License
 

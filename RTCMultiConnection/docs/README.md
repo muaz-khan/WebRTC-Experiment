@@ -30,10 +30,7 @@
 # iOS+Android Demo Apps
 
 * http://webrtcweb.com/cordova-apps/
-
-## Twitter
-
-* https://twitter.com/WebRTCWeb i.e. @WebRTCWeb
+* https://github.com/muaz-khan/cordova-mobile-apps
 
 ## License
 

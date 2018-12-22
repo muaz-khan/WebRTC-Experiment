@@ -221,14 +221,11 @@
     var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
     var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
-    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    window.URL = window.URL || window.webkitURL;
-
     var iceServers = {
         iceServers: IceServersHandler.getIceServers(),
-        iceTransportPolicy: 'all',
-        iceCandidatePoolSize: 0,
-        bundlePolicy: 'max-bundle'
+        // iceTransportPolicy: 'all',
+        // iceCandidatePoolSize: 0,
+        // bundlePolicy: 'max-bundle'
     };
 
     var optionalArgument = {
@@ -333,11 +330,11 @@
             function createOffer() {
                 self.createDataChannel(peer);
 
-                peer.createOffer(function (sdp) {
-                    peer.setLocalDescription(sdp);
-
-                    config.onsdp(sdp);
-                }, onSdpError, offerAnswerConstraints);
+                peer.createOffer(offerAnswerConstraints).then(function (sdp) {
+                    peer.setLocalDescription(sdp).then(function() {
+                        config.onsdp(sdp);
+                    });
+                }).catch(onSdpError);
 
                 self.peer = peer;
             }
@@ -394,12 +391,13 @@
             createAnswer();
 
             function createAnswer() {
-                peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
-                peer.createAnswer(function (sdp) {
-                    peer.setLocalDescription(sdp);
-
-                    config.onsdp(sdp);
-                }, onSdpError, offerAnswerConstraints);
+                peer.setRemoteDescription(new RTCSessionDescription(config.sdp)).then(function() {
+                    peer.createAnswer(offerAnswerConstraints).then(function (sdp) {
+                        peer.setLocalDescription(sdp).then(function() {
+                            config.onsdp(sdp);
+                        });
+                    }).catch(onSdpError);
+                });
 
                 self.peer = peer;
             }

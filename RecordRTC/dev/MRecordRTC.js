@@ -78,15 +78,15 @@ function MRecordRTC(mediaStream) {
             gif: null
         };
 
-        if (typeof mediaType.audio !== 'function' && isMediaRecorderCompatible() && mediaStream.getAudioTracks && !mediaStream.getAudioTracks().length) {
+        if (typeof mediaType.audio !== 'function' && isMediaRecorderCompatible() && !getTracks(mediaStream, 'audio').length) {
             mediaType.audio = false;
         }
 
-        if (typeof mediaType.video !== 'function' && isMediaRecorderCompatible() && mediaStream.getVideoTracks && !mediaStream.getVideoTracks().length) {
+        if (typeof mediaType.video !== 'function' && isMediaRecorderCompatible() && !getTracks(mediaStream, 'video').length) {
             mediaType.video = false;
         }
 
-        if (typeof mediaType.gif !== 'function' && isMediaRecorderCompatible() && mediaStream.getVideoTracks && !mediaStream.getVideoTracks().length) {
+        if (typeof mediaType.gif !== 'function' && isMediaRecorderCompatible() && !getTracks(mediaStream, 'video').length) {
             mediaType.gif = false;
         }
 
@@ -126,7 +126,7 @@ function MRecordRTC(mediaStream) {
             var newStream = mediaStream;
 
             if (isMediaRecorderCompatible() && !!mediaType.audio && typeof mediaType.audio === 'function') {
-                var videoTrack = mediaStream.getVideoTracks()[0];
+                var videoTrack = getTracks(mediaStream, 'video')[0];
 
                 if (!!navigator.mozGetUserMedia) {
                     newStream = new MediaStream();

@@ -1,4 +1,4 @@
-<!-- Demo version: 2018.10.21 -->
+<!-- Demo version: 2018.12.20 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -14,6 +14,11 @@
       border-bottom: 1px dotted black;
       padding: 5px 10px;
       text-align: center;
+    }
+    .checkmark {
+      display:none;
+      width: 15px;
+      vertical-align: middle;
     }
   </style>
 </head>
@@ -49,7 +54,7 @@
   <h1>
     FileSharing without using FileBufferReader
     <p class="no-mobile">
-      This RTCMultiConnection demo tries to share files without using FileBufferReader.
+      This RTCMultiConnection demo tries to share files using <a target="_blank" href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/WebRTC-File-Sharing#filejs">File.js</a>
     </p>
   </h1>
 
@@ -242,80 +247,283 @@ if(navigator.connection &&
 </script>
 
 <script type="text/javascript">
-function getDataURL(file, callback) {
-    var reader = new FileReader();
-    reader.onload = function(event) {
-        callback(event.target.result);
-    };
-    reader.readAsDataURL(file);
-}
-
 document.getElementById('btn-share-file').onchange = function() {
   if(!this.files.length) return;
   var file = this.files[0];
-  getDataURL(file, function(dataURL) {
-      connection.send({
-          fileName: file.name,
-          fileType: file.type,
-          dataURL: dataURL
-      });
-
-      var html = getFileHTML(file);
-      var div = document.createElement('div');
-      div.innerHTML = html;
-      var container = document.getElementById('files-container');
-      container.insertBefore(div, container.firstChild);
-
-      document.getElementById('btn-share-file').value = '';
+  // To Send a File
+  FileXYZ.Send({
+      file: file,
+      channel: connection,
+      interval: 100,
+      chunkSize: connection.chunkSize,
+      onBegin: fileHelper.onBegin,
+      onEnd: fileHelper.onEnd,
+      onProgress: fileHelper.onProgress
   });
+
+  document.getElementById('btn-share-file').value = '';
 };
 
 connection.onopen = function() {
   document.getElementById('btn-share-file').disabled = false;
 };
 
-connection.onmessage = function(event) {
-    if (event.data.fileName) {
-        var blob = dataURItoBlob(event.data.dataURL);
-        var file = new File([blob], event.data.fileName, {
-            type: event.data.fileType
+// Muaz Khan      - www.MuazKhan.com
+// MIT License    - www.WebRTC-Experiment.com/licence
+// Documentation  - github.com/muaz-khan/WebRTC-Experiment/tree/master/WebRTC-File-Sharing
+
+// _______
+// File.js
+var FileXYZ = {
+    Send: function(config) {
+        var file = config.file;
+        var socket = config.channel;
+
+        var chunkSize = config.chunkSize || 40 * 1000; // 64k max sctp limit (AFAIK!)
+        var sliceId = 0;
+        var cacheSize = chunkSize;
+
+        var chunksPerSlice = Math.floor(Math.min(100000000, cacheSize) / chunkSize);
+        var sliceSize = chunksPerSlice * chunkSize;
+        var maxChunks = Math.ceil(file.size / chunkSize);
+
+        // uuid is used to uniquely identify sending instance
+        var uuid = file.uuid || (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace(/\./g, '-');
+
+        socket.send({
+            uuid: uuid,
+            maxChunks: maxChunks,
+            size: file.size,
+            name: file.name,
+            lastModifiedDate: file.lastModifiedDate,
+            type: file.type,
+            start: true
         });
-        var url = URL.createObjectURL(file);
-        file.url = url;
 
-        var html = getFileHTML(file);
-        var div = document.createElement('div');
-        div.innerHTML = html;
-        var container = document.getElementById('files-container');
-        container.insertBefore(div, container.firstChild);
+        file.maxChunks = maxChunks;
+        file.uuid = uuid;
+        if (config.onBegin) config.onBegin(file);
 
-        // tell sender that you received the file!
-        connection.send({
-          receivedFile: event.data.fileName
+        var blob, reader = new FileReader();
+        reader.onloadend = function(evt) {
+            if (evt.target.readyState == FileReader.DONE) {
+                addChunks(file.name, evt.target.result, function() {
+                    sliceId++;
+                    if ((sliceId + 1) * sliceSize < file.size) {
+                        blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
+                        reader.readAsArrayBuffer(blob);
+                    } else if (sliceId * sliceSize < file.size) {
+                        blob = file.slice(sliceId * sliceSize, file.size);
+                        reader.readAsArrayBuffer(blob);
+                    } else {
+                        socket.send({
+                            uuid: uuid,
+                            maxChunks: maxChunks,
+                            size: file.size,
+                            name: file.name,
+                            lastModifiedDate: file.lastModifiedDate,
+                            type: file.type,
+                            end: true
+                        });
+
+                        file.url = URL.createObjectURL(file);
+                        if (config.onEnd) config.onEnd(file);
+                    }
+                });
+            }
+        };
+
+        blob = file.slice(sliceId * sliceSize, (sliceId + 1) * sliceSize);
+        reader.readAsArrayBuffer(blob);
+
+        var numOfChunksInSlice;
+        var currentPosition = 0;
+        var hasEntireFile;
+        var chunks = [];
+
+        function addChunks(fileName, binarySlice, callback) {
+            numOfChunksInSlice = Math.ceil(binarySlice.byteLength / chunkSize);
+            for (var i = 0; i < numOfChunksInSlice; i++) {
+                var start = i * chunkSize;
+                chunks[currentPosition] = binarySlice.slice(start, Math.min(start + chunkSize, binarySlice.byteLength));
+
+                FileConverterXYZ.ArrayBufferToDataURL(chunks[currentPosition], function(str) {
+                    socket.send({
+                        uuid: uuid,
+                        value: str,
+                        currentPosition: currentPosition,
+                        maxChunks: maxChunks
+                    });
+                });
+
+                currentPosition++;
+            }
+
+            if (config.onProgress) {
+                config.onProgress({
+                    currentPosition: currentPosition,
+                    maxChunks: maxChunks,
+                    uuid: uuid,
+                    size: chunkSize,
+                    sending: true
+                });
+            }
+
+            if (currentPosition == maxChunks) {
+                hasEntireFile = true;
+            }
+
+            if (config.interval == 0 || typeof config.interval == 'undefined')
+                callback();
+            else
+                setTimeout(callback, config.interval);
+        }
+    },
+
+    Receiver: function(config) {
+        var packets = {};
+
+        function receive(chunk) {
+            if (chunk.start && !packets[chunk.uuid]) {
+                packets[chunk.uuid] = [];
+                if (config.onBegin) config.onBegin(chunk);
+            }
+
+            if (!chunk.end && chunk.value) {
+              packets[chunk.uuid].push(chunk.value);
+            }
+
+            if (chunk.end) {
+                var _packets = packets[chunk.uuid];
+                var finalArray = [],
+                    length = _packets.length;
+
+                for (var i = 0; i < length; i++) {
+                    if (!!_packets[i]) {
+                        FileConverterXYZ.DataURLToBlob(_packets[i], function(buffer) {
+                            finalArray.push(buffer);
+                        });
+                    }
+                }
+
+                var blob = new Blob(finalArray, {
+                    type: chunk.type
+                });
+                blob = mergeXYZ(blob, chunk);
+                blob.url = URL.createObjectURL(blob);
+                blob.uuid = chunk.uuid;
+
+                if (!blob.size) console.error('Something went wrong. Blob Size is 0.');
+
+                if (config.onEnd) config.onEnd(blob);
+            }
+
+            if (chunk.value && config.onProgress) {
+                chunk.size = 40 * 1000;
+                chunk.receiving = true;
+                config.onProgress(chunk);
+            }
+        }
+
+        return {
+            receive: receive
+        };
+    },
+    SaveToDisk: function(fileUrl, fileName) {
+        var hyperlink = document.createElement('a');
+        hyperlink.href = fileUrl;
+        hyperlink.target = '_blank';
+        hyperlink.download = fileName || fileUrl;
+
+        var mouseEvent = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true
         });
-        return;
-    }
 
-    if(event.data.receivedFile) {
-      alert('Remote user received your file: ' + event.data.receivedFile);
+        hyperlink.dispatchEvent(mouseEvent);
+        (window.URL || window.webkitURL).revokeObjectURL(hyperlink.href);
     }
 };
 
-function dataURItoBlob(dataURI) {
-    var byteString = atob(dataURI.split(',')[1]);
-    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+// ________________
+// FileConverterXYZ.js
+var FileConverterXYZ = {
+    ArrayBufferToDataURL: function(buffer, callback) {
+        window.BlobBuilder = window.MozBlobBuilder || window.WebKitBlobBuilder || window.BlobBuilder;
 
-    var ab = new ArrayBuffer(byteString.length);
-    var ia = new Uint8Array(ab);
-    for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
+        // getting blob from array-buffer
+        var blob = new Blob([buffer]);
+
+        // reading file as binary-string
+        var fileReader = new FileReader();
+        fileReader.onload = function(e) {
+            callback(e.target.result);
+        };
+        fileReader.readAsDataURL(blob);
+    },
+    DataURLToBlob: function(dataURL, callback) {
+        var binary = atob(dataURL.substr(dataURL.indexOf(',') + 1)),
+            i = binary.length,
+            view = new Uint8Array(i);
+
+        while (i--) {
+            view[i] = binary.charCodeAt(i);
+        }
+
+        callback(new Blob([view]));
     }
+};
 
-    var blob = new Blob([ab], {
-        type: mimeString
-    });
-    return blob;
+function mergeXYZ(mergein, mergeto) {
+    if (!mergein) mergein = {};
+    if (!mergeto) return mergein;
+
+    for (var item in mergeto) {
+        mergein[item] = mergeto[item];
+    }
+    return mergein;
 }
+
+// File.js codes usage
+var progressHelperXYZ = {};
+
+var fileHelper = {
+    onBegin: function(file) {
+        var div = document.createElement('div');
+        div.title = file.name;
+        div.innerHTML = '<label></label><progress min=0 max=100 value=0></progress>';
+        var outputPanel = document.getElementById('files-container');
+        outputPanel.insertBefore(div, outputPanel.firstChild);
+        progressHelperXYZ[file.uuid] = {
+            div: div,
+            progress: div.querySelector('progress'),
+            label: div.querySelector('label')
+        };
+        progressHelperXYZ[file.uuid].progress.max = file.maxChunks;
+    },
+    onEnd: function(file) {
+        progressHelperXYZ[file.uuid].div.innerHTML = getFileHTML(file);
+    },
+    onProgress: function(chunk) {
+        var helper = progressHelperXYZ[chunk.uuid];
+        helper.progress.value = chunk.currentPosition || chunk.maxChunks || helper.progress.max;
+        updateLabelXYZ(helper.progress, helper.label);
+    }
+};
+
+function updateLabelXYZ(progress, label) {
+    if (progress.position == -1) return;
+    var position = +progress.position.toFixed(2).split('.')[1] || 100;
+    label.innerHTML = position + '%';
+}
+
+// To Receive a File
+var fleReceiver = new FileXYZ.Receiver(fileHelper);
+connection.onmessage = function(event) {
+    event.data = JSON.parse(event.data);
+    fleReceiver.receive(event.data);
+};
 
 function getFileHTML(file) {
     var url = file.url || URL.createObjectURL(file);
@@ -329,6 +537,12 @@ function getFileHTML(file) {
     }
     return attachment;
 }
+
+connection._send = connection.send;
+connection.send = function(data, remoteUserId) {
+  data = JSON.stringify(data);
+  connection._send(data, remoteUserId);
+};
 </script>
 
   <section>

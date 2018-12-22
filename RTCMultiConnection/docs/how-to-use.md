@@ -4,8 +4,6 @@
 
 * [Getting Started guide for RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/getting-started.md)
 
-All files from `/dist` directory are available on CDN: `https://cdn.webrtc-experiment.com:443/`
-
 ```html
 <!-- or -->
 <script src="/dist/RTCMultiConnection.min.js"></script>
@@ -87,32 +85,7 @@ Here is a demo explaining how to use above `socketURL`:
 
 ## Integrate in your own applications?
 
-> Note: this section works only with v3.4.6 or earlier releases.
-
-```javascript
-// node.js code
-require('./Signaling-Server.js')(httpServerHandlerOrPort);
-```
-
-If you're using [express.js](http://stackoverflow.com/a/35985109/552182):
-
-```javascript
-var fs = require('fs');
-
-var options = {
-    key: fs.readFileSync('fake-keys/privatekey.pem'),
-    cert: fs.readFileSync('fake-keys/certificate.pem')
-};
-
-var express = require("express"),
-    http = require("https"), // Use HTTPs here -------------
-    app = express(),
-    server = http.createServer(options, app);
-
-server.listen(3000);
-
-require('./Signaling-Server.js')(server);
-```
+* https://github.com/muaz-khan/RTCMultiConnection-Server/wiki/Integrate-inside-nodejs-applications
 
 # Other Documents
 
@@ -122,10 +95,6 @@ require('./Signaling-Server.js')(server);
 4. [Upgrade from v2 to v3](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/upgrade.md)
 5. [How to write iOS/Android applications?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/ios-android.md)
 6. [Tips & Tricks](https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/tips-tricks.md)
-
-## Twitter
-
-* https://twitter.com/WebRTCWeb i.e. @WebRTCWeb
 
 ## License
 

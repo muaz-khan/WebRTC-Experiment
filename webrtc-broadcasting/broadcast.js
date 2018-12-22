@@ -118,7 +118,7 @@ var broadcast = function(config) {
                 peerConfig.onAnswerSDP = sendsdp;
             }
 
-            peer = RTCPeerConnection5(peerConfig);
+            peer = RTCPeerConnection(peerConfig);
         }
 
         function onRemoteStreamStartsFlowing() {

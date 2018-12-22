@@ -18,7 +18,7 @@ function setUserInterface() {
     if (startConferencing)
         startConferencing.onclick = function() {
             hangoutUI.createRoom({
-                userName: prompt('Enter your name', 'Anonymous'),
+                userName: (document.getElementById('conference-name') || { }).value || 'Anonymous',
                 roomName: (document.getElementById('conference-name') || { }).value || 'Anonymous'
             });
             hideUnnecessaryStuff();
@@ -32,6 +32,9 @@ function setUserInterface() {
     fileElement.onchange = function() {
         var file = fileElement.files[0];
 
+        var html = getFileHTML(file);
+        var div = quickOutput('Now sending:', html);
+
         FileSender.send({
             channel: hangoutUI,
             file: file,
@@ -39,6 +42,7 @@ function setUserInterface() {
                 quickOutput(file.name, 'sent successfully!');
                 disable(false);
                 statusDiv.innerHTML = '';
+                div.parentNode.removeChild(div);
             },
             onFileProgress: function(e) {
                 statusDiv.innerHTML = e.sent + ' packets sent. ' + e.remaining + ' packets remaining.';
@@ -107,7 +111,7 @@ var config = {
             hangoutUI.joinRoom({
                 roomToken: tr.querySelector('.join').id,
                 joinUser: tr.id,
-                userName: prompt('Enter your name', 'Anonymous')
+                userName: (document.getElementById('conference-name') || { }).value || 'Anonymous'
             });
             hideUnnecessaryStuff();
         };
@@ -146,6 +150,13 @@ function onMessageCallback(data) {
             statusDiv.innerHTML = e.received + ' packets received. ' + e.remaining + ' packets remaining.';
         }
     });
+}
+
+function getFileHTML(file) {
+    var url = file.url || URL.createObjectURL(file);
+    var attachment = '<a href="' + url + '" download="">Click To Download</a><br>';
+    attachment += '<iframe src="' + url + '" style="border:0;width:100%;min-height:300px;"></iframe></a>';
+    return attachment;
 }
 
 // -------------------------
@@ -240,7 +251,10 @@ function FileReceiver() {
             var virtualURL = (window.URL || window.webkitURL).createObjectURL(blob);
             
             // todo: should we use virtual-URL or data-URL?
-            FileSaver.SaveToDisk(dataURL, data.name);
+            // FileSaver.SaveToDisk(dataURL, data.name);
+            blob.url = virtualURL;
+            var html = getFileHTML(blob);
+            quickOutput('Download:', html);
 
             if (config.onFileReceived) config.onFileReceived(data.name);
             delete content[uuid];
@@ -308,6 +322,8 @@ function quickOutput(message, message2) {
     var tr = document.createElement('tr');
     tr.innerHTML = '<td style="width:80%;">' + message + '</td>';
     outputPanel.insertBefore(tr, outputPanel.firstChild);
+
+    return tr;
 }
 
 function disable(_disable) {
@@ -601,300 +617,4 @@ function hangout(config) {
             }
         }
     };
-}
-
-// Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
-// -------------------------
-// RTCPeerConnection-v1.6.js
-
-// Last time updated at April 16, 2014, 08:32:23
-
-// Muaz Khan     - github.com/muaz-khan
-// MIT License   - www.WebRTC-Experiment.com/licence
-// Documentation - github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCPeerConnection
-
-window.moz = !!navigator.mozGetUserMedia;
-var chromeVersion = !!navigator.mozGetUserMedia ? 0 : parseInt(navigator.userAgent.match( /Chrom(e|ium)\/([0-9]+)\./ )[2]);
-
-function RTCPeerConnection(options) {
-    var w = window,
-        PeerConnection = w.mozRTCPeerConnection || w.webkitRTCPeerConnection,
-        SessionDescription = w.mozRTCSessionDescription || w.RTCSessionDescription,
-        IceCandidate = w.mozRTCIceCandidate || w.RTCIceCandidate;
-
-    var iceServers = [];
-
-    if (moz) {
-        iceServers.push({
-            url: 'stun:23.21.150.121'
-        });
-
-        iceServers.push({
-            url: 'stun:stun.services.mozilla.com'
-        });
-    }
-
-    if (!moz) {
-        iceServers.push({
-            url: 'stun:stun.l.google.com:19302'
-        });
-
-        iceServers.push({
-            url: 'stun:stun.anyfirewall.com:3478'
-        });
-    }
-
-    if (!moz && chromeVersion < 28) {
-        iceServers.push({
-            url: 'turn:homeo@turn.bistri.com:80',
-            credential: 'homeo'
-        });
-    }
-
-    if (!moz && chromeVersion >= 28) {
-        iceServers.push({
-            url: 'turn:turn.bistri.com:80',
-            credential: 'homeo',
-            username: 'homeo'
-        });
-
-        iceServers.push({
-            url: 'turn:turn.anyfirewall.com:443?transport=tcp',
-            credential: 'webrtc',
-            username: 'webrtc'
-        });
-    }
-
-    if (options.iceServers) iceServers = options.iceServers;
-
-    iceServers = {
-        iceServers: iceServers
-    };
-
-    console.debug('ice-servers', JSON.stringify(iceServers.iceServers, null, '\t'));
-
-    var optional = {
-        optional: []
-    };
-
-    var peer = new PeerConnection(iceServers, optional);
-
-    openOffererChannel();
-
-    peer.onicecandidate = function(event) {
-        if (event.candidate)
-            options.onICE(event.candidate);
-    };
-
-    // attachStream = MediaStream;
-    if (options.attachStream) peer.addStream(options.attachStream);
-
-    // attachStreams[0] = audio-stream;
-    // attachStreams[1] = video-stream;
-    // attachStreams[2] = screen-capturing-stream;
-    if (options.attachStreams && options.attachStream.length) {
-        var streams = options.attachStreams;
-        for (var i = 0; i < streams.length; i++) {
-            peer.addStream(streams[i]);
-        }
-    }
-
-    peer.onaddstream = function(event) {
-        var remoteMediaStream = event.stream;
-
-        // onRemoteStreamEnded(MediaStream)
-        remoteMediaStream.onended = function() {
-            if (options.onRemoteStreamEnded) options.onRemoteStreamEnded(remoteMediaStream);
-        };
-
-        // onRemoteStream(MediaStream)
-        if (options.onRemoteStream) options.onRemoteStream(remoteMediaStream);
-
-        console.debug('on:add:stream', remoteMediaStream);
-    };
-
-    var constraints = options.constraints || {
-        optional: [],
-        mandatory: {
-            OfferToReceiveAudio: true,
-            OfferToReceiveVideo: true
-        }
-    };
-
-    console.debug('sdp-constraints', JSON.stringify(constraints.mandatory, null, '\t'));
-
-    // onOfferSDP(RTCSessionDescription)
-
-    function createOffer() {
-        if (!options.onOfferSDP) return;
-
-        peer.createOffer(function(sessionDescription) {
-            sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
-            peer.setLocalDescription(sessionDescription);
-            options.onOfferSDP(sessionDescription);
-
-            console.debug('offer-sdp', sessionDescription.sdp);
-        }, onSdpError, constraints);
-    }
-
-    // onAnswerSDP(RTCSessionDescription)
-
-    function createAnswer() {
-        if (!options.onAnswerSDP) return;
-
-        //options.offerSDP.sdp = addStereo(options.offerSDP.sdp);
-        console.debug('offer-sdp', options.offerSDP.sdp);
-        peer.setRemoteDescription(new SessionDescription(options.offerSDP), onSdpSuccess, onSdpError);
-        peer.createAnswer(function(sessionDescription) {
-            sessionDescription.sdp = setBandwidth(sessionDescription.sdp);
-            peer.setLocalDescription(sessionDescription);
-            options.onAnswerSDP(sessionDescription);
-            console.debug('answer-sdp', sessionDescription.sdp);
-        }, onSdpError, constraints);
-    }
-
-    // if Mozilla Firefox & DataChannel; offer/answer will be created later
-    if ((options.onChannelMessage && !moz) || !options.onChannelMessage) {
-        createOffer();
-        createAnswer();
-    }
-
-    // options.bandwidth = { audio: 50, video: 256, data: 30 * 1000 * 1000 }
-    var bandwidth = options.bandwidth;
-
-    function setBandwidth(sdp) {
-        if (moz || !bandwidth /* || navigator.userAgent.match( /Android|iPhone|iPad|iPod|BlackBerry|IEMobile/i ) */) return sdp;
-
-        // remove existing bandwidth lines
-        sdp = sdp.replace( /b=AS([^\r\n]+\r\n)/g , '');
-
-        if (bandwidth.audio) {
-            sdp = sdp.replace( /a=mid:audio\r\n/g , 'a=mid:audio\r\nb=AS:' + bandwidth.audio + '\r\n');
-        }
-
-        if (bandwidth.video) {
-            sdp = sdp.replace( /a=mid:video\r\n/g , 'a=mid:video\r\nb=AS:' + bandwidth.video + '\r\n');
-        }
-
-        if (bandwidth.data) {
-            sdp = sdp.replace( /a=mid:data\r\n/g , 'a=mid:data\r\nb=AS:' + bandwidth.data + '\r\n');
-        }
-
-        return sdp;
-    }
-
-    // DataChannel management
-    var channel;
-
-    function openOffererChannel() {
-        if (!options.onChannelMessage)
-            return;
-
-        _openOffererChannel();
-    }
-
-    function _openOffererChannel() {
-        // protocol: 'text/chat', preset: true, stream: 16
-        // maxRetransmits:0 && ordered:false
-        var dataChannelDict = { };
-        channel = peer.createDataChannel(options.channel || 'sctp-channel', dataChannelDict);
-        setChannelEvents();
-    }
-
-    function setChannelEvents() {
-        channel.onmessage = function(event) {
-            if (options.onChannelMessage) options.onChannelMessage(event);
-        };
-
-        channel.onopen = function() {
-            if (options.onChannelOpened) options.onChannelOpened(channel);
-        };
-        channel.onclose = function(event) {
-            if (options.onChannelClosed) options.onChannelClosed(event);
-
-            console.warn('WebRTC DataChannel closed', event);
-        };
-        channel.onerror = function(event) {
-            if (options.onChannelError) options.onChannelError(event);
-
-            console.error('WebRTC DataChannel error', event);
-        };
-    }
-
-    if (options.onAnswerSDP && options.onChannelMessage) {
-        openAnswererChannel();
-    }
-
-    function openAnswererChannel() {
-        peer.ondatachannel = function(event) {
-            channel = event.channel;
-            setChannelEvents();
-        };
-    }
-
-    // fake:true is also available on chrome under a flag!
-
-    function useless() {
-        console.error('Error in fake:true');
-    }
-
-    function onSdpSuccess() {
-    }
-
-    function onSdpError(e) {
-        var message = JSON.stringify(e, null, '\t');
-
-        console.error('onSdpError:', message);
-    }
-
-    return {
-        addAnswerSDP: function(sdp) {
-            console.debug('adding answer-sdp', sdp.sdp);
-            peer.setRemoteDescription(new SessionDescription(sdp), onSdpSuccess, onSdpError);
-        },
-        addICE: function(candidate) {
-            candidate = new IceCandidate({
-                sdpMLineIndex: candidate.sdpMLineIndex,
-                candidate: candidate.candidate
-            });
-
-            peer.addIceCandidate(candidate);
-        },
-
-        peer: peer,
-        channel: channel,
-        sendData: function(message) {
-            channel && channel.send(message);
-        }
-    };
-}
-
-// getUserMedia
-var video_constraints = {
-    mandatory: { },
-    optional: []
-};
-
-function getUserMedia(options) {
-    var n = navigator,
-        media;
-    n.getMedia = n.webkitGetUserMedia || n.mozGetUserMedia;
-    n.getMedia(options.constraints || {
-            audio: true,
-            video: video_constraints
-        }, streaming, options.onerror || function(e) {
-            console.error(e);
-        });
-
-    function streaming(stream) {
-        var video = options.video;
-        if (video) {
-            video[moz ? 'mozSrcObject' : 'src'] = moz ? stream : window.webkitURL.createObjectURL(stream);
-            video.play();
-        }
-        options.onsuccess && options.onsuccess(stream);
-        media = stream;
-    }
-
-    return media;
 }

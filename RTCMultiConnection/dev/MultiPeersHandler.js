@@ -39,8 +39,14 @@ function MultiPeers(connection) {
             var that = this;
 
             if (!isNull(data.size) && !isNull(data.type)) {
-                self.shareFile(data, remoteUserId);
-                return;
+                if (connection.enableFileSharing) {
+                    self.shareFile(data, remoteUserId);
+                    return;
+                }
+                
+                if (typeof data !== 'string') {
+                    data = JSON.stringify(data);
+                }
             }
 
             if (data.type !== 'text' && !(data instanceof ArrayBuffer) && !(data instanceof DataView)) {
@@ -386,10 +392,6 @@ function MultiPeers(connection) {
     }
 
     this.shareFile = function(file, remoteUserId) {
-        if (!connection.enableFileSharing) {
-            throw '"connection.enableFileSharing" is false.';
-        }
-
         initFileBufferReader();
 
         connection.fbr.readAsArrayBuffer(file, function(uuid) {

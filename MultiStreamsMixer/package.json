@@ -1,11 +1,11 @@
 {
   "name": "multistreamsmixer",
   "preferGlobal": true,
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
-    "url": "http://www.muazkhan.com/"
+    "url": "https://muazkhan.com/"
   },
   "description": "Pass multiple streams (e.g. screen+camera or multiple-cameras) and get single stream.",
   "scripts": {

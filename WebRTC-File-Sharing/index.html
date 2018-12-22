@@ -161,6 +161,7 @@
                 overflow: hidden;
             }
         </style>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
         <script src="File.js"></script>
         <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script><!-- required -->
         <script src="PeerConnection.js"></script>
@@ -217,7 +218,7 @@
                     progressHelper[file.uuid].progress.max = file.maxChunks;
                 },
                 onEnd: function(file) {
-                    progressHelper[file.uuid].li.innerHTML = '<a href="' + file.url + '" target="_blank" download="' + file.name + '">' + file.name + '</a>';
+                    progressHelper[file.uuid].li.innerHTML = getFileHTML(file);
                 },
                 onProgress: function(chunk) {
                     var helper = progressHelper[chunk.uuid];
@@ -227,6 +228,19 @@
                     updateLabel(helper.progress, helper.label);
                 }
             };
+
+            function getFileHTML(file) {
+                var url = file.url || URL.createObjectURL(file);
+                var attachment = '<a href="' + url + '" target="_blank" download="' + file.name + '">Download: <b>' + file.name + '</b></a>';
+                if (file.name.match(/\.jpg|\.png|\.jpeg|\.gif/gi)) {
+                    attachment += '<br><img crossOrigin="anonymous" src="' + url + '" style="max-width:100%;">';
+                } else if (file.name.match(/\.wav|\.mp3/gi)) {
+                    attachment += '<br><audio src="' + url + '" controls></audio>';
+                } else if (file.name.match(/\.pdf|\.js|\.txt|\.sh/gi)) {
+                    attachment += '<iframe class="inline-iframe" src="' + url + '"></iframe></a>';
+                }
+                return attachment;
+            }
 
             function bytesToSize(bytes) {
                 var k = 1000;

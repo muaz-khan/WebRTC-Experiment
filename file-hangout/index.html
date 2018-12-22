@@ -89,6 +89,7 @@
                 <table style="width: 100%;">
                     <tr>
                         <td>
+                            <input type="text" id="conference-name" placeholder="Enter Your Name">
                             <input type="button" value="Start sharing files in Group!" id="start-conferencing">
                             <input type="file" id="file" disabled>
 
@@ -146,7 +147,9 @@
         </article>
 
         <!-- Copy these two files! -->
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
         <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
         <script src="https://cdn.webrtc-experiment.com/file-hangout/file-hangout.js" async> </script>
 
         <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/file-hangout" class="fork-left"></a>

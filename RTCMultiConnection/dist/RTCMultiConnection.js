@@ -1,6 +1,6 @@
 'use strict';
 
-// Last time updated: 2018-12-11 12:02:18 PM UTC
+// Last time updated: 2018-12-20 3:57:01 AM UTC
 
 // _________________________
 // RTCMultiConnection v3.5.9
@@ -473,7 +473,9 @@ var RTCMultiConnection = function(roomid, forceOptions) {
                 var that = this;
 
                 if (!isNull(data.size) && !isNull(data.type)) {
-                    self.shareFile(data, remoteUserId);
+                    if (connection.enableFileSharing) {
+                        self.shareFile(data, remoteUserId);
+                    }
                     return;
                 }
 
@@ -820,10 +822,6 @@ var RTCMultiConnection = function(roomid, forceOptions) {
         }
 
         this.shareFile = function(file, remoteUserId) {
-            if (!connection.enableFileSharing) {
-                throw '"connection.enableFileSharing" is false.';
-            }
-
             initFileBufferReader();
 
             connection.fbr.readAsArrayBuffer(file, function(uuid) {
@@ -5834,7 +5832,7 @@ var RTCMultiConnection = function(roomid, forceOptions) {
 
         // default value should be 15k because [old]Firefox's receiving limit is 16k!
         // however 64k works chrome-to-chrome
-        connection.chunkSize = 65 * 1000;
+        connection.chunkSize = 40 * 1000;
 
         connection.maxParticipantsAllowed = 1000;
 

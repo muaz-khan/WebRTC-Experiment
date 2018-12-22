@@ -153,7 +153,11 @@ function RecordRTC(mediaStream, config) {
             }
 
             if (callback) {
-                var url = URL.createObjectURL(blob);
+                var url;
+
+                try {
+                    url = URL.createObjectURL(blob);
+                } catch (e) {}
 
                 if (typeof callback.call === 'function') {
                     callback.call(self, url);
@@ -258,15 +262,17 @@ function RecordRTC(mediaStream, config) {
         }
 
         function processInWebWorker(_function) {
-            var blob = URL.createObjectURL(new Blob([_function.toString(),
-                'this.onmessage =  function (eee) {' + _function.name + '(eee.data);}'
-            ], {
-                type: 'application/javascript'
-            }));
+            try {
+                var blob = URL.createObjectURL(new Blob([_function.toString(),
+                    'this.onmessage =  function (eee) {' + _function.name + '(eee.data);}'
+                ], {
+                    type: 'application/javascript'
+                }));
 
-            var worker = new Worker(blob);
-            URL.revokeObjectURL(blob);
-            return worker;
+                var worker = new Worker(blob);
+                URL.revokeObjectURL(blob);
+                return worker;
+            } catch (e) {}
         }
     }
 

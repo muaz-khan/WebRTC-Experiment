@@ -465,51 +465,49 @@
 
     var IceServersHandler = (function() {
         function getIceServers(connection) {
-            var iceServers = [];
+            // resiprocate: 3344+4433
+            // pions: 7575
+            var iceServers = [{
+                    'urls': [
+                        'stun:webrtcweb.com:7788', // coTURN
+                        'stun:webrtcweb.com:7788?transport=udp', // coTURN
+                    ],
+                    'username': 'muazkh',
+                    'credential': 'muazkh'
+                },
+                {
+                    'urls': [
+                        'turn:webrtcweb.com:7788', // coTURN 7788+8877
+                        'turn:webrtcweb.com:4455?transport=udp', // restund udp
 
-            iceServers.push(getSTUNObj('stun:stun.l.google.com:19302'));
+                        'turn:webrtcweb.com:8877?transport=udp', // coTURN udp
+                        'turn:webrtcweb.com:8877?transport=tcp', // coTURN tcp
+                    ],
+                    'username': 'muazkh',
+                    'credential': 'muazkh'
+                },
+                {
+                    'urls': [
+                        'stun:stun.l.google.com:19302',
+                        'stun:stun1.l.google.com:19302',
+                        'stun:stun2.l.google.com:19302',
+                        'stun:stun.l.google.com:19302?transport=udp',
+                    ]
+                }
+            ];
 
-            iceServers.push(getTURNObj('stun:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
-            iceServers.push(getTURNObj('turn:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
-            iceServers.push(getTURNObj('turn:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
-
-            iceServers.push(getTURNObj('turns:webrtcweb.com:7788', 'muazkh', 'muazkh')); // coTURN
-            iceServers.push(getTURNObj('turns:webrtcweb.com:8877', 'muazkh', 'muazkh')); // coTURN
-
-            // iceServers.push(getTURNObj('turn:webrtcweb.com:3344', 'muazkh', 'muazkh')); // resiprocate
-            // iceServers.push(getTURNObj('turn:webrtcweb.com:4433', 'muazkh', 'muazkh')); // resiprocate
-
-            // check if restund is still active: http://webrtcweb.com:4050/
-            iceServers.push(getTURNObj('stun:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
-            iceServers.push(getTURNObj('turn:webrtcweb.com:4455', 'muazkh', 'muazkh')); // restund
-            iceServers.push(getTURNObj('turn:webrtcweb.com:5544?transport=tcp', 'muazkh', 'muazkh')); // restund
+            if (typeof window.InstallTrigger !== 'undefined') {
+                iceServers = [{
+                    'urls': [
+                        'turn:webrtcweb.com:7788',
+                        'stun:webrtcweb.com:7788',
+                    ],
+                    'username': 'muazkh',
+                    'credential': 'muazkh'
+                }];
+            }
 
             return iceServers;
-        }
-
-        function getSTUNObj(stunStr) {
-            var urlsParam = 'urls';
-            if (typeof isPluginRTC !== 'undefined') {
-                urlsParam = 'url';
-            }
-
-            var obj = {};
-            obj[urlsParam] = stunStr;
-            return obj;
-        }
-
-        function getTURNObj(turnStr, username, credential) {
-            var urlsParam = 'urls';
-            if (typeof isPluginRTC !== 'undefined') {
-                urlsParam = 'url';
-            }
-
-            var obj = {
-                username: username,
-                credential: credential
-            };
-            obj[urlsParam] = turnStr;
-            return obj;
         }
 
         return {
@@ -521,9 +519,6 @@
     var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
     var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
     var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
-
-    navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    window.URL = window.URL || window.webkitURL;
 
     var iceServers = {
         iceServers: IceServersHandler.getIceServers()
@@ -580,16 +575,16 @@
                 }
             };
 
-            peer.createOffer(function(sdp) {
+            peer.createOffer(offerAnswerConstraints).then(function(sdp) {
                 peer.setLocalDescription(sdp);
-            }, onSdpError, offerAnswerConstraints);
+            }).catch(onSdpError);
 
             this.peer = peer;
 
             return this;
         },
         setRemoteDescription: function(sdp) {
-            this.peer.setRemoteDescription(new RTCSessionDescription(sdp), onSdpSuccess, onSdpError);
+            this.peer.setRemoteDescription(new RTCSessionDescription(sdp));
         },
         addIceCandidate: function(candidate) {
             this.peer.addIceCandidate(new RTCIceCandidate({
@@ -639,15 +634,16 @@
                 }
             };
 
-            peer.setRemoteDescription(new RTCSessionDescription(config.sdp), onSdpSuccess, onSdpError);
-            peer.createAnswer(function(sdp) {
-                peer.setLocalDescription(sdp);
-
-                config.onsdp({
-                    sdp: sdp,
-                    userid: config.to
-                });
-            }, onSdpError, offerAnswerConstraints);
+            peer.setRemoteDescription(new RTCSessionDescription(config.sdp)).then(function() {
+                peer.createAnswer(offerAnswerConstraints).then(function(sdp) {
+                    peer.setLocalDescription(sdp).then(function() {
+                        config.onsdp({
+                            sdp: sdp,
+                            userid: config.to
+                        });
+                    });
+                }).catch(onSdpError);
+            }).catch(onSdpError);
 
             this.peer = peer;
 

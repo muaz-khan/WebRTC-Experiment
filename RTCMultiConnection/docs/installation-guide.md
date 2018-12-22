@@ -10,7 +10,7 @@
 
 ```sh
 git clone https://github.com/muaz-khan/RTCMultiConnection.git ./
-npm install --production
+npm install
 ```
 
 Or download ZIP:
@@ -20,15 +20,14 @@ wget https://github.com/muaz-khan/RTCMultiConnection/archive/master.zip
 unzip master.zip
 ```
 
-Then call `npm install --production`.
+Then call `npm install`.
 
-Use `--production` to skip `grunt` dependencies. You don't need `grunt` until you modify library itself.
 
 # Install using NPM or Bower
 
 
 ```sh
-npm install rtcmulticonnection --production
+npm install rtcmulticonnection
 
 # or
 bower install rtcmulticonnection
@@ -37,6 +36,10 @@ bower install rtcmulticonnection
 # Run `server.js`
 
 ```sh
+# install all required packages first
+npm install
+
+# then run the server
 node server.js
 ```
 
@@ -44,7 +47,7 @@ Now open `http://localhost:9001/`.
 
 # Modify config.json
 
-* https://github.com/muaz-khan/RTCMultiConnection/blob/master/config.json
+* https://github.com/muaz-khan/RTCMultiConnection-Server/wiki/config.json
 
 ```json
 {

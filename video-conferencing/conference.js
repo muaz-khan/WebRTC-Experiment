@@ -115,7 +115,7 @@ var conference = function(config) {
                 peerConfig.onAnswerSDP = sendsdp;
             }
 
-            peer = RTCPeerConnection5(peerConfig);
+            peer = RTCPeerConnection(peerConfig);
         }
         
         function afterRemoteStreamStartedFlowing() {

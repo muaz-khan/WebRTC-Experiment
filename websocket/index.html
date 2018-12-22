@@ -68,6 +68,7 @@
         </script>
 
         <!-- scripts used for peers connection -->
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
         <script src="https://cdn.webrtc-experiment.com/websocket/PeerConnection.js"> </script>
         <script src="https://cdn.webrtc-experiment.com/view/websocket.js"> </script>
     </head>
@@ -267,7 +268,7 @@
                     };
                     navigator.getUserMedia(hints, function(stream) {
                         var video = document.createElement('video');
-                        video.src = URL.createObjectURL(stream);
+                        video.srcObject = stream;
                         video.controls = true;
                         video.muted = true;
 
@@ -384,7 +385,7 @@ function getUserMedia(callback) {
 
         // preview local video
         var video = document.createElement('video');
-        video.src = URL.createObjectURL(stream);
+        video.srcObject = stream;
         video.controls = true;
         video.muted = true;
 

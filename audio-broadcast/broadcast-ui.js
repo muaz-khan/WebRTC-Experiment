@@ -78,6 +78,10 @@ function captureUserMedia(callback) {
     var audio = document.createElement('audio');
     audio.setAttribute('autoplay', true);
     audio.setAttribute('controls', true);
+
+    audio.muted = true;
+    audio.volume = 0;
+
     participants.insertBefore(audio, participants.firstChild);
 
     getUserMedia({
@@ -87,7 +91,9 @@ function captureUserMedia(callback) {
             config.attachStream = stream;
             callback && callback();
 
-            audio.setAttribute('muted', true);
+            audio.muted = true;
+            audio.volume = 0;
+            
             rotateAudio(audio);
         },
         onerror: function() {

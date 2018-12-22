@@ -49,14 +49,14 @@ function MediaStreamRecorder(mediaStream, config) {
     };
 
     if (config.type === 'audio') {
-        if (mediaStream.getVideoTracks().length && mediaStream.getAudioTracks().length) {
+        if (getTracks(mediaStream, 'video').length && getTracks(mediaStream, 'audio').length) {
             var stream;
             if (!!navigator.mozGetUserMedia) {
                 stream = new MediaStream();
-                stream.addTrack(mediaStream.getAudioTracks()[0]);
+                stream.addTrack(getTracks(mediaStream, 'audio')[0]);
             } else {
                 // webkitMediaStream
-                stream = new MediaStream(mediaStream.getAudioTracks());
+                stream = new MediaStream(getTracks(mediaStream, 'audio'));
             }
             mediaStream = stream;
         }

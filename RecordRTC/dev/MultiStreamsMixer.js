@@ -1,7 +1,7 @@
-// Last time updated: 2018-03-02 2:56:28 AM UTC
+// Last time updated: 2018-12-22 9:13:29 AM UTC
 
 // ________________________
-// MultiStreamsMixer v1.0.5
+// MultiStreamsMixer v1.0.7
 
 // Open-Sourced: https://github.com/muaz-khan/MultiStreamsMixer
 
@@ -77,36 +77,6 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
 
     /*global MediaStream:true */
     if (typeof MediaStream !== 'undefined') {
-        if (!('getVideoTracks' in MediaStream.prototype)) {
-            MediaStream.prototype.getVideoTracks = function() {
-                if (!this.getTracks) {
-                    return [];
-                }
-
-                var tracks = [];
-                this.getTracks.forEach(function(track) {
-                    if (track.kind.toString().indexOf('video') !== -1) {
-                        tracks.push(track);
-                    }
-                });
-                return tracks;
-            };
-
-            MediaStream.prototype.getAudioTracks = function() {
-                if (!this.getTracks) {
-                    return [];
-                }
-
-                var tracks = [];
-                this.getTracks.forEach(function(track) {
-                    if (track.kind.toString().indexOf('audio') !== -1) {
-                        tracks.push(track);
-                    }
-                });
-                return tracks;
-            };
-        }
-
         // override "stop" method for all browsers
         if (typeof MediaStream.prototype.stop === 'undefined') {
             MediaStream.prototype.stop = function() {
@@ -125,20 +95,13 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
         Storage.AudioContext = webkitAudioContext;
     }
 
-    function setSrcObject(stream, element, ignoreCreateObjectURL) {
-        if ('createObjectURL' in URL && !ignoreCreateObjectURL) {
-            try {
-                element.src = URL.createObjectURL(stream);
-            } catch (e) {
-                setSrcObject(stream, element, true);
-                return;
-            }
-        } else if ('srcObject' in element) {
+    function setSrcObject(stream, element) {
+        if ('srcObject' in element) {
             element.srcObject = stream;
         } else if ('mozSrcObject' in element) {
             element.mozSrcObject = stream;
         } else {
-            alert('createObjectURL/srcObject both are not supported.');
+            element.srcObject = stream;
         }
     }
 
@@ -273,7 +236,9 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
 
         var mixedAudioStream = getMixedAudioStream();
         if (mixedAudioStream) {
-            mixedAudioStream.getAudioTracks().forEach(function(track) {
+            mixedAudioStream.getTracks().filter(function(t) {
+                return t.kind === 'audio';
+            }).forEach(function(track) {
                 mixedVideoStream.addTrack(track);
             });
         }
@@ -303,7 +268,9 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
 
         var videoStream = new MediaStream();
 
-        capturedStream.getVideoTracks().forEach(function(track) {
+        capturedStream.getTracks().filter(function(t) {
+            return t.kind === 'video';
+        }).forEach(function(track) {
             videoStream.addTrack(track);
         });
 
@@ -330,7 +297,9 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
 
         var audioTracksLength = 0;
         arrayOfMediaStreams.forEach(function(stream) {
-            if (!stream.getAudioTracks().length) {
+            if (!stream.getTracks().filter(function(t) {
+                    return t.kind === 'audio';
+                }).length) {
                 return;
             }
 
@@ -384,13 +353,17 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
         arrayOfMediaStreams.concat(streams);
 
         streams.forEach(function(stream) {
-            if (stream.getVideoTracks().length) {
+            if (stream.getTracks().filter(function(t) {
+                    return t.kind === 'video';
+                }).length) {
                 var video = getVideo(stream);
                 video.stream = stream;
                 videos.push(video);
             }
 
-            if (stream.getAudioTracks().length && self.audioContext) {
+            if (stream.getTracks().filter(function(t) {
+                    return t.kind === 'audio';
+                }).length && self.audioContext) {
                 var audioSource = self.audioContext.createMediaStreamSource(stream);
                 audioSource.connect(self.audioDestination);
                 self.audioSources.push(audioSource);
@@ -447,7 +420,9 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
 
         // via: @adrian-ber
         streams.forEach(function(stream) {
-            if (!stream.getVideoTracks().length) {
+            if (!stream.getTracks().filter(function(t) {
+                    return t.kind === 'video';
+                }).length) {
                 return;
             }
 

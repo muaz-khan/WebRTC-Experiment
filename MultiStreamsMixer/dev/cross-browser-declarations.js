@@ -65,9 +65,7 @@ function setSrcObject(stream, element) {
         element.srcObject = stream;
     } else if ('mozSrcObject' in element) {
         element.mozSrcObject = stream;
-    } else if ('createObjectURL' in URL) {
-        element.src = URL.createObjectURL(stream);
     } else {
-        alert('createObjectURL/srcObject both are not supported.');
+        element.srcObject = stream;
     }
 }

@@ -12,8 +12,16 @@
 
 ```sh
 mkdir demo && cd demo
+
+# install from NPM
+npm install rtcmulticonnection
+
+# or clone from github
 git clone https://github.com/muaz-khan/RTCMultiConnection.git ./
-npm install --production
+
+# install all required packages
+# you can optionally include --save-dev
+npm install
 node server --port=9001
 ```
 
@@ -31,6 +39,7 @@ connection.socketURL = 'https://webrtcweb.com:9001/';
 
 ```sh
 npm install rtcmulticonnection-server
+node server --port=9001
 ```
 
 For more info, please check:
@@ -58,12 +67,14 @@ For more info, please check:
 ## iOS+Android Demo Apps
 
 * https://github.com/muaz-khan/cordova-mobile-apps
+* https://webrtcweb.com/cordova-apps/
 
 > Note: RTCMultiConnection supports Safari-11 and Edge.
 
 ## Wiki Pages
 
 * https://github.com/muaz-khan/RTCMultiConnection/wiki
+* https://github.com/muaz-khan/RTCMultiConnection-Server/wiki
 
 ## License
 

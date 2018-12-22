@@ -25,7 +25,7 @@
  */
 
 function StereoAudioRecorder(mediaStream, config) {
-    if (!mediaStream.getAudioTracks().length) {
+    if (!getTracks(mediaStream, 'audio').length) {
         throw 'Your stream has no audio tracks.';
     }
 

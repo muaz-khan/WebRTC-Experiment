@@ -71,7 +71,7 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
         // github/muaz-khan/MultiStreamsMixer
         mixer = new MultiStreamsMixer(arrayOfMediaStreams);
 
-        if (getVideoTracks().length) {
+        if (getAllVideoTracks().length) {
             mixer.frameInterval = options.frameInterval || 10;
             mixer.width = options.video.width || 360;
             mixer.height = options.video.height || 240;
@@ -87,10 +87,10 @@ function MultiStreamRecorder(arrayOfMediaStreams, options) {
         mediaRecorder.record();
     };
 
-    function getVideoTracks() {
+    function getAllVideoTracks() {
         var tracks = [];
         arrayOfMediaStreams.forEach(function(stream) {
-            stream.getVideoTracks().forEach(function(track) {
+            getTracks(stream, 'video').forEach(function(track) {
                 tracks.push(track);
             });
         });

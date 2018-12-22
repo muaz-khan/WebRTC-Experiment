@@ -102,7 +102,7 @@
 
                 var mediaElement = document.createElement('video');
                 mediaElement.id = root.participant;
-                mediaElement[isFirefox ? 'mozSrcObject' : 'src'] = isFirefox ? stream : window.webkitURL.createObjectURL(stream);
+                mediaElement.srcObject = stream;
                 mediaElement.autoplay = true;
                 mediaElement.controls = true;
                 mediaElement.play();
@@ -213,9 +213,6 @@
     var RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
     var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
 
-    navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-    window.URL = window.webkitURL || window.URL;
-
     var isFirefox = !!navigator.mozGetUserMedia;
     var isChrome = !!navigator.webkitGetUserMedia;
 
@@ -223,31 +220,13 @@
         url: isChrome ? 'stun:stun.l.google.com:19302' : 'stun:23.21.150.121'
     };
 
-    var TURN = {
-        url: 'turn:homeo@turn.bistri.com:80',
-        credential: 'homeo'
-    };
-
     var iceServers = {
         iceServers: [STUN]
     };
 
-    if (isChrome) {
-        if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28)
-            TURN = {
-                url: 'turn:turn.bistri.com:80',
-                credential: 'homeo',
-                username: 'homeo'
-            };
-
-        iceServers.iceServers = [STUN, TURN];
+    if(typeof IceServersHandler !== 'undefined') {
+        iceServers.iceServers = IceServersHandler.getIceServers();
     }
-
-    var optionalArgument = {
-        optional: [{
-            DtlsSrtpKeyAgreement: true
-        }]
-    };
 
     var offerAnswerConstraints = {
         optional: [],
@@ -260,39 +239,56 @@
     function getToken() {
         return Math.round(Math.random() * 9999999999) + 9999999999;
     }
-	
-	function onSdpError() {}
+    
+    function onSdpError() {}
 
     // var offer = Offer.createOffer(config);
     // offer.setRemoteDescription(sdp);
     // offer.addIceCandidate(candidate);
     var Offer = {
-        createOffer: function (config) {
-            var peer = new RTCPeerConnection(iceServers, optionalArgument);
+        createOffer: function(config) {
+            var peer = new RTCPeerConnection(iceServers);
 
-            if (config.MediaStream) peer.addStream(config.MediaStream);
-            peer.onaddstream = function (event) {
-                config.onStreamAdded(event.stream);
-            };
+            if(typeof peer.addTrack === 'function') {
+                if (config.MediaStream) {
+                    config.MediaStream.getTracks().forEach(function(track) {
+                        peer.addTrack(track, config.MediaStream);
+                    });
+                }
+                var dontDuplicate = {};
+                peer.ontrack = function(event) {
+                    var stream = event.streams[0];
+                    if(dontDuplicate[stream.id]) return;
+                    dontDuplicate[stream.id] = true;
+                    config.onStreamAdded(stream);
+                };
+            }
+            else {
+                if (config.MediaStream) peer.addStream(config.MediaStream);
+                peer.onaddstream = function(event) {
+                    config.onStreamAdded(event.stream);
+                };
+            }
 
-            peer.onicecandidate = function (event) {
+            peer.onicecandidate = function(event) {
                 if (event.candidate)
                     config.onicecandidate(event.candidate);
             };
 
-            peer.createOffer(function (sdp) {
-                peer.setLocalDescription(sdp);
-                config.onsdp(sdp);
-            }, onSdpError, offerAnswerConstraints);
+            peer.createOffer(offerAnswerConstraints).then(function(sdp) {
+                peer.setLocalDescription(sdp).then(function() {
+                    config.onsdp(sdp);
+                });
+            }).catch(onSdpError);
 
             this.peer = peer;
 
             return this;
         },
-        setRemoteDescription: function (sdp) {
+        setRemoteDescription: function(sdp) {
             this.peer.setRemoteDescription(new RTCSessionDescription(sdp));
         },
-        addIceCandidate: function (candidate) {
+        addIceCandidate: function(candidate) {
             this.peer.addIceCandidate(new RTCIceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
@@ -304,30 +300,47 @@
     // answer.setRemoteDescription(sdp);
     // answer.addIceCandidate(candidate);
     var Answer = {
-        createAnswer: function (config) {
-            var peer = new RTCPeerConnection(iceServers, optionalArgument);
+        createAnswer: function(config) {
+            var peer = new RTCPeerConnection(iceServers);
 
-            if (config.MediaStream) peer.addStream(config.MediaStream);
-            peer.onaddstream = function (event) {
-                config.onStreamAdded(event.stream);
-            };
+            if(typeof peer.addTrack === 'function') {
+                if (config.MediaStream) {
+                    config.MediaStream.getTracks().forEach(function(track) {
+                        peer.addTrack(track, config.MediaStream);
+                    });
+                }
+                var dontDuplicate = {};
+                peer.ontrack = function(event) {
+                    var stream = event.streams[0];
+                    if(dontDuplicate[stream.id]) return;
+                    dontDuplicate[stream.id] = true;
+                    config.onStreamAdded(stream);
+                };
+            }
+            else {
+                if (config.MediaStream) peer.addStream(config.MediaStream);
+                peer.onaddstream = function(event) {
+                    config.onStreamAdded(event.stream);
+                };
+            }
 
-            peer.onicecandidate = function (event) {
+            peer.onicecandidate = function(event) {
                 if (event.candidate)
                     config.onicecandidate(event.candidate);
             };
 
-            peer.setRemoteDescription(new RTCSessionDescription(config.sdp));
-            peer.createAnswer(function (sdp) {
-                peer.setLocalDescription(sdp);
-                config.onsdp(sdp);
-            }, onSdpError, offerAnswerConstraints);
+            peer.setRemoteDescription(new RTCSessionDescription(config.sdp)).then(function() {
+                peer.createAnswer(offerAnswerConstraints).then(function(sdp) {
+                    peer.setLocalDescription(sdp);
+                    config.onsdp(sdp);
+                }).catch(onSdpError);
+            });
 
             this.peer = peer;
 
             return this;
         },
-        addIceCandidate: function (candidate) {
+        addIceCandidate: function(candidate) {
             this.peer.addIceCandidate(new RTCIceCandidate({
                 sdpMLineIndex: candidate.sdpMLineIndex,
                 candidate: candidate.candidate
@@ -341,23 +354,20 @@
         }
         return mergein;
     }
-	
-	window.URL = window.webkitURL || window.URL;
-	navigator.getMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-	navigator.getUserMedia = function(hints, onsuccess, onfailure) {
-		if(!hints) hints = {audio:true,video:true};
-		if(!onsuccess) throw 'Second argument is mandatory. navigator.getUserMedia(hints,onsuccess,onfailure)';
-		
-		navigator.getMedia(hints, _onsuccess, _onfailure);
-		
-		function _onsuccess(stream) {
-			onsuccess(stream);
-		}
-		
-		function _onfailure(e) {
-			if(onfailure) onfailure(e);
-			else throw Error('getUserMedia failed: ' + JSON.stringify(e, null, '\t'));
-		}
-	};
-	
+
+    navigator.getUserMedia = function(hints, onsuccess, onfailure) {
+        if(!hints) hints = {audio:true,video:true};
+        if(!onsuccess) throw 'Second argument is mandatory. navigator.getUserMedia(hints,onsuccess,onfailure)';
+        
+        navigator.mediaDevices.getUserMedia(hints).then(_onsuccess).catch(_onfailure);
+        
+        function _onsuccess(stream) {
+            onsuccess(stream);
+        }
+        
+        function _onfailure(e) {
+            if(onfailure) onfailure(e);
+            else throw Error('getUserMedia failed: ' + JSON.stringify(e, null, '\t'));
+        }
+    };
 })();

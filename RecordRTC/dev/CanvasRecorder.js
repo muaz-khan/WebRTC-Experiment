@@ -98,7 +98,7 @@ function CanvasRecorder(htmlElement, config) {
 
             try {
                 var mdStream = new MediaStream();
-                mdStream.addTrack(canvasMediaStream.getVideoTracks()[0]);
+                mdStream.addTrack(getTracks(canvasMediaStream, 'video')[0]);
                 canvasMediaStream = mdStream;
             } catch (e) {}
 

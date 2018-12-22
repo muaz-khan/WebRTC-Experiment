@@ -98,36 +98,6 @@ if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefine
 
 /*global MediaStream:true */
 if (typeof MediaStream !== 'undefined') {
-    if (!('getVideoTracks' in MediaStream.prototype)) {
-        MediaStream.prototype.getVideoTracks = function() {
-            if (!this.getTracks) {
-                return [];
-            }
-
-            var tracks = [];
-            this.getTracks().forEach(function(track) {
-                if (track.kind.toString().indexOf('video') !== -1) {
-                    tracks.push(track);
-                }
-            });
-            return tracks;
-        };
-
-        MediaStream.prototype.getAudioTracks = function() {
-            if (!this.getTracks) {
-                return [];
-            }
-
-            var tracks = [];
-            this.getTracks().forEach(function(track) {
-                if (track.kind.toString().indexOf('audio') !== -1) {
-                    tracks.push(track);
-                }
-            });
-            return tracks;
-        };
-    }
-
     // override "stop" method for all browsers
     if (typeof MediaStream.prototype.stop === 'undefined') {
         MediaStream.prototype.stop = function() {
@@ -234,19 +204,22 @@ function isElectron() {
     return false;
 }
 
-function setSrcObject(stream, element, ignoreCreateObjectURL) {
+function getTracks(stream, kind) {
+    if (!stream || !stream.getTracks) {
+        return [];
+    }
+
+    return stream.getTracks().filter(function(t) {
+        return t.kind === (kind || 'audio');
+    });
+}
+
+function setSrcObject(stream, element) {
     if ('srcObject' in element) {
         element.srcObject = stream;
     } else if ('mozSrcObject' in element) {
         element.mozSrcObject = stream;
-    } else if ('createObjectURL' in URL && !ignoreCreateObjectURL) {
-        try {
-            element.src = URL.createObjectURL(stream);
-        } catch (e) {
-            setSrcObject(stream, element, true);
-            return;
-        }
     } else {
-        alert('createObjectURL/srcObject both are not supported.');
+        element.srcObject = stream;
     }
 }

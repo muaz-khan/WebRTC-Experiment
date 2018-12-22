@@ -1,7 +1,7 @@
-// Last time updated: 2018-10-26 9:05:36 AM UTC
+// Last time updated: 2018-12-22 9:13:29 AM UTC
 
 // ________________________
-// MultiStreamsMixer v1.0.5
+// MultiStreamsMixer v1.0.7
 
 // Open-Sourced: https://github.com/muaz-khan/MultiStreamsMixer
 
@@ -100,10 +100,8 @@ function MultiStreamsMixer(arrayOfMediaStreams) {
             element.srcObject = stream;
         } else if ('mozSrcObject' in element) {
             element.mozSrcObject = stream;
-        } else if ('createObjectURL' in URL) {
-            element.src = URL.createObjectURL(stream);
         } else {
-            alert('createObjectURL/srcObject both are not supported.');
+            element.srcObject = stream;
         }
     }
 

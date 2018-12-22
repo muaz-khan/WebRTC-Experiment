@@ -1,12 +1,12 @@
 {
     "name": "multistreamsmixer",
     "description": "Pass multiple streams (e.g. screen+camera or multiple-cameras) and get single stream.",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "authors": [
         {
             "name": "Muaz Khan",
             "email": "muazkh@gmail.com",
-            "homepage": "http://www.muazkhan.com/"
+            "homepage": "https://muazkhan.com/"
         }
     ],
     "main": "./MultiStreamsMixer.js",
