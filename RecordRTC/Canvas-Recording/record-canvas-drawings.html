@@ -877,8 +877,7 @@
                     stream.stop();
                 };
 
-                setSrcObject(stream, screenVideoElement);
-                screenVideoElement.play();
+                screenVideoElement.srcObject = stream;
             }).catch(function (error) {
                 alert(JSON.stringify(error));
             });

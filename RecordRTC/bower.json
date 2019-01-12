@@ -1,11 +1,11 @@
 {
   "name": "recordrtc",
-  "version": "5.5.0",
+  "version": "5.5.1",
   "authors": [
         {
             "name": "Muaz Khan",
             "email": "muazkh@gmail.com",
-            "homepage": "http://www.muazkhan.com/"
+            "homepage": "https://muazkhan.com/"
         }
    ],
   "homepage": "http://recordrtc.org",

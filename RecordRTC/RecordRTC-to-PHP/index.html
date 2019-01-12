@@ -1,4 +1,3 @@
-
 <!--
 > Muaz Khan     - www.MuazKhan.com
 > MIT License   - www.WebRTC-Experiment.com/licence
@@ -82,9 +81,10 @@
     <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
     <script src="https://cdn.webrtc-experiment.com/gif-recorder.js"></script>
     <script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"> </script>
 
     <!-- for Edige/FF/Chrome/Opera/etc. getUserMedia support -->
-    <script src="https://cdn.webrtc-experiment.com/gumadapter.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 </head>
 
 <body>
@@ -141,7 +141,7 @@
 
             <br>
 
-            <video controls muted></video>
+            <video controls muted playsinline></video>
         </section>
 
         <script>
@@ -288,7 +288,6 @@
                             }
 
                             recordingPlayer.src = url;
-                            recordingPlayer.play();
 
                             recordingPlayer.onended = function() {
                                 recordingPlayer.pause();
@@ -310,7 +309,7 @@
                             sampleRate: typeof params.sampleRate == 'undefined' ? 44100 : parseInt(params.sampleRate),
                             leftChannel: params.leftChannel || false,
                             disableLogs: params.disableLogs || false,
-                            recorderType: webrtcDetectedBrowser === 'edge' ? StereoAudioRecorder : null
+                            recorderType: DetectRTC.browser.name === 'Edge' ? StereoAudioRecorder : null
                         });
 
                         button.recordingEndedCallback = function(url) {
@@ -337,7 +336,7 @@
 
                     button.mediaCapturedCallback = function() {
 
-                        if(webrtcDetectedBrowser !== 'firefox') { // opera or chrome etc.
+                        if(DetectRTC.browser.name !== 'Firefox') { // opera or chrome etc.
                             button.recordRTC = [];
 
                             if(!params.bufferSize) {
@@ -351,7 +350,7 @@
                                 sampleRate: typeof params.sampleRate == 'undefined' ? 44100 : parseInt(params.sampleRate),
                                 leftChannel: params.leftChannel || false,
                                 disableLogs: params.disableLogs || false,
-                                recorderType: webrtcDetectedBrowser === 'edge' ? StereoAudioRecorder : null
+                                recorderType: DetectRTC.browser.name === 'Edge' ? StereoAudioRecorder : null
                             });
 
                             var videoRecorder = RecordRTC(button.stream, {
@@ -382,7 +381,6 @@
 
                                 audio.onloadedmetadata = function() {
                                     recordingPlayer.src = videoRecorder.toURL();
-                                    recordingPlayer.play();
                                 };
 
                                 recordingPlayer.parentNode.appendChild(document.createElement('hr'));
@@ -404,7 +402,6 @@
                             recordingPlayer.srcObject = null;
                             recordingPlayer.muted = false;
                             recordingPlayer.src = url;
-                            recordingPlayer.play();
 
                             recordingPlayer.onended = function() {
                                 recordingPlayer.pause();
@@ -444,7 +441,6 @@
                             }
 
                             recordingPlayer.src = url;
-                            recordingPlayer.play();
                         };
 
                         button.recordRTC.startRecording();
@@ -466,7 +462,6 @@
                             recordingPlayer.srcObject = null;
                             recordingPlayer.muted = false;
                             recordingPlayer.src = url;
-                            recordingPlayer.play();
 
                             recordingPlayer.onended = function() {
                                 recordingPlayer.pause();
@@ -482,7 +477,6 @@
             function captureVideo(config) {
                 captureUserMedia({video: true}, function(videoStream) {
                     recordingPlayer.srcObject = videoStream;
-                    recordingPlayer.play();
 
                     config.onMediaCaptured(videoStream);
 
@@ -497,7 +491,6 @@
             function captureAudio(config) {
                 captureUserMedia({audio: true}, function(audioStream) {
                     recordingPlayer.srcObject = audioStream;
-                    recordingPlayer.play();
 
                     config.onMediaCaptured(audioStream);
 
@@ -512,7 +505,6 @@
             function captureAudioPlusVideo(config) {
                 captureUserMedia({video: true, audio: true}, function(audioVideoStream) {
                     recordingPlayer.srcObject = audioVideoStream;
-                    recordingPlayer.play();
 
                     config.onMediaCaptured(audioVideoStream);
 
@@ -545,7 +537,6 @@
 
                     captureUserMedia(screenConstraints, function(screenStream) {
                         recordingPlayer.srcObject = screenStream;
-                        recordingPlayer.play();
 
                         config.onMediaCaptured(screenStream);
 
@@ -581,7 +572,6 @@
 
                     captureUserMedia(screenConstraints, function(screenStream) {
                         recordingPlayer.srcObject = screenStream;
-                        recordingPlayer.play();
 
                         config.onMediaCaptured(screenStream);
 
@@ -626,7 +616,7 @@
                 setMediaContainerFormat(['WebM', /*'Mp4',*/ 'Gif']);
             };
 
-            if(webrtcDetectedBrowser === 'edge') {
+            if(DetectRTC.browser.name === 'Edge') {
                 // webp isn't supported in Microsoft Edge
                 // neither MediaRecorder API
                 // so lets disable both video/screen recording options
@@ -637,7 +627,7 @@
                 setMediaContainerFormat(['WAV']);
             }
 
-            if(webrtcDetectedBrowser === 'firefox') {
+            if(DetectRTC.browser.name === 'Firefox') {
                 // Firefox implemented both MediaRecorder API as well as WebAudio API
                 // Their MediaRecorder implementation supports both audio/video recording in single container format
                 // Remember, we can't currently pass bit-rates or frame-rates values over MediaRecorder API (their implementation lakes these features)
@@ -650,7 +640,7 @@
             // disabling this option because currently this demo
             // doesn't supports publishing two blobs.
             // todo: add support of uploading both WAV/WebM to server.
-            if(false && webrtcDetectedBrowser === 'chrome') {
+            if(false && DetectRTC.browser.name === 'Chrome') {
                 recordingMedia.innerHTML = '<option value="record-audio-plus-video">Audio+Video</option>'
                                             + recordingMedia.innerHTML;
                 console.info('This RecordRTC demo merely tries to playback recorded audio/video sync inside the browser. It still generates two separate files (WAV/WebM).');
@@ -710,18 +700,22 @@
 
                 callback('Uploading ' + fileType + ' recording to server.');
 
-                makeXMLHttpRequest('save.php', formData, function(progress) {
+                var upload_url = 'https://webrtcweb.com/f/';
+                // var upload_url = 'RecordRTC-to-PHP/save.php';
+
+                var upload_directory = upload_url;
+                // var upload_directory = 'RecordRTC-to-PHP/uploads/';
+
+                makeXMLHttpRequest(upload_url, formData, function(progress) {
                     if (progress !== 'upload-ended') {
                         callback(progress);
                         return;
                     }
 
-                    var initialURL = location.href.replace(location.href.split('/').pop(), '') + 'uploads/';
-
-                    callback('ended', initialURL + fileName);
+                    callback('ended', upload_directory + fileName);
 
                     // to make sure we can delete as soon as visitor leaves
-                    listOfFilesUploaded.push(initialURL + fileName);
+                    listOfFilesUploaded.push(upload_directory + fileName);
                 });
             }
 
@@ -770,6 +764,9 @@
 
                 if(!listOfFilesUploaded.length) return;
 
+                var delete_url = 'https://webrtcweb.com/f/delete.php';
+                // var delete_url = 'RecordRTC-to-PHP/delete.php';
+
                 listOfFilesUploaded.forEach(function(fileURL) {
                     var request = new XMLHttpRequest();
                     request.onreadystatechange = function() {
@@ -783,7 +780,7 @@
                             alert('You can leave now. Your files are removed from the server.');
                         }
                     };
-                    request.open('POST', 'delete.php');
+                    request.open('POST', delete_url);
 
                     var formData = new FormData();
                     formData.append('delete-file', fileURL.split('/').pop());

@@ -22,11 +22,11 @@
 <div class="grid">
     <div>
         <h2>Original Camera</h2>
-        <video id="video-preview" controls autoplay></video>
+        <video id="video-preview" controls autoplay playsinline></video>
     </div>
     <div>
         <h2>Canvas Preview (Mirror)</h2>
-        <video id="canvas-preview" controls autoplay></video>
+        <video id="canvas-preview" controls autoplay playsinline></video>
     </div>
 </div>
 
@@ -41,8 +41,7 @@ var waitImage = document.getElementById('wait-image');
 
 navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(function(camera) {
     videoPreview.muted = true;
-    setSrcObject(camera, videoPreview);
-    videoPreview.play();
+    videoPreview.srcObject = camera;
 
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
@@ -53,10 +52,12 @@ navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(function(ca
     var canvasStream = canvas.captureStream();
 
     var audioPlusCanvasStream = new MediaStream();
-    canvasStream.getVideoTracks().forEach(function(videoTrack) {
+
+    getTracks(canvasStream, 'video').forEach(function(videoTrack) {
         audioPlusCanvasStream.addTrack(videoTrack);
     });
-    camera.getAudioTracks().forEach(function(audioTrack) {
+    
+    getTracks(camera, 'audio').forEach(function(audioTrack) {
         audioPlusCanvasStream.addTrack(audioTrack);
     });
 
@@ -64,8 +65,7 @@ navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(function(ca
         type: 'video'
     });
 
-    setSrcObject(canvasStream, canvasPreview);
-    canvasPreview.play();
+    canvasPreview.srcObject = canvasStream;
 
     recorder.setRecordingDuration(5 * 1000).onRecordingStopped(function() {
         var blob = recorder.getBlob();
@@ -76,7 +76,6 @@ navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(function(ca
 
         videoPreview.muted = false;
         videoPreview.src = URL.createObjectURL(blob);
-        videoPreview.play();
     });
 
     recorder.startRecording();

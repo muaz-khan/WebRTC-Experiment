@@ -1,6 +1,32 @@
+// source code from: http://typedarray.org/wp-content/projects/WebAudioRecorder/script.js
+// https://github.com/mattdiamond/Recorderjs#license-mit
+// ______________________
+// StereoAudioRecorder.js
+
+/**
+ * StereoAudioRecorder is a standalone class used by {@link RecordRTC} to bring "stereo" audio-recording in chrome.
+ * @summary JavaScript standalone object for stereo audio recording.
+ * @license {@link https://github.com/muaz-khan/RecordRTC#license|MIT}
+ * @author {@link http://www.MuazKhan.com|Muaz Khan}
+ * @typedef StereoAudioRecorder
+ * @class
+ * @example
+ * var recorder = new StereoAudioRecorder(MediaStream, {
+ *     sampleRate: 44100,
+ *     bufferSize: 4096
+ * });
+ * recorder.record();
+ * recorder.stop(function(blob) {
+ *     video.src = URL.createObjectURL(blob);
+ * });
+ * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
+ * @param {MediaStream} mediaStream - MediaStream object fetched using getUserMedia API or generated using captureStreamUntilEnded or WebAudio API.
+ * @param {object} config - {sampleRate: 44100, bufferSize: 4096, numberOfAudioChannels: 1, etc.}
+ */
+
 function StereoAudioRecorder(mediaStream, config) {
-    if (!mediaStream.getAudioTracks().length) {
-        alert('Your stream has no audio tracks.');
+    if (!getTracks(mediaStream, 'audio').length) {
+        throw 'Your stream has no audio tracks.';
     }
 
     config = config || {};
@@ -42,7 +68,7 @@ function StereoAudioRecorder(mediaStream, config) {
     }
 
     if (!config.disableLogs) {
-        console.log('StereoAudioRecorder is set to record number of channels: ', numberOfAudioChannels);
+        console.log('StereoAudioRecorder is set to record number of channels: ' + numberOfAudioChannels);
     }
 
     // if any Track within the MediaStream is muted or not enabled at any time, 
@@ -209,7 +235,8 @@ function StereoAudioRecorder(mediaStream, config) {
             writeUTFBytes(view, 0, 'RIFF');
 
             // RIFF chunk length
-            view.setUint32(4, 44 + interleavedLength * 2, true);
+            // changed "44" to "36" via #401
+            view.setUint32(4, 36 + interleavedLength * 2, true);
 
             // RIFF type 
             writeUTFBytes(view, 8, 'WAVE');
@@ -268,6 +295,14 @@ function StereoAudioRecorder(mediaStream, config) {
             });
         }
 
+        if (config.noWorker) {
+            mergeAudioBuffers(config, function(data) {
+                callback(data.buffer, data.view);
+            });
+            return;
+        }
+
+
         var webWorker = processInWebWorker(mergeAudioBuffers);
 
         webWorker.onmessage = function(event) {
@@ -317,7 +352,8 @@ function StereoAudioRecorder(mediaStream, config) {
             numberOfAudioChannels: numberOfAudioChannels,
             internalInterleavedLength: recordingLength,
             leftBuffers: leftchannel,
-            rightBuffers: numberOfAudioChannels === 1 ? [] : rightchannel
+            rightBuffers: numberOfAudioChannels === 1 ? [] : rightchannel,
+            noWorker: config.noWorker
         }, function(buffer, view) {
             /**
              * @property {Blob} blob - The recorded blob object.
@@ -365,8 +401,8 @@ function StereoAudioRecorder(mediaStream, config) {
         });
     };
 
-    if(typeof Storage === 'undefined') {
-        window.Storage = {
+    if (typeof Storage === 'undefined') {
+        var Storage = {
             AudioContextConstructor: null,
             AudioContext: window.AudioContext || window.webkitAudioContext
         };
@@ -404,7 +440,7 @@ function StereoAudioRecorder(mediaStream, config) {
 
     if (legalBufferValues.indexOf(bufferSize) === -1) {
         if (!config.disableLogs) {
-            console.warn('Legal values for buffer-size are ' + JSON.stringify(legalBufferValues, null, '\t'));
+            console.log('Legal values for buffer-size are ' + JSON.stringify(legalBufferValues, null, '\t'));
         }
     }
 
@@ -445,16 +481,13 @@ function StereoAudioRecorder(mediaStream, config) {
     if (sampleRate < 22050 || sampleRate > 96000) {
         // Ref: http://stackoverflow.com/a/26303918/552182
         if (!config.disableLogs) {
-            console.warn('sample-rate must be under range 22050 and 96000.');
+            console.log('sample-rate must be under range 22050 and 96000.');
         }
     }
 
     if (!config.disableLogs) {
-        console.log('sample-rate', sampleRate);
-        console.log('buffer-size', bufferSize);
-
         if (config.desiredSampRate) {
-            console.log('Desired sample-rate', config.desiredSampRate);
+            console.log('Desired sample-rate: ' + config.desiredSampRate);
         }
     }
 
@@ -625,7 +658,11 @@ function StereoAudioRecorder(mediaStream, config) {
     jsAudioNode.onaudioprocess = onAudioProcessDataAvailable;
 
     // to prevent self audio to be connected with speakers
-    jsAudioNode.connect(context.destination);
+    if (context.createMediaStreamDestination) {
+        jsAudioNode.connect(context.createMediaStreamDestination());
+    } else {
+        jsAudioNode.connect(context.destination);
+    }
 
     // export raw PCM
     this.leftchannel = leftchannel;
@@ -674,4 +711,8 @@ function StereoAudioRecorder(mediaStream, config) {
             setTimeout(looper, config.timeSlice);
         }
     }
+}
+
+if (typeof RecordRTC !== 'undefined') {
+    RecordRTC.StereoAudioRecorder = StereoAudioRecorder;
 }

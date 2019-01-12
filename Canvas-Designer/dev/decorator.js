@@ -51,11 +51,10 @@ function setSelection(element, prop) {
 /* Default: setting default selected shape!! */
 is.set(window.selectedIcon);
 
-window.addEventListener('load', function() {
+function setDefaultSelectedIcon() {
     var toolBox = document.getElementById('tool-box');
     var canvasElements = toolBox.getElementsByTagName('canvas');
     var shape = window.selectedIcon.toLowerCase();
-
 
     var firstMatch;
     for (var i = 0; i < canvasElements.length; i++) {
@@ -69,6 +68,10 @@ window.addEventListener('load', function() {
     }
 
     setSelection(firstMatch, window.selectedIcon);
+}
+
+window.addEventListener('load', function() {
+    setDefaultSelectedIcon();
 }, false);
 
 (function() {
@@ -859,4 +862,18 @@ function hideContainers() {
         pencilColorContainer.style.display =
         pencilContainer.style.display =
         lineWidthContainer.style.display = 'none';
+}
+
+function setTemporaryLine() {
+    var arr = ["line", [139, 261, 170, 219],
+        [1, "rgba(0,0,0,0)", "rgba(0,0,0,0)", 1, "source-over", "round", "round", "15px \"Arial\""]
+    ];
+    points.push(arr);
+    drawHelper.redraw();
+
+    setTimeout(function() {
+        setSelection(document.getElementById('line'), 'Line');
+    }, 1000);
+
+    setTimeout(setDefaultSelectedIcon, 2000);
 }

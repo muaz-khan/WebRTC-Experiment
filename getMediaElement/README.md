@@ -1,12 +1,37 @@
-#### getMediaElement.js: A reusable library for all WebRTC applications! / [Demo](https://www.webrtc-experiment.com/getMediaElement/)
+## getMediaElement.js: A reusable library for all WebRTC applications! / [Demo](https://www.webrtc-experiment.com/getMediaElement/)
 
-```html
-<script src="//cdn.webrtc-experiment.com/getMediaElement.js"></script>
-```
+[![npm](https://img.shields.io/npm/v/getmediaelement.svg)](https://npmjs.org/package/getmediaelement) [![downloads](https://img.shields.io/npm/dm/getmediaelement.svg)](https://npmjs.org/package/getmediaelement)
 
 This library generates HTML Audio/Video element with rich user-interface and advance media controls. It gives you full control over each control button; and its functionality!
 
+```html
+<link rel="stylesheet" href="https://cdn.WebRTC-Experiment.com/getMediaElement.css" />
+<script src="https://cdn.webrtc-experiment.com/getMediaElement.js"></script>
+```
+
+```sh
+npm install getMediaElement
+```
+
 <img src="https://cdn.webrtc-experiment.com/images/getMediaElement.js.gif" />
+
+## A working example:
+
+Audio+Video Stream:
+
+```javascript
+navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(function (audioVideoStream) {
+    var mediaElement = getMediaElement(audioVideoStream);
+	
+    // append to HTML-BODY element
+    document.body.appendChild(mediaElement);
+
+    // you can acccess audio/video elements using "media" property
+    mediaElement.media.play();
+});
+```
+
+If your media stream contains video tracks; then it will create HTMLVideoElement; otherwise; it will create HTMLAudioElement.
 
 ```javascript
 // you can pass HTML Video Element
@@ -27,29 +52,7 @@ document.body.appendChild( getMediaElement(HTMLAudioElement, {
 }) );
 ```
 
-=
-
-##### A working example:
-
-Audio+Video Stream:
-
-```javascript
-navigator.webkitGetUserMedia({ audio: true, video: true }, function (audioVideoStream) {
-    var mediaElement = getMediaElement(audioVideoStream);
-	
-    // append to HTML-BODY element
-    document.body.appendChild(mediaElement);
-
-    // you can acccess audio/video elements using "media" property
-    mediaElement.media.play();
-});
-```
-
-If your media stream contains video tracks; then it will create HTMLVideoElement; otherwise; it will create HTMLAudioElement.
-
-=
-
-##### Features
+## Features
 
 1. You can capture `onMuted` event; and disable audio/video tracks accordingly; or hold streams using "inactive" attribute in the SDP!
 2. You can capture `onUnMuted` event; and enable audio/video tracks accordingly; or unhold streams using "sendrecv" attribute in the SDP!
@@ -63,9 +66,7 @@ If your media stream contains video tracks; then it will create HTMLVideoElement
 10. You can manually pass "toggle" object to force default behaviour.
 11. You can use `showOnMouseEnter` to control whether buttons should be displayed on mouse enter.
 
-=
-
-##### Structure of getMediaElement.js
+## Structure of getMediaElement.js
 
 ```javascript
 var mediaElement = getMediaElement(HTMLVideoElement || HTMLVideoElement || MediaStream, {
@@ -108,9 +109,7 @@ var mediaElement = getMediaElement(HTMLVideoElement || HTMLVideoElement || Media
 });
 ```
 
-=
-
-#### getMediaElement objects takes two arguments:
+## getMediaElement objects takes two arguments:
 
 1. HTMLVideoElement or HTMLAudioElement or MediaStream
 2. Options
@@ -128,9 +127,7 @@ Second argument accepts following objects and events:
 9. `onZoomout`; it is fired when user leaves full-screen mode either by presssing `ESC` key; or by clicking a button.
 10. `onTakeSnapshot`; it is fired when user clicks to take snapshot. Snapshot is passed over callback in PNG format.
 
-=
-
-#### Possible options for `buttons` array
+## Possible options for `buttons` array
 
 1. `mute-audio`
 2. `mute-video`
@@ -140,18 +137,14 @@ Second argument accepts following objects and events:
 6. `volume-slider`
 7. `stop`
 
-=
-
-#### Possible options for `toggle` array
+## Possible options for `toggle` array
 
 1. `mute-audio`
 2. `mute-video`
 3. `record-audio`
 4. `record-video`
 
-=
-
-#### Difference between `toggle` array and `toggle` method
+## Difference between `toggle` array and `toggle` method
 
 `toggle` method allows you toggle buttons at runtime:
 
@@ -167,9 +160,7 @@ var mediaElement = getMediaElement(MediaStream, {
 });
 ```
 
-=
-
-#### `toggle` method
+## `toggle` method
 
 ```javascript
 getMediaElement(firstArgument, secondArgument).toggle(options)
@@ -202,9 +193,7 @@ mediaElement.toggle(['stop']);
 mediaElement.toggle('stop');
 ```
 
-=
-
-##### How to acccess HTMLAudioElement or HTMLVideoElement?
+## How to acccess HTMLAudioElement or HTMLVideoElement?
 
 There is a `media` property that returns HTMLAudioElement or HTMLVideoElement:
 
@@ -224,9 +213,7 @@ mediaElement.style.width  = mediaElement.media.videoWidth + 'px';
 mediaElement.style.height = mediaElement.media.videoHeight + 'px';
 ```
 
-=
-
-##### getMediaElement and [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/)
+## getMediaElement and [RTCMultiConnection.js](http://www.RTCMultiConnection.org/docs/)
 
 ```javascript
 var videosContainer = document.body;
@@ -290,8 +277,6 @@ rtcMultiConnection.onstreamended = function(e) {
 };
 ```
 
-=
-
-##### License
+## License
 
 [getMediaElement](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/getMediaElement) is released under [MIT licence](https://www.webrtc-experiment.com/licence/) . Copyright (c) 2013 [Muaz Khan](https://plus.google.com/100325991024054712503).

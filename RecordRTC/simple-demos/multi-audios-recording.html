@@ -15,9 +15,9 @@
 <button id="btn-stop-recording" disabled>Stop Recording</button>
 
 <hr>
-(First Microphone) <audio id="audio-1" controls autoplay></audio>
+(First Microphone) <audio id="audio-1" controls autoplay playsinline></audio>
 <hr>
-(Second Microphone) <audio id="audio-2" controls autoplay></audio>
+(Second Microphone) <audio id="audio-2" controls autoplay playsinline></audio>
 
 <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -35,13 +35,14 @@ function captureMicrophone(callback) {
 }
 
 function stopRecordingCallback() {
+    audio1.srcObject = null;
+    audio2.srcObject = null;
+
     var blob1 = recorder1.getBlob();
     audio1.src = URL.createObjectURL(blob1);
-    audio1.play();
 
     var blob2 = recorder2.getBlob();
     audio2.src = URL.createObjectURL(blob2);
-    audio2.play();
 
     document.getElementById('btn-start-recording').disabled = false;
 }
@@ -65,19 +66,15 @@ document.getElementById('btn-enable-microphone').onclick = function() {
 
         document.getElementById('btn-start-recording').disabled = false;
 
-        setSrcObject(recorder1.microphone, audio1);
-        audio1.play();
+        audio1.srcObject = recorder1.microphone;
     });
 };
 
 document.getElementById('btn-start-recording').onclick = function() {
     this.disabled = true;
 
-    setSrcObject(recorder1.microphone, audio1);
-    audio1.play();
-
-    setSrcObject(recorder2.microphone, audio2);
-    audio2.play();
+    audio1.srcObject = recorder1.microphone;
+    audio2.srcObject = recorder2.microphone;
 
     recorder1.startRecording();
     recorder2.startRecording();

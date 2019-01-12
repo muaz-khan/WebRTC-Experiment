@@ -5,9 +5,9 @@
 var fs = require('fs');
 var getJsonFile = require('./getJsonFile.js');
 
-function pushLogs(root, name, error, clearLogsCallback) {
+function pushLogs(config, name, error, clearLogsCallback) {
     // return console.log(error.message, error.stack);
-    if (!root.enableLogs) {
+    if (!config.enableLogs) {
         try {
             console.log(name, error.message, error.stack);
         }
@@ -27,7 +27,7 @@ function pushLogs(root, name, error, clearLogsCallback) {
         utcDateString += (Math.random() * 100).toString();
         utcDateString = utcDateString.replace(/ |-|,|:|\./g, '');
 
-        var logs = getJsonFile(root.logs);
+        var logs = getJsonFile(config.logs);
 
         try {
             if (!!clearLogsCallback && typeof clearLogsCallback === 'function') {
@@ -41,7 +41,7 @@ function pushLogs(root, name, error, clearLogsCallback) {
                 };
             }
 
-            fs.writeFileSync(root.logs, JSON.stringify(logs));
+            fs.writeFileSync(config.logs, JSON.stringify(logs));
 
             if (!!clearLogsCallback && typeof clearLogsCallback === 'function') {
                 clearLogsCallback(true);

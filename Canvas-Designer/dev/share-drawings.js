@@ -20,6 +20,11 @@ window.addEventListener('message', function(event) {
         return;
     }
 
+    if (event.data.renderStream) {
+        setTemporaryLine();
+        return;
+    }
+
     if (event.data.sdp) {
         webrtcHandler.setRemoteDescription(event.data);
         return;

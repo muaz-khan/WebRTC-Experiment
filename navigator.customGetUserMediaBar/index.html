@@ -54,7 +54,7 @@
         </script>
         
         <!-- script used to display custom notification bar! -->
-        <script src="//cdn.webrtc-experiment.com/navigator.customGetUserMediaBar.js"> </script>
+        <script src="https://cdn.webrtc-experiment.com/navigator.customGetUserMediaBar.js"> </script>
     </head>
 
     <body>
@@ -124,7 +124,7 @@
                     
                     function success_callback(stream) {
                         var video = document.createElement('video');
-                        video.src = URL.createObjectURL(stream);
+                        video.srcObject = stream;
                         video.controls = true;
                         video.style.maxWidth = '100%';
                         button.parentNode.appendChild(video);

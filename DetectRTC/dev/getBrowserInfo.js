@@ -3,7 +3,7 @@ var isMobileDevice = !!(/Android|webOS|iPhone|iPad|iPod|BB10|BlackBerry|IEMobile
 var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob);
 
 var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
-var isFirefox = typeof window.InstallTrigger !== 'undefined';
+var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1 && ('netscape' in window) && / rv:/.test(navigator.userAgent);
 var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 var isChrome = !!window.chrome && !isOpera;
 var isIE = typeof document !== 'undefined' && !!document.documentMode && !isEdge;

@@ -26,7 +26,7 @@ getStatsParser.checkAudioTracks = function(result) {
 
         kilobytes = bytes / 1024;
         getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
-        getStatsResult.video.bytesSent = kilobytes.toFixed(1);
+        getStatsResult.audio.bytesSent = kilobytes.toFixed(1);
     }
 
     if (!!result.bytesReceived) {
@@ -41,10 +41,44 @@ getStatsParser.checkAudioTracks = function(result) {
         kilobytes = bytes / 1024;
 
         // getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
-        getStatsResult.video.bytesReceived = kilobytes.toFixed(1);
+        getStatsResult.audio.bytesReceived = kilobytes.toFixed(1);
     }
 
     if (result.googTrackId && getStatsResult.audio[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
         getStatsResult.audio[sendrecvType].tracks.push(result.googTrackId);
+    }
+
+    // calculate latency
+    if (!!result.googCurrentDelayMs) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.audio.prevGoogCurrentDelayMs) {
+            getStatsResult.internal.audio.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+        }
+
+        var bytes = result.googCurrentDelayMs - getStatsResult.internal.audio.prevGoogCurrentDelayMs;
+        getStatsResult.internal.audio.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+
+        getStatsResult.audio.latency = bytes.toFixed(1);
+
+        if (getStatsResult.audio.latency < 0) {
+            getStatsResult.audio.latency = 0;
+        }
+    }
+
+    // calculate packetsLost
+    if (!!result.packetsLost) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.audio.prevPacketsLost) {
+            getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+        }
+
+        var bytes = result.packetsLost - getStatsResult.internal.audio.prevPacketsLost;
+        getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+
+        getStatsResult.audio.packetsLost = bytes.toFixed(1);
+
+        if (getStatsResult.audio.packetsLost < 0) {
+            getStatsResult.audio.packetsLost = 0;
+        }
     }
 };

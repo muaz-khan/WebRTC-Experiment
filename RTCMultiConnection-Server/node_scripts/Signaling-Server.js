@@ -18,35 +18,10 @@ var CONST_STRINGS = require('./CONST_STRINGS.js');
 
 var isAdminAuthorized = require('./verify-admin.js');
 
-module.exports = exports = function(root, app, socketCallback) {
-    socketCallback = socketCallback || function() {};
-    app.config = app.config || {};
+module.exports = exports = function(socket, config) {
+    config = config || {};
 
-    if (!!app.listen) {
-        var io = require('socket.io');
-
-        try {
-            // use latest socket.io
-            io = io(app);
-            io.on('connection', onConnection);
-        } catch (e) {
-            // otherwise fallback
-            io = io.listen(app, {
-                log: false,
-                origins: '*:*'
-            });
-
-            io.set('transports', [
-                'websocket',
-                'xhr-polling',
-                'jsonp-polling'
-            ]);
-
-            io.sockets.on('connection', onConnection);
-        }
-    } else {
-        onConnection(app);
-    }
+    onConnection(socket);
 
     // to secure your socket.io usage: (via: docs/tips-tricks.md)
     // io.set('origins', 'https://domain.com');
@@ -77,14 +52,14 @@ module.exports = exports = function(root, app, socketCallback) {
                 socketCustomEvent: params.socketCustomEvent || ''
             };
         } catch (e) {
-            pushLogs(root, 'appendUser', e);
+            pushLogs(config, 'appendUser', e);
         }
 
         sendToAdmin();
     }
 
     function sendToAdmin(all) {
-        if(app.config.enableAdmin !== true) {
+        if(config.enableAdmin !== true) {
             return;
         }
 
@@ -92,7 +67,7 @@ module.exports = exports = function(root, app, socketCallback) {
             if (adminSocket) {
                 var users = [];
                 // temporarily disabled
-                app.config.enableAdmin === true && Object.keys(listOfUsers).forEach(function(userid) {
+                config.enableAdmin === true && Object.keys(listOfUsers).forEach(function(userid) {
                     try {
                         var item = listOfUsers[userid];
                         if (!item) return; // maybe user just left?
@@ -111,7 +86,7 @@ module.exports = exports = function(root, app, socketCallback) {
                             connectedWith: Object.keys(item.connectedWith)
                         });
                     } catch (e) {
-                        pushLogs(root, 'admin.user-looper', e);
+                        pushLogs(config, 'admin.user-looper', e);
                     }
                 });
 
@@ -128,17 +103,17 @@ module.exports = exports = function(root, app, socketCallback) {
                 });
             }
         } catch (e) {
-            pushLogs(root, 'admin', e);
+            pushLogs(config, 'admin', e);
         }
     }
 
     function handleAdminSocket(socket, params) {
-        if(app.config.enableAdmin !== true || !params.adminUserName || !params.adminPassword) {
+        if(config.enableAdmin !== true || !params.adminUserName || !params.adminPassword) {
             socket.emit('admin', {
                 error: 'Please pass "adminUserName" and "adminPassword" via socket.io parameters.'
             });
             
-            pushLogs(root, 'invalid-admin', {
+            pushLogs(config, 'invalid-admin', {
                 message: CONST_STRINGS.INVALID_ADMIN_CREDENTIAL,
                 stack: 'name: ' + params.adminUserName + '\n' + 'password: ' + params.adminPassword
             });
@@ -147,12 +122,12 @@ module.exports = exports = function(root, app, socketCallback) {
             return;
         }
 
-        if (!app.config || !isAdminAuthorized(params, app.config)) {
+        if (!isAdminAuthorized(params, config)) {
             socket.emit('admin', {
                 error: 'Invalid admin username or password.'
             });
 
-            pushLogs(root, 'invalid-admin', {
+            pushLogs(config, 'invalid-admin', {
                 message: CONST_STRINGS.INVALID_ADMIN_CREDENTIAL,
                 stack: 'name: ' + params.adminUserName + '\n' + 'password: ' + params.adminPassword
             });
@@ -167,12 +142,12 @@ module.exports = exports = function(root, app, socketCallback) {
 
         adminSocket = socket;
         socket.on('admin', function(message, callback) {
-            if (!app.config || !isAdminAuthorized(params, app.config)) {
+            if (!isAdminAuthorized(params, config)) {
                 socket.emit('admin', {
                     error: 'Invalid admin username or password.'
                 });
 
-                pushLogs(root, 'invalid-admin', {
+                pushLogs(config, 'invalid-admin', {
                     message: CONST_STRINGS.INVALID_ADMIN_CREDENTIAL,
                     stack: 'name: ' + params.adminUserName + '\n' + 'password: ' + params.adminPassword
                 });
@@ -198,13 +173,13 @@ module.exports = exports = function(root, app, socketCallback) {
                         });
                     }
                 } catch (e) {
-                    pushLogs(root, 'userinfo', e);
+                    pushLogs(config, 'userinfo', e);
                 }
             }
 
             if (message.clearLogs === true) {
                 // last callback parameter will force to clear logs
-                pushLogs(root, '', '', callback);
+                pushLogs(config, '', '', callback);
             }
 
             if (message.deleteUser === true) {
@@ -222,7 +197,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     // delete listOfUsers[message.userid];
                     callback(true);
                 } catch (e) {
-                    pushLogs(root, 'deleteUser', e);
+                    pushLogs(config, 'deleteUser', e);
                     callback(false);
                 }
             }
@@ -243,7 +218,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     }
                     callback(true);
                 } catch (e) {
-                    pushLogs(root, 'deleteRoom', e);
+                    pushLogs(config, 'deleteRoom', e);
                     callback(false);
                 }
             }
@@ -292,9 +267,9 @@ module.exports = exports = function(root, app, socketCallback) {
                     // path to scalable broadcast script must be accurate
                     ScalableBroadcast = require('./Scalable-Broadcast.js');
                 }
-                ScalableBroadcast._ = ScalableBroadcast(root, socket, params.maxRelayLimitPerUser);
+                ScalableBroadcast._ = ScalableBroadcast(config, socket, params.maxRelayLimitPerUser);
             } catch (e) {
-                pushLogs(root, 'ScalableBroadcast', e);
+                pushLogs(config, 'ScalableBroadcast', e);
             }
         }
 
@@ -325,11 +300,11 @@ module.exports = exports = function(root, app, socketCallback) {
                         try {
                             listOfUsers[user].socket.emit('extra-data-updated', socket.userid, extra);
                         } catch (e) {
-                            pushLogs(root, 'extra-data-updated.connectedWith', e);
+                            pushLogs(config, 'extra-data-updated.connectedWith', e);
                         }
                     }
                 } catch (e) {
-                    pushLogs(root, 'extra-data-updated.connectedWith', e);
+                    pushLogs(config, 'extra-data-updated.connectedWith', e);
                 }
 
                 // sent alert to all room participants
@@ -354,14 +329,14 @@ module.exports = exports = function(root, app, socketCallback) {
 
                             user.socket.emit('extra-data-updated', socket.userid, extra);
                         } catch (e) {
-                            pushLogs(root, 'extra-data-updated.participants', e);
+                            pushLogs(config, 'extra-data-updated.participants', e);
                         }
                     });
                 }
 
                 sendToAdmin();
             } catch (e) {
-                pushLogs(root, 'extra-data-updated', e);
+                pushLogs(config, 'extra-data-updated', e);
             }
         });
 
@@ -407,7 +382,7 @@ module.exports = exports = function(root, app, socketCallback) {
 
                 callback();
             } catch (e) {
-                pushLogs(root, 'changed-uuid', e);
+                pushLogs(config, 'changed-uuid', e);
             }
         });
 
@@ -430,7 +405,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     callback(false, roomid, CONST_STRINGS.ROOM_PERMISSION_DENIED);
                 }
             } catch (e) {
-                pushLogs(root, 'set-password', e);
+                pushLogs(config, 'set-password', e);
             }
         });
 
@@ -451,7 +426,7 @@ module.exports = exports = function(root, app, socketCallback) {
                 }
                 callback();
             } catch (e) {
-                pushLogs(root, 'disconnect-with', e);
+                pushLogs(config, 'disconnect-with', e);
             }
         });
 
@@ -476,7 +451,7 @@ module.exports = exports = function(root, app, socketCallback) {
 
                 callback(true);
             } catch (e) {
-                pushLogs(root, 'close-entire-session', e);
+                pushLogs(config, 'close-entire-session', e);
             }
         });
 
@@ -503,7 +478,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     callback(true, roomid, extra);
                 }
             } catch (e) {
-                pushLogs(root, 'check-presence', e);
+                pushLogs(config, 'check-presence', e);
             }
         });
 
@@ -547,7 +522,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     sendToAdmin();
                 }
             } catch (e) {
-                pushLogs(root, 'onMessageCallback', e);
+                pushLogs(config, 'onMessageCallback', e);
             }
         }
 
@@ -595,7 +570,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     });
                 }
             } catch (e) {
-                pushLogs(root, 'joinARoom', e);
+                pushLogs(config, 'joinARoom', e);
             }
 
             sendToAdmin();
@@ -622,7 +597,7 @@ module.exports = exports = function(root, app, socketCallback) {
                 if (listOfRooms[roomid].participants.indexOf(userid) !== -1) return;
                 listOfRooms[roomid].participants.push(userid);
             } catch (e) {
-                pushLogs(root, 'appendToRoom', e);
+                pushLogs(config, 'appendToRoom', e);
             }
         }
 
@@ -676,7 +651,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     }
                 }
             } catch (e) {
-                pushLogs(root, 'closeOrShiftRoom', e);
+                pushLogs(config, 'closeOrShiftRoom', e);
             }
         }
 
@@ -756,7 +731,7 @@ module.exports = exports = function(root, app, socketCallback) {
 
                 onMessageCallback(message);
             } catch (e) {
-                pushLogs(root, 'on-socketMessageEvent', e);
+                pushLogs(config, 'on-socketMessageEvent', e);
             }
         });
 
@@ -860,7 +835,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     autoCloseEntireSession = true;
                 }
             } catch (e) {
-                pushLogs(root, 'open-room', e);
+                pushLogs(config, 'open-room', e);
             }
 
             // append this user into participants list
@@ -892,7 +867,7 @@ module.exports = exports = function(root, app, socketCallback) {
                             listOfRooms[arg.sessionid].password = arg.password;
                         }
                     } catch (e) {
-                        pushLogs(root, 'open-room.password', e);
+                        pushLogs(config, 'open-room.password', e);
                     }
                 }
 
@@ -906,7 +881,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     extra: arg.extra
                 };
             } catch (e) {
-                pushLogs(root, 'open-room', e);
+                pushLogs(config, 'open-room', e);
             }
 
             sendToAdmin();
@@ -914,7 +889,7 @@ module.exports = exports = function(root, app, socketCallback) {
             try {
                 callback(true);
             } catch (e) {
-                pushLogs(root, 'open-room', e);
+                pushLogs(config, 'open-room', e);
             }
         });
 
@@ -943,7 +918,7 @@ module.exports = exports = function(root, app, socketCallback) {
                 }
                 listOfUsers[socket.userid].extra = arg.extra;
             } catch (e) {
-                pushLogs(root, 'join-room', e);
+                pushLogs(config, 'join-room', e);
             }
 
             try {
@@ -952,7 +927,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     return;
                 }
             } catch (e) {
-                pushLogs(root, 'join-room', e);
+                pushLogs(config, 'join-room', e);
             }
 
             try {
@@ -961,7 +936,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     return;
                 }
             } catch (e) {
-                pushLogs(root, 'join-room.password', e);
+                pushLogs(config, 'join-room.password', e);
             }
 
             try {
@@ -970,7 +945,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     return;
                 }
             } catch (e) {
-                pushLogs(root, 'join-room.ROOM_FULL', e);
+                pushLogs(config, 'join-room.ROOM_FULL', e);
             }
 
             // append this user into participants list
@@ -987,7 +962,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     extra: arg.extra
                 };
             } catch (e) {
-                pushLogs(root, 'join-room', e);
+                pushLogs(config, 'join-room', e);
             }
 
             sendToAdmin();
@@ -995,7 +970,7 @@ module.exports = exports = function(root, app, socketCallback) {
             try {
                 callback(true);
             } catch (e) {
-                pushLogs(root, 'join-room', e);
+                pushLogs(config, 'join-room', e);
             }
         });
 
@@ -1005,7 +980,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     delete socket.namespace.sockets[this.id];
                 }
             } catch (e) {
-                pushLogs(root, 'disconnect', e);
+                pushLogs(config, 'disconnect', e);
             }
 
             try {
@@ -1022,7 +997,7 @@ module.exports = exports = function(root, app, socketCallback) {
                     }
                 }
             } catch (e) {
-                pushLogs(root, 'disconnect', e);
+                pushLogs(config, 'disconnect', e);
             }
 
             closeOrShiftRoom();
@@ -1041,9 +1016,5 @@ module.exports = exports = function(root, app, socketCallback) {
 
             sendToAdmin();
         });
-
-        if (socketCallback) {
-            socketCallback(socket);
-        }
     }
 };

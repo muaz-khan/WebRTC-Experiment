@@ -1,4 +1,8 @@
 function SocketConnection(connection, connectCallback) {
+    function isData(session) {
+        return !session.audio && !session.video && !session.screen && session.data;
+    }
+
     var parameters = '';
 
     parameters += '?userid=' + connection.userid;
@@ -248,10 +252,12 @@ function SocketConnection(connection, connectCallback) {
         }
     });
 
-    connection.socket.on('disconnect', function() {
-        if (connection.enableLogs) {
-            console.warn('socket.io connection is closed');
-        }
+    connection.socket.on('disconnect', function(event) {
+        connection.onSocketDisconnect(event);
+    });
+
+    connection.socket.on('error', function(event) {
+        connection.onSocketError(event);
     });
 
     connection.socket.on('user-disconnected', function(remoteUserId) {

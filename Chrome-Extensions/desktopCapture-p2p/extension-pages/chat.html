@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+<link rel="shortcut icon" href="../images/desktopCapture128.png">
+<title>Chat</title>
+<head>
+<style type="text/css">
+    ::-webkit-scrollbar {
+      width: 15px;
+      height: 5px;
+      background-color: rgba(256, 256, 256, 0);
+    }
+
+    ::-webkit-scrollbar-button {
+      height: 0;
+      width: 0;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: rgba(256, 256, 256, 0);
+      box-shadow: inset 0 1px 3px black;
+      border-radius: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      box-shadow: inset 0 1px 3px black;
+    }
+
+    ::-webkit-scrollbar-thumb:active {
+      box-shadow: inset 0 1px 3px black;
+    }
+
+    ::-webkit-scrollbar-track {
+      box-shadow: none;
+      background-color: transparent;
+    }
+
+    * {
+      -webkit-user-select: none;
+      -user-select: none;
+      -webkit-user-drag: none;
+      -user-drag: none;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+
+    html, body {
+        overflow: hidden;
+    }
+
+    #chat-messages {
+        height: 330px;
+        overflow: auto;
+        width: 300px;
+    }
+
+    #chat-messages div {
+        border-bottom: 1px solid lightgray;
+        padding: 2px 5px;
+        font-size: 20px;
+    }
+
+    #chat-messages div span.name {
+        font-weight: bold;
+    }
+
+    #txt-chat-message {
+        width: 300px;
+        border: 0;
+        border-top: 1px solid lightgray;
+        font-size: 20px;
+        padding: 2px 5px;
+    }
+
+    .checkmark {
+        width: 18px;
+        vertical-align: middle;
+    }
+</style>
+</head>
+<body>
+    <div id="chat-messages"></div>
+    <input type="text" id="txt-chat-message" placeholder="Enter Chat Message">
+    <script src="chat.js"></script>
+</body>
+</html>

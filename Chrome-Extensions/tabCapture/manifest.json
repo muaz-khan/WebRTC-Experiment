@@ -1,7 +1,7 @@
 {
     "name" : "Tab Capturing & Sharing",
     "author": "Muaz Khan",
-    "version" : "2.0",
+    "version" : "2.3",
     "manifest_version" : 2,
     "description" : "Capture & Share any tab privately with multiple users!",
     "homepage_url": "https://github.com/muaz-khan/Chrome-Extensions/tree/master/tabCapture",

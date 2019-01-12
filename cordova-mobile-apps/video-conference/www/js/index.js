@@ -170,13 +170,13 @@ var app = {
 
             if(event.type === 'local') {
                 document.querySelector('#local-video').style.display = '';
-                document.querySelector('#local-video').src = URL.createObjectURL(event.stream);
+                document.querySelector('#local-video').srcObject = event.stream;
             }
 
             if(event.type === 'remote') {
                 document.querySelector('#remote-video').style.top = parseInt(document.querySelector('header').clientHeight + 20) + 'px';
                 document.querySelector('#remote-video').style.display = '';
-                document.querySelector('#remote-video').src = URL.createObjectURL(event.stream);
+                document.querySelector('#remote-video').srcObject = event.stream;
             }
 
             connection.fixAllVideos();
@@ -296,12 +296,12 @@ var app = {
 
                 if(event.type === 'local') {
                     document.querySelector('#local-video').style.display = '';
-                    document.querySelector('#local-video').src = URL.createObjectURL(event.stream);
+                    document.querySelector('#local-video').srcObject = event.stream;
                 }
 
                 if(event.type === 'remote') {
                     document.querySelector('#remote-video').style.display = '';
-                    document.querySelector('#remote-video').src = URL.createObjectURL(event.stream);
+                    document.querySelector('#remote-video').srcObject = event.stream;
                 }
             });
 

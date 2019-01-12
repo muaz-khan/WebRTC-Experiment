@@ -5,24 +5,20 @@ function getStatsLooper() {
         if (!results || !results.forEach) return;
 
         results.forEach(function(result) {
+            // console.error('result', result);
             Object.keys(getStatsParser).forEach(function(key) {
                 if (typeof getStatsParser[key] === 'function') {
                     try {
                         getStatsParser[key](result);
                     } catch (e) {
-                        console.error(e.message, e.stack);
+                        console.error(e.message, e.stack, e);
                     }
                 }
             });
-
-            if (result.type !== 'local-candidate' && result.type !== 'remote-candidate' && result.type !== 'candidate-pair') {
-                // console.error('result', result);
-            }
         });
 
         try {
-            // failed|closed
-            if (peer.iceConnectionState.search(/failed/gi) !== -1) {
+            if (peer.iceConnectionState.search(/failed|closed|disconnected/gi) !== -1) {
                 nomore = true;
             }
         } catch (e) {

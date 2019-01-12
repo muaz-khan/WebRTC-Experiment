@@ -1,7 +1,7 @@
 {
   "name": "rtcmulticonnection",
   "preferGlobal": false,
-  "version": "3.6.1",
+  "version": "3.6.6",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
@@ -13,9 +13,7 @@
     "url": "https://github.com/muaz-khan/RTCMultiConnection.git"
   },
   "scripts": {
-    "start": "node server.js",
-    "heroku-prebuild": "export NPM_CONFIG_PRODUCTION=false; export NODE_ENV=; NPM_CONFIG_PRODUCTION=false NODE_ENV=development npm install --only=dev --dev",
-    "heroku-postbuild": "export NPM_CONFIG_PRODUCTION=true; export NODE_ENV=production;"
+    "start": "node server.js"
   },
   "engines": {
     "node": "latest"
@@ -44,7 +42,18 @@
     "muaz",
     "muaz-khan"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "canvas-designer": "latest",
+    "detectrtc": "latest",
+    "fbr": "latest",
+    "getstats": "latest",
+    "multistreamsmixer": "latest",
+    "recordrtc": "latest",
+    "rtcmulticonnection-server": "latest",
+    "socket.io": "latest",
+    "webrtc-adapter": "latest",
+    "webrtc-screen-capturing": "latest"
+  },
   "analyze": false,
   "license": "MIT",
   "readmeFilename": "README.md",
@@ -56,16 +65,6 @@
   "tonicExampleFilename": "npm-test.js",
   "_from": "rtcmulticonnection@",
   "devDependencies": {
-    "rtcmulticonnection-server": "latest",
-    "detectrtc": "latest",
-    "recordrtc": "latest",
-    "getstats": "latest",
-    "fbr": "latest",
-    "webrtc-screen-capturing": "latest",
-    "socket.io": "latest",
-    "webrtc-adapter": "latest",
-    "canvas-designer": "latest",
-    "multistreamsmixer": "latest",
     "grunt": "0.4.5",
     "grunt-bump": "0.7.0",
     "grunt-cli": "0.1.13",

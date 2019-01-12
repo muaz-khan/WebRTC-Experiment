@@ -1,4 +1,4 @@
-// Last time updated at August 19, 2014, 14:46:23
+// Last time updated on: December 26, 2018
 
 // Muaz Khan     - www.MuazKhan.com
 // MIT License   - www.WebRTC-Experiment.com/licence
@@ -6,22 +6,30 @@
 
 // Demo          - www.WebRTC-Experiment.com/getMediaElement
 
-document.write('<link rel="stylesheet" href="https://cdn.WebRTC-Experiment.com/getMediaElement.css">');
-
 // __________________
 // getMediaElement.js
 
 function getMediaElement(mediaElement, config) {
     config = config || { };
 
+    function getTracks(stream, kind) {
+        if (!stream || !stream.getTracks) {
+            return [];
+        }
+
+        return stream.getTracks().filter(function(t) {
+            return t.kind === (kind || 'audio');
+        });
+    }
+
     if (!mediaElement.nodeName || (mediaElement.nodeName.toLowerCase() != 'audio' && mediaElement.nodeName.toLowerCase() != 'video')) {
-        if (!mediaElement.getVideoTracks().length) {
+        if (!getTracks(mediaStream, 'video').length) {
             return getAudioElement(mediaElement, config);
         }
 
         var mediaStream = mediaElement;
-        mediaElement = document.createElement(mediaStream.getVideoTracks().length ? 'video' : 'audio');
-        mediaElement[!!navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = !!navigator.mozGetUserMedia ? mediaStream : window.webkitURL.createObjectURL(mediaStream);
+        mediaElement = document.createElement(getTracks(mediaStream, 'audio') ? 'video' : 'audio');
+        mediaElement.srcObject = mediaStream;
     }
 
     if (mediaElement.nodeName && mediaElement.nodeName.toLowerCase() == 'audio') {
@@ -333,7 +341,7 @@ function getAudioElement(mediaElement, config) {
     if (!mediaElement.nodeName || (mediaElement.nodeName.toLowerCase() != 'audio' && mediaElement.nodeName.toLowerCase() != 'video')) {
         var mediaStream = mediaElement;
         mediaElement = document.createElement('audio');
-        mediaElement[!!navigator.mozGetUserMedia ? 'mozSrcObject' : 'src'] = !!navigator.mozGetUserMedia ? mediaStream : window.webkitURL.createObjectURL(mediaStream);
+        mediaElement.srcObject = mediaStream;
     }
 
     config.toggle = config.toggle || [];
@@ -491,4 +499,14 @@ function getAudioElement(mediaElement, config) {
     mediaElementContainer.media = mediaElement;
 
     return mediaElementContainer;
+}
+
+if (typeof module !== 'undefined' /* && !!module.exports*/ ) {
+    module.exports = exports = getMediaElement;
+}
+
+if (typeof define === 'function' && define.amd) {
+    define('getMediaElement', [], function() {
+        return getMediaElement;
+    });
 }

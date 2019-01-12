@@ -26,7 +26,9 @@ var getStatsResult = {
             bitrateMean: 0
         },
         bytesSent: 0,
-        bytesReceived: 0
+        bytesReceived: 0,
+        latency: 0,
+        packetsLost: 0
     },
     video: {
         send: {
@@ -46,7 +48,9 @@ var getStatsResult = {
             bitrateMean: 0
         },
         bytesSent: 0,
-        bytesReceived: 0
+        bytesReceived: 0,
+        latency: 0,
+        packetsLost: 0
     },
     bandwidth: {
         systemBandwidth: 0,

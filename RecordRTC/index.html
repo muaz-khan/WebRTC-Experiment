@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2018.11.05';</script>
+<script>window.demoVersion = '2019.01.09';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -79,6 +79,7 @@
     </style>
 
     <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+    <script src="https://cdn.webrtc-experiment.com/RecordRTC/dev/WebAssemblyRecorder.js"></script>
 
     <!-- for Edge/FF/Chrome/Opera/etc. getUserMedia support -->
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -138,6 +139,7 @@
                     <option>pcm</option>
                     <option>gif</option>
                     <option>whammy</option>
+                    <option>WebAssembly</option>
                 </select>
 
                 <input type="checkbox" id="chk-timeSlice" style="margin:0;width:auto;" title="Use intervals based recording">
@@ -222,26 +224,20 @@
             })();
 
             function addStreamStopListener(stream, callback) {
-                var streamEndedEvent = 'ended';
-
-                if ('oninactive' in stream) {
-                    streamEndedEvent = 'inactive';
-                }
-
-                stream.addEventListener(streamEndedEvent, function() {
+                stream.addEventListener('ended', function() {
                     callback();
                     callback = function() {};
                 }, false);
-
-                stream.getAudioTracks().forEach(function(track) {
-                    track.addEventListener(streamEndedEvent, function() {
+                stream.addEventListener('inactive', function() {
+                    callback();
+                    callback = function() {};
+                }, false);
+                stream.getTracks().forEach(function(track) {
+                    track.addEventListener('ended', function() {
                         callback();
                         callback = function() {};
                     }, false);
-                });
-
-                stream.getVideoTracks().forEach(function(track) {
-                    track.addEventListener(streamEndedEvent, function() {
+                    track.addEventListener('inactive', function() {
                         callback();
                         callback = function() {};
                     }, false);
@@ -460,6 +456,13 @@
                     type = 'video';
                 }
 
+                if(mediaContainerFormat.value === 'WebAssembly') {
+                    mimeType = 'video/webm';
+                    fileExtension = 'webm';
+                    recorderType = WebAssemblyRecorder;
+                    type = 'video';
+                }
+
                 if(mediaContainerFormat.value === 'gif') {
                     mimeType = 'image/gif';
                     fileExtension = 'gif';
@@ -598,7 +601,7 @@
                         if(recorderType) {
                             options.recorderType = recorderType;
 
-                            if(recorderType == WhammyRecorder || recorderType == GifRecorder) {
+                            if(recorderType == WhammyRecorder || recorderType == GifRecorder || recorderType == WebAssemblyRecorder) {
                                 options.canvas = options.video = {
                                     width: defaultWidth || 320,
                                     height: defaultHeight || 240
@@ -646,7 +649,7 @@
                         if(recorderType) {
                             options.recorderType = recorderType;
 
-                            if(recorderType == WhammyRecorder || recorderType == GifRecorder) {
+                            if(recorderType == WhammyRecorder || recorderType == GifRecorder || recorderType == WebAssemblyRecorder) {
                                 options.canvas = options.video = {
                                     width: defaultWidth || 320,
                                     height: defaultHeight || 240
@@ -687,7 +690,7 @@
                         if(recorderType) {
                             options.recorderType = recorderType;
 
-                            if(recorderType == WhammyRecorder || recorderType == GifRecorder) {
+                            if(recorderType == WhammyRecorder || recorderType == GifRecorder || recorderType == WebAssemblyRecorder) {
                                 options.canvas = options.video = {
                                     width: defaultWidth || 320,
                                     height: defaultHeight || 240
@@ -854,11 +857,11 @@
                             var newStream = new MediaStream();
 
                             // merge audio and video tracks in a single stream
-                            audioStream.getAudioTracks().forEach(function(track) {
+                            getTracks(audioStream, 'audio').forEach(function(track) {
                                 newStream.addTrack(track);
                             });
 
-                            screenStream.getVideoTracks().forEach(function(track) {
+                            getTracks(screenStream, 'video').forEach(function(track) {
                                 newStream.addTrack(track);
                             });
 
@@ -1126,8 +1129,12 @@
 
                 recordingOptions.push('gif'); // GifRecorder
 
-                if(isChrome) {
+                if(DetectRTC.browser.name == 'Chrome') {
                     recordingOptions.push('whammy'); // WhammyRecorder
+                }
+
+                if(DetectRTC.browser.name == 'Chrome') {
+                    recordingOptions.push('WebAssembly'); // WebAssemblyRecorder
                 }
 
                 recordingOptions.push('default'); // Default mimeType for MediaStreamRecorder
@@ -1201,11 +1208,11 @@
                 }
 
                 if(btnStartRecording.stream) {
-                    info += '\n\naudio-tracks: ' + btnStartRecording.stream.getAudioTracks().length;
-                    info += '\nvideo-tracks: ' + btnStartRecording.stream.getVideoTracks().length;
+                    info += '\n\naudio-tracks: ' + getTracks(btnStartRecording.stream, 'audio').length;
+                    info += '\nvideo-tracks: ' + getTracks(btnStartRecording.stream, 'video').length;
                     info += '\nstream-active? ' + !!btnStartRecording.stream.active;
 
-                    btnStartRecording.stream.getAudioTracks().concat(btnStartRecording.stream.getVideoTracks()).forEach(function(track) {
+                    btnStartRecording.stream.getTracks().forEach(function(track) {
                         info += '\n' + track.kind + '-track-' + (track.label || track.id) + ': (enabled: ' + !!track.enabled + ', readyState: ' + track.readyState + ', muted: ' + !!track.muted + ')';
 
                         if(track.getConstraints && Object.keys(track.getConstraints()).length) {
@@ -1380,15 +1387,19 @@
 
                 callback('Uploading recorded-file to server.');
 
-                makeXMLHttpRequest('https://webrtcweb.com/RecordRTC/', formData, function(progress) {
+                var upload_url = 'https://webrtcweb.com/f/';
+                // var upload_url = 'RecordRTC-to-PHP/save.php';
+
+                var upload_directory = upload_url;
+                // var upload_directory = 'RecordRTC-to-PHP/uploads/';
+
+                makeXMLHttpRequest(upload_url, formData, function(progress) {
                     if (progress !== 'upload-ended') {
                         callback(progress);
                         return;
                     }
 
-                    var initialURL = 'https://webrtcweb.com/RecordRTC/uploads/';
-
-                    callback('ended', initialURL + fileName);
+                    callback('ended', upload_directory + fileName);
                 });
             }
 
@@ -1489,7 +1500,7 @@
                     url = URL.createObjectURL(arg.getBlob());
                 }
 
-                if(arg instanceof MediaStream || arg.getTracks || arg.getVideoTracks || arg.getAudioTracks) {
+                if(arg instanceof MediaStream || arg.getTracks) {
                     // url = URL.createObjectURL(arg);
                 }
 
@@ -1928,7 +1939,7 @@
 
         <section class="experiment" style="padding: 10px 20px; text-align: center;">
             <a href="https://chrome.google.com/webstore/detail/recordrtc/ndcljioonkecdnaaihodjgiliohngojp" target="_blank">
-                <img alt="RecordRTC" src="https://webrtcweb.com/RecordRTC/icon.png" style="width: 20px;vertical-align: middle;margin-right: 3px;">
+                <img alt="RecordRTC" src="https://cdn.webrtc-experiment.com/images/recordrtc-icon.png" style="width: 20px;vertical-align: middle;margin-right: 3px;">
                 RecordRTC Google Chrome Extension
             </a>
             <br>

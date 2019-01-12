@@ -29,7 +29,7 @@
     <canvas></canvas>
 </div>
 
-<video id="mediaElement"></video>
+<video id="mediaElement" autoplay playsinline></video>
 
 <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -158,8 +158,7 @@ document.querySelector('#btn-start-recording').onclick = function() {
             CropFrame(ev, screen, mediaElement);
         };
 
-        setSrcObject(screen, mediaElement);
-        mediaElement.play();
+        mediaElement.srcObject = screen;
         mediaElement.screen = screen;
 
         addStreamStopListener(screen, function() {
@@ -186,8 +185,8 @@ document.querySelector('#btn-stop-recording').onclick = function() {
         document.querySelector('#edit-panel').style.display = 'none';
         mediaElement.style.display = 'block';
 
+        mediaElement.srcObject = null;
         mediaElement.src = URL.createObjectURL(blob);
-        mediaElement.play();
 
         if (mediaElement.screen && mediaElement.screen.getVideoTracks) {
             mediaElement.screen.stop();
@@ -199,22 +198,20 @@ document.querySelector('#btn-stop-recording').onclick = function() {
 };
 
 function addStreamStopListener(stream, callback) {
-    var streamEndedEvent = 'ended';
-    if ('oninactive' in stream) {
-        streamEndedEvent = 'inactive';
-    }
-    stream.addEventListener(streamEndedEvent, function() {
+    stream.addEventListener('ended', function() {
         callback();
         callback = function() {};
     }, false);
-    stream.getAudioTracks().forEach(function(track) {
-        track.addEventListener(streamEndedEvent, function() {
+    stream.addEventListener('inactive', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.getTracks().forEach(function(track) {
+        track.addEventListener('ended', function() {
             callback();
             callback = function() {};
         }, false);
-    });
-    stream.getVideoTracks().forEach(function(track) {
-        track.addEventListener(streamEndedEvent, function() {
+        track.addEventListener('inactive', function() {
             callback();
             callback = function() {};
         }, false);

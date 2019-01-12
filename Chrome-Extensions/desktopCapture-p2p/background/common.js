@@ -76,3 +76,7 @@ function setBadgeText(text) {
         title: text + ' users are viewing your screen!'
     });
 }
+
+// sometimes extension unexpectedly crashes or reloads
+// in this case, making sure to remove "ON" status
+// chrome.storage.sync.set({ isSharingOn: 'false' });

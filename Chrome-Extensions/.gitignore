@@ -8,3 +8,4 @@ bower_components
 
 .zip
 .tar
+*/*.zip

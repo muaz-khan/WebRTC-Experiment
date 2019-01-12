@@ -1,0 +1,40 @@
+{
+  "name": "getmediaelement",
+  "preferGlobal": true,
+  "version": "1.0.2",
+  "author": {
+    "name": "Muaz Khan",
+    "email": "muazkh@gmail.com",
+    "url": "https://muazkhan.com/"
+  },
+  "description": "This library generates HTML Audio/Video element with rich user-interface and advance media controls. It gives you full control over each control button; and its functionality!",
+  "scripts": {},
+  "main": "./getMediaElement.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/muaz-khan/WebRTC-Experiment.git"
+  },
+  "keywords": [
+    "webrtc",
+    "getMediaElement",
+    "webrtc-library",
+    "library",
+    "javascript",
+    "rtcweb",
+    "webrtc-experiment",
+    "javascript-library",
+    "muaz",
+    "muaz-khan"
+  ],
+  "analyze": false,
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/muaz-khan/WebRTC-Experiment/issues",
+    "email": "muazkh@gmail.com"
+  },
+  "homepage": "https://www.webrtc-experiment.com/getMediaElement/",
+  "_id": "getmediaelement@",
+  "_from": "getmediaelement@",
+  "devDependencies": {}
+}

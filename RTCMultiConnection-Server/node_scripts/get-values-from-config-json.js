@@ -2,7 +2,7 @@
 // MIT License    - www.WebRTC-Experiment.com/licence
 // Documentation  - github.com/muaz-khan/RTCMultiConnection
 
-function getValues(root) {
+function getValues(param) {
     var path = require('path');
     var fs = require('fs');
     var getJsonFile = require('./getJsonFile.js');
@@ -26,12 +26,12 @@ function getValues(root) {
     };
 
 
-    if (!fs.existsSync(root.config)) {
-        console.log('File does not exist', root.config);
+    if (!fs.existsSync(param.config)) {
+        console.log('File does not exist', param.config);
         return result;
     }
 
-    var config = getJsonFile(root.config);
+    var config = getJsonFile(param.config);
 
     ['sslKey', 'sslCert', 'sslCabundle'].forEach(function(key) {
         if (!config[key] || config[key].toString().length == 0) {

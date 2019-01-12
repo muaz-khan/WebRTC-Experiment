@@ -83,7 +83,7 @@ function onAccessApproved(chromeMediaSourceId, opts) {
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
         if(enableSpeakers && !enableScreen) {
             var screenOnly = new MediaStream();
-            stream.getVideoTracks().forEach(function(track) {
+            getTracks(stream, 'video').forEach(function(track) {
                 screenOnly.addTrack(track);
 
                 // remove video track, because we are gonna record only speakers
@@ -105,8 +105,8 @@ function onAccessApproved(chromeMediaSourceId, opts) {
 
         initVideoPlayer(stream);
         gotStream(stream);
-    }).catch(function() {
-        alert('Unable to capture screen using:\n' + JSON.stringify(constraints, null, '\t'));
+    }).catch(function(error) {
+        alert('Unable to capture screen using:\n' + JSON.stringify(constraints, null, '\t') + '\n\n' + error);
         setDefaults();
         chrome.runtime.reload();
     });

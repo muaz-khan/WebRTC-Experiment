@@ -1,6 +1,10 @@
-// https://github.com/muaz-khan/RTCMultiConnection/issues/137#issuecomment-213770626
+// github.com/muaz-khan/RTCMultiConnection/issues/ => #137 and #706
 
 function SipConnection(connection, connectCallback) {
+    function isData(session) {
+        return !session.audio && !session.video && !session.screen && session.data;
+    }
+
     connection.socket = {
         send: function(data) {
             var remoteSipURI = data.remoteUserId + '@yourServer.com';
@@ -76,7 +80,7 @@ function SipConnection(connection, connectCallback) {
         });
 
         if (callback) {
-            callback();
+            callback(true);
         }
     };
 

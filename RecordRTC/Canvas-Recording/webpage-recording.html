@@ -104,7 +104,7 @@ textarea {
     You can resize image or above header and drag/move video:<br>
     <canvas id="animation" style="position:absolute;left:0;background-color:black; width: 300px;"></canvas>
 
-    <video controls style="width:33%;position:absolute;right:40%; background-color:black;" src="video.webm" loop autoplay></video>
+    <video controls style="width:33%;position:absolute;right:40%; background-color:black;" src="video.webm" loop autoplay playsinline></video>
     <video id="camera" controls style="width:33%;position:absolute;right:100px; top:150px;background-color:black;"></video>
     
     <div id="other-demo-hints">There is another demo, that allows you <a href="https://www.webrtc-experiment.com/RecordRTC/Canvas-Recording/record-canvas-drawings.html">record drawings</a>!</div>
@@ -235,8 +235,7 @@ function playVideo(callback) {
         videoElement.onloadedmetadata = function() {
             callback();
         };
-        setSrcObject(stream, videoElement);
-        videoElement.play();
+        videoElement.srcObject = stream;
     }
 
     function errorCallback(error) {

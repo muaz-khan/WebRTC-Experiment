@@ -239,10 +239,10 @@
                 var canvasStream = canvas.captureStream();
 
                 var finalStream = new MediaStream();
-                audioStream.getAudioTracks().forEach(function(track) {
+                getTracks(audioStream, 'audio').forEach(function(track) {
                     finalStream.addTrack(track);
                 });
-                canvasStream.getVideoTracks().forEach(function(track) {
+                getTracks(canvasStream, 'video').forEach(function(track) {
                     finalStream.addTrack(track);
                 });
 

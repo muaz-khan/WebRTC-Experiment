@@ -1,11 +1,11 @@
 {
   "name": "canvas-designer",
   "preferGlobal": false,
-  "version": "1.2.7",
+  "version": "1.3.0",
   "author": {
     "name": "Muaz Khan",
     "email": "muazkh@gmail.com",
-    "url": "http://www.muazkhan.com/"
+    "url": "https://muazkhan.com/"
   },
   "description": "Collaborative, extendable, JavaScript Canvas2D drawing tool, supporting dozens of builtin tools, as well as generates JavaScript code for 2D animations.",
   "main": "server.js",

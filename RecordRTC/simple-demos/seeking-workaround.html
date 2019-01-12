@@ -1,0 +1,117 @@
+<style>
+    html, body {
+        margin: 0!important;
+        padding: 0!important;
+        text-align: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 1em;
+    }
+
+    video {
+        width: 30%;
+        border-radius: 5px;
+        border: 1px solid black;
+    }
+</style>
+
+<title>Seeking Workaround | RecordRTC</title>
+<h1>Seeking Workaround for RecordRTC</h1>
+
+<br>
+
+<button id="btn-start-recording">Start Recording</button>
+<button id="btn-stop-recording" disabled>Stop Recording</button>
+
+<hr>
+<video controls autoplay playsinline></video>
+
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>      <!-- ../RecordRTC.js -->
+<script src="https://cdn.webrtc-experiment.com/EBML.js"></script>           <!-- ../libs/DBML.js -->
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+
+<script>
+var video = document.querySelector('video');
+
+function captureStream(callback) {
+    navigator.mediaDevices.getUserMedia({video:true,audio:true}).then(function(stream) {
+        callback(stream);
+    }).catch(function(error) {
+        console.error(error);
+        alert('Unable to capture your stream. Please check console logs.\n' + error);
+    });
+}
+
+function stopRecordingCallback() {
+    video.muted = false;
+    video.volume = 1;
+
+    video.src = video.srcObject = null;
+
+    getSeekableBlob(recorder.getBlob(), function(seekableBlob) {
+        video.src = URL.createObjectURL(seekableBlob);
+
+        recorder.stream.stop();
+        recorder.destroy();
+        recorder = null;
+
+        document.getElementById('btn-start-recording').disabled = false;
+
+        invokeSaveAsDialog(seekableBlob, 'seekable-recordrtc.webm');
+    });
+}
+
+var recorder; // globally accessible
+
+document.getElementById('btn-start-recording').onclick = function() {
+    this.disabled = true;
+    captureStream(function(stream) {
+        video.muted = true;
+        video.volume = 0;
+        video.srcObject = stream;
+
+        recorder = RecordRTC(stream, {
+            type: 'video'
+        });
+
+        recorder.startRecording();
+
+        // release stream on stopRecording
+        recorder.stream = stream;
+
+        document.getElementById('btn-stop-recording').disabled = false;
+    });
+};
+
+document.getElementById('btn-stop-recording').onclick = function() {
+    this.disabled = true;
+    recorder.stopRecording(stopRecordingCallback);
+};
+
+function addStreamStopListener(stream, callback) {
+    stream.addEventListener('ended', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.addEventListener('inactive', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.getTracks().forEach(function(track) {
+        track.addEventListener('ended', function() {
+            callback();
+            callback = function() {};
+        }, false);
+        track.addEventListener('inactive', function() {
+            callback();
+            callback = function() {};
+        }, false);
+    });
+}
+</script>
+
+<br><br>
+
+<footer style="margin-top: 20px; text-align: left;">
+    <small id="send-message"></small>
+</footer>
+<script src="https://cdn.webrtc-experiment.com/common.js"></script>

@@ -1,6 +1,6 @@
-// Last time updated at June 12, 2014, 08:32:23
+// Last time updated on: January 01, 2018
 
-// Muaz Khan         - http://www.MuazKhan.com
+// Muaz Khan         - https://MuazKhan.com
 // MIT License       - https://www.WebRTC-Experiment.com/licence
 // Documentation     - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/navigator.customGetUserMediaBar
 // Demo              - https://www.WebRTC-Experiment.com/navigator.customGetUserMediaBar/

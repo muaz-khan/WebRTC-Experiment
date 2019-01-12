@@ -246,7 +246,7 @@ var app = {
                 delete event.mediaElement;
             }
 
-            videoPreview.src = URL.createObjectURL(event.stream);
+            videoPreview.srcObject = event.stream;
             videoPreview.play();
 
             videoPreview.userid = event.userid;

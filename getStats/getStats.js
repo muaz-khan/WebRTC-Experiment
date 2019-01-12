@@ -1,9 +1,9 @@
 'use strict';
 
-// Last time updated: 2018-12-19 9:53:31 AM UTC
+// Last time updated: 2018-12-20 6:58:08 AM UTC
 
 // _______________
-// getStats v1.0.8
+// getStats v1.0.9
 
 // Open-Sourced: https://github.com/muaz-khan/getStats
 
@@ -42,7 +42,9 @@ window.getStats = function(mediaStreamTrack, callback, interval) {
                 bitrateMean: 0
             },
             bytesSent: 0,
-            bytesReceived: 0
+            bytesReceived: 0,
+            latency: 0,
+            packetsLost: 0
         },
         video: {
             send: {
@@ -62,7 +64,9 @@ window.getStats = function(mediaStreamTrack, callback, interval) {
                 bitrateMean: 0
             },
             bytesSent: 0,
-            bytesReceived: 0
+            bytesReceived: 0,
+            latency: 0,
+            packetsLost: 0
         },
         bandwidth: {
             systemBandwidth: 0,
@@ -148,24 +152,20 @@ window.getStats = function(mediaStreamTrack, callback, interval) {
             if (!results || !results.forEach) return;
 
             results.forEach(function(result) {
+                // console.error('result', result);
                 Object.keys(getStatsParser).forEach(function(key) {
                     if (typeof getStatsParser[key] === 'function') {
                         try {
                             getStatsParser[key](result);
                         } catch (e) {
-                            console.error(e.message, e.stack);
+                            console.error(e.message, e.stack, e);
                         }
                     }
                 });
-
-                if (result.type !== 'local-candidate' && result.type !== 'remote-candidate' && result.type !== 'candidate-pair') {
-                    // console.error('result', result);
-                }
             });
 
             try {
-                // failed|closed
-                if (peer.iceConnectionState.search(/failed/gi) !== -1) {
+                if (peer.iceConnectionState.search(/failed|closed|disconnected/gi) !== -1) {
                     nomore = true;
                 }
             } catch (e) {
@@ -279,7 +279,7 @@ window.getStats = function(mediaStreamTrack, callback, interval) {
 
             kilobytes = bytes / 1024;
             getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
-            getStatsResult.video.bytesSent = kilobytes.toFixed(1);
+            getStatsResult.audio.bytesSent = kilobytes.toFixed(1);
         }
 
         if (!!result.bytesReceived) {
@@ -294,11 +294,45 @@ window.getStats = function(mediaStreamTrack, callback, interval) {
             kilobytes = bytes / 1024;
 
             // getStatsResult.audio[sendrecvType].availableBandwidth = kilobytes.toFixed(1);
-            getStatsResult.video.bytesReceived = kilobytes.toFixed(1);
+            getStatsResult.audio.bytesReceived = kilobytes.toFixed(1);
         }
 
         if (result.googTrackId && getStatsResult.audio[sendrecvType].tracks.indexOf(result.googTrackId) === -1) {
             getStatsResult.audio[sendrecvType].tracks.push(result.googTrackId);
+        }
+
+        // calculate latency
+        if (!!result.googCurrentDelayMs) {
+            var kilobytes = 0;
+            if (!getStatsResult.internal.audio.prevGoogCurrentDelayMs) {
+                getStatsResult.internal.audio.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+            }
+
+            var bytes = result.googCurrentDelayMs - getStatsResult.internal.audio.prevGoogCurrentDelayMs;
+            getStatsResult.internal.audio.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+
+            getStatsResult.audio.latency = bytes.toFixed(1);
+
+            if (getStatsResult.audio.latency < 0) {
+                getStatsResult.audio.latency = 0;
+            }
+        }
+
+        // calculate packetsLost
+        if (!!result.packetsLost) {
+            var kilobytes = 0;
+            if (!getStatsResult.internal.audio.prevPacketsLost) {
+                getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+            }
+
+            var bytes = result.packetsLost - getStatsResult.internal.audio.prevPacketsLost;
+            getStatsResult.internal.audio.prevPacketsLost = result.packetsLost;
+
+            getStatsResult.audio.packetsLost = bytes.toFixed(1);
+
+            if (getStatsResult.audio.packetsLost < 0) {
+                getStatsResult.audio.packetsLost = 0;
+            }
         }
     };
 
@@ -388,6 +422,40 @@ window.getStats = function(mediaStreamTrack, callback, interval) {
 
             kilobytes = bytes / 1024;
             getStatsResult.video[sendrecvType].bitrateMean = bytes.toFixed(1);
+        }
+
+        // calculate latency
+        if (!!result.googCurrentDelayMs) {
+            var kilobytes = 0;
+            if (!getStatsResult.internal.video.prevGoogCurrentDelayMs) {
+                getStatsResult.internal.video.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+            }
+
+            var bytes = result.googCurrentDelayMs - getStatsResult.internal.video.prevGoogCurrentDelayMs;
+            getStatsResult.internal.video.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+
+            getStatsResult.video.latency = bytes.toFixed(1);
+
+            if (getStatsResult.video.latency < 0) {
+                getStatsResult.video.latency = 0;
+            }
+        }
+
+        // calculate packetsLost
+        if (!!result.packetsLost) {
+            var kilobytes = 0;
+            if (!getStatsResult.internal.video.prevPacketsLost) {
+                getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
+            }
+
+            var bytes = result.packetsLost - getStatsResult.internal.video.prevPacketsLost;
+            getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
+
+            getStatsResult.video.packetsLost = bytes.toFixed(1);
+
+            if (getStatsResult.video.packetsLost < 0) {
+                getStatsResult.video.packetsLost = 0;
+            }
         }
     };
 

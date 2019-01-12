@@ -20,7 +20,7 @@
 
     <body>
         <h1 id="header">RecordRTC Upload to PHP</h1>
-        <video id="your-video-id" controls="" autoplay=""></video>
+        <video id="your-video-id" controls autoplay playsinline></video>
 
         <script type="text/javascript">
             // capture camera and/or microphone
@@ -28,7 +28,7 @@
 
                 // preview camera during recording
                 document.getElementById('your-video-id').muted = true;
-                setSrcObject(camera, document.getElementById('your-video-id'));
+                document.getElementById('your-video-id').srcObject = camera;
 
                 // recording configuration/hints/parameters
                 var recordingHints = {
@@ -70,6 +70,7 @@
                             alert('Successfully uploaded recorded blob.');
 
                             // preview uploaded file
+                            document.getElementById('your-video-id').srcObject = null;
                             document.getElementById('your-video-id').src = fileDownloadURL;
 
                             // open uploaded file in a new tab

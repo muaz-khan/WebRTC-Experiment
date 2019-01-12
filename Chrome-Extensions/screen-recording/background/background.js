@@ -62,12 +62,12 @@ function gotStream(stream) {
         
         if(enableSpeakers && enableMicrophone) {
             var mixAudioStream = getMixedAudioStream([cameraStream, stream]);
-            if(mixAudioStream && mixAudioStream.getAudioTracks().length) {
+            if(mixAudioStream && getTracks(mixAudioStream, 'audio').length) {
                 ignoreSecondPart = true;
                 
-                var mixedTrack = mixAudioStream.getAudioTracks()[0];
+                var mixedTrack = getTracks(mixAudioStream, 'audio')[0];
                 stream.addTrack(mixedTrack);
-                stream.getAudioTracks().forEach(function(track) {
+                getTracks(stream, 'audio').forEach(function(track) {
                     if(track === mixedTrack) return;
                     stream.removeTrack(track);
                 });
@@ -75,7 +75,7 @@ function gotStream(stream) {
         }
 
         if(!ignoreSecondPart) {
-            cameraStream.getAudioTracks().forEach(function(track) {
+            getTracks(cameraStream, 'audio').forEach(function(track) {
                 stream.addTrack(track);
                 cameraStream.removeTrack(track);
             });
@@ -90,7 +90,7 @@ function gotStream(stream) {
         recorder = new StereoAudioRecorder(stream, options);
         recorder.streams = [stream];
     }
-    else if (enableScreen && cameraStream && cameraStream.getVideoTracks().length) {
+    else if (enableScreen && cameraStream && getTracks(cameraStream, 'video').length) {
         // adjust video on top over screen
 
         // on faster systems (i.e. 4MB or higher RAM):
@@ -148,7 +148,14 @@ function stopScreenRecording() {
         path: 'images/main-icon.png'
     });
 
-    recorder.stop(function() {
+    recorder.stop(function onStopRecording(blob, ignoreGetSeekableBlob) {
+        if(fixVideoSeekingIssues && recorder && !ignoreGetSeekableBlob) {
+            getSeekableBlob(recorder.blob, function(seekableBlob) {
+                onStopRecording(seekableBlob, true);
+            });
+            return;
+        }
+
         var mimeType = 'video/webm';
         var fileExtension = 'webm';
 
@@ -174,6 +181,12 @@ function stopScreenRecording() {
         var file = new File([recorder ? recorder.blob : ''], getFileName(fileExtension), {
             type: mimeType
         });
+
+        if(ignoreGetSeekableBlob === true) {
+            file = new File([blob], getFileName(fileExtension), {
+                type: mimeType
+            });
+        }
 
         localStorage.setItem('selected-file', file.name);
 
@@ -295,6 +308,7 @@ function setDefaults() {
     videoMaxFrameRates = '';
     videoResolutions = '1920x1080';
     isRecordingVOD = false;
+    fixVideoSeekingIssues = false;
 
     // for dropdown.js
     chrome.storage.sync.set({
@@ -350,6 +364,10 @@ function getUserConfigs() {
 
         if (items['camera']) {
             cameraDevice = items['camera'];
+        }
+
+        if(items['fixVideoSeekingIssues']) {
+            fixVideoSeekingIssues = items['fixVideoSeekingIssues'] === 'true';
         }
 
         if (enableMicrophone || enableCamera) {

@@ -1,0 +1,355 @@
+<title>WebRTC Desktop Viewer</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+
+<meta name="description" content="This WebRTC Experiment page shows privately shared screens, desktops, and parts of the screens." />
+<meta name="keywords" content="WebRTC,Desktop-Sharing,Screen-Sharing,RTCWeb,WebRTC-Experiment,WebRTC-Demo" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+<meta name="author" content="Muaz Khan">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+<style>
+* {
+    padding: 0;
+    margin: 0;
+}
+body, html {
+    text-align: center;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background: black;
+}
+video {
+    height: 100%;
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: #000000a3;
+    text-align: center;
+    padding-top: 10%;
+}
+
+#info-bar {
+    display: inline-block;
+    color: white;
+    font-size: 150%;
+    font-weight: bold;
+    font-family: Arial;
+}
+
+#stats-bar {
+    background-color: rgba(255, 255, 255, 0.92);
+    top: 20px;
+    left: 20px;
+    color: black;
+    font-size: 17px;
+    line-height: 1.5em;
+    position: absolute;
+    border: 2px solid rgba(0, 0, 0, 0.82);
+    border-radius: 7px;
+    font-family: Arial;
+    
+    text-align: left;
+    display: none;
+}
+
+#stats-bar-html {
+    padding: 5px 10px;
+}
+
+#hide-stats-bar {
+    float: right;
+    cursor: pointer;
+    color: red;
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+#hide-stats-bar:hover, #hide-stats-bar:active {
+    color: #6c1414;
+}
+</style>
+
+<video id="video" autoplay playsinline controls></video>
+
+<div id="overlay">
+    <div id="info-bar"></div>
+</div>
+
+<div id="stats-bar">
+    <div id="hide-stats-bar">x</div>
+    <div id="stats-bar-html"></div>
+</div>
+
+<script src="background/helpers/socket.io.js"></script>
+<script src="background/helpers/adapter.js"></script>
+<script src="background/helpers/RTCMultiConnection.min.js"></script>
+<script src="background/helpers/CodecsHandler.js"></script>
+<script src="background/helpers/IceServersHandler.js"></script>
+<script src="background/helpers/getStats.js">></script>
+
+<script>
+(function() {
+    var params = {},
+        r = /([^&=]+)=?([^&]*)/g;
+
+    function d(s) {
+        return decodeURIComponent(s.replace(/\+/g, ' '));
+    }
+
+    var match, search = window.location.search;
+    while (match = r.exec(search.substring(1)))
+        params[d(match[1])] = d(match[2]);
+
+    window.params = params;
+})();
+
+var infoBar = document.getElementById('info-bar');
+var overlay = document.getElementById('overlay');
+
+// http://www.rtcmulticonnection.org/docs/constructor/
+var connection = new RTCMultiConnection(params.s);
+connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
+connection.autoCloseEntireSession = true;
+
+// this must match the extension page
+connection.socketMessageEvent = 'desktopCapture';
+
+connection.enableLogs = true;
+connection.session = {
+    audio: true,
+    video: true,
+    oneway: true
+};
+
+// www.rtcmulticonnection.org/docs/sdpConstraints/
+connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: true,
+    OfferToReceiveVideo: true
+};
+
+connection.getExternalIceServers = false;
+connection.iceServers = IceServersHandler.getIceServers();
+
+function setBandwidth(sdp) {
+    sdp = sdp.replace(/b=AS([^\r\n]+\r\n)/g, '');
+    sdp = sdp.replace(/a=mid:video\r\n/g, 'a=mid:video\r\nb=AS:10000\r\n');
+    return sdp;
+}
+
+connection.processSdp = function(sdp) {
+    var bandwidth = params.bandwidth;
+    var codecs = params.codecs;
+    
+    if (bandwidth) {
+        try {
+            bandwidth = parseInt(bandwidth);
+        } catch (e) {
+            bandwidth = null;
+        }
+
+        if (bandwidth && bandwidth != NaN && bandwidth != 'NaN' && typeof bandwidth == 'number') {
+            sdp = setBandwidth(sdp, bandwidth);
+            sdp = BandwidthHandler.setVideoBitrates(sdp, {
+                min: bandwidth,
+                max: bandwidth
+            });
+        }
+    }
+
+    if (!!codecs && codecs !== 'default') {
+        sdp = CodecsHandler.preferCodec(sdp, codecs);
+    }
+    return sdp;
+};
+
+connection.optionalArgument = {
+    optional: [],
+    mandatory: {}
+};
+
+connection.onstatechange = function(state) {
+    infoBar.innerHTML = state.name + ': ' + state.reason;
+
+    if(state.name == 'request-rejected' && params.p) {
+        infoBar.innerHTML = 'Password (' + params.p + ') did not match with broadcaster, that is why your participation request has been rejected.<br>Please contact him and ask for valid password.';
+    }
+
+    if(state.name === 'room-not-available') {
+        infoBar.innerHTML = 'Screen share session is closed or paused. You will join automatically when share session is resumed.';
+    }
+};
+
+connection.onstreamid = function(event) {
+    infoBar.innerHTML = 'Remote peer is about to send his screen.';
+};
+
+var video = document.getElementById('video');
+connection.onstream = function(e) {
+    video.srcObject = e.stream;
+    overlay.style.display = 'none';
+    
+    setTimeout(function() {
+        video.play();
+    }, 3000);
+};
+
+// if user left
+connection.onleave = connection.onstreamended = connection.onSessionClosed = function(e) {
+    if(e.userid !== params.s) return;
+
+    video.srcObject = null;
+    
+    infoBar.innerHTML = 'Screen sharing has been closed.';
+    overlay.style.display = 'block';
+    statsBar.style.display = 'none';
+    connection.close();
+    connection.closeSocket();
+    connection.userid = connection.token();
+
+    location.reload();
+};
+
+connection.onJoinWithPassword = function(remoteUserId) {
+    if(!params.p) {
+        params.p = prompt(remoteUserId + ' is password protected. Please enter the pasword:');
+    }
+
+    connection.password = params.p;
+    connection.join(remoteUserId);
+};
+
+connection.onInvalidPassword = function(remoteUserId, oldPassword) {
+    var password = prompt(remoteUserId + ' is password protected. Your entered wrong password (' + oldPassword + '). Please enter valid pasword:');
+    connection.password = password;
+    connection.join(remoteUserId);
+};
+
+connection.onPasswordMaxTriesOver = function(remoteUserId) {
+    alert(remoteUserId + ' is password protected. Your max password tries exceeded the limit.');
+};
+
+connection.socketCustomEvent = params.s;
+
+function checkPresence() {
+    infoBar.innerHTML = 'Checking room: ' + params.s;
+
+    connection.checkPresence(params.s, function(isRoomExist, roomid, extra) {
+        if (isRoomExist === false) {
+            infoBar.innerHTML = 'Room does not exist: ' + params.s;
+
+            setTimeout(function() {
+                infoBar.innerHTML = 'Checking room: ' + params.s;
+                setTimeout(checkPresence, 1000);
+            }, 4000);
+            return;
+        }
+
+        infoBar.innerHTML = 'Joining room: ' + params.s;
+
+        connection.password = null;
+        if (params.p) {
+            connection.password = params.p;
+        }
+
+        connection.join(params.s);
+    });
+}
+
+if(params.s) {
+    checkPresence();
+}
+
+var dontDuplicate = {};
+connection.onPeerStateChanged = function(event) {
+    if(!connection.getRemoteStreams(params.s).length) {
+        if(event.signalingState === 'have-remote-offer') {
+            infoBar.innerHTML = 'Received WebRTC offer from: ' + params.s;
+        }
+
+        else if(event.iceGatheringState === 'complete' && event.iceConnectionState === 'connected') {
+            infoBar.innerHTML = 'WebRTC handshake is completed. Waiting for remote video from: ' + params.s;
+        }
+    }
+
+    if(event.iceConnectionState === 'connected' && event.signalingState === 'stable') {
+        if(dontDuplicate[event.userid]) return;
+        dontDuplicate[event.userid] = true;
+
+        if(DetectRTC.browser.name === 'Safari' || DetectRTC.browser.name === 'Edge') {
+            // todo: getStats for safari/edge?
+            return;
+        }
+
+        var peer = connection.peers[event.userid].peer;
+
+        if(DetectRTC.browser.name === 'Firefox') {
+            getStats(peer, (connection.remoteStream || peer.getRemoteStreams()[0]).getTracks()[0], function(stats) {
+                onGettingWebRCStats(stats, event.userid);
+            }, 1000);
+            return;
+        }
+
+        getStats(peer, function(stats) {
+            onGettingWebRCStats(stats, event.userid);
+        }, 1000);
+
+        statsBar.style.display = 'block';
+    }
+};
+
+var statsBar = document.getElementById('stats-bar');
+var statsBarHTML = document.getElementById('stats-bar-html');
+var NO_MORE = false;
+
+document.getElementById('hide-stats-bar').onclick = function() {
+    statsBar.style.display = 'none';
+    NO_MORE = true;
+};
+
+function onGettingWebRCStats(stats, userid) {
+    if(!connection.peers[userid] || NO_MORE) {
+        stats.nomore();
+        return;
+    }
+
+    var html = 'Codecs: ' + stats.audio.recv.codecs.concat(stats.video.recv.codecs).join(', ');
+    html += '<br>';
+    html += 'Resolutions: ' + stats.resolutions.recv.width + 'x' + stats.resolutions.recv.height;
+    html += '<br>';
+    html += 'Data: ' + bytesToSize(stats.audio.bytesReceived + stats.video.bytesReceived);
+    // html += '<br>';
+    // html += 'Speed: ' + bytesToSize(stats.bandwidth.speed || 0);
+    statsBarHTML.innerHTML = html;
+}
+
+function bytesToSize(bytes) {
+    var k = 1000;
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) {
+        return '0 Bytes';
+    }
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(k)), 10);
+    return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+}
+
+window.addEventListener('offline', function() {
+    infoBar.innerHTML = 'You seems offLine.';
+}, false);
+
+window.addEventListener('online', function() {
+    infoBar.innerHTML = 'You seems onLine. Reloading the page..';
+    location.reload();
+}, false);
+</script>

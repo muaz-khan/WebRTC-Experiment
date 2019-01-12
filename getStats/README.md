@@ -46,55 +46,13 @@ Or link specific build:
 
 * https://github.com/muaz-khan/getStats/releases
 
-```html
-<script src="https://github.com/muaz-khan/getStats/releases/download/1.0.6/getStats.js"></script>
-```
-
-# `window.getStats`
-
-To invoke directly:
-
-```javascript
-getStats(peer, callback, interval);
-```
-
-# RTCPeerConnection.prototype.getPeerStats
-
-Or, to setup an instance method:
-
-```javascript
-// if your code is encapsulated under a method
-(function() {
-    RTCPeerConnection.prototype.getPeerStats = window.getStats;
-    
-    // or
-    RTCPeerConnection.prototype.__getStats = window.getStats;
-    
-    // or
-    RTCPeerConnection.prototype.getConnectionStats = window.getStats;
-    
-    // or
-    RTCPeerConnection.prototype['your-choice'] = window.getStats;
-})();
-```
-
-**NEVER set/override `RTCPeerConnection.prototype.getStats`** because it is a reserved method.
-
-```javascript
-// following will fail
-RTCPeerConnection.prototype.getStats = window.getStats;
-
-// it should be
-RTCPeerConnection.prototype.intanceMethodNamae = window.getStats;
-```
-
 # Usage
 
 ```javascript
 var rtcPeerConnection = new RTCPeerConnection(rtcConfig);
 
 var repeatInterval = 2000; // 2000 ms == 2 seconds
-rtcPeerConnection.getPeerStats(function(result) {
+getStats(rtcPeerConnection, function(result) {
     result.connectionType.remote.ipAddress
     result.connectionType.remote.candidateType
     result.connectionType.transport
@@ -118,10 +76,14 @@ rtcPeerConnection.getPeerStats(function(result) {
 }, repeatInterval);
 ```
 
-# Firefox?
+# Safari?
 
 ```javascript
-peer.getStats(peer.getLocalStreams()[0].getAudioTracks()[0], function(results) {
+var audioTrack = stream.getTracks().filter(function(t) {
+    return t.kind === 'audio';
+});
+
+getStats(peer, audioTrack, function(results) {
     // rest goes here
 }, 5 * 1000);
 ```

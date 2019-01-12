@@ -14,7 +14,7 @@
 <button id="btn-stop-recording" disabled>Stop Recording</button>
 
 <hr>
-<video controls autoplay></video>
+<video controls autoplay playsinline></video>
 
 <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -24,7 +24,6 @@ var video = document.querySelector('video');
 function stopRecordingCallback() {
     video.src = video.srcObject = null;
     video.src = URL.createObjectURL(recorder.getBlob());
-    video.play();
     recorder.camera.stop();
     recorder.destroy();
     recorder = null;
@@ -42,8 +41,7 @@ document.getElementById('btn-start-recording').onclick = function() {
     };
 
     navigator.mediaDevices.getUserMedia(constraints).then(function(camera) {
-        setSrcObject(camera, video);
-        video.play();
+        video.srcObject = camera;
 
         recorder = RecordRTC(camera, constraints);
 

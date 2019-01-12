@@ -85,4 +85,38 @@ getStatsParser.checkVideoTracks = function(result) {
         kilobytes = bytes / 1024;
         getStatsResult.video[sendrecvType].bitrateMean = bytes.toFixed(1);
     }
+
+    // calculate latency
+    if (!!result.googCurrentDelayMs) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.video.prevGoogCurrentDelayMs) {
+            getStatsResult.internal.video.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+        }
+
+        var bytes = result.googCurrentDelayMs - getStatsResult.internal.video.prevGoogCurrentDelayMs;
+        getStatsResult.internal.video.prevGoogCurrentDelayMs = result.googCurrentDelayMs;
+
+        getStatsResult.video.latency = bytes.toFixed(1);
+
+        if (getStatsResult.video.latency < 0) {
+            getStatsResult.video.latency = 0;
+        }
+    }
+
+    // calculate packetsLost
+    if (!!result.packetsLost) {
+        var kilobytes = 0;
+        if (!getStatsResult.internal.video.prevPacketsLost) {
+            getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
+        }
+
+        var bytes = result.packetsLost - getStatsResult.internal.video.prevPacketsLost;
+        getStatsResult.internal.video.prevPacketsLost = result.packetsLost;
+
+        getStatsResult.video.packetsLost = bytes.toFixed(1);
+
+        if (getStatsResult.video.packetsLost < 0) {
+            getStatsResult.video.packetsLost = 0;
+        }
+    }
 };

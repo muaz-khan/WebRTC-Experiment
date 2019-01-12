@@ -43,7 +43,7 @@ function MultiPeers(connection) {
                     self.shareFile(data, remoteUserId);
                     return;
                 }
-                
+
                 if (typeof data !== 'string') {
                     data = JSON.stringify(data);
                 }

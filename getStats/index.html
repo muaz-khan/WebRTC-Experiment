@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2018.12.19';</script>
+<script>window.demoVersion = '2018.12.20';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -279,6 +279,30 @@
                         <label>Send:</label> <span id="peer2-bitrateMean"></span>
                     </td>
                 </tr>
+
+                <tr class="firefox-not-allowed chrome-allowed">
+                    <td>latency</td>
+                    <td>
+                        <label>Audio:</label> <span id="peer1-audio-latency"></span><br>
+                        <label>Video:</label> <span id="peer1-video-latency"></span>
+                    </td>
+                    <td>
+                        <label>Audio:</label> <span id="peer2-audio-latency"></span><br>
+                        <label>Video:</label> <span id="peer2-video-latency"></span>
+                    </td>
+                </tr>
+
+                <tr class="firefox-not-allowed chrome-allowed">
+                    <td>packetsLost</td>
+                    <td>
+                        <label>Audio:</label> <span id="peer1-audio-packetsLost"></span><br>
+                        <label>Video:</label> <span id="peer1-video-packetsLost"></span>
+                    </td>
+                    <td>
+                        <label>Audio:</label> <span id="peer2-audio-packetsLost"></span><br>
+                        <label>Video:</label> <span id="peer2-video-packetsLost"></span>
+                    </td>
+                </tr>
             </tbody>
         </table>
 
@@ -516,6 +540,12 @@
 
                         document.getElementById('peer' + peer.idx + '-framerateMean').innerHTML = bytesToSize(result.video.send.framerateMean);
                         document.getElementById('peer' + peer.idx + '-bitrateMean').innerHTML = bytesToSize(result.video.send.bitrateMean);
+
+                        document.getElementById('peer' + peer.idx + '-audio-latency').innerHTML = result.audio.latency + 'ms';
+                        document.getElementById('peer' + peer.idx + '-video-latency').innerHTML = result.video.latency + 'ms';
+
+                        document.getElementById('peer' + peer.idx + '-audio-packetsLost').innerHTML = result.audio.packetsLost;
+                        document.getElementById('peer' + peer.idx + '-video-packetsLost').innerHTML = result.video.packetsLost;
 
                         if (result.ended === true) {
                             result.nomore();

@@ -55,6 +55,16 @@
             document.getElementById('videoResolutions').value = '1920x1080';
         });
     }
+
+    if (items['fixVideoSeekingIssues']) {
+        document.getElementById('fixVideoSeekingIssues').checked = items['fixVideoSeekingIssues'] == 'true';
+    } else {
+        chrome.storage.sync.set({
+            fixVideoSeekingIssues: 'false'
+        }, function() {
+            document.getElementById('fixVideoSeekingIssues').checked = false;
+        });
+    }
 });
 
 function querySelectorAll(selector) {
@@ -214,4 +224,16 @@ document.getElementById('camera-devices').onchange = function() {
     chrome.storage.sync.set({
         camera: this.value
     }, hideSaving);
+};
+
+document.getElementById('fixVideoSeekingIssues').onchange = function() {
+    this.disabled = true;
+
+    showSaving();
+    chrome.storage.sync.set({
+        fixVideoSeekingIssues: this.checked === true ? 'true' : 'false'
+    }, function() {
+        document.getElementById('fixVideoSeekingIssues').disabled = false;
+        hideSaving();
+    });
 };

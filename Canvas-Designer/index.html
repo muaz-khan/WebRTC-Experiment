@@ -179,8 +179,9 @@ div#comments-popup {
 <div id="fade" class="black_overlay"></div>
 
 <div id="action-controls" style="width: 19%; padding: 1%;position: absolute;left:0;">
-    <video controls="" style="width: 105%;margin-left: -15px;margin-top: -23px; display: none;"></video>
+    <video controls autoplay playsinline style="width: 105%;margin-left: -15px;margin-top: -23px; display: none;"></video>
 
+    <div id="select-tools">
     <h2>Select Tools</h2>
     <input type="checkbox" id="pencil" checked>
     <label for="pencil">pencil</label><br>
@@ -206,7 +207,7 @@ div#comments-popup {
     <input type="checkbox" id="arrow" checked>
     <label for="arrow">arrow</label><br>
 
-		<input type="checkbox" id="zoom">
+	<input type="checkbox" id="zoom">
     <label for="zoom">zoom</label><br>
 
     <input type="checkbox" id="dragSingle" checked>
@@ -241,6 +242,7 @@ div#comments-popup {
 
     <input type="checkbox" id="code" checked>
     <label for="code">code</label><br><br>
+    </div>
 
     <hr>
     <div>
@@ -609,6 +611,12 @@ connection.onopen = function(event) {
     }
 
     numberOfConnectedUsers.innerHTML = connection.getAllParticipants().length;
+
+    if(connection.isInitiator) {
+        setTimeout(function() {
+            designer.renderStream();
+        }, 1000);
+    }
 };
 
 connection.onclose = connection.onerror = connection.onleave = function() {
@@ -645,8 +653,9 @@ connection.onstream = function(event) {
     if (connection.isInitiator && event.mediaElement) return;
 
     video.style.display = '';
-    video.src = URL.createObjectURL(event.stream);
-    video.play();
+    video.srcObject = event.stream;
+
+    document.getElementById('select-tools').style.display = 'none';
 };
 
 connection.onstreamended = function() {

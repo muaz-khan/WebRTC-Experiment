@@ -70,13 +70,9 @@
 				
             <div class="github-stargazers"></div>
 
-            <blockquote style="background: #f3b7b7;border: 5px solid black;border-radius: 5px;">
-                This tutorial is <span style="border: 1px dotted red; background: yellow; padding: 2px 5px;">out-dated (written in 2013)</span>. Please check this tutorial instead: <a href="https://codelabs.developers.google.com/codelabs/webrtc-web/#0">https://codelabs.developers.google.com/codelabs/webrtc-web/#0</a>
-            </blockquote>
-
-            <table style="width: 100%;">
+            <table style="width: 100%;margin-top: 30px;">
                 <tr>
-                    <td>If you're newcomer, newbie or beginner; you're suggested to try <a href="http://bit.ly/RTCMultiConnection-Documentation" target="_blank">RTCMultiConnection.js</a> or <a href="http://bit.ly/DataChannel-Documentation" target="_blank">DataChannel.js</a> libraries.
+                    <td>If you're newcomer, newbie or beginner; you're suggested to try <a href="https://github.com/muaz-khan/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a>.
                     </td>
                 </tr>
             </table>
@@ -186,22 +182,20 @@
             <h2>Reusable functions...</h2>
 
             <pre class="sh_javascript">
-function openSignalingChannel(channel)
-{
+function openSignalingChannel(channel) {
    var socket = io.connect('http://your-site:8888/' + channel);
 }
 
-function createOffer()
-{
-   var peer = new RTCPeerConnection(...);
-   peer.createOffer(onSuccess);
+function createOffer() {
+   var peer = new RTCPeerConnection(null); // pass ICE-Servers
+   peer.createOffer({OfferToReceiveVideo:true}).then(onSuccess);
 }
 
-function createAnswer(offer_sdp)
-{
-   var peer = new RTCPeerConnection(...);
-   peer.setRemoteDescription(offer_sdp);
-   peer.createAnswer(onSuccess);
+function createAnswer(offer_sdp) {
+   var peer = new RTCPeerConnection(null); // pass ICE-Servers
+   peer.setRemoteDescription(new RTCSessionDescription(offer_sdp)).then(function() {
+     peer.createAnswer({OfferToReceiveVideo:true}).then(onSuccess);
+   });
 }
 </pre>
 
@@ -224,8 +218,7 @@ channel.send({
 
 // this private socket will be used to exchange sdp/ice
 var privateChannel = openSignalingChannel(participant_id);
-privateChannel.onmessage = function(message)
-{
+privateChannel.onmessage = function(message) {
    if(message.type === 'offer')
    {
        createAnswer(message.sdp);
@@ -239,8 +232,7 @@ privateChannel.onmessage = function(message)
             <h2>On participation request</h2>
 
             <pre class="sh_javascript">
-if(message.isNewParticipant)
-{
+if(message.isNewParticipant) {
    var privateChannel = openSignalingChannel(message.participant_id);
 
    createOffer();
@@ -249,7 +241,7 @@ if(message.isNewParticipant)
    privateChannel.send(offer_sdp);
    privateChannel.onmessage = function(message)
    {
-      if(message.type === 'answer') peer.setRemoteDescription(message.sdp);
+      if(message.type === 'answer') peer.setRemoteDescription(new RTCSessionDescription(message.sdp));
    };
 }
 </pre>
@@ -257,13 +249,12 @@ if(message.isNewParticipant)
             <h2>Exchanging ICE</h2>
 
             <pre class="sh_javascript">
-privateChannel.onmessage = function(message)
-{
+privateChannel.onmessage = function(message) {
    if(message.ice) peer.addIceCandidate(new RTCIceCandidate(message.ice));
 };
 
-peer.onicecandidate = function(event)
-{
+peer.onicecandidate = function(event) {
+   if(!event.candidate) return;
    privateChannel.send(event.candidate);
 };
 </pre>
@@ -272,8 +263,7 @@ peer.onicecandidate = function(event)
 
             <p>After successful handshake:</p>
             <pre class="sh_javascript">
-for(var i = 0; i < otherParticipants.length; i++)
-{
+for(var i = 0; i < otherParticipants.length; i++) {
     var participant = otherParticipants[i];
 
     // send/emit/push/etc.

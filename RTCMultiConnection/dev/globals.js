@@ -25,7 +25,7 @@ function fireEvent(obj, eventName, args) {
 }
 
 function setHarkEvents(connection, streamEvent) {
-    if (!streamEvent.stream || !streamEvent.stream.getAudioTracks || !streamEvent.stream.getAudioTracks().length) return;
+    if (!streamEvent.stream || !getTracks(streamEvent.stream, 'audio').length) return;
 
     if (!connection || !streamEvent) {
         throw 'Both arguments are required.';
@@ -107,7 +107,7 @@ function getRMCMediaElement(stream, callback, connection) {
     }
 
     var isAudioOnly = false;
-    if (!!stream.getVideoTracks && !stream.getVideoTracks().length && !stream.isVideo && !stream.isScreen) {
+    if (!getTracks(stream, 'video').length && !stream.isVideo && !stream.isScreen) {
         isAudioOnly = true;
     }
 
@@ -302,37 +302,60 @@ function getAudioScreenConstraints(screen_constraints) {
 
 window.iOSDefaultAudioOutputDevice = window.iOSDefaultAudioOutputDevice || 'speaker'; // earpiece or speaker
 
-if (typeof window.enableAdapter === 'undefined') {
-    if (DetectRTC.browser.name === 'Firefox' && DetectRTC.browser.version >= 54) {
-        window.enableAdapter = true;
+function getTracks(stream, kind) {
+    if (!stream || !stream.getTracks) {
+        return [];
     }
 
-    if (DetectRTC.browser.name === 'Chrome' && DetectRTC.browser.version >= 60) {
-        // window.enableAdapter = true;
-    }
-
-    if (typeof adapter !== 'undefined' && adapter.browserDetails && typeof adapter.browserDetails.browser === 'string') {
-        window.enableAdapter = true;
-    }
+    return stream.getTracks().filter(function(t) {
+        return t.kind === (kind || 'audio');
+    });
 }
 
-if (!window.enableAdapter) {
-    if (typeof URL.createObjectURL === 'undefined') {
-        URL.createObjectURL = function(stream) {
-            return 'blob:https://' + document.domain + '/' + getRandomString();
-        };
+function isUnifiedPlanSupportedDefault() {
+    var canAddTransceiver = false;
+
+    try {
+        if (typeof RTCRtpTransceiver === 'undefined') return false;
+        if (!('currentDirection' in RTCRtpTransceiver.prototype)) return false;
+
+        var tempPc = new RTCPeerConnection();
+
+        try {
+            tempPc.addTransceiver('audio');
+            canAddTransceiver = true;
+        } catch (e) {}
+
+        tempPc.close();
+    } catch (e) {
+        canAddTransceiver = false;
     }
 
-    if (!('srcObject' in HTMLMediaElement.prototype)) {
-        HTMLMediaElement.prototype.srcObject = function(stream) {
-            if ('mozSrcObject' in this) {
-                this.mozSrcObject = stream;
-                return;
-            }
+    return canAddTransceiver && isUnifiedPlanSuppored();
+}
 
-            this.src = URL.createObjectURL(stream);
-        };
+function isUnifiedPlanSuppored() {
+    var isUnifiedPlanSupported = false;
+
+    try {
+        var pc = new RTCPeerConnection({
+            sdpSemantics: 'unified-plan'
+        });
+
+        try {
+            var config = pc.getConfiguration();
+            if (config.sdpSemantics == 'unified-plan')
+                isUnifiedPlanSupported = true;
+            else if (config.sdpSemantics == 'plan-b')
+                isUnifiedPlanSupported = false;
+            else
+                isUnifiedPlanSupported = false;
+        } catch (e) {
+            isUnifiedPlanSupported = false;
+        }
+    } catch (e) {
+        isUnifiedPlanSupported = false;
     }
 
-    // need RTCPeerConnection shim here
+    return isUnifiedPlanSupported;
 }

@@ -244,6 +244,14 @@ Remove and clear all drawings from the canvas:
 designer.clearCanvas();
 ```
 
+## `renderStream`
+
+Call this method internally to fix video rendering issues.
+
+```javascript
+designer.renderStream();
+```
+
 ## `addSyncListener`
 
 This callback is invoked as soon as something new is drawn. An array-of-points is passed over this function. That array MUST be shared with remote users for collaboration.

@@ -17,7 +17,7 @@
 <button id="btn-download-recording" disabled>Download</button>
 
 <hr>
-<div><audio controls autoplay></audio></div>
+<div><audio controls autoplay playsinline></audio></div>
 
 <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -55,6 +55,7 @@ function captureMicrophone(callback) {
 function replaceAudio(src) {
     var newAudio = document.createElement('audio');
     newAudio.controls = true;
+    newAudio.autoplay = true;
 
     if(src) {
         newAudio.src = src;
@@ -116,8 +117,7 @@ btnStartRecording.onclick = function() {
                 replaceAudio();
 
                 audio.muted = true;
-                setSrcObject(microphone, audio);
-                audio.play();
+                audio.srcObject = microphone;
 
                 btnStartRecording.disabled = false;
                 btnStartRecording.style.border = '1px solid red';
@@ -135,8 +135,7 @@ btnStartRecording.onclick = function() {
     replaceAudio();
 
     audio.muted = true;
-    setSrcObject(microphone, audio);
-    audio.play();
+    audio.srcObject = microphone;
 
     var options = {
         type: 'audio',

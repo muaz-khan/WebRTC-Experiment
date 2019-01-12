@@ -4,9 +4,9 @@ This chrome extension not only captures content of the selected tab, but also pr
 
 ## Codes to view the shared tab
 
-Here are different HTML pages that can view your tab:
-
-* [desktopCapture-p2p/screen-receivers](https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture-p2p/screen-receivers)
+```
+index.html
+```
 
 ## How to install?
 

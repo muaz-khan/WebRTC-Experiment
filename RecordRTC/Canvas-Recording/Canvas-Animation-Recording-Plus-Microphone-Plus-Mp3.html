@@ -242,7 +242,7 @@
                     var audio = document.createElement('audio');
                     audio.muted = true;
                     audio.volume = 0;
-                    setSrcObject(microphoneStream, audio);
+                    audio.srcObject = microphoneStream;
                     audio.play();
 
                     (document.body || document.documentElement).appendChild(audio);
@@ -263,7 +263,7 @@
 
             var audioTracksLength = 0;
             arrayOfAudioStreams.forEach(function(stream) {
-                if (!stream.getAudioTracks().length) {
+                if (!getTracks(stream, 'audio').length) {
                     return;
                 }
 
@@ -296,10 +296,10 @@
                 var mixedAudioStream = getMixedAudioStreamXYZ([microphoneStream, mp3Stream]);
 
                 var finalStream = new MediaStream();
-                mixedAudioStream.getAudioTracks().forEach(function(track) {
+                getTracks(mixedAudioStream, 'audio').forEach(function(track) {
                     finalStream.addTrack(track);
                 });
-                canvasStream.getVideoTracks().forEach(function(track) {
+                getTracks(canvasStream, 'video').forEach(function(track) {
                     finalStream.addTrack(track);
                 });
 

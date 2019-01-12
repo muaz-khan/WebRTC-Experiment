@@ -4,9 +4,27 @@
 
 [![npm](https://img.shields.io/npm/v/rtcmulticonnection-server.svg)](https://npmjs.org/package/rtcmulticonnection-server) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection-server.svg)](https://npmjs.org/package/rtcmulticonnection-server)
 
-**Installation Guide:** https://github.com/muaz-khan/RTCMultiConnection-Server/wiki
+> Since version `1.3.1`: now `rtcmulticonnection-server` does not creates any HTTP server.
+> 
+> Now you need to use this: `require('rtcmulticonnection-server').addSocket(socket)` where `socket` is your socket.io connection object.
+> 
+> It means  that now you can integrate `rtcmulticonnection-server` inside any socket.io application or expressjsj/angular frameworks.
 
-Free servers:
+```sh
+npm install rtcmulticonnection-server
+
+# either
+node server.js --help
+
+# or
+require('rtcmulticonnection-server').addSocket(socket);
+```
+
+**Installation Guide:**
+
+* https://github.com/muaz-khan/RTCMultiConnection-Server/wiki
+
+## Free socket.io servers
 
 ```javascript
 connectin.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
@@ -19,11 +37,22 @@ connectin.socketURL = 'https://webrtcweb.com:9002/';
 
 ## Integrate inside nodejs applications
 
+```javascript
+const ioServer = require('socket.io');
+const RTCMultiConnectionServer = require('rtcmulticonnection-server');
+
+ioServer(httpApp).on('connection', function(socket) {
+    RTCMultiConnectionServer.addSocket(socket);
+});
+```
+
+For more information:
+
 * https://github.com/muaz-khan/RTCMultiConnection-Server/wiki/Integrate-inside-nodejs-applications
 
 ## Demos
 
-* https://github.com/muaz-khan/RTCMultiConnection
+* https://rtcmulticonnection.herokuapp.com/demos/
 
 ## License
 

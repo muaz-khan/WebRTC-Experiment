@@ -1,10 +1,4 @@
-<?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-if(!empty($_GET['hls']) && !empty($_GET['s'])) {
-    $roomid = $_GET['s'];
-    $html = <<< EOT
+<!--
 <style>
 * {margin:0;padding:0;}
 iframe {
@@ -15,12 +9,7 @@ iframe {
 }
 </style>
 <iframe src="http://webrtcweb.com:5080/WebRTCAppEE/play.html?name={$roomid}"></iframe>
-EOT;
-    echo $html;
-    die();
-    exit();
-}
-?>
+-->
 
 <title>WebRTC AntMedia Broadcast Viewer</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -78,8 +67,8 @@ video {
     <div id="info-bar"></div>
 </div>
 
-<script type="text/javascript"><?php readfile(getcwd()."/../../background/helpers/adapter.js"); ?></script>
-<script type="text/javascript"><?php readfile(getcwd()."/../../background/helpers/AntMediaWrapper.js"); ?></script>
+<script src="../../background/helpers/adapter.js"></script>
+<script src="../../background/helpers/AntMediaWrapper.js"></script>
 
 <script>
 (function() {

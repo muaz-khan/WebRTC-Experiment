@@ -60,7 +60,16 @@ section {
   text-align: right;
   width: 24px;
   display: inline-block;
-  vertical-align: middle;
+  vertical-align: baseline;
+}
+
+#stop-sharing {
+  color: #e20a0a;
+  font-weight: bold;
+}
+
+#default-section, #stop-section {
+  display: none;
 }
 </style>
 </head>
@@ -112,8 +121,13 @@ section {
     </article>
 
     <article id="stop-section">
+      <div class="btn" id="enable-chat">
+          <section><img src="../images/chat.png"></section>
+          Open Chat Box
+      </div>
+      <hr>
       <div class="btn" id="stop-sharing">
-          <section><img src="../images/desktopCapture22.png"></section>
+          <section><img src="../images/stop.png"></section>
           Stop Sharing
       </div>
     </article>

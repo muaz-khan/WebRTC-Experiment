@@ -162,12 +162,12 @@ var app = {
 
             if(event.type === 'local') {
                 document.querySelector('#local-audio').parentNode.style.display = '';
-                document.querySelector('#local-audio').src = URL.createObjectURL(event.stream);
+                document.querySelector('#local-audio').srcObject = event.stream;
             }
 
             if(event.type === 'remote') {
                 document.querySelector('#remote-audio').parentNode.style.display = '';
-                document.querySelector('#remote-audio').src = URL.createObjectURL(event.stream);
+                document.querySelector('#remote-audio').srcObject = event.stream;
             }
 
             connection.fixAllAudios();
@@ -287,12 +287,12 @@ var app = {
 
                 if(event.type === 'local') {
                     document.querySelector('#local-audio').parentNode.style.display = '';
-                    document.querySelector('#local-audio').src = URL.createObjectURL(event.stream);
+                    document.querySelector('#local-audio').srcObject = event.stream;
                 }
 
                 if(event.type === 'remote') {
                     document.querySelector('#remote-audio').parentNode.style.display = '';
-                    document.querySelector('#remote-audio').src = URL.createObjectURL(event.stream);
+                    document.querySelector('#remote-audio').srcObject = event.stream;
                 }
             });
 

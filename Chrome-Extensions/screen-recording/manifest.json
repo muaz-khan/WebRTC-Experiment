@@ -2,7 +2,7 @@
    "name":"RecordRTC",
    "short_name":"RecordRTC",
    "author":"Muaz Khan",
-   "version":"8.0",
+   "version":"8.4",
    "manifest_version":2,
    "minimum_chrome_version":"49",
    "description":"Record screen activity, camera, mic, tab, speakers in 4K HD video format (using RecordRTC)",
@@ -19,8 +19,10 @@
          "background/background.players.js",
          "RecordRTC/MediaStreamRecorder.js",
          "RecordRTC/MultiStreamRecorder.js",
+         "RecordRTC/MultiStreamsMixer.js",
          "RecordRTC/StereoAudioRecorder.js",
-         "RecordRTC/DiskStorage.js"
+         "RecordRTC/DiskStorage.js",
+         "RecordRTC/EBML.js"
       ],
       "persistent":false
    },

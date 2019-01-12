@@ -1,4 +1,4 @@
-// Last time updated: 2018-12-19 10:54:19 AM UTC
+// Last time updated: 2018-12-24 8:45:05 AM UTC
 
 // _______________
 // Canvas-Designer
@@ -2817,11 +2817,10 @@
     /* Default: setting default selected shape!! */
     is.set(window.selectedIcon);
 
-    window.addEventListener('load', function() {
+    function setDefaultSelectedIcon() {
         var toolBox = document.getElementById('tool-box');
         var canvasElements = toolBox.getElementsByTagName('canvas');
         var shape = window.selectedIcon.toLowerCase();
-
 
         var firstMatch;
         for (var i = 0; i < canvasElements.length; i++) {
@@ -2835,6 +2834,10 @@
         }
 
         setSelection(firstMatch, window.selectedIcon);
+    }
+
+    window.addEventListener('load', function() {
+        setDefaultSelectedIcon();
     }, false);
 
     (function() {
@@ -3627,6 +3630,20 @@
             lineWidthContainer.style.display = 'none';
     }
 
+    function setTemporaryLine() {
+        var arr = ["line", [139, 261, 170, 219],
+            [1, "rgba(0,0,0,0)", "rgba(0,0,0,0)", 1, "source-over", "round", "round", "15px \"Arial\""]
+        ];
+        points.push(arr);
+        drawHelper.redraw();
+
+        setTimeout(function() {
+            setSelection(document.getElementById('line'), 'Line');
+        }, 1000);
+
+        setTimeout(setDefaultSelectedIcon, 2000);
+    }
+
     var canvas = tempContext.canvas,
         isTouch = 'createTouch' in document;
 
@@ -3903,6 +3920,11 @@
             return;
         }
 
+        if (event.data.renderStream) {
+            setTemporaryLine();
+            return;
+        }
+
         if (event.data.sdp) {
             webrtcHandler.setRemoteDescription(event.data);
             return;
@@ -4023,14 +4045,12 @@
 
     var webrtcHandler = {
         createOffer: function(callback) {
-            var captureStream = document.getElementById('main-canvas').captureStream(15);
-
+            var captureStream = document.getElementById('main-canvas').captureStream();
             var peer = this.getPeer();
-            if ('addStream' in peer) {
-                peer.addStream(captureStream);
-            } else {
-                peer.addTrack(captureStream.getVideoTracks()[0], captureStream);
-            }
+
+            captureStream.getTracks().forEach(function(track) {
+                peer.addTrack(track, captureStream);
+            });
 
             peer.onicecandidate = function(event) {
                 if (!event || !!event.candidate) {
@@ -4050,7 +4070,11 @@
             });
         },
         setRemoteDescription: function(sdp) {
-            this.peer.setRemoteDescription(new RTCSessionDescription(sdp));
+            this.peer.setRemoteDescription(new RTCSessionDescription(sdp)).then(function() {
+                if (typeof setTemporaryLine === 'function') {
+                    setTemporaryLine();
+                }
+            });
         },
         createAnswer: function(sdp, callback) {
             var peer = this.getPeer();
@@ -4073,22 +4097,17 @@
                 });
             });
 
-            if ('onaddstream' in peer) {
-                peer.onaddstream = function(event) {
-                    callback({
-                        stream: event.stream
-                    });
-                };
-            } else {
-                peer.onaddtrack = function(event) {
-                    callback({
-                        stream: event.streams[0]
-                    });
-                };
-            }
+            peer.ontrack = function(event) {
+                callback({
+                    stream: event.streams[0]
+                });
+            };
         },
         getPeer: function() {
             var WebRTC_Native_Peer = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+            var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+            var RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
+
             var peer = new WebRTC_Native_Peer(null);
             this.peer = peer;
             return peer;

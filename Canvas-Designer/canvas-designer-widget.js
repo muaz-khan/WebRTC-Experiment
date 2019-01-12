@@ -213,6 +213,14 @@ function CanvasDesigner() {
         });
     };
 
+    designer.renderStream = function() {
+        if (!designer.iframe) return;
+
+        designer.postMessage({
+            renderStream: true
+        });
+    };
+
     designer.widgetHtmlURL = 'widget.html';
     designer.widgetJsURL = 'widget.min.js';
 }

@@ -1,4 +1,4 @@
-const regexIpv4Local = /^(192\.168\.|169\.254\.|10\.|172\.(1[6-9]|2\d|3[01]))/,
+var regexIpv4Local = /^(192\.168\.|169\.254\.|10\.|172\.(1[6-9]|2\d|3[01]))/,
     regexIpv4 = /([0-9]{1,3}(\.[0-9]{1,3}){3})/,
     regexIpv6 = /[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7}/;
 
@@ -85,7 +85,7 @@ function getIPs(callback, stream) {
             return;
         }
         var ipAddress = match[1];
-        const isPublic = (candidate.match(regexIpv4Local)),
+        var isPublic = (candidate.match(regexIpv4Local)),
             isIpv4 = true;
 
         if (ipDuplicates[ipAddress] === undefined) {

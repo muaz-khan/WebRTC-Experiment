@@ -15,9 +15,7 @@
 Try any of the below URL. Replace `your_room_id` with real room-id:
 
 ```
-https://webrtcweb.com/screen?s=your_room_id
 https://www.webrtc-experiment.com/screen/?s=your_room_id
-https://cdn.rawgit.com/muaz-khan/Chrome-Extensions/master/desktopCapture-p2p/screen-receivers/index.php?s=your_room_id
 ```
 
 ## Developer Notes
@@ -32,23 +30,23 @@ https://cdn.rawgit.com/muaz-khan/Chrome-Extensions/master/desktopCapture-p2p/scr
 
 ## Before publishing it for your own business
 
-> This step is optional. You can keep using `webrtcweb.com` URL as a screen viewer.
+> This step is optional. You can keep using `webrtc-experiment.com` URL as a screen viewer.
 
 Open [desktop-capturing.js](https://github.com/muaz-khan/Chrome-Extensions/blob/master/desktopCapture-p2p/desktop-capturing.js) and find following line:
 
 ```javascript
-var resultingURL = 'https://webrtcweb.com/screen?s=' + connection.sessionid;
+var resultingURL = 'https://www.webrtc-experiment.com/screen/?s=' + connection.sessionid;
 ```
 
 Replace above line with your own server/website:
 
 ```javascript
-var resultingURL = 'https://yourWebSite.com/screen-receivers/index.php?s=' + connection.sessionid;
+var resultingURL = 'https://yourWebSite.com/index.html?s=' + connection.sessionid;
 ```
 
-You can find `index.php` here:
+You can find `index.html` here:
 
-* [desktopCapture-p2p/screen-receivers/index.php](https://github.com/muaz-khan/Chrome-Extensions/blob/master/desktopCapture-p2p/screen-receivers/index.php)
+* [desktopCapture-p2p/index.html](https://github.com/muaz-khan/Chrome-Extensions/blob/master/desktopCapture-p2p/index.html)
 
 ## How to publish it for your own business?
 

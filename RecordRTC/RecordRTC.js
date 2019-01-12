@@ -1,9 +1,9 @@
 'use strict';
 
-// Last time updated: 2018-12-22 9:57:01 AM UTC
+// Last time updated: 2019-01-11 12:28:08 PM UTC
 
 // ________________
-// RecordRTC v5.5.0
+// RecordRTC v5.5.1
 
 // Open-Sourced: https://github.com/muaz-khan/RecordRTC
 
@@ -773,7 +773,7 @@ function RecordRTC(mediaStream, config) {
          * @example
          * alert(recorder.version);
          */
-        version: '5.5.0'
+        version: '5.5.1'
     };
 
     if (!this) {
@@ -791,7 +791,7 @@ function RecordRTC(mediaStream, config) {
     return returnObject;
 }
 
-RecordRTC.version = '5.5.0';
+RecordRTC.version = '5.5.1';
 
 if (typeof module !== 'undefined' /* && !!module.exports*/ ) {
     module.exports = RecordRTC;
@@ -922,7 +922,7 @@ function RecordRTCConfiguration(mediaStream, config) {
     }
 
     if (config.recorderType && !config.type) {
-        if (config.recorderType === WhammyRecorder || config.recorderType === CanvasRecorder) {
+        if (config.recorderType === WhammyRecorder || config.recorderType === CanvasRecorder || (typeof WebAssemblyRecorder !== 'undefined' && config.recorderType === WebAssemblyRecorder)) {
             config.type = 'video';
         } else if (config.recorderType === GifRecorder) {
             config.type = 'gif';
@@ -1004,6 +1004,10 @@ function GetRecorderType(mediaStream, config) {
     // video recorder (in WebM format)
     if (config.type === 'video' && (isChrome || isOpera)) {
         recorder = WhammyRecorder;
+
+        if (typeof WebAssemblyRecorder !== 'undefined' && typeof ReadableStream !== 'undefined') {
+            recorder = WebAssemblyRecorder;
+        }
     }
 
     // video recorder (in Gif format)
@@ -1043,6 +1047,10 @@ function GetRecorderType(mediaStream, config) {
 
     if (!config.disableLogs && !!recorder && !!recorder.name) {
         console.log('Using recorderType:', recorder.name || recorder.constructor.name);
+    }
+
+    if (!recorder && isSafari) {
+        recorder = MediaStreamRecorder;
     }
 
     return recorder;
@@ -1714,8 +1722,15 @@ if (typeof navigator !== 'undefined' && typeof navigator.getUserMedia === 'undef
 
 var isEdge = navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveBlob || !!navigator.msSaveOrOpenBlob);
 var isOpera = !!window.opera || navigator.userAgent.indexOf('OPR/') !== -1;
-var isSafari = navigator.userAgent.toLowerCase().indexOf('safari/') !== -1 && navigator.userAgent.toLowerCase().indexOf('chrome/') === -1;
+var isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1 && ('netscape' in window) && / rv:/.test(navigator.userAgent);
 var isChrome = (!isOpera && !isEdge && !!navigator.webkitGetUserMedia) || isElectron() || navigator.userAgent.toLowerCase().indexOf('chrome/') !== -1;
+
+var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+if (isSafari && !isChrome && navigator.userAgent.indexOf('CriOS') !== -1) {
+    isSafari = false;
+    isChrome = true;
+}
 
 var MediaStream = window.MediaStream;
 
@@ -1851,6 +1866,41 @@ function setSrcObject(stream, element) {
     }
 }
 
+/**
+ * @param {Blob} file - File or Blob object.
+ * @param {function} callback - Callback function.
+ * @example
+ * getSeekableBlob(blob or file, callback);
+ * @see {@link https://github.com/muaz-khan/RecordRTC|RecordRTC Source Code}
+ */
+function getSeekableBlob(inputBlob, callback) {
+    // EBML.js copyrights goes to: https://github.com/legokichi/ts-ebml
+    if (typeof EBML === 'undefined') {
+        throw new Error('Please link: https://cdn.webrtc-experiment.com/EBML.js');
+    }
+
+    var reader = new EBML.Reader();
+    var decoder = new EBML.Decoder();
+    var tools = EBML.tools;
+
+    var fileReader = new FileReader();
+    fileReader.onload = function(e) {
+        var ebmlElms = decoder.decode(this.result);
+        ebmlElms.forEach(function(element) {
+            reader.read(element);
+        });
+        reader.stop();
+        var refinedMetadataBuf = tools.makeMetadataSeekable(reader.metadatas, reader.duration, reader.cues);
+        var body = this.result.slice(reader.metadataSize);
+        var newBlob = new Blob([refinedMetadataBuf, body], {
+            type: 'video/webm'
+        });
+
+        callback(newBlob);
+    };
+    fileReader.readAsArrayBuffer(inputBlob);
+}
+
 // __________ (used to handle stuff like http://goo.gl/xmE5eg) issue #129
 // Storage.js
 
@@ -1877,11 +1927,7 @@ if (typeof RecordRTC !== 'undefined') {
 }
 
 function isMediaRecorderCompatible() {
-    var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
-    var isChrome = (!!window.chrome && !isOpera) || isElectron();
-    var isFirefox = typeof window.InstallTrigger !== 'undefined';
-
-    if (isFirefox) {
+    if (isFirefox || isSafari || isEdge) {
         return true;
     }
 
@@ -2652,7 +2698,8 @@ function StereoAudioRecorder(mediaStream, config) {
             writeUTFBytes(view, 0, 'RIFF');
 
             // RIFF chunk length
-            view.setUint32(4, 44 + interleavedLength * 2, true);
+            // changed "44" to "36" via #401
+            view.setUint32(4, 36 + interleavedLength * 2, true);
 
             // RIFF type 
             writeUTFBytes(view, 8, 'WAVE');

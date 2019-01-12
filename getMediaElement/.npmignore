@@ -1,0 +1,9 @@
+# ignore everything
+*
+
+# but not these files...
+!getMediaElement.js
+!getMediaElement.css
+!index.html
+!package.json
+!README.md

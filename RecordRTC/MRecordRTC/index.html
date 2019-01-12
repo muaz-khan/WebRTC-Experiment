@@ -122,10 +122,9 @@
                 video: true
             }, function(stream) {
                 var video = document.createElement('video');
+                video.autoplay = true;
+                video.srcObject = stream;
 
-                setSrcObject(stream, video);
-
-                video.play();
                 var mediaElement = getMediaElement(video, {
                     buttons: [],
                     showOnMouseEnter: false,
@@ -151,12 +150,14 @@
             this.disabled = true;
 
             mRecordRTC.stopRecording(function(url, type) {
+                document.querySelector(type).srcObject = null;
                 document.querySelector(type).src = url;
                 document.querySelector(type).play();
 
                 // fixing firefox playback issue
                 if (!!navigator.mozGetUserMedia) {
                     document.querySelector(type).onended = function() {
+                        document.querySelector(type).srcObject = null;
                         document.querySelector(type).src = URL.createObjectURL(mRecordRTC.getBlob()[type]);
                         document.querySelector(type).play();
                     };

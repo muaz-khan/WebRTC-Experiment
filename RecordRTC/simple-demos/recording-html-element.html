@@ -121,6 +121,7 @@ document.getElementById('btn-stop-recording').onclick = function() {
         isStoppedRecording = true;
 
         var blob = recorder.getBlob();
+        // document.getElementById('preview-video').srcObject = null;
         document.getElementById('preview-video').src = URL.createObjectURL(blob);
         document.getElementById('preview-video').parentNode.style.display = 'block';
         elementToRecord.style.display = 'none';

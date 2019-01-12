@@ -1,0 +1,73 @@
+<!--
+All Copyrights goes to: Google Inc.
+Original: https://github.com/GoogleChromeLabs/webm-wasm
+-->
+<title>WebAssembly Recorder using RecordRTC</title>
+<style type="text/css">
+body {
+  text-align: center;
+}
+
+video {
+  border-radius: 5px;
+  border: 1px solid black;
+}
+</style>
+
+<h1>WebAssembly Recorder using RecordRTC</h1>
+<button id="start">Start Recording</button>
+<button id="stop" disabled>Stop Recording</button>
+<br><br>
+<video id="video" controls autoplay playsinline></video>
+
+<!-- <script src="../dev/WebAssemblyRecorder.js"></script> -->
+<script src="https://cdn.webrtc-experiment.com/RecordRTC/dev/WebAssemblyRecorder.js"></script>
+
+<script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+
+<script>
+var recorder;
+
+document.getElementById('start').onclick = function() {
+    this.disabled = true;
+    navigator.mediaDevices.getUserMedia({
+        video: {
+            width: {
+                ideal: 640
+            },
+            height: {
+                ideal: 480
+            }
+        },
+        audio: false
+    }).then(function(stream) {
+        document.getElementById('video').srcObject = stream;
+
+        recorder = RecordRTC(stream, {
+            recorderType: WebAssemblyRecorder,
+            // workerPath: '../libs/webm-worker.js',
+            // webAssemblyPath: '../libs/webm-wasm.wasm',
+            width: 640,
+            height: 480,
+            frameRate: 30
+        });
+        recorder.startRecording();
+
+        document.getElementById('stop').disabled = false;
+    });
+};
+
+document.getElementById('stop').onclick = function() {
+    document.getElementById('video').srcObject = null;
+
+    this.disabled = true;
+    recorder.stopRecording(function(blob) {
+        document.getElementById('video').src = URL.createObjectURL(recorder.getBlob());
+        document.getElementById('start').disabled = false;
+    });
+}
+</script>
+
+<footer style="margin-top: 20px;"><small id="send-message"></small></footer>
+<script src="https://cdn.webrtc-experiment.com/common.js"></script>

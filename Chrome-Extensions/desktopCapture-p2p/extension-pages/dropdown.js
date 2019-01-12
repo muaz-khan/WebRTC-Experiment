@@ -8,18 +8,6 @@ runtimePort.onMessage.addListener(function(message) {
     }
 });
 
-document.getElementById('stop-sharing').onclick = function() {
-    chrome.storage.sync.set({
-        isSharingOn: 'false' // FALSE
-    }, function() {
-        runtimePort.postMessage({
-            messageFromContentScript1234: true,
-            stopSharing: true
-        });
-        window.close();
-    });
-};
-
 document.getElementById('full-screen').onclick = function() {
     chrome.storage.sync.set({
         enableTabCaptureAPI: 'false',
@@ -161,15 +149,44 @@ document.getElementById('btn-options').onclick = function(e) {
     location.href = this.href;
 };
 
-var isSharingOn = false;
-chrome.storage.sync.get('isSharingOn', function(obj) {
-    document.getElementById('default-section').style.display = obj.isSharingOn === 'true' ? 'none' : 'block';
-    document.getElementById('stop-section').style.display = obj.isSharingOn === 'true' ? 'block' : 'none';
+function querySelectorAll(selector, element) {
+    element = element || document;
+    return Array.prototype.slice.call(element.querySelectorAll(selector));
+}
 
-    isSharingOn = obj.isSharingOn === 'true';
+chrome.storage.sync.get('isSharingOn', function(obj) {
+    var isSharingOn = obj.isSharingOn === 'true';
+    
+    document.getElementById('default-section').style.display = isSharingOn ? 'none' : 'block';
+    document.getElementById('stop-section').style.display = isSharingOn ? 'block' : 'none';
 
     // auto-stop-sharing
-    if (isSharingOn === true) {
-        document.getElementById('stop-sharing').click();
+    if (isSharingOn) {
+        // document.getElementById('stop-sharing').click();
     }
 });
+
+document.getElementById('stop-sharing').onclick = function() {
+    chrome.storage.sync.set({
+        isSharingOn: 'false'
+    }, function() {
+        runtimePort.postMessage({
+            messageFromContentScript1234: true,
+            stopSharing: true
+        });
+        window.close();
+    });
+};
+
+document.getElementById('enable-chat').onclick = function() {
+    var popup_width = 312;
+    var popup_height = 400;
+
+    runtimePort.postMessage({
+        messageFromContentScript1234: true,
+        openChat: true
+    });
+
+    window.open('chat.html','Chat','width='+popup_width+',height='+popup_height+',toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,top='+(screen.height - popup_height)+',left=' + (screen.width - popup_width - 30));
+    window.close();
+};

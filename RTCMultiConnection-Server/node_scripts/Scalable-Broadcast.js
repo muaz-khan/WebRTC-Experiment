@@ -7,7 +7,7 @@ var pushLogs = require('./pushLogs.js');
 
 var users = {};
 
-module.exports = exports = function(root, socket, maxRelayLimitPerUser) {
+module.exports = exports = function(config, socket, maxRelayLimitPerUser) {
     try {
         maxRelayLimitPerUser = parseInt(maxRelayLimitPerUser) || 2;
     } catch (e) {
@@ -73,7 +73,7 @@ module.exports = exports = function(root, socket, maxRelayLimitPerUser) {
                 socket.emit('logs', 'You <' + user.userid + '> are now serving the broadcast.');
             }
         } catch (e) {
-            pushLogs(root, 'join-broadcast', e);
+            pushLogs(config, 'join-broadcast', e);
         }
     });
 
@@ -98,7 +98,7 @@ module.exports = exports = function(root, socket, maxRelayLimitPerUser) {
         try {
             callback(!!users[userid] && users[userid].isBroadcastInitiator === true);
         } catch (e) {
-            pushLogs(root, 'check-broadcast-presence', e);
+            pushLogs(config, 'check-broadcast-presence', e);
         }
     });
 
@@ -193,7 +193,7 @@ module.exports = exports = function(root, socket, maxRelayLimitPerUser) {
 
             delete users[socket.userid];
         } catch (e) {
-            pushLogs(root, 'scalable-broadcast-disconnect', e);
+            pushLogs(config, 'scalable-broadcast-disconnect', e);
         }
     };
 
@@ -248,7 +248,7 @@ function askNestedUsersToRejoin(relayReceivers) {
 
         });
     } catch (e) {
-        pushLogs(root, 'askNestedUsersToRejoin', e);
+        pushLogs(config, 'askNestedUsersToRejoin', e);
     }
 }
 
@@ -278,7 +278,8 @@ function getFirstAvailableBroadcaster(broadcastId, maxRelayLimitPerUser) {
             if (userFound) {
                 continue;
             } else if (user.broadcastId === broadcastId) {
-                if (!user.relayReceivers.length && user.canRelay === true) {
+                // if (!user.relayReceivers.length && user.canRelay === true) {
+                if (user.relayReceivers.length < maxRelayLimitPerUser && user.canRelay === true) {
                     userFound = user;
                 }
             }
@@ -292,6 +293,6 @@ function getFirstAvailableBroadcaster(broadcastId, maxRelayLimitPerUser) {
         // so that each relaying user can distribute the bandwidth
         return broadcastInitiator;
     } catch (e) {
-        pushLogs(root, 'getFirstAvailableBroadcaster', e);
+        pushLogs(config, 'getFirstAvailableBroadcaster', e);
     }
 }

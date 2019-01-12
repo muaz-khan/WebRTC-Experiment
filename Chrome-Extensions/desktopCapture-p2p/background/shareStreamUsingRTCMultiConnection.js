@@ -1,8 +1,7 @@
 function shareStreamUsingRTCMultiConnection(stream) {
     // www.RTCMultiConnection.org/docs/
     connection = new RTCMultiConnection();
-    // connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
-    connection.socketURL = 'https://webrtcweb.com:9001/';
+    connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
     connection.autoCloseEntireSession = true;
 
     // this must match the viewer page
@@ -13,11 +12,22 @@ function shareStreamUsingRTCMultiConnection(stream) {
         connection.password = room_password;
     }
 
-    connection.enableLogs = true;
+    connection.enableLogs = false;
     connection.session = {
         audio: true,
         video: true,
+        data: true,
         oneway: true
+    };
+
+    connection.candidates = {
+        stun: true,
+        turn: true
+    };
+
+    connection.iceProtocols = {
+        tcp: true,
+        udp: true
     };
 
     connection.optionalArgument = {
@@ -108,13 +118,16 @@ function shareStreamUsingRTCMultiConnection(stream) {
     // www.RTCMultiConnection.org/docs/open/
     connection.socketCustomEvent = connection.sessionid;
 
-    function roomOpenCallback() {
+    function roomOpenCallback(isRoomOpened, roomid, error) {
+        if(error) {
+            alert(error);
+        }
+
         chrome.browserAction.enable();
         setBadgeText(0);
 
         if (room_url_box === true) {
-            var resultingURL = 'https://webrtcweb.com/screen/?s=' + connection.sessionid;
-            // resultingURL = 'https://www.webrtc-experiment.com/screen/?s=' + connection.sessionid;
+            var resultingURL = 'https://www.webrtc-experiment.com/screen/?s=' + connection.sessionid;
 
             // resultingURL = 'http://localhost:9001/?s=' + connection.sessionid;
 
@@ -151,6 +164,45 @@ function shareStreamUsingRTCMultiConnection(stream) {
             }
         });
     }
+
+    connection.onSocketDisconnect = function(event) {
+        // alert('Connection to the server is closed.');
+        chrome.runtime.reload();
+    };
+
+    connection.onSocketError = function(event) {
+        alert('Unable to connect to the server. Please try again.');
+        
+        setTimeout(function() {
+            chrome.runtime.reload();
+        }, 1000);
+    };
+
+    connection.onopen = function(event) {
+        // 
+    };
+
+    connection.onmessage = function(event) {
+        if(event.data.newChatMessage) {
+            runtimePort.postMessage({
+                messageFromContentScript1234: true,
+                newChatMessage: event.data.newChatMessage
+            });
+
+            connection.send({
+                receivedChatMessage: true,
+                checkmark_id: event.data.checkmark_id
+            });
+        }
+
+        if(event.data.receivedChatMessage) {
+            runtimePort.postMessage({
+                messageFromContentScript1234: true,
+                receivedChatMessage: true,
+                checkmark_id: event.data.checkmark_id
+            });
+        }
+    };
 
     connection.open(connection.sessionid, roomOpenCallback);
 

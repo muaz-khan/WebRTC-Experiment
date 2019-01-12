@@ -2,6 +2,7 @@
     html, body, video, canvas {
         margin: 0!important;
         padding: 0!important;
+        text-align: center;
     }
 </style>
 
@@ -11,7 +12,9 @@
     (Requires <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">THIS CHROME EXTENSION</a>)
 </h1>
 
-<video controls autoplay></video>
+<p>It will record 5-seconds video and automatically stop the recording.</p>
+
+<video controls autoplay playsinline style="width: 40%;"></video>
 
 <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -34,7 +37,7 @@ function captureCamera(cb) {
 function keepStreamActive(stream) {
     var video = document.createElement('video');
     video.muted = true;
-    setSrcObject(stream, video);
+    video.srcObject = stream;
     video.style.display = 'none';
     (document.body || document.documentElement).appendChild(video);
 }
@@ -58,7 +61,7 @@ captureScreen(function(screen) {
             mimeType: 'video/webm',
             previewStream: function(s) {
                 document.querySelector('video').muted = true;
-                setSrcObject(s, document.querySelector('video'));
+                document.querySelector('video').srcObject = s;
             }
         });
 
@@ -67,15 +70,12 @@ captureScreen(function(screen) {
         setTimeout(function() {
             recorder.stopRecording(function() {
                 var blob = recorder.getBlob();
+                document.querySelector('video').srcObject = null;
                 document.querySelector('video').src = URL.createObjectURL(blob);
                 document.querySelector('video').muted = false;
 
                 [screen, camera].forEach(function(stream) {
-                    stream.getVideoTracks().forEach(function(track) {
-                        track.stop();
-                    });
-
-                    stream.getAudioTracks().forEach(function(track) {
+                    stream.getTracks().forEach(function(track) {
                         track.stop();
                     });
                 })
@@ -85,5 +85,5 @@ captureScreen(function(screen) {
 });
 </script>
 
-<footer style="margin-top: 20px;"><small id="send-message"></small></footer>
+<footer style="margin-top: 20px; text-align: left;"><small id="send-message"></small></footer>
 <script src="https://cdn.webrtc-experiment.com/common.js"></script>

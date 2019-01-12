@@ -8,8 +8,10 @@ var constraints = {
 };
 
 navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-    document.write('<h1 style="font-family: Courier New; font-size: 35px; color: green;"></h1><video autoplay controls src="' + URL.createObjectURL(stream) + '"></video>');
+    document.write('<h1 style="font-family: Courier New; font-size: 35px; color: green;"></h1><video muted volume=0 autoplay controls></video>');
     document.querySelector('h1').innerHTML = 'Now you can close this page and click extension icon again.'
-}).catch(function() {
-    document.querySelector('h1').innerHTML = 'Unable to capture your camera and microphone.';
+
+    document.querySelector('video').srcObject = stream;
+}).catch(function(error) {
+    document.querySelector('h1').innerHTML = 'Unable to capture your camera and microphone.<br>' + error;
 });

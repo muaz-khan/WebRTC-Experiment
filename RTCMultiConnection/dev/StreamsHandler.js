@@ -48,14 +48,14 @@ var StreamsHandler = (function() {
             }
 
             if (typeof type == 'undefined' || type == 'audio') {
-                stream.getAudioTracks().forEach(function(track) {
+                getTracks(stream, 'audio').forEach(function(track) {
                     track.enabled = false;
                     connection.streamEvents[stream.streamid].isAudioMuted = true;
                 });
             }
 
             if (typeof type == 'undefined' || type == 'video') {
-                stream.getVideoTracks().forEach(function(track) {
+                getTracks(stream, 'video').forEach(function(track) {
                     track.enabled = false;
                 });
             }
@@ -79,14 +79,14 @@ var StreamsHandler = (function() {
             graduallyIncreaseVolume();
 
             if (typeof type == 'undefined' || type == 'audio') {
-                stream.getAudioTracks().forEach(function(track) {
+                getTracks(stream, 'audio').forEach(function(track) {
                     track.enabled = true;
                     connection.streamEvents[stream.streamid].isAudioMuted = false;
                 });
             }
 
             if (typeof type == 'undefined' || type == 'video') {
-                stream.getVideoTracks().forEach(function(track) {
+                getTracks(stream, 'video').forEach(function(track) {
                     track.enabled = true;
                 });
 

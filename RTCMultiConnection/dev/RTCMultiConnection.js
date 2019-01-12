@@ -668,6 +668,11 @@
     };
 
     connection.processSdp = function(sdp) {
+        // ignore SDP modification if unified-pan is supported
+        if (isUnifiedPlanSupportedDefault()) {
+            return sdp;
+        }
+
         if (DetectRTC.browser.name === 'Safari') {
             return sdp;
         }
@@ -832,7 +837,10 @@
         }]
     };
 
-    connection.rtcpMuxPolicy = 'require'; // "require" or "negotiate"
+    connection.sdpSemantics = null; // "unified-plan" or "plan-b", ref: webrtc.org/web-apis/chrome/unified-plan/
+    connection.iceCandidatePoolSize = null; // 0
+    connection.bundlePolicy = null; // max-bundle
+    connection.rtcpMuxPolicy = null; // "require" or "negotiate"
     connection.iceTransportPolicy = null; // "relay" or "all"
     connection.optionalArgument = {
         optional: [{
@@ -935,7 +943,9 @@
         var played = e.mediaElement.play();
 
         if (typeof played !== 'undefined') {
-            played.catch(function() { /*** iOS 11 doesn't allow automatic play and rejects ***/ }).then(function() {
+            played.catch(function() {
+                /*** iOS 11 doesn't allow automatic play and rejects ***/
+            }).then(function() {
                 setTimeout(function() {
                     e.mediaElement.play();
                 }, 2000);
@@ -990,7 +1000,7 @@
     };
 
     connection.addStream = function(session, remoteUserId) {
-        if (!!session.getAudioTracks) {
+        if (!!session.getTracks) {
             if (connection.attachStreams.indexOf(session) === -1) {
                 if (!session.streamid) {
                     session.streamid = session.id;
@@ -1092,8 +1102,8 @@
                 }
 
                 if (!stream.isScreen) {
-                    stream.isVideo = stream.getVideoTracks().length;
-                    stream.isAudio = !stream.isVideo && stream.getAudioTracks().length;
+                    stream.isVideo = !!getTracks(stream, 'video').length;
+                    stream.isAudio = !stream.isVideo && getTracks(stream, 'audio').length;
                 }
 
                 mPeer.onGettingLocalMedia(stream, function() {
@@ -1121,13 +1131,13 @@
         }
 
         if (mediaConstraints.audio) {
-            stream.getAudioTracks().forEach(function(track) {
+            getTracks(stream, 'audio').forEach(function(track) {
                 track.applyConstraints(mediaConstraints.audio);
             });
         }
 
         if (mediaConstraints.video) {
-            stream.getVideoTracks().forEach(function(track) {
+            getTracks(stream, 'video').forEach(function(track) {
                 track.applyConstraints(mediaConstraints.video);
             });
         }
@@ -1178,12 +1188,12 @@
         }
 
         if (session instanceof MediaStream) {
-            if (session.getVideoTracks().length) {
-                replaceTrack(session.getVideoTracks()[0], remoteUserId, true);
+            if (getTracks(session, 'video').length) {
+                replaceTrack(getTracks(session, 'video')[0], remoteUserId, true);
             }
 
-            if (session.getAudioTracks().length) {
-                replaceTrack(session.getAudioTracks()[0], remoteUserId, false);
+            if (getTracks(session, 'audio').length) {
+                replaceTrack(getTracks(session, 'audio')[0], remoteUserId, false);
             }
             return;
         }
@@ -1781,9 +1791,23 @@
         }
     }
 
-    connection.getExtraData = function(remoteUserId) {
+    connection.getExtraData = function(remoteUserId, callback) {
         if (!remoteUserId) throw 'remoteUserId is required.';
-        if (!connection.peers[remoteUserId]) return {};
+
+        if (typeof callback === 'function') {
+            connection.socket.emit('get-remote-user-extra-data', remoteUserId, function(extra, remoteUserId, error) {
+                callback(extra, remoteUserId, error);
+            });
+            return;
+        }
+
+        if (!connection.peers[remoteUserId]) {
+            if (connection.peersBackup[remoteUserId]) {
+                return connection.peersBackup[remoteUserId].extra;
+            }
+            return {};
+        }
+
         return connection.peers[remoteUserId].extra;
     };
 
@@ -1842,6 +1866,18 @@
         } else {
             connection.password = password;
             callback(true, connection.sessionid, null);
+        }
+    };
+
+    connection.onSocketDisconnect = function(event) {
+        if (connection.enableLogs) {
+            console.warn('socket.io connection is closed');
+        }
+    };
+
+    connection.onSocketError = function(event) {
+        if (connection.enableLogs) {
+            console.warn('socket.io connection is failed');
         }
     };
 

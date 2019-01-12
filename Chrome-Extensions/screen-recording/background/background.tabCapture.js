@@ -54,12 +54,12 @@ function gotTabCaptureStream(stream, constraints) {
     var newStream = new MediaStream();
 
     if(enableTabCaptureAPIAudioOnly) {
-        stream.getAudioTracks().forEach(function(track) {
+        getTracks(stream, 'audio').forEach(function(track) {
             newStream.addTrack(track);
         });
     }
     else {
-        stream.getAudioTracks().concat(stream.getVideoTracks()).forEach(function(track) {
+        stream.getTracks().forEach(function(track) {
             newStream.addTrack(track);
         });
     }
