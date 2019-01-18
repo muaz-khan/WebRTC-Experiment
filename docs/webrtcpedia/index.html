@@ -85,11 +85,7 @@ if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefine
 
 if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
     MediaStream.prototype.stop = function() {
-        this.getAudioTracks().forEach(function(track) {
-            track.stop();
-        });
-
-        this.getVideoTracks().forEach(function(track) {
+        this.getTracks().forEach(function(track) {
             track.stop();
         });
     };
@@ -207,6 +203,150 @@ function addStreamStopListener(stream, callback) {
 </pre>
             </section>
 
+            <section class="experiment" id="stream-ended-listener-using-promises">
+                <h2>
+                    <a href="#stream-ended-listener-using-promises">Stream end handler using promises:</a>
+                </h2>
+
+                <pre class="sh_javascript">
+addStreamStopListenerUsingPromises(stream).then(function() {
+    alert('screen sharing is ended.');
+});
+
+function addStreamStopListenerUsingPromises(stream) {
+    return new Promise(function(resolve, reject) {
+        try {
+            var callback = resolve;
+            stream.addEventListener('ended', function() {
+                callback();
+                callback = function() {};
+            }, false);
+            stream.addEventListener('inactive', function() {
+                callback();
+                callback = function() {};
+            }, false);
+            stream.getTracks().forEach(function(track) {
+                track.addEventListener('ended', function() {
+                    callback();
+                    callback = function() {};
+                }, false);
+                track.addEventListener('inactive', function() {
+                    callback();
+                    callback = function() {};
+                }, false);
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+</pre>
+            </section>
+
+            <section class="experiment" id="get-mp3-stream">
+                <h2>
+                    <a href="#get-mp3-stream">How to get mp3 stream?</a>
+                </h2>
+
+                <pre class="sh_javascript">
+document.querySelector('input[type=file]').onchange = function(event) {
+    var file = this.files[0];
+    if(file && file.size > 0) {
+        getMp3Stream(file, function(mp3Stream) {
+            mp3Stream.getTracks().forEach(function(track) {
+                rtcPeerConnection.addTrack(track, mp3Stream);
+            });
+
+            // or record
+            var recorder = new MediaRecorder(strea);
+
+            // or merge into microphone (using MultiStreamsMixer.js)
+            var audioMixer = new MultiStreamsMixer([microphone, mp3Stream]);
+            var microphoneAndScreenStream = audioMixer.getMixedStream();
+        });
+    }
+};
+
+function getMp3Stream(mp3File, callback) {
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    var context = new AudioContext();
+    var gainNode = context.createGain();
+    gainNode.connect(context.destination);
+    gainNode.gain.value = 0; // don't play for self
+
+    var reader = new FileReader();
+    reader.onload = (function(e) {
+        // Import callback function
+        // provides PCM audio data decoded as an audio buffer
+        context.decodeAudioData(e.target.result, createSoundSource);
+    });
+    reader.readAsArrayBuffer(mp3File);
+
+    function createSoundSource(buffer) {
+        var soundSource = context.createBufferSource();
+        soundSource.buffer = buffer;
+        soundSource.start(0, 0 / 1000);
+        soundSource.connect(gainNode);
+        var destination = context.createMediaStreamDestination();
+        soundSource.connect(destination);
+
+        // durtion=second*1000 (milliseconds)
+        callback(destination.stream, buffer.duration * 1000);
+    }
+}
+</pre>
+            </section>
+
+            <section class="experiment" id="get-mp3-stream-using-promises">
+                <h2>
+                    <a href="#get-mp3-stream-using-promises">How to get mp3 stream using promises?</a>
+                </h2>
+
+                <pre class="sh_javascript">
+document.querySelector('input[type=file]').onchange = function(event) {
+    var file = this.files[0];
+    if(file && file.size > 0) {
+        getMp3StreamUsingPromises(file).then(function(mp3Stream) {});
+        var mp3Stream = await getMp3StreamUsingPromises(file);
+    }
+};
+
+function getMp3StreamUsingPromises(mp3File) {
+    return new Promise(function(resolve, reject) {
+        try {
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            var context = new AudioContext();
+            var gainNode = context.createGain();
+            gainNode.connect(context.destination);
+            gainNode.gain.value = 0; // don't play for self
+
+            function createSoundSource(buffer) {
+                var soundSource = context.createBufferSource();
+                soundSource.buffer = buffer;
+                soundSource.start(0, 0 / 1000);
+                soundSource.connect(gainNode);
+                var destination = context.createMediaStreamDestination();
+                soundSource.connect(destination);
+
+                // durtion=second*1000 (milliseconds)
+                resolve(destination.stream, buffer.duration * 1000);
+            }
+
+            var reader = new FileReader();
+            reader.onload = (function(e) {
+                // Import callback function
+                // provides PCM audio data decoded as an audio buffer
+                context.decodeAudioData(e.target.result, createSoundSource);
+            });
+            reader.readAsArrayBuffer(mp3File);
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+</pre>
+            </section>
+
             <section class="experiment" id="camera-mic-already-allowed">
             	<h2>
             		<a href="#camera-mic-already-allowed">How to check if website already has privileges to access camera/microphone?</a>
@@ -292,15 +432,13 @@ chrome://settings/content#media-stream-mic
             	<pre class="sh_javascript">
 // chrome 48+
 var isRemoteAudioStream = false;
-stream.getAudioTracks().forEach(function(track) {
-    if (track.remote === true) {
+var isRemoteVideoStream = false;
+stream.getTracks().forEach(function(track) {
+    if (track.remote === true && track.kind === 'audio') {
         isRemoteAudioStream = true;
     }
-});
 
-var isRemoteVideoStream = false;
-stream.getVideoTracks().forEach(function(track) {
-    if (track.remote === true) {
+    if (track.remote === true && track.kind === 'video') {
         isRemoteVideoStream = true;
     }
 });
@@ -395,8 +533,10 @@ function changeVideoStreamTo720p() {
         height: { min: 720 }
     };
 
-    originalStream.getVideoTracks().forEach(function(track) {
-        track.applyConstraints(videoConstraints);
+    originalStream.getTracks().forEach(function(track) {
+        if(track.kind === 'video') {
+            track.applyConstraints(videoConstraints);
+        }
     });
 }
 
@@ -405,8 +545,10 @@ function showFrontCamera() {
         facingMode: { exact: 'user' }
     };
 
-    originalStream.getVideoTracks().forEach(function(track) {
-        track.applyConstraints(videoConstraints);
+    originalStream.getTracks().forEach(function(track) {
+        if(track.kind === 'video') {
+            track.applyConstraints(videoConstraints);
+        }
     });
 }
 
@@ -415,8 +557,10 @@ function showRearCamera() {
         facingMode: { exact: 'environment' }
     };
 
-    originalStream.getVideoTracks().forEach(function(track) {
-        track.applyConstraints(videoConstraints);
+    originalStream.getTracks().forEach(function(track) {
+        if(track.kind === 'video') {
+            track.applyConstraints(videoConstraints);
+        }
     });
 }
 </pre>
