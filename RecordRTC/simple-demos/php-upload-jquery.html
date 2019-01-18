@@ -70,9 +70,15 @@
 
                         document.getElementById('header').innerHTML = 'Uploading to PHP using jQuery.... file size: (' +  bytesToSize(fileObject.size) + ')';
 
+                        var upload_url = 'https://webrtcweb.com/f/';
+                        // var upload_url = 'RecordRTC-to-PHP/save.php';
+
+                        var upload_directory = upload_url;
+                        // var upload_directory = 'RecordRTC-to-PHP/uploads/';
+
                         // upload using jQuery
                         $.ajax({
-                            url: 'https://webrtcweb.com/RecordRTC/', // replace with your own server URL
+                            url: upload_url, // replace with your own server URL
                             data: formData,
                             cache: false,
                             contentType: false,
@@ -83,7 +89,7 @@
                                     alert('successfully uploaded recorded blob');
 
                                     // file path on server
-                                    var fileDownloadURL = 'https://webrtcweb.com/RecordRTC/uploads/' + fileObject.name;
+                                    var fileDownloadURL = upload_directory + fileObject.name;
 
                                     // preview the uploaded file URL
                                     document.getElementById('header').innerHTML = '<a href="' + fileDownloadURL + '" target="_blank">' + fileDownloadURL + '</a>';

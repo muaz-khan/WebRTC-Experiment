@@ -30,10 +30,11 @@ function captureCamera(callback) {
 
 function stopRecordingCallback() {
     video.srcObject = null;
-    var blob = recorder.getBlob();
-    video.src = URL.createObjectURL(blob);
-
-    recorder.camera.stop();
+    
+    recorder.getBlob().then(function(blob) {
+        video.src = URL.createObjectURL(blob);
+        recorder.camera.stop();
+    });
 }
 
 var recorder; // globally accessible

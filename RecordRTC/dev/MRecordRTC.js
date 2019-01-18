@@ -13,7 +13,7 @@
  * recorder.addStream(MediaStream);
  * recorder.mediaType = {
  *     audio: true, // or StereoAudioRecorder or MediaStreamRecorder
- *     video: true, // or WhammyRecorder or MediaStreamRecorder
+ *     video: true, // or WhammyRecorder or MediaStreamRecorder or WebAssemblyRecorder
  *     gif: true    // or GifRecorder
  * };
  * // mimeType is optional and should be set only in advance cases.
@@ -53,7 +53,7 @@ function MRecordRTC(mediaStream) {
      * var recorder = new MRecordRTC();
      * recorder.mediaType = {
      *     audio: true, // TRUE or StereoAudioRecorder or MediaStreamRecorder
-     *     video: true, // TRUE or WhammyRecorder or MediaStreamRecorder
+     *     video: true, // TRUE or WhammyRecorder or MediaStreamRecorder or WebAssemblyRecorder
      *     gif  : true  // TRUE or GifRecorder
      * };
      */
@@ -150,7 +150,9 @@ function MRecordRTC(mediaStream) {
                 recorderType: recorderType,
                 mimeType: mimeType.video,
                 timeSlice: this.timeSlice,
-                onTimeStamp: this.onTimeStamp
+                onTimeStamp: this.onTimeStamp,
+                workerPath: this.workerPath,
+                webAssemblyPath: this.webAssemblyPath
             });
 
             if (!mediaType.audio) {

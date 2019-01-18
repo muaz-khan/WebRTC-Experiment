@@ -63,7 +63,7 @@ function invokeGetDisplayMedia(success, error) {
     }
 }
 
-function capturescreen(callback) {
+function captureScreen(callback) {
     invokeGetDisplayMedia(function(screen) {
         addStreamStopListener(screen, function() {
             document.getElementById('btn-stop-recording').click();
@@ -90,7 +90,7 @@ var recorder; // globally accessible
 
 document.getElementById('btn-start-recording').onclick = function() {
     this.disabled = true;
-    capturescreen(function(screen) {
+    captureScreen(function(screen) {
         video.srcObject = screen;
 
         recorder = RecordRTC(screen, {

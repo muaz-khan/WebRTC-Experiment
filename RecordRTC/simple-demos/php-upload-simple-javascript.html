@@ -94,12 +94,19 @@
                 formData.append('video-filename', blob.name);
                 formData.append('video-blob', blob);
                 callback('Uploading recorded-file to server.');
-                makeXMLHttpRequest('https://webrtcweb.com/RecordRTC/', formData, function(progress) {
+
+                var upload_url = 'https://webrtcweb.com/f/';
+                // var upload_url = 'RecordRTC-to-PHP/save.php';
+
+                var upload_directory = upload_url;
+                // var upload_directory = 'RecordRTC-to-PHP/uploads/';
+                
+                makeXMLHttpRequest(upload_url, formData, function(progress) {
                     if (progress !== 'upload-ended') {
                         callback(progress);
                         return;
                     }
-                    var initialURL = 'https://webrtcweb.com/RecordRTC/uploads/' + blob.name;
+                    var initialURL = upload_directory + blob.name;
                     callback('ended', initialURL);
                 });
             }

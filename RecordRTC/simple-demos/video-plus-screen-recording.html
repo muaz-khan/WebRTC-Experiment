@@ -1,32 +1,77 @@
 <style>
-    html, body, video, canvas {
+    html, body {
         margin: 0!important;
         padding: 0!important;
         text-align: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 1em;
+    }
+
+    video {
+        width: 30%;
+        border-radius: 5px;
+        border: 1px solid black;
     }
 </style>
 
 <title>Video+Screen recording using RecordRTC</title>
+
 <h1>
     Video+Screen recording using RecordRTC
-    (Requires <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">THIS CHROME EXTENSION</a>)
 </h1>
 
-<p>It will record 5-seconds video and automatically stop the recording.</p>
+<p>It will record 10-seconds video and automatically stop the recording.</p>
 
 <video controls autoplay playsinline style="width: 40%;"></video>
 
 <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-<script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
 <script>
-function captureScreen(cb) {
-    getScreenId(function (error, sourceId, screen_constraints) {
-        navigator.mediaDevices.getUserMedia(screen_constraints).then(cb).catch(function(error) {
-          console.error('getScreenId error', error);
+if(!navigator.getDisplayMedia && !navigator.mediaDevices.getDisplayMedia) {
+    var error = 'Your browser does NOT supports getDisplayMedia API.';
+    document.querySelector('h1').innerHTML = error;
 
-          alert('Failed to capture your screen. Please check Chrome console logs for further information.');
+    document.querySelector('video').style.display = 'none';
+    document.getElementById('btn-start-recording').style.display = 'none';
+    document.getElementById('btn-stop-recording').style.display = 'none';
+    throw new Error(error);
+}
+
+function invokeGetDisplayMedia(success, error) {
+    var displaymediastreamconstraints = {
+        video: {
+            displaySurface: 'monitor', // monitor, window, application, browser
+            logicalSurface: true,
+            cursor: 'always' // never, always, motion
+        }
+    };
+
+    // above constraints are NOT supported YET
+    // that's why overridnig them
+    displaymediastreamconstraints = {
+        video: true
+    };
+
+    if(navigator.mediaDevices.getDisplayMedia) {
+        navigator.mediaDevices.getDisplayMedia(displaymediastreamconstraints).then(success).catch(error);
+    }
+    else {
+        navigator.getDisplayMedia(displaymediastreamconstraints).then(success).catch(error);
+    }
+}
+
+function captureScreen(callback) {
+    invokeGetDisplayMedia(function(screen) {
+        addStreamStopListener(screen, function() {
+            if(window.stopCallback) {
+                window.stopCallback();
+            }
+
         });
+        callback(screen);
+    }, function(error) {
+        console.error(error);
+        alert('Unable to capture your screen. Please check console logs.\n' + error);
     });
 }
 
@@ -67,7 +112,9 @@ captureScreen(function(screen) {
 
         recorder.startRecording();
 
-        setTimeout(function() {
+        window.stopCallback = function() {
+            window.stopCallback = null;
+
             recorder.stopRecording(function() {
                 var blob = recorder.getBlob();
                 document.querySelector('video').srcObject = null;
@@ -78,11 +125,34 @@ captureScreen(function(screen) {
                     stream.getTracks().forEach(function(track) {
                         track.stop();
                     });
-                })
+                });
             });
-        }, 5 * 1000);
+        };
+
+        window.timeout = setTimeout(window.stopCallback, 10 * 1000);
     });
 });
+
+function addStreamStopListener(stream, callback) {
+    stream.addEventListener('ended', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.addEventListener('inactive', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.getTracks().forEach(function(track) {
+        track.addEventListener('ended', function() {
+            callback();
+            callback = function() {};
+        }, false);
+        track.addEventListener('inactive', function() {
+            callback();
+            callback = function() {};
+        }, false);
+    });
+}
 </script>
 
 <footer style="margin-top: 20px; text-align: left;"><small id="send-message"></small></footer>

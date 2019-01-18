@@ -74,6 +74,12 @@ function RecordRTCPromisesHandler(mediaStream, options) {
             try {
                 self.recordRTC.stopRecording(function(url) {
                     self.blob = self.recordRTC.getBlob();
+
+                    if (!self.blob || !self.blob.size) {
+                        reject('Empty blob.', self.blob);
+                        return;
+                    }
+
                     resolve(url);
                 });
             } catch (e) {
@@ -111,11 +117,17 @@ function RecordRTCPromisesHandler(mediaStream, options) {
      * @memberof RecordRTCPromisesHandler
      * @example
      * recorder.stopRecording().then(function() {
-     *     var blob = recorder.getBlob();
+     *     recorder.getBlob().then(function(blob) {})
      * }).catch(errorCB);
      */
     this.getBlob = function() {
-        return self.recordRTC.getBlob();
+        return new Promise(function(resolve, reject) {
+            try {
+                resolve(self.recordRTC.getBlob());
+            } catch (e) {
+                reject(e);
+            }
+        });
     };
 
     /**
