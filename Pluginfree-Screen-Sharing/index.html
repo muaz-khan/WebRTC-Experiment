@@ -1,4 +1,4 @@
-<!-- Demo version: 2018.08.24 -->
+<!-- Demo version: 2019.01.18 -->
 
 <!--
 > Muaz Khan     - https://github.com/muaz-khan
@@ -61,11 +61,10 @@
             .setup {
                 border-bottom-left-radius: 0;
                 border-top-left-radius: 0;
-                font-size: 102%;
-                height: 47px;
-                margin-left: -9px;
-                margin-top: 8px;
-                position: absolute;
+                font-size: 1.5em;
+                margin-bottom: 20px;
+                margin-top: 20px;
+                border-radius: 5px;
             }
 
             p { padding: 1em; }
@@ -81,8 +80,6 @@
             document.createElement('footer');
         </script>
 
-        <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk">
-
         <!-- scripts used for screen-sharing -->
         <script src="https://cdn.webrtc-experiment.com/socket.io.js"> </script>
         <script src="https://cdn.webrtc-experiment.com/DetectRTC.js"></script>
@@ -90,7 +87,6 @@
         <script src="https://cdn.webrtc-experiment.com/CodecsHandler.js"></script>
         <script src="https://cdn.webrtc-experiment.com/BandwidthHandler.js"></script>
         <script src="https://cdn.webrtc-experiment.com/IceServersHandler.js"></script>
-        <script src="https://cdn.webrtc-experiment.com/Screen-Capturing.js"></script>
         <script src="https://cdn.webrtc-experiment.com/Pluginfree-Screen-Sharing/conference.js"> </script>
     </head>
 
@@ -103,7 +99,7 @@
                 <p>
                     <a href="https://www.webrtc-experiment.com/">HOME</a>
                     <span> &copy; </span>
-                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    <a href="https://MuazKhan.com/" target="_blank">Muaz Khan</a>
 
                     .
                     <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
@@ -121,43 +117,27 @@
 
             <div class="github-stargazers"></div>
 
-            <h2 id="number-of-participants" style="display: block;text-align: center;border:0;margin-bottom:0;">High Quality screen sharing application using <a href="https://www.webrtc-experiment.com/">WebRTC</a>!</h2>
+            <h2 style="display: block;text-align: center;border:0;margin-bottom:0;">High Quality screen sharing application using <a href="https://www.webrtc-experiment.com/">WebRTC</a>!</h2>
+
+            <section id="logs-message" class="experiment" style="display: none;text-align: center;font-size: 1.5em;line-height: 2;color: red;">WebRTC getDisplayMedia API.</section>
 
             <!-- just copy this <section> and next script -->
             <section class="experiment">
-                <section class="hide-after-join">
-                    <span>
-                        Private ?? <a href="/Pluginfree-Screen-Sharing/" target="_blank" title="Open this link for private screen sharing!"><code><strong id="unique-token">#123456789</strong></code></a>
-                    </span>
-                    <input type="text" id="room-name" placeholder="Your Name">
+                <section class="hide-after-join" style="text-align: center;">                    
+                    <input type="text" id="room-name" placeholder="Enter " style="width: 80%; text-align: center; display: none;">
                     <button id="share-screen" class="setup">Share Your Screen</button>
                 </section>
 
-                <section id="chrome-warning" style="display: none; background: yellow; margin: 20px; border: 2px dotted red; font-size: 20px;">
-                    <p style="margin: 0;">
-                        Please install following chrome extension:
-                    </p>
-
-                    <p style="margin-top: 0;">
-                        <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk</a>
-                    </p>
-                </section>
-
-                <!-- list of all available broadcasting rooms -->
-                <table style="width: 100%;" id="rooms-list" class="hide-after-join"></table>
-
                 <!-- local/remote videos container -->
                 <div id="videos-container"></div>
+
+                <section id="unique-token" style="display: none; text-align: center; padding: 20px;"></section>
             </section>
 
             <script>
                 // Muaz Khan     - https://github.com/muaz-khan
                 // MIT License   - https://www.webrtc-experiment.com/licence/
                 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing
-
-                var CHROME_MEDIA_SOURCE = 'screen';
-                var CHROME_MEDIA_SOURCE_ID = null;
-                var CHROME_MEDIA_SOURCE_AUDIO = false;
 
                 var config = {
                     // via: https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socketio-over-nodejs
@@ -195,65 +175,76 @@
                         videosContainer.insertBefore(video, videosContainer.firstChild);
                         rotateVideo(video);
 
-                        var hideAfterJoin = document.querySelectorAll('.hide-after-join');
-                        for(var i = 0; i < hideAfterJoin.length; i++) {
-                            hideAfterJoin[i].style.display = 'none';
-                        }
+                        document.querySelector('.hide-after-join').style.display = 'none';
                     },
                     onRoomFound: function(room) {
                         if(isbroadcaster) return;
 
-                        if(location.hash.replace('#', '').length) {
-                            // private rooms should auto be joined.
-                            conferenceUI.joinRoom({
-                                roomToken: room.roomToken,
-                                joinUser: room.broadcaster
-                            });
-                            return;
-                        }
+                        conferenceUI.joinRoom({
+                            roomToken: room.roomToken,
+                            joinUser: room.broadcaster
+                        });
 
-                        var alreadyExist = document.getElementById(room.broadcaster);
-                        if (alreadyExist) return;
-
-                        if (typeof roomsList === 'undefined') roomsList = document.body;
-
-                        var tr = document.createElement('tr');
-                        tr.setAttribute('id', room.broadcaster);
-                        tr.innerHTML = '<td>' + room.roomName + '</td>' +
-                            '<td><button class="join" id="' + room.roomToken + '">Open Screen</button></td>';
-                        roomsList.insertBefore(tr, roomsList.firstChild);
-
-                        var button = tr.querySelector('.join');
-                        button.onclick = function() {
-                            var button = this;
-                            button.disabled = true;
-                            conferenceUI.joinRoom({
-                                roomToken: button.id,
-                                joinUser: button.parentNode.parentNode.id
-                            });
-                        };
+                        document.querySelector('.hide-after-join').innerHTML = '<img src="https://cdn.webrtc-experiment.com/images/key-press.gif" style="margint-top:10px; width:50%;" />';
                     },
                     onNewParticipant: function(numberOfParticipants) {
-                        document.title = numberOfParticipants + ' users are viewing your screen!';
-                        var element = document.getElementById('number-of-participants');
-                        if (element) {
-                            element.innerHTML = numberOfParticipants + ' users are viewing your screen!';
+                        var text = numberOfParticipants + ' users are viewing your screen!';
+                        
+                        if(numberOfParticipants <= 0) {
+                            text = 'No one is viewing your screen YET.';
                         }
-                    },
-                    oniceconnectionstatechange: function(state) {
-                        if(state == 'failed') {
-                            alert('Failed to bypass Firewall rules. It seems that target user did not receive your screen. Please ask him reload the page and try again.');
+                        else if(numberOfParticipants == 1) {
+                            text = 'Only one user is viewing your screen!';
                         }
 
-                        if(state == 'connected') {
-                            alert('A user successfully received your screen.');
+                        document.title = text;
+                        showErrorMessage(document.title, 'green');
+                    },
+                    oniceconnectionstatechange: function(state) {
+                        var text = '';
+
+                        if(state == 'closed' || state == 'disconnected') {
+                            text = 'One of the participants just left.';
+                            document.title = text;
+                            showErrorMessage(document.title);
+                        }
+
+                        if(state == 'failed') {
+                            text = 'Failed to bypass Firewall rules. It seems that target user did not receive your screen. Please ask him reload the page and try again.';
+                            document.title = text;
+                            showErrorMessage(document.title);
+                        }
+
+                        if(state == 'connected' || state == 'completed') {
+                            text = 'A user successfully received your screen.';
+                            document.title = text;
+                            showErrorMessage(document.title, 'green');
+                        }
+
+                        if(state == 'new' || state == 'checking') {
+                            text = 'Someone is trying to join you.';
+                            document.title = text;
+                            showErrorMessage(document.title, 'green');
                         }
                     }
                 };
 
-                function captureUserMedia(callback) {
-                    console.log('captureUserMedia chromeMediaSource', CHROME_MEDIA_SOURCE);
+                function showErrorMessage(error, color) {
+                    var errorMessage = document.querySelector('#logs-message');
+                    errorMessage.style.color = color || 'red';
+                    errorMessage.innerHTML = error;
+                    errorMessage.style.display = 'block';
+                }
 
+                function getDisplayMediaError(error) {
+                    if (location.protocol === 'http:') {
+                        showErrorMessage('Please test this WebRTC experiment on HTTPS.');
+                    } else {
+                        showErrorMessage(error.toString());
+                    }
+                }
+
+                function captureUserMedia(callback) {
                     var video = document.createElement('video');
                     video.muted = true;
                     video.volume = 0;
@@ -267,22 +258,8 @@
                         video.setAttribute('controls', true);
                     }
 
-                    var screen_constraints = {
-                        mandatory: {
-                            chromeMediaSource: CHROME_MEDIA_SOURCE,
-                            maxWidth: screen.width > 1920 ? screen.width : 1920,
-                            maxHeight: screen.height > 1080 ? screen.height : 1080
-                            // minAspectRatio: 1.77
-                        },
-                        optional: [{ // non-official Google-only optional constraints
-                            googTemporalLayeredScreencast: true
-                        }, {
-                            googLeakyBucket: true
-                        }]
-                    };
-
-                    if(isEdge) {
-                        navigator.getDisplayMedia({video: true}).then(stream => {
+                    if(navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) {
+                        function onGettingSteam(stream) {
                             video.srcObject = stream;
                             videosContainer.insertBefore(video, videosContainer.firstChild);
 
@@ -297,84 +274,46 @@
                             addStreamStopListener(stream, function() {
                                 location.reload();
                             });
-                        }, error => {
-                            if (location.protocol === 'http:') {
-                                alert('Please test this WebRTC experiment on HTTPS.');
-                            } else {
-                                alert('Please use Edge >= 17.');
-                            }
-                        });
-                        return;
-                    }
 
-                    if(DetectRTC.browser.name === 'Chrome' && CHROME_MEDIA_SOURCE == 'desktop' && !CHROME_MEDIA_SOURCE_ID) {
-                        // https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js#getsourceidwithaudio
-                        getSourceIdWithAudio(function(sourceId, canRequestAudioTrack) {
-                            CHROME_MEDIA_SOURCE_ID = sourceId;
-                            CHROME_MEDIA_SOURCE_AUDIO = canRequestAudioTrack === true;
-                            captureUserMedia(callback);
-                        });
-                        return;
-                    }
+                            showPrivateLink();
 
-                    if(DetectRTC.browser.name === 'Chrome' && CHROME_MEDIA_SOURCE == 'desktop') {
-                        if(screen_constraints.mandatory) {
-                            screen_constraints.mandatory.chromeMediaSourceId = CHROME_MEDIA_SOURCE_ID;
+                            document.querySelector('.hide-after-join').style.display = 'none';
                         }
-                        else {
-                            screen_constraints.chromeMediaSourceId = CHROME_MEDIA_SOURCE_ID;
+
+                        if(navigator.mediaDevices.getDisplayMedia) {
+                            navigator.mediaDevices.getDisplayMedia({video: true}).then(stream => {
+                                onGettingSteam(stream);
+                            }, getDisplayMediaError).catch(getDisplayMediaError);
+                        }
+                        else if(navigator.getDisplayMedia) {
+                            navigator.getDisplayMedia({video: true}).then(stream => {
+                                onGettingSteam(stream);
+                            }, getDisplayMediaError).catch(getDisplayMediaError);
                         }
                     }
-
-                    var constraints = {
-                        audio: false,
-                        video: screen_constraints
-                    };
-
-                    if(CHROME_MEDIA_SOURCE_AUDIO === true) {
-                        // system audio i.e. speakers
-                        constraints.audio = screen_constraints;
-                    }
-
-                    if(!!navigator.mozGetUserMedia) {
-                        constraints.audio = false;
-                        constraints.video = {
-                            mozMediaSource: 'window',
-                            mediaSource: 'window',
-                            width: screen.width,
-                            height: screen.height
-                        };
-                    }
-
-                    console.log( JSON.stringify( constraints , null, '\t') );
-
-                    getUserMedia({
-                        video: video,
-                        constraints: constraints,
-                        onsuccess: function(stream) {
-                            video.srcObject = stream;
-                            videosContainer.insertBefore(video, videosContainer.firstChild);
-
-                            config.attachStream = stream;
-                            callback && callback();
-
-                            video.setAttribute('muted', true);
-                            rotateVideo(video);
-
-                            addStreamStopListener(stream, function() {
-                                location.reload();
-                            });
-                        },
-                        onerror: function(error) {
-                            if (DetectRTC.browser.name === 'Chrome' && location.protocol === 'http:') {
-                                alert('Please test this WebRTC experiment on HTTPS.');
-                            } else if(DetectRTC.browser.name === 'Chrome') {
-                                alert('Screen capturing is either denied or not supported. Please install chrome extension for screen capturing or run chrome with command-line flag: --enable-usermedia-screen-capturing');
+                    else {
+                        if (DetectRTC.browser.name === 'Chrome') {
+                            if (DetectRTC.browser.version == 71) {
+                                showErrorMessage('Please enable "Experimental WebPlatform" flag via chrome://flags.');
+                            } else if (DetectRTC.browser.version < 71) {
+                                showErrorMessage('Please upgrade your Chrome browser.');
                             } else {
-                                alert(error.toString());
+                                showErrorMessage('Please make sure that you are not using Chrome on iOS.');
                             }
                         }
-                    });
+
+                        if (DetectRTC.browser.name === 'Firefox') {
+                            showErrorMessage('Please upgrade your Firefox browser.');
+                        }
+
+                        if (DetectRTC.browser.name === 'Edge') {
+                            showErrorMessage('Please upgrade your Edge browser.');
+                        }
+
+                        if (DetectRTC.browser.name === 'Safari') {
+                            showErrorMessage('Safari does NOT supports getDisplayMedia API yet.');
+                        }
+                    }
                 }
 
                 /* on page load: get public rooms */
@@ -382,7 +321,6 @@
 
                 /* UI specific */
                 var videosContainer = document.getElementById("videos-container") || document.body;
-                var roomsList = document.getElementById('rooms-list');
 
                 document.getElementById('share-screen').onclick = function() {
                     var roomName = document.getElementById('room-name') || { };
@@ -402,144 +340,33 @@
                     }, 1000);
                 }
 
-                (function() {
+                function showPrivateLink() {
                     var uniqueToken = document.getElementById('unique-token');
-                    if (uniqueToken)
-                        if (location.hash.length > 2) uniqueToken.parentNode.parentNode.parentNode.innerHTML = '<h2 style="text-align:center;display: block""><a href="' + location.href + '" target="_blank">Right click to copy & share this private link</a></h2>';
-                        else uniqueToken.innerHTML = uniqueToken.parentNode.parentNode.href = '#' + (Math.random() * new Date().getTime()).toString(36).toUpperCase().replace( /\./g , '-');
-                })();
-
-            </script>
-
-            <script>
-                if(DetectRTC.browser.name === 'Chrome') {
-                    document.getElementById('room-name').disabled = true;
-                    document.getElementById('share-screen').disabled = true;
-
-                    // https://github.com/muaz-khan/Chrome-Extensions/tree/master/Screen-Capturing.js#getchromeextensionstatus
-                    getChromeExtensionStatus(function(status) {
-                        if(status == 'installed-enabled') {
-                            if(document.getElementById('install-button')) {
-                                document.getElementById('install-button').parentNode.innerHTML = '<strong>Great!</strong> <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Google chrome extension</a> is installed.';
-                            }
-                            CHROME_MEDIA_SOURCE = 'desktop';
-
-                            document.getElementById('room-name').disabled = false;
-                            document.getElementById('share-screen').disabled = false;
-                        }
-                        else  {
-                            document.getElementById('chrome-warning').style.display = 'block';
-                        }
-                    });
+                    uniqueToken.innerHTML = '<a href="' + location.href + '" target="_blank">Copy & Share This Private Room Link</a>';
+                    uniqueToken.style.display = 'block';
                 }
+
             </script>
-
-            <section class="experiment">
-                <h2>Prerequisites</h2>
-                <ol>
-                    <li>
-                        Chrome?
-                        <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">Store</a>
-                        / <a href="https://github.com/muaz-khan/Chrome-Extensions/tree/master/desktopCapture">Source Code</a>
-                        /
-                        <button onclick="!!navigator.webkitGetUserMedia && !!window.chrome && !!chrome.webstore && !!chrome.webstore.install && chrome.webstore.install('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk', function() {location.reload();})" id="install-button" style="font-size:inherit; padding-bottom:0;">Click to Install</button>
-                    </li>
-
-                    <li>
-                        Firefox? Please use version 52 or higher. Also use HTTPs.
-                    </li>
-
-                    <li>
-                        Edge? Please use version 17 or higher. Also use HTTPs.
-                    </li>
-
-                    <li>
-                        Safari? Please use version 11 (on Mac or iphone/ipad). However Safari can merely view screens. Safari can not share its own screen.
-                    </li>
-                </ol>
-            </section>
-
-            <section class="experiment">
-                <h2 id="suggestions">
-                    <a href="#suggestions">Suggestions</a>
-                </h2>
-                <blockquote class="inline">
-                    <a href="https://chrome.google.com/webstore/detail/webrtc-desktop-sharing/nkemblooioekjnpfekmjhpgkackcajhg">There is a chrome-extension</a> for the same application; which allows you share any tab/screen any time without opening this page.
-                </blockquote>
-            </section>
-
-            <section class="experiment"><small id="send-message"></small></section>
 
             <section class="experiment">
                 <h2 id="advantages">
                     <a href="#advantages">Advantages</a>
                 </h2>
                 <ol>
-                    <li>Share full screen with one or more users in <strong>HD</strong> format!</li>
-                    <li>Share screen from chrome and view over all WebRTC compatible browsers/plugins.</li>
+                    <li>As of 2019, this demo is now 100% Plugin-free!! Believe that! No Chrome extension! No Firefox addon!</li>
+                    <li>Share screen from Chrome, Firefox or Edge. Safari support is coming soon.</li>
                     <li>
-                        You can open private rooms and it will be really "totally" private!<br /><br />
+                        You can open private i.e. secure rooms:<br /><br />
                         <ol>
                             <li>Use hashes to open private rooms: <strong>#private-room</strong></li>
                             <li>Use URL parameters to open private rooms: <strong>?private=room</strong></li>
                         </ol>
                     </li>
+                    <li>Upto 10 people can view your screen. System restrictions (CPU/RAM) still applies.</li>
                 </ol>
             </section>
 
-            <section class="experiment">
-                <h2 id="common-queries">
-                    <a href="#common-queries">Common issues & queries</a>
-                </h2>
-                <ol>
-                    <li>Recursive cascade images or blurred screen experiences occur only when you try to share screen between two tabs on the same system. This NEVER happens when sharing between unique systems or devices.</li>
-                    <li>Opera/IE/Safari has no support of screen-capturing yet. However, you can view shared screens on Opera/IE/Safari!</li>
-                    <li>Remember, it is not desktop sharing! It is just a state-less screen sharing. Desktop sharing is possible only through native (C++) applications.</li>
-                </ol>
-            </section>
-
-            <section class="experiment">
-                <h2 id="why-screen-fails">
-                    <a href="#why-screen-fails">Why Screen Sharing Fails?</a>
-                </h2>
-                <ol>
-                    <li>
-                        You've not used '<strong>chromeMediaSource</strong>' or '<strong>mediaSource</strong>' constraint:
-                        <pre>
-// for chrome
-mandatory: {chromeMediaSource: 'screen'}
-// or desktop-Capturing
-mandatory: {chromeMediaSource: 'desktop'}
-
-// for Firefox
-video: {
-    mediaSource: 'window' || 'screen'
-}
-
-// for Edge &gt;= 17 (https-only)
-navigator.getDisplayMedia({
-    video: true
-}).then(successCallback, errorCallback);
-</pre>
-                    </li>
-                    <li>On chrome, you requested audio-stream alongwith '<strong>chromeMediaSource</strong>' – it is not permitted on chrome. Remember, Firefox is supporting audio+screen from single getUserMedia request.</li>
-                    <li>On chrome, you're not testing it on SSL origin (HTTPS domain) otherwise you didn't enable <code><a href="http://peter.sh/experiments/chromium-command-line-switches/#allow-http-screen-capture" target="_blank">--allow-http-screen-capture</a></code> command-line flag on canary. Firefox is supporting screen capturing from both HTTP and HTTPs domains.</li>
-                    <li>You may used media constraints like min/max frameRate; bandwidth or min/max width/height like 2000*2000 that is "currently" not allowed.</li>
-                </ol>
-            </section>
-
-            <section class="experiment">
-                <h2 class="header">Bottom Lines</h2>
-                <ol>
-                    <li>
-                        <a href="https://github.com/muaz-khan/RTCMultiConnection">RTCMultiConnection.js</a> can be used for HD screen sharing; HD audio/video streaming; fastest file sharing; and writing entire skype-like app in the browser!
-                    </li>
-
-                    <li>
-                        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/screen-sharing">Screen.js</a> can be used for HD screen sharing; HD audio/video streaming; fastest file sharing!
-                    </li>
-                </ol>
-            </section>
+            <section class="experiment"><small id="send-message"></small></section>
 
         </article>
 
