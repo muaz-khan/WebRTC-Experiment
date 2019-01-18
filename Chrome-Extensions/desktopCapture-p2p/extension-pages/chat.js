@@ -25,6 +25,9 @@ function appendChatMessage(name, message, checkmark_id) {
         div.innerHTML = '<p><span class="name">' + name + ':</span></p><p>' + message + '</p>';
     }
     chatMessages.appendChild(div);
+
+    chatMessages.scrollTop = chatMessages.clientHeight;
+    chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.scrollTop;
 }
 
 port.onMessage.addListener(function(message) {

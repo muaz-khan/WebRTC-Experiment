@@ -167,6 +167,9 @@ function shareStreamUsingRTCMultiConnection(stream) {
 
     connection.onSocketDisconnect = function(event) {
         // alert('Connection to the server is closed.');
+        if(connection.getAllParticipants().length > 0) return;
+        
+        setDefaults();
         chrome.runtime.reload();
     };
 
@@ -174,6 +177,7 @@ function shareStreamUsingRTCMultiConnection(stream) {
         alert('Unable to connect to the server. Please try again.');
         
         setTimeout(function() {
+            setDefaults();
             chrome.runtime.reload();
         }, 1000);
     };

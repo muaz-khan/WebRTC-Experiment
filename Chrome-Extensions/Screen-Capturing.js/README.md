@@ -25,6 +25,34 @@ CDN link:
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 ```
 
+```javascript
+getScreenStream(function(screenStream) {
+    video.srcObject = screenStream;
+});
+
+function getScreenStream(callback) {
+    if (navigator.getDisplayMedia) {
+        navigator.getDisplayMedia({
+            video: true
+        }).then(screenStream => {
+            callback(screenStream);
+        });
+    } else if (navigator.mediaDevices.getDisplayMedia) {
+        navigator.mediaDevices.getDisplayMedia({
+            video: true
+        }).then(screenStream => {
+            callback(screenStream);
+        });
+    } else {
+        getScreenConstraints(function(error, screen_constraints) {
+            navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
+                callback(screenStream);
+            });
+        });
+    }
+}
+```
+
 # API
 
 ### `getScreenConstraints`

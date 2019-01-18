@@ -127,18 +127,14 @@ video {
 }
 
 #chat-container, #chat-container * {
-  -webkit-user-select: none;
-  -user-select: none;
-  -webkit-user-drag: none;
-  -user-drag: none;
-
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 #chat-messages {
   height: 335px;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   width: 300px;
 }
 
@@ -290,10 +286,6 @@ var video = document.getElementById('video');
 connection.onstream = function(e) {
     video.srcObject = e.stream;
     overlay.style.display = 'none';
-    
-    setTimeout(function() {
-        video.play();
-    }, 3000);
 };
 
 // if user left
@@ -333,6 +325,7 @@ connection.onPasswordMaxTriesOver = function(remoteUserId) {
 
 connection.onSocketDisconnect = function(event) {
     // alert('Connection to the server is closed.');
+    if(connection.getAllParticipants().length > 0) return;
     location.reload();
 };
 
@@ -399,6 +392,9 @@ function appendChatMessage(name, message, checkmark_id) {
         div.innerHTML = '<p><span class="name">' + name + ':</span></p><p>' + message + '</p>';
     }
     chatMessages.appendChild(div);
+
+    chatMessages.scrollTop = chatMessages.clientHeight;
+    chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.scrollTop;
 }
 
 connection.socketCustomEvent = params.s;
@@ -448,22 +444,14 @@ connection.onPeerStateChanged = function(event) {
         if(dontDuplicate[event.userid]) return;
         dontDuplicate[event.userid] = true;
 
-        if(DetectRTC.browser.name === 'Safari' || DetectRTC.browser.name === 'Edge') {
-            // todo: getStats for safari/edge?
-            return;
-        }
-
         var peer = connection.peers[event.userid].peer;
-
-        if(DetectRTC.browser.name === 'Firefox') {
-            getStats(peer, (connection.remoteStream || peer.getRemoteStreams()[0]).getTracks()[0], function(stats) {
-                onGettingWebRCStats(stats, event.userid);
-            }, 1000);
-            return;
-        }
 
         getStats(peer, function(stats) {
             onGettingWebRCStats(stats, event.userid);
+
+            if(video.paused) {
+                video.play();
+            }
         }, 1000);
 
         statsBar.style.display = 'block';
