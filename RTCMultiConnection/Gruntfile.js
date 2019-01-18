@@ -4,7 +4,7 @@ module.exports = function(grunt) {
     require('load-grunt-tasks')(grunt, {
         pattern: 'grunt-*',
         config: 'package.json',
-        scope: 'devDependencies'
+        scope: 'gruntDependencies'
     });
 
     var versionNumber = grunt.file.readJSON('package.json').version;

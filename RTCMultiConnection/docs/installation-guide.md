@@ -140,6 +140,20 @@ Commands to interact with `service ncustomAppName Start`:
 
 More info about `forever-service` [here](http://stackoverflow.com/a/36027516/552182).
 
+# Heroku
+
+If you are installing on heroku, please make sure to enable following config variables:
+
+1. `NODE_MODULES_CACHE:false`
+2. `NPM_CONFIG_PRODUCTION:false`
+3. `YARN_PRODUCTION:false`
+
+You can set above variables through heroku CLI as well:
+
+```sh
+heroku config:set NPM_CONFIG_PRODUCTION=false YARN_PRODUCTION=false NODE_MODULES_CACHE=false
+```
+
 # Other Documents
 
 1. [Getting Started guide for RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/getting-started.md)

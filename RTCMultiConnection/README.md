@@ -6,7 +6,15 @@
 
 [![npm](https://img.shields.io/npm/v/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![downloads](https://img.shields.io/npm/dm/rtcmulticonnection.svg)](https://npmjs.org/package/rtcmulticonnection) [![Build Status: Linux](https://travis-ci.org/muaz-khan/RTCMultiConnection.png?branch=master)](https://travis-ci.org/muaz-khan/RTCMultiConnection)
 
-## Install On Your Own Site
+## Getting Started Without Any Installation
+
+* https://www.rtcmulticonnection.org/docs/getting-started/
+
+## YouTube Channel
+
+* https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl
+
+## Install On Your Own Website
 
 * https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/installation-guide.md
 
@@ -22,59 +30,44 @@ git clone https://github.com/muaz-khan/RTCMultiConnection.git ./
 # install all required packages
 # you can optionally include --save-dev
 npm install
+
 node server --port=9001
 ```
 
-## Free socket.io servers
+## Socket.io Signaling Server
 
-```javascript
-// v3.4.7 or newer
-connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
-
-// v3.4.6 or older
-connection.socketURL = 'https://webrtcweb.com:9001/';
-```
-
-## Install ONLY socket.io server
-
-```sh
-npm install rtcmulticonnection-server
-node server --port=9001
-```
-
-For more info, please check:
+Signaling server has a separate repository:
 
 * https://github.com/muaz-khan/RTCMultiConnection-Server
 
-## YouTube videos
+## Integrate Inside Any Nodejs Application
 
-1. [Getting started guide / RTCMultiConnection](https://www.youtube.com/watch?v=jqtC7mSTCgk)
-2. [Setup custom socket.io server / RTCMultiConnection](https://www.youtube.com/watch?v=EtsiYEW_T8Y)
-3. [Write screen sharing applications / RTCMultiConnection](https://www.youtube.com/watch?v=nBUuMKtEeyU)
-4. [YouTube Playlist](https://www.youtube.com/playlist?list=PLPRQUXAnRydKdyun-vjKPMrySoow2N4tl)
-5. RTCMultiConnection-v2 (old) videos: https://vimeo.com/muazkh
+* https://github.com/muaz-khan/RTCMultiConnection-Server/wiki/Integrate-inside-nodejs-applications
 
-## [Docs/Tutorials](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/)
+## `Config.json` Explained
 
-1. [Getting Started guide for RTCMultiConnection](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/getting-started.md)
-2. [Installation Guide](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/installation-guide.md)
-3. [How to Use?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/how-to-use.md)
-4. [API Reference](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/api.md)
-5. [Upgrade from v2 to v3](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/upgrade.md)
-6. [How to write iOS/Android applications?](https://github.com/muaz-khan/RTCMultiConnection/tree/master/docs/ios-android.md)
-7. [Tips & Tricks](https://github.com/muaz-khan/RTCMultiConnection/blob/master/docs/tips-tricks.md)
+* https://github.com/muaz-khan/RTCMultiConnection-Server/wiki/config.json
 
-## iOS+Android Demo Apps
+## How to Enable HTTPs?
 
-* https://github.com/muaz-khan/cordova-mobile-apps
-* https://webrtcweb.com/cordova-apps/
+* https://github.com/muaz-khan/RTCMultiConnection-Server/wiki/How-to-Enable-HTTPs
 
-> Note: RTCMultiConnection supports Safari-11 and Edge.
+## Want to Contribute?
+
+RTCMultiConnection is using `Grunt` to compile javascript into `dist` directory:
+
+* https://github.com/muaz-khan/RTCMultiConnection/blob/master/CONTRIBUTING.md
 
 ## Wiki Pages
 
-* https://github.com/muaz-khan/RTCMultiConnection/wiki
-* https://github.com/muaz-khan/RTCMultiConnection-Server/wiki
+1. https://github.com/muaz-khan/RTCMultiConnection/wiki
+2. https://github.com/muaz-khan/RTCMultiConnection-Server/wiki
+
+## iOS+Android Mobile Apps
+
+ionic/cordova mobile apps has a separate repository:
+
+* https://github.com/muaz-khan/cordova-mobile-apps
 
 ## License
 

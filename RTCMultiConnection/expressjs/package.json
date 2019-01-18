@@ -1,0 +1,17 @@
+{
+  "name": "rtcmulticonnection-expressjs",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "latest"
+  },
+  "dependencies": {
+    "rtcmulticonnection-server": "latest",
+    "socket.io": "latest",
+    "express": "latest"
+  },
+  "analyze": false,
+  "preferGlobal": false
+}

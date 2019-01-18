@@ -1,22 +1,22 @@
-<!-- Demo version: 2019.01.14 -->
+<!-- Demo version: 2019.01.12 -->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
-  <title>Vuejs Video Conferencing using RTCMultiConnection</title>
+  <title>Video Conferencing using RTCMultiConnection</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <link rel="shortcut icon" href="/demos/logo.png">
-  <link rel="stylesheet" href="/demos/stylesheet.css">
-  <script src="/demos/menu.js"></script>
+  <link rel="shortcut icon" href="https://rtcmulticonnection.herokuapp.com:443/demos/logo.png">
+  <link rel="stylesheet" href="https://rtcmulticonnection.herokuapp.com:443/demos/stylesheet.css">
+  <script src="https://rtcmulticonnection.herokuapp.com:443/demos/menu.js"></script>
 </head>
 <body>
   <header>
-    <a class="logo" href="/demos/"><img src="/demos/logo.png" alt="RTCMultiConnection"></a>
-    <a href="/demos/" class="menu-explorer">Menu<img src="/demos/menu-icon.png" alt="Menu"></a>
+    <a class="logo" href="https://rtcmulticonnection.herokuapp.com:443/demos/"><img src="https://rtcmulticonnection.herokuapp.com:443/demos/logo.png" alt="RTCMultiConnection"></a>
+    <a href="https://rtcmulticonnection.herokuapp.com:443/demos/" class="menu-explorer">Menu<img src="https://rtcmulticonnection.herokuapp.com:443/demos/menu-icon.png" alt="Menu"></a>
     <nav>
       <li>
-        <a href="/demos/">Home</a>
+        <a href="https://rtcmulticonnection.herokuapp.com:443/demos/">Home</a>
       </li>
       <li>
         <a href="https://www.rtcmulticonnection.org/docs/getting-started/">Getting Started</a>
@@ -40,53 +40,71 @@
   </header>
 
   <h1>
-    Vuejs Video Conferencing using RTCMultiConnection
+    Video Conferencing using RTCMultiConnection
     <p class="no-mobile">
       Multi-user (many-to-many) video chat using mesh networking model.
     </p>
   </h1>
 
   <section class="make-center">
-    <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
-    <button id="open-room">Open Room</button>
-    <button id="join-room">Join Room</button>
-    <button id="open-or-join-room">Auto Open Or Join Room</button>
-
-    <div id="vue-app">
-      <todo-item
-          v-for="item in videosList"
-          v-bind:todo="item"
-          v-bind:key="item.id">
-      </todo-item>
+    <div>
+      <input type="text" id="room-id" value="abcdef" autocorrect=off autocapitalize=off size=20>
+      <button id="open-room">Open Room</button>
+      <button id="join-room">Join Room</button>
+      <button id="open-or-join-room">Auto Open Or Join Room</button>
     </div>
+
+    <div id="videos-container" style="margin: 20px 0;"></div>
 
     <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
   </section>
 
-<script src="/dist/RTCMultiConnection.min.js"></script>
-<script src="/node_modules/webrtc-adapter/out/adapter.js"></script>
+<script src="https://rtcmulticonnection.herokuapp.com:443/dist/RTCMultiConnection.min.js"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script>
 // ......................................................
 // .......................UI Code........................
 // ......................................................
 document.getElementById('open-room').onclick = function() {
     disableInputButtons();
-    connection.open(document.getElementById('room-id').value, function() {
-        showRoomURL(connection.sessionid);
+    connection.open(document.getElementById('room-id').value, function(isRoomOpened, roomid, error) {
+        if(isRoomOpened === true) {
+          showRoomURL(connection.sessionid);
+        }
+        else {
+          disableInputButtons(true);
+          if(error === 'Room not available') {
+            alert('Someone already created this room. Please either join or create a separate room.');
+            return;
+          }
+          alert(error);
+        }
     });
 };
 
 document.getElementById('join-room').onclick = function() {
     disableInputButtons();
-    connection.join(document.getElementById('room-id').value);
+    connection.join(document.getElementById('room-id').value, function(isJoinedRoom, roomid, error) {
+      if (error) {
+            disableInputButtons(true);
+            if(error === 'Room not available') {
+              alert('This room does not exist. Please either create it or wait for moderator to enter in the room.');
+              return;
+            }
+            alert(error);
+        }
+    });
 };
 
 document.getElementById('open-or-join-room').onclick = function() {
     disableInputButtons();
-    connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExist, roomid) {
-        if (isRoomExist === false && connection.isInitiator === true) {
+    connection.openOrJoin(document.getElementById('room-id').value, function(isRoomExist, roomid, error) {
+        if(error) {
+          disableInputButtons(true);
+          alert(error);
+        }
+        else if (connection.isInitiator === true) {
             // if room doesn't exist, it means that current user will create the room
             showRoomURL(roomid);
         }
@@ -117,48 +135,58 @@ connection.sdpConstraints.mandatory = {
     OfferToReceiveVideo: true
 };
 
-Vue.component('todo-item', {
-  props: ['todo'],
-  template: '<video controls autoplay playsinline :srcObject.prop="todo.srcObject" :muted="todo.muted" :id="todo.id"></video>'
-})
-
-var vueApp = new Vue({
-  el: '#vue-app',
-  data: {
-    videosList: []
-  }
-})
-
-connection.autoCreateMediaElement = false;
+connection.videosContainer = document.getElementById('videos-container');
 connection.onstream = function(event) {
-    vueApp.videosList.push({
-        id: event.streamid,
-        srcObject: event.stream,
-        muted: event.type === 'local'
-    });
+    var existing = document.getElementById(event.streamid);
+    if(existing && existing.parentNode) {
+      existing.parentNode.removeChild(existing);
+    }
+
+    connection.videosContainer.appendChild(event.mediaElement);
+
+    if(event.type === 'local') {
+      connection.socket.on('disconnect', function() {
+        if(!connection.getAllParticipants().length) {
+          location.reload();
+        }
+      });
+    }
 };
 
 connection.onstreamended = function(event) {
-    var newList = [];
-    vueApp.videosList.forEach(function(item) {
-        if(item.id !== event.streamid) {
-            newList.push(item);
+    var mediaElement = document.getElementById(event.streamid);
+    if (mediaElement) {
+        mediaElement.parentNode.removeChild(mediaElement);
+    }
+};
+
+connection.onMediaError = function(e) {
+    if (e.message === 'Concurrent mic process limit.') {
+        if (DetectRTC.audioInputDevices.length <= 1) {
+            alert('Please select external microphone. Check github issue number 483.');
+            return;
         }
-    });
-    vueApp.videosList = newList;
+
+        var secondaryMic = DetectRTC.audioInputDevices[1].deviceId;
+        connection.mediaConstraints.audio = {
+            deviceId: secondaryMic
+        };
+
+        connection.join(connection.sessionid);
+    }
 };
 
 // ..................................
 // ALL below scripts are redundant!!!
 // ..................................
 
-function disableInputButtons() {
+function disableInputButtons(enable) {
     document.getElementById('room-id').onkeyup();
 
-    document.getElementById('open-or-join-room').disabled = true;
-    document.getElementById('open-room').disabled = true;
-    document.getElementById('join-room').disabled = true;
-    document.getElementById('room-id').disabled = true;
+    document.getElementById('open-or-join-room').disabled = !enable;
+    document.getElementById('open-room').disabled = !enable;
+    document.getElementById('join-room').disabled = !enable;
+    document.getElementById('room-id').disabled = !enable;
 }
 
 // ......................................................
@@ -200,8 +228,10 @@ if (localStorage.getItem(connection.socketMessageEvent)) {
 } else {
     roomid = connection.token();
 }
-document.getElementById('room-id').value = roomid;
-document.getElementById('room-id').onkeyup = function() {
+
+var txtRoomId = document.getElementById('room-id');
+txtRoomId.value = roomid;
+txtRoomId.onkeyup = txtRoomId.oninput = txtRoomId.onpaste = function() {
     localStorage.setItem(connection.socketMessageEvent, document.getElementById('room-id').value);
 };
 
@@ -254,9 +284,15 @@ if(navigator.connection &&
     </p>
 
     <p>
-      You can install following Android app and join meetings from this demo:
+      cordova version of android play-store link:
 
       <a href="https://play.google.com/store/apps/details?id=rmc3.videoconference" target="_blank">https://play.google.com/store/apps/details?id=rmc3.videoconference</a>
+    </p>
+
+    <p>
+      ionic version of android play-store link:
+
+      <a href="https://play.google.com/store/apps/details?id=com.ionic.conference" target="_blank">https://play.google.com/store/apps/details?id=com.ionic.conference</a>
     </p>
 
     <p>
