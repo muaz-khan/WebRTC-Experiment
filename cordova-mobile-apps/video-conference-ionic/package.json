@@ -11,8 +11,6 @@
     "lint": "ionic-app-scripts lint"
   },
   "dependencies": {
-    "rtcmulticonnection": "latest",
-    "socket.io": "latest",
     "@angular/animations": "5.2.11",
     "@angular/common": "5.2.11",
     "@angular/compiler": "5.2.11",
@@ -28,16 +26,15 @@
     "@ionic-native/status-bar": "~4.17.0",
     "@ionic/storage": "2.2.0",
     "cordova-android": "^7.1.4",
-    "cordova-plugin-android-permissions": "^1.0.0",
-    "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-ionic-keyboard": "^2.1.3",
     "cordova-plugin-ionic-webview": "^2.3.1",
     "cordova-plugin-splashscreen": "^5.0.2",
-    "cordova-plugin-statusbar": "^2.4.2",
     "cordova-plugin-whitelist": "^1.3.3",
     "ionic-angular": "3.9.2",
     "ionicons": "3.0.0",
+    "rtcmulticonnection": "^3.6.8",
     "rxjs": "5.5.11",
+    "socket.io": "latest",
     "sw-toolbox": "3.6.0",
     "zone.js": "0.8.26"
   },
@@ -49,14 +46,11 @@
   "cordova": {
     "plugins": {
       "cordova-plugin-whitelist": {},
-      "cordova-plugin-statusbar": {},
-      "cordova-plugin-device": {},
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-ionic-webview": {
         "ANDROID_SUPPORT_ANNOTATIONS_VERSION": "27.+"
       },
-      "cordova-plugin-ionic-keyboard": {},
-      "cordova-plugin-android-permissions": {}
+      "cordova-plugin-ionic-keyboard": {}
     },
     "platforms": [
       "android"

@@ -1,4 +1,4 @@
-# Audio Conferencing / [online demo](https://rtcmulticonnection.herokuapp.com/demos/Audio-Conferencing.html) / [install from appstore](https://play.google.com/store/apps/details?id=rmc3.audioconference)
+# Audio Conferencing / [online demo](https://rtcmulticonnection.herokuapp.com/demos/Audio-Conferencing.html) / [install from Google PlayStore](https://play.google.com/store/apps/details?id=rmc3.audioconference)
 
 APK files and other source codes can be found here:
 

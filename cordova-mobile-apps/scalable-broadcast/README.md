@@ -1,4 +1,4 @@
-# Scalable Broadcast / [online demo](https://rtcmulticonnection.herokuapp.com/demos/Scalable-Broadcast.html) / [install from appstore](https://play.google.com/store/apps/details?id=com.webrtc.scalablebroadcast)
+# Scalable Broadcast / [online demo](https://rtcmulticonnection.herokuapp.com/demos/Scalable-Broadcast.html) / [install from Google PlayStore](https://play.google.com/store/apps/details?id=com.webrtc.scalablebroadcast)
 
 APK files and other source codes can be found here:
 

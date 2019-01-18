@@ -1,4 +1,6 @@
-# ionic Video Conferencing / [online demo](https://rtcmulticonnection.herokuapp.com/demos/Video-Conferencing.html) / [install from appstore](https://play.google.com/store/apps/details?id=com.ionic.conference)
+# ionic Video Conferencing
+
+# [Online Demo](https://rtcmulticonnection.herokuapp.com/demos/Video-Conferencing.html) / [Install from Google PlayStore](https://play.google.com/store/apps/details?id=com.ionic.conference)
 
 | File        | Explanation |
 | ------------- |-------------|
@@ -26,17 +28,14 @@ cordova platform add android@latest
 cordova platform add ios@latest
 ```
 
-# Third Step, Install Plugins
-
-Install all plugins as you can see in the `config.xml`.
-
-# Fourth and Last Step, Build APK
+# Third and Last Step, Build APK
 
 ```sh
-ionic cordova build android
-
 # run a localhost server
 ionic serve
+
+# or compile APK
+ionic cordova build android
 ```
 
 # License

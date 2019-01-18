@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.yourdomain" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Application Name</name>
+<widget id="rmc3.videoconference" version="3.1.5" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Video Conferencing</name>
     <icon src="www/img/icon.png" />
-    <description>Application Description</description>
-    <author email="author@email.com" href="https://yourdomain.com/">Author Name</author>
+    <description>Multi-user (many-to-many) video chat using mesh networking model.</description>
+    <author email="muazkh@gmail.com" href="https://MuazKhan.com/">Muaz khan</author>
     <content src="index.html" />
     <allow-navigation href="*" />
     <allow-intent href="*" />
@@ -44,5 +44,6 @@
     <plugin name="cordova-plugin-iosrtc" spec="^4.4.0" />
     <plugin name="cordova-plugin-android-permissions" spec="^1.0.0" />
     <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
+    <plugin name="cordova-plugin-whitelist" spec="^1.3.2" />
     <engine name="android" spec="^6.3.0" />
 </widget>

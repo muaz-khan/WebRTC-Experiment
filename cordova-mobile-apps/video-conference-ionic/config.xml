@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.ionic.conference" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.ionic.conference" version="0.0.2" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>ionic-conferencing</name>
     <description>RTCMultiConnection ionic conferencing app.</description>
     <author email="muazkh@gmail.com" href="https://muazkhan.com">Muaz Khan</author>
@@ -83,11 +83,8 @@
         <splash height="2732" src="resources/ios/splash/Default@2x~universal~anyany.png" width="2732" />
     </platform>
     <plugin name="cordova-plugin-whitelist" spec="latest" />
-    <plugin name="cordova-plugin-statusbar" spec="latest" />
     <plugin name="cordova-plugin-splashscreen" spec="latest" />
     <plugin name="cordova-plugin-ionic-webview" spec="latest" />
     <plugin name="cordova-plugin-ionic-keyboard" spec="latest" />
-    <plugin name="cordova-plugin-device" spec="latest" />
-    <plugin name="cordova-plugin-android-permissions" spec="latest" />
     <engine name="android" spec="^7.1.4" />
 </widget>

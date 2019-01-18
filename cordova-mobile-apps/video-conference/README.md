@@ -1,4 +1,4 @@
-# Video Conferencing / [online demo](https://rtcmulticonnection.herokuapp.com/demos/Video-Conferencing.html) / [install from appstore](https://play.google.com/store/apps/details?id=rmc3.videoconference)
+# Video Conferencing / [online demo](https://rtcmulticonnection.herokuapp.com/demos/Video-Conferencing.html) / [install from Google PlayStore](https://play.google.com/store/apps/details?id=rmc3.videoconference)
 
 APK files and other source codes can be found here:
 

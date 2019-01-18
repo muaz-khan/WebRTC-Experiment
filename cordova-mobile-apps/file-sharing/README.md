@@ -1,4 +1,4 @@
-# File Sharing / [online demo](https://webrtcweb.com/fs) / [install from appstore](https://play.google.com/store/apps/details?id=com.webrtc.experiment)
+# File Sharing / [online demo](https://webrtcweb.com/fs) / [install from Google PlayStore](https://play.google.com/store/apps/details?id=com.webrtc.experiment)
 
 APK files and other source codes can be found here:
 
