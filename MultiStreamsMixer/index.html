@@ -1,4 +1,4 @@
-<script>window.demoVersion = '2018.10.26';</script>
+<script>window.demoVersion = '2019.01.14';</script>
 
 <!--
 > Muaz Khan     - www.MuazKhan.com
@@ -135,43 +135,61 @@
                 }
             };
 
-            function getMixedCameraAndScreen() {
-                getScreenId(function (error, sourceId, screen_constraints) {
-                    navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
-                        navigator.mediaDevices.getUserMedia({video: true}).then(function(cameraStream) {
-                            screenStream.fullcanvas = true;
-                            screenStream.width = screen.width; // or 3840
-                            screenStream.height = screen.height; // or 2160 
+            function afterScreenCaptured(screenStream) {
+                navigator.mediaDevices.getUserMedia({
+                    video: true
+                }).then(function(cameraStream) {
+                    screenStream.fullcanvas = true;
+                    screenStream.width = screen.width; // or 3840
+                    screenStream.height = screen.height; // or 2160 
 
-                            cameraStream.width = parseInt((30 / 100) * screenStream.width);
-                            cameraStream.height = parseInt((30 / 100) * screenStream.height);
-                            cameraStream.top = screenStream.height - cameraStream.height;
-                            cameraStream.left = screenStream.width - cameraStream.width;
+                    cameraStream.width = parseInt((30 / 100) * screenStream.width);
+                    cameraStream.height = parseInt((30 / 100) * screenStream.height);
+                    cameraStream.top = screenStream.height - cameraStream.height;
+                    cameraStream.left = screenStream.width - cameraStream.width;
 
-                            fullCanvasRenderHandler(screenStream, 'Your Screen!');
-                            normalVideoRenderHandler(cameraStream, 'Your Camera!');
+                    fullCanvasRenderHandler(screenStream, 'Your Screen!');
+                    normalVideoRenderHandler(cameraStream, 'Your Camera!');
 
-                            var mixer = new MultiStreamsMixer([screenStream, cameraStream]);
+                    var mixer = new MultiStreamsMixer([screenStream, cameraStream]);
 
-                            mixer.frameInterval = 1;
-                            mixer.startDrawingFrames();
+                    mixer.frameInterval = 1;
+                    mixer.startDrawingFrames();
 
-                            videoPreview.srcObject = mixer.getMixedStream();
+                    videoPreview.srcObject = mixer.getMixedStream();
 
-                            updateMediaHTML('Mixed Screen+Camera!');
+                    updateMediaHTML('Mixed Screen+Camera!');
 
-                            addStreamStopListener(screenStream, function() {
-                                mixer.releaseStreams();
-                                videoPreview.pause();
-                                videoPreview.src = null;
+                    addStreamStopListener(screenStream, function() {
+                        mixer.releaseStreams();
+                        videoPreview.pause();
+                        videoPreview.src = null;
 
-                                cameraStream.getTracks().forEach(function(track) {
-                                    track.stop();
-                                });
-                            });
+                        cameraStream.getTracks().forEach(function(track) {
+                            track.stop();
                         });
                     });
                 });
+            }
+
+            function getMixedCameraAndScreen() {
+                if(navigator.getDisplayMedia) {
+                    navigator.getDisplayMedia({video: true}).then(screenStream => {
+                        afterScreenCaptured(screenStream);
+                    });
+                }
+                else if(navigator.mediaDevices.getDisplayMedia) {
+                    navigator.mediaDevices.getDisplayMedia({video: true}).then(screenStream => {
+                        afterScreenCaptured(screenStream);
+                    });
+                }
+                else {
+                    getScreenId(function (error, sourceId, screen_constraints) {
+                        navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
+                           afterScreenCaptured(screenStream);
+                        });
+                    });
+                }
             }
 
             function getMixedMultipleCameras(isCustomized) {
@@ -332,23 +350,22 @@
                 });
             }
 
+            // via: https://www.webrtc-experiment.com/webrtcpedia/
             function addStreamStopListener(stream, callback) {
-                var streamEndedEvent = 'ended';
-                if ('oninactive' in stream) {
-                    streamEndedEvent = 'inactive';
-                }
-                stream.addEventListener(streamEndedEvent, function() {
+                stream.addEventListener('ended', function() {
                     callback();
                     callback = function() {};
                 }, false);
-                stream.getAudioTracks().forEach(function(track) {
-                    track.addEventListener(streamEndedEvent, function() {
+                stream.addEventListener('inactive', function() {
+                    callback();
+                    callback = function() {};
+                }, false);
+                stream.getTracks().forEach(function(track) {
+                    track.addEventListener('ended', function() {
                         callback();
                         callback = function() {};
                     }, false);
-                });
-                stream.getVideoTracks().forEach(function(track) {
-                    track.addEventListener(streamEndedEvent, function() {
+                    track.addEventListener('inactive', function() {
                         callback();
                         callback = function() {};
                     }, false);
