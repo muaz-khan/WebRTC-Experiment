@@ -14,7 +14,7 @@ getScreenId(function (error, sourceId, screen_constraints) {
     // error    == null || 'permission-denied' || 'not-installed' || 'installed-disabled' || 'not-chrome'
     // sourceId == null || 'string' || 'firefox'
     
-    if(microsoftEdge) {
+    if(navigator.getDisplayMedia) {
         navigator.getDisplayMedia(screen_constraints).then(onSuccess, onFailure);
     }
     else {

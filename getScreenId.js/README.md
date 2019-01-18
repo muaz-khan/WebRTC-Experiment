@@ -3,6 +3,34 @@
 * Live Demo: https://www.webrtc-experiment.com/getScreenId/
 * YouTube video: https://www.youtube.com/watch?v=UHrsfe9RYAQ
 
+```javascript
+getScreenStream(function(screenStream) {
+    video.srcObject = screenStream;
+});
+
+function getScreenStream(callback) {
+    if (navigator.getDisplayMedia) {
+        navigator.getDisplayMedia({
+            video: true
+        }).then(screenStream => {
+            callback(screenStream);
+        });
+    } else if (navigator.mediaDevices.getDisplayMedia) {
+        navigator.mediaDevices.getDisplayMedia({
+            video: true
+        }).then(screenStream => {
+            callback(screenStream);
+        });
+    } else {
+        getScreenId(function(error, sourceId, screen_constraints) {
+            navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
+                callback(screenStream);
+            });
+        });
+    }
+}
+```
+
 [![npm](https://img.shields.io/npm/v/webrtc-screen-capturing.svg)](https://npmjs.org/package/webrtc-screen-capturing) [![downloads](https://img.shields.io/npm/dm/webrtc-screen-capturing.svg)](https://npmjs.org/package/webrtc-screen-capturing)
 
 1. Install this: https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk
