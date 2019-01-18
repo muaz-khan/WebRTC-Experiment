@@ -50,6 +50,7 @@
 
         <!-- script used for audio/video/gif recording -->
         <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"> </script>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     </head>
 
     <body>
@@ -116,7 +117,7 @@
                             audio: true,
                             video: true
                         }, function(stream) {
-                            videoPreview.src = window.URL.createObjectURL(stream);
+                            videoPreview.srcObject = stream;
                             videoPreview.play();
 
                             recordAudio = RecordRTC(stream, {

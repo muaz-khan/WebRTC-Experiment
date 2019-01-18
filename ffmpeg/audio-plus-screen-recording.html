@@ -50,8 +50,8 @@
 
         <!-- script used for audio/video/gif recording -->
         <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"> </script>
-
         <script src="https://cdn.webrtc-experiment.com/getScreenId.js"></script>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     </head>
 
     <body>
@@ -161,7 +161,7 @@
                         videoPreview.style.height = '100%';
                         videoPreview.style.zIndex = 9999999999999;
 
-                        videoPreview.src = window.URL.createObjectURL(screenStream);
+                            videoPreview.srcObject = screenStream;
                             videoPreview.play();
 
                             recordAudio = RecordRTC(audioStream, {

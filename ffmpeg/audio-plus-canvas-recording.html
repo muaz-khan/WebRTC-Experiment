@@ -86,6 +86,7 @@
 
 <script src="https://cdn.webrtc-experiment.com/screenshot.js"> </script>
 <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"> </script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
 <script>
 var elementToShare = document.getElementById('elementToShare');
@@ -135,7 +136,7 @@ document.getElementById('start').onclick = function() {
         var audio = document.createElement('audio');
         audio.muted = true;
         audio.volume = 0;
-        audio.src = URL.createObjectURL(stream);
+        audio.srcObject = stream;
 
         recordAudio = RecordRTC(stream, {
             type: 'audio',
