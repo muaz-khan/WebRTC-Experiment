@@ -1,0 +1,263 @@
+﻿
+<style>
+    html, body {
+        margin: 0!important;
+        padding: 0!important;
+        text-align: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        font-size: 1em;
+    }
+
+    video {
+        width: 40%;
+        border-radius: 5px;
+        border: 1px solid black;
+    }
+</style>
+
+<title>getDisplayMedia demo</title>
+<h1>getDisplayMedia demo</h1>
+<p>Purpose of this demo is to test all getDisplayMedia API functionalities.</p>
+
+<br>
+
+aspectRatio: <select id="aspectRatio">
+    <option value="default">Default</option>
+    <option value="1.77">16:9</option>
+    <option value="1.33">4:3</option>
+    <option value="2.35">21:9</option>
+    <option value="1.4">14:10</option>
+    <option value="1.9">19:10</option>
+</select>
+
+frameRate: <select id="frameRate">
+    <option value="default">Default</option>
+    <option>30</option>
+    <option>25</option>
+    <option>15</option>
+    <option>5</option>
+</select>
+
+resolutions: <select id="resolutions">
+    <option value="default">Default</option>
+    <option value="fit-screen">Fit Screen</option>
+    <option>4K</option>
+    <option>1080p</option>
+    <option>720p</option>
+</select>
+
+cursor: <select id="cursor">
+    <option value="default">Default</option>
+    <option>always</option>
+    <option>never</option>
+    <option>motion</option>
+</select>
+
+displaySurface: <select id="displaySurface">
+    <option value="default">Default</option>
+    <option>monitor</option>
+    <option>window</option>
+    <option>application</option>
+    <option>browser</option>
+</select>
+
+logicalSurface: <select id="logicalSurface">
+    <option value="default">Default</option>
+    <option>true</option>
+</select>
+
+<br><br>
+
+<button id="btn-test-getDisplayMedia">Test getDisplayMedia API</button>
+
+<hr>
+<video controls autoplay playsinline muted="false" volume=0></video>
+
+<br>
+
+<textarea id="settings" style="width: 100%; height: 218px; display: none;"></textarea>
+
+<br>
+
+<textarea id="capabilities" style="width: 100%; height: 354px; display: none;"></textarea>
+
+<br>
+
+<footer style="margin-top: 20px; text-align: left;">
+    <p style="padding: 5px 10px;"><b>Hints:</b> Are you using Chrome version 71? Please enable "chrome://flags/#enable-experimental-web-platform-features"</p>
+    <p style="padding: 5px 10px;"><b>Note:</b> Currently none of the dropdowns features are available on Chrome. We are forced to pass {video:true} rather than above values.</p>
+    <p style="padding: 5px 10px;"><b>Browser support:</b> Edge and Chrome &gt= 71 <small>and possibly Safari latest preview.</small></p>
+    <p style="padding: 5px 10px;"><b>How to use?</b></p>
+<pre style="padding: 5px 10px;">
+var displayMediaStreamConstraints = {
+    video: true // currently you need to set {true} on Chrome
+};
+
+if (navigator.mediaDevices.getDisplayMedia) {
+    navigator.mediaDevices.getDisplayMedia(displayMediaStreamConstraints).then(success).catch(error);
+} else {
+    navigator.getDisplayMedia(displayMediaStreamConstraints).then(success).catch(error);
+}
+</pre>
+    <p style="padding: 5px 10px;">Spec: <a href="https://w3c.github.io/mediacapture-screen-share/" target="_blank">https://w3c.github.io/mediacapture-screen-share/</a></p>
+    <div><small id="send-message"></small></div>
+</footer>
+
+<script>
+var video            = document.querySelector('video');
+var button           = document.querySelector('#btn-test-getDisplayMedia');
+var textarea         = document.querySelector('#capabilities');
+var settings         = document.querySelector('#settings');
+var aspectRatio      = document.querySelector('#aspectRatio');
+var frameRate        = document.querySelector('#frameRate');
+var resolutions      = document.querySelector('#resolutions');
+var cursor           = document.querySelector('#cursor');
+var displaySurface   = document.querySelector('#displaySurface');
+var logicalSurface   = document.querySelector('#logicalSurface');
+// var videoKind        = document.querySelector('#videoKind');
+
+button.onclick = function() {
+    this.disabled = true;
+    
+    invokeGetDisplayMedia(function(screen) {
+        addStreamStopListener(screen, function() {
+            location.reload();
+        });
+        
+        video.srcObject = screen;
+
+        var _capabilities = screen.getTracks()[0].getCapabilities();
+        capabilities.value = 'capabilities:\n\n' + JSON.stringify(_capabilities, null, '\t');
+        capabilities.style.display = '';
+
+        var _settings = screen.getTracks()[0].getSettings();
+        settings.value = 'settings:\n\n' + JSON.stringify(_settings, null, '\t');
+        settings.style.display = '';
+    }, function(e) {
+        button.disabled = false;
+
+        var error = {
+            name: e.name || 'UnKnown',
+            message: e.message || 'UnKnown',
+            stack: e.stack || 'UnKnown'
+        };
+
+        if(error.name === 'PermissionDeniedError') {
+            if(location.protocol !== 'https:') {
+                error.message = 'Please use HTTPs.';
+                error.stack   = 'HTTPs is required.';
+            }
+        }
+
+        console.error(error.name);
+        console.error(error.message);
+        console.error(error.stack);
+
+        alert('Unable to capture your screen.\n\n' + error.name + '\n\n' + error.message + '\n\n' + error.stack);
+    });
+};
+
+if(!navigator.getDisplayMedia && !navigator.mediaDevices.getDisplayMedia) {
+    var error = 'Your browser does NOT supports getDisplayMedia API.';
+    document.querySelector('h1').innerHTML = error;
+    document.querySelector('h1').style.color = 'red';
+
+    document.querySelector('video').style.display = 'none';
+    button.style.display = 'none';
+    throw new Error(error);
+}
+
+function invokeGetDisplayMedia(success, error) {
+    var videoConstraints = {};
+
+    if(aspectRatio.value !== 'default') {
+        videoConstraints.aspectRatio = aspectRatio.value;
+    }
+
+    if(frameRate.value !== 'default') {
+        videoConstraints.frameRate = frameRate.value;
+    }
+
+    if(cursor.value !== 'default') {
+        videoConstraints.cursor = cursor.value;
+    }
+
+    if(displaySurface.value !== 'default') {
+        videoConstraints.displaySurface = displaySurface.value;
+    }
+
+    if(logicalSurface.value !== 'default') {
+        videoConstraints.logicalSurface = true;
+    }
+
+    if(resolutions.value !== 'default') {
+        if (resolutions.value === 'fit-screen') {
+            videoConstraints.width = screen.width;
+            videoConstraints.height = screen.height;
+        }
+
+        if (resolutions.value === '4K') {
+            videoConstraints.width = 3840;
+            videoConstraints.height = 2160;
+        }
+
+        if (resolutions.value === '1080p') {
+            videoConstraints.width = 1920;
+            videoConstraints.height = 1080;
+        }
+
+        if (resolutions.value === '720p') {
+            videoConstraints.width = 1280;
+            videoConstraints.height = 720;
+        }
+
+        if (resolutions.value === '480p') {
+            videoConstraints.width = 853;
+            videoConstraints.height = 480;
+        }
+
+        if (resolutions.value === '360p') {
+            videoConstraints.width = 640;
+            videoConstraints.height = 360;
+        }
+    }
+
+    if(!Object.keys(videoConstraints).length) {
+        videoConstraints = true;
+    }
+
+    var displayMediaStreamConstraints = {
+        video: videoConstraints
+    };
+
+    if(navigator.mediaDevices.getDisplayMedia) {
+        navigator.mediaDevices.getDisplayMedia(displayMediaStreamConstraints).then(success).catch(error);
+    }
+    else {
+        navigator.getDisplayMedia(displayMediaStreamConstraints).then(success).catch(error);
+    }
+}
+
+function addStreamStopListener(stream, callback) {
+    stream.addEventListener('ended', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.addEventListener('inactive', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.getTracks().forEach(function(track) {
+        track.addEventListener('ended', function() {
+            callback();
+            callback = function() {};
+        }, false);
+        track.addEventListener('inactive', function() {
+            callback();
+            callback = function() {};
+        }, false);
+    });
+}
+</script>
+
+<script src="https://cdn.webrtc-experiment.com/common.js"></script>
